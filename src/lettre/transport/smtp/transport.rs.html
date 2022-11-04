@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/transport.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transport.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/transport.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transport.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -254,259 +254,259 @@
 <span id="252">252</span>
 <span id="253">253</span>
 <span id="254">254</span>
-</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+</span><span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::pool::sync_impl::Pool</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::PoolConfig</span>;
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ClientId</span>, <span class="ident">Credentials</span>, <span class="ident">Error</span>, <span class="ident">Mechanism</span>, <span class="ident">Response</span>, <span class="ident">SmtpConnection</span>, <span class="ident">SmtpInfo</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Tls</span>, <span class="ident">TlsParameters</span>, <span class="ident">SUBMISSIONS_PORT</span>, <span class="ident">SUBMISSION_PORT</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">address::Envelope</span>, <span class="ident">Transport</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">super</span>::pool::sync_impl::Pool;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">super</span>::PoolConfig;
+<span class="kw">use super</span>::{ClientId, Credentials, Error, Mechanism, Response, SmtpConnection, SmtpInfo};
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+</span><span class="kw">use super</span>::{Tls, TlsParameters, SUBMISSIONS_PORT, SUBMISSION_PORT};
+<span class="kw">use crate</span>::{address::Envelope, Transport};
 
-<span class="doccomment">/// Sends emails using the SMTP protocol</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;smtp-transport&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SmtpTransport</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-    <span class="ident">inner</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>))]</span>
-    <span class="ident">inner</span>: <span class="ident">SmtpClient</span>,
+<span class="doccomment">/// Sends emails using the SMTP protocol
+</span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;smtp-transport&quot;</span>)))]
+#[derive(Clone)]
+</span><span class="kw">pub struct </span>SmtpTransport {
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+    </span>inner: Arc&lt;Pool&gt;,
+    <span class="attribute">#[cfg(not(feature = <span class="string">&quot;pool&quot;</span>))]
+    </span>inner: SmtpClient,
 }
 
-<span class="kw">impl</span> <span class="ident">Transport</span> <span class="kw">for</span> <span class="ident">SmtpTransport</span> {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="kw">impl </span>Transport <span class="kw">for </span>SmtpTransport {
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= Response;
+    <span class="kw">type </span>Error = Error;
 
-    <span class="doccomment">/// Sends an email</span>
-    <span class="kw">fn</span> <span class="ident">send_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">envelope</span>: <span class="kw-2">&amp;</span><span class="ident">Envelope</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">connection</span>()<span class="question-mark">?</span>;
+    <span class="doccomment">/// Sends an email
+    </span><span class="kw">fn </span>send_raw(<span class="kw-2">&amp;</span><span class="self">self</span>, envelope: <span class="kw-2">&amp;</span>Envelope, email: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = <span class="self">self</span>.inner.connection()<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">send</span>(<span class="ident">envelope</span>, <span class="ident">email</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>result = conn.send(envelope, email)<span class="question-mark">?</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>))]</span>
-        <span class="ident">conn</span>.<span class="ident">quit</span>()<span class="question-mark">?</span>;
+        <span class="attribute">#[cfg(not(feature = <span class="string">&quot;pool&quot;</span>))]
+        </span>conn.quit()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+        <span class="prelude-val">Ok</span>(result)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SmtpTransport</span> {
-    <span class="doccomment">/// Simple and secure transport, using TLS connections to communicate with the SMTP server</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The right option for most SMTP servers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Creates an encrypted transport over submissions port, using the provided domain</span>
-    <span class="doccomment">/// to validate TLS certificates.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">relay</span>(<span class="ident">relay</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SmtpTransportBuilder</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">tls_parameters</span> <span class="op">=</span> <span class="ident">TlsParameters::new</span>(<span class="ident">relay</span>.<span class="ident">into</span>())<span class="question-mark">?</span>;
+<span class="kw">impl </span>SmtpTransport {
+    <span class="doccomment">/// Simple and secure transport, using TLS connections to communicate with the SMTP server
+    ///
+    /// The right option for most SMTP servers.
+    ///
+    /// Creates an encrypted transport over submissions port, using the provided domain
+    /// to validate TLS certificates.
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span><span class="kw">pub fn </span>relay(relay: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;SmtpTransportBuilder, Error&gt; {
+        <span class="kw">let </span>tls_parameters = TlsParameters::new(relay.into())<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::builder_dangerous</span>(<span class="ident">relay</span>)
-            .<span class="ident">port</span>(<span class="ident">SUBMISSIONS_PORT</span>)
-            .<span class="ident">tls</span>(<span class="ident">Tls::Wrapper</span>(<span class="ident">tls_parameters</span>)))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::builder_dangerous(relay)
+            .port(SUBMISSIONS_PORT)
+            .tls(Tls::Wrapper(tls_parameters)))
     }
 
-    <span class="doccomment">/// Simple an secure transport, using STARTTLS to obtain encrypted connections</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Alternative to [`SmtpTransport::relay`](#method.relay), for SMTP servers</span>
-    <span class="doccomment">/// that don&#39;t take SMTPS connections.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Creates an encrypted transport over submissions port, by first connecting using</span>
-    <span class="doccomment">/// an unencrypted connection and then upgrading it with STARTTLS. The provided</span>
-    <span class="doccomment">/// domain is used to validate TLS certificates.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// An error is returned if the connection can&#39;t be upgraded. No credentials</span>
-    <span class="doccomment">/// or emails will be sent to the server, protecting from downgrade attacks.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">starttls_relay</span>(<span class="ident">relay</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SmtpTransportBuilder</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">tls_parameters</span> <span class="op">=</span> <span class="ident">TlsParameters::new</span>(<span class="ident">relay</span>.<span class="ident">into</span>())<span class="question-mark">?</span>;
+    <span class="doccomment">/// Simple an secure transport, using STARTTLS to obtain encrypted connections
+    ///
+    /// Alternative to [`SmtpTransport::relay`](#method.relay), for SMTP servers
+    /// that don&#39;t take SMTPS connections.
+    ///
+    /// Creates an encrypted transport over submissions port, by first connecting using
+    /// an unencrypted connection and then upgrading it with STARTTLS. The provided
+    /// domain is used to validate TLS certificates.
+    ///
+    /// An error is returned if the connection can&#39;t be upgraded. No credentials
+    /// or emails will be sent to the server, protecting from downgrade attacks.
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span><span class="kw">pub fn </span>starttls_relay(relay: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;SmtpTransportBuilder, Error&gt; {
+        <span class="kw">let </span>tls_parameters = TlsParameters::new(relay.into())<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::builder_dangerous</span>(<span class="ident">relay</span>)
-            .<span class="ident">port</span>(<span class="ident">SUBMISSION_PORT</span>)
-            .<span class="ident">tls</span>(<span class="ident">Tls::Required</span>(<span class="ident">tls_parameters</span>)))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::builder_dangerous(relay)
+            .port(SUBMISSION_PORT)
+            .tls(Tls::Required(tls_parameters)))
     }
 
-    <span class="doccomment">/// Creates a new local SMTP client to port 25</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for local unencrypted relay (typical local email daemon that will handle relaying)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unencrypted_localhost</span>() -&gt; <span class="ident">SmtpTransport</span> {
-        <span class="ident"><span class="self">Self</span>::builder_dangerous</span>(<span class="string">&quot;localhost&quot;</span>).<span class="ident">build</span>()
+    <span class="doccomment">/// Creates a new local SMTP client to port 25
+    ///
+    /// Shortcut for local unencrypted relay (typical local email daemon that will handle relaying)
+    </span><span class="kw">pub fn </span>unencrypted_localhost() -&gt; SmtpTransport {
+        <span class="self">Self</span>::builder_dangerous(<span class="string">&quot;localhost&quot;</span>).build()
     }
 
-    <span class="doccomment">/// Creates a new SMTP client</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults are:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * No authentication</span>
-    <span class="doccomment">/// * No TLS</span>
-    <span class="doccomment">/// * A 60 seconds timeout for smtp commands</span>
-    <span class="doccomment">/// * Port 25</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Consider using [`SmtpTransport::relay`](#method.relay) or</span>
-    <span class="doccomment">/// [`SmtpTransport::starttls_relay`](#method.starttls_relay) instead,</span>
-    <span class="doccomment">/// if possible.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder_dangerous</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">server</span>: <span class="ident">T</span>) -&gt; <span class="ident">SmtpTransportBuilder</span> {
-        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">SmtpInfo</span> {
-            <span class="ident">server</span>: <span class="ident">server</span>.<span class="ident">into</span>(),
-            ..<span class="ident">Default::default</span>()
+    <span class="doccomment">/// Creates a new SMTP client
+    ///
+    /// Defaults are:
+    ///
+    /// * No authentication
+    /// * No TLS
+    /// * A 60 seconds timeout for smtp commands
+    /// * Port 25
+    ///
+    /// Consider using [`SmtpTransport::relay`](#method.relay) or
+    /// [`SmtpTransport::starttls_relay`](#method.starttls_relay) instead,
+    /// if possible.
+    </span><span class="kw">pub fn </span>builder_dangerous&lt;T: Into&lt;String&gt;&gt;(server: T) -&gt; SmtpTransportBuilder {
+        <span class="kw">let </span>new = SmtpInfo {
+            server: server.into(),
+            ..Default::default()
         };
 
-        <span class="ident">SmtpTransportBuilder</span> {
-            <span class="ident">info</span>: <span class="ident">new</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-            <span class="ident">pool_config</span>: <span class="ident">PoolConfig::default</span>(),
+        SmtpTransportBuilder {
+            info: new,
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+            </span>pool_config: PoolConfig::default(),
         }
     }
 
-    <span class="doccomment">/// Tests the SMTP connection</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `test_connection()` tests the connection by using the SMTP NOOP command.</span>
-    <span class="doccomment">/// The connection is closed afterwards if a connection pool is not used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test_connection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">connection</span>()<span class="question-mark">?</span>;
+    <span class="doccomment">/// Tests the SMTP connection
+    ///
+    /// `test_connection()` tests the connection by using the SMTP NOOP command.
+    /// The connection is closed afterwards if a connection pool is not used.
+    </span><span class="kw">pub fn </span>test_connection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = <span class="self">self</span>.inner.connection()<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">is_connected</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">test_connected</span>();
+        <span class="kw">let </span>is_connected = conn.test_connected();
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>))]</span>
-        <span class="ident">conn</span>.<span class="ident">quit</span>()<span class="question-mark">?</span>;
+        <span class="attribute">#[cfg(not(feature = <span class="string">&quot;pool&quot;</span>))]
+        </span>conn.quit()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">is_connected</span>)
+        <span class="prelude-val">Ok</span>(is_connected)
     }
 }
 
-<span class="doccomment">/// Contains client configuration.</span>
-<span class="doccomment">/// Instances of this struct can be created using functions of [`SmtpTransport`].</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SmtpTransportBuilder</span> {
-    <span class="ident">info</span>: <span class="ident">SmtpInfo</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-    <span class="ident">pool_config</span>: <span class="ident">PoolConfig</span>,
+<span class="doccomment">/// Contains client configuration.
+/// Instances of this struct can be created using functions of [`SmtpTransport`].
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>SmtpTransportBuilder {
+    info: SmtpInfo,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+    </span>pool_config: PoolConfig,
 }
 
-<span class="doccomment">/// Builder for the SMTP `SmtpTransport`</span>
-<span class="kw">impl</span> <span class="ident">SmtpTransportBuilder</span> {
-    <span class="doccomment">/// Set the name used during EHLO</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hello_name</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">ClientId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">hello_name</span> <span class="op">=</span> <span class="ident">name</span>;
-        <span class="self">self</span>
-    }
+<span class="doccomment">/// Builder for the SMTP `SmtpTransport`
+</span><span class="kw">impl </span>SmtpTransportBuilder {
+    <span class="doccomment">/// Set the name used during EHLO
+    </span><span class="kw">pub fn </span>hello_name(<span class="kw-2">mut </span><span class="self">self</span>, name: ClientId) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.info.hello_name = name;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set the authentication mechanism to use</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">credentials</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">credentials</span>: <span class="ident">Credentials</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">credentials</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">credentials</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set the authentication mechanism to use
+    </span><span class="kw">pub fn </span>credentials(<span class="kw-2">mut </span><span class="self">self</span>, credentials: Credentials) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.info.credentials = <span class="prelude-val">Some</span>(credentials);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set the authentication mechanism to use</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">authentication</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mechanisms</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mechanism</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">authentication</span> <span class="op">=</span> <span class="ident">mechanisms</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set the authentication mechanism to use
+    </span><span class="kw">pub fn </span>authentication(<span class="kw-2">mut </span><span class="self">self</span>, mechanisms: Vec&lt;Mechanism&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.info.authentication = mechanisms;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set the timeout duration</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">timeout</span> <span class="op">=</span> <span class="ident">timeout</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set the timeout duration
+    </span><span class="kw">pub fn </span>timeout(<span class="kw-2">mut </span><span class="self">self</span>, timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.info.timeout = timeout;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set the port to use</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">port</span>: <span class="ident">u16</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">port</span> <span class="op">=</span> <span class="ident">port</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set the port to use
+    </span><span class="kw">pub fn </span>port(<span class="kw-2">mut </span><span class="self">self</span>, port: u16) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.info.port = port;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set the TLS settings to use</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tls</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tls</span>: <span class="ident">Tls</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">tls</span> <span class="op">=</span> <span class="ident">tls</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set the TLS settings to use
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span><span class="kw">pub fn </span>tls(<span class="kw-2">mut </span><span class="self">self</span>, tls: Tls) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.info.tls = tls;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Use a custom configuration for the connection pool</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults can be found at [`PoolConfig`]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pool_config</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pool_config</span>: <span class="ident">PoolConfig</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">pool_config</span> <span class="op">=</span> <span class="ident">pool_config</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Use a custom configuration for the connection pool
+    ///
+    /// Defaults can be found at [`PoolConfig`]
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;pool&quot;</span>)))]
+    </span><span class="kw">pub fn </span>pool_config(<span class="kw-2">mut </span><span class="self">self</span>, pool_config: PoolConfig) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.pool_config = pool_config;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Build the transport</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the `pool` feature is enabled an `Arc` wrapped pool is be created.</span>
-    <span class="doccomment">/// Defaults can be found at [`PoolConfig`]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="ident">SmtpTransport</span> {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">SmtpClient</span> { <span class="ident">info</span>: <span class="self">self</span>.<span class="ident">info</span> };
+    <span class="doccomment">/// Build the transport
+    ///
+    /// If the `pool` feature is enabled an `Arc` wrapped pool is be created.
+    /// Defaults can be found at [`PoolConfig`]
+    </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; SmtpTransport {
+        <span class="kw">let </span>client = SmtpClient { info: <span class="self">self</span>.info };
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Pool::new</span>(<span class="self">self</span>.<span class="ident">pool_config</span>, <span class="ident">client</span>);
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+        </span><span class="kw">let </span>client = Pool::new(<span class="self">self</span>.pool_config, client);
 
-        <span class="ident">SmtpTransport</span> { <span class="ident">inner</span>: <span class="ident">client</span> }
+        SmtpTransport { inner: client }
     }
 }
 
-<span class="doccomment">/// Build client</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SmtpClient</span> {
-    <span class="ident">info</span>: <span class="ident">SmtpInfo</span>,
+<span class="doccomment">/// Build client
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>SmtpClient {
+    info: SmtpInfo,
 }
 
-<span class="kw">impl</span> <span class="ident">SmtpClient</span> {
-    <span class="doccomment">/// Creates a new connection directly usable to send emails</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Handles encryption and authentication</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SmtpConnection</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::match_single_binding</span>)]</span>
-        <span class="kw">let</span> <span class="ident">tls_parameters</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">tls</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-            <span class="ident">Tls::Wrapper</span>(<span class="kw-2">ref</span> <span class="ident">tls_parameters</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">tls_parameters</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+<span class="kw">impl </span>SmtpClient {
+    <span class="doccomment">/// Creates a new connection directly usable to send emails
+    ///
+    /// Handles encryption and authentication
+    </span><span class="kw">pub fn </span>connection(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SmtpConnection, Error&gt; {
+        <span class="attribute">#[allow(clippy::match_single_binding)]
+        </span><span class="kw">let </span>tls_parameters = <span class="kw">match </span><span class="self">self</span>.info.tls {
+            <span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            </span>Tls::Wrapper(<span class="kw-2">ref </span>tls_parameters) =&gt; <span class="prelude-val">Some</span>(tls_parameters),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         };
 
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_mut</span>)]</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">SmtpConnection::connect</span>::<span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">u16</span>)<span class="op">&gt;</span>(
-            (<span class="self">self</span>.<span class="ident">info</span>.<span class="ident">server</span>.<span class="ident">as_ref</span>(), <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">port</span>),
-            <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">timeout</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">info</span>.<span class="ident">hello_name</span>,
-            <span class="ident">tls_parameters</span>,
+        <span class="attribute">#[allow(unused_mut)]
+        </span><span class="kw">let </span><span class="kw-2">mut </span>conn = SmtpConnection::connect::&lt;(<span class="kw-2">&amp;</span>str, u16)&gt;(
+            (<span class="self">self</span>.info.server.as_ref(), <span class="self">self</span>.info.port),
+            <span class="self">self</span>.info.timeout,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.info.hello_name,
+            tls_parameters,
             <span class="prelude-val">None</span>,
         )<span class="question-mark">?</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">tls</span> {
-            <span class="ident">Tls::Opportunistic</span>(<span class="kw-2">ref</span> <span class="ident">tls_parameters</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">conn</span>.<span class="ident">can_starttls</span>() {
-                    <span class="ident">conn</span>.<span class="ident">starttls</span>(<span class="ident">tls_parameters</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">info</span>.<span class="ident">hello_name</span>)<span class="question-mark">?</span>;
+        <span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+        </span><span class="kw">match </span><span class="self">self</span>.info.tls {
+            Tls::Opportunistic(<span class="kw-2">ref </span>tls_parameters) =&gt; {
+                <span class="kw">if </span>conn.can_starttls() {
+                    conn.starttls(tls_parameters, <span class="kw-2">&amp;</span><span class="self">self</span>.info.hello_name)<span class="question-mark">?</span>;
                 }
             }
-            <span class="ident">Tls::Required</span>(<span class="kw-2">ref</span> <span class="ident">tls_parameters</span>) =&gt; {
-                <span class="ident">conn</span>.<span class="ident">starttls</span>(<span class="ident">tls_parameters</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">info</span>.<span class="ident">hello_name</span>)<span class="question-mark">?</span>;
+            Tls::Required(<span class="kw-2">ref </span>tls_parameters) =&gt; {
+                conn.starttls(tls_parameters, <span class="kw-2">&amp;</span><span class="self">self</span>.info.hello_name)<span class="question-mark">?</span>;
             }
-            <span class="kw">_</span> =&gt; (),
+            <span class="kw">_ </span>=&gt; (),
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">credentials</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">info</span>.<span class="ident">credentials</span> {
-            <span class="ident">conn</span>.<span class="ident">auth</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">info</span>.<span class="ident">authentication</span>, <span class="ident">credentials</span>)<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(credentials) = <span class="kw-2">&amp;</span><span class="self">self</span>.info.credentials {
+            conn.auth(<span class="kw-2">&amp;</span><span class="self">self</span>.info.authentication, credentials)<span class="question-mark">?</span>;
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">conn</span>)
+        <span class="prelude-val">Ok</span>(conn)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

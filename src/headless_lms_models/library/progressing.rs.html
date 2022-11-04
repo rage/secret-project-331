@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/progressing.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>progressing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/progressing.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>progressing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -966,196 +966,196 @@
 <span id="966">966</span>
 <span id="967">967</span>
 <span id="968">968</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
+<span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">course_instance_enrollments</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
-    <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
-    <span class="ident">course_module_completions</span>::{
-        <span class="self">self</span>, <span class="ident">CourseModuleCompletion</span>, <span class="ident">CourseModuleCompletionGranter</span>,
-        <span class="ident">CourseModuleCompletionWithRegistrationInfo</span>, <span class="ident">NewCourseModuleCompletion</span>,
+<span class="kw">use crate</span>::{
+    course_instance_enrollments::{<span class="self">self</span>, NewCourseInstanceEnrollment},
+    course_instances::{<span class="self">self</span>, CourseInstance},
+    course_module_completions::{
+        <span class="self">self</span>, CourseModuleCompletion, CourseModuleCompletionGranter,
+        CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
-    <span class="ident">course_modules</span>::{<span class="self">self</span>, <span class="ident">CourseModule</span>},
-    <span class="ident">courses</span>, <span class="ident">open_university_registration_links</span>,
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">user_course_settings</span>,
-    <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">UserCourseInstanceMetrics</span>},
-    <span class="ident">users</span>::{<span class="self">self</span>, <span class="ident">User</span>},
+    course_modules::{<span class="self">self</span>, CourseModule},
+    courses, open_university_registration_links,
+    prelude::<span class="kw-2">*</span>,
+    user_course_settings,
+    user_exercise_states::{<span class="self">self</span>, UserCourseInstanceMetrics},
+    users::{<span class="self">self</span>, User},
 };
 
-<span class="doccomment">/// Checks whether the course module can be completed automatically and creates an entry for completion</span>
-<span class="doccomment">/// if the user meets the criteria. Also re-checks module completion prerequisites if the module is</span>
-<span class="doccomment">/// completed.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_automatic_completion_status_and_grant_if_eligible</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_module</span>: <span class="kw-2">&amp;</span><span class="ident">CourseModule</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">completion_exists</span> <span class="op">=</span> <span class="ident">create_automatic_course_module_completion_if_eligible</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">course_module</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>,
+<span class="doccomment">/// Checks whether the course module can be completed automatically and creates an entry for completion
+/// if the user meets the criteria. Also re-checks module completion prerequisites if the module is
+/// completed.
+</span><span class="kw">pub async fn </span>update_automatic_completion_status_and_grant_if_eligible(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_module: <span class="kw-2">&amp;</span>CourseModule,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">let </span>completion_exists = create_automatic_course_module_completion_if_eligible(
+        conn,
+        course_module,
+        course_instance_id,
+        user_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">completion_exists</span> {
-        <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">course_module</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span>
-            <span class="ident">course_instances::get_course_instance</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">submodule_completions_required</span> <span class="op">=</span> <span class="ident">course</span>
-            .<span class="ident">base_module_completion_requires_n_submodule_completions</span>
-            .<span class="ident">try_into</span>()<span class="question-mark">?</span>;
-        <span class="ident">update_module_completion_prerequisite_statuses_for_user</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">user_id</span>,
-            <span class="kw-2">&amp;</span><span class="ident">course_instance</span>,
-            <span class="ident">submodule_completions_required</span>,
+    <span class="kw">if </span>completion_exists {
+        <span class="kw">let </span>course = courses::get_course(conn, course_module.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>course_instance =
+            course_instances::get_course_instance(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>submodule_completions_required = course
+            .base_module_completion_requires_n_submodule_completions
+            .try_into()<span class="question-mark">?</span>;
+        update_module_completion_prerequisite_statuses_for_user(
+            conn,
+            user_id,
+            <span class="kw-2">&amp;</span>course_instance,
+            submodule_completions_required,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Creates completion for the user if eligible and previous one doesn&#39;t exist. Returns a boolean indicating</span>
-<span class="doccomment">/// whether a completion exists after calling this function.</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">conn</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_automatic_course_module_completion_if_eligible</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_module</span>: <span class="kw-2">&amp;</span><span class="ident">CourseModule</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">existing_completion</span> <span class="op">=</span>
-        <span class="ident">course_module_completions::get_automatic_completion_by_course_module_instance_and_user_ids</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">course_module</span>.<span class="ident">id</span>,
-            <span class="ident">course_instance_id</span>,
-            <span class="ident">user_id</span>,
+<span class="doccomment">/// Creates completion for the user if eligible and previous one doesn&#39;t exist. Returns a boolean indicating
+/// whether a completion exists after calling this function.
+</span><span class="attribute">#[instrument(skip(conn))]
+</span><span class="kw">async fn </span>create_automatic_course_module_completion_if_eligible(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_module: <span class="kw-2">&amp;</span>CourseModule,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>existing_completion =
+        course_module_completions::get_automatic_completion_by_course_module_instance_and_user_ids(
+            conn,
+            course_module.id,
+            course_instance_id,
+            user_id,
         )
-        .<span class="kw">await</span>
-        .<span class="ident">optional</span>()<span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">existing_completion</span>.<span class="ident">is_some</span>() {
-        <span class="comment">// If user already has a completion, do not attempt to create a new one.</span>
-        <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_single_module_course_instance_metrics</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">course_instance_id</span>,
-            <span class="ident">course_module</span>.<span class="ident">id</span>,
-            <span class="ident">user_id</span>,
+        .<span class="kw">await
+        </span>.optional()<span class="question-mark">?</span>;
+    <span class="kw">if </span>existing_completion.is_some() {
+        <span class="comment">// If user already has a completion, do not attempt to create a new one.
+        </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
+            conn,
+            course_instance_id,
+            course_module.id,
+            user_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">user_is_eligible_for_automatic_completion</span>(<span class="ident">course_module</span>, <span class="kw-2">&amp;</span><span class="ident">user_metrics</span>) {
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">course_module</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">users::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">_completion_id</span> <span class="op">=</span> <span class="ident">course_module_completions::insert</span>(
-                <span class="ident">conn</span>,
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="kw-2">&amp;</span><span class="ident">NewCourseModuleCompletion</span> {
-                    <span class="ident">course_id</span>: <span class="ident">course_module</span>.<span class="ident">course_id</span>,
-                    <span class="ident">course_instance_id</span>,
-                    <span class="ident">course_module_id</span>: <span class="ident">course_module</span>.<span class="ident">id</span>,
-                    <span class="ident">user_id</span>,
-                    <span class="ident">completion_date</span>: <span class="ident">Utc::now</span>(),
-                    <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">completion_language</span>: <span class="ident">course</span>.<span class="ident">language_code</span>,
-                    <span class="ident">eligible_for_ects</span>: <span class="bool-val">true</span>,
-                    <span class="ident">email</span>: <span class="ident">user</span>.<span class="ident">email</span>,
-                    <span class="ident">grade</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">passed</span>: <span class="bool-val">true</span>,
+        <span class="kw">if </span>user_is_eligible_for_automatic_completion(course_module, <span class="kw-2">&amp;</span>user_metrics) {
+            <span class="kw">let </span>course = courses::get_course(conn, course_module.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>user = users::get_by_id(conn, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>_completion_id = course_module_completions::insert(
+                conn,
+                PKeyPolicy::Generate,
+                <span class="kw-2">&amp;</span>NewCourseModuleCompletion {
+                    course_id: course_module.course_id,
+                    course_instance_id,
+                    course_module_id: course_module.id,
+                    user_id,
+                    completion_date: Utc::now(),
+                    completion_registration_attempt_date: <span class="prelude-val">None</span>,
+                    completion_language: course.language_code,
+                    eligible_for_ects: <span class="bool-val">true</span>,
+                    email: user.email,
+                    grade: <span class="prelude-val">None</span>,
+                    passed: <span class="bool-val">true</span>,
                 },
-                <span class="ident">CourseModuleCompletionGranter::Automatic</span>,
+                CourseModuleCompletionGranter::Automatic,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="macro">info!</span>(<span class="string">&quot;Created a completion&quot;</span>);
             <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
-        } <span class="kw">else</span> {
-            <span class="comment">// Can&#39;t grant automatic completion; no-op.</span>
-            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
+        } <span class="kw">else </span>{
+            <span class="comment">// Can&#39;t grant automatic completion; no-op.
+            </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">user_is_eligible_for_automatic_completion</span>(
-    <span class="ident">course_module</span>: <span class="kw-2">&amp;</span><span class="ident">CourseModule</span>,
-    <span class="ident">user_course_instance_metrics</span>: <span class="kw-2">&amp;</span><span class="ident">UserCourseInstanceMetrics</span>,
-) -&gt; <span class="ident">bool</span> {
-    <span class="comment">// Count passes to make sure that at least one requirement exists.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flags</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">course_module</span>.<span class="ident">automatic_completion</span> {
-        <span class="kw">return</span> <span class="bool-val">false</span>;
+<span class="kw">fn </span>user_is_eligible_for_automatic_completion(
+    course_module: <span class="kw-2">&amp;</span>CourseModule,
+    user_course_instance_metrics: <span class="kw-2">&amp;</span>UserCourseInstanceMetrics,
+) -&gt; bool {
+    <span class="comment">// Count passes to make sure that at least one requirement exists.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>flags = <span class="number">0</span>;
+    <span class="kw">if </span>!course_module.automatic_completion {
+        <span class="kw">return </span><span class="bool-val">false</span>;
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">attepted_treshold</span>) <span class="op">=</span>
-        <span class="ident">course_module</span>.<span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span>
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(attepted_treshold) =
+        course_module.automatic_completion_number_of_exercises_attempted_treshold
     {
-        <span class="kw">if</span> <span class="ident">user_course_instance_metrics</span>
-            .<span class="ident">attempted_exercises</span>
-            .<span class="ident">unwrap_or</span>(<span class="number">0</span>)
-            <span class="op">&gt;</span><span class="op">=</span> <span class="ident">attepted_treshold</span>.<span class="ident">into</span>()
+        <span class="kw">if </span>user_course_instance_metrics
+            .attempted_exercises
+            .unwrap_or(<span class="number">0</span>)
+            &gt;= attepted_treshold.into()
         {
-            <span class="ident">flags</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            flags += <span class="number">1</span>;
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">points_treshold</span>) <span class="op">=</span> <span class="ident">course_module</span>.<span class="ident">automatic_completion_number_of_points_treshold</span> {
-        <span class="kw">if</span> <span class="ident">user_course_instance_metrics</span>.<span class="ident">score_given</span>.<span class="ident">unwrap_or</span>(<span class="number">0.0</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="ident">points_treshold</span> <span class="kw">as</span> <span class="ident">f32</span> {
-            <span class="ident">flags</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(points_treshold) = course_module.automatic_completion_number_of_points_treshold {
+        <span class="kw">if </span>user_course_instance_metrics.score_given.unwrap_or(<span class="number">0.0</span>) &gt;= points_treshold <span class="kw">as </span>f32 {
+            flags += <span class="number">1</span>;
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
     }
-    <span class="ident">flags</span> <span class="op">&gt;</span> <span class="number">0</span>
-}
+    flags &gt; <span class="number">0
+</span>}
 
-<span class="doccomment">/// Fetches all course module completions for the given user on the given course and updates the</span>
-<span class="doccomment">/// prerequisite module completion statuses for any completions that are missing them.</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">conn</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_module_completion_prerequisite_statuses_for_user</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance</span>: <span class="kw-2">&amp;</span><span class="ident">CourseInstance</span>,
-    <span class="ident">base_module_completion_requires_n_submodule_completions</span>: <span class="ident">u32</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">default_course_module</span> <span class="op">=</span>
-        <span class="ident">course_modules::get_default_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_module_completions</span> <span class="op">=</span>
-        <span class="ident">course_module_completions::get_all_by_course_instance_and_user_ids</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">course_instance</span>.<span class="ident">id</span>,
-            <span class="ident">user_id</span>,
+<span class="doccomment">/// Fetches all course module completions for the given user on the given course and updates the
+/// prerequisite module completion statuses for any completions that are missing them.
+</span><span class="attribute">#[instrument(skip(conn))]
+</span><span class="kw">async fn </span>update_module_completion_prerequisite_statuses_for_user(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    course_instance: <span class="kw-2">&amp;</span>CourseInstance,
+    base_module_completion_requires_n_submodule_completions: u32,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">let </span>default_course_module =
+        course_modules::get_default_by_course_id(conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_module_completions =
+        course_module_completions::get_all_by_course_instance_and_user_ids(
+            conn,
+            course_instance.id,
+            user_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">default_module_is_completed</span> <span class="op">=</span> <span class="ident">course_module_completions</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">any</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">course_module_id</span> <span class="op">==</span> <span class="ident">default_course_module</span>.<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">submodule_completions</span> <span class="op">=</span> <span class="ident">course_module_completions</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">course_module_id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">default_course_module</span>.<span class="ident">id</span>)
-        .<span class="ident">unique_by</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">course_module_id</span>)
-        .<span class="ident">count</span>();
-    <span class="kw">let</span> <span class="ident">enough_submodule_completions</span> <span class="op">=</span> <span class="ident">submodule_completions</span>
-        <span class="op">&gt;</span><span class="op">=</span> <span class="ident">base_module_completion_requires_n_submodule_completions</span>.<span class="ident">try_into</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">completions_needing_processing</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">course_module_completions</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">prerequisite_modules_completed</span>)
-        .<span class="ident">collect</span>();
-    <span class="kw">for</span> <span class="ident">completion</span> <span class="kw">in</span> <span class="ident">completions_needing_processing</span> {
-        <span class="kw">if</span> <span class="ident">completion</span>.<span class="ident">course_module_id</span> <span class="op">==</span> <span class="ident">default_course_module</span>.<span class="ident">id</span> {
-            <span class="kw">if</span> <span class="ident">enough_submodule_completions</span> {
-                <span class="ident">course_module_completions::update_prerequisite_modules_completed</span>(
-                    <span class="ident">conn</span>,
-                    <span class="ident">completion</span>.<span class="ident">id</span>,
+    <span class="kw">let </span>default_module_is_completed = course_module_completions
+        .iter()
+        .any(|x| x.course_module_id == default_course_module.id);
+    <span class="kw">let </span>submodule_completions = course_module_completions
+        .iter()
+        .filter(|x| x.course_module_id != default_course_module.id)
+        .unique_by(|x| x.course_module_id)
+        .count();
+    <span class="kw">let </span>enough_submodule_completions = submodule_completions
+        &gt;= base_module_completion_requires_n_submodule_completions.try_into()<span class="question-mark">?</span>;
+    <span class="kw">let </span>completions_needing_processing: Vec&lt;<span class="kw">_</span>&gt; = course_module_completions
+        .into_iter()
+        .filter(|x| !x.prerequisite_modules_completed)
+        .collect();
+    <span class="kw">for </span>completion <span class="kw">in </span>completions_needing_processing {
+        <span class="kw">if </span>completion.course_module_id == default_course_module.id {
+            <span class="kw">if </span>enough_submodule_completions {
+                course_module_completions::update_prerequisite_modules_completed(
+                    conn,
+                    completion.id,
                     <span class="bool-val">true</span>,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">default_module_is_completed</span> {
-            <span class="ident">course_module_completions::update_prerequisite_modules_completed</span>(
-                <span class="ident">conn</span>,
-                <span class="ident">completion</span>.<span class="ident">id</span>,
+        } <span class="kw">else if </span>default_module_is_completed {
+            course_module_completions::update_prerequisite_modules_completed(
+                conn,
+                completion.id,
                 <span class="bool-val">true</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1164,775 +1164,775 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">conn</span>))]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">process_all_course_instance_completions</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="attribute">#[instrument(skip(conn))]
+</span><span class="kw">pub async fn </span>process_all_course_instance_completions(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;Reprocessing course module completions&quot;</span>);
-    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="ident">course_instances::get_course_instance</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">course_instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">submodule_completions_required</span> <span class="op">=</span> <span class="ident">course</span>
-        .<span class="ident">base_module_completion_requires_n_submodule_completions</span>
-        .<span class="ident">try_into</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="ident">course_modules::get_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// If user has an user exercise state, they might have returned an exercise so we need to check whether they have completed modules.</span>
-    <span class="kw">let</span> <span class="ident">users</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::users::get_all_user_ids_with_user_exercise_states_on_course_instance</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">course_instance_id</span>,
+    <span class="kw">let </span>course_instance = course_instances::get_course_instance(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course = courses::get_course(conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>submodule_completions_required = course
+        .base_module_completion_requires_n_submodule_completions
+        .try_into()<span class="question-mark">?</span>;
+    <span class="kw">let </span>course_modules = course_modules::get_by_course_id(conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// If user has an user exercise state, they might have returned an exercise so we need to check whether they have completed modules.
+    </span><span class="kw">let </span>users = <span class="kw">crate</span>::users::get_all_user_ids_with_user_exercise_states_on_course_instance(
+        conn,
+        course_instance_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="ident">users</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">users</span>.<span class="ident">len</span>(), <span class="ident">course_modules</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">course_modules</span>.<span class="ident">len</span>(), <span class="question-mark">?</span><span class="ident">submodule_completions_required</span>, <span class="string">&quot;Completion reprocessing info&quot;</span>);
-    <span class="kw">for</span> <span class="ident">course_module</span> <span class="kw">in</span> <span class="ident">course_modules</span>.<span class="ident">iter</span>() {
-        <span class="macro">info!</span>(<span class="question-mark">?</span><span class="ident">course_module</span>, <span class="string">&quot;Course module information&quot;</span>);
+    <span class="macro">info!</span>(users = <span class="question-mark">?</span>users.len(), course_modules = <span class="question-mark">?</span>course_modules.len(), <span class="question-mark">?</span>submodule_completions_required, <span class="string">&quot;Completion reprocessing info&quot;</span>);
+    <span class="kw">for </span>course_module <span class="kw">in </span>course_modules.iter() {
+        <span class="macro">info!</span>(<span class="question-mark">?</span>course_module, <span class="string">&quot;Course module information&quot;</span>);
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">for</span> <span class="ident">user_id</span> <span class="kw">in</span> <span class="ident">users</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_completions</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">course_module</span> <span class="kw">in</span> <span class="ident">course_modules</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="ident">completion_exists</span> <span class="op">=</span> <span class="ident">create_automatic_course_module_completion_if_eligible</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="ident">course_module</span>,
-                <span class="ident">course_instance_id</span>,
-                <span class="ident">user_id</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">for </span>user_id <span class="kw">in </span>users {
+        <span class="kw">let </span><span class="kw-2">mut </span>num_completions = <span class="number">0</span>;
+        <span class="kw">for </span>course_module <span class="kw">in </span>course_modules.iter() {
+            <span class="kw">let </span>completion_exists = create_automatic_course_module_completion_if_eligible(
+                <span class="kw-2">&amp;mut </span>tx,
+                course_module,
+                course_instance_id,
+                user_id,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="ident">completion_exists</span> {
-                <span class="ident">num_completions</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="kw">if </span>completion_exists {
+                num_completions += <span class="number">1</span>;
             }
         }
-        <span class="kw">if</span> <span class="ident">num_completions</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="ident">update_module_completion_prerequisite_statuses_for_user</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="ident">user_id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">course_instance</span>,
-                <span class="ident">submodule_completions_required</span>,
+        <span class="kw">if </span>num_completions &gt; <span class="number">0 </span>{
+            update_module_completion_prerequisite_statuses_for_user(
+                <span class="kw-2">&amp;mut </span>tx,
+                user_id,
+                <span class="kw-2">&amp;</span>course_instance,
+                submodule_completions_required,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
     }
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info!</span>(<span class="string">&quot;Reprocessing course module completions complete&quot;</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseInstanceCompletionSummary</span> {
-    <span class="kw">pub</span> <span class="ident">course_modules</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseModule</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">users_with_course_module_completions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserWithModuleCompletions</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseInstanceCompletionSummary {
+    <span class="kw">pub </span>course_modules: Vec&lt;CourseModule&gt;,
+    <span class="kw">pub </span>users_with_course_module_completions: Vec&lt;UserWithModuleCompletions&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserWithModuleCompletions</span> {
-    <span class="kw">pub</span> <span class="ident">completed_modules</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletionWithRegistrationInfo</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">first_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">last_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>UserWithModuleCompletions {
+    <span class="kw">pub </span>completed_modules: Vec&lt;CourseModuleCompletionWithRegistrationInfo&gt;,
+    <span class="kw">pub </span>email: String,
+    <span class="kw">pub </span>first_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>last_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>user_id: Uuid,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserCourseModuleCompletion</span> {
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">grade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">passed</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>UserCourseModuleCompletion {
+    <span class="kw">pub </span>course_module_id: Uuid,
+    <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>passed: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UserCourseModuleCompletion</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">course_module_completion</span>: <span class="ident">CourseModuleCompletion</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">course_module_id</span>: <span class="ident">course_module_completion</span>.<span class="ident">course_module_id</span>,
-            <span class="ident">grade</span>: <span class="ident">course_module_completion</span>.<span class="ident">grade</span>,
-            <span class="ident">passed</span>: <span class="ident">course_module_completion</span>.<span class="ident">passed</span>,
+<span class="kw">impl </span>From&lt;CourseModuleCompletion&gt; <span class="kw">for </span>UserCourseModuleCompletion {
+    <span class="kw">fn </span>from(course_module_completion: CourseModuleCompletion) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            course_module_id: course_module_completion.course_module_id,
+            grade: course_module_completion.grade,
+            passed: course_module_completion.passed,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UserWithModuleCompletions</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">user</span>: <span class="ident">User</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">user_id</span>: <span class="ident">user</span>.<span class="ident">id</span>,
-            <span class="ident">first_name</span>: <span class="ident">user</span>.<span class="ident">first_name</span>,
-            <span class="ident">last_name</span>: <span class="ident">user</span>.<span class="ident">last_name</span>,
-            <span class="ident">email</span>: <span class="ident">user</span>.<span class="ident">email</span>,
-            <span class="ident">completed_modules</span>: <span class="macro">vec!</span>[],
+<span class="kw">impl </span>From&lt;User&gt; <span class="kw">for </span>UserWithModuleCompletions {
+    <span class="kw">fn </span>from(user: User) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            completed_modules: <span class="macro">vec!</span>[],
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_instance_completion_summary</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance</span>: <span class="kw-2">&amp;</span><span class="ident">CourseInstance</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseInstanceCompletionSummary</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="ident">course_modules::get_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">users_with_course_module_completions</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">UserWithModuleCompletions</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">users::get_users_by_course_instance_enrollment</span>(<span class="ident">conn</span>, <span class="ident">course_instance</span>.<span class="ident">id</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> (<span class="ident">u</span>.<span class="ident">id</span>, <span class="ident">u</span>.<span class="ident">into</span>()))
-            .<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="ident">completions</span> <span class="op">=</span>
-        <span class="ident">course_module_completions::get_all_with_registration_information_by_course_instance_id</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">course_instance</span>.<span class="ident">id</span>,
+<span class="kw">pub async fn </span>get_course_instance_completion_summary(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance: <span class="kw-2">&amp;</span>CourseInstance,
+) -&gt; ModelResult&lt;CourseInstanceCompletionSummary&gt; {
+    <span class="kw">let </span>course_modules = course_modules::get_by_course_id(conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>users_with_course_module_completions: HashMap&lt;Uuid, UserWithModuleCompletions&gt; =
+        users::get_users_by_course_instance_enrollment(conn, course_instance.id)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.into_iter()
+            .map(|u| (u.id, u.into()))
+            .collect();
+    <span class="kw">let </span>completions =
+        course_module_completions::get_all_with_registration_information_by_course_instance_id(
+            conn,
+            course_instance.id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">completions</span>.<span class="ident">into_iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">user_with_completions</span> <span class="op">=</span> <span class="ident">users_with_course_module_completions</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">user_id</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">completion</span>) <span class="op">=</span> <span class="ident">user_with_completions</span> {
-            <span class="ident">completion</span>.<span class="ident">completed_modules</span>.<span class="ident">push</span>(<span class="ident">x</span>);
+    completions.into_iter().for_each(|x| {
+        <span class="kw">let </span>user_with_completions = users_with_course_module_completions.get_mut(<span class="kw-2">&amp;</span>x.user_id);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(completion) = user_with_completions {
+            completion.completed_modules.push(x);
         }
     });
-    <span class="prelude-val">Ok</span>(<span class="ident">CourseInstanceCompletionSummary</span> {
-        <span class="ident">course_modules</span>,
-        <span class="ident">users_with_course_module_completions</span>: <span class="ident">users_with_course_module_completions</span>
-            .<span class="ident">into_values</span>()
-            .<span class="ident">collect</span>(),
+    <span class="prelude-val">Ok</span>(CourseInstanceCompletionSummary {
+        course_modules,
+        users_with_course_module_completions: users_with_course_module_completions
+            .into_values()
+            .collect(),
     })
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TeacherManualCompletionRequest</span> {
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">new_completions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TeacherManualCompletion</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">skip_duplicate_completions</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>TeacherManualCompletionRequest {
+    <span class="kw">pub </span>course_module_id: Uuid,
+    <span class="kw">pub </span>new_completions: Vec&lt;TeacherManualCompletion&gt;,
+    <span class="kw">pub </span>skip_duplicate_completions: bool,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TeacherManualCompletion</span> {
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">grade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">completion_date</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>TeacherManualCompletion {
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>completion_date: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">add_manual_completions</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">completion_giver_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance</span>: <span class="kw-2">&amp;</span><span class="ident">CourseInstance</span>,
-    <span class="ident">manual_completion_request</span>: <span class="kw-2">&amp;</span><span class="ident">TeacherManualCompletionRequest</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span>
-        <span class="ident">course_modules::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">manual_completion_request</span>.<span class="ident">course_module_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">course_module</span>.<span class="ident">course_id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">course_instance</span>.<span class="ident">course_id</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::PreconditionFailed</span>,
-            <span class="string">&quot;Course module not part of the course.&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">pub async fn </span>add_manual_completions(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    completion_giver_user_id: Uuid,
+    course_instance: <span class="kw-2">&amp;</span>CourseInstance,
+    manual_completion_request: <span class="kw-2">&amp;</span>TeacherManualCompletionRequest,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">let </span>course_module =
+        course_modules::get_by_id(conn, manual_completion_request.course_module_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>course_module.course_id != course_instance.course_id {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            <span class="string">&quot;Course module not part of the course.&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">course_instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">for</span> <span class="ident">completion</span> <span class="kw">in</span> <span class="ident">manual_completion_request</span>.<span class="ident">new_completions</span>.<span class="ident">iter</span>() {
-        <span class="kw">let</span> <span class="ident">completion_receiver</span> <span class="op">=</span> <span class="ident">users::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">completion</span>.<span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">module_completed</span> <span class="op">=</span>
-            <span class="ident">course_module_completions::user_has_completed_course_module_on_instance</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="ident">completion</span>.<span class="ident">user_id</span>,
-                <span class="ident">manual_completion_request</span>.<span class="ident">course_module_id</span>,
-                <span class="ident">course_instance</span>.<span class="ident">id</span>,
+    <span class="kw">let </span>course = courses::get_course(conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">for </span>completion <span class="kw">in </span>manual_completion_request.new_completions.iter() {
+        <span class="kw">let </span>completion_receiver = users::get_by_id(<span class="kw-2">&amp;mut </span>tx, completion.user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>module_completed =
+            course_module_completions::user_has_completed_course_module_on_instance(
+                <span class="kw-2">&amp;mut </span>tx,
+                completion.user_id,
+                manual_completion_request.course_module_id,
+                course_instance.id,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">module_completed</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">manual_completion_request</span>.<span class="ident">skip_duplicate_completions</span> {
-            <span class="ident">course_instance_enrollments::insert_enrollment_if_it_doesnt_exist</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="ident">NewCourseInstanceEnrollment</span> {
-                    <span class="ident">user_id</span>: <span class="ident">completion_receiver</span>.<span class="ident">id</span>,
-                    <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-                    <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
+        <span class="kw">if </span>!module_completed || !manual_completion_request.skip_duplicate_completions {
+            course_instance_enrollments::insert_enrollment_if_it_doesnt_exist(
+                <span class="kw-2">&amp;mut </span>tx,
+                NewCourseInstanceEnrollment {
+                    user_id: completion_receiver.id,
+                    course_id: course.id,
+                    course_instance_id: course_instance.id,
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">course_module_completions::insert</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="kw-2">&amp;</span><span class="ident">NewCourseModuleCompletion</span> {
-                    <span class="ident">course_id</span>: <span class="ident">course_instance</span>.<span class="ident">course_id</span>,
-                    <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-                    <span class="ident">course_module_id</span>: <span class="ident">manual_completion_request</span>.<span class="ident">course_module_id</span>,
-                    <span class="ident">user_id</span>: <span class="ident">completion</span>.<span class="ident">user_id</span>,
-                    <span class="ident">completion_date</span>: <span class="ident">completion</span>.<span class="ident">completion_date</span>.<span class="ident">unwrap_or_else</span>(<span class="ident">Utc::now</span>),
-                    <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">completion_language</span>: <span class="ident">course</span>.<span class="ident">language_code</span>.<span class="ident">clone</span>(),
-                    <span class="ident">eligible_for_ects</span>: <span class="bool-val">true</span>,
-                    <span class="ident">email</span>: <span class="ident">completion_receiver</span>.<span class="ident">email</span>,
-                    <span class="ident">grade</span>: <span class="ident">completion</span>.<span class="ident">grade</span>,
-                    <span class="comment">// Should passed be false if grade == Some(0)?</span>
-                    <span class="ident">passed</span>: <span class="bool-val">true</span>,
+            course_module_completions::insert(
+                <span class="kw-2">&amp;mut </span>tx,
+                PKeyPolicy::Generate,
+                <span class="kw-2">&amp;</span>NewCourseModuleCompletion {
+                    course_id: course_instance.course_id,
+                    course_instance_id: course_instance.id,
+                    course_module_id: manual_completion_request.course_module_id,
+                    user_id: completion.user_id,
+                    completion_date: completion.completion_date.unwrap_or_else(Utc::now),
+                    completion_registration_attempt_date: <span class="prelude-val">None</span>,
+                    completion_language: course.language_code.clone(),
+                    eligible_for_ects: <span class="bool-val">true</span>,
+                    email: completion_receiver.email,
+                    grade: completion.grade,
+                    <span class="comment">// Should passed be false if grade == Some(0)?
+                    </span>passed: <span class="bool-val">true</span>,
                 },
-                <span class="ident">CourseModuleCompletionGranter::User</span>(<span class="ident">completion_giver_user_id</span>),
+                CourseModuleCompletionGranter::User(completion_giver_user_id),
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">update_module_completion_prerequisite_statuses_for_user</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="ident">completion_receiver</span>.<span class="ident">id</span>,
-                <span class="ident">course_instance</span>,
-                <span class="ident">course</span>
-                    .<span class="ident">base_module_completion_requires_n_submodule_completions</span>
-                    .<span class="ident">try_into</span>()<span class="question-mark">?</span>,
+            update_module_completion_prerequisite_statuses_for_user(
+                <span class="kw-2">&amp;mut </span>tx,
+                completion_receiver.id,
+                course_instance,
+                course
+                    .base_module_completion_requires_n_submodule_completions
+                    .try_into()<span class="question-mark">?</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
     }
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ManualCompletionPreview</span> {
-    <span class="kw">pub</span> <span class="ident">already_completed_users</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ManualCompletionPreviewUser</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">first_time_completing_users</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ManualCompletionPreviewUser</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">non_enrolled_users</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ManualCompletionPreviewUser</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ManualCompletionPreview {
+    <span class="kw">pub </span>already_completed_users: Vec&lt;ManualCompletionPreviewUser&gt;,
+    <span class="kw">pub </span>first_time_completing_users: Vec&lt;ManualCompletionPreviewUser&gt;,
+    <span class="kw">pub </span>non_enrolled_users: Vec&lt;ManualCompletionPreviewUser&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ManualCompletionPreviewUser</span> {
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">first_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">last_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">grade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">passed</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ManualCompletionPreviewUser {
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>first_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>last_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>passed: bool,
 }
 
-<span class="doccomment">/// Gets a preview of changes that will occur to completions with the given manual completion data.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_manual_completion_result_preview</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance</span>: <span class="kw-2">&amp;</span><span class="ident">CourseInstance</span>,
-    <span class="ident">manual_completion_request</span>: <span class="kw-2">&amp;</span><span class="ident">TeacherManualCompletionRequest</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ManualCompletionPreview</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span>
-        <span class="ident">course_modules::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">manual_completion_request</span>.<span class="ident">course_module_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">course_module</span>.<span class="ident">course_id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">course_instance</span>.<span class="ident">course_id</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::PreconditionFailed</span>,
-            <span class="string">&quot;Course module not part of the course.&quot;</span>.<span class="ident">to_string</span>(),
+<span class="doccomment">/// Gets a preview of changes that will occur to completions with the given manual completion data.
+</span><span class="kw">pub async fn </span>get_manual_completion_result_preview(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance: <span class="kw-2">&amp;</span>CourseInstance,
+    manual_completion_request: <span class="kw-2">&amp;</span>TeacherManualCompletionRequest,
+) -&gt; ModelResult&lt;ManualCompletionPreview&gt; {
+    <span class="kw">let </span>course_module =
+        course_modules::get_by_id(conn, manual_completion_request.course_module_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>course_module.course_id != course_instance.course_id {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            <span class="string">&quot;Course module not part of the course.&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">already_completed_users</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first_time_completing_users</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">non_enrolled_users</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">for</span> <span class="ident">completion</span> <span class="kw">in</span> <span class="ident">manual_completion_request</span>.<span class="ident">new_completions</span>.<span class="ident">iter</span>() {
-        <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">users::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">completion</span>.<span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">ManualCompletionPreviewUser</span> {
-            <span class="ident">user_id</span>: <span class="ident">user</span>.<span class="ident">id</span>,
-            <span class="ident">first_name</span>: <span class="ident">user</span>.<span class="ident">first_name</span>,
-            <span class="ident">last_name</span>: <span class="ident">user</span>.<span class="ident">last_name</span>,
-            <span class="ident">grade</span>: <span class="ident">completion</span>.<span class="ident">grade</span>,
-            <span class="ident">passed</span>: <span class="bool-val">true</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>already_completed_users = <span class="macro">vec!</span>[];
+    <span class="kw">let </span><span class="kw-2">mut </span>first_time_completing_users = <span class="macro">vec!</span>[];
+    <span class="kw">let </span><span class="kw-2">mut </span>non_enrolled_users = <span class="macro">vec!</span>[];
+    <span class="kw">for </span>completion <span class="kw">in </span>manual_completion_request.new_completions.iter() {
+        <span class="kw">let </span>user = users::get_by_id(conn, completion.user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>user = ManualCompletionPreviewUser {
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            grade: completion.grade,
+            passed: <span class="bool-val">true</span>,
         };
-        <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">course_instance_enrollments::get_by_user_and_course_instance_id</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">completion</span>.<span class="ident">user_id</span>,
-            <span class="ident">course_instance</span>.<span class="ident">id</span>,
+        <span class="kw">let </span>enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
+            conn,
+            completion.user_id,
+            course_instance.id,
         )
-        .<span class="kw">await</span>
-        .<span class="ident">optional</span>()<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">enrollment</span>.<span class="ident">is_none</span>() {
-            <span class="ident">non_enrolled_users</span>.<span class="ident">push</span>(<span class="ident">user</span>.<span class="ident">clone</span>());
+        .<span class="kw">await
+        </span>.optional()<span class="question-mark">?</span>;
+        <span class="kw">if </span>enrollment.is_none() {
+            non_enrolled_users.push(user.clone());
         }
-        <span class="kw">let</span> <span class="ident">module_completed</span> <span class="op">=</span>
-            <span class="ident">course_module_completions::user_has_completed_course_module_on_instance</span>(
-                <span class="ident">conn</span>,
-                <span class="ident">completion</span>.<span class="ident">user_id</span>,
-                <span class="ident">manual_completion_request</span>.<span class="ident">course_module_id</span>,
-                <span class="ident">course_instance</span>.<span class="ident">id</span>,
+        <span class="kw">let </span>module_completed =
+            course_module_completions::user_has_completed_course_module_on_instance(
+                conn,
+                completion.user_id,
+                manual_completion_request.course_module_id,
+                course_instance.id,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">module_completed</span> {
-            <span class="ident">already_completed_users</span>.<span class="ident">push</span>(<span class="ident">user</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">first_time_completing_users</span>.<span class="ident">push</span>(<span class="ident">user</span>);
+        <span class="kw">if </span>module_completed {
+            already_completed_users.push(user);
+        } <span class="kw">else </span>{
+            first_time_completing_users.push(user);
         }
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">ManualCompletionPreview</span> {
-        <span class="ident">already_completed_users</span>,
-        <span class="ident">first_time_completing_users</span>,
-        <span class="ident">non_enrolled_users</span>,
+    <span class="prelude-val">Ok</span>(ManualCompletionPreview {
+        already_completed_users,
+        first_time_completing_users,
+        non_enrolled_users,
     })
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserCompletionInformation</span> {
-    <span class="kw">pub</span> <span class="ident">course_module_completion_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">uh_course_code</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">ects_credits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>UserCompletionInformation {
+    <span class="kw">pub </span>course_module_completion_id: Uuid,
+    <span class="kw">pub </span>course_name: String,
+    <span class="kw">pub </span>uh_course_code: String,
+    <span class="kw">pub </span>email: String,
+    <span class="kw">pub </span>ects_credits: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_completion_information</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_module</span>: <span class="kw-2">&amp;</span><span class="ident">CourseModule</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCompletionInformation</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">users::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">course_module</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_settings</span> <span class="op">=</span>
-        <span class="ident">user_course_settings::get_user_course_settings_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">course</span>.<span class="ident">id</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::Generic</span>,
-                    <span class="string">&quot;Missing settings&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">pub async fn </span>get_user_completion_information(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    course_module: <span class="kw-2">&amp;</span>CourseModule,
+) -&gt; ModelResult&lt;UserCompletionInformation&gt; {
+    <span class="kw">let </span>user = users::get_by_id(conn, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course = courses::get_course(conn, course_module.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user_settings =
+        user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    <span class="string">&quot;Missing settings&quot;</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_module_completion</span> <span class="op">=</span>
-        <span class="ident">course_module_completions::get_latest_by_course_module_instance_and_user_ids</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">course_module</span>.<span class="ident">id</span>,
-            <span class="ident">user_settings</span>.<span class="ident">current_course_instance_id</span>,
-            <span class="ident">user</span>.<span class="ident">id</span>,
+    <span class="kw">let </span>course_module_completion =
+        course_module_completions::get_latest_by_course_module_instance_and_user_ids(
+            conn,
+            course_module.id,
+            user_settings.current_course_instance_id,
+            user.id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// Course code is required only so that fetching the link later works.</span>
-    <span class="kw">let</span> <span class="ident">uh_course_code</span> <span class="op">=</span> <span class="ident">course_module</span>.<span class="ident">uh_course_code</span>.<span class="ident">clone</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::InvalidRequest</span>,
-            <span class="string">&quot;Course module is missing uh_course_code.&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="comment">// Course code is required only so that fetching the link later works.
+    </span><span class="kw">let </span>uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::InvalidRequest,
+            <span class="string">&quot;Course module is missing uh_course_code.&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">UserCompletionInformation</span> {
-        <span class="ident">course_module_completion_id</span>: <span class="ident">course_module_completion</span>.<span class="ident">id</span>,
-        <span class="ident">course_name</span>: <span class="ident">course_module</span>
-            .<span class="ident">name</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">course</span>.<span class="ident">name</span>.<span class="ident">clone</span>()),
-        <span class="ident">uh_course_code</span>,
-        <span class="ident">ects_credits</span>: <span class="ident">course_module</span>.<span class="ident">ects_credits</span>,
-        <span class="ident">email</span>: <span class="ident">course_module_completion</span>.<span class="ident">email</span>,
+    <span class="prelude-val">Ok</span>(UserCompletionInformation {
+        course_module_completion_id: course_module_completion.id,
+        course_name: course_module
+            .name
+            .clone()
+            .unwrap_or_else(|| course.name.clone()),
+        uh_course_code,
+        ects_credits: course_module.ects_credits,
+        email: course_module_completion.email,
     })
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserModuleCompletionStatus</span> {
-    <span class="kw">pub</span> <span class="ident">completed</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">default</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">module_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">prerequisite_modules_completed</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>UserModuleCompletionStatus {
+    <span class="kw">pub </span>completed: bool,
+    <span class="kw">pub </span>default: bool,
+    <span class="kw">pub </span>module_id: Uuid,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>order_number: i32,
+    <span class="kw">pub </span>prerequisite_modules_completed: bool,
 }
 
-<span class="doccomment">/// Gets course modules with user&#39;s completion status for the given instance.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_module_completion_statuses_for_course_instance</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserModuleCompletionStatus</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">course_instances::get_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="ident">course_modules::get_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_module_completions</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">course_module_completions::get_all_by_course_instance_and_user_ids</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">course_instance_id</span>,
-            <span class="ident">user_id</span>,
+<span class="doccomment">/// Gets course modules with user&#39;s completion status for the given instance.
+</span><span class="kw">pub async fn </span>get_user_module_completion_statuses_for_course_instance(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;UserModuleCompletionStatus&gt;&gt; {
+    <span class="kw">let </span>course_id = course_instances::get_course_id(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course = courses::get_course(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_modules = course_modules::get_by_course_id(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_module_completions: HashMap&lt;Uuid, CourseModuleCompletion&gt; =
+        course_module_completions::get_all_by_course_instance_and_user_ids(
+            conn,
+            course_instance_id,
+            user_id,
         )
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">course_module_id</span>, <span class="ident">x</span>))
-        .<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="ident">course_module_completion_statuses</span> <span class="op">=</span> <span class="ident">course_modules</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">module</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">completion</span> <span class="op">=</span> <span class="ident">course_module_completions</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">module</span>.<span class="ident">id</span>);
-            <span class="ident">UserModuleCompletionStatus</span> {
-                <span class="ident">completed</span>: <span class="ident">completion</span>.<span class="ident">is_some</span>(),
-                <span class="ident">default</span>: <span class="ident">module</span>.<span class="ident">is_default_module</span>(),
-                <span class="ident">module_id</span>: <span class="ident">module</span>.<span class="ident">id</span>,
-                <span class="ident">name</span>: <span class="ident">module</span>.<span class="ident">name</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">course</span>.<span class="ident">name</span>.<span class="ident">clone</span>()),
-                <span class="ident">order_number</span>: <span class="ident">module</span>.<span class="ident">order_number</span>,
-                <span class="ident">prerequisite_modules_completed</span>: <span class="ident">completion</span>
-                    .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">prerequisite_modules_completed</span>),
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.into_iter()
+        .map(|x| (x.course_module_id, x))
+        .collect();
+    <span class="kw">let </span>course_module_completion_statuses = course_modules
+        .into_iter()
+        .map(|module| {
+            <span class="kw">let </span>completion = course_module_completions.get(<span class="kw-2">&amp;</span>module.id);
+            UserModuleCompletionStatus {
+                completed: completion.is_some(),
+                default: module.is_default_module(),
+                module_id: module.id,
+                name: module.name.unwrap_or_else(|| course.name.clone()),
+                order_number: module.order_number,
+                prerequisite_modules_completed: completion
+                    .map_or(<span class="bool-val">false</span>, |x| x.prerequisite_modules_completed),
             }
         })
-        .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">course_module_completion_statuses</span>)
+        .collect();
+    <span class="prelude-val">Ok</span>(course_module_completion_statuses)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompletionRegistrationLink</span> {
-    <span class="kw">pub</span> <span class="ident">url</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CompletionRegistrationLink {
+    <span class="kw">pub </span>url: String,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_completion_registration_link_and_save_attempt</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_module</span>: <span class="kw-2">&amp;</span><span class="ident">CourseModule</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CompletionRegistrationLink</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">users::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">course_module</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_settings</span> <span class="op">=</span>
-        <span class="ident">user_course_settings::get_user_course_settings_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="ident">course</span>.<span class="ident">id</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::Generic</span>,
-                    <span class="string">&quot;Missing settings&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">pub async fn </span>get_completion_registration_link_and_save_attempt(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    course_module: <span class="kw-2">&amp;</span>CourseModule,
+) -&gt; ModelResult&lt;CompletionRegistrationLink&gt; {
+    <span class="kw">let </span>user = users::get_by_id(conn, user_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course = courses::get_course(conn, course_module.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user_settings =
+        user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    <span class="string">&quot;Missing settings&quot;</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_module_completion</span> <span class="op">=</span>
-        <span class="ident">course_module_completions::get_latest_by_course_module_instance_and_user_ids</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">course_module</span>.<span class="ident">id</span>,
-            <span class="ident">user_settings</span>.<span class="ident">current_course_instance_id</span>,
-            <span class="ident">user</span>.<span class="ident">id</span>,
+    <span class="kw">let </span>course_module_completion =
+        course_module_completions::get_latest_by_course_module_instance_and_user_ids(
+            conn,
+            course_module.id,
+            user_settings.current_course_instance_id,
+            user.id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">course_module_completions::update_completion_registration_attempt_date</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">course_module_completion</span>.<span class="ident">id</span>,
-        <span class="ident">Utc::now</span>(),
+    course_module_completions::update_completion_registration_attempt_date(
+        conn,
+        course_module_completion.id,
+        Utc::now(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">registration_link</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">course_module</span>.<span class="ident">completion_registration_link_override</span>.<span class="ident">as_ref</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">link_override</span>) =&gt; <span class="ident">link_override</span>.<span class="ident">clone</span>(),
-        <span class="prelude-val">None</span> =&gt; {
-            <span class="kw">let</span> <span class="ident">uh_course_code</span> <span class="op">=</span> <span class="ident">course_module</span>.<span class="ident">uh_course_code</span>.<span class="ident">clone</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::PreconditionFailed</span>,
-                    <span class="string">&quot;Course module doesn&#39;t have an assossiated University of Helsinki course code.&quot;</span>
-                        .<span class="ident">to_string</span>(),
+    <span class="kw">let </span>registration_link = <span class="kw">match </span>course_module.completion_registration_link_override.as_ref() {
+        <span class="prelude-val">Some</span>(link_override) =&gt; link_override.clone(),
+        <span class="prelude-val">None </span>=&gt; {
+            <span class="kw">let </span>uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    <span class="string">&quot;Course module doesn&#39;t have an assossiated University of Helsinki course code.&quot;
+                        </span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
-            <span class="ident">open_university_registration_links::get_link_by_course_code</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">uh_course_code</span>)
-                .<span class="kw">await</span><span class="question-mark">?</span>
-        }
+            open_university_registration_links::get_link_by_course_code(conn, <span class="kw-2">&amp;</span>uh_course_code)
+                .<span class="kw">await</span><span class="question-mark">?
+        </span>}
     };
-    <span class="prelude-val">Ok</span>(<span class="ident">CompletionRegistrationLink</span> {
-        <span class="ident">url</span>: <span class="ident">registration_link</span>,
+    <span class="prelude-val">Ok</span>(CompletionRegistrationLink {
+        url: registration_link,
     })
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test_helper::<span class="kw-2">*</span>;
 
-    <span class="kw">mod</span> <span class="ident">grant_automatic_completion_if_eligible</span> {
-        <span class="kw">use</span> <span class="kw">crate</span>::{
-            <span class="ident">chapters::NewChapter</span>,
-            <span class="ident">course_modules</span>::{<span class="self">self</span>, <span class="ident">AutomaticCompletionCriteria</span>, <span class="ident">AutomaticCompletionPolicy</span>},
-            <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
-            <span class="ident">library::content_management</span>,
-            <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseStateUpdate</span>},
+    <span class="kw">mod </span>grant_automatic_completion_if_eligible {
+        <span class="kw">use crate</span>::{
+            chapters::NewChapter,
+            course_modules::{<span class="self">self</span>, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+            exercises::{<span class="self">self</span>, ActivityProgress, GradingProgress},
+            library::content_management,
+            user_exercise_states::{<span class="self">self</span>, ReviewingStage, UserExerciseStateUpdate},
         };
 
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grants_automatic_completion_but_no_prerequisite_for_default_module</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>);
-            <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">user</span>, <span class="ident">instance</span>, <span class="ident">default_module</span>, <span class="ident">_submodule_1</span>, <span class="ident">_submodule_2</span>) <span class="op">=</span>
-                <span class="ident">create_test_data</span>(<span class="ident">tx</span>).<span class="kw">await</span>;
-            <span class="ident">update_automatic_completion_status_and_grant_if_eligible</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">default_module</span>,
-                <span class="ident">instance</span>,
-                <span class="ident">user</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>grants_automatic_completion_but_no_prerequisite_for_default_module() {
+            <span class="macro">insert_data!</span>(:tx);
+            <span class="kw">let </span>(<span class="kw-2">mut </span>tx, user, instance, default_module, _submodule_1, _submodule_2) =
+                create_test_data(tx).<span class="kw">await</span>;
+            update_automatic_completion_status_and_grant_if_eligible(
+                tx.as_mut(),
+                <span class="kw-2">&amp;</span>default_module,
+                instance,
+                user,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">statuses</span> <span class="op">=</span> <span class="ident">get_user_module_completion_statuses_for_course_instance</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">user</span>,
-                <span class="ident">instance</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>statuses = get_user_module_completion_statuses_for_course_instance(
+                tx.as_mut(),
+                user,
+                instance,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">statuses</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">module_id</span> <span class="op">==</span> <span class="ident">default_module</span>.<span class="ident">id</span>)
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">status</span>.<span class="ident">completed</span>);
-            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">status</span>.<span class="ident">prerequisite_modules_completed</span>);
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>status = statuses
+                .iter()
+                .find(|x| x.module_id == default_module.id)
+                .unwrap();
+            <span class="macro">assert!</span>(status.completed);
+            <span class="macro">assert!</span>(!status.prerequisite_modules_completed);
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grants_automatic_completion_but_no_prerequisite_for_submodule</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>);
-            <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">user</span>, <span class="ident">instance</span>, <span class="ident">_default_module</span>, <span class="ident">submodule_1</span>, <span class="ident">_submodule_2</span>) <span class="op">=</span>
-                <span class="ident">create_test_data</span>(<span class="ident">tx</span>).<span class="kw">await</span>;
-            <span class="ident">update_automatic_completion_status_and_grant_if_eligible</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">submodule_1</span>,
-                <span class="ident">instance</span>,
-                <span class="ident">user</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>grants_automatic_completion_but_no_prerequisite_for_submodule() {
+            <span class="macro">insert_data!</span>(:tx);
+            <span class="kw">let </span>(<span class="kw-2">mut </span>tx, user, instance, _default_module, submodule_1, _submodule_2) =
+                create_test_data(tx).<span class="kw">await</span>;
+            update_automatic_completion_status_and_grant_if_eligible(
+                tx.as_mut(),
+                <span class="kw-2">&amp;</span>submodule_1,
+                instance,
+                user,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">statuses</span> <span class="op">=</span> <span class="ident">get_user_module_completion_statuses_for_course_instance</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">user</span>,
-                <span class="ident">instance</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>statuses = get_user_module_completion_statuses_for_course_instance(
+                tx.as_mut(),
+                user,
+                instance,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">statuses</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">module_id</span> <span class="op">==</span> <span class="ident">submodule_1</span>.<span class="ident">id</span>)
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">status</span>.<span class="ident">completed</span>);
-            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">status</span>.<span class="ident">prerequisite_modules_completed</span>);
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>status = statuses
+                .iter()
+                .find(|x| x.module_id == submodule_1.id)
+                .unwrap();
+            <span class="macro">assert!</span>(status.completed);
+            <span class="macro">assert!</span>(!status.prerequisite_modules_completed);
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grants_automatic_completion_for_eligible_submodule_when_completing_default_module</span>()
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>grants_automatic_completion_for_eligible_submodule_when_completing_default_module()
         {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>);
-            <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">user</span>, <span class="ident">instance</span>, <span class="ident">default_module</span>, <span class="ident">submodule_1</span>, <span class="ident">submodule_2</span>) <span class="op">=</span>
-                <span class="ident">create_test_data</span>(<span class="ident">tx</span>).<span class="kw">await</span>;
-            <span class="ident">update_automatic_completion_status_and_grant_if_eligible</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">default_module</span>,
-                <span class="ident">instance</span>,
-                <span class="ident">user</span>,
+            <span class="macro">insert_data!</span>(:tx);
+            <span class="kw">let </span>(<span class="kw-2">mut </span>tx, user, instance, default_module, submodule_1, submodule_2) =
+                create_test_data(tx).<span class="kw">await</span>;
+            update_automatic_completion_status_and_grant_if_eligible(
+                tx.as_mut(),
+                <span class="kw-2">&amp;</span>default_module,
+                instance,
+                user,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">update_automatic_completion_status_and_grant_if_eligible</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">submodule_1</span>,
-                <span class="ident">instance</span>,
-                <span class="ident">user</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            update_automatic_completion_status_and_grant_if_eligible(
+                tx.as_mut(),
+                <span class="kw-2">&amp;</span>submodule_1,
+                instance,
+                user,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">update_automatic_completion_status_and_grant_if_eligible</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">submodule_2</span>,
-                <span class="ident">instance</span>,
-                <span class="ident">user</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            update_automatic_completion_status_and_grant_if_eligible(
+                tx.as_mut(),
+                <span class="kw-2">&amp;</span>submodule_2,
+                instance,
+                user,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">statuses</span> <span class="op">=</span> <span class="ident">get_user_module_completion_statuses_for_course_instance</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">user</span>,
-                <span class="ident">instance</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>statuses = get_user_module_completion_statuses_for_course_instance(
+                tx.as_mut(),
+                user,
+                instance,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">statuses</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
-                <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">completed</span>);
-                <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">prerequisite_modules_completed</span>);
+            .<span class="kw">await
+            </span>.unwrap();
+            statuses.iter().for_each(|x| {
+                <span class="macro">assert!</span>(x.completed);
+                <span class="macro">assert!</span>(x.prerequisite_modules_completed);
             });
         }
 
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_test_data</span>(
-            <span class="kw-2">mut</span> <span class="ident">tx</span>: <span class="ident">Tx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; (<span class="ident">Tx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">Uuid</span>, <span class="ident">Uuid</span>, <span class="ident">CourseModule</span>, <span class="ident">CourseModule</span>, <span class="ident">CourseModule</span>) {
-            <span class="kw">let</span> <span class="ident">automatic_completion_policy</span> <span class="op">=</span>
-                <span class="ident">AutomaticCompletionPolicy::AutomaticCompletion</span>(<span class="ident">AutomaticCompletionCriteria</span> {
-                    <span class="ident">number_of_exercises_attempted_treshold</span>: <span class="prelude-val">Some</span>(<span class="number">0</span>),
-                    <span class="ident">number_of_points_treshold</span>: <span class="prelude-val">Some</span>(<span class="number">0</span>),
+        <span class="kw">async fn </span>create_test_data(
+            <span class="kw-2">mut </span>tx: Tx&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; (Tx&lt;<span class="lifetime">&#39;_</span>&gt;, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
+            <span class="kw">let </span>automatic_completion_policy =
+                AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+                    number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">0</span>),
+                    number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">0</span>),
                 });
-            <span class="macro">insert_data!</span>(<span class="ident">tx</span>: <span class="ident">tx</span>; :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>);
-            <span class="ident">courses::update_course_base_module_completion_count_requirement</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="number">1</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">course_module_2</span> <span class="op">=</span> <span class="ident">course_modules::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">course</span>,
+            <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
+            courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, <span class="number">1</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>course_module_2 = course_modules::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course,
                 <span class="prelude-val">Some</span>(<span class="string">&quot;Module 2&quot;</span>),
                 <span class="number">1</span>,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> (<span class="ident">chapter_2</span>, <span class="ident">page2</span>) <span class="op">=</span> <span class="ident">content_management::create_new_chapter</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="kw-2">&amp;</span><span class="ident">NewChapter</span> {
-                    <span class="ident">name</span>: <span class="string">&quot;chapter 2&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">color</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">course_id</span>: <span class="ident">course</span>,
-                    <span class="ident">chapter_number</span>: <span class="number">2</span>,
-                    <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_module_2</span>.<span class="ident">id</span>),
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>(chapter_2, page2) = content_management::create_new_chapter(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                <span class="kw-2">&amp;</span>NewChapter {
+                    name: <span class="string">&quot;chapter 2&quot;</span>.to_string(),
+                    color: <span class="prelude-val">None</span>,
+                    course_id: course,
+                    chapter_number: <span class="number">2</span>,
+                    front_page_id: <span class="prelude-val">None</span>,
+                    opens_at: <span class="prelude-val">None</span>,
+                    deadline: <span class="prelude-val">None</span>,
+                    course_module_id: <span class="prelude-val">Some</span>(course_module_2.id),
                 },
-                <span class="ident">user</span>,
+                user,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">exercise_2</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">course</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>exercise_2 = exercises::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course,
                 <span class="string">&quot;&quot;</span>,
-                <span class="ident">page2</span>.<span class="ident">id</span>,
-                <span class="ident">chapter_2</span>.<span class="ident">id</span>,
+                page2.id,
+                chapter_2.id,
                 <span class="number">0</span>,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">user</span>,
-                <span class="ident">exercise</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise,
+                <span class="prelude-val">Some</span>(instance.id),
                 <span class="prelude-val">None</span>,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">user_exercise_states::update</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">UserExerciseStateUpdate</span> {
-                    <span class="ident">id</span>: <span class="ident">user_exercise_state</span>.<span class="ident">id</span>,
-                    <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
-                    <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::Completed</span>,
-                    <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::NotStarted</span>,
-                    <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            user_exercise_states::update(
+                tx.as_mut(),
+                UserExerciseStateUpdate {
+                    id: user_exercise_state.id,
+                    score_given: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
+                    activity_progress: ActivityProgress::Completed,
+                    reviewing_stage: ReviewingStage::NotStarted,
+                    grading_progress: GradingProgress::FullyGraded,
                 },
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">user_exercise_state_2</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">user</span>,
-                <span class="ident">exercise_2</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>user_exercise_state_2 = user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise_2,
+                <span class="prelude-val">Some</span>(instance.id),
                 <span class="prelude-val">None</span>,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">user_exercise_states::update</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">UserExerciseStateUpdate</span> {
-                    <span class="ident">id</span>: <span class="ident">user_exercise_state_2</span>.<span class="ident">id</span>,
-                    <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
-                    <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::Completed</span>,
-                    <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::NotStarted</span>,
-                    <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            user_exercise_states::update(
+                tx.as_mut(),
+                UserExerciseStateUpdate {
+                    id: user_exercise_state_2.id,
+                    score_given: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
+                    activity_progress: ActivityProgress::Completed,
+                    reviewing_stage: ReviewingStage::NotStarted,
+                    grading_progress: GradingProgress::FullyGraded,
                 },
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">default_module</span> <span class="op">=</span> <span class="ident">course_modules::get_default_by_course_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">default_module</span> <span class="op">=</span> <span class="ident">course_modules::update_automatic_completion_status</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">default_module</span>.<span class="ident">id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">automatic_completion_policy</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>default_module = course_modules::get_default_by_course_id(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>default_module = course_modules::update_automatic_completion_status(
+                tx.as_mut(),
+                default_module.id,
+                <span class="kw-2">&amp;</span>automatic_completion_policy,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span> <span class="ident">course_modules::update_automatic_completion_status</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">course_module</span>.<span class="ident">id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">automatic_completion_policy</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>course_module = course_modules::update_automatic_completion_status(
+                tx.as_mut(),
+                course_module.id,
+                <span class="kw-2">&amp;</span>automatic_completion_policy,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">course_module_2</span> <span class="op">=</span> <span class="ident">course_modules::update_automatic_completion_status</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">course_module_2</span>.<span class="ident">id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">automatic_completion_policy</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>course_module_2 = course_modules::update_automatic_completion_status(
+                tx.as_mut(),
+                course_module_2.id,
+                <span class="kw-2">&amp;</span>automatic_completion_policy,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+            .<span class="kw">await
+            </span>.unwrap();
             (
-                <span class="ident">tx</span>,
-                <span class="ident">user</span>,
-                <span class="ident">instance</span>.<span class="ident">id</span>,
-                <span class="ident">default_module</span>,
-                <span class="ident">course_module</span>,
-                <span class="ident">course_module_2</span>,
+                tx,
+                user,
+                instance.id,
+                default_module,
+                course_module,
+                course_module_2,
             )
         }
     }
 
-    <span class="kw">mod</span> <span class="ident">automatic_completion_validation</span> {
-        <span class="kw">use</span> <span class="ident">chrono::TimeZone</span>;
+    <span class="kw">mod </span>automatic_completion_validation {
+        <span class="kw">use </span>chrono::TimeZone;
 
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">doesnt_give_completion_if_automatic_completions_are_not_enabled</span>() {
-            <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span> <span class="ident">create_course_module</span>(<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="number">0</span>));
-            <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span> <span class="ident">create_user_course_instance_metrics</span>(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">user_is_eligible_for_automatic_completion</span>(
-                <span class="kw-2">&amp;</span><span class="ident">course_module</span>,
-                <span class="kw-2">&amp;</span><span class="ident">user_metrics</span>
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>doesnt_give_completion_if_automatic_completions_are_not_enabled() {
+            <span class="kw">let </span>course_module = create_course_module(<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="number">0</span>));
+            <span class="kw">let </span>user_metrics = create_user_course_instance_metrics(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
+            <span class="macro">assert!</span>(!user_is_eligible_for_automatic_completion(
+                <span class="kw-2">&amp;</span>course_module,
+                <span class="kw-2">&amp;</span>user_metrics
             ));
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">doesnt_give_completion_if_no_tresholds_are_defined</span>() {
-            <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span> <span class="ident">create_course_module</span>(<span class="bool-val">true</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
-            <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span> <span class="ident">create_user_course_instance_metrics</span>(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">user_is_eligible_for_automatic_completion</span>(
-                <span class="kw-2">&amp;</span><span class="ident">course_module</span>,
-                <span class="kw-2">&amp;</span><span class="ident">user_metrics</span>
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>doesnt_give_completion_if_no_tresholds_are_defined() {
+            <span class="kw">let </span>course_module = create_course_module(<span class="bool-val">true</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+            <span class="kw">let </span>user_metrics = create_user_course_instance_metrics(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
+            <span class="macro">assert!</span>(!user_is_eligible_for_automatic_completion(
+                <span class="kw-2">&amp;</span>course_module,
+                <span class="kw-2">&amp;</span>user_metrics
             ));
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">gives_completion_if_exercises_attempted_treshold_is_met</span>() {
-            <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span> <span class="ident">create_course_module</span>(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">None</span>);
-            <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span> <span class="ident">create_user_course_instance_metrics</span>(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="macro">assert!</span>(<span class="ident">user_is_eligible_for_automatic_completion</span>(
-                <span class="kw-2">&amp;</span><span class="ident">course_module</span>,
-                <span class="kw-2">&amp;</span><span class="ident">user_metrics</span>
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>gives_completion_if_exercises_attempted_treshold_is_met() {
+            <span class="kw">let </span>course_module = create_course_module(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">None</span>);
+            <span class="kw">let </span>user_metrics = create_user_course_instance_metrics(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
+            <span class="macro">assert!</span>(user_is_eligible_for_automatic_completion(
+                <span class="kw-2">&amp;</span>course_module,
+                <span class="kw-2">&amp;</span>user_metrics
             ));
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">gives_completion_if_points_treshold_is_met</span>() {
-            <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span> <span class="ident">create_course_module</span>(<span class="bool-val">true</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span> <span class="ident">create_user_course_instance_metrics</span>(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
-            <span class="macro">assert!</span>(<span class="ident">user_is_eligible_for_automatic_completion</span>(
-                <span class="kw-2">&amp;</span><span class="ident">course_module</span>,
-                <span class="kw-2">&amp;</span><span class="ident">user_metrics</span>
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>gives_completion_if_points_treshold_is_met() {
+            <span class="kw">let </span>course_module = create_course_module(<span class="bool-val">true</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>));
+            <span class="kw">let </span>user_metrics = create_user_course_instance_metrics(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>));
+            <span class="macro">assert!</span>(user_is_eligible_for_automatic_completion(
+                <span class="kw-2">&amp;</span>course_module,
+                <span class="kw-2">&amp;</span>user_metrics
             ));
         }
 
-        <span class="kw">fn</span> <span class="ident">create_course_module</span>(
-            <span class="ident">automatic_completion</span>: <span class="ident">bool</span>,
-            <span class="ident">exercises_attempted_treshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-            <span class="ident">number_of_points_treshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">CourseModule</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f2cd5971-444f-4b1b-9ef9-4d283fecf6f8&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">timestamp</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">27</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">course_module</span> <span class="op">=</span>
-                <span class="ident">CourseModule::new</span>(<span class="ident">id</span>, <span class="ident">id</span>).<span class="ident">set_timestamps</span>(<span class="ident">timestamp</span>, <span class="ident">timestamp</span>, <span class="prelude-val">None</span>);
-            <span class="ident">course_module</span>.<span class="ident">automatic_completion</span> <span class="op">=</span> <span class="ident">automatic_completion</span>;
-            <span class="ident">course_module</span>.<span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span> <span class="op">=</span>
-                <span class="ident">exercises_attempted_treshold</span>;
-            <span class="ident">course_module</span>.<span class="ident">automatic_completion_number_of_points_treshold</span> <span class="op">=</span>
-                <span class="ident">number_of_points_treshold</span>;
-            <span class="ident">course_module</span>
+        <span class="kw">fn </span>create_course_module(
+            automatic_completion: bool,
+            exercises_attempted_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+            number_of_points_treshold: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+        ) -&gt; CourseModule {
+            <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;f2cd5971-444f-4b1b-9ef9-4d283fecf6f8&quot;</span>).unwrap();
+            <span class="kw">let </span>timestamp = Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">27</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>course_module =
+                CourseModule::new(id, id).set_timestamps(timestamp, timestamp, <span class="prelude-val">None</span>);
+            course_module.automatic_completion = automatic_completion;
+            course_module.automatic_completion_number_of_exercises_attempted_treshold =
+                exercises_attempted_treshold;
+            course_module.automatic_completion_number_of_points_treshold =
+                number_of_points_treshold;
+            course_module
         }
 
-        <span class="kw">fn</span> <span class="ident">create_user_course_instance_metrics</span>(
-            <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-            <span class="ident">attempted_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">UserCourseInstanceMetrics</span> {
-            <span class="ident">UserCourseInstanceMetrics</span> {
-                <span class="ident">course_module_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f2cd5971-444f-4b1b-9ef9-4d283fecf6f8&quot;</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">score_given</span>,
-                <span class="ident">attempted_exercises</span>,
+        <span class="kw">fn </span>create_user_course_instance_metrics(
+            score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+            attempted_exercises: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+        ) -&gt; UserCourseInstanceMetrics {
+            UserCourseInstanceMetrics {
+                course_module_id: Uuid::parse_str(<span class="string">&quot;f2cd5971-444f-4b1b-9ef9-4d283fecf6f8&quot;</span>).unwrap(),
+                score_given,
+                attempted_exercises,
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

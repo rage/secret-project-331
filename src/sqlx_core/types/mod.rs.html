@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/types/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/types/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -207,214 +207,214 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Conversions between Rust and SQL types.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! To see how each SQL type maps to a Rust type, see the corresponding `types` module for each</span>
-<span class="doccomment">//! database:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!  * [PostgreSQL](crate::postgres::types)</span>
-<span class="doccomment">//!  * [MySQL](crate::mysql::types)</span>
-<span class="doccomment">//!  * [SQLite](crate::sqlite::types)</span>
-<span class="doccomment">//!  * [MSSQL](crate::mssql::types)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Any external types that have had [`Type`] implemented for, are re-exported in this module</span>
-<span class="doccomment">//! for convenience as downstream users need to use a compatible version of the external crate</span>
-<span class="doccomment">//! to take advantage of the implementation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Nullable</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! To represent nullable SQL types, `Option&lt;T&gt;` is supported where `T` implements `Type`.</span>
-<span class="doccomment">//! An `Option&lt;T&gt;` represents a potentially `NULL` value from SQL.</span>
-<span class="doccomment">//!</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Conversions between Rust and SQL types.
+//!
+//! To see how each SQL type maps to a Rust type, see the corresponding `types` module for each
+//! database:
+//!
+//!  * [PostgreSQL](crate::postgres::types)
+//!  * [MySQL](crate::mysql::types)
+//!  * [SQLite](crate::sqlite::types)
+//!  * [MSSQL](crate::mssql::types)
+//!
+//! Any external types that have had [`Type`] implemented for, are re-exported in this module
+//! for convenience as downstream users need to use a compatible version of the external crate
+//! to take advantage of the implementation.
+//!
+//! # Nullable
+//!
+//! To represent nullable SQL types, `Option&lt;T&gt;` is supported where `T` implements `Type`.
+//! An `Option&lt;T&gt;` represents a potentially `NULL` value from SQL.
+//!
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::Database</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::database::Database;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bstr&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bstr&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">bstr</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;bstr&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;bstr&quot;</span>)))]
+</span><span class="kw">pub mod </span>bstr;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;git2&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;git2&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">git2</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;git2&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;git2&quot;</span>)))]
+</span><span class="kw">pub mod </span>git2;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)))]</span>
-<span class="kw">mod</span> <span class="ident">json</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;json&quot;</span>)))]
+</span><span class="kw">mod </span>json;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">uuid</span>::{<span class="self">self</span>, <span class="ident">Uuid</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;uuid&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;uuid&quot;</span>)))]
+#[doc(no_inline)]
+</span><span class="kw">pub use </span>uuid::{<span class="self">self</span>, Uuid};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">chrono</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">chrono</span>::{
-        <span class="ident">DateTime</span>, <span class="ident">FixedOffset</span>, <span class="ident">Local</span>, <span class="ident">NaiveDate</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">NaiveTime</span>, <span class="ident">TimeZone</span>, <span class="ident">Utc</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;chrono&quot;</span>)))]
+</span><span class="kw">pub mod </span>chrono {
+    <span class="attribute">#[doc(no_inline)]
+    </span><span class="kw">pub use </span>chrono::{
+        DateTime, FixedOffset, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc,
     };
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bit-vec&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bit-vec&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bit_vec::BitVec</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;bit-vec&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;bit-vec&quot;</span>)))]
+#[doc(no_inline)]
+</span><span class="kw">pub use </span>bit_vec::BitVec;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">time</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time</span>::{<span class="ident">Date</span>, <span class="ident">OffsetDateTime</span>, <span class="ident">PrimitiveDateTime</span>, <span class="ident">Time</span>, <span class="ident">UtcOffset</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;time&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;time&quot;</span>)))]
+</span><span class="kw">pub mod </span>time {
+    <span class="attribute">#[doc(no_inline)]
+    </span><span class="kw">pub use </span>time::{Date, OffsetDateTime, PrimitiveDateTime, Time, UtcOffset};
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bigdecimal::BigDecimal</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)))]
+#[doc(no_inline)]
+</span><span class="kw">pub use </span>bigdecimal::BigDecimal;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">rust_decimal::Decimal</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;decimal&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;decimal&quot;</span>)))]
+#[doc(no_inline)]
+</span><span class="kw">pub use </span>rust_decimal::Decimal;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ipnetwork&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ipnetwork&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ipnetwork</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ipnetwork</span>::{<span class="ident">IpNetwork</span>, <span class="ident">Ipv4Network</span>, <span class="ident">Ipv6Network</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ipnetwork&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;ipnetwork&quot;</span>)))]
+</span><span class="kw">pub mod </span>ipnetwork {
+    <span class="attribute">#[doc(no_inline)]
+    </span><span class="kw">pub use </span>ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mac_address&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mac_address&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mac_address</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mac_address::MacAddress</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mac_address&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;mac_address&quot;</span>)))]
+</span><span class="kw">pub mod </span>mac_address {
+    <span class="attribute">#[doc(no_inline)]
+    </span><span class="kw">pub use </span>mac_address::MacAddress;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">json</span>::{<span class="ident">Json</span>, <span class="ident">JsonRawValue</span>, <span class="ident">JsonValue</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+</span><span class="kw">pub use </span>json::{Json, JsonRawValue, JsonValue};
 
-<span class="doccomment">/// Indicates that a SQL type is supported for a database.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Compile-time verification</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// With compile-time verification, the use of type overrides is currently required to make</span>
-<span class="doccomment">/// use of any user-defined types.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// struct MyUser { id: UserId, name: String }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // fetch all properties from user and override the type in Rust for `id`</span>
-<span class="doccomment">/// let user = query_as!(MyUser, r#&quot;SELECT users.*, id as &quot;id: UserId&quot; FROM users&quot;#)</span>
-<span class="doccomment">///     .fetch_one(&amp;pool).await?;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Derivable</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait can be derived by SQLx to support Rust-only wrapper types, enumerations, and (for</span>
-<span class="doccomment">/// postgres) structured records. Additionally, an implementation of [`Encode`](crate::encode::Encode) and [`Decode`](crate::decode::Decode) is</span>
-<span class="doccomment">/// generated.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Transparent</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Rust-only domain or wrappers around SQL types. The generated implementations directly delegate</span>
-<span class="doccomment">/// to the implementation of the inner type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::Type)]</span>
-<span class="doccomment">/// #[sqlx(transparent)]</span>
-<span class="doccomment">/// struct UserId(i64);</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ##### Attributes</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// * `#[sqlx(type_name = &quot;&lt;SQL type name&gt;&quot;)]` on struct definition: instead of inferring the SQL</span>
-<span class="doccomment">///   type name from the inner field (in the above case, `BIGINT`), explicitly set it to</span>
-<span class="doccomment">///   `&lt;SQL type name&gt;` instead. May trigger errors or unexpected behavior if the encoding of the</span>
-<span class="doccomment">///   given type is different than that of the inferred type (e.g. if you rename the above to</span>
-<span class="doccomment">///   `VARCHAR`). Affects Postgres only.</span>
-<span class="doccomment">/// * `#[sqlx(rename_all = &quot;&lt;strategy&gt;&quot;)]` on struct definition: See [`derive docs in FromRow`](crate::from_row::FromRow#rename_all)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Enumeration</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Enumerations may be defined in Rust and can match SQL by</span>
-<span class="doccomment">/// integer discriminant or variant name.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// With `#[repr(_)]` the integer representation is used when converting from/to SQL and expects</span>
-<span class="doccomment">/// that SQL type (e.g., `INT`). Without, the names of the variants are used instead and</span>
-<span class="doccomment">/// expects a textual SQL type (e.g., `VARCHAR`, `TEXT`).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::Type)]</span>
-<span class="doccomment">/// #[repr(i32)]</span>
-<span class="doccomment">/// enum Color { Red = 1, Green = 2, Blue = 3 }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::Type)]</span>
-<span class="doccomment">/// #[sqlx(type_name = &quot;color&quot;)] // only for PostgreSQL to match a type definition</span>
-<span class="doccomment">/// #[sqlx(rename_all = &quot;lowercase&quot;)]</span>
-<span class="doccomment">/// enum Color { Red, Green, Blue }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Records</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// User-defined composite types are supported through deriving a `struct`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is only supported for PostgreSQL.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::Type)]</span>
-<span class="doccomment">/// #[sqlx(type_name = &quot;interface_type&quot;)]</span>
-<span class="doccomment">/// struct InterfaceType {</span>
-<span class="doccomment">///     name: String,</span>
-<span class="doccomment">///     supplier_id: i32,</span>
-<span class="doccomment">///     price: f64</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns the canonical SQL type for this Rust type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When binding arguments, this is used to tell the database what is about to be sent; which,</span>
-    <span class="doccomment">/// the database then uses to guide query plans. This can be overridden by `Encode::produces`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A map of SQL types to Rust types is populated with this and used</span>
-    <span class="doccomment">/// to determine the type that is returned from the anonymous struct type from `query!`.</span>
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">DB::TypeInfo</span>;
+<span class="doccomment">/// Indicates that a SQL type is supported for a database.
+///
+/// ## Compile-time verification
+///
+/// With compile-time verification, the use of type overrides is currently required to make
+/// use of any user-defined types.
+///
+/// ```rust,ignore
+/// struct MyUser { id: UserId, name: String }
+///
+/// // fetch all properties from user and override the type in Rust for `id`
+/// let user = query_as!(MyUser, r#&quot;SELECT users.*, id as &quot;id: UserId&quot; FROM users&quot;#)
+///     .fetch_one(&amp;pool).await?;
+/// ```
+///
+/// ## Derivable
+///
+/// This trait can be derived by SQLx to support Rust-only wrapper types, enumerations, and (for
+/// postgres) structured records. Additionally, an implementation of [`Encode`](crate::encode::Encode) and [`Decode`](crate::decode::Decode) is
+/// generated.
+///
+/// ### Transparent
+///
+/// Rust-only domain or wrappers around SQL types. The generated implementations directly delegate
+/// to the implementation of the inner type.
+///
+/// ```rust,ignore
+/// #[derive(sqlx::Type)]
+/// #[sqlx(transparent)]
+/// struct UserId(i64);
+/// ```
+///
+/// ##### Attributes
+///
+/// * `#[sqlx(type_name = &quot;&lt;SQL type name&gt;&quot;)]` on struct definition: instead of inferring the SQL
+///   type name from the inner field (in the above case, `BIGINT`), explicitly set it to
+///   `&lt;SQL type name&gt;` instead. May trigger errors or unexpected behavior if the encoding of the
+///   given type is different than that of the inferred type (e.g. if you rename the above to
+///   `VARCHAR`). Affects Postgres only.
+/// * `#[sqlx(rename_all = &quot;&lt;strategy&gt;&quot;)]` on struct definition: See [`derive docs in FromRow`](crate::from_row::FromRow#rename_all)
+///
+/// ### Enumeration
+///
+/// Enumerations may be defined in Rust and can match SQL by
+/// integer discriminant or variant name.
+///
+/// With `#[repr(_)]` the integer representation is used when converting from/to SQL and expects
+/// that SQL type (e.g., `INT`). Without, the names of the variants are used instead and
+/// expects a textual SQL type (e.g., `VARCHAR`, `TEXT`).
+///
+/// ```rust,ignore
+/// #[derive(sqlx::Type)]
+/// #[repr(i32)]
+/// enum Color { Red = 1, Green = 2, Blue = 3 }
+/// ```
+///
+/// ```rust,ignore
+/// #[derive(sqlx::Type)]
+/// #[sqlx(type_name = &quot;color&quot;)] // only for PostgreSQL to match a type definition
+/// #[sqlx(rename_all = &quot;lowercase&quot;)]
+/// enum Color { Red, Green, Blue }
+/// ```
+///
+/// ### Records
+///
+/// User-defined composite types are supported through deriving a `struct`.
+///
+/// This is only supported for PostgreSQL.
+///
+/// ```rust,ignore
+/// #[derive(sqlx::Type)]
+/// #[sqlx(type_name = &quot;interface_type&quot;)]
+/// struct InterfaceType {
+///     name: String,
+///     supplier_id: i32,
+///     price: f64
+/// }
+/// ```
+///
+</span><span class="kw">pub trait </span>Type&lt;DB: Database&gt; {
+    <span class="doccomment">/// Returns the canonical SQL type for this Rust type.
+    ///
+    /// When binding arguments, this is used to tell the database what is about to be sent; which,
+    /// the database then uses to guide query plans. This can be overridden by `Encode::produces`.
+    ///
+    /// A map of SQL types to Rust types is populated with this and used
+    /// to determine the type that is returned from the anonymous struct type from `query!`.
+    </span><span class="kw">fn </span>type_info() -&gt; DB::TypeInfo;
 
-    <span class="doccomment">/// Determines if this Rust type is compatible with the given SQL type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When decoding values from a row, this method is checked to determine if we should continue</span>
-    <span class="doccomment">/// or raise a runtime type mismatch error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When binding arguments with `query!` or `query_as!`, this method is consulted to determine</span>
-    <span class="doccomment">/// if the Rust type is acceptable.</span>
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">DB::TypeInfo</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw-2">*</span><span class="ident">ty</span> <span class="op">==</span> <span class="ident"><span class="self">Self</span>::type_info</span>()
+    <span class="doccomment">/// Determines if this Rust type is compatible with the given SQL type.
+    ///
+    /// When decoding values from a row, this method is checked to determine if we should continue
+    /// or raise a runtime type mismatch error.
+    ///
+    /// When binding arguments with `query!` or `query_as!`, this method is consulted to determine
+    /// if the Rust type is acceptable.
+    </span><span class="kw">fn </span>compatible(ty: <span class="kw-2">&amp;</span>DB::TypeInfo) -&gt; bool {
+        <span class="kw-2">*</span>ty == <span class="self">Self</span>::type_info()
     }
 }
 
-<span class="comment">// for references, the underlying SQL type is identical</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">DB::TypeInfo</span> {
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
+<span class="comment">// for references, the underlying SQL type is identical
+</span><span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized + Type&lt;DB&gt;, DB: Database&gt; Type&lt;DB&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T {
+    <span class="kw">fn </span>type_info() -&gt; DB::TypeInfo {
+        &lt;T <span class="kw">as </span>Type&lt;DB&gt;&gt;::type_info()
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">DB::TypeInfo</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::compatible</span>(<span class="ident">ty</span>)
+    <span class="kw">fn </span>compatible(ty: <span class="kw-2">&amp;</span>DB::TypeInfo) -&gt; bool {
+        &lt;T <span class="kw">as </span>Type&lt;DB&gt;&gt;::compatible(ty)
     }
 }
 
-<span class="comment">// for optionals, the underlying SQL type is identical</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">DB::TypeInfo</span> {
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
+<span class="comment">// for optionals, the underlying SQL type is identical
+</span><span class="kw">impl</span>&lt;T: Type&lt;DB&gt;, DB: Database&gt; Type&lt;DB&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt; {
+    <span class="kw">fn </span>type_info() -&gt; DB::TypeInfo {
+        &lt;T <span class="kw">as </span>Type&lt;DB&gt;&gt;::type_info()
     }
 
-    <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">DB::TypeInfo</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::compatible</span>(<span class="ident">ty</span>)
+    <span class="kw">fn </span>compatible(ty: <span class="kw-2">&amp;</span>DB::TypeInfo) -&gt; bool {
+        &lt;T <span class="kw">as </span>Type&lt;DB&gt;&gt;::compatible(ty)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

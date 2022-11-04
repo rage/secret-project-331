@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/woothee-0.13.0/src/dataset.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dataset.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../woothee/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../woothee/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../woothee/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/woothee-0.13.0/src/dataset.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dataset.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../woothee/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../woothee/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../woothee/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1149,1156 +1149,1156 @@
 <span id="1149">1149</span>
 <span id="1150">1150</span>
 <span id="1151">1151</span>
-</pre><pre class="rust"><code><span class="comment">// This file is auto-generated! Any changes to this file will be lost!</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::WootheeResult</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="comment">// This file is auto-generated! Any changes to this file will be lost!
+</span><span class="kw">use </span><span class="kw">crate</span>::parser::WootheeResult;
+<span class="kw">use </span>std::collections::HashMap;
 
-<span class="macro">lazy_static!</span> {
-    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">DATASET</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">WootheeResult</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dataset</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+<span class="macro">lazy_static! </span>{
+    <span class="kw">pub static </span><span class="kw-2">ref </span>DATASET: HashMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, WootheeResult&lt;<span class="lifetime">&#39;static</span>&gt;&gt; = {
+        <span class="kw">let </span><span class="kw-2">mut </span>dataset = HashMap::new();
 
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;MSIE&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Internet Explorer&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Microsoft&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Internet Explorer&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Microsoft&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Edge&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Edge&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Microsoft&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Edge&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Microsoft&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Chrome&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Chrome&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Google&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Chrome&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Google&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Safari&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Safari&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Apple&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Safari&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Apple&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Firefox&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Firefox&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Mozilla&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Firefox&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Mozilla&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Opera&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Opera&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Opera&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Opera&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Opera&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Vivaldi&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Vivaldi&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Vivaldi Technologies&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Vivaldi&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Vivaldi Technologies&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Sleipnir&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Sleipnir&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Fenrir Inc.&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Sleipnir&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Fenrir Inc.&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;GSA&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Google Search App&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Google&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Google Search App&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Google&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Webview&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Webview&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;OS vendor&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Webview&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;OS vendor&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;YaBrowser&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Yandex Browser&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Yandex&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Yandex Browser&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Yandex&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;SamsungBrowser&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;SamsungBrowser&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;browser&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Samsung&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;SamsungBrowser&quot;</span>,
+                browser_type: <span class="string">&quot;browser&quot;</span>,
+                category: <span class="string">&quot;&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Samsung&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Win&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows UNKNOWN Ver&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows UNKNOWN Ver&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Win10&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows 10&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows 10&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Win8.1&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows 8.1&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows 8.1&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Win8&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows 8&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows 8&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Win7&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows 7&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows 7&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;WinVista&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows Vista&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows Vista&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;WinXP&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows XP&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows XP&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Win2000&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows 2000&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows 2000&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;WinNT4&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows NT 4.0&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows NT 4.0&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;WinMe&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows Me&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows Me&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Win98&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows 98&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows 98&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Win95&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows 95&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows 95&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;WinPhone&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows Phone OS&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows Phone OS&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;WinCE&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows CE&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows CE&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;OSX&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Mac OSX&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Mac OSX&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;MacOS&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Mac OS Classic&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Mac OS Classic&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Linux&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Linux&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Linux&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;BSD&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;BSD&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;BSD&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;ChromeOS&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;ChromeOS&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;pc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;ChromeOS&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;pc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Android&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Android&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Android&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;iPhone&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;iPhone&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;iPhone&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;iPad&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;iPad&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;iPad&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;iPod&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;iPod&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;iPod&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;iOS&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;iOS&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;iOS&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;FirefoxOS&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Firefox OS&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Firefox OS&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;BlackBerry&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;BlackBerry&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;BlackBerry&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;BlackBerry10&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;BlackBerry 10&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;os&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;smartphone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;BlackBerry 10&quot;</span>,
+                browser_type: <span class="string">&quot;os&quot;</span>,
+                category: <span class="string">&quot;smartphone&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;docomo&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;docomo&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;mobilephone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;docomo&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;docomo&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;docomo&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;mobilephone&quot;</span>,
+                os: <span class="string">&quot;docomo&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;docomo&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;au&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;au by KDDI&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;mobilephone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;au&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;au&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;au by KDDI&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;mobilephone&quot;</span>,
+                os: <span class="string">&quot;au&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;au&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;SoftBank&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;SoftBank Mobile&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;mobilephone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;SoftBank&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;SoftBank&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;SoftBank Mobile&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;mobilephone&quot;</span>,
+                os: <span class="string">&quot;SoftBank&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;SoftBank&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;willcom&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;WILLCOM&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;mobilephone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;WILLCOM&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;WILLCOM&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;WILLCOM&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;mobilephone&quot;</span>,
+                os: <span class="string">&quot;WILLCOM&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;WILLCOM&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;jig&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;jig browser&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;mobilephone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;jig&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;jig browser&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;mobilephone&quot;</span>,
+                os: <span class="string">&quot;jig&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;emobile&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;emobile&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;mobilephone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;emobile&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;emobile&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;mobilephone&quot;</span>,
+                os: <span class="string">&quot;emobile&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;SymbianOS&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;SymbianOS&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;mobilephone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;SymbianOS&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;SymbianOS&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;mobilephone&quot;</span>,
+                os: <span class="string">&quot;SymbianOS&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;MobileTranscoder&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Mobile Transcoder&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;mobilephone&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;Mobile Transcoder&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Mobile Transcoder&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;mobilephone&quot;</span>,
+                os: <span class="string">&quot;Mobile Transcoder&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Nintendo3DS&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Nintendo 3DS&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;Nintendo 3DS&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Nintendo&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Nintendo 3DS&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;Nintendo 3DS&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Nintendo&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;NintendoDSi&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Nintendo DSi&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;Nintendo DSi&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Nintendo&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Nintendo DSi&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;Nintendo DSi&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Nintendo&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;NintendoWii&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Nintendo Wii&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;Nintendo Wii&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Nintendo&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Nintendo Wii&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;Nintendo Wii&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Nintendo&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;NintendoWiiU&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Nintendo Wii U&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;Nintendo Wii U&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Nintendo&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Nintendo Wii U&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;Nintendo Wii U&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Nintendo&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;PSP&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;PlayStation Portable&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;PlayStation Portable&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Sony&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;PlayStation Portable&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;PlayStation Portable&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Sony&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;PSVita&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;PlayStation Vita&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;PlayStation Vita&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Sony&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;PlayStation Vita&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;PlayStation Vita&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Sony&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;PS3&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;PlayStation 3&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;PlayStation 3&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Sony&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;PlayStation 3&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;PlayStation 3&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Sony&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;PS4&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;PlayStation 4&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;PlayStation 4&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Sony&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;PlayStation 4&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;PlayStation 4&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Sony&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Xbox360&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Xbox 360&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;Xbox 360&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Microsoft&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Xbox 360&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;Xbox 360&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Microsoft&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;XboxOne&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Xbox One&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;Xbox One&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Microsoft&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Xbox One&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;Xbox One&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Microsoft&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;DigitalTV&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;InternetTVBrowser&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;appliance&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;DigitalTV&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;InternetTVBrowser&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;appliance&quot;</span>,
+                os: <span class="string">&quot;DigitalTV&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;SafariRSSReader&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Safari RSSReader&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;misc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Apple&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Safari RSSReader&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;misc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Apple&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;GoogleDesktop&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Google Desktop&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;misc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Google&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Google Desktop&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;misc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Google&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;WindowsRSSReader&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Windows RSSReader&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;misc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;Microsoft&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Windows RSSReader&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;misc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;Microsoft&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;VariousRSSReader&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;RSSReader&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;misc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;RSSReader&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;misc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;HTTPLibrary&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;HTTP Library&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;misc&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;HTTP Library&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;misc&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;GoogleBot&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Googlebot&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Googlebot&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;GoogleBotMobile&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Googlebot Mobile&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Googlebot Mobile&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;GoogleMediaPartners&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Google Mediapartners&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Google Mediapartners&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;GoogleFeedFetcher&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Google Feedfetcher&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Google Feedfetcher&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;GoogleAppEngine&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Google AppEngine&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Google AppEngine&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;GoogleWebPreview&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Google Web Preview&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Google Web Preview&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;YahooSlurp&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Yahoo! Slurp&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Yahoo! Slurp&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;YahooJP&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Yahoo! Japan&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Yahoo! Japan&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;YahooPipes&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Yahoo! Pipes&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Yahoo! Pipes&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Baiduspider&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Baiduspider&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Baiduspider&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;msnbot&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;msnbot&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;msnbot&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;bingbot&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;bingbot&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;bingbot&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;BingPreview&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;BingPreview&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;BingPreview&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Yeti&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Naver Yeti&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Naver Yeti&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;FeedBurner&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Google FeedBurner&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Google FeedBurner&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;facebook&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;facebook&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;facebook&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;twitter&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;twitter&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;twitter&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;trendictionbot&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;trendiction&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;trendiction&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;mixi&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;mixi&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;mixi&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;IndyLibrary&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Indy Library&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Indy Library&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;ApplePubSub&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Apple iCloud&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Apple iCloud&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Genieo&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Genieo Web Filter&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Genieo Web Filter&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;topsyButterfly&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;topsy Butterfly&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;topsy Butterfly&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;rogerbot&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;SeoMoz rogerbot&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;SeoMoz rogerbot&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;AhrefsBot&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;ahref AhrefsBot&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;ahref AhrefsBot&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;radian6&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;salesforce radian6&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;salesforce radian6&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;Hatena&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Hatena&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;Hatena&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;goo&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;goo&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;goo&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;livedoorFeedFetcher&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;livedoor FeedFetcher&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;livedoor FeedFetcher&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;VariousCrawler&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;misc crawler&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;misc crawler&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;AdsBotGoogleMobile&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;AdsBot-Google-Mobile&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;AdsBot-Google-Mobile&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>.<span class="ident">insert</span>(
+        dataset.insert(
             <span class="string">&quot;AdsBotGoogle&quot;</span>,
-            <span class="ident">WootheeResult</span> {
-                <span class="ident">name</span>: <span class="string">&quot;AdsBot-Google&quot;</span>,
-                <span class="ident">browser_type</span>: <span class="string">&quot;full&quot;</span>,
-                <span class="ident">category</span>: <span class="string">&quot;crawler&quot;</span>,
-                <span class="ident">os</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">os_version</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">vendor</span>: <span class="string">&quot;&quot;</span>,
-                <span class="ident">version</span>: <span class="string">&quot;&quot;</span>,
+            WootheeResult {
+                name: <span class="string">&quot;AdsBot-Google&quot;</span>,
+                browser_type: <span class="string">&quot;full&quot;</span>,
+                category: <span class="string">&quot;crawler&quot;</span>,
+                os: <span class="string">&quot;&quot;</span>,
+                os_version: <span class="string">&quot;&quot;</span>.into(),
+                vendor: <span class="string">&quot;&quot;</span>,
+                version: <span class="string">&quot;&quot;</span>,
             },
         );
-        <span class="ident">dataset</span>
+        dataset
     };
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="woothee" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="woothee" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

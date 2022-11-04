@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/concat/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/concat/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -621,628 +621,628 @@
 <span id="621">621</span>
 <span id="622">622</span>
 <span id="623">623</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">core</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>core;
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>,<span class="ident">Clone</span>,<span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BroCatliResult</span> {
-  <span class="ident">Success</span> <span class="op">=</span> <span class="number">0</span>,
-  <span class="ident">NeedsMoreInput</span> <span class="op">=</span> <span class="number">1</span>,
-  <span class="ident">NeedsMoreOutput</span> <span class="op">=</span> <span class="number">2</span>,
-  <span class="ident">BrotliFileNotCraftedForAppend</span> <span class="op">=</span> <span class="number">124</span>,
-  <span class="ident">InvalidWindowSize</span> <span class="op">=</span> <span class="number">125</span>,
-  <span class="ident">WindowSizeLargerThanPreviousFile</span> <span class="op">=</span> <span class="number">126</span>,
-  <span class="ident">BrotliFileNotCraftedForConcatenation</span> <span class="op">=</span> <span class="number">127</span>,
+<span class="attribute">#[repr(C)]
+#[derive(Debug,Clone,Copy, PartialEq)]
+</span><span class="kw">pub enum </span>BroCatliResult {
+  Success = <span class="number">0</span>,
+  NeedsMoreInput = <span class="number">1</span>,
+  NeedsMoreOutput = <span class="number">2</span>,
+  BrotliFileNotCraftedForAppend = <span class="number">124</span>,
+  InvalidWindowSize = <span class="number">125</span>,
+  WindowSizeLargerThanPreviousFile = <span class="number">126</span>,
+  BrotliFileNotCraftedForConcatenation = <span class="number">127</span>,
 }
 
-<span class="kw">const</span> <span class="ident">NUM_STREAM_HEADER_BYTES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">5</span>;
+<span class="kw">const </span>NUM_STREAM_HEADER_BYTES: usize = <span class="number">5</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>,<span class="ident">Copy</span>)]</span>
-<span class="kw">struct</span> <span class="ident">NewStreamData</span> {
-    <span class="ident">bytes_so_far</span>: [<span class="ident">u8</span>;<span class="ident">NUM_STREAM_HEADER_BYTES</span>],
-    <span class="ident">num_bytes_read</span>: <span class="ident">u8</span>,
-    <span class="ident">num_bytes_written</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone,Copy)]
+</span><span class="kw">struct </span>NewStreamData {
+    bytes_so_far: [u8;NUM_STREAM_HEADER_BYTES],
+    num_bytes_read: u8,
+    num_bytes_written: <span class="prelude-ty">Option</span>&lt;u8&gt;,
 }
-<span class="kw">impl</span> <span class="ident">NewStreamData</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">NewStreamData</span>{
-        <span class="ident">NewStreamData</span>{
-          <span class="ident">bytes_so_far</span>:[<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>],
-          <span class="ident">num_bytes_read</span>:<span class="number">0</span>,
-          <span class="ident">num_bytes_written</span>:<span class="prelude-val">None</span>,
+<span class="kw">impl </span>NewStreamData {
+    <span class="kw">pub fn </span>new() -&gt; NewStreamData{
+        NewStreamData{
+          bytes_so_far:[<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>],
+          num_bytes_read:<span class="number">0</span>,
+          num_bytes_written:<span class="prelude-val">None</span>,
         }
     }
-    <span class="kw">fn</span> <span class="ident">sufficient</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">num_bytes_read</span> <span class="op">==</span> <span class="number">4</span> <span class="op">&amp;&amp;</span> (<span class="number">127</span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bytes_so_far</span>[<span class="number">0</span>]) <span class="op">!</span><span class="op">=</span> <span class="number">17</span> {
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+    <span class="kw">fn </span>sufficient(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">if </span><span class="self">self</span>.num_bytes_read == <span class="number">4 </span>&amp;&amp; (<span class="number">127</span><span class="kw-2">&amp;</span><span class="self">self</span>.bytes_so_far[<span class="number">0</span>]) != <span class="number">17 </span>{
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="self">self</span>.<span class="ident">num_bytes_read</span> <span class="op">==</span> <span class="number">5</span>
-    }
+        <span class="self">self</span>.num_bytes_read == <span class="number">5
+    </span>}
 }
 
-<span class="kw">fn</span> <span class="ident">parse_window_size</span>(<span class="ident">bytes_so_far</span>:<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u8</span>, <span class="ident">usize</span>), ()<span class="op">&gt;</span> {  <span class="comment">// returns window_size and offset in stream in bits</span>
-  <span class="kw">if</span> <span class="ident">bytes_so_far</span>[<span class="number">0</span>] <span class="op">&amp;</span> <span class="number">1</span> <span class="op">==</span> <span class="number">0</span> {
-    <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">16</span>, <span class="number">1</span>));
+<span class="kw">fn </span>parse_window_size(bytes_so_far:<span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(u8, usize), ()&gt; {  <span class="comment">// returns window_size and offset in stream in bits
+  </span><span class="kw">if </span>bytes_so_far[<span class="number">0</span>] &amp; <span class="number">1 </span>== <span class="number">0 </span>{
+    <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">16</span>, <span class="number">1</span>));
   }
-  <span class="kw">match</span> <span class="ident">bytes_so_far</span>[<span class="number">0</span>] <span class="op">&amp;</span> <span class="number">15</span> {
-    <span class="number">0x3</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">18</span>, <span class="number">4</span>)),
-    <span class="number">0x5</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">19</span>, <span class="number">4</span>)),
-    <span class="number">0x7</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">20</span>, <span class="number">4</span>)),
-    <span class="number">0x9</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">21</span>, <span class="number">4</span>)),
-    <span class="number">0xb</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">22</span>, <span class="number">4</span>)),
-    <span class="number">0xd</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">23</span>, <span class="number">4</span>)),
-    <span class="number">0xf</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">24</span>, <span class="number">4</span>)),
-    <span class="kw">_</span> =&gt; <span class="kw">match</span> <span class="ident">bytes_so_far</span>[<span class="number">0</span>] <span class="op">&amp;</span> <span class="number">127</span> {
-      <span class="number">0x71</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">15</span>, <span class="number">7</span>)),
-      <span class="number">0x61</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">14</span>, <span class="number">7</span>)),
-      <span class="number">0x51</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">13</span>, <span class="number">7</span>)),
-      <span class="number">0x41</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">12</span>, <span class="number">7</span>)),
-      <span class="number">0x31</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">11</span>, <span class="number">7</span>)),
-      <span class="number">0x21</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">10</span>, <span class="number">7</span>)),
-      <span class="number">0x1</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="number">17</span>, <span class="number">7</span>)),
-      <span class="kw">_</span> =&gt; {},
+  <span class="kw">match </span>bytes_so_far[<span class="number">0</span>] &amp; <span class="number">15 </span>{
+    <span class="number">0x3 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">18</span>, <span class="number">4</span>)),
+    <span class="number">0x5 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">19</span>, <span class="number">4</span>)),
+    <span class="number">0x7 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">20</span>, <span class="number">4</span>)),
+    <span class="number">0x9 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">21</span>, <span class="number">4</span>)),
+    <span class="number">0xb </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">22</span>, <span class="number">4</span>)),
+    <span class="number">0xd </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">23</span>, <span class="number">4</span>)),
+    <span class="number">0xf </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">24</span>, <span class="number">4</span>)),
+    <span class="kw">_ </span>=&gt; <span class="kw">match </span>bytes_so_far[<span class="number">0</span>] &amp; <span class="number">127 </span>{
+      <span class="number">0x71 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">15</span>, <span class="number">7</span>)),
+      <span class="number">0x61 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">14</span>, <span class="number">7</span>)),
+      <span class="number">0x51 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">13</span>, <span class="number">7</span>)),
+      <span class="number">0x41 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">12</span>, <span class="number">7</span>)),
+      <span class="number">0x31 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">11</span>, <span class="number">7</span>)),
+      <span class="number">0x21 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">10</span>, <span class="number">7</span>)),
+      <span class="number">0x1 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">17</span>, <span class="number">7</span>)),
+      <span class="kw">_ </span>=&gt; {},
     }
   }
-  <span class="kw">if</span> (<span class="ident">bytes_so_far</span>[<span class="number">0</span>] <span class="op">&amp;</span> <span class="number">0x80</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-    <span class="kw">return</span> <span class="prelude-val">Err</span>(());
+  <span class="kw">if </span>(bytes_so_far[<span class="number">0</span>] &amp; <span class="number">0x80</span>) != <span class="number">0 </span>{
+    <span class="kw">return </span><span class="prelude-val">Err</span>(());
   }
-  <span class="kw">let</span> <span class="ident">ret</span>  <span class="op">=</span> <span class="ident">bytes_so_far</span>[<span class="number">1</span>] <span class="op">&amp;</span> <span class="number">0x3f</span>;
-  <span class="kw">if</span> <span class="ident">ret</span> <span class="op">&lt;</span> <span class="number">10</span> <span class="op">|</span><span class="op">|</span> <span class="ident">ret</span> <span class="op">&gt;</span> <span class="number">30</span> {
-    <span class="kw">return</span> <span class="prelude-val">Err</span>(());
+  <span class="kw">let </span>ret  = bytes_so_far[<span class="number">1</span>] &amp; <span class="number">0x3f</span>;
+  <span class="kw">if </span>ret &lt; <span class="number">10 </span>|| ret &gt; <span class="number">30 </span>{
+    <span class="kw">return </span><span class="prelude-val">Err</span>(());
   }
-  <span class="prelude-val">Ok</span>((<span class="ident">ret</span>, <span class="number">14</span>))
+  <span class="prelude-val">Ok</span>((ret, <span class="number">14</span>))
 }
 
-<span class="kw">fn</span> <span class="ident">detect_varlen_offset</span>(<span class="ident">bytes_so_far</span>:<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">usize</span>), ()<span class="op">&gt;</span> {  <span class="comment">// returns offfset in bits</span>
-  <span class="kw">let</span> (<span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">offset</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">parse_window_size</span>(<span class="ident">bytes_so_far</span>) {
-    <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(()),
+<span class="kw">fn </span>detect_varlen_offset(bytes_so_far:<span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(usize), ()&gt; {  <span class="comment">// returns offfset in bits
+  </span><span class="kw">let </span>(<span class="kw">_</span>, <span class="kw-2">mut </span>offset) = <span class="kw">match </span>parse_window_size(bytes_so_far) {
+    <span class="prelude-val">Ok</span>(x) =&gt; x,
+    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(()),
   };
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="number">0u64</span>;
-  <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">item</span>) <span class="kw">in</span> <span class="ident">bytes_so_far</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-    <span class="ident">bytes</span> <span class="op">|</span><span class="op">=</span> <span class="ident">u64::from</span>(<span class="kw-2">*</span><span class="ident">item</span>) <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">index</span> <span class="op">*</span> <span class="number">8</span>);
+  <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="number">0u64</span>;
+  <span class="kw">for </span>(index, item) <span class="kw">in </span>bytes_so_far.iter().enumerate() {
+    bytes |= u64::from(<span class="kw-2">*</span>item) &lt;&lt; (index * <span class="number">8</span>);
   }
-  <span class="ident">bytes</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="ident">offset</span>;
-  <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-  <span class="kw">if</span> (<span class="ident">bytes</span> <span class="op">&amp;</span> <span class="number">1</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> { <span class="comment">// ISLAST</span>
-    <span class="ident">bytes</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">if</span> (<span class="ident">bytes</span> <span class="op">&amp;</span> <span class="number">1</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> { <span class="comment">// ISLASTEMPTY</span>
-      <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">offset</span>);
+  bytes &gt;&gt;= offset;
+  offset += <span class="number">1</span>;
+  <span class="kw">if </span>(bytes &amp; <span class="number">1</span>) != <span class="number">0 </span>{ <span class="comment">// ISLAST
+    </span>bytes &gt;&gt;= <span class="number">1</span>;
+    offset += <span class="number">1</span>;
+    <span class="kw">if </span>(bytes &amp; <span class="number">1</span>) != <span class="number">0 </span>{ <span class="comment">// ISLASTEMPTY
+      </span><span class="kw">return </span><span class="prelude-val">Ok</span>(offset);
     }
   }
-  <span class="ident">bytes</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mnibbles</span> <span class="op">=</span> <span class="ident">bytes</span> <span class="op">&amp;</span> <span class="number">3</span>;
-  <span class="ident">bytes</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>;
-  <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
-  <span class="kw">if</span> <span class="ident">mnibbles</span> <span class="op">==</span> <span class="number">3</span> { <span class="comment">// metadata block</span>
-    <span class="kw">if</span> (<span class="ident">bytes</span> <span class="op">&amp;</span> <span class="number">1</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-      <span class="kw">return</span> <span class="prelude-val">Err</span>(()); <span class="comment">// reserved, must be zero</span>
-    }
-    <span class="ident">bytes</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">mskipbytes</span> <span class="op">=</span> <span class="ident">bytes</span> <span class="op">&amp;</span> ((<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2</span>) <span class="op">-</span> <span class="number">1</span>);
-    <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
-    <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">usize::from</span>(<span class="ident">mskipbytes</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">*</span> <span class="number">8</span>; <span class="comment">// next item is byte aligned</span>
-    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">offset</span>);
+  bytes &gt;&gt;= <span class="number">1</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>mnibbles = bytes &amp; <span class="number">3</span>;
+  bytes &gt;&gt;= <span class="number">2</span>;
+  offset += <span class="number">2</span>;
+  <span class="kw">if </span>mnibbles == <span class="number">3 </span>{ <span class="comment">// metadata block
+    </span><span class="kw">if </span>(bytes &amp; <span class="number">1</span>) != <span class="number">0 </span>{
+      <span class="kw">return </span><span class="prelude-val">Err</span>(()); <span class="comment">// reserved, must be zero
+    </span>}
+    bytes &gt;&gt;= <span class="number">1</span>;
+    offset += <span class="number">1</span>;
+    <span class="kw">let </span>mskipbytes = bytes &amp; ((<span class="number">1 </span>&lt;&lt; <span class="number">2</span>) - <span class="number">1</span>);
+    offset += <span class="number">2</span>;
+    offset += usize::from(mskipbytes <span class="kw">as </span>usize) * <span class="number">8</span>; <span class="comment">// next item is byte aligned
+    </span><span class="kw">return </span><span class="prelude-val">Ok</span>(offset);
   }
-  <span class="ident">mnibbles</span> <span class="op">+</span><span class="op">=</span> <span class="number">4</span>;
-  <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">usize::from</span>(<span class="ident">mnibbles</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">*</span> <span class="number">4</span>;
-  <span class="ident">bytes</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="ident">mnibbles</span> <span class="op">*</span> <span class="number">4</span>;
-  <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-  <span class="kw">if</span> (<span class="ident">bytes</span> <span class="op">&amp;</span> <span class="number">1</span>) <span class="op">==</span> <span class="number">0</span> { <span class="comment">// not UNCOMPRESSED</span>
-    <span class="prelude-val">Err</span>(()) <span class="comment">// not valid bitstream for concatenation</span>
-  } <span class="kw">else</span> { <span class="comment">// UNCOMPRESSED: now things are aligend</span>
-    <span class="prelude-val">Ok</span>(<span class="ident">offset</span>)
+  mnibbles += <span class="number">4</span>;
+  offset += usize::from(mnibbles <span class="kw">as </span>usize) * <span class="number">4</span>;
+  bytes &gt;&gt;= mnibbles * <span class="number">4</span>;
+  offset += <span class="number">1</span>;
+  <span class="kw">if </span>(bytes &amp; <span class="number">1</span>) == <span class="number">0 </span>{ <span class="comment">// not UNCOMPRESSED
+    </span><span class="prelude-val">Err</span>(()) <span class="comment">// not valid bitstream for concatenation
+  </span>} <span class="kw">else </span>{ <span class="comment">// UNCOMPRESSED: now things are aligend
+    </span><span class="prelude-val">Ok</span>(offset)
   }
 }
 
-<span class="comment">// eat your vegetables</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BroCatli</span> {
-  <span class="ident">last_bytes</span>: [<span class="ident">u8</span>; <span class="number">2</span>],
-  <span class="ident">last_bytes_len</span>: <span class="ident">u8</span>,
-  <span class="ident">last_byte_sanitized</span>: <span class="ident">bool</span>,
-  <span class="ident">any_bytes_emitted</span>: <span class="ident">bool</span>,
-  <span class="ident">last_byte_bit_offset</span>: <span class="ident">u8</span>,
-  <span class="comment">// need to make sure that window sizes stay similar or get smaller</span>
-  <span class="ident">window_size</span>: <span class="ident">u8</span>,
-  <span class="ident">new_stream_pending</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NewStreamData</span><span class="op">&gt;</span>,
+<span class="comment">// eat your vegetables
+</span><span class="kw">pub struct </span>BroCatli {
+  last_bytes: [u8; <span class="number">2</span>],
+  last_bytes_len: u8,
+  last_byte_sanitized: bool,
+  any_bytes_emitted: bool,
+  last_byte_bit_offset: u8,
+  <span class="comment">// need to make sure that window sizes stay similar or get smaller
+  </span>window_size: u8,
+  new_stream_pending: <span class="prelude-ty">Option</span>&lt;NewStreamData&gt;,
 }
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">BroCatli</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">BroCatli</span> {
-        <span class="ident">BroCatli::new</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>BroCatli {
+    <span class="kw">fn </span>default() -&gt; BroCatli {
+        BroCatli::new()
     }
 }
-<span class="kw">impl</span> <span class="ident">BroCatli</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">BroCatli</span> {
-    <span class="ident">BroCatli</span> {
-      <span class="ident">last_bytes</span>: [<span class="number">0</span>,<span class="number">0</span>],
-      <span class="ident">last_bytes_len</span>: <span class="number">0</span>,
-      <span class="ident">last_byte_bit_offset</span>: <span class="number">0</span>,
-      <span class="ident">last_byte_sanitized</span>: <span class="bool-val">false</span>,
-      <span class="ident">any_bytes_emitted</span>: <span class="bool-val">false</span>,
-      <span class="ident">new_stream_pending</span>: <span class="prelude-val">None</span>,
-      <span class="ident">window_size</span>:<span class="number">0</span>,
+<span class="kw">impl </span>BroCatli {
+  <span class="kw">pub fn </span>new() -&gt; BroCatli {
+    BroCatli {
+      last_bytes: [<span class="number">0</span>,<span class="number">0</span>],
+      last_bytes_len: <span class="number">0</span>,
+      last_byte_bit_offset: <span class="number">0</span>,
+      last_byte_sanitized: <span class="bool-val">false</span>,
+      any_bytes_emitted: <span class="bool-val">false</span>,
+      new_stream_pending: <span class="prelude-val">None</span>,
+      window_size:<span class="number">0</span>,
     }
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deserialize_from_buffer</span>(<span class="ident">buffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BroCatli</span>, ()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="number">16</span><span class="op">+</span><span class="ident">NUM_STREAM_HEADER_BYTES</span> <span class="op">&gt;</span> <span class="ident">buffer</span>.<span class="ident">len</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(());
+  <span class="kw">pub fn </span>deserialize_from_buffer(buffer: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;BroCatli, ()&gt; {
+    <span class="kw">if </span><span class="number">16</span>+NUM_STREAM_HEADER_BYTES &gt; buffer.len() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(());
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">possible_new_stream_pending</span> <span class="op">=</span> <span class="ident">NewStreamData</span>{
-        <span class="ident">num_bytes_read</span>: <span class="ident">buffer</span>[<span class="number">12</span>],
-        <span class="ident">num_bytes_written</span>: <span class="kw">if</span> (<span class="ident">buffer</span>[<span class="number">9</span>] <span class="op">&amp;</span> (<span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">7</span>)) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {<span class="prelude-val">Some</span>(<span class="ident">buffer</span>[<span class="number">13</span>])} <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="ident">bytes_so_far</span>: [<span class="number">0</span>;<span class="ident">NUM_STREAM_HEADER_BYTES</span>],
+    <span class="kw">let </span><span class="kw-2">mut </span>possible_new_stream_pending = NewStreamData{
+        num_bytes_read: buffer[<span class="number">12</span>],
+        num_bytes_written: <span class="kw">if </span>(buffer[<span class="number">9</span>] &amp; (<span class="number">1</span>&lt;&lt;<span class="number">7</span>)) != <span class="number">0 </span>{<span class="prelude-val">Some</span>(buffer[<span class="number">13</span>])} <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        bytes_so_far: [<span class="number">0</span>;NUM_STREAM_HEADER_BYTES],
     };
-    <span class="kw">let</span> <span class="ident">xlen</span> <span class="op">=</span> <span class="ident">possible_new_stream_pending</span>.<span class="ident">bytes_so_far</span>.<span class="ident">len</span>();
-    <span class="ident">possible_new_stream_pending</span>.<span class="ident">bytes_so_far</span>.<span class="ident">clone_from_slice</span>(
-        <span class="kw-2">&amp;</span><span class="ident">buffer</span>[<span class="number">16</span>..<span class="number">16</span><span class="op">+</span><span class="ident">xlen</span>]);
-    <span class="kw">let</span> <span class="ident">new_stream_pending</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NewStreamData</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> (<span class="ident">buffer</span>[<span class="number">9</span>] <span class="op">&amp;</span> (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6</span>)) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">possible_new_stream_pending</span>)
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
+    <span class="kw">let </span>xlen = possible_new_stream_pending.bytes_so_far.len();
+    possible_new_stream_pending.bytes_so_far.clone_from_slice(
+        <span class="kw-2">&amp;</span>buffer[<span class="number">16</span>..<span class="number">16</span>+xlen]);
+    <span class="kw">let </span>new_stream_pending: <span class="prelude-ty">Option</span>&lt;NewStreamData&gt; = <span class="kw">if </span>(buffer[<span class="number">9</span>] &amp; (<span class="number">1 </span>&lt;&lt; <span class="number">6</span>)) != <span class="number">0 </span>{
+        <span class="prelude-val">Some</span>(possible_new_stream_pending)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>};
+    <span class="kw">let </span><span class="kw-2">mut </span>ret = BroCatli {
+        last_bytes: [<span class="number">0</span>,<span class="number">0</span>],
+        last_bytes_len: buffer[<span class="number">8</span>],
+        last_byte_sanitized: (buffer[<span class="number">9</span>] &amp; <span class="number">0x1</span>) != <span class="number">0</span>,
+        last_byte_bit_offset: buffer[<span class="number">10</span>],
+        any_bytes_emitted: (buffer[<span class="number">9</span>] &amp; (<span class="number">1 </span>&lt;&lt; <span class="number">5</span>)) != <span class="number">0</span>,
+        window_size: buffer[<span class="number">11</span>],
+        new_stream_pending:new_stream_pending,
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BroCatli</span> {
-        <span class="ident">last_bytes</span>: [<span class="number">0</span>,<span class="number">0</span>],
-        <span class="ident">last_bytes_len</span>: <span class="ident">buffer</span>[<span class="number">8</span>],
-        <span class="ident">last_byte_sanitized</span>: (<span class="ident">buffer</span>[<span class="number">9</span>] <span class="op">&amp;</span> <span class="number">0x1</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>,
-        <span class="ident">last_byte_bit_offset</span>: <span class="ident">buffer</span>[<span class="number">10</span>],
-        <span class="ident">any_bytes_emitted</span>: (<span class="ident">buffer</span>[<span class="number">9</span>] <span class="op">&amp;</span> (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>)) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>,
-        <span class="ident">window_size</span>: <span class="ident">buffer</span>[<span class="number">11</span>],
-        <span class="ident">new_stream_pending</span>:<span class="ident">new_stream_pending</span>,
-    };
-    <span class="kw">if</span> <span class="ident">ret</span>.<span class="ident">last_bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">8</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(());
+    <span class="kw">if </span>ret.last_bytes.len() &gt; <span class="number">8 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(());
     }
-    <span class="kw">let</span> <span class="ident">xlen</span> <span class="op">=</span> <span class="ident">ret</span>.<span class="ident">last_bytes</span>.<span class="ident">len</span>();
-    <span class="ident">ret</span>.<span class="ident">last_bytes</span>.<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..<span class="ident">xlen</span>]);
-    <span class="prelude-val">Ok</span>(<span class="ident">ret</span>)
+    <span class="kw">let </span>xlen = ret.last_bytes.len();
+    ret.last_bytes.clone_from_slice(<span class="kw-2">&amp;</span>buffer[..xlen]);
+    <span class="prelude-val">Ok</span>(ret)
   }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>        
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serialize_to_buffer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buffer</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="number">16</span><span class="op">+</span><span class="ident">NUM_STREAM_HEADER_BYTES</span> <span class="op">&gt;</span> <span class="ident">buffer</span>.<span class="ident">len</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(());
+  <span class="attribute">#[inline(always)]        
+  </span><span class="kw">pub fn </span>serialize_to_buffer(<span class="kw-2">&amp;</span><span class="self">self</span>, buffer: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+    <span class="kw">if </span><span class="number">16</span>+NUM_STREAM_HEADER_BYTES &gt; buffer.len() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(());
     }
-    <span class="ident">buffer</span>[..<span class="self">self</span>.<span class="ident">last_bytes</span>.<span class="ident">len</span>()].<span class="ident">clone_from_slice</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">last_bytes</span>[..]);
-    <span class="ident">buffer</span>[<span class="number">8</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes_len</span>;
-    <span class="ident">buffer</span>[<span class="number">9</span>] <span class="op">=</span> (<span class="self">self</span>.<span class="ident">last_byte_sanitized</span> <span class="kw">as</span> <span class="ident">u8</span>) <span class="op">|</span> ((<span class="self">self</span>.<span class="ident">new_stream_pending</span>.<span class="ident">is_some</span>() <span class="kw">as</span> <span class="ident">u8</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6</span>) <span class="op">|</span> ((<span class="self">self</span>.<span class="ident">any_bytes_emitted</span> <span class="kw">as</span> <span class="ident">u8</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>);
-      <span class="ident">buffer</span>[<span class="number">10</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span>;
-      <span class="ident">buffer</span>[<span class="number">11</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">window_size</span>;
-      <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_stream_pending</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_stream_pending</span> {
-          <span class="kw">if</span> <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span>.<span class="ident">is_some</span>() {
-              <span class="ident">buffer</span>[<span class="number">9</span>] <span class="op">|</span><span class="op">=</span> (<span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">7</span>);
+    buffer[..<span class="self">self</span>.last_bytes.len()].clone_from_slice(
+        <span class="kw-2">&amp;</span><span class="self">self</span>.last_bytes[..]);
+    buffer[<span class="number">8</span>] = <span class="self">self</span>.last_bytes_len;
+    buffer[<span class="number">9</span>] = (<span class="self">self</span>.last_byte_sanitized <span class="kw">as </span>u8) | ((<span class="self">self</span>.new_stream_pending.is_some() <span class="kw">as </span>u8) &lt;&lt; <span class="number">6</span>) | ((<span class="self">self</span>.any_bytes_emitted <span class="kw">as </span>u8) &lt;&lt; <span class="number">5</span>);
+      buffer[<span class="number">10</span>] = <span class="self">self</span>.last_byte_bit_offset;
+      buffer[<span class="number">11</span>] = <span class="self">self</span>.window_size;
+      <span class="kw">if let </span><span class="prelude-val">Some</span>(new_stream_pending) = <span class="self">self</span>.new_stream_pending {
+          <span class="kw">if </span>new_stream_pending.num_bytes_written.is_some() {
+              buffer[<span class="number">9</span>] |= (<span class="number">1</span>&lt;&lt;<span class="number">7</span>);
           }
-          <span class="ident">buffer</span>[<span class="number">12</span>] <span class="op">=</span> <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span>;
-          <span class="ident">buffer</span>[<span class="number">13</span>] <span class="op">=</span> <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>);
-          <span class="comment">// 14, 15 reserved</span>
-          <span class="ident">buffer</span>[<span class="number">16</span>..<span class="number">16</span><span class="op">+</span><span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>.<span class="ident">len</span>()].<span class="ident">clone_from_slice</span>(
-              <span class="kw-2">&amp;</span><span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>[..]);
+          buffer[<span class="number">12</span>] = new_stream_pending.num_bytes_read;
+          buffer[<span class="number">13</span>] = new_stream_pending.num_bytes_written.unwrap_or(<span class="number">0</span>);
+          <span class="comment">// 14, 15 reserved
+          </span>buffer[<span class="number">16</span>..<span class="number">16</span>+new_stream_pending.bytes_so_far.len()].clone_from_slice(
+              <span class="kw-2">&amp;</span>new_stream_pending.bytes_so_far[..]);
       }
       <span class="prelude-val">Ok</span>(())
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_window_size</span>(<span class="ident">log_window_size</span>: <span class="ident">u8</span>) -&gt; <span class="ident">BroCatli</span> {
-    <span class="comment">// in this case setup the last_bytes of the stream to perfectly mimic what would</span>
-    <span class="comment">// appear in an empty stream with the selected window size...</span>
-    <span class="comment">// this means the window size followed by 2 sequential 1 bits (LAST_METABLOCK, EMPTY)</span>
-    <span class="comment">// the new_stream code should naturally find the sequential 1 bits and mask them</span>
-    <span class="comment">// out and then prepend the window size... then the following window sizes should</span>
-    <span class="comment">// be checked to be shorter</span>
-    <span class="kw">let</span> <span class="ident">last_bytes_len</span>;
-    <span class="kw">let</span> <span class="ident">last_bytes</span>;
+  <span class="kw">pub fn </span>new_with_window_size(log_window_size: u8) -&gt; BroCatli {
+    <span class="comment">// in this case setup the last_bytes of the stream to perfectly mimic what would
+    // appear in an empty stream with the selected window size...
+    // this means the window size followed by 2 sequential 1 bits (LAST_METABLOCK, EMPTY)
+    // the new_stream code should naturally find the sequential 1 bits and mask them
+    // out and then prepend the window size... then the following window sizes should
+    // be checked to be shorter
+    </span><span class="kw">let </span>last_bytes_len;
+    <span class="kw">let </span>last_bytes;
       
-    <span class="kw">if</span> <span class="ident">log_window_size</span> <span class="op">&gt;</span> <span class="number">24</span> {
-        <span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">17u8</span>, <span class="ident">log_window_size</span> <span class="op">|</span> <span class="number">64</span> <span class="op">|</span> <span class="number">128</span>];
-        <span class="ident">last_bytes_len</span> <span class="op">=</span> <span class="number">2</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">log_window_size</span> <span class="op">==</span> <span class="number">16</span> {
-        <span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">1</span> <span class="op">|</span> <span class="number">2</span> <span class="op">|</span> <span class="number">4</span>, <span class="number">0</span>];
-        <span class="ident">last_bytes_len</span> <span class="op">=</span> <span class="number">1</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">log_window_size</span> <span class="op">&gt;</span> <span class="number">17</span> {
-        <span class="ident">last_bytes</span> <span class="op">=</span> [(<span class="number">3</span> <span class="op">+</span> (<span class="ident">log_window_size</span> <span class="op">-</span> <span class="number">18</span>) <span class="op">*</span> <span class="number">2</span>) <span class="op">|</span> (<span class="number">16</span> <span class="op">|</span> <span class="number">32</span>), <span class="number">0</span>];
-        <span class="ident">last_bytes_len</span> <span class="op">=</span> <span class="number">1</span>;
-    } <span class="kw">else</span> {
-        <span class="kw">match</span> <span class="ident">log_window_size</span> {
-            <span class="number">15</span> =&gt; <span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">0x71</span> <span class="op">|</span> <span class="number">0x80</span>, <span class="number">1</span>],
-            <span class="number">14</span> =&gt; <span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">0x61</span> <span class="op">|</span> <span class="number">0x80</span>, <span class="number">1</span>],
-            <span class="number">13</span> =&gt; <span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">0x51</span> <span class="op">|</span> <span class="number">0x80</span>, <span class="number">1</span>],
-            <span class="number">12</span> =&gt; <span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">0x41</span> <span class="op">|</span> <span class="number">0x80</span>, <span class="number">1</span>],
-            <span class="number">11</span> =&gt; <span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">0x31</span> <span class="op">|</span> <span class="number">0x80</span>, <span class="number">1</span>],
-            <span class="number">10</span> =&gt; <span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">0x21</span> <span class="op">|</span> <span class="number">0x80</span>, <span class="number">1</span>],
-            <span class="kw">_</span> =&gt; {<span class="macro">assert_eq!</span>(<span class="ident">log_window_size</span>, <span class="number">17</span>); <span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">0x1</span> <span class="op">|</span> <span class="number">0x80</span>, <span class="number">1</span>];} <span class="comment">// 17</span>
-        }
-        <span class="ident">last_bytes_len</span> <span class="op">=</span> <span class="number">2</span>;
+    <span class="kw">if </span>log_window_size &gt; <span class="number">24 </span>{
+        last_bytes = [<span class="number">17u8</span>, log_window_size | <span class="number">64 </span>| <span class="number">128</span>];
+        last_bytes_len = <span class="number">2</span>;
+    } <span class="kw">else if </span>log_window_size == <span class="number">16 </span>{
+        last_bytes = [<span class="number">1 </span>| <span class="number">2 </span>| <span class="number">4</span>, <span class="number">0</span>];
+        last_bytes_len = <span class="number">1</span>;
+    } <span class="kw">else if </span>log_window_size &gt; <span class="number">17 </span>{
+        last_bytes = [(<span class="number">3 </span>+ (log_window_size - <span class="number">18</span>) * <span class="number">2</span>) | (<span class="number">16 </span>| <span class="number">32</span>), <span class="number">0</span>];
+        last_bytes_len = <span class="number">1</span>;
+    } <span class="kw">else </span>{
+        <span class="kw">match </span>log_window_size {
+            <span class="number">15 </span>=&gt; last_bytes = [<span class="number">0x71 </span>| <span class="number">0x80</span>, <span class="number">1</span>],
+            <span class="number">14 </span>=&gt; last_bytes = [<span class="number">0x61 </span>| <span class="number">0x80</span>, <span class="number">1</span>],
+            <span class="number">13 </span>=&gt; last_bytes = [<span class="number">0x51 </span>| <span class="number">0x80</span>, <span class="number">1</span>],
+            <span class="number">12 </span>=&gt; last_bytes = [<span class="number">0x41 </span>| <span class="number">0x80</span>, <span class="number">1</span>],
+            <span class="number">11 </span>=&gt; last_bytes = [<span class="number">0x31 </span>| <span class="number">0x80</span>, <span class="number">1</span>],
+            <span class="number">10 </span>=&gt; last_bytes = [<span class="number">0x21 </span>| <span class="number">0x80</span>, <span class="number">1</span>],
+            <span class="kw">_ </span>=&gt; {<span class="macro">assert_eq!</span>(log_window_size, <span class="number">17</span>); last_bytes = [<span class="number">0x1 </span>| <span class="number">0x80</span>, <span class="number">1</span>];} <span class="comment">// 17
+        </span>}
+        last_bytes_len = <span class="number">2</span>;
     }
-    <span class="ident">BroCatli</span> {
-      <span class="ident">last_bytes</span>: <span class="ident">last_bytes</span>,
-      <span class="ident">last_bytes_len</span>: <span class="ident">last_bytes_len</span>,
-      <span class="ident">last_byte_bit_offset</span>: <span class="number">0</span>,
-      <span class="ident">last_byte_sanitized</span>: <span class="bool-val">false</span>,
-      <span class="ident">any_bytes_emitted</span>: <span class="bool-val">false</span>,
-      <span class="ident">new_stream_pending</span>: <span class="prelude-val">None</span>,
-      <span class="ident">window_size</span>:<span class="ident">log_window_size</span>,
+    BroCatli {
+      last_bytes: last_bytes,
+      last_bytes_len: last_bytes_len,
+      last_byte_bit_offset: <span class="number">0</span>,
+      last_byte_sanitized: <span class="bool-val">false</span>,
+      any_bytes_emitted: <span class="bool-val">false</span>,
+      new_stream_pending: <span class="prelude-val">None</span>,
+      window_size:log_window_size,
     }
   }
     
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_brotli_file</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-    <span class="self">self</span>.<span class="ident">new_stream_pending</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">NewStreamData::new</span>());
+  <span class="kw">pub fn </span>new_brotli_file(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+    <span class="self">self</span>.new_stream_pending = <span class="prelude-val">Some</span>(NewStreamData::new());
   }
-  <span class="kw">fn</span> <span class="ident">flush_previous_stream</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">out_bytes</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>], <span class="ident">out_offset</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) -&gt; <span class="ident">BroCatliResult</span> {
-    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">last_byte_sanitized</span> { <span class="comment">// if the previous stream hasn&#39;t had the last metablock (bit 1,1) sanitized</span>
-      <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">==</span> <span class="number">0</span> { <span class="comment">// first stream or otherwise sanitized</span>
-        <span class="self">self</span>.<span class="ident">last_byte_sanitized</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">return</span> <span class="ident">BroCatliResult::Success</span>;
+  <span class="kw">fn </span>flush_previous_stream(<span class="kw-2">&amp;mut </span><span class="self">self</span>, out_bytes: <span class="kw-2">&amp;mut </span>[u8], out_offset: <span class="kw-2">&amp;mut </span>usize) -&gt; BroCatliResult {
+    <span class="kw">if </span>!<span class="self">self</span>.last_byte_sanitized { <span class="comment">// if the previous stream hasn&#39;t had the last metablock (bit 1,1) sanitized
+      </span><span class="kw">if </span><span class="self">self</span>.last_bytes_len == <span class="number">0 </span>{ <span class="comment">// first stream or otherwise sanitized
+        </span><span class="self">self</span>.last_byte_sanitized = <span class="bool-val">true</span>;
+        <span class="kw">return </span>BroCatliResult::Success;
       }
-      <span class="comment">// create a 16 bit integer with the last 2 bytes of data</span>
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">u16</span> <span class="op">+</span> ((<span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">1</span>] <span class="kw">as</span> <span class="ident">u16</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>);
-      <span class="kw">let</span> <span class="ident">max</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">*</span> <span class="number">8</span>;
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">max</span> <span class="op">-</span> <span class="number">1</span>;
-      <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">max</span> {
-        <span class="ident">index</span> <span class="op">=</span> <span class="ident">max</span> <span class="op">-</span> <span class="number">1</span> <span class="op">-</span> <span class="ident">i</span>;
-        <span class="kw">if</span> ((<span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">index</span>) <span class="op">&amp;</span> <span class="ident">last_bytes</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-          <span class="kw">break</span>; <span class="comment">// find the highest set bit</span>
+      <span class="comment">// create a 16 bit integer with the last 2 bytes of data
+      </span><span class="kw">let </span><span class="kw-2">mut </span>last_bytes = <span class="self">self</span>.last_bytes[<span class="number">0</span>] <span class="kw">as </span>u16 + ((<span class="self">self</span>.last_bytes[<span class="number">1</span>] <span class="kw">as </span>u16) &lt;&lt; <span class="number">8</span>);
+      <span class="kw">let </span>max = <span class="self">self</span>.last_bytes_len * <span class="number">8</span>;
+      <span class="kw">let </span><span class="kw-2">mut </span>index = max - <span class="number">1</span>;
+      <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..max {
+        index = max - <span class="number">1 </span>- i;
+        <span class="kw">if </span>((<span class="number">1</span>&lt;&lt;index) &amp; last_bytes) != <span class="number">0 </span>{
+          <span class="kw">break</span>; <span class="comment">// find the highest set bit
+        </span>}
+      }
+      <span class="kw">if </span>index == <span class="number">0 </span>{ <span class="comment">// if the bit is too low, return failure, since both bits could not possibly have been set
+        </span><span class="kw">return </span>BroCatliResult::BrotliFileNotCraftedForAppend;
+      }
+      <span class="kw">if </span>(last_bytes &gt;&gt; (index - <span class="number">1</span>)) != <span class="number">3 </span>{ <span class="comment">// last two bits need to be set for the final metablock
+        </span><span class="kw">return </span>BroCatliResult::BrotliFileNotCraftedForAppend;
+      }
+      index -= <span class="number">1</span>; <span class="comment">// discard the final two bits
+      </span>last_bytes &amp;= (<span class="number">1 </span>&lt;&lt; index) - <span class="number">1</span>; <span class="comment">// mask them out
+      </span><span class="self">self</span>.last_bytes[<span class="number">0</span>] = last_bytes <span class="kw">as </span>u8 &amp; <span class="number">0xff</span>; <span class="comment">// reset the last_bytes pair
+      </span><span class="self">self</span>.last_bytes[<span class="number">1</span>] = (last_bytes &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8 &amp; <span class="number">0xff</span>;
+      <span class="kw">if </span>index &gt;= <span class="number">8 </span>{ <span class="comment">// if both bits and one useful bit were in the second block, then write that
+        </span><span class="kw">if </span>out_bytes.len() &gt; <span class="kw-2">*</span>out_offset {
+          out_bytes[<span class="kw-2">*</span>out_offset] = <span class="self">self</span>.last_bytes[<span class="number">0</span>];
+          <span class="self">self</span>.last_bytes[<span class="number">0</span>] = <span class="self">self</span>.last_bytes[<span class="number">1</span>];
+          <span class="kw-2">*</span>out_offset += <span class="number">1</span>;
+          <span class="self">self</span>.any_bytes_emitted = <span class="bool-val">true</span>;
+          index -= <span class="number">8</span>;
+          <span class="self">self</span>.last_bytes_len -= <span class="number">1</span>;
+        } <span class="kw">else </span>{
+          <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
         }
       }
-      <span class="kw">if</span> <span class="ident">index</span> <span class="op">==</span> <span class="number">0</span> { <span class="comment">// if the bit is too low, return failure, since both bits could not possibly have been set</span>
-        <span class="kw">return</span> <span class="ident">BroCatliResult::BrotliFileNotCraftedForAppend</span>;
-      }
-      <span class="kw">if</span> (<span class="ident">last_bytes</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>)) <span class="op">!</span><span class="op">=</span> <span class="number">3</span> { <span class="comment">// last two bits need to be set for the final metablock</span>
-        <span class="kw">return</span> <span class="ident">BroCatliResult::BrotliFileNotCraftedForAppend</span>;
-      }
-      <span class="ident">index</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>; <span class="comment">// discard the final two bits</span>
-      <span class="ident">last_bytes</span> <span class="op">&amp;=</span> (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">index</span>) <span class="op">-</span> <span class="number">1</span>; <span class="comment">// mask them out</span>
-      <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">last_bytes</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="number">0xff</span>; <span class="comment">// reset the last_bytes pair</span>
-      <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">1</span>] <span class="op">=</span> (<span class="ident">last_bytes</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="number">0xff</span>;
-      <span class="kw">if</span> <span class="ident">index</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">8</span> { <span class="comment">// if both bits and one useful bit were in the second block, then write that</span>
-        <span class="kw">if</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">out_offset</span> {
-          <span class="ident">out_bytes</span>[<span class="kw-2">*</span><span class="ident">out_offset</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>];
-          <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">1</span>];
-          <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-          <span class="self">self</span>.<span class="ident">any_bytes_emitted</span> <span class="op">=</span> <span class="bool-val">true</span>;
-          <span class="ident">index</span> <span class="op">-</span><span class="op">=</span> <span class="number">8</span>;
-          <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        } <span class="kw">else</span> {
-          <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
-        }
-      }
-      <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span> <span class="op">=</span> <span class="ident">index</span>;
-      <span class="macro">assert!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="number">8</span>);
-      <span class="self">self</span>.<span class="ident">last_byte_sanitized</span> <span class="op">=</span> <span class="bool-val">true</span>;
+      <span class="self">self</span>.last_byte_bit_offset = index;
+      <span class="macro">assert!</span>(index &lt; <span class="number">8</span>);
+      <span class="self">self</span>.last_byte_sanitized = <span class="bool-val">true</span>;
     }
-    <span class="ident">BroCatliResult::Success</span>
+    BroCatliResult::Success
   }
 
-  <span class="kw">fn</span> <span class="ident">shift_and_check_new_stream_header</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">new_stream_pending</span>: <span class="ident">NewStreamData</span>, <span class="ident">out_bytes</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>], <span class="ident">out_offset</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) -&gt; <span class="ident">BroCatliResult</span> {
-    <span class="kw">if</span> <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span>.<span class="ident">is_none</span>() {
-      <span class="kw">let</span> (<span class="ident">window_size</span>, <span class="ident">window_offset</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">results</span>) <span class="op">=</span> <span class="ident">parse_window_size</span>(
-        <span class="kw-2">&amp;</span><span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>[..<span class="ident">usize::from</span>(<span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span>)],
+  <span class="kw">fn </span>shift_and_check_new_stream_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>new_stream_pending: NewStreamData, out_bytes: <span class="kw-2">&amp;mut </span>[u8], out_offset: <span class="kw-2">&amp;mut </span>usize) -&gt; BroCatliResult {
+    <span class="kw">if </span>new_stream_pending.num_bytes_written.is_none() {
+      <span class="kw">let </span>(window_size, window_offset) = <span class="kw">if let </span><span class="prelude-val">Ok</span>(results) = parse_window_size(
+        <span class="kw-2">&amp;</span>new_stream_pending.bytes_so_far[..usize::from(new_stream_pending.num_bytes_read)],
       ) {
-        <span class="ident">results</span>
-      } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="ident">BroCatliResult::InvalidWindowSize</span>;
+        results
+      } <span class="kw">else </span>{
+        <span class="kw">return </span>BroCatliResult::InvalidWindowSize;
       };
-      <span class="kw">if</span> <span class="self">self</span>.<span class="ident">window_size</span> <span class="op">==</span> <span class="number">0</span> { <span class="comment">// parse window size and just copy everything</span>
-        <span class="self">self</span>.<span class="ident">window_size</span> <span class="op">=</span> <span class="ident">window_size</span>;
-        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">last_byte_bit_offset</span>, <span class="number">0</span>); <span class="comment">// we are first stream</span>
-        <span class="ident">out_bytes</span>[<span class="kw-2">*</span><span class="ident">out_offset</span>] <span class="op">=</span> <span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>[<span class="number">0</span>];
-        <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">1</span>);
-        <span class="self">self</span>.<span class="ident">any_bytes_emitted</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-      } <span class="kw">else</span> {
-        <span class="kw">if</span> <span class="ident">window_size</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_size</span> {
-          <span class="kw">return</span> <span class="ident">BroCatliResult::WindowSizeLargerThanPreviousFile</span>;
+      <span class="kw">if </span><span class="self">self</span>.window_size == <span class="number">0 </span>{ <span class="comment">// parse window size and just copy everything
+        </span><span class="self">self</span>.window_size = window_size;
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.last_byte_bit_offset, <span class="number">0</span>); <span class="comment">// we are first stream
+        </span>out_bytes[<span class="kw-2">*</span>out_offset] = new_stream_pending.bytes_so_far[<span class="number">0</span>];
+        new_stream_pending.num_bytes_written = <span class="prelude-val">Some</span>(<span class="number">1</span>);
+        <span class="self">self</span>.any_bytes_emitted = <span class="bool-val">true</span>;
+        <span class="kw-2">*</span>out_offset += <span class="number">1</span>;
+      } <span class="kw">else </span>{
+        <span class="kw">if </span>window_size &gt; <span class="self">self</span>.window_size {
+          <span class="kw">return </span>BroCatliResult::WindowSizeLargerThanPreviousFile;
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">realigned_header</span>:[<span class="ident">u8</span>;<span class="ident">NUM_STREAM_HEADER_BYTES</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">=</span> [<span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>],
+        <span class="kw">let </span><span class="kw-2">mut </span>realigned_header:[u8;NUM_STREAM_HEADER_BYTES + <span class="number">1</span>] = [<span class="self">self</span>.last_bytes[<span class="number">0</span>],
                                                                     <span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,
         ];
-        <span class="kw">let</span> <span class="ident">varlen_offset</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">voffset</span>) <span class="op">=</span> <span class="ident">detect_varlen_offset</span>(
-          <span class="kw-2">&amp;</span><span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>[..<span class="ident">usize::from</span>(<span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span>)],
+        <span class="kw">let </span>varlen_offset = <span class="kw">if let </span><span class="prelude-val">Ok</span>(voffset) = detect_varlen_offset(
+          <span class="kw-2">&amp;</span>new_stream_pending.bytes_so_far[..usize::from(new_stream_pending.num_bytes_read)],
         ) {
-          <span class="ident">voffset</span>
-        } <span class="kw">else</span> {
-          <span class="kw">return</span> <span class="ident">BroCatliResult::BrotliFileNotCraftedForConcatenation</span>;
+          voffset
+        } <span class="kw">else </span>{
+          <span class="kw">return </span>BroCatliResult::BrotliFileNotCraftedForConcatenation;
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes_so_far</span> <span class="op">=</span> <span class="number">0u64</span>;
-        <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">usize::from</span>(<span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span>) {
-          <span class="ident">bytes_so_far</span> <span class="op">|</span><span class="op">=</span> <span class="ident">u64::from</span>(<span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>[<span class="ident">index</span>]) <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">index</span> <span class="op">*</span> <span class="number">8</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes_so_far = <span class="number">0u64</span>;
+        <span class="kw">for </span>index <span class="kw">in </span><span class="number">0</span>..usize::from(new_stream_pending.num_bytes_read) {
+          bytes_so_far |= u64::from(new_stream_pending.bytes_so_far[index]) &lt;&lt; (index * <span class="number">8</span>);
         }
-        <span class="ident">bytes_so_far</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="ident">window_offset</span>; <span class="comment">// mask out the window size</span>
-        <span class="ident">bytes_so_far</span> <span class="op">&amp;=</span> (<span class="number">1u64</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">varlen_offset</span> <span class="op">-</span> <span class="ident">window_offset</span>)) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">var_len_bytes</span> <span class="op">=</span> ((<span class="ident">usize::from</span>(<span class="ident">varlen_offset</span> <span class="op">-</span> <span class="ident">window_offset</span>) <span class="op">+</span> <span class="number">7</span>) <span class="op">/</span> <span class="number">8</span>);
-        <span class="kw">for</span> <span class="ident">byte_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">var_len_bytes</span> {
-          <span class="kw">let</span> <span class="ident">cur_byte</span> <span class="op">=</span> (<span class="ident">bytes_so_far</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="ident">byte_index</span> <span class="kw-2">*</span><span class="number">8</span>));
-          <span class="ident">realigned_header</span>[<span class="ident">byte_index</span>] <span class="op">|</span><span class="op">=</span> ((<span class="ident">cur_byte</span> <span class="op">&amp;</span> ((<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="number">8</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span>)) <span class="op">-</span> <span class="number">1</span>)) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span>) <span class="kw">as</span> <span class="ident">u8</span>;
-          <span class="ident">realigned_header</span>[<span class="ident">byte_index</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">=</span> (<span class="ident">cur_byte</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="number">8</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span>)) <span class="kw">as</span> <span class="ident">u8</span>;
+        bytes_so_far &gt;&gt;= window_offset; <span class="comment">// mask out the window size
+        </span>bytes_so_far &amp;= (<span class="number">1u64 </span>&lt;&lt; (varlen_offset - window_offset)) - <span class="number">1</span>;
+        <span class="kw">let </span>var_len_bytes = ((usize::from(varlen_offset - window_offset) + <span class="number">7</span>) / <span class="number">8</span>);
+        <span class="kw">for </span>byte_index <span class="kw">in </span><span class="number">0</span>..var_len_bytes {
+          <span class="kw">let </span>cur_byte = (bytes_so_far &gt;&gt; (byte_index <span class="kw-2">*</span><span class="number">8</span>));
+          realigned_header[byte_index] |= ((cur_byte &amp; ((<span class="number">1 </span>&lt;&lt; (<span class="number">8 </span>- <span class="self">self</span>.last_byte_bit_offset)) - <span class="number">1</span>)) &lt;&lt; <span class="self">self</span>.last_byte_bit_offset) <span class="kw">as </span>u8;
+          realigned_header[byte_index + <span class="number">1</span>] = (cur_byte &gt;&gt; (<span class="number">8 </span>- <span class="self">self</span>.last_byte_bit_offset)) <span class="kw">as </span>u8;
         }
-        <span class="kw">let</span> <span class="ident">whole_byte_destination</span> <span class="op">=</span> ((<span class="ident">usize::from</span>(<span class="self">self</span>.<span class="ident">last_byte_bit_offset</span>) <span class="op">+</span> <span class="ident">varlen_offset</span> <span class="op">-</span> <span class="ident">window_offset</span>) <span class="op">+</span> <span class="number">7</span>) <span class="op">/</span> <span class="number">8</span>;
-        <span class="kw">let</span> <span class="ident">whole_byte_source</span> <span class="op">=</span> (<span class="ident">varlen_offset</span> <span class="op">+</span> <span class="number">7</span>) <span class="op">/</span> <span class="number">8</span>;
-        <span class="kw">let</span> <span class="ident">num_whole_bytes_to_copy</span> <span class="op">=</span> <span class="ident">usize::from</span>(<span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span>) <span class="op">-</span> <span class="ident">whole_byte_source</span>;
-        <span class="kw">for</span> <span class="ident">aligned_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_whole_bytes_to_copy</span> {
-          <span class="ident">realigned_header</span>[<span class="ident">whole_byte_destination</span> <span class="op">+</span> <span class="ident">aligned_index</span>] <span class="op">=</span> <span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>[<span class="ident">whole_byte_source</span> <span class="op">+</span> <span class="ident">aligned_index</span>];
+        <span class="kw">let </span>whole_byte_destination = ((usize::from(<span class="self">self</span>.last_byte_bit_offset) + varlen_offset - window_offset) + <span class="number">7</span>) / <span class="number">8</span>;
+        <span class="kw">let </span>whole_byte_source = (varlen_offset + <span class="number">7</span>) / <span class="number">8</span>;
+        <span class="kw">let </span>num_whole_bytes_to_copy = usize::from(new_stream_pending.num_bytes_read) - whole_byte_source;
+        <span class="kw">for </span>aligned_index <span class="kw">in </span><span class="number">0</span>..num_whole_bytes_to_copy {
+          realigned_header[whole_byte_destination + aligned_index] = new_stream_pending.bytes_so_far[whole_byte_source + aligned_index];
         }
-        <span class="ident">out_bytes</span>[<span class="kw-2">*</span><span class="ident">out_offset</span>] <span class="op">=</span> <span class="ident">realigned_header</span>[<span class="number">0</span>];
-        <span class="self">self</span>.<span class="ident">any_bytes_emitted</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="comment">// subtract one since that has just been written out and we&#39;re only copying realigned_header[1..]</span>
-        <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span> <span class="op">=</span> (<span class="ident">whole_byte_destination</span> <span class="op">+</span> <span class="ident">num_whole_bytes_to_copy</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">-</span> <span class="number">1</span>;
-        <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">0</span>);
-        <span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>.<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">realigned_header</span>[<span class="number">1</span>..]);
+        out_bytes[<span class="kw-2">*</span>out_offset] = realigned_header[<span class="number">0</span>];
+        <span class="self">self</span>.any_bytes_emitted = <span class="bool-val">true</span>;
+        <span class="kw-2">*</span>out_offset += <span class="number">1</span>;
+        <span class="comment">// subtract one since that has just been written out and we&#39;re only copying realigned_header[1..]
+        </span>new_stream_pending.num_bytes_read = (whole_byte_destination + num_whole_bytes_to_copy) <span class="kw">as </span>u8 - <span class="number">1</span>;
+        new_stream_pending.num_bytes_written = <span class="prelude-val">Some</span>(<span class="number">0</span>);
+        new_stream_pending.bytes_so_far.clone_from_slice(<span class="kw-2">&amp;</span>realigned_header[<span class="number">1</span>..]);
       }
-    } <span class="kw">else</span> {
-      <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">window_size</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+    } <span class="kw">else </span>{
+      <span class="macro">assert!</span>(<span class="self">self</span>.window_size != <span class="number">0</span>);
     }
-    <span class="kw">let</span> <span class="ident">to_copy</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">out_bytes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">out_offset</span>,
-                                 <span class="ident">usize::from</span>(<span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span> <span class="op">-</span> <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span>.<span class="ident">unwrap</span>()));
-    <span class="ident">out_bytes</span>.<span class="ident">split_at_mut</span>(<span class="kw-2">*</span><span class="ident">out_offset</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="ident">to_copy</span>).<span class="number">0</span>.<span class="ident">clone_from_slice</span>(
-      <span class="kw-2">&amp;</span><span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>.<span class="ident">split_at</span>(<span class="ident">usize::from</span>(<span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span>.<span class="ident">unwrap</span>())).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="ident">to_copy</span>).<span class="number">0</span>);
-    <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">to_copy</span>;
-    <span class="kw">if</span> <span class="ident">to_copy</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-      <span class="self">self</span>.<span class="ident">any_bytes_emitted</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">let </span>to_copy = core::cmp::min(out_bytes.len() - <span class="kw-2">*</span>out_offset,
+                                 usize::from(new_stream_pending.num_bytes_read - new_stream_pending.num_bytes_written.unwrap()));
+    out_bytes.split_at_mut(<span class="kw-2">*</span>out_offset).<span class="number">1</span>.split_at_mut(to_copy).<span class="number">0</span>.clone_from_slice(
+      <span class="kw-2">&amp;</span>new_stream_pending.bytes_so_far.split_at(usize::from(new_stream_pending.num_bytes_written.unwrap())).<span class="number">1</span>.split_at(to_copy).<span class="number">0</span>);
+    <span class="kw-2">*</span>out_offset += to_copy;
+    <span class="kw">if </span>to_copy != <span class="number">0 </span>{
+      <span class="self">self</span>.any_bytes_emitted = <span class="bool-val">true</span>;
     }
-    <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span>.<span class="ident">unwrap</span>() <span class="op">+</span> <span class="ident">to_copy</span> <span class="kw">as</span> <span class="ident">u8</span>));
-    <span class="kw">if</span> <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_written</span>.<span class="ident">unwrap</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span> {
-      <span class="self">self</span>.<span class="ident">new_stream_pending</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_stream_pending</span>);
-      <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
+    new_stream_pending.num_bytes_written = <span class="prelude-val">Some</span>((new_stream_pending.num_bytes_written.unwrap() + to_copy <span class="kw">as </span>u8));
+    <span class="kw">if </span>new_stream_pending.num_bytes_written.unwrap() != new_stream_pending.num_bytes_read {
+      <span class="self">self</span>.new_stream_pending = <span class="prelude-val">Some</span>(new_stream_pending);
+      <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
     }
-    <span class="self">self</span>.<span class="ident">new_stream_pending</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="self">self</span>.<span class="ident">last_byte_sanitized</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="self">self</span>.<span class="ident">last_bytes</span> <span class="op">=</span> [<span class="number">0</span>,<span class="number">0</span>];
-    <span class="comment">//now unwrite from the stream, since the last byte may need to be adjusted to be EOF</span>
-    <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">out_bytes</span>[<span class="kw-2">*</span><span class="ident">out_offset</span>];
-    <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">BroCatliResult::Success</span>
+    <span class="self">self</span>.new_stream_pending = <span class="prelude-val">None</span>;
+    <span class="self">self</span>.last_byte_sanitized = <span class="bool-val">false</span>;
+    <span class="self">self</span>.last_byte_bit_offset = <span class="number">0</span>;
+    <span class="self">self</span>.last_bytes_len = <span class="number">0</span>;
+    <span class="self">self</span>.last_bytes = [<span class="number">0</span>,<span class="number">0</span>];
+    <span class="comment">//now unwrite from the stream, since the last byte may need to be adjusted to be EOF
+    </span><span class="kw-2">*</span>out_offset -= <span class="number">1</span>;
+    <span class="self">self</span>.last_bytes[<span class="number">0</span>] = out_bytes[<span class="kw-2">*</span>out_offset];
+    <span class="self">self</span>.last_bytes_len = <span class="number">1</span>;
+    BroCatliResult::Success
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stream</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">in_bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">in_offset</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">out_bytes</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>], <span class="ident">out_offset</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) -&gt; <span class="ident">BroCatliResult</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">new_stream_pending</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_stream_pending</span>.<span class="ident">clone</span>() {
-      <span class="kw">let</span> <span class="ident">flush_result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">flush_previous_stream</span>(<span class="ident">out_bytes</span>, <span class="ident">out_offset</span>);
-      <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BroCatliResult::Success</span> <span class="op">=</span> <span class="ident">flush_result</span> {
-        <span class="kw">if</span> <span class="ident">usize::from</span>(<span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span>) <span class="op">&lt;</span> <span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>.<span class="ident">len</span>() {
+  <span class="kw">pub fn </span>stream(<span class="kw-2">&amp;mut </span><span class="self">self</span>, in_bytes: <span class="kw-2">&amp;</span>[u8], in_offset: <span class="kw-2">&amp;mut </span>usize, out_bytes: <span class="kw-2">&amp;mut </span>[u8], out_offset: <span class="kw-2">&amp;mut </span>usize) -&gt; BroCatliResult {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>new_stream_pending) = <span class="self">self</span>.new_stream_pending.clone() {
+      <span class="kw">let </span>flush_result = <span class="self">self</span>.flush_previous_stream(out_bytes, out_offset);
+      <span class="kw">if let </span>BroCatliResult::Success = flush_result {
+        <span class="kw">if </span>usize::from(new_stream_pending.num_bytes_read) &lt; new_stream_pending.bytes_so_far.len() {
           {
-            <span class="kw">let</span> <span class="ident">dst</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">new_stream_pending</span>.<span class="ident">bytes_so_far</span>[<span class="ident">usize::from</span>(<span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span>)..];
-            <span class="kw">let</span> <span class="ident">to_copy</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">dst</span>.<span class="ident">len</span>(), <span class="ident">in_bytes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">in_offset</span>);
-            <span class="ident">dst</span>[..<span class="ident">to_copy</span>].<span class="ident">clone_from_slice</span>(<span class="ident">in_bytes</span>.<span class="ident">split_at</span>(<span class="kw-2">*</span><span class="ident">in_offset</span>).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="ident">to_copy</span>).<span class="number">0</span>);
-            <span class="kw-2">*</span><span class="ident">in_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">to_copy</span>;
-            <span class="ident">new_stream_pending</span>.<span class="ident">num_bytes_read</span> <span class="op">+</span><span class="op">=</span> <span class="ident">to_copy</span> <span class="kw">as</span> <span class="ident">u8</span>;
+            <span class="kw">let </span>dst = <span class="kw-2">&amp;mut </span>new_stream_pending.bytes_so_far[usize::from(new_stream_pending.num_bytes_read)..];
+            <span class="kw">let </span>to_copy = core::cmp::min(dst.len(), in_bytes.len() - <span class="kw-2">*</span>in_offset);
+            dst[..to_copy].clone_from_slice(in_bytes.split_at(<span class="kw-2">*</span>in_offset).<span class="number">1</span>.split_at(to_copy).<span class="number">0</span>);
+            <span class="kw-2">*</span>in_offset += to_copy;
+            new_stream_pending.num_bytes_read += to_copy <span class="kw">as </span>u8;
           }
-          <span class="self">self</span>.<span class="ident">new_stream_pending</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_stream_pending</span>); <span class="comment">// write back changes</span>
+          <span class="self">self</span>.new_stream_pending = <span class="prelude-val">Some</span>(new_stream_pending); <span class="comment">// write back changes
+        </span>}
+        <span class="kw">if </span>!new_stream_pending.sufficient() {
+          <span class="kw">return </span>BroCatliResult::NeedsMoreInput;
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">new_stream_pending</span>.<span class="ident">sufficient</span>() {
-          <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreInput</span>;
+        <span class="kw">if </span>out_bytes.len() == <span class="kw-2">*</span>out_offset {
+          <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
         }
-        <span class="kw">if</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">out_offset</span> {
-          <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
+        <span class="kw">let </span>shift_result = <span class="self">self</span>.shift_and_check_new_stream_header(new_stream_pending, out_bytes, out_offset);
+        <span class="kw">if let </span>BroCatliResult::Success = shift_result {
+        } <span class="kw">else </span>{
+          <span class="kw">return </span>shift_result;
         }
-        <span class="kw">let</span> <span class="ident">shift_result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shift_and_check_new_stream_header</span>(<span class="ident">new_stream_pending</span>, <span class="ident">out_bytes</span>, <span class="ident">out_offset</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BroCatliResult::Success</span> <span class="op">=</span> <span class="ident">shift_result</span> {
-        } <span class="kw">else</span> {
-          <span class="kw">return</span> <span class="ident">shift_result</span>;
-        }
-      } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="ident">flush_result</span>;
+      } <span class="kw">else </span>{
+        <span class="kw">return </span>flush_result;
       }
-      <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">==</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() {
-        <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>; <span class="comment">// need to be able to write at least one byte of data to make progress</span>
+      <span class="kw">if </span><span class="kw-2">*</span>out_offset == out_bytes.len() {
+        <span class="kw">return </span>BroCatliResult::NeedsMoreOutput; <span class="comment">// need to be able to write at least one byte of data to make progress
+      </span>}
+    }
+    <span class="macro">assert!</span>(<span class="self">self</span>.new_stream_pending.is_none());<span class="comment">// this should have been handled above
+    </span><span class="kw">if </span><span class="self">self</span>.last_bytes_len != <span class="number">2 </span>{
+      <span class="kw">if </span>out_bytes.len() == <span class="kw-2">*</span>out_offset{
+        <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
+      }
+      <span class="kw">if </span>in_bytes.len() == <span class="kw-2">*</span>in_offset {
+        <span class="kw">return </span>BroCatliResult::NeedsMoreInput;
+      }
+      <span class="self">self</span>.last_bytes[usize::from(<span class="self">self</span>.last_bytes_len)] = in_bytes[<span class="kw-2">*</span>in_offset];
+      <span class="kw-2">*</span>in_offset += <span class="number">1</span>;
+      <span class="self">self</span>.last_bytes_len += <span class="number">1</span>;
+      <span class="kw">if </span><span class="self">self</span>.last_bytes_len != <span class="number">2 </span>{
+        <span class="kw">if </span>out_bytes.len() == <span class="kw-2">*</span>out_offset{
+          <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
+        }
+        <span class="kw">if </span>in_bytes.len() == <span class="kw-2">*</span>in_offset {
+          <span class="kw">return </span>BroCatliResult::NeedsMoreInput;
+        }
+        <span class="self">self</span>.last_bytes[usize::from(<span class="self">self</span>.last_bytes_len)] = in_bytes[<span class="kw-2">*</span>in_offset];
+        <span class="self">self</span>.last_bytes_len += <span class="number">1</span>;
+        <span class="kw-2">*</span>in_offset += <span class="number">1</span>;
       }
     }
-    <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">new_stream_pending</span>.<span class="ident">is_none</span>());<span class="comment">// this should have been handled above</span>
-    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-      <span class="kw">if</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">out_offset</span>{
-        <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
+    <span class="kw">if </span>out_bytes.len() == <span class="kw-2">*</span>out_offset{
+      <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
+    }
+    <span class="kw">if </span>in_bytes.len() == <span class="kw-2">*</span>in_offset{
+      <span class="kw">return </span>BroCatliResult::NeedsMoreInput;
+    }
+    <span class="kw">let </span><span class="kw-2">mut </span>to_copy = core::cmp::min(out_bytes.len() - <span class="kw-2">*</span>out_offset,
+                                     in_bytes.len() - <span class="kw-2">*</span>in_offset);
+    <span class="macro">assert!</span>(to_copy != <span class="number">0</span>);
+    <span class="kw">if </span>to_copy == <span class="number">1 </span>{
+      out_bytes[<span class="kw-2">*</span>out_offset] = <span class="self">self</span>.last_bytes[<span class="number">0</span>];
+      <span class="self">self</span>.last_bytes[<span class="number">0</span>] = <span class="self">self</span>.last_bytes[<span class="number">1</span>];
+      <span class="self">self</span>.last_bytes[<span class="number">1</span>] = in_bytes[<span class="kw-2">*</span>in_offset];
+      <span class="kw-2">*</span>in_offset += <span class="number">1</span>;
+      <span class="kw-2">*</span>out_offset += <span class="number">1</span>;
+      <span class="kw">if </span><span class="kw-2">*</span>out_offset == out_bytes.len() {
+        <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
       }
-      <span class="kw">if</span> <span class="ident">in_bytes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">in_offset</span> {
-        <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreInput</span>;
-      }
-      <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="ident">usize::from</span>(<span class="self">self</span>.<span class="ident">last_bytes_len</span>)] <span class="op">=</span> <span class="ident">in_bytes</span>[<span class="kw-2">*</span><span class="ident">in_offset</span>];
-      <span class="kw-2">*</span><span class="ident">in_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-      <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-      <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-        <span class="kw">if</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">out_offset</span>{
-          <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
-        }
-        <span class="kw">if</span> <span class="ident">in_bytes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">in_offset</span> {
-          <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreInput</span>;
-        }
-        <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="ident">usize::from</span>(<span class="self">self</span>.<span class="ident">last_bytes_len</span>)] <span class="op">=</span> <span class="ident">in_bytes</span>[<span class="kw-2">*</span><span class="ident">in_offset</span>];
-        <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="kw-2">*</span><span class="ident">in_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-      }
+      <span class="kw">return </span>BroCatliResult::NeedsMoreInput;
     }
-    <span class="kw">if</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">out_offset</span>{
-      <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
+    out_bytes.split_at_mut(<span class="kw-2">*</span>out_offset).<span class="number">1</span>.split_at_mut(<span class="number">2</span>).<span class="number">0</span>.clone_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.last_bytes[..]);
+    <span class="kw-2">*</span>out_offset += <span class="number">2</span>;
+    <span class="kw">let </span>(new_in_offset, last_two) = in_bytes.split_at(<span class="kw-2">*</span>in_offset).<span class="number">1</span>.split_at(to_copy).<span class="number">0</span>.split_at(to_copy-<span class="number">2</span>);
+    <span class="self">self</span>.last_bytes.clone_from_slice(last_two);
+    <span class="kw-2">*</span>in_offset += <span class="number">2</span>; <span class="comment">// add this after the clone since we grab the last 2 bytes, not the first
+    </span>to_copy -= <span class="number">2</span>;
+      out_bytes.split_at_mut(<span class="kw-2">*</span>out_offset).<span class="number">1</span>.split_at_mut(to_copy).<span class="number">0</span>.clone_from_slice(
+          new_in_offset);
+    <span class="kw-2">*</span>out_offset += to_copy;
+    <span class="kw-2">*</span>in_offset += to_copy;
+    <span class="kw">if </span><span class="kw-2">*</span>out_offset == out_bytes.len() {
+      <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
     }
-    <span class="kw">if</span> <span class="ident">in_bytes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">in_offset</span>{
-      <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreInput</span>;
-    }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">to_copy</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">out_bytes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">out_offset</span>,
-                                     <span class="ident">in_bytes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">in_offset</span>);
-    <span class="macro">assert!</span>(<span class="ident">to_copy</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
-    <span class="kw">if</span> <span class="ident">to_copy</span> <span class="op">==</span> <span class="number">1</span> {
-      <span class="ident">out_bytes</span>[<span class="kw-2">*</span><span class="ident">out_offset</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>];
-      <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">1</span>];
-      <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">in_bytes</span>[<span class="kw-2">*</span><span class="ident">in_offset</span>];
-      <span class="kw-2">*</span><span class="ident">in_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-      <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-      <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">==</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() {
-        <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
-      }
-      <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreInput</span>;
-    }
-    <span class="ident">out_bytes</span>.<span class="ident">split_at_mut</span>(<span class="kw-2">*</span><span class="ident">out_offset</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="number">2</span>).<span class="number">0</span>.<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">last_bytes</span>[..]);
-    <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
-    <span class="kw">let</span> (<span class="ident">new_in_offset</span>, <span class="ident">last_two</span>) <span class="op">=</span> <span class="ident">in_bytes</span>.<span class="ident">split_at</span>(<span class="kw-2">*</span><span class="ident">in_offset</span>).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="ident">to_copy</span>).<span class="number">0</span>.<span class="ident">split_at</span>(<span class="ident">to_copy</span><span class="op">-</span><span class="number">2</span>);
-    <span class="self">self</span>.<span class="ident">last_bytes</span>.<span class="ident">clone_from_slice</span>(<span class="ident">last_two</span>);
-    <span class="kw-2">*</span><span class="ident">in_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>; <span class="comment">// add this after the clone since we grab the last 2 bytes, not the first</span>
-    <span class="ident">to_copy</span> <span class="op">-</span><span class="op">=</span> <span class="number">2</span>;
-      <span class="ident">out_bytes</span>.<span class="ident">split_at_mut</span>(<span class="kw-2">*</span><span class="ident">out_offset</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="ident">to_copy</span>).<span class="number">0</span>.<span class="ident">clone_from_slice</span>(
-          <span class="ident">new_in_offset</span>);
-    <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">to_copy</span>;
-    <span class="kw-2">*</span><span class="ident">in_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">to_copy</span>;
-    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">==</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() {
-      <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
-    }
-    <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreInput</span>;
+    <span class="kw">return </span>BroCatliResult::NeedsMoreInput;
   }
-  <span class="kw">fn</span> <span class="ident">append_eof_metablock_to_last_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-    <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">last_byte_sanitized</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">u16</span> <span class="op">|</span> ((<span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">1</span>] <span class="kw">as</span> <span class="ident">u16</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>);
-    <span class="kw">let</span> <span class="ident">bit_end</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">*</span> <span class="number">8</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span>;
-    <span class="ident">last_bytes</span> <span class="op">|</span><span class="op">=</span> <span class="number">3</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">bit_end</span>;
-    <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">last_bytes</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="number">0xff</span>;
-    <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">1</span>] <span class="op">=</span> (<span class="ident">last_bytes</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">&amp;</span> <span class="number">0xff</span>;
-    <span class="self">self</span>.<span class="ident">last_byte_sanitized</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
-    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">8</span> {
-      <span class="self">self</span>.<span class="ident">last_byte_bit_offset</span> <span class="op">-</span><span class="op">=</span> <span class="number">8</span>;
-      <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+  <span class="kw">fn </span>append_eof_metablock_to_last_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+    <span class="macro">assert!</span>(<span class="self">self</span>.last_byte_sanitized);
+    <span class="kw">let </span><span class="kw-2">mut </span>last_bytes = <span class="self">self</span>.last_bytes[<span class="number">0</span>] <span class="kw">as </span>u16 | ((<span class="self">self</span>.last_bytes[<span class="number">1</span>] <span class="kw">as </span>u16) &lt;&lt; <span class="number">8</span>);
+    <span class="kw">let </span>bit_end = (<span class="self">self</span>.last_bytes_len - <span class="number">1</span>) * <span class="number">8 </span>+ <span class="self">self</span>.last_byte_bit_offset;
+    last_bytes |= <span class="number">3 </span>&lt;&lt; bit_end;
+    <span class="self">self</span>.last_bytes[<span class="number">0</span>] = last_bytes <span class="kw">as </span>u8 &amp; <span class="number">0xff</span>;
+    <span class="self">self</span>.last_bytes[<span class="number">1</span>] = (last_bytes &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8 &amp; <span class="number">0xff</span>;
+    <span class="self">self</span>.last_byte_sanitized = <span class="bool-val">false</span>;
+    <span class="self">self</span>.last_byte_bit_offset += <span class="number">2</span>;
+    <span class="kw">if </span><span class="self">self</span>.last_byte_bit_offset &gt;= <span class="number">8 </span>{
+      <span class="self">self</span>.last_byte_bit_offset -= <span class="number">8</span>;
+      <span class="self">self</span>.last_bytes_len += <span class="number">1</span>;
     }
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">out_bytes</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>], <span class="ident">out_offset</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) -&gt; <span class="ident">BroCatliResult</span> {
-       <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_byte_sanitized</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-           <span class="self">self</span>.<span class="ident">append_eof_metablock_to_last_bytes</span>();
+  <span class="kw">pub fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>, out_bytes: <span class="kw-2">&amp;mut </span>[u8], out_offset: <span class="kw-2">&amp;mut </span>usize) -&gt; BroCatliResult {
+       <span class="kw">if </span><span class="self">self</span>.last_byte_sanitized &amp;&amp; <span class="self">self</span>.last_bytes_len != <span class="number">0 </span>{
+           <span class="self">self</span>.append_eof_metablock_to_last_bytes();
        }
-       <span class="kw">while</span> <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-           <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">==</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() {
+       <span class="kw">while </span><span class="self">self</span>.last_bytes_len != <span class="number">0 </span>{
+           <span class="kw">if </span><span class="kw-2">*</span>out_offset == out_bytes.len() {
 
-             <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
+             <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
            }
-           <span class="ident">out_bytes</span>[<span class="kw-2">*</span><span class="ident">out_offset</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>];
-           <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-           <span class="self">self</span>.<span class="ident">last_bytes_len</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-           <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">0</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_bytes</span>[<span class="number">1</span>];
-           <span class="self">self</span>.<span class="ident">any_bytes_emitted</span> <span class="op">=</span> <span class="bool-val">true</span>;
+           out_bytes[<span class="kw-2">*</span>out_offset] = <span class="self">self</span>.last_bytes[<span class="number">0</span>];
+           <span class="kw-2">*</span>out_offset += <span class="number">1</span>;
+           <span class="self">self</span>.last_bytes_len -= <span class="number">1</span>;
+           <span class="self">self</span>.last_bytes[<span class="number">0</span>] = <span class="self">self</span>.last_bytes[<span class="number">1</span>];
+           <span class="self">self</span>.any_bytes_emitted = <span class="bool-val">true</span>;
        }
-       <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">any_bytes_emitted</span> {
-           <span class="kw">if</span> <span class="ident">out_bytes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">out_offset</span>{
-               <span class="kw">return</span> <span class="ident">BroCatliResult::NeedsMoreOutput</span>;
+       <span class="kw">if </span>!<span class="self">self</span>.any_bytes_emitted {
+           <span class="kw">if </span>out_bytes.len() == <span class="kw-2">*</span>out_offset{
+               <span class="kw">return </span>BroCatliResult::NeedsMoreOutput;
            }
-           <span class="self">self</span>.<span class="ident">any_bytes_emitted</span> <span class="op">=</span> <span class="bool-val">true</span>;
-           <span class="ident">out_bytes</span>[<span class="kw-2">*</span><span class="ident">out_offset</span>] <span class="op">=</span> <span class="string">b&#39;;&#39;</span>;
-           <span class="kw-2">*</span><span class="ident">out_offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+           <span class="self">self</span>.any_bytes_emitted = <span class="bool-val">true</span>;
+           out_bytes[<span class="kw-2">*</span>out_offset] = <span class="string">b&#39;;&#39;</span>;
+           <span class="kw-2">*</span>out_offset += <span class="number">1</span>;
        }
-       <span class="ident">BroCatliResult::Success</span>
+       BroCatliResult::Success
    }
 }
 
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BroCatli</span>};
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_deserialization</span>() {
-        <span class="kw">let</span> <span class="ident">broccoli</span> <span class="op">=</span> <span class="ident">BroCatli</span>{
-            <span class="ident">new_stream_pending</span>:<span class="prelude-val">Some</span>(<span class="ident"><span class="kw">super</span>::NewStreamData</span> {
-                <span class="ident">bytes_so_far</span>: [<span class="number">0x33</span>; <span class="ident"><span class="kw">super</span>::NUM_STREAM_HEADER_BYTES</span>],
-                <span class="ident">num_bytes_read</span>: <span class="number">16</span>,
-                <span class="ident">num_bytes_written</span>: <span class="prelude-val">Some</span>(<span class="number">3</span>),
+<span class="kw">mod </span>test {
+    <span class="attribute">#[cfg(test)]
+    </span><span class="kw">use super</span>::{BroCatli};
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_deserialization() {
+        <span class="kw">let </span>broccoli = BroCatli{
+            new_stream_pending:<span class="prelude-val">Some</span>(<span class="kw">super</span>::NewStreamData {
+                bytes_so_far: [<span class="number">0x33</span>; <span class="kw">super</span>::NUM_STREAM_HEADER_BYTES],
+                num_bytes_read: <span class="number">16</span>,
+                num_bytes_written: <span class="prelude-val">Some</span>(<span class="number">3</span>),
             }),
-            <span class="ident">last_bytes</span>: [<span class="number">0x45</span>, <span class="number">0x46</span>],
-            <span class="ident">last_bytes_len</span>: <span class="number">1</span>,
-            <span class="ident">last_byte_sanitized</span>: <span class="bool-val">true</span>,
-            <span class="ident">any_bytes_emitted</span>: <span class="bool-val">false</span>,
-            <span class="ident">last_byte_bit_offset</span>: <span class="number">7</span>,
-            <span class="ident">window_size</span>:<span class="number">22</span>,
+            last_bytes: [<span class="number">0x45</span>, <span class="number">0x46</span>],
+            last_bytes_len: <span class="number">1</span>,
+            last_byte_sanitized: <span class="bool-val">true</span>,
+            any_bytes_emitted: <span class="bool-val">false</span>,
+            last_byte_bit_offset: <span class="number">7</span>,
+            window_size:<span class="number">22</span>,
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> [<span class="number">0u8</span>;<span class="number">248</span>];
-        <span class="ident">broccoli</span>.<span class="ident">serialize_to_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer</span>[..]).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">bc</span> <span class="op">=</span> <span class="ident">BroCatli::deserialize_from_buffer</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..]).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">last_bytes</span>, <span class="ident">bc</span>.<span class="ident">last_bytes</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">last_bytes_len</span>, <span class="ident">bc</span>.<span class="ident">last_bytes_len</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">last_byte_sanitized</span>, <span class="ident">bc</span>.<span class="ident">last_byte_sanitized</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">last_byte_bit_offset</span>, <span class="ident">bc</span>.<span class="ident">last_byte_bit_offset</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">window_size</span>, <span class="ident">bc</span>.<span class="ident">window_size</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">bytes_so_far</span>,
-                   <span class="ident">bc</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">bytes_so_far</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">num_bytes_read</span>,
-                   <span class="ident">bc</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">num_bytes_read</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">num_bytes_written</span>,
-                   <span class="ident">bc</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">num_bytes_written</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0u8</span>;<span class="number">248</span>];
+        broccoli.serialize_to_buffer(<span class="kw-2">&amp;mut </span>buffer[..]).unwrap();
+        <span class="kw">let </span>bc = BroCatli::deserialize_from_buffer(<span class="kw-2">&amp;</span>buffer[..]).unwrap();
+        <span class="macro">assert_eq!</span>(broccoli.last_bytes, bc.last_bytes);
+        <span class="macro">assert_eq!</span>(broccoli.last_bytes_len, bc.last_bytes_len);
+        <span class="macro">assert_eq!</span>(broccoli.last_byte_sanitized, bc.last_byte_sanitized);
+        <span class="macro">assert_eq!</span>(broccoli.last_byte_bit_offset, bc.last_byte_bit_offset);
+        <span class="macro">assert_eq!</span>(broccoli.window_size, bc.window_size);
+        <span class="macro">assert_eq!</span>(broccoli.new_stream_pending.unwrap().bytes_so_far,
+                   bc.new_stream_pending.unwrap().bytes_so_far);
+        <span class="macro">assert_eq!</span>(broccoli.new_stream_pending.unwrap().num_bytes_read,
+                   bc.new_stream_pending.unwrap().num_bytes_read);
+        <span class="macro">assert_eq!</span>(broccoli.new_stream_pending.unwrap().num_bytes_written,
+                   bc.new_stream_pending.unwrap().num_bytes_written);
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_deserialization_any_written</span>() {
-        <span class="kw">let</span> <span class="ident">broccoli</span> <span class="op">=</span> <span class="ident">BroCatli</span>{
-            <span class="ident">new_stream_pending</span>:<span class="prelude-val">Some</span>(<span class="ident"><span class="kw">super</span>::NewStreamData</span> {
-                <span class="ident">bytes_so_far</span>: [<span class="number">0x33</span>; <span class="ident"><span class="kw">super</span>::NUM_STREAM_HEADER_BYTES</span>],
-                <span class="ident">num_bytes_read</span>: <span class="number">16</span>,
-                <span class="ident">num_bytes_written</span>: <span class="prelude-val">Some</span>(<span class="number">3</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_deserialization_any_written() {
+        <span class="kw">let </span>broccoli = BroCatli{
+            new_stream_pending:<span class="prelude-val">Some</span>(<span class="kw">super</span>::NewStreamData {
+                bytes_so_far: [<span class="number">0x33</span>; <span class="kw">super</span>::NUM_STREAM_HEADER_BYTES],
+                num_bytes_read: <span class="number">16</span>,
+                num_bytes_written: <span class="prelude-val">Some</span>(<span class="number">3</span>),
             }),
-            <span class="ident">last_bytes</span>: [<span class="number">0x45</span>, <span class="number">0x46</span>],
-            <span class="ident">last_bytes_len</span>: <span class="number">1</span>,
-            <span class="ident">last_byte_sanitized</span>: <span class="bool-val">true</span>,
-            <span class="ident">any_bytes_emitted</span>: <span class="bool-val">true</span>,
-            <span class="ident">last_byte_bit_offset</span>: <span class="number">7</span>,
-            <span class="ident">window_size</span>:<span class="number">22</span>,
+            last_bytes: [<span class="number">0x45</span>, <span class="number">0x46</span>],
+            last_bytes_len: <span class="number">1</span>,
+            last_byte_sanitized: <span class="bool-val">true</span>,
+            any_bytes_emitted: <span class="bool-val">true</span>,
+            last_byte_bit_offset: <span class="number">7</span>,
+            window_size:<span class="number">22</span>,
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> [<span class="number">0u8</span>;<span class="number">248</span>];
-        <span class="ident">broccoli</span>.<span class="ident">serialize_to_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer</span>[..]).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">bc</span> <span class="op">=</span> <span class="ident">BroCatli::deserialize_from_buffer</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..]).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">last_bytes</span>, <span class="ident">bc</span>.<span class="ident">last_bytes</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">last_bytes_len</span>, <span class="ident">bc</span>.<span class="ident">last_bytes_len</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">last_byte_sanitized</span>, <span class="ident">bc</span>.<span class="ident">last_byte_sanitized</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">last_byte_bit_offset</span>, <span class="ident">bc</span>.<span class="ident">last_byte_bit_offset</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">window_size</span>, <span class="ident">bc</span>.<span class="ident">window_size</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">bytes_so_far</span>,
-                   <span class="ident">bc</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">bytes_so_far</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">num_bytes_read</span>,
-                   <span class="ident">bc</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">num_bytes_read</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">broccoli</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">num_bytes_written</span>,
-                   <span class="ident">bc</span>.<span class="ident">new_stream_pending</span>.<span class="ident">unwrap</span>().<span class="ident">num_bytes_written</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0u8</span>;<span class="number">248</span>];
+        broccoli.serialize_to_buffer(<span class="kw-2">&amp;mut </span>buffer[..]).unwrap();
+        <span class="kw">let </span>bc = BroCatli::deserialize_from_buffer(<span class="kw-2">&amp;</span>buffer[..]).unwrap();
+        <span class="macro">assert_eq!</span>(broccoli.last_bytes, bc.last_bytes);
+        <span class="macro">assert_eq!</span>(broccoli.last_bytes_len, bc.last_bytes_len);
+        <span class="macro">assert_eq!</span>(broccoli.last_byte_sanitized, bc.last_byte_sanitized);
+        <span class="macro">assert_eq!</span>(broccoli.last_byte_bit_offset, bc.last_byte_bit_offset);
+        <span class="macro">assert_eq!</span>(broccoli.window_size, bc.window_size);
+        <span class="macro">assert_eq!</span>(broccoli.new_stream_pending.unwrap().bytes_so_far,
+                   bc.new_stream_pending.unwrap().bytes_so_far);
+        <span class="macro">assert_eq!</span>(broccoli.new_stream_pending.unwrap().num_bytes_read,
+                   bc.new_stream_pending.unwrap().num_bytes_read);
+        <span class="macro">assert_eq!</span>(broccoli.new_stream_pending.unwrap().num_bytes_written,
+                   bc.new_stream_pending.unwrap().num_bytes_written);
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_serialization</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> [<span class="number">0u8</span>;<span class="number">248</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">broccoli</span> <span class="op">=</span> <span class="ident">BroCatli::deserialize_from_buffer</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer2</span> <span class="op">=</span> [<span class="number">0u8</span>;<span class="number">248</span>];
-        <span class="ident">broccoli</span>.<span class="ident">serialize_to_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer2</span>[..]).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..], <span class="kw-2">&amp;</span><span class="ident">buffer2</span>[..]);
-        <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">item</span>) <span class="kw">in</span> <span class="ident">buffer</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
-            <span class="kw-2">*</span><span class="ident">item</span> <span class="op">=</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">u8</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_serialization() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0u8</span>;<span class="number">248</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>broccoli = BroCatli::deserialize_from_buffer(<span class="kw-2">&amp;</span>buffer).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer2 = [<span class="number">0u8</span>;<span class="number">248</span>];
+        broccoli.serialize_to_buffer(<span class="kw-2">&amp;mut </span>buffer2[..]).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buffer[..], <span class="kw-2">&amp;</span>buffer2[..]);
+        <span class="kw">for </span>(index, item) <span class="kw">in </span>buffer.iter_mut().enumerate() {
+            <span class="kw-2">*</span>item = index <span class="kw">as </span>u8;
         }
-        <span class="ident">broccoli</span> <span class="op">=</span> <span class="ident">BroCatli::deserialize_from_buffer</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>).<span class="ident">unwrap</span>();
-        <span class="ident">broccoli</span>.<span class="ident">serialize_to_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer2</span>[..]).<span class="ident">unwrap</span>();
-        <span class="ident">broccoli</span> <span class="op">=</span> <span class="ident">BroCatli::deserialize_from_buffer</span>(<span class="kw-2">&amp;</span><span class="ident">buffer2</span>).<span class="ident">unwrap</span>();
-        <span class="kw">for</span> (<span class="ident">_index</span>, <span class="ident">item</span>) <span class="kw">in</span> <span class="ident">buffer</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
-            <span class="kw-2">*</span><span class="ident">item</span> <span class="op">=</span> <span class="number">0</span>;
+        broccoli = BroCatli::deserialize_from_buffer(<span class="kw-2">&amp;</span>buffer).unwrap();
+        broccoli.serialize_to_buffer(<span class="kw-2">&amp;mut </span>buffer2[..]).unwrap();
+        broccoli = BroCatli::deserialize_from_buffer(<span class="kw-2">&amp;</span>buffer2).unwrap();
+        <span class="kw">for </span>(_index, item) <span class="kw">in </span>buffer.iter_mut().enumerate() {
+            <span class="kw-2">*</span>item = <span class="number">0</span>;
         }
-        <span class="ident">broccoli</span>.<span class="ident">serialize_to_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer</span>[..]).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..], <span class="kw-2">&amp;</span><span class="ident">buffer2</span>[..]);
-        <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">item</span>) <span class="kw">in</span> <span class="ident">buffer</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
-            <span class="kw-2">*</span><span class="ident">item</span> <span class="op">=</span> <span class="number">0xff</span> <span class="op">^</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">u8</span>;
+        broccoli.serialize_to_buffer(<span class="kw-2">&amp;mut </span>buffer[..]).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buffer[..], <span class="kw-2">&amp;</span>buffer2[..]);
+        <span class="kw">for </span>(index, item) <span class="kw">in </span>buffer.iter_mut().enumerate() {
+            <span class="kw-2">*</span>item = <span class="number">0xff </span>^ index <span class="kw">as </span>u8;
         }
-        <span class="ident">broccoli</span> <span class="op">=</span> <span class="ident">BroCatli::deserialize_from_buffer</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>).<span class="ident">unwrap</span>();
-        <span class="ident">broccoli</span>.<span class="ident">serialize_to_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer2</span>[..]).<span class="ident">unwrap</span>();
-        <span class="ident">broccoli</span> <span class="op">=</span> <span class="ident">BroCatli::deserialize_from_buffer</span>(<span class="kw-2">&amp;</span><span class="ident">buffer2</span>).<span class="ident">unwrap</span>();
-        <span class="kw">for</span> (<span class="ident">_index</span>, <span class="ident">item</span>) <span class="kw">in</span> <span class="ident">buffer</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
-            <span class="kw-2">*</span><span class="ident">item</span> <span class="op">=</span> <span class="number">0</span>;
+        broccoli = BroCatli::deserialize_from_buffer(<span class="kw-2">&amp;</span>buffer).unwrap();
+        broccoli.serialize_to_buffer(<span class="kw-2">&amp;mut </span>buffer2[..]).unwrap();
+        broccoli = BroCatli::deserialize_from_buffer(<span class="kw-2">&amp;</span>buffer2).unwrap();
+        <span class="kw">for </span>(_index, item) <span class="kw">in </span>buffer.iter_mut().enumerate() {
+            <span class="kw-2">*</span>item = <span class="number">0</span>;
         }
-        <span class="ident">broccoli</span>.<span class="ident">serialize_to_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer</span>[..]).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..], <span class="kw-2">&amp;</span><span class="ident">buffer2</span>[..]);
+        broccoli.serialize_to_buffer(<span class="kw-2">&amp;mut </span>buffer[..]).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buffer[..], <span class="kw-2">&amp;</span>buffer2[..]);
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_cat_empty_stream</span>() {
-        <span class="kw">let</span> <span class="ident">empty_catable</span> <span class="op">=</span> [<span class="string">b&#39;;&#39;</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bcat</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::BroCatli::default</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">in_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_bytes</span> <span class="op">=</span> [<span class="number">0u8</span>;<span class="number">32</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-        <span class="ident">bcat</span>.<span class="ident">new_brotli_file</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">bcat</span>.<span class="ident">stream</span>(<span class="kw-2">&amp;</span><span class="ident">empty_catable</span>[..],
-                              <span class="kw-2">&amp;mut</span> <span class="ident">in_offset</span>,
-                              <span class="kw-2">&amp;mut</span> <span class="ident">out_bytes</span>[..],
-                              <span class="kw-2">&amp;mut</span> <span class="ident">out_offset</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident"><span class="kw">super</span>::BroCatliResult::NeedsMoreInput</span>);
-        <span class="ident">bcat</span>.<span class="ident">new_brotli_file</span>();
-        <span class="ident">in_offset</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">res</span> <span class="op">=</span> <span class="ident">bcat</span>.<span class="ident">stream</span>(<span class="kw-2">&amp;</span><span class="ident">empty_catable</span>[..],
-                              <span class="kw-2">&amp;mut</span> <span class="ident">in_offset</span>,
-                              <span class="kw-2">&amp;mut</span> <span class="ident">out_bytes</span>[..],
-                              <span class="kw-2">&amp;mut</span> <span class="ident">out_offset</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident"><span class="kw">super</span>::BroCatliResult::NeedsMoreInput</span>);
-        <span class="ident">res</span> <span class="op">=</span> <span class="ident">bcat</span>.<span class="ident">finish</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out_bytes</span>[..],
-                          <span class="kw-2">&amp;mut</span> <span class="ident">out_offset</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident"><span class="kw">super</span>::BroCatliResult::Success</span>);
-        <span class="macro">assert!</span>(<span class="ident">out_offset</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">out_bytes</span>[..<span class="ident">out_offset</span>], <span class="kw-2">&amp;</span>[<span class="string">b&#39;;&#39;</span>]);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_cat_empty_stream() {
+        <span class="kw">let </span>empty_catable = [<span class="string">b&#39;;&#39;</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>bcat = <span class="kw">super</span>::BroCatli::default();
+        <span class="kw">let </span><span class="kw-2">mut </span>in_offset = <span class="number">0usize</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>out_bytes = [<span class="number">0u8</span>;<span class="number">32</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>out_offset = <span class="number">0usize</span>;
+        bcat.new_brotli_file();
+        <span class="kw">let </span><span class="kw-2">mut </span>res = bcat.stream(<span class="kw-2">&amp;</span>empty_catable[..],
+                              <span class="kw-2">&amp;mut </span>in_offset,
+                              <span class="kw-2">&amp;mut </span>out_bytes[..],
+                              <span class="kw-2">&amp;mut </span>out_offset);
+        <span class="macro">assert_eq!</span>(res, <span class="kw">super</span>::BroCatliResult::NeedsMoreInput);
+        bcat.new_brotli_file();
+        in_offset = <span class="number">0</span>;
+        res = bcat.stream(<span class="kw-2">&amp;</span>empty_catable[..],
+                              <span class="kw-2">&amp;mut </span>in_offset,
+                              <span class="kw-2">&amp;mut </span>out_bytes[..],
+                              <span class="kw-2">&amp;mut </span>out_offset);
+        <span class="macro">assert_eq!</span>(res, <span class="kw">super</span>::BroCatliResult::NeedsMoreInput);
+        res = bcat.finish(<span class="kw-2">&amp;mut </span>out_bytes[..],
+                          <span class="kw-2">&amp;mut </span>out_offset);
+        <span class="macro">assert_eq!</span>(res, <span class="kw">super</span>::BroCatliResult::Success);
+        <span class="macro">assert!</span>(out_offset != <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>out_bytes[..out_offset], <span class="kw-2">&amp;</span>[<span class="string">b&#39;;&#39;</span>]);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

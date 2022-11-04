@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_helpers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>seed_helpers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_helpers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>seed_helpers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -445,452 +445,452 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
-    <span class="ident">exams</span>::{<span class="self">self</span>, <span class="ident">NewExam</span>},
-    <span class="ident">exercise_slide_submissions</span>,
-    <span class="ident">exercise_task_gradings</span>::{<span class="self">self</span>, <span class="ident">ExerciseTaskGradingResult</span>, <span class="ident">UserPointsUpdateStrategy</span>},
-    <span class="ident">exercise_task_submissions</span>,
-    <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">GradingProgress</span>},
-    <span class="ident">page_history::HistoryChangeReason</span>,
-    <span class="ident">pages</span>::{
-        <span class="self">self</span>, <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>, <span class="ident">NewPage</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>chrono::{DateTime, Utc};
+<span class="kw">use </span>headless_lms_models::{
+    exams::{<span class="self">self</span>, NewExam},
+    exercise_slide_submissions,
+    exercise_task_gradings::{<span class="self">self</span>, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
+    exercise_task_submissions,
+    exercises::{<span class="self">self</span>, GradingProgress},
+    page_history::HistoryChangeReason,
+    pages::{
+        <span class="self">self</span>, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
     },
-    <span class="ident">user_exercise_slide_states</span>, <span class="ident">user_exercise_states</span>, <span class="ident">PKeyPolicy</span>,
+    user_exercise_slide_states, user_exercise_states, PKeyPolicy,
 };
-<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">attributes</span>, <span class="ident">document_schema_processor::GutenbergBlock</span>};
-<span class="kw">use</span> <span class="ident">serde_json::Value</span>;
-<span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use </span>headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
+<span class="kw">use </span>serde_json::Value;
+<span class="kw">use </span>sqlx::PgConnection;
+<span class="kw">use </span>uuid::Uuid;
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_page</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">author</span>: <span class="ident">Uuid</span>,
-    <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">page_data</span>: <span class="ident">CmsPageUpdate</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">new_page</span> <span class="op">=</span> <span class="ident">NewPage</span> {
-        <span class="ident">content</span>: <span class="ident">Value::Array</span>(<span class="macro">vec!</span>[]),
-        <span class="ident">url_path</span>: <span class="ident">page_data</span>.<span class="ident">url_path</span>.<span class="ident">to_string</span>(),
-        <span class="ident">title</span>: <span class="macro">format!</span>(<span class="string">&quot;{} WIP&quot;</span>, <span class="ident">page_data</span>.<span class="ident">title</span>),
-        <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_id</span>),
-        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">chapter_id</span>,
-        <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
-        <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
-        <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
-        <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
+<span class="attribute">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">pub async fn </span>create_page(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+    author: Uuid,
+    chapter_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    page_data: CmsPageUpdate,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
+    <span class="kw">let </span>new_page = NewPage {
+        content: Value::Array(<span class="macro">vec!</span>[]),
+        url_path: page_data.url_path.to_string(),
+        title: <span class="macro">format!</span>(<span class="string">&quot;{} WIP&quot;</span>, page_data.title),
+        course_id: <span class="prelude-val">Some</span>(course_id),
+        exam_id: <span class="prelude-val">None</span>,
+        chapter_id,
+        front_page_of_chapter_id: <span class="prelude-val">None</span>,
+        exercises: <span class="macro">vec!</span>[],
+        exercise_slides: <span class="macro">vec!</span>[],
+        exercise_tasks: <span class="macro">vec!</span>[],
+        content_search_language: <span class="prelude-val">None</span>,
     };
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">pages::insert_page</span>(<span class="ident">conn</span>, <span class="ident">new_page</span>, <span class="ident">author</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">pages::update_page</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">page</span>.<span class="ident">id</span>,
-        <span class="ident">CmsPageUpdate</span> {
-            <span class="ident">content</span>: <span class="ident">page_data</span>.<span class="ident">content</span>,
-            <span class="ident">exercises</span>: <span class="ident">page_data</span>.<span class="ident">exercises</span>,
-            <span class="ident">exercise_slides</span>: <span class="ident">page_data</span>.<span class="ident">exercise_slides</span>,
-            <span class="ident">exercise_tasks</span>: <span class="ident">page_data</span>.<span class="ident">exercise_tasks</span>,
-            <span class="ident">url_path</span>: <span class="ident">page_data</span>.<span class="ident">url_path</span>,
-            <span class="ident">title</span>: <span class="ident">page_data</span>.<span class="ident">title</span>,
-            <span class="ident">chapter_id</span>,
+    <span class="kw">let </span>page = pages::insert_page(conn, new_page, author).<span class="kw">await</span><span class="question-mark">?</span>;
+    pages::update_page(
+        conn,
+        page.id,
+        CmsPageUpdate {
+            content: page_data.content,
+            exercises: page_data.exercises,
+            exercise_slides: page_data.exercise_slides,
+            exercise_tasks: page_data.exercise_tasks,
+            url_path: page_data.url_path,
+            title: page_data.title,
+            chapter_id,
         },
-        <span class="ident">author</span>,
+        author,
         <span class="bool-val">true</span>,
-        <span class="ident">HistoryChangeReason::PageSaved</span>,
+        HistoryChangeReason::PageSaved,
         <span class="bool-val">false</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">page</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(page.id)
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">paragraph</span>(<span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">block</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">GutenbergBlock</span> {
-    <span class="ident">GutenbergBlock</span> {
-        <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-        <span class="ident">client_id</span>: <span class="ident">block</span>,
-        <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
-            <span class="string">&quot;content&quot;</span>: <span class="ident">content</span>,
+<span class="kw">pub fn </span>paragraph(content: <span class="kw-2">&amp;</span>str, block: Uuid) -&gt; GutenbergBlock {
+    GutenbergBlock {
+        name: <span class="string">&quot;core/paragraph&quot;</span>.to_string(),
+        is_valid: <span class="bool-val">true</span>,
+        client_id: block,
+        attributes: <span class="macro">attributes! </span>{
+            <span class="string">&quot;content&quot;</span>: content,
             <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
         },
-        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+        inner_blocks: <span class="macro">vec!</span>[],
     }
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">heading</span>(<span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">client_id</span>: <span class="ident">Uuid</span>, <span class="ident">level</span>: <span class="ident">i32</span>) -&gt; <span class="ident">GutenbergBlock</span> {
-    <span class="ident">GutenbergBlock</span> {
-        <span class="ident">name</span>: <span class="string">&quot;core/heading&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-        <span class="ident">client_id</span>,
-        <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
-            <span class="string">&quot;content&quot;</span>: <span class="ident">content</span>,
-            <span class="string">&quot;level&quot;</span>: <span class="ident">level</span>,
+<span class="kw">pub fn </span>heading(content: <span class="kw-2">&amp;</span>str, client_id: Uuid, level: i32) -&gt; GutenbergBlock {
+    GutenbergBlock {
+        name: <span class="string">&quot;core/heading&quot;</span>.to_string(),
+        is_valid: <span class="bool-val">true</span>,
+        client_id,
+        attributes: <span class="macro">attributes! </span>{
+            <span class="string">&quot;content&quot;</span>: content,
+            <span class="string">&quot;level&quot;</span>: level,
         },
-        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+        inner_blocks: <span class="macro">vec!</span>[],
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_best_exercise</span>(
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">block_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">paragraph_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">spec_1</span>: <span class="ident">Uuid</span>,
-    <span class="ident">spec_2</span>: <span class="ident">Uuid</span>,
-    <span class="ident">spec_3</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">pub fn </span>create_best_exercise(
+    exercise_id: Uuid,
+    exercise_slide_id: Uuid,
+    exercise_task_id: Uuid,
+    block_id: Uuid,
+    paragraph_id: Uuid,
+    spec_1: Uuid,
+    spec_2: Uuid,
+    spec_3: Uuid,
 ) -&gt; (
-    <span class="ident">GutenbergBlock</span>,
-    <span class="ident">CmsPageExercise</span>,
-    <span class="ident">CmsPageExerciseSlide</span>,
-    <span class="ident">CmsPageExerciseTask</span>,
+    GutenbergBlock,
+    CmsPageExercise,
+    CmsPageExerciseSlide,
+    CmsPageExerciseTask,
 ) {
-    <span class="kw">let</span> (<span class="ident">exercise_block</span>, <span class="ident">exercise</span>, <span class="kw-2">mut</span> <span class="ident">slides</span>, <span class="kw-2">mut</span> <span class="ident">tasks</span>) <span class="op">=</span> <span class="ident">example_exercise_flexible</span>(
-        <span class="ident">exercise_id</span>,
-        <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>(exercise_block, exercise, <span class="kw-2">mut </span>slides, <span class="kw-2">mut </span>tasks) = example_exercise_flexible(
+        exercise_id,
+        <span class="string">&quot;Best exercise&quot;</span>.to_string(),
         <span class="macro">vec!</span>[(
-            <span class="ident">exercise_slide_id</span>,
+            exercise_slide_id,
             <span class="macro">vec!</span>[(
-                <span class="ident">exercise_task_id</span>,
-                <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="macro">serde_json::json!</span>([<span class="ident">paragraph</span>(<span class="string">&quot;Answer this question.&quot;</span>, <span class="ident">paragraph_id</span>)]),
+                exercise_task_id,
+                <span class="string">&quot;example-exercise&quot;</span>.to_string(),
+                <span class="macro">serde_json::json!</span>([paragraph(<span class="string">&quot;Answer this question.&quot;</span>, paragraph_id)]),
                 <span class="macro">serde_json::json!</span>([
                     {
                         <span class="string">&quot;name&quot;</span>: <span class="string">&quot;a&quot;</span>,
                         <span class="string">&quot;correct&quot;</span>: <span class="bool-val">false</span>,
-                        <span class="string">&quot;id&quot;</span>: <span class="ident">spec_1</span>,
+                        <span class="string">&quot;id&quot;</span>: spec_1,
                     },
                     {
                         <span class="string">&quot;name&quot;</span>: <span class="string">&quot;b&quot;</span>,
                         <span class="string">&quot;correct&quot;</span>: <span class="bool-val">true</span>,
-                        <span class="string">&quot;id&quot;</span>: <span class="ident">spec_2</span>,
+                        <span class="string">&quot;id&quot;</span>: spec_2,
                     },
                     {
                         <span class="string">&quot;name&quot;</span>: <span class="string">&quot;c&quot;</span>,
                         <span class="string">&quot;correct&quot;</span>: <span class="bool-val">true</span>,
-                        <span class="string">&quot;id&quot;</span>: <span class="ident">spec_3</span>,
+                        <span class="string">&quot;id&quot;</span>: spec_3,
                     },
                 ]),
             )],
         )],
-        <span class="ident">block_id</span>,
+        block_id,
     );
     (
-        <span class="ident">exercise_block</span>,
-        <span class="ident">exercise</span>,
-        <span class="ident">slides</span>.<span class="ident">swap_remove</span>(<span class="number">0</span>),
-        <span class="ident">tasks</span>.<span class="ident">swap_remove</span>(<span class="number">0</span>),
+        exercise_block,
+        exercise,
+        slides.swap_remove(<span class="number">0</span>),
+        tasks.swap_remove(<span class="number">0</span>),
     )
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">example_exercise_flexible</span>(
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_name</span>: <span class="ident">String</span>,
-    <span class="ident">exercise_slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">String</span>, <span class="ident">Value</span>, <span class="ident">Value</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="ident">client_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[allow(clippy::type_complexity)]
+</span><span class="kw">pub fn </span>example_exercise_flexible(
+    exercise_id: Uuid,
+    exercise_name: String,
+    exercise_slides: Vec&lt;(Uuid, Vec&lt;(Uuid, String, Value, Value)&gt;)&gt;,
+    client_id: Uuid,
 ) -&gt; (
-    <span class="ident">GutenbergBlock</span>,
-    <span class="ident">CmsPageExercise</span>,
-    <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span>,
-    <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span>,
+    GutenbergBlock,
+    CmsPageExercise,
+    Vec&lt;CmsPageExerciseSlide&gt;,
+    Vec&lt;CmsPageExerciseTask&gt;,
 ) {
-    <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">GutenbergBlock</span> {
-        <span class="ident">client_id</span>,
-        <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-        <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
-            <span class="string">&quot;id&quot;</span>: <span class="ident">exercise_id</span>,
-            <span class="string">&quot;name&quot;</span>: <span class="ident">exercise_name</span>,
+    <span class="kw">let </span>block = GutenbergBlock {
+        client_id,
+        name: <span class="string">&quot;moocfi/exercise&quot;</span>.to_string(),
+        is_valid: <span class="bool-val">true</span>,
+        attributes: <span class="macro">attributes! </span>{
+            <span class="string">&quot;id&quot;</span>: exercise_id,
+            <span class="string">&quot;name&quot;</span>: exercise_name,
             <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
         },
-        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+        inner_blocks: <span class="macro">vec!</span>[],
     };
-    <span class="kw">let</span> <span class="ident">slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercise_slides</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">slide_id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">CmsPageExerciseSlide</span> {
-            <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">slide_id</span>,
-            <span class="ident">exercise_id</span>,
-            <span class="ident">order_number</span>: <span class="number">1</span>,
+    <span class="kw">let </span>slides: Vec&lt;CmsPageExerciseSlide&gt; = exercise_slides
+        .iter()
+        .map(|(slide_id, <span class="kw">_</span>)| CmsPageExerciseSlide {
+            id: <span class="kw-2">*</span>slide_id,
+            exercise_id,
+            order_number: <span class="number">1</span>,
         })
-        .<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="ident">tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercise_slides</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">flat_map</span>(<span class="op">|</span>(<span class="ident">slide_id</span>, <span class="ident">tasks</span>)<span class="op">|</span> {
-            <span class="ident">tasks</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(
-                <span class="kw">move</span> <span class="op">|</span>(<span class="ident">order_number</span>, (<span class="ident">task_id</span>, <span class="ident">task_type</span>, <span class="ident">assignment</span>, <span class="ident">spec</span>))<span class="op">|</span> {
+        .collect();
+    <span class="kw">let </span>tasks: Vec&lt;CmsPageExerciseTask&gt; = exercise_slides
+        .into_iter()
+        .flat_map(|(slide_id, tasks)| {
+            tasks.into_iter().enumerate().map(
+                <span class="kw">move </span>|(order_number, (task_id, task_type, assignment, spec))| {
                     (
-                        <span class="ident">slide_id</span>,
-                        <span class="ident">task_id</span>,
-                        <span class="ident">task_type</span>,
-                        <span class="ident">assignment</span>,
-                        <span class="ident">spec</span>,
-                        <span class="ident">order_number</span> <span class="kw">as</span> <span class="ident">i32</span>,
+                        slide_id,
+                        task_id,
+                        task_type,
+                        assignment,
+                        spec,
+                        order_number <span class="kw">as </span>i32,
                     )
                 },
             )
         })
-        .<span class="ident">map</span>(
-            <span class="op">|</span>(<span class="ident">slide_id</span>, <span class="ident">task_id</span>, <span class="ident">exercise_type</span>, <span class="ident">assignment</span>, <span class="ident">spec</span>, <span class="ident">order_number</span>)<span class="op">|</span> {
-                <span class="ident">CmsPageExerciseTask</span> {
-                    <span class="ident">id</span>: <span class="ident">task_id</span>,
-                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide_id</span>,
-                    <span class="ident">assignment</span>,
-                    <span class="ident">exercise_type</span>,
-                    <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">spec</span>),
-                    <span class="ident">order_number</span>,
+        .map(
+            |(slide_id, task_id, exercise_type, assignment, spec, order_number)| {
+                CmsPageExerciseTask {
+                    id: task_id,
+                    exercise_slide_id: slide_id,
+                    assignment,
+                    exercise_type,
+                    private_spec: <span class="prelude-val">Some</span>(spec),
+                    order_number,
                 }
             },
         )
-        .<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">CmsPageExercise</span> {
-        <span class="ident">id</span>: <span class="ident">exercise_id</span>,
-        <span class="ident">name</span>: <span class="ident">exercise_name</span>,
-        <span class="ident">order_number</span>: <span class="number">1</span>,
-        <span class="ident">score_maximum</span>: <span class="ident">tasks</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i32</span>,
-        <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">None</span>,
-        <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
-        <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-        <span class="ident">needs_peer_review</span>: <span class="bool-val">false</span>,
-        <span class="ident">use_course_default_peer_review_config</span>: <span class="bool-val">true</span>,
-        <span class="ident">peer_review_config</span>: <span class="prelude-val">None</span>,
-        <span class="ident">peer_review_questions</span>: <span class="prelude-val">None</span>,
+        .collect();
+    <span class="kw">let </span>exercise = CmsPageExercise {
+        id: exercise_id,
+        name: exercise_name,
+        order_number: <span class="number">1</span>,
+        score_maximum: tasks.len() <span class="kw">as </span>i32,
+        max_tries_per_slide: <span class="prelude-val">None</span>,
+        limit_number_of_tries: <span class="bool-val">false</span>,
+        deadline: <span class="prelude-val">None</span>,
+        needs_peer_review: <span class="bool-val">false</span>,
+        use_course_default_peer_review_config: <span class="bool-val">true</span>,
+        peer_review_config: <span class="prelude-val">None</span>,
+        peer_review_questions: <span class="prelude-val">None</span>,
     };
-    (<span class="ident">block</span>, <span class="ident">exercise</span>, <span class="ident">slides</span>, <span class="ident">tasks</span>)
+    (block, exercise, slides, tasks)
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quizzes_exercise</span>(
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">block_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">paragraph_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">needs_peer_review</span>: <span class="ident">bool</span>,
-    <span class="ident">private_spec</span>: <span class="ident">serde_json::Value</span>,
-    <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">pub fn </span>quizzes_exercise(
+    name: String,
+    exercise_id: Uuid,
+    exercise_slide_id: Uuid,
+    exercise_task_id: Uuid,
+    block_id: Uuid,
+    paragraph_id: Uuid,
+    needs_peer_review: bool,
+    private_spec: serde_json::Value,
+    deadline: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
 ) -&gt; (
-    <span class="ident">GutenbergBlock</span>,
-    <span class="ident">CmsPageExercise</span>,
-    <span class="ident">CmsPageExerciseSlide</span>,
-    <span class="ident">CmsPageExerciseTask</span>,
+    GutenbergBlock,
+    CmsPageExercise,
+    CmsPageExerciseSlide,
+    CmsPageExerciseTask,
 ) {
-    <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">GutenbergBlock</span> {
-        <span class="ident">client_id</span>: <span class="ident">block_id</span>,
-        <span class="ident">name</span>: <span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-        <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
-            <span class="string">&quot;id&quot;</span>: <span class="ident">exercise_id</span>,
-            <span class="string">&quot;name&quot;</span>: <span class="ident">name</span>,
+    <span class="kw">let </span>block = GutenbergBlock {
+        client_id: block_id,
+        name: <span class="string">&quot;moocfi/exercise&quot;</span>.to_string(),
+        is_valid: <span class="bool-val">true</span>,
+        attributes: <span class="macro">attributes! </span>{
+            <span class="string">&quot;id&quot;</span>: exercise_id,
+            <span class="string">&quot;name&quot;</span>: name,
             <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>,
         },
-        <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+        inner_blocks: <span class="macro">vec!</span>[],
     };
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">CmsPageExercise</span> {
-        <span class="ident">id</span>: <span class="ident">exercise_id</span>,
-        <span class="ident">name</span>,
-        <span class="ident">order_number</span>: <span class="number">1</span>,
-        <span class="ident">score_maximum</span>: <span class="number">1</span>,
-        <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">None</span>,
-        <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
-        <span class="ident">deadline</span>,
-        <span class="ident">needs_peer_review</span>,
-        <span class="ident">use_course_default_peer_review_config</span>: <span class="bool-val">true</span>,
-        <span class="ident">peer_review_config</span>: <span class="prelude-val">None</span>,
-        <span class="ident">peer_review_questions</span>: <span class="prelude-val">None</span>,
+    <span class="kw">let </span>exercise = CmsPageExercise {
+        id: exercise_id,
+        name,
+        order_number: <span class="number">1</span>,
+        score_maximum: <span class="number">1</span>,
+        max_tries_per_slide: <span class="prelude-val">None</span>,
+        limit_number_of_tries: <span class="bool-val">false</span>,
+        deadline,
+        needs_peer_review,
+        use_course_default_peer_review_config: <span class="bool-val">true</span>,
+        peer_review_config: <span class="prelude-val">None</span>,
+        peer_review_questions: <span class="prelude-val">None</span>,
     };
-    <span class="kw">let</span> <span class="ident">exercise_slide</span> <span class="op">=</span> <span class="ident">CmsPageExerciseSlide</span> {
-        <span class="ident">id</span>: <span class="ident">exercise_slide_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">order_number</span>: <span class="number">1</span>,
+    <span class="kw">let </span>exercise_slide = CmsPageExerciseSlide {
+        id: exercise_slide_id,
+        exercise_id,
+        order_number: <span class="number">1</span>,
     };
-    <span class="kw">let</span> <span class="ident">exercise_task</span> <span class="op">=</span> <span class="ident">CmsPageExerciseTask</span> {
-        <span class="ident">id</span>: <span class="ident">exercise_task_id</span>,
-        <span class="ident">exercise_slide_id</span>,
-        <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span>([<span class="ident">paragraph</span>(<span class="string">&quot;Answer this question.&quot;</span>, <span class="ident">paragraph_id</span>)]),
-        <span class="ident">exercise_type</span>: <span class="string">&quot;quizzes&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span>(<span class="ident">private_spec</span>)),
-        <span class="ident">order_number</span>: <span class="number">0</span>,
+    <span class="kw">let </span>exercise_task = CmsPageExerciseTask {
+        id: exercise_task_id,
+        exercise_slide_id,
+        assignment: <span class="macro">serde_json::json!</span>([paragraph(<span class="string">&quot;Answer this question.&quot;</span>, paragraph_id)]),
+        exercise_type: <span class="string">&quot;quizzes&quot;</span>.to_string(),
+        private_spec: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span>(private_spec)),
+        order_number: <span class="number">0</span>,
     };
-    (<span class="ident">block</span>, <span class="ident">exercise</span>, <span class="ident">exercise_slide</span>, <span class="ident">exercise_task</span>)
+    (block, exercise, exercise_slide, exercise_task)
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">submit_and_grade</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">spec</span>: <span class="ident">String</span>,
-    <span class="ident">out_of_100</span>: <span class="ident">f32</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// combine the id with the user id to ensure it&#39;s unique</span>
-    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> [<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">user_id</span>.<span class="ident">as_bytes</span>()[..]].<span class="ident">concat</span>();
-    <span class="kw">let</span> <span class="ident">slide_submission</span> <span class="op">=</span> <span class="ident">exercise_slide_submissions::insert_exercise_slide_submission_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">Uuid::new_v4</span>(),
-        <span class="kw-2">&amp;</span><span class="ident">exercise_slide_submissions::NewExerciseSlideSubmission</span> {
-            <span class="ident">exercise_slide_id</span>,
-            <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_id</span>),
-            <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>),
-            <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">exercise_id</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">user_points_update_strategy</span>: <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span>,
+<span class="attribute">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">pub async fn </span>submit_and_grade(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: <span class="kw-2">&amp;</span>[u8],
+    exercise_id: Uuid,
+    exercise_slide_id: Uuid,
+    course_id: Uuid,
+    exercise_task_id: Uuid,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    spec: String,
+    out_of_100: f32,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="comment">// combine the id with the user id to ensure it&#39;s unique
+    </span><span class="kw">let </span>id = [id, <span class="kw-2">&amp;</span>user_id.as_bytes()[..]].concat();
+    <span class="kw">let </span>slide_submission = exercise_slide_submissions::insert_exercise_slide_submission_with_id(
+        conn,
+        Uuid::new_v4(),
+        <span class="kw-2">&amp;</span>exercise_slide_submissions::NewExerciseSlideSubmission {
+            exercise_slide_id,
+            course_id: <span class="prelude-val">Some</span>(course_id),
+            course_instance_id: <span class="prelude-val">Some</span>(course_instance_id),
+            exam_id: <span class="prelude-val">None</span>,
+            exercise_id,
+            user_id,
+            user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>),
+    <span class="kw">let </span>user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+        conn,
+        user_id,
+        exercise_id,
+        <span class="prelude-val">Some</span>(course_instance_id),
         <span class="prelude-val">None</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// Set selected exercise slide</span>
-    <span class="ident">user_exercise_states::upsert_selected_exercise_slide_id</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>),
+    <span class="comment">// Set selected exercise slide
+    </span>user_exercise_states::upsert_selected_exercise_slide_id(
+        conn,
+        user_id,
+        exercise_id,
+        <span class="prelude-val">Some</span>(course_instance_id),
         <span class="prelude-val">None</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">exercise_slide_id</span>),
+        <span class="prelude-val">Some</span>(exercise_slide_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_exercise_slide_state</span> <span class="op">=</span> <span class="ident">user_exercise_slide_states::get_or_insert_by_unique_index</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">user_exercise_state</span>.<span class="ident">id</span>,
-        <span class="ident">exercise_slide_id</span>,
+    <span class="kw">let </span>user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
+        conn,
+        user_exercise_state.id,
+        exercise_slide_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">task_submission_id</span> <span class="op">=</span> <span class="ident">exercise_task_submissions::insert_with_id</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">exercise_task_submissions::SubmissionData</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="kw-2">&amp;</span><span class="ident">id</span>),
-            <span class="ident">exercise_id</span>,
-            <span class="ident">course_id</span>,
-            <span class="ident">exercise_task_id</span>,
-            <span class="ident">exercise_slide_submission_id</span>: <span class="ident">slide_submission</span>.<span class="ident">id</span>,
-            <span class="ident">exercise_slide_id</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">course_instance_id</span>,
-            <span class="ident">data_json</span>: <span class="ident">Value::String</span>(<span class="ident">spec</span>),
+    <span class="kw">let </span>task_submission_id = exercise_task_submissions::insert_with_id(
+        conn,
+        <span class="kw-2">&amp;</span>exercise_task_submissions::SubmissionData {
+            id: Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="kw-2">&amp;</span>id),
+            exercise_id,
+            course_id,
+            exercise_task_id,
+            exercise_slide_submission_id: slide_submission.id,
+            exercise_slide_id,
+            user_id,
+            course_instance_id,
+            data_json: Value::String(spec),
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">task_submission</span> <span class="op">=</span> <span class="ident">exercise_task_submissions::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">task_submission_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">exercise_task_gradings::new_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>, <span class="kw-2">&amp;</span><span class="ident">task_submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">grading_result</span> <span class="op">=</span> <span class="ident">ExerciseTaskGradingResult</span> {
-        <span class="ident">feedback_json</span>: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span>([{<span class="string">&quot;SelectedOptioIsCorrect&quot;</span>: <span class="bool-val">true</span>}])),
-        <span class="ident">feedback_text</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Good job!&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
-        <span class="ident">score_given</span>: <span class="ident">out_of_100</span>,
-        <span class="ident">score_maximum</span>: <span class="number">100</span>,
+    <span class="kw">let </span>task_submission = exercise_task_submissions::get_by_id(conn, task_submission_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise = exercises::get_by_id(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>grading = exercise_task_gradings::new_grading(conn, <span class="kw-2">&amp;</span>exercise, <span class="kw-2">&amp;</span>task_submission).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>grading_result = ExerciseTaskGradingResult {
+        feedback_json: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span>([{<span class="string">&quot;SelectedOptioIsCorrect&quot;</span>: <span class="bool-val">true</span>}])),
+        feedback_text: <span class="prelude-val">Some</span>(<span class="string">&quot;Good job!&quot;</span>.to_string()),
+        grading_progress: GradingProgress::FullyGraded,
+        score_given: out_of_100,
+        score_maximum: <span class="number">100</span>,
     };
-    <span class="ident">headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result</span>(
-        <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-        <span class="kw-2">&amp;</span><span class="ident">grading</span>,
-        <span class="kw-2">&amp;</span><span class="ident">grading_result</span>,
-        <span class="ident">user_exercise_slide_state</span>,
-        <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>,
+    headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
+        conn,
+        <span class="kw-2">&amp;</span>exercise,
+        <span class="kw-2">&amp;</span>grading,
+        <span class="kw-2">&amp;</span>grading_result,
+        user_exercise_slide_state,
+        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
     )
-    .<span class="kw">await</span>
-    .<span class="ident">unwrap</span>();
+    .<span class="kw">await
+    </span>.unwrap();
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_exam</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">time_minutes</span>: <span class="ident">i32</span>,
-    <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">teacher</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">new_exam_id</span> <span class="op">=</span> <span class="ident">exams::insert</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">exam_id</span>),
-        <span class="kw-2">&amp;</span><span class="ident">NewExam</span> {
-            <span class="ident">name</span>,
-            <span class="ident">starts_at</span>,
-            <span class="ident">ends_at</span>,
-            <span class="ident">time_minutes</span>,
-            <span class="ident">organization_id</span>,
+<span class="kw">pub async fn </span>create_exam(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    name: String,
+    starts_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    ends_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    time_minutes: i32,
+    organization_id: Uuid,
+    course_id: Uuid,
+    exam_id: Uuid,
+    teacher: Uuid,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>new_exam_id = exams::insert(
+        conn,
+        PKeyPolicy::Fixed(exam_id),
+        <span class="kw-2">&amp;</span>NewExam {
+            name,
+            starts_at,
+            ends_at,
+            time_minutes,
+            organization_id,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> (<span class="ident">exam_exercise_block_1</span>, <span class="ident">exam_exercise_1</span>, <span class="ident">exam_exercise_slide_1</span>, <span class="ident">exam_exercise_task_1</span>) <span class="op">=</span>
-        <span class="ident">quizzes_exercise</span>(
-            <span class="string">&quot;Multiple choice with feedback&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;b1b16970-60bc-426e-9537-b29bd2185db3&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;ea461a21-e0b4-4e09-a811-231f583b3dcb&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;9d8ccf47-3e83-4459-8f2f-8e546a75f372&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;a4edb4e5-507d-43f1-8058-9d95941dbf09&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;eced4875-ece9-4c3d-ad0a-2443e61b3e78&quot;</span>),
+    <span class="kw">let </span>(exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
+        quizzes_exercise(
+            <span class="string">&quot;Multiple choice with feedback&quot;</span>.to_string(),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;b1b16970-60bc-426e-9537-b29bd2185db3&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;ea461a21-e0b4-4e09-a811-231f583b3dcb&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;9d8ccf47-3e83-4459-8f2f-8e546a75f372&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;a4edb4e5-507d-43f1-8058-9d95941dbf09&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;eced4875-ece9-4c3d-ad0a-2443e61b3e78&quot;</span>),
             <span class="bool-val">false</span>,
-            <span class="ident">serde_json::from_str</span>(<span class="macro">include_str!</span>(
-                <span class="string">&quot;../../assets/quizzes-multiple-choice-feedback.json&quot;</span>
-            ))<span class="question-mark">?</span>,
+            serde_json::from_str(<span class="macro">include_str!</span>(
+                <span class="string">&quot;../../assets/quizzes-multiple-choice-feedback.json&quot;
+            </span>))<span class="question-mark">?</span>,
             <span class="prelude-val">None</span>,
         );
-    <span class="kw">let</span> (<span class="ident">exam_exercise_block_2</span>, <span class="ident">exam_exercise_2</span>, <span class="ident">exam_exercise_slide_2</span>, <span class="ident">exam_exercise_task_2</span>) <span class="op">=</span>
-        <span class="ident">create_best_exercise</span>(
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;44f472e5-b726-4c50-89a1-93f4170673f5&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;23182b3d-fbf4-4c0d-93fa-e9ddc199cc52&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;ca105826-5007-439f-87be-c25f9c79506e&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;96a9e586-cf88-4cb2-b7c9-efc2bc47e90b&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;fe5bb5a9-d0ab-4072-abe1-119c9c1e4f4a&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;22959aad-26fc-4212-8259-c128cdab8b08&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;d8ba9e92-4530-4a74-9b11-eb708fa54d40&quot;</span>),
-            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;846f4895-f573-41e2-9926-cd700723ac18&quot;</span>),
+    <span class="kw">let </span>(exam_exercise_block_2, exam_exercise_2, exam_exercise_slide_2, exam_exercise_task_2) =
+        create_best_exercise(
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;44f472e5-b726-4c50-89a1-93f4170673f5&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;23182b3d-fbf4-4c0d-93fa-e9ddc199cc52&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;ca105826-5007-439f-87be-c25f9c79506e&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;96a9e586-cf88-4cb2-b7c9-efc2bc47e90b&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;fe5bb5a9-d0ab-4072-abe1-119c9c1e4f4a&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;22959aad-26fc-4212-8259-c128cdab8b08&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;d8ba9e92-4530-4a74-9b11-eb708fa54d40&quot;</span>),
+            Uuid::new_v5(<span class="kw-2">&amp;</span>course_id, <span class="string">b&quot;846f4895-f573-41e2-9926-cd700723ac18&quot;</span>),
         );
-    <span class="ident">pages::insert_page</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">NewPage</span> {
-            <span class="ident">exercises</span>: <span class="macro">vec!</span>[<span class="ident">exam_exercise_1</span>, <span class="ident">exam_exercise_2</span>],
-            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">exam_exercise_slide_1</span>, <span class="ident">exam_exercise_slide_2</span>],
-            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">exam_exercise_task_1</span>, <span class="ident">exam_exercise_task_2</span>],
-            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
-                <span class="ident">heading</span>(
+    pages::insert_page(
+        conn,
+        NewPage {
+            exercises: <span class="macro">vec!</span>[exam_exercise_1, exam_exercise_2],
+            exercise_slides: <span class="macro">vec!</span>[exam_exercise_slide_1, exam_exercise_slide_2],
+            exercise_tasks: <span class="macro">vec!</span>[exam_exercise_task_1, exam_exercise_task_2],
+            content: <span class="macro">serde_json::json!</span>([
+                heading(
                     <span class="string">&quot;The exam&quot;</span>,
-                    <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;d6cf16ce-fe78-4e57-8399-e8b63d7fddac&quot;</span>).<span class="ident">unwrap</span>(),
-                    <span class="number">1</span>
-                ),
-                <span class="ident">paragraph</span>(
+                    Uuid::parse_str(<span class="string">&quot;d6cf16ce-fe78-4e57-8399-e8b63d7fddac&quot;</span>).unwrap(),
+                    <span class="number">1
+                </span>),
+                paragraph(
                     <span class="string">&quot;In this exam you&#39;re supposed to answer to two easy questions. Good luck!&quot;</span>,
-                    <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;474d4f21-798b-4ba0-b39f-120b134e7fa0&quot;</span>).<span class="ident">unwrap</span>(),
+                    Uuid::parse_str(<span class="string">&quot;474d4f21-798b-4ba0-b39f-120b134e7fa0&quot;</span>).unwrap(),
                 ),
-                <span class="ident">exam_exercise_block_1</span>,
-                <span class="ident">exam_exercise_block_2</span>,
+                exam_exercise_block_1,
+                exam_exercise_block_2,
             ]),
-            <span class="ident">url_path</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">course_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">exam_id</span>: <span class="prelude-val">Some</span>(<span class="ident">new_exam_id</span>),
-            <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
+            url_path: <span class="string">&quot;&quot;</span>.to_string(),
+            title: <span class="string">&quot;&quot;</span>.to_string(),
+            course_id: <span class="prelude-val">None</span>,
+            exam_id: <span class="prelude-val">Some</span>(new_exam_id),
+            chapter_id: <span class="prelude-val">None</span>,
+            front_page_of_chapter_id: <span class="prelude-val">None</span>,
+            content_search_language: <span class="prelude-val">None</span>,
         },
-        <span class="ident">teacher</span>,
+        teacher,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">exams::set_course</span>(<span class="ident">conn</span>, <span class="ident">new_exam_id</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    exams::set_course(conn, new_exam_id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

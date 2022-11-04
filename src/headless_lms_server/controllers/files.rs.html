@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/files.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>files.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/files.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>files.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -180,15 +180,15 @@
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/files`.
 
-*/</span>
-<span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
+*/
+</span><span class="kw">use </span>std::path::{Path, PathBuf};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::AuthorizationToken</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">actix_files::NamedFile</span>;
-<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">StreamExt</span>, <span class="ident">TryStreamExt</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_utils::file_store::file_utils</span>;
-<span class="kw">use</span> <span class="ident">tokio::fs::read</span>;
+<span class="kw">pub use </span><span class="kw">crate</span>::domain::authorization::AuthorizationToken;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>actix_files::NamedFile;
+<span class="kw">use </span>futures::{StreamExt, TryStreamExt};
+<span class="kw">use </span>headless_lms_utils::file_store::file_utils;
+<span class="kw">use </span>tokio::fs::read;
 <span class="doccomment">/**
 
 GET `/api/v0/files/\*` Redirects the request to a file storage service.
@@ -215,26 +215,26 @@ Response headers:
 &lt; location: /api/v0/files/uploads/organizations/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/nNQbVax81fH4SLCXuQ9NrOWtqfHT6x.jpg
 ```
 
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">file_store</span>))]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::async_yields_async</span>)]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">redirect_to_storage_service</span>(
-    <span class="ident">tail</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">HttpResponse</span> {
-    <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">tail</span>.<span class="ident">into_inner</span>();
-    <span class="kw">let</span> <span class="ident">tail_path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">inner</span>);
+*/
+</span><span class="attribute">#[instrument(skip(file_store))]
+#[allow(clippy::async_yields_async)]
+</span><span class="kw">async fn </span>redirect_to_storage_service(
+    tail: web::Path&lt;String&gt;,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+) -&gt; HttpResponse {
+    <span class="kw">let </span>inner = tail.into_inner();
+    <span class="kw">let </span>tail_path = Path::new(<span class="kw-2">&amp;</span>inner);
 
-    <span class="kw">match</span> <span class="ident">file_store</span>.<span class="ident">get_direct_download_url</span>(<span class="ident">tail_path</span>).<span class="kw">await</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">res</span>) =&gt; <span class="ident">HttpResponse::Found</span>()
-            .<span class="ident">append_header</span>((<span class="string">&quot;location&quot;</span>, <span class="ident">res</span>))
-            .<span class="ident">append_header</span>((<span class="string">&quot;cache-control&quot;</span>, <span class="string">&quot;max-age=300, private&quot;</span>))
-            .<span class="ident">finish</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-            <span class="macro">error!</span>(<span class="string">&quot;Could not get file {:?}&quot;</span>, <span class="ident">e</span>);
-            <span class="ident">HttpResponse::NotFound</span>()
-                .<span class="ident">append_header</span>((<span class="string">&quot;cache-control&quot;</span>, <span class="string">&quot;max-age=300, private&quot;</span>))
-                .<span class="ident">finish</span>()
+    <span class="kw">match </span>file_store.get_direct_download_url(tail_path).<span class="kw">await </span>{
+        <span class="prelude-val">Ok</span>(res) =&gt; HttpResponse::Found()
+            .append_header((<span class="string">&quot;location&quot;</span>, res))
+            .append_header((<span class="string">&quot;cache-control&quot;</span>, <span class="string">&quot;max-age=300, private&quot;</span>))
+            .finish(),
+        <span class="prelude-val">Err</span>(e) =&gt; {
+            <span class="macro">error!</span>(<span class="string">&quot;Could not get file {:?}&quot;</span>, e);
+            HttpResponse::NotFound()
+                .append_header((<span class="string">&quot;cache-control&quot;</span>, <span class="string">&quot;max-age=300, private&quot;</span>))
+                .finish()
         }
     }
 }
@@ -250,53 +250,53 @@ Serve local uploaded file, mostly for development.
 Result:
 
 The file.
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">req</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">serve_upload</span>(
-    <span class="ident">req</span>: <span class="ident">HttpRequest</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
-    <span class="comment">// TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">base_folder</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;uploads&quot;</span>);
-    <span class="kw">let</span> <span class="ident">relative_path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">req</span>.<span class="ident">match_info</span>().<span class="ident">query</span>(<span class="string">&quot;tail&quot;</span>));
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">base_folder</span>.<span class="ident">join</span>(<span class="ident">relative_path</span>);
+*/
+</span><span class="attribute">#[instrument(skip(req))]
+</span><span class="kw">async fn </span>serve_upload(
+    req: HttpRequest,
+    user: AuthUser,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;HttpResponse&gt; {
+    <span class="comment">// TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>base_folder = Path::new(<span class="string">&quot;uploads&quot;</span>);
+    <span class="kw">let </span>relative_path = PathBuf::from(req.match_info().query(<span class="string">&quot;tail&quot;</span>));
+    <span class="kw">let </span>path = base_folder.join(relative_path);
 
-    <span class="kw">let</span> <span class="ident">named_file</span> <span class="op">=</span> <span class="ident">NamedFile::open</span>(<span class="ident">path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> {
-        <span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::NotFound</span>,
-            <span class="string">&quot;File not found&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>named_file = NamedFile::open(path).map_err(|_e| {
+        ControllerError::new(
+            ControllerErrorType::NotFound,
+            <span class="string">&quot;File not found&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">named_file</span>.<span class="ident">path</span>();
-    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">read</span>(<span class="ident">path</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> {
-        <span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::InternalServerError</span>,
-            <span class="string">&quot;Could not read file&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>path = named_file.path();
+    <span class="kw">let </span>contents = read(path).<span class="kw">await</span>.map_err(|_e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            <span class="string">&quot;Could not read file&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">extension</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mime_type</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ext_string</span>) <span class="op">=</span> <span class="ident">extension</span> {
-        <span class="ident">mime_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ext_string</span>.<span class="ident">as_str</span>() {
-            <span class="string">&quot;jpg&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/jpg&quot;</span>),
-            <span class="string">&quot;png&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/png&quot;</span>),
-            <span class="string">&quot;svg&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/svg+xml&quot;</span>),
-            <span class="string">&quot;webp&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/webp&quot;</span>),
-            <span class="string">&quot;gif&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/gif&quot;</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">let </span>extension = path.extension().map(|o| o.to_string_lossy().to_string());
+    <span class="kw">let </span><span class="kw-2">mut </span>mime_type = <span class="prelude-val">None</span>;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(ext_string) = extension {
+        mime_type = <span class="kw">match </span>ext_string.as_str() {
+            <span class="string">&quot;jpg&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/jpg&quot;</span>),
+            <span class="string">&quot;png&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/png&quot;</span>),
+            <span class="string">&quot;svg&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/svg+xml&quot;</span>),
+            <span class="string">&quot;webp&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/webp&quot;</span>),
+            <span class="string">&quot;gif&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;image/gif&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         };
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">HttpResponse::Ok</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">m</span>) <span class="op">=</span> <span class="ident">mime_type</span> {
-        <span class="ident">response</span>.<span class="ident">append_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="ident">m</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>response = HttpResponse::Ok();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = mime_type {
+        response.append_header((<span class="string">&quot;content-type&quot;</span>, m));
     }
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">response</span>.<span class="ident">body</span>(<span class="ident">contents</span>))
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::View, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(response.body(contents))
 }
 
 <span class="doccomment">/**
@@ -305,40 +305,40 @@ Used to upload data from exercise service iframes.
 
 # Returns
 The randomly generated path to the uploaded file.
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">data</span>, <span class="ident">file_store</span>, <span class="ident">pool</span>, <span class="ident">user</span>))]</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_from_exercise_service</span>(
-    <span class="ident">exercise_service_slug</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">data</span>: <span class="ident">web::Payload</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[instrument(skip(data, file_store, pool, user))]
+#[generated_doc]
+</span><span class="kw">async fn </span>upload_from_exercise_service(
+    exercise_service_slug: web::Path&lt;String&gt;,
+    data: web::Payload,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;String&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// the playground uses the special &quot;playground&quot; slug to upload temporary files</span>
-    <span class="kw">if</span> <span class="ident">exercise_service_slug</span>.<span class="ident">as_ref</span>() <span class="op">!</span><span class="op">=</span> <span class="string">&quot;playground&quot;</span> {
-        <span class="comment">// check that the given slug matches with a service</span>
-        <span class="ident">headless_lms_models::exercise_services::get_exercise_services</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">es</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">es</span>.<span class="ident">slug</span> <span class="op">==</span> <span class="ident">exercise_service_slug</span>.<span class="ident">as_ref</span>())
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Unknown exercise service&quot;</span>))<span class="question-mark">?</span>;
+    <span class="comment">// the playground uses the special &quot;playground&quot; slug to upload temporary files
+    </span><span class="kw">if </span>exercise_service_slug.as_ref() != <span class="string">&quot;playground&quot; </span>{
+        <span class="comment">// check that the given slug matches with a service
+        </span>headless_lms_models::exercise_services::get_exercise_services(<span class="kw-2">&amp;mut </span>conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.into_iter()
+            .find(|es| <span class="kw-2">&amp;</span>es.slug == exercise_service_slug.as_ref())
+            .ok_or_else(|| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Unknown exercise service&quot;</span>))<span class="question-mark">?</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">random_filename</span> <span class="op">=</span> <span class="ident">file_utils::random_filename</span>();
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{exercise_service_slug}/{random_filename}&quot;</span>);
-    <span class="ident">file_store</span>
-        .<span class="ident">upload_stream</span>(
-            <span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>),
-            <span class="ident">data</span>.<span class="ident">map_err</span>(<span class="ident">anyhow::Error::msg</span>).<span class="ident">boxed_local</span>(),
+    <span class="kw">let </span>random_filename = file_utils::random_filename();
+    <span class="kw">let </span>path = <span class="macro">format!</span>(<span class="string">&quot;{exercise_service_slug}/{random_filename}&quot;</span>);
+    file_store
+        .upload_stream(
+            Path::new(<span class="kw-2">&amp;</span>path),
+            data.map_err(anyhow::Error::msg).boxed_local(),
             <span class="string">&quot;application/octet-stream&quot;</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">path</span>))
+    token.authorized_ok(web::Json(path))
 }
 
 <span class="doccomment">/**
@@ -347,14 +347,14 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/uploads/{tail:.*}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">serve_upload</span>))
-        .<span class="ident">route</span>(
+*/
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;/uploads/{tail:.*}&quot;</span>, web::get().to(serve_upload))
+        .route(
             <span class="string">&quot;/{exercise_service_slug}&quot;</span>,
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">upload_from_exercise_service</span>),
+            web::post().to(upload_from_exercise_service),
         )
-        .<span class="ident">route</span>(<span class="string">&quot;{tail:.*}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">redirect_to_storage_service</span>));
+        .route(<span class="string">&quot;{tail:.*}&quot;</span>, web::get().to(redirect_to_storage_service));
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/ext.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ext.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/ext.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ext.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_service/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -124,129 +124,129 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">and_then</span>::{<span class="ident">AndThenService</span>, <span class="ident">AndThenServiceFactory</span>},
-    <span class="ident">map::Map</span>,
-    <span class="ident">map_err::MapErr</span>,
-    <span class="ident">transform_err::TransformMapInitErr</span>,
-    <span class="ident">IntoService</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>, <span class="ident">Transform</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    and_then::{AndThenService, AndThenServiceFactory},
+    map::Map,
+    map_err::MapErr,
+    transform_err::TransformMapInitErr,
+    IntoService, IntoServiceFactory, Service, ServiceFactory, Transform,
 };
 
-<span class="doccomment">/// An extension trait for [`Service`]s that provides a variety of convenient adapters.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ServiceExt</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Map this service&#39;s output to a different type, returning a new service</span>
-    <span class="doccomment">/// of the resulting type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is similar to the `Option::map` or `Iterator::map` where</span>
-    <span class="doccomment">/// it will change the type of the underlying service.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this function consumes the receiving service and returns a</span>
-    <span class="doccomment">/// wrapped version of it, similar to the existing `map` methods in the</span>
-    <span class="doccomment">/// standard library.</span>
-    <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">Map</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">R</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident"><span class="self">Self</span>::Response</span>) -&gt; <span class="ident">R</span>,
+<span class="doccomment">/// An extension trait for [`Service`]s that provides a variety of convenient adapters.
+</span><span class="kw">pub trait </span>ServiceExt&lt;Req&gt;: Service&lt;Req&gt; {
+    <span class="doccomment">/// Map this service&#39;s output to a different type, returning a new service
+    /// of the resulting type.
+    ///
+    /// This function is similar to the `Option::map` or `Iterator::map` where
+    /// it will change the type of the underlying service.
+    ///
+    /// Note that this function consumes the receiving service and returns a
+    /// wrapped version of it, similar to the existing `map` methods in the
+    /// standard library.
+    </span><span class="kw">fn </span>map&lt;F, R&gt;(<span class="self">self</span>, f: F) -&gt; Map&lt;<span class="self">Self</span>, F, Req, R&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: FnMut(<span class="self">Self</span>::Response) -&gt; R,
     {
-        <span class="ident">Map::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+        Map::new(<span class="self">self</span>, f)
     }
 
-    <span class="doccomment">/// Map this service&#39;s error to a different error, returning a new service.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is similar to the `Result::map_err` where it will change</span>
-    <span class="doccomment">/// the error type of the underlying service. For example, this can be useful to</span>
-    <span class="doccomment">/// ensure that services have the same error type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this function consumes the receiving service and returns a</span>
-    <span class="doccomment">/// wrapped version of it.</span>
-    <span class="kw">fn</span> <span class="ident">map_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">MapErr</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Error</span>) -&gt; <span class="ident">E</span>,
+    <span class="doccomment">/// Map this service&#39;s error to a different error, returning a new service.
+    ///
+    /// This function is similar to the `Result::map_err` where it will change
+    /// the error type of the underlying service. For example, this can be useful to
+    /// ensure that services have the same error type.
+    ///
+    /// Note that this function consumes the receiving service and returns a
+    /// wrapped version of it.
+    </span><span class="kw">fn </span>map_err&lt;F, E&gt;(<span class="self">self</span>, f: F) -&gt; MapErr&lt;<span class="self">Self</span>, Req, F, E&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: Fn(<span class="self">Self</span>::Error) -&gt; E,
     {
-        <span class="ident">MapErr::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+        MapErr::new(<span class="self">self</span>, f)
     }
 
-    <span class="doccomment">/// Call another service after call to this one has resolved successfully.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function can be used to chain two services together and ensure that the second service</span>
-    <span class="doccomment">/// isn&#39;t called until call to the fist service have finished. Result of the call to the first</span>
-    <span class="doccomment">/// service is used as an input parameter for the second service&#39;s call.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this function consumes the receiving service and returns a wrapped version of it.</span>
-    <span class="kw">fn</span> <span class="ident">and_then</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S1</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">service</span>: <span class="ident">I</span>) -&gt; <span class="ident">AndThenService</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">S1</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">I</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="ident"><span class="self">Self</span>::Response</span><span class="op">&gt;</span>,
-        <span class="ident">S1</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Call another service after call to this one has resolved successfully.
+    ///
+    /// This function can be used to chain two services together and ensure that the second service
+    /// isn&#39;t called until call to the fist service have finished. Result of the call to the first
+    /// service is used as an input parameter for the second service&#39;s call.
+    ///
+    /// Note that this function consumes the receiving service and returns a wrapped version of it.
+    </span><span class="kw">fn </span>and_then&lt;I, S1&gt;(<span class="self">self</span>, service: I) -&gt; AndThenService&lt;<span class="self">Self</span>, S1, Req&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        I: IntoService&lt;S1, <span class="self">Self</span>::Response&gt;,
+        S1: Service&lt;<span class="self">Self</span>::Response, Error = <span class="self">Self</span>::Error&gt;,
     {
-        <span class="ident">AndThenService::new</span>(<span class="self">self</span>, <span class="ident">service</span>.<span class="ident">into_service</span>())
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">ServiceExt</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">S</span> <span class="kw">where</span> <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> {}
-
-<span class="doccomment">/// An extension trait for [`ServiceFactory`]s that provides a variety of convenient adapters.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ServiceFactoryExt</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Map this service&#39;s output to a different type, returning a new service</span>
-    <span class="doccomment">/// of the resulting type.</span>
-    <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident"><span class="kw">crate</span>::map::MapServiceFactory</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">R</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident"><span class="self">Self</span>::Response</span>) -&gt; <span class="ident">R</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    {
-        <span class="ident"><span class="kw">crate</span>::map::MapServiceFactory::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
-    }
-
-    <span class="doccomment">/// Map this service&#39;s error to a different error, returning a new service.</span>
-    <span class="kw">fn</span> <span class="ident">map_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident"><span class="kw">crate</span>::map_err::MapErrServiceFactory</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Error</span>) -&gt; <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    {
-        <span class="ident"><span class="kw">crate</span>::map_err::MapErrServiceFactory::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
-    }
-
-    <span class="doccomment">/// Map this factory&#39;s init error to a different error, returning a new service.</span>
-    <span class="kw">fn</span> <span class="ident">map_init_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident"><span class="kw">crate</span>::map_init_err::MapInitErr</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">E</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::InitError</span>) -&gt; <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    {
-        <span class="ident"><span class="kw">crate</span>::map_init_err::MapInitErr::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
-    }
-
-    <span class="doccomment">/// Call another service after call to this one has resolved successfully.</span>
-    <span class="kw">fn</span> <span class="ident">and_then</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF1</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">factory</span>: <span class="ident">I</span>) -&gt; <span class="ident">AndThenServiceFactory</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SF1</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident"><span class="self">Self</span>::Config</span>: <span class="ident">Clone</span>,
-        <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">SF1</span>, <span class="ident"><span class="self">Self</span>::Response</span><span class="op">&gt;</span>,
-        <span class="ident">SF1</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            <span class="ident"><span class="self">Self</span>::Response</span>,
-            <span class="ident">Config</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Config</span>,
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Error</span>,
-            <span class="ident">InitError</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::InitError</span>,
-        <span class="op">&gt;</span>,
-    {
-        <span class="ident">AndThenServiceFactory::new</span>(<span class="self">self</span>, <span class="ident">factory</span>.<span class="ident">into_factory</span>())
+        AndThenService::new(<span class="self">self</span>, service.into_service())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">ServiceFactoryExt</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SF</span> <span class="kw">where</span> <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span>&lt;S, Req&gt; ServiceExt&lt;Req&gt; <span class="kw">for </span>S <span class="kw">where </span>S: Service&lt;Req&gt; {}
 
-<span class="doccomment">/// An extension trait for [`Transform`]s that provides a variety of convenient adapters.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TransformExt</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Return a new `Transform` whose init error is mapped to to a different type.</span>
-    <span class="kw">fn</span> <span class="ident">map_init_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">TransformMapInitErr</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::InitError</span>) -&gt; <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
+<span class="doccomment">/// An extension trait for [`ServiceFactory`]s that provides a variety of convenient adapters.
+</span><span class="kw">pub trait </span>ServiceFactoryExt&lt;Req&gt;: ServiceFactory&lt;Req&gt; {
+    <span class="doccomment">/// Map this service&#39;s output to a different type, returning a new service
+    /// of the resulting type.
+    </span><span class="kw">fn </span>map&lt;F, R&gt;(<span class="self">self</span>, f: F) -&gt; <span class="kw">crate</span>::map::MapServiceFactory&lt;<span class="self">Self</span>, F, Req, R&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: FnMut(<span class="self">Self</span>::Response) -&gt; R + Clone,
     {
-        <span class="ident">TransformMapInitErr::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+        <span class="kw">crate</span>::map::MapServiceFactory::new(<span class="self">self</span>, f)
+    }
+
+    <span class="doccomment">/// Map this service&#39;s error to a different error, returning a new service.
+    </span><span class="kw">fn </span>map_err&lt;F, E&gt;(<span class="self">self</span>, f: F) -&gt; <span class="kw">crate</span>::map_err::MapErrServiceFactory&lt;<span class="self">Self</span>, Req, F, E&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: Fn(<span class="self">Self</span>::Error) -&gt; E + Clone,
+    {
+        <span class="kw">crate</span>::map_err::MapErrServiceFactory::new(<span class="self">self</span>, f)
+    }
+
+    <span class="doccomment">/// Map this factory&#39;s init error to a different error, returning a new service.
+    </span><span class="kw">fn </span>map_init_err&lt;F, E&gt;(<span class="self">self</span>, f: F) -&gt; <span class="kw">crate</span>::map_init_err::MapInitErr&lt;<span class="self">Self</span>, F, Req, E&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: Fn(<span class="self">Self</span>::InitError) -&gt; E + Clone,
+    {
+        <span class="kw">crate</span>::map_init_err::MapInitErr::new(<span class="self">self</span>, f)
+    }
+
+    <span class="doccomment">/// Call another service after call to this one has resolved successfully.
+    </span><span class="kw">fn </span>and_then&lt;I, SF1&gt;(<span class="self">self</span>, factory: I) -&gt; AndThenServiceFactory&lt;<span class="self">Self</span>, SF1, Req&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        <span class="self">Self</span>::Config: Clone,
+        I: IntoServiceFactory&lt;SF1, <span class="self">Self</span>::Response&gt;,
+        SF1: ServiceFactory&lt;
+            <span class="self">Self</span>::Response,
+            Config = <span class="self">Self</span>::Config,
+            Error = <span class="self">Self</span>::Error,
+            InitError = <span class="self">Self</span>::InitError,
+        &gt;,
+    {
+        AndThenServiceFactory::new(<span class="self">self</span>, factory.into_factory())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">TransformExt</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Req</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span>&lt;SF, Req&gt; ServiceFactoryExt&lt;Req&gt; <span class="kw">for </span>SF <span class="kw">where </span>SF: ServiceFactory&lt;Req&gt; {}
+
+<span class="doccomment">/// An extension trait for [`Transform`]s that provides a variety of convenient adapters.
+</span><span class="kw">pub trait </span>TransformExt&lt;S, Req&gt;: Transform&lt;S, Req&gt; {
+    <span class="doccomment">/// Return a new `Transform` whose init error is mapped to to a different type.
+    </span><span class="kw">fn </span>map_init_err&lt;F, E&gt;(<span class="self">self</span>, f: F) -&gt; TransformMapInitErr&lt;<span class="self">Self</span>, S, Req, F, E&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: Fn(<span class="self">Self</span>::InitError) -&gt; E + Clone,
+    {
+        TransformMapInitErr::new(<span class="self">self</span>, f)
+    }
+}
+
+<span class="kw">impl</span>&lt;T, Req&gt; TransformExt&lt;T, Req&gt; <span class="kw">for </span>T <span class="kw">where </span>T: Transform&lt;T, Req&gt; {}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

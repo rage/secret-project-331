@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/peer_review_queue_entries.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>peer_review_queue_entries.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/peer_review_queue_entries.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>peer_review_queue_entries.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -493,40 +493,40 @@
 <span id="493">493</span>
 <span id="494">494</span>
 <span id="495">495</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exercises</span>,
-    <span class="ident">library::user_exercise_state_updater</span>,
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">teacher_grading_decisions</span>,
-    <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">ReviewingStage</span>},
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    exercises,
+    library::user_exercise_state_updater,
+    prelude::<span class="kw-2">*</span>,
+    teacher_grading_decisions,
+    user_exercise_states::{<span class="self">self</span>, ReviewingStage},
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PeerReviewQueueEntry</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">received_enough_peer_reviews</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_priority</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">removed_from_queue_for_unusual_reason</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>PeerReviewQueueEntry {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>exercise_id: Uuid,
+    <span class="kw">pub </span>course_instance_id: Uuid,
+    <span class="kw">pub </span>receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    <span class="kw">pub </span>received_enough_peer_reviews: bool,
+    <span class="kw">pub </span>peer_review_priority: i32,
+    <span class="kw">pub </span>removed_from_queue_for_unusual_reason: bool,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">peer_review_priority</span>: <span class="ident">i32</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    peer_review_priority: i32,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO peer_review_queue_entries (
     id,
@@ -539,35 +539,35 @@ INSERT INTO peer_review_queue_entries (
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>,
-        <span class="ident">peer_review_priority</span>,
+        pkey_policy.into_uuid(),
+        user_id,
+        exercise_id,
+        course_instance_id,
+        receiving_peer_reviews_exercise_slide_submission_id,
+        peer_review_priority,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="doccomment">/// Inserts or updates the queue entry indexed by `user_id`, `exercise_id` and `course_instance_id`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The value for `receiving_peer_reviews_exercise_slide_submission_id` never changes after the initial</span>
-<span class="doccomment">/// insertion. This is to make sure that all received peer reviews are made for the same exercise slide</span>
-<span class="doccomment">/// submission. The same applies to `received_enough_peer_reviews` to avoid the scenario where it might</span>
-<span class="doccomment">/// be set from `true` back to `false`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_peer_review_priority</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">peer_review_priority</span>: <span class="ident">i32</span>,
-    <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">received_enough_peer_reviews</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="doccomment">/// Inserts or updates the queue entry indexed by `user_id`, `exercise_id` and `course_instance_id`.
+///
+/// The value for `receiving_peer_reviews_exercise_slide_submission_id` never changes after the initial
+/// insertion. This is to make sure that all received peer reviews are made for the same exercise slide
+/// submission. The same applies to `received_enough_peer_reviews` to avoid the scenario where it might
+/// be set from `true` back to `false`.
+</span><span class="kw">pub async fn </span>upsert_peer_review_priority(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+    peer_review_priority: i32,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    received_enough_peer_reviews: bool,
+) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 INSERT INTO peer_review_queue_entries (
     user_id,
@@ -582,25 +582,25 @@ UPDATE
 SET peer_review_priority = $4
 RETURNING *
         &quot;</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">peer_review_priority</span>,
-        <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>,
-        <span class="ident">received_enough_peer_reviews</span>,
+        user_id,
+        exercise_id,
+        course_instance_id,
+        peer_review_priority,
+        receiving_peer_reviews_exercise_slide_submission_id,
+        received_enough_peer_reviews,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_received_enough_peer_reviews</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">received_enough_peer_reviews</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="kw">pub async fn </span>update_received_enough_peer_reviews(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    received_enough_peer_reviews: bool,
+) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 UPDATE peer_review_queue_entries
 SET received_enough_peer_reviews = $1
@@ -608,22 +608,22 @@ WHERE id = $2
   AND deleted_at IS NULL
 RETURNING *;
         &quot;</span>,
-        <span class="ident">received_enough_peer_reviews</span>,
-        <span class="ident">id</span>,
+        received_enough_peer_reviews,
+        id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">peer_review_priority</span>: <span class="ident">i32</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="kw">pub async fn </span>update(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    peer_review_priority: i32,
+) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 UPDATE peer_review_queue_entries
 SET receiving_peer_reviews_exercise_slide_submission_id = $1,
@@ -631,38 +631,38 @@ SET receiving_peer_reviews_exercise_slide_submission_id = $1,
 WHERE id = $3
 RETURNING *
     &quot;</span>,
-        <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>,
-        <span class="ident">peer_review_priority</span>,
-        <span class="ident">id</span>
+        receiving_peer_reviews_exercise_slide_submission_id,
+        peer_review_priority,
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 SELECT *
 FROM peer_review_queue_entries
 WHERE id = $1
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_receiving_peer_reviews_submission_and_course_instance_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="kw">async fn </span>get_by_receiving_peer_reviews_submission_and_course_instance_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 SELECT *
 FROM peer_review_queue_entries
@@ -670,36 +670,36 @@ WHERE receiving_peer_reviews_exercise_slide_submission_id = $1
   AND course_instance_id = $2
   AND deleted_at IS NULL
     &quot;</span>,
-        <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>,
-        <span class="ident">course_instance_id</span>
+        receiving_peer_reviews_exercise_slide_submission_id,
+        course_instance_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_to_get_by_receiving_submission_and_course_instance_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">get_by_receiving_peer_reviews_submission_and_course_instance_ids</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>,
-        <span class="ident">course_instance_id</span>,
+<span class="kw">pub async fn </span>try_to_get_by_receiving_submission_and_course_instance_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;&gt; {
+    get_by_receiving_peer_reviews_submission_and_course_instance_ids(
+        conn,
+        receiving_peer_reviews_exercise_slide_submission_id,
+        course_instance_id,
     )
-    .<span class="kw">await</span>
-    .<span class="ident">optional</span>()
+    .<span class="kw">await
+    </span>.optional()
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_user_and_exercise_and_course_instance_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="kw">pub async fn </span>get_by_user_and_exercise_and_course_instance_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 SELECT *
 FROM peer_review_queue_entries
@@ -708,38 +708,38 @@ WHERE user_id = $1
   AND course_instance_id = $3
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>,
+        user_id,
+        exercise_id,
+        course_instance_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_to_get_by_user_and_exercise_and_course_instance_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">get_by_user_and_exercise_and_course_instance_ids</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">exercise_id</span>, <span class="ident">course_instance_id</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">optional</span>()
+<span class="kw">pub async fn </span>try_to_get_by_user_and_exercise_and_course_instance_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;&gt; {
+    get_by_user_and_exercise_and_course_instance_ids(conn, user_id, exercise_id, course_instance_id)
+        .<span class="kw">await
+        </span>.optional()
 }
 
-<span class="doccomment">/// Gets multiple records of `PeerReviewQueueEntry` ordered by peer review priority. Also returns entries that don&#39;t need peer review.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Doesn&#39;t differentiate between different course instances.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_many_by_exercise_id_and_review_priority</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">excluded_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">excluded_submissions_ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
-    <span class="ident">count</span>: <span class="ident">i64</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="doccomment">/// Gets multiple records of `PeerReviewQueueEntry` ordered by peer review priority. Also returns entries that don&#39;t need peer review.
+///
+/// Doesn&#39;t differentiate between different course instances.
+</span><span class="kw">pub async fn </span>get_many_by_exercise_id_and_review_priority(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_id: Uuid,
+    excluded_user_id: Uuid,
+    excluded_submissions_ids: <span class="kw-2">&amp;</span>[Uuid],
+    count: i64,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewQueueEntry&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 SELECT *
 FROM peer_review_queue_entries
@@ -750,29 +750,29 @@ WHERE exercise_id = $1
 ORDER BY peer_review_priority DESC
 LIMIT $4
             &quot;</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">excluded_user_id</span>,
-        <span class="ident">excluded_submissions_ids</span>,
-        <span class="ident">count</span>,
+        exercise_id,
+        excluded_user_id,
+        excluded_submissions_ids,
+        count,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="doccomment">/// Gets multiple records of `PeerReviewQueueEntry` that still require more peer reviews, ordered by</span>
-<span class="doccomment">/// peer review priority.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Doesn&#39;t differentiate between different course instances.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_many_that_need_peer_reviews_by_exercise_id_and_review_priority</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">excluded_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">excluded_submissions_ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
-    <span class="ident">count</span>: <span class="ident">i64</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="doccomment">/// Gets multiple records of `PeerReviewQueueEntry` that still require more peer reviews, ordered by
+/// peer review priority.
+///
+/// Doesn&#39;t differentiate between different course instances.
+</span><span class="kw">pub async fn </span>get_many_that_need_peer_reviews_by_exercise_id_and_review_priority(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_id: Uuid,
+    excluded_user_id: Uuid,
+    excluded_submissions_ids: <span class="kw-2">&amp;</span>[Uuid],
+    count: i64,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewQueueEntry&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 SELECT *
 FROM peer_review_queue_entries
@@ -785,26 +785,26 @@ WHERE exercise_id = $1
 ORDER BY peer_review_priority DESC
 LIMIT $4
         &quot;</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">excluded_user_id</span>,
-        <span class="ident">excluded_submissions_ids</span>,
-        <span class="ident">count</span>,
+        exercise_id,
+        excluded_user_id,
+        excluded_submissions_ids,
+        count,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="doccomment">/// Gets multiple records of `PeerReviewQueueEntry` that still require more peer reviews, ordered by</span>
-<span class="doccomment">/// peer review priority.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Doesn&#39;t differentiate between different course instances.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_that_need_peer_reviews_by_exercise_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="doccomment">/// Gets multiple records of `PeerReviewQueueEntry` that still require more peer reviews, ordered by
+/// peer review priority.
+///
+/// Doesn&#39;t differentiate between different course instances.
+</span><span class="kw">pub async fn </span>get_all_that_need_peer_reviews_by_exercise_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewQueueEntry&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 SELECT *
 FROM peer_review_queue_entries
@@ -812,19 +812,19 @@ WHERE exercise_id = $1
   AND received_enough_peer_reviews = &#39;false&#39;
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">exercise_id</span>,
+        exercise_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">increment_peer_review_priority</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_queue_entry</span>: <span class="ident">PeerReviewQueueEntry</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="kw">pub async fn </span>increment_peer_review_priority(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_queue_entry: PeerReviewQueueEntry,
+) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 UPDATE peer_review_queue_entries
 SET peer_review_priority = $1
@@ -832,20 +832,20 @@ WHERE id = $2
   AND deleted_at IS NULL
 RETURNING *
     &quot;</span>,
-        <span class="ident">peer_review_queue_entry</span>.<span class="ident">peer_review_priority</span> <span class="op">+</span> <span class="number">1</span>,
-        <span class="ident">peer_review_queue_entry</span>.<span class="ident">id</span>
+        peer_review_queue_entry.peer_review_priority + <span class="number">1</span>,
+        peer_review_queue_entry.id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_queue_entries_for_unusual_reason</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>remove_queue_entries_for_unusual_reason(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE peer_review_queue_entries
@@ -855,22 +855,22 @@ WHERE user_id = $1
   AND course_instance_id = $3
   AND deleted_at IS NULL
     &quot;</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>
+        user_id,
+        exercise_id,
+        course_instance_id
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_entries_that_need_reviews_and_are_older_than</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">timestamp</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="kw">pub async fn </span>get_entries_that_need_reviews_and_are_older_than(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    timestamp: DateTime&lt;Utc&gt;,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewQueueEntry&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 SELECT *
 FROM peer_review_queue_entries
@@ -880,113 +880,113 @@ WHERE course_instance_id = $1
   AND created_at &lt; $2
   AND deleted_at IS NULL
     &quot;</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">timestamp</span>
+        course_instance_id,
+        timestamp
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_from_queue_and_add_to_manual_review</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_queue_entry</span>: <span class="kw-2">&amp;</span><span class="ident">PeerReviewQueueEntry</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">remove_from_queue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">peer_review_queue_entry</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>remove_from_queue_and_add_to_manual_review(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_queue_entry: <span class="kw-2">&amp;</span>PeerReviewQueueEntry,
+) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = remove_from_queue(<span class="kw-2">&amp;mut </span>tx, peer_review_queue_entry).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">_ues</span> <span class="op">=</span> <span class="ident">user_exercise_states::update_reviewing_stage</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">peer_review_queue_entry</span>.<span class="ident">user_id</span>,
-        <span class="ident">user_exercise_states::CourseInstanceOrExamId::Instance</span>(
-            <span class="ident">peer_review_queue_entry</span>.<span class="ident">course_instance_id</span>,
+    <span class="kw">let </span>_ues = user_exercise_states::update_reviewing_stage(
+        <span class="kw-2">&amp;mut </span>tx,
+        peer_review_queue_entry.user_id,
+        user_exercise_states::CourseInstanceOrExamId::Instance(
+            peer_review_queue_entry.course_instance_id,
         ),
-        <span class="ident">peer_review_queue_entry</span>.<span class="ident">exercise_id</span>,
-        <span class="ident">ReviewingStage::WaitingForManualGrading</span>,
+        peer_review_queue_entry.exercise_id,
+        ReviewingStage::WaitingForManualGrading,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_from_queue_and_give_full_points</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_queue_entry</span>: <span class="kw-2">&amp;</span><span class="ident">PeerReviewQueueEntry</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">remove_from_queue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">peer_review_queue_entry</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">peer_review_queue_entry</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_user_exercise_state_if_exists</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">peer_review_queue_entry</span>.<span class="ident">user_id</span>,
-        <span class="ident">peer_review_queue_entry</span>.<span class="ident">exercise_id</span>,
-        <span class="ident">user_exercise_states::CourseInstanceOrExamId::Instance</span>(
-            <span class="ident">peer_review_queue_entry</span>.<span class="ident">course_instance_id</span>,
+<span class="kw">pub async fn </span>remove_from_queue_and_give_full_points(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_queue_entry: <span class="kw-2">&amp;</span>PeerReviewQueueEntry,
+) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = remove_from_queue(<span class="kw-2">&amp;mut </span>tx, peer_review_queue_entry).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise = exercises::get_by_id(<span class="kw-2">&amp;mut </span>tx, peer_review_queue_entry.exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+        <span class="kw-2">&amp;mut </span>tx,
+        peer_review_queue_entry.user_id,
+        peer_review_queue_entry.exercise_id,
+        user_exercise_states::CourseInstanceOrExamId::Instance(
+            peer_review_queue_entry.course_instance_id,
         ),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_exercise_state</span>) <span class="op">=</span> <span class="ident">user_exercise_state</span> {
-        <span class="ident">teacher_grading_decisions::add_teacher_grading_decision</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-            <span class="ident">user_exercise_state</span>.<span class="ident">id</span>,
-            <span class="ident">teacher_grading_decisions::TeacherDecisionType::FullPoints</span>,
-            <span class="ident">exercise</span>.<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="comment">// Giver is none because the system made the decision</span>
-            <span class="prelude-val">None</span>,
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(user_exercise_state) = user_exercise_state {
+        teacher_grading_decisions::add_teacher_grading_decision(
+            <span class="kw-2">&amp;mut </span>tx,
+            user_exercise_state.id,
+            teacher_grading_decisions::TeacherDecisionType::FullPoints,
+            exercise.score_maximum <span class="kw">as </span>f32,
+            <span class="comment">// Giver is none because the system made the decision
+            </span><span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">user_exercise_state_updater::update_user_exercise_state</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user_exercise_state</span>.<span class="ident">id</span>)
+        user_exercise_state_updater::update_user_exercise_state(<span class="kw-2">&amp;mut </span>tx, user_exercise_state.id)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-    } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::InvalidRequest</span>,
-            <span class="string">&quot;User exercise state not found&quot;</span>.<span class="ident">to_string</span>(),
+    } <span class="kw">else </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            <span class="string">&quot;User exercise state not found&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_from_queue</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_queue_entry</span>: <span class="kw-2">&amp;</span><span class="ident">PeerReviewQueueEntry</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+<span class="kw">async fn </span>remove_from_queue(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_queue_entry: <span class="kw-2">&amp;</span>PeerReviewQueueEntry,
+) -&gt; ModelResult&lt;PeerReviewQueueEntry&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 UPDATE peer_review_queue_entries
 SET removed_from_queue_for_unusual_reason = TRUE
 WHERE id = $1
 RETURNING *
     &quot;</span>,
-        <span class="ident">peer_review_queue_entry</span>.<span class="ident">id</span>
+        peer_review_queue_entry.id
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_by_receiving_peer_reviews_exercise_slide_submission_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>delete_by_receiving_peer_reviews_exercise_slide_submission_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQueueEntry</span>,
+        PeerReviewQueueEntry,
         <span class="string">&quot;
 UPDATE peer_review_queue_entries
 SET deleted_at = now()
 WHERE receiving_peer_reviews_exercise_slide_submission_id = $1
 AND deleted_at is NULL
     &quot;</span>,
-        <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>
+        receiving_peer_reviews_exercise_slide_submission_id
     )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .execute(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

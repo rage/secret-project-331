@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/threading.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>threading.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/threading.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>threading.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -494,159 +494,159 @@
 <span id="494">494</span>
 <span id="495">495</span>
 <span id="496">496</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">Allocator</span>, <span class="ident">SliceWrapper</span>, <span class="ident">SliceWrapperMut</span>};
-<span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">core::mem</span>;
-<span class="kw">use</span> <span class="ident">core::any</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::BrotliAlloc</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::encode</span>::{
-  <span class="ident">BrotliEncoderOperation</span>,
-  <span class="ident">BrotliEncoderCreateInstance</span>,
-  <span class="ident">BrotliEncoderSetCustomDictionaryWithOptionalPrecomputedHasher</span>,
-  <span class="ident">BrotliEncoderDestroyInstance</span>,
-  <span class="ident">BrotliEncoderMaxCompressedSize</span>,
-  <span class="ident">BrotliEncoderCompressStream</span>,
-  <span class="ident">SanitizeParams</span>,
-  <span class="ident">HasherSetup</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>alloc::{Allocator, SliceWrapper, SliceWrapperMut};
+<span class="kw">use </span>core::marker::PhantomData;
+<span class="kw">use </span>core::mem;
+<span class="kw">use </span>core::any;
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std;
+<span class="kw">use </span><span class="kw">super</span>::BrotliAlloc;
+<span class="kw">use </span><span class="kw">super</span>::encode::{
+  BrotliEncoderOperation,
+  BrotliEncoderCreateInstance,
+  BrotliEncoderSetCustomDictionaryWithOptionalPrecomputedHasher,
+  BrotliEncoderDestroyInstance,
+  BrotliEncoderMaxCompressedSize,
+  BrotliEncoderCompressStream,
+  SanitizeParams,
+  HasherSetup,
 };
-<span class="kw">use</span> <span class="ident">concat</span>::{
-  <span class="ident">BroCatli</span>,
-  <span class="ident">BroCatliResult</span>,
+<span class="kw">use </span>concat::{
+  BroCatli,
+  BroCatliResult,
 };
-<span class="kw">use</span> <span class="ident">core::ops::Range</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::backward_references</span>::{<span class="ident">BrotliEncoderParams</span>, <span class="ident">UnionHasher</span>, <span class="ident">CloneWithAlloc</span>, <span class="ident">AnyHasher</span>};
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PoisonedThreadError</span> <span class="op">=</span> ();
+<span class="kw">use </span>core::ops::Range;
+<span class="kw">use </span><span class="kw">super</span>::backward_references::{BrotliEncoderParams, UnionHasher, CloneWithAlloc, AnyHasher};
+<span class="kw">pub type </span>PoisonedThreadError = ();
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LowLevelThreadError</span> <span class="op">=</span> <span class="ident">std::boxed::Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">any::Any</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LowLevelThreadError</span> <span class="op">=</span> ();
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub type </span>LowLevelThreadError = std::boxed::Box&lt;<span class="kw">dyn </span>any::Any + Send + <span class="lifetime">&#39;static</span>&gt;;
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">pub type </span>LowLevelThreadError = ();
 
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AnyBoxConstructor</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">data</span>:<span class="ident">LowLevelThreadError</span>) -&gt; <span class="self">Self</span>;
+<span class="kw">pub trait </span>AnyBoxConstructor {
+    <span class="kw">fn </span>new(data:LowLevelThreadError) -&gt; <span class="self">Self</span>;
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Joinable</span><span class="op">&lt;</span><span class="ident">T</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>, <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>:<span class="ident">Sized</span> {
-  <span class="kw">fn</span> <span class="ident">join</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>;
+<span class="kw">pub trait </span>Joinable&lt;T:Send+<span class="lifetime">&#39;static</span>, U:Send+<span class="lifetime">&#39;static</span>&gt;:Sized {
+  <span class="kw">fn </span>join(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T, U&gt;;
 }
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliEncoderThreadError</span> {
-    <span class="ident">InsufficientOutputSpace</span>,
-    <span class="ident">ConcatenationDidNotProcessFullFile</span>,
-    <span class="ident">ConcatenationError</span>(<span class="ident">BroCatliResult</span>),
-    <span class="ident">ConcatenationFinalizationError</span>(<span class="ident">BroCatliResult</span>),
-    <span class="ident">OtherThreadPanic</span>,
-    <span class="ident">ThreadExecError</span>(<span class="ident">LowLevelThreadError</span>),
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>BrotliEncoderThreadError {
+    InsufficientOutputSpace,
+    ConcatenationDidNotProcessFullFile,
+    ConcatenationError(BroCatliResult),
+    ConcatenationFinalizationError(BroCatliResult),
+    OtherThreadPanic,
+    ThreadExecError(LowLevelThreadError),
 }
 
-<span class="kw">impl</span> <span class="ident">AnyBoxConstructor</span> <span class="kw">for</span> <span class="ident">BrotliEncoderThreadError</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">data</span>:<span class="ident">LowLevelThreadError</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">BrotliEncoderThreadError::ThreadExecError</span>(<span class="ident">data</span>)
+<span class="kw">impl </span>AnyBoxConstructor <span class="kw">for </span>BrotliEncoderThreadError {
+    <span class="kw">fn </span>new(data:LowLevelThreadError) -&gt; <span class="self">Self </span>{
+        BrotliEncoderThreadError::ThreadExecError(data)
     }
 }
 
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompressedFileChunk</span><span class="op">&lt;</span><span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span> {
-    <span class="ident">data_backing</span>:<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-    <span class="ident">data_size</span>: <span class="ident">usize</span>,
+<span class="kw">pub struct </span>CompressedFileChunk&lt;Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>&gt; <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory: Send {
+    data_backing:&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory,
+    data_size: usize,
 }
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span> {
-  <span class="ident">compressed</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CompressedFileChunk</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span>,
-  <span class="ident">alloc</span>: <span class="ident">Alloc</span>,
+<span class="kw">pub struct </span>CompressionThreadResult&lt;Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>&gt; <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory: Send {
+  compressed: <span class="prelude-ty">Result</span>&lt;CompressedFileChunk&lt;Alloc&gt;, BrotliEncoderThreadError&gt;,
+  alloc: Alloc,
 }
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">InternalSendAlloc</span><span class="op">&lt;</span><span class="ident">ReturnVal</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>, <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,<span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>, <span class="ident">Join</span>: <span class="ident">Joinable</span><span class="op">&lt;</span><span class="ident">ReturnVal</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span><span class="op">&gt;</span>
-  <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span> {
-  <span class="ident">A</span>(<span class="ident">Alloc</span>, <span class="ident">ExtraInput</span>),
-  <span class="ident">Join</span>(<span class="ident">Join</span>),
-  <span class="ident">SpawningOrJoining</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">ReturnVal</span><span class="op">&gt;</span>),
+<span class="kw">pub enum </span>InternalSendAlloc&lt;ReturnVal:Send+<span class="lifetime">&#39;static</span>, ExtraInput:Send+<span class="lifetime">&#39;static</span>,Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>, Join: Joinable&lt;ReturnVal, BrotliEncoderThreadError&gt;&gt;
+  <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory: Send {
+  A(Alloc, ExtraInput),
+  Join(Join),
+  SpawningOrJoining(PhantomData&lt;ReturnVal&gt;),
 }
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="ident">ReturnVal</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>, <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,<span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>, <span class="ident">Join</span>: <span class="ident">Joinable</span><span class="op">&lt;</span><span class="ident">ReturnVal</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">InternalSendAlloc</span><span class="op">&lt;</span><span class="ident">ReturnVal</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">Join</span><span class="op">&gt;</span>  <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span> {
-  <span class="kw">fn</span> <span class="ident">unwrap_input</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; (<span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ExtraInput</span>) {
-    <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-      <span class="ident">InternalSendAlloc::A</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alloc</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">extra</span>) =&gt; (<span class="ident">alloc</span>, <span class="ident">extra</span>),
-      <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Bad state for allocator&quot;</span>),
+<span class="kw">impl </span>&lt;ReturnVal:Send+<span class="lifetime">&#39;static</span>, ExtraInput:Send+<span class="lifetime">&#39;static</span>,Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>, Join: Joinable&lt;ReturnVal, BrotliEncoderThreadError&gt;&gt; InternalSendAlloc&lt;ReturnVal, ExtraInput, Alloc, Join&gt;  <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory: Send {
+  <span class="kw">fn </span>unwrap_input(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;mut </span>Alloc, <span class="kw-2">&amp;mut </span>ExtraInput) {
+    <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+      InternalSendAlloc::A(<span class="kw-2">ref mut </span>alloc, <span class="kw-2">ref mut </span>extra) =&gt; (alloc, extra),
+      <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Bad state for allocator&quot;</span>),
     }
   }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SendAlloc</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                     <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                     <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span> <span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                     <span class="ident">Join</span>:<span class="ident">Joinable</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">InternalSendAlloc</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">Join</span><span class="op">&gt;</span>)<span class="comment">//FIXME pub</span>
-  <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span>;
+<span class="kw">pub struct </span>SendAlloc&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+                     ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+                     Alloc:BrotliAlloc +Send+<span class="lifetime">&#39;static</span>,
+                     Join:Joinable&lt;ReturnValue, BrotliEncoderThreadError&gt;&gt;(<span class="kw">pub </span>InternalSendAlloc&lt;ReturnValue, ExtraInput, Alloc, Join&gt;)<span class="comment">//FIXME pub
+  </span><span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory: Send;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>, <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>, <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,<span class="ident">Join</span>:<span class="ident">Joinable</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SendAlloc</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">Join</span><span class="op">&gt;</span>
-  <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">alloc</span>: <span class="ident">Alloc</span>, <span class="ident">extra_input</span>: <span class="ident">ExtraInput</span>) -&gt; <span class="self">Self</span> {
-    <span class="ident">SendAlloc</span>::<span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">Join</span><span class="op">&gt;</span>(<span class="ident">InternalSendAlloc::A</span>(<span class="ident">alloc</span>, <span class="ident">extra_input</span>))
+<span class="kw">impl</span>&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>, ExtraInput:Send+<span class="lifetime">&#39;static</span>, Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,Join:Joinable&lt;ReturnValue, BrotliEncoderThreadError&gt;&gt; SendAlloc&lt;ReturnValue, ExtraInput, Alloc, Join&gt;
+  <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory: Send {
+  <span class="kw">pub fn </span>new(alloc: Alloc, extra_input: ExtraInput) -&gt; <span class="self">Self </span>{
+    SendAlloc::&lt;ReturnValue, ExtraInput, Alloc, Join&gt;(InternalSendAlloc::A(alloc, extra_input))
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unwrap_or</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Alloc</span>, <span class="ident">other_extra</span>: <span class="ident">ExtraInput</span>) -&gt; (<span class="ident">Alloc</span>, <span class="ident">ExtraInput</span>) {
-    <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
-      <span class="ident">InternalSendAlloc::A</span>(<span class="ident">alloc</span>, <span class="ident">extra_input</span>) =&gt; {
-        (<span class="ident">alloc</span>, <span class="ident">extra_input</span>)
+  <span class="kw">pub fn </span>unwrap_or(<span class="self">self</span>, other: Alloc, other_extra: ExtraInput) -&gt; (Alloc, ExtraInput) {
+    <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
+      InternalSendAlloc::A(alloc, extra_input) =&gt; {
+        (alloc, extra_input)
       },
-      <span class="ident">InternalSendAlloc::SpawningOrJoining</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">InternalSendAlloc::Join</span>(<span class="kw">_</span>) =&gt; {
-        (<span class="ident">other</span>, <span class="ident">other_extra</span>)
+      InternalSendAlloc::SpawningOrJoining(<span class="kw">_</span>) | InternalSendAlloc::Join(<span class="kw">_</span>) =&gt; {
+        (other, other_extra)
       },
     }
   }
-  <span class="kw">fn</span> <span class="ident">unwrap_view_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; (<span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ExtraInput</span>) {
-    <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
-      <span class="ident">InternalSendAlloc::A</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alloc</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">extra_input</span>) =&gt; {
-        (<span class="ident">alloc</span>, <span class="ident">extra_input</span>)
+  <span class="kw">fn </span>unwrap_view_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;mut </span>Alloc, <span class="kw-2">&amp;mut </span>ExtraInput) {
+    <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
+      InternalSendAlloc::A(<span class="kw-2">ref mut </span>alloc, <span class="kw-2">ref mut </span>extra_input) =&gt; {
+        (alloc, extra_input)
       },
-      <span class="ident">InternalSendAlloc::SpawningOrJoining</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">InternalSendAlloc::Join</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Item permanently borrowed/leaked&quot;</span>),
+      InternalSendAlloc::SpawningOrJoining(<span class="kw">_</span>) | InternalSendAlloc::Join(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Item permanently borrowed/leaked&quot;</span>),
     }
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unwrap</span>(<span class="self">self</span>) -&gt; (<span class="ident">Alloc</span>, <span class="ident">ExtraInput</span>) {
-    <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
-      <span class="ident">InternalSendAlloc::A</span>(<span class="ident">alloc</span>, <span class="ident">extra_input</span>) =&gt; {
-        (<span class="ident">alloc</span>, <span class="ident">extra_input</span>)
+  <span class="kw">pub fn </span>unwrap(<span class="self">self</span>) -&gt; (Alloc, ExtraInput) {
+    <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
+      InternalSendAlloc::A(alloc, extra_input) =&gt; {
+        (alloc, extra_input)
       },
-      <span class="ident">InternalSendAlloc::SpawningOrJoining</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">InternalSendAlloc::Join</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Item permanently borrowed/leaked&quot;</span>),
+      InternalSendAlloc::SpawningOrJoining(<span class="kw">_</span>) | InternalSendAlloc::Join(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Item permanently borrowed/leaked&quot;</span>),
     }
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace_with_default</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; (<span class="ident">Alloc</span>, <span class="ident">ExtraInput</span>) {
-    <span class="kw">match</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>, <span class="ident">InternalSendAlloc::SpawningOrJoining</span>(<span class="ident">PhantomData::default</span>())) {
-      <span class="ident">InternalSendAlloc::A</span>(<span class="ident">alloc</span>, <span class="ident">extra_input</span>) =&gt; {
-        (<span class="ident">alloc</span>, <span class="ident">extra_input</span>)
+  <span class="kw">pub fn </span>replace_with_default(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; (Alloc, ExtraInput) {
+    <span class="kw">match </span>mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>, InternalSendAlloc::SpawningOrJoining(PhantomData::default())) {
+      InternalSendAlloc::A(alloc, extra_input) =&gt; {
+        (alloc, extra_input)
       },
-      <span class="ident">InternalSendAlloc::SpawningOrJoining</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">InternalSendAlloc::Join</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Item permanently borrowed/leaked&quot;</span>),
+      InternalSendAlloc::SpawningOrJoining(<span class="kw">_</span>) | InternalSendAlloc::Join(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Item permanently borrowed/leaked&quot;</span>),
     }
   }
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">InternalOwned</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> { <span class="comment">// FIXME pub</span>
-  <span class="ident">Item</span>(<span class="ident">T</span>),
-  <span class="ident">Borrowed</span>,
+<span class="kw">pub enum </span>InternalOwned&lt;T&gt; { <span class="comment">// FIXME pub
+  </span>Item(T),
+  Borrowed,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">InternalOwned</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>); <span class="comment">// FIXME pub</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">data</span>:<span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-    <span class="ident">Owned</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">InternalOwned::Item</span>(<span class="ident">data</span>))
+<span class="kw">pub struct </span>Owned&lt;T&gt;(<span class="kw">pub </span>InternalOwned&lt;T&gt;); <span class="comment">// FIXME pub
+</span><span class="kw">impl</span>&lt;T&gt; Owned&lt;T&gt; {
+  <span class="kw">pub fn </span>new(data:T) -&gt; <span class="self">Self </span>{
+    Owned::&lt;T&gt;(InternalOwned::Item(data))
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unwrap_or</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">T</span>) -&gt; <span class="ident">T</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">InternalOwned::Item</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> {
-      <span class="ident">x</span>
-    } <span class="kw">else</span> {
-      <span class="ident">other</span>
+  <span class="kw">pub fn </span>unwrap_or(<span class="self">self</span>, other: T) -&gt; T {
+    <span class="kw">if let </span>InternalOwned::Item(x) = <span class="self">self</span>.<span class="number">0 </span>{
+      x
+    } <span class="kw">else </span>{
+      other
     }
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unwrap</span>(<span class="self">self</span>) -&gt; <span class="ident">T</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">InternalOwned::Item</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> {
-      <span class="ident">x</span>
-    } <span class="kw">else</span> {
+  <span class="kw">pub fn </span>unwrap(<span class="self">self</span>) -&gt; T {
+    <span class="kw">if let </span>InternalOwned::Item(x) = <span class="self">self</span>.<span class="number">0 </span>{
+      x
+    } <span class="kw">else </span>{
       <span class="macro">panic!</span>(<span class="string">&quot;Item permanently borrowed&quot;</span>)
     }
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">view</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">InternalOwned::Item</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> {
-      <span class="ident">x</span>
-    } <span class="kw">else</span> {
+  <span class="kw">pub fn </span>view(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+    <span class="kw">if let </span>InternalOwned::Item(<span class="kw-2">ref </span>x) = <span class="self">self</span>.<span class="number">0 </span>{
+      x
+    } <span class="kw">else </span>{
       <span class="macro">panic!</span>(<span class="string">&quot;Item permanently borrowed&quot;</span>)
     }
   }
@@ -654,81 +654,81 @@
 
 
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">OwnedRetriever</span><span class="op">&lt;</span><span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">view</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>:<span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">U</span>)-&gt; <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>:<span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">PoisonedThreadError</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">unwrap</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">PoisonedThreadError</span><span class="op">&gt;</span>;
+<span class="kw">pub trait </span>OwnedRetriever&lt;U:Send+<span class="lifetime">&#39;static</span>&gt; {
+  <span class="kw">fn </span>view&lt;T, F:FnOnce(<span class="kw-2">&amp;</span>U)-&gt; T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, f:F) -&gt; <span class="prelude-ty">Result</span>&lt;T, PoisonedThreadError&gt;;
+  <span class="kw">fn </span>unwrap(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;U, PoisonedThreadError&gt;;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">OwnedRetriever</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="ident">std::sync::RwLock</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">view</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>:<span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">U</span>)-&gt; <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>:<span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">PoisonedThreadError</span><span class="op">&gt;</span> {
-      <span class="kw">match</span> <span class="self">self</span>.<span class="ident">read</span>() {
-          <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="ident">u</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">f</span>(<span class="ident">u</span>)),
-          <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">PoisonedThreadError::default</span>()),
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;U:Send+<span class="lifetime">&#39;static</span>&gt; OwnedRetriever&lt;U&gt; <span class="kw">for </span>std::sync::Arc&lt;std::sync::RwLock&lt;U&gt;&gt; {
+  <span class="kw">fn </span>view&lt;T, F:FnOnce(<span class="kw-2">&amp;</span>U)-&gt; T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, f:F) -&gt; <span class="prelude-ty">Result</span>&lt;T, PoisonedThreadError&gt; {
+      <span class="kw">match </span><span class="self">self</span>.read() {
+          <span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>u) =&gt; <span class="prelude-val">Ok</span>(f(u)),
+          <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(PoisonedThreadError::default()),
       }
   }
-  <span class="kw">fn</span> <span class="ident">unwrap</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">PoisonedThreadError</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">std::sync::Arc::try_unwrap</span>(<span class="self">self</span>) {
-      <span class="prelude-val">Ok</span>(<span class="ident">rwlock</span>) =&gt; <span class="kw">match</span> <span class="ident">rwlock</span>.<span class="ident">into_inner</span>() {
-        <span class="prelude-val">Ok</span>(<span class="ident">u</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">u</span>),
-        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">PoisonedThreadError::default</span>()),
+  <span class="kw">fn </span>unwrap(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;U, PoisonedThreadError&gt; {
+    <span class="kw">match </span>std::sync::Arc::try_unwrap(<span class="self">self</span>) {
+      <span class="prelude-val">Ok</span>(rwlock) =&gt; <span class="kw">match </span>rwlock.into_inner() {
+        <span class="prelude-val">Ok</span>(u) =&gt; <span class="prelude-val">Ok</span>(u),
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(PoisonedThreadError::default()),
       },
-      <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">PoisonedThreadError::default</span>()),
+      <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(PoisonedThreadError::default()),
     }
   }
 }
 
 
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BatchSpawnable</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                         <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                         <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                         <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span>
-  <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>
-{
-  <span class="kw">type</span> <span class="ident">JoinHandle</span>: <span class="ident">Joinable</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span>;
-  <span class="kw">type</span> <span class="ident">FinalJoinHandle</span>: <span class="ident">OwnedRetriever</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>;
-  <span class="comment">// this function takes in an input slice</span>
-  <span class="comment">// a SendAlloc per thread and converts them all into JoinHandle</span>
-  <span class="comment">// the input is borrowed until the joins complete</span>
-  <span class="comment">// owned is set to borrowed</span>
-  <span class="comment">// the final join handle is a r/w lock which will return the SliceW to the owner</span>
-  <span class="comment">// the FinalJoinHandle is only to be called when each individual JoinHandle has been examined</span>
-  <span class="comment">// the function is called with the thread_index, the num_threads, a reference to the slice under a read lock,</span>
-  <span class="comment">// and an allocator from the alloc_per_thread</span>
-  <span class="kw">fn</span> <span class="ident">make_spawner</span>(
-    <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-    <span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>,
-  ) -&gt; <span class="ident"><span class="self">Self</span>::FinalJoinHandle</span>;
-  <span class="kw">fn</span> <span class="ident">spawn</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">ExtraInput</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="ident">U</span>, <span class="ident">Alloc</span>) -&gt; <span class="ident">ReturnValue</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Copy</span><span class="op">&gt;</span>(
-    <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-    <span class="ident">handle</span>:<span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::FinalJoinHandle</span>,
-    <span class="ident">alloc</span>:<span class="kw-2">&amp;mut</span> <span class="ident">SendAlloc</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident"><span class="self">Self</span>::JoinHandle</span><span class="op">&gt;</span>,
-    <span class="ident">index</span>: <span class="ident">usize</span>,
-    <span class="ident">num_threads</span>: <span class="ident">usize</span>,
-    <span class="ident">f</span>: <span class="ident">F</span>,
+<span class="kw">pub trait </span>BatchSpawnable&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+                         ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+                         Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                         U:Send+<span class="lifetime">&#39;static</span>+Sync&gt;
+  <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory:Send+<span class="lifetime">&#39;static
+</span>{
+  <span class="kw">type </span>JoinHandle: Joinable&lt;ReturnValue, BrotliEncoderThreadError&gt;;
+  <span class="kw">type </span>FinalJoinHandle: OwnedRetriever&lt;U&gt;;
+  <span class="comment">// this function takes in an input slice
+  // a SendAlloc per thread and converts them all into JoinHandle
+  // the input is borrowed until the joins complete
+  // owned is set to borrowed
+  // the final join handle is a r/w lock which will return the SliceW to the owner
+  // the FinalJoinHandle is only to be called when each individual JoinHandle has been examined
+  // the function is called with the thread_index, the num_threads, a reference to the slice under a read lock,
+  // and an allocator from the alloc_per_thread
+  </span><span class="kw">fn </span>make_spawner(
+    <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    input: <span class="kw-2">&amp;mut </span>Owned&lt;U&gt;,
+  ) -&gt; <span class="self">Self</span>::FinalJoinHandle;
+  <span class="kw">fn </span>spawn&lt;F: Fn(ExtraInput, usize, usize, <span class="kw-2">&amp;</span>U, Alloc) -&gt; ReturnValue+Send+<span class="lifetime">&#39;static</span>+Copy&gt;(
+    <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    handle:<span class="kw-2">&amp;mut </span><span class="self">Self</span>::FinalJoinHandle,
+    alloc:<span class="kw-2">&amp;mut </span>SendAlloc&lt;ReturnValue, ExtraInput, Alloc, <span class="self">Self</span>::JoinHandle&gt;,
+    index: usize,
+    num_threads: usize,
+    f: F,
   );
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BatchSpawnableLite</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                             <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                         <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                         <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span>
-  <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>
-{
-  <span class="kw">type</span> <span class="ident">JoinHandle</span>: <span class="ident">Joinable</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span>;
-  <span class="kw">type</span> <span class="ident">FinalJoinHandle</span>: <span class="ident">OwnedRetriever</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">make_spawner</span>(
-    <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-    <span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>,
-  ) -&gt; <span class="ident"><span class="self">Self</span>::FinalJoinHandle</span>;
-  <span class="kw">fn</span> <span class="ident">spawn</span>(
-    <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-    <span class="ident">handle</span>:<span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::FinalJoinHandle</span>,
-    <span class="ident">alloc_per_thread</span>:<span class="kw-2">&amp;mut</span> <span class="ident">SendAlloc</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident"><span class="self">Self</span>::JoinHandle</span><span class="op">&gt;</span>,
-    <span class="ident">index</span>: <span class="ident">usize</span>,
-    <span class="ident">num_threads</span>: <span class="ident">usize</span>,
-    <span class="ident">f</span>: <span class="kw">fn</span>(<span class="ident">ExtraInput</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="ident">U</span>, <span class="ident">Alloc</span>) -&gt; <span class="ident">ReturnValue</span>,
+<span class="kw">pub trait </span>BatchSpawnableLite&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+                             ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+                         Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                         U:Send+<span class="lifetime">&#39;static</span>+Sync&gt;
+  <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory:Send+<span class="lifetime">&#39;static
+</span>{
+  <span class="kw">type </span>JoinHandle: Joinable&lt;ReturnValue, BrotliEncoderThreadError&gt;;
+  <span class="kw">type </span>FinalJoinHandle: OwnedRetriever&lt;U&gt;;
+  <span class="kw">fn </span>make_spawner(
+    <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    input: <span class="kw-2">&amp;mut </span>Owned&lt;U&gt;,
+  ) -&gt; <span class="self">Self</span>::FinalJoinHandle;
+  <span class="kw">fn </span>spawn(
+    <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    handle:<span class="kw-2">&amp;mut </span><span class="self">Self</span>::FinalJoinHandle,
+    alloc_per_thread:<span class="kw-2">&amp;mut </span>SendAlloc&lt;ReturnValue, ExtraInput, Alloc, <span class="self">Self</span>::JoinHandle&gt;,
+    index: usize,
+    num_threads: usize,
+    f: <span class="kw">fn</span>(ExtraInput, usize, usize, <span class="kw-2">&amp;</span>U, Alloc) -&gt; ReturnValue,
   );
 }
 <span class="comment">/*
@@ -747,248 +747,248 @@ impl&lt;ReturnValue:Send+&#39;static,
   ) -&gt; Self::FinalJoinHandle {
    &lt;Self as BatchSpawnable&lt;ReturnValue, ExtraInput,  Alloc, U&gt;&gt;::batch_spawn(self, input, alloc_per_thread, f)
   }
-}*/</span>
+}*/
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CompressMultiSlice</span><span class="op">&lt;</span><span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                          <span class="ident">Spawner</span>:<span class="ident">BatchSpawnableLite</span><span class="op">&lt;</span><span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-                                                     <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-                                                     <span class="ident">Alloc</span>,
-                                                     (<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">&gt;</span><span class="op">&gt;</span> (
-  <span class="ident">params</span>:<span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
-  <span class="ident">input_slice</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-  <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-  <span class="ident">alloc_per_thread</span>:<span class="kw-2">&amp;mut</span> [<span class="ident">SendAlloc</span><span class="op">&lt;</span><span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">Alloc</span>, <span class="ident">Spawner::JoinHandle</span><span class="op">&gt;</span>],
-  <span class="ident">thread_spawner</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Spawner</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span><span class="op">+</span><span class="ident">Sync</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span><span class="op">+</span><span class="ident">Sync</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span><span class="op">+</span><span class="ident">Sync</span> {
-  <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">InternalSendAlloc::A</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alloc</span>, <span class="kw-2">ref</span> <span class="ident">_extra</span>) <span class="op">=</span> <span class="ident">alloc_per_thread</span>[<span class="number">0</span>].<span class="number">0</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">input_slice</span>.<span class="ident">len</span>());
-    <span class="ident">input</span>.<span class="ident">slice_mut</span>().<span class="ident">clone_from_slice</span>(<span class="ident">input_slice</span>);
-    <span class="ident">input</span>
-  } <span class="kw">else</span> {
-    <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()
+</span><span class="kw">pub fn </span>CompressMultiSlice&lt;Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                          Spawner:BatchSpawnableLite&lt;CompressionThreadResult&lt;Alloc&gt;,
+                                                     UnionHasher&lt;Alloc&gt;,
+                                                     Alloc,
+                                                     (&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory, BrotliEncoderParams)&gt;&gt; (
+  params:<span class="kw-2">&amp;</span>BrotliEncoderParams,
+  input_slice: <span class="kw-2">&amp;</span>[u8],
+  output: <span class="kw-2">&amp;mut </span>[u8],
+  alloc_per_thread:<span class="kw-2">&amp;mut </span>[SendAlloc&lt;CompressionThreadResult&lt;Alloc&gt;, UnionHasher&lt;Alloc&gt;, Alloc, Spawner::JoinHandle&gt;],
+  thread_spawner: <span class="kw-2">&amp;mut </span>Spawner,
+) -&gt; <span class="prelude-ty">Result</span>&lt;usize, BrotliEncoderThreadError&gt; <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory: Send+Sync, &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory: Send+Sync, &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory: Send+Sync {
+  <span class="kw">let </span>input = <span class="kw">if let </span>InternalSendAlloc::A(<span class="kw-2">ref mut </span>alloc, <span class="kw-2">ref </span>_extra) = alloc_per_thread[<span class="number">0</span>].<span class="number">0 </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>input = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(alloc, input_slice.len());
+    input.slice_mut().clone_from_slice(input_slice);
+    input
+  } <span class="kw">else </span>{
+    &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory::default()
   };
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">owned_input</span> <span class="op">=</span> <span class="ident">Owned::new</span>(<span class="ident">input</span>);
-  <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">CompressMulti</span>(<span class="ident">params</span>, <span class="kw-2">&amp;mut</span> <span class="ident">owned_input</span>, <span class="ident">output</span>, <span class="ident">alloc_per_thread</span>, <span class="ident">thread_spawner</span>);
-  <span class="kw">if</span> <span class="kw">let</span> <span class="ident">InternalSendAlloc::A</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">alloc</span>, <span class="kw-2">ref</span> <span class="ident">_extra</span>) <span class="op">=</span> <span class="ident">alloc_per_thread</span>[<span class="number">0</span>].<span class="number">0</span> {
-    <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">owned_input</span>.<span class="ident">unwrap</span>());
+  <span class="kw">let </span><span class="kw-2">mut </span>owned_input = Owned::new(input);
+  <span class="kw">let </span>ret = CompressMulti(params, <span class="kw-2">&amp;mut </span>owned_input, output, alloc_per_thread, thread_spawner);
+  <span class="kw">if let </span>InternalSendAlloc::A(<span class="kw-2">ref mut </span>alloc, <span class="kw-2">ref </span>_extra) = alloc_per_thread[<span class="number">0</span>].<span class="number">0 </span>{
+    &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::free_cell(alloc, owned_input.unwrap());
   }
-  <span class="ident">ret</span>
+  ret
 }
 
-<span class="kw">fn</span> <span class="ident">get_range</span>(<span class="ident">thread_index</span>: <span class="ident">usize</span>, <span class="ident">num_threads</span>: <span class="ident">usize</span>, <span class="ident">file_size</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    ((<span class="ident">thread_index</span> <span class="op">*</span> <span class="ident">file_size</span>) <span class="op">/</span> <span class="ident">num_threads</span>)..(((<span class="ident">thread_index</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">*</span> <span class="ident">file_size</span>) <span class="op">/</span> <span class="ident">num_threads</span>)
+<span class="kw">fn </span>get_range(thread_index: usize, num_threads: usize, file_size: usize) -&gt; Range&lt;usize&gt; {
+    ((thread_index * file_size) / num_threads)..(((thread_index + <span class="number">1</span>) * file_size) / num_threads)
 }
 
-<span class="kw">fn</span> <span class="ident">compress_part</span><span class="op">&lt;</span><span class="ident">Alloc</span>: <span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                 <span class="ident">SliceW</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-  <span class="ident">hasher</span>: <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-  <span class="ident">thread_index</span>: <span class="ident">usize</span>,
-  <span class="ident">num_threads</span>: <span class="ident">usize</span>,
-  <span class="ident">input_and_params</span>:<span class="kw-2">&amp;</span>(<span class="ident">SliceW</span>, <span class="ident">BrotliEncoderParams</span>),
-  <span class="kw-2">mut</span> <span class="ident">alloc</span>: <span class="ident">Alloc</span>,
-) -&gt; <span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span> {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">get_range</span>(<span class="ident">thread_index</span>, <span class="ident">num_threads</span>, <span class="ident">input_and_params</span>.<span class="number">0</span>.<span class="ident">len</span>());
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mem</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="kw-2">&amp;mut</span> <span class="ident">alloc</span>,
-                                                     <span class="ident">BrotliEncoderMaxCompressedSize</span>(<span class="ident">range</span>.<span class="ident">end</span> <span class="op">-</span> <span class="ident">range</span>.<span class="ident">start</span>));
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">BrotliEncoderCreateInstance</span>(<span class="ident">alloc</span>);
-  <span class="ident">state</span>.<span class="ident">params</span> <span class="op">=</span> <span class="ident">input_and_params</span>.<span class="number">1</span>.<span class="ident">clone</span>();
-  <span class="kw">if</span> <span class="ident">thread_index</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-    <span class="ident">state</span>.<span class="ident">params</span>.<span class="ident">catable</span> <span class="op">=</span> <span class="bool-val">true</span>; <span class="comment">// make sure we can concatenate this to the other work results</span>
-    <span class="ident">state</span>.<span class="ident">params</span>.<span class="ident">magic_number</span> <span class="op">=</span> <span class="bool-val">false</span>; <span class="comment">// no reason to pepper this around</span>
-  }
-  <span class="ident">state</span>.<span class="ident">params</span>.<span class="ident">appendable</span> <span class="op">=</span> <span class="bool-val">true</span>; <span class="comment">// make sure we are at least appendable, so that future items can be catted in</span>
-  <span class="kw">if</span> <span class="ident">thread_index</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-    <span class="ident">BrotliEncoderSetCustomDictionaryWithOptionalPrecomputedHasher</span>(
-      <span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="ident">range</span>.<span class="ident">start</span>, <span class="kw-2">&amp;</span><span class="ident">input_and_params</span>.<span class="number">0</span>.<span class="ident">slice</span>()[..<span class="ident">range</span>.<span class="ident">start</span>], <span class="ident">hasher</span>,
+<span class="kw">fn </span>compress_part&lt;Alloc: BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                 SliceW:SliceWrapper&lt;u8&gt;&gt;(
+  hasher: UnionHasher&lt;Alloc&gt;,
+  thread_index: usize,
+  num_threads: usize,
+  input_and_params:<span class="kw-2">&amp;</span>(SliceW, BrotliEncoderParams),
+  <span class="kw-2">mut </span>alloc: Alloc,
+) -&gt; CompressionThreadResult&lt;Alloc&gt; <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory:Send+<span class="lifetime">&#39;static </span>{
+  <span class="kw">let </span><span class="kw-2">mut </span>range = get_range(thread_index, num_threads, input_and_params.<span class="number">0</span>.len());
+  <span class="kw">let </span><span class="kw-2">mut </span>mem = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(<span class="kw-2">&amp;mut </span>alloc,
+                                                     BrotliEncoderMaxCompressedSize(range.end - range.start));
+  <span class="kw">let </span><span class="kw-2">mut </span>state = BrotliEncoderCreateInstance(alloc);
+  state.params = input_and_params.<span class="number">1</span>.clone();
+  <span class="kw">if </span>thread_index != <span class="number">0 </span>{
+    state.params.catable = <span class="bool-val">true</span>; <span class="comment">// make sure we can concatenate this to the other work results
+    </span>state.params.magic_number = <span class="bool-val">false</span>; <span class="comment">// no reason to pepper this around
+  </span>}
+  state.params.appendable = <span class="bool-val">true</span>; <span class="comment">// make sure we are at least appendable, so that future items can be catted in
+  </span><span class="kw">if </span>thread_index != <span class="number">0 </span>{
+    BrotliEncoderSetCustomDictionaryWithOptionalPrecomputedHasher(
+      <span class="kw-2">&amp;mut </span>state, range.start, <span class="kw-2">&amp;</span>input_and_params.<span class="number">0</span>.slice()[..range.start], hasher,
     );
   }
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-  <span class="kw">let</span> <span class="ident">compression_result</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_out</span> <span class="op">=</span> <span class="ident">mem</span>.<span class="ident">len</span>();
-  <span class="kw">loop</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_in_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_in</span> <span class="op">=</span> <span class="ident">range</span>.<span class="ident">end</span> <span class="op">-</span> <span class="ident">range</span>.<span class="ident">start</span>;
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">BrotliEncoderCompressStream</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>,
-                                             <span class="ident">BrotliEncoderOperation::BROTLI_OPERATION_FINISH</span>,
-                                             <span class="kw-2">&amp;mut</span> <span class="ident">available_in</span>,
-                                             <span class="kw-2">&amp;</span><span class="ident">input_and_params</span>.<span class="number">0</span>.<span class="ident">slice</span>()[<span class="ident">range</span>.<span class="ident">clone</span>()],
-                                             <span class="kw-2">&amp;mut</span> <span class="ident">next_in_offset</span>,  
-                                             <span class="kw-2">&amp;mut</span> <span class="ident">available_out</span>,
-                                             <span class="ident">mem</span>.<span class="ident">slice_mut</span>(),
-                                             <span class="kw-2">&amp;mut</span> <span class="ident">out_offset</span>,
-                                             <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
-                                             <span class="kw-2">&amp;mut</span> <span class="op">|</span><span class="ident">_a</span>,<span class="ident">_b</span>,<span class="ident">_c</span>,<span class="ident">_d</span><span class="op">|</span>());
-    <span class="kw">let</span> <span class="ident">new_range</span> <span class="op">=</span> <span class="ident">range</span>.<span class="ident">start</span> <span class="op">+</span> <span class="ident">next_in_offset</span>..<span class="ident">range</span>.<span class="ident">end</span>;
-    <span class="ident">range</span> <span class="op">=</span> <span class="ident">new_range</span>;
-    <span class="kw">if</span> <span class="ident">result</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-      <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Ok</span>(<span class="ident">out_offset</span>);
+  <span class="kw">let </span><span class="kw-2">mut </span>out_offset = <span class="number">0usize</span>;
+  <span class="kw">let </span>compression_result;
+  <span class="kw">let </span><span class="kw-2">mut </span>available_out = mem.len();
+  <span class="kw">loop </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>next_in_offset = <span class="number">0usize</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>available_in = range.end - range.start;
+    <span class="kw">let </span>result = BrotliEncoderCompressStream(<span class="kw-2">&amp;mut </span>state,
+                                             BrotliEncoderOperation::BROTLI_OPERATION_FINISH,
+                                             <span class="kw-2">&amp;mut </span>available_in,
+                                             <span class="kw-2">&amp;</span>input_and_params.<span class="number">0</span>.slice()[range.clone()],
+                                             <span class="kw-2">&amp;mut </span>next_in_offset,  
+                                             <span class="kw-2">&amp;mut </span>available_out,
+                                             mem.slice_mut(),
+                                             <span class="kw-2">&amp;mut </span>out_offset,
+                                             <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>,
+                                             <span class="kw-2">&amp;mut </span>|_a,_b,_c,_d|());
+    <span class="kw">let </span>new_range = range.start + next_in_offset..range.end;
+    range = new_range;
+    <span class="kw">if </span>result != <span class="number">0 </span>{
+      compression_result = <span class="prelude-val">Ok</span>(out_offset);
       <span class="kw">break</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">available_out</span> <span class="op">==</span> <span class="number">0</span> {
-      <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">BrotliEncoderThreadError::InsufficientOutputSpace</span>); <span class="comment">// mark no space??</span>
-      <span class="kw">break</span>;
+    } <span class="kw">else if </span>available_out == <span class="number">0 </span>{
+      compression_result = <span class="prelude-val">Err</span>(BrotliEncoderThreadError::InsufficientOutputSpace); <span class="comment">// mark no space??
+      </span><span class="kw">break</span>;
     }
   }
-  <span class="ident">BrotliEncoderDestroyInstance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
-    <span class="kw">match</span> <span class="ident">compression_result</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">size</span>) =&gt; {
-            <span class="ident">CompressionThreadResult</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>{
-                <span class="ident">compressed</span>:<span class="prelude-val">Ok</span>(<span class="ident">CompressedFileChunk</span>{<span class="ident">data_backing</span>:<span class="ident">mem</span>, <span class="ident">data_size</span>:<span class="ident">size</span>}),
-                <span class="ident">alloc</span>:<span class="ident">state</span>.<span class="ident">m8</span>,
+  BrotliEncoderDestroyInstance(<span class="kw-2">&amp;mut </span>state);
+    <span class="kw">match </span>compression_result {
+        <span class="prelude-val">Ok</span>(size) =&gt; {
+            CompressionThreadResult::&lt;Alloc&gt;{
+                compressed:<span class="prelude-val">Ok</span>(CompressedFileChunk{data_backing:mem, data_size:size}),
+                alloc:state.m8,
             }
         },
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-            <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>.<span class="ident">m8</span>, <span class="ident">mem</span>);
-            <span class="ident">CompressionThreadResult</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>{
-                <span class="ident">compressed</span>:<span class="prelude-val">Err</span>(<span class="ident">e</span>),
-                <span class="ident">alloc</span>:<span class="ident">state</span>.<span class="ident">m8</span>,
+        <span class="prelude-val">Err</span>(e) =&gt; {
+            &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::free_cell(<span class="kw-2">&amp;mut </span>state.m8, mem);
+            CompressionThreadResult::&lt;Alloc&gt;{
+                compressed:<span class="prelude-val">Err</span>(e),
+                alloc:state.m8,
             }
         },
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CompressMulti</span><span class="op">&lt;</span><span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                     <span class="ident">SliceW</span>: <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span>,
-                     <span class="ident">Spawner</span>:<span class="ident">BatchSpawnableLite</span><span class="op">&lt;</span><span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-                                                <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-                                                <span class="ident">Alloc</span>,
-                                                (<span class="ident">SliceW</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">&gt;</span><span class="op">&gt;</span> (
-  <span class="ident">params</span>:<span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
-  <span class="ident">owned_input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">SliceW</span><span class="op">&gt;</span>,
-  <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-  <span class="ident">alloc_per_thread</span>:<span class="kw-2">&amp;mut</span> [<span class="ident">SendAlloc</span><span class="op">&lt;</span><span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">Alloc</span>, <span class="ident">Spawner::JoinHandle</span><span class="op">&gt;</span>],
-  <span class="ident">thread_spawner</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Spawner</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span>{
-  <span class="kw">let</span> <span class="ident">num_threads</span> <span class="op">=</span> <span class="ident">alloc_per_thread</span>.<span class="ident">len</span>();
-  <span class="kw">let</span> <span class="ident">actually_owned_mem</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="ident">owned_input</span>, <span class="ident">Owned</span>(<span class="ident">InternalOwned::Borrowed</span>));
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">owned_input_pair</span> <span class="op">=</span> <span class="ident">Owned::new</span>((<span class="ident">actually_owned_mem</span>.<span class="ident">unwrap</span>(), <span class="ident">params</span>.<span class="ident">clone</span>()));
-  <span class="comment">// start thread spawner</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spawner_and_input</span> <span class="op">=</span> <span class="ident">thread_spawner</span>.<span class="ident">make_spawner</span>(<span class="kw-2">&amp;mut</span> <span class="ident">owned_input_pair</span>);
-  <span class="kw">if</span> <span class="ident">num_threads</span> <span class="op">&gt;</span> <span class="number">1</span> {
-    <span class="comment">// spawn first thread without &quot;custom dictionary&quot; while we compute the custom dictionary for other work items</span>
-      <span class="ident">thread_spawner</span>.<span class="ident">spawn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">spawner_and_input</span>, <span class="kw-2">&amp;mut</span> <span class="ident">alloc_per_thread</span>[<span class="number">0</span>], <span class="number">0</span>, <span class="ident">num_threads</span>, <span class="ident">compress_part</span>);
+<span class="kw">pub fn </span>CompressMulti&lt;Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                     SliceW: SliceWrapper&lt;u8&gt;+Send+<span class="lifetime">&#39;static</span>+Sync,
+                     Spawner:BatchSpawnableLite&lt;CompressionThreadResult&lt;Alloc&gt;,
+                                                UnionHasher&lt;Alloc&gt;,
+                                                Alloc,
+                                                (SliceW, BrotliEncoderParams)&gt;&gt; (
+  params:<span class="kw-2">&amp;</span>BrotliEncoderParams,
+  owned_input: <span class="kw-2">&amp;mut </span>Owned&lt;SliceW&gt;,
+  output: <span class="kw-2">&amp;mut </span>[u8],
+  alloc_per_thread:<span class="kw-2">&amp;mut </span>[SendAlloc&lt;CompressionThreadResult&lt;Alloc&gt;, UnionHasher&lt;Alloc&gt;, Alloc, Spawner::JoinHandle&gt;],
+  thread_spawner: <span class="kw-2">&amp;mut </span>Spawner,
+) -&gt; <span class="prelude-ty">Result</span>&lt;usize, BrotliEncoderThreadError&gt; <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory: Send, &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory: Send, &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory: Send{
+  <span class="kw">let </span>num_threads = alloc_per_thread.len();
+  <span class="kw">let </span>actually_owned_mem = mem::replace(owned_input, Owned(InternalOwned::Borrowed));
+  <span class="kw">let </span><span class="kw-2">mut </span>owned_input_pair = Owned::new((actually_owned_mem.unwrap(), params.clone()));
+  <span class="comment">// start thread spawner
+  </span><span class="kw">let </span><span class="kw-2">mut </span>spawner_and_input = thread_spawner.make_spawner(<span class="kw-2">&amp;mut </span>owned_input_pair);
+  <span class="kw">if </span>num_threads &gt; <span class="number">1 </span>{
+    <span class="comment">// spawn first thread without &quot;custom dictionary&quot; while we compute the custom dictionary for other work items
+      </span>thread_spawner.spawn(<span class="kw-2">&amp;mut </span>spawner_and_input, <span class="kw-2">&amp;mut </span>alloc_per_thread[<span class="number">0</span>], <span class="number">0</span>, num_threads, compress_part);
     }
-    <span class="comment">// populate all hashers at once, cloning them one by one</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">compression_last_thread_result</span>;
-    <span class="kw">if</span> <span class="ident">num_threads</span> <span class="op">&gt;</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">params</span>.<span class="ident">favor_cpu_efficiency</span> {
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_params</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">clone</span>();
-      <span class="ident">SanitizeParams</span>(<span class="kw-2">&amp;mut</span> <span class="ident">local_params</span>);
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">UnionHasher::Uninit</span>;
-      <span class="ident">HasherSetup</span>(<span class="ident">alloc_per_thread</span>[<span class="ident">num_threads</span> <span class="op">-</span><span class="number">1</span>].<span class="number">0</span>.<span class="ident">unwrap_input</span>().<span class="number">0</span>,
-                  <span class="kw-2">&amp;mut</span> <span class="ident">hasher</span>,
-                  <span class="kw-2">&amp;mut</span> <span class="ident">local_params</span>,
+    <span class="comment">// populate all hashers at once, cloning them one by one
+    </span><span class="kw">let </span><span class="kw-2">mut </span>compression_last_thread_result;
+    <span class="kw">if </span>num_threads &gt; <span class="number">1 </span>&amp;&amp; params.favor_cpu_efficiency {
+      <span class="kw">let </span><span class="kw-2">mut </span>local_params = params.clone();
+      SanitizeParams(<span class="kw-2">&amp;mut </span>local_params);
+      <span class="kw">let </span><span class="kw-2">mut </span>hasher = UnionHasher::Uninit;
+      HasherSetup(alloc_per_thread[num_threads -<span class="number">1</span>].<span class="number">0</span>.unwrap_input().<span class="number">0</span>,
+                  <span class="kw-2">&amp;mut </span>hasher,
+                  <span class="kw-2">&amp;mut </span>local_params,
                   <span class="kw-2">&amp;</span>[],
                   <span class="number">0</span>,
                   <span class="number">0</span>,
                   <span class="number">0</span>);
-      <span class="kw">for</span> <span class="ident">thread_index</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">num_threads</span> {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">spawner_and_input</span>.<span class="ident">view</span>(<span class="op">|</span><span class="ident">input_and_params</span>:<span class="kw-2">&amp;</span>(<span class="ident">SliceW</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">|</span> -&gt; () {
-          <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">get_range</span>(<span class="ident">thread_index</span> <span class="op">-</span> <span class="number">1</span>, <span class="ident">num_threads</span>, <span class="ident">input_and_params</span>.<span class="number">0</span>.<span class="ident">len</span>());
-          <span class="kw">let</span> <span class="ident">overlap</span> <span class="op">=</span> <span class="ident">hasher</span>.<span class="ident">StoreLookahead</span>().<span class="ident">wrapping_sub</span>(<span class="number">1usize</span>);
-          <span class="kw">if</span> <span class="ident">range</span>.<span class="ident">end</span> <span class="op">-</span> <span class="ident">range</span>.<span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">overlap</span> {
-            <span class="ident">hasher</span>.<span class="ident">BulkStoreRange</span>(<span class="ident">input_and_params</span>.<span class="number">0</span>.<span class="ident">slice</span>(),
-                                  <span class="op">!</span>(<span class="number">0usize</span>),
-                                  <span class="kw">if</span> <span class="ident">range</span>.<span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">overlap</span> {<span class="ident">range</span>.<span class="ident">start</span> <span class="op">-</span> <span class="ident">overlap</span>} <span class="kw">else</span> {<span class="number">0</span>}, <span class="ident">range</span>.<span class="ident">end</span> <span class="op">-</span> <span class="ident">overlap</span>);
+      <span class="kw">for </span>thread_index <span class="kw">in </span><span class="number">1</span>..num_threads {
+        <span class="kw">let </span>res = spawner_and_input.view(|input_and_params:<span class="kw-2">&amp;</span>(SliceW, BrotliEncoderParams)| -&gt; () {
+          <span class="kw">let </span>range = get_range(thread_index - <span class="number">1</span>, num_threads, input_and_params.<span class="number">0</span>.len());
+          <span class="kw">let </span>overlap = hasher.StoreLookahead().wrapping_sub(<span class="number">1usize</span>);
+          <span class="kw">if </span>range.end - range.start &gt; overlap {
+            hasher.BulkStoreRange(input_and_params.<span class="number">0</span>.slice(),
+                                  !(<span class="number">0usize</span>),
+                                  <span class="kw">if </span>range.start &gt; overlap {range.start - overlap} <span class="kw">else </span>{<span class="number">0</span>}, range.end - overlap);
           }
         });
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">_e</span>) <span class="op">=</span> <span class="ident">res</span> {
-          <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">BrotliEncoderThreadError::OtherThreadPanic</span>);
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(_e) = res {
+          <span class="kw">return </span><span class="prelude-val">Err</span>(BrotliEncoderThreadError::OtherThreadPanic);
         }
-        <span class="kw">if</span> <span class="ident">thread_index</span> <span class="op">+</span> <span class="number">1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">num_threads</span> {
+        <span class="kw">if </span>thread_index + <span class="number">1 </span>!= num_threads {
           {
-            <span class="kw">let</span> (<span class="ident">alloc</span>, <span class="ident">out_hasher</span>) <span class="op">=</span> <span class="ident">alloc_per_thread</span>[<span class="ident">thread_index</span>].<span class="ident">unwrap_view_mut</span>();
-            <span class="kw-2">*</span><span class="ident">out_hasher</span> <span class="op">=</span> <span class="ident">hasher</span>.<span class="ident">clone_with_alloc</span>(<span class="ident">alloc</span>);
+            <span class="kw">let </span>(alloc, out_hasher) = alloc_per_thread[thread_index].unwrap_view_mut();
+            <span class="kw-2">*</span>out_hasher = hasher.clone_with_alloc(alloc);
           }
-          <span class="ident">thread_spawner</span>.<span class="ident">spawn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">spawner_and_input</span>, <span class="kw-2">&amp;mut</span> <span class="ident">alloc_per_thread</span>[<span class="ident">thread_index</span>], <span class="ident">thread_index</span>, <span class="ident">num_threads</span>, <span class="ident">compress_part</span>);
+          thread_spawner.spawn(<span class="kw-2">&amp;mut </span>spawner_and_input, <span class="kw-2">&amp;mut </span>alloc_per_thread[thread_index], thread_index, num_threads, compress_part);
         }
       }
-      <span class="kw">let</span> (<span class="ident">alloc</span>, <span class="ident">_extra</span>) <span class="op">=</span> <span class="ident">alloc_per_thread</span>[<span class="ident">num_threads</span> <span class="op">-</span><span class="number">1</span>].<span class="ident">replace_with_default</span>();
-      <span class="ident">compression_last_thread_result</span> <span class="op">=</span> <span class="ident">spawner_and_input</span>.<span class="ident">view</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">input_and_params</span>:<span class="kw-2">&amp;</span>(<span class="ident">SliceW</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">|</span> -&gt; <span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> {
-        <span class="ident">compress_part</span>(<span class="ident">hasher</span>,
-                      <span class="ident">num_threads</span> <span class="op">-</span> <span class="number">1</span>,
-                      <span class="ident">num_threads</span>,
-                      <span class="ident">input_and_params</span>,
-                      <span class="ident">alloc</span>,
+      <span class="kw">let </span>(alloc, _extra) = alloc_per_thread[num_threads -<span class="number">1</span>].replace_with_default();
+      compression_last_thread_result = spawner_and_input.view(<span class="kw">move </span>|input_and_params:<span class="kw-2">&amp;</span>(SliceW, BrotliEncoderParams)| -&gt; CompressionThreadResult&lt;Alloc&gt; {
+        compress_part(hasher,
+                      num_threads - <span class="number">1</span>,
+                      num_threads,
+                      input_and_params,
+                      alloc,
         )
       });
-    } <span class="kw">else</span> {
-      <span class="kw">if</span> <span class="ident">num_threads</span> <span class="op">&gt;</span> <span class="number">1</span> {
-        <span class="kw">for</span> <span class="ident">thread_index</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">num_threads</span><span class="op">-</span><span class="number">1</span> {
-          <span class="ident">thread_spawner</span>.<span class="ident">spawn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">spawner_and_input</span>, <span class="kw-2">&amp;mut</span> <span class="ident">alloc_per_thread</span>[<span class="ident">thread_index</span>], <span class="ident">thread_index</span>, <span class="ident">num_threads</span>, <span class="ident">compress_part</span>);
+    } <span class="kw">else </span>{
+      <span class="kw">if </span>num_threads &gt; <span class="number">1 </span>{
+        <span class="kw">for </span>thread_index <span class="kw">in </span><span class="number">1</span>..num_threads-<span class="number">1 </span>{
+          thread_spawner.spawn(<span class="kw-2">&amp;mut </span>spawner_and_input, <span class="kw-2">&amp;mut </span>alloc_per_thread[thread_index], thread_index, num_threads, compress_part);
         }
       }
-      <span class="kw">let</span> (<span class="ident">alloc</span>, <span class="ident">_extra</span>) <span class="op">=</span> <span class="ident">alloc_per_thread</span>[<span class="ident">num_threads</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">replace_with_default</span>();
-      <span class="ident">compression_last_thread_result</span> <span class="op">=</span> <span class="ident">spawner_and_input</span>.<span class="ident">view</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">input_and_params</span>:<span class="kw-2">&amp;</span>(<span class="ident">SliceW</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">|</span> -&gt; <span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span> {
-        <span class="ident">compress_part</span>(<span class="ident">UnionHasher::Uninit</span>,
-                      <span class="ident">num_threads</span> <span class="op">-</span> <span class="number">1</span>,
-                      <span class="ident">num_threads</span>,
-                      <span class="ident">input_and_params</span>,
-                      <span class="ident">alloc</span>,
+      <span class="kw">let </span>(alloc, _extra) = alloc_per_thread[num_threads - <span class="number">1</span>].replace_with_default();
+      compression_last_thread_result = spawner_and_input.view(<span class="kw">move </span>|input_and_params:<span class="kw-2">&amp;</span>(SliceW, BrotliEncoderParams)| -&gt; CompressionThreadResult&lt;Alloc&gt; {
+        compress_part(UnionHasher::Uninit,
+                      num_threads - <span class="number">1</span>,
+                      num_threads,
+                      input_and_params,
+                      alloc,
         )
       });
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">BrotliEncoderThreadError::InsufficientOutputSpace</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_file_size</span> <span class="op">=</span> <span class="number">0usize</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bro_cat_li</span> <span class="op">=</span> <span class="ident">BroCatli::new</span>();
-    <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">thread</span>) <span class="kw">in</span> <span class="ident">alloc_per_thread</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cur_result</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">index</span> <span class="op">+</span> <span class="number">1</span> <span class="op">==</span> <span class="ident">num_threads</span> {
-        <span class="kw">match</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">compression_last_thread_result</span>, <span class="prelude-val">Err</span>(())){
-          <span class="prelude-val">Ok</span>(<span class="ident">result</span>) =&gt; <span class="ident">result</span>,
-          <span class="prelude-val">Err</span>(<span class="ident">_err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">BrotliEncoderThreadError::OtherThreadPanic</span>),
+    <span class="kw">let </span><span class="kw-2">mut </span>compression_result = <span class="prelude-val">Err</span>(BrotliEncoderThreadError::InsufficientOutputSpace);
+    <span class="kw">let </span><span class="kw-2">mut </span>out_file_size = <span class="number">0usize</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>bro_cat_li = BroCatli::new();
+    <span class="kw">for </span>(index, thread) <span class="kw">in </span>alloc_per_thread.iter_mut().enumerate() {
+      <span class="kw">let </span><span class="kw-2">mut </span>cur_result = <span class="kw">if </span>index + <span class="number">1 </span>== num_threads {
+        <span class="kw">match </span>mem::replace(<span class="kw-2">&amp;mut </span>compression_last_thread_result, <span class="prelude-val">Err</span>(())){
+          <span class="prelude-val">Ok</span>(result) =&gt; result,
+          <span class="prelude-val">Err</span>(_err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(BrotliEncoderThreadError::OtherThreadPanic),
         }
-      } <span class="kw">else</span> {
-        <span class="kw">match</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">thread</span>.<span class="number">0</span>, <span class="ident">InternalSendAlloc::SpawningOrJoining</span>(<span class="ident">PhantomData::default</span>())) {
-          <span class="ident">InternalSendAlloc::A</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">InternalSendAlloc::SpawningOrJoining</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Thread not properly spawned&quot;</span>),
-          <span class="ident">InternalSendAlloc::Join</span>(<span class="ident">join</span>) =&gt; <span class="kw">match</span> <span class="ident">join</span>.<span class="ident">join</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">result</span>) =&gt; <span class="ident">result</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-              <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+      } <span class="kw">else </span>{
+        <span class="kw">match </span>mem::replace(<span class="kw-2">&amp;mut </span>thread.<span class="number">0</span>, InternalSendAlloc::SpawningOrJoining(PhantomData::default())) {
+          InternalSendAlloc::A(<span class="kw">_</span>, <span class="kw">_</span>) | InternalSendAlloc::SpawningOrJoining(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Thread not properly spawned&quot;</span>),
+          InternalSendAlloc::Join(join) =&gt; <span class="kw">match </span>join.join() {
+            <span class="prelude-val">Ok</span>(result) =&gt; result,
+            <span class="prelude-val">Err</span>(err) =&gt; {
+              <span class="kw">return </span><span class="prelude-val">Err</span>(err);
             }
           }
         }
       };
-      <span class="kw">match</span> <span class="ident">cur_result</span>.<span class="ident">compressed</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">compressed_out</span>) =&gt; {
-          <span class="ident">bro_cat_li</span>.<span class="ident">new_brotli_file</span>();
-          <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">in_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-          <span class="kw">let</span> <span class="ident">cat_result</span> <span class="op">=</span> <span class="ident">bro_cat_li</span>.<span class="ident">stream</span>(<span class="kw-2">&amp;</span><span class="ident">compressed_out</span>.<span class="ident">data_backing</span>.<span class="ident">slice</span>()[..<span class="ident">compressed_out</span>.<span class="ident">data_size</span>],
-                                             <span class="kw-2">&amp;mut</span> <span class="ident">in_offset</span>,
-                                             <span class="ident">output</span>,
-                                             <span class="kw-2">&amp;mut</span> <span class="ident">out_file_size</span>);
-          <span class="kw">match</span> <span class="ident">cat_result</span> {
-            <span class="ident">BroCatliResult::Success</span> <span class="op">|</span> <span class="ident">BroCatliResult::NeedsMoreInput</span>  =&gt; {
-              <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Ok</span>(<span class="ident">out_file_size</span>);
+      <span class="kw">match </span>cur_result.compressed {
+        <span class="prelude-val">Ok</span>(compressed_out) =&gt; {
+          bro_cat_li.new_brotli_file();
+          <span class="kw">let </span><span class="kw-2">mut </span>in_offset = <span class="number">0usize</span>;
+          <span class="kw">let </span>cat_result = bro_cat_li.stream(<span class="kw-2">&amp;</span>compressed_out.data_backing.slice()[..compressed_out.data_size],
+                                             <span class="kw-2">&amp;mut </span>in_offset,
+                                             output,
+                                             <span class="kw-2">&amp;mut </span>out_file_size);
+          <span class="kw">match </span>cat_result {
+            BroCatliResult::Success | BroCatliResult::NeedsMoreInput  =&gt; {
+              compression_result = <span class="prelude-val">Ok</span>(out_file_size);
             },
-            <span class="ident">BroCatliResult::NeedsMoreOutput</span> =&gt; {
-              <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">BrotliEncoderThreadError::InsufficientOutputSpace</span>); <span class="comment">// not enough space</span>
-            },
-            <span class="ident">err</span> =&gt; {
-              <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">BrotliEncoderThreadError::ConcatenationError</span>(<span class="ident">err</span>)); <span class="comment">// misc error</span>
-            },
+            BroCatliResult::NeedsMoreOutput =&gt; {
+              compression_result = <span class="prelude-val">Err</span>(BrotliEncoderThreadError::InsufficientOutputSpace); <span class="comment">// not enough space
+            </span>},
+            err =&gt; {
+              compression_result = <span class="prelude-val">Err</span>(BrotliEncoderThreadError::ConcatenationError(err)); <span class="comment">// misc error
+            </span>},
           }
-          <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cur_result</span>.<span class="ident">alloc</span>, <span class="ident">compressed_out</span>.<span class="ident">data_backing</span>);
+          &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::free_cell(<span class="kw-2">&amp;mut </span>cur_result.alloc, compressed_out.data_backing);
         }
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-          <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
+        <span class="prelude-val">Err</span>(e) =&gt; {
+          compression_result = <span class="prelude-val">Err</span>(e);
         }
       }
-      <span class="ident">thread</span>.<span class="number">0</span> <span class="op">=</span> <span class="ident">InternalSendAlloc::A</span>(<span class="ident">cur_result</span>.<span class="ident">alloc</span>, <span class="ident">UnionHasher::Uninit</span>);
+      thread.<span class="number">0 </span>= InternalSendAlloc::A(cur_result.alloc, UnionHasher::Uninit);
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">compression_result</span> {
-      <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
+    <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = compression_result {
+      <span class="kw">return </span><span class="prelude-val">Err</span>(e);
     }
-    <span class="kw">match</span> <span class="ident">bro_cat_li</span>.<span class="ident">finish</span>(<span class="ident">output</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out_file_size</span>) {
-      <span class="ident">BroCatliResult::Success</span> =&gt; <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Ok</span>(<span class="ident">out_file_size</span>),
-      <span class="ident">err</span> =&gt; <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">BrotliEncoderThreadError::ConcatenationFinalizationError</span>(<span class="ident">err</span>)),
+    <span class="kw">match </span>bro_cat_li.finish(output, <span class="kw-2">&amp;mut </span>out_file_size) {
+      BroCatliResult::Success =&gt; compression_result = <span class="prelude-val">Ok</span>(out_file_size),
+      err =&gt; compression_result = <span class="prelude-val">Err</span>(BrotliEncoderThreadError::ConcatenationFinalizationError(err)),
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">retrieved_owned_input</span>) <span class="op">=</span> <span class="ident">spawner_and_input</span>.<span class="ident">unwrap</span>() {
-      <span class="kw-2">*</span><span class="ident">owned_input</span> <span class="op">=</span> <span class="ident">Owned::new</span>(<span class="ident">retrieved_owned_input</span>.<span class="number">0</span>); <span class="comment">// return the input to its rightful owner before returning</span>
-    } <span class="kw">else</span> {
-      <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">compression_result</span> {
-        <span class="ident">compression_result</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">BrotliEncoderThreadError::OtherThreadPanic</span>);
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(retrieved_owned_input) = spawner_and_input.unwrap() {
+      <span class="kw-2">*</span>owned_input = Owned::new(retrieved_owned_input.<span class="number">0</span>); <span class="comment">// return the input to its rightful owner before returning
+    </span>} <span class="kw">else </span>{
+      <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw">_</span>) = compression_result {
+        compression_result = <span class="prelude-val">Err</span>(BrotliEncoderThreadError::OtherThreadPanic);
       }
     }
-    <span class="ident">compression_result</span>
+    compression_result
 }
 
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

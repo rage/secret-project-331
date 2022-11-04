@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/helpers/media.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>media.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/helpers/media.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>media.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -277,284 +277,284 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Shared helper functions for multiple controllers.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Shared helper functions for multiple controllers.
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">path::PathBuf</span>, <span class="ident">sync::Arc</span>};
+</span><span class="kw">use </span>std::{path::PathBuf, sync::Arc};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::AuthorizationToken</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">domain</span>::{<span class="ident">authorization::AuthorizedResponse</span>, <span class="ident">file_uploading::upload_media_to_storage</span>},
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+<span class="kw">pub use </span><span class="kw">crate</span>::domain::authorization::AuthorizationToken;
+<span class="kw">use crate</span>::{
+    domain::{authorization::AuthorizedResponse, file_uploading::upload_media_to_storage},
+    prelude::<span class="kw-2">*</span>,
 };
-<span class="kw">use</span> <span class="ident">actix_http::header::HeaderMap</span>;
-<span class="kw">use</span> <span class="ident">actix_multipart::Field</span>;
-<span class="kw">use</span> <span class="ident">actix_web::http::header</span>;
-<span class="kw">use</span> <span class="ident">futures::StreamExt</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
-    <span class="ident">file_store::file_utils::get_extension_from_filename</span>, <span class="ident">strings::generate_random_string</span>,
+<span class="kw">use </span>actix_http::header::HeaderMap;
+<span class="kw">use </span>actix_multipart::Field;
+<span class="kw">use </span>actix_web::http::header;
+<span class="kw">use </span>futures::StreamExt;
+<span class="kw">use </span>headless_lms_utils::{
+    file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
-<span class="kw">use</span> <span class="ident">models::organizations::DatabaseOrganization</span>;
+<span class="kw">use </span>models::organizations::DatabaseOrganization;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StoreKind</span> {
-    <span class="ident">Organization</span>(<span class="ident">Uuid</span>),
-    <span class="ident">Course</span>(<span class="ident">Uuid</span>),
-    <span class="ident">Exam</span>(<span class="ident">Uuid</span>),
+<span class="attribute">#[derive(Debug, Clone, Copy, Deserialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub enum </span>StoreKind {
+    Organization(Uuid),
+    Course(Uuid),
+    Exam(Uuid),
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_media</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>,
-    <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">Multipart</span>,
-    <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
-    <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">FileStore</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">file_payload</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="ident">next</span>().<span class="kw">await</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="string">&quot;Missing form data&quot;</span>.<span class="ident">into</span>(),
+<span class="kw">pub async fn </span>upload_media&lt;<span class="lifetime">&#39;a</span>&gt;(
+    headers: <span class="kw-2">&amp;</span>HeaderMap,
+    <span class="kw-2">mut </span>payload: Multipart,
+    store_kind: StoreKind,
+    file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;PathBuf&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    validate_media_headers(headers, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>file_payload = payload.next().<span class="kw">await</span>.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Missing form data&quot;</span>.into(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
-    <span class="kw">match</span> <span class="ident">file_payload</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">field</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">AuthorizedResponse</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">type_</span>() {
-                <span class="ident">mime::AUDIO</span> =&gt; <span class="ident">generate_audio_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-                <span class="ident">mime::IMAGE</span> =&gt; <span class="ident">generate_image_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-                <span class="kw">_</span> =&gt; <span class="ident">generate_file_path</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>, <span class="ident">store_kind</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+    <span class="kw">match </span>file_payload {
+        <span class="prelude-val">Ok</span>(field) =&gt; {
+            <span class="kw">let </span>path: AuthorizedResponse&lt;PathBuf&gt; = <span class="kw">match </span>field.content_type().type_() {
+                mime::AUDIO =&gt; generate_audio_path(<span class="kw-2">&amp;</span>field, store_kind, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>,
+                mime::IMAGE =&gt; generate_image_path(<span class="kw-2">&amp;</span>field, store_kind, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>,
+                <span class="kw">_ </span>=&gt; generate_file_path(<span class="kw-2">&amp;</span>field, store_kind, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>,
             };
-            <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>.<span class="ident">data</span>, <span class="ident">field</span>, <span class="ident">file_store</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>.<span class="ident">data</span>)
+            upload_media_to_storage(<span class="kw-2">&amp;</span>path.data, field, file_store).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+            token.authorized_ok(path.data)
         }
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::InternalServerError</span>,
-            <span class="ident">err</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            <span class="prelude-val">Some</span>(err.into()),
         )),
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_image_for_organization</span>(
-    <span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>,
-    <span class="kw-2">mut</span> <span class="ident">payload</span>: <span class="ident">Multipart</span>,
-    <span class="ident">organization</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseOrganization</span>,
-    <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">validate_media_headers</span>(<span class="ident">headers</span>, <span class="kw-2">&amp;</span><span class="ident">user</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">next_payload</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="ident">next</span>().<span class="kw">await</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="string">&quot;Missing form data&quot;</span>.<span class="ident">into</span>(),
+<span class="kw">pub async fn </span>upload_image_for_organization(
+    headers: <span class="kw-2">&amp;</span>HeaderMap,
+    <span class="kw-2">mut </span>payload: Multipart,
+    organization: <span class="kw-2">&amp;</span>DatabaseOrganization,
+    file_store: <span class="kw-2">&amp;</span>Arc&lt;<span class="kw">dyn </span>FileStore&gt;,
+    user: AuthUser,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;PathBuf&gt; {
+    validate_media_headers(headers, <span class="kw-2">&amp;</span>user, <span class="kw-2">&amp;</span>pool).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>next_payload = payload.next().<span class="kw">await</span>.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Missing form data&quot;</span>.into(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">match</span> <span class="ident">next_payload</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">field</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">type_</span>() {
-                <span class="ident">mime::IMAGE</span> =&gt; {
-                    <span class="ident">generate_image_path</span>(
-                        <span class="kw-2">&amp;</span><span class="ident">field</span>,
-                        <span class="ident">StoreKind::Organization</span>(<span class="ident">organization</span>.<span class="ident">id</span>),
-                        <span class="kw-2">&amp;</span><span class="ident">user</span>,
-                        <span class="kw-2">&amp;</span><span class="ident">pool</span>,
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">match </span>next_payload {
+        <span class="prelude-val">Ok</span>(field) =&gt; {
+            <span class="kw">let </span>path: PathBuf = <span class="kw">match </span>field.content_type().type_() {
+                mime::IMAGE =&gt; {
+                    generate_image_path(
+                        <span class="kw-2">&amp;</span>field,
+                        StoreKind::Organization(organization.id),
+                        <span class="kw-2">&amp;</span>user,
+                        <span class="kw-2">&amp;</span>pool,
                     )
-                    .<span class="kw">await</span>
-                }
-                <span class="ident">unsupported</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-                    <span class="ident">ControllerErrorType::BadRequest</span>,
-                    <span class="macro">format!</span>(<span class="string">&quot;Unsupported image Mime type: {}&quot;</span>, <span class="ident">unsupported</span>),
+                    .<span class="kw">await
+                </span>}
+                unsupported =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    <span class="macro">format!</span>(<span class="string">&quot;Unsupported image Mime type: {}&quot;</span>, unsupported),
                     <span class="prelude-val">None</span>,
                 )),
             }
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">data</span>)<span class="question-mark">?</span>;
-            <span class="ident">upload_media_to_storage</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">field</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>)
+            .map(|value| value.data)<span class="question-mark">?</span>;
+            upload_media_to_storage(<span class="kw-2">&amp;</span>path, field, file_store.as_ref()).<span class="kw">await</span><span class="question-mark">?</span>;
+            token.authorized_ok(path)
         }
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::InternalServerError</span>,
-            <span class="ident">err</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            <span class="prelude-val">Some</span>(err.into()),
         )),
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">generate_audio_path</span>(
-    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
-    <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
-    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">AuthUser</span>,
-    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">to_string</span>().<span class="ident">as_str</span>() {
-        <span class="string">&quot;audio/aac&quot;</span> =&gt; <span class="string">&quot;.aac&quot;</span>,
-        <span class="string">&quot;audio/mpeg&quot;</span> =&gt; <span class="string">&quot;.mp3&quot;</span>,
-        <span class="string">&quot;audio/ogg&quot;</span> =&gt; <span class="string">&quot;.oga&quot;</span>,
-        <span class="string">&quot;audio/opus&quot;</span> =&gt; <span class="string">&quot;.opus&quot;</span>,
-        <span class="string">&quot;audio/wav&quot;</span> =&gt; <span class="string">&quot;.wav&quot;</span>,
-        <span class="string">&quot;audio/webm&quot;</span> =&gt; <span class="string">&quot;.weba&quot;</span>,
-        <span class="string">&quot;audio/midi&quot;</span> =&gt; <span class="string">&quot;.mid&quot;</span>,
-        <span class="string">&quot;audio/x-midi&quot;</span> =&gt; <span class="string">&quot;.mid&quot;</span>,
-        <span class="ident">unsupported</span> =&gt; {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::BadRequest</span>,
-                <span class="macro">format!</span>(<span class="string">&quot;Unsupported audio Mime type: {}&quot;</span>, <span class="ident">unsupported</span>),
+<span class="kw">async fn </span>generate_audio_path(
+    field: <span class="kw-2">&amp;</span>Field,
+    store_kind: StoreKind,
+    user: <span class="kw-2">&amp;</span>AuthUser,
+    pool: <span class="kw-2">&amp;</span>web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;PathBuf&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>extension = <span class="kw">match </span>field.content_type().to_string().as_str() {
+        <span class="string">&quot;audio/aac&quot; </span>=&gt; <span class="string">&quot;.aac&quot;</span>,
+        <span class="string">&quot;audio/mpeg&quot; </span>=&gt; <span class="string">&quot;.mp3&quot;</span>,
+        <span class="string">&quot;audio/ogg&quot; </span>=&gt; <span class="string">&quot;.oga&quot;</span>,
+        <span class="string">&quot;audio/opus&quot; </span>=&gt; <span class="string">&quot;.opus&quot;</span>,
+        <span class="string">&quot;audio/wav&quot; </span>=&gt; <span class="string">&quot;.wav&quot;</span>,
+        <span class="string">&quot;audio/webm&quot; </span>=&gt; <span class="string">&quot;.weba&quot;</span>,
+        <span class="string">&quot;audio/midi&quot; </span>=&gt; <span class="string">&quot;.mid&quot;</span>,
+        <span class="string">&quot;audio/x-midi&quot; </span>=&gt; <span class="string">&quot;.mid&quot;</span>,
+        unsupported =&gt; {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                <span class="macro">format!</span>(<span class="string">&quot;Unsupported audio Mime type: {}&quot;</span>, unsupported),
                 <span class="prelude-val">None</span>,
             ))
         }
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">generate_random_string</span>(<span class="number">30</span>);
-    <span class="ident">file_name</span>.<span class="ident">push_str</span>(<span class="ident">extension</span>);
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="ident">file_name</span>, <span class="ident">FileType::Audio</span>, <span class="ident">store_kind</span>);
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>file_name = generate_random_string(<span class="number">30</span>);
+    file_name.push_str(extension);
+    <span class="kw">let </span>path = path(<span class="kw-2">&amp;</span>file_name, FileType::Audio, store_kind);
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(path)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">generate_file_path</span>(
-    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
-    <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
-    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">AuthUser</span>,
-    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">field_content</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">content_disposition</span>();
-    <span class="kw">let</span> <span class="ident">field_content_name</span> <span class="op">=</span> <span class="ident">field_content</span>.<span class="ident">get_filename</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="string">&quot;Missing file name in content-disposition&quot;</span>.<span class="ident">into</span>(),
+<span class="kw">async fn </span>generate_file_path(
+    field: <span class="kw-2">&amp;</span>Field,
+    store_kind: StoreKind,
+    user: <span class="kw-2">&amp;</span>AuthUser,
+    pool: <span class="kw-2">&amp;</span>web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;PathBuf&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>field_content = field.content_disposition();
+    <span class="kw">let </span>field_content_name = field_content.get_filename().ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Missing file name in content-disposition&quot;</span>.into(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">generate_random_string</span>(<span class="number">30</span>);
-    <span class="kw">let</span> <span class="ident">uploaded_file_extension</span> <span class="op">=</span> <span class="ident">get_extension_from_filename</span>(<span class="ident">field_content_name</span>);
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">extension</span>) <span class="op">=</span> <span class="ident">uploaded_file_extension</span> {
-        <span class="ident">file_name</span>.<span class="ident">push_str</span>(<span class="macro">format!</span>(<span class="string">&quot;.{}&quot;</span>, <span class="ident">extension</span>).<span class="ident">as_str</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>file_name = generate_random_string(<span class="number">30</span>);
+    <span class="kw">let </span>uploaded_file_extension = get_extension_from_filename(field_content_name);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(extension) = uploaded_file_extension {
+        file_name.push_str(<span class="macro">format!</span>(<span class="string">&quot;.{}&quot;</span>, extension).as_str());
     }
 
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="ident">file_name</span>, <span class="ident">FileType::File</span>, <span class="ident">store_kind</span>);
+    <span class="kw">let </span>path = path(<span class="kw-2">&amp;</span>file_name, FileType::File, store_kind);
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>)
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(path)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">generate_image_path</span>(
-    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
-    <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>,
-    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">AuthUser</span>,
-    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">content_type</span>().<span class="ident">to_string</span>().<span class="ident">as_str</span>() {
-        <span class="string">&quot;image/jpeg&quot;</span> =&gt; <span class="string">&quot;.jpg&quot;</span>,
-        <span class="string">&quot;image/png&quot;</span> =&gt; <span class="string">&quot;.png&quot;</span>,
-        <span class="string">&quot;image/svg+xml&quot;</span> =&gt; <span class="string">&quot;.svg&quot;</span>,
-        <span class="string">&quot;image/tiff&quot;</span> =&gt; <span class="string">&quot;.tif&quot;</span>,
-        <span class="string">&quot;image/bmp&quot;</span> =&gt; <span class="string">&quot;.bmp&quot;</span>,
-        <span class="string">&quot;image/webp&quot;</span> =&gt; <span class="string">&quot;.webp&quot;</span>,
-        <span class="string">&quot;image/gif&quot;</span> =&gt; <span class="string">&quot;.gif&quot;</span>,
-        <span class="ident">unsupported</span> =&gt; {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::BadRequest</span>,
-                <span class="macro">format!</span>(<span class="string">&quot;Unsupported image Mime type: {}&quot;</span>, <span class="ident">unsupported</span>),
+<span class="kw">async fn </span>generate_image_path(
+    field: <span class="kw-2">&amp;</span>Field,
+    store_kind: StoreKind,
+    user: <span class="kw-2">&amp;</span>AuthUser,
+    pool: <span class="kw-2">&amp;</span>web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;PathBuf&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>extension = <span class="kw">match </span>field.content_type().to_string().as_str() {
+        <span class="string">&quot;image/jpeg&quot; </span>=&gt; <span class="string">&quot;.jpg&quot;</span>,
+        <span class="string">&quot;image/png&quot; </span>=&gt; <span class="string">&quot;.png&quot;</span>,
+        <span class="string">&quot;image/svg+xml&quot; </span>=&gt; <span class="string">&quot;.svg&quot;</span>,
+        <span class="string">&quot;image/tiff&quot; </span>=&gt; <span class="string">&quot;.tif&quot;</span>,
+        <span class="string">&quot;image/bmp&quot; </span>=&gt; <span class="string">&quot;.bmp&quot;</span>,
+        <span class="string">&quot;image/webp&quot; </span>=&gt; <span class="string">&quot;.webp&quot;</span>,
+        <span class="string">&quot;image/gif&quot; </span>=&gt; <span class="string">&quot;.gif&quot;</span>,
+        unsupported =&gt; {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                <span class="macro">format!</span>(<span class="string">&quot;Unsupported image Mime type: {}&quot;</span>, unsupported),
                 <span class="prelude-val">None</span>,
             ))
         }
     };
 
-    <span class="comment">// using a random string for the image name because</span>
-    <span class="comment">// a) we don&#39;t want the filename to be user controllable</span>
-    <span class="comment">// b) we don&#39;t want the filename to be too easily guessable (so no uuid)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">generate_random_string</span>(<span class="number">30</span>);
-    <span class="ident">file_name</span>.<span class="ident">push_str</span>(<span class="ident">extension</span>);
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="ident">file_name</span>, <span class="ident">FileType::Image</span>, <span class="ident">store_kind</span>);
+    <span class="comment">// using a random string for the image name because
+    // a) we don&#39;t want the filename to be user controllable
+    // b) we don&#39;t want the filename to be too easily guessable (so no uuid)
+    </span><span class="kw">let </span><span class="kw-2">mut </span>file_name = generate_random_string(<span class="number">30</span>);
+    file_name.push_str(extension);
+    <span class="kw">let </span>path = path(<span class="kw-2">&amp;</span>file_name, FileType::Image, store_kind);
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">path</span>)
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(path)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">validate_media_headers</span>(
-    <span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>,
-    <span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">AuthUser</span>,
-    <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">content_type</span> <span class="op">=</span> <span class="ident">headers</span>.<span class="ident">get</span>(<span class="ident">header::CONTENT_TYPE</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="string">&quot;Please provide a Content-Type header&quot;</span>.<span class="ident">into</span>(),
+<span class="kw">async fn </span>validate_media_headers(
+    headers: <span class="kw-2">&amp;</span>HeaderMap,
+    user: <span class="kw-2">&amp;</span>AuthUser,
+    pool: <span class="kw-2">&amp;</span>web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>content_type = headers.get(header::CONTENT_TYPE).ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Please provide a Content-Type header&quot;</span>.into(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">content_type_string</span> <span class="op">=</span> <span class="ident">String::from_utf8_lossy</span>(<span class="ident">content_type</span>.<span class="ident">as_bytes</span>()).<span class="ident">to_string</span>();
+    <span class="kw">let </span>content_type_string = String::from_utf8_lossy(content_type.as_bytes()).to_string();
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">content_type_string</span>.<span class="ident">contains</span>(<span class="string">&quot;multipart/form-data&quot;</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;Unsupported type: {}&quot;</span>, <span class="ident">content_type_string</span>),
+    <span class="kw">if </span>!content_type_string.contains(<span class="string">&quot;multipart/form-data&quot;</span>) {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="macro">format!</span>(<span class="string">&quot;Unsupported type: {}&quot;</span>, content_type_string),
             <span class="prelude-val">None</span>,
         ));
     }
 
-    <span class="kw">let</span> <span class="ident">content_length</span> <span class="op">=</span> <span class="ident">headers</span>.<span class="ident">get</span>(<span class="ident">header::CONTENT_LENGTH</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="string">&quot;Please provide a Content-Length in header&quot;</span>.<span class="ident">into</span>(),
+    <span class="kw">let </span>content_length = headers.get(header::CONTENT_LENGTH).ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Please provide a Content-Length in header&quot;</span>.into(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">content_length_number</span> <span class="op">=</span> <span class="ident">String::from_utf8_lossy</span>(<span class="ident">content_length</span>.<span class="ident">as_bytes</span>())
-        .<span class="ident">to_string</span>()
-        .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>()
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_err</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_err</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_err</span>.<span class="ident">into</span>()),
+    <span class="kw">let </span>content_length_number = String::from_utf8_lossy(content_length.as_bytes())
+        .to_string()
+        .parse::&lt;i32&gt;()
+        .map_err(|original_err| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_err.to_string(),
+                <span class="prelude-val">Some</span>(original_err.into()),
             )
         })<span class="question-mark">?</span>;
 
-    <span class="comment">// This does not enforce the size of the file since the client can lie about the content length</span>
-    <span class="kw">if</span> <span class="ident">content_length_number</span> <span class="op">&gt;</span> <span class="number">10485760</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="string">&quot;Content length over 10 MB&quot;</span>.<span class="ident">into</span>(),
+    <span class="comment">// This does not enforce the size of the file since the client can lie about the content length
+    </span><span class="kw">if </span>content_length_number &gt; <span class="number">10485760 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Content length over 10 MB&quot;</span>.into(),
             <span class="prelude-val">None</span>,
         ));
     }
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(())
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(())
 }
 
-<span class="kw">enum</span> <span class="ident">FileType</span> {
-    <span class="ident">Image</span>,
-    <span class="ident">Audio</span>,
-    <span class="ident">File</span>,
+<span class="kw">enum </span>FileType {
+    Image,
+    Audio,
+    File,
 }
 
-<span class="kw">fn</span> <span class="ident">path</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">file_type</span>: <span class="ident">FileType</span>, <span class="ident">store_kind</span>: <span class="ident">StoreKind</span>) -&gt; <span class="ident">PathBuf</span> {
-    <span class="kw">let</span> (<span class="ident">base_dir</span>, <span class="ident">base_id</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">store_kind</span> {
-        <span class="ident">StoreKind::Organization</span>(<span class="ident">id</span>) =&gt; (<span class="string">&quot;organization&quot;</span>, <span class="ident">id</span>),
-        <span class="ident">StoreKind::Course</span>(<span class="ident">id</span>) =&gt; (<span class="string">&quot;course&quot;</span>, <span class="ident">id</span>),
-        <span class="ident">StoreKind::Exam</span>(<span class="ident">id</span>) =&gt; (<span class="string">&quot;exam&quot;</span>, <span class="ident">id</span>),
+<span class="kw">fn </span>path(file_name: <span class="kw-2">&amp;</span>str, file_type: FileType, store_kind: StoreKind) -&gt; PathBuf {
+    <span class="kw">let </span>(base_dir, base_id) = <span class="kw">match </span>store_kind {
+        StoreKind::Organization(id) =&gt; (<span class="string">&quot;organization&quot;</span>, id),
+        StoreKind::Course(id) =&gt; (<span class="string">&quot;course&quot;</span>, id),
+        StoreKind::Exam(id) =&gt; (<span class="string">&quot;exam&quot;</span>, id),
     };
-    <span class="kw">let</span> <span class="ident">file_type_subdir</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">file_type</span> {
-        <span class="ident">FileType::Image</span> =&gt; <span class="string">&quot;images&quot;</span>,
-        <span class="ident">FileType::Audio</span> =&gt; <span class="string">&quot;audios&quot;</span>,
-        <span class="ident">FileType::File</span> =&gt; <span class="string">&quot;files&quot;</span>,
+    <span class="kw">let </span>file_type_subdir = <span class="kw">match </span>file_type {
+        FileType::Image =&gt; <span class="string">&quot;images&quot;</span>,
+        FileType::Audio =&gt; <span class="string">&quot;audios&quot;</span>,
+        FileType::File =&gt; <span class="string">&quot;files&quot;</span>,
     };
-    [<span class="ident">base_dir</span>, <span class="kw-2">&amp;</span><span class="ident">base_id</span>.<span class="ident">to_string</span>(), <span class="ident">file_type_subdir</span>, <span class="ident">file_name</span>]
-        .<span class="ident">iter</span>()
-        .<span class="ident">collect</span>()
+    [base_dir, <span class="kw-2">&amp;</span>base_id.to_string(), file_type_subdir, file_name]
+        .iter()
+        .collect()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

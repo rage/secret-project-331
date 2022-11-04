@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/compat.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/compat.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -237,242 +237,242 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
-</pre><pre class="rust"><code><span class="doccomment">//! For middleware documentation, see [`Compat`].</span>
+</pre><pre class="rust"><code><span class="doccomment">//! For middleware documentation, see [`Compat`].
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">future::Future</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>std::{
+    future::Future,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">futures_core</span>::{<span class="ident">future::LocalBoxFuture</span>, <span class="ident">ready</span>};
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>futures_core::{future::LocalBoxFuture, ready};
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">BoxBody</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">dev</span>::{<span class="ident">Service</span>, <span class="ident">Transform</span>},
-    <span class="ident">error::Error</span>,
-    <span class="ident">service::ServiceResponse</span>,
+<span class="kw">use crate</span>::{
+    body::{BoxBody, MessageBody},
+    dev::{Service, Transform},
+    error::Error,
+    service::ServiceResponse,
 };
 
-<span class="doccomment">/// Middleware for enabling any middleware to be used in [`Resource::wrap`](crate::Resource::wrap),</span>
-<span class="doccomment">/// and [`Condition`](super::Condition).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::middleware::{Logger, Compat};</span>
-<span class="doccomment">/// use actix_web::{App, web};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let logger = Logger::default();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // this would not compile because of incompatible body types</span>
-<span class="doccomment">/// // let app = App::new()</span>
-<span class="doccomment">/// //     .service(web::scope(&quot;scoped&quot;).wrap(logger));</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // by using this middleware we can use the logger on a scope</span>
-<span class="doccomment">/// let app = App::new()</span>
-<span class="doccomment">///     .service(web::scope(&quot;scoped&quot;).wrap(Compat::new(logger)));</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Compat</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">transform</span>: <span class="ident">T</span>,
+<span class="doccomment">/// Middleware for enabling any middleware to be used in [`Resource::wrap`](crate::Resource::wrap),
+/// and [`Condition`](super::Condition).
+///
+/// # Examples
+/// ```
+/// use actix_web::middleware::{Logger, Compat};
+/// use actix_web::{App, web};
+///
+/// let logger = Logger::default();
+///
+/// // this would not compile because of incompatible body types
+/// // let app = App::new()
+/// //     .service(web::scope(&quot;scoped&quot;).wrap(logger));
+///
+/// // by using this middleware we can use the logger on a scope
+/// let app = App::new()
+///     .service(web::scope(&quot;scoped&quot;).wrap(Compat::new(logger)));
+/// ```
+</span><span class="kw">pub struct </span>Compat&lt;T&gt; {
+    transform: T,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Compat</span><span class="op">&lt;</span><span class="ident"><span class="kw">super</span>::Noop</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">noop</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">transform</span>: <span class="ident"><span class="kw">super</span>::Noop</span>,
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">impl </span>Compat&lt;<span class="kw">super</span>::Noop&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>noop() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            transform: <span class="kw">super</span>::Noop,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Compat</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Wrap a middleware to give it broader compatibility.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">middleware</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">transform</span>: <span class="ident">middleware</span>,
+<span class="kw">impl</span>&lt;T&gt; Compat&lt;T&gt; {
+    <span class="doccomment">/// Wrap a middleware to give it broader compatibility.
+    </span><span class="kw">pub fn </span>new(middleware: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            transform: middleware,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">T</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Compat</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">T::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">T::Response</span>: <span class="ident">MapServiceResponseBody</span>,
-    <span class="ident">T::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, T, Req&gt; Transform&lt;S, Req&gt; <span class="kw">for </span>Compat&lt;T&gt;
+<span class="kw">where
+    </span>S: Service&lt;Req&gt;,
+    T: Transform&lt;S, Req&gt;,
+    T::Future: <span class="lifetime">&#39;static</span>,
+    T::Response: MapServiceResponseBody,
+    T::Error: Into&lt;Error&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Transform</span> <span class="op">=</span> <span class="ident">CompatMiddleware</span><span class="op">&lt;</span><span class="ident">T::Transform</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">T::InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Transform</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ServiceResponse&lt;BoxBody&gt;;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Transform = CompatMiddleware&lt;T::Transform&gt;;
+    <span class="kw">type </span>InitError = T::InitError;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Transform, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">transform</span>.<span class="ident">new_transform</span>(<span class="ident">service</span>);
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="ident">fut</span>.<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="ident">CompatMiddleware</span> { <span class="ident">service</span> })
+    <span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>fut = <span class="self">self</span>.transform.new_transform(service);
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>service = fut.<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(CompatMiddleware { service })
         })
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompatMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">service</span>: <span class="ident">S</span>,
+<span class="kw">pub struct </span>CompatMiddleware&lt;S&gt; {
+    service: S,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CompatMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">S::Response</span>: <span class="ident">MapServiceResponseBody</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, Req&gt; Service&lt;Req&gt; <span class="kw">for </span>CompatMiddleware&lt;S&gt;
+<span class="kw">where
+    </span>S: Service&lt;Req&gt;,
+    S::Response: MapServiceResponseBody,
+    S::Error: Into&lt;Error&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">CompatMiddlewareFuture</span><span class="op">&lt;</span><span class="ident">S::Future</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ServiceResponse&lt;BoxBody&gt;;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Future = CompatMiddlewareFuture&lt;S::Future&gt;;
 
-    <span class="macro">actix_service::forward_ready!</span>(<span class="ident">service</span>);
+    <span class="macro">actix_service::forward_ready!</span>(service);
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
-        <span class="ident">CompatMiddlewareFuture</span> { <span class="ident">fut</span> }
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: Req) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>fut = <span class="self">self</span>.service.call(req);
+        CompatMiddlewareFuture { fut }
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompatMiddlewareFuture</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">fut</span>: <span class="ident">Fut</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>CompatMiddlewareFuture&lt;Fut&gt; {
+        <span class="attribute">#[pin]
+        </span>fut: Fut,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">CompatMiddlewareFuture</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">T</span>: <span class="ident">MapServiceResponseBody</span>,
-    <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;Fut, T, E&gt; Future <span class="kw">for </span>CompatMiddlewareFuture&lt;Fut&gt;
+<span class="kw">where
+    </span>Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;T, E&gt;&gt;,
+    T: MapServiceResponseBody,
+    E: Into&lt;Error&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;BoxBody&gt;, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">project</span>().<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)) {
-            <span class="prelude-val">Ok</span>(<span class="ident">res</span>) =&gt; <span class="ident">res</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">into</span>())),
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>res = <span class="kw">match </span><span class="macro">ready!</span>(<span class="self">self</span>.project().fut.poll(cx)) {
+            <span class="prelude-val">Ok</span>(res) =&gt; res,
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(err.into())),
         };
 
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">map_body</span>()))
+        Poll::Ready(<span class="prelude-val">Ok</span>(res.map_body()))
     }
 }
 
-<span class="doccomment">/// Convert `ServiceResponse`&#39;s `ResponseBody&lt;B&gt;` generic type to `ResponseBody&lt;Body&gt;`.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MapServiceResponseBody</span> {
-    <span class="kw">fn</span> <span class="ident">map_body</span>(<span class="self">self</span>) -&gt; <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Convert `ServiceResponse`&#39;s `ResponseBody&lt;B&gt;` generic type to `ResponseBody&lt;Body&gt;`.
+</span><span class="kw">pub trait </span>MapServiceResponseBody {
+    <span class="kw">fn </span>map_body(<span class="self">self</span>) -&gt; ServiceResponse&lt;BoxBody&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">MapServiceResponseBody</span> <span class="kw">for</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;B&gt; MapServiceResponseBody <span class="kw">for </span>ServiceResponse&lt;B&gt;
+<span class="kw">where
+    </span>B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">map_body</span>(<span class="self">self</span>) -&gt; <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map_into_boxed_body</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>map_body(<span class="self">self</span>) -&gt; ServiceResponse&lt;BoxBody&gt; {
+        <span class="self">self</span>.map_into_boxed_body()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="comment">// easier to code when cookies feature is disabled</span>
-    <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="comment">// easier to code when cookies feature is disabled
+    </span><span class="attribute">#![allow(unused_imports)]
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">use</span> <span class="ident">actix_service::IntoService</span>;
+    <span class="kw">use </span>actix_service::IntoService;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">dev::ServiceRequest</span>,
-        <span class="ident">http::StatusCode</span>,
-        <span class="ident">middleware</span>::{<span class="self">self</span>, <span class="ident">Condition</span>, <span class="ident">Logger</span>},
-        <span class="ident">test</span>::{<span class="self">self</span>, <span class="ident">call_service</span>, <span class="ident">init_service</span>, <span class="ident">TestRequest</span>},
-        <span class="ident">web</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>,
+    <span class="kw">use crate</span>::{
+        dev::ServiceRequest,
+        http::StatusCode,
+        middleware::{<span class="self">self</span>, Condition, Logger},
+        test::{<span class="self">self</span>, call_service, init_service, TestRequest},
+        web, App, HttpResponse,
     };
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__compress&quot;</span>))]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_scope_middleware</span>() {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::middleware::Compress</span>;
+    <span class="attribute">#[actix_rt::test]
+    #[cfg(all(feature = <span class="string">&quot;cookies&quot;</span>, feature = <span class="string">&quot;__compress&quot;</span>))]
+    </span><span class="kw">async fn </span>test_scope_middleware() {
+        <span class="kw">use </span><span class="kw">crate</span>::middleware::Compress;
 
-        <span class="kw">let</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">Logger::default</span>();
-        <span class="kw">let</span> <span class="ident">compress</span> <span class="op">=</span> <span class="ident">Compress::default</span>();
+        <span class="kw">let </span>logger = Logger::default();
+        <span class="kw">let </span>compress = Compress::default();
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
-            <span class="ident">App::new</span>().<span class="ident">service</span>(
-                <span class="ident">web::scope</span>(<span class="string">&quot;app&quot;</span>)
-                    .<span class="ident">wrap</span>(<span class="ident">logger</span>)
-                    .<span class="ident">wrap</span>(<span class="ident">Compat::new</span>(<span class="ident">compress</span>))
-                    .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">route</span>(<span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>))),
+        <span class="kw">let </span>srv = init_service(
+            App::new().service(
+                web::scope(<span class="string">&quot;app&quot;</span>)
+                    .wrap(logger)
+                    .wrap(Compat::new(compress))
+                    .service(web::resource(<span class="string">&quot;/test&quot;</span>).route(web::get().to(HttpResponse::Ok))),
             ),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/app/test&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/app/test&quot;</span>).to_request();
+        <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__compress&quot;</span>))]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_resource_scope_middleware</span>() {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::middleware::Compress</span>;
+    <span class="attribute">#[actix_rt::test]
+    #[cfg(all(feature = <span class="string">&quot;cookies&quot;</span>, feature = <span class="string">&quot;__compress&quot;</span>))]
+    </span><span class="kw">async fn </span>test_resource_scope_middleware() {
+        <span class="kw">use </span><span class="kw">crate</span>::middleware::Compress;
 
-        <span class="kw">let</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">Logger::default</span>();
-        <span class="kw">let</span> <span class="ident">compress</span> <span class="op">=</span> <span class="ident">Compress::default</span>();
+        <span class="kw">let </span>logger = Logger::default();
+        <span class="kw">let </span>compress = Compress::default();
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
-            <span class="ident">App::new</span>().<span class="ident">service</span>(
-                <span class="ident">web::resource</span>(<span class="string">&quot;app/test&quot;</span>)
-                    .<span class="ident">wrap</span>(<span class="ident">Compat::new</span>(<span class="ident">logger</span>))
-                    .<span class="ident">wrap</span>(<span class="ident">Compat::new</span>(<span class="ident">compress</span>))
-                    .<span class="ident">route</span>(<span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>)),
+        <span class="kw">let </span>srv = init_service(
+            App::new().service(
+                web::resource(<span class="string">&quot;app/test&quot;</span>)
+                    .wrap(Compat::new(logger))
+                    .wrap(Compat::new(compress))
+                    .route(web::get().to(HttpResponse::Ok)),
             ),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/app/test&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/app/test&quot;</span>).to_request();
+        <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_condition_scope_middleware</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="op">|</span><span class="ident">req</span>: <span class="ident">ServiceRequest</span><span class="op">|</span> {
-            <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(<span class="ident">HttpResponse::InternalServerError</span>().<span class="ident">finish</span>()))
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_condition_scope_middleware() {
+        <span class="kw">let </span>srv = |req: ServiceRequest| {
+            Box::pin(<span class="kw">async move </span>{
+                <span class="prelude-val">Ok</span>(req.into_response(HttpResponse::InternalServerError().finish()))
             })
         };
 
-        <span class="kw">let</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">Logger::default</span>();
+        <span class="kw">let </span>logger = Logger::default();
 
-        <span class="kw">let</span> <span class="ident">mw</span> <span class="op">=</span> <span class="ident">Condition::new</span>(<span class="bool-val">true</span>, <span class="ident">Compat::new</span>(<span class="ident">logger</span>))
-            .<span class="ident">new_transform</span>(<span class="ident">srv</span>.<span class="ident">into_service</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">mw</span>, <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>);
+        <span class="kw">let </span>mw = Condition::new(<span class="bool-val">true</span>, Compat::new(logger))
+            .new_transform(srv.into_service())
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>mw, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::INTERNAL_SERVER_ERROR);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">compat_noop_is_noop</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">test::ok_service</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>compat_noop_is_noop() {
+        <span class="kw">let </span>srv = test::ok_service();
 
-        <span class="kw">let</span> <span class="ident">mw</span> <span class="op">=</span> <span class="ident">Compat::noop</span>()
-            .<span class="ident">new_transform</span>(<span class="ident">srv</span>.<span class="ident">into_service</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let </span>mw = Compat::noop()
+            .new_transform(srv.into_service())
+            .<span class="kw">await
+            </span>.unwrap();
 
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">mw</span>, <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>()).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>mw, TestRequest::default().to_srv_request()).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

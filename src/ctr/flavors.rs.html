@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ctr-0.9.2/src/flavors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>flavors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ctr/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ctr/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ctr-0.9.2/src/flavors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>flavors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ctr/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ctr/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ctr/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -44,49 +44,49 @@
 <span id="42">42</span>
 <span id="43">43</span>
 <span id="44">44</span>
-</pre><pre class="rust"><code><span class="doccomment">//! CTR mode flavors</span>
+</pre><pre class="rust"><code><span class="doccomment">//! CTR mode flavors
 
-<span class="kw">use</span> <span class="ident">cipher</span>::{
-    <span class="ident">generic_array</span>::{<span class="ident">ArrayLength</span>, <span class="ident">GenericArray</span>},
-    <span class="ident">Counter</span>,
+</span><span class="kw">use </span>cipher::{
+    generic_array::{ArrayLength, GenericArray},
+    Counter,
 };
 
-<span class="kw">mod</span> <span class="ident">ctr128</span>;
-<span class="kw">mod</span> <span class="ident">ctr32</span>;
-<span class="kw">mod</span> <span class="ident">ctr64</span>;
+<span class="kw">mod </span>ctr128;
+<span class="kw">mod </span>ctr32;
+<span class="kw">mod </span>ctr64;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ctr128</span>::{<span class="ident">Ctr128BE</span>, <span class="ident">Ctr128LE</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ctr32</span>::{<span class="ident">Ctr32BE</span>, <span class="ident">Ctr32LE</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ctr64</span>::{<span class="ident">Ctr64BE</span>, <span class="ident">Ctr64LE</span>};
+<span class="kw">pub use </span>ctr128::{Ctr128BE, Ctr128LE};
+<span class="kw">pub use </span>ctr32::{Ctr32BE, Ctr32LE};
+<span class="kw">pub use </span>ctr64::{Ctr64BE, Ctr64LE};
 
-<span class="doccomment">/// Trait implemented by different CTR flavors.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CtrFlavor</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Inner representation of nonce.</span>
-    <span class="kw">type</span> <span class="ident">CtrNonce</span>: <span class="ident">Clone</span>;
-    <span class="doccomment">/// Backend numeric type</span>
-    <span class="kw">type</span> <span class="ident">Backend</span>: <span class="ident">Counter</span>;
-    <span class="doccomment">/// Flavor name</span>
-    <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+<span class="doccomment">/// Trait implemented by different CTR flavors.
+</span><span class="kw">pub trait </span>CtrFlavor&lt;B: ArrayLength&lt;u8&gt;&gt; {
+    <span class="doccomment">/// Inner representation of nonce.
+    </span><span class="kw">type </span>CtrNonce: Clone;
+    <span class="doccomment">/// Backend numeric type
+    </span><span class="kw">type </span>Backend: Counter;
+    <span class="doccomment">/// Flavor name
+    </span><span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
 
-    <span class="doccomment">/// Return number of remaining blocks.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If result does not fit into `usize`, returns `None`.</span>
-    <span class="kw">fn</span> <span class="ident">remaining</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Return number of remaining blocks.
+    ///
+    /// If result does not fit into `usize`, returns `None`.
+    </span><span class="kw">fn </span>remaining(cn: <span class="kw-2">&amp;</span><span class="self">Self</span>::CtrNonce) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt;;
 
-    <span class="doccomment">/// Generate block for given `nonce` and current counter value.</span>
-    <span class="kw">fn</span> <span class="ident">next_block</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Generate block for given `nonce` and current counter value.
+    </span><span class="kw">fn </span>next_block(cn: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::CtrNonce) -&gt; GenericArray&lt;u8, B&gt;;
 
-    <span class="doccomment">/// Generate block for given `nonce` and current counter value.</span>
-    <span class="kw">fn</span> <span class="ident">current_block</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Generate block for given `nonce` and current counter value.
+    </span><span class="kw">fn </span>current_block(cn: <span class="kw-2">&amp;</span><span class="self">Self</span>::CtrNonce) -&gt; GenericArray&lt;u8, B&gt;;
 
-    <span class="doccomment">/// Initialize from bytes.</span>
-    <span class="kw">fn</span> <span class="ident">from_nonce</span>(<span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="self">Self</span>::CtrNonce</span>;
+    <span class="doccomment">/// Initialize from bytes.
+    </span><span class="kw">fn </span>from_nonce(block: <span class="kw-2">&amp;</span>GenericArray&lt;u8, B&gt;) -&gt; <span class="self">Self</span>::CtrNonce;
 
-    <span class="doccomment">/// Convert from a backend value</span>
-    <span class="kw">fn</span> <span class="ident">set_from_backend</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::CtrNonce</span>, <span class="ident">v</span>: <span class="ident"><span class="self">Self</span>::Backend</span>);
+    <span class="doccomment">/// Convert from a backend value
+    </span><span class="kw">fn </span>set_from_backend(cn: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::CtrNonce, v: <span class="self">Self</span>::Backend);
 
-    <span class="doccomment">/// Convert to a backend value</span>
-    <span class="kw">fn</span> <span class="ident">as_backend</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="ident"><span class="self">Self</span>::Backend</span>;
+    <span class="doccomment">/// Convert to a backend value
+    </span><span class="kw">fn </span>as_backend(cn: <span class="kw-2">&amp;</span><span class="self">Self</span>::CtrNonce) -&gt; <span class="self">Self</span>::Backend;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ctr" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ctr" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

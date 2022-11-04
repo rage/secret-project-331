@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-extensible-rate-limit-0.2.1/src/backend/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_extensible_rate_limit/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-extensible-rate-limit-0.2.1/src/backend/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_extensible_rate_limit/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -130,137 +130,137 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
-</pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">input_builder</span>;
+</pre><pre class="rust"><code><span class="kw">mod </span>input_builder;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dashmap&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dashmap&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">memory</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;dashmap&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;dashmap&quot;</span>)))]
+</span><span class="kw">pub mod </span>memory;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;redis&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;redis&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">redis</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;redis&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;redis&quot;</span>)))]
+</span><span class="kw">pub mod </span>redis;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">input_builder</span>::{<span class="ident">SimpleInputFunctionBuilder</span>, <span class="ident">SimpleInputFuture</span>};
+<span class="kw">pub use </span>input_builder::{SimpleInputFunctionBuilder, SimpleInputFuture};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HeaderCompatibleOutput</span>;
-<span class="kw">use</span> <span class="ident">actix_web::rt::time::Instant</span>;
-<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use </span><span class="kw">crate</span>::HeaderCompatibleOutput;
+<span class="kw">use </span>actix_web::rt::time::Instant;
+<span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="doccomment">/// Describes an implementation of a rate limiting store and algorithm.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// To implement your own rate limiting backend it is recommended to use</span>
-<span class="doccomment">/// [async_trait](https://github.com/dtolnay/async-trait), and add the `#[async_trait(?Send)]`</span>
-<span class="doccomment">/// attribute onto your trait implementation.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A Backend is required to implement [Clone], usually this means wrapping your data store within</span>
-<span class="doccomment">/// an [Arc](std::sync::Arc), although many connection pools already do so internally; there is no</span>
-<span class="doccomment">/// need to wrap it twice.</span>
-<span class="attribute">#[<span class="ident">async_trait</span>(<span class="question-mark">?</span><span class="ident">Send</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Backend</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="lifetime">&#39;static</span> <span class="op">=</span> <span class="ident">SimpleInput</span><span class="op">&gt;</span>: <span class="ident">Clone</span> {
-    <span class="kw">type</span> <span class="ident">Output</span>;
-    <span class="kw">type</span> <span class="ident">RollbackToken</span>;
-    <span class="kw">type</span> <span class="ident">Error</span>;
+<span class="doccomment">/// Describes an implementation of a rate limiting store and algorithm.
+///
+/// To implement your own rate limiting backend it is recommended to use
+/// [async_trait](https://github.com/dtolnay/async-trait), and add the `#[async_trait(?Send)]`
+/// attribute onto your trait implementation.
+///
+/// A Backend is required to implement [Clone], usually this means wrapping your data store within
+/// an [Arc](std::sync::Arc), although many connection pools already do so internally; there is no
+/// need to wrap it twice.
+</span><span class="attribute">#[async_trait(<span class="question-mark">?</span>Send)]
+</span><span class="kw">pub trait </span>Backend&lt;I: <span class="lifetime">&#39;static </span>= SimpleInput&gt;: Clone {
+    <span class="kw">type </span>Output;
+    <span class="kw">type </span>RollbackToken;
+    <span class="kw">type </span>Error;
 
-    <span class="doccomment">/// Process an incoming request.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The input could include such things as a rate limit key, and the rate limit policy to be</span>
-    <span class="doccomment">/// applied.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns a boolean of whether to allow or deny the request, arbitrary output that can be used</span>
-    <span class="doccomment">/// to transform the allowed and denied responses, and a token to allow the rate limit counter</span>
-    <span class="doccomment">/// to be rolled back in certain conditions.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">request</span>(
+    <span class="doccomment">/// Process an incoming request.
+    ///
+    /// The input could include such things as a rate limit key, and the rate limit policy to be
+    /// applied.
+    ///
+    /// Returns a boolean of whether to allow or deny the request, arbitrary output that can be used
+    /// to transform the allowed and denied responses, and a token to allow the rate limit counter
+    /// to be rolled back in certain conditions.
+    </span><span class="kw">async fn </span>request(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">input</span>: <span class="ident">I</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident"><span class="self">Self</span>::Output</span>, <span class="ident"><span class="self">Self</span>::RollbackToken</span>), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+        input: I,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(bool, <span class="self">Self</span>::Output, <span class="self">Self</span>::RollbackToken), <span class="self">Self</span>::Error&gt;;
 
-    <span class="doccomment">/// Under certain conditions we may not want to rollback the request operation.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// E.g. We may want to exclude 5xx errors from counting against a user&#39;s rate limit,</span>
-    <span class="doccomment">/// we can only exclude them after having already allowed the request through the rate limiter</span>
-    <span class="doccomment">/// in the first place, so we must therefore deduct from the rate limit counter afterwards.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that if this function fails there is not much the [RateLimiter](crate::RateLimiter)</span>
-    <span class="doccomment">/// can do about it, given that the request has already been allowed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Arguments</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * `token`: The token returned from the initial call to [Backend::request()].</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">rollback</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">token</span>: <span class="ident"><span class="self">Self</span>::RollbackToken</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Under certain conditions we may not want to rollback the request operation.
+    ///
+    /// E.g. We may want to exclude 5xx errors from counting against a user&#39;s rate limit,
+    /// we can only exclude them after having already allowed the request through the rate limiter
+    /// in the first place, so we must therefore deduct from the rate limit counter afterwards.
+    ///
+    /// Note that if this function fails there is not much the [RateLimiter](crate::RateLimiter)
+    /// can do about it, given that the request has already been allowed.
+    ///
+    /// # Arguments
+    ///
+    /// * `token`: The token returned from the initial call to [Backend::request()].
+    </span><span class="kw">async fn </span>rollback(<span class="kw-2">&amp;</span><span class="self">self</span>, token: <span class="self">Self</span>::RollbackToken) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
 }
 
-<span class="doccomment">/// A default [Backend] Input structure.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This may not be suitable for all use-cases.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimpleInput</span> {
-    <span class="doccomment">/// The rate limiting interval.</span>
-    <span class="kw">pub</span> <span class="ident">interval</span>: <span class="ident">Duration</span>,
-    <span class="doccomment">/// The total requests to be allowed within the interval.</span>
-    <span class="kw">pub</span> <span class="ident">max_requests</span>: <span class="ident">u64</span>,
-    <span class="doccomment">/// The rate limit key to be used for this request.</span>
-    <span class="kw">pub</span> <span class="ident">key</span>: <span class="ident">String</span>,
+<span class="doccomment">/// A default [Backend] Input structure.
+///
+/// This may not be suitable for all use-cases.
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>SimpleInput {
+    <span class="doccomment">/// The rate limiting interval.
+    </span><span class="kw">pub </span>interval: Duration,
+    <span class="doccomment">/// The total requests to be allowed within the interval.
+    </span><span class="kw">pub </span>max_requests: u64,
+    <span class="doccomment">/// The rate limit key to be used for this request.
+    </span><span class="kw">pub </span>key: String,
 }
 
-<span class="doccomment">/// A default [Backend::Output] structure.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This may not be suitable for all use-cases.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimpleOutput</span> {
-    <span class="doccomment">/// Total number of requests that are permitted within the rate limit interval.</span>
-    <span class="kw">pub</span> <span class="ident">limit</span>: <span class="ident">u64</span>,
-    <span class="doccomment">/// Number of requests that will be permitted until the limit resets.</span>
-    <span class="kw">pub</span> <span class="ident">remaining</span>: <span class="ident">u64</span>,
-    <span class="doccomment">/// Time at which the rate limit resets.</span>
-    <span class="kw">pub</span> <span class="ident">reset</span>: <span class="ident">Instant</span>,
+<span class="doccomment">/// A default [Backend::Output] structure.
+///
+/// This may not be suitable for all use-cases.
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>SimpleOutput {
+    <span class="doccomment">/// Total number of requests that are permitted within the rate limit interval.
+    </span><span class="kw">pub </span>limit: u64,
+    <span class="doccomment">/// Number of requests that will be permitted until the limit resets.
+    </span><span class="kw">pub </span>remaining: u64,
+    <span class="doccomment">/// Time at which the rate limit resets.
+    </span><span class="kw">pub </span>reset: Instant,
 }
 
-<span class="doccomment">/// Additional functions for a [Backend] that uses [SimpleInput] and [SimpleOutput].</span>
-<span class="attribute">#[<span class="ident">async_trait</span>(<span class="question-mark">?</span><span class="ident">Send</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">SimpleBackend</span>: <span class="ident">Backend</span><span class="op">&lt;</span><span class="ident">SimpleInput</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">SimpleOutput</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Removes the bucket for a given rate limit key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Intended to be used to reset a key before changing the interval.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Additional functions for a [Backend] that uses [SimpleInput] and [SimpleOutput].
+</span><span class="attribute">#[async_trait(<span class="question-mark">?</span>Send)]
+</span><span class="kw">pub trait </span>SimpleBackend: Backend&lt;SimpleInput, Output = SimpleOutput&gt; {
+    <span class="doccomment">/// Removes the bucket for a given rate limit key.
+    ///
+    /// Intended to be used to reset a key before changing the interval.
+    </span><span class="kw">async fn </span>remove_key(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;;
 }
 
-<span class="kw">impl</span> <span class="ident">HeaderCompatibleOutput</span> <span class="kw">for</span> <span class="ident">SimpleOutput</span> {
-    <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="self">self</span>.<span class="ident">limit</span>
+<span class="kw">impl </span>HeaderCompatibleOutput <span class="kw">for </span>SimpleOutput {
+    <span class="kw">fn </span>limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.limit
     }
 
-    <span class="kw">fn</span> <span class="ident">remaining</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="self">self</span>.<span class="ident">remaining</span>
+    <span class="kw">fn </span>remaining(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.remaining
     }
 
-    <span class="doccomment">/// Seconds until the rate limit resets (rounded upwards, so that it is guaranteed to be reset</span>
-    <span class="doccomment">/// after waiting for the duration).</span>
-    <span class="kw">fn</span> <span class="ident">seconds_until_reset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="kw">let</span> <span class="ident">millis</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">reset</span>
-            .<span class="ident">saturating_duration_since</span>(<span class="ident">Instant::now</span>())
-            .<span class="ident">as_millis</span>() <span class="kw">as</span> <span class="ident">f64</span>;
-        (<span class="ident">millis</span> <span class="op">/</span> <span class="number">1000f64</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">u64</span>
+    <span class="doccomment">/// Seconds until the rate limit resets (rounded upwards, so that it is guaranteed to be reset
+    /// after waiting for the duration).
+    </span><span class="kw">fn </span>seconds_until_reset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="kw">let </span>millis = <span class="self">self
+            </span>.reset
+            .saturating_duration_since(Instant::now())
+            .as_millis() <span class="kw">as </span>f64;
+        (millis / <span class="number">1000f64</span>).ceil() <span class="kw">as </span>u64
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_seconds_until_reset</span>() {
-        <span class="ident">tokio::time::pause</span>();
-        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">SimpleOutput</span> {
-            <span class="ident">limit</span>: <span class="number">0</span>,
-            <span class="ident">remaining</span>: <span class="number">0</span>,
-            <span class="ident">reset</span>: <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">Duration::from_secs</span>(<span class="number">60</span>),
+    <span class="attribute">#[actix_web::test]
+    </span><span class="kw">async fn </span>test_seconds_until_reset() {
+        tokio::time::pause();
+        <span class="kw">let </span>output = SimpleOutput {
+            limit: <span class="number">0</span>,
+            remaining: <span class="number">0</span>,
+            reset: Instant::now() + Duration::from_secs(<span class="number">60</span>),
         };
-        <span class="ident">tokio::time::advance</span>(<span class="ident">Duration::from_secs_f64</span>(<span class="number">29.9</span>)).<span class="kw">await</span>;
-        <span class="comment">// Verify rounded upwards from 30.1</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">output</span>.<span class="ident">seconds_until_reset</span>(), <span class="number">31</span>);
+        tokio::time::advance(Duration::from_secs_f64(<span class="number">29.9</span>)).<span class="kw">await</span>;
+        <span class="comment">// Verify rounded upwards from 30.1
+        </span><span class="macro">assert_eq!</span>(output.seconds_until_reset(), <span class="number">31</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_extensible_rate_limit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_extensible_rate_limit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

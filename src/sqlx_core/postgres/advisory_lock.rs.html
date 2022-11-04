@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/advisory_lock.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>advisory_lock.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/advisory_lock.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>advisory_lock.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -419,426 +419,426 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Result</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::PgConnection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Either</span>;
-<span class="kw">use</span> <span class="ident">hkdf::Hkdf</span>;
-<span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
-<span class="kw">use</span> <span class="ident">sha2::Sha256</span>;
-<span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::Result;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::PgConnection;
+<span class="kw">use </span><span class="kw">crate</span>::Either;
+<span class="kw">use </span>hkdf::Hkdf;
+<span class="kw">use </span>once_cell::sync::OnceCell;
+<span class="kw">use </span>sha2::Sha256;
+<span class="kw">use </span>std::ops::{Deref, DerefMut};
 
-<span class="doccomment">/// A mutex-like type utilizing [Postgres advisory locks].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Advisory locks are a mechanism provided by Postgres to have mutually exclusive or shared</span>
-<span class="doccomment">/// locks tracked in the database with application-defined semantics, as opposed to the standard</span>
-<span class="doccomment">/// row-level or table-level locks which may not fit all use-cases.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This API provides a convenient wrapper for generating and storing the integer keys that</span>
-<span class="doccomment">/// advisory locks use, as well as RAII guards for releasing advisory locks when they fall out</span>
-<span class="doccomment">/// of scope.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This API only handles session-scoped advisory locks (explicitly locked and unlocked, or</span>
-<span class="doccomment">/// automatically released when a connection is closed).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// It is also possible to use transaction-scoped locks but those can be used by beginning a</span>
-<span class="doccomment">/// transaction and calling the appropriate lock functions (e.g. `SELECT pg_advisory_xact_lock()`)</span>
-<span class="doccomment">/// manually, and cannot be explicitly released, but are automatically released when a transaction</span>
-<span class="doccomment">/// ends (is committed or rolled back).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Session-level locks can be acquired either inside or outside a transaction and are not</span>
-<span class="doccomment">/// tied to transaction semantics; a lock acquired inside a transaction is still held when that</span>
-<span class="doccomment">/// transaction is committed or rolled back, until explicitly released or the connection is closed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Locks can be acquired in either shared or exclusive modes, which can be thought of as read locks</span>
-<span class="doccomment">/// and write locks, respectively. Multiple shared locks are allowed for the same key, but a single</span>
-<span class="doccomment">/// exclusive lock prevents any other lock being taken for a given key until it is released.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [Postgres advisory locks]: https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgAdvisoryLock</span> {
-    <span class="ident">key</span>: <span class="ident">PgAdvisoryLockKey</span>,
-    <span class="doccomment">/// The query to execute to release this lock.</span>
-    <span class="ident">release_query</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A mutex-like type utilizing [Postgres advisory locks].
+///
+/// Advisory locks are a mechanism provided by Postgres to have mutually exclusive or shared
+/// locks tracked in the database with application-defined semantics, as opposed to the standard
+/// row-level or table-level locks which may not fit all use-cases.
+///
+/// This API provides a convenient wrapper for generating and storing the integer keys that
+/// advisory locks use, as well as RAII guards for releasing advisory locks when they fall out
+/// of scope.
+///
+/// This API only handles session-scoped advisory locks (explicitly locked and unlocked, or
+/// automatically released when a connection is closed).
+///
+/// It is also possible to use transaction-scoped locks but those can be used by beginning a
+/// transaction and calling the appropriate lock functions (e.g. `SELECT pg_advisory_xact_lock()`)
+/// manually, and cannot be explicitly released, but are automatically released when a transaction
+/// ends (is committed or rolled back).
+///
+/// Session-level locks can be acquired either inside or outside a transaction and are not
+/// tied to transaction semantics; a lock acquired inside a transaction is still held when that
+/// transaction is committed or rolled back, until explicitly released or the connection is closed.
+///
+/// Locks can be acquired in either shared or exclusive modes, which can be thought of as read locks
+/// and write locks, respectively. Multiple shared locks are allowed for the same key, but a single
+/// exclusive lock prevents any other lock being taken for a given key until it is released.
+///
+/// [Postgres advisory locks]: https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>PgAdvisoryLock {
+    key: PgAdvisoryLockKey,
+    <span class="doccomment">/// The query to execute to release this lock.
+    </span>release_query: OnceCell&lt;String&gt;,
 }
 
-<span class="doccomment">/// A key type natively used by Postgres advisory locks.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Currently, Postgres advisory locks have two different key spaces: one keyed by a single</span>
-<span class="doccomment">/// 64-bit integer, and one keyed by a pair of two 32-bit integers. The Postgres docs</span>
-<span class="doccomment">/// specify that these key spaces &quot;do not overlap&quot;:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The documentation for the `pg_locks` system view explains further how advisory locks</span>
-<span class="doccomment">/// are treated in Postgres:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// https://www.postgresql.org/docs/current/view-pg-locks.html</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PgAdvisoryLockKey</span> {
-    <span class="doccomment">/// The keyspace designated by a single 64-bit integer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When [PgAdvisoryLock] is constructed with [::new()][PgAdvisoryLock::new()],</span>
-    <span class="doccomment">/// this is the keyspace used.</span>
-    <span class="ident">BigInt</span>(<span class="ident">i64</span>),
-    <span class="doccomment">/// The keyspace designated by two 32-bit integers.</span>
-    <span class="ident">IntPair</span>(<span class="ident">i32</span>, <span class="ident">i32</span>),
+<span class="doccomment">/// A key type natively used by Postgres advisory locks.
+///
+/// Currently, Postgres advisory locks have two different key spaces: one keyed by a single
+/// 64-bit integer, and one keyed by a pair of two 32-bit integers. The Postgres docs
+/// specify that these key spaces &quot;do not overlap&quot;:
+///
+/// https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
+///
+/// The documentation for the `pg_locks` system view explains further how advisory locks
+/// are treated in Postgres:
+///
+/// https://www.postgresql.org/docs/current/view-pg-locks.html
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>PgAdvisoryLockKey {
+    <span class="doccomment">/// The keyspace designated by a single 64-bit integer.
+    ///
+    /// When [PgAdvisoryLock] is constructed with [::new()][PgAdvisoryLock::new()],
+    /// this is the keyspace used.
+    </span>BigInt(i64),
+    <span class="doccomment">/// The keyspace designated by two 32-bit integers.
+    </span>IntPair(i32, i32),
 }
 
-<span class="doccomment">/// A wrapper for `PgConnection` (or a similar type) that represents a held Postgres advisory lock.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Can be acquired by [`PgAdvisoryLock::acquire()`] or [`PgAdvisoryLock::try_acquire()`].</span>
-<span class="doccomment">/// Released on-drop or via [`Self::release_now()`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Note: Release-on-drop is not immediate!</span>
-<span class="doccomment">/// On drop, this guard queues a `pg_advisory_unlock()` call on the connection which will be</span>
-<span class="doccomment">/// flushed to the server the next time it is used, or when it is returned to</span>
-<span class="doccomment">/// a [`PgPool`][crate::postgres::PgPool] in the case of</span>
-<span class="doccomment">/// [`PoolConnection&lt;Postgres&gt;`][crate::pool::PoolConnection].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This means the lock is not actually released as soon as the guard is dropped. To ensure the</span>
-<span class="doccomment">/// lock is eagerly released, you can call [`.release_now().await`][Self::release_now()].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgAdvisoryLockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">lock</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lock</span> <span class="ident">PgAdvisoryLock</span>,
-    <span class="ident">conn</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A wrapper for `PgConnection` (or a similar type) that represents a held Postgres advisory lock.
+///
+/// Can be acquired by [`PgAdvisoryLock::acquire()`] or [`PgAdvisoryLock::try_acquire()`].
+/// Released on-drop or via [`Self::release_now()`].
+///
+/// ### Note: Release-on-drop is not immediate!
+/// On drop, this guard queues a `pg_advisory_unlock()` call on the connection which will be
+/// flushed to the server the next time it is used, or when it is returned to
+/// a [`PgPool`][crate::postgres::PgPool] in the case of
+/// [`PoolConnection&lt;Postgres&gt;`][crate::pool::PoolConnection].
+///
+/// This means the lock is not actually released as soon as the guard is dropped. To ensure the
+/// lock is eagerly released, you can call [`.release_now().await`][Self::release_now()].
+</span><span class="kw">pub struct </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt;&gt; {
+    lock: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lock </span>PgAdvisoryLock,
+    conn: <span class="prelude-ty">Option</span>&lt;C&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">PgAdvisoryLock</span> {
-    <span class="doccomment">/// Construct a `PgAdvisoryLock` using the given string as a key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is intended to make it easier to use an advisory lock by using a human-readable string</span>
-    <span class="doccomment">/// for a key as opposed to manually generating a unique integer key. The generated integer key</span>
-    <span class="doccomment">/// is guaranteed to be stable and in the single 64-bit integer keyspace</span>
-    <span class="doccomment">/// (see [`PgAdvisoryLockKey`] for details).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is done by applying the [Hash-based Key Derivation Function (HKDF; IETF RFC 5869)][hkdf]</span>
-    <span class="doccomment">/// to the bytes of the input string, but in a way that the calculated integer is unlikely</span>
-    <span class="doccomment">/// to collide with any similar implementations (although we don&#39;t currently know of any).</span>
-    <span class="doccomment">/// See the source of this method for details.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [hkdf]: https://datatracker.ietf.org/doc/html/rfc5869</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # extern crate sqlx_core as sqlx;</span>
-    <span class="doccomment">/// use sqlx::postgres::{PgAdvisoryLock, PgAdvisoryLockKey};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let lock = PgAdvisoryLock::new(&quot;my first Postgres advisory lock!&quot;);</span>
-    <span class="doccomment">/// // Negative values are fine because of how Postgres treats advisory lock keys.</span>
-    <span class="doccomment">/// // See the documentation for the `pg_locks` system view for details.</span>
-    <span class="doccomment">/// assert_eq!(lock.key(), &amp;PgAdvisoryLockKey::BigInt(-5560419505042474287));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">key_string</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">input_key_material</span> <span class="op">=</span> <span class="ident">key_string</span>.<span class="ident">as_ref</span>();
+<span class="kw">impl </span>PgAdvisoryLock {
+    <span class="doccomment">/// Construct a `PgAdvisoryLock` using the given string as a key.
+    ///
+    /// This is intended to make it easier to use an advisory lock by using a human-readable string
+    /// for a key as opposed to manually generating a unique integer key. The generated integer key
+    /// is guaranteed to be stable and in the single 64-bit integer keyspace
+    /// (see [`PgAdvisoryLockKey`] for details).
+    ///
+    /// This is done by applying the [Hash-based Key Derivation Function (HKDF; IETF RFC 5869)][hkdf]
+    /// to the bytes of the input string, but in a way that the calculated integer is unlikely
+    /// to collide with any similar implementations (although we don&#39;t currently know of any).
+    /// See the source of this method for details.
+    ///
+    /// [hkdf]: https://datatracker.ietf.org/doc/html/rfc5869
+    /// ### Example
+    /// ```rust
+    /// # extern crate sqlx_core as sqlx;
+    /// use sqlx::postgres::{PgAdvisoryLock, PgAdvisoryLockKey};
+    ///
+    /// let lock = PgAdvisoryLock::new(&quot;my first Postgres advisory lock!&quot;);
+    /// // Negative values are fine because of how Postgres treats advisory lock keys.
+    /// // See the documentation for the `pg_locks` system view for details.
+    /// assert_eq!(lock.key(), &amp;PgAdvisoryLockKey::BigInt(-5560419505042474287));
+    /// ```
+    </span><span class="kw">pub fn </span>new(key_string: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>input_key_material = key_string.as_ref();
 
-        <span class="comment">// HKDF was chosen because it is designed to concentrate the entropy in a variable-length</span>
-        <span class="comment">// input key and produce a higher quality but reduced-length output key with a</span>
-        <span class="comment">// well-specified and reproducible algorithm.</span>
-        <span class="comment">//</span>
-        <span class="comment">// Granted, the input key is usually meant to be pseudorandom and not human readable,</span>
-        <span class="comment">// but we&#39;re not trying to produce an unguessable value by any means; just one that&#39;s as</span>
-        <span class="comment">// unlikely to already be in use as possible, but still deterministic.</span>
-        <span class="comment">//</span>
-        <span class="comment">// SHA-256 was chosen as the hash function because it&#39;s already used in the Postgres driver,</span>
-        <span class="comment">// which should save on codegen and optimization.</span>
+        <span class="comment">// HKDF was chosen because it is designed to concentrate the entropy in a variable-length
+        // input key and produce a higher quality but reduced-length output key with a
+        // well-specified and reproducible algorithm.
+        //
+        // Granted, the input key is usually meant to be pseudorandom and not human readable,
+        // but we&#39;re not trying to produce an unguessable value by any means; just one that&#39;s as
+        // unlikely to already be in use as possible, but still deterministic.
+        //
+        // SHA-256 was chosen as the hash function because it&#39;s already used in the Postgres driver,
+        // which should save on codegen and optimization.
 
-        <span class="comment">// We don&#39;t supply a salt as that is intended to be random, but we want a deterministic key.</span>
-        <span class="kw">let</span> <span class="ident">hkdf</span> <span class="op">=</span> <span class="ident">Hkdf</span>::<span class="op">&lt;</span><span class="ident">Sha256</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="prelude-val">None</span>, <span class="ident">input_key_material</span>.<span class="ident">as_bytes</span>());
+        // We don&#39;t supply a salt as that is intended to be random, but we want a deterministic key.
+        </span><span class="kw">let </span>hkdf = Hkdf::&lt;Sha256&gt;::new(<span class="prelude-val">None</span>, input_key_material.as_bytes());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_key_material</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">8</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>output_key_material = [<span class="number">0u8</span>; <span class="number">8</span>];
 
-        <span class="comment">// The first string is the &quot;info&quot; string of the HKDF which is intended to tie the output</span>
-        <span class="comment">// exclusively to SQLx. This should avoid collisions with implementations using a similar</span>
-        <span class="comment">// strategy. If you _want_ this to match some other implementation then you should get</span>
-        <span class="comment">// the calculated integer key from it and use that directly.</span>
-        <span class="comment">//</span>
-        <span class="comment">// Do *not* change this string as it will affect the output!</span>
-        <span class="ident">hkdf</span>.<span class="ident">expand</span>(
+        <span class="comment">// The first string is the &quot;info&quot; string of the HKDF which is intended to tie the output
+        // exclusively to SQLx. This should avoid collisions with implementations using a similar
+        // strategy. If you _want_ this to match some other implementation then you should get
+        // the calculated integer key from it and use that directly.
+        //
+        // Do *not* change this string as it will affect the output!
+        </span>hkdf.expand(
             <span class="string">b&quot;SQLx (Rust) Postgres advisory lock&quot;</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">output_key_material</span>,
+            <span class="kw-2">&amp;mut </span>output_key_material,
         )
-        <span class="comment">// `Hkdf::expand()` only returns an error if you ask for more than 255 times the digest size.</span>
-        <span class="comment">// This is specified by RFC 5869 but not elaborated upon:</span>
-        <span class="comment">// https://datatracker.ietf.org/doc/html/rfc5869#section-2.3</span>
-        <span class="comment">// Since we&#39;re only asking for 8 bytes, this error shouldn&#39;t be returned.</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;BUG: `output_key_material` should be of acceptable length&quot;</span>);
+        <span class="comment">// `Hkdf::expand()` only returns an error if you ask for more than 255 times the digest size.
+        // This is specified by RFC 5869 but not elaborated upon:
+        // https://datatracker.ietf.org/doc/html/rfc5869#section-2.3
+        // Since we&#39;re only asking for 8 bytes, this error shouldn&#39;t be returned.
+        </span>.expect(<span class="string">&quot;BUG: `output_key_material` should be of acceptable length&quot;</span>);
 
-        <span class="comment">// For ease of use, this method assumes the user doesn&#39;t care which keyspace is used.</span>
-        <span class="comment">//</span>
-        <span class="comment">// It doesn&#39;t seem likely that someone would care about using the `(int, int)` keyspace</span>
-        <span class="comment">// specifically unless they already had keys to use, in which case they wouldn&#39;t</span>
-        <span class="comment">// care about this method. That&#39;s why we also provide `with_key()`.</span>
-        <span class="comment">//</span>
-        <span class="comment">// The choice of `from_le_bytes()` is mostly due to x86 being the most popular</span>
-        <span class="comment">// architecture for server software, so it should be a no-op there.</span>
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">PgAdvisoryLockKey::BigInt</span>(<span class="ident">i64::from_le_bytes</span>(<span class="ident">output_key_material</span>));
+        <span class="comment">// For ease of use, this method assumes the user doesn&#39;t care which keyspace is used.
+        //
+        // It doesn&#39;t seem likely that someone would care about using the `(int, int)` keyspace
+        // specifically unless they already had keys to use, in which case they wouldn&#39;t
+        // care about this method. That&#39;s why we also provide `with_key()`.
+        //
+        // The choice of `from_le_bytes()` is mostly due to x86 being the most popular
+        // architecture for server software, so it should be a no-op there.
+        </span><span class="kw">let </span>key = PgAdvisoryLockKey::BigInt(i64::from_le_bytes(output_key_material));
 
         <span class="macro">log::trace!</span>(
             <span class="string">&quot;generated {:?} from key string {:?}&quot;</span>,
-            <span class="ident">key</span>,
-            <span class="ident">input_key_material</span>
+            key,
+            input_key_material
         );
 
-        <span class="ident"><span class="self">Self</span>::with_key</span>(<span class="ident">key</span>)
+        <span class="self">Self</span>::with_key(key)
     }
 
-    <span class="doccomment">/// Construct a `PgAdvisoryLock` with a manually supplied key.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_key</span>(<span class="ident">key</span>: <span class="ident">PgAdvisoryLockKey</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">key</span>,
-            <span class="ident">release_query</span>: <span class="ident">OnceCell::new</span>(),
+    <span class="doccomment">/// Construct a `PgAdvisoryLock` with a manually supplied key.
+    </span><span class="kw">pub fn </span>with_key(key: PgAdvisoryLockKey) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            key,
+            release_query: OnceCell::new(),
         }
     }
 
-    <span class="doccomment">/// Returns the current key.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PgAdvisoryLockKey</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span>
+    <span class="doccomment">/// Returns the current key.
+    </span><span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PgAdvisoryLockKey {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.key
     }
 
-    <span class="comment">// Why doesn&#39;t this use `Acquire`? Well, I tried it and got really useless errors</span>
-    <span class="comment">// about &quot;cannot project lifetimes to parent scope&quot;.</span>
-    <span class="comment">//</span>
-    <span class="comment">// It has something to do with how lifetimes work on the `Acquire` trait, I couldn&#39;t</span>
-    <span class="comment">// be bothered to figure it out. Probably another issue with a lack of `async fn` in traits</span>
-    <span class="comment">// or lazy normalization.</span>
+    <span class="comment">// Why doesn&#39;t this use `Acquire`? Well, I tried it and got really useless errors
+    // about &quot;cannot project lifetimes to parent scope&quot;.
+    //
+    // It has something to do with how lifetimes work on the `Acquire` trait, I couldn&#39;t
+    // be bothered to figure it out. Probably another issue with a lack of `async fn` in traits
+    // or lazy normalization.
 
-    <span class="doccomment">/// Acquires an exclusive lock using `pg_advisory_lock()`, waiting until the lock is acquired.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For a version that returns immediately instead of waiting, see [`Self::try_acquire()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A connection-like type is required to execute the call. Allowed types include `PgConnection`,</span>
-    <span class="doccomment">/// `PoolConnection&lt;Postgres&gt;` and `Transaction&lt;Postgres&gt;`, as well as mutable references to</span>
-    <span class="doccomment">/// any of these.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned guard queues a `pg_advisory_unlock()` call on the connection when dropped,</span>
-    <span class="doccomment">/// which will be executed the next time the connection is used, or when returned to a</span>
-    <span class="doccomment">/// [`PgPool`][crate::postgres::PgPool] in the case of `PoolConnection&lt;Postgres&gt;`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Postgres allows a single connection to acquire a given lock more than once without releasing</span>
-    <span class="doccomment">/// it first, so in that sense the lock is re-entrant. However, the number of unlock operations</span>
-    <span class="doccomment">/// must match the number of lock operations for the lock to actually be released.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [Postgres&#39; documentation for the Advisory Lock Functions][advisory-funcs] for details.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [advisory-funcs]: https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">acquire</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    </span><span class="doccomment">/// Acquires an exclusive lock using `pg_advisory_lock()`, waiting until the lock is acquired.
+    ///
+    /// For a version that returns immediately instead of waiting, see [`Self::try_acquire()`].
+    ///
+    /// A connection-like type is required to execute the call. Allowed types include `PgConnection`,
+    /// `PoolConnection&lt;Postgres&gt;` and `Transaction&lt;Postgres&gt;`, as well as mutable references to
+    /// any of these.
+    ///
+    /// The returned guard queues a `pg_advisory_unlock()` call on the connection when dropped,
+    /// which will be executed the next time the connection is used, or when returned to a
+    /// [`PgPool`][crate::postgres::PgPool] in the case of `PoolConnection&lt;Postgres&gt;`.
+    ///
+    /// Postgres allows a single connection to acquire a given lock more than once without releasing
+    /// it first, so in that sense the lock is re-entrant. However, the number of unlock operations
+    /// must match the number of lock operations for the lock to actually be released.
+    ///
+    /// See [Postgres&#39; documentation for the Advisory Lock Functions][advisory-funcs] for details.
+    ///
+    /// [advisory-funcs]: https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
+    </span><span class="kw">pub async fn </span>acquire&lt;C: AsMut&lt;PgConnection&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="kw-2">mut</span> <span class="ident">conn</span>: <span class="ident">C</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgAdvisoryLockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">C</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span> {
-            <span class="ident">PgAdvisoryLockKey::BigInt</span>(<span class="ident">key</span>) =&gt; {
-                <span class="ident"><span class="kw">crate</span>::query::query</span>(<span class="string">&quot;SELECT pg_advisory_lock($1)&quot;</span>)
-                    .<span class="ident">bind</span>(<span class="ident">key</span>)
-                    .<span class="ident">execute</span>(<span class="ident">conn</span>.<span class="ident">as_mut</span>())
+        <span class="kw-2">mut </span>conn: C,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;_</span>, C&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.key {
+            PgAdvisoryLockKey::BigInt(key) =&gt; {
+                <span class="kw">crate</span>::query::query(<span class="string">&quot;SELECT pg_advisory_lock($1)&quot;</span>)
+                    .bind(key)
+                    .execute(conn.as_mut())
                     .<span class="kw">await</span><span class="question-mark">?</span>;
             }
-            <span class="ident">PgAdvisoryLockKey::IntPair</span>(<span class="ident">key1</span>, <span class="ident">key2</span>) =&gt; {
-                <span class="ident"><span class="kw">crate</span>::query::query</span>(<span class="string">&quot;SELECT pg_advisory_lock($1, $2)&quot;</span>)
-                    .<span class="ident">bind</span>(<span class="ident">key1</span>)
-                    .<span class="ident">bind</span>(<span class="ident">key2</span>)
-                    .<span class="ident">execute</span>(<span class="ident">conn</span>.<span class="ident">as_mut</span>())
+            PgAdvisoryLockKey::IntPair(key1, key2) =&gt; {
+                <span class="kw">crate</span>::query::query(<span class="string">&quot;SELECT pg_advisory_lock($1, $2)&quot;</span>)
+                    .bind(key1)
+                    .bind(key2)
+                    .execute(conn.as_mut())
                     .<span class="kw">await</span><span class="question-mark">?</span>;
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">PgAdvisoryLockGuard::new</span>(<span class="self">self</span>, <span class="ident">conn</span>))
+        <span class="prelude-val">Ok</span>(PgAdvisoryLockGuard::new(<span class="self">self</span>, conn))
     }
 
-    <span class="doccomment">/// Acquires an exclusive lock using `pg_try_advisory_lock()`, returning immediately</span>
-    <span class="doccomment">/// if the lock could not be acquired.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For a version that waits until the lock is acquired, see [`Self::acquire()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A connection-like type is required to execute the call. Allowed types include `PgConnection`,</span>
-    <span class="doccomment">/// `PoolConnection&lt;Postgres&gt;` and `Transaction&lt;Postgres&gt;`, as well as mutable references to</span>
-    <span class="doccomment">/// any of these. The connection is returned if the lock could not be acquired.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned guard queues a `pg_advisory_unlock()` call on the connection when dropped,</span>
-    <span class="doccomment">/// which will be executed the next time the connection is used, or when returned to a</span>
-    <span class="doccomment">/// [`PgPool`][crate::postgres::PgPool] in the case of `PoolConnection&lt;Postgres&gt;`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Postgres allows a single connection to acquire a given lock more than once without releasing</span>
-    <span class="doccomment">/// it first, so in that sense the lock is re-entrant. However, the number of unlock operations</span>
-    <span class="doccomment">/// must match the number of lock operations for the lock to actually be released.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [Postgres&#39; documentation for the Advisory Lock Functions][advisory-funcs] for details.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [advisory-funcs]: https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_acquire</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Acquires an exclusive lock using `pg_try_advisory_lock()`, returning immediately
+    /// if the lock could not be acquired.
+    ///
+    /// For a version that waits until the lock is acquired, see [`Self::acquire()`].
+    ///
+    /// A connection-like type is required to execute the call. Allowed types include `PgConnection`,
+    /// `PoolConnection&lt;Postgres&gt;` and `Transaction&lt;Postgres&gt;`, as well as mutable references to
+    /// any of these. The connection is returned if the lock could not be acquired.
+    ///
+    /// The returned guard queues a `pg_advisory_unlock()` call on the connection when dropped,
+    /// which will be executed the next time the connection is used, or when returned to a
+    /// [`PgPool`][crate::postgres::PgPool] in the case of `PoolConnection&lt;Postgres&gt;`.
+    ///
+    /// Postgres allows a single connection to acquire a given lock more than once without releasing
+    /// it first, so in that sense the lock is re-entrant. However, the number of unlock operations
+    /// must match the number of lock operations for the lock to actually be released.
+    ///
+    /// See [Postgres&#39; documentation for the Advisory Lock Functions][advisory-funcs] for details.
+    ///
+    /// [advisory-funcs]: https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
+    </span><span class="kw">pub async fn </span>try_acquire&lt;C: AsMut&lt;PgConnection&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="kw-2">mut</span> <span class="ident">conn</span>: <span class="ident">C</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">PgAdvisoryLockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">locked</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span> {
-            <span class="ident">PgAdvisoryLockKey::BigInt</span>(<span class="ident">key</span>) =&gt; {
-                <span class="ident"><span class="kw">crate</span>::query_scalar::query_scalar</span>(<span class="string">&quot;SELECT pg_try_advisory_lock($1)&quot;</span>)
-                    .<span class="ident">bind</span>(<span class="ident">key</span>)
-                    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>.<span class="ident">as_mut</span>())
-                    .<span class="kw">await</span><span class="question-mark">?</span>
-            }
-            <span class="ident">PgAdvisoryLockKey::IntPair</span>(<span class="ident">key1</span>, <span class="ident">key2</span>) =&gt; {
-                <span class="ident"><span class="kw">crate</span>::query_scalar::query_scalar</span>(<span class="string">&quot;SELECT pg_try_advisory_lock($1, $2)&quot;</span>)
-                    .<span class="ident">bind</span>(<span class="ident">key1</span>)
-                    .<span class="ident">bind</span>(<span class="ident">key2</span>)
-                    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>.<span class="ident">as_mut</span>())
-                    .<span class="kw">await</span><span class="question-mark">?</span>
-            }
+        <span class="kw-2">mut </span>conn: C,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Either&lt;PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;_</span>, C&gt;, C&gt;&gt; {
+        <span class="kw">let </span>locked: bool = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.key {
+            PgAdvisoryLockKey::BigInt(key) =&gt; {
+                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">&quot;SELECT pg_try_advisory_lock($1)&quot;</span>)
+                    .bind(key)
+                    .fetch_one(conn.as_mut())
+                    .<span class="kw">await</span><span class="question-mark">?
+            </span>}
+            PgAdvisoryLockKey::IntPair(key1, key2) =&gt; {
+                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">&quot;SELECT pg_try_advisory_lock($1, $2)&quot;</span>)
+                    .bind(key1)
+                    .bind(key2)
+                    .fetch_one(conn.as_mut())
+                    .<span class="kw">await</span><span class="question-mark">?
+            </span>}
         };
 
-        <span class="kw">if</span> <span class="ident">locked</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Either::Left</span>(<span class="ident">PgAdvisoryLockGuard::new</span>(<span class="self">self</span>, <span class="ident">conn</span>)))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Either::Right</span>(<span class="ident">conn</span>))
+        <span class="kw">if </span>locked {
+            <span class="prelude-val">Ok</span>(Either::Left(PgAdvisoryLockGuard::new(<span class="self">self</span>, conn)))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(Either::Right(conn))
         }
     }
 
-    <span class="doccomment">/// Execute `pg_advisory_unlock()` for this lock&#39;s key on the given connection.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is used by [`PgAdvisoryLockGuard::release_now()`] and is also provided for manually</span>
-    <span class="doccomment">/// releasing the lock from connections returned by [`PgAdvisoryLockGuard::leak()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// An error should only be returned if there is something wrong with the connection,</span>
-    <span class="doccomment">/// in which case the lock will be automatically released by the connection closing anyway.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `boolean` value is that returned by `pg_advisory_lock()`. If it is `false`, it</span>
-    <span class="doccomment">/// indicates that the lock was not actually held by the given connection and that a warning</span>
-    <span class="doccomment">/// has been logged by the Postgres server.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">force_release</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">conn</span>: <span class="ident">C</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">C</span>, <span class="ident">bool</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">released</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span> {
-            <span class="ident">PgAdvisoryLockKey::BigInt</span>(<span class="ident">key</span>) =&gt; {
-                <span class="ident"><span class="kw">crate</span>::query_scalar::query_scalar</span>(<span class="string">&quot;SELECT pg_advisory_unlock($1)&quot;</span>)
-                    .<span class="ident">bind</span>(<span class="ident">key</span>)
-                    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>.<span class="ident">as_mut</span>())
-                    .<span class="kw">await</span><span class="question-mark">?</span>
-            }
-            <span class="ident">PgAdvisoryLockKey::IntPair</span>(<span class="ident">key1</span>, <span class="ident">key2</span>) =&gt; {
-                <span class="ident"><span class="kw">crate</span>::query_scalar::query_scalar</span>(<span class="string">&quot;SELECT pg_advisory_unlock($1, $2)&quot;</span>)
-                    .<span class="ident">bind</span>(<span class="ident">key1</span>)
-                    .<span class="ident">bind</span>(<span class="ident">key2</span>)
-                    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>.<span class="ident">as_mut</span>())
-                    .<span class="kw">await</span><span class="question-mark">?</span>
-            }
+    <span class="doccomment">/// Execute `pg_advisory_unlock()` for this lock&#39;s key on the given connection.
+    ///
+    /// This is used by [`PgAdvisoryLockGuard::release_now()`] and is also provided for manually
+    /// releasing the lock from connections returned by [`PgAdvisoryLockGuard::leak()`].
+    ///
+    /// An error should only be returned if there is something wrong with the connection,
+    /// in which case the lock will be automatically released by the connection closing anyway.
+    ///
+    /// The `boolean` value is that returned by `pg_advisory_lock()`. If it is `false`, it
+    /// indicates that the lock was not actually held by the given connection and that a warning
+    /// has been logged by the Postgres server.
+    </span><span class="kw">pub async fn </span>force_release&lt;C: AsMut&lt;PgConnection&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>conn: C) -&gt; <span class="prelude-ty">Result</span>&lt;(C, bool)&gt; {
+        <span class="kw">let </span>released: bool = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.key {
+            PgAdvisoryLockKey::BigInt(key) =&gt; {
+                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">&quot;SELECT pg_advisory_unlock($1)&quot;</span>)
+                    .bind(key)
+                    .fetch_one(conn.as_mut())
+                    .<span class="kw">await</span><span class="question-mark">?
+            </span>}
+            PgAdvisoryLockKey::IntPair(key1, key2) =&gt; {
+                <span class="kw">crate</span>::query_scalar::query_scalar(<span class="string">&quot;SELECT pg_advisory_unlock($1, $2)&quot;</span>)
+                    .bind(key1)
+                    .bind(key2)
+                    .fetch_one(conn.as_mut())
+                    .<span class="kw">await</span><span class="question-mark">?
+            </span>}
         };
 
-        <span class="prelude-val">Ok</span>((<span class="ident">conn</span>, <span class="ident">released</span>))
+        <span class="prelude-val">Ok</span>((conn, released))
     }
 
-    <span class="kw">fn</span> <span class="ident">get_release_query</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="self">self</span>.<span class="ident">release_query</span>.<span class="ident">get_or_init</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span> {
-            <span class="ident">PgAdvisoryLockKey::BigInt</span>(<span class="ident">key</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;SELECT pg_advisory_unlock({})&quot;</span>, <span class="ident">key</span>),
-            <span class="ident">PgAdvisoryLockKey::IntPair</span>(<span class="ident">key1</span>, <span class="ident">key2</span>) =&gt; {
-                <span class="macro">format!</span>(<span class="string">&quot;SELECT pg_advisory_unlock({}, {})&quot;</span>, <span class="ident">key1</span>, <span class="ident">key2</span>)
+    <span class="kw">fn </span>get_release_query(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="self">self</span>.release_query.get_or_init(|| <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.key {
+            PgAdvisoryLockKey::BigInt(key) =&gt; <span class="macro">format!</span>(<span class="string">&quot;SELECT pg_advisory_unlock({})&quot;</span>, key),
+            PgAdvisoryLockKey::IntPair(key1, key2) =&gt; {
+                <span class="macro">format!</span>(<span class="string">&quot;SELECT pg_advisory_unlock({}, {})&quot;</span>, key1, key2)
             }
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PgAdvisoryLockKey</span> {
-    <span class="doccomment">/// Converts `Self::Bigint(bigint)` to `Some(bigint)` and all else to `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bigint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident"><span class="self">Self</span>::BigInt</span>(<span class="ident">bigint</span>) <span class="op">=</span> <span class="self">self</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">bigint</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+<span class="kw">impl </span>PgAdvisoryLockKey {
+    <span class="doccomment">/// Converts `Self::Bigint(bigint)` to `Some(bigint)` and all else to `None`.
+    </span><span class="kw">pub fn </span>as_bigint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
+        <span class="kw">if let </span><span class="self">Self</span>::BigInt(bigint) = <span class="self">self </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">*</span>bigint)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 }
 
-<span class="kw">const</span> <span class="ident">NONE_ERR</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;BUG: PgAdvisoryLockGuard.conn taken&quot;</span>;
+<span class="kw">const </span>NONE_ERR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;BUG: PgAdvisoryLockGuard.conn taken&quot;</span>;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PgAdvisoryLockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">lock</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lock</span> <span class="ident">PgAdvisoryLock</span>, <span class="ident">conn</span>: <span class="ident">C</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">PgAdvisoryLockGuard</span> {
-            <span class="ident">lock</span>,
-            <span class="ident">conn</span>: <span class="prelude-val">Some</span>(<span class="ident">conn</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt;&gt; PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt; {
+    <span class="kw">fn </span>new(lock: <span class="kw-2">&amp;</span><span class="lifetime">&#39;lock </span>PgAdvisoryLock, conn: C) -&gt; <span class="self">Self </span>{
+        PgAdvisoryLockGuard {
+            lock,
+            conn: <span class="prelude-val">Some</span>(conn),
         }
     }
 
-    <span class="doccomment">/// Immediately release the held advisory lock instead of when the connection is next used.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// An error should only be returned if there is something wrong with the connection,</span>
-    <span class="doccomment">/// in which case the lock will be automatically released by the connection closing anyway.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `pg_advisory_unlock()` returns `false`, a warning will be logged, both by SQLx as</span>
-    <span class="doccomment">/// well as the Postgres server. This would only happen if the lock was released without</span>
-    <span class="doccomment">/// using this guard, or the connection was swapped using [`std::mem::replace()`].</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">release_now</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">conn</span>, <span class="ident">released</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">lock</span>
-            .<span class="ident">force_release</span>(<span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="ident">NONE_ERR</span>))
+    <span class="doccomment">/// Immediately release the held advisory lock instead of when the connection is next used.
+    ///
+    /// An error should only be returned if there is something wrong with the connection,
+    /// in which case the lock will be automatically released by the connection closing anyway.
+    ///
+    /// If `pg_advisory_unlock()` returns `false`, a warning will be logged, both by SQLx as
+    /// well as the Postgres server. This would only happen if the lock was released without
+    /// using this guard, or the connection was swapped using [`std::mem::replace()`].
+    </span><span class="kw">pub async fn </span>release_now(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;C&gt; {
+        <span class="kw">let </span>(conn, released) = <span class="self">self
+            </span>.lock
+            .force_release(<span class="self">self</span>.conn.take().expect(NONE_ERR))
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">released</span> {
+        <span class="kw">if </span>!released {
             <span class="macro">log::warn!</span>(
                 <span class="string">&quot;PgAdvisoryLockGuard: advisory lock {:?} was not held by the contained connection&quot;</span>,
-                <span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">key</span>
+                <span class="self">self</span>.lock.key
             );
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">conn</span>)
+        <span class="prelude-val">Ok</span>(conn)
     }
 
-    <span class="doccomment">/// Cancel the release of the advisory lock, keeping it held until the connection is closed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To manually release the lock later, see [`PgAdvisoryLock::force_release()`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">leak</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">C</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="ident">NONE_ERR</span>)
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">PgAdvisoryLockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">PgConnection</span>;
-
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">as_ref</span>().<span class="ident">expect</span>(<span class="ident">NONE_ERR</span>).<span class="ident">as_ref</span>()
+    <span class="doccomment">/// Cancel the release of the advisory lock, keeping it held until the connection is closed.
+    ///
+    /// To manually release the lock later, see [`PgAdvisoryLock::force_release()`].
+    </span><span class="kw">pub fn </span>leak(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; C {
+        <span class="self">self</span>.conn.take().expect(NONE_ERR)
     }
 }
 
-<span class="doccomment">/// Mutable access to the underlying connection is provided so it can still be used like normal,</span>
-<span class="doccomment">/// even allowing locks to be taken recursively.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// However, replacing the connection with a different one using, e.g. [`std::mem::replace()`]</span>
-<span class="doccomment">/// is a logic error and will cause a warning to be logged by the PostgreSQL server when this</span>
-<span class="doccomment">/// guard attempts to release the lock.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">DerefMut</span>
-    <span class="kw">for</span> <span class="ident">PgAdvisoryLockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt; + AsRef&lt;PgConnection&gt;&gt; Deref <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt; {
+    <span class="kw">type </span>Target = PgConnection;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.conn.as_ref().expect(NONE_ERR).as_ref()
+    }
+}
+
+<span class="doccomment">/// Mutable access to the underlying connection is provided so it can still be used like normal,
+/// even allowing locks to be taken recursively.
+///
+/// However, replacing the connection with a different one using, e.g. [`std::mem::replace()`]
+/// is a logic error and will cause a warning to be logged by the PostgreSQL server when this
+/// guard attempts to release the lock.
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt; + AsRef&lt;PgConnection&gt;&gt; DerefMut
+    <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt;
 {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">as_mut</span>().<span class="ident">expect</span>(<span class="ident">NONE_ERR</span>).<span class="ident">as_mut</span>()
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.conn.as_mut().expect(NONE_ERR).as_mut()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">PgAdvisoryLockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt; + AsRef&lt;PgConnection&gt;&gt; AsRef&lt;PgConnection&gt;
+    <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt;
 {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PgConnection</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">as_ref</span>().<span class="ident">expect</span>(<span class="ident">NONE_ERR</span>).<span class="ident">as_ref</span>()
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PgConnection {
+        <span class="self">self</span>.conn.as_ref().expect(NONE_ERR).as_ref()
     }
 }
 
-<span class="doccomment">/// Mutable access to the underlying connection is provided so it can still be used like normal,</span>
-<span class="doccomment">/// even allowing locks to be taken recursively.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// However, replacing the connection with a different one using, e.g. [`std::mem::replace()`]</span>
-<span class="doccomment">/// is a logic error and will cause a warning to be logged by the PostgreSQL server when this</span>
-<span class="doccomment">/// guard attempts to release the lock.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgAdvisoryLockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">as_mut</span>().<span class="ident">expect</span>(<span class="ident">NONE_ERR</span>).<span class="ident">as_mut</span>()
+<span class="doccomment">/// Mutable access to the underlying connection is provided so it can still be used like normal,
+/// even allowing locks to be taken recursively.
+///
+/// However, replacing the connection with a different one using, e.g. [`std::mem::replace()`]
+/// is a logic error and will cause a warning to be logged by the PostgreSQL server when this
+/// guard attempts to release the lock.
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt;&gt; AsMut&lt;PgConnection&gt; <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt; {
+    <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>PgConnection {
+        <span class="self">self</span>.conn.as_mut().expect(NONE_ERR).as_mut()
     }
 }
 
-<span class="doccomment">/// Queues a `pg_advisory_unlock()` call on the wrapped connection which will be flushed</span>
-<span class="doccomment">/// to the server the next time it is used, or when it is returned to [`PgPool`][crate::postgres::PgPool]</span>
-<span class="doccomment">/// in the case of [`PoolConnection&lt;Postgres&gt;`][crate::pool::PoolConnection].</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span>: <span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">PgConnection</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">PgAdvisoryLockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;lock</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">conn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">take</span>() {
-            <span class="comment">// Queue a simple query message to execute next time the connection is used.</span>
-            <span class="comment">// The `async fn` versions can safely use the prepared statement protocol,</span>
-            <span class="comment">// but this is the safest way to queue a query to execute on the next opportunity.</span>
-            <span class="ident">conn</span>.<span class="ident">as_mut</span>()
-                .<span class="ident">queue_simple_query</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">get_release_query</span>());
+<span class="doccomment">/// Queues a `pg_advisory_unlock()` call on the wrapped connection which will be flushed
+/// to the server the next time it is used, or when it is returned to [`PgPool`][crate::postgres::PgPool]
+/// in the case of [`PoolConnection&lt;Postgres&gt;`][crate::pool::PoolConnection].
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;lock</span>, C: AsMut&lt;PgConnection&gt;&gt; Drop <span class="kw">for </span>PgAdvisoryLockGuard&lt;<span class="lifetime">&#39;lock</span>, C&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>conn) = <span class="self">self</span>.conn.take() {
+            <span class="comment">// Queue a simple query message to execute next time the connection is used.
+            // The `async fn` versions can safely use the prepared statement protocol,
+            // but this is the safest way to queue a query to execute on the next opportunity.
+            </span>conn.as_mut()
+                .queue_simple_query(<span class="self">self</span>.lock.get_release_query());
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.8.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.8.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../aes/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -161,166 +161,166 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Pure Rust implementation of the [Advanced Encryption Standard][AES]</span>
-<span class="doccomment">//! (AES, a.k.a. Rijndael).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # ⚠️ Security Warning: Hazmat!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This crate implements only the low-level block cipher function, and is intended</span>
-<span class="doccomment">//! for use for implementing higher-level constructions *only*. It is NOT</span>
-<span class="doccomment">//! intended for direct use in applications.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! USE AT YOUR OWN RISK!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Supported backends</span>
-<span class="doccomment">//! This crate provides multiple backends including a portable pure Rust</span>
-<span class="doccomment">//! backend as well as ones based on CPU intrinsics.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! By default, it performs runtime detection of CPU intrinsics and uses them</span>
-<span class="doccomment">//! if they are available.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## &quot;soft&quot; portable backend</span>
-<span class="doccomment">//! As a baseline implementation, this crate provides a constant-time pure Rust</span>
-<span class="doccomment">//! implementation based on [fixslicing], a more advanced form of bitslicing</span>
-<span class="doccomment">//! implemented entirely in terms of bitwise arithmetic with no use of any</span>
-<span class="doccomment">//! lookup tables or data-dependent branches.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Enabling the `compact` Cargo feature will reduce the code size of this</span>
-<span class="doccomment">//! backend at the cost of decreased performance (using a modified form of</span>
-<span class="doccomment">//! the fixslicing technique called &quot;semi-fixslicing&quot;).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## ARMv8 intrinsics (nightly-only)</span>
-<span class="doccomment">//! On `aarch64` targets including `aarch64-apple-darwin` (Apple M1) and Linux</span>
-<span class="doccomment">//! targets such as `aarch64-unknown-linux-gnu` and `aarch64-unknown-linux-musl`,</span>
-<span class="doccomment">//! support for using AES intrinsics provided by the ARMv8 Cryptography Extensions</span>
-<span class="doccomment">//! is available when using the nightly compiler, and can be enabled using the</span>
-<span class="doccomment">//! `armv8` crate feature.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! On Linux and macOS, when the `armv8` feature is enabled support for AES</span>
-<span class="doccomment">//! intrinsics is autodetected at runtime. On other platforms the `aes`</span>
-<span class="doccomment">//! target feature must be enabled via RUSTFLAGS.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## `x86`/`x86_64` intrinsics (AES-NI)</span>
-<span class="doccomment">//! By default this crate uses runtime detection on `i686`/`x86_64` targets</span>
-<span class="doccomment">//! in order to determine if AES-NI is available, and if it is not, it will</span>
-<span class="doccomment">//! fallback to using a constant-time software implementation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Passing `RUSTFLAGS=-Ctarget-feature=+aes,+ssse3` explicitly at compile-time</span>
-<span class="doccomment">//! will override runtime detection and ensure that AES-NI is always used.</span>
-<span class="doccomment">//! Programs built in this manner will crash with an illegal instruction on</span>
-<span class="doccomment">//! CPUs which do not have AES-NI enabled.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Note: runtime detection is not possible on SGX targets. Please use the</span>
-<span class="doccomment">//! afforementioned `RUSTFLAGS` to leverage AES-NI on these targets.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Examples</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use aes::Aes128;</span>
-<span class="doccomment">//! use aes::cipher::{</span>
-<span class="doccomment">//!     BlockCipher, BlockEncrypt, BlockDecrypt, KeyInit,</span>
-<span class="doccomment">//!     generic_array::GenericArray,</span>
-<span class="doccomment">//! };</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let key = GenericArray::from([0u8; 16]);</span>
-<span class="doccomment">//! let mut block = GenericArray::from([42u8; 16]);</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Initialize cipher</span>
-<span class="doccomment">//! let cipher = Aes128::new(&amp;key);</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let block_copy = block.clone();</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Encrypt block in-place</span>
-<span class="doccomment">//! cipher.encrypt_block(&amp;mut block);</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // And decrypt it back</span>
-<span class="doccomment">//! cipher.decrypt_block(&amp;mut block);</span>
-<span class="doccomment">//! assert_eq!(block, block_copy);</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // implementation supports parrallel block processing</span>
-<span class="doccomment">//! // number of blocks processed in parallel depends in general</span>
-<span class="doccomment">//! // on hardware capabilities</span>
-<span class="doccomment">//! let mut blocks = [block; 100];</span>
-<span class="doccomment">//! cipher.encrypt_blocks(&amp;mut blocks);</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! for block in blocks.iter_mut() {</span>
-<span class="doccomment">//!     cipher.decrypt_block(block);</span>
-<span class="doccomment">//!     assert_eq!(block, &amp;block_copy);</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! cipher.decrypt_blocks(&amp;mut blocks);</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! for block in blocks.iter_mut() {</span>
-<span class="doccomment">//!     cipher.encrypt_block(block);</span>
-<span class="doccomment">//!     assert_eq!(block, &amp;block_copy);</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! For implementation of block cipher modes of operation see</span>
-<span class="doccomment">//! [`block-modes`] repository.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Configuration Flags</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! You can modify crate using the following configuration flags:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - `aes_armv8`: enable ARMv8 AES intrinsics (nightly-only).</span>
-<span class="doccomment">//! - `aes_force_soft`: force software implementation.</span>
-<span class="doccomment">//! - `aes_compact`: reduce code size at the cost of slower performance</span>
-<span class="doccomment">//! (affects only software backend).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! It can be enabled using `RUSTFLAGS` enviromental variable</span>
-<span class="doccomment">//! (e.g. `RUSTFLAGS=&quot;--cfg aes_compact&quot;`) or by modifying `.cargo/config`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [AES]: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard</span>
-<span class="doccomment">//! [fixslicing]: https://eprint.iacr.org/2020/1123.pdf</span>
-<span class="doccomment">//! [AES-NI]: https://en.wikipedia.org/wiki/AES_instruction_set</span>
-<span class="doccomment">//! [`block-modes`]: https://github.com/RustCrypto/block-modes/</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Pure Rust implementation of the [Advanced Encryption Standard][AES]
+//! (AES, a.k.a. Rijndael).
+//!
+//! # ⚠️ Security Warning: Hazmat!
+//!
+//! This crate implements only the low-level block cipher function, and is intended
+//! for use for implementing higher-level constructions *only*. It is NOT
+//! intended for direct use in applications.
+//!
+//! USE AT YOUR OWN RISK!
+//!
+//! # Supported backends
+//! This crate provides multiple backends including a portable pure Rust
+//! backend as well as ones based on CPU intrinsics.
+//!
+//! By default, it performs runtime detection of CPU intrinsics and uses them
+//! if they are available.
+//!
+//! ## &quot;soft&quot; portable backend
+//! As a baseline implementation, this crate provides a constant-time pure Rust
+//! implementation based on [fixslicing], a more advanced form of bitslicing
+//! implemented entirely in terms of bitwise arithmetic with no use of any
+//! lookup tables or data-dependent branches.
+//!
+//! Enabling the `compact` Cargo feature will reduce the code size of this
+//! backend at the cost of decreased performance (using a modified form of
+//! the fixslicing technique called &quot;semi-fixslicing&quot;).
+//!
+//! ## ARMv8 intrinsics (nightly-only)
+//! On `aarch64` targets including `aarch64-apple-darwin` (Apple M1) and Linux
+//! targets such as `aarch64-unknown-linux-gnu` and `aarch64-unknown-linux-musl`,
+//! support for using AES intrinsics provided by the ARMv8 Cryptography Extensions
+//! is available when using the nightly compiler, and can be enabled using the
+//! `armv8` crate feature.
+//!
+//! On Linux and macOS, when the `armv8` feature is enabled support for AES
+//! intrinsics is autodetected at runtime. On other platforms the `aes`
+//! target feature must be enabled via RUSTFLAGS.
+//!
+//! ## `x86`/`x86_64` intrinsics (AES-NI)
+//! By default this crate uses runtime detection on `i686`/`x86_64` targets
+//! in order to determine if AES-NI is available, and if it is not, it will
+//! fallback to using a constant-time software implementation.
+//!
+//! Passing `RUSTFLAGS=-Ctarget-feature=+aes,+ssse3` explicitly at compile-time
+//! will override runtime detection and ensure that AES-NI is always used.
+//! Programs built in this manner will crash with an illegal instruction on
+//! CPUs which do not have AES-NI enabled.
+//!
+//! Note: runtime detection is not possible on SGX targets. Please use the
+//! afforementioned `RUSTFLAGS` to leverage AES-NI on these targets.
+//!
+//! # Examples
+//! ```
+//! use aes::Aes128;
+//! use aes::cipher::{
+//!     BlockCipher, BlockEncrypt, BlockDecrypt, KeyInit,
+//!     generic_array::GenericArray,
+//! };
+//!
+//! let key = GenericArray::from([0u8; 16]);
+//! let mut block = GenericArray::from([42u8; 16]);
+//!
+//! // Initialize cipher
+//! let cipher = Aes128::new(&amp;key);
+//!
+//! let block_copy = block.clone();
+//!
+//! // Encrypt block in-place
+//! cipher.encrypt_block(&amp;mut block);
+//!
+//! // And decrypt it back
+//! cipher.decrypt_block(&amp;mut block);
+//! assert_eq!(block, block_copy);
+//!
+//! // implementation supports parrallel block processing
+//! // number of blocks processed in parallel depends in general
+//! // on hardware capabilities
+//! let mut blocks = [block; 100];
+//! cipher.encrypt_blocks(&amp;mut blocks);
+//!
+//! for block in blocks.iter_mut() {
+//!     cipher.decrypt_block(block);
+//!     assert_eq!(block, &amp;block_copy);
+//! }
+//!
+//! cipher.decrypt_blocks(&amp;mut blocks);
+//!
+//! for block in blocks.iter_mut() {
+//!     cipher.encrypt_block(block);
+//!     assert_eq!(block, &amp;block_copy);
+//! }
+//! ```
+//!
+//! For implementation of block cipher modes of operation see
+//! [`block-modes`] repository.
+//!
+//! # Configuration Flags
+//!
+//! You can modify crate using the following configuration flags:
+//!
+//! - `aes_armv8`: enable ARMv8 AES intrinsics (nightly-only).
+//! - `aes_force_soft`: force software implementation.
+//! - `aes_compact`: reduce code size at the cost of slower performance
+//! (affects only software backend).
+//!
+//! It can be enabled using `RUSTFLAGS` enviromental variable
+//! (e.g. `RUSTFLAGS=&quot;--cfg aes_compact&quot;`) or by modifying `.cargo/config`.
+//!
+//! [AES]: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
+//! [fixslicing]: https://eprint.iacr.org/2020/1123.pdf
+//! [AES-NI]: https://en.wikipedia.org/wiki/AES_instruction_set
+//! [`block-modes`]: https://github.com/RustCrypto/block-modes/
 
-<span class="attribute">#![<span class="ident">no_std</span>]</span>
-<span class="attribute">#![<span class="ident">doc</span>(
-    <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg&quot;</span>,
-    <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg&quot;</span>,
-    <span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/aes/0.8.1&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">rust_2018_idioms</span>)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">all</span>(<span class="ident">aes_armv8</span>, <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;aarch64&quot;</span>),
-    <span class="ident">feature</span>(<span class="ident">stdsimd</span>, <span class="ident">aarch64_target_feature</span>)
-)]</span>
+</span><span class="attribute">#![no_std]
+#![doc(
+    html_logo_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg&quot;</span>,
+    html_favicon_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg&quot;</span>,
+    html_root_url = <span class="string">&quot;https://docs.rs/aes/0.8.1&quot;
+</span>)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![warn(missing_docs, rust_2018_idioms)]
+#![cfg_attr(
+    all(aes_armv8, target_arch = <span class="string">&quot;aarch64&quot;</span>),
+    feature(stdsimd, aarch64_target_feature)
+)]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hazmat&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hazmat</span>;
+#[cfg(feature = <span class="string">&quot;hazmat&quot;</span>)]
+</span><span class="kw">pub mod </span>hazmat;
 
-<span class="kw">mod</span> <span class="ident">soft</span>;
+<span class="kw">mod </span>soft;
 
-<span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
+<span class="kw">use </span>cfg_if::cfg_if;
 
-<span class="macro">cfg_if!</span> {
-    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;aarch64&quot;</span>, <span class="ident">aes_armv8</span>, <span class="ident">not</span>(<span class="ident">aes_force_soft</span>)))]</span> {
-        <span class="kw">mod</span> <span class="ident">armv8</span>;
-        <span class="kw">mod</span> <span class="ident">autodetect</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">autodetect</span>::<span class="kw-2">*</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-        <span class="ident">any</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>, <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>),
-        <span class="ident">not</span>(<span class="ident">aes_force_soft</span>)
-    ))]</span> {
-        <span class="kw">mod</span> <span class="ident">autodetect</span>;
-        <span class="kw">mod</span> <span class="ident">ni</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">autodetect</span>::<span class="kw-2">*</span>;
-    } <span class="kw">else</span> {
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">soft</span>::<span class="kw-2">*</span>;
+<span class="macro">cfg_if! </span>{
+    <span class="kw">if </span><span class="attribute">#[cfg(all(target_arch = <span class="string">&quot;aarch64&quot;</span>, aes_armv8, not(aes_force_soft)))] </span>{
+        <span class="kw">mod </span>armv8;
+        <span class="kw">mod </span>autodetect;
+        <span class="kw">pub use </span>autodetect::<span class="kw-2">*</span>;
+    } <span class="kw">else if </span><span class="attribute">#[cfg(all(
+        any(target_arch = <span class="string">&quot;x86&quot;</span>, target_arch = <span class="string">&quot;x86_64&quot;</span>),
+        not(aes_force_soft)
+    ))] </span>{
+        <span class="kw">mod </span>autodetect;
+        <span class="kw">mod </span>ni;
+        <span class="kw">pub use </span>autodetect::<span class="kw-2">*</span>;
+    } <span class="kw">else </span>{
+        <span class="kw">pub use </span>soft::<span class="kw-2">*</span>;
     }
 }
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">cipher</span>;
-<span class="kw">use</span> <span class="ident">cipher</span>::{
-    <span class="ident">consts</span>::{<span class="ident">U16</span>, <span class="ident">U8</span>},
-    <span class="ident">generic_array::GenericArray</span>,
+<span class="kw">pub use </span>cipher;
+<span class="kw">use </span>cipher::{
+    consts::{U16, U8},
+    generic_array::GenericArray,
 };
 
-<span class="doccomment">/// 128-bit AES block</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Block</span> <span class="op">=</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U16</span><span class="op">&gt;</span>;
-<span class="doccomment">/// Eight 128-bit AES blocks</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Block8</span> <span class="op">=</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">Block</span>, <span class="ident">U8</span><span class="op">&gt;</span>;
+<span class="doccomment">/// 128-bit AES block
+</span><span class="kw">pub type </span>Block = GenericArray&lt;u8, U16&gt;;
+<span class="doccomment">/// Eight 128-bit AES blocks
+</span><span class="kw">pub type </span>Block8 = GenericArray&lt;Block, U8&gt;;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="aes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="aes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

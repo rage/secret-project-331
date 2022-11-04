@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_exercise_states.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user_exercise_states.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_exercise_states.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user_exercise_states.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1127,38 +1127,38 @@
 <span id="1127">1127</span>
 <span id="1128">1128</span>
 <span id="1129">1129</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">futures::Stream</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero</span>;
-<span class="kw">use</span> <span class="ident">serde_json::Value</span>;
+<span class="kw">use </span>futures::Stream;
+<span class="kw">use </span>headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
+<span class="kw">use </span>serde_json::Value;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">course_instances</span>,
-    <span class="ident">course_modules</span>::{<span class="self">self</span>, <span class="ident">CourseModule</span>},
-    <span class="ident">courses</span>,
-    <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">user_course_settings</span>,
+<span class="kw">use crate</span>::{
+    course_instances,
+    course_modules::{<span class="self">self</span>, CourseModule},
+    courses,
+    exercises::{ActivityProgress, Exercise, GradingProgress},
+    prelude::<span class="kw-2">*</span>,
+    user_course_settings,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Type</span>)]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;reviewing_stage&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="doccomment">/**
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[sqlx(type_name = <span class="string">&quot;reviewing_stage&quot;</span>, rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="doccomment">/**
 Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
-*/</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ReviewingStage</span> {
+*/
+</span><span class="kw">pub enum </span>ReviewingStage {
     <span class="doccomment">/**
     In this stage the user submits answers to the exercise. If the exercise allows it, the user can answer the exercise multiple times. If the exercise is not in this stage, the user cannot answer the exercise. Most exercises will never leave this stage because other stages are reseverved for situations when we cannot give the user points just based on the automatic gradings.
-    */</span>
-    <span class="ident">NotStarted</span>,
-    <span class="doccomment">/// In this stage the student is instructed to give peer reviews to other students.</span>
-    <span class="ident">PeerReview</span>,
-    <span class="doccomment">/// In this stage the student is instructed to review their own answer.</span>
-    <span class="ident">SelfReview</span>,
-    <span class="doccomment">/// In this stage the student has completed the neccessary peer and self reviews but is waiting for other students to peer review their answer before we can give points for this exercise.</span>
-    <span class="ident">WaitingForPeerReviews</span>,
+    */
+    </span>NotStarted,
+    <span class="doccomment">/// In this stage the student is instructed to give peer reviews to other students.
+    </span>PeerReview,
+    <span class="doccomment">/// In this stage the student is instructed to review their own answer.
+    </span>SelfReview,
+    <span class="doccomment">/// In this stage the student has completed the neccessary peer and self reviews but is waiting for other students to peer review their answer before we can give points for this exercise.
+    </span>WaitingForPeerReviews,
     <span class="doccomment">/**
     In this stage the student has completed everything they need to do, but before we can give points for this exercise, we need a manual grading from the teacher.
 
@@ -1166,8 +1166,8 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
 
     1. The exercise is configured to require all answers to be reviewed by the teacher.
     2. The answer has received poor reviews from the peers, and the exercise has been configured so that the teacher has to double-check whether it is justified to not give full points to the student.
-    */</span>
-    <span class="ident">WaitingForManualGrading</span>,
+    */
+    </span>WaitingForManualGrading,
     <span class="doccomment">/**
     In this stage the the reviews have been completed and the points have been awarded to the student. However, since the answer had to go though the review process, the student may no longer answer the exercise since because
 
@@ -1175,178 +1175,178 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
     2. In case of peer review, a new answer would have to be reviewed by other students again, and that would be unreasonable extra work for others.
 
     If the teacher for some reasoon feels bad for the student and wants to give them a new chance, the answers for this exercise should be reset, the reason should be recorded somewhere in the database, and the value of this column should be set to `NotStarted`. Deleting the whole user_exercise_state may also be wise. However, if we end up doing this for a teacher, we should make sure that the teacher realizes that they should not give an unfair advantage to anyone.
-    */</span>
-    <span class="ident">ReviewedAndLocked</span>,
+    */
+    </span>ReviewedAndLocked,
 }
 
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseState</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-    <span class="kw">pub</span> <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
-    <span class="kw">pub</span> <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
-    <span class="kw">pub</span> <span class="ident">selected_exercise_slide_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+<span class="attribute">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>UserExerciseState {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>exercise_id: Uuid,
+    <span class="kw">pub </span>course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>grading_progress: GradingProgress,
+    <span class="kw">pub </span>activity_progress: ActivityProgress,
+    <span class="kw">pub </span>reviewing_stage: ReviewingStage,
+    <span class="kw">pub </span>selected_exercise_slide_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">UserExerciseState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_course_instance_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">course_instance_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::Generic</span>,
-                <span class="string">&quot;Exercise is not part of a course instance.&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">impl </span>UserExerciseState {
+    <span class="kw">pub fn </span>get_course_instance_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ModelResult&lt;Uuid&gt; {
+        <span class="self">self</span>.course_instance_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                <span class="string">&quot;Exercise is not part of a course instance.&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_selected_exercise_slide_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">selected_exercise_slide_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::Generic</span>,
-                <span class="string">&quot;No exercise slide selected.&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">pub fn </span>get_selected_exercise_slide_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ModelResult&lt;Uuid&gt; {
+        <span class="self">self</span>.selected_exercise_slide_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                <span class="string">&quot;No exercise slide selected.&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseStateUpdate</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
-    <span class="kw">pub</span> <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
-    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>UserExerciseStateUpdate {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>activity_progress: ActivityProgress,
+    <span class="kw">pub </span>reviewing_stage: ReviewingStage,
+    <span class="kw">pub </span>grading_progress: GradingProgress,
 }
 
-<span class="doccomment">/// Either a course instance or exam id.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Exercises can either be part of courses or exams. Many user-related actions need to differentiate</span>
-<span class="doccomment">/// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CourseInstanceOrExamId</span> {
-    <span class="ident">Instance</span>(<span class="ident">Uuid</span>),
-    <span class="ident">Exam</span>(<span class="ident">Uuid</span>),
+<span class="doccomment">/// Either a course instance or exam id.
+///
+/// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
+/// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+</span><span class="kw">pub enum </span>CourseInstanceOrExamId {
+    Instance(Uuid),
+    Exam(Uuid),
 }
 
-<span class="kw">impl</span> <span class="ident">CourseInstanceOrExamId</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_instance_and_exam_ids</span>(
-        <span class="ident">course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-        <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> (<span class="ident">course_instance_id</span>, <span class="ident">exam_id</span>) {
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::Generic</span>,
-                <span class="string">&quot;Expected either course instance or exam id, but neither were provided.&quot;</span>.<span class="ident">into</span>(),
+<span class="kw">impl </span>CourseInstanceOrExamId {
+    <span class="kw">pub fn </span>from_instance_and_exam_ids(
+        course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+        exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    ) -&gt; ModelResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span>(course_instance_id, exam_id) {
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(ModelError::new(
+                ModelErrorType::Generic,
+                <span class="string">&quot;Expected either course instance or exam id, but neither were provided.&quot;</span>.into(),
                 <span class="prelude-val">None</span>,
             )),
-            (<span class="prelude-val">Some</span>(<span class="ident">instance_id</span>), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Instance</span>(<span class="ident">instance_id</span>)),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Exam</span>(<span class="ident">exam_id</span>)),
-            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::Generic</span>,
-                <span class="string">&quot;Expected either course instance or exam id, but both were provided.&quot;</span>.<span class="ident">into</span>(),
+            (<span class="prelude-val">Some</span>(instance_id), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Instance(instance_id)),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(exam_id)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Exam(exam_id)),
+            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(ModelError::new(
+                ModelErrorType::Generic,
+                <span class="string">&quot;Expected either course instance or exam id, but both were provided.&quot;</span>.into(),
                 <span class="prelude-val">None</span>,
             )),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_instance_and_exam_ids</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CourseInstanceOrExamId::Instance</span>(<span class="ident">instance_id</span>) =&gt; (<span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">instance_id</span>), <span class="prelude-val">None</span>),
-            <span class="ident">CourseInstanceOrExamId::Exam</span>(<span class="ident">exam_id</span>) =&gt; (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>)),
+    <span class="kw">pub fn </span>to_instance_and_exam_ids(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="prelude-ty">Option</span>&lt;Uuid&gt;, <span class="prelude-ty">Option</span>&lt;Uuid&gt;) {
+        <span class="kw">match </span><span class="self">self </span>{
+            CourseInstanceOrExamId::Instance(instance_id) =&gt; (<span class="prelude-val">Some</span>(<span class="kw-2">*</span>instance_id), <span class="prelude-val">None</span>),
+            CourseInstanceOrExamId::Exam(exam_id) =&gt; (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span>exam_id)),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CourseInstanceOrExamId</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ModelError</span>;
+<span class="kw">impl </span>TryFrom&lt;UserExerciseState&gt; <span class="kw">for </span>CourseInstanceOrExamId {
+    <span class="kw">type </span>Error = ModelError;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::from_instance_and_exam_ids</span>(
-            <span class="ident">user_exercise_state</span>.<span class="ident">course_instance_id</span>,
-            <span class="ident">user_exercise_state</span>.<span class="ident">exam_id</span>,
+    <span class="kw">fn </span>try_from(user_exercise_state: UserExerciseState) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="self">Self</span>::from_instance_and_exam_ids(
+            user_exercise_state.course_instance_id,
+            user_exercise_state.exam_id,
         )
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserCourseInstanceProgress</span> {
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_module_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">course_module_order_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="ident">f32</span>,
-    <span class="kw">pub</span> <span class="ident">score_required</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">score_maximum</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">total_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">attempted_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">attempted_exercises_required</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>UserCourseInstanceProgress {
+    <span class="kw">pub </span>course_module_id: Uuid,
+    <span class="kw">pub </span>course_module_name: String,
+    <span class="kw">pub </span>course_module_order_number: i32,
+    <span class="kw">pub </span>score_given: f32,
+    <span class="kw">pub </span>score_required: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>score_maximum: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    <span class="kw">pub </span>total_exercises: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    <span class="kw">pub </span>attempted_exercises: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>attempted_exercises_required: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserCourseInstanceChapterExerciseProgress</span> {
-    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="ident">f32</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>UserCourseInstanceChapterExerciseProgress {
+    <span class="kw">pub </span>exercise_id: Uuid,
+    <span class="kw">pub </span>score_given: f32,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DatabaseUserCourseInstanceChapterExerciseProgress</span> {
-    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>DatabaseUserCourseInstanceChapterExerciseProgress {
+    <span class="kw">pub </span>exercise_id: Uuid,
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserChapterMetrics</span> {
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">attempted_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>UserChapterMetrics {
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>attempted_exercises: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserCourseInstanceMetrics</span> {
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">attempted_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>UserCourseInstanceMetrics {
+    <span class="kw">pub </span>course_module_id: Uuid,
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>attempted_exercises: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseInstanceExerciseMetrics</span> {
-    <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">total_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="ident">score_maximum</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+</span><span class="kw">pub struct </span>CourseInstanceExerciseMetrics {
+    course_module_id: Uuid,
+    total_exercises: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    score_maximum: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseUserCounts</span> {
-    <span class="ident">exercise_name</span>: <span class="ident">String</span>,
-    <span class="ident">exercise_order_number</span>: <span class="ident">i32</span>,
-    <span class="ident">page_order_number</span>: <span class="ident">i32</span>,
-    <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">ts</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;number&quot;</span>))]</span>
-    <span class="ident">n_users_attempted</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">ts</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;number&quot;</span>))]</span>
-    <span class="ident">n_users_with_some_points</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">ts</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;number&quot;</span>))]</span>
-    <span class="ident">n_users_with_max_points</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExerciseUserCounts {
+    exercise_name: String,
+    exercise_order_number: i32,
+    page_order_number: i32,
+    chapter_number: i32,
+    exercise_id: Uuid,
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, ts(<span class="kw">type </span>= <span class="string">&quot;number&quot;</span>))]
+    </span>n_users_attempted: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, ts(<span class="kw">type </span>= <span class="string">&quot;number&quot;</span>))]
+    </span>n_users_with_some_points: <span class="prelude-ty">Option</span>&lt;i64&gt;,
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, ts(<span class="kw">type </span>= <span class="string">&quot;number&quot;</span>))]
+    </span>n_users_with_max_points: <span class="prelude-ty">Option</span>&lt;i64&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_instance_metrics</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseInstanceExerciseMetrics</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseInstanceExerciseMetrics</span>,
+<span class="kw">pub async fn </span>get_course_instance_metrics(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;CourseInstanceExerciseMetrics&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseInstanceExerciseMetrics,
         <span class="string">r&quot;
 SELECT chapters.course_module_id,
   COUNT(exercises.id) AS total_exercises,
@@ -1358,33 +1358,33 @@ WHERE exercises.deleted_at IS NULL
   AND course_instances.id = $1
 GROUP BY chapters.course_module_id
         &quot;</span>,
-        <span class="ident">course_instance_id</span>
+        course_instance_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_instance_metrics_indexed_by_module_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CourseInstanceExerciseMetrics</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">get_course_instance_metrics</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">course_module_id</span>, <span class="ident">x</span>))
-        .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+<span class="kw">pub async fn </span>get_course_instance_metrics_indexed_by_module_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, CourseInstanceExerciseMetrics&gt;&gt; {
+    <span class="kw">let </span>res = get_course_instance_metrics(conn, course_instance_id)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.into_iter()
+        .map(|x| (x.course_module_id, x))
+        .collect();
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="doccomment">/// Gets course instance metrics for a single module.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_single_module_course_instance_metrics</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceMetrics</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="doccomment">/// Gets course instance metrics for a single module.
+</span><span class="kw">pub async fn </span>get_single_module_course_instance_metrics(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    course_module_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;UserCourseInstanceMetrics&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
@@ -1397,27 +1397,27 @@ WHERE chapters.course_module_id = $1
   AND ues.user_id = $3
   AND ues.deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">course_module_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>,
+        course_module_id,
+        course_instance_id,
+        user_id,
     )
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">UserCourseInstanceMetrics</span> {
-        <span class="ident">course_module_id</span>,
-        <span class="ident">score_given</span>: <span class="ident">x</span>.<span class="ident">score_given</span>,
-        <span class="ident">attempted_exercises</span>: <span class="ident">x</span>.<span class="ident">attempted_exercises</span>,
+    .map(|x| UserCourseInstanceMetrics {
+        course_module_id,
+        score_given: x.score_given,
+        attempted_exercises: x.attempted_exercises,
     })
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_instance_metrics</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceMetrics</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserCourseInstanceMetrics</span>,
+<span class="kw">pub async fn </span>get_user_course_instance_metrics(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;UserCourseInstanceMetrics&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserCourseInstanceMetrics,
         <span class="string">r&quot;
 SELECT chapters.course_module_id,
   COUNT(ues.exercise_id) AS attempted_exercises,
@@ -1431,35 +1431,35 @@ WHERE ues.course_instance_id = $1
   AND ues.deleted_at IS NULL
 GROUP BY chapters.course_module_id;
         &quot;</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>,
+        course_instance_id,
+        user_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_instance_metrics_indexed_by_module_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">UserCourseInstanceMetrics</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">get_user_course_instance_metrics</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>, <span class="ident">user_id</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">course_module_id</span>, <span class="ident">x</span>))
-        .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+<span class="kw">pub async fn </span>get_user_course_instance_metrics_indexed_by_module_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, UserCourseInstanceMetrics&gt;&gt; {
+    <span class="kw">let </span>res = get_user_course_instance_metrics(conn, course_instance_id, user_id)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.into_iter()
+        .map(|x| (x.course_module_id, x))
+        .collect();
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_instance_chapter_metrics</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserChapterMetrics</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserChapterMetrics</span>,
+<span class="kw">pub async fn </span>get_user_course_instance_chapter_metrics(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    exercise_ids: <span class="kw-2">&amp;</span>[Uuid],
+    user_id: Uuid,
+) -&gt; ModelResult&lt;UserChapterMetrics&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserChapterMetrics,
         <span class="string">r#&quot;
 SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
@@ -1472,83 +1472,83 @@ WHERE ues.exercise_id IN (
   AND ues.user_id = $2
   AND ues.course_instance_id = $3;
                 &quot;#</span>,
-        <span class="kw-2">&amp;</span><span class="ident">exercise_ids</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">course_instance_id</span>
+        <span class="kw-2">&amp;</span>exercise_ids,
+        user_id,
+        course_instance_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_instance_progress</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceProgress</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_metrics</span> <span class="op">=</span>
-        <span class="ident">get_course_instance_metrics_indexed_by_module_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span>
-        <span class="ident">get_user_course_instance_metrics_indexed_by_module_id</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>, <span class="ident">user_id</span>)
+<span class="kw">pub async fn </span>get_user_course_instance_progress(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;UserCourseInstanceProgress&gt;&gt; {
+    <span class="kw">let </span>course_metrics =
+        get_course_instance_metrics_indexed_by_module_id(<span class="kw-2">&amp;mut *</span>conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user_metrics =
+        get_user_course_instance_metrics_indexed_by_module_id(conn, course_instance_id, user_id)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">course_instances::get_course_instance</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">course_id</span>;
-    <span class="kw">let</span> <span class="ident">course_name</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">name</span>;
-    <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="ident">course_modules::get_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">merge_modules_with_metrics</span>(<span class="ident">course_modules</span>, <span class="kw-2">&amp;</span><span class="ident">course_metrics</span>, <span class="kw-2">&amp;</span><span class="ident">user_metrics</span>, <span class="kw-2">&amp;</span><span class="ident">course_name</span>)
+    <span class="kw">let </span>course_id = course_instances::get_course_instance(conn, course_instance_id)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.course_id;
+    <span class="kw">let </span>course_name = courses::get_course(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>.name;
+    <span class="kw">let </span>course_modules = course_modules::get_by_course_id(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    merge_modules_with_metrics(course_modules, <span class="kw-2">&amp;</span>course_metrics, <span class="kw-2">&amp;</span>user_metrics, <span class="kw-2">&amp;</span>course_name)
 }
 
-<span class="kw">fn</span> <span class="ident">merge_modules_with_metrics</span>(
-    <span class="ident">course_modules</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseModule</span><span class="op">&gt;</span>,
-    <span class="ident">course_metrics_by_course_module_id</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CourseInstanceExerciseMetrics</span><span class="op">&gt;</span>,
-    <span class="ident">user_metrics_by_course_module_id</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">UserCourseInstanceMetrics</span><span class="op">&gt;</span>,
-    <span class="ident">default_course_module_name_placeholder</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceProgress</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">course_modules</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">course_module</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">user_metrics</span> <span class="op">=</span> <span class="ident">user_metrics_by_course_module_id</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">course_module</span>.<span class="ident">id</span>);
-            <span class="kw">let</span> <span class="ident">course_metrics</span> <span class="op">=</span> <span class="ident">course_metrics_by_course_module_id</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">course_module</span>.<span class="ident">id</span>);
-            <span class="kw">let</span> <span class="ident">progress</span> <span class="op">=</span> <span class="ident">UserCourseInstanceProgress</span> {
-                <span class="ident">course_module_id</span>: <span class="ident">course_module</span>.<span class="ident">id</span>,
-                <span class="comment">// Only default course module doesn&#39;t have a name.</span>
-                <span class="ident">course_module_name</span>: <span class="ident">course_module</span>
-                    .<span class="ident">name</span>
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default_course_module_name_placeholder</span>.<span class="ident">to_string</span>()),
-                <span class="ident">course_module_order_number</span>: <span class="ident">course_module</span>.<span class="ident">order_number</span>,
-                <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals_with_none_as_zero</span>(
-                    <span class="ident">user_metrics</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">score_given</span>),
+<span class="kw">fn </span>merge_modules_with_metrics(
+    course_modules: Vec&lt;CourseModule&gt;,
+    course_metrics_by_course_module_id: <span class="kw-2">&amp;</span>HashMap&lt;Uuid, CourseInstanceExerciseMetrics&gt;,
+    user_metrics_by_course_module_id: <span class="kw-2">&amp;</span>HashMap&lt;Uuid, UserCourseInstanceMetrics&gt;,
+    default_course_module_name_placeholder: <span class="kw-2">&amp;</span>str,
+) -&gt; ModelResult&lt;Vec&lt;UserCourseInstanceProgress&gt;&gt; {
+    course_modules
+        .into_iter()
+        .map(|course_module| {
+            <span class="kw">let </span>user_metrics = user_metrics_by_course_module_id.get(<span class="kw-2">&amp;</span>course_module.id);
+            <span class="kw">let </span>course_metrics = course_metrics_by_course_module_id.get(<span class="kw-2">&amp;</span>course_module.id);
+            <span class="kw">let </span>progress = UserCourseInstanceProgress {
+                course_module_id: course_module.id,
+                <span class="comment">// Only default course module doesn&#39;t have a name.
+                </span>course_module_name: course_module
+                    .name
+                    .unwrap_or_else(|| default_course_module_name_placeholder.to_string()),
+                course_module_order_number: course_module.order_number,
+                score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
+                    user_metrics.and_then(|x| x.score_given),
                 ),
-                <span class="ident">score_required</span>: <span class="ident">course_module</span>.<span class="ident">automatic_completion_number_of_points_treshold</span>,
-                <span class="ident">score_maximum</span>: <span class="ident">course_metrics</span>
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">score_maximum</span>)
-                    .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
-                    .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
-                <span class="ident">total_exercises</span>: <span class="ident">course_metrics</span>
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">total_exercises</span>)
-                    .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
-                    .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
-                <span class="ident">attempted_exercises</span>: <span class="ident">user_metrics</span>
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">attempted_exercises</span>)
-                    .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
-                    .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
-                <span class="ident">attempted_exercises_required</span>: <span class="ident">course_module</span>
-                    .<span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span>,
+                score_required: course_module.automatic_completion_number_of_points_treshold,
+                score_maximum: course_metrics
+                    .and_then(|x| x.score_maximum)
+                    .map(TryInto::try_into)
+                    .transpose()<span class="question-mark">?</span>,
+                total_exercises: course_metrics
+                    .and_then(|x| x.total_exercises)
+                    .map(TryInto::try_into)
+                    .transpose()<span class="question-mark">?</span>,
+                attempted_exercises: user_metrics
+                    .and_then(|x| x.attempted_exercises)
+                    .map(TryInto::try_into)
+                    .transpose()<span class="question-mark">?</span>,
+                attempted_exercises_required: course_module
+                    .automatic_completion_number_of_exercises_attempted_treshold,
             };
-            <span class="prelude-val">Ok</span>(<span class="ident">progress</span>)
+            <span class="prelude-val">Ok</span>(progress)
         })
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">ModelResult</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+        .collect::&lt;ModelResult&lt;<span class="kw">_</span>&gt;&gt;()
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_instance_chapter_exercises_progress</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseUserCourseInstanceChapterExerciseProgress</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">DatabaseUserCourseInstanceChapterExerciseProgress</span>,
+<span class="kw">pub async fn </span>get_user_course_instance_chapter_exercises_progress(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    exercise_ids: <span class="kw-2">&amp;</span>[Uuid],
+    user_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;DatabaseUserCourseInstanceChapterExerciseProgress&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        DatabaseUserCourseInstanceChapterExerciseProgress,
         <span class="string">r#&quot;
 SELECT COALESCE(ues.score_given, 0) AS score_given,
   ues.exercise_id AS exercise_id
@@ -1560,24 +1560,24 @@ WHERE ues.deleted_at IS NULL
   AND ues.course_instance_id = $2
   AND ues.user_id = $3;
         &quot;#</span>,
-        <span class="ident">exercise_ids</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>,
+        exercise_ids,
+        course_instance_id,
+        user_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_create_user_exercise_state</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">existing</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseState</span>,
+<span class="kw">pub async fn </span>get_or_create_user_exercise_state(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+) -&gt; ModelResult&lt;UserExerciseState&gt; {
+    <span class="kw">let </span>existing = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseState,
         <span class="string">r#&quot;
 SELECT id,
   user_id,
@@ -1598,19 +1598,19 @@ WHERE user_id = $1
   AND (course_instance_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
 &quot;#</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">exam_id</span>
+        user_id,
+        exercise_id,
+        course_instance_id,
+        exam_id
     )
-    .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_optional(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">existing</span>) <span class="op">=</span> <span class="ident">existing</span> {
-        <span class="ident">existing</span>
-    } <span class="kw">else</span> {
+    <span class="kw">let </span>res = <span class="kw">if let </span><span class="prelude-val">Some</span>(existing) = existing {
+        existing
+    } <span class="kw">else </span>{
         <span class="macro">sqlx::query_as!</span>(
-            <span class="ident">UserExerciseState</span>,
+            UserExerciseState,
             <span class="string">r#&quot;
     INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id, exam_id)
     VALUES ($1, $2, $3, $4)
@@ -1628,20 +1628,20 @@ WHERE user_id = $1
       reviewing_stage AS &quot;reviewing_stage: _&quot;,
       selected_exercise_slide_id
       &quot;#</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">exercise_id</span>,
-            <span class="ident">course_instance_id</span>,
-            <span class="ident">exam_id</span>
+            user_id,
+            exercise_id,
+            course_instance_id,
+            exam_id
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-    };
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+        .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+    </span>};
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseState</span>,
+<span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;UserExerciseState&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseState,
         <span class="string">r#&quot;
 SELECT id,
   user_id,
@@ -1660,58 +1660,58 @@ FROM user_exercise_states
 WHERE id = $1
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">id</span>,
+        id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_users_current_by_exercise</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">CourseOrExamId::from</span>(<span class="ident">exercise</span>.<span class="ident">course_id</span>, <span class="ident">exercise</span>.<span class="ident">exam_id</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_instance_or_exam_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">course_or_exam_id</span> {
-        <span class="ident">CourseOrExamId::Course</span>(<span class="ident">course_id</span>) =&gt; {
-            <span class="ident">user_course_settings::get_user_course_settings_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>)
-                .<span class="kw">await</span><span class="question-mark">?</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">settings</span><span class="op">|</span> {
-                    <span class="ident">CourseInstanceOrExamId::Instance</span>(<span class="ident">settings</span>.<span class="ident">current_course_instance_id</span>)
+<span class="kw">pub async fn </span>get_users_current_by_exercise(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise: <span class="kw-2">&amp;</span>Exercise,
+) -&gt; ModelResult&lt;UserExerciseState&gt; {
+    <span class="kw">let </span>course_or_exam_id = CourseOrExamId::from(exercise.course_id, exercise.exam_id)<span class="question-mark">?</span>;
+    <span class="kw">let </span>course_instance_or_exam_id = <span class="kw">match </span>course_or_exam_id {
+        CourseOrExamId::Course(course_id) =&gt; {
+            user_course_settings::get_user_course_settings_by_course_id(conn, user_id, course_id)
+                .<span class="kw">await</span><span class="question-mark">?
+                </span>.map(|settings| {
+                    CourseInstanceOrExamId::Instance(settings.current_course_instance_id)
                 })
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">ModelError::new</span>(
-                        <span class="ident">ModelErrorType::PreconditionFailed</span>,
-                        <span class="string">&quot;Missing user course settings.&quot;</span>.<span class="ident">to_string</span>(),
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::PreconditionFailed,
+                        <span class="string">&quot;Missing user course settings.&quot;</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })
         }
-        <span class="ident">CourseOrExamId::Exam</span>(<span class="ident">exam_id</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">CourseInstanceOrExamId::Exam</span>(<span class="ident">exam_id</span>)),
+        CourseOrExamId::Exam(exam_id) =&gt; <span class="prelude-val">Ok</span>(CourseInstanceOrExamId::Exam(exam_id)),
     }<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span>
-        <span class="ident">get_user_exercise_state_if_exists</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="ident">course_instance_or_exam_id</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::PreconditionFailed</span>,
-                    <span class="string">&quot;Missing user exercise state.&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>user_exercise_state =
+        get_user_exercise_state_if_exists(conn, user_id, exercise.id, course_instance_or_exam_id)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    <span class="string">&quot;Missing user exercise state.&quot;</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">user_exercise_state</span>)
+    <span class="prelude-val">Ok</span>(user_exercise_state)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_exercise_state_if_exists</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_or_exam_id</span>: <span class="ident">CourseInstanceOrExamId</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">course_instance_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">course_instance_or_exam_id</span>.<span class="ident">to_instance_and_exam_ids</span>();
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseState</span>,
+<span class="kw">pub async fn </span>get_user_exercise_state_if_exists(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_or_exam_id: CourseInstanceOrExamId,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;UserExerciseState&gt;&gt; {
+    <span class="kw">let </span>(course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseState,
         <span class="string">r#&quot;
 SELECT id,
   user_id,
@@ -1732,25 +1732,25 @@ WHERE user_id = $1
   AND (course_instance_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
       &quot;#</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">exam_id</span>
+        user_id,
+        exercise_id,
+        course_instance_id,
+        exam_id
     )
-    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .fetch_optional(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_selected_exercise_slide_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">selected_exercise_slide_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">existing</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>upsert_selected_exercise_slide_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    selected_exercise_slide_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">let </span>existing = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT
 FROM user_exercise_states
@@ -1759,14 +1759,14 @@ WHERE user_id = $1
   AND (course_instance_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">exam_id</span>
+        user_id,
+        exercise_id,
+        course_instance_id,
+        exam_id
     )
-    .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_optional(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">existing</span>.<span class="ident">is_some</span>() {
+    <span class="kw">if </span>existing.is_some() {
         <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;
 UPDATE user_exercise_states
@@ -1776,15 +1776,15 @@ WHERE user_id = $1
   AND (course_instance_id = $3 OR exam_id = $5)
   AND deleted_at IS NULL
     &quot;</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">exercise_id</span>,
-            <span class="ident">course_instance_id</span>,
-            <span class="ident">selected_exercise_slide_id</span>,
-            <span class="ident">exam_id</span>
+            user_id,
+            exercise_id,
+            course_instance_id,
+            selected_exercise_slide_id,
+            exam_id
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    } <span class="kw">else</span> {
+    } <span class="kw">else </span>{
         <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;
     INSERT INTO user_exercise_states (
@@ -1796,25 +1796,25 @@ WHERE user_id = $1
       )
     VALUES ($1, $2, $3, $4, $5)
     &quot;</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">exercise_id</span>,
-            <span class="ident">course_instance_id</span>,
-            <span class="ident">selected_exercise_slide_id</span>,
-            <span class="ident">exam_id</span>
+            user_id,
+            exercise_id,
+            course_instance_id,
+            selected_exercise_slide_id,
+            exam_id
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// TODO: should be moved to the user_exercise_state_updater as a private module so that this cannot be called outside of that module</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_state_update</span>: <span class="ident">UserExerciseStateUpdate</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseState</span>,
+<span class="doccomment">/// TODO: should be moved to the user_exercise_state_updater as a private module so that this cannot be called outside of that module
+</span><span class="kw">pub async fn </span>update(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_state_update: UserExerciseStateUpdate,
+) -&gt; ModelResult&lt;UserExerciseState&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseState,
         <span class="string">r#&quot;
 UPDATE user_exercise_states
 SET score_given = $1,
@@ -1837,27 +1837,27 @@ RETURNING id,
   reviewing_stage AS &quot;reviewing_stage: _&quot;,
   selected_exercise_slide_id
         &quot;#</span>,
-        <span class="ident">user_exercise_state_update</span>.<span class="ident">score_given</span>,
-        <span class="ident">user_exercise_state_update</span>.<span class="ident">activity_progress</span> <span class="kw">as</span> <span class="ident">ActivityProgress</span>,
-        <span class="ident">user_exercise_state_update</span>.<span class="ident">reviewing_stage</span> <span class="kw">as</span> <span class="ident">ReviewingStage</span>,
-        <span class="ident">user_exercise_state_update</span>.<span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
-        <span class="ident">user_exercise_state_update</span>.<span class="ident">id</span>,
+        user_exercise_state_update.score_given,
+        user_exercise_state_update.activity_progress <span class="kw">as </span>ActivityProgress,
+        user_exercise_state_update.reviewing_stage <span class="kw">as </span>ReviewingStage,
+        user_exercise_state_update.grading_progress <span class="kw">as </span>GradingProgress,
+        user_exercise_state_update.id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_reviewing_stage</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_or_exam_id</span>: <span class="ident">CourseInstanceOrExamId</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">new_reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">course_instance_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">course_instance_or_exam_id</span>.<span class="ident">to_instance_and_exam_ids</span>();
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseState</span>,
+<span class="kw">pub async fn </span>update_reviewing_stage(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    course_instance_or_exam_id: CourseInstanceOrExamId,
+    exercise_id: Uuid,
+    new_reviewing_stage: ReviewingStage,
+) -&gt; ModelResult&lt;UserExerciseState&gt; {
+    <span class="kw">let </span>(course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseState,
         <span class="string">r#&quot;
 UPDATE user_exercise_states
 SET reviewing_stage = $5
@@ -1878,25 +1878,25 @@ RETURNING id,
   reviewing_stage AS &quot;reviewing_stage: _&quot;,
   selected_exercise_slide_id
         &quot;#</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">exam_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">new_reviewing_stage</span> <span class="kw">as</span> <span class="ident">ReviewingStage</span>
+        user_id,
+        course_instance_id,
+        exam_id,
+        exercise_id,
+        new_reviewing_stage <span class="kw">as </span>ReviewingStage
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="doccomment">/// TODO: should be removed</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_exercise_progress</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseState</span>,
+<span class="doccomment">/// TODO: should be removed
+</span><span class="kw">pub async fn </span>update_exercise_progress(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    reviewing_stage: ReviewingStage,
+) -&gt; ModelResult&lt;UserExerciseState&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseState,
         <span class="string">r#&quot;
 UPDATE user_exercise_states
 SET reviewing_stage = $1
@@ -1916,151 +1916,151 @@ RETURNING id,
   reviewing_stage AS &quot;reviewing_stage: _&quot;,
   selected_exercise_slide_id
         &quot;#</span>,
-        <span class="ident">reviewing_stage</span> <span class="kw">as</span> <span class="ident">ReviewingStage</span>,
-        <span class="ident">id</span>
+        reviewing_stage <span class="kw">as </span>ReviewingStage,
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="doccomment">/// Convenience struct that combines user state to the exercise.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Many operations require information about both the user state and the exercise. However, because</span>
-<span class="doccomment">/// exercises can either belong to a course or an exam, and each course instance will have their</span>
-<span class="doccomment">/// own `UserExerciseState`, it can get difficult to track the proper context.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseWithUserState</span> {
-    <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
-    <span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>,
-    <span class="ident">type_data</span>: <span class="ident">EwusCourseOrExam</span>,
+<span class="doccomment">/// Convenience struct that combines user state to the exercise.
+///
+/// Many operations require information about both the user state and the exercise. However, because
+/// exercises can either belong to a course or an exam, and each course instance will have their
+/// own `UserExerciseState`, it can get difficult to track the proper context.
+</span><span class="kw">pub struct </span>ExerciseWithUserState {
+    exercise: Exercise,
+    user_exercise_state: UserExerciseState,
+    type_data: EwusCourseOrExam,
 }
 
-<span class="kw">impl</span> <span class="ident">ExerciseWithUserState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">exercise</span>: <span class="ident">Exercise</span>, <span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">EwusCourseOrExam::from_exercise_and_user_exercise_state</span>(
-            <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-            <span class="kw-2">&amp;</span><span class="ident">user_exercise_state</span>,
+<span class="kw">impl </span>ExerciseWithUserState {
+    <span class="kw">pub fn </span>new(exercise: Exercise, user_exercise_state: UserExerciseState) -&gt; ModelResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>state = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            <span class="kw-2">&amp;</span>exercise,
+            <span class="kw-2">&amp;</span>user_exercise_state,
         )<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">exercise</span>,
-            <span class="ident">user_exercise_state</span>,
-            <span class="ident">type_data</span>: <span class="ident">state</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            exercise,
+            user_exercise_state,
+            type_data: state,
         })
     }
 
-    <span class="doccomment">/// Provides a reference to the inner `Exercise`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exercise</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Exercise</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">exercise</span>
+    <span class="doccomment">/// Provides a reference to the inner `Exercise`.
+    </span><span class="kw">pub fn </span>exercise(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Exercise {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.exercise
     }
 
-    <span class="doccomment">/// Provides a reference to the inner `UserExerciseState`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">user_exercise_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">user_exercise_state</span>
+    <span class="doccomment">/// Provides a reference to the inner `UserExerciseState`.
+    </span><span class="kw">pub fn </span>user_exercise_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>UserExerciseState {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.user_exercise_state
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exercise_context</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">EwusCourseOrExam</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_data</span>
+    <span class="kw">pub fn </span>exercise_context(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>EwusCourseOrExam {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.type_data
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_user_exercise_state</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>,
-    ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">type_data</span> <span class="op">=</span> <span class="ident">EwusCourseOrExam::from_exercise_and_user_exercise_state</span>(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">exercise</span>,
-            <span class="kw-2">&amp;</span><span class="ident">user_exercise_state</span>,
+    <span class="kw">pub fn </span>set_user_exercise_state(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        user_exercise_state: UserExerciseState,
+    ) -&gt; ModelResult&lt;()&gt; {
+        <span class="self">self</span>.type_data = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.exercise,
+            <span class="kw-2">&amp;</span>user_exercise_state,
         )<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_state</span>;
+        <span class="self">self</span>.user_exercise_state = user_exercise_state;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_exam_exercise</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">type_data</span> {
-            <span class="ident">EwusCourseOrExam::Course</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
-            <span class="ident">EwusCourseOrExam::Exam</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+    <span class="kw">pub fn </span>is_exam_exercise(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.type_data {
+            EwusCourseOrExam::Course(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+            EwusCourseOrExam::Exam(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EwusCourse</span> {
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
+<span class="kw">pub struct </span>EwusCourse {
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>course_instance_id: Uuid,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EwusExam</span> {
-    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
+<span class="kw">pub struct </span>EwusExam {
+    <span class="kw">pub </span>exam_id: Uuid,
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EwusContext</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">E</span><span class="op">&gt;</span> {
-    <span class="ident">Course</span>(<span class="ident">C</span>),
-    <span class="ident">Exam</span>(<span class="ident">E</span>),
+<span class="kw">pub enum </span>EwusContext&lt;C, E&gt; {
+    Course(C),
+    Exam(E),
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EwusCourseOrExam</span> {
-    <span class="ident">Course</span>(<span class="ident">EwusCourse</span>),
-    <span class="ident">Exam</span>(<span class="ident">EwusExam</span>),
+<span class="kw">pub enum </span>EwusCourseOrExam {
+    Course(EwusCourse),
+    Exam(EwusExam),
 }
 
-<span class="kw">impl</span> <span class="ident">EwusCourseOrExam</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_exercise_and_user_exercise_state</span>(
-        <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-        <span class="ident">user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
-    ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">exercise</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">user_exercise_state</span>.<span class="ident">exercise_id</span> {
-            <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">course_id</span>;
-            <span class="kw">let</span> <span class="ident">course_instance_id</span> <span class="op">=</span> <span class="ident">user_exercise_state</span>.<span class="ident">course_instance_id</span>;
-            <span class="kw">let</span> <span class="ident">exam_id</span> <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span>;
-            <span class="kw">match</span> (<span class="ident">course_id</span>, <span class="ident">course_instance_id</span>, <span class="ident">exam_id</span>) {
-                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Exam</span>(<span class="ident">EwusExam</span> { <span class="ident">exam_id</span> })),
-                (<span class="prelude-val">Some</span>(<span class="ident">course_id</span>), <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Course</span>(<span class="ident">EwusCourse</span> {
-                    <span class="ident">course_id</span>,
-                    <span class="ident">course_instance_id</span>,
+<span class="kw">impl </span>EwusCourseOrExam {
+    <span class="kw">pub fn </span>from_exercise_and_user_exercise_state(
+        exercise: <span class="kw-2">&amp;</span>Exercise,
+        user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
+    ) -&gt; ModelResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if </span>exercise.id == user_exercise_state.exercise_id {
+            <span class="kw">let </span>course_id = exercise.course_id;
+            <span class="kw">let </span>course_instance_id = user_exercise_state.course_instance_id;
+            <span class="kw">let </span>exam_id = exercise.exam_id;
+            <span class="kw">match </span>(course_id, course_instance_id, exam_id) {
+                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(exam_id)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Exam(EwusExam { exam_id })),
+                (<span class="prelude-val">Some</span>(course_id), <span class="prelude-val">Some</span>(course_instance_id), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Course(EwusCourse {
+                    course_id,
+                    course_instance_id,
                 })),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::Generic</span>,
-                    <span class="string">&quot;Invalid initializer data.&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(ModelError::new(
+                    ModelErrorType::Generic,
+                    <span class="string">&quot;Invalid initializer data.&quot;</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )),
             }
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::Generic</span>,
-                <span class="string">&quot;Exercise doesn&#39;t match the state.&quot;</span>.<span class="ident">to_string</span>(),
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(ModelError::new(
+                ModelErrorType::Generic,
+                <span class="string">&quot;Exercise doesn&#39;t match the state.&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ))
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseInstanceUserPoints</span> {
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">points_for_each_chapter</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseInstanceUserPointsInner</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>CourseInstanceUserPoints {
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>points_for_each_chapter: Vec&lt;CourseInstanceUserPointsInner&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseInstanceUserPointsInner</span> {
-    <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">points_for_chapter</span>: <span class="ident">f32</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>CourseInstanceUserPointsInner {
+    <span class="kw">pub </span>chapter_number: i32,
+    <span class="kw">pub </span>points_for_chapter: f32,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamUserPoints</span> {
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">points_for_exercise</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExamUserPointsInner</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>ExamUserPoints {
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>email: String,
+    <span class="kw">pub </span>points_for_exercise: Vec&lt;ExamUserPointsInner&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamUserPointsInner</span> {
-    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="ident">f32</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>ExamUserPointsInner {
+    <span class="kw">pub </span>exercise_id: Uuid,
+    <span class="kw">pub </span>score_given: f32,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stream_course_instance_points</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="ident">CourseInstanceUserPoints</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+<span class="kw">pub fn </span>stream_course_instance_points(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;CourseInstanceUserPoints&gt;&gt; + <span class="lifetime">&#39;_ </span>{
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT user_id,
@@ -2086,25 +2086,25 @@ FROM (
 GROUP BY user_id
 
 &quot;</span>,
-        <span class="ident">course_instance_id</span>
+        course_instance_id
     )
-    .<span class="ident">try_map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">user_id</span>;
-        <span class="kw">let</span> <span class="ident">points_for_each_chapter</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">points_for_each_chapter</span>.<span class="ident">unwrap_or</span>(<span class="ident">Value::Null</span>);
-        <span class="ident">serde_json::from_value</span>(<span class="ident">points_for_each_chapter</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">points_for_each_chapter</span><span class="op">|</span> <span class="ident">CourseInstanceUserPoints</span> {
-                <span class="ident">user_id</span>,
-                <span class="ident">points_for_each_chapter</span>,
+    .try_map(|i| {
+        <span class="kw">let </span>user_id = i.user_id;
+        <span class="kw">let </span>points_for_each_chapter = i.points_for_each_chapter.unwrap_or(Value::Null);
+        serde_json::from_value(points_for_each_chapter)
+            .map(|points_for_each_chapter| CourseInstanceUserPoints {
+                user_id,
+                points_for_each_chapter,
             })
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">sqlx::Error::Decode</span>(<span class="ident">Box::new</span>(<span class="ident">e</span>)))
+            .map_err(|e| sqlx::Error::Decode(Box::new(e)))
     })
-    .<span class="ident">fetch</span>(<span class="ident">conn</span>)
+    .fetch(conn)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stream_exam_points</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="ident">ExamUserPoints</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+<span class="kw">pub fn </span>stream_exam_points(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exam_id: Uuid,
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;ExamUserPoints&gt;&gt; + <span class="lifetime">&#39;_ </span>{
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT user_id,
@@ -2126,28 +2126,28 @@ FROM (
 GROUP BY user_id,
   email
 &quot;</span>,
-        <span class="ident">exam_id</span>
+        exam_id
     )
-    .<span class="ident">try_map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">user_id</span>;
-        <span class="kw">let</span> <span class="ident">points_for_exercises</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">points_for_exercises</span>.<span class="ident">unwrap_or</span>(<span class="ident">Value::Null</span>);
-        <span class="ident">serde_json::from_value</span>(<span class="ident">points_for_exercises</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">points_for_exercise</span><span class="op">|</span> <span class="ident">ExamUserPoints</span> {
-                <span class="ident">user_id</span>,
-                <span class="ident">points_for_exercise</span>,
-                <span class="ident">email</span>: <span class="ident">i</span>.<span class="ident">email</span>,
+    .try_map(|i| {
+        <span class="kw">let </span>user_id = i.user_id;
+        <span class="kw">let </span>points_for_exercises = i.points_for_exercises.unwrap_or(Value::Null);
+        serde_json::from_value(points_for_exercises)
+            .map(|points_for_exercise| ExamUserPoints {
+                user_id,
+                points_for_exercise,
+                email: i.email,
             })
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">sqlx::Error::Decode</span>(<span class="ident">Box::new</span>(<span class="ident">e</span>)))
+            .map_err(|e| sqlx::Error::Decode(Box::new(e)))
     })
-    .<span class="ident">fetch</span>(<span class="ident">conn</span>)
+    .fetch(conn)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_users_counts_by_exercise</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseUserCounts</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseUserCounts</span>,
+<span class="kw">pub async fn </span>get_course_users_counts_by_exercise(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;ExerciseUserCounts&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseUserCounts,
         <span class="string">r#&quot;
 SELECT exercises.name as exercise_name,
   exercises.order_number as exercise_order_number,
@@ -2183,78 +2183,78 @@ WHERE exercises.deleted_at IS NULL
   AND pages.deleted_at IS NULL
   AND chapters.deleted_at IS NULL
           &quot;#</span>,
-        <span class="ident">course_id</span>
+        course_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">chrono::TimeZone</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>chrono::TimeZone;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test_helper::<span class="kw-2">*</span>;
 
-    <span class="kw">mod</span> <span class="ident">getting_single_module_course_instance_metrics</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">mod </span>getting_single_module_course_instance_metrics {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">works_without_any_user_exercise_states</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>);
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">get_single_module_course_instance_metrics</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">instance</span>.<span class="ident">id</span>,
-                <span class="ident">course_module</span>.<span class="ident">id</span>,
-                <span class="ident">user</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>works_without_any_user_exercise_states() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course, :instance, :course_module);
+            <span class="kw">let </span>res = get_single_module_course_instance_metrics(
+                tx.as_mut(),
+                instance.id,
+                course_module.id,
+                user,
             )
             .<span class="kw">await</span>;
-            <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>())
+            <span class="macro">assert!</span>(res.is_ok())
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">merges_course_modules_with_metrics</span>() {
-        <span class="kw">let</span> <span class="ident">timestamp</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">22</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
-        <span class="kw">let</span> <span class="ident">module_id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;9e831ecc-9751-42f1-ae7e-9b2f06e523e8&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">CourseModule::new</span>(
-            <span class="ident">module_id</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3fa4bee6-7390-415e-968f-ecdc5f28330e&quot;</span>).<span class="ident">unwrap</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>merges_course_modules_with_metrics() {
+        <span class="kw">let </span>timestamp = Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">22</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
+        <span class="kw">let </span>module_id = Uuid::parse_str(<span class="string">&quot;9e831ecc-9751-42f1-ae7e-9b2f06e523e8&quot;</span>).unwrap();
+        <span class="kw">let </span>course_modules = <span class="macro">vec!</span>[CourseModule::new(
+            module_id,
+            Uuid::parse_str(<span class="string">&quot;3fa4bee6-7390-415e-968f-ecdc5f28330e&quot;</span>).unwrap(),
         )
-        .<span class="ident">set_timestamps</span>(<span class="ident">timestamp</span>, <span class="ident">timestamp</span>, <span class="prelude-val">None</span>)
-        .<span class="ident">set_registration_info</span>(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">5</span>), <span class="prelude-val">None</span>)];
-        <span class="kw">let</span> <span class="ident">course_metrics_by_course_module_id</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(
-            <span class="ident">module_id</span>,
-            <span class="ident">CourseInstanceExerciseMetrics</span> {
-                <span class="ident">course_module_id</span>: <span class="ident">module_id</span>,
-                <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">4</span>),
-                <span class="ident">score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>),
+        .set_timestamps(timestamp, timestamp, <span class="prelude-val">None</span>)
+        .set_registration_info(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">5</span>), <span class="prelude-val">None</span>)];
+        <span class="kw">let </span>course_metrics_by_course_module_id = HashMap::from([(
+            module_id,
+            CourseInstanceExerciseMetrics {
+                course_module_id: module_id,
+                total_exercises: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+                score_maximum: <span class="prelude-val">Some</span>(<span class="number">10</span>),
             },
         )]);
-        <span class="kw">let</span> <span class="ident">user_metrics_by_course_module_id</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(
-            <span class="ident">module_id</span>,
-            <span class="ident">UserCourseInstanceMetrics</span> {
-                <span class="ident">course_module_id</span>: <span class="ident">module_id</span>,
-                <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">3</span>),
+        <span class="kw">let </span>user_metrics_by_course_module_id = HashMap::from([(
+            module_id,
+            UserCourseInstanceMetrics {
+                course_module_id: module_id,
+                score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                attempted_exercises: <span class="prelude-val">Some</span>(<span class="number">3</span>),
             },
         )]);
-        <span class="kw">let</span> <span class="ident">metrics</span> <span class="op">=</span> <span class="ident">merge_modules_with_metrics</span>(
-            <span class="ident">course_modules</span>,
-            <span class="kw-2">&amp;</span><span class="ident">course_metrics_by_course_module_id</span>,
-            <span class="kw-2">&amp;</span><span class="ident">user_metrics_by_course_module_id</span>,
+        <span class="kw">let </span>metrics = merge_modules_with_metrics(
+            course_modules,
+            <span class="kw-2">&amp;</span>course_metrics_by_course_module_id,
+            <span class="kw-2">&amp;</span>user_metrics_by_course_module_id,
             <span class="string">&quot;Default module&quot;</span>,
         )
-        .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">metrics</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-        <span class="kw">let</span> <span class="ident">metric</span> <span class="op">=</span> <span class="ident">metrics</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">metric</span>.<span class="ident">attempted_exercises</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">metric</span>.<span class="ident">course_module_name</span>, <span class="string">&quot;Default module&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">metric</span>.<span class="ident">score_given</span>, <span class="number">1.0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">metric</span>.<span class="ident">score_maximum</span>, <span class="prelude-val">Some</span>(<span class="number">10</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">metric</span>.<span class="ident">total_exercises</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>));
+        .unwrap();
+        <span class="macro">assert_eq!</span>(metrics.len(), <span class="number">1</span>);
+        <span class="kw">let </span>metric = metrics.first().unwrap();
+        <span class="macro">assert_eq!</span>(metric.attempted_exercises, <span class="prelude-val">Some</span>(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>metric.course_module_name, <span class="string">&quot;Default module&quot;</span>);
+        <span class="macro">assert_eq!</span>(metric.score_given, <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(metric.score_maximum, <span class="prelude-val">Some</span>(<span class="number">10</span>));
+        <span class="macro">assert_eq!</span>(metric.total_exercises, <span class="prelude-val">Some</span>(<span class="number">4</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

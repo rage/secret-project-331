@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/any/row.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>row.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/any/row.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>row.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -113,120 +113,120 @@
 <span id="113">113</span>
 <span id="114">114</span>
 <span id="115">115</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::any::error::mismatched_types</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::any</span>::{<span class="ident">Any</span>, <span class="ident">AnyColumn</span>, <span class="ident">AnyColumnIndex</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::column::ColumnIndex</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::HasValueRef</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::decode::Decode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::row::Row</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_info::TypeInfo</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::value::ValueRef</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::any::error::mismatched_types;
+<span class="kw">use </span><span class="kw">crate</span>::any::{Any, AnyColumn, AnyColumnIndex};
+<span class="kw">use </span><span class="kw">crate</span>::column::ColumnIndex;
+<span class="kw">use </span><span class="kw">crate</span>::database::HasValueRef;
+<span class="kw">use </span><span class="kw">crate</span>::decode::Decode;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::row::Row;
+<span class="kw">use </span><span class="kw">crate</span>::type_info::TypeInfo;
+<span class="kw">use </span><span class="kw">crate</span>::types::Type;
+<span class="kw">use </span><span class="kw">crate</span>::value::ValueRef;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::PgRow</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::postgres::PgRow;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mysql::MySqlRow</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::mysql::MySqlRow;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sqlite::SqliteRow</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::sqlite::SqliteRow;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mssql::MssqlRow</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::mssql::MssqlRow;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AnyRow</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">kind</span>: <span class="ident">AnyRowKind</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AnyColumn</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>AnyRow {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) kind: AnyRowKind,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) columns: Vec&lt;AnyColumn&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::row::private_row::Sealed</span> <span class="kw">for</span> <span class="ident">AnyRow</span> {}
+<span class="kw">impl </span><span class="kw">crate</span>::row::private_row::Sealed <span class="kw">for </span>AnyRow {}
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">AnyRowKind</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-    <span class="ident">Postgres</span>(<span class="ident">PgRow</span>),
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>AnyRowKind {
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+    </span>Postgres(PgRow),
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-    <span class="ident">MySql</span>(<span class="ident">MySqlRow</span>),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+    </span>MySql(MySqlRow),
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-    <span class="ident">Sqlite</span>(<span class="ident">SqliteRow</span>),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+    </span>Sqlite(SqliteRow),
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-    <span class="ident">Mssql</span>(<span class="ident">MssqlRow</span>),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+    </span>Mssql(MssqlRow),
 }
 
-<span class="kw">impl</span> <span class="ident">Row</span> <span class="kw">for</span> <span class="ident">AnyRow</span> {
-    <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="ident">Any</span>;
+<span class="kw">impl </span>Row <span class="kw">for </span>AnyRow {
+    <span class="kw">type </span>Database = Any;
 
-    <span class="kw">fn</span> <span class="ident">columns</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">AnyColumn</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">columns</span>
+    <span class="kw">fn </span>columns(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[AnyColumn] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.columns
     }
 
-    <span class="kw">fn</span> <span class="ident">try_get_raw</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>try_get_raw&lt;I&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">index</span>: <span class="ident">I</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>,
+        index: I,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasValueRef&lt;<span class="lifetime">&#39;_</span>&gt;&gt;::ValueRef, Error&gt;
+    <span class="kw">where
+        </span>I: ColumnIndex&lt;<span class="self">Self</span>&gt;,
     {
-        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">index</span>.<span class="ident">index</span>(<span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>index = index.index(<span class="self">self</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyRowKind::Postgres</span>(<span class="ident">row</span>) =&gt; <span class="ident">row</span>.<span class="ident">try_get_raw</span>(<span class="ident">index</span>).<span class="ident">map</span>(<span class="ident">Into::into</span>),
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.kind {
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyRowKind::Postgres(row) =&gt; row.try_get_raw(index).map(Into::into),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyRowKind::MySql</span>(<span class="ident">row</span>) =&gt; <span class="ident">row</span>.<span class="ident">try_get_raw</span>(<span class="ident">index</span>).<span class="ident">map</span>(<span class="ident">Into::into</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyRowKind::MySql(row) =&gt; row.try_get_raw(index).map(Into::into),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyRowKind::Sqlite</span>(<span class="ident">row</span>) =&gt; <span class="ident">row</span>.<span class="ident">try_get_raw</span>(<span class="ident">index</span>).<span class="ident">map</span>(<span class="ident">Into::into</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyRowKind::Sqlite(row) =&gt; row.try_get_raw(index).map(Into::into),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyRowKind::Mssql</span>(<span class="ident">row</span>) =&gt; <span class="ident">row</span>.<span class="ident">try_get_raw</span>(<span class="ident">index</span>).<span class="ident">map</span>(<span class="ident">Into::into</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyRowKind::Mssql(row) =&gt; row.try_get_raw(index).map(Into::into),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">try_get</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">T</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>try_get&lt;<span class="lifetime">&#39;r</span>, T, I&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="self">self</span>, index: I) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt;
+    <span class="kw">where
+        </span>I: ColumnIndex&lt;<span class="self">Self</span>&gt;,
+        T: Decode&lt;<span class="lifetime">&#39;r</span>, <span class="self">Self</span>::Database&gt; + Type&lt;<span class="self">Self</span>::Database&gt;,
     {
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">try_get_raw</span>(<span class="kw-2">&amp;</span><span class="ident">index</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">type_info</span>();
+        <span class="kw">let </span>value = <span class="self">self</span>.try_get_raw(<span class="kw-2">&amp;</span>index)<span class="question-mark">?</span>;
+        <span class="kw">let </span>ty = value.type_info();
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">value</span>.<span class="ident">is_null</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ty</span>.<span class="ident">is_null</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">T::compatible</span>(<span class="kw-2">&amp;</span><span class="ident">ty</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">mismatched_types</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">ty</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">T::decode</span>(<span class="ident">value</span>)
+        <span class="kw">if </span>!value.is_null() &amp;&amp; !ty.is_null() &amp;&amp; !T::compatible(<span class="kw-2">&amp;</span>ty) {
+            <span class="prelude-val">Err</span>(mismatched_types::&lt;T&gt;(<span class="kw-2">&amp;</span>ty))
+        } <span class="kw">else </span>{
+            T::decode(value)
         }
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">source</span><span class="op">|</span> <span class="ident">Error::ColumnDecode</span> {
-            <span class="ident">index</span>: <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">index</span>),
-            <span class="ident">source</span>,
+        .map_err(|source| Error::ColumnDecode {
+            index: <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, index),
+            source,
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;i</span><span class="op">&gt;</span> <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="ident">AnyRow</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;i</span> <span class="ident">str</span>
-<span class="kw">where</span>
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;i</span> <span class="ident">str</span>: <span class="ident">AnyColumnIndex</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;i</span>&gt; ColumnIndex&lt;AnyRow&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;i </span>str
+<span class="kw">where
+    </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;i </span>str: AnyColumnIndex,
 {
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">AnyRow</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">row</span>.<span class="ident">kind</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyRowKind::Postgres</span>(<span class="ident">row</span>) =&gt; <span class="self">self</span>.<span class="ident">index</span>(<span class="ident">row</span>),
+    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, row: <span class="kw-2">&amp;</span>AnyRow) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span>row.kind {
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyRowKind::Postgres(row) =&gt; <span class="self">self</span>.index(row),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyRowKind::MySql</span>(<span class="ident">row</span>) =&gt; <span class="self">self</span>.<span class="ident">index</span>(<span class="ident">row</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyRowKind::MySql(row) =&gt; <span class="self">self</span>.index(row),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyRowKind::Sqlite</span>(<span class="ident">row</span>) =&gt; <span class="self">self</span>.<span class="ident">index</span>(<span class="ident">row</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyRowKind::Sqlite(row) =&gt; <span class="self">self</span>.index(row),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyRowKind::Mssql</span>(<span class="ident">row</span>) =&gt; <span class="self">self</span>.<span class="ident">index</span>(<span class="ident">row</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyRowKind::Mssql(row) =&gt; <span class="self">self</span>.index(row),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

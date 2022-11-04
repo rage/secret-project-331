@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sha1_smol-1.0.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sha1_smol/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sha1_smol/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sha1_smol/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sha1_smol-1.0.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sha1_smol/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sha1_smol/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sha1_smol/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -788,664 +788,664 @@
 <span id="788">788</span>
 <span id="789">789</span>
 <span id="790">790</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A minimal implementation of SHA1 for rust.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This implementation supports no_std which is the default mode.  The</span>
-<span class="doccomment">//! following features are available and can be optionally enabled:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * ``serde``: when enabled the `Digest` type can be serialized.</span>
-<span class="doccomment">//! * ``std``: when enabled errors from this library implement `std::error::Error`</span>
-<span class="doccomment">//!   and the `hexdigest` shortcut becomes available.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Example</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! # fn main() {</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let mut m = sha1_smol::Sha1::new();</span>
-<span class="doccomment">//! m.update(b&quot;Hello World!&quot;);</span>
-<span class="doccomment">//! assert_eq!(m.digest().to_string(),</span>
-<span class="doccomment">//!            &quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;);</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The sha1 object can be updated multiple times.  If you only need to use</span>
-<span class="doccomment">//! it once you can also use shortcuts (requires std):</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # trait X { fn hexdigest(&amp;self) -&gt; &amp;&#39;static str { &quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot; }}</span>
-<span class="doccomment">//! # impl X for sha1_smol::Sha1 {}</span>
-<span class="doccomment">//! # fn main() {</span>
-<span class="doccomment">//! assert_eq!(sha1_smol::Sha1::from(&quot;Hello World!&quot;).hexdigest(),</span>
-<span class="doccomment">//!            &quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;);</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A minimal implementation of SHA1 for rust.
+//!
+//! This implementation supports no_std which is the default mode.  The
+//! following features are available and can be optionally enabled:
+//!
+//! * ``serde``: when enabled the `Digest` type can be serialized.
+//! * ``std``: when enabled errors from this library implement `std::error::Error`
+//!   and the `hexdigest` shortcut becomes available.
+//!
+//! ## Example
+//!
+//! ```rust
+//! # fn main() {
+//!
+//! let mut m = sha1_smol::Sha1::new();
+//! m.update(b&quot;Hello World!&quot;);
+//! assert_eq!(m.digest().to_string(),
+//!            &quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;);
+//! # }
+//! ```
+//!
+//! The sha1 object can be updated multiple times.  If you only need to use
+//! it once you can also use shortcuts (requires std):
+//!
+//! ```
+//! # trait X { fn hexdigest(&amp;self) -&gt; &amp;&#39;static str { &quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot; }}
+//! # impl X for sha1_smol::Sha1 {}
+//! # fn main() {
+//! assert_eq!(sha1_smol::Sha1::from(&quot;Hello World!&quot;).hexdigest(),
+//!            &quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;);
+//! # }
+//! ```
 
-<span class="attribute">#![<span class="ident">no_std</span>]</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::double_parens</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::identity_op</span>)]</span>
+</span><span class="attribute">#![no_std]
+#![deny(missing_docs)]
+#![allow(deprecated)]
+#![allow(clippy::double_parens)]
+#![allow(clippy::identity_op)]
 
-<span class="kw">use</span> <span class="ident">core::cmp</span>;
-<span class="kw">use</span> <span class="ident">core::fmt</span>;
-<span class="kw">use</span> <span class="ident">core::hash</span>;
-<span class="kw">use</span> <span class="ident">core::str</span>;
+</span><span class="kw">use </span>core::cmp;
+<span class="kw">use </span>core::fmt;
+<span class="kw">use </span>core::hash;
+<span class="kw">use </span>core::str;
 
-<span class="kw">mod</span> <span class="ident">simd</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::simd</span>::<span class="kw-2">*</span>;
+<span class="kw">mod </span>simd;
+<span class="kw">use </span><span class="kw">crate</span>::simd::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">std</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">extern crate </span>std;
 
-<span class="doccomment">/// The length of a SHA1 digest in bytes</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DIGEST_LENGTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">20</span>;
+<span class="doccomment">/// The length of a SHA1 digest in bytes
+</span><span class="kw">pub const </span>DIGEST_LENGTH: usize = <span class="number">20</span>;
 
-<span class="doccomment">/// Represents a Sha1 hash object in memory.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sha1</span> {
-    <span class="ident">state</span>: <span class="ident">Sha1State</span>,
-    <span class="ident">blocks</span>: <span class="ident">Blocks</span>,
-    <span class="ident">len</span>: <span class="ident">u64</span>,
+<span class="doccomment">/// Represents a Sha1 hash object in memory.
+</span><span class="attribute">#[derive(Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
+</span><span class="kw">pub struct </span>Sha1 {
+    state: Sha1State,
+    blocks: Blocks,
+    len: u64,
 }
 
-<span class="kw">struct</span> <span class="ident">Blocks</span> {
-    <span class="ident">len</span>: <span class="ident">u32</span>,
-    <span class="ident">block</span>: [<span class="ident">u8</span>; <span class="number">64</span>],
+<span class="kw">struct </span>Blocks {
+    len: u32,
+    block: [u8; <span class="number">64</span>],
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Sha1State</span> {
-    <span class="ident">state</span>: [<span class="ident">u32</span>; <span class="number">5</span>],
+<span class="attribute">#[derive(Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Hash, Default)]
+</span><span class="kw">struct </span>Sha1State {
+    state: [u32; <span class="number">5</span>],
 }
 
-<span class="doccomment">/// Digest generated from a `Sha1` instance.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A digest can be formatted to view the digest as a hex string, or the bytes</span>
-<span class="doccomment">/// can be extracted for later processing.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// To retrieve a hex string result call `to_string` on it (requires that std</span>
-<span class="doccomment">/// is available).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the `serde` feature is enabled a digest can also be serialized and</span>
-<span class="doccomment">/// deserialized.  Likewise a digest can be parsed from a hex string.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Digest</span> {
-    <span class="ident">data</span>: <span class="ident">Sha1State</span>,
+<span class="doccomment">/// Digest generated from a `Sha1` instance.
+///
+/// A digest can be formatted to view the digest as a hex string, or the bytes
+/// can be extracted for later processing.
+///
+/// To retrieve a hex string result call `to_string` on it (requires that std
+/// is available).
+///
+/// If the `serde` feature is enabled a digest can also be serialized and
+/// deserialized.  Likewise a digest can be parsed from a hex string.
+</span><span class="attribute">#[derive(PartialOrd, Ord, PartialEq, Eq, Hash, Clone, Copy, Default)]
+</span><span class="kw">pub struct </span>Digest {
+    data: Sha1State,
 }
 
-<span class="kw">const</span> <span class="ident">DEFAULT_STATE</span>: <span class="ident">Sha1State</span> <span class="op">=</span> <span class="ident">Sha1State</span> {
-    <span class="ident">state</span>: [<span class="number">0x67452301</span>, <span class="number">0xefcdab89</span>, <span class="number">0x98badcfe</span>, <span class="number">0x10325476</span>, <span class="number">0xc3d2e1f0</span>],
+<span class="kw">const </span>DEFAULT_STATE: Sha1State = Sha1State {
+    state: [<span class="number">0x67452301</span>, <span class="number">0xefcdab89</span>, <span class="number">0x98badcfe</span>, <span class="number">0x10325476</span>, <span class="number">0xc3d2e1f0</span>],
 };
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">as_block</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">64</span>] {
-    <span class="kw">unsafe</span> {
-        <span class="macro">assert!</span>(<span class="ident">input</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">64</span>);
-        <span class="kw">let</span> <span class="ident">arr</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">64</span>] <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="ident">input</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> [<span class="ident">u8</span>; <span class="number">64</span>]);
-        <span class="ident">arr</span>
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>as_block(input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>] {
+    <span class="kw">unsafe </span>{
+        <span class="macro">assert!</span>(input.len() == <span class="number">64</span>);
+        <span class="kw">let </span>arr: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>] = <span class="kw-2">&amp;*</span>(input.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>[u8; <span class="number">64</span>]);
+        arr
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Sha1</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Sha1</span> {
-        <span class="ident">Sha1::new</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>Sha1 {
+    <span class="kw">fn </span>default() -&gt; Sha1 {
+        Sha1::new()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Sha1</span> {
-    <span class="doccomment">/// Creates an fresh sha1 hash object.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is equivalent to creating a hash with `Default::default`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Sha1</span> {
-        <span class="ident">Sha1</span> {
-            <span class="ident">state</span>: <span class="ident">DEFAULT_STATE</span>,
-            <span class="ident">len</span>: <span class="number">0</span>,
-            <span class="ident">blocks</span>: <span class="ident">Blocks</span> {
-                <span class="ident">len</span>: <span class="number">0</span>,
-                <span class="ident">block</span>: [<span class="number">0</span>; <span class="number">64</span>],
+<span class="kw">impl </span>Sha1 {
+    <span class="doccomment">/// Creates an fresh sha1 hash object.
+    ///
+    /// This is equivalent to creating a hash with `Default::default`.
+    </span><span class="kw">pub fn </span>new() -&gt; Sha1 {
+        Sha1 {
+            state: DEFAULT_STATE,
+            len: <span class="number">0</span>,
+            blocks: Blocks {
+                len: <span class="number">0</span>,
+                block: [<span class="number">0</span>; <span class="number">64</span>],
             },
         }
     }
 
-    <span class="doccomment">/// Shortcut to create a sha1 from some bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This also lets you create a hash from a utf-8 string.  This is equivalent</span>
-    <span class="doccomment">/// to making a new Sha1 object and calling `update` on it once.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">data</span>: <span class="ident">D</span>) -&gt; <span class="ident">Sha1</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rv</span> <span class="op">=</span> <span class="ident">Sha1::new</span>();
-        <span class="ident">rv</span>.<span class="ident">update</span>(<span class="ident">data</span>.<span class="ident">as_ref</span>());
-        <span class="ident">rv</span>
+    <span class="doccomment">/// Shortcut to create a sha1 from some bytes.
+    ///
+    /// This also lets you create a hash from a utf-8 string.  This is equivalent
+    /// to making a new Sha1 object and calling `update` on it once.
+    </span><span class="kw">pub fn </span>from&lt;D: AsRef&lt;[u8]&gt;&gt;(data: D) -&gt; Sha1 {
+        <span class="kw">let </span><span class="kw-2">mut </span>rv = Sha1::new();
+        rv.update(data.as_ref());
+        rv
     }
 
-    <span class="doccomment">/// Resets the hash object to it&#39;s initial state.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">DEFAULT_STATE</span>;
-        <span class="self">self</span>.<span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Resets the hash object to it&#39;s initial state.
+    </span><span class="kw">pub fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.state = DEFAULT_STATE;
+        <span class="self">self</span>.len = <span class="number">0</span>;
+        <span class="self">self</span>.blocks.len = <span class="number">0</span>;
     }
 
-    <span class="doccomment">/// Update hash with input data.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">len</span>;
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">state</span>;
-        <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">input</span>(<span class="ident">data</span>, <span class="op">|</span><span class="ident">block</span><span class="op">|</span> {
-            <span class="kw-2">*</span><span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">block</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
-            <span class="ident">state</span>.<span class="ident">process</span>(<span class="ident">block</span>);
+    <span class="doccomment">/// Update hash with input data.
+    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8]) {
+        <span class="kw">let </span>len = <span class="kw-2">&amp;mut </span><span class="self">self</span>.len;
+        <span class="kw">let </span>state = <span class="kw-2">&amp;mut </span><span class="self">self</span>.state;
+        <span class="self">self</span>.blocks.input(data, |block| {
+            <span class="kw-2">*</span>len += block.len() <span class="kw">as </span>u64;
+            state.process(block);
         })
     }
 
-    <span class="doccomment">/// Retrieve digest result.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">digest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Digest</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>;
-        <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">len</span> <span class="op">+</span> (<span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>)) <span class="op">*</span> <span class="number">8</span>;
-        <span class="kw">let</span> <span class="ident">extra</span> <span class="op">=</span> [
-            (<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">56</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">48</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">40</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">32</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">24</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">16</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="ident">bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">u8</span>,
+    <span class="doccomment">/// Retrieve digest result.
+    </span><span class="kw">pub fn </span>digest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Digest {
+        <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state;
+        <span class="kw">let </span>bits = (<span class="self">self</span>.len + (<span class="self">self</span>.blocks.len <span class="kw">as </span>u64)) * <span class="number">8</span>;
+        <span class="kw">let </span>extra = [
+            (bits &gt;&gt; <span class="number">56</span>) <span class="kw">as </span>u8,
+            (bits &gt;&gt; <span class="number">48</span>) <span class="kw">as </span>u8,
+            (bits &gt;&gt; <span class="number">40</span>) <span class="kw">as </span>u8,
+            (bits &gt;&gt; <span class="number">32</span>) <span class="kw">as </span>u8,
+            (bits &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
+            (bits &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
+            (bits &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
+            (bits &gt;&gt; <span class="number">0</span>) <span class="kw">as </span>u8,
         ];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">128</span>];
-        <span class="kw">let</span> <span class="ident">blocklen</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="ident">last</span>[..<span class="ident">blocklen</span>].<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">block</span>[..<span class="ident">blocklen</span>]);
-        <span class="ident">last</span>[<span class="ident">blocklen</span>] <span class="op">=</span> <span class="number">0x80</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>last = [<span class="number">0</span>; <span class="number">128</span>];
+        <span class="kw">let </span>blocklen = <span class="self">self</span>.blocks.len <span class="kw">as </span>usize;
+        last[..blocklen].clone_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.blocks.block[..blocklen]);
+        last[blocklen] = <span class="number">0x80</span>;
 
-        <span class="kw">if</span> <span class="ident">blocklen</span> <span class="op">&lt;</span> <span class="number">56</span> {
-            <span class="ident">last</span>[<span class="number">56</span>..<span class="number">64</span>].<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">extra</span>);
-            <span class="ident">state</span>.<span class="ident">process</span>(<span class="ident">as_block</span>(<span class="kw-2">&amp;</span><span class="ident">last</span>[<span class="number">0</span>..<span class="number">64</span>]));
-        } <span class="kw">else</span> {
-            <span class="ident">last</span>[<span class="number">120</span>..<span class="number">128</span>].<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">extra</span>);
-            <span class="ident">state</span>.<span class="ident">process</span>(<span class="ident">as_block</span>(<span class="kw-2">&amp;</span><span class="ident">last</span>[<span class="number">0</span>..<span class="number">64</span>]));
-            <span class="ident">state</span>.<span class="ident">process</span>(<span class="ident">as_block</span>(<span class="kw-2">&amp;</span><span class="ident">last</span>[<span class="number">64</span>..<span class="number">128</span>]));
+        <span class="kw">if </span>blocklen &lt; <span class="number">56 </span>{
+            last[<span class="number">56</span>..<span class="number">64</span>].clone_from_slice(<span class="kw-2">&amp;</span>extra);
+            state.process(as_block(<span class="kw-2">&amp;</span>last[<span class="number">0</span>..<span class="number">64</span>]));
+        } <span class="kw">else </span>{
+            last[<span class="number">120</span>..<span class="number">128</span>].clone_from_slice(<span class="kw-2">&amp;</span>extra);
+            state.process(as_block(<span class="kw-2">&amp;</span>last[<span class="number">0</span>..<span class="number">64</span>]));
+            state.process(as_block(<span class="kw-2">&amp;</span>last[<span class="number">64</span>..<span class="number">128</span>]));
         }
 
-        <span class="ident">Digest</span> { <span class="ident">data</span>: <span class="ident">state</span> }
+        Digest { data: state }
     }
 
-    <span class="doccomment">/// Retrieve the digest result as hex string directly.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// (The function is only available if the `std` feature is enabled)</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hexdigest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">std::string::String</span> {
-        <span class="kw">use</span> <span class="ident">std::string::ToString</span>;
-        <span class="self">self</span>.<span class="ident">digest</span>().<span class="ident">to_string</span>()
+    <span class="doccomment">/// Retrieve the digest result as hex string directly.
+    ///
+    /// (The function is only available if the `std` feature is enabled)
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+    </span><span class="kw">pub fn </span>hexdigest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::string::String {
+        <span class="kw">use </span>std::string::ToString;
+        <span class="self">self</span>.digest().to_string()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Digest</span> {
-    <span class="doccomment">/// Returns the 160 bit (20 byte) digest as a byte array.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<span class="ident">u8</span>; <span class="ident">DIGEST_LENGTH</span>] {
+<span class="kw">impl </span>Digest {
+    <span class="doccomment">/// Returns the 160 bit (20 byte) digest as a byte array.
+    </span><span class="kw">pub fn </span>bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [u8; DIGEST_LENGTH] {
         [
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">0</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">24</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">0</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">16</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">0</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">0</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">1</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">24</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">1</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">16</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">1</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">1</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">2</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">24</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">2</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">16</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">2</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">2</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">3</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">24</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">3</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">16</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">3</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">3</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">4</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">24</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">4</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">16</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">4</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            (<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="number">4</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">u8</span>,
+            (<span class="self">self</span>.data.state[<span class="number">0</span>] &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">0</span>] &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">0</span>] &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">0</span>] &gt;&gt; <span class="number">0</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">1</span>] &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">1</span>] &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">1</span>] &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">1</span>] &gt;&gt; <span class="number">0</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">2</span>] &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">2</span>] &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">2</span>] &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">2</span>] &gt;&gt; <span class="number">0</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">3</span>] &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">3</span>] &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">3</span>] &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">3</span>] &gt;&gt; <span class="number">0</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">4</span>] &gt;&gt; <span class="number">24</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">4</span>] &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">4</span>] &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
+            (<span class="self">self</span>.data.state[<span class="number">4</span>] &gt;&gt; <span class="number">0</span>) <span class="kw">as </span>u8,
         ]
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Blocks</span> {
-    <span class="kw">fn</span> <span class="ident">input</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>)
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">64</span>]),
+<span class="kw">impl </span>Blocks {
+    <span class="kw">fn </span>input&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: <span class="kw-2">&amp;</span>[u8], <span class="kw-2">mut </span>f: F)
+    <span class="kw">where
+        </span>F: FnMut(<span class="kw-2">&amp;</span>[u8; <span class="number">64</span>]),
     {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">len</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>;
-            <span class="kw">let</span> <span class="ident">amt</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">input</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">block</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">len</span>);
-            <span class="self">self</span>.<span class="ident">block</span>[<span class="ident">len</span>..<span class="ident">len</span> <span class="op">+</span> <span class="ident">amt</span>].<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>[..<span class="ident">amt</span>]);
-            <span class="kw">if</span> <span class="ident">len</span> <span class="op">+</span> <span class="ident">amt</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">block</span>.<span class="ident">len</span>() {
-                <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">block</span>);
-                <span class="self">self</span>.<span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="ident">input</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="ident">amt</span>..];
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">amt</span> <span class="kw">as</span> <span class="ident">u32</span>;
+        <span class="kw">if </span><span class="self">self</span>.len &gt; <span class="number">0 </span>{
+            <span class="kw">let </span>len = <span class="self">self</span>.len <span class="kw">as </span>usize;
+            <span class="kw">let </span>amt = cmp::min(input.len(), <span class="self">self</span>.block.len() - len);
+            <span class="self">self</span>.block[len..len + amt].clone_from_slice(<span class="kw-2">&amp;</span>input[..amt]);
+            <span class="kw">if </span>len + amt == <span class="self">self</span>.block.len() {
+                f(<span class="kw-2">&amp;</span><span class="self">self</span>.block);
+                <span class="self">self</span>.len = <span class="number">0</span>;
+                input = <span class="kw-2">&amp;</span>input[amt..];
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.len += amt <span class="kw">as </span>u32;
                 <span class="kw">return</span>;
             }
         }
-        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">len</span>, <span class="number">0</span>);
-        <span class="kw">for</span> <span class="ident">chunk</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">chunks</span>(<span class="number">64</span>) {
-            <span class="kw">if</span> <span class="ident">chunk</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">64</span> {
-                <span class="ident">f</span>(<span class="ident">as_block</span>(<span class="ident">chunk</span>))
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">block</span>[..<span class="ident">chunk</span>.<span class="ident">len</span>()].<span class="ident">clone_from_slice</span>(<span class="ident">chunk</span>);
-                <span class="self">self</span>.<span class="ident">len</span> <span class="op">=</span> <span class="ident">chunk</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>;
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.len, <span class="number">0</span>);
+        <span class="kw">for </span>chunk <span class="kw">in </span>input.chunks(<span class="number">64</span>) {
+            <span class="kw">if </span>chunk.len() == <span class="number">64 </span>{
+                f(as_block(chunk))
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.block[..chunk.len()].clone_from_slice(chunk);
+                <span class="self">self</span>.len = chunk.len() <span class="kw">as </span>u32;
             }
         }
     }
 }
 
-<span class="comment">// Round key constants</span>
-<span class="kw">const</span> <span class="ident">K0</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0x5A827999u32</span>;
-<span class="kw">const</span> <span class="ident">K1</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0x6ED9EBA1u32</span>;
-<span class="kw">const</span> <span class="ident">K2</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0x8F1BBCDCu32</span>;
-<span class="kw">const</span> <span class="ident">K3</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0xCA62C1D6u32</span>;
+<span class="comment">// Round key constants
+</span><span class="kw">const </span>K0: u32 = <span class="number">0x5A827999u32</span>;
+<span class="kw">const </span>K1: u32 = <span class="number">0x6ED9EBA1u32</span>;
+<span class="kw">const </span>K2: u32 = <span class="number">0x8F1BBCDCu32</span>;
+<span class="kw">const </span>K3: u32 = <span class="number">0xCA62C1D6u32</span>;
 
-<span class="doccomment">/// Not an intrinsic, but gets the first element of a vector.</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">sha1_first</span>(<span class="ident">w0</span>: <span class="ident">u32x4</span>) -&gt; <span class="ident">u32</span> {
-    <span class="ident">w0</span>.<span class="number">0</span>
+<span class="doccomment">/// Not an intrinsic, but gets the first element of a vector.
+</span><span class="attribute">#[inline]
+</span><span class="kw">fn </span>sha1_first(w0: u32x4) -&gt; u32 {
+    w0.<span class="number">0
+</span>}
+
+<span class="doccomment">/// Not an intrinsic, but adds a word to the first element of a vector.
+</span><span class="attribute">#[inline]
+</span><span class="kw">fn </span>sha1_first_add(e: u32, w0: u32x4) -&gt; u32x4 {
+    <span class="kw">let </span>u32x4(a, b, c, d) = w0;
+    u32x4(e.wrapping_add(a), b, c, d)
 }
 
-<span class="doccomment">/// Not an intrinsic, but adds a word to the first element of a vector.</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">sha1_first_add</span>(<span class="ident">e</span>: <span class="ident">u32</span>, <span class="ident">w0</span>: <span class="ident">u32x4</span>) -&gt; <span class="ident">u32x4</span> {
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>) <span class="op">=</span> <span class="ident">w0</span>;
-    <span class="ident">u32x4</span>(<span class="ident">e</span>.<span class="ident">wrapping_add</span>(<span class="ident">a</span>), <span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>)
+<span class="doccomment">/// Emulates `llvm.x86.sha1msg1` intrinsic.
+</span><span class="kw">fn </span>sha1msg1(a: u32x4, b: u32x4) -&gt; u32x4 {
+    <span class="kw">let </span>u32x4(<span class="kw">_</span>, <span class="kw">_</span>, w2, w3) = a;
+    <span class="kw">let </span>u32x4(w4, w5, <span class="kw">_</span>, <span class="kw">_</span>) = b;
+    a ^ u32x4(w2, w3, w4, w5)
 }
 
-<span class="doccomment">/// Emulates `llvm.x86.sha1msg1` intrinsic.</span>
-<span class="kw">fn</span> <span class="ident">sha1msg1</span>(<span class="ident">a</span>: <span class="ident">u32x4</span>, <span class="ident">b</span>: <span class="ident">u32x4</span>) -&gt; <span class="ident">u32x4</span> {
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">w2</span>, <span class="ident">w3</span>) <span class="op">=</span> <span class="ident">a</span>;
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="ident">w4</span>, <span class="ident">w5</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">b</span>;
-    <span class="ident">a</span> <span class="op">^</span> <span class="ident">u32x4</span>(<span class="ident">w2</span>, <span class="ident">w3</span>, <span class="ident">w4</span>, <span class="ident">w5</span>)
+<span class="doccomment">/// Emulates `llvm.x86.sha1msg2` intrinsic.
+</span><span class="kw">fn </span>sha1msg2(a: u32x4, b: u32x4) -&gt; u32x4 {
+    <span class="kw">let </span>u32x4(x0, x1, x2, x3) = a;
+    <span class="kw">let </span>u32x4(<span class="kw">_</span>, w13, w14, w15) = b;
+
+    <span class="kw">let </span>w16 = (x0 ^ w13).rotate_left(<span class="number">1</span>);
+    <span class="kw">let </span>w17 = (x1 ^ w14).rotate_left(<span class="number">1</span>);
+    <span class="kw">let </span>w18 = (x2 ^ w15).rotate_left(<span class="number">1</span>);
+    <span class="kw">let </span>w19 = (x3 ^ w16).rotate_left(<span class="number">1</span>);
+
+    u32x4(w16, w17, w18, w19)
 }
 
-<span class="doccomment">/// Emulates `llvm.x86.sha1msg2` intrinsic.</span>
-<span class="kw">fn</span> <span class="ident">sha1msg2</span>(<span class="ident">a</span>: <span class="ident">u32x4</span>, <span class="ident">b</span>: <span class="ident">u32x4</span>) -&gt; <span class="ident">u32x4</span> {
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>) <span class="op">=</span> <span class="ident">a</span>;
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="kw">_</span>, <span class="ident">w13</span>, <span class="ident">w14</span>, <span class="ident">w15</span>) <span class="op">=</span> <span class="ident">b</span>;
-
-    <span class="kw">let</span> <span class="ident">w16</span> <span class="op">=</span> (<span class="ident">x0</span> <span class="op">^</span> <span class="ident">w13</span>).<span class="ident">rotate_left</span>(<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">w17</span> <span class="op">=</span> (<span class="ident">x1</span> <span class="op">^</span> <span class="ident">w14</span>).<span class="ident">rotate_left</span>(<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">w18</span> <span class="op">=</span> (<span class="ident">x2</span> <span class="op">^</span> <span class="ident">w15</span>).<span class="ident">rotate_left</span>(<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">w19</span> <span class="op">=</span> (<span class="ident">x3</span> <span class="op">^</span> <span class="ident">w16</span>).<span class="ident">rotate_left</span>(<span class="number">1</span>);
-
-    <span class="ident">u32x4</span>(<span class="ident">w16</span>, <span class="ident">w17</span>, <span class="ident">w18</span>, <span class="ident">w19</span>)
+<span class="doccomment">/// Emulates `llvm.x86.sha1nexte` intrinsic.
+</span><span class="attribute">#[inline]
+</span><span class="kw">fn </span>sha1_first_half(abcd: u32x4, msg: u32x4) -&gt; u32x4 {
+    sha1_first_add(sha1_first(abcd).rotate_left(<span class="number">30</span>), msg)
 }
 
-<span class="doccomment">/// Emulates `llvm.x86.sha1nexte` intrinsic.</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">sha1_first_half</span>(<span class="ident">abcd</span>: <span class="ident">u32x4</span>, <span class="ident">msg</span>: <span class="ident">u32x4</span>) -&gt; <span class="ident">u32x4</span> {
-    <span class="ident">sha1_first_add</span>(<span class="ident">sha1_first</span>(<span class="ident">abcd</span>).<span class="ident">rotate_left</span>(<span class="number">30</span>), <span class="ident">msg</span>)
-}
+<span class="doccomment">/// Emulates `llvm.x86.sha1rnds4` intrinsic.
+/// Performs 4 rounds of the message block digest.
+</span><span class="kw">fn </span>sha1_digest_round_x4(abcd: u32x4, work: u32x4, i: i8) -&gt; u32x4 {
+    <span class="kw">const </span>K0V: u32x4 = u32x4(K0, K0, K0, K0);
+    <span class="kw">const </span>K1V: u32x4 = u32x4(K1, K1, K1, K1);
+    <span class="kw">const </span>K2V: u32x4 = u32x4(K2, K2, K2, K2);
+    <span class="kw">const </span>K3V: u32x4 = u32x4(K3, K3, K3, K3);
 
-<span class="doccomment">/// Emulates `llvm.x86.sha1rnds4` intrinsic.</span>
-<span class="doccomment">/// Performs 4 rounds of the message block digest.</span>
-<span class="kw">fn</span> <span class="ident">sha1_digest_round_x4</span>(<span class="ident">abcd</span>: <span class="ident">u32x4</span>, <span class="ident">work</span>: <span class="ident">u32x4</span>, <span class="ident">i</span>: <span class="ident">i8</span>) -&gt; <span class="ident">u32x4</span> {
-    <span class="kw">const</span> <span class="ident">K0V</span>: <span class="ident">u32x4</span> <span class="op">=</span> <span class="ident">u32x4</span>(<span class="ident">K0</span>, <span class="ident">K0</span>, <span class="ident">K0</span>, <span class="ident">K0</span>);
-    <span class="kw">const</span> <span class="ident">K1V</span>: <span class="ident">u32x4</span> <span class="op">=</span> <span class="ident">u32x4</span>(<span class="ident">K1</span>, <span class="ident">K1</span>, <span class="ident">K1</span>, <span class="ident">K1</span>);
-    <span class="kw">const</span> <span class="ident">K2V</span>: <span class="ident">u32x4</span> <span class="op">=</span> <span class="ident">u32x4</span>(<span class="ident">K2</span>, <span class="ident">K2</span>, <span class="ident">K2</span>, <span class="ident">K2</span>);
-    <span class="kw">const</span> <span class="ident">K3V</span>: <span class="ident">u32x4</span> <span class="op">=</span> <span class="ident">u32x4</span>(<span class="ident">K3</span>, <span class="ident">K3</span>, <span class="ident">K3</span>, <span class="ident">K3</span>);
-
-    <span class="kw">match</span> <span class="ident">i</span> {
-        <span class="number">0</span> =&gt; <span class="ident">sha1rnds4c</span>(<span class="ident">abcd</span>, <span class="ident">work</span> <span class="op">+</span> <span class="ident">K0V</span>),
-        <span class="number">1</span> =&gt; <span class="ident">sha1rnds4p</span>(<span class="ident">abcd</span>, <span class="ident">work</span> <span class="op">+</span> <span class="ident">K1V</span>),
-        <span class="number">2</span> =&gt; <span class="ident">sha1rnds4m</span>(<span class="ident">abcd</span>, <span class="ident">work</span> <span class="op">+</span> <span class="ident">K2V</span>),
-        <span class="number">3</span> =&gt; <span class="ident">sha1rnds4p</span>(<span class="ident">abcd</span>, <span class="ident">work</span> <span class="op">+</span> <span class="ident">K3V</span>),
-        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unknown icosaround index&quot;</span>),
+    <span class="kw">match </span>i {
+        <span class="number">0 </span>=&gt; sha1rnds4c(abcd, work + K0V),
+        <span class="number">1 </span>=&gt; sha1rnds4p(abcd, work + K1V),
+        <span class="number">2 </span>=&gt; sha1rnds4m(abcd, work + K2V),
+        <span class="number">3 </span>=&gt; sha1rnds4p(abcd, work + K3V),
+        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;unknown icosaround index&quot;</span>),
     }
 }
 
-<span class="doccomment">/// Not an intrinsic, but helps emulate `llvm.x86.sha1rnds4` intrinsic.</span>
-<span class="kw">fn</span> <span class="ident">sha1rnds4c</span>(<span class="ident">abcd</span>: <span class="ident">u32x4</span>, <span class="ident">msg</span>: <span class="ident">u32x4</span>) -&gt; <span class="ident">u32x4</span> {
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="kw-2">mut</span> <span class="ident">a</span>, <span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">mut</span> <span class="ident">d</span>) <span class="op">=</span> <span class="ident">abcd</span>;
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="ident">t</span>, <span class="ident">u</span>, <span class="ident">v</span>, <span class="ident">w</span>) <span class="op">=</span> <span class="ident">msg</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">e</span> <span class="op">=</span> <span class="number">0u32</span>;
+<span class="doccomment">/// Not an intrinsic, but helps emulate `llvm.x86.sha1rnds4` intrinsic.
+</span><span class="kw">fn </span>sha1rnds4c(abcd: u32x4, msg: u32x4) -&gt; u32x4 {
+    <span class="kw">let </span>u32x4(<span class="kw-2">mut </span>a, <span class="kw-2">mut </span>b, <span class="kw-2">mut </span>c, <span class="kw-2">mut </span>d) = abcd;
+    <span class="kw">let </span>u32x4(t, u, v, w) = msg;
+    <span class="kw">let </span><span class="kw-2">mut </span>e = <span class="number">0u32</span>;
 
-    <span class="macro">macro_rules!</span> <span class="ident">bool3ary_202</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">expr</span>) =&gt; {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span> <span class="op">^</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> <span class="op">&amp;</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span> <span class="op">^</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>)))
+    <span class="macro">macro_rules! </span>bool3ary_202 {
+        (<span class="macro-nonterminal">$a</span>:expr, <span class="macro-nonterminal">$b</span>:expr, <span class="macro-nonterminal">$c</span>:expr) =&gt; {
+            (<span class="macro-nonterminal">$c </span>^ (<span class="macro-nonterminal">$a </span>&amp; (<span class="macro-nonterminal">$b </span>^ <span class="macro-nonterminal">$c</span>)))
         };
-    } <span class="comment">// Choose, MD5F, SHA1C</span>
+    } <span class="comment">// Choose, MD5F, SHA1C
 
-    <span class="ident">e</span> <span class="op">=</span> <span class="ident">e</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">a</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_202!</span>(<span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">t</span>);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    </span>e = e
+        .wrapping_add(a.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_202!</span>(b, c, d))
+        .wrapping_add(t);
+    b = b.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">d</span> <span class="op">=</span> <span class="ident">d</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">e</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_202!</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">u</span>);
-    <span class="ident">a</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    d = d
+        .wrapping_add(e.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_202!</span>(a, b, c))
+        .wrapping_add(u);
+    a = a.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">c</span> <span class="op">=</span> <span class="ident">c</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">d</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_202!</span>(<span class="ident">e</span>, <span class="ident">a</span>, <span class="ident">b</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">v</span>);
-    <span class="ident">e</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    c = c
+        .wrapping_add(d.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_202!</span>(e, a, b))
+        .wrapping_add(v);
+    e = e.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">b</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">c</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_202!</span>(<span class="ident">d</span>, <span class="ident">e</span>, <span class="ident">a</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">w</span>);
-    <span class="ident">d</span> <span class="op">=</span> <span class="ident">d</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    b = b
+        .wrapping_add(c.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_202!</span>(d, e, a))
+        .wrapping_add(w);
+    d = d.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">u32x4</span>(<span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>, <span class="ident">e</span>)
+    u32x4(b, c, d, e)
 }
 
-<span class="doccomment">/// Not an intrinsic, but helps emulate `llvm.x86.sha1rnds4` intrinsic.</span>
-<span class="kw">fn</span> <span class="ident">sha1rnds4p</span>(<span class="ident">abcd</span>: <span class="ident">u32x4</span>, <span class="ident">msg</span>: <span class="ident">u32x4</span>) -&gt; <span class="ident">u32x4</span> {
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="kw-2">mut</span> <span class="ident">a</span>, <span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">mut</span> <span class="ident">d</span>) <span class="op">=</span> <span class="ident">abcd</span>;
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="ident">t</span>, <span class="ident">u</span>, <span class="ident">v</span>, <span class="ident">w</span>) <span class="op">=</span> <span class="ident">msg</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">e</span> <span class="op">=</span> <span class="number">0u32</span>;
+<span class="doccomment">/// Not an intrinsic, but helps emulate `llvm.x86.sha1rnds4` intrinsic.
+</span><span class="kw">fn </span>sha1rnds4p(abcd: u32x4, msg: u32x4) -&gt; u32x4 {
+    <span class="kw">let </span>u32x4(<span class="kw-2">mut </span>a, <span class="kw-2">mut </span>b, <span class="kw-2">mut </span>c, <span class="kw-2">mut </span>d) = abcd;
+    <span class="kw">let </span>u32x4(t, u, v, w) = msg;
+    <span class="kw">let </span><span class="kw-2">mut </span>e = <span class="number">0u32</span>;
 
-    <span class="macro">macro_rules!</span> <span class="ident">bool3ary_150</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">expr</span>) =&gt; {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> <span class="op">^</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span> <span class="op">^</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>)
+    <span class="macro">macro_rules! </span>bool3ary_150 {
+        (<span class="macro-nonterminal">$a</span>:expr, <span class="macro-nonterminal">$b</span>:expr, <span class="macro-nonterminal">$c</span>:expr) =&gt; {
+            (<span class="macro-nonterminal">$a </span>^ <span class="macro-nonterminal">$b </span>^ <span class="macro-nonterminal">$c</span>)
         };
-    } <span class="comment">// Parity, XOR, MD5H, SHA1P</span>
+    } <span class="comment">// Parity, XOR, MD5H, SHA1P
 
-    <span class="ident">e</span> <span class="op">=</span> <span class="ident">e</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">a</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_150!</span>(<span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">t</span>);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    </span>e = e
+        .wrapping_add(a.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_150!</span>(b, c, d))
+        .wrapping_add(t);
+    b = b.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">d</span> <span class="op">=</span> <span class="ident">d</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">e</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_150!</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">u</span>);
-    <span class="ident">a</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    d = d
+        .wrapping_add(e.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_150!</span>(a, b, c))
+        .wrapping_add(u);
+    a = a.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">c</span> <span class="op">=</span> <span class="ident">c</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">d</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_150!</span>(<span class="ident">e</span>, <span class="ident">a</span>, <span class="ident">b</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">v</span>);
-    <span class="ident">e</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    c = c
+        .wrapping_add(d.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_150!</span>(e, a, b))
+        .wrapping_add(v);
+    e = e.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">b</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">c</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_150!</span>(<span class="ident">d</span>, <span class="ident">e</span>, <span class="ident">a</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">w</span>);
-    <span class="ident">d</span> <span class="op">=</span> <span class="ident">d</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    b = b
+        .wrapping_add(c.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_150!</span>(d, e, a))
+        .wrapping_add(w);
+    d = d.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">u32x4</span>(<span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>, <span class="ident">e</span>)
+    u32x4(b, c, d, e)
 }
 
-<span class="doccomment">/// Not an intrinsic, but helps emulate `llvm.x86.sha1rnds4` intrinsic.</span>
-<span class="kw">fn</span> <span class="ident">sha1rnds4m</span>(<span class="ident">abcd</span>: <span class="ident">u32x4</span>, <span class="ident">msg</span>: <span class="ident">u32x4</span>) -&gt; <span class="ident">u32x4</span> {
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="kw-2">mut</span> <span class="ident">a</span>, <span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">mut</span> <span class="ident">c</span>, <span class="kw-2">mut</span> <span class="ident">d</span>) <span class="op">=</span> <span class="ident">abcd</span>;
-    <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="ident">t</span>, <span class="ident">u</span>, <span class="ident">v</span>, <span class="ident">w</span>) <span class="op">=</span> <span class="ident">msg</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">e</span> <span class="op">=</span> <span class="number">0u32</span>;
+<span class="doccomment">/// Not an intrinsic, but helps emulate `llvm.x86.sha1rnds4` intrinsic.
+</span><span class="kw">fn </span>sha1rnds4m(abcd: u32x4, msg: u32x4) -&gt; u32x4 {
+    <span class="kw">let </span>u32x4(<span class="kw-2">mut </span>a, <span class="kw-2">mut </span>b, <span class="kw-2">mut </span>c, <span class="kw-2">mut </span>d) = abcd;
+    <span class="kw">let </span>u32x4(t, u, v, w) = msg;
+    <span class="kw">let </span><span class="kw-2">mut </span>e = <span class="number">0u32</span>;
 
-    <span class="macro">macro_rules!</span> <span class="ident">bool3ary_232</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">expr</span>) =&gt; {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> <span class="op">&amp;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>) <span class="op">^</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> <span class="op">&amp;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>) <span class="op">^</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span> <span class="op">&amp;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>)
+    <span class="macro">macro_rules! </span>bool3ary_232 {
+        (<span class="macro-nonterminal">$a</span>:expr, <span class="macro-nonterminal">$b</span>:expr, <span class="macro-nonterminal">$c</span>:expr) =&gt; {
+            (<span class="macro-nonterminal">$a </span>&amp; <span class="macro-nonterminal">$b</span>) ^ (<span class="macro-nonterminal">$a </span>&amp; <span class="macro-nonterminal">$c</span>) ^ (<span class="macro-nonterminal">$b </span>&amp; <span class="macro-nonterminal">$c</span>)
         };
-    } <span class="comment">// Majority, SHA1M</span>
+    } <span class="comment">// Majority, SHA1M
 
-    <span class="ident">e</span> <span class="op">=</span> <span class="ident">e</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">a</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_232!</span>(<span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">t</span>);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    </span>e = e
+        .wrapping_add(a.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_232!</span>(b, c, d))
+        .wrapping_add(t);
+    b = b.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">d</span> <span class="op">=</span> <span class="ident">d</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">e</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_232!</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">u</span>);
-    <span class="ident">a</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    d = d
+        .wrapping_add(e.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_232!</span>(a, b, c))
+        .wrapping_add(u);
+    a = a.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">c</span> <span class="op">=</span> <span class="ident">c</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">d</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_232!</span>(<span class="ident">e</span>, <span class="ident">a</span>, <span class="ident">b</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">v</span>);
-    <span class="ident">e</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    c = c
+        .wrapping_add(d.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_232!</span>(e, a, b))
+        .wrapping_add(v);
+    e = e.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">b</span>
-        .<span class="ident">wrapping_add</span>(<span class="ident">c</span>.<span class="ident">rotate_left</span>(<span class="number">5</span>))
-        .<span class="ident">wrapping_add</span>(<span class="macro">bool3ary_232!</span>(<span class="ident">d</span>, <span class="ident">e</span>, <span class="ident">a</span>))
-        .<span class="ident">wrapping_add</span>(<span class="ident">w</span>);
-    <span class="ident">d</span> <span class="op">=</span> <span class="ident">d</span>.<span class="ident">rotate_left</span>(<span class="number">30</span>);
+    b = b
+        .wrapping_add(c.rotate_left(<span class="number">5</span>))
+        .wrapping_add(<span class="macro">bool3ary_232!</span>(d, e, a))
+        .wrapping_add(w);
+    d = d.rotate_left(<span class="number">30</span>);
 
-    <span class="ident">u32x4</span>(<span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>, <span class="ident">e</span>)
+    u32x4(b, c, d, e)
 }
 
-<span class="kw">impl</span> <span class="ident">Sha1State</span> {
-    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">64</span>]) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">words</span> <span class="op">=</span> [<span class="number">0u32</span>; <span class="number">16</span>];
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">word</span>) <span class="kw">in</span> <span class="ident">words</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">off</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">*</span> <span class="number">4</span>;
-            <span class="kw-2">*</span><span class="ident">word</span> <span class="op">=</span> (<span class="ident">block</span>[<span class="ident">off</span> <span class="op">+</span> <span class="number">3</span>] <span class="kw">as</span> <span class="ident">u32</span>)
-                <span class="op">|</span> ((<span class="ident">block</span>[<span class="ident">off</span> <span class="op">+</span> <span class="number">2</span>] <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>)
-                <span class="op">|</span> ((<span class="ident">block</span>[<span class="ident">off</span> <span class="op">+</span> <span class="number">1</span>] <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>)
-                <span class="op">|</span> ((<span class="ident">block</span>[<span class="ident">off</span>] <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">24</span>);
+<span class="kw">impl </span>Sha1State {
+    <span class="kw">fn </span>process(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;</span>[u8; <span class="number">64</span>]) {
+        <span class="kw">let </span><span class="kw-2">mut </span>words = [<span class="number">0u32</span>; <span class="number">16</span>];
+        <span class="kw">for </span>(i, word) <span class="kw">in </span>words.iter_mut().enumerate() {
+            <span class="kw">let </span>off = i * <span class="number">4</span>;
+            <span class="kw-2">*</span>word = (block[off + <span class="number">3</span>] <span class="kw">as </span>u32)
+                | ((block[off + <span class="number">2</span>] <span class="kw">as </span>u32) &lt;&lt; <span class="number">8</span>)
+                | ((block[off + <span class="number">1</span>] <span class="kw">as </span>u32) &lt;&lt; <span class="number">16</span>)
+                | ((block[off] <span class="kw">as </span>u32) &lt;&lt; <span class="number">24</span>);
         }
-        <span class="macro">macro_rules!</span> <span class="ident">schedule</span> {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">v0</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v1</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v2</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v3</span>:<span class="ident">expr</span>) =&gt; {
-                <span class="ident">sha1msg2</span>(<span class="ident">sha1msg1</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">v0</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v1</span>) <span class="op">^</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v2</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v3</span>)
+        <span class="macro">macro_rules! </span>schedule {
+            (<span class="macro-nonterminal">$v0</span>:expr, <span class="macro-nonterminal">$v1</span>:expr, <span class="macro-nonterminal">$v2</span>:expr, <span class="macro-nonterminal">$v3</span>:expr) =&gt; {
+                sha1msg2(sha1msg1(<span class="macro-nonterminal">$v0</span>, <span class="macro-nonterminal">$v1</span>) ^ <span class="macro-nonterminal">$v2</span>, <span class="macro-nonterminal">$v3</span>)
             };
         }
 
-        <span class="macro">macro_rules!</span> <span class="ident">rounds4</span> {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">h0</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">h1</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">wk</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">expr</span>) =&gt; {
-                <span class="ident">sha1_digest_round_x4</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">h0</span>, <span class="ident">sha1_first_half</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">h1</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">wk</span>), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>)
+        <span class="macro">macro_rules! </span>rounds4 {
+            (<span class="macro-nonterminal">$h0</span>:ident, <span class="macro-nonterminal">$h1</span>:ident, <span class="macro-nonterminal">$wk</span>:expr, <span class="macro-nonterminal">$i</span>:expr) =&gt; {
+                sha1_digest_round_x4(<span class="macro-nonterminal">$h0</span>, sha1_first_half(<span class="macro-nonterminal">$h1</span>, <span class="macro-nonterminal">$wk</span>), <span class="macro-nonterminal">$i</span>)
             };
         }
 
-        <span class="comment">// Rounds 0..20</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">h0</span> <span class="op">=</span> <span class="ident">u32x4</span>(<span class="self">self</span>.<span class="ident">state</span>[<span class="number">0</span>], <span class="self">self</span>.<span class="ident">state</span>[<span class="number">1</span>], <span class="self">self</span>.<span class="ident">state</span>[<span class="number">2</span>], <span class="self">self</span>.<span class="ident">state</span>[<span class="number">3</span>]);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w0</span> <span class="op">=</span> <span class="ident">u32x4</span>(<span class="ident">words</span>[<span class="number">0</span>], <span class="ident">words</span>[<span class="number">1</span>], <span class="ident">words</span>[<span class="number">2</span>], <span class="ident">words</span>[<span class="number">3</span>]);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">sha1_digest_round_x4</span>(<span class="ident">h0</span>, <span class="ident">sha1_first_add</span>(<span class="self">self</span>.<span class="ident">state</span>[<span class="number">4</span>], <span class="ident">w0</span>), <span class="number">0</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w1</span> <span class="op">=</span> <span class="ident">u32x4</span>(<span class="ident">words</span>[<span class="number">4</span>], <span class="ident">words</span>[<span class="number">5</span>], <span class="ident">words</span>[<span class="number">6</span>], <span class="ident">words</span>[<span class="number">7</span>]);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w1</span>, <span class="number">0</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w2</span> <span class="op">=</span> <span class="ident">u32x4</span>(<span class="ident">words</span>[<span class="number">8</span>], <span class="ident">words</span>[<span class="number">9</span>], <span class="ident">words</span>[<span class="number">10</span>], <span class="ident">words</span>[<span class="number">11</span>]);
-        <span class="ident">h1</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h0</span>, <span class="ident">h1</span>, <span class="ident">w2</span>, <span class="number">0</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w3</span> <span class="op">=</span> <span class="ident">u32x4</span>(<span class="ident">words</span>[<span class="number">12</span>], <span class="ident">words</span>[<span class="number">13</span>], <span class="ident">words</span>[<span class="number">14</span>], <span class="ident">words</span>[<span class="number">15</span>]);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w3</span>, <span class="number">0</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w4</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w0</span>, <span class="ident">w1</span>, <span class="ident">w2</span>, <span class="ident">w3</span>);
-        <span class="ident">h1</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h0</span>, <span class="ident">h1</span>, <span class="ident">w4</span>, <span class="number">0</span>);
+        <span class="comment">// Rounds 0..20
+        </span><span class="kw">let </span><span class="kw-2">mut </span>h0 = u32x4(<span class="self">self</span>.state[<span class="number">0</span>], <span class="self">self</span>.state[<span class="number">1</span>], <span class="self">self</span>.state[<span class="number">2</span>], <span class="self">self</span>.state[<span class="number">3</span>]);
+        <span class="kw">let </span><span class="kw-2">mut </span>w0 = u32x4(words[<span class="number">0</span>], words[<span class="number">1</span>], words[<span class="number">2</span>], words[<span class="number">3</span>]);
+        <span class="kw">let </span><span class="kw-2">mut </span>h1 = sha1_digest_round_x4(h0, sha1_first_add(<span class="self">self</span>.state[<span class="number">4</span>], w0), <span class="number">0</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>w1 = u32x4(words[<span class="number">4</span>], words[<span class="number">5</span>], words[<span class="number">6</span>], words[<span class="number">7</span>]);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w1, <span class="number">0</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>w2 = u32x4(words[<span class="number">8</span>], words[<span class="number">9</span>], words[<span class="number">10</span>], words[<span class="number">11</span>]);
+        h1 = <span class="macro">rounds4!</span>(h0, h1, w2, <span class="number">0</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>w3 = u32x4(words[<span class="number">12</span>], words[<span class="number">13</span>], words[<span class="number">14</span>], words[<span class="number">15</span>]);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w3, <span class="number">0</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>w4 = <span class="macro">schedule!</span>(w0, w1, w2, w3);
+        h1 = <span class="macro">rounds4!</span>(h0, h1, w4, <span class="number">0</span>);
 
-        <span class="comment">// Rounds 20..40</span>
-        <span class="ident">w0</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w1</span>, <span class="ident">w2</span>, <span class="ident">w3</span>, <span class="ident">w4</span>);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w0</span>, <span class="number">1</span>);
-        <span class="ident">w1</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w2</span>, <span class="ident">w3</span>, <span class="ident">w4</span>, <span class="ident">w0</span>);
-        <span class="ident">h1</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h0</span>, <span class="ident">h1</span>, <span class="ident">w1</span>, <span class="number">1</span>);
-        <span class="ident">w2</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w3</span>, <span class="ident">w4</span>, <span class="ident">w0</span>, <span class="ident">w1</span>);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w2</span>, <span class="number">1</span>);
-        <span class="ident">w3</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w4</span>, <span class="ident">w0</span>, <span class="ident">w1</span>, <span class="ident">w2</span>);
-        <span class="ident">h1</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h0</span>, <span class="ident">h1</span>, <span class="ident">w3</span>, <span class="number">1</span>);
-        <span class="ident">w4</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w0</span>, <span class="ident">w1</span>, <span class="ident">w2</span>, <span class="ident">w3</span>);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w4</span>, <span class="number">1</span>);
+        <span class="comment">// Rounds 20..40
+        </span>w0 = <span class="macro">schedule!</span>(w1, w2, w3, w4);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w0, <span class="number">1</span>);
+        w1 = <span class="macro">schedule!</span>(w2, w3, w4, w0);
+        h1 = <span class="macro">rounds4!</span>(h0, h1, w1, <span class="number">1</span>);
+        w2 = <span class="macro">schedule!</span>(w3, w4, w0, w1);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w2, <span class="number">1</span>);
+        w3 = <span class="macro">schedule!</span>(w4, w0, w1, w2);
+        h1 = <span class="macro">rounds4!</span>(h0, h1, w3, <span class="number">1</span>);
+        w4 = <span class="macro">schedule!</span>(w0, w1, w2, w3);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w4, <span class="number">1</span>);
 
-        <span class="comment">// Rounds 40..60</span>
-        <span class="ident">w0</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w1</span>, <span class="ident">w2</span>, <span class="ident">w3</span>, <span class="ident">w4</span>);
-        <span class="ident">h1</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h0</span>, <span class="ident">h1</span>, <span class="ident">w0</span>, <span class="number">2</span>);
-        <span class="ident">w1</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w2</span>, <span class="ident">w3</span>, <span class="ident">w4</span>, <span class="ident">w0</span>);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w1</span>, <span class="number">2</span>);
-        <span class="ident">w2</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w3</span>, <span class="ident">w4</span>, <span class="ident">w0</span>, <span class="ident">w1</span>);
-        <span class="ident">h1</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h0</span>, <span class="ident">h1</span>, <span class="ident">w2</span>, <span class="number">2</span>);
-        <span class="ident">w3</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w4</span>, <span class="ident">w0</span>, <span class="ident">w1</span>, <span class="ident">w2</span>);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w3</span>, <span class="number">2</span>);
-        <span class="ident">w4</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w0</span>, <span class="ident">w1</span>, <span class="ident">w2</span>, <span class="ident">w3</span>);
-        <span class="ident">h1</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h0</span>, <span class="ident">h1</span>, <span class="ident">w4</span>, <span class="number">2</span>);
+        <span class="comment">// Rounds 40..60
+        </span>w0 = <span class="macro">schedule!</span>(w1, w2, w3, w4);
+        h1 = <span class="macro">rounds4!</span>(h0, h1, w0, <span class="number">2</span>);
+        w1 = <span class="macro">schedule!</span>(w2, w3, w4, w0);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w1, <span class="number">2</span>);
+        w2 = <span class="macro">schedule!</span>(w3, w4, w0, w1);
+        h1 = <span class="macro">rounds4!</span>(h0, h1, w2, <span class="number">2</span>);
+        w3 = <span class="macro">schedule!</span>(w4, w0, w1, w2);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w3, <span class="number">2</span>);
+        w4 = <span class="macro">schedule!</span>(w0, w1, w2, w3);
+        h1 = <span class="macro">rounds4!</span>(h0, h1, w4, <span class="number">2</span>);
 
-        <span class="comment">// Rounds 60..80</span>
-        <span class="ident">w0</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w1</span>, <span class="ident">w2</span>, <span class="ident">w3</span>, <span class="ident">w4</span>);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w0</span>, <span class="number">3</span>);
-        <span class="ident">w1</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w2</span>, <span class="ident">w3</span>, <span class="ident">w4</span>, <span class="ident">w0</span>);
-        <span class="ident">h1</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h0</span>, <span class="ident">h1</span>, <span class="ident">w1</span>, <span class="number">3</span>);
-        <span class="ident">w2</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w3</span>, <span class="ident">w4</span>, <span class="ident">w0</span>, <span class="ident">w1</span>);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w2</span>, <span class="number">3</span>);
-        <span class="ident">w3</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w4</span>, <span class="ident">w0</span>, <span class="ident">w1</span>, <span class="ident">w2</span>);
-        <span class="ident">h1</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h0</span>, <span class="ident">h1</span>, <span class="ident">w3</span>, <span class="number">3</span>);
-        <span class="ident">w4</span> <span class="op">=</span> <span class="macro">schedule!</span>(<span class="ident">w0</span>, <span class="ident">w1</span>, <span class="ident">w2</span>, <span class="ident">w3</span>);
-        <span class="ident">h0</span> <span class="op">=</span> <span class="macro">rounds4!</span>(<span class="ident">h1</span>, <span class="ident">h0</span>, <span class="ident">w4</span>, <span class="number">3</span>);
+        <span class="comment">// Rounds 60..80
+        </span>w0 = <span class="macro">schedule!</span>(w1, w2, w3, w4);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w0, <span class="number">3</span>);
+        w1 = <span class="macro">schedule!</span>(w2, w3, w4, w0);
+        h1 = <span class="macro">rounds4!</span>(h0, h1, w1, <span class="number">3</span>);
+        w2 = <span class="macro">schedule!</span>(w3, w4, w0, w1);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w2, <span class="number">3</span>);
+        w3 = <span class="macro">schedule!</span>(w4, w0, w1, w2);
+        h1 = <span class="macro">rounds4!</span>(h0, h1, w3, <span class="number">3</span>);
+        w4 = <span class="macro">schedule!</span>(w0, w1, w2, w3);
+        h0 = <span class="macro">rounds4!</span>(h1, h0, w4, <span class="number">3</span>);
 
-        <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">sha1_first</span>(<span class="ident">h1</span>).<span class="ident">rotate_left</span>(<span class="number">30</span>);
-        <span class="kw">let</span> <span class="ident">u32x4</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">d</span>) <span class="op">=</span> <span class="ident">h0</span>;
+        <span class="kw">let </span>e = sha1_first(h1).rotate_left(<span class="number">30</span>);
+        <span class="kw">let </span>u32x4(a, b, c, d) = h0;
 
-        <span class="self">self</span>.<span class="ident">state</span>[<span class="number">0</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="number">0</span>].<span class="ident">wrapping_add</span>(<span class="ident">a</span>);
-        <span class="self">self</span>.<span class="ident">state</span>[<span class="number">1</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="number">1</span>].<span class="ident">wrapping_add</span>(<span class="ident">b</span>);
-        <span class="self">self</span>.<span class="ident">state</span>[<span class="number">2</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="number">2</span>].<span class="ident">wrapping_add</span>(<span class="ident">c</span>);
-        <span class="self">self</span>.<span class="ident">state</span>[<span class="number">3</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="number">3</span>].<span class="ident">wrapping_add</span>(<span class="ident">d</span>);
-        <span class="self">self</span>.<span class="ident">state</span>[<span class="number">4</span>] <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="number">4</span>].<span class="ident">wrapping_add</span>(<span class="ident">e</span>);
+        <span class="self">self</span>.state[<span class="number">0</span>] = <span class="self">self</span>.state[<span class="number">0</span>].wrapping_add(a);
+        <span class="self">self</span>.state[<span class="number">1</span>] = <span class="self">self</span>.state[<span class="number">1</span>].wrapping_add(b);
+        <span class="self">self</span>.state[<span class="number">2</span>] = <span class="self">self</span>.state[<span class="number">2</span>].wrapping_add(c);
+        <span class="self">self</span>.state[<span class="number">3</span>] = <span class="self">self</span>.state[<span class="number">3</span>].wrapping_add(d);
+        <span class="self">self</span>.state[<span class="number">4</span>] = <span class="self">self</span>.state[<span class="number">4</span>].wrapping_add(e);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Blocks</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Blocks</span>) -&gt; <span class="ident">bool</span> {
-        (<span class="self">self</span>.<span class="ident">len</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">block</span>[..]).<span class="ident">eq</span>(<span class="kw-2">&amp;</span>(<span class="ident">other</span>.<span class="ident">len</span>, <span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">block</span>[..]))
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>Blocks {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Blocks) -&gt; bool {
+        (<span class="self">self</span>.len, <span class="kw-2">&amp;</span><span class="self">self</span>.block[..]).eq(<span class="kw-2">&amp;</span>(other.len, <span class="kw-2">&amp;</span>other.block[..]))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Blocks</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Blocks</span>) -&gt; <span class="ident">cmp::Ordering</span> {
-        (<span class="self">self</span>.<span class="ident">len</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">block</span>[..]).<span class="ident">cmp</span>(<span class="kw-2">&amp;</span>(<span class="ident">other</span>.<span class="ident">len</span>, <span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">block</span>[..]))
+<span class="kw">impl </span>Ord <span class="kw">for </span>Blocks {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Blocks) -&gt; cmp::Ordering {
+        (<span class="self">self</span>.len, <span class="kw-2">&amp;</span><span class="self">self</span>.block[..]).cmp(<span class="kw-2">&amp;</span>(other.len, <span class="kw-2">&amp;</span>other.block[..]))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">Blocks</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Blocks</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
+<span class="kw">impl </span>PartialOrd <span class="kw">for </span>Blocks {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Blocks) -&gt; <span class="prelude-ty">Option</span>&lt;cmp::Ordering&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Blocks</span> {}
+<span class="kw">impl </span>Eq <span class="kw">for </span>Blocks {}
 
-<span class="kw">impl</span> <span class="ident">hash::Hash</span> <span class="kw">for</span> <span class="ident">Blocks</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
-        <span class="self">self</span>.<span class="ident">len</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
-        <span class="self">self</span>.<span class="ident">block</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
+<span class="kw">impl </span>hash::Hash <span class="kw">for </span>Blocks {
+    <span class="kw">fn </span>hash&lt;H: hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+        <span class="self">self</span>.len.hash(state);
+        <span class="self">self</span>.block.hash(state);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Blocks</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Blocks</span> {
-        <span class="ident">Blocks</span> { ..<span class="kw-2">*</span><span class="self">self</span> }
+<span class="kw">impl </span>Clone <span class="kw">for </span>Blocks {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Blocks {
+        Blocks { ..<span class="kw-2">*</span><span class="self">self </span>}
     }
 }
 
-<span class="doccomment">/// Indicates that a digest couldn&#39;t be parsed.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Ord</span>, <span class="ident">PartialOrd</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DigestParseError</span>(());
+<span class="doccomment">/// Indicates that a digest couldn&#39;t be parsed.
+</span><span class="attribute">#[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, Debug)]
+</span><span class="kw">pub struct </span>DigestParseError(());
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">DigestParseError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;not a valid sha1 hash&quot;</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>DigestParseError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;not a valid sha1 hash&quot;</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">DigestParseError</span> {
-    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="string">&quot;not a valid sha1 hash&quot;</span>
-    }
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>DigestParseError {
+    <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="string">&quot;not a valid sha1 hash&quot;
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">str::FromStr</span> <span class="kw">for</span> <span class="ident">Digest</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">DigestParseError</span>;
+<span class="kw">impl </span>str::FromStr <span class="kw">for </span>Digest {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= DigestParseError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Digest</span>, <span class="ident">DigestParseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">40</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">DigestParseError</span>(()));
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Digest, DigestParseError&gt; {
+        <span class="kw">if </span>s.len() != <span class="number">40 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DigestParseError(()));
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rv</span>: <span class="ident">Digest</span> <span class="op">=</span> <span class="ident">Default::default</span>();
-        <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">5</span> {
-            <span class="ident">rv</span>.<span class="ident">data</span>.<span class="ident">state</span>[<span class="ident">idx</span>] <span class="op">=</span>
-                <span class="macro">r#try!</span>(<span class="ident">u32::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">idx</span> <span class="op">*</span> <span class="number">8</span>..<span class="ident">idx</span> <span class="op">*</span> <span class="number">8</span> <span class="op">+</span> <span class="number">8</span>], <span class="number">16</span>)
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">DigestParseError</span>(())));
+        <span class="kw">let </span><span class="kw-2">mut </span>rv: Digest = Default::default();
+        <span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="number">5 </span>{
+            rv.data.state[idx] =
+                <span class="macro">r#try!</span>(u32::from_str_radix(<span class="kw-2">&amp;</span>s[idx * <span class="number">8</span>..idx * <span class="number">8 </span>+ <span class="number">8</span>], <span class="number">16</span>)
+                    .map_err(|<span class="kw">_</span>| DigestParseError(())));
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">rv</span>)
+        <span class="prelude-val">Ok</span>(rv)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Digest</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>.<span class="ident">iter</span>() {
-            <span class="macro">r#try!</span>(<span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:08x}&quot;</span>, <span class="ident">i</span>));
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Digest {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">for </span>i <span class="kw">in </span><span class="self">self</span>.data.state.iter() {
+            <span class="macro">r#try!</span>(<span class="macro">write!</span>(f, <span class="string">&quot;{:08x}&quot;</span>, i));
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Digest</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Digest {{ \&quot;{}\&quot; }}&quot;</span>, <span class="self">self</span>)
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Digest {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;Digest {{ \&quot;{}\&quot; }}&quot;</span>, <span class="self">self</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">serde::ser::Serialize</span> <span class="kw">for</span> <span class="ident">Digest</span> {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">serde::ser::Serializer</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">impl </span>serde::ser::Serialize <span class="kw">for </span>Digest {
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: serde::ser::Serializer,
     {
-        <span class="kw">fn</span> <span class="ident">to_hex</span>(<span class="ident">num</span>: <span class="ident">u8</span>) -&gt; <span class="ident">u8</span> {
-            <span class="string">b&quot;0123456789abcdef&quot;</span>[<span class="ident">num</span> <span class="kw">as</span> <span class="ident">usize</span>]
+        <span class="kw">fn </span>to_hex(num: u8) -&gt; u8 {
+            <span class="string">b&quot;0123456789abcdef&quot;</span>[num <span class="kw">as </span>usize]
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hex_str</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">40</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">state</span>.<span class="ident">iter</span>() {
-            <span class="kw">for</span> <span class="ident">off</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
-                <span class="kw">let</span> <span class="ident">byte</span> <span class="op">=</span> (<span class="ident">state</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="number">8</span> <span class="op">*</span> (<span class="number">3</span> <span class="op">-</span> <span class="ident">off</span>))) <span class="kw">as</span> <span class="ident">u8</span>;
-                <span class="ident">hex_str</span>[<span class="ident">c</span>] <span class="op">=</span> <span class="ident">to_hex</span>(<span class="ident">byte</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>);
-                <span class="ident">hex_str</span>[<span class="ident">c</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">=</span> <span class="ident">to_hex</span>(<span class="ident">byte</span> <span class="op">&amp;</span> <span class="number">0xf</span>);
-                <span class="ident">c</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>hex_str = [<span class="number">0u8</span>; <span class="number">40</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>c = <span class="number">0</span>;
+        <span class="kw">for </span>state <span class="kw">in </span><span class="self">self</span>.data.state.iter() {
+            <span class="kw">for </span>off <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
+                <span class="kw">let </span>byte = (state &gt;&gt; (<span class="number">8 </span>* (<span class="number">3 </span>- off))) <span class="kw">as </span>u8;
+                hex_str[c] = to_hex(byte &gt;&gt; <span class="number">4</span>);
+                hex_str[c + <span class="number">1</span>] = to_hex(byte &amp; <span class="number">0xf</span>);
+                c += <span class="number">2</span>;
             }
         }
-        <span class="ident">serializer</span>.<span class="ident">serialize_str</span>(<span class="kw">unsafe</span> { <span class="ident">str::from_utf8_unchecked</span>(<span class="kw-2">&amp;</span><span class="ident">hex_str</span>[..]) })
+        serializer.serialize_str(<span class="kw">unsafe </span>{ str::from_utf8_unchecked(<span class="kw-2">&amp;</span>hex_str[..]) })
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">serde::de::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Digest</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">serde::de::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::de::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Digest {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+    <span class="kw">where
+        </span>D: serde::de::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">struct</span> <span class="ident">V</span>;
+        <span class="kw">struct </span>V;
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">serde::de::Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">V</span> {
-            <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">Digest</span>;
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>V {
+            <span class="kw">type </span>Value = Digest;
 
-            <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-                <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;SHA-1 hash&quot;</span>)
+            <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+                formatter.write_str(<span class="string">&quot;SHA-1 hash&quot;</span>)
             }
 
-            <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Digest</span>, <span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">serde::de::Error</span>,
+            <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Digest, E&gt;
+            <span class="kw">where
+                </span>E: serde::de::Error,
             {
-                <span class="ident">value</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-                    <span class="ident">serde::de::Error::invalid_value</span>(<span class="ident">serde::de::Unexpected::Str</span>(<span class="ident">value</span>), <span class="kw-2">&amp;</span><span class="self">self</span>)
+                value.parse().map_err(|<span class="kw">_</span>| {
+                    serde::de::Error::invalid_value(serde::de::Unexpected::Str(value), <span class="kw-2">&amp;</span><span class="self">self</span>)
                 })
             }
         }
 
-        <span class="ident">deserializer</span>.<span class="ident">deserialize_str</span>(<span class="ident">V</span>)
+        deserializer.deserialize_str(V)
     }
 }
 
-<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">std</span>;
-    <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">rand</span>;
-    <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">openssl</span>;
+<span class="attribute">#[rustfmt::skip]
+#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">extern crate </span>std;
+    <span class="kw">extern crate </span>rand;
+    <span class="kw">extern crate </span>openssl;
 
-    <span class="kw">use</span> <span class="ident"><span class="self">self</span>::std::prelude::v1</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="self">self</span>::std::prelude::v1::<span class="kw-2">*</span>;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Sha1</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::Sha1;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_simple</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Sha1::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_simple() {
+        <span class="kw">let </span><span class="kw-2">mut </span>m = Sha1::new();
 
-        <span class="kw">let</span> <span class="ident">tests</span> <span class="op">=</span> [
+        <span class="kw">let </span>tests = [
             (<span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>,
              <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>),
             (<span class="string">&quot;The quick brown fox jumps over the lazy cog&quot;</span>,
@@ -1460,123 +1460,123 @@
              <span class="string">&quot;cef734ba81a024479e09eb5a75b6ddae62e6abf1&quot;</span>),
         ];
 
-        <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">s</span>, <span class="kw-2">ref</span> <span class="ident">h</span>) <span class="kw">in</span> <span class="ident">tests</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">as_bytes</span>();
+        <span class="kw">for </span><span class="kw-2">&amp;</span>(s, <span class="kw-2">ref </span>h) <span class="kw">in </span>tests.iter() {
+            <span class="kw">let </span>data = s.as_bytes();
 
-            <span class="ident">m</span>.<span class="ident">reset</span>();
-            <span class="ident">m</span>.<span class="ident">update</span>(<span class="ident">data</span>);
-            <span class="kw">let</span> <span class="ident">hh</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">digest</span>().<span class="ident">to_string</span>();
+            m.reset();
+            m.update(data);
+            <span class="kw">let </span>hh = m.digest().to_string();
 
-            <span class="macro">assert_eq!</span>(<span class="ident">hh</span>.<span class="ident">len</span>(), <span class="ident">h</span>.<span class="ident">len</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">hh</span>, <span class="kw-2">*</span><span class="ident">h</span>);
+            <span class="macro">assert_eq!</span>(hh.len(), h.len());
+            <span class="macro">assert_eq!</span>(hh, <span class="kw-2">*</span>h);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_shortcuts</span>() {
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Sha1::from</span>(<span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">s</span>.<span class="ident">digest</span>().<span class="ident">to_string</span>(), <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_shortcuts() {
+        <span class="kw">let </span>s = Sha1::from(<span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>);
+        <span class="macro">assert_eq!</span>(s.digest().to_string(), <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Sha1::from</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;The quick brown fox jumps over the lazy dog&quot;</span>[..]);
-        <span class="macro">assert_eq!</span>(<span class="ident">s</span>.<span class="ident">digest</span>().<span class="ident">to_string</span>(), <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>);
+        <span class="kw">let </span>s = Sha1::from(<span class="kw-2">&amp;</span><span class="string">b&quot;The quick brown fox jumps over the lazy dog&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(s.digest().to_string(), <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>);
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span> {
-            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Sha1::from</span>(<span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">s</span>.<span class="ident">hexdigest</span>(), <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>);
+        <span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)] </span>{
+            <span class="kw">let </span>s = Sha1::from(<span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>);
+            <span class="macro">assert_eq!</span>(s.hexdigest(), <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_multiple_updates</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Sha1::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_multiple_updates() {
+        <span class="kw">let </span><span class="kw-2">mut </span>m = Sha1::new();
 
-        <span class="ident">m</span>.<span class="ident">reset</span>();
-        <span class="ident">m</span>.<span class="ident">update</span>(<span class="string">&quot;The quick brown &quot;</span>.<span class="ident">as_bytes</span>());
-        <span class="ident">m</span>.<span class="ident">update</span>(<span class="string">&quot;fox jumps over &quot;</span>.<span class="ident">as_bytes</span>());
-        <span class="ident">m</span>.<span class="ident">update</span>(<span class="string">&quot;the lazy dog&quot;</span>.<span class="ident">as_bytes</span>());
-        <span class="kw">let</span> <span class="ident">hh</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">digest</span>().<span class="ident">to_string</span>();
+        m.reset();
+        m.update(<span class="string">&quot;The quick brown &quot;</span>.as_bytes());
+        m.update(<span class="string">&quot;fox jumps over &quot;</span>.as_bytes());
+        m.update(<span class="string">&quot;the lazy dog&quot;</span>.as_bytes());
+        <span class="kw">let </span>hh = m.digest().to_string();
 
 
-        <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">hh</span>.<span class="ident">len</span>(), <span class="ident">h</span>.<span class="ident">len</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">hh</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">h</span>);
+        <span class="kw">let </span>h = <span class="string">&quot;2fd4e1c67a2d28fced849ee1bb76e7391b93eb12&quot;</span>;
+        <span class="macro">assert_eq!</span>(hh.len(), h.len());
+        <span class="macro">assert_eq!</span>(hh, <span class="kw-2">&amp;*</span>h);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_sha1_loop</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Sha1::new</span>();
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="string">&quot;The quick brown fox jumps over the lazy dog.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">1000u64</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_sha1_loop() {
+        <span class="kw">let </span><span class="kw-2">mut </span>m = Sha1::new();
+        <span class="kw">let </span>s = <span class="string">&quot;The quick brown fox jumps over the lazy dog.&quot;</span>;
+        <span class="kw">let </span>n = <span class="number">1000u64</span>;
 
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">3</span> {
-            <span class="ident">m</span>.<span class="ident">reset</span>();
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> {
-                <span class="ident">m</span>.<span class="ident">update</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>());
+        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">3 </span>{
+            m.reset();
+            <span class="kw">for _ in </span><span class="number">0</span>..n {
+                m.update(s.as_bytes());
             }
-            <span class="macro">assert_eq!</span>(<span class="ident">m</span>.<span class="ident">digest</span>().<span class="ident">to_string</span>(),
+            <span class="macro">assert_eq!</span>(m.digest().to_string(),
                        <span class="string">&quot;7ca27655f67fceaa78ed2e645a81c7f1d6e249d2&quot;</span>);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">spray_and_pray</span>() {
-        <span class="kw">use</span> <span class="ident"><span class="self">self</span>::rand::Rng</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>spray_and_pray() {
+        <span class="kw">use </span><span class="self">self</span>::rand::Rng;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Sha1::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">512</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>rng = rand::thread_rng();
+        <span class="kw">let </span><span class="kw-2">mut </span>m = Sha1::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = [<span class="number">0</span>; <span class="number">512</span>];
 
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">20</span> {
-            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">openssl::hash::MessageDigest::sha1</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">openssl::hash::Hasher::new</span>(<span class="ident">ty</span>).<span class="ident">unwrap</span>();
-            <span class="ident">m</span>.<span class="ident">reset</span>();
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">50</span> {
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() <span class="op">%</span> <span class="ident">bytes</span>.<span class="ident">len</span>();
-                <span class="ident">rng</span>.<span class="ident">fill_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>[..<span class="ident">len</span>]);
-                <span class="ident">m</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..<span class="ident">len</span>]);
-                <span class="ident">r</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..<span class="ident">len</span>]).<span class="ident">unwrap</span>();
+        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">20 </span>{
+            <span class="kw">let </span>ty = openssl::hash::MessageDigest::sha1();
+            <span class="kw">let </span><span class="kw-2">mut </span>r = openssl::hash::Hasher::new(ty).unwrap();
+            m.reset();
+            <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">50 </span>{
+                <span class="kw">let </span>len = rng.gen::&lt;usize&gt;() % bytes.len();
+                rng.fill_bytes(<span class="kw-2">&amp;mut </span>bytes[..len]);
+                m.update(<span class="kw-2">&amp;</span>bytes[..len]);
+                r.update(<span class="kw-2">&amp;</span>bytes[..len]).unwrap();
             }
-            <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">finish</span>().<span class="ident">unwrap</span>().<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">digest</span>().<span class="ident">bytes</span>());
+            <span class="macro">assert_eq!</span>(r.finish().unwrap().as_ref(), <span class="kw-2">&amp;</span>m.digest().bytes());
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse</span>() {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Digest</span>;
-        <span class="kw">use</span> <span class="ident">std::error::Error</span>;
-        <span class="kw">let</span> <span class="ident">y</span>: <span class="ident">Digest</span> <span class="op">=</span> <span class="string">&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">y</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;</span>);
-        <span class="macro">assert!</span>(<span class="string">&quot;asdfasdf&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Digest</span><span class="op">&gt;</span>().<span class="ident">is_err</span>());
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;asdfasdf&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Digest</span><span class="op">&gt;</span>()
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">description</span>().<span class="ident">to_string</span>()).<span class="ident">unwrap_err</span>(), <span class="string">&quot;not a valid sha1 hash&quot;</span>);
+    <span class="attribute">#[test]
+    #[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+    </span><span class="kw">fn </span>test_parse() {
+        <span class="kw">use </span><span class="kw">crate</span>::Digest;
+        <span class="kw">use </span>std::error::Error;
+        <span class="kw">let </span>y: Digest = <span class="string">&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;</span>.parse().unwrap();
+        <span class="macro">assert_eq!</span>(y.to_string(), <span class="string">&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;</span>);
+        <span class="macro">assert!</span>(<span class="string">&quot;asdfasdf&quot;</span>.parse::&lt;Digest&gt;().is_err());
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;asdfasdf&quot;</span>.parse::&lt;Digest&gt;()
+            .map_err(|x| x.description().to_string()).unwrap_err(), <span class="string">&quot;not a valid sha1 hash&quot;</span>);
     }
 }
 
-<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span><span class="op">=</span><span class="string">&quot;serde&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">serde_tests</span> {
-    <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">std</span>;
-    <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde_json</span>;
+<span class="attribute">#[rustfmt::skip]
+#[cfg(all(test, feature=<span class="string">&quot;serde&quot;</span>))]
+</span><span class="kw">mod </span>serde_tests {
+    <span class="kw">extern crate </span>std;
+    <span class="kw">extern crate </span>serde_json;
 
-    <span class="kw">use</span> <span class="ident"><span class="self">self</span>::std::prelude::v1</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="self">self</span>::std::prelude::v1::<span class="kw-2">*</span>;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Sha1</span>, <span class="ident">Digest</span>};
+    <span class="kw">use crate</span>::{Sha1, Digest};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_to_json</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Sha1::new</span>();
-        <span class="ident">s</span>.<span class="ident">update</span>(<span class="string">b&quot;Hello World!&quot;</span>);
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">digest</span>();
-        <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">serde_json::to_vec</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">y</span>, <span class="kw-2">&amp;</span><span class="string">b&quot;\&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871\&quot;&quot;</span>[..]);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_to_json() {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = Sha1::new();
+        s.update(<span class="string">b&quot;Hello World!&quot;</span>);
+        <span class="kw">let </span>x = s.digest();
+        <span class="kw">let </span>y = serde_json::to_vec(<span class="kw-2">&amp;</span>x).unwrap();
+        <span class="macro">assert_eq!</span>(y, <span class="kw-2">&amp;</span><span class="string">b&quot;\&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871\&quot;&quot;</span>[..]);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_from_json</span>() {
-        <span class="kw">let</span> <span class="ident">y</span>: <span class="ident">Digest</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="string">&quot;\&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871\&quot;&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">y</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_from_json() {
+        <span class="kw">let </span>y: Digest = serde_json::from_str(<span class="string">&quot;\&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871\&quot;&quot;</span>).unwrap();
+        <span class="macro">assert_eq!</span>(y.to_string(), <span class="string">&quot;2ef7bde608ce5404e97d5f042f95f89f1c232871&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sha1_smol" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sha1_smol" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

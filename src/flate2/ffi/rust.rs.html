@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/flate2-1.0.24/src/ffi/rust.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rust.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../flate2/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../flate2/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../flate2/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/flate2-1.0.24/src/ffi/rust.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rust.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../flate2/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../flate2/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../flate2/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -181,188 +181,188 @@
 <span id="181">181</span>
 <span id="182">182</span>
 <span id="183">183</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Implementation for miniz_oxide rust backend.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Implementation for miniz_oxide rust backend.
 
-<span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</span><span class="kw">use </span>std::convert::TryInto;
+<span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">miniz_oxide::deflate::core::CompressorOxide</span>;
-<span class="kw">use</span> <span class="ident">miniz_oxide::inflate::stream::InflateState</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">miniz_oxide</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>miniz_oxide::deflate::core::CompressorOxide;
+<span class="kw">use </span>miniz_oxide::inflate::stream::InflateState;
+<span class="kw">pub use </span>miniz_oxide::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MZ_NO_FLUSH</span>: <span class="ident">isize</span> <span class="op">=</span> <span class="ident">MZFlush::None</span> <span class="kw">as</span> <span class="ident">isize</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MZ_PARTIAL_FLUSH</span>: <span class="ident">isize</span> <span class="op">=</span> <span class="ident">MZFlush::Partial</span> <span class="kw">as</span> <span class="ident">isize</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MZ_SYNC_FLUSH</span>: <span class="ident">isize</span> <span class="op">=</span> <span class="ident">MZFlush::Sync</span> <span class="kw">as</span> <span class="ident">isize</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MZ_FULL_FLUSH</span>: <span class="ident">isize</span> <span class="op">=</span> <span class="ident">MZFlush::Full</span> <span class="kw">as</span> <span class="ident">isize</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MZ_FINISH</span>: <span class="ident">isize</span> <span class="op">=</span> <span class="ident">MZFlush::Finish</span> <span class="kw">as</span> <span class="ident">isize</span>;
+<span class="kw">pub const </span>MZ_NO_FLUSH: isize = MZFlush::None <span class="kw">as </span>isize;
+<span class="kw">pub const </span>MZ_PARTIAL_FLUSH: isize = MZFlush::Partial <span class="kw">as </span>isize;
+<span class="kw">pub const </span>MZ_SYNC_FLUSH: isize = MZFlush::Sync <span class="kw">as </span>isize;
+<span class="kw">pub const </span>MZ_FULL_FLUSH: isize = MZFlush::Full <span class="kw">as </span>isize;
+<span class="kw">pub const </span>MZ_FINISH: isize = MZFlush::Finish <span class="kw">as </span>isize;
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mem</span>;
+<span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::mem;
 
-<span class="comment">// miniz_oxide doesn&#39;t provide any error messages (yet?)</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ErrorMessage</span>;
+<span class="comment">// miniz_oxide doesn&#39;t provide any error messages (yet?)
+</span><span class="attribute">#[derive(Default)]
+</span><span class="kw">pub struct </span>ErrorMessage;
 
-<span class="kw">impl</span> <span class="ident">ErrorMessage</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
+<span class="kw">impl </span>ErrorMessage {
+    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="prelude-val">None
+    </span>}
+}
+
+<span class="kw">fn </span>format_from_bool(zlib_header: bool) -&gt; DataFormat {
+    <span class="kw">if </span>zlib_header {
+        DataFormat::Zlib
+    } <span class="kw">else </span>{
+        DataFormat::Raw
     }
 }
 
-<span class="kw">fn</span> <span class="ident">format_from_bool</span>(<span class="ident">zlib_header</span>: <span class="ident">bool</span>) -&gt; <span class="ident">DataFormat</span> {
-    <span class="kw">if</span> <span class="ident">zlib_header</span> {
-        <span class="ident">DataFormat::Zlib</span>
-    } <span class="kw">else</span> {
-        <span class="ident">DataFormat::Raw</span>
-    }
+<span class="kw">pub struct </span>Inflate {
+    inner: Box&lt;InflateState&gt;,
+    total_in: u64,
+    total_out: u64,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Inflate</span> {
-    <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">InflateState</span><span class="op">&gt;</span>,
-    <span class="ident">total_in</span>: <span class="ident">u64</span>,
-    <span class="ident">total_out</span>: <span class="ident">u64</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Inflate</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Inflate {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;miniz_oxide inflate internal state. total_in: {}, total_out: {}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">total_in</span>, <span class="self">self</span>.<span class="ident">total_out</span>,
+            <span class="self">self</span>.total_in, <span class="self">self</span>.total_out,
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">InflateBackend</span> <span class="kw">for</span> <span class="ident">Inflate</span> {
-    <span class="kw">fn</span> <span class="ident">make</span>(<span class="ident">zlib_header</span>: <span class="ident">bool</span>, <span class="ident">_window_bits</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">format_from_bool</span>(<span class="ident">zlib_header</span>);
+<span class="kw">impl </span>InflateBackend <span class="kw">for </span>Inflate {
+    <span class="kw">fn </span>make(zlib_header: bool, _window_bits: u8) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>format = format_from_bool(zlib_header);
 
-        <span class="ident">Inflate</span> {
-            <span class="ident">inner</span>: <span class="ident">InflateState::new_boxed</span>(<span class="ident">format</span>),
-            <span class="ident">total_in</span>: <span class="number">0</span>,
-            <span class="ident">total_out</span>: <span class="number">0</span>,
+        Inflate {
+            inner: InflateState::new_boxed(format),
+            total_in: <span class="number">0</span>,
+            total_out: <span class="number">0</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">decompress</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-        <span class="ident">flush</span>: <span class="ident">FlushDecompress</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Status</span>, <span class="ident">DecompressError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">flush</span> <span class="op">=</span> <span class="ident">MZFlush::new</span>(<span class="ident">flush</span> <span class="kw">as</span> <span class="ident">i32</span>).<span class="ident">unwrap</span>();
+    <span class="kw">fn </span>decompress(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;</span>[u8],
+        output: <span class="kw-2">&amp;mut </span>[u8],
+        flush: FlushDecompress,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Status, DecompressError&gt; {
+        <span class="kw">let </span>flush = MZFlush::new(flush <span class="kw">as </span>i32).unwrap();
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">inflate::stream::inflate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">input</span>, <span class="ident">output</span>, <span class="ident">flush</span>);
-        <span class="self">self</span>.<span class="ident">total_in</span> <span class="op">+</span><span class="op">=</span> <span class="ident">res</span>.<span class="ident">bytes_consumed</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="self">self</span>.<span class="ident">total_out</span> <span class="op">+</span><span class="op">=</span> <span class="ident">res</span>.<span class="ident">bytes_written</span> <span class="kw">as</span> <span class="ident">u64</span>;
+        <span class="kw">let </span>res = inflate::stream::inflate(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner, input, output, flush);
+        <span class="self">self</span>.total_in += res.bytes_consumed <span class="kw">as </span>u64;
+        <span class="self">self</span>.total_out += res.bytes_written <span class="kw">as </span>u64;
 
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">status</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">status</span>) =&gt; <span class="kw">match</span> <span class="ident">status</span> {
-                <span class="ident">MZStatus::Ok</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Status::Ok</span>),
-                <span class="ident">MZStatus::StreamEnd</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Status::StreamEnd</span>),
-                <span class="ident">MZStatus::NeedDict</span> =&gt; {
-                    <span class="ident">mem::decompress_need_dict</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">decompressor</span>().<span class="ident">adler32</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>))
+        <span class="kw">match </span>res.status {
+            <span class="prelude-val">Ok</span>(status) =&gt; <span class="kw">match </span>status {
+                MZStatus::Ok =&gt; <span class="prelude-val">Ok</span>(Status::Ok),
+                MZStatus::StreamEnd =&gt; <span class="prelude-val">Ok</span>(Status::StreamEnd),
+                MZStatus::NeedDict =&gt; {
+                    mem::decompress_need_dict(<span class="self">self</span>.inner.decompressor().adler32().unwrap_or(<span class="number">0</span>))
                 }
             },
-            <span class="prelude-val">Err</span>(<span class="ident">status</span>) =&gt; <span class="kw">match</span> <span class="ident">status</span> {
-                <span class="ident">MZError::Buf</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Status::BufError</span>),
-                <span class="kw">_</span> =&gt; <span class="ident">mem::decompress_failed</span>(<span class="ident">ErrorMessage</span>),
+            <span class="prelude-val">Err</span>(status) =&gt; <span class="kw">match </span>status {
+                MZError::Buf =&gt; <span class="prelude-val">Ok</span>(Status::BufError),
+                <span class="kw">_ </span>=&gt; mem::decompress_failed(ErrorMessage),
             },
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">zlib_header</span>: <span class="ident">bool</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">reset</span>(<span class="ident">format_from_bool</span>(<span class="ident">zlib_header</span>));
-        <span class="self">self</span>.<span class="ident">total_in</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">total_out</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, zlib_header: bool) {
+        <span class="self">self</span>.inner.reset(format_from_bool(zlib_header));
+        <span class="self">self</span>.total_in = <span class="number">0</span>;
+        <span class="self">self</span>.total_out = <span class="number">0</span>;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Backend</span> <span class="kw">for</span> <span class="ident">Inflate</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">total_in</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="self">self</span>.<span class="ident">total_in</span>
+<span class="kw">impl </span>Backend <span class="kw">for </span>Inflate {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>total_in(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.total_in
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">total_out</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="self">self</span>.<span class="ident">total_out</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>total_out(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.total_out
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Deflate</span> {
-    <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">CompressorOxide</span><span class="op">&gt;</span>,
-    <span class="ident">total_in</span>: <span class="ident">u64</span>,
-    <span class="ident">total_out</span>: <span class="ident">u64</span>,
+<span class="kw">pub struct </span>Deflate {
+    inner: Box&lt;CompressorOxide&gt;,
+    total_in: u64,
+    total_out: u64,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Deflate</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Deflate {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;miniz_oxide deflate internal state. total_in: {}, total_out: {}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">total_in</span>, <span class="self">self</span>.<span class="ident">total_out</span>,
+            <span class="self">self</span>.total_in, <span class="self">self</span>.total_out,
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">DeflateBackend</span> <span class="kw">for</span> <span class="ident">Deflate</span> {
-    <span class="kw">fn</span> <span class="ident">make</span>(<span class="ident">level</span>: <span class="ident">Compression</span>, <span class="ident">zlib_header</span>: <span class="ident">bool</span>, <span class="ident">_window_bits</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// Check in case the integer value changes at some point.</span>
-        <span class="macro">debug_assert!</span>(<span class="ident">level</span>.<span class="ident">level</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">10</span>);
+<span class="kw">impl </span>DeflateBackend <span class="kw">for </span>Deflate {
+    <span class="kw">fn </span>make(level: Compression, zlib_header: bool, _window_bits: u8) -&gt; <span class="self">Self </span>{
+        <span class="comment">// Check in case the integer value changes at some point.
+        </span><span class="macro">debug_assert!</span>(level.level() &lt;= <span class="number">10</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">CompressorOxide</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::default</span>();
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">format_from_bool</span>(<span class="ident">zlib_header</span>);
-        <span class="ident">inner</span>.<span class="ident">set_format_and_level</span>(<span class="ident">format</span>, <span class="ident">level</span>.<span class="ident">level</span>().<span class="ident">try_into</span>().<span class="ident">unwrap_or</span>(<span class="number">1</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>inner: Box&lt;CompressorOxide&gt; = Box::default();
+        <span class="kw">let </span>format = format_from_bool(zlib_header);
+        inner.set_format_and_level(format, level.level().try_into().unwrap_or(<span class="number">1</span>));
 
-        <span class="ident">Deflate</span> {
-            <span class="ident">inner</span>,
-            <span class="ident">total_in</span>: <span class="number">0</span>,
-            <span class="ident">total_out</span>: <span class="number">0</span>,
+        Deflate {
+            inner,
+            total_in: <span class="number">0</span>,
+            total_out: <span class="number">0</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">compress</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-        <span class="ident">flush</span>: <span class="ident">FlushCompress</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Status</span>, <span class="ident">CompressError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">flush</span> <span class="op">=</span> <span class="ident">MZFlush::new</span>(<span class="ident">flush</span> <span class="kw">as</span> <span class="ident">i32</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">deflate::stream::deflate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">input</span>, <span class="ident">output</span>, <span class="ident">flush</span>);
-        <span class="self">self</span>.<span class="ident">total_in</span> <span class="op">+</span><span class="op">=</span> <span class="ident">res</span>.<span class="ident">bytes_consumed</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="self">self</span>.<span class="ident">total_out</span> <span class="op">+</span><span class="op">=</span> <span class="ident">res</span>.<span class="ident">bytes_written</span> <span class="kw">as</span> <span class="ident">u64</span>;
+    <span class="kw">fn </span>compress(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;</span>[u8],
+        output: <span class="kw-2">&amp;mut </span>[u8],
+        flush: FlushCompress,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Status, CompressError&gt; {
+        <span class="kw">let </span>flush = MZFlush::new(flush <span class="kw">as </span>i32).unwrap();
+        <span class="kw">let </span>res = deflate::stream::deflate(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner, input, output, flush);
+        <span class="self">self</span>.total_in += res.bytes_consumed <span class="kw">as </span>u64;
+        <span class="self">self</span>.total_out += res.bytes_written <span class="kw">as </span>u64;
 
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">status</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">status</span>) =&gt; <span class="kw">match</span> <span class="ident">status</span> {
-                <span class="ident">MZStatus::Ok</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Status::Ok</span>),
-                <span class="ident">MZStatus::StreamEnd</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Status::StreamEnd</span>),
-                <span class="ident">MZStatus::NeedDict</span> =&gt; <span class="ident">mem::compress_failed</span>(<span class="ident">ErrorMessage</span>),
+        <span class="kw">match </span>res.status {
+            <span class="prelude-val">Ok</span>(status) =&gt; <span class="kw">match </span>status {
+                MZStatus::Ok =&gt; <span class="prelude-val">Ok</span>(Status::Ok),
+                MZStatus::StreamEnd =&gt; <span class="prelude-val">Ok</span>(Status::StreamEnd),
+                MZStatus::NeedDict =&gt; mem::compress_failed(ErrorMessage),
             },
-            <span class="prelude-val">Err</span>(<span class="ident">status</span>) =&gt; <span class="kw">match</span> <span class="ident">status</span> {
-                <span class="ident">MZError::Buf</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Status::BufError</span>),
-                <span class="kw">_</span> =&gt; <span class="ident">mem::compress_failed</span>(<span class="ident">ErrorMessage</span>),
+            <span class="prelude-val">Err</span>(status) =&gt; <span class="kw">match </span>status {
+                MZError::Buf =&gt; <span class="prelude-val">Ok</span>(Status::BufError),
+                <span class="kw">_ </span>=&gt; mem::compress_failed(ErrorMessage),
             },
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">total_in</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">total_out</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">reset</span>();
+    <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.total_in = <span class="number">0</span>;
+        <span class="self">self</span>.total_out = <span class="number">0</span>;
+        <span class="self">self</span>.inner.reset();
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Backend</span> <span class="kw">for</span> <span class="ident">Deflate</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">total_in</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="self">self</span>.<span class="ident">total_in</span>
+<span class="kw">impl </span>Backend <span class="kw">for </span>Deflate {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>total_in(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.total_in
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">total_out</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="self">self</span>.<span class="ident">total_out</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>total_out(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.total_out
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="flate2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="flate2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

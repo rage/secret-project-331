@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/course_module_completions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>course_module_completions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/course_module_completions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>course_module_completions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -538,72 +538,72 @@
 <span id="538">538</span>
 <span id="539">539</span>
 <span id="540">540</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">futures::Stream</span>;
+<span class="kw">use </span>futures::Stream;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseModuleCompletion</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">completion_date</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">completion_language</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">eligible_for_ects</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">grade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">passed</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">prerequisite_modules_completed</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">completion_granter_user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseModuleCompletion {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>course_instance_id: Uuid,
+    <span class="kw">pub </span>course_module_id: Uuid,
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>completion_date: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>completion_registration_attempt_date: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>completion_language: String,
+    <span class="kw">pub </span>eligible_for_ects: bool,
+    <span class="kw">pub </span>email: String,
+    <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>passed: bool,
+    <span class="kw">pub </span>prerequisite_modules_completed: bool,
+    <span class="kw">pub </span>completion_granter_user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CourseModuleCompletionGranter</span> {
-    <span class="ident">Automatic</span>,
-    <span class="ident">User</span>(<span class="ident">Uuid</span>),
+<span class="attribute">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+</span><span class="kw">pub enum </span>CourseModuleCompletionGranter {
+    Automatic,
+    User(Uuid),
 }
 
-<span class="kw">impl</span> <span class="ident">CourseModuleCompletionGranter</span> {
-    <span class="kw">fn</span> <span class="ident">to_database_field</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CourseModuleCompletionGranter::Automatic</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">CourseModuleCompletionGranter::User</span>(<span class="ident">user_id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">user_id</span>),
+<span class="kw">impl </span>CourseModuleCompletionGranter {
+    <span class="kw">fn </span>to_database_field(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Uuid&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            CourseModuleCompletionGranter::Automatic =&gt; <span class="prelude-val">None</span>,
+            CourseModuleCompletionGranter::User(user_id) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">*</span>user_id),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewCourseModuleCompletion</span> {
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">completion_date</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">completion_language</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">eligible_for_ects</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">grade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">passed</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>NewCourseModuleCompletion {
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>course_instance_id: Uuid,
+    <span class="kw">pub </span>course_module_id: Uuid,
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>completion_date: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>completion_registration_attempt_date: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>completion_language: String,
+    <span class="kw">pub </span>eligible_for_ects: bool,
+    <span class="kw">pub </span>email: String,
+    <span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>passed: bool,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">new_course_module_completion</span>: <span class="kw-2">&amp;</span><span class="ident">NewCourseModuleCompletion</span>,
-    <span class="ident">completion_granter</span>: <span class="ident">CourseModuleCompletionGranter</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    new_course_module_completion: <span class="kw-2">&amp;</span>NewCourseModuleCompletion,
+    completion_granter: CourseModuleCompletionGranter,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO course_module_completions (
     id,
@@ -637,119 +637,119 @@ VALUES (
   )
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">new_course_module_completion</span>.<span class="ident">course_id</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">course_instance_id</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">course_module_id</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">user_id</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">completion_date</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">completion_registration_attempt_date</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">completion_language</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">eligible_for_ects</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">email</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">grade</span>,
-        <span class="ident">new_course_module_completion</span>.<span class="ident">passed</span>,
-        <span class="ident">completion_granter</span>.<span class="ident">to_database_field</span>(),
+        pkey_policy.into_uuid(),
+        new_course_module_completion.course_id,
+        new_course_module_completion.course_instance_id,
+        new_course_module_completion.course_module_id,
+        new_course_module_completion.user_id,
+        new_course_module_completion.completion_date,
+        new_course_module_completion.completion_registration_attempt_date,
+        new_course_module_completion.completion_language,
+        new_course_module_completion.eligible_for_ects,
+        new_course_module_completion.email,
+        new_course_module_completion.grade,
+        new_course_module_completion.passed,
+        completion_granter.to_database_field(),
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseModuleCompletion</span>,
+<span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;CourseModuleCompletion&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModuleCompletion,
         <span class="string">r#&quot;
 SELECT *
 FROM course_module_completions
 WHERE id = $1
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">id</span>,
+        id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseModuleCompletion</span>,
+<span class="kw">pub async fn </span>get_by_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    ids: <span class="kw-2">&amp;</span>[Uuid],
+) -&gt; ModelResult&lt;Vec&lt;CourseModuleCompletion&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModuleCompletion,
         <span class="string">&quot;
 SELECT *
 FROM course_module_completions
 WHERE id = ANY($1)
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">ids</span>,
+        ids,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_ids_as_map</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">get_by_ids</span>(<span class="ident">conn</span>, <span class="ident">ids</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">id</span>, <span class="ident">x</span>))
-        .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+<span class="kw">pub async fn </span>get_by_ids_as_map(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    ids: <span class="kw-2">&amp;</span>[Uuid],
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, CourseModuleCompletion&gt;&gt; {
+    <span class="kw">let </span>res = get_by_ids(conn, ids)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.into_iter()
+        .map(|x| (x.id, x))
+        .collect();
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_by_course_instance_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseModuleCompletion</span>,
+<span class="kw">pub async fn </span>get_all_by_course_instance_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;CourseModuleCompletion&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModuleCompletion,
         <span class="string">&quot;
 SELECT *
 FROM course_module_completions
 WHERE course_instance_id = $1
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">course_instance_id</span>,
+        course_instance_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseModuleCompletionWithRegistrationInfo</span> {
-    <span class="doccomment">/// When the student has attempted to register the completion.</span>
-    <span class="kw">pub</span> <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// ID of the course module.</span>
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="doccomment">/// When the record was created</span>
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Grade that the student received for the completion.</span>
-    <span class="kw">pub</span> <span class="ident">grade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Whether or not the student is eligible for credit for the completion.</span>
-    <span class="kw">pub</span> <span class="ident">passed</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Whether or not the student is qualified for credit based on other modules in the course.</span>
-    <span class="kw">pub</span> <span class="ident">prerequisite_modules_completed</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Whether or not the completion has been registered to a study registry.</span>
-    <span class="kw">pub</span> <span class="ident">registered</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// ID of the user for the completion.</span>
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseModuleCompletionWithRegistrationInfo {
+    <span class="doccomment">/// When the student has attempted to register the completion.
+    </span><span class="kw">pub </span>completion_registration_attempt_date: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="doccomment">/// ID of the course module.
+    </span><span class="kw">pub </span>course_module_id: Uuid,
+    <span class="doccomment">/// When the record was created
+    </span><span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="doccomment">/// Grade that the student received for the completion.
+    </span><span class="kw">pub </span>grade: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="doccomment">/// Whether or not the student is eligible for credit for the completion.
+    </span><span class="kw">pub </span>passed: bool,
+    <span class="doccomment">/// Whether or not the student is qualified for credit based on other modules in the course.
+    </span><span class="kw">pub </span>prerequisite_modules_completed: bool,
+    <span class="doccomment">/// Whether or not the completion has been registered to a study registry.
+    </span><span class="kw">pub </span>registered: bool,
+    <span class="doccomment">/// ID of the user for the completion.
+    </span><span class="kw">pub </span>user_id: Uuid,
 }
 
-<span class="doccomment">/// Gets summaries for all completions on the given course instance.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_with_registration_information_by_course_instance_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletionWithRegistrationInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseModuleCompletionWithRegistrationInfo</span>,
+<span class="doccomment">/// Gets summaries for all completions on the given course instance.
+</span><span class="kw">pub async fn </span>get_all_with_registration_information_by_course_instance_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;CourseModuleCompletionWithRegistrationInfo&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModuleCompletionWithRegistrationInfo,
         <span class="string">r#&quot;
 SELECT completions.completion_registration_attempt_date,
   completions.course_module_id,
@@ -767,22 +767,22 @@ WHERE completions.course_instance_id = $1
   AND completions.deleted_at IS NULL
   AND registered.deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">course_instance_id</span>,
+        course_instance_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="doccomment">/// Gets all module completions for the user on a single course instance. There can be multiple modules</span>
-<span class="doccomment">/// in a single course, so the result is a `Vec`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_by_course_instance_and_user_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseModuleCompletion</span>,
+<span class="doccomment">/// Gets all module completions for the user on a single course instance. There can be multiple modules
+/// in a single course, so the result is a `Vec`.
+</span><span class="kw">pub async fn </span>get_all_by_course_instance_and_user_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;CourseModuleCompletion&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModuleCompletion,
         <span class="string">&quot;
 SELECT *
 FROM course_module_completions
@@ -790,22 +790,22 @@ WHERE course_instance_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>,
+        course_instance_id,
+        user_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_by_course_module_instance_and_user_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseModuleCompletion</span>,
+<span class="kw">pub async fn </span>get_all_by_course_module_instance_and_user_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;CourseModuleCompletion&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModuleCompletion,
         <span class="string">&quot;
 SELECT *
 FROM course_module_completions
@@ -814,24 +814,24 @@ WHERE course_module_id = $1
   AND user_id = $3
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">course_module_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>,
+        course_module_id,
+        course_instance_id,
+        user_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="doccomment">/// Gets latest created completion for the given user on the specified course instance.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_latest_by_course_module_instance_and_user_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseModuleCompletion</span>,
+<span class="doccomment">/// Gets latest created completion for the given user on the specified course instance.
+</span><span class="kw">pub async fn </span>get_latest_by_course_module_instance_and_user_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;CourseModuleCompletion&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModuleCompletion,
         <span class="string">&quot;
 SELECT *
 FROM course_module_completions
@@ -842,26 +842,26 @@ WHERE course_module_id = $1
 ORDER BY created_at DESC
 LIMIT 1
         &quot;</span>,
-        <span class="ident">course_module_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>,
+        course_module_id,
+        course_instance_id,
+        user_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="doccomment">/// Gets automatically granted course module completion for the given user on the specified course</span>
-<span class="doccomment">/// instance. This entry is quaranteed to be unique in database by the index</span>
-<span class="doccomment">/// `course_module_automatic_completion_uniqueness`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_automatic_completion_by_course_module_instance_and_user_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseModuleCompletion</span>,
+<span class="doccomment">/// Gets automatically granted course module completion for the given user on the specified course
+/// instance. This entry is quaranteed to be unique in database by the index
+/// `course_module_automatic_completion_uniqueness`.
+</span><span class="kw">pub async fn </span>get_automatic_completion_by_course_module_instance_and_user_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;CourseModuleCompletion&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseModuleCompletion,
         <span class="string">&quot;
 SELECT *
 FROM course_module_completions
@@ -871,185 +871,185 @@ WHERE course_module_id = $1
   AND completion_granter_user_id IS NULL
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">course_module_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>,
+        course_module_id,
+        course_instance_id,
+        user_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_completion_registration_attempt_date</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">completion_registration_attempt_date</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>update_completion_registration_attempt_date(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    completion_registration_attempt_date: DateTime&lt;Utc&gt;,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE course_module_completions
 SET completion_registration_attempt_date = $1
 WHERE id = $2
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">completion_registration_attempt_date</span>),
-        <span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(completion_registration_attempt_date),
+        id,
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">rows_affected</span>() <span class="op">&gt;</span> <span class="number">0</span>)
+    <span class="prelude-val">Ok</span>(res.rows_affected() &gt; <span class="number">0</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_prerequisite_modules_completed</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">prerequisite_modules_completed</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>update_prerequisite_modules_completed(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    prerequisite_modules_completed: bool,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE course_module_completions SET prerequisite_modules_completed = $1
 WHERE id = $2 AND deleted_at IS NULL
     &quot;</span>,
-        <span class="ident">prerequisite_modules_completed</span>,
-        <span class="ident">id</span>
+        prerequisite_modules_completed,
+        id
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">rows_affected</span>() <span class="op">&gt;</span> <span class="number">0</span>)
+    <span class="prelude-val">Ok</span>(res.rows_affected() &gt; <span class="number">0</span>)
 }
 
-<span class="doccomment">/// Checks whether the user has any completions for the given course module on the specified</span>
-<span class="doccomment">/// course instance.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">user_has_completed_course_module_on_instance</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">get_all_by_course_module_instance_and_user_ids</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">course_module_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">user_id</span>,
+<span class="doccomment">/// Checks whether the user has any completions for the given course module on the specified
+/// course instance.
+</span><span class="kw">pub async fn </span>user_has_completed_course_module_on_instance(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>res = get_all_by_course_module_instance_and_user_ids(
+        conn,
+        course_module_id,
+        course_instance_id,
+        user_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="op">!</span><span class="ident">res</span>.<span class="ident">is_empty</span>())
+    <span class="prelude-val">Ok</span>(!res.is_empty())
 }
 
-<span class="doccomment">/// Completion in the form that is recognized by authorized third party study registry registrars.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StudyRegistryCompletion</span> {
-    <span class="doccomment">/// The date when the student completed the course. The value of this field is the date that will</span>
-    <span class="doccomment">/// end up in the user&#39;s study registry as the completion date. If the completion is created</span>
-    <span class="doccomment">/// automatically, it is the date when the student passed the completion thresholds. If the teacher</span>
-    <span class="doccomment">/// creates these completions manually, the teacher inputs this value. Usually the teacher would in</span>
-    <span class="doccomment">/// this case input the date of the exam.</span>
-    <span class="kw">pub</span> <span class="ident">completion_date</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The language used in the completion of the course.</span>
-    <span class="kw">pub</span> <span class="ident">completion_language</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Date when the student opened the form to register their credits to the open university.</span>
-    <span class="kw">pub</span> <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Email at the time of completing the course. Used to match the student to the data that they will</span>
-    <span class="doccomment">/// fill to the open university and it will remain unchanged in the event of email change because</span>
-    <span class="doccomment">/// changing this would break the matching.</span>
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The grade to be passed to the study registry. Uses the sisu format. See the struct documentation for details.</span>
-    <span class="kw">pub</span> <span class="ident">grade</span>: <span class="ident">StudyRegistryGrade</span>,
-    <span class="doccomment">/// ID of the completion.</span>
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="doccomment">/// User id in courses.mooc.fi for received registered completions.</span>
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="doccomment">/// Tier of the completion. Currently always null. Historically used for example to distinguish between</span>
-    <span class="doccomment">/// intermediate and advanced versions of the Building AI course.</span>
-    <span class="kw">pub</span> <span class="ident">tier</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Completion in the form that is recognized by authorized third party study registry registrars.
+</span><span class="attribute">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>StudyRegistryCompletion {
+    <span class="doccomment">/// The date when the student completed the course. The value of this field is the date that will
+    /// end up in the user&#39;s study registry as the completion date. If the completion is created
+    /// automatically, it is the date when the student passed the completion thresholds. If the teacher
+    /// creates these completions manually, the teacher inputs this value. Usually the teacher would in
+    /// this case input the date of the exam.
+    </span><span class="kw">pub </span>completion_date: DateTime&lt;Utc&gt;,
+    <span class="doccomment">/// The language used in the completion of the course.
+    </span><span class="kw">pub </span>completion_language: String,
+    <span class="doccomment">/// Date when the student opened the form to register their credits to the open university.
+    </span><span class="kw">pub </span>completion_registration_attempt_date: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="doccomment">/// Email at the time of completing the course. Used to match the student to the data that they will
+    /// fill to the open university and it will remain unchanged in the event of email change because
+    /// changing this would break the matching.
+    </span><span class="kw">pub </span>email: String,
+    <span class="doccomment">/// The grade to be passed to the study registry. Uses the sisu format. See the struct documentation for details.
+    </span><span class="kw">pub </span>grade: StudyRegistryGrade,
+    <span class="doccomment">/// ID of the completion.
+    </span><span class="kw">pub </span>id: Uuid,
+    <span class="doccomment">/// User id in courses.mooc.fi for received registered completions.
+    </span><span class="kw">pub </span>user_id: Uuid,
+    <span class="doccomment">/// Tier of the completion. Currently always null. Historically used for example to distinguish between
+    /// intermediate and advanced versions of the Building AI course.
+    </span><span class="kw">pub </span>tier: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">CourseModuleCompletion</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StudyRegistryCompletion</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">completion</span>: <span class="ident">CourseModuleCompletion</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">completion_date</span>: <span class="ident">completion</span>.<span class="ident">completion_date</span>,
-            <span class="ident">completion_language</span>: <span class="ident">completion</span>.<span class="ident">completion_language</span>,
-            <span class="ident">completion_registration_attempt_date</span>: <span class="ident">completion</span>.<span class="ident">completion_registration_attempt_date</span>,
-            <span class="ident">email</span>: <span class="ident">completion</span>.<span class="ident">email</span>,
-            <span class="ident">grade</span>: <span class="ident">StudyRegistryGrade::new</span>(<span class="ident">completion</span>.<span class="ident">passed</span>, <span class="ident">completion</span>.<span class="ident">grade</span>),
-            <span class="ident">id</span>: <span class="ident">completion</span>.<span class="ident">id</span>,
-            <span class="ident">user_id</span>: <span class="ident">completion</span>.<span class="ident">user_id</span>,
-            <span class="ident">tier</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>From&lt;CourseModuleCompletion&gt; <span class="kw">for </span>StudyRegistryCompletion {
+    <span class="kw">fn </span>from(completion: CourseModuleCompletion) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            completion_date: completion.completion_date,
+            completion_language: completion.completion_language,
+            completion_registration_attempt_date: completion.completion_registration_attempt_date,
+            email: completion.email,
+            grade: StudyRegistryGrade::new(completion.passed, completion.grade),
+            id: completion.id,
+            user_id: completion.user_id,
+            tier: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="doccomment">/// Grading object that maps the system grading information to Sisu&#39;s grading scales.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Currently only `sis-0-5` and `sis-hyv-hyl` scales are supported in the system.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// All grading scales can be found from &lt;https://sis-helsinki-test.funidata.fi/api/graphql&gt; using</span>
-<span class="doccomment">/// the following query:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```graphql</span>
-<span class="doccomment">/// query {</span>
-<span class="doccomment">///   grade_scales {</span>
-<span class="doccomment">///     id</span>
-<span class="doccomment">///     name {</span>
-<span class="doccomment">///       fi</span>
-<span class="doccomment">///       en</span>
-<span class="doccomment">///       sv</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     grades {</span>
-<span class="doccomment">///       name {</span>
-<span class="doccomment">///         fi</span>
-<span class="doccomment">///         en</span>
-<span class="doccomment">///         sv</span>
-<span class="doccomment">///       }</span>
-<span class="doccomment">///       passed</span>
-<span class="doccomment">///       localId</span>
-<span class="doccomment">///       abbreviation {</span>
-<span class="doccomment">///         fi</span>
-<span class="doccomment">///         en</span>
-<span class="doccomment">///         sv</span>
-<span class="doccomment">///       }</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     abbreviation {</span>
-<span class="doccomment">///       fi</span>
-<span class="doccomment">///       en</span>
-<span class="doccomment">///       sv</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///   }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StudyRegistryGrade</span> {
-    <span class="kw">pub</span> <span class="ident">scale</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">grade</span>: <span class="ident">String</span>,
+<span class="doccomment">/// Grading object that maps the system grading information to Sisu&#39;s grading scales.
+///
+/// Currently only `sis-0-5` and `sis-hyv-hyl` scales are supported in the system.
+///
+/// All grading scales can be found from &lt;https://sis-helsinki-test.funidata.fi/api/graphql&gt; using
+/// the following query:
+///
+/// ```graphql
+/// query {
+///   grade_scales {
+///     id
+///     name {
+///       fi
+///       en
+///       sv
+///     }
+///     grades {
+///       name {
+///         fi
+///         en
+///         sv
+///       }
+///       passed
+///       localId
+///       abbreviation {
+///         fi
+///         en
+///         sv
+///       }
+///     }
+///     abbreviation {
+///       fi
+///       en
+///       sv
+///     }
+///   }
+/// }
+/// ```
+</span><span class="attribute">#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>StudyRegistryGrade {
+    <span class="kw">pub </span>scale: String,
+    <span class="kw">pub </span>grade: String,
 }
 
-<span class="kw">impl</span> <span class="ident">StudyRegistryGrade</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">passed</span>: <span class="ident">bool</span>, <span class="ident">grade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">grade</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">grade</span>) =&gt; <span class="self">Self</span> {
-                <span class="ident">scale</span>: <span class="string">&quot;sis-0-5&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">grade</span>: <span class="ident">grade</span>.<span class="ident">to_string</span>(),
+<span class="kw">impl </span>StudyRegistryGrade {
+    <span class="kw">pub fn </span>new(passed: bool, grade: <span class="prelude-ty">Option</span>&lt;i32&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>grade {
+            <span class="prelude-val">Some</span>(grade) =&gt; <span class="self">Self </span>{
+                scale: <span class="string">&quot;sis-0-5&quot;</span>.to_string(),
+                grade: grade.to_string(),
             },
-            <span class="prelude-val">None</span> =&gt; <span class="self">Self</span> {
-                <span class="ident">scale</span>: <span class="string">&quot;sis-hyv-hyl&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">grade</span>: <span class="kw">if</span> <span class="ident">passed</span> {
-                    <span class="string">&quot;1&quot;</span>.<span class="ident">to_string</span>()
-                } <span class="kw">else</span> {
-                    <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>()
+            <span class="prelude-val">None </span>=&gt; <span class="self">Self </span>{
+                scale: <span class="string">&quot;sis-hyv-hyl&quot;</span>.to_string(),
+                grade: <span class="kw">if </span>passed {
+                    <span class="string">&quot;1&quot;</span>.to_string()
+                } <span class="kw">else </span>{
+                    <span class="string">&quot;0&quot;</span>.to_string()
                 },
             },
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stream_by_course_module_id</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_module_ids</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">Uuid</span>],
-) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="ident">StudyRegistryCompletion</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
+<span class="kw">pub fn </span>stream_by_course_module_id&lt;<span class="lifetime">&#39;a</span>&gt;(
+    conn: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>PgConnection,
+    course_module_ids: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Uuid],
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;StudyRegistryCompletion&gt;&gt; + <span class="lifetime">&#39;a </span>{
     <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseModuleCompletion</span>,
+        CourseModuleCompletion,
         <span class="string">r#&quot;
 SELECT *
 FROM course_module_completions
@@ -1058,13 +1058,13 @@ WHERE course_module_id = ANY($1)
   AND eligible_for_ects
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">course_module_ids</span>,
+        course_module_ids,
     )
-    .<span class="ident">map</span>(<span class="ident">StudyRegistryCompletion::from</span>)
-    .<span class="ident">fetch</span>(<span class="ident">conn</span>)
+    .map(StudyRegistryCompletion::from)
+    .fetch(conn)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>delete(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 
@@ -1072,11 +1072,11 @@ UPDATE course_module_completions
 SET deleted_at = now()
 WHERE id = $1
         &quot;</span>,
-        <span class="ident">id</span>,
+        id,
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

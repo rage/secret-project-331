@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/shared/quality_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quality_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/shared/quality_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quality_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -306,311 +306,311 @@
 <span id="304">304</span>
 <span id="305">305</span>
 <span id="306">306</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">convert::TryFrom</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">fmt</span>, <span class="ident">str</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{cmp, convert::TryFrom <span class="kw">as _</span>, fmt, str};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ParseError</span>;
+<span class="kw">use </span><span class="kw">crate</span>::error::ParseError;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Quality</span>;
+<span class="kw">use </span><span class="kw">super</span>::Quality;
 
-<span class="doccomment">/// Represents an item with a quality value as defined</span>
-<span class="doccomment">/// in [RFC 7231 §5.3.1](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.1).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Parsing and Formatting</span>
-<span class="doccomment">/// This wrapper be used to parse header value items that have a q-factor annotation as well as</span>
-<span class="doccomment">/// serialize items with a their q-factor.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Ordering</span>
-<span class="doccomment">/// Since this context of use for this type is header value items, ordering is defined for</span>
-<span class="doccomment">/// `QualityItem`s but _only_ considers the item&#39;s quality. Order of appearance should be used as</span>
-<span class="doccomment">/// the secondary sorting parameter; i.e., a stable sort over the quality values will produce a</span>
-<span class="doccomment">/// correctly sorted sequence.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use actix_http::header::{QualityItem, q};</span>
-<span class="doccomment">/// let q_item: QualityItem&lt;String&gt; = &quot;hello;q=0.3&quot;.parse().unwrap();</span>
-<span class="doccomment">/// assert_eq!(&amp;q_item.item, &quot;hello&quot;);</span>
-<span class="doccomment">/// assert_eq!(q_item.quality, q(0.3));</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // note that format is normalized compared to parsed item</span>
-<span class="doccomment">/// assert_eq!(q_item.to_string(), &quot;hello; q=0.3&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // item with q=0.3 is greater than item with q=0.1</span>
-<span class="doccomment">/// let q_item_fallback: QualityItem&lt;String&gt; = &quot;abc;q=0.1&quot;.parse().unwrap();</span>
-<span class="doccomment">/// assert!(q_item &gt; q_item_fallback);</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The wrapped contents of the field.</span>
-    <span class="kw">pub</span> <span class="ident">item</span>: <span class="ident">T</span>,
+<span class="doccomment">/// Represents an item with a quality value as defined
+/// in [RFC 7231 §5.3.1](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.1).
+///
+/// # Parsing and Formatting
+/// This wrapper be used to parse header value items that have a q-factor annotation as well as
+/// serialize items with a their q-factor.
+///
+/// # Ordering
+/// Since this context of use for this type is header value items, ordering is defined for
+/// `QualityItem`s but _only_ considers the item&#39;s quality. Order of appearance should be used as
+/// the secondary sorting parameter; i.e., a stable sort over the quality values will produce a
+/// correctly sorted sequence.
+///
+/// # Examples
+/// ```
+/// # use actix_http::header::{QualityItem, q};
+/// let q_item: QualityItem&lt;String&gt; = &quot;hello;q=0.3&quot;.parse().unwrap();
+/// assert_eq!(&amp;q_item.item, &quot;hello&quot;);
+/// assert_eq!(q_item.quality, q(0.3));
+///
+/// // note that format is normalized compared to parsed item
+/// assert_eq!(q_item.to_string(), &quot;hello; q=0.3&quot;);
+///
+/// // item with q=0.3 is greater than item with q=0.1
+/// let q_item_fallback: QualityItem&lt;String&gt; = &quot;abc;q=0.1&quot;.parse().unwrap();
+/// assert!(q_item &gt; q_item_fallback);
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>QualityItem&lt;T&gt; {
+    <span class="doccomment">/// The wrapped contents of the field.
+    </span><span class="kw">pub </span>item: T,
 
-    <span class="doccomment">/// The quality (client or server preference) for the value.</span>
-    <span class="kw">pub</span> <span class="ident">quality</span>: <span class="ident">Quality</span>,
+    <span class="doccomment">/// The quality (client or server preference) for the value.
+    </span><span class="kw">pub </span>quality: Quality,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Constructs a new `QualityItem` from an item and a quality value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The item can be of any type. The quality should be a value in the range [0, 1].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item</span>: <span class="ident">T</span>, <span class="ident">quality</span>: <span class="ident">Quality</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">QualityItem</span> { <span class="ident">item</span>, <span class="ident">quality</span> }
+<span class="kw">impl</span>&lt;T&gt; QualityItem&lt;T&gt; {
+    <span class="doccomment">/// Constructs a new `QualityItem` from an item and a quality value.
+    ///
+    /// The item can be of any type. The quality should be a value in the range [0, 1].
+    </span><span class="kw">pub fn </span>new(item: T, quality: Quality) -&gt; <span class="self">Self </span>{
+        QualityItem { item, quality }
     }
 
-    <span class="doccomment">/// Constructs a new `QualityItem` from an item, using the maximum q-value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="ident">item</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">item</span>, <span class="ident">Quality::MAX</span>)
+    <span class="doccomment">/// Constructs a new `QualityItem` from an item, using the maximum q-value.
+    </span><span class="kw">pub fn </span>max(item: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(item, Quality::MAX)
     }
 
-    <span class="doccomment">/// Constructs a new `QualityItem` from an item, using the minimum, non-zero q-value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min</span>(<span class="ident">item</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">item</span>, <span class="ident">Quality::MIN</span>)
+    <span class="doccomment">/// Constructs a new `QualityItem` from an item, using the minimum, non-zero q-value.
+    </span><span class="kw">pub fn </span>min(item: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(item, Quality::MIN)
     }
 
-    <span class="doccomment">/// Constructs a new `QualityItem` from an item, using zero q-value of zero.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>(<span class="ident">item</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">item</span>, <span class="ident">Quality::ZERO</span>)
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialEq</span><span class="op">&gt;</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">cmp::Ordering</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">quality</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">quality</span>)
+    <span class="doccomment">/// Constructs a new `QualityItem` from an item, using zero q-value of zero.
+    </span><span class="kw">pub fn </span>zero(item: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(item, Quality::ZERO)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Display</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">fmt::Display::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+<span class="kw">impl</span>&lt;T: PartialEq&gt; PartialOrd <span class="kw">for </span>QualityItem&lt;T&gt; {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>QualityItem&lt;T&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;cmp::Ordering&gt; {
+        <span class="self">self</span>.quality.partial_cmp(<span class="kw-2">&amp;</span>other.quality)
+    }
+}
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">quality</span> {
-            <span class="comment">// q-factor value is implied for max value</span>
-            <span class="ident">Quality::MAX</span> =&gt; <span class="prelude-val">Ok</span>(()),
+<span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>QualityItem&lt;T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        fmt::Display::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.item, f)<span class="question-mark">?</span>;
 
-            <span class="comment">// fast path for zero</span>
-            <span class="ident">Quality::ZERO</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;; q=0&quot;</span>),
+        <span class="kw">match </span><span class="self">self</span>.quality {
+            <span class="comment">// q-factor value is implied for max value
+            </span>Quality::MAX =&gt; <span class="prelude-val">Ok</span>(()),
 
-            <span class="comment">// quality formatting is already using itoa</span>
-            <span class="ident">q</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;; q={}&quot;</span>, <span class="ident">q</span>),
+            <span class="comment">// fast path for zero
+            </span>Quality::ZERO =&gt; f.write_str(<span class="string">&quot;; q=0&quot;</span>),
+
+            <span class="comment">// quality formatting is already using itoa
+            </span>q =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;; q={}&quot;</span>, q),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">str::FromStr</span><span class="op">&gt;</span> <span class="ident">str::FromStr</span> <span class="kw">for</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ParseError</span>;
+<span class="kw">impl</span>&lt;T: str::FromStr&gt; str::FromStr <span class="kw">for </span>QualityItem&lt;T&gt; {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= ParseError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">q_item_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">q_item_str</span>.<span class="ident">is_ascii</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
+    <span class="kw">fn </span>from_str(q_item_str: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">if </span>!q_item_str.is_ascii() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
         }
 
-        <span class="comment">// set defaults used if quality-item parsing fails, i.e., item has no q attribute</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_item</span> <span class="op">=</span> <span class="ident">q_item_str</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quality</span> <span class="op">=</span> <span class="ident">Quality::MAX</span>;
+        <span class="comment">// set defaults used if quality-item parsing fails, i.e., item has no q attribute
+        </span><span class="kw">let </span><span class="kw-2">mut </span>raw_item = q_item_str;
+        <span class="kw">let </span><span class="kw-2">mut </span>quality = Quality::MAX;
 
-        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">q_item_str</span>
-            .<span class="ident">rsplit_once</span>(<span class="string">&#39;;&#39;</span>)
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">item</span>, <span class="ident">q_attr</span>)<span class="op">|</span> (<span class="ident">item</span>.<span class="ident">trim</span>(), <span class="ident">q_attr</span>.<span class="ident">trim</span>()));
+        <span class="kw">let </span>parts = q_item_str
+            .rsplit_once(<span class="string">&#39;;&#39;</span>)
+            .map(|(item, q_attr)| (item.trim(), q_attr.trim()));
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">val</span>, <span class="ident">q_attr</span>)) <span class="op">=</span> <span class="ident">parts</span> {
-            <span class="comment">// example for item with q-factor:</span>
-            <span class="comment">//</span>
-            <span class="comment">// gzip;q=0.65</span>
-            <span class="comment">// ^^^^         val</span>
-            <span class="comment">//      ^^^^^^  q_attr</span>
-            <span class="comment">//      ^^      q</span>
-            <span class="comment">//        ^^^^  q_val</span>
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((val, q_attr)) = parts {
+            <span class="comment">// example for item with q-factor:
+            //
+            // gzip;q=0.65
+            // ^^^^         val
+            //      ^^^^^^  q_attr
+            //      ^^      q
+            //        ^^^^  q_val
 
-            <span class="kw">if</span> <span class="ident">q_attr</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-                <span class="comment">// Can&#39;t possibly be an attribute since an attribute needs at least a name followed</span>
-                <span class="comment">// by an equals sign. And bare identifiers are forbidden.</span>
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
+            </span><span class="kw">if </span>q_attr.len() &lt; <span class="number">2 </span>{
+                <span class="comment">// Can&#39;t possibly be an attribute since an attribute needs at least a name followed
+                // by an equals sign. And bare identifiers are forbidden.
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
             }
 
-            <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">q_attr</span>[<span class="number">0</span>..<span class="number">2</span>];
+            <span class="kw">let </span>q = <span class="kw-2">&amp;</span>q_attr[<span class="number">0</span>..<span class="number">2</span>];
 
-            <span class="kw">if</span> <span class="ident">q</span> <span class="op">==</span> <span class="string">&quot;q=&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">q</span> <span class="op">==</span> <span class="string">&quot;Q=&quot;</span> {
-                <span class="kw">let</span> <span class="ident">q_val</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">q_attr</span>[<span class="number">2</span>..];
-                <span class="kw">if</span> <span class="ident">q_val</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">5</span> {
-                    <span class="comment">// longer than 5 indicates an over-precise q-factor</span>
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
+            <span class="kw">if </span>q == <span class="string">&quot;q=&quot; </span>|| q == <span class="string">&quot;Q=&quot; </span>{
+                <span class="kw">let </span>q_val = <span class="kw-2">&amp;</span>q_attr[<span class="number">2</span>..];
+                <span class="kw">if </span>q_val.len() &gt; <span class="number">5 </span>{
+                    <span class="comment">// longer than 5 indicates an over-precise q-factor
+                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
                 }
 
-                <span class="kw">let</span> <span class="ident">q_value</span> <span class="op">=</span> <span class="ident">q_val</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ParseError::Header</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">q_value</span> <span class="op">=</span> <span class="ident">Quality::try_from</span>(<span class="ident">q_value</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ParseError::Header</span>)<span class="question-mark">?</span>;
+                <span class="kw">let </span>q_value = q_val.parse::&lt;f32&gt;().map_err(|<span class="kw">_</span>| ParseError::Header)<span class="question-mark">?</span>;
+                <span class="kw">let </span>q_value = Quality::try_from(q_value).map_err(|<span class="kw">_</span>| ParseError::Header)<span class="question-mark">?</span>;
 
-                <span class="ident">quality</span> <span class="op">=</span> <span class="ident">q_value</span>;
-                <span class="ident">raw_item</span> <span class="op">=</span> <span class="ident">val</span>;
+                quality = q_value;
+                raw_item = val;
             }
         }
 
-        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">raw_item</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ParseError::Header</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>item = raw_item.parse::&lt;T&gt;().map_err(|<span class="kw">_</span>| ParseError::Header)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">QualityItem::new</span>(<span class="ident">item</span>, <span class="ident">quality</span>))
+        <span class="prelude-val">Ok</span>(QualityItem::new(item, quality))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="comment">// copy of encoding from actix-web headers</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::enum_variant_names</span>)]</span> <span class="comment">// allow Encoding prefix on EncodingExt</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Encoding</span> {
-        <span class="ident">Chunked</span>,
-        <span class="ident">Brotli</span>,
-        <span class="ident">Gzip</span>,
-        <span class="ident">Deflate</span>,
-        <span class="ident">Compress</span>,
-        <span class="ident">Identity</span>,
-        <span class="ident">Trailers</span>,
-        <span class="ident">EncodingExt</span>(<span class="ident">String</span>),
+    <span class="comment">// copy of encoding from actix-web headers
+    </span><span class="attribute">#[allow(clippy::enum_variant_names)] </span><span class="comment">// allow Encoding prefix on EncodingExt
+    </span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+    </span><span class="kw">pub enum </span>Encoding {
+        Chunked,
+        Brotli,
+        Gzip,
+        Deflate,
+        Compress,
+        Identity,
+        Trailers,
+        EncodingExt(String),
     }
 
-    <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Encoding</span> {
-        <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-            <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-            <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">Chunked</span> =&gt; <span class="string">&quot;chunked&quot;</span>,
-                <span class="ident">Brotli</span> =&gt; <span class="string">&quot;br&quot;</span>,
-                <span class="ident">Gzip</span> =&gt; <span class="string">&quot;gzip&quot;</span>,
-                <span class="ident">Deflate</span> =&gt; <span class="string">&quot;deflate&quot;</span>,
-                <span class="ident">Compress</span> =&gt; <span class="string">&quot;compress&quot;</span>,
-                <span class="ident">Identity</span> =&gt; <span class="string">&quot;identity&quot;</span>,
-                <span class="ident">Trailers</span> =&gt; <span class="string">&quot;trailers&quot;</span>,
-                <span class="ident">EncodingExt</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">as_ref</span>(),
+    <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Encoding {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+            <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+            f.write_str(<span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                Chunked =&gt; <span class="string">&quot;chunked&quot;</span>,
+                Brotli =&gt; <span class="string">&quot;br&quot;</span>,
+                Gzip =&gt; <span class="string">&quot;gzip&quot;</span>,
+                Deflate =&gt; <span class="string">&quot;deflate&quot;</span>,
+                Compress =&gt; <span class="string">&quot;compress&quot;</span>,
+                Identity =&gt; <span class="string">&quot;identity&quot;</span>,
+                Trailers =&gt; <span class="string">&quot;trailers&quot;</span>,
+                EncodingExt(<span class="kw-2">ref </span>s) =&gt; s.as_ref(),
             })
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">str::FromStr</span> <span class="kw">for</span> <span class="ident">Encoding</span> {
-        <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::error::ParseError</span>;
-        <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Encoding</span>, <span class="ident"><span class="kw">crate</span>::error::ParseError</span><span class="op">&gt;</span> {
-            <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-            <span class="kw">match</span> <span class="ident">s</span> {
-                <span class="string">&quot;chunked&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Chunked</span>),
-                <span class="string">&quot;br&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Brotli</span>),
-                <span class="string">&quot;deflate&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Deflate</span>),
-                <span class="string">&quot;gzip&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Gzip</span>),
-                <span class="string">&quot;compress&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Compress</span>),
-                <span class="string">&quot;identity&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Identity</span>),
-                <span class="string">&quot;trailers&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Trailers</span>),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">EncodingExt</span>(<span class="ident">s</span>.<span class="ident">to_owned</span>())),
+    <span class="kw">impl </span>str::FromStr <span class="kw">for </span>Encoding {
+        <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw">crate</span>::error::ParseError;
+        <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Encoding, <span class="kw">crate</span>::error::ParseError&gt; {
+            <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+            <span class="kw">match </span>s {
+                <span class="string">&quot;chunked&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Chunked),
+                <span class="string">&quot;br&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Brotli),
+                <span class="string">&quot;deflate&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Deflate),
+                <span class="string">&quot;gzip&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Gzip),
+                <span class="string">&quot;compress&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Compress),
+                <span class="string">&quot;identity&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Identity),
+                <span class="string">&quot;trailers&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Trailers),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(EncodingExt(s.to_owned())),
             }
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_fmt_q_1</span>() {
-        <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">QualityItem::max</span>(<span class="ident">Chunked</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">x</span>), <span class="string">&quot;chunked&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_fmt_q_1() {
+        <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+        <span class="kw">let </span>x = QualityItem::max(Chunked);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, x), <span class="string">&quot;chunked&quot;</span>);
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_fmt_q_0001</span>() {
-        <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">QualityItem::new</span>(<span class="ident">Chunked</span>, <span class="ident">Quality</span>(<span class="number">1</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">x</span>), <span class="string">&quot;chunked; q=0.001&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_fmt_q_0001() {
+        <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+        <span class="kw">let </span>x = QualityItem::new(Chunked, Quality(<span class="number">1</span>));
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, x), <span class="string">&quot;chunked; q=0.001&quot;</span>);
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_fmt_q_05</span>() {
-        <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-        <span class="comment">// Custom value</span>
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">QualityItem</span> {
-            <span class="ident">item</span>: <span class="ident">EncodingExt</span>(<span class="string">&quot;identity&quot;</span>.<span class="ident">to_owned</span>()),
-            <span class="ident">quality</span>: <span class="ident">Quality</span>(<span class="number">500</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_fmt_q_05() {
+        <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+        <span class="comment">// Custom value
+        </span><span class="kw">let </span>x = QualityItem {
+            item: EncodingExt(<span class="string">&quot;identity&quot;</span>.to_owned()),
+            quality: Quality(<span class="number">500</span>),
         };
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">x</span>), <span class="string">&quot;identity; q=0.5&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, x), <span class="string">&quot;identity; q=0.5&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_fmt_q_0</span>() {
-        <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-        <span class="comment">// Custom value</span>
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">QualityItem</span> {
-            <span class="ident">item</span>: <span class="ident">EncodingExt</span>(<span class="string">&quot;identity&quot;</span>.<span class="ident">to_owned</span>()),
-            <span class="ident">quality</span>: <span class="ident">Quality</span>(<span class="number">0</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_fmt_q_0() {
+        <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+        <span class="comment">// Custom value
+        </span><span class="kw">let </span>x = QualityItem {
+            item: EncodingExt(<span class="string">&quot;identity&quot;</span>.to_owned()),
+            quality: Quality(<span class="number">0</span>),
         };
-        <span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">to_string</span>(), <span class="string">&quot;identity; q=0&quot;</span>);
+        <span class="macro">assert_eq!</span>(x.to_string(), <span class="string">&quot;identity; q=0&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_from_str1</span>() {
-        <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-        <span class="kw">let</span> <span class="ident">x</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;chunked&quot;</span>.<span class="ident">parse</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_from_str1() {
+        <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;chunked&quot;</span>.parse();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">x</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">QualityItem</span> {
-                <span class="ident">item</span>: <span class="ident">Chunked</span>,
-                <span class="ident">quality</span>: <span class="ident">Quality</span>(<span class="number">1000</span>),
+            x.unwrap(),
+            QualityItem {
+                item: Chunked,
+                quality: Quality(<span class="number">1000</span>),
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_from_str2</span>() {
-        <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-        <span class="kw">let</span> <span class="ident">x</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;chunked; q=1&quot;</span>.<span class="ident">parse</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_from_str2() {
+        <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;chunked; q=1&quot;</span>.parse();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">x</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">QualityItem</span> {
-                <span class="ident">item</span>: <span class="ident">Chunked</span>,
-                <span class="ident">quality</span>: <span class="ident">Quality</span>(<span class="number">1000</span>),
+            x.unwrap(),
+            QualityItem {
+                item: Chunked,
+                quality: Quality(<span class="number">1000</span>),
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_from_str3</span>() {
-        <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-        <span class="kw">let</span> <span class="ident">x</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;gzip; q=0.5&quot;</span>.<span class="ident">parse</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_from_str3() {
+        <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;gzip; q=0.5&quot;</span>.parse();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">x</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">QualityItem</span> {
-                <span class="ident">item</span>: <span class="ident">Gzip</span>,
-                <span class="ident">quality</span>: <span class="ident">Quality</span>(<span class="number">500</span>),
+            x.unwrap(),
+            QualityItem {
+                item: Gzip,
+                quality: Quality(<span class="number">500</span>),
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_from_str4</span>() {
-        <span class="kw">use</span> <span class="ident">Encoding</span>::<span class="kw-2">*</span>;
-        <span class="kw">let</span> <span class="ident">x</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;gzip; q=0.273&quot;</span>.<span class="ident">parse</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_from_str4() {
+        <span class="kw">use </span>Encoding::<span class="kw-2">*</span>;
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;gzip; q=0.273&quot;</span>.parse();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">x</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">QualityItem</span> {
-                <span class="ident">item</span>: <span class="ident">Gzip</span>,
-                <span class="ident">quality</span>: <span class="ident">Quality</span>(<span class="number">273</span>),
+            x.unwrap(),
+            QualityItem {
+                item: Gzip,
+                quality: Quality(<span class="number">273</span>),
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_from_str5</span>() {
-        <span class="kw">let</span> <span class="ident">x</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;gzip; q=0.2739999&quot;</span>.<span class="ident">parse</span>();
-        <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_from_str5() {
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;gzip; q=0.2739999&quot;</span>.parse();
+        <span class="macro">assert!</span>(x.is_err());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_from_str6</span>() {
-        <span class="kw">let</span> <span class="ident">x</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;gzip; q=2&quot;</span>.<span class="ident">parse</span>();
-        <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_from_str6() {
+        <span class="kw">let </span>x: <span class="prelude-ty">Result</span>&lt;QualityItem&lt;Encoding&gt;, <span class="kw">_</span>&gt; = <span class="string">&quot;gzip; q=2&quot;</span>.parse();
+        <span class="macro">assert!</span>(x.is_err());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_quality_item_ordering</span>() {
-        <span class="kw">let</span> <span class="ident">x</span>: <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;gzip; q=0.5&quot;</span>.<span class="ident">parse</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">y</span>: <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;gzip; q=0.273&quot;</span>.<span class="ident">parse</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">comparison_result</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">gt</span>(<span class="kw-2">&amp;</span><span class="ident">y</span>);
-        <span class="macro">assert!</span>(<span class="ident">comparison_result</span>)
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_quality_item_ordering() {
+        <span class="kw">let </span>x: QualityItem&lt;Encoding&gt; = <span class="string">&quot;gzip; q=0.5&quot;</span>.parse().ok().unwrap();
+        <span class="kw">let </span>y: QualityItem&lt;Encoding&gt; = <span class="string">&quot;gzip; q=0.273&quot;</span>.parse().ok().unwrap();
+        <span class="kw">let </span>comparison_result: bool = x.gt(<span class="kw-2">&amp;</span>y);
+        <span class="macro">assert!</span>(comparison_result)
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_fuzzing_bugs</span>() {
-        <span class="macro">assert!</span>(<span class="string">&quot;99999;&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">is_err</span>());
-        <span class="macro">assert!</span>(<span class="string">&quot;\x0d;;;=\u{d6aa}==&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">is_err</span>())
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_fuzzing_bugs() {
+        <span class="macro">assert!</span>(<span class="string">&quot;99999;&quot;</span>.parse::&lt;QualityItem&lt;String&gt;&gt;().is_err());
+        <span class="macro">assert!</span>(<span class="string">&quot;\x0d;;;=\u{d6aa}==&quot;</span>.parse::&lt;QualityItem&lt;String&gt;&gt;().is_err())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

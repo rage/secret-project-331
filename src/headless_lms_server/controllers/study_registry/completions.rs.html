@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/study_registry/completions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>completions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/study_registry/completions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>completions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -251,31 +251,31 @@
 <span id="251">251</span>
 <span id="252">252</span>
 <span id="253">253</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/study-registry/completions`</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The study registry provides an access to student completion records. It is generally only available</span>
-<span class="doccomment">//! to authorized study registries, meaning that most endpoints will require a valid authorization token</span>
-<span class="doccomment">//! to access.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! When accessing study registry, the authorization token should be given as the following header:</span>
-<span class="doccomment">//! ```http</span>
-<span class="doccomment">//! Authorization: Basic documentationOnlyExampleSecretKey-12345</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! For more details, please view the individual functions.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/study-registry/completions`
+//!
+//! The study registry provides an access to student completion records. It is generally only available
+//! to authorized study registries, meaning that most endpoints will require a valid authorization token
+//! to access.
+//!
+//! When accessing study registry, the authorization token should be given as the following header:
+//! ```http
+//! Authorization: Basic documentationOnlyExampleSecretKey-12345
+//! ```
+//!
+//! For more details, please view the individual functions.
 
-<span class="kw">use</span> <span class="ident">actix_web::http::header::ContentType</span>;
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+</span><span class="kw">use </span>actix_web::http::header::ContentType;
+<span class="kw">use </span>bytes::Bytes;
 
-<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">future</span>, <span class="ident">StreamExt</span>};
-<span class="kw">use</span> <span class="ident">models::course_modules::CourseModule</span>;
-<span class="kw">use</span> <span class="ident">tokio_stream::wrappers::UnboundedReceiverStream</span>;
+<span class="kw">use </span>futures::{future, StreamExt};
+<span class="kw">use </span>models::course_modules::CourseModule;
+<span class="kw">use </span>tokio_stream::wrappers::UnboundedReceiverStream;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">domain::csv_export</span>::{
-        <span class="ident">make_authorized_streamable</span>, <span class="ident">serializable_sqlx_result_stream_to_json_stream</span>,
+<span class="kw">use crate</span>::{
+    domain::csv_export::{
+        make_authorized_streamable, serializable_sqlx_result_stream_to_json_stream,
     },
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+    prelude::<span class="kw-2">*</span>,
 };
 
 <span class="doccomment">/**
@@ -309,68 +309,68 @@ Using course id:
 GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StudyRegistryCompletion</span><span class="op">&gt;</span>))]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">req</span>, <span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_completions</span>(
-    <span class="ident">req</span>: <span class="ident">HttpRequest</span>,
-    <span class="ident">course_id_slug_or_code</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">secret_key</span> <span class="op">=</span> <span class="ident">parse_secret_key_from_header</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::View</span>,
+*/
+</span><span class="attribute">#[cfg_attr(doc, doc = <span class="macro">generated_docs!</span>(Vec&lt;StudyRegistryCompletion&gt;))]
+#[instrument(skip(req, pool))]
+</span><span class="kw">async fn </span>get_completions(
+    req: HttpRequest,
+    course_id_slug_or_code: web::Path&lt;String&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;HttpResponse&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>secret_key = parse_secret_key_from_header(<span class="kw-2">&amp;</span>req)<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::View,
         <span class="prelude-val">None</span>,
-        <span class="ident">Res::StudyRegistry</span>(<span class="ident">secret_key</span>.<span class="ident">to_string</span>()),
+        Res::StudyRegistry(secret_key.to_string()),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Try to parse the param as UUID to know whether the completions should be from a distinct or</span>
-    <span class="comment">// multiple modules.</span>
-    <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>) <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="kw-2">&amp;</span><span class="ident">course_id_slug_or_code</span>) {
-        <span class="kw">let</span> <span class="ident">module</span> <span class="op">=</span> <span class="ident">models::course_modules::get_default_by_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">vec!</span>[<span class="ident">module</span>.<span class="ident">id</span>]
-    } <span class="kw">else</span> {
-        <span class="comment">// The param is either a course slug or non-unique UH course code.</span>
-        <span class="ident">models::course_modules::get_ids_by_course_slug_or_uh_course_code</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">course_id_slug_or_code</span>.<span class="ident">as_str</span>(),
+    <span class="comment">// Try to parse the param as UUID to know whether the completions should be from a distinct or
+    // multiple modules.
+    </span><span class="kw">let </span>course_modules = <span class="kw">if let </span><span class="prelude-val">Ok</span>(course_id) = Uuid::parse_str(<span class="kw-2">&amp;</span>course_id_slug_or_code) {
+        <span class="kw">let </span>module = models::course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="macro">vec!</span>[module.id]
+    } <span class="kw">else </span>{
+        <span class="comment">// The param is either a course slug or non-unique UH course code.
+        </span>models::course_modules::get_ids_by_course_slug_or_uh_course_code(
+            <span class="kw-2">&amp;mut </span>conn,
+            course_id_slug_or_code.as_str(),
         )
-        .<span class="kw">await</span><span class="question-mark">?</span>
-    };
+        .<span class="kw">await</span><span class="question-mark">?
+    </span>};
 
-    <span class="comment">// Duplicated below but `spawn` requires static lifetime.</span>
-    <span class="comment">// TODO: Create a macro instead.</span>
-    <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>::<span class="op">&lt;</span><span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle_conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">_handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">models::course_module_completions::stream_by_course_module_id</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">handle_conn</span>,
-            <span class="kw-2">&amp;</span><span class="ident">course_modules</span>,
+    <span class="comment">// Duplicated below but `spawn` requires static lifetime.
+    // TODO: Create a macro instead.
+    </span><span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
+    <span class="kw">let </span><span class="kw-2">mut </span>handle_conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>_handle = tokio::spawn(<span class="kw">async move </span>{
+        <span class="kw">let </span>stream = models::course_module_completions::stream_by_course_module_id(
+            <span class="kw-2">&amp;mut </span>handle_conn,
+            <span class="kw-2">&amp;</span>course_modules,
         );
-        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">serializable_sqlx_result_stream_to_json_stream</span>(<span class="ident">stream</span>).<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>().<span class="ident">expect</span>(<span class="string">&quot;Always succeeds&quot;</span>);
-            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">message</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">message</span>) =&gt; <span class="ident">message</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;Error received from sqlx result stream: {}&quot;</span>, <span class="ident">err</span>);
-                    <span class="ident">Bytes::from</span>(<span class="macro">format!</span>(<span class="string">&quot;Streaming error. Details: {:?}&quot;</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
+            <span class="kw">let </span>token = skip_authorize().expect(<span class="string">&quot;Always succeeds&quot;</span>);
+            <span class="kw">let </span>message = <span class="kw">match </span>message {
+                <span class="prelude-val">Ok</span>(message) =&gt; message,
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">error!</span>(<span class="string">&quot;Error received from sqlx result stream: {}&quot;</span>, err);
+                    Bytes::from(<span class="macro">format!</span>(<span class="string">&quot;Streaming error. Details: {:?}&quot;</span>, err))
                 }
             };
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">send</span>(<span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">message</span>)) {
-                <span class="macro">error!</span>(<span class="string">&quot;Failed to send data to UnboundedReceiver: {}&quot;</span>, <span class="ident">err</span>);
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = sender.send(token.authorized_ok(message)) {
+                <span class="macro">error!</span>(<span class="string">&quot;Failed to send data to UnboundedReceiver: {}&quot;</span>, err);
             }
-            <span class="ident">future::ready</span>(())
+            future::ready(())
         });
-        <span class="ident">fut</span>.<span class="kw">await</span>;
+        fut.<span class="kw">await</span>;
     });
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(
-        <span class="ident">HttpResponse::Ok</span>()
-            .<span class="ident">content_type</span>(<span class="ident">ContentType::json</span>())
-            .<span class="ident">streaming</span>(<span class="ident">make_authorized_streamable</span>(<span class="ident">UnboundedReceiverStream::new</span>(
-                <span class="ident">receiver</span>,
+    token.authorized_ok(
+        HttpResponse::Ok()
+            .content_type(ContentType::json())
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
             ))),
     )
 }
@@ -412,80 +412,80 @@ GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP
 Authorization: Basic documentationOnlyExampleSecretKey-12345
 Content-Type: application/json
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="macro">generated_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StudyRegistryCompletion</span><span class="op">&gt;</span>))]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">req</span>, <span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_module_completions</span>(
-    <span class="ident">req</span>: <span class="ident">HttpRequest</span>,
-    <span class="ident">path</span>: <span class="ident">web::Path</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">course_id_slug_or_code</span>, <span class="ident">module_id</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">into_inner</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">secret_key</span> <span class="op">=</span> <span class="ident">parse_secret_key_from_header</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::View</span>,
+*/
+</span><span class="attribute">#[cfg_attr(doc, doc = <span class="macro">generated_docs!</span>(Vec&lt;StudyRegistryCompletion&gt;))]
+#[instrument(skip(req, pool))]
+</span><span class="kw">async fn </span>get_module_completions(
+    req: HttpRequest,
+    path: web::Path&lt;(String, Uuid)&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;HttpResponse&gt; {
+    <span class="kw">let </span>(course_id_slug_or_code, module_id) = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>secret_key = parse_secret_key_from_header(<span class="kw-2">&amp;</span>req)<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::View,
         <span class="prelude-val">None</span>,
-        <span class="ident">Res::StudyRegistry</span>(<span class="ident">secret_key</span>.<span class="ident">to_string</span>()),
+        Res::StudyRegistry(secret_key.to_string()),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">module</span> <span class="op">=</span> <span class="ident">models::course_modules::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">module_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">module_belongs_to_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">module</span>, <span class="kw-2">&amp;</span><span class="ident">course_id_slug_or_code</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::NotFound</span>,
-            <span class="string">&quot;No such module in a given course.&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>module = models::course_modules::get_by_id(<span class="kw-2">&amp;mut </span>conn, module_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>!module_belongs_to_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>module, <span class="kw-2">&amp;</span>course_id_slug_or_code).<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::NotFound,
+            <span class="string">&quot;No such module in a given course.&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
 
-    <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>::<span class="op">&lt;</span><span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle_conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">_handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-        <span class="kw">let</span> <span class="ident">modules</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">module</span>.<span class="ident">id</span>];
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">models::course_module_completions::stream_by_course_module_id</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">handle_conn</span>,
-            <span class="kw-2">&amp;</span><span class="ident">modules</span>,
+    <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
+    <span class="kw">let </span><span class="kw-2">mut </span>handle_conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>_handle = tokio::spawn(<span class="kw">async move </span>{
+        <span class="kw">let </span>modules = <span class="macro">vec!</span>[module.id];
+        <span class="kw">let </span>stream = models::course_module_completions::stream_by_course_module_id(
+            <span class="kw-2">&amp;mut </span>handle_conn,
+            <span class="kw-2">&amp;</span>modules,
         );
-        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">serializable_sqlx_result_stream_to_json_stream</span>(<span class="ident">stream</span>).<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>().<span class="ident">expect</span>(<span class="string">&quot;Always succeeds&quot;</span>);
-            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">message</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">message</span>) =&gt; <span class="ident">message</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;Error received from sqlx result stream: {}&quot;</span>, <span class="ident">err</span>);
-                    <span class="ident">Bytes::from</span>(<span class="macro">format!</span>(<span class="string">&quot;Streaming error. Details: {:?}&quot;</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>fut = serializable_sqlx_result_stream_to_json_stream(stream).for_each(|message| {
+            <span class="kw">let </span>token = skip_authorize().expect(<span class="string">&quot;Always succeeds&quot;</span>);
+            <span class="kw">let </span>message = <span class="kw">match </span>message {
+                <span class="prelude-val">Ok</span>(message) =&gt; message,
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">error!</span>(<span class="string">&quot;Error received from sqlx result stream: {}&quot;</span>, err);
+                    Bytes::from(<span class="macro">format!</span>(<span class="string">&quot;Streaming error. Details: {:?}&quot;</span>, err))
                 }
             };
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">send</span>(<span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">message</span>)) {
-                <span class="macro">error!</span>(<span class="string">&quot;Failed to send data to UnboundedReceiver: {}&quot;</span>, <span class="ident">err</span>);
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = sender.send(token.authorized_ok(message)) {
+                <span class="macro">error!</span>(<span class="string">&quot;Failed to send data to UnboundedReceiver: {}&quot;</span>, err);
             }
-            <span class="ident">future::ready</span>(())
+            future::ready(())
         });
-        <span class="ident">fut</span>.<span class="kw">await</span>;
+        fut.<span class="kw">await</span>;
     });
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(
-        <span class="ident">HttpResponse::Ok</span>()
-            .<span class="ident">content_type</span>(<span class="ident">ContentType::json</span>())
-            .<span class="ident">streaming</span>(<span class="ident">make_authorized_streamable</span>(<span class="ident">UnboundedReceiverStream::new</span>(
-                <span class="ident">receiver</span>,
+    token.authorized_ok(
+        HttpResponse::Ok()
+            .content_type(ContentType::json())
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
             ))),
     )
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">module_belongs_to_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">module</span>: <span class="kw-2">&amp;</span><span class="ident">CourseModule</span>,
-    <span class="ident">course_id_slug_or_code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">module</span>.<span class="ident">uh_course_code</span>.<span class="ident">as_deref</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">course_id_slug_or_code</span>) {
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">async fn </span>module_belongs_to_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    module: <span class="kw-2">&amp;</span>CourseModule,
+    course_id_slug_or_code: <span class="kw-2">&amp;</span>str,
+) -&gt; anyhow::Result&lt;bool&gt; {
+    <span class="kw">if </span>module.uh_course_code.as_deref() == <span class="prelude-val">Some</span>(course_id_slug_or_code) {
         <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>) <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="ident">course_id_slug_or_code</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">module</span>.<span class="ident">course_id</span> <span class="op">==</span> <span class="ident">course_id</span>)
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">models::courses::get_course_by_slug</span>(<span class="ident">conn</span>, <span class="ident">course_id_slug_or_code</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">module</span>.<span class="ident">course_id</span> <span class="op">==</span> <span class="ident">course</span>.<span class="ident">id</span>)
+    } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(course_id) = Uuid::parse_str(course_id_slug_or_code) {
+        <span class="prelude-val">Ok</span>(module.course_id == course_id)
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>course = models::courses::get_course_by_slug(conn, course_id_slug_or_code).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(module.course_id == course.id)
     }
 }
 
@@ -495,14 +495,14 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{course_id_slug_or_code}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_completions</span>))
-        .<span class="ident">route</span>(
+*/
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;/{course_id_slug_or_code}&quot;</span>, web::get().to(get_completions))
+        .route(
             <span class="string">&quot;/{course_id_slug_or_code}/{module_id}&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_module_completions</span>),
+            web::get().to(get_module_completions),
         );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

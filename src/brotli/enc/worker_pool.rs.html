@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/worker_pool.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>worker_pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/worker_pool.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>worker_pool.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -319,326 +319,326 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">core::mem</span>;
-<span class="kw">use</span> <span class="ident">std</span>;
+</pre><pre class="rust"><code><span class="attribute">#![cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>core::mem;
+<span class="kw">use </span>std;
 
-<span class="kw">use</span> <span class="ident">std::sync</span>:: {
-  <span class="ident">Arc</span>,
-  <span class="ident">Mutex</span>,
-  <span class="ident">Condvar</span>,
+<span class="kw">use </span>std::sync:: {
+  Arc,
+  Mutex,
+  Condvar,
 };
-<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">SliceWrapper</span>, <span class="ident">Allocator</span>};
-<span class="kw">use</span> <span class="ident">enc::BrotliAlloc</span>;
-<span class="kw">use</span> <span class="ident">enc::BrotliEncoderParams</span>;
-<span class="kw">use</span> <span class="ident">enc::backward_references::UnionHasher</span>;
-<span class="kw">use</span> <span class="ident">enc::threading</span>::{
-  <span class="ident">CompressMulti</span>,
-  <span class="ident">SendAlloc</span>,
-  <span class="ident">InternalSendAlloc</span>,
-  <span class="ident">BatchSpawnableLite</span>,
-  <span class="ident">Joinable</span>,
-  <span class="ident">Owned</span>,
-  <span class="ident">CompressionThreadResult</span>,
-  <span class="ident">InternalOwned</span>,
-  <span class="ident">BrotliEncoderThreadError</span>,
+<span class="kw">use </span>alloc::{SliceWrapper, Allocator};
+<span class="kw">use </span>enc::BrotliAlloc;
+<span class="kw">use </span>enc::BrotliEncoderParams;
+<span class="kw">use </span>enc::backward_references::UnionHasher;
+<span class="kw">use </span>enc::threading::{
+  CompressMulti,
+  SendAlloc,
+  InternalSendAlloc,
+  BatchSpawnableLite,
+  Joinable,
+  Owned,
+  CompressionThreadResult,
+  InternalOwned,
+  BrotliEncoderThreadError,
 };
-<span class="kw">use</span> <span class="ident">enc::fixed_queue</span>::{<span class="ident">MAX_THREADS</span>, <span class="ident">FixedQueue</span>};
-<span class="comment">// in-place thread create</span>
+<span class="kw">use </span>enc::fixed_queue::{MAX_THREADS, FixedQueue};
+<span class="comment">// in-place thread create
 
-<span class="kw">use</span> <span class="ident">std::sync::RwLock</span>;
-
-
+</span><span class="kw">use </span>std::sync::RwLock;
 
 
-<span class="kw">struct</span> <span class="ident">JobReply</span><span class="op">&lt;</span><span class="ident">T</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-  <span class="ident">result</span>:<span class="ident">T</span>,
-  <span class="ident">work_id</span>: <span class="ident">u64</span>,
+
+
+<span class="kw">struct </span>JobReply&lt;T:Send+<span class="lifetime">&#39;static</span>&gt; {
+  result:T,
+  work_id: u64,
 }
 
-<span class="kw">struct</span> <span class="ident">JobRequest</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                  <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                 <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                 <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> {
-  <span class="ident">func</span>: <span class="kw">fn</span>(<span class="ident">ExtraInput</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="ident">U</span>, <span class="ident">Alloc</span>) -&gt; <span class="ident">ReturnValue</span>,
-  <span class="ident">extra_input</span>: <span class="ident">ExtraInput</span>,
-  <span class="ident">index</span>: <span class="ident">usize</span>,
-  <span class="ident">thread_size</span>: <span class="ident">usize</span>,
-  <span class="ident">data</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-  <span class="ident">alloc</span>: <span class="ident">Alloc</span>,
-  <span class="ident">work_id</span>: <span class="ident">u64</span>,
+<span class="kw">struct </span>JobRequest&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+                  ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+                 Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                 U:Send+<span class="lifetime">&#39;static</span>+Sync&gt; {
+  func: <span class="kw">fn</span>(ExtraInput, usize, usize, <span class="kw-2">&amp;</span>U, Alloc) -&gt; ReturnValue,
+  extra_input: ExtraInput,
+  index: usize,
+  thread_size: usize,
+  data: Arc&lt;RwLock&lt;U&gt;&gt;,
+  alloc: Alloc,
+  work_id: u64,
 }
 
 
-<span class="kw">struct</span> <span class="ident">WorkQueue</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                 <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                 <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                 <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> {
-  <span class="ident">jobs</span>: <span class="ident">FixedQueue</span><span class="op">&lt;</span><span class="ident">JobRequest</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>,<span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>,<span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-  <span class="ident">results</span>: <span class="ident">FixedQueue</span><span class="op">&lt;</span><span class="ident">JobReply</span><span class="op">&lt;</span><span class="ident">ReturnValue</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-  <span class="ident">shutdown</span>: <span class="ident">bool</span>,
-  <span class="ident">immediate_shutdown</span>: <span class="ident">bool</span>,
-  <span class="ident">num_in_progress</span>: <span class="ident">usize</span>,
-  <span class="ident">cur_work_id</span>: <span class="ident">u64</span>,
+<span class="kw">struct </span>WorkQueue&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+                 ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+                 Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                 U:Send+<span class="lifetime">&#39;static</span>+Sync&gt; {
+  jobs: FixedQueue&lt;JobRequest&lt;ReturnValue,ExtraInput, Alloc,U&gt;&gt;,
+  results: FixedQueue&lt;JobReply&lt;ReturnValue&gt;&gt;,
+  shutdown: bool,
+  immediate_shutdown: bool,
+  num_in_progress: usize,
+  cur_work_id: u64,
 }
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-      <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-      <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-      <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">WorkQueue</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-    <span class="ident">WorkQueue</span> {
-      <span class="ident">jobs</span>: <span class="ident">FixedQueue::default</span>(),
-      <span class="ident">results</span>: <span class="ident">FixedQueue::default</span>(),
-      <span class="ident">num_in_progress</span>: <span class="number">0</span>,
-      <span class="ident">immediate_shutdown</span>: <span class="bool-val">false</span>,
-      <span class="ident">shutdown</span>:<span class="bool-val">false</span>,
-      <span class="ident">cur_work_id</span>: <span class="number">0</span>,
+<span class="kw">impl </span>&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+      ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+      Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+      U:Send+<span class="lifetime">&#39;static</span>+Sync&gt; Default <span class="kw">for </span>WorkQueue&lt;ReturnValue, ExtraInput, Alloc, U&gt; {
+  <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+    WorkQueue {
+      jobs: FixedQueue::default(),
+      results: FixedQueue::default(),
+      num_in_progress: <span class="number">0</span>,
+      immediate_shutdown: <span class="bool-val">false</span>,
+      shutdown:<span class="bool-val">false</span>,
+      cur_work_id: <span class="number">0</span>,
     }
   }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GuardedQueue</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                        <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                      <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                       <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span>(<span class="ident">Arc</span><span class="op">&lt;</span>(<span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">WorkQueue</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Condvar</span>)<span class="op">&gt;</span>);
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WorkerPool</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                      <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                      <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                      <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> {
-  <span class="ident">queue</span>: <span class="ident">GuardedQueue</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span>,
-  <span class="ident">join</span>: [<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">std::thread::JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>;<span class="ident">MAX_THREADS</span>],
+<span class="kw">pub struct </span>GuardedQueue&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+                        ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+                      Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                       U:Send+<span class="lifetime">&#39;static</span>+Sync&gt;(Arc&lt;(Mutex&lt;WorkQueue&lt;ReturnValue, ExtraInput, Alloc, U&gt;&gt;, Condvar)&gt;);
+<span class="kw">pub struct </span>WorkerPool&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+                      ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+                      Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                      U:Send+<span class="lifetime">&#39;static</span>+Sync&gt; {
+  queue: GuardedQueue&lt;ReturnValue, ExtraInput, Alloc, U&gt;,
+  join: [<span class="prelude-ty">Option</span>&lt;std::thread::JoinHandle&lt;()&gt;&gt;;MAX_THREADS],
 }
 
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-      <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-      <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-      <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">WorkerPool</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+<span class="kw">impl </span>&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+      ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+      Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+      U:Send+<span class="lifetime">&#39;static</span>+Sync&gt; Drop <span class="kw">for </span>WorkerPool&lt;ReturnValue, ExtraInput, Alloc, U&gt; {
+  <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
     {
-      <span class="kw">let</span> <span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">lock</span>, <span class="kw-2">ref</span> <span class="ident">cvar</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">queue</span>.<span class="number">0</span>;
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-      <span class="ident">local_queue</span>.<span class="ident">immediate_shutdown</span> <span class="op">=</span> <span class="bool-val">true</span>;
-      <span class="ident">cvar</span>.<span class="ident">notify_all</span>();
+      <span class="kw">let </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>lock, <span class="kw-2">ref </span>cvar) = <span class="kw-2">&amp;*</span><span class="self">self</span>.queue.<span class="number">0</span>;
+      <span class="kw">let </span><span class="kw-2">mut </span>local_queue = lock.lock().unwrap();
+      local_queue.immediate_shutdown = <span class="bool-val">true</span>;
+      cvar.notify_all();
     }
-    <span class="kw">for</span> <span class="ident">thread_handle</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">join</span>.<span class="ident">iter_mut</span>() {
-      <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">th</span>) <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="ident">thread_handle</span>, <span class="prelude-val">None</span>) {
-        <span class="ident">th</span>.<span class="ident">join</span>().<span class="ident">unwrap</span>();
+    <span class="kw">for </span>thread_handle <span class="kw">in </span><span class="self">self</span>.join.iter_mut() {
+      <span class="kw">if let </span><span class="prelude-val">Some</span>(th) = mem::replace(thread_handle, <span class="prelude-val">None</span>) {
+        th.join().unwrap();
       }
     }
   }
 }
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-      <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-      <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-      <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">WorkerPool</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">do_work</span>(<span class="ident">queue</span>:<span class="ident">Arc</span><span class="op">&lt;</span>(<span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">WorkQueue</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Condvar</span>)<span class="op">&gt;</span>) {
-    <span class="kw">loop</span> {
-      <span class="kw">let</span> <span class="ident">ret</span>;
-      { <span class="comment">// need to drop possible job before the final lock is taken,</span>
-        <span class="comment">// so refcount of possible_job Arc is 0 by the time the job is delivered</span>
-        <span class="comment">// to the caller. We basically need a barrier (the lock) to happen</span>
-        <span class="comment">// after the destructor that decrefs possible_job</span>
-        <span class="kw">let</span> <span class="ident">possible_job</span>;
+<span class="kw">impl </span>&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+      ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+      Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+      U:Send+<span class="lifetime">&#39;static</span>+Sync&gt; WorkerPool&lt;ReturnValue, ExtraInput, Alloc, U&gt; {
+  <span class="kw">fn </span>do_work(queue:Arc&lt;(Mutex&lt;WorkQueue&lt;ReturnValue, ExtraInput, Alloc, U&gt;&gt;, Condvar)&gt;) {
+    <span class="kw">loop </span>{
+      <span class="kw">let </span>ret;
+      { <span class="comment">// need to drop possible job before the final lock is taken,
+        // so refcount of possible_job Arc is 0 by the time the job is delivered
+        // to the caller. We basically need a barrier (the lock) to happen
+        // after the destructor that decrefs possible_job
+        </span><span class="kw">let </span>possible_job;
         {
-          <span class="kw">let</span> <span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">lock</span>, <span class="kw-2">ref</span> <span class="ident">cvar</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">queue</span>;
-          <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-          <span class="kw">if</span> <span class="ident">local_queue</span>.<span class="ident">immediate_shutdown</span> {
+          <span class="kw">let </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>lock, <span class="kw-2">ref </span>cvar) = <span class="kw-2">&amp;*</span>queue;
+          <span class="kw">let </span><span class="kw-2">mut </span>local_queue = lock.lock().unwrap();
+          <span class="kw">if </span>local_queue.immediate_shutdown {
             <span class="kw">break</span>;
           }
-          <span class="ident">possible_job</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">res</span>) <span class="op">=</span> <span class="ident">local_queue</span>.<span class="ident">jobs</span>.<span class="ident">pop</span>() {
-            <span class="ident">cvar</span>.<span class="ident">notify_all</span>();
-            <span class="ident">local_queue</span>.<span class="ident">num_in_progress</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">res</span>
-          } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="ident">local_queue</span>.<span class="ident">shutdown</span>{
+          possible_job = <span class="kw">if let </span><span class="prelude-val">Some</span>(res) = local_queue.jobs.pop() {
+            cvar.notify_all();
+            local_queue.num_in_progress += <span class="number">1</span>;
+            res
+          } <span class="kw">else </span>{
+            <span class="kw">if </span>local_queue.shutdown{
               <span class="kw">break</span>;
-            } <span class="kw">else</span> {
-              <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">cvar</span>.<span class="ident">wait</span>(<span class="ident">local_queue</span>); <span class="comment">// unlock immediately, unfortunately</span>
-              <span class="kw">continue</span>;
+            } <span class="kw">else </span>{
+              <span class="kw">let _ </span>= cvar.wait(local_queue); <span class="comment">// unlock immediately, unfortunately
+              </span><span class="kw">continue</span>;
             }
           };
         }
-        <span class="ident">ret</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">job_data</span>) <span class="op">=</span> <span class="ident">possible_job</span>.<span class="ident">data</span>.<span class="ident">read</span>() {
-          <span class="ident">JobReply</span>{
-            <span class="ident">result</span>: (<span class="ident">possible_job</span>.<span class="ident">func</span>)(<span class="ident">possible_job</span>.<span class="ident">extra_input</span>,
-                                        <span class="ident">possible_job</span>.<span class="ident">index</span>,
-                                        <span class="ident">possible_job</span>.<span class="ident">thread_size</span>,
-                                        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">job_data</span>,
-                                        <span class="ident">possible_job</span>.<span class="ident">alloc</span>),
-            <span class="ident">work_id</span>:<span class="ident">possible_job</span>.<span class="ident">work_id</span>,
+        ret = <span class="kw">if let </span><span class="prelude-val">Ok</span>(job_data) = possible_job.data.read() {
+          JobReply{
+            result: (possible_job.func)(possible_job.extra_input,
+                                        possible_job.index,
+                                        possible_job.thread_size,
+                                        <span class="kw-2">&amp;*</span>job_data,
+                                        possible_job.alloc),
+            work_id:possible_job.work_id,
           }
         } <span class="kw">else</span>{
-          <span class="kw">break</span>; <span class="comment">// poisoned lock</span>
-        };
+          <span class="kw">break</span>; <span class="comment">// poisoned lock
+        </span>};
       }
       {
-        <span class="kw">let</span> <span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">lock</span>, <span class="kw-2">ref</span> <span class="ident">cvar</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">queue</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-        <span class="ident">local_queue</span>.<span class="ident">num_in_progress</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">local_queue</span>.<span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">ret</span>).<span class="ident">unwrap</span>();
-        <span class="ident">cvar</span>.<span class="ident">notify_all</span>();
+        <span class="kw">let </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>lock, <span class="kw-2">ref </span>cvar) = <span class="kw-2">&amp;*</span>queue;
+        <span class="kw">let </span><span class="kw-2">mut </span>local_queue = lock.lock().unwrap();
+        local_queue.num_in_progress -= <span class="number">1</span>;
+        local_queue.results.push(ret).unwrap();
+        cvar.notify_all();
       }
     }
   }
-  <span class="kw">fn</span> <span class="ident">_push_job</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">job</span>:<span class="ident">JobRequest</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">lock</span>, <span class="kw-2">ref</span> <span class="ident">cvar</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">queue</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-      <span class="kw">loop</span> {
-        <span class="kw">if</span> <span class="ident">local_queue</span>.<span class="ident">jobs</span>.<span class="ident">size</span>() <span class="op">+</span> <span class="ident">local_queue</span>.<span class="ident">num_in_progress</span> <span class="op">+</span> <span class="ident">local_queue</span>.<span class="ident">results</span>.<span class="ident">size</span>() <span class="op">&lt;</span> <span class="ident">MAX_THREADS</span> {
-          <span class="ident">local_queue</span>.<span class="ident">jobs</span>.<span class="ident">push</span>(<span class="ident">job</span>).<span class="ident">unwrap</span>();
-          <span class="ident">cvar</span>.<span class="ident">notify_all</span>();
+  <span class="kw">fn </span>_push_job(<span class="kw-2">&amp;mut </span><span class="self">self</span>, job:JobRequest&lt;ReturnValue, ExtraInput, Alloc, U&gt;) {
+    <span class="kw">let </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>lock, <span class="kw-2">ref </span>cvar) = <span class="kw-2">&amp;*</span><span class="self">self</span>.queue.<span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>local_queue = lock.lock().unwrap();
+      <span class="kw">loop </span>{
+        <span class="kw">if </span>local_queue.jobs.size() + local_queue.num_in_progress + local_queue.results.size() &lt; MAX_THREADS {
+          local_queue.jobs.push(job).unwrap();
+          cvar.notify_all();
           <span class="kw">break</span>;
         }
-        <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">cvar</span>.<span class="ident">wait</span>(<span class="ident">local_queue</span>).<span class="ident">unwrap</span>();
+        local_queue = cvar.wait(local_queue).unwrap();
       }    
     
   }
-  <span class="kw">fn</span> <span class="ident">_try_push_job</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">job</span>:<span class="ident">JobRequest</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span>)-&gt;<span class="prelude-ty">Result</span><span class="op">&lt;</span>(),<span class="ident">JobRequest</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">lock</span>, <span class="kw-2">ref</span> <span class="ident">cvar</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">queue</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-    <span class="kw">if</span> <span class="ident">local_queue</span>.<span class="ident">jobs</span>.<span class="ident">size</span>() <span class="op">+</span> <span class="ident">local_queue</span>.<span class="ident">num_in_progress</span> <span class="op">+</span> <span class="ident">local_queue</span>.<span class="ident">results</span>.<span class="ident">size</span>() <span class="op">&lt;</span> <span class="ident">MAX_THREADS</span> {
-      <span class="ident">local_queue</span>.<span class="ident">jobs</span>.<span class="ident">push</span>(<span class="ident">job</span>).<span class="ident">unwrap</span>();
-      <span class="ident">cvar</span>.<span class="ident">notify_all</span>();
+  <span class="kw">fn </span>_try_push_job(<span class="kw-2">&amp;mut </span><span class="self">self</span>, job:JobRequest&lt;ReturnValue, ExtraInput, Alloc, U&gt;)-&gt;<span class="prelude-ty">Result</span>&lt;(),JobRequest&lt;ReturnValue, ExtraInput, Alloc, U&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>lock, <span class="kw-2">ref </span>cvar) = <span class="kw-2">&amp;*</span><span class="self">self</span>.queue.<span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>local_queue = lock.lock().unwrap();
+    <span class="kw">if </span>local_queue.jobs.size() + local_queue.num_in_progress + local_queue.results.size() &lt; MAX_THREADS {
+      local_queue.jobs.push(job).unwrap();
+      cvar.notify_all();
       <span class="prelude-val">Ok</span>(())
-    } <span class="kw">else</span> {
-      <span class="prelude-val">Err</span>(<span class="ident">job</span>)
+    } <span class="kw">else </span>{
+      <span class="prelude-val">Err</span>(job)
     }
   }
-  <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">queue</span>:<span class="ident">Arc</span><span class="op">&lt;</span>(<span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">WorkQueue</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Condvar</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">std::thread::JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="ident">std::thread::spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::do_work</span>(<span class="ident">queue</span>))
+  <span class="kw">fn </span>start(queue:Arc&lt;(Mutex&lt;WorkQueue&lt;ReturnValue, ExtraInput, Alloc, U&gt;&gt;, Condvar)&gt;) -&gt; std::thread::JoinHandle&lt;()&gt; {
+    std::thread::spawn(<span class="kw">move </span>|| <span class="self">Self</span>::do_work(queue))
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">num_threads</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-    <span class="kw">let</span> <span class="ident">queue</span> <span class="op">=</span> <span class="ident">Arc::new</span>((<span class="ident">Mutex::new</span>(<span class="ident">WorkQueue::default</span>()), <span class="ident">Condvar::new</span>()));
-    <span class="ident">WorkerPool</span>{
-      <span class="ident">queue</span>: <span class="ident">GuardedQueue</span>(<span class="ident">queue</span>.<span class="ident">clone</span>()),
-      <span class="ident">join</span>:[
-        <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())),
-        <span class="kw">if</span> <span class="number">1</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">2</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">3</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">4</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">5</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">6</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">7</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">8</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">9</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">10</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">11</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">12</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">13</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">14</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
-        <span class="kw">if</span> <span class="number">15</span> <span class="op">&lt;</span> <span class="ident">num_threads</span> { <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::start</span>(<span class="ident">queue</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> {<span class="prelude-val">None</span>},
+  <span class="kw">pub fn </span>new(num_threads: usize) -&gt; <span class="self">Self </span>{
+    <span class="kw">let </span>queue = Arc::new((Mutex::new(WorkQueue::default()), Condvar::new()));
+    WorkerPool{
+      queue: GuardedQueue(queue.clone()),
+      join:[
+        <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())),
+        <span class="kw">if </span><span class="number">1 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">2 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">3 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">4 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">5 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">6 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">7 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">8 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">9 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">10 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">11 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">12 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">13 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">14 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
+        <span class="kw">if </span><span class="number">15 </span>&lt; num_threads { <span class="prelude-val">Some</span>(<span class="self">Self</span>::start(queue.clone())) } <span class="kw">else </span>{<span class="prelude-val">None</span>},
       ],
     }
   }
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_work_pool</span><span class="op">&lt;</span><span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>, <span class="ident">SliceW</span>: <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span>(
-  <span class="ident">num_threads</span>:<span class="ident">usize</span>,
-) -&gt; <span class="ident">WorkerPool</span><span class="op">&lt;</span><span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-                <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-                <span class="ident">Alloc</span>,
-                (<span class="ident">SliceW</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">&gt;</span>
-  <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span><span class="op">+</span><span class="ident">Sync</span>,
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span><span class="op">+</span><span class="ident">Sync</span> {
-  <span class="ident">WorkerPool::new</span>(<span class="ident">num_threads</span>)
+<span class="kw">pub fn </span>new_work_pool&lt;Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>, SliceW: SliceWrapper&lt;u8&gt;+Send+<span class="lifetime">&#39;static</span>+Sync&gt;(
+  num_threads:usize,
+) -&gt; WorkerPool&lt;CompressionThreadResult&lt;Alloc&gt;,
+                UnionHasher&lt;Alloc&gt;,
+                Alloc,
+                (SliceW, BrotliEncoderParams)&gt;
+  <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory:Send+<span class="lifetime">&#39;static</span>,
+        &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory: Send+Sync,
+        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory: Send+Sync {
+  WorkerPool::new(num_threads)
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WorkerJoinable</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                          <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                      <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                      <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> {
-  <span class="ident">queue</span>: <span class="ident">GuardedQueue</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span>,
-  <span class="ident">work_id</span>: <span class="ident">u64</span>,
+<span class="kw">pub struct </span>WorkerJoinable&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+                          ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+                      Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                      U:Send+<span class="lifetime">&#39;static</span>+Sync&gt; {
+  queue: GuardedQueue&lt;ReturnValue, ExtraInput, Alloc, U&gt;,
+  work_id: u64,
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-     <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-     <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-     <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Joinable</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">WorkerJoinable</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-  <span class="kw">fn</span> <span class="ident">join</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">lock</span>, <span class="kw-2">ref</span> <span class="ident">cvar</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">queue</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-    <span class="kw">loop</span> {
-      <span class="kw">match</span> <span class="ident">local_queue</span>.<span class="ident">results</span>.<span class="ident">remove</span>(<span class="op">|</span><span class="ident">data</span>:<span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">JobReply</span><span class="op">&lt;</span><span class="ident">ReturnValue</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">|</span><span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">item</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">data</span> { <span class="ident">item</span>.<span class="ident">work_id</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">work_id</span>} <span class="kw">else</span> {<span class="bool-val">false</span>}) {
-        <span class="prelude-val">Some</span>(<span class="ident">matched</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">matched</span>.<span class="ident">result</span>),
-        <span class="prelude-val">None</span> =&gt; <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">cvar</span>.<span class="ident">wait</span>(<span class="ident">local_queue</span>).<span class="ident">unwrap</span>(),
+<span class="kw">impl</span>&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+     ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+     Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+     U:Send+<span class="lifetime">&#39;static</span>+Sync&gt; Joinable&lt;ReturnValue, BrotliEncoderThreadError&gt; <span class="kw">for </span>WorkerJoinable&lt;ReturnValue, ExtraInput, Alloc, U&gt; {
+  <span class="kw">fn </span>join(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ReturnValue, BrotliEncoderThreadError&gt; {
+    <span class="kw">let </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>lock, <span class="kw-2">ref </span>cvar) = <span class="kw-2">&amp;*</span><span class="self">self</span>.queue.<span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>local_queue = lock.lock().unwrap();
+    <span class="kw">loop </span>{
+      <span class="kw">match </span>local_queue.results.remove(|data:<span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;JobReply&lt;ReturnValue&gt;&gt;|<span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>item) = <span class="kw-2">*</span>data { item.work_id == <span class="self">self</span>.work_id} <span class="kw">else </span>{<span class="bool-val">false</span>}) {
+        <span class="prelude-val">Some</span>(matched) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(matched.result),
+        <span class="prelude-val">None </span>=&gt; local_queue = cvar.wait(local_queue).unwrap(),
       };
     }
   }
 }
 
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-     <span class="ident">ExtraInput</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-     <span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-     <span class="ident">U</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">BatchSpawnableLite</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">WorkerPool</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span>
-  <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>:<span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span><span class="op">+</span><span class="ident">Sync</span>,
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span><span class="op">+</span><span class="ident">Sync</span> {
-  <span class="kw">type</span> <span class="ident">FinalJoinHandle</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-  <span class="kw">type</span> <span class="ident">JoinHandle</span> <span class="op">=</span> <span class="ident">WorkerJoinable</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident">U</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;ReturnValue:Send+<span class="lifetime">&#39;static</span>,
+     ExtraInput:Send+<span class="lifetime">&#39;static</span>,
+     Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+     U:Send+<span class="lifetime">&#39;static</span>+Sync&gt; BatchSpawnableLite&lt;ReturnValue, ExtraInput, Alloc, U&gt; <span class="kw">for </span>WorkerPool&lt;ReturnValue, ExtraInput, Alloc, U&gt;
+  <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory:Send+<span class="lifetime">&#39;static</span>,
+        &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory: Send+Sync,
+        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory: Send+Sync {
+  <span class="kw">type </span>FinalJoinHandle = Arc&lt;RwLock&lt;U&gt;&gt;;
+  <span class="kw">type </span>JoinHandle = WorkerJoinable&lt;ReturnValue, ExtraInput, Alloc, U&gt;;
 
-  <span class="kw">fn</span> <span class="ident">make_spawner</span>(
-    <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-    <span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>,
-  ) -&gt; <span class="ident"><span class="self">Self</span>::FinalJoinHandle</span> {
-    <span class="ident">std::sync::Arc</span>::<span class="op">&lt;</span><span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">RwLock::new</span>(<span class="ident">mem::replace</span>(<span class="ident">input</span>, <span class="ident">Owned</span>(<span class="ident">InternalOwned::Borrowed</span>)).<span class="ident">unwrap</span>()))
+  <span class="kw">fn </span>make_spawner(
+    <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    input: <span class="kw-2">&amp;mut </span>Owned&lt;U&gt;,
+  ) -&gt; <span class="self">Self</span>::FinalJoinHandle {
+    std::sync::Arc::&lt;RwLock&lt;U&gt;&gt;::new(RwLock::new(mem::replace(input, Owned(InternalOwned::Borrowed)).unwrap()))
   }
-  <span class="kw">fn</span> <span class="ident">spawn</span>(
-    <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-    <span class="ident">locked_input</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::FinalJoinHandle</span>,
-    <span class="ident">work</span>:<span class="kw-2">&amp;mut</span> <span class="ident">SendAlloc</span><span class="op">&lt;</span><span class="ident">ReturnValue</span>, <span class="ident">ExtraInput</span>, <span class="ident">Alloc</span>, <span class="ident"><span class="self">Self</span>::JoinHandle</span><span class="op">&gt;</span>,
-    <span class="ident">index</span>: <span class="ident">usize</span>,
-    <span class="ident">num_threads</span>: <span class="ident">usize</span>,
-    <span class="ident">f</span>: <span class="kw">fn</span>(<span class="ident">ExtraInput</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="ident">U</span>, <span class="ident">Alloc</span>) -&gt; <span class="ident">ReturnValue</span>,
+  <span class="kw">fn </span>spawn(
+    <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    locked_input: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::FinalJoinHandle,
+    work:<span class="kw-2">&amp;mut </span>SendAlloc&lt;ReturnValue, ExtraInput, Alloc, <span class="self">Self</span>::JoinHandle&gt;,
+    index: usize,
+    num_threads: usize,
+    f: <span class="kw">fn</span>(ExtraInput, usize, usize, <span class="kw-2">&amp;</span>U, Alloc) -&gt; ReturnValue,
   ) {
-    <span class="macro">assert!</span>(<span class="ident">num_threads</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_THREADS</span>);
-    <span class="kw">let</span> <span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">lock</span>, <span class="kw-2">ref</span> <span class="ident">cvar</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">queue</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">lock</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-    <span class="kw">loop</span> {
-      <span class="kw">if</span> <span class="ident">local_queue</span>.<span class="ident">jobs</span>.<span class="ident">size</span>() <span class="op">+</span> <span class="ident">local_queue</span>.<span class="ident">num_in_progress</span> <span class="op">+</span> <span class="ident">local_queue</span>.<span class="ident">results</span>.<span class="ident">size</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_THREADS</span> {
-        <span class="kw">let</span> <span class="ident">work_id</span> <span class="op">=</span> <span class="ident">local_queue</span>.<span class="ident">cur_work_id</span>;
-        <span class="ident">local_queue</span>.<span class="ident">cur_work_id</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">let</span> (<span class="ident">local_alloc</span>, <span class="ident">local_extra</span>) <span class="op">=</span> <span class="ident">work</span>.<span class="ident">replace_with_default</span>();
-        <span class="ident">local_queue</span>.<span class="ident">jobs</span>.<span class="ident">push</span>(<span class="ident">JobRequest</span>{
-          <span class="ident">func</span>:<span class="ident">f</span>,
-          <span class="ident">extra_input</span>:<span class="ident">local_extra</span>,
-          <span class="ident">index</span>: <span class="ident">index</span>,
-          <span class="ident">thread_size</span>: <span class="ident">num_threads</span>,
-          <span class="ident">data</span>: <span class="ident">locked_input</span>.<span class="ident">clone</span>(),
-          <span class="ident">alloc</span>: <span class="ident">local_alloc</span>,
-          <span class="ident">work_id</span>:<span class="ident">work_id</span>,
-        }).<span class="ident">unwrap</span>();
-        <span class="kw-2">*</span><span class="ident">work</span> <span class="op">=</span> <span class="ident">SendAlloc</span>(<span class="ident">InternalSendAlloc::Join</span>(<span class="ident">WorkerJoinable</span>{<span class="ident">queue</span>:<span class="ident">GuardedQueue</span>(<span class="self">self</span>.<span class="ident">queue</span>.<span class="number">0</span>.<span class="ident">clone</span>()), <span class="ident">work_id</span>:<span class="ident">work_id</span>}));
-        <span class="ident">cvar</span>.<span class="ident">notify_all</span>();
+    <span class="macro">assert!</span>(num_threads &lt;= MAX_THREADS);
+    <span class="kw">let </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>lock, <span class="kw-2">ref </span>cvar) = <span class="kw-2">&amp;*</span><span class="self">self</span>.queue.<span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>local_queue = lock.lock().unwrap();
+    <span class="kw">loop </span>{
+      <span class="kw">if </span>local_queue.jobs.size() + local_queue.num_in_progress + local_queue.results.size() &lt;= MAX_THREADS {
+        <span class="kw">let </span>work_id = local_queue.cur_work_id;
+        local_queue.cur_work_id += <span class="number">1</span>;
+        <span class="kw">let </span>(local_alloc, local_extra) = work.replace_with_default();
+        local_queue.jobs.push(JobRequest{
+          func:f,
+          extra_input:local_extra,
+          index: index,
+          thread_size: num_threads,
+          data: locked_input.clone(),
+          alloc: local_alloc,
+          work_id:work_id,
+        }).unwrap();
+        <span class="kw-2">*</span>work = SendAlloc(InternalSendAlloc::Join(WorkerJoinable{queue:GuardedQueue(<span class="self">self</span>.queue.<span class="number">0</span>.clone()), work_id:work_id}));
+        cvar.notify_all();
         <span class="kw">break</span>;
       } <span class="kw">else</span>{
-        <span class="ident">local_queue</span> <span class="op">=</span> <span class="ident">cvar</span>.<span class="ident">wait</span>(<span class="ident">local_queue</span>).<span class="ident">unwrap</span>(); <span class="comment">// hope room frees up</span>
-      }
+        local_queue = cvar.wait(local_queue).unwrap(); <span class="comment">// hope room frees up
+      </span>}
     }
   }
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compress_worker_pool</span><span class="op">&lt;</span><span class="ident">Alloc</span>:<span class="ident">BrotliAlloc</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span>,
-                      <span class="ident">SliceW</span>: <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Send</span><span class="op">+</span><span class="lifetime">&#39;static</span><span class="op">+</span><span class="ident">Sync</span><span class="op">&gt;</span> (
-  <span class="ident">params</span>:<span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
-  <span class="ident">owned_input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">SliceW</span><span class="op">&gt;</span>,
-  <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-  <span class="ident">alloc_per_thread</span>:<span class="kw-2">&amp;mut</span> [<span class="ident">SendAlloc</span><span class="op">&lt;</span><span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-                                   <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-                                   <span class="ident">Alloc</span>,
-                                   <span class="op">&lt;</span><span class="ident">WorkerPool</span><span class="op">&lt;</span><span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">Alloc</span>, (<span class="ident">SliceW</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">BatchSpawnableLite</span><span class="op">&lt;</span><span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">Alloc</span>, (<span class="ident">SliceW</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::JoinHandle</span><span class="op">&gt;</span>],
-  <span class="ident">work_pool</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WorkerPool</span><span class="op">&lt;</span><span class="ident">CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>, <span class="ident">Alloc</span>, (<span class="ident">SliceW</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">BrotliEncoderThreadError</span><span class="op">&gt;</span>
-  <span class="kw">where</span> <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span>,
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span><span class="op">+</span><span class="ident">Sync</span>,
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>: <span class="ident">Send</span><span class="op">+</span><span class="ident">Sync</span> {
-  <span class="ident">CompressMulti</span>(<span class="ident">params</span>, <span class="ident">owned_input</span>, <span class="ident">output</span>, <span class="ident">alloc_per_thread</span>, <span class="ident">work_pool</span>)
+<span class="kw">pub fn </span>compress_worker_pool&lt;Alloc:BrotliAlloc+Send+<span class="lifetime">&#39;static</span>,
+                      SliceW: SliceWrapper&lt;u8&gt;+Send+<span class="lifetime">&#39;static</span>+Sync&gt; (
+  params:<span class="kw-2">&amp;</span>BrotliEncoderParams,
+  owned_input: <span class="kw-2">&amp;mut </span>Owned&lt;SliceW&gt;,
+  output: <span class="kw-2">&amp;mut </span>[u8],
+  alloc_per_thread:<span class="kw-2">&amp;mut </span>[SendAlloc&lt;CompressionThreadResult&lt;Alloc&gt;,
+                                   UnionHasher&lt;Alloc&gt;,
+                                   Alloc,
+                                   &lt;WorkerPool&lt;CompressionThreadResult&lt;Alloc&gt;, UnionHasher&lt;Alloc&gt;, Alloc, (SliceW, BrotliEncoderParams)&gt; <span class="kw">as </span>BatchSpawnableLite&lt;CompressionThreadResult&lt;Alloc&gt;, UnionHasher&lt;Alloc&gt;, Alloc, (SliceW, BrotliEncoderParams)&gt;&gt;::JoinHandle&gt;],
+  work_pool: <span class="kw-2">&amp;mut </span>WorkerPool&lt;CompressionThreadResult&lt;Alloc&gt;, UnionHasher&lt;Alloc&gt;, Alloc, (SliceW, BrotliEncoderParams)&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;usize, BrotliEncoderThreadError&gt;
+  <span class="kw">where </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory: Send,
+        &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory: Send+Sync,
+        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory: Send+Sync {
+  CompressMulti(params, owned_input, output, alloc_per_thread, work_pool)
 }
 
-<span class="comment">// out of place thread create</span>
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+<span class="comment">// out of place thread create
+</span></code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

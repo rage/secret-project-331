@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/logger.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>logger.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/logger.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>logger.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -874,879 +874,879 @@
 <span id="872">872</span>
 <span id="873">873</span>
 <span id="874">874</span>
-</pre><pre class="rust"><code><span class="doccomment">//! For middleware documentation, see [`Logger`].</span>
+</pre><pre class="rust"><code><span class="doccomment">//! For middleware documentation, see [`Logger`].
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">borrow::Cow</span>,
-    <span class="ident">collections::HashSet</span>,
-    <span class="ident">convert::TryFrom</span>,
-    <span class="ident">env</span>,
-    <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span> <span class="kw">as</span> <span class="kw">_</span>},
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">rc::Rc</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>std::{
+    borrow::Cow,
+    collections::HashSet,
+    convert::TryFrom,
+    env,
+    fmt::{<span class="self">self</span>, Display <span class="kw">as _</span>},
+    future::Future,
+    marker::PhantomData,
+    pin::Pin,
+    rc::Rc,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">Service</span>, <span class="ident">Transform</span>};
-<span class="kw">use</span> <span class="ident">actix_utils::future</span>::{<span class="ident">ready</span>, <span class="ident">Ready</span>};
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">log</span>::{<span class="ident">debug</span>, <span class="ident">warn</span>};
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
-<span class="kw">use</span> <span class="ident">regex</span>::{<span class="ident">Regex</span>, <span class="ident">RegexSet</span>};
-<span class="kw">use</span> <span class="ident">time</span>::{<span class="ident">format_description::well_known::Rfc3339</span>, <span class="ident">OffsetDateTime</span>};
+<span class="kw">use </span>actix_service::{Service, Transform};
+<span class="kw">use </span>actix_utils::future::{ready, Ready};
+<span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>log::{debug, warn};
+<span class="kw">use </span>pin_project_lite::pin_project;
+<span class="kw">use </span>regex::{Regex, RegexSet};
+<span class="kw">use </span>time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">BodySize</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">http::header::HeaderName</span>,
-    <span class="ident">service</span>::{<span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>},
-    <span class="ident">Error</span>, <span class="ident">HttpResponse</span>, <span class="prelude-ty">Result</span>,
+<span class="kw">use crate</span>::{
+    body::{BodySize, MessageBody},
+    http::header::HeaderName,
+    service::{ServiceRequest, ServiceResponse},
+    Error, HttpResponse, <span class="prelude-ty">Result</span>,
 };
 
-<span class="doccomment">/// Middleware for logging request and response summaries to the terminal.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This middleware uses the `log` crate to output information. Enable `log`&#39;s output for the</span>
-<span class="doccomment">/// &quot;actix_web&quot; scope using [`env_logger`](https://docs.rs/env_logger) or similar crate.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Default Format</span>
-<span class="doccomment">/// The [`default`](Logger::default) Logger uses the following format:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```plain</span>
-<span class="doccomment">/// %a &quot;%r&quot; %s %b &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; %T</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Example Output:</span>
-<span class="doccomment">/// 127.0.0.1:54278 &quot;GET /test HTTP/1.1&quot; 404 20 &quot;-&quot; &quot;HTTPie/2.2.0&quot; 0.001074</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{middleware::Logger, App};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // access logs are printed with the INFO level so ensure it is enabled by default</span>
-<span class="doccomment">/// env_logger::init_from_env(env_logger::Env::new().default_filter_or(&quot;info&quot;));</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new()</span>
-<span class="doccomment">///     // .wrap(Logger::default())</span>
-<span class="doccomment">///     .wrap(Logger::new(&quot;%a %{User-Agent}i&quot;));</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Format</span>
-<span class="doccomment">/// Variable | Description</span>
-<span class="doccomment">/// -------- | -----------</span>
-<span class="doccomment">/// `%%` | The percent sign</span>
-<span class="doccomment">/// `%a` | Peer IP address (or IP address of reverse proxy if used)</span>
-<span class="doccomment">/// `%t` | Time when the request started processing (in RFC 3339 format)</span>
-<span class="doccomment">/// `%r` | First line of request (Example: `GET /test HTTP/1.1`)</span>
-<span class="doccomment">/// `%s` | Response status code</span>
-<span class="doccomment">/// `%b` | Size of response in bytes, including HTTP headers</span>
-<span class="doccomment">/// `%T` | Time taken to serve the request, in seconds to 6 decimal places</span>
-<span class="doccomment">/// `%D` | Time taken to serve the request, in milliseconds</span>
-<span class="doccomment">/// `%U` | Request URL</span>
-<span class="doccomment">/// `%{r}a` | &quot;Real IP&quot; remote address **\***</span>
-<span class="doccomment">/// `%{FOO}i` |  `request.headers[&quot;FOO&quot;]`</span>
-<span class="doccomment">/// `%{FOO}o` | `response.headers[&quot;FOO&quot;]`</span>
-<span class="doccomment">/// `%{FOO}e` | `env_var[&quot;FOO&quot;]`</span>
-<span class="doccomment">/// `%{FOO}xi` | [Custom request replacement](Logger::custom_request_replace) labelled &quot;FOO&quot;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Security</span>
-<span class="doccomment">/// **\*** &quot;Real IP&quot; remote address is calculated using</span>
-<span class="doccomment">/// [`ConnectionInfo::realip_remote_addr()`](crate::dev::ConnectionInfo::realip_remote_addr())</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If you use this value, ensure that all requests come from trusted hosts. Otherwise, it is</span>
-<span class="doccomment">/// trivial for the remote client to falsify their source IP address.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Logger</span>(<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Middleware for logging request and response summaries to the terminal.
+///
+/// This middleware uses the `log` crate to output information. Enable `log`&#39;s output for the
+/// &quot;actix_web&quot; scope using [`env_logger`](https://docs.rs/env_logger) or similar crate.
+///
+/// # Default Format
+/// The [`default`](Logger::default) Logger uses the following format:
+///
+/// ```plain
+/// %a &quot;%r&quot; %s %b &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; %T
+///
+/// Example Output:
+/// 127.0.0.1:54278 &quot;GET /test HTTP/1.1&quot; 404 20 &quot;-&quot; &quot;HTTPie/2.2.0&quot; 0.001074
+/// ```
+///
+/// # Examples
+/// ```
+/// use actix_web::{middleware::Logger, App};
+///
+/// // access logs are printed with the INFO level so ensure it is enabled by default
+/// env_logger::init_from_env(env_logger::Env::new().default_filter_or(&quot;info&quot;));
+///
+/// let app = App::new()
+///     // .wrap(Logger::default())
+///     .wrap(Logger::new(&quot;%a %{User-Agent}i&quot;));
+/// ```
+///
+/// # Format
+/// Variable | Description
+/// -------- | -----------
+/// `%%` | The percent sign
+/// `%a` | Peer IP address (or IP address of reverse proxy if used)
+/// `%t` | Time when the request started processing (in RFC 3339 format)
+/// `%r` | First line of request (Example: `GET /test HTTP/1.1`)
+/// `%s` | Response status code
+/// `%b` | Size of response in bytes, including HTTP headers
+/// `%T` | Time taken to serve the request, in seconds to 6 decimal places
+/// `%D` | Time taken to serve the request, in milliseconds
+/// `%U` | Request URL
+/// `%{r}a` | &quot;Real IP&quot; remote address **\***
+/// `%{FOO}i` |  `request.headers[&quot;FOO&quot;]`
+/// `%{FOO}o` | `response.headers[&quot;FOO&quot;]`
+/// `%{FOO}e` | `env_var[&quot;FOO&quot;]`
+/// `%{FOO}xi` | [Custom request replacement](Logger::custom_request_replace) labelled &quot;FOO&quot;
+///
+/// # Security
+/// **\*** &quot;Real IP&quot; remote address is calculated using
+/// [`ConnectionInfo::realip_remote_addr()`](crate::dev::ConnectionInfo::realip_remote_addr())
+///
+/// If you use this value, ensure that all requests come from trusted hosts. Otherwise, it is
+/// trivial for the remote client to falsify their source IP address.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Logger(Rc&lt;Inner&gt;);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Inner</span> {
-    <span class="ident">format</span>: <span class="ident">Format</span>,
-    <span class="ident">exclude</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">exclude_regex</span>: <span class="ident">RegexSet</span>,
-    <span class="ident">log_target</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">struct </span>Inner {
+    format: Format,
+    exclude: HashSet&lt;String&gt;,
+    exclude_regex: RegexSet,
+    log_target: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Logger</span> {
-    <span class="doccomment">/// Create `Logger` middleware with the specified `format`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">format</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Logger</span> {
-        <span class="ident">Logger</span>(<span class="ident">Rc::new</span>(<span class="ident">Inner</span> {
-            <span class="ident">format</span>: <span class="ident">Format::new</span>(<span class="ident">format</span>),
-            <span class="ident">exclude</span>: <span class="ident">HashSet::new</span>(),
-            <span class="ident">exclude_regex</span>: <span class="ident">RegexSet::empty</span>(),
-            <span class="ident">log_target</span>: <span class="ident">Cow::Borrowed</span>(<span class="macro">module_path!</span>()),
+<span class="kw">impl </span>Logger {
+    <span class="doccomment">/// Create `Logger` middleware with the specified `format`.
+    </span><span class="kw">pub fn </span>new(format: <span class="kw-2">&amp;</span>str) -&gt; Logger {
+        Logger(Rc::new(Inner {
+            format: Format::new(format),
+            exclude: HashSet::new(),
+            exclude_regex: RegexSet::empty(),
+            log_target: Cow::Borrowed(<span class="macro">module_path!</span>()),
         }))
     }
 
-    <span class="doccomment">/// Ignore and do not log access info for specified path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exclude</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">exclude</span>
-            .<span class="ident">insert</span>(<span class="ident">path</span>.<span class="ident">into</span>());
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Ignore and do not log access info for specified path.
+    </span><span class="kw">pub fn </span>exclude&lt;T: Into&lt;String&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, path: T) -&gt; <span class="self">Self </span>{
+        Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>)
+            .unwrap()
+            .exclude
+            .insert(path.into());
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Ignore and do not log access info for paths that match regex.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exclude_regex</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">patterns</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">exclude_regex</span>.<span class="ident">patterns</span>().<span class="ident">to_vec</span>();
-        <span class="ident">patterns</span>.<span class="ident">push</span>(<span class="ident">path</span>.<span class="ident">into</span>());
-        <span class="kw">let</span> <span class="ident">regex_set</span> <span class="op">=</span> <span class="ident">RegexSet::new</span>(<span class="ident">patterns</span>).<span class="ident">unwrap</span>();
-        <span class="ident">inner</span>.<span class="ident">exclude_regex</span> <span class="op">=</span> <span class="ident">regex_set</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Ignore and do not log access info for paths that match regex.
+    </span><span class="kw">pub fn </span>exclude_regex&lt;T: Into&lt;String&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, path: T) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>inner = Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>patterns = inner.exclude_regex.patterns().to_vec();
+        patterns.push(path.into());
+        <span class="kw">let </span>regex_set = RegexSet::new(patterns).unwrap();
+        inner.exclude_regex = regex_set;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the logging target to `target`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default, the log target is `module_path!()` of the log call location. In our case, that</span>
-    <span class="doccomment">/// would be `actix_web::middleware::logger`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// Using `.log_target(&quot;http_log&quot;)` would have this effect on request logs:</span>
-    <span class="doccomment">/// ```diff</span>
-    <span class="doccomment">/// - [2015-10-21T07:28:00Z INFO  actix_web::middleware::logger] 127.0.0.1 &quot;GET / HTTP/1.1&quot; 200 88 &quot;-&quot; &quot;dmc/1.0&quot; 0.001985</span>
-    <span class="doccomment">/// + [2015-10-21T07:28:00Z INFO  http_log] 127.0.0.1 &quot;GET / HTTP/1.1&quot; 200 88 &quot;-&quot; &quot;dmc/1.0&quot; 0.001985</span>
-    <span class="doccomment">///                               ^^^^^^^^</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">log_target</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">target</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>).<span class="ident">unwrap</span>();
-        <span class="ident">inner</span>.<span class="ident">log_target</span> <span class="op">=</span> <span class="ident">target</span>.<span class="ident">into</span>();
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the logging target to `target`.
+    ///
+    /// By default, the log target is `module_path!()` of the log call location. In our case, that
+    /// would be `actix_web::middleware::logger`.
+    ///
+    /// # Examples
+    /// Using `.log_target(&quot;http_log&quot;)` would have this effect on request logs:
+    /// ```diff
+    /// - [2015-10-21T07:28:00Z INFO  actix_web::middleware::logger] 127.0.0.1 &quot;GET / HTTP/1.1&quot; 200 88 &quot;-&quot; &quot;dmc/1.0&quot; 0.001985
+    /// + [2015-10-21T07:28:00Z INFO  http_log] 127.0.0.1 &quot;GET / HTTP/1.1&quot; 200 88 &quot;-&quot; &quot;dmc/1.0&quot; 0.001985
+    ///                               ^^^^^^^^
+    /// ```
+    </span><span class="kw">pub fn </span>log_target(<span class="kw-2">mut </span><span class="self">self</span>, target: <span class="kw">impl </span>Into&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>inner = Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).unwrap();
+        inner.log_target = target.into();
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Register a function that receives a ServiceRequest and returns a String for use in the</span>
-    <span class="doccomment">/// log line. The label passed as the first argument should match a replacement substring in</span>
-    <span class="doccomment">/// the logger format like `%{label}xi`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It is convention to print &quot;-&quot; to indicate no output instead of an empty string.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_web::http::{header::HeaderValue};</span>
-    <span class="doccomment">/// # use actix_web::middleware::Logger;</span>
-    <span class="doccomment">/// # fn parse_jwt_id (_req: Option&lt;&amp;HeaderValue&gt;) -&gt; String { &quot;jwt_uid&quot;.to_owned() }</span>
-    <span class="doccomment">/// Logger::new(&quot;example %{JWT_ID}xi&quot;)</span>
-    <span class="doccomment">///     .custom_request_replace(&quot;JWT_ID&quot;, |req| parse_jwt_id(req.headers().get(&quot;Authorization&quot;)));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_request_replace</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="ident">String</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>).<span class="ident">unwrap</span>();
+    <span class="doccomment">/// Register a function that receives a ServiceRequest and returns a String for use in the
+    /// log line. The label passed as the first argument should match a replacement substring in
+    /// the logger format like `%{label}xi`.
+    ///
+    /// It is convention to print &quot;-&quot; to indicate no output instead of an empty string.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_web::http::{header::HeaderValue};
+    /// # use actix_web::middleware::Logger;
+    /// # fn parse_jwt_id (_req: Option&lt;&amp;HeaderValue&gt;) -&gt; String { &quot;jwt_uid&quot;.to_owned() }
+    /// Logger::new(&quot;example %{JWT_ID}xi&quot;)
+    ///     .custom_request_replace(&quot;JWT_ID&quot;, |req| parse_jwt_id(req.headers().get(&quot;Authorization&quot;)));
+    /// ```
+    </span><span class="kw">pub fn </span>custom_request_replace(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        label: <span class="kw-2">&amp;</span>str,
+        f: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>ServiceRequest) -&gt; String + <span class="lifetime">&#39;static</span>,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>inner = Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).unwrap();
 
-        <span class="kw">let</span> <span class="ident">ft</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">format</span>.<span class="number">0</span>.<span class="ident">iter_mut</span>().<span class="ident">find</span>(
-            <span class="op">|</span><span class="ident">ft</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">ft</span>, <span class="ident">FormatText::CustomRequest</span>(<span class="ident">unit_label</span>, <span class="kw">_</span>) <span class="kw">if</span> <span class="ident">label</span> <span class="op">==</span> <span class="ident">unit_label</span>),
+        <span class="kw">let </span>ft = inner.format.<span class="number">0</span>.iter_mut().find(
+            |ft| <span class="macro">matches!</span>(ft, FormatText::CustomRequest(unit_label, <span class="kw">_</span>) <span class="kw">if </span>label == unit_label),
         );
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">FormatText::CustomRequest</span>(<span class="kw">_</span>, <span class="ident">request_fn</span>)) <span class="op">=</span> <span class="ident">ft</span> {
-            <span class="comment">// replace into None or previously registered fn using same label</span>
-            <span class="ident">request_fn</span>.<span class="ident">replace</span>(<span class="ident">CustomRequestFn</span> {
-                <span class="ident">inner_fn</span>: <span class="ident">Rc::new</span>(<span class="ident">f</span>),
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(FormatText::CustomRequest(<span class="kw">_</span>, request_fn)) = ft {
+            <span class="comment">// replace into None or previously registered fn using same label
+            </span>request_fn.replace(CustomRequestFn {
+                inner_fn: Rc::new(f),
             });
-        } <span class="kw">else</span> {
-            <span class="comment">// non-printed request replacement function diagnostic</span>
-            <span class="macro">debug!</span>(
+        } <span class="kw">else </span>{
+            <span class="comment">// non-printed request replacement function diagnostic
+            </span><span class="macro">debug!</span>(
                 <span class="string">&quot;Attempted to register custom request logging function for nonexistent label: {}&quot;</span>,
-                <span class="ident">label</span>
+                label
             );
         }
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Logger</span> {
-    <span class="doccomment">/// Create `Logger` middleware with format:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```plain</span>
-    <span class="doccomment">/// %a &quot;%r&quot; %s %b &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; %T</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Logger</span> {
-        <span class="ident">Logger</span>(<span class="ident">Rc::new</span>(<span class="ident">Inner</span> {
-            <span class="ident">format</span>: <span class="ident">Format::default</span>(),
-            <span class="ident">exclude</span>: <span class="ident">HashSet::new</span>(),
-            <span class="ident">exclude_regex</span>: <span class="ident">RegexSet::empty</span>(),
-            <span class="ident">log_target</span>: <span class="ident">Cow::Borrowed</span>(<span class="macro">module_path!</span>()),
+<span class="kw">impl </span>Default <span class="kw">for </span>Logger {
+    <span class="doccomment">/// Create `Logger` middleware with format:
+    ///
+    /// ```plain
+    /// %a &quot;%r&quot; %s %b &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; %T
+    /// ```
+    </span><span class="kw">fn </span>default() -&gt; Logger {
+        Logger(Rc::new(Inner {
+            format: Format::default(),
+            exclude: HashSet::new(),
+            exclude_regex: RegexSet::empty(),
+            log_target: Cow::Borrowed(<span class="macro">module_path!</span>()),
         }))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Logger</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+<span class="kw">impl</span>&lt;S, B&gt; Transform&lt;S, ServiceRequest&gt; <span class="kw">for </span>Logger
+<span class="kw">where
+    </span>S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
+    B: MessageBody,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">StreamLog</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Transform</span> <span class="op">=</span> <span class="ident">LoggerMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Transform</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ServiceResponse&lt;StreamLog&lt;B&gt;&gt;;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Transform = LoggerMiddleware&lt;S&gt;;
+    <span class="kw">type </span>InitError = ();
+    <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Transform, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">format</span>.<span class="number">0</span> {
-            <span class="comment">// missing request replacement function diagnostic</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">FormatText::CustomRequest</span>(<span class="ident">label</span>, <span class="prelude-val">None</span>) <span class="op">=</span> <span class="ident">unit</span> {
+    <span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.format.<span class="number">0 </span>{
+            <span class="comment">// missing request replacement function diagnostic
+            </span><span class="kw">if let </span>FormatText::CustomRequest(label, <span class="prelude-val">None</span>) = unit {
                 <span class="macro">warn!</span>(
                     <span class="string">&quot;No custom request replacement function was registered for label \&quot;{}\&quot;.&quot;</span>,
-                    <span class="ident">label</span>
+                    label
                 );
             }
         }
 
-        <span class="ident">ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">LoggerMiddleware</span> {
-            <span class="ident">service</span>,
-            <span class="ident">inner</span>: <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>(),
+        ready(<span class="prelude-val">Ok</span>(LoggerMiddleware {
+            service,
+            inner: <span class="self">self</span>.<span class="number">0</span>.clone(),
         }))
     }
 }
 
-<span class="doccomment">/// Logger middleware service.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LoggerMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span>,
-    <span class="ident">service</span>: <span class="ident">S</span>,
+<span class="doccomment">/// Logger middleware service.
+</span><span class="kw">pub struct </span>LoggerMiddleware&lt;S&gt; {
+    inner: Rc&lt;Inner&gt;,
+    service: S,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LoggerMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+<span class="kw">impl</span>&lt;S, B&gt; Service&lt;ServiceRequest&gt; <span class="kw">for </span>LoggerMiddleware&lt;S&gt;
+<span class="kw">where
+    </span>S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
+    B: MessageBody,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">StreamLog</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LoggerResponse</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ServiceResponse&lt;StreamLog&lt;B&gt;&gt;;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Future = LoggerResponse&lt;S, B&gt;;
 
-    <span class="macro">actix_service::forward_ready!</span>(<span class="ident">service</span>);
+    <span class="macro">actix_service::forward_ready!</span>(service);
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">excluded</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">exclude</span>.<span class="ident">contains</span>(<span class="ident">req</span>.<span class="ident">path</span>())
-            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">exclude_regex</span>.<span class="ident">is_match</span>(<span class="ident">req</span>.<span class="ident">path</span>());
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: ServiceRequest) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>excluded = <span class="self">self</span>.inner.exclude.contains(req.path())
+            || <span class="self">self</span>.inner.exclude_regex.is_match(req.path());
 
-        <span class="kw">if</span> <span class="ident">excluded</span> {
-            <span class="ident">LoggerResponse</span> {
-                <span class="ident">fut</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>),
-                <span class="ident">format</span>: <span class="prelude-val">None</span>,
-                <span class="ident">time</span>: <span class="ident">OffsetDateTime::now_utc</span>(),
-                <span class="ident">log_target</span>: <span class="ident">Cow::Borrowed</span>(<span class="string">&quot;&quot;</span>),
-                <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        <span class="kw">if </span>excluded {
+            LoggerResponse {
+                fut: <span class="self">self</span>.service.call(req),
+                format: <span class="prelude-val">None</span>,
+                time: OffsetDateTime::now_utc(),
+                log_target: Cow::Borrowed(<span class="string">&quot;&quot;</span>),
+                _phantom: PhantomData,
             }
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">format</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">format</span>.<span class="ident">clone</span>();
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>now = OffsetDateTime::now_utc();
+            <span class="kw">let </span><span class="kw-2">mut </span>format = <span class="self">self</span>.inner.format.clone();
 
-            <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-                <span class="ident">unit</span>.<span class="ident">render_request</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>);
+            <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+                unit.render_request(now, <span class="kw-2">&amp;</span>req);
             }
 
-            <span class="ident">LoggerResponse</span> {
-                <span class="ident">fut</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>),
-                <span class="ident">format</span>: <span class="prelude-val">Some</span>(<span class="ident">format</span>),
-                <span class="ident">time</span>: <span class="ident">now</span>,
-                <span class="ident">log_target</span>: <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">log_target</span>.<span class="ident">clone</span>(),
-                <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+            LoggerResponse {
+                fut: <span class="self">self</span>.service.call(req),
+                format: <span class="prelude-val">Some</span>(format),
+                time: now,
+                log_target: <span class="self">self</span>.inner.log_target.clone(),
+                _phantom: PhantomData,
             }
         }
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LoggerResponse</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>LoggerResponse&lt;S, B&gt;
+    <span class="kw">where
+        </span>B: MessageBody,
+        S: Service&lt;ServiceRequest&gt;,
     {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">fut</span>: <span class="ident">S::Future</span>,
-        <span class="ident">time</span>: <span class="ident">OffsetDateTime</span>,
-        <span class="ident">format</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Format</span><span class="op">&gt;</span>,
-        <span class="ident">log_target</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>,
-        <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+        <span class="attribute">#[pin]
+        </span>fut: S::Future,
+        time: OffsetDateTime,
+        format: <span class="prelude-ty">Option</span>&lt;Format&gt;,
+        log_target: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
+        _phantom: PhantomData&lt;B&gt;,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">LoggerResponse</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, B&gt; Future <span class="kw">for </span>LoggerResponse&lt;S, B&gt;
+<span class="kw">where
+    </span>B: MessageBody,
+    S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">StreamLog</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;StreamLog&lt;B&gt;&gt;, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)) {
-            <span class="prelude-val">Ok</span>(<span class="ident">res</span>) =&gt; <span class="ident">res</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)),
+        <span class="kw">let </span>res = <span class="kw">match </span><span class="macro">ready!</span>(this.fut.poll(cx)) {
+            <span class="prelude-val">Ok</span>(res) =&gt; res,
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(e)),
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">error</span>) <span class="op">=</span> <span class="ident">res</span>.<span class="ident">response</span>().<span class="ident">error</span>() {
-            <span class="macro">debug!</span>(<span class="string">&quot;Error in response: {:?}&quot;</span>, <span class="ident">error</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(error) = res.response().error() {
+            <span class="macro">debug!</span>(<span class="string">&quot;Error in response: {:?}&quot;</span>, error);
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">format</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">format</span> {
-            <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-                <span class="ident">unit</span>.<span class="ident">render_response</span>(<span class="ident">res</span>.<span class="ident">response</span>());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>format) = this.format {
+            <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+                unit.render_response(res.response());
             }
         }
 
-        <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">time</span>;
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">format</span>.<span class="ident">take</span>();
-        <span class="kw">let</span> <span class="ident">log_target</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">log_target</span>.<span class="ident">clone</span>();
+        <span class="kw">let </span>time = <span class="kw-2">*</span>this.time;
+        <span class="kw">let </span>format = this.format.take();
+        <span class="kw">let </span>log_target = this.log_target.clone();
 
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">map_body</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="ident">body</span><span class="op">|</span> <span class="ident">StreamLog</span> {
-            <span class="ident">body</span>,
-            <span class="ident">time</span>,
-            <span class="ident">format</span>,
-            <span class="ident">size</span>: <span class="number">0</span>,
-            <span class="ident">log_target</span>,
+        Poll::Ready(<span class="prelude-val">Ok</span>(res.map_body(<span class="kw">move </span>|<span class="kw">_</span>, body| StreamLog {
+            body,
+            time,
+            format,
+            size: <span class="number">0</span>,
+            log_target,
         })))
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StreamLog</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">body</span>: <span class="ident">B</span>,
-        <span class="ident">format</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Format</span><span class="op">&gt;</span>,
-        <span class="ident">size</span>: <span class="ident">usize</span>,
-        <span class="ident">time</span>: <span class="ident">OffsetDateTime</span>,
-        <span class="ident">log_target</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>StreamLog&lt;B&gt; {
+        <span class="attribute">#[pin]
+        </span>body: B,
+        format: <span class="prelude-ty">Option</span>&lt;Format&gt;,
+        size: usize,
+        time: OffsetDateTime,
+        log_target: Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;,
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">PinnedDrop</span> <span class="kw">for</span> <span class="ident">StreamLog</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">drop</span>(<span class="ident">this</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">format</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">format</span> {
-                <span class="kw">let</span> <span class="ident">render</span> <span class="op">=</span> <span class="op">|</span><span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">|</span> {
-                    <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">format</span>.<span class="number">0</span> {
-                        <span class="ident">unit</span>.<span class="ident">render</span>(<span class="ident">fmt</span>, <span class="ident">this</span>.<span class="ident">size</span>, <span class="ident">this</span>.<span class="ident">time</span>)<span class="question-mark">?</span>;
+    <span class="kw">impl</span>&lt;B&gt; PinnedDrop <span class="kw">for </span>StreamLog&lt;B&gt; {
+        <span class="kw">fn </span>drop(this: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>format) = this.format {
+                <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+                    <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
+                        unit.render(fmt, this.size, this.time)<span class="question-mark">?</span>;
                     }
                     <span class="prelude-val">Ok</span>(())
                 };
 
                 <span class="macro">log::info!</span>(
-                    <span class="ident">target</span>: <span class="ident">this</span>.<span class="ident">log_target</span>.<span class="ident">as_ref</span>(),
-                    <span class="string">&quot;{}&quot;</span>, <span class="ident">FormatDisplay</span>(<span class="kw-2">&amp;</span><span class="ident">render</span>)
+                    target: this.log_target.as_ref(),
+                    <span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render)
                 );
             }
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">MessageBody</span><span class="op">&gt;</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">StreamLog</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">B::Error</span>;
+<span class="kw">impl</span>&lt;B: MessageBody&gt; MessageBody <span class="kw">for </span>StreamLog&lt;B&gt; {
+    <span class="kw">type </span>Error = B::Error;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-        <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">size</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+        <span class="self">self</span>.body.size()
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(
-        <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+    <span class="kw">fn </span>poll_next(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
 
-        <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">body</span>.<span class="ident">poll_next</span>(<span class="ident">cx</span>)) {
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">chunk</span>)) =&gt; {
-                <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">size</span> <span class="op">+</span><span class="op">=</span> <span class="ident">chunk</span>.<span class="ident">len</span>();
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">chunk</span>)))
+        <span class="kw">match </span><span class="macro">ready!</span>(this.body.poll_next(cx)) {
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(chunk)) =&gt; {
+                <span class="kw-2">*</span>this.size += chunk.len();
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(chunk)))
             }
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>))),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err))),
+            <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
         }
     }
 }
 
-<span class="doccomment">/// A formatting style for the `Logger` consisting of multiple concatenated `FormatText` items.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Format</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FormatText</span><span class="op">&gt;</span>);
+<span class="doccomment">/// A formatting style for the `Logger` consisting of multiple concatenated `FormatText` items.
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">struct </span>Format(Vec&lt;FormatText&gt;);
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Format</span> {
-    <span class="doccomment">/// Return the default formatting style for the `Logger`:</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Format</span> {
-        <span class="ident">Format::new</span>(<span class="string">r#&quot;%a &quot;%r&quot; %s %b &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; %T&quot;#</span>)
+<span class="kw">impl </span>Default <span class="kw">for </span>Format {
+    <span class="doccomment">/// Return the default formatting style for the `Logger`:
+    </span><span class="kw">fn </span>default() -&gt; Format {
+        Format::new(<span class="string">r#&quot;%a &quot;%r&quot; %s %b &quot;%{Referer}i&quot; &quot;%{User-Agent}i&quot; %T&quot;#</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Format</span> {
-    <span class="doccomment">/// Create a `Format` from a format string.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if the format string syntax is incorrect.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Format</span> {
-        <span class="macro">log::trace!</span>(<span class="string">&quot;Access log format: {}&quot;</span>, <span class="ident">s</span>);
-        <span class="kw">let</span> <span class="ident">fmt</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;%(\{([A-Za-z0-9\-_]+)\}([aioe]|xi)|[%atPrUsbTD]?)&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">impl </span>Format {
+    <span class="doccomment">/// Create a `Format` from a format string.
+    ///
+    /// Returns `None` if the format string syntax is incorrect.
+    </span><span class="kw">pub fn </span>new(s: <span class="kw-2">&amp;</span>str) -&gt; Format {
+        <span class="macro">log::trace!</span>(<span class="string">&quot;Access log format: {}&quot;</span>, s);
+        <span class="kw">let </span>fmt = Regex::new(<span class="string">r&quot;%(\{([A-Za-z0-9\-_]+)\}([aioe]|xi)|[%atPrUsbTD]?)&quot;</span>).unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">cap</span> <span class="kw">in</span> <span class="ident">fmt</span>.<span class="ident">captures_iter</span>(<span class="ident">s</span>) {
-            <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">cap</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">start</span>();
-            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pos</span> {
-                <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">FormatText::Str</span>(<span class="ident">s</span>[<span class="ident">idx</span>..<span class="ident">pos</span>].<span class="ident">to_owned</span>()));
+        <span class="kw">let </span><span class="kw-2">mut </span>idx = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+        <span class="kw">for </span>cap <span class="kw">in </span>fmt.captures_iter(s) {
+            <span class="kw">let </span>m = cap.get(<span class="number">0</span>).unwrap();
+            <span class="kw">let </span>pos = m.start();
+            <span class="kw">if </span>idx != pos {
+                results.push(FormatText::Str(s[idx..pos].to_owned()));
             }
-            <span class="ident">idx</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">end</span>();
+            idx = m.end();
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">key</span>) <span class="op">=</span> <span class="ident">cap</span>.<span class="ident">get</span>(<span class="number">2</span>) {
-                <span class="ident">results</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">cap</span>.<span class="ident">get</span>(<span class="number">3</span>).<span class="ident">unwrap</span>().<span class="ident">as_str</span>() {
-                    <span class="string">&quot;a&quot;</span> =&gt; {
-                        <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">as_str</span>() <span class="op">==</span> <span class="string">&quot;r&quot;</span> {
-                            <span class="ident">FormatText::RealIpRemoteAddr</span>
-                        } <span class="kw">else</span> {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = cap.get(<span class="number">2</span>) {
+                results.push(<span class="kw">match </span>cap.get(<span class="number">3</span>).unwrap().as_str() {
+                    <span class="string">&quot;a&quot; </span>=&gt; {
+                        <span class="kw">if </span>key.as_str() == <span class="string">&quot;r&quot; </span>{
+                            FormatText::RealIpRemoteAddr
+                        } <span class="kw">else </span>{
                             <span class="macro">unreachable!</span>()
                         }
                     }
-                    <span class="string">&quot;i&quot;</span> =&gt; {
-                        <span class="ident">FormatText::RequestHeader</span>(<span class="ident">HeaderName::try_from</span>(<span class="ident">key</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap</span>())
+                    <span class="string">&quot;i&quot; </span>=&gt; {
+                        FormatText::RequestHeader(HeaderName::try_from(key.as_str()).unwrap())
                     }
-                    <span class="string">&quot;o&quot;</span> =&gt; {
-                        <span class="ident">FormatText::ResponseHeader</span>(<span class="ident">HeaderName::try_from</span>(<span class="ident">key</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap</span>())
+                    <span class="string">&quot;o&quot; </span>=&gt; {
+                        FormatText::ResponseHeader(HeaderName::try_from(key.as_str()).unwrap())
                     }
-                    <span class="string">&quot;e&quot;</span> =&gt; <span class="ident">FormatText::EnvironHeader</span>(<span class="ident">key</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>()),
-                    <span class="string">&quot;xi&quot;</span> =&gt; <span class="ident">FormatText::CustomRequest</span>(<span class="ident">key</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>(), <span class="prelude-val">None</span>),
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="string">&quot;e&quot; </span>=&gt; FormatText::EnvironHeader(key.as_str().to_owned()),
+                    <span class="string">&quot;xi&quot; </span>=&gt; FormatText::CustomRequest(key.as_str().to_owned(), <span class="prelude-val">None</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 })
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">cap</span>.<span class="ident">get</span>(<span class="number">1</span>).<span class="ident">unwrap</span>();
-                <span class="ident">results</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">m</span>.<span class="ident">as_str</span>() {
-                    <span class="string">&quot;%&quot;</span> =&gt; <span class="ident">FormatText::Percent</span>,
-                    <span class="string">&quot;a&quot;</span> =&gt; <span class="ident">FormatText::RemoteAddr</span>,
-                    <span class="string">&quot;t&quot;</span> =&gt; <span class="ident">FormatText::RequestTime</span>,
-                    <span class="string">&quot;r&quot;</span> =&gt; <span class="ident">FormatText::RequestLine</span>,
-                    <span class="string">&quot;s&quot;</span> =&gt; <span class="ident">FormatText::ResponseStatus</span>,
-                    <span class="string">&quot;b&quot;</span> =&gt; <span class="ident">FormatText::ResponseSize</span>,
-                    <span class="string">&quot;U&quot;</span> =&gt; <span class="ident">FormatText::UrlPath</span>,
-                    <span class="string">&quot;T&quot;</span> =&gt; <span class="ident">FormatText::Time</span>,
-                    <span class="string">&quot;D&quot;</span> =&gt; <span class="ident">FormatText::TimeMillis</span>,
-                    <span class="kw">_</span> =&gt; <span class="ident">FormatText::Str</span>(<span class="ident">m</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>()),
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>m = cap.get(<span class="number">1</span>).unwrap();
+                results.push(<span class="kw">match </span>m.as_str() {
+                    <span class="string">&quot;%&quot; </span>=&gt; FormatText::Percent,
+                    <span class="string">&quot;a&quot; </span>=&gt; FormatText::RemoteAddr,
+                    <span class="string">&quot;t&quot; </span>=&gt; FormatText::RequestTime,
+                    <span class="string">&quot;r&quot; </span>=&gt; FormatText::RequestLine,
+                    <span class="string">&quot;s&quot; </span>=&gt; FormatText::ResponseStatus,
+                    <span class="string">&quot;b&quot; </span>=&gt; FormatText::ResponseSize,
+                    <span class="string">&quot;U&quot; </span>=&gt; FormatText::UrlPath,
+                    <span class="string">&quot;T&quot; </span>=&gt; FormatText::Time,
+                    <span class="string">&quot;D&quot; </span>=&gt; FormatText::TimeMillis,
+                    <span class="kw">_ </span>=&gt; FormatText::Str(m.as_str().to_owned()),
                 });
             }
         }
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>() {
-            <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">FormatText::Str</span>(<span class="ident">s</span>[<span class="ident">idx</span>..].<span class="ident">to_owned</span>()));
+        <span class="kw">if </span>idx != s.len() {
+            results.push(FormatText::Str(s[idx..].to_owned()));
         }
 
-        <span class="ident">Format</span>(<span class="ident">results</span>)
+        Format(results)
     }
 }
 
-<span class="doccomment">/// A string of text to be logged.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is either one of the data fields supported by the `Logger`, or a custom `String`.</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">enum</span> <span class="ident">FormatText</span> {
-    <span class="ident">Str</span>(<span class="ident">String</span>),
-    <span class="ident">Percent</span>,
-    <span class="ident">RequestLine</span>,
-    <span class="ident">RequestTime</span>,
-    <span class="ident">ResponseStatus</span>,
-    <span class="ident">ResponseSize</span>,
-    <span class="ident">Time</span>,
-    <span class="ident">TimeMillis</span>,
-    <span class="ident">RemoteAddr</span>,
-    <span class="ident">RealIpRemoteAddr</span>,
-    <span class="ident">UrlPath</span>,
-    <span class="ident">RequestHeader</span>(<span class="ident">HeaderName</span>),
-    <span class="ident">ResponseHeader</span>(<span class="ident">HeaderName</span>),
-    <span class="ident">EnvironHeader</span>(<span class="ident">String</span>),
-    <span class="ident">CustomRequest</span>(<span class="ident">String</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CustomRequestFn</span><span class="op">&gt;</span>),
+<span class="doccomment">/// A string of text to be logged.
+///
+/// This is either one of the data fields supported by the `Logger`, or a custom `String`.
+</span><span class="attribute">#[non_exhaustive]
+#[derive(Debug, Clone)]
+</span><span class="kw">enum </span>FormatText {
+    Str(String),
+    Percent,
+    RequestLine,
+    RequestTime,
+    ResponseStatus,
+    ResponseSize,
+    Time,
+    TimeMillis,
+    RemoteAddr,
+    RealIpRemoteAddr,
+    UrlPath,
+    RequestHeader(HeaderName),
+    ResponseHeader(HeaderName),
+    EnvironHeader(String),
+    CustomRequest(String, <span class="prelude-ty">Option</span>&lt;CustomRequestFn&gt;),
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">CustomRequestFn</span> {
-    <span class="ident">inner_fn</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="ident">String</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">struct </span>CustomRequestFn {
+    inner_fn: Rc&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>ServiceRequest) -&gt; String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">CustomRequestFn</span> {
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="ident">String</span> {
-        (<span class="self">self</span>.<span class="ident">inner_fn</span>)(<span class="ident">req</span>)
+<span class="kw">impl </span>CustomRequestFn {
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: <span class="kw-2">&amp;</span>ServiceRequest) -&gt; String {
+        (<span class="self">self</span>.inner_fn)(req)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">CustomRequestFn</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;custom_request_fn&quot;</span>)
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>CustomRequestFn {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">&quot;custom_request_fn&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FormatText</span> {
-    <span class="kw">fn</span> <span class="ident">render</span>(
+<span class="kw">impl </span>FormatText {
+    <span class="kw">fn </span>render(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">size</span>: <span class="ident">usize</span>,
-        <span class="ident">entry_time</span>: <span class="ident">OffsetDateTime</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">FormatText::Str</span>(<span class="kw-2">ref</span> <span class="ident">string</span>) =&gt; <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="ident">string</span>),
-            <span class="ident">FormatText::Percent</span> =&gt; <span class="string">&quot;%&quot;</span>.<span class="ident">fmt</span>(<span class="ident">fmt</span>),
-            <span class="ident">FormatText::ResponseSize</span> =&gt; <span class="ident">size</span>.<span class="ident">fmt</span>(<span class="ident">fmt</span>),
-            <span class="ident">FormatText::Time</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>() <span class="op">-</span> <span class="ident">entry_time</span>;
-                <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">rt</span>.<span class="ident">as_seconds_f64</span>();
-                <span class="ident">fmt</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{:.6}&quot;</span>, <span class="ident">rt</span>))
+        fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;,
+        size: usize,
+        entry_time: OffsetDateTime,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            FormatText::Str(<span class="kw-2">ref </span>string) =&gt; fmt.write_str(string),
+            FormatText::Percent =&gt; <span class="string">&quot;%&quot;</span>.fmt(fmt),
+            FormatText::ResponseSize =&gt; size.fmt(fmt),
+            FormatText::Time =&gt; {
+                <span class="kw">let </span>rt = OffsetDateTime::now_utc() - entry_time;
+                <span class="kw">let </span>rt = rt.as_seconds_f64();
+                fmt.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{:.6}&quot;</span>, rt))
             }
-            <span class="ident">FormatText::TimeMillis</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>() <span class="op">-</span> <span class="ident">entry_time</span>;
-                <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> (<span class="ident">rt</span>.<span class="ident">whole_nanoseconds</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">1_000_000.0</span>;
-                <span class="ident">fmt</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{:.6}&quot;</span>, <span class="ident">rt</span>))
+            FormatText::TimeMillis =&gt; {
+                <span class="kw">let </span>rt = OffsetDateTime::now_utc() - entry_time;
+                <span class="kw">let </span>rt = (rt.whole_nanoseconds() <span class="kw">as </span>f64) / <span class="number">1_000_000.0</span>;
+                fmt.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{:.6}&quot;</span>, rt))
             }
-            <span class="ident">FormatText::EnvironHeader</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="ident">env::var</span>(<span class="ident">name</span>) {
-                    <span class="ident">fmt</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>))
-                } <span class="kw">else</span> {
-                    <span class="string">&quot;-&quot;</span>.<span class="ident">fmt</span>(<span class="ident">fmt</span>)
+            FormatText::EnvironHeader(<span class="kw-2">ref </span>name) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = env::var(name) {
+                    fmt.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, val))
+                } <span class="kw">else </span>{
+                    <span class="string">&quot;-&quot;</span>.fmt(fmt)
                 }
             }
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(()),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(()),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">render_response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">res</span>: <span class="kw-2">&amp;</span><span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">FormatText::ResponseStatus</span> =&gt; {
-                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">FormatText::Str</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">res</span>.<span class="ident">status</span>().<span class="ident">as_u16</span>()))
+    <span class="kw">fn </span>render_response&lt;B&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, res: <span class="kw-2">&amp;</span>HttpResponse&lt;B&gt;) {
+        <span class="kw">match </span><span class="self">self </span>{
+            FormatText::ResponseStatus =&gt; {
+                <span class="kw-2">*</span><span class="self">self </span>= FormatText::Str(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, res.status().as_u16()))
             }
-            <span class="ident">FormatText::ResponseHeader</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">name</span>) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">val</span>.<span class="ident">to_str</span>() {
-                        <span class="ident">s</span>
-                    } <span class="kw">else</span> {
-                        <span class="string">&quot;-&quot;</span>
-                    }
-                } <span class="kw">else</span> {
-                    <span class="string">&quot;-&quot;</span>
-                };
-                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">FormatText::Str</span>(<span class="ident">s</span>.<span class="ident">to_string</span>())
+            FormatText::ResponseHeader(<span class="kw-2">ref </span>name) =&gt; {
+                <span class="kw">let </span>s = <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = res.headers().get(name) {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = val.to_str() {
+                        s
+                    } <span class="kw">else </span>{
+                        <span class="string">&quot;-&quot;
+                    </span>}
+                } <span class="kw">else </span>{
+                    <span class="string">&quot;-&quot;
+                </span>};
+                <span class="kw-2">*</span><span class="self">self </span>= FormatText::Str(s.to_string())
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">render_request</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">OffsetDateTime</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">FormatText::RequestLine</span> =&gt; {
-                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">query_string</span>().<span class="ident">is_empty</span>() {
-                    <span class="ident">FormatText::Str</span>(<span class="macro">format!</span>(
+    <span class="kw">fn </span>render_request(<span class="kw-2">&amp;mut </span><span class="self">self</span>, now: OffsetDateTime, req: <span class="kw-2">&amp;</span>ServiceRequest) {
+        <span class="kw">match </span><span class="self">self </span>{
+            FormatText::RequestLine =&gt; {
+                <span class="kw-2">*</span><span class="self">self </span>= <span class="kw">if </span>req.query_string().is_empty() {
+                    FormatText::Str(<span class="macro">format!</span>(
                         <span class="string">&quot;{} {} {:?}&quot;</span>,
-                        <span class="ident">req</span>.<span class="ident">method</span>(),
-                        <span class="ident">req</span>.<span class="ident">path</span>(),
-                        <span class="ident">req</span>.<span class="ident">version</span>()
+                        req.method(),
+                        req.path(),
+                        req.version()
                     ))
-                } <span class="kw">else</span> {
-                    <span class="ident">FormatText::Str</span>(<span class="macro">format!</span>(
+                } <span class="kw">else </span>{
+                    FormatText::Str(<span class="macro">format!</span>(
                         <span class="string">&quot;{} {}?{} {:?}&quot;</span>,
-                        <span class="ident">req</span>.<span class="ident">method</span>(),
-                        <span class="ident">req</span>.<span class="ident">path</span>(),
-                        <span class="ident">req</span>.<span class="ident">query_string</span>(),
-                        <span class="ident">req</span>.<span class="ident">version</span>()
+                        req.method(),
+                        req.path(),
+                        req.query_string(),
+                        req.version()
                     ))
                 };
             }
-            <span class="ident">FormatText::UrlPath</span> =&gt; <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">FormatText::Str</span>(<span class="ident">req</span>.<span class="ident">path</span>().<span class="ident">to_string</span>()),
-            <span class="ident">FormatText::RequestTime</span> =&gt; <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">FormatText::Str</span>(<span class="ident">now</span>.<span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="ident">Rfc3339</span>).<span class="ident">unwrap</span>()),
-            <span class="ident">FormatText::RequestHeader</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">name</span>) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">val</span>.<span class="ident">to_str</span>() {
-                        <span class="ident">s</span>
-                    } <span class="kw">else</span> {
-                        <span class="string">&quot;-&quot;</span>
-                    }
-                } <span class="kw">else</span> {
-                    <span class="string">&quot;-&quot;</span>
-                };
-                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">FormatText::Str</span>(<span class="ident">s</span>.<span class="ident">to_string</span>());
+            FormatText::UrlPath =&gt; <span class="kw-2">*</span><span class="self">self </span>= FormatText::Str(req.path().to_string()),
+            FormatText::RequestTime =&gt; <span class="kw-2">*</span><span class="self">self </span>= FormatText::Str(now.format(<span class="kw-2">&amp;</span>Rfc3339).unwrap()),
+            FormatText::RequestHeader(<span class="kw-2">ref </span>name) =&gt; {
+                <span class="kw">let </span>s = <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = req.headers().get(name) {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = val.to_str() {
+                        s
+                    } <span class="kw">else </span>{
+                        <span class="string">&quot;-&quot;
+                    </span>}
+                } <span class="kw">else </span>{
+                    <span class="string">&quot;-&quot;
+                </span>};
+                <span class="kw-2">*</span><span class="self">self </span>= FormatText::Str(s.to_string());
             }
-            <span class="ident">FormatText::RemoteAddr</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">peer</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>().<span class="ident">peer_addr</span>() {
-                    <span class="ident">FormatText::Str</span>((<span class="kw-2">*</span><span class="ident">peer</span>).<span class="ident">to_string</span>())
-                } <span class="kw">else</span> {
-                    <span class="ident">FormatText::Str</span>(<span class="string">&quot;-&quot;</span>.<span class="ident">to_string</span>())
+            FormatText::RemoteAddr =&gt; {
+                <span class="kw">let </span>s = <span class="kw">if let </span><span class="prelude-val">Some</span>(peer) = req.connection_info().peer_addr() {
+                    FormatText::Str((<span class="kw-2">*</span>peer).to_string())
+                } <span class="kw">else </span>{
+                    FormatText::Str(<span class="string">&quot;-&quot;</span>.to_string())
                 };
-                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">s</span>;
+                <span class="kw-2">*</span><span class="self">self </span>= s;
             }
-            <span class="ident">FormatText::RealIpRemoteAddr</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">remote</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>().<span class="ident">realip_remote_addr</span>() {
-                    <span class="ident">FormatText::Str</span>(<span class="ident">remote</span>.<span class="ident">to_string</span>())
-                } <span class="kw">else</span> {
-                    <span class="ident">FormatText::Str</span>(<span class="string">&quot;-&quot;</span>.<span class="ident">to_string</span>())
+            FormatText::RealIpRemoteAddr =&gt; {
+                <span class="kw">let </span>s = <span class="kw">if let </span><span class="prelude-val">Some</span>(remote) = req.connection_info().realip_remote_addr() {
+                    FormatText::Str(remote.to_string())
+                } <span class="kw">else </span>{
+                    FormatText::Str(<span class="string">&quot;-&quot;</span>.to_string())
                 };
-                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">s</span>;
+                <span class="kw-2">*</span><span class="self">self </span>= s;
             }
-            <span class="ident">FormatText::CustomRequest</span>(<span class="kw">_</span>, <span class="ident">request_fn</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">request_fn</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">f</span>) =&gt; <span class="ident">FormatText::Str</span>(<span class="ident">f</span>.<span class="ident">call</span>(<span class="ident">req</span>)),
-                    <span class="prelude-val">None</span> =&gt; <span class="ident">FormatText::Str</span>(<span class="string">&quot;-&quot;</span>.<span class="ident">to_owned</span>()),
+            FormatText::CustomRequest(<span class="kw">_</span>, request_fn) =&gt; {
+                <span class="kw">let </span>s = <span class="kw">match </span>request_fn {
+                    <span class="prelude-val">Some</span>(f) =&gt; FormatText::Str(f.call(req)),
+                    <span class="prelude-val">None </span>=&gt; FormatText::Str(<span class="string">&quot;-&quot;</span>.to_owned()),
                 };
 
-                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">s</span>;
+                <span class="kw-2">*</span><span class="self">self </span>= s;
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
     }
 }
 
-<span class="doccomment">/// Converter to get a String from something that writes to a Formatter.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">FormatDisplay</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Converter to get a String from something that writes to a Formatter.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>FormatDisplay&lt;<span class="lifetime">&#39;a</span>&gt;(
+    <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt;,
 );
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FormatDisplay</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
-        (<span class="self">self</span>.<span class="number">0</span>)(<span class="ident">fmt</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Display <span class="kw">for </span>FormatDisplay&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+        (<span class="self">self</span>.<span class="number">0</span>)(fmt)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">IntoService</span>, <span class="ident">Service</span>, <span class="ident">Transform</span>};
-    <span class="kw">use</span> <span class="ident">actix_utils::future::ok</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_service::{IntoService, Service, Transform};
+    <span class="kw">use </span>actix_utils::future::ok;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http</span>::{<span class="ident">header</span>, <span class="ident">StatusCode</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test</span>::{<span class="self">self</span>, <span class="ident">TestRequest</span>};
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::http::{header, StatusCode};
+    <span class="kw">use </span><span class="kw">crate</span>::test::{<span class="self">self</span>, TestRequest};
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_logger</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="op">|</span><span class="ident">req</span>: <span class="ident">ServiceRequest</span><span class="op">|</span> {
-            <span class="ident">ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(
-                <span class="ident">HttpResponse::build</span>(<span class="ident">StatusCode::OK</span>)
-                    .<span class="ident">insert_header</span>((<span class="string">&quot;X-Test&quot;</span>, <span class="string">&quot;ttt&quot;</span>))
-                    .<span class="ident">finish</span>(),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_logger() {
+        <span class="kw">let </span>srv = |req: ServiceRequest| {
+            ok(req.into_response(
+                HttpResponse::build(StatusCode::OK)
+                    .insert_header((<span class="string">&quot;X-Test&quot;</span>, <span class="string">&quot;ttt&quot;</span>))
+                    .finish(),
             ))
         };
-        <span class="kw">let</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">Logger::new</span>(<span class="string">&quot;%% %{User-Agent}i %{X-Test}o %{HOME}e %D test&quot;</span>);
+        <span class="kw">let </span>logger = Logger::new(<span class="string">&quot;%% %{User-Agent}i %{X-Test}o %{HOME}e %D test&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">logger</span>.<span class="ident">new_transform</span>(<span class="ident">srv</span>.<span class="ident">into_service</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>srv = logger.new_transform(srv.into_service()).<span class="kw">await</span>.unwrap();
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::USER_AGENT</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;ACTIX-WEB&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::USER_AGENT,
+                header::HeaderValue::from_static(<span class="string">&quot;ACTIX-WEB&quot;</span>),
             ))
-            .<span class="ident">to_srv_request</span>();
-        <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>;
+            .to_srv_request();
+        <span class="kw">let </span>_res = srv.call(req).<span class="kw">await</span>;
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_logger_exclude_regex</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="op">|</span><span class="ident">req</span>: <span class="ident">ServiceRequest</span><span class="op">|</span> {
-            <span class="ident">ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(
-                <span class="ident">HttpResponse::build</span>(<span class="ident">StatusCode::OK</span>)
-                    .<span class="ident">insert_header</span>((<span class="string">&quot;X-Test&quot;</span>, <span class="string">&quot;ttt&quot;</span>))
-                    .<span class="ident">finish</span>(),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_logger_exclude_regex() {
+        <span class="kw">let </span>srv = |req: ServiceRequest| {
+            ok(req.into_response(
+                HttpResponse::build(StatusCode::OK)
+                    .insert_header((<span class="string">&quot;X-Test&quot;</span>, <span class="string">&quot;ttt&quot;</span>))
+                    .finish(),
             ))
         };
-        <span class="kw">let</span> <span class="ident">logger</span> <span class="op">=</span>
-            <span class="ident">Logger::new</span>(<span class="string">&quot;%% %{User-Agent}i %{X-Test}o %{HOME}e %D test&quot;</span>).<span class="ident">exclude_regex</span>(<span class="string">&quot;\\w&quot;</span>);
+        <span class="kw">let </span>logger =
+            Logger::new(<span class="string">&quot;%% %{User-Agent}i %{X-Test}o %{HOME}e %D test&quot;</span>).exclude_regex(<span class="string">&quot;\\w&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">logger</span>.<span class="ident">new_transform</span>(<span class="ident">srv</span>.<span class="ident">into_service</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>srv = logger.new_transform(srv.into_service()).<span class="kw">await</span>.unwrap();
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::USER_AGENT</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;ACTIX-WEB&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::USER_AGENT,
+                header::HeaderValue::from_static(<span class="string">&quot;ACTIX-WEB&quot;</span>),
             ))
-            .<span class="ident">to_srv_request</span>();
-        <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+            .to_srv_request();
+        <span class="kw">let </span>_res = srv.call(req).<span class="kw">await</span>.unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_escape_percent</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">Format::new</span>(<span class="string">&quot;%%{r}a&quot;</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_escape_percent() {
+        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">&quot;%%{r}a&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::FORWARDED</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;for=192.0.2.60;proto=http;by=203.0.113.43&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::FORWARDED,
+                header::HeaderValue::from_static(<span class="string">&quot;for=192.0.2.60;proto=http;by=203.0.113.43&quot;</span>),
             ))
-            .<span class="ident">to_srv_request</span>();
+            .to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_request</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>);
+        <span class="kw">let </span>now = OffsetDateTime::now_utc();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_request(now, <span class="kw-2">&amp;</span>req);
         }
 
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">HttpResponse::build</span>(<span class="ident">StatusCode::OK</span>).<span class="ident">force_close</span>().<span class="ident">finish</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_response</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>);
+        <span class="kw">let </span>resp = HttpResponse::build(StatusCode::OK).force_close().finish();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_response(<span class="kw-2">&amp;</span>resp);
         }
 
-        <span class="kw">let</span> <span class="ident">entry_time</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
-        <span class="kw">let</span> <span class="ident">render</span> <span class="op">=</span> <span class="op">|</span><span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">|</span> {
-            <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">format</span>.<span class="number">0</span> {
-                <span class="ident">unit</span>.<span class="ident">render</span>(<span class="ident">fmt</span>, <span class="number">1024</span>, <span class="ident">entry_time</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>entry_time = OffsetDateTime::now_utc();
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+            <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
+                unit.render(fmt, <span class="number">1024</span>, entry_time)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">FormatDisplay</span>(<span class="kw-2">&amp;</span><span class="ident">render</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;%{r}a&quot;</span>);
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;%{r}a&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_url_path</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">Format::new</span>(<span class="string">&quot;%T %U&quot;</span>);
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::USER_AGENT</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;ACTIX-WEB&quot;</span>),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_url_path() {
+        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">&quot;%T %U&quot;</span>);
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::USER_AGENT,
+                header::HeaderValue::from_static(<span class="string">&quot;ACTIX-WEB&quot;</span>),
             ))
-            .<span class="ident">uri</span>(<span class="string">&quot;/test/route/yeah&quot;</span>)
-            .<span class="ident">to_srv_request</span>();
+            .uri(<span class="string">&quot;/test/route/yeah&quot;</span>)
+            .to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_request</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>);
+        <span class="kw">let </span>now = OffsetDateTime::now_utc();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_request(now, <span class="kw-2">&amp;</span>req);
         }
 
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">HttpResponse::build</span>(<span class="ident">StatusCode::OK</span>).<span class="ident">force_close</span>().<span class="ident">finish</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_response</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>);
+        <span class="kw">let </span>resp = HttpResponse::build(StatusCode::OK).force_close().finish();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_response(<span class="kw-2">&amp;</span>resp);
         }
 
-        <span class="kw">let</span> <span class="ident">render</span> <span class="op">=</span> <span class="op">|</span><span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">|</span> {
-            <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">format</span>.<span class="number">0</span> {
-                <span class="ident">unit</span>.<span class="ident">render</span>(<span class="ident">fmt</span>, <span class="number">1024</span>, <span class="ident">now</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+            <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
+                unit.render(fmt, <span class="number">1024</span>, now)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">FormatDisplay</span>(<span class="kw-2">&amp;</span><span class="ident">render</span>));
-        <span class="macro">assert!</span>(<span class="ident">s</span>.<span class="ident">contains</span>(<span class="string">&quot;/test/route/yeah&quot;</span>));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;/test/route/yeah&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_default_format</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">Format::default</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_default_format() {
+        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::default();
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::USER_AGENT</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;ACTIX-WEB&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::USER_AGENT,
+                header::HeaderValue::from_static(<span class="string">&quot;ACTIX-WEB&quot;</span>),
             ))
-            .<span class="ident">peer_addr</span>(<span class="string">&quot;127.0.0.1:8081&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">to_srv_request</span>();
+            .peer_addr(<span class="string">&quot;127.0.0.1:8081&quot;</span>.parse().unwrap())
+            .to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_request</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>);
+        <span class="kw">let </span>now = OffsetDateTime::now_utc();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_request(now, <span class="kw-2">&amp;</span>req);
         }
 
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">HttpResponse::build</span>(<span class="ident">StatusCode::OK</span>).<span class="ident">force_close</span>().<span class="ident">finish</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_response</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>);
+        <span class="kw">let </span>resp = HttpResponse::build(StatusCode::OK).force_close().finish();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_response(<span class="kw-2">&amp;</span>resp);
         }
 
-        <span class="kw">let</span> <span class="ident">entry_time</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
-        <span class="kw">let</span> <span class="ident">render</span> <span class="op">=</span> <span class="op">|</span><span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">|</span> {
-            <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">format</span>.<span class="number">0</span> {
-                <span class="ident">unit</span>.<span class="ident">render</span>(<span class="ident">fmt</span>, <span class="number">1024</span>, <span class="ident">entry_time</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>entry_time = OffsetDateTime::now_utc();
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+            <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
+                unit.render(fmt, <span class="number">1024</span>, entry_time)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">FormatDisplay</span>(<span class="kw-2">&amp;</span><span class="ident">render</span>));
-        <span class="macro">assert!</span>(<span class="ident">s</span>.<span class="ident">contains</span>(<span class="string">&quot;GET / HTTP/1.1&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">s</span>.<span class="ident">contains</span>(<span class="string">&quot;127.0.0.1&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">s</span>.<span class="ident">contains</span>(<span class="string">&quot;200 1024&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">s</span>.<span class="ident">contains</span>(<span class="string">&quot;ACTIX-WEB&quot;</span>));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;GET / HTTP/1.1&quot;</span>));
+        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;127.0.0.1&quot;</span>));
+        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;200 1024&quot;</span>));
+        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;ACTIX-WEB&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_request_time_format</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">Format::new</span>(<span class="string">&quot;%t&quot;</span>);
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_request_time_format() {
+        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">&quot;%t&quot;</span>);
+        <span class="kw">let </span>req = TestRequest::default().to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_request</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>);
+        <span class="kw">let </span>now = OffsetDateTime::now_utc();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_request(now, <span class="kw-2">&amp;</span>req);
         }
 
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">HttpResponse::build</span>(<span class="ident">StatusCode::OK</span>).<span class="ident">force_close</span>().<span class="ident">finish</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_response</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>);
+        <span class="kw">let </span>resp = HttpResponse::build(StatusCode::OK).force_close().finish();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_response(<span class="kw-2">&amp;</span>resp);
         }
 
-        <span class="kw">let</span> <span class="ident">render</span> <span class="op">=</span> <span class="op">|</span><span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">|</span> {
-            <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">format</span>.<span class="number">0</span> {
-                <span class="ident">unit</span>.<span class="ident">render</span>(<span class="ident">fmt</span>, <span class="number">1024</span>, <span class="ident">now</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+            <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
+                unit.render(fmt, <span class="number">1024</span>, now)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">FormatDisplay</span>(<span class="kw-2">&amp;</span><span class="ident">render</span>));
-        <span class="macro">assert!</span>(<span class="ident">s</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">now</span>.<span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="ident">Rfc3339</span>).<span class="ident">unwrap</span>()));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="macro">assert!</span>(s.contains(<span class="kw-2">&amp;</span>now.format(<span class="kw-2">&amp;</span>Rfc3339).unwrap()));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_remote_addr_format</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">Format::new</span>(<span class="string">&quot;%{r}a&quot;</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_remote_addr_format() {
+        <span class="kw">let </span><span class="kw-2">mut </span>format = Format::new(<span class="string">&quot;%{r}a&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::FORWARDED</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;for=192.0.2.60;proto=http;by=203.0.113.43&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::FORWARDED,
+                header::HeaderValue::from_static(<span class="string">&quot;for=192.0.2.60;proto=http;by=203.0.113.43&quot;</span>),
             ))
-            .<span class="ident">to_srv_request</span>();
+            .to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_request</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>);
+        <span class="kw">let </span>now = OffsetDateTime::now_utc();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_request(now, <span class="kw-2">&amp;</span>req);
         }
 
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">HttpResponse::build</span>(<span class="ident">StatusCode::OK</span>).<span class="ident">force_close</span>().<span class="ident">finish</span>();
-        <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">format</span>.<span class="number">0</span> {
-            <span class="ident">unit</span>.<span class="ident">render_response</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>);
+        <span class="kw">let </span>resp = HttpResponse::build(StatusCode::OK).force_close().finish();
+        <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;mut </span>format.<span class="number">0 </span>{
+            unit.render_response(<span class="kw-2">&amp;</span>resp);
         }
 
-        <span class="kw">let</span> <span class="ident">entry_time</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
-        <span class="kw">let</span> <span class="ident">render</span> <span class="op">=</span> <span class="op">|</span><span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">|</span> {
-            <span class="kw">for</span> <span class="ident">unit</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">format</span>.<span class="number">0</span> {
-                <span class="ident">unit</span>.<span class="ident">render</span>(<span class="ident">fmt</span>, <span class="number">1024</span>, <span class="ident">entry_time</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>entry_time = OffsetDateTime::now_utc();
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| {
+            <span class="kw">for </span>unit <span class="kw">in </span><span class="kw-2">&amp;</span>format.<span class="number">0 </span>{
+                unit.render(fmt, <span class="number">1024</span>, entry_time)<span class="question-mark">?</span>;
             }
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">FormatDisplay</span>(<span class="kw-2">&amp;</span><span class="ident">render</span>));
-        <span class="macro">assert!</span>(<span class="ident">s</span>.<span class="ident">contains</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
+        <span class="kw">let </span>s = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, FormatDisplay(<span class="kw-2">&amp;</span>render));
+        <span class="macro">assert!</span>(s.contains(<span class="string">&quot;192.0.2.60&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_custom_closure_log</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">Logger::new</span>(<span class="string">&quot;test %{CUSTOM}xi&quot;</span>)
-            .<span class="ident">custom_request_replace</span>(<span class="string">&quot;CUSTOM&quot;</span>, <span class="op">|</span><span class="ident">_req</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span><span class="op">|</span> -&gt; <span class="ident">String</span> {
-                <span class="ident">String::from</span>(<span class="string">&quot;custom_log&quot;</span>)
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_custom_closure_log() {
+        <span class="kw">let </span><span class="kw-2">mut </span>logger = Logger::new(<span class="string">&quot;test %{CUSTOM}xi&quot;</span>)
+            .custom_request_replace(<span class="string">&quot;CUSTOM&quot;</span>, |_req: <span class="kw-2">&amp;</span>ServiceRequest| -&gt; String {
+                String::from(<span class="string">&quot;custom_log&quot;</span>)
             });
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unit</span> <span class="op">=</span> <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">logger</span>.<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">format</span>.<span class="number">0</span>[<span class="number">1</span>].<span class="ident">clone</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>unit = Rc::get_mut(<span class="kw-2">&amp;mut </span>logger.<span class="number">0</span>).unwrap().format.<span class="number">0</span>[<span class="number">1</span>].clone();
 
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">unit</span> {
-            <span class="ident">FormatText::CustomRequest</span>(<span class="ident">label</span>, <span class="kw">_</span>) =&gt; <span class="ident">label</span>,
-            <span class="ident">ft</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected CustomRequest, found {:?}&quot;</span>, <span class="ident">ft</span>),
+        <span class="kw">let </span>label = <span class="kw">match </span><span class="kw-2">&amp;</span>unit {
+            FormatText::CustomRequest(label, <span class="kw">_</span>) =&gt; label,
+            ft =&gt; <span class="macro">panic!</span>(<span class="string">&quot;expected CustomRequest, found {:?}&quot;</span>, ft),
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">label</span>, <span class="string">&quot;CUSTOM&quot;</span>);
+        <span class="macro">assert_eq!</span>(label, <span class="string">&quot;CUSTOM&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>();
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">OffsetDateTime::now_utc</span>();
+        <span class="kw">let </span>req = TestRequest::default().to_srv_request();
+        <span class="kw">let </span>now = OffsetDateTime::now_utc();
 
-        <span class="ident">unit</span>.<span class="ident">render_request</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>);
+        unit.render_request(now, <span class="kw-2">&amp;</span>req);
 
-        <span class="kw">let</span> <span class="ident">render</span> <span class="op">=</span> <span class="op">|</span><span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">unit</span>.<span class="ident">render</span>(<span class="ident">fmt</span>, <span class="number">1024</span>, <span class="ident">now</span>);
+        <span class="kw">let </span>render = |fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;| unit.render(fmt, <span class="number">1024</span>, now);
 
-        <span class="kw">let</span> <span class="ident">log_output</span> <span class="op">=</span> <span class="ident">FormatDisplay</span>(<span class="kw-2">&amp;</span><span class="ident">render</span>).<span class="ident">to_string</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">log_output</span>, <span class="string">&quot;custom_log&quot;</span>);
+        <span class="kw">let </span>log_output = FormatDisplay(<span class="kw-2">&amp;</span>render).to_string();
+        <span class="macro">assert_eq!</span>(log_output, <span class="string">&quot;custom_log&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_closure_logger_in_middleware</span>() {
-        <span class="kw">let</span> <span class="ident">captured</span> <span class="op">=</span> <span class="string">&quot;custom log replacement&quot;</span>;
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_closure_logger_in_middleware() {
+        <span class="kw">let </span>captured = <span class="string">&quot;custom log replacement&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">Logger::new</span>(<span class="string">&quot;%{CUSTOM}xi&quot;</span>)
-            .<span class="ident">custom_request_replace</span>(<span class="string">&quot;CUSTOM&quot;</span>, <span class="kw">move</span> <span class="op">|</span><span class="ident">_req</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span><span class="op">|</span> -&gt; <span class="ident">String</span> {
-                <span class="ident">captured</span>.<span class="ident">to_owned</span>()
+        <span class="kw">let </span>logger = Logger::new(<span class="string">&quot;%{CUSTOM}xi&quot;</span>)
+            .custom_request_replace(<span class="string">&quot;CUSTOM&quot;</span>, <span class="kw">move </span>|_req: <span class="kw-2">&amp;</span>ServiceRequest| -&gt; String {
+                captured.to_owned()
             });
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">logger</span>.<span class="ident">new_transform</span>(<span class="ident">test::ok_service</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>srv = logger.new_transform(test::ok_service()).<span class="kw">await</span>.unwrap();
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>();
-        <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>req = TestRequest::default().to_srv_request();
+        srv.call(req).<span class="kw">await</span>.unwrap();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

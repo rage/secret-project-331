@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/error/response_error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response_error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/error/response_error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response_error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -160,165 +160,165 @@
 <span id="158">158</span>
 <span id="159">159</span>
 <span id="160">160</span>
-</pre><pre class="rust"><code><span class="doccomment">//! `ResponseError` trait and foreign impls.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! `ResponseError` trait and foreign impls.
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">convert::Infallible</span>,
-    <span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>,
-    <span class="ident">fmt</span>,
-    <span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Write</span> <span class="kw">as</span> <span class="kw">_</span>},
+</span><span class="kw">use </span>std::{
+    convert::Infallible,
+    error::Error <span class="kw">as </span>StdError,
+    fmt,
+    io::{<span class="self">self</span>, Write <span class="kw">as _</span>},
 };
 
-<span class="kw">use</span> <span class="ident">actix_http::Response</span>;
-<span class="kw">use</span> <span class="ident">bytes::BytesMut</span>;
+<span class="kw">use </span>actix_http::Response;
+<span class="kw">use </span>bytes::BytesMut;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body::BoxBody</span>,
-    <span class="ident">error</span>::{<span class="ident">downcast_dyn</span>, <span class="ident">downcast_get_type_id</span>},
-    <span class="ident">helpers</span>,
-    <span class="ident">http</span>::{
-        <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">TryIntoHeaderValue</span>},
-        <span class="ident">StatusCode</span>,
+<span class="kw">use crate</span>::{
+    body::BoxBody,
+    error::{downcast_dyn, downcast_get_type_id},
+    helpers,
+    http::{
+        header::{<span class="self">self</span>, TryIntoHeaderValue},
+        StatusCode,
     },
-    <span class="ident">HttpResponse</span>,
+    HttpResponse,
 };
 
-<span class="doccomment">/// Errors that can generate responses.</span>
-<span class="comment">// TODO: flesh out documentation</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ResponseError</span>: <span class="ident">fmt::Debug</span> <span class="op">+</span> <span class="ident">fmt::Display</span> {
-    <span class="doccomment">/// Returns appropriate status code for error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A 500 Internal Server Error is used by default. If [error_response](Self::error_response) is</span>
-    <span class="doccomment">/// also implemented and does not call `self.status_code()`, then this will not be used.</span>
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>
+<span class="doccomment">/// Errors that can generate responses.
+</span><span class="comment">// TODO: flesh out documentation
+</span><span class="kw">pub trait </span>ResponseError: fmt::Debug + fmt::Display {
+    <span class="doccomment">/// Returns appropriate status code for error.
+    ///
+    /// A 500 Internal Server Error is used by default. If [error_response](Self::error_response) is
+    /// also implemented and does not call `self.status_code()`, then this will not be used.
+    </span><span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        StatusCode::INTERNAL_SERVER_ERROR
     }
 
-    <span class="doccomment">/// Creates full response for error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default, the generated response uses a 500 Internal Server Error status code, a</span>
-    <span class="doccomment">/// `Content-Type` of `text/plain`, and the body is set to `Self`&#39;s `Display` impl.</span>
-    <span class="kw">fn</span> <span class="ident">error_response</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::new</span>(<span class="self">self</span>.<span class="ident">status_code</span>());
+    <span class="doccomment">/// Creates full response for error.
+    ///
+    /// By default, the generated response uses a 500 Internal Server Error status code, a
+    /// `Content-Type` of `text/plain`, and the body is set to `Self`&#39;s `Display` impl.
+    </span><span class="kw">fn </span>error_response(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HttpResponse&lt;BoxBody&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>res = HttpResponse::new(<span class="self">self</span>.status_code());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">write!</span>(<span class="ident">helpers::MutWriter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>), <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
+        <span class="kw">let _ </span>= <span class="macro">write!</span>(helpers::MutWriter(<span class="kw-2">&amp;mut </span>buf), <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>);
 
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::TEXT_PLAIN_UTF_8</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
+        <span class="kw">let </span>mime = mime::TEXT_PLAIN_UTF_8.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
 
-        <span class="ident">res</span>.<span class="ident">set_body</span>(<span class="ident">BoxBody::new</span>(<span class="ident">buf</span>))
+        res.set_body(BoxBody::new(buf))
     }
 
     <span class="macro">downcast_get_type_id!</span>();
 }
 
-<span class="macro">downcast_dyn!</span>(<span class="ident">ResponseError</span>);
+<span class="macro">downcast_dyn!</span>(ResponseError);
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> {}
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>StdError + <span class="lifetime">&#39;static</span>&gt; {}
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">Infallible</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {}
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>Infallible {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{}
     }
-    <span class="kw">fn</span> <span class="ident">error_response</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {}
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">actix_tls::accept::openssl::reexports::Error</span> {}
-
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">serde::de::value::Error</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="ident">StatusCode::BAD_REQUEST</span>
+    <span class="kw">fn </span>error_response(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HttpResponse&lt;BoxBody&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{}
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">serde_json::Error</span> {}
+<span class="attribute">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+</span><span class="kw">impl </span>ResponseError <span class="kw">for </span>actix_tls::accept::openssl::reexports::Error {}
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">serde_urlencoded::ser::Error</span> {}
-
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">std::str::Utf8Error</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="ident">StatusCode::BAD_REQUEST</span>
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>serde::de::value::Error {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        StatusCode::BAD_REQUEST
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">std::io::Error</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span>() {
-            <span class="ident">io::ErrorKind::NotFound</span> =&gt; <span class="ident">StatusCode::NOT_FOUND</span>,
-            <span class="ident">io::ErrorKind::PermissionDenied</span> =&gt; <span class="ident">StatusCode::FORBIDDEN</span>,
-            <span class="kw">_</span> =&gt; <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>serde_json::Error {}
+
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>serde_urlencoded::ser::Error {}
+
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>std::str::Utf8Error {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        StatusCode::BAD_REQUEST
+    }
+}
+
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>std::io::Error {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        <span class="kw">match </span><span class="self">self</span>.kind() {
+            io::ErrorKind::NotFound =&gt; StatusCode::NOT_FOUND,
+            io::ErrorKind::PermissionDenied =&gt; StatusCode::FORBIDDEN,
+            <span class="kw">_ </span>=&gt; StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">actix_http::error::HttpError</span> {}
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>actix_http::error::HttpError {}
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">actix_http::Error</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>actix_http::Error {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        StatusCode::INTERNAL_SERVER_ERROR
     }
 
-    <span class="kw">fn</span> <span class="ident">error_response</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-        <span class="ident">HttpResponse::with_body</span>(<span class="self">self</span>.<span class="ident">status_code</span>(), <span class="self">self</span>.<span class="ident">to_string</span>()).<span class="ident">map_into_boxed_body</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">actix_http::header::InvalidHeaderValue</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="ident">StatusCode::BAD_REQUEST</span>
+    <span class="kw">fn </span>error_response(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HttpResponse&lt;BoxBody&gt; {
+        HttpResponse::with_body(<span class="self">self</span>.status_code(), <span class="self">self</span>.to_string()).map_into_boxed_body()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">actix_http::error::ParseError</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="ident">StatusCode::BAD_REQUEST</span>
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>actix_http::header::InvalidHeaderValue {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        StatusCode::BAD_REQUEST
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">actix_http::error::PayloadError</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">actix_http::error::PayloadError::Overflow</span> =&gt; <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>,
-            <span class="kw">_</span> =&gt; <span class="ident">StatusCode::BAD_REQUEST</span>,
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>actix_http::error::ParseError {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        StatusCode::BAD_REQUEST
+    }
+}
+
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>actix_http::error::PayloadError {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            actix_http::error::PayloadError::Overflow =&gt; StatusCode::PAYLOAD_TOO_LARGE,
+            <span class="kw">_ </span>=&gt; StatusCode::BAD_REQUEST,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">actix_http::ws::ProtocolError</span> {}
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>actix_http::ws::ProtocolError {}
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">actix_http::error::ContentTypeError</span> {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="ident">StatusCode::BAD_REQUEST</span>
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>actix_http::error::ContentTypeError {
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        StatusCode::BAD_REQUEST
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">actix_http::ws::HandshakeError</span> {
-    <span class="kw">fn</span> <span class="ident">error_response</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-        <span class="ident">Response::from</span>(<span class="self">self</span>).<span class="ident">map_into_boxed_body</span>().<span class="ident">into</span>()
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>actix_http::ws::HandshakeError {
+    <span class="kw">fn </span>error_response(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HttpResponse&lt;BoxBody&gt; {
+        Response::from(<span class="self">self</span>).map_into_boxed_body().into()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_error_casting</span>() {
-        <span class="kw">use</span> <span class="ident">actix_http::error</span>::{<span class="ident">ContentTypeError</span>, <span class="ident">PayloadError</span>};
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_error_casting() {
+        <span class="kw">use </span>actix_http::error::{ContentTypeError, PayloadError};
 
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">PayloadError::Overflow</span>;
-        <span class="kw">let</span> <span class="ident">resp_err</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ResponseError</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">err</span>;
+        <span class="kw">let </span>err = PayloadError::Overflow;
+        <span class="kw">let </span>resp_err: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ResponseError = <span class="kw-2">&amp;</span>err;
 
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">resp_err</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">PayloadError</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="string">&quot;Payload reached size limit.&quot;</span>);
+        <span class="kw">let </span>err = resp_err.downcast_ref::&lt;PayloadError&gt;().unwrap();
+        <span class="macro">assert_eq!</span>(err.to_string(), <span class="string">&quot;Payload reached size limit.&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">not_err</span> <span class="op">=</span> <span class="ident">resp_err</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">ContentTypeError</span><span class="op">&gt;</span>();
-        <span class="macro">assert!</span>(<span class="ident">not_err</span>.<span class="ident">is_none</span>());
+        <span class="kw">let </span>not_err = resp_err.downcast_ref::&lt;ContentTypeError&gt;();
+        <span class="macro">assert!</span>(not_err.is_none());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -423,430 +423,430 @@
 <span id="423">423</span>
 <span id="424">424</span>
 <span id="425">425</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">Read</span>};
-<span class="kw">use</span> <span class="ident">std::mem</span>;
-<span class="kw">use</span> <span class="ident">std::net::SocketAddr</span>;
-<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::io::{<span class="self">self</span>, Read};
+<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::net::SocketAddr;
+<span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">http</span>;
-<span class="kw">use</span> <span class="ident">hyper::header::HeaderMap</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde::de::DeserializeOwned</span>;
+<span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>http;
+<span class="kw">use </span>hyper::header::HeaderMap;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+</span><span class="kw">use </span>serde::de::DeserializeOwned;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::client::KeepCoreThreadAlive</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::wait</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::cookie</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">async_impl</span>, <span class="ident">StatusCode</span>, <span class="ident">Url</span>, <span class="ident">Version</span>};
+<span class="kw">use </span><span class="kw">super</span>::client::KeepCoreThreadAlive;
+<span class="kw">use </span><span class="kw">super</span>::wait;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::cookie;
+<span class="kw">use crate</span>::{async_impl, StatusCode, Url, Version};
 
-<span class="doccomment">/// A Response to a submitted `Request`.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Response</span> {
-    <span class="ident">inner</span>: <span class="ident">async_impl::Response</span>,
-    <span class="ident">body</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">futures_util::io::AsyncRead</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-    <span class="ident">_thread_handle</span>: <span class="ident">KeepCoreThreadAlive</span>,
+<span class="doccomment">/// A Response to a submitted `Request`.
+</span><span class="kw">pub struct </span>Response {
+    inner: async_impl::Response,
+    body: <span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>futures_util::io::AsyncRead + Send + Sync&gt;&gt;&gt;,
+    timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+    _thread_handle: KeepCoreThreadAlive,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Response</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">fmt::Debug::fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">f</span>)
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Response {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        fmt::Debug::fmt(<span class="kw-2">&amp;</span><span class="self">self</span>.inner, f)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Response</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">res</span>: <span class="ident">async_impl::Response</span>,
-        <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-        <span class="ident">thread</span>: <span class="ident">KeepCoreThreadAlive</span>,
-    ) -&gt; <span class="ident">Response</span> {
-        <span class="ident">Response</span> {
-            <span class="ident">inner</span>: <span class="ident">res</span>,
-            <span class="ident">body</span>: <span class="prelude-val">None</span>,
-            <span class="ident">timeout</span>,
-            <span class="ident">_thread_handle</span>: <span class="ident">thread</span>,
+<span class="kw">impl </span>Response {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        res: async_impl::Response,
+        timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+        thread: KeepCoreThreadAlive,
+    ) -&gt; Response {
+        Response {
+            inner: res,
+            body: <span class="prelude-val">None</span>,
+            timeout,
+            _thread_handle: thread,
         }
     }
 
-    <span class="doccomment">/// Get the `StatusCode` of this `Response`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Checking for general status class:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # #[cfg(feature = &quot;json&quot;)]</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let resp = reqwest::blocking::get(&quot;http://httpbin.org/get&quot;)?;</span>
-    <span class="doccomment">/// if resp.status().is_success() {</span>
-    <span class="doccomment">///     println!(&quot;success!&quot;);</span>
-    <span class="doccomment">/// } else if resp.status().is_server_error() {</span>
-    <span class="doccomment">///     println!(&quot;server error!&quot;);</span>
-    <span class="doccomment">/// } else {</span>
-    <span class="doccomment">///     println!(&quot;Something else happened. Status: {:?}&quot;, resp.status());</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Checking for specific status codes:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use reqwest::blocking::Client;</span>
-    <span class="doccomment">/// use reqwest::StatusCode;</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = Client::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let resp = client.post(&quot;http://httpbin.org/post&quot;)</span>
-    <span class="doccomment">///     .body(&quot;possibly too large&quot;)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// match resp.status() {</span>
-    <span class="doccomment">///     StatusCode::OK =&gt; println!(&quot;success!&quot;),</span>
-    <span class="doccomment">///     StatusCode::PAYLOAD_TOO_LARGE =&gt; {</span>
-    <span class="doccomment">///         println!(&quot;Request payload is too large!&quot;);</span>
-    <span class="doccomment">///     }</span>
-    <span class="doccomment">///     s =&gt; println!(&quot;Received response status: {:?}&quot;, s),</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">status</span>()
+    <span class="doccomment">/// Get the `StatusCode` of this `Response`.
+    ///
+    /// # Examples
+    ///
+    /// Checking for general status class:
+    ///
+    /// ```rust
+    /// # #[cfg(feature = &quot;json&quot;)]
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let resp = reqwest::blocking::get(&quot;http://httpbin.org/get&quot;)?;
+    /// if resp.status().is_success() {
+    ///     println!(&quot;success!&quot;);
+    /// } else if resp.status().is_server_error() {
+    ///     println!(&quot;server error!&quot;);
+    /// } else {
+    ///     println!(&quot;Something else happened. Status: {:?}&quot;, resp.status());
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// Checking for specific status codes:
+    ///
+    /// ```rust
+    /// use reqwest::blocking::Client;
+    /// use reqwest::StatusCode;
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = Client::new();
+    ///
+    /// let resp = client.post(&quot;http://httpbin.org/post&quot;)
+    ///     .body(&quot;possibly too large&quot;)
+    ///     .send()?;
+    ///
+    /// match resp.status() {
+    ///     StatusCode::OK =&gt; println!(&quot;success!&quot;),
+    ///     StatusCode::PAYLOAD_TOO_LARGE =&gt; {
+    ///         println!(&quot;Request payload is too large!&quot;);
+    ///     }
+    ///     s =&gt; println!(&quot;Received response status: {:?}&quot;, s),
+    /// };
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        <span class="self">self</span>.inner.status()
     }
 
-    <span class="doccomment">/// Get the `Headers` of this `Response`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Saving an etag when caching a file:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use reqwest::blocking::Client;</span>
-    <span class="doccomment">/// use reqwest::header::ETAG;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = Client::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut resp = client.get(&quot;http://httpbin.org/cache&quot;).send()?;</span>
-    <span class="doccomment">/// if resp.status().is_success() {</span>
-    <span class="doccomment">///     if let Some(etag) = resp.headers().get(ETAG) {</span>
-    <span class="doccomment">///         std::fs::write(&quot;etag&quot;, etag.as_bytes());</span>
-    <span class="doccomment">///     }</span>
-    <span class="doccomment">///     let mut file = std::fs::File::create(&quot;file&quot;)?;</span>
-    <span class="doccomment">///     resp.copy_to(&amp;mut file)?;</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">headers</span>()
+    <span class="doccomment">/// Get the `Headers` of this `Response`.
+    ///
+    /// # Example
+    ///
+    /// Saving an etag when caching a file:
+    ///
+    /// ```
+    /// use reqwest::blocking::Client;
+    /// use reqwest::header::ETAG;
+    ///
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = Client::new();
+    ///
+    /// let mut resp = client.get(&quot;http://httpbin.org/cache&quot;).send()?;
+    /// if resp.status().is_success() {
+    ///     if let Some(etag) = resp.headers().get(ETAG) {
+    ///         std::fs::write(&quot;etag&quot;, etag.as_bytes());
+    ///     }
+    ///     let mut file = std::fs::File::create(&quot;file&quot;)?;
+    ///     resp.copy_to(&amp;mut file)?;
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
+        <span class="self">self</span>.inner.headers()
     }
 
-    <span class="doccomment">/// Get a mutable reference to the `Headers` of this `Response`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">headers_mut</span>()
+    <span class="doccomment">/// Get a mutable reference to the `Headers` of this `Response`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>HeaderMap {
+        <span class="self">self</span>.inner.headers_mut()
     }
 
-    <span class="doccomment">/// Retrieve the cookies contained in the response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that invalid &#39;Set-Cookie&#39; headers will be ignored.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Optional</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This requires the optional `cookies` feature to be enabled.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookies</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">cookie::Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
-        <span class="ident">cookie::extract_response_cookies</span>(<span class="self">self</span>.<span class="ident">headers</span>()).<span class="ident">filter_map</span>(<span class="ident">Result::ok</span>)
+    <span class="doccomment">/// Retrieve the cookies contained in the response.
+    ///
+    /// Note that invalid &#39;Set-Cookie&#39; headers will be ignored.
+    ///
+    /// # Optional
+    ///
+    /// This requires the optional `cookies` feature to be enabled.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;cookies&quot;</span>)))]
+    </span><span class="kw">pub fn </span>cookies&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = cookie::Cookie&lt;<span class="lifetime">&#39;a</span>&gt;&gt; + <span class="lifetime">&#39;a </span>{
+        cookie::extract_response_cookies(<span class="self">self</span>.headers()).filter_map(Result::ok)
     }
 
-    <span class="doccomment">/// Get the HTTP `Version` of this `Response`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Version</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">version</span>()
+    <span class="doccomment">/// Get the HTTP `Version` of this `Response`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Version {
+        <span class="self">self</span>.inner.version()
     }
 
-    <span class="doccomment">/// Get the final `Url` of this `Response`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let resp = reqwest::blocking::get(&quot;http://httpbin.org/redirect/1&quot;)?;</span>
-    <span class="doccomment">/// assert_eq!(resp.url().as_str(), &quot;http://httpbin.org/get&quot;);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Url</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">url</span>()
+    <span class="doccomment">/// Get the final `Url` of this `Response`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let resp = reqwest::blocking::get(&quot;http://httpbin.org/redirect/1&quot;)?;
+    /// assert_eq!(resp.url().as_str(), &quot;http://httpbin.org/get&quot;);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Url {
+        <span class="self">self</span>.inner.url()
     }
 
-    <span class="doccomment">/// Get the remote address used to get this `Response`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let resp = reqwest::blocking::get(&quot;http://httpbin.org/redirect/1&quot;)?;</span>
-    <span class="doccomment">/// println!(&quot;httpbin.org address: {:?}&quot;, resp.remote_addr());</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remote_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SocketAddr</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">remote_addr</span>()
+    <span class="doccomment">/// Get the remote address used to get this `Response`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let resp = reqwest::blocking::get(&quot;http://httpbin.org/redirect/1&quot;)?;
+    /// println!(&quot;httpbin.org address: {:?}&quot;, resp.remote_addr());
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>remote_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SocketAddr&gt; {
+        <span class="self">self</span>.inner.remote_addr()
     }
 
-    <span class="doccomment">/// Returns a reference to the associated extensions.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">http::Extensions</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">extensions</span>()
+    <span class="doccomment">/// Returns a reference to the associated extensions.
+    </span><span class="kw">pub fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>http::Extensions {
+        <span class="self">self</span>.inner.extensions()
     }
 
-    <span class="doccomment">/// Returns a mutable reference to the associated extensions.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">http::Extensions</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">extensions_mut</span>()
+    <span class="doccomment">/// Returns a mutable reference to the associated extensions.
+    </span><span class="kw">pub fn </span>extensions_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>http::Extensions {
+        <span class="self">self</span>.inner.extensions_mut()
     }
 
-    <span class="doccomment">/// Get the content-length of the response, if it is known.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Reasons it may not be known:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - The server didn&#39;t send a `content-length` header.</span>
-    <span class="doccomment">/// - The response is gzipped and automatically decoded (thus changing</span>
-    <span class="doccomment">///   the actual decoded length).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">content_length</span>()
+    <span class="doccomment">/// Get the content-length of the response, if it is known.
+    ///
+    /// Reasons it may not be known:
+    ///
+    /// - The server didn&#39;t send a `content-length` header.
+    /// - The response is gzipped and automatically decoded (thus changing
+    ///   the actual decoded length).
+    </span><span class="kw">pub fn </span>content_length(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+        <span class="self">self</span>.inner.content_length()
     }
 
-    <span class="doccomment">/// Try and deserialize the response body as JSON using `serde`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Optional</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This requires the optional `json` feature enabled.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # extern crate reqwest;</span>
-    <span class="doccomment">/// # extern crate serde;</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// # use reqwest::Error;</span>
-    <span class="doccomment">/// # use serde::Deserialize;</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // This `derive` requires the `serde` dependency.</span>
-    <span class="doccomment">/// #[derive(Deserialize)]</span>
-    <span class="doccomment">/// struct Ip {</span>
-    <span class="doccomment">///     origin: String,</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Error&gt; {</span>
-    <span class="doccomment">/// let json: Ip = reqwest::blocking::get(&quot;http://httpbin.org/ip&quot;)?.json()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// # fn main() { }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails whenever the response body is not in JSON format</span>
-    <span class="doccomment">/// or it cannot be properly deserialized to target type `T`. For more</span>
-    <span class="doccomment">/// details please see [`serde_json::from_reader`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`serde_json::from_reader`]: https://docs.serde.rs/serde_json/fn.from_reader.html</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">wait::timeout</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">json</span>(), <span class="self">self</span>.<span class="ident">timeout</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">e</span> {
-            <span class="ident">wait::Waited::TimedOut</span>(<span class="ident">e</span>) =&gt; <span class="ident"><span class="kw">crate</span>::error::decode</span>(<span class="ident">e</span>),
-            <span class="ident">wait::Waited::Inner</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>,
+    <span class="doccomment">/// Try and deserialize the response body as JSON using `serde`.
+    ///
+    /// # Optional
+    ///
+    /// This requires the optional `json` feature enabled.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # extern crate reqwest;
+    /// # extern crate serde;
+    /// #
+    /// # use reqwest::Error;
+    /// # use serde::Deserialize;
+    /// #
+    /// // This `derive` requires the `serde` dependency.
+    /// #[derive(Deserialize)]
+    /// struct Ip {
+    ///     origin: String,
+    /// }
+    ///
+    /// # fn run() -&gt; Result&lt;(), Error&gt; {
+    /// let json: Ip = reqwest::blocking::get(&quot;http://httpbin.org/ip&quot;)?.json()?;
+    /// # Ok(())
+    /// # }
+    /// #
+    /// # fn main() { }
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// This method fails whenever the response body is not in JSON format
+    /// or it cannot be properly deserialized to target type `T`. For more
+    /// details please see [`serde_json::from_reader`].
+    ///
+    /// [`serde_json::from_reader`]: https://docs.serde.rs/serde_json/fn.from_reader.html
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;json&quot;</span>)))]
+    </span><span class="kw">pub fn </span>json&lt;T: DeserializeOwned&gt;(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;T&gt; {
+        wait::timeout(<span class="self">self</span>.inner.json(), <span class="self">self</span>.timeout).map_err(|e| <span class="kw">match </span>e {
+            wait::Waited::TimedOut(e) =&gt; <span class="kw">crate</span>::error::decode(e),
+            wait::Waited::Inner(e) =&gt; e,
         })
     }
 
-    <span class="doccomment">/// Get the full response body as `Bytes`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let bytes = reqwest::blocking::get(&quot;http://httpbin.org/ip&quot;)?.bytes()?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// println!(&quot;bytes: {:?}&quot;, bytes);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bytes</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span> {
-        <span class="ident">wait::timeout</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">bytes</span>(), <span class="self">self</span>.<span class="ident">timeout</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">e</span> {
-            <span class="ident">wait::Waited::TimedOut</span>(<span class="ident">e</span>) =&gt; <span class="ident"><span class="kw">crate</span>::error::decode</span>(<span class="ident">e</span>),
-            <span class="ident">wait::Waited::Inner</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>,
+    <span class="doccomment">/// Get the full response body as `Bytes`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # fn run() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// let bytes = reqwest::blocking::get(&quot;http://httpbin.org/ip&quot;)?.bytes()?;
+    ///
+    /// println!(&quot;bytes: {:?}&quot;, bytes);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>bytes(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;Bytes&gt; {
+        wait::timeout(<span class="self">self</span>.inner.bytes(), <span class="self">self</span>.timeout).map_err(|e| <span class="kw">match </span>e {
+            wait::Waited::TimedOut(e) =&gt; <span class="kw">crate</span>::error::decode(e),
+            wait::Waited::Inner(e) =&gt; e,
         })
     }
 
-    <span class="doccomment">/// Get the response text.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method decodes the response body with BOM sniffing</span>
-    <span class="doccomment">/// and with malformed sequences replaced with the REPLACEMENT CHARACTER.</span>
-    <span class="doccomment">/// Encoding is determinated from the `charset` parameter of `Content-Type` header,</span>
-    <span class="doccomment">/// and defaults to `utf-8` if not presented.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # extern crate reqwest;</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let content = reqwest::blocking::get(&quot;http://httpbin.org/range/26&quot;)?.text()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">text_with_charset</span>(<span class="string">&quot;utf-8&quot;</span>)
+    <span class="doccomment">/// Get the response text.
+    ///
+    /// This method decodes the response body with BOM sniffing
+    /// and with malformed sequences replaced with the REPLACEMENT CHARACTER.
+    /// Encoding is determinated from the `charset` parameter of `Content-Type` header,
+    /// and defaults to `utf-8` if not presented.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate reqwest;
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let content = reqwest::blocking::get(&quot;http://httpbin.org/range/26&quot;)?.text()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>text(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;String&gt; {
+        <span class="self">self</span>.text_with_charset(<span class="string">&quot;utf-8&quot;</span>)
     }
 
-    <span class="doccomment">/// Get the response text given a specific encoding.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method decodes the response body with BOM sniffing</span>
-    <span class="doccomment">/// and with malformed sequences replaced with the REPLACEMENT CHARACTER.</span>
-    <span class="doccomment">/// You can provide a default encoding for decoding the raw message, while the</span>
-    <span class="doccomment">/// `charset` parameter of `Content-Type` header is still prioritized. For more information</span>
-    <span class="doccomment">/// about the possible encoding name, please go to [`encoding_rs`] docs.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`encoding_rs`]: https://docs.rs/encoding_rs/0.8/encoding_rs/#relationship-with-windows-code-pages</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # extern crate reqwest;</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let content = reqwest::blocking::get(&quot;http://httpbin.org/range/26&quot;)?</span>
-    <span class="doccomment">///     .text_with_charset(&quot;utf-8&quot;)?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text_with_charset</span>(<span class="self">self</span>, <span class="ident">default_encoding</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="ident">wait::timeout</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">text_with_charset</span>(<span class="ident">default_encoding</span>), <span class="self">self</span>.<span class="ident">timeout</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
-            <span class="kw">match</span> <span class="ident">e</span> {
-                <span class="ident">wait::Waited::TimedOut</span>(<span class="ident">e</span>) =&gt; <span class="ident"><span class="kw">crate</span>::error::decode</span>(<span class="ident">e</span>),
-                <span class="ident">wait::Waited::Inner</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>,
+    <span class="doccomment">/// Get the response text given a specific encoding.
+    ///
+    /// This method decodes the response body with BOM sniffing
+    /// and with malformed sequences replaced with the REPLACEMENT CHARACTER.
+    /// You can provide a default encoding for decoding the raw message, while the
+    /// `charset` parameter of `Content-Type` header is still prioritized. For more information
+    /// about the possible encoding name, please go to [`encoding_rs`] docs.
+    ///
+    /// [`encoding_rs`]: https://docs.rs/encoding_rs/0.8/encoding_rs/#relationship-with-windows-code-pages
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate reqwest;
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let content = reqwest::blocking::get(&quot;http://httpbin.org/range/26&quot;)?
+    ///     .text_with_charset(&quot;utf-8&quot;)?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>text_with_charset(<span class="self">self</span>, default_encoding: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;String&gt; {
+        wait::timeout(<span class="self">self</span>.inner.text_with_charset(default_encoding), <span class="self">self</span>.timeout).map_err(|e| {
+            <span class="kw">match </span>e {
+                wait::Waited::TimedOut(e) =&gt; <span class="kw">crate</span>::error::decode(e),
+                wait::Waited::Inner(e) =&gt; e,
             }
         })
     }
 
-    <span class="doccomment">/// Copy the response body into a writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function internally uses [`std::io::copy`] and hence will continuously read data from</span>
-    <span class="doccomment">/// the body and then write it into writer in a streaming fashion until EOF is met.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// On success, the total number of bytes that were copied to `writer` is returned.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`std::io::copy`]: https://doc.rust-lang.org/std/io/fn.copy.html</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let mut resp = reqwest::blocking::get(&quot;http://httpbin.org/range/5&quot;)?;</span>
-    <span class="doccomment">/// let mut buf: Vec&lt;u8&gt; = vec![];</span>
-    <span class="doccomment">/// resp.copy_to(&amp;mut buf)?;</span>
-    <span class="doccomment">/// assert_eq!(b&quot;abcde&quot;, buf.as_slice());</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">copy_to</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;mut</span> <span class="ident">W</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">W</span>: <span class="ident">io::Write</span>,
+    <span class="doccomment">/// Copy the response body into a writer.
+    ///
+    /// This function internally uses [`std::io::copy`] and hence will continuously read data from
+    /// the body and then write it into writer in a streaming fashion until EOF is met.
+    ///
+    /// On success, the total number of bytes that were copied to `writer` is returned.
+    ///
+    /// [`std::io::copy`]: https://doc.rust-lang.org/std/io/fn.copy.html
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let mut resp = reqwest::blocking::get(&quot;http://httpbin.org/range/5&quot;)?;
+    /// let mut buf: Vec&lt;u8&gt; = vec![];
+    /// resp.copy_to(&amp;mut buf)?;
+    /// assert_eq!(b&quot;abcde&quot;, buf.as_slice());
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>copy_to&lt;W: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, w: <span class="kw-2">&amp;mut </span>W) -&gt; <span class="kw">crate</span>::Result&lt;u64&gt;
+    <span class="kw">where
+        </span>W: io::Write,
     {
-        <span class="ident">io::copy</span>(<span class="self">self</span>, <span class="ident">w</span>).<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::decode_io</span>)
+        io::copy(<span class="self">self</span>, w).map_err(<span class="kw">crate</span>::error::decode_io)
     }
 
-    <span class="doccomment">/// Turn a response into an error if the server returned an error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// # extern crate reqwest;</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let res = reqwest::blocking::get(&quot;http://httpbin.org/status/400&quot;)?</span>
-    <span class="doccomment">///     .error_for_status();</span>
-    <span class="doccomment">/// if let Err(err) = res {</span>
-    <span class="doccomment">///     assert_eq!(err.status(), Some(reqwest::StatusCode::BAD_REQUEST));</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// # fn main() {}</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_for_status</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">Response</span> {
-            <span class="ident">body</span>,
-            <span class="ident">inner</span>,
-            <span class="ident">timeout</span>,
-            <span class="ident">_thread_handle</span>,
-        } <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">inner</span>.<span class="ident">error_for_status</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">inner</span><span class="op">|</span> <span class="ident">Response</span> {
-            <span class="ident">inner</span>,
-            <span class="ident">body</span>,
-            <span class="ident">timeout</span>,
-            <span class="ident">_thread_handle</span>,
+    <span class="doccomment">/// Turn a response into an error if the server returned an error.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// # extern crate reqwest;
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let res = reqwest::blocking::get(&quot;http://httpbin.org/status/400&quot;)?
+    ///     .error_for_status();
+    /// if let Err(err) = res {
+    ///     assert_eq!(err.status(), Some(reqwest::StatusCode::BAD_REQUEST));
+    /// }
+    /// # Ok(())
+    /// # }
+    /// # fn main() {}
+    /// ```
+    </span><span class="kw">pub fn </span>error_for_status(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>Response {
+            body,
+            inner,
+            timeout,
+            _thread_handle,
+        } = <span class="self">self</span>;
+        inner.error_for_status().map(<span class="kw">move </span>|inner| Response {
+            inner,
+            body,
+            timeout,
+            _thread_handle,
         })
     }
 
-    <span class="doccomment">/// Turn a reference to a response into an error if the server returned an error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// # extern crate reqwest;</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let res = reqwest::blocking::get(&quot;http://httpbin.org/status/400&quot;)?;</span>
-    <span class="doccomment">/// let res = res.error_for_status_ref();</span>
-    <span class="doccomment">/// if let Err(err) = res {</span>
-    <span class="doccomment">///     assert_eq!(err.status(), Some(reqwest::StatusCode::BAD_REQUEST));</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// # fn main() {}</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_for_status_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">error_for_status_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>))
+    <span class="doccomment">/// Turn a reference to a response into an error if the server returned an error.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// # extern crate reqwest;
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let res = reqwest::blocking::get(&quot;http://httpbin.org/status/400&quot;)?;
+    /// let res = res.error_for_status_ref();
+    /// if let Err(err) = res {
+    ///     assert_eq!(err.status(), Some(reqwest::StatusCode::BAD_REQUEST));
+    /// }
+    /// # Ok(())
+    /// # }
+    /// # fn main() {}
+    /// ```
+    </span><span class="kw">pub fn </span>error_for_status_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>&gt; {
+        <span class="self">self</span>.inner.error_for_status_ref().and_then(|<span class="kw">_</span>| <span class="prelude-val">Ok</span>(<span class="self">self</span>))
     }
 
-    <span class="comment">// private</span>
+    <span class="comment">// private
 
-    <span class="kw">fn</span> <span class="ident">body_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">futures_util::io::AsyncRead</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">futures_util::TryStreamExt</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">is_none</span>() {
-            <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">body_mut</span>(), <span class="ident">async_impl::Decoder::empty</span>());
+    </span><span class="kw">fn </span>body_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Pin&lt;<span class="kw-2">&amp;mut </span><span class="kw">dyn </span>futures_util::io::AsyncRead&gt; {
+        <span class="kw">use </span>futures_util::TryStreamExt;
+        <span class="kw">if </span><span class="self">self</span>.body.is_none() {
+            <span class="kw">let </span>body = mem::replace(<span class="self">self</span>.inner.body_mut(), async_impl::Decoder::empty());
 
-            <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::into_io</span>).<span class="ident">into_async_read</span>();
+            <span class="kw">let </span>body = body.map_err(<span class="kw">crate</span>::error::into_io).into_async_read();
 
-            <span class="self">self</span>.<span class="ident">body</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::pin</span>(<span class="ident">body</span>));
+            <span class="self">self</span>.body = <span class="prelude-val">Some</span>(Box::pin(body));
         }
-        <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">as_mut</span>().<span class="ident">expect</span>(<span class="string">&quot;body was init&quot;</span>).<span class="ident">as_mut</span>()
+        <span class="self">self</span>.body.as_mut().expect(<span class="string">&quot;body was init&quot;</span>).as_mut()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Read</span> <span class="kw">for</span> <span class="ident">Response</span> {
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">futures_util::io::AsyncReadExt</span>;
+<span class="kw">impl </span>Read <span class="kw">for </span>Response {
+    <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="kw">use </span>futures_util::io::AsyncReadExt;
 
-        <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeout</span>;
-        <span class="ident">wait::timeout</span>(<span class="self">self</span>.<span class="ident">body_mut</span>().<span class="ident">read</span>(<span class="ident">buf</span>), <span class="ident">timeout</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">e</span> {
-            <span class="ident">wait::Waited::TimedOut</span>(<span class="ident">e</span>) =&gt; <span class="ident"><span class="kw">crate</span>::error::decode</span>(<span class="ident">e</span>).<span class="ident">into_io</span>(),
-            <span class="ident">wait::Waited::Inner</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>,
+        <span class="kw">let </span>timeout = <span class="self">self</span>.timeout;
+        wait::timeout(<span class="self">self</span>.body_mut().read(buf), timeout).map_err(|e| <span class="kw">match </span>e {
+            wait::Waited::TimedOut(e) =&gt; <span class="kw">crate</span>::error::decode(e).into_io(),
+            wait::Waited::Inner(e) =&gt; e,
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">async_impl::body::Body</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">http::Response</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">r</span>: <span class="ident">http::Response</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">Response</span> {
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">async_impl::Response::from</span>(<span class="ident">r</span>);
-        <span class="ident">Response::new</span>(<span class="ident">response</span>, <span class="prelude-val">None</span>, <span class="ident">KeepCoreThreadAlive::empty</span>())
+<span class="kw">impl</span>&lt;T: Into&lt;async_impl::body::Body&gt;&gt; From&lt;http::Response&lt;T&gt;&gt; <span class="kw">for </span>Response {
+    <span class="kw">fn </span>from(r: http::Response&lt;T&gt;) -&gt; Response {
+        <span class="kw">let </span>response = async_impl::Response::from(r);
+        Response::new(response, <span class="prelude-val">None</span>, KeepCoreThreadAlive::empty())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

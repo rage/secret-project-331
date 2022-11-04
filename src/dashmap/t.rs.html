@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dashmap-5.4.0/src/t.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>t.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dashmap/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dashmap-5.4.0/src/t.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>t.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dashmap/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -132,139 +132,139 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Central map trait to ease modifications and extensions down the road.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Central map trait to ease modifications and extensions down the road.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::iter</span>::{<span class="ident">Iter</span>, <span class="ident">IterMut</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::lock</span>::{<span class="ident">RwLockReadGuard</span>, <span class="ident">RwLockWriteGuard</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mapref::entry::Entry</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mapref::one</span>::{<span class="ident">Ref</span>, <span class="ident">RefMut</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::try_result::TryResult</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HashMap</span>;
-<span class="kw">use</span> <span class="ident">core::borrow::Borrow</span>;
-<span class="kw">use</span> <span class="ident">core::hash</span>::{<span class="ident">BuildHasher</span>, <span class="ident">Hash</span>};
+</span><span class="kw">use </span><span class="kw">crate</span>::iter::{Iter, IterMut};
+<span class="kw">use </span><span class="kw">crate</span>::lock::{RwLockReadGuard, RwLockWriteGuard};
+<span class="kw">use </span><span class="kw">crate</span>::mapref::entry::Entry;
+<span class="kw">use </span><span class="kw">crate</span>::mapref::one::{Ref, RefMut};
+<span class="kw">use </span><span class="kw">crate</span>::try_result::TryResult;
+<span class="kw">use </span><span class="kw">crate</span>::HashMap;
+<span class="kw">use </span>core::borrow::Borrow;
+<span class="kw">use </span>core::hash::{BuildHasher, Hash};
 
-<span class="doccomment">/// Implementation detail that is exposed due to generic constraints in public types.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>: <span class="lifetime">&#39;a</span>, <span class="ident">S</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">BuildHasher</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">_shard_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
+<span class="doccomment">/// Implementation detail that is exposed due to generic constraints in public types.
+</span><span class="kw">pub trait </span>Map&lt;<span class="lifetime">&#39;a</span>, K: <span class="lifetime">&#39;a </span>+ Eq + Hash, V: <span class="lifetime">&#39;a</span>, S: <span class="lifetime">&#39;a </span>+ Clone + BuildHasher&gt; {
+    <span class="kw">fn </span>_shard_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
 
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The index must not be out of bounds.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">_get_read_shard</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// # Safety
+    ///
+    /// The index must not be out of bounds.
+    </span><span class="kw">unsafe fn </span>_get_read_shard(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, i: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HashMap&lt;K, V, S&gt;;
 
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The index must not be out of bounds.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">_yield_read_shard</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) -&gt; <span class="ident">RwLockReadGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// # Safety
+    ///
+    /// The index must not be out of bounds.
+    </span><span class="kw">unsafe fn </span>_yield_read_shard(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, i: usize) -&gt; RwLockReadGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;;
 
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The index must not be out of bounds.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">_yield_write_shard</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) -&gt; <span class="ident">RwLockWriteGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// # Safety
+    ///
+    /// The index must not be out of bounds.
+    </span><span class="kw">unsafe fn </span>_yield_write_shard(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, i: usize) -&gt; RwLockWriteGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;;
 
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The index must not be out of bounds.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">_try_yield_read_shard</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
-        <span class="ident">i</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RwLockReadGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// # Safety
+    ///
+    /// The index must not be out of bounds.
+    </span><span class="kw">unsafe fn </span>_try_yield_read_shard(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        i: usize,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;RwLockReadGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;&gt;;
 
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The index must not be out of bounds.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">_try_yield_write_shard</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
-        <span class="ident">i</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RwLockWriteGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// # Safety
+    ///
+    /// The index must not be out of bounds.
+    </span><span class="kw">unsafe fn </span>_try_yield_write_shard(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        i: usize,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;RwLockWriteGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">_insert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>_insert(<span class="kw-2">&amp;</span><span class="self">self</span>, key: K, value: V) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt;;
 
-    <span class="kw">fn</span> <span class="ident">_remove</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="kw">fn </span>_remove&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt;
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">fn</span> <span class="ident">_remove_if</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="kw">fn </span>_remove_if&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V) -&gt; bool) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt;
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">fn</span> <span class="ident">_remove_if_mut</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="kw-2">&amp;mut</span> <span class="ident">V</span>) -&gt; <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="kw">fn </span>_remove_if_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;mut </span>V) -&gt; bool) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt;
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">fn</span> <span class="ident">_iter</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>;
+    <span class="kw">fn </span>_iter(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;a</span>, K, V, S, <span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized;
 
-    <span class="kw">fn</span> <span class="ident">_iter_mut</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>;
+    <span class="kw">fn </span>_iter_mut(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; IterMut&lt;<span class="lifetime">&#39;a</span>, K, V, S, <span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized;
 
-    <span class="kw">fn</span> <span class="ident">_get</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="kw">fn </span>_get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt;
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">fn</span> <span class="ident">_get_mut</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="kw">fn </span>_get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;RefMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt;
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">fn</span> <span class="ident">_try_get</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>) -&gt; <span class="ident">TryResult</span><span class="op">&lt;</span><span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="kw">fn </span>_try_get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;Ref&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt;
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">fn</span> <span class="ident">_try_get_mut</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>) -&gt; <span class="ident">TryResult</span><span class="op">&lt;</span><span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="kw">fn </span>_try_get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;RefMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt;
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">fn</span> <span class="ident">_shrink_to_fit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
+    <span class="kw">fn </span>_shrink_to_fit(<span class="kw-2">&amp;</span><span class="self">self</span>);
 
-    <span class="kw">fn</span> <span class="ident">_retain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="kw-2">&amp;mut</span> <span class="ident">V</span>) -&gt; <span class="ident">bool</span>);
+    <span class="kw">fn </span>_retain(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;mut </span>V) -&gt; bool);
 
-    <span class="kw">fn</span> <span class="ident">_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
+    <span class="kw">fn </span>_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
 
-    <span class="kw">fn</span> <span class="ident">_capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
+    <span class="kw">fn </span>_capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
 
-    <span class="kw">fn</span> <span class="ident">_alter</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="ident">V</span>) -&gt; <span class="ident">V</span>)
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="kw">fn </span>_alter&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>K, V) -&gt; V)
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">fn</span> <span class="ident">_alter_all</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="ident">V</span>) -&gt; <span class="ident">V</span>);
+    <span class="kw">fn </span>_alter_all(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span>K, V) -&gt; V);
 
-    <span class="kw">fn</span> <span class="ident">_view</span><span class="op">&lt;</span><span class="ident">Q</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="ident">R</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+    <span class="kw">fn </span>_view&lt;Q, R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V) -&gt; R) -&gt; <span class="prelude-ty">Option</span>&lt;R&gt;
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized;
 
-    <span class="kw">fn</span> <span class="ident">_entry</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) -&gt; <span class="ident">Entry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>_entry(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, key: K) -&gt; Entry&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;;
 
-    <span class="kw">fn</span> <span class="ident">_try_entry</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>_try_entry(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, key: K) -&gt; <span class="prelude-ty">Option</span>&lt;Entry&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">_hasher</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">S</span>;
+    <span class="kw">fn </span>_hasher(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; S;
 
-    <span class="comment">// provided</span>
-    <span class="kw">fn</span> <span class="ident">_clear</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">_retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="bool-val">false</span>)
+    <span class="comment">// provided
+    </span><span class="kw">fn </span>_clear(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>._retain(|<span class="kw">_</span>, <span class="kw">_</span>| <span class="bool-val">false</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">_contains_key</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>) -&gt; <span class="ident">bool</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>,
-        <span class="ident">Q</span>: <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
+    <span class="kw">fn </span>_contains_key&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; bool
+    <span class="kw">where
+        </span>K: Borrow&lt;Q&gt;,
+        Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="self">self</span>.<span class="ident">_get</span>(<span class="ident">key</span>).<span class="ident">is_some</span>()
+        <span class="self">self</span>._get(key).is_some()
     }
 
-    <span class="kw">fn</span> <span class="ident">_is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">_len</span>() <span class="op">==</span> <span class="number">0</span>
-    }
+    <span class="kw">fn </span>_is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>._len() == <span class="number">0
+    </span>}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dashmap" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dashmap" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

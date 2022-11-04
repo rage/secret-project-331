@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -206,213 +206,213 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug, Formatter};
+<span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HashMap</span>;
-<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">futures_util::FutureExt</span>;
+<span class="kw">use </span><span class="kw">crate</span>::HashMap;
+<span class="kw">use </span>futures_core::future::BoxFuture;
+<span class="kw">use </span>futures_util::FutureExt;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::StatementCache</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection</span>::{<span class="ident">Connection</span>, <span class="ident">LogSettings</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ext::ustr::UStr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io::Decode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::message</span>::{
-    <span class="ident">Close</span>, <span class="ident">Message</span>, <span class="ident">MessageFormat</span>, <span class="ident">Query</span>, <span class="ident">ReadyForQuery</span>, <span class="ident">Terminate</span>, <span class="ident">TransactionStatus</span>,
+<span class="kw">use </span><span class="kw">crate</span>::common::StatementCache;
+<span class="kw">use </span><span class="kw">crate</span>::connection::{Connection, LogSettings};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::ext::ustr::UStr;
+<span class="kw">use </span><span class="kw">crate</span>::io::Decode;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::message::{
+    Close, Message, MessageFormat, Query, ReadyForQuery, Terminate, TransactionStatus,
 };
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::statement::PgStatementMetadata</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::Oid</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgConnectOptions</span>, <span class="ident">PgTypeInfo</span>, <span class="ident">Postgres</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transaction::Transaction</span>;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::statement::PgStatementMetadata;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::types::Oid;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{PgConnectOptions, PgTypeInfo, Postgres};
+<span class="kw">use </span><span class="kw">crate</span>::transaction::Transaction;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::stream::PgStream</span>;
+<span class="kw">pub use </span><span class="self">self</span>::stream::PgStream;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">describe</span>;
-<span class="kw">mod</span> <span class="ident">establish</span>;
-<span class="kw">mod</span> <span class="ident">executor</span>;
-<span class="kw">mod</span> <span class="ident">sasl</span>;
-<span class="kw">mod</span> <span class="ident">stream</span>;
-<span class="kw">mod</span> <span class="ident">tls</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>describe;
+<span class="kw">mod </span>establish;
+<span class="kw">mod </span>executor;
+<span class="kw">mod </span>sasl;
+<span class="kw">mod </span>stream;
+<span class="kw">mod </span>tls;
 
-<span class="doccomment">/// A connection to a PostgreSQL database.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgConnection</span> {
-    <span class="comment">// underlying TCP or UDS stream,</span>
-    <span class="comment">// wrapped in a potentially TLS stream,</span>
-    <span class="comment">// wrapped in a buffered stream</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">stream</span>: <span class="ident">PgStream</span>,
+<span class="doccomment">/// A connection to a PostgreSQL database.
+</span><span class="kw">pub struct </span>PgConnection {
+    <span class="comment">// underlying TCP or UDS stream,
+    // wrapped in a potentially TLS stream,
+    // wrapped in a buffered stream
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) stream: PgStream,
 
-    <span class="comment">// process id of this backend</span>
-    <span class="comment">// used to send cancel requests</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="ident">process_id</span>: <span class="ident">u32</span>,
+    <span class="comment">// process id of this backend
+    // used to send cancel requests
+    </span><span class="attribute">#[allow(dead_code)]
+    </span>process_id: u32,
 
-    <span class="comment">// secret key of this backend</span>
-    <span class="comment">// used to send cancel requests</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="ident">secret_key</span>: <span class="ident">u32</span>,
+    <span class="comment">// secret key of this backend
+    // used to send cancel requests
+    </span><span class="attribute">#[allow(dead_code)]
+    </span>secret_key: u32,
 
-    <span class="comment">// sequence of statement IDs for use in preparing statements</span>
-    <span class="comment">// in PostgreSQL, the statement is prepared to a user-supplied identifier</span>
-    <span class="ident">next_statement_id</span>: <span class="ident">Oid</span>,
+    <span class="comment">// sequence of statement IDs for use in preparing statements
+    // in PostgreSQL, the statement is prepared to a user-supplied identifier
+    </span>next_statement_id: Oid,
 
-    <span class="comment">// cache statement by query string to the id and columns</span>
-    <span class="ident">cache_statement</span>: <span class="ident">StatementCache</span><span class="op">&lt;</span>(<span class="ident">Oid</span>, <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PgStatementMetadata</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+    <span class="comment">// cache statement by query string to the id and columns
+    </span>cache_statement: StatementCache&lt;(Oid, Arc&lt;PgStatementMetadata&gt;)&gt;,
 
-    <span class="comment">// cache user-defined types by id &lt;-&gt; info</span>
-    <span class="ident">cache_type_info</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Oid</span>, <span class="ident">PgTypeInfo</span><span class="op">&gt;</span>,
-    <span class="ident">cache_type_oid</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">UStr</span>, <span class="ident">Oid</span><span class="op">&gt;</span>,
+    <span class="comment">// cache user-defined types by id &lt;-&gt; info
+    </span>cache_type_info: HashMap&lt;Oid, PgTypeInfo&gt;,
+    cache_type_oid: HashMap&lt;UStr, Oid&gt;,
 
-    <span class="comment">// number of ReadyForQuery messages that we are currently expecting</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">pending_ready_for_query_count</span>: <span class="ident">usize</span>,
+    <span class="comment">// number of ReadyForQuery messages that we are currently expecting
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) pending_ready_for_query_count: usize,
 
-    <span class="comment">// current transaction status</span>
-    <span class="ident">transaction_status</span>: <span class="ident">TransactionStatus</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">transaction_depth</span>: <span class="ident">usize</span>,
+    <span class="comment">// current transaction status
+    </span>transaction_status: TransactionStatus,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) transaction_depth: usize,
 
-    <span class="ident">log_settings</span>: <span class="ident">LogSettings</span>,
+    log_settings: LogSettings,
 }
 
-<span class="kw">impl</span> <span class="ident">PgConnection</span> {
-    <span class="doccomment">/// the version number of the server in `libpq` format</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">server_version_num</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">server_version_num</span>
+<span class="kw">impl </span>PgConnection {
+    <span class="doccomment">/// the version number of the server in `libpq` format
+    </span><span class="kw">pub fn </span>server_version_num(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+        <span class="self">self</span>.stream.server_version_num
     }
 
-    <span class="comment">// will return when the connection is ready for another query</span>
-    <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident"><span class="kw">crate</span>::postgres</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">wait_until_ready</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">wbuf</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">flush</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// will return when the connection is ready for another query
+    </span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::postgres) <span class="kw">async fn </span>wait_until_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">if </span>!<span class="self">self</span>.stream.wbuf.is_empty() {
+            <span class="self">self</span>.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">pending_ready_for_query_count</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">recv</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">while </span><span class="self">self</span>.pending_ready_for_query_count &gt; <span class="number">0 </span>{
+            <span class="kw">let </span>message = <span class="self">self</span>.stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">MessageFormat::ReadyForQuery</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">format</span> {
-                <span class="self">self</span>.<span class="ident">handle_ready_for_query</span>(<span class="ident">message</span>)<span class="question-mark">?</span>;
+            <span class="kw">if let </span>MessageFormat::ReadyForQuery = message.format {
+                <span class="self">self</span>.handle_ready_for_query(message)<span class="question-mark">?</span>;
             }
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv_ready_for_query</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">ReadyForQuery</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">stream</span>
-            .<span class="ident">recv_expect</span>(<span class="ident">MessageFormat::ReadyForQuery</span>)
+    <span class="kw">async fn </span>recv_ready_for_query(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">let </span>r: ReadyForQuery = <span class="self">self
+            </span>.stream
+            .recv_expect(MessageFormat::ReadyForQuery)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="self">self</span>.<span class="ident">pending_ready_for_query_count</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">transaction_status</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">transaction_status</span>;
+        <span class="self">self</span>.pending_ready_for_query_count -= <span class="number">1</span>;
+        <span class="self">self</span>.transaction_status = r.transaction_status;
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">handle_ready_for_query</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">message</span>: <span class="ident">Message</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">pending_ready_for_query_count</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">transaction_status</span> <span class="op">=</span> <span class="ident">ReadyForQuery::decode</span>(<span class="ident">message</span>.<span class="ident">contents</span>)<span class="question-mark">?</span>.<span class="ident">transaction_status</span>;
+    <span class="kw">fn </span>handle_ready_for_query(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: Message) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="self">self</span>.pending_ready_for_query_count -= <span class="number">1</span>;
+        <span class="self">self</span>.transaction_status = ReadyForQuery::decode(message.contents)<span class="question-mark">?</span>.transaction_status;
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Queue a simple query (not prepared) to execute the next time this connection is used.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Used for rolling back transactions and releasing advisory locks.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">queue_simple_query</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="self">self</span>.<span class="ident">pending_ready_for_query_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">Query</span>(<span class="ident">query</span>));
+    <span class="doccomment">/// Queue a simple query (not prepared) to execute the next time this connection is used.
+    ///
+    /// Used for rolling back transactions and releasing advisory locks.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>queue_simple_query(<span class="kw-2">&amp;mut </span><span class="self">self</span>, query: <span class="kw-2">&amp;</span>str) {
+        <span class="self">self</span>.pending_ready_for_query_count += <span class="number">1</span>;
+        <span class="self">self</span>.stream.write(Query(query));
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">PgConnection</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;PgConnection&quot;</span>).<span class="ident">finish</span>()
+<span class="kw">impl </span>Debug <span class="kw">for </span>PgConnection {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;PgConnection&quot;</span>).finish()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Connection</span> <span class="kw">for</span> <span class="ident">PgConnection</span> {
-    <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="ident">Postgres</span>;
+<span class="kw">impl </span>Connection <span class="kw">for </span>PgConnection {
+    <span class="kw">type </span>Database = Postgres;
 
-    <span class="kw">type</span> <span class="ident">Options</span> <span class="op">=</span> <span class="ident">PgConnectOptions</span>;
+    <span class="kw">type </span>Options = PgConnectOptions;
 
-    <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// The normal, graceful termination procedure is that the frontend sends a Terminate</span>
-        <span class="comment">// message and immediately closes the connection.</span>
+    <span class="kw">fn </span>close(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
+        <span class="comment">// The normal, graceful termination procedure is that the frontend sends a Terminate
+        // message and immediately closes the connection.
 
-        <span class="comment">// On receipt of this message, the backend closes the</span>
-        <span class="comment">// connection and terminates.</span>
+        // On receipt of this message, the backend closes the
+        // connection and terminates.
 
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">send</span>(<span class="ident">Terminate</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">shutdown</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        </span>Box::pin(<span class="kw">async move </span>{
+            <span class="self">self</span>.stream.send(Terminate).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="self">self</span>.stream.shutdown().<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(())
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">close_hard</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">shutdown</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">fn </span>close_hard(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="self">self</span>.stream.shutdown().<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(())
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">ping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// Users were complaining about this showing up in query statistics on the server.</span>
-        <span class="comment">// By sending a comment we avoid an error if the connection was in the middle of a rowset</span>
-        <span class="comment">// self.execute(&quot;/* SQLx ping */&quot;).map_ok(|_| ()).boxed()</span>
+    <span class="kw">fn </span>ping(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
+        <span class="comment">// Users were complaining about this showing up in query statistics on the server.
+        // By sending a comment we avoid an error if the connection was in the middle of a rowset
+        // self.execute(&quot;/* SQLx ping */&quot;).map_ok(|_| ()).boxed()
 
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="comment">// The simplest call-and-response that&#39;s possible.</span>
-            <span class="self">self</span>.<span class="ident">write_sync</span>();
-            <span class="self">self</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span>
-        })
+        </span>Box::pin(<span class="kw">async move </span>{
+            <span class="comment">// The simplest call-and-response that&#39;s possible.
+            </span><span class="self">self</span>.write_sync();
+            <span class="self">self</span>.wait_until_ready().<span class="kw">await
+        </span>})
     }
 
-    <span class="kw">fn</span> <span class="ident">begin</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="kw">fn </span>begin(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>::Database&gt;, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
-        <span class="ident">Transaction::begin</span>(<span class="self">self</span>)
+        Transaction::begin(<span class="self">self</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">cached_statements_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">cache_statement</span>.<span class="ident">len</span>()
+    <span class="kw">fn </span>cached_statements_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.cache_statement.len()
     }
 
-    <span class="kw">fn</span> <span class="ident">clear_cached_statements</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cleared</span> <span class="op">=</span> <span class="number">0_usize</span>;
+    <span class="kw">fn </span>clear_cached_statements(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>cleared = <span class="number">0_usize</span>;
 
-            <span class="self">self</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="self">self</span>.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_statement</span>.<span class="ident">remove_lru</span>() {
-                <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">Close::Statement</span>(<span class="ident">id</span>));
-                <span class="ident">cleared</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="kw">while let </span><span class="prelude-val">Some</span>((id, <span class="kw">_</span>)) = <span class="self">self</span>.cache_statement.remove_lru() {
+                <span class="self">self</span>.stream.write(Close::Statement(id));
+                cleared += <span class="number">1</span>;
             }
 
-            <span class="kw">if</span> <span class="ident">cleared</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                <span class="self">self</span>.<span class="ident">write_sync</span>();
-                <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">flush</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">if </span>cleared &gt; <span class="number">0 </span>{
+                <span class="self">self</span>.write_sync();
+                <span class="self">self</span>.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">wait_for_close_complete</span>(<span class="ident">cleared</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">recv_ready_for_query</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="self">self</span>.wait_for_close_complete(cleared).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="self">self</span>.recv_ready_for_query().<span class="kw">await</span><span class="question-mark">?</span>;
             }
 
             <span class="prelude-val">Ok</span>(())
         })
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">wait_until_ready</span>().<span class="ident">boxed</span>()
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
+        <span class="self">self</span>.wait_until_ready().boxed()
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">should_flush</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">wbuf</span>.<span class="ident">is_empty</span>()
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>should_flush(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        !<span class="self">self</span>.stream.wbuf.is_empty()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

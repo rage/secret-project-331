@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/csv-1.1.6/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../csv/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../csv/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../csv/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/csv-1.1.6/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../csv/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../csv/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../csv/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -351,358 +351,358 @@
 <span id="351">351</span>
 <span id="352">352</span>
 <span id="353">353</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>;
-<span class="kw">use</span> <span class="ident">std::result</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::io;
+<span class="kw">use </span>std::result;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::byte_record</span>::{<span class="ident">ByteRecord</span>, <span class="ident">Position</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::deserializer::DeserializeError</span>;
+<span class="kw">use </span><span class="kw">crate</span>::byte_record::{ByteRecord, Position};
+<span class="kw">use </span><span class="kw">crate</span>::deserializer::DeserializeError;
 
-<span class="doccomment">/// A type alias for `Result&lt;T, csv::Error&gt;`.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A type alias for `Result&lt;T, csv::Error&gt;`.
+</span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = result::Result&lt;T, Error&gt;;
 
-<span class="doccomment">/// An error that can occur when processing CSV data.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This error can happen when writing or reading CSV data.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// There are some important scenarios where an error is impossible to occur.</span>
-<span class="doccomment">/// For example, if a CSV reader is used on an in-memory buffer with the</span>
-<span class="doccomment">/// `flexible` option enabled and one is reading records as raw byte strings,</span>
-<span class="doccomment">/// then no error can occur.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Error</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">ErrorKind</span><span class="op">&gt;</span>);
+<span class="doccomment">/// An error that can occur when processing CSV data.
+///
+/// This error can happen when writing or reading CSV data.
+///
+/// There are some important scenarios where an error is impossible to occur.
+/// For example, if a CSV reader is used on an in-memory buffer with the
+/// `flexible` option enabled and one is reading records as raw byte strings,
+/// then no error can occur.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Error(Box&lt;ErrorKind&gt;);
 
-<span class="kw">impl</span> <span class="ident">Error</span> {
-    <span class="doccomment">/// A crate private constructor for `Error`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">kind</span>: <span class="ident">ErrorKind</span>) -&gt; <span class="ident">Error</span> {
-        <span class="ident">Error</span>(<span class="ident">Box::new</span>(<span class="ident">kind</span>))
+<span class="kw">impl </span>Error {
+    <span class="doccomment">/// A crate private constructor for `Error`.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(kind: ErrorKind) -&gt; Error {
+        Error(Box::new(kind))
     }
 
-    <span class="doccomment">/// Return the specific type of this error.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ErrorKind</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="doccomment">/// Return the specific type of this error.
+    </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ErrorKind {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Unwrap this error into its underlying type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_kind</span>(<span class="self">self</span>) -&gt; <span class="ident">ErrorKind</span> {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="doccomment">/// Unwrap this error into its underlying type.
+    </span><span class="kw">pub fn </span>into_kind(<span class="self">self</span>) -&gt; ErrorKind {
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Returns true if this is an I/O error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If this is true, the underlying `ErrorKind` is guaranteed to be</span>
-    <span class="doccomment">/// `ErrorKind::Io`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_io_error</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">ErrorKind::Io</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+    <span class="doccomment">/// Returns true if this is an I/O error.
+    ///
+    /// If this is true, the underlying `ErrorKind` is guaranteed to be
+    /// `ErrorKind::Io`.
+    </span><span class="kw">pub fn </span>is_io_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self</span>.<span class="number">0 </span>{
+            ErrorKind::Io(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="doccomment">/// Return the position for this error, if one exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a convenience function that permits callers to easily access</span>
-    <span class="doccomment">/// the position on an error without doing case analysis on `ErrorKind`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">position</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Position</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">position</span>()
+    <span class="doccomment">/// Return the position for this error, if one exists.
+    ///
+    /// This is a convenience function that permits callers to easily access
+    /// the position on an error without doing case analysis on `ErrorKind`.
+    </span><span class="kw">pub fn </span>position(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Position&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.position()
     }
 }
 
-<span class="doccomment">/// The specific type of an error.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ErrorKind</span> {
-    <span class="doccomment">/// An I/O error that occurred while reading CSV data.</span>
-    <span class="ident">Io</span>(<span class="ident">io::Error</span>),
-    <span class="doccomment">/// A UTF-8 decoding error that occured while reading CSV data into Rust</span>
-    <span class="doccomment">/// `String`s.</span>
-    <span class="ident">Utf8</span> {
-        <span class="doccomment">/// The position of the record in which this error occurred, if</span>
-        <span class="doccomment">/// available.</span>
-        <span class="ident">pos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// The corresponding UTF-8 error.</span>
-        <span class="ident">err</span>: <span class="ident">Utf8Error</span>,
+<span class="doccomment">/// The specific type of an error.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>ErrorKind {
+    <span class="doccomment">/// An I/O error that occurred while reading CSV data.
+    </span>Io(io::Error),
+    <span class="doccomment">/// A UTF-8 decoding error that occured while reading CSV data into Rust
+    /// `String`s.
+    </span>Utf8 {
+        <span class="doccomment">/// The position of the record in which this error occurred, if
+        /// available.
+        </span>pos: <span class="prelude-ty">Option</span>&lt;Position&gt;,
+        <span class="doccomment">/// The corresponding UTF-8 error.
+        </span>err: Utf8Error,
     },
-    <span class="doccomment">/// This error occurs when two records with an unequal number of fields</span>
-    <span class="doccomment">/// are found. This error only occurs when the `flexible` option in a</span>
-    <span class="doccomment">/// CSV reader/writer is disabled.</span>
-    <span class="ident">UnequalLengths</span> {
-        <span class="doccomment">/// The position of the first record with an unequal number of fields</span>
-        <span class="doccomment">/// to the previous record, if available.</span>
-        <span class="ident">pos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// The expected number of fields in a record. This is the number of</span>
-        <span class="doccomment">/// fields in the record read prior to the record indicated by</span>
-        <span class="doccomment">/// `pos`.</span>
-        <span class="ident">expected_len</span>: <span class="ident">u64</span>,
-        <span class="doccomment">/// The number of fields in the bad record.</span>
-        <span class="ident">len</span>: <span class="ident">u64</span>,
+    <span class="doccomment">/// This error occurs when two records with an unequal number of fields
+    /// are found. This error only occurs when the `flexible` option in a
+    /// CSV reader/writer is disabled.
+    </span>UnequalLengths {
+        <span class="doccomment">/// The position of the first record with an unequal number of fields
+        /// to the previous record, if available.
+        </span>pos: <span class="prelude-ty">Option</span>&lt;Position&gt;,
+        <span class="doccomment">/// The expected number of fields in a record. This is the number of
+        /// fields in the record read prior to the record indicated by
+        /// `pos`.
+        </span>expected_len: u64,
+        <span class="doccomment">/// The number of fields in the bad record.
+        </span>len: u64,
     },
-    <span class="doccomment">/// This error occurs when either the `byte_headers` or `headers` methods</span>
-    <span class="doccomment">/// are called on a CSV reader that was asked to `seek` before it parsed</span>
-    <span class="doccomment">/// the first record.</span>
-    <span class="ident">Seek</span>,
-    <span class="doccomment">/// An error of this kind occurs only when using the Serde serializer.</span>
-    <span class="ident">Serialize</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// An error of this kind occurs only when performing automatic</span>
-    <span class="doccomment">/// deserialization with serde.</span>
-    <span class="ident">Deserialize</span> {
-        <span class="doccomment">/// The position of this error, if available.</span>
-        <span class="ident">pos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// The deserialization error.</span>
-        <span class="ident">err</span>: <span class="ident">DeserializeError</span>,
+    <span class="doccomment">/// This error occurs when either the `byte_headers` or `headers` methods
+    /// are called on a CSV reader that was asked to `seek` before it parsed
+    /// the first record.
+    </span>Seek,
+    <span class="doccomment">/// An error of this kind occurs only when using the Serde serializer.
+    </span>Serialize(String),
+    <span class="doccomment">/// An error of this kind occurs only when performing automatic
+    /// deserialization with serde.
+    </span>Deserialize {
+        <span class="doccomment">/// The position of this error, if available.
+        </span>pos: <span class="prelude-ty">Option</span>&lt;Position&gt;,
+        <span class="doccomment">/// The deserialization error.
+        </span>err: DeserializeError,
     },
-    <span class="doccomment">/// Hints that destructuring should not be exhaustive.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This enum may grow additional variants, so this makes sure clients</span>
-    <span class="doccomment">/// don&#39;t count on exhaustive matching. (Otherwise, adding a new variant</span>
-    <span class="doccomment">/// could break existing code.)</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="ident">__Nonexhaustive</span>,
+    <span class="doccomment">/// Hints that destructuring should not be exhaustive.
+    ///
+    /// This enum may grow additional variants, so this makes sure clients
+    /// don&#39;t count on exhaustive matching. (Otherwise, adding a new variant
+    /// could break existing code.)
+    </span><span class="attribute">#[doc(hidden)]
+    </span>__Nonexhaustive,
 }
 
-<span class="kw">impl</span> <span class="ident">ErrorKind</span> {
-    <span class="doccomment">/// Return the position for this error, if one exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a convenience function that permits callers to easily access</span>
-    <span class="doccomment">/// the position on an error without doing case analysis on `ErrorKind`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">position</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Position</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">ErrorKind::Utf8</span> { <span class="kw-2">ref</span> <span class="ident">pos</span>, .. } =&gt; <span class="ident">pos</span>.<span class="ident">as_ref</span>(),
-            <span class="ident">ErrorKind::UnequalLengths</span> { <span class="kw-2">ref</span> <span class="ident">pos</span>, .. } =&gt; <span class="ident">pos</span>.<span class="ident">as_ref</span>(),
-            <span class="ident">ErrorKind::Deserialize</span> { <span class="kw-2">ref</span> <span class="ident">pos</span>, .. } =&gt; <span class="ident">pos</span>.<span class="ident">as_ref</span>(),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">io::Error</span>) -&gt; <span class="ident">Error</span> {
-        <span class="ident">Error::new</span>(<span class="ident">ErrorKind::Io</span>(<span class="ident">err</span>))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">io::Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">Error</span>) -&gt; <span class="ident">io::Error</span> {
-        <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">err</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">ErrorKind::Io</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-            <span class="ident">ErrorKind::Utf8</span> { <span class="kw-2">ref</span> <span class="ident">err</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-            <span class="ident">ErrorKind::UnequalLengths</span> { .. } =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::Seek</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::Serialize</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::Deserialize</span> { <span class="kw-2">ref</span> <span class="ident">err</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">impl </span>ErrorKind {
+    <span class="doccomment">/// Return the position for this error, if one exists.
+    ///
+    /// This is a convenience function that permits callers to easily access
+    /// the position on an error without doing case analysis on `ErrorKind`.
+    </span><span class="kw">pub fn </span>position(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Position&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            ErrorKind::Utf8 { <span class="kw-2">ref </span>pos, .. } =&gt; pos.as_ref(),
+            ErrorKind::UnequalLengths { <span class="kw-2">ref </span>pos, .. } =&gt; pos.as_ref(),
+            ErrorKind::Deserialize { <span class="kw-2">ref </span>pos, .. } =&gt; pos.as_ref(),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">ErrorKind::Io</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="ident">err</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">ErrorKind::Utf8</span> { <span class="ident">pos</span>: <span class="prelude-val">None</span>, <span class="kw-2">ref</span> <span class="ident">err</span> } =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;CSV parse error: field {}: {}&quot;</span>, <span class="ident">err</span>.<span class="ident">field</span>(), <span class="ident">err</span>)
+<span class="kw">impl </span>From&lt;io::Error&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: io::Error) -&gt; Error {
+        Error::new(ErrorKind::Io(err))
+    }
+}
+
+<span class="kw">impl </span>From&lt;Error&gt; <span class="kw">for </span>io::Error {
+    <span class="kw">fn </span>from(err: Error) -&gt; io::Error {
+        io::Error::new(io::ErrorKind::Other, err)
+    }
+}
+
+<span class="kw">impl </span>StdError <span class="kw">for </span>Error {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>StdError + <span class="lifetime">&#39;static</span>)&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self</span>.<span class="number">0 </span>{
+            ErrorKind::Io(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Some</span>(err),
+            ErrorKind::Utf8 { <span class="kw-2">ref </span>err, .. } =&gt; <span class="prelude-val">Some</span>(err),
+            ErrorKind::UnequalLengths { .. } =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::Seek =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::Serialize(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::Deserialize { <span class="kw-2">ref </span>err, .. } =&gt; <span class="prelude-val">Some</span>(err),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
+        }
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self</span>.<span class="number">0 </span>{
+            ErrorKind::Io(<span class="kw-2">ref </span>err) =&gt; err.fmt(f),
+            ErrorKind::Utf8 { pos: <span class="prelude-val">None</span>, <span class="kw-2">ref </span>err } =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;CSV parse error: field {}: {}&quot;</span>, err.field(), err)
             }
-            <span class="ident">ErrorKind::Utf8</span> { <span class="ident">pos</span>: <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pos</span>), <span class="kw-2">ref</span> <span class="ident">err</span> } =&gt; <span class="macro">write!</span>(
-                <span class="ident">f</span>,
+            ErrorKind::Utf8 { pos: <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pos), <span class="kw-2">ref </span>err } =&gt; <span class="macro">write!</span>(
+                f,
                 <span class="string">&quot;CSV parse error: record {} \
                  (line {}, field: {}, byte: {}): {}&quot;</span>,
-                <span class="ident">pos</span>.<span class="ident">record</span>(),
-                <span class="ident">pos</span>.<span class="ident">line</span>(),
-                <span class="ident">err</span>.<span class="ident">field</span>(),
-                <span class="ident">pos</span>.<span class="ident">byte</span>(),
-                <span class="ident">err</span>
+                pos.record(),
+                pos.line(),
+                err.field(),
+                pos.byte(),
+                err
             ),
-            <span class="ident">ErrorKind::UnequalLengths</span> { <span class="ident">pos</span>: <span class="prelude-val">None</span>, <span class="ident">expected_len</span>, <span class="ident">len</span> } =&gt; {
+            ErrorKind::UnequalLengths { pos: <span class="prelude-val">None</span>, expected_len, len } =&gt; {
                 <span class="macro">write!</span>(
-                    <span class="ident">f</span>,
+                    f,
                     <span class="string">&quot;CSV error: \
                      found record with {} fields, but the previous record \
                      has {} fields&quot;</span>,
-                    <span class="ident">len</span>, <span class="ident">expected_len</span>
+                    len, expected_len
                 )
             }
-            <span class="ident">ErrorKind::UnequalLengths</span> {
-                <span class="ident">pos</span>: <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pos</span>),
-                <span class="ident">expected_len</span>,
-                <span class="ident">len</span>,
+            ErrorKind::UnequalLengths {
+                pos: <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pos),
+                expected_len,
+                len,
             } =&gt; <span class="macro">write!</span>(
-                <span class="ident">f</span>,
+                f,
                 <span class="string">&quot;CSV error: record {} (line: {}, byte: {}): \
                  found record with {} fields, but the previous record \
                  has {} fields&quot;</span>,
-                <span class="ident">pos</span>.<span class="ident">record</span>(),
-                <span class="ident">pos</span>.<span class="ident">line</span>(),
-                <span class="ident">pos</span>.<span class="ident">byte</span>(),
-                <span class="ident">len</span>,
-                <span class="ident">expected_len</span>
+                pos.record(),
+                pos.line(),
+                pos.byte(),
+                len,
+                expected_len
             ),
-            <span class="ident">ErrorKind::Seek</span> =&gt; <span class="macro">write!</span>(
-                <span class="ident">f</span>,
+            ErrorKind::Seek =&gt; <span class="macro">write!</span>(
+                f,
                 <span class="string">&quot;CSV error: cannot access headers of CSV data \
                  when the parser was seeked before the first record \
-                 could be read&quot;</span>
-            ),
-            <span class="ident">ErrorKind::Serialize</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;CSV write error: {}&quot;</span>, <span class="ident">err</span>)
+                 could be read&quot;
+            </span>),
+            ErrorKind::Serialize(<span class="kw-2">ref </span>err) =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;CSV write error: {}&quot;</span>, err)
             }
-            <span class="ident">ErrorKind::Deserialize</span> { <span class="ident">pos</span>: <span class="prelude-val">None</span>, <span class="kw-2">ref</span> <span class="ident">err</span> } =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;CSV deserialize error: {}&quot;</span>, <span class="ident">err</span>)
+            ErrorKind::Deserialize { pos: <span class="prelude-val">None</span>, <span class="kw-2">ref </span>err } =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;CSV deserialize error: {}&quot;</span>, err)
             }
-            <span class="ident">ErrorKind::Deserialize</span> { <span class="ident">pos</span>: <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pos</span>), <span class="kw-2">ref</span> <span class="ident">err</span> } =&gt; <span class="macro">write!</span>(
-                <span class="ident">f</span>,
+            ErrorKind::Deserialize { pos: <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pos), <span class="kw-2">ref </span>err } =&gt; <span class="macro">write!</span>(
+                f,
                 <span class="string">&quot;CSV deserialize error: record {} \
                  (line: {}, byte: {}): {}&quot;</span>,
-                <span class="ident">pos</span>.<span class="ident">record</span>(),
-                <span class="ident">pos</span>.<span class="ident">line</span>(),
-                <span class="ident">pos</span>.<span class="ident">byte</span>(),
-                <span class="ident">err</span>
+                pos.record(),
+                pos.line(),
+                pos.byte(),
+                err
             ),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
 
-<span class="doccomment">/// A UTF-8 validation error during record conversion.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This occurs when attempting to convert a `ByteRecord` into a</span>
-<span class="doccomment">/// `StringRecord`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FromUtf8Error</span> {
-    <span class="ident">record</span>: <span class="ident">ByteRecord</span>,
-    <span class="ident">err</span>: <span class="ident">Utf8Error</span>,
+<span class="doccomment">/// A UTF-8 validation error during record conversion.
+///
+/// This occurs when attempting to convert a `ByteRecord` into a
+/// `StringRecord`.
+</span><span class="attribute">#[derive(Clone, Debug, Eq, PartialEq)]
+</span><span class="kw">pub struct </span>FromUtf8Error {
+    record: ByteRecord,
+    err: Utf8Error,
 }
 
-<span class="kw">impl</span> <span class="ident">FromUtf8Error</span> {
-    <span class="doccomment">/// Create a new FromUtf8Error.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rec</span>: <span class="ident">ByteRecord</span>, <span class="ident">err</span>: <span class="ident">Utf8Error</span>) -&gt; <span class="ident">FromUtf8Error</span> {
-        <span class="ident">FromUtf8Error</span> { <span class="ident">record</span>: <span class="ident">rec</span>, <span class="ident">err</span>: <span class="ident">err</span> }
+<span class="kw">impl </span>FromUtf8Error {
+    <span class="doccomment">/// Create a new FromUtf8Error.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(rec: ByteRecord, err: Utf8Error) -&gt; FromUtf8Error {
+        FromUtf8Error { record: rec, err: err }
     }
 
-    <span class="doccomment">/// Access the underlying `ByteRecord` that failed UTF-8 validation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_byte_record</span>(<span class="self">self</span>) -&gt; <span class="ident">ByteRecord</span> {
-        <span class="self">self</span>.<span class="ident">record</span>
+    <span class="doccomment">/// Access the underlying `ByteRecord` that failed UTF-8 validation.
+    </span><span class="kw">pub fn </span>into_byte_record(<span class="self">self</span>) -&gt; ByteRecord {
+        <span class="self">self</span>.record
     }
 
-    <span class="doccomment">/// Access the underlying UTF-8 validation error.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">utf8_error</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Utf8Error</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">err</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FromUtf8Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="ident">err</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
+    <span class="doccomment">/// Access the underlying UTF-8 validation error.
+    </span><span class="kw">pub fn </span>utf8_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Utf8Error {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.err
     }
 }
 
-<span class="kw">impl</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">FromUtf8Error</span> {
-    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">err</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>FromUtf8Error {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="self">self</span>.err.fmt(f)
     }
 }
 
-<span class="doccomment">/// A UTF-8 validation error.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This occurs when attempting to convert a `ByteRecord` into a</span>
-<span class="doccomment">/// `StringRecord`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The error includes the index of the field that failed validation, and the</span>
-<span class="doccomment">/// last byte at which valid UTF-8 was verified.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Utf8Error</span> {
-    <span class="doccomment">/// The field index of a byte record in which UTF-8 validation failed.</span>
-    <span class="ident">field</span>: <span class="ident">usize</span>,
-    <span class="doccomment">/// The index into the given field up to which valid UTF-8 was verified.</span>
-    <span class="ident">valid_up_to</span>: <span class="ident">usize</span>,
-}
-
-<span class="doccomment">/// Create a new UTF-8 error.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_utf8_error</span>(<span class="ident">field</span>: <span class="ident">usize</span>, <span class="ident">valid_up_to</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Utf8Error</span> {
-    <span class="ident">Utf8Error</span> { <span class="ident">field</span>: <span class="ident">field</span>, <span class="ident">valid_up_to</span>: <span class="ident">valid_up_to</span> }
-}
-
-<span class="kw">impl</span> <span class="ident">Utf8Error</span> {
-    <span class="doccomment">/// The field index of a byte record in which UTF-8 validation failed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">field</span>
-    }
-    <span class="doccomment">/// The index into the given field up to which valid UTF-8 was verified.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">valid_up_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">valid_up_to</span>
+<span class="kw">impl </span>StdError <span class="kw">for </span>FromUtf8Error {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>StdError + <span class="lifetime">&#39;static</span>)&gt; {
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.err)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">Utf8Error</span> {}
+<span class="doccomment">/// A UTF-8 validation error.
+///
+/// This occurs when attempting to convert a `ByteRecord` into a
+/// `StringRecord`.
+///
+/// The error includes the index of the field that failed validation, and the
+/// last byte at which valid UTF-8 was verified.
+</span><span class="attribute">#[derive(Clone, Debug, Eq, PartialEq)]
+</span><span class="kw">pub struct </span>Utf8Error {
+    <span class="doccomment">/// The field index of a byte record in which UTF-8 validation failed.
+    </span>field: usize,
+    <span class="doccomment">/// The index into the given field up to which valid UTF-8 was verified.
+    </span>valid_up_to: usize,
+}
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Utf8Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="doccomment">/// Create a new UTF-8 error.
+</span><span class="kw">pub fn </span>new_utf8_error(field: usize, valid_up_to: usize) -&gt; Utf8Error {
+    Utf8Error { field: field, valid_up_to: valid_up_to }
+}
+
+<span class="kw">impl </span>Utf8Error {
+    <span class="doccomment">/// The field index of a byte record in which UTF-8 validation failed.
+    </span><span class="kw">pub fn </span>field(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.field
+    }
+    <span class="doccomment">/// The index into the given field up to which valid UTF-8 was verified.
+    </span><span class="kw">pub fn </span>valid_up_to(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.valid_up_to
+    }
+}
+
+<span class="kw">impl </span>StdError <span class="kw">for </span>Utf8Error {}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Utf8Error {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;invalid utf-8: invalid UTF-8 in field {} near byte index {}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">field</span>, <span class="self">self</span>.<span class="ident">valid_up_to</span>
+            <span class="self">self</span>.field, <span class="self">self</span>.valid_up_to
         )
     }
 }
 
-<span class="doccomment">/// `IntoInnerError` occurs when consuming a `Writer` fails.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Consuming the `Writer` causes a flush to happen. If the flush fails, then</span>
-<span class="doccomment">/// this error is returned, which contains both the original `Writer` and</span>
-<span class="doccomment">/// the error that occurred.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The type parameter `W` is the unconsumed writer.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="ident">wtr</span>: <span class="ident">W</span>,
-    <span class="ident">err</span>: <span class="ident">io::Error</span>,
+<span class="doccomment">/// `IntoInnerError` occurs when consuming a `Writer` fails.
+///
+/// Consuming the `Writer` causes a flush to happen. If the flush fails, then
+/// this error is returned, which contains both the original `Writer` and
+/// the error that occurred.
+///
+/// The type parameter `W` is the unconsumed writer.
+</span><span class="kw">pub struct </span>IntoInnerError&lt;W&gt; {
+    wtr: W,
+    err: io::Error,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> <span class="ident">IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new `IntoInnerError`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// (This is a visibility hack. It&#39;s public in this module, but not in the</span>
-    <span class="doccomment">/// crate.)</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">wtr</span>: <span class="ident">W</span>, <span class="ident">err</span>: <span class="ident">io::Error</span>) -&gt; <span class="ident">IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="ident">IntoInnerError</span> { <span class="ident">wtr</span>: <span class="ident">wtr</span>, <span class="ident">err</span>: <span class="ident">err</span> }
+<span class="kw">impl</span>&lt;W&gt; IntoInnerError&lt;W&gt; {
+    <span class="doccomment">/// Creates a new `IntoInnerError`.
+    ///
+    /// (This is a visibility hack. It&#39;s public in this module, but not in the
+    /// crate.)
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(wtr: W, err: io::Error) -&gt; IntoInnerError&lt;W&gt; {
+        IntoInnerError { wtr: wtr, err: err }
     }
 
-    <span class="doccomment">/// Returns the error which caused the call to `into_inner` to fail.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This error was returned when attempting to flush the internal buffer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">io::Error</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">err</span>
+    <span class="doccomment">/// Returns the error which caused the call to `into_inner` to fail.
+    ///
+    /// This error was returned when attempting to flush the internal buffer.
+    </span><span class="kw">pub fn </span>error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>io::Error {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.err
     }
 
-    <span class="doccomment">/// Returns the underlying writer which generated the error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned value can be used for error recovery, such as</span>
-    <span class="doccomment">/// re-inspecting the buffer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">wtr</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">std::any::Any</span><span class="op">&gt;</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">err</span>.<span class="ident">source</span>()
+    <span class="doccomment">/// Returns the underlying writer which generated the error.
+    ///
+    /// The returned value can be used for error recovery, such as
+    /// re-inspecting the buffer.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; W {
+        <span class="self">self</span>.wtr
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="ident">err</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
+<span class="kw">impl</span>&lt;W: std::any::Any&gt; StdError <span class="kw">for </span>IntoInnerError&lt;W&gt; {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>StdError + <span class="lifetime">&#39;static</span>)&gt; {
+        <span class="self">self</span>.err.source()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">IntoInnerError</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="ident">err</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
+<span class="kw">impl</span>&lt;W&gt; fmt::Display <span class="kw">for </span>IntoInnerError&lt;W&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="self">self</span>.err.fmt(f)
+    }
+}
+
+<span class="kw">impl</span>&lt;W&gt; fmt::Debug <span class="kw">for </span>IntoInnerError&lt;W&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="self">self</span>.err.fmt(f)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="csv" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="csv" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

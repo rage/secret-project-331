@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/course_material/pages.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pages.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/course_material/pages.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pages.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -119,74 +119,74 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/pages`.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/pages`.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">domain::authorization::skip_authorize</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
-<span class="kw">use</span> <span class="ident">models::pages</span>::{
-    <span class="ident">IsChapterFrontPage</span>, <span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>, <span class="ident">PageNavigationInformation</span>,
+</span><span class="kw">use crate</span>::{domain::authorization::skip_authorize, prelude::<span class="kw-2">*</span>};
+<span class="kw">use </span>models::pages::{
+    IsChapterFrontPage, Page, PageChapterAndCourseInformation, PageNavigationInformation,
 };
 
 <span class="doccomment">/**
 GET /api/v0/course-material/pages/exam/{page_id}
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exam_id</span>(
-    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">models::pages::get_by_exam_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">page</span>))
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_by_exam_id(
+    exam_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Page&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page = models::pages::get_by_exam_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(page))
 }
 
 <span class="doccomment">/**
 GET /api/v0/course-material/page/{page_id}
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapter_front_page</span>(
-    <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter_front_page</span> <span class="op">=</span>
-        <span class="ident">models::pages::get_chapter_front_page_by_page_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">chapter_front_page</span>))
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_chapter_front_page(
+    page_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;<span class="prelude-ty">Option</span>&lt;Page&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter_front_page =
+        models::pages::get_chapter_front_page_by_page_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(chapter_front_page))
 }
 
 <span class="doccomment">/**
 GET /api/v0/course-material/pages/:page_id/page-navigation - tells what&#39;s the next page, previous page, and the chapter front page given a page id.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_navigation</span>(
-    <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PageNavigationInformation</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::pages::get_page_navigation_data</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_page_navigation(
+    page_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;PageNavigationInformation&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>res = models::pages::get_page_navigation_data(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
+    token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
  GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page&#39;s chapter and course information -- useful for the breadcrumbs
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapter_and_course_information</span>(
-    <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PageChapterAndCourseInformation</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::pages::get_page_chapter_and_course_information</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_chapter_and_course_information(
+    page_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;PageChapterAndCourseInformation&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = models::pages::get_page_chapter_and_course_information(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
@@ -195,50 +195,50 @@ GET /api/v0/course-material/pages/:page_id/page-navigation - tells what&#39;s th
  ```json
  &quot;chapter-1/page-2&quot;
  ```
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_url_path</span>(
-    <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">models::pages::get_page</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_url_path(
+    page_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;String&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page = models::pages::get_page(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">page</span>.<span class="ident">url_path</span>)
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(page.url_path)
 }
 
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_chapter_front_page</span>(
-    <span class="ident">page_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">IsChapterFrontPage</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">is_chapter_front_page</span> <span class="op">=</span> <span class="ident">models::pages::is_chapter_front_page</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">is_chapter_front_page</span>))
+<span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>is_chapter_front_page(
+    page_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;IsChapterFrontPage&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>is_chapter_front_page = models::pages::is_chapter_front_page(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>page_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(is_chapter_front_page))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/exam/{page_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_by_exam_id</span>))
-        .<span class="ident">route</span>(
+<span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;/exam/{page_id}&quot;</span>, web::get().to(get_by_exam_id))
+        .route(
             <span class="string">&quot;/{current_page_id}/chapter-front-page&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapter_front_page</span>),
+            web::get().to(get_chapter_front_page),
         )
-        .<span class="ident">route</span>(<span class="string">&quot;/{current_page_id}/url-path&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_url_path</span>))
-        .<span class="ident">route</span>(
+        .route(<span class="string">&quot;/{current_page_id}/url-path&quot;</span>, web::get().to(get_url_path))
+        .route(
             <span class="string">&quot;/{current_page_id}/chapter-and-course-information&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapter_and_course_information</span>),
+            web::get().to(get_chapter_and_course_information),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{current_page_id}/is-chapter-front-page&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">is_chapter_front_page</span>),
+            web::get().to(is_chapter_front_page),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{current_page_id}/page-navigation&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_page_navigation</span>),
+            web::get().to(get_page_navigation),
         );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

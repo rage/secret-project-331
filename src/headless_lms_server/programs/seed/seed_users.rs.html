@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_users.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>seed_users.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_users.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>seed_users.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -110,117 +110,117 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_models</span>::{<span class="ident">users</span>, <span class="ident">PKeyPolicy</span>};
-<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Pool</span>, <span class="ident">Postgres</span>};
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>headless_lms_models::{users, PKeyPolicy};
+<span class="kw">use </span>sqlx::{Pool, Postgres};
+<span class="kw">use </span>uuid::Uuid;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SeedUsersResult</span> {
-    <span class="kw">pub</span> <span class="ident">admin_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">teacher_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">language_teacher_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">assistant_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_or_exam_creator_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">student_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">example_normal_user_ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>SeedUsersResult {
+    <span class="kw">pub </span>admin_user_id: Uuid,
+    <span class="kw">pub </span>teacher_user_id: Uuid,
+    <span class="kw">pub </span>language_teacher_user_id: Uuid,
+    <span class="kw">pub </span>assistant_user_id: Uuid,
+    <span class="kw">pub </span>course_or_exam_creator_user_id: Uuid,
+    <span class="kw">pub </span>student_user_id: Uuid,
+    <span class="kw">pub </span>example_normal_user_ids: Vec&lt;Uuid&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">seed_users</span>(<span class="ident">db_pool</span>: <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">SeedUsersResult</span><span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>seed_users(db_pool: Pool&lt;Postgres&gt;) -&gt; anyhow::Result&lt;SeedUsersResult&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;inserting users&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">db_pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">admin_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;02c79854-da22-4cfc-95c4-13038af25d2e&quot;</span>)<span class="question-mark">?</span>),
+    <span class="kw">let </span>admin_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;02c79854-da22-4cfc-95c4-13038af25d2e&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;admin@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Admin&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">teacher_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;90643204-7656-4570-bdd9-aad5d297f9ce&quot;</span>)<span class="question-mark">?</span>),
+    <span class="kw">let </span>teacher_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;90643204-7656-4570-bdd9-aad5d297f9ce&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;teacher@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Teacher&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">language_teacher_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0fd8bd2d-cb4e-4035-b7db-89e798fe4df0&quot;</span>)<span class="question-mark">?</span>),
+    <span class="kw">let </span>language_teacher_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;0fd8bd2d-cb4e-4035-b7db-89e798fe4df0&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;language.teacher@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Language&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">assistant_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;24342539-f1ba-453e-ae13-14aa418db921&quot;</span>)<span class="question-mark">?</span>),
+    <span class="kw">let </span>assistant_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;24342539-f1ba-453e-ae13-14aa418db921&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;assistant@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Assistant&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_or_exam_creator_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f9&quot;</span>)<span class="question-mark">?</span>),
+    <span class="kw">let </span>course_or_exam_creator_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;c9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f9&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;creator@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Creator&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">student_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;849b8d32-d5f8-4994-9d21-5aa6259585b1&quot;</span>)<span class="question-mark">?</span>),
+    <span class="kw">let </span>student_user_id = users::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;849b8d32-d5f8-4994-9d21-5aa6259585b1&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;user@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">example_normal_user_ids</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">users::insert</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;00e249d8-345f-4eff-aedb-7bdc4c44c1d5&quot;</span>)<span class="question-mark">?</span>),
+    <span class="kw">let </span>example_normal_user_ids = <span class="macro">vec!</span>[
+        users::insert(
+            <span class="kw-2">&amp;mut </span>conn,
+            PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;00e249d8-345f-4eff-aedb-7bdc4c44c1d5&quot;</span>)<span class="question-mark">?</span>),
             <span class="string">&quot;user_1@example.com&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;User1&quot;</span>),
             <span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">users::insert</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc&quot;</span>)<span class="question-mark">?</span>),
+        users::insert(
+            <span class="kw-2">&amp;mut </span>conn,
+            PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc&quot;</span>)<span class="question-mark">?</span>),
             <span class="string">&quot;user_2@example.com&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;User2&quot;</span>),
             <span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">users::insert</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;fbeb9286-3dd8-4896-a6b8-3faffa3fabd6&quot;</span>)<span class="question-mark">?</span>),
+        users::insert(
+            <span class="kw-2">&amp;mut </span>conn,
+            PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;fbeb9286-3dd8-4896-a6b8-3faffa3fabd6&quot;</span>)<span class="question-mark">?</span>),
             <span class="string">&quot;user_3@example.com&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;User3&quot;</span>),
             <span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">users::insert</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3524d694-7fa8-4e73-aa1a-de9a20fd514b&quot;</span>)<span class="question-mark">?</span>),
+        users::insert(
+            <span class="kw-2">&amp;mut </span>conn,
+            PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;3524d694-7fa8-4e73-aa1a-de9a20fd514b&quot;</span>)<span class="question-mark">?</span>),
             <span class="string">&quot;user_4@example.com&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;User4&quot;</span>),
             <span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
     ];
-    <span class="prelude-val">Ok</span>(<span class="ident">SeedUsersResult</span> {
-        <span class="ident">admin_user_id</span>,
-        <span class="ident">teacher_user_id</span>,
-        <span class="ident">language_teacher_user_id</span>,
-        <span class="ident">assistant_user_id</span>,
-        <span class="ident">course_or_exam_creator_user_id</span>,
-        <span class="ident">student_user_id</span>,
-        <span class="ident">example_normal_user_ids</span>,
+    <span class="prelude-val">Ok</span>(SeedUsersResult {
+        admin_user_id,
+        teacher_user_id,
+        language_teacher_user_id,
+        assistant_user_id,
+        course_or_exam_creator_user_id,
+        student_user_id,
+        example_normal_user_ids,
     })
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

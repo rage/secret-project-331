@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.2/src/files.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>files.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_files/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.2/src/files.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>files.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_files/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -390,397 +390,397 @@
 <span id="390">390</span>
 <span id="391">391</span>
 <span id="392">392</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cell::RefCell</span>,
-    <span class="ident">fmt</span>, <span class="ident">io</span>,
-    <span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>},
-    <span class="ident">rc::Rc</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    cell::RefCell,
+    fmt, io,
+    path::{Path, PathBuf},
+    rc::Rc,
 };
 
-<span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">boxed</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">ServiceFactory</span>, <span class="ident">ServiceFactoryExt</span>};
-<span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">dev</span>::{
-        <span class="ident">AppService</span>, <span class="ident">HttpServiceFactory</span>, <span class="ident">RequestHead</span>, <span class="ident">ResourceDef</span>, <span class="ident">ServiceRequest</span>,
-        <span class="ident">ServiceResponse</span>,
+<span class="kw">use </span>actix_service::{boxed, IntoServiceFactory, ServiceFactory, ServiceFactoryExt};
+<span class="kw">use </span>actix_web::{
+    dev::{
+        AppService, HttpServiceFactory, RequestHead, ResourceDef, ServiceRequest,
+        ServiceResponse,
     },
-    <span class="ident">error::Error</span>,
-    <span class="ident">guard::Guard</span>,
-    <span class="ident">http::header::DispositionType</span>,
-    <span class="ident">HttpRequest</span>,
+    error::Error,
+    guard::Guard,
+    http::header::DispositionType,
+    HttpRequest,
 };
-<span class="kw">use</span> <span class="ident">futures_core::future::LocalBoxFuture</span>;
+<span class="kw">use </span>futures_core::future::LocalBoxFuture;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">directory_listing</span>, <span class="ident">named</span>,
-    <span class="ident">service</span>::{<span class="ident">FilesService</span>, <span class="ident">FilesServiceInner</span>},
-    <span class="ident">Directory</span>, <span class="ident">DirectoryRenderer</span>, <span class="ident">HttpNewService</span>, <span class="ident">MimeOverride</span>, <span class="ident">PathFilter</span>,
+<span class="kw">use crate</span>::{
+    directory_listing, named,
+    service::{FilesService, FilesServiceInner},
+    Directory, DirectoryRenderer, HttpNewService, MimeOverride, PathFilter,
 };
 
-<span class="doccomment">/// Static files handling service.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `Files` service must be registered with `App::service()` method.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::App;</span>
-<span class="doccomment">/// use actix_files::Files;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new()</span>
-<span class="doccomment">///     .service(Files::new(&quot;/static&quot;, &quot;.&quot;));</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Files</span> {
-    <span class="ident">mount_path</span>: <span class="ident">String</span>,
-    <span class="ident">directory</span>: <span class="ident">PathBuf</span>,
-    <span class="ident">index</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">show_index</span>: <span class="ident">bool</span>,
-    <span class="ident">redirect_to_slash</span>: <span class="ident">bool</span>,
-    <span class="ident">default</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpNewService</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">renderer</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">DirectoryRenderer</span><span class="op">&gt;</span>,
-    <span class="ident">mime_override</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">MimeOverride</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">path_filter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">PathFilter</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">file_flags</span>: <span class="ident">named::Flags</span>,
-    <span class="ident">use_guards</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">guards</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">hidden_files</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// Static files handling service.
+///
+/// `Files` service must be registered with `App::service()` method.
+///
+/// # Examples
+/// ```
+/// use actix_web::App;
+/// use actix_files::Files;
+///
+/// let app = App::new()
+///     .service(Files::new(&quot;/static&quot;, &quot;.&quot;));
+/// ```
+</span><span class="kw">pub struct </span>Files {
+    mount_path: String,
+    directory: PathBuf,
+    index: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    show_index: bool,
+    redirect_to_slash: bool,
+    default: Rc&lt;RefCell&lt;<span class="prelude-ty">Option</span>&lt;Rc&lt;HttpNewService&gt;&gt;&gt;&gt;,
+    renderer: Rc&lt;DirectoryRenderer&gt;,
+    mime_override: <span class="prelude-ty">Option</span>&lt;Rc&lt;MimeOverride&gt;&gt;,
+    path_filter: <span class="prelude-ty">Option</span>&lt;Rc&lt;PathFilter&gt;&gt;,
+    file_flags: named::Flags,
+    use_guards: <span class="prelude-ty">Option</span>&lt;Rc&lt;<span class="kw">dyn </span>Guard&gt;&gt;,
+    guards: Vec&lt;Rc&lt;<span class="kw">dyn </span>Guard&gt;&gt;,
+    hidden_files: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Files</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;Files&quot;</span>)
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Files {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">&quot;Files&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Files</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">directory</span>: <span class="self">self</span>.<span class="ident">directory</span>.<span class="ident">clone</span>(),
-            <span class="ident">index</span>: <span class="self">self</span>.<span class="ident">index</span>.<span class="ident">clone</span>(),
-            <span class="ident">show_index</span>: <span class="self">self</span>.<span class="ident">show_index</span>,
-            <span class="ident">redirect_to_slash</span>: <span class="self">self</span>.<span class="ident">redirect_to_slash</span>,
-            <span class="ident">default</span>: <span class="self">self</span>.<span class="ident">default</span>.<span class="ident">clone</span>(),
-            <span class="ident">renderer</span>: <span class="self">self</span>.<span class="ident">renderer</span>.<span class="ident">clone</span>(),
-            <span class="ident">file_flags</span>: <span class="self">self</span>.<span class="ident">file_flags</span>,
-            <span class="ident">mount_path</span>: <span class="self">self</span>.<span class="ident">mount_path</span>.<span class="ident">clone</span>(),
-            <span class="ident">mime_override</span>: <span class="self">self</span>.<span class="ident">mime_override</span>.<span class="ident">clone</span>(),
-            <span class="ident">path_filter</span>: <span class="self">self</span>.<span class="ident">path_filter</span>.<span class="ident">clone</span>(),
-            <span class="ident">use_guards</span>: <span class="self">self</span>.<span class="ident">use_guards</span>.<span class="ident">clone</span>(),
-            <span class="ident">guards</span>: <span class="self">self</span>.<span class="ident">guards</span>.<span class="ident">clone</span>(),
-            <span class="ident">hidden_files</span>: <span class="self">self</span>.<span class="ident">hidden_files</span>,
+<span class="kw">impl </span>Clone <span class="kw">for </span>Files {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            directory: <span class="self">self</span>.directory.clone(),
+            index: <span class="self">self</span>.index.clone(),
+            show_index: <span class="self">self</span>.show_index,
+            redirect_to_slash: <span class="self">self</span>.redirect_to_slash,
+            default: <span class="self">self</span>.default.clone(),
+            renderer: <span class="self">self</span>.renderer.clone(),
+            file_flags: <span class="self">self</span>.file_flags,
+            mount_path: <span class="self">self</span>.mount_path.clone(),
+            mime_override: <span class="self">self</span>.mime_override.clone(),
+            path_filter: <span class="self">self</span>.path_filter.clone(),
+            use_guards: <span class="self">self</span>.use_guards.clone(),
+            guards: <span class="self">self</span>.guards.clone(),
+            hidden_files: <span class="self">self</span>.hidden_files,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Files</span> {
-    <span class="doccomment">/// Create new `Files` instance for a specified base directory.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Argument Order</span>
-    <span class="doccomment">/// The first argument (`mount_path`) is the root URL at which the static files are served.</span>
-    <span class="doccomment">/// For example, `/assets` will serve files at `example.com/assets/...`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The second argument (`serve_from`) is the location on disk at which files are loaded.</span>
-    <span class="doccomment">/// This can be a relative path. For example, `./` would serve files from the current</span>
-    <span class="doccomment">/// working directory.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Implementation Notes</span>
-    <span class="doccomment">/// If the mount path is set as the root path `/`, services registered after this one will</span>
-    <span class="doccomment">/// be inaccessible. Register more specific handlers and services first.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `Files` utilizes the existing Tokio thread-pool for blocking filesystem operations.</span>
-    <span class="doccomment">/// The number of running threads is adjusted over time as needed, up to a maximum of 512 times</span>
-    <span class="doccomment">/// the number of server [workers](actix_web::HttpServer::workers), by default.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">mount_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">serve_from</span>: <span class="ident">T</span>) -&gt; <span class="ident">Files</span> {
-        <span class="kw">let</span> <span class="ident">orig_dir</span> <span class="op">=</span> <span class="ident">serve_from</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">orig_dir</span>.<span class="ident">canonicalize</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">canon_dir</span>) =&gt; <span class="ident">canon_dir</span>,
+<span class="kw">impl </span>Files {
+    <span class="doccomment">/// Create new `Files` instance for a specified base directory.
+    ///
+    /// # Argument Order
+    /// The first argument (`mount_path`) is the root URL at which the static files are served.
+    /// For example, `/assets` will serve files at `example.com/assets/...`.
+    ///
+    /// The second argument (`serve_from`) is the location on disk at which files are loaded.
+    /// This can be a relative path. For example, `./` would serve files from the current
+    /// working directory.
+    ///
+    /// # Implementation Notes
+    /// If the mount path is set as the root path `/`, services registered after this one will
+    /// be inaccessible. Register more specific handlers and services first.
+    ///
+    /// `Files` utilizes the existing Tokio thread-pool for blocking filesystem operations.
+    /// The number of running threads is adjusted over time as needed, up to a maximum of 512 times
+    /// the number of server [workers](actix_web::HttpServer::workers), by default.
+    </span><span class="kw">pub fn </span>new&lt;T: Into&lt;PathBuf&gt;&gt;(mount_path: <span class="kw-2">&amp;</span>str, serve_from: T) -&gt; Files {
+        <span class="kw">let </span>orig_dir = serve_from.into();
+        <span class="kw">let </span>dir = <span class="kw">match </span>orig_dir.canonicalize() {
+            <span class="prelude-val">Ok</span>(canon_dir) =&gt; canon_dir,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                <span class="macro">log::error!</span>(<span class="string">&quot;Specified path is not a directory: {:?}&quot;</span>, <span class="ident">orig_dir</span>);
-                <span class="ident">PathBuf::new</span>()
+                <span class="macro">log::error!</span>(<span class="string">&quot;Specified path is not a directory: {:?}&quot;</span>, orig_dir);
+                PathBuf::new()
             }
         };
 
-        <span class="ident">Files</span> {
-            <span class="ident">mount_path</span>: <span class="ident">mount_path</span>.<span class="ident">trim_end_matches</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">to_owned</span>(),
-            <span class="ident">directory</span>: <span class="ident">dir</span>,
-            <span class="ident">index</span>: <span class="prelude-val">None</span>,
-            <span class="ident">show_index</span>: <span class="bool-val">false</span>,
-            <span class="ident">redirect_to_slash</span>: <span class="bool-val">false</span>,
-            <span class="ident">default</span>: <span class="ident">Rc::new</span>(<span class="ident">RefCell::new</span>(<span class="prelude-val">None</span>)),
-            <span class="ident">renderer</span>: <span class="ident">Rc::new</span>(<span class="ident">directory_listing</span>),
-            <span class="ident">mime_override</span>: <span class="prelude-val">None</span>,
-            <span class="ident">path_filter</span>: <span class="prelude-val">None</span>,
-            <span class="ident">file_flags</span>: <span class="ident">named::Flags::default</span>(),
-            <span class="ident">use_guards</span>: <span class="prelude-val">None</span>,
-            <span class="ident">guards</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">hidden_files</span>: <span class="bool-val">false</span>,
+        Files {
+            mount_path: mount_path.trim_end_matches(<span class="string">&#39;/&#39;</span>).to_owned(),
+            directory: dir,
+            index: <span class="prelude-val">None</span>,
+            show_index: <span class="bool-val">false</span>,
+            redirect_to_slash: <span class="bool-val">false</span>,
+            default: Rc::new(RefCell::new(<span class="prelude-val">None</span>)),
+            renderer: Rc::new(directory_listing),
+            mime_override: <span class="prelude-val">None</span>,
+            path_filter: <span class="prelude-val">None</span>,
+            file_flags: named::Flags::default(),
+            use_guards: <span class="prelude-val">None</span>,
+            guards: Vec::new(),
+            hidden_files: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="doccomment">/// Show files listing for directories.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default show files listing is disabled.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When used with [`Files::index_file()`], files listing is shown as a fallback</span>
-    <span class="doccomment">/// when the index file is not found.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_files_listing</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">show_index</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Show files listing for directories.
+    ///
+    /// By default show files listing is disabled.
+    ///
+    /// When used with [`Files::index_file()`], files listing is shown as a fallback
+    /// when the index file is not found.
+    </span><span class="kw">pub fn </span>show_files_listing(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.show_index = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Redirects to a slash-ended path when browsing a directory.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default never redirect.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redirect_to_slash_directory</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">redirect_to_slash</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Redirects to a slash-ended path when browsing a directory.
+    ///
+    /// By default never redirect.
+    </span><span class="kw">pub fn </span>redirect_to_slash_directory(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.redirect_to_slash = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set custom directory renderer</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">files_listing_renderer</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="lifetime">&#39;s</span><span class="op">&gt;</span> <span class="ident">F</span>:
-            <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">Directory</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span>, <span class="ident">io::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Set custom directory renderer
+    </span><span class="kw">pub fn </span>files_listing_renderer&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        for</span>&lt;<span class="lifetime">&#39;r</span>, <span class="lifetime">&#39;s</span>&gt; F:
+            Fn(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>Directory, <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>HttpRequest) -&gt; <span class="prelude-ty">Result</span>&lt;ServiceResponse, io::Error&gt; + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">renderer</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">f</span>);
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.renderer = Rc::new(f);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies mime override callback</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mime_override</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">mime::Name</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">DispositionType</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Specifies mime override callback
+    </span><span class="kw">pub fn </span>mime_override&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(<span class="kw-2">&amp;</span>mime::Name&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; DispositionType + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">mime_override</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">f</span>));
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.mime_override = <span class="prelude-val">Some</span>(Rc::new(f));
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets path filtering closure.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The path provided to the closure is relative to `serve_from` path.</span>
-    <span class="doccomment">/// You can safely join this path with the `serve_from` path to get the real path.</span>
-    <span class="doccomment">/// However, the real path may not exist since the filter is called before checking path existence.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When a path doesn&#39;t pass the filter, [`Files::default_handler`] is called if set, otherwise,</span>
-    <span class="doccomment">/// `404 Not Found` is returned.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use std::path::Path;</span>
-    <span class="doccomment">/// use actix_files::Files;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // prevent searching subdirectories and following symlinks</span>
-    <span class="doccomment">/// let files_service = Files::new(&quot;/&quot;, &quot;./static&quot;).path_filter(|path, _| {</span>
-    <span class="doccomment">///     path.components().count() == 1</span>
-    <span class="doccomment">///         &amp;&amp; Path::new(&quot;./static&quot;)</span>
-    <span class="doccomment">///             .join(path)</span>
-    <span class="doccomment">///             .symlink_metadata()</span>
-    <span class="doccomment">///             .map(|m| !m.file_type().is_symlink())</span>
-    <span class="doccomment">///             .unwrap_or(false)</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_filter</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="ident">bool</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Sets path filtering closure.
+    ///
+    /// The path provided to the closure is relative to `serve_from` path.
+    /// You can safely join this path with the `serve_from` path to get the real path.
+    /// However, the real path may not exist since the filter is called before checking path existence.
+    ///
+    /// When a path doesn&#39;t pass the filter, [`Files::default_handler`] is called if set, otherwise,
+    /// `404 Not Found` is returned.
+    ///
+    /// # Examples
+    /// ```
+    /// use std::path::Path;
+    /// use actix_files::Files;
+    ///
+    /// // prevent searching subdirectories and following symlinks
+    /// let files_service = Files::new(&quot;/&quot;, &quot;./static&quot;).path_filter(|path, _| {
+    ///     path.components().count() == 1
+    ///         &amp;&amp; Path::new(&quot;./static&quot;)
+    ///             .join(path)
+    ///             .symlink_metadata()
+    ///             .map(|m| !m.file_type().is_symlink())
+    ///             .unwrap_or(false)
+    /// });
+    /// ```
+    </span><span class="kw">pub fn </span>path_filter&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(<span class="kw-2">&amp;</span>Path, <span class="kw-2">&amp;</span>RequestHead) -&gt; bool + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">path_filter</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">f</span>));
-        <span class="self">self</span>
+        <span class="self">self</span>.path_filter = <span class="prelude-val">Some</span>(Rc::new(f));
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Set index file
+    ///
+    /// Shows specific index file for directories instead of
+    /// showing files listing.
+    ///
+    /// If the index file is not found, files listing is shown as a fallback if
+    /// [`Files::show_files_listing()`] is set.
+    </span><span class="kw">pub fn </span>index_file&lt;T: Into&lt;String&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, index: T) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.index = <span class="prelude-val">Some</span>(index.into());
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Specifies whether to use ETag or not.
+    ///
+    /// Default is true.
+    </span><span class="kw">pub fn </span>use_etag(<span class="kw-2">mut </span><span class="self">self</span>, value: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.file_flags.set(named::Flags::ETAG, value);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Specifies whether to use Last-Modified or not.
+    ///
+    /// Default is true.
+    </span><span class="kw">pub fn </span>use_last_modified(<span class="kw-2">mut </span><span class="self">self</span>, value: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.file_flags.set(named::Flags::LAST_MD, value);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Specifies whether text responses should signal a UTF-8 encoding.
+    ///
+    /// Default is false (but will default to true in a future version).
+    </span><span class="kw">pub fn </span>prefer_utf8(<span class="kw-2">mut </span><span class="self">self</span>, value: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.file_flags.set(named::Flags::PREFER_UTF8, value);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Adds a routing guard.
+    ///
+    /// Use this to allow multiple chained file services that respond to strictly different
+    /// properties of a request. Due to the way routing works, if a guard check returns true and the
+    /// request starts being handled by the file service, it will not be able to back-out and try
+    /// the next service, you will simply get a 404 (or 405) error response.
+    ///
+    /// To allow `POST` requests to retrieve files, see [`Files::use_guards`].
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::{guard::Header, App};
+    /// use actix_files::Files;
+    ///
+    /// App::new().service(
+    ///     Files::new(&quot;/&quot;,&quot;/my/site/files&quot;)
+    ///         .guard(Header(&quot;Host&quot;, &quot;example.com&quot;))
+    /// );
+    /// ```
+    </span><span class="kw">pub fn </span>guard&lt;G: Guard + <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: G) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.guards.push(Rc::new(guard));
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Specifies guard to check before fetching directory listings or files.
+    ///
+    /// Note that this guard has no effect on routing; it&#39;s main use is to guard on the request&#39;s
+    /// method just before serving the file, only allowing `GET` and `HEAD` requests by default.
+    /// See [`Files::guard`] for routing guards.
+    </span><span class="kw">pub fn </span>method_guard&lt;G: Guard + <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: G) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.use_guards = <span class="prelude-val">Some</span>(Rc::new(guard));
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// See [`Files::method_guard`].
+    </span><span class="attribute">#[doc(hidden)]
+    #[deprecated(since = <span class="string">&quot;0.6.0&quot;</span>, note = <span class="string">&quot;Renamed to `method_guard`.&quot;</span>)]
+    </span><span class="kw">pub fn </span>use_guards&lt;G: Guard + <span class="lifetime">&#39;static</span>&gt;(<span class="self">self</span>, guard: G) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.method_guard(guard)
     }
 
-    <span class="doccomment">/// Set index file</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shows specific index file for directories instead of</span>
-    <span class="doccomment">/// showing files listing.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the index file is not found, files listing is shown as a fallback if</span>
-    <span class="doccomment">/// [`Files::show_files_listing()`] is set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">index_file</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">index</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>.<span class="ident">into</span>());
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Disable `Content-Disposition` header.
+    ///
+    /// By default Content-Disposition` header is enabled.
+    </span><span class="kw">pub fn </span>disable_content_disposition(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.file_flags.remove(named::Flags::CONTENT_DISPOSITION);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies whether to use ETag or not.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Default is true.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_etag</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">file_flags</span>.<span class="ident">set</span>(<span class="ident">named::Flags::ETAG</span>, <span class="ident">value</span>);
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Specifies whether to use Last-Modified or not.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Default is true.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_last_modified</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">file_flags</span>.<span class="ident">set</span>(<span class="ident">named::Flags::LAST_MD</span>, <span class="ident">value</span>);
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Specifies whether text responses should signal a UTF-8 encoding.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Default is false (but will default to true in a future version).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prefer_utf8</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">file_flags</span>.<span class="ident">set</span>(<span class="ident">named::Flags::PREFER_UTF8</span>, <span class="ident">value</span>);
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Adds a routing guard.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use this to allow multiple chained file services that respond to strictly different</span>
-    <span class="doccomment">/// properties of a request. Due to the way routing works, if a guard check returns true and the</span>
-    <span class="doccomment">/// request starts being handled by the file service, it will not be able to back-out and try</span>
-    <span class="doccomment">/// the next service, you will simply get a 404 (or 405) error response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To allow `POST` requests to retrieve files, see [`Files::use_guards`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::{guard::Header, App};</span>
-    <span class="doccomment">/// use actix_files::Files;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// App::new().service(</span>
-    <span class="doccomment">///     Files::new(&quot;/&quot;,&quot;/my/site/files&quot;)</span>
-    <span class="doccomment">///         .guard(Header(&quot;Host&quot;, &quot;example.com&quot;))</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">guard</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Guard</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">guard</span>: <span class="ident">G</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">guards</span>.<span class="ident">push</span>(<span class="ident">Rc::new</span>(<span class="ident">guard</span>));
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Specifies guard to check before fetching directory listings or files.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this guard has no effect on routing; it&#39;s main use is to guard on the request&#39;s</span>
-    <span class="doccomment">/// method just before serving the file, only allowing `GET` and `HEAD` requests by default.</span>
-    <span class="doccomment">/// See [`Files::guard`] for routing guards.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method_guard</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Guard</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">guard</span>: <span class="ident">G</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">use_guards</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">guard</span>));
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// See [`Files::method_guard`].</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.6.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Renamed to `method_guard`.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_guards</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Guard</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">guard</span>: <span class="ident">G</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">method_guard</span>(<span class="ident">guard</span>)
-    }
-
-    <span class="doccomment">/// Disable `Content-Disposition` header.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default Content-Disposition` header is enabled.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disable_content_disposition</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">file_flags</span>.<span class="ident">remove</span>(<span class="ident">named::Flags::CONTENT_DISPOSITION</span>);
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Sets default handler which is used when no matched file could be found.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// Setting a fallback static file handler:</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_files::{Files, NamedFile};</span>
-    <span class="doccomment">/// use actix_web::dev::{ServiceRequest, ServiceResponse, fn_service};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), actix_web::Error&gt; {</span>
-    <span class="doccomment">/// let files = Files::new(&quot;/&quot;, &quot;./static&quot;)</span>
-    <span class="doccomment">///     .index_file(&quot;index.html&quot;)</span>
-    <span class="doccomment">///     .default_handler(fn_service(|req: ServiceRequest| async {</span>
-    <span class="doccomment">///         let (req, _) = req.into_parts();</span>
-    <span class="doccomment">///         let file = NamedFile::open_async(&quot;./static/404.html&quot;).await?;</span>
-    <span class="doccomment">///         let res = file.into_response(&amp;req);</span>
-    <span class="doccomment">///         Ok(ServiceResponse::new(req, res))</span>
-    <span class="doccomment">///     }));</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_handler</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">ServiceRequest</span><span class="op">&gt;</span>,
-        <span class="ident">U</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-                <span class="ident">ServiceRequest</span>,
-                <span class="ident">Config</span> <span class="op">=</span> (),
-                <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>,
-                <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>,
-            <span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Sets default handler which is used when no matched file could be found.
+    ///
+    /// # Examples
+    /// Setting a fallback static file handler:
+    /// ```
+    /// use actix_files::{Files, NamedFile};
+    /// use actix_web::dev::{ServiceRequest, ServiceResponse, fn_service};
+    ///
+    /// # fn run() -&gt; Result&lt;(), actix_web::Error&gt; {
+    /// let files = Files::new(&quot;/&quot;, &quot;./static&quot;)
+    ///     .index_file(&quot;index.html&quot;)
+    ///     .default_handler(fn_service(|req: ServiceRequest| async {
+    ///         let (req, _) = req.into_parts();
+    ///         let file = NamedFile::open_async(&quot;./static/404.html&quot;).await?;
+    ///         let res = file.into_response(&amp;req);
+    ///         Ok(ServiceResponse::new(req, res))
+    ///     }));
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>default_handler&lt;F, U&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: IntoServiceFactory&lt;U, ServiceRequest&gt;,
+        U: ServiceFactory&lt;
+                ServiceRequest,
+                Config = (),
+                Response = ServiceResponse,
+                Error = Error,
+            &gt; + <span class="lifetime">&#39;static</span>,
     {
-        <span class="comment">// create and configure default resource</span>
-        <span class="self">self</span>.<span class="ident">default</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">RefCell::new</span>(<span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">boxed::factory</span>(
-            <span class="ident">f</span>.<span class="ident">into_factory</span>().<span class="ident">map_init_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()),
+        <span class="comment">// create and configure default resource
+        </span><span class="self">self</span>.default = Rc::new(RefCell::new(<span class="prelude-val">Some</span>(Rc::new(boxed::factory(
+            f.into_factory().map_init_err(|<span class="kw">_</span>| ()),
         )))));
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Enables serving hidden files and directories, allowing a leading dots in url fragments.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_hidden_files</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">hidden_files</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Enables serving hidden files and directories, allowing a leading dots in url fragments.
+    </span><span class="kw">pub fn </span>use_hidden_files(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.hidden_files = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">HttpServiceFactory</span> <span class="kw">for</span> <span class="ident">Files</span> {
-    <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AppService</span>) {
-        <span class="kw">let</span> <span class="ident">guards</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">guards</span>.<span class="ident">is_empty</span>() {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">guards</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">guards</span>);
+<span class="kw">impl </span>HttpServiceFactory <span class="kw">for </span>Files {
+    <span class="kw">fn </span>register(<span class="kw-2">mut </span><span class="self">self</span>, config: <span class="kw-2">&amp;mut </span>AppService) {
+        <span class="kw">let </span>guards = <span class="kw">if </span><span class="self">self</span>.guards.is_empty() {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="kw">let </span>guards = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.guards);
             <span class="prelude-val">Some</span>(
-                <span class="ident">guards</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">guard</span><span class="op">|</span> -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span> { <span class="ident">Box::new</span>(<span class="ident">guard</span>) })
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+                guards
+                    .into_iter()
+                    .map(|guard| -&gt; Box&lt;<span class="kw">dyn </span>Guard&gt; { Box::new(guard) })
+                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             )
         };
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">default</span>.<span class="ident">borrow</span>().<span class="ident">is_none</span>() {
-            <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">default</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">config</span>.<span class="ident">default_service</span>());
+        <span class="kw">if </span><span class="self">self</span>.default.borrow().is_none() {
+            <span class="kw-2">*</span><span class="self">self</span>.default.borrow_mut() = <span class="prelude-val">Some</span>(config.default_service());
         }
 
-        <span class="kw">let</span> <span class="ident">rdef</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">is_root</span>() {
-            <span class="ident">ResourceDef::root_prefix</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mount_path</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">ResourceDef::prefix</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mount_path</span>)
+        <span class="kw">let </span>rdef = <span class="kw">if </span>config.is_root() {
+            ResourceDef::root_prefix(<span class="kw-2">&amp;</span><span class="self">self</span>.mount_path)
+        } <span class="kw">else </span>{
+            ResourceDef::prefix(<span class="kw-2">&amp;</span><span class="self">self</span>.mount_path)
         };
 
-        <span class="ident">config</span>.<span class="ident">register_service</span>(<span class="ident">rdef</span>, <span class="ident">guards</span>, <span class="self">self</span>, <span class="prelude-val">None</span>)
+        config.register_service(rdef, guards, <span class="self">self</span>, <span class="prelude-val">None</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Files</span> {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">FilesService</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Service</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>ServiceFactory&lt;ServiceRequest&gt; <span class="kw">for </span>Files {
+    <span class="kw">type </span>Response = ServiceResponse;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Config = ();
+    <span class="kw">type </span>Service = FilesService;
+    <span class="kw">type </span>InitError = ();
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Service, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">FilesServiceInner</span> {
-            <span class="ident">directory</span>: <span class="self">self</span>.<span class="ident">directory</span>.<span class="ident">clone</span>(),
-            <span class="ident">index</span>: <span class="self">self</span>.<span class="ident">index</span>.<span class="ident">clone</span>(),
-            <span class="ident">show_index</span>: <span class="self">self</span>.<span class="ident">show_index</span>,
-            <span class="ident">redirect_to_slash</span>: <span class="self">self</span>.<span class="ident">redirect_to_slash</span>,
-            <span class="ident">default</span>: <span class="prelude-val">None</span>,
-            <span class="ident">renderer</span>: <span class="self">self</span>.<span class="ident">renderer</span>.<span class="ident">clone</span>(),
-            <span class="ident">mime_override</span>: <span class="self">self</span>.<span class="ident">mime_override</span>.<span class="ident">clone</span>(),
-            <span class="ident">path_filter</span>: <span class="self">self</span>.<span class="ident">path_filter</span>.<span class="ident">clone</span>(),
-            <span class="ident">file_flags</span>: <span class="self">self</span>.<span class="ident">file_flags</span>,
-            <span class="ident">guards</span>: <span class="self">self</span>.<span class="ident">use_guards</span>.<span class="ident">clone</span>(),
-            <span class="ident">hidden_files</span>: <span class="self">self</span>.<span class="ident">hidden_files</span>,
+    <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span><span class="kw-2">mut </span>inner = FilesServiceInner {
+            directory: <span class="self">self</span>.directory.clone(),
+            index: <span class="self">self</span>.index.clone(),
+            show_index: <span class="self">self</span>.show_index,
+            redirect_to_slash: <span class="self">self</span>.redirect_to_slash,
+            default: <span class="prelude-val">None</span>,
+            renderer: <span class="self">self</span>.renderer.clone(),
+            mime_override: <span class="self">self</span>.mime_override.clone(),
+            path_filter: <span class="self">self</span>.path_filter.clone(),
+            file_flags: <span class="self">self</span>.file_flags,
+            guards: <span class="self">self</span>.use_guards.clone(),
+            hidden_files: <span class="self">self</span>.hidden_files,
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">default</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">default</span>.<span class="ident">borrow</span>() {
-            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">default</span>.<span class="ident">new_service</span>(());
-            <span class="ident">Box::pin</span>(<span class="kw">async</span> {
-                <span class="kw">match</span> <span class="ident">fut</span>.<span class="kw">await</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">default</span>) =&gt; {
-                        <span class="ident">inner</span>.<span class="ident">default</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">default</span>);
-                        <span class="prelude-val">Ok</span>(<span class="ident">FilesService</span>(<span class="ident">Rc::new</span>(<span class="ident">inner</span>)))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>default) = <span class="kw-2">*</span><span class="self">self</span>.default.borrow() {
+            <span class="kw">let </span>fut = default.new_service(());
+            Box::pin(<span class="kw">async </span>{
+                <span class="kw">match </span>fut.<span class="kw">await </span>{
+                    <span class="prelude-val">Ok</span>(default) =&gt; {
+                        inner.default = <span class="prelude-val">Some</span>(default);
+                        <span class="prelude-val">Ok</span>(FilesService(Rc::new(inner)))
                     }
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(()),
                 }
             })
-        } <span class="kw">else</span> {
-            <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>(<span class="ident">FilesService</span>(<span class="ident">Rc::new</span>(<span class="ident">inner</span>))) })
+        } <span class="kw">else </span>{
+            Box::pin(<span class="kw">async move </span>{ <span class="prelude-val">Ok</span>(FilesService(Rc::new(inner))) })
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_files" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_files" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

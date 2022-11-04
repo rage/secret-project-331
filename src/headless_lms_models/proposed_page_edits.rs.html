@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/proposed_page_edits.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>proposed_page_edits.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/proposed_page_edits.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>proposed_page_edits.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -561,88 +561,88 @@
 <span id="561">561</span>
 <span id="562">562</span>
 <span id="563">563</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">hash_map::Entry</span>, <span class="ident">HashMap</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map::Entry, HashMap};
 
-<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">document_schema_processor::GutenbergBlock</span>, <span class="ident">merge_edits</span>};
-<span class="kw">use</span> <span class="ident">serde_json::Value</span>;
+<span class="kw">use </span>headless_lms_utils::{document_schema_processor::GutenbergBlock, merge_edits};
+<span class="kw">use </span>serde_json::Value;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">page_history::HistoryChangeReason</span>,
-    <span class="ident">pages::CmsPageUpdate</span>,
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">proposed_block_edits</span>::{
-        <span class="ident">BlockProposal</span>, <span class="ident">BlockProposalAction</span>, <span class="ident">BlockProposalInfo</span>, <span class="ident">NewProposedBlockEdit</span>, <span class="ident">ProposalStatus</span>,
+<span class="kw">use crate</span>::{
+    page_history::HistoryChangeReason,
+    pages::CmsPageUpdate,
+    prelude::<span class="kw-2">*</span>,
+    proposed_block_edits::{
+        BlockProposal, BlockProposalAction, BlockProposalInfo, NewProposedBlockEdit, ProposalStatus,
     },
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewProposedPageEdits</span> {
-    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">block_edits</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NewProposedBlockEdit</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>NewProposedPageEdits {
+    <span class="kw">pub </span>page_id: Uuid,
+    <span class="kw">pub </span>block_edits: Vec&lt;NewProposedBlockEdit&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageProposal</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">pending</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">block_proposals</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockProposal</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">page_title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">page_url_path</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>PageProposal {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>page_id: Uuid,
+    <span class="kw">pub </span>user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>pending: bool,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>block_proposals: Vec&lt;BlockProposal&gt;,
+    <span class="kw">pub </span>page_title: String,
+    <span class="kw">pub </span>page_url_path: String,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EditProposalInfo</span> {
-    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">page_proposal_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">block_proposals</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockProposalInfo</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>EditProposalInfo {
+    <span class="kw">pub </span>page_id: Uuid,
+    <span class="kw">pub </span>page_proposal_id: Uuid,
+    <span class="kw">pub </span>block_proposals: Vec&lt;BlockProposalInfo&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ProposalCount</span> {
-    <span class="kw">pub</span> <span class="ident">pending</span>: <span class="ident">u32</span>,
-    <span class="kw">pub</span> <span class="ident">handled</span>: <span class="ident">u32</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ProposalCount {
+    <span class="kw">pub </span>pending: u32,
+    <span class="kw">pub </span>handled: u32,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">edits</span>: <span class="kw-2">&amp;</span><span class="ident">NewProposedPageEdits</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">block_edits</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::Generic</span>,
-            <span class="string">&quot;No block edits&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    course_id: Uuid,
+    user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    edits: <span class="kw-2">&amp;</span>NewProposedPageEdits,
+) -&gt; ModelResult&lt;(Uuid, Vec&lt;Uuid&gt;)&gt; {
+    <span class="kw">if </span>edits.block_edits.is_empty() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+            ModelErrorType::Generic,
+            <span class="string">&quot;No block edits&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page_res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page_res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO proposed_page_edits (id, course_id, page_id, user_id)
 VALUES ($1, $2, $3, $4)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">course_id</span>,
-        <span class="ident">edits</span>.<span class="ident">page_id</span>,
-        <span class="ident">user_id</span>,
+        pkey_policy.into_uuid(),
+        course_id,
+        edits.page_id,
+        user_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">block_ids</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">for</span> <span class="ident">block_edit</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">block_edits</span> {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>block_ids = <span class="macro">vec!</span>[];
+    <span class="kw">for </span>block_edit <span class="kw">in </span><span class="kw-2">&amp;</span>edits.block_edits {
+        <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;
 INSERT INTO proposed_block_edits (
   proposal_id,
@@ -654,27 +654,27 @@ INSERT INTO proposed_block_edits (
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 &quot;</span>,
-            <span class="ident">page_res</span>.<span class="ident">id</span>,
-            <span class="ident">block_edit</span>.<span class="ident">block_id</span>,
-            <span class="ident">block_edit</span>.<span class="ident">block_attribute</span>,
-            <span class="ident">block_edit</span>.<span class="ident">original_text</span>,
-            <span class="ident">block_edit</span>.<span class="ident">changed_text</span>
+            page_res.id,
+            block_edit.block_id,
+            block_edit.block_attribute,
+            block_edit.original_text,
+            block_edit.changed_text
         )
-        .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+        .fetch_one(<span class="kw-2">&amp;mut </span>tx)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">block_ids</span>.<span class="ident">push</span>(<span class="ident">res</span>.<span class="ident">id</span>);
+        block_ids.push(res.id);
     }
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>((<span class="ident">page_res</span>.<span class="ident">id</span>, <span class="ident">block_ids</span>))
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((page_res.id, block_ids))
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_proposals_for_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">pending</span>: <span class="ident">bool</span>,
-    <span class="ident">pagination</span>: <span class="ident">Pagination</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageProposal</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_proposals_for_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+    pending: bool,
+    pagination: Pagination,
+) -&gt; ModelResult&lt;Vec&lt;PageProposal&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT proposed_page_edits.id AS &quot;page_proposal_id!&quot;,
   proposed_block_edits.id AS &quot;block_proposal_id!&quot;,
@@ -707,102 +707,102 @@ FROM (
   LEFT JOIN pages ON proposed_page_edits.page_id = pages.id
 WHERE proposed_block_edits.deleted_at IS NULL
 &quot;#</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">pending</span>,
-        <span class="ident">pagination</span>.<span class="ident">limit</span>(),
-        <span class="ident">pagination</span>.<span class="ident">offset</span>(),
+        course_id,
+        pending,
+        pagination.limit(),
+        pagination.offset(),
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">proposals</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pages</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">res</span> {
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pages</span>.<span class="ident">entry</span>(<span class="ident">r</span>.<span class="ident">page_id</span>) {
-            <span class="ident">Entry::Occupied</span>(<span class="ident">o</span>) =&gt; <span class="ident">o</span>.<span class="ident">into_mut</span>(),
-            <span class="ident">Entry::Vacant</span>(<span class="ident">v</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::get_page</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">r</span>.<span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">page</span>.<span class="ident">content</span>)<span class="question-mark">?</span>;
-                <span class="ident">v</span>.<span class="ident">insert</span>(<span class="ident">content</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>proposals = HashMap::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>pages = HashMap::new();
+    <span class="kw">for </span>r <span class="kw">in </span>res {
+        <span class="kw">let </span>content = <span class="kw">match </span>pages.entry(r.page_id) {
+            Entry::Occupied(o) =&gt; o.into_mut(),
+            Entry::Vacant(v) =&gt; {
+                <span class="kw">let </span>page = <span class="kw">crate</span>::pages::get_page(<span class="kw-2">&amp;mut *</span>conn, r.page_id).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">let </span>content: Vec&lt;GutenbergBlock&gt; = serde_json::from_value(page.content)<span class="question-mark">?</span>;
+                v.insert(content)
             }
         };
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">content</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">client_id</span> <span class="op">==</span> <span class="ident">r</span>.<span class="ident">block_id</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::Generic</span>,
-                    <span class="string">&quot;Failed to find the block which the proposal was for&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span>block = content
+            .iter()
+            .find(|b| b.client_id == r.block_id)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    <span class="string">&quot;Failed to find the block which the proposal was for&quot;</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">block</span>
-            .<span class="ident">attributes</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">block_attribute</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::Generic</span>,
+        <span class="kw">let </span>content = block
+            .attributes
+            .get(<span class="kw-2">&amp;</span>r.block_attribute)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
                     <span class="macro">format!</span>(
                         <span class="string">&quot;Missing expected attribute &#39;{}&#39; in edited block&quot;</span>,
-                        <span class="ident">r</span>.<span class="ident">block_attribute</span>
+                        r.block_attribute
                     ),
                     <span class="prelude-val">None</span>,
                 )
-            })<span class="question-mark">?</span>
-            .<span class="ident">as_str</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::Generic</span>,
-                    <span class="macro">format!</span>(<span class="string">&quot;Attribute &#39;{}&#39; did not contain a string&quot;</span>, <span class="ident">r</span>.<span class="ident">block_attribute</span>),
+            })<span class="question-mark">?
+            </span>.as_str()
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    <span class="macro">format!</span>(<span class="string">&quot;Attribute &#39;{}&#39; did not contain a string&quot;</span>, r.block_attribute),
                     <span class="prelude-val">None</span>,
                 )
-            })<span class="question-mark">?</span>
-            .<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">page_proposal_id</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">page_proposal_id</span>;
-        <span class="kw">let</span> <span class="ident">page_id</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">page_id</span>;
-        <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">user_id</span>;
-        <span class="kw">let</span> <span class="ident">page_proposal_pending</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">pending</span>;
-        <span class="kw">let</span> <span class="ident">created_at</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">created_at</span>;
+            })<span class="question-mark">?
+            </span>.to_string();
+        <span class="kw">let </span>page_proposal_id = r.page_proposal_id;
+        <span class="kw">let </span>page_id = r.page_id;
+        <span class="kw">let </span>user_id = r.user_id;
+        <span class="kw">let </span>page_proposal_pending = r.pending;
+        <span class="kw">let </span>created_at = r.created_at;
 
-        <span class="kw">let</span> <span class="ident">block_proposal_id</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">block_proposal_id</span>;
-        <span class="kw">let</span> <span class="ident">block_id</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">block_id</span>;
-        <span class="kw">let</span> <span class="ident">original_text</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">original_text</span>;
-        <span class="kw">let</span> <span class="ident">changed_text</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">changed_text</span>;
-        <span class="kw">let</span> <span class="ident">block_proposal_status</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">block_proposal_status</span>;
-        <span class="kw">let</span> <span class="ident">page_proposal</span> <span class="op">=</span>
-            <span class="ident">proposals</span>
-                .<span class="ident">entry</span>(<span class="ident">r</span>.<span class="ident">page_proposal_id</span>)
-                .<span class="ident">or_insert_with</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">PageProposal</span> {
-                    <span class="ident">id</span>: <span class="ident">page_proposal_id</span>,
-                    <span class="ident">page_id</span>,
-                    <span class="ident">user_id</span>,
-                    <span class="ident">pending</span>: <span class="ident">page_proposal_pending</span>,
-                    <span class="ident">created_at</span>,
-                    <span class="ident">block_proposals</span>: <span class="ident">Vec::new</span>(),
-                    <span class="ident">page_title</span>: <span class="ident">r</span>.<span class="ident">page_title</span>,
-                    <span class="ident">page_url_path</span>: <span class="ident">r</span>.<span class="ident">page_url_path</span>,
+        <span class="kw">let </span>block_proposal_id = r.block_proposal_id;
+        <span class="kw">let </span>block_id = r.block_id;
+        <span class="kw">let </span>original_text = r.original_text;
+        <span class="kw">let </span>changed_text = r.changed_text;
+        <span class="kw">let </span>block_proposal_status = r.block_proposal_status;
+        <span class="kw">let </span>page_proposal =
+            proposals
+                .entry(r.page_proposal_id)
+                .or_insert_with(<span class="kw">move </span>|| PageProposal {
+                    id: page_proposal_id,
+                    page_id,
+                    user_id,
+                    pending: page_proposal_pending,
+                    created_at,
+                    block_proposals: Vec::new(),
+                    page_title: r.page_title,
+                    page_url_path: r.page_url_path,
                 });
-        <span class="ident">page_proposal</span>.<span class="ident">block_proposals</span>.<span class="ident">push</span>(<span class="ident">BlockProposal</span> {
-            <span class="ident">accept_preview</span>: <span class="ident">merge_edits::merge</span>(<span class="kw-2">&amp;</span><span class="ident">original_text</span>, <span class="kw-2">&amp;</span><span class="ident">changed_text</span>, <span class="kw-2">&amp;</span><span class="ident">content</span>),
-            <span class="ident">id</span>: <span class="ident">block_proposal_id</span>,
-            <span class="ident">block_id</span>,
-            <span class="ident">current_text</span>: <span class="ident">content</span>.<span class="ident">to_string</span>(),
-            <span class="ident">changed_text</span>: <span class="ident">changed_text</span>.<span class="ident">to_string</span>(),
-            <span class="ident">status</span>: <span class="ident">block_proposal_status</span>,
-            <span class="ident">original_text</span>: <span class="ident">original_text</span>.<span class="ident">to_string</span>(),
+        page_proposal.block_proposals.push(BlockProposal {
+            accept_preview: merge_edits::merge(<span class="kw-2">&amp;</span>original_text, <span class="kw-2">&amp;</span>changed_text, <span class="kw-2">&amp;</span>content),
+            id: block_proposal_id,
+            block_id,
+            current_text: content.to_string(),
+            changed_text: changed_text.to_string(),
+            status: block_proposal_status,
+            original_text: original_text.to_string(),
         });
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">proposals</span> <span class="op">=</span> <span class="ident">proposals</span>.<span class="ident">into_values</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="ident">proposals</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">left</span>, <span class="ident">right</span><span class="op">|</span> <span class="ident">left</span>.<span class="ident">created_at</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">created_at</span>).<span class="ident">reverse</span>());
-    <span class="prelude-val">Ok</span>(<span class="ident">proposals</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>proposals = proposals.into_values().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    proposals.sort_by(|left, right| left.created_at.cmp(<span class="kw-2">&amp;</span>right.created_at).reverse());
+    <span class="prelude-val">Ok</span>(proposals)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_proposal_count_for_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ProposalCount</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_proposal_count_for_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+) -&gt; ModelResult&lt;ProposalCount&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT COUNT(*) filter (
   where proposed_page_edits.pending = true
@@ -814,39 +814,39 @@ FROM proposed_page_edits
 WHERE proposed_page_edits.course_id = $1
 AND proposed_page_edits.deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">course_id</span>,
+        course_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">ProposalCount</span> {
-        <span class="ident">pending</span>: <span class="ident">res</span>.<span class="ident">pending</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
-        <span class="ident">handled</span>: <span class="ident">res</span>.<span class="ident">handled</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
+    <span class="kw">let </span>count = ProposalCount {
+        pending: res.pending.unwrap_or_default().try_into()<span class="question-mark">?</span>,
+        handled: res.handled.unwrap_or_default().try_into()<span class="question-mark">?</span>,
     };
-    <span class="prelude-val">Ok</span>(<span class="ident">count</span>)
+    <span class="prelude-val">Ok</span>(count)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">process_proposal</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">page_proposal_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">block_proposals</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockProposalInfo</span><span class="op">&gt;</span>,
-    <span class="ident">author</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">block_proposals</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::Generic</span>,
-            <span class="string">&quot;No block proposals to process&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">pub async fn </span>process_proposal(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    page_id: Uuid,
+    page_proposal_id: Uuid,
+    block_proposals: Vec&lt;BlockProposalInfo&gt;,
+    author: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">if </span>block_proposals.is_empty() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+            ModelErrorType::Generic,
+            <span class="string">&quot;No block proposals to process&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page_with_exercises</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::get_page_with_exercises</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">page_with_exercises</span>.<span class="ident">page</span>.<span class="ident">blocks_cloned</span>()<span class="question-mark">?</span>;
-    <span class="kw">for</span> <span class="ident">BlockProposalInfo</span> { <span class="ident">id</span>, <span class="ident">action</span> } <span class="kw">in</span> <span class="ident">block_proposals</span> {
-        <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="ident">BlockProposalAction::Accept</span>(<span class="ident">contents</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page_with_exercises = <span class="kw">crate</span>::pages::get_page_with_exercises(<span class="kw-2">&amp;mut </span>tx, page_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>blocks = page_with_exercises.page.blocks_cloned()<span class="question-mark">?</span>;
+    <span class="kw">for </span>BlockProposalInfo { id, action } <span class="kw">in </span>block_proposals {
+        <span class="kw">match </span>action {
+            BlockProposalAction::Accept(contents) =&gt; {
+                <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
                     <span class="string">&quot;
 UPDATE proposed_block_edits
 SET status = &#39;accepted&#39;
@@ -856,273 +856,273 @@ RETURNING block_id,
     original_text,
     changed_text
 &quot;</span>,
-                    <span class="ident">id</span>
+                    id
                 )
-                .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+                .fetch_one(<span class="kw-2">&amp;mut </span>tx)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">blocks</span>
-                    .<span class="ident">iter_mut</span>()
-                    .<span class="ident">find</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">client_id</span> <span class="op">==</span> <span class="ident">res</span>.<span class="ident">block_id</span>)
-                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                        <span class="ident">ModelError::new</span>(
-                            <span class="ident">ModelErrorType::Generic</span>,
-                            <span class="string">&quot;Failed to find the block which the proposal was for&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="kw">let </span>block = blocks
+                    .iter_mut()
+                    .find(|b| b.client_id == res.block_id)
+                    .ok_or_else(|| {
+                        ModelError::new(
+                            ModelErrorType::Generic,
+                            <span class="string">&quot;Failed to find the block which the proposal was for&quot;</span>.to_string(),
                             <span class="prelude-val">None</span>,
                         )
                     })<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">current_content</span> <span class="op">=</span>
-                    <span class="ident">block</span>
-                        .<span class="ident">attributes</span>
-                        .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>.<span class="ident">block_attribute</span>)
-                        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                            <span class="ident">ModelError::new</span>(
-                                <span class="ident">ModelErrorType::Generic</span>,
-                                <span class="macro">format!</span>(<span class="string">&quot;Edited block has no attribute {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">res</span>.<span class="ident">block_attribute</span>),
+                <span class="kw">let </span>current_content =
+                    block
+                        .attributes
+                        .get_mut(<span class="kw-2">&amp;</span>res.block_attribute)
+                        .ok_or_else(|| {
+                            ModelError::new(
+                                ModelErrorType::Generic,
+                                <span class="macro">format!</span>(<span class="string">&quot;Edited block has no attribute {}&quot;</span>, <span class="kw-2">&amp;</span>res.block_attribute),
                                 <span class="prelude-val">None</span>,
                             )
                         })<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::String</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">current_content</span> {
-                    <span class="kw-2">*</span><span class="ident">s</span> <span class="op">=</span> <span class="ident">contents</span>;
-                } <span class="kw">else</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-                        <span class="ident">ModelErrorType::Generic</span>,
+                <span class="kw">if let </span>Value::String(s) = current_content {
+                    <span class="kw-2">*</span>s = contents;
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+                        ModelErrorType::Generic,
                         <span class="macro">format!</span>(
                             <span class="string">&quot;Block attribute {} did not contain a string&quot;</span>,
-                            <span class="ident">res</span>.<span class="ident">block_attribute</span>
+                            res.block_attribute
                         ),
                         <span class="prelude-val">None</span>,
                     ));
                 }
             }
-            <span class="ident">BlockProposalAction::Reject</span> =&gt; {
+            BlockProposalAction::Reject =&gt; {
                 <span class="macro">sqlx::query!</span>(
                     <span class="string">&quot;
 UPDATE proposed_block_edits
 SET status = &#39;rejected&#39;
 WHERE id = $1
 &quot;</span>,
-                    <span class="ident">id</span>
+                    id
                 )
-                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+                .execute(<span class="kw-2">&amp;mut </span>tx)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
             }
         }
     }
 
-    <span class="kw">let</span> <span class="ident">updated_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">blocks</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page_update</span> <span class="op">=</span> <span class="ident">CmsPageUpdate</span> {
-        <span class="ident">content</span>: <span class="ident">updated_content</span>,
-        <span class="ident">exercises</span>: <span class="ident">page_with_exercises</span>.<span class="ident">exercises</span>,
-        <span class="ident">exercise_slides</span>: <span class="ident">page_with_exercises</span>.<span class="ident">exercise_slides</span>,
-        <span class="ident">exercise_tasks</span>: <span class="ident">page_with_exercises</span>.<span class="ident">exercise_tasks</span>,
-        <span class="ident">url_path</span>: <span class="ident">page_with_exercises</span>.<span class="ident">page</span>.<span class="ident">url_path</span>,
-        <span class="ident">title</span>: <span class="ident">page_with_exercises</span>.<span class="ident">page</span>.<span class="ident">title</span>,
-        <span class="ident">chapter_id</span>: <span class="ident">page_with_exercises</span>.<span class="ident">page</span>.<span class="ident">chapter_id</span>,
+    <span class="kw">let </span>updated_content = serde_json::to_value(<span class="kw-2">&amp;</span>blocks)<span class="question-mark">?</span>;
+    <span class="kw">let </span>page_update = CmsPageUpdate {
+        content: updated_content,
+        exercises: page_with_exercises.exercises,
+        exercise_slides: page_with_exercises.exercise_slides,
+        exercise_tasks: page_with_exercises.exercise_tasks,
+        url_path: page_with_exercises.page.url_path,
+        title: page_with_exercises.page.title,
+        chapter_id: page_with_exercises.page.chapter_id,
     };
-    <span class="ident"><span class="kw">crate</span>::pages::update_page</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">page_with_exercises</span>.<span class="ident">page</span>.<span class="ident">id</span>,
-        <span class="ident">page_update</span>,
-        <span class="ident">author</span>,
+    <span class="kw">crate</span>::pages::update_page(
+        <span class="kw-2">&amp;mut </span>tx,
+        page_with_exercises.page.id,
+        page_update,
+        author,
         <span class="bool-val">true</span>,
-        <span class="ident">HistoryChangeReason::PageSaved</span>,
-        <span class="ident">page_with_exercises</span>.<span class="ident">page</span>.<span class="ident">exam_id</span>.<span class="ident">is_some</span>(),
+        HistoryChangeReason::PageSaved,
+        page_with_exercises.page.exam_id.is_some(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">update_page_edit_status</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">page_proposal_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    update_page_edit_status(<span class="kw-2">&amp;mut </span>tx, page_proposal_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_page_edit_status</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">block_proposals</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>update_page_edit_status(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">let </span>block_proposals = <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT status AS &quot;status: ProposalStatus&quot;
 FROM proposed_block_edits
 WHERE proposal_id = $1
 AND deleted_at IS NULL
 &quot;#</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">pending</span> <span class="op">=</span> <span class="ident">block_proposals</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">any</span>(<span class="op">|</span><span class="ident">bp</span><span class="op">|</span> <span class="ident">bp</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">ProposalStatus::Pending</span>);
+    <span class="kw">let </span>pending = block_proposals
+        .iter()
+        .any(|bp| bp.status == ProposalStatus::Pending);
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE proposed_page_edits
 SET pending = $1
 WHERE id = $2
 &quot;</span>,
-        <span class="ident">pending</span>,
-        <span class="ident">id</span>,
+        pending,
+        id,
     )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .execute(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">headless_lms_utils::document_schema_processor</span>::{<span class="ident">attributes</span>, <span class="ident">GutenbergBlock</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>headless_lms_utils::document_schema_processor::{attributes, GutenbergBlock};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">proposed_block_edits</span>::<span class="kw-2">*</span>, <span class="ident">test_helper</span>::<span class="kw-2">*</span>};
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{proposed_block_edits::<span class="kw-2">*</span>, test_helper::<span class="kw-2">*</span>};
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">init_content</span>(
-        <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-        <span class="ident">chapter</span>: <span class="ident">Uuid</span>,
-        <span class="ident">page</span>: <span class="ident">Uuid</span>,
-        <span class="ident">user</span>: <span class="ident">Uuid</span>,
-        <span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident">Uuid</span> {
-        <span class="kw">let</span> <span class="ident">client_id</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>();
-        <span class="kw">let</span> <span class="ident">new_content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">GutenbergBlock</span> {
-            <span class="ident">client_id</span>,
-            <span class="ident">name</span>: <span class="string">&quot;core/paragraph&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="macro">attributes!</span> {
-                <span class="string">&quot;content&quot;</span>: <span class="ident">content</span>
+    <span class="kw">async fn </span>init_content(
+        conn: <span class="kw-2">&amp;mut </span>PgConnection,
+        chapter: Uuid,
+        page: Uuid,
+        user: Uuid,
+        content: <span class="kw-2">&amp;</span>str,
+    ) -&gt; Uuid {
+        <span class="kw">let </span>client_id = Uuid::new_v4();
+        <span class="kw">let </span>new_content: Vec&lt;GutenbergBlock&gt; = <span class="macro">vec!</span>[GutenbergBlock {
+            client_id,
+            name: <span class="string">&quot;core/paragraph&quot;</span>.to_string(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: <span class="macro">attributes! </span>{
+                <span class="string">&quot;content&quot;</span>: content
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
-        <span class="kw">let</span> <span class="ident">page_update</span> <span class="op">=</span> <span class="ident">CmsPageUpdate</span> {
-            <span class="ident">content</span>: <span class="ident">serde_json::to_value</span>(<span class="kw-2">&amp;</span><span class="ident">new_content</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">url_path</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>),
-            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
-            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
-            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+        <span class="kw">let </span>page_update = CmsPageUpdate {
+            content: serde_json::to_value(<span class="kw-2">&amp;</span>new_content).unwrap(),
+            url_path: <span class="string">&quot;&quot;</span>.to_string(),
+            title: <span class="string">&quot;&quot;</span>.to_string(),
+            chapter_id: <span class="prelude-val">Some</span>(chapter),
+            exercises: <span class="macro">vec!</span>[],
+            exercise_slides: <span class="macro">vec!</span>[],
+            exercise_tasks: <span class="macro">vec!</span>[],
         };
-        <span class="ident"><span class="kw">crate</span>::pages::update_page</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">page</span>,
-            <span class="ident">page_update</span>,
-            <span class="ident">user</span>,
+        <span class="kw">crate</span>::pages::update_page(
+            conn,
+            page,
+            page_update,
+            user,
             <span class="bool-val">true</span>,
-            <span class="ident">HistoryChangeReason::PageSaved</span>,
+            HistoryChangeReason::PageSaved,
             <span class="bool-val">false</span>,
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="ident">client_id</span>
+        .<span class="kw">await
+        </span>.unwrap();
+        client_id
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">assert_content</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::get_page</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">page</span>.<span class="ident">content</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">new_content</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">block</span>.<span class="ident">attributes</span>.<span class="ident">get</span>(<span class="string">&quot;content&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">as_str</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">content</span>, <span class="ident">expected</span>);
+    <span class="kw">async fn </span>assert_content(conn: <span class="kw-2">&amp;mut </span>PgConnection, page_id: Uuid, expected: <span class="kw-2">&amp;</span>str) {
+        <span class="kw">let </span>page = <span class="kw">crate</span>::pages::get_page(conn, page_id).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>new_content: Vec&lt;GutenbergBlock&gt; = serde_json::from_value(page.content).unwrap();
+        <span class="kw">let </span>block = new_content.pop().unwrap();
+        <span class="kw">let </span>content = block.attributes.get(<span class="string">&quot;content&quot;</span>).unwrap().as_str().unwrap();
+        <span class="macro">assert_eq!</span>(content, expected);
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">typo_fix</span>() {
-        <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>);
-        <span class="kw">let</span> <span class="ident">block_id</span> <span class="op">=</span> <span class="ident">init_content</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">chapter</span>,
-            <span class="ident">page</span>,
-            <span class="ident">user</span>,
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>typo_fix() {
+        <span class="macro">insert_data!</span>(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page);
+        <span class="kw">let </span>block_id = init_content(
+            tx.as_mut(),
+            chapter,
+            page,
+            user,
             <span class="string">&quot;Content with a tpo in it.&quot;</span>,
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">NewProposedPageEdits</span> {
-            <span class="ident">page_id</span>: <span class="ident">page</span>,
-            <span class="ident">block_edits</span>: <span class="macro">vec!</span>[<span class="ident">NewProposedBlockEdit</span> {
-                <span class="ident">block_id</span>,
-                <span class="ident">block_attribute</span>: <span class="string">&quot;content&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">original_text</span>: <span class="string">&quot;Content with a tpo in it.&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">changed_text</span>: <span class="string">&quot;Content with a typo in it.&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span>new = NewProposedPageEdits {
+            page_id: page,
+            block_edits: <span class="macro">vec!</span>[NewProposedBlockEdit {
+                block_id,
+                block_attribute: <span class="string">&quot;content&quot;</span>.to_string(),
+                original_text: <span class="string">&quot;Content with a tpo in it.&quot;</span>.to_string(),
+                changed_text: <span class="string">&quot;Content with a typo in it.&quot;</span>.to_string(),
             }],
         };
-        <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">course</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ps</span> <span class="op">=</span> <span class="ident">get_proposals_for_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="bool-val">true</span>, <span class="ident">Pagination::default</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">ps</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">block_proposals</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">accept_preview</span>.<span class="ident">unwrap</span>(), <span class="string">&quot;Content with a typo in it.&quot;</span>);
-        <span class="ident">process_proposal</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">page</span>,
-            <span class="ident">p</span>.<span class="ident">id</span>,
-            <span class="macro">vec!</span>[<span class="ident">BlockProposalInfo</span> {
-                <span class="ident">id</span>: <span class="ident">b</span>.<span class="ident">id</span>,
-                <span class="ident">action</span>: <span class="ident">BlockProposalAction::Accept</span>(<span class="string">&quot;Content with a typo in it.&quot;</span>.<span class="ident">to_string</span>()),
+        insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>new)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>ps = get_proposals_for_course(tx.as_mut(), course, <span class="bool-val">true</span>, Pagination::default())
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>p = ps.pop().unwrap();
+        <span class="kw">let </span>b = p.block_proposals.pop().unwrap();
+        <span class="macro">assert_eq!</span>(b.accept_preview.unwrap(), <span class="string">&quot;Content with a typo in it.&quot;</span>);
+        process_proposal(
+            tx.as_mut(),
+            page,
+            p.id,
+            <span class="macro">vec!</span>[BlockProposalInfo {
+                id: b.id,
+                action: BlockProposalAction::Accept(<span class="string">&quot;Content with a typo in it.&quot;</span>.to_string()),
             }],
-            <span class="ident">user</span>,
+            user,
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
+        .<span class="kw">await
+        </span>.unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ps</span> <span class="op">=</span> <span class="ident">get_proposals_for_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="bool-val">false</span>, <span class="ident">Pagination::default</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ps</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>ps = get_proposals_for_course(tx.as_mut(), course, <span class="bool-val">false</span>, Pagination::default())
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let _ </span>= ps.pop().unwrap();
 
-        <span class="ident">assert_content</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">page</span>, <span class="string">&quot;Content with a typo in it.&quot;</span>).<span class="kw">await</span>;
+        assert_content(tx.as_mut(), page, <span class="string">&quot;Content with a typo in it.&quot;</span>).<span class="kw">await</span>;
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">rejection</span>() {
-        <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>);
-        <span class="kw">let</span> <span class="ident">block_id</span> <span class="op">=</span> <span class="ident">init_content</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">chapter</span>,
-            <span class="ident">page</span>,
-            <span class="ident">user</span>,
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>rejection() {
+        <span class="macro">insert_data!</span>(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page);
+        <span class="kw">let </span>block_id = init_content(
+            tx.as_mut(),
+            chapter,
+            page,
+            user,
             <span class="string">&quot;Content with a tpo in it.&quot;</span>,
         )
         .<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">NewProposedPageEdits</span> {
-            <span class="ident">page_id</span>: <span class="ident">page</span>,
-            <span class="ident">block_edits</span>: <span class="macro">vec!</span>[<span class="ident">NewProposedBlockEdit</span> {
-                <span class="ident">block_id</span>,
-                <span class="ident">block_attribute</span>: <span class="string">&quot;content&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">original_text</span>: <span class="string">&quot;Content with a tpo in it.&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">changed_text</span>: <span class="string">&quot;Content with a typo in it.&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span>new = NewProposedPageEdits {
+            page_id: page,
+            block_edits: <span class="macro">vec!</span>[NewProposedBlockEdit {
+                block_id,
+                block_attribute: <span class="string">&quot;content&quot;</span>.to_string(),
+                original_text: <span class="string">&quot;Content with a tpo in it.&quot;</span>.to_string(),
+                changed_text: <span class="string">&quot;Content with a typo in it.&quot;</span>.to_string(),
             }],
         };
-        <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">course</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>new)
+            .<span class="kw">await
+            </span>.unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ps</span> <span class="op">=</span> <span class="ident">get_proposals_for_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="bool-val">true</span>, <span class="ident">Pagination::default</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">ps</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">block_proposals</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">accept_preview</span>.<span class="ident">unwrap</span>(), <span class="string">&quot;Content with a typo in it.&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">status</span>, <span class="ident">ProposalStatus::Pending</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>ps = get_proposals_for_course(tx.as_mut(), course, <span class="bool-val">true</span>, Pagination::default())
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>p = ps.pop().unwrap();
+        <span class="kw">let </span>b = p.block_proposals.pop().unwrap();
+        <span class="macro">assert_eq!</span>(b.accept_preview.unwrap(), <span class="string">&quot;Content with a typo in it.&quot;</span>);
+        <span class="macro">assert_eq!</span>(b.status, ProposalStatus::Pending);
 
-        <span class="ident">process_proposal</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">page</span>,
-            <span class="ident">p</span>.<span class="ident">id</span>,
-            <span class="macro">vec!</span>[<span class="ident">BlockProposalInfo</span> {
-                <span class="ident">id</span>: <span class="ident">b</span>.<span class="ident">id</span>,
-                <span class="ident">action</span>: <span class="ident">BlockProposalAction::Reject</span>,
+        process_proposal(
+            tx.as_mut(),
+            page,
+            p.id,
+            <span class="macro">vec!</span>[BlockProposalInfo {
+                id: b.id,
+                action: BlockProposalAction::Reject,
             }],
-            <span class="ident">user</span>,
+            user,
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
+        .<span class="kw">await
+        </span>.unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ps</span> <span class="op">=</span> <span class="ident">get_proposals_for_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="bool-val">false</span>, <span class="ident">Pagination::default</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ps</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>ps = get_proposals_for_course(tx.as_mut(), course, <span class="bool-val">false</span>, Pagination::default())
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let _ </span>= ps.pop().unwrap();
 
-        <span class="ident">assert_content</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">page</span>, <span class="string">&quot;Content with a tpo in it.&quot;</span>).<span class="kw">await</span>;
+        assert_content(tx.as_mut(), page, <span class="string">&quot;Content with a tpo in it.&quot;</span>).<span class="kw">await</span>;
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

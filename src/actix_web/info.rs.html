@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/info.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/info.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -467,472 +467,472 @@
 <span id="465">465</span>
 <span id="466">466</span>
 <span id="467">467</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert::Infallible</span>, <span class="ident">net::SocketAddr</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{convert::Infallible, net::SocketAddr};
 
-<span class="kw">use</span> <span class="ident">actix_utils::future</span>::{<span class="ident">err</span>, <span class="ident">ok</span>, <span class="ident">Ready</span>};
-<span class="kw">use</span> <span class="ident">derive_more</span>::{<span class="ident">Display</span>, <span class="ident">Error</span>};
+<span class="kw">use </span>actix_utils::future::{err, ok, Ready};
+<span class="kw">use </span>derive_more::{Display, Error};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">dev</span>::{<span class="ident">AppConfig</span>, <span class="ident">Payload</span>, <span class="ident">RequestHead</span>},
-    <span class="ident">http</span>::{
-        <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">HeaderName</span>},
-        <span class="ident">uri</span>::{<span class="ident">Authority</span>, <span class="ident">Scheme</span>},
+<span class="kw">use crate</span>::{
+    dev::{AppConfig, Payload, RequestHead},
+    http::{
+        header::{<span class="self">self</span>, HeaderName},
+        uri::{Authority, Scheme},
     },
-    <span class="ident">FromRequest</span>, <span class="ident">HttpRequest</span>, <span class="ident">ResponseError</span>,
+    FromRequest, HttpRequest, ResponseError,
 };
 
-<span class="kw">static</span> <span class="ident">X_FORWARDED_FOR</span>: <span class="ident">HeaderName</span> <span class="op">=</span> <span class="ident">HeaderName::from_static</span>(<span class="string">&quot;x-forwarded-for&quot;</span>);
-<span class="kw">static</span> <span class="ident">X_FORWARDED_HOST</span>: <span class="ident">HeaderName</span> <span class="op">=</span> <span class="ident">HeaderName::from_static</span>(<span class="string">&quot;x-forwarded-host&quot;</span>);
-<span class="kw">static</span> <span class="ident">X_FORWARDED_PROTO</span>: <span class="ident">HeaderName</span> <span class="op">=</span> <span class="ident">HeaderName::from_static</span>(<span class="string">&quot;x-forwarded-proto&quot;</span>);
+<span class="kw">static </span>X_FORWARDED_FOR: HeaderName = HeaderName::from_static(<span class="string">&quot;x-forwarded-for&quot;</span>);
+<span class="kw">static </span>X_FORWARDED_HOST: HeaderName = HeaderName::from_static(<span class="string">&quot;x-forwarded-host&quot;</span>);
+<span class="kw">static </span>X_FORWARDED_PROTO: HeaderName = HeaderName::from_static(<span class="string">&quot;x-forwarded-proto&quot;</span>);
 
-<span class="doccomment">/// Trim whitespace then any quote marks.</span>
-<span class="kw">fn</span> <span class="ident">unquote</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-    <span class="ident">val</span>.<span class="ident">trim</span>().<span class="ident">trim_start_matches</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">trim_end_matches</span>(<span class="string">&#39;&quot;&#39;</span>)
+<span class="doccomment">/// Trim whitespace then any quote marks.
+</span><span class="kw">fn </span>unquote(val: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span>str {
+    val.trim().trim_start_matches(<span class="string">&#39;&quot;&#39;</span>).trim_end_matches(<span class="string">&#39;&quot;&#39;</span>)
 }
 
-<span class="doccomment">/// Extracts and trims first value for given header name.</span>
-<span class="kw">fn</span> <span class="ident">first_header_value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">RequestHead</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">HeaderName</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">hdr</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">hdr</span>.<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>).<span class="ident">next</span>()<span class="question-mark">?</span>.<span class="ident">trim</span>();
-    <span class="prelude-val">Some</span>(<span class="ident">val</span>)
+<span class="doccomment">/// Extracts and trims first value for given header name.
+</span><span class="kw">fn </span>first_header_value&lt;<span class="lifetime">&#39;a</span>&gt;(req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>RequestHead, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>HeaderName) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; {
+    <span class="kw">let </span>hdr = req.headers.get(name)<span class="question-mark">?</span>.to_str().ok()<span class="question-mark">?</span>;
+    <span class="kw">let </span>val = hdr.split(<span class="string">&#39;,&#39;</span>).next()<span class="question-mark">?</span>.trim();
+    <span class="prelude-val">Some</span>(val)
 }
 
-<span class="doccomment">/// HTTP connection information.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `ConnectionInfo` implements `FromRequest` and can be extracted in handlers.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use actix_web::{HttpResponse, Responder};</span>
-<span class="doccomment">/// use actix_web::dev::ConnectionInfo;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// async fn handler(conn: ConnectionInfo) -&gt; impl Responder {</span>
-<span class="doccomment">///     match conn.host() {</span>
-<span class="doccomment">///         &quot;actix.rs&quot; =&gt; HttpResponse::Ok().body(&quot;Welcome!&quot;),</span>
-<span class="doccomment">///         &quot;admin.actix.rs&quot; =&gt; HttpResponse::Ok().body(&quot;Admin portal.&quot;),</span>
-<span class="doccomment">///         _ =&gt; HttpResponse::NotFound().finish()</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// # let _svc = actix_web::web::to(handler);</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Implementation Notes</span>
-<span class="doccomment">/// Parses `Forwarded` header information according to [RFC 7239][rfc7239] but does not try to</span>
-<span class="doccomment">/// interpret the values for each property. As such, the getter methods on `ConnectionInfo` return</span>
-<span class="doccomment">/// strings instead of IP addresses or other types to acknowledge that they may be</span>
-<span class="doccomment">/// [obfuscated][rfc7239-63] or [unknown][rfc7239-62].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the older, related headers are also present (eg. `X-Forwarded-For`), then `Forwarded`</span>
-<span class="doccomment">/// is preferred.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [rfc7239]: https://datatracker.ietf.org/doc/html/rfc7239</span>
-<span class="doccomment">/// [rfc7239-62]: https://datatracker.ietf.org/doc/html/rfc7239#section-6.2</span>
-<span class="doccomment">/// [rfc7239-63]: https://datatracker.ietf.org/doc/html/rfc7239#section-6.3</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ConnectionInfo</span> {
-    <span class="ident">host</span>: <span class="ident">String</span>,
-    <span class="ident">scheme</span>: <span class="ident">String</span>,
-    <span class="ident">peer_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">realip_remote_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// HTTP connection information.
+///
+/// `ConnectionInfo` implements `FromRequest` and can be extracted in handlers.
+///
+/// # Examples
+/// ```
+/// # use actix_web::{HttpResponse, Responder};
+/// use actix_web::dev::ConnectionInfo;
+///
+/// async fn handler(conn: ConnectionInfo) -&gt; impl Responder {
+///     match conn.host() {
+///         &quot;actix.rs&quot; =&gt; HttpResponse::Ok().body(&quot;Welcome!&quot;),
+///         &quot;admin.actix.rs&quot; =&gt; HttpResponse::Ok().body(&quot;Admin portal.&quot;),
+///         _ =&gt; HttpResponse::NotFound().finish()
+///     }
+/// }
+/// # let _svc = actix_web::web::to(handler);
+/// ```
+///
+/// # Implementation Notes
+/// Parses `Forwarded` header information according to [RFC 7239][rfc7239] but does not try to
+/// interpret the values for each property. As such, the getter methods on `ConnectionInfo` return
+/// strings instead of IP addresses or other types to acknowledge that they may be
+/// [obfuscated][rfc7239-63] or [unknown][rfc7239-62].
+///
+/// If the older, related headers are also present (eg. `X-Forwarded-For`), then `Forwarded`
+/// is preferred.
+///
+/// [rfc7239]: https://datatracker.ietf.org/doc/html/rfc7239
+/// [rfc7239-62]: https://datatracker.ietf.org/doc/html/rfc7239#section-6.2
+/// [rfc7239-63]: https://datatracker.ietf.org/doc/html/rfc7239#section-6.3
+</span><span class="attribute">#[derive(Debug, Clone, Default)]
+</span><span class="kw">pub struct </span>ConnectionInfo {
+    host: String,
+    scheme: String,
+    peer_addr: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    realip_remote_addr: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ConnectionInfo</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>, <span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="ident">AppConfig</span>) -&gt; <span class="ident">ConnectionInfo</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">host</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scheme</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">realip_remote_addr</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+<span class="kw">impl </span>ConnectionInfo {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(req: <span class="kw-2">&amp;</span>RequestHead, cfg: <span class="kw-2">&amp;</span>AppConfig) -&gt; ConnectionInfo {
+        <span class="kw">let </span><span class="kw-2">mut </span>host = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>scheme = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>realip_remote_addr = <span class="prelude-val">None</span>;
 
-        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">val</span>) <span class="kw">in</span> <span class="ident">req</span>
-            .<span class="ident">headers</span>
-            .<span class="ident">get_all</span>(<span class="kw-2">&amp;</span><span class="ident">header::FORWARDED</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">hdr</span><span class="op">|</span> <span class="ident">hdr</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>())
-            <span class="comment">// &quot;for=1.2.3.4, for=5.6.7.8; scheme=https&quot;</span>
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="ident">val</span>.<span class="ident">split</span>(<span class="string">&#39;;&#39;</span>))
-            <span class="comment">// [&quot;for=1.2.3.4, for=5.6.7.8&quot;, &quot; scheme=https&quot;]</span>
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">vals</span><span class="op">|</span> <span class="ident">vals</span>.<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>))
-            <span class="comment">// [&quot;for=1.2.3.4&quot;, &quot; for=5.6.7.8&quot;, &quot; scheme=https&quot;]</span>
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">pair</span>.<span class="ident">trim</span>().<span class="ident">splitn</span>(<span class="number">2</span>, <span class="string">&#39;=&#39;</span>);
-                <span class="prelude-val">Some</span>((<span class="ident">items</span>.<span class="ident">next</span>()<span class="question-mark">?</span>, <span class="ident">items</span>.<span class="ident">next</span>()<span class="question-mark">?</span>))
+        <span class="kw">for </span>(name, val) <span class="kw">in </span>req
+            .headers
+            .get_all(<span class="kw-2">&amp;</span>header::FORWARDED)
+            .into_iter()
+            .filter_map(|hdr| hdr.to_str().ok())
+            <span class="comment">// &quot;for=1.2.3.4, for=5.6.7.8; scheme=https&quot;
+            </span>.flat_map(|val| val.split(<span class="string">&#39;;&#39;</span>))
+            <span class="comment">// [&quot;for=1.2.3.4, for=5.6.7.8&quot;, &quot; scheme=https&quot;]
+            </span>.flat_map(|vals| vals.split(<span class="string">&#39;,&#39;</span>))
+            <span class="comment">// [&quot;for=1.2.3.4&quot;, &quot; for=5.6.7.8&quot;, &quot; scheme=https&quot;]
+            </span>.flat_map(|pair| {
+                <span class="kw">let </span><span class="kw-2">mut </span>items = pair.trim().splitn(<span class="number">2</span>, <span class="string">&#39;=&#39;</span>);
+                <span class="prelude-val">Some</span>((items.next()<span class="question-mark">?</span>, items.next()<span class="question-mark">?</span>))
             })
         {
-            <span class="comment">// [(name , val      ), ...                                    ]</span>
-            <span class="comment">// [(&quot;for&quot;, &quot;1.2.3.4&quot;), (&quot;for&quot;, &quot;5.6.7.8&quot;), (&quot;scheme&quot;, &quot;https&quot;)]</span>
+            <span class="comment">// [(name , val      ), ...                                    ]
+            // [(&quot;for&quot;, &quot;1.2.3.4&quot;), (&quot;for&quot;, &quot;5.6.7.8&quot;), (&quot;scheme&quot;, &quot;https&quot;)]
 
-            <span class="comment">// taking the first value for each property is correct because spec states that first</span>
-            <span class="comment">// &quot;for&quot; value is client and rest are proxies; multiple values other properties have</span>
-            <span class="comment">// no defined semantics</span>
-            <span class="comment">//</span>
-            <span class="comment">// &gt; In a chain of proxy servers where this is fully utilized, the first</span>
-            <span class="comment">// &gt; &quot;for&quot; parameter will disclose the client where the request was first</span>
-            <span class="comment">// &gt; made, followed by any subsequent proxy identifiers.</span>
-            <span class="comment">// --- https://datatracker.ietf.org/doc/html/rfc7239#section-5.2</span>
+            // taking the first value for each property is correct because spec states that first
+            // &quot;for&quot; value is client and rest are proxies; multiple values other properties have
+            // no defined semantics
+            //
+            // &gt; In a chain of proxy servers where this is fully utilized, the first
+            // &gt; &quot;for&quot; parameter will disclose the client where the request was first
+            // &gt; made, followed by any subsequent proxy identifiers.
+            // --- https://datatracker.ietf.org/doc/html/rfc7239#section-5.2
 
-            <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">trim</span>().<span class="ident">to_lowercase</span>().<span class="ident">as_str</span>() {
-                <span class="string">&quot;for&quot;</span> =&gt; <span class="ident">realip_remote_addr</span>.<span class="ident">get_or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">unquote</span>(<span class="ident">val</span>)),
-                <span class="string">&quot;proto&quot;</span> =&gt; <span class="ident">scheme</span>.<span class="ident">get_or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">unquote</span>(<span class="ident">val</span>)),
-                <span class="string">&quot;host&quot;</span> =&gt; <span class="ident">host</span>.<span class="ident">get_or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">unquote</span>(<span class="ident">val</span>)),
-                <span class="string">&quot;by&quot;</span> =&gt; {
-                    <span class="comment">// TODO: implement https://datatracker.ietf.org/doc/html/rfc7239#section-5.1</span>
-                    <span class="kw">continue</span>;
+            </span><span class="kw">match </span>name.trim().to_lowercase().as_str() {
+                <span class="string">&quot;for&quot; </span>=&gt; realip_remote_addr.get_or_insert_with(|| unquote(val)),
+                <span class="string">&quot;proto&quot; </span>=&gt; scheme.get_or_insert_with(|| unquote(val)),
+                <span class="string">&quot;host&quot; </span>=&gt; host.get_or_insert_with(|| unquote(val)),
+                <span class="string">&quot;by&quot; </span>=&gt; {
+                    <span class="comment">// TODO: implement https://datatracker.ietf.org/doc/html/rfc7239#section-5.1
+                    </span><span class="kw">continue</span>;
                 }
-                <span class="kw">_</span> =&gt; <span class="kw">continue</span>,
+                <span class="kw">_ </span>=&gt; <span class="kw">continue</span>,
             };
         }
 
-        <span class="kw">let</span> <span class="ident">scheme</span> <span class="op">=</span> <span class="ident">scheme</span>
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">first_header_value</span>(<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">X_FORWARDED_PROTO</span>))
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">scheme</span>().<span class="ident">map</span>(<span class="ident">Scheme::as_str</span>))
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;https&quot;</span>).<span class="ident">filter</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">cfg</span>.<span class="ident">secure</span>()))
-            .<span class="ident">unwrap_or</span>(<span class="string">&quot;http&quot;</span>)
-            .<span class="ident">to_owned</span>();
+        <span class="kw">let </span>scheme = scheme
+            .or_else(|| first_header_value(req, <span class="kw-2">&amp;</span>X_FORWARDED_PROTO))
+            .or_else(|| req.uri.scheme().map(Scheme::as_str))
+            .or_else(|| <span class="prelude-val">Some</span>(<span class="string">&quot;https&quot;</span>).filter(|<span class="kw">_</span>| cfg.secure()))
+            .unwrap_or(<span class="string">&quot;http&quot;</span>)
+            .to_owned();
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">host</span>
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">first_header_value</span>(<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">X_FORWARDED_HOST</span>))
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">headers</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">header::HOST</span>)<span class="question-mark">?</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>())
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">authority</span>().<span class="ident">map</span>(<span class="ident">Authority::as_str</span>))
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">cfg</span>.<span class="ident">host</span>())
-            .<span class="ident">to_owned</span>();
+        <span class="kw">let </span>host = host
+            .or_else(|| first_header_value(req, <span class="kw-2">&amp;</span>X_FORWARDED_HOST))
+            .or_else(|| req.headers.get(<span class="kw-2">&amp;</span>header::HOST)<span class="question-mark">?</span>.to_str().ok())
+            .or_else(|| req.uri.authority().map(Authority::as_str))
+            .unwrap_or_else(|| cfg.host())
+            .to_owned();
 
-        <span class="kw">let</span> <span class="ident">realip_remote_addr</span> <span class="op">=</span> <span class="ident">realip_remote_addr</span>
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">first_header_value</span>(<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">X_FORWARDED_FOR</span>))
-            .<span class="ident">map</span>(<span class="ident">str::to_owned</span>);
+        <span class="kw">let </span>realip_remote_addr = realip_remote_addr
+            .or_else(|| first_header_value(req, <span class="kw-2">&amp;</span>X_FORWARDED_FOR))
+            .map(str::to_owned);
 
-        <span class="kw">let</span> <span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">peer_addr</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">addr</span><span class="op">|</span> <span class="ident">addr</span>.<span class="ident">ip</span>().<span class="ident">to_string</span>());
+        <span class="kw">let </span>peer_addr = req.peer_addr.map(|addr| addr.ip().to_string());
 
-        <span class="ident">ConnectionInfo</span> {
-            <span class="ident">host</span>,
-            <span class="ident">scheme</span>,
-            <span class="ident">peer_addr</span>,
-            <span class="ident">realip_remote_addr</span>,
+        ConnectionInfo {
+            host,
+            scheme,
+            peer_addr,
+            realip_remote_addr,
         }
     }
 
-    <span class="doccomment">/// Real IP (remote address) of client that initiated request.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The address is resolved through the following, in order:</span>
-    <span class="doccomment">/// - `Forwarded` header</span>
-    <span class="doccomment">/// - `X-Forwarded-For` header</span>
-    <span class="doccomment">/// - peer address of opened socket (same as [`remote_addr`](Self::remote_addr))</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Security</span>
-    <span class="doccomment">/// Do not use this function for security purposes unless you can be sure that the `Forwarded`</span>
-    <span class="doccomment">/// and `X-Forwarded-For` headers cannot be spoofed by the client. If you are running without a</span>
-    <span class="doccomment">/// proxy then [obtaining the peer address](Self::peer_addr) would be more appropriate.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realip_remote_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">realip_remote_addr</span>
-            .<span class="ident">as_deref</span>()
-            .<span class="ident">or</span>(<span class="self">self</span>.<span class="ident">peer_addr</span>.<span class="ident">as_deref</span>())
+    <span class="doccomment">/// Real IP (remote address) of client that initiated request.
+    ///
+    /// The address is resolved through the following, in order:
+    /// - `Forwarded` header
+    /// - `X-Forwarded-For` header
+    /// - peer address of opened socket (same as [`remote_addr`](Self::remote_addr))
+    ///
+    /// # Security
+    /// Do not use this function for security purposes unless you can be sure that the `Forwarded`
+    /// and `X-Forwarded-For` headers cannot be spoofed by the client. If you are running without a
+    /// proxy then [obtaining the peer address](Self::peer_addr) would be more appropriate.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>realip_remote_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.realip_remote_addr
+            .as_deref()
+            .or(<span class="self">self</span>.peer_addr.as_deref())
     }
 
-    <span class="doccomment">/// Returns serialized IP address of the peer connection.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`HttpRequest::peer_addr`] for more details.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peer_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">peer_addr</span>.<span class="ident">as_deref</span>()
+    <span class="doccomment">/// Returns serialized IP address of the peer connection.
+    ///
+    /// See [`HttpRequest::peer_addr`] for more details.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>peer_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.peer_addr.as_deref()
     }
 
-    <span class="doccomment">/// Hostname of the request.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Hostname is resolved through the following, in order:</span>
-    <span class="doccomment">/// - `Forwarded` header</span>
-    <span class="doccomment">/// - `X-Forwarded-Host` header</span>
-    <span class="doccomment">/// - `Host` header</span>
-    <span class="doccomment">/// - request target / URI</span>
-    <span class="doccomment">/// - configured server hostname</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">host</span>
+    <span class="doccomment">/// Hostname of the request.
+    ///
+    /// Hostname is resolved through the following, in order:
+    /// - `Forwarded` header
+    /// - `X-Forwarded-Host` header
+    /// - `Host` header
+    /// - request target / URI
+    /// - configured server hostname
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>host(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.host
     }
 
-    <span class="doccomment">/// Scheme of the request.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Scheme is resolved through the following, in order:</span>
-    <span class="doccomment">/// - `Forwarded` header</span>
-    <span class="doccomment">/// - `X-Forwarded-Proto` header</span>
-    <span class="doccomment">/// - request target / URI</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scheme</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scheme</span>
+    <span class="doccomment">/// Scheme of the request.
+    ///
+    /// Scheme is resolved through the following, in order:
+    /// - `Forwarded` header
+    /// - `X-Forwarded-Proto` header
+    /// - request target / URI
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>scheme(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.scheme
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Renamed to `peer_addr`.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remote_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">peer_addr</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">ConnectionInfo</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident">ok</span>(<span class="ident">req</span>.<span class="ident">connection_info</span>().<span class="ident">clone</span>())
+    <span class="attribute">#[doc(hidden)]
+    #[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `peer_addr`.&quot;</span>)]
+    </span><span class="kw">pub fn </span>remote_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.peer_addr()
     }
 }
 
-<span class="doccomment">/// Extractor for peer&#39;s socket address.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Also see [`HttpRequest::peer_addr`] and [`ConnectionInfo::peer_addr`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use actix_web::Responder;</span>
-<span class="doccomment">/// use actix_web::dev::PeerAddr;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// async fn handler(peer_addr: PeerAddr) -&gt; impl Responder {</span>
-<span class="doccomment">///     let socket_addr = peer_addr.0;</span>
-<span class="doccomment">///     socket_addr.to_string()</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// # let _svc = actix_web::web::to(handler);</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Display</span>)]</span>
-<span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;{}&quot;</span>, <span class="ident">_0</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PeerAddr</span>(<span class="kw">pub</span> <span class="ident">SocketAddr</span>);
+<span class="kw">impl </span>FromRequest <span class="kw">for </span>ConnectionInfo {
+    <span class="kw">type </span>Error = Infallible;
+    <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt;&gt;;
 
-<span class="kw">impl</span> <span class="ident">PeerAddr</span> {
-    <span class="doccomment">/// Unwrap into inner `SocketAddr` value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">SocketAddr</span> {
-        <span class="self">self</span>.<span class="number">0</span>
+    <span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future {
+        ok(req.connection_info().clone())
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">Error</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Missing peer address&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MissingPeerAddr</span>;
+<span class="doccomment">/// Extractor for peer&#39;s socket address.
+///
+/// Also see [`HttpRequest::peer_addr`] and [`ConnectionInfo::peer_addr`].
+///
+/// # Examples
+/// ```
+/// # use actix_web::Responder;
+/// use actix_web::dev::PeerAddr;
+///
+/// async fn handler(peer_addr: PeerAddr) -&gt; impl Responder {
+///     let socket_addr = peer_addr.0;
+///     socket_addr.to_string()
+/// }
+/// # let _svc = actix_web::web::to(handler);
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Display)]
+#[display(fmt = <span class="string">&quot;{}&quot;</span>, _0)]
+</span><span class="kw">pub struct </span>PeerAddr(<span class="kw">pub </span>SocketAddr);
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">MissingPeerAddr</span> {}
+<span class="kw">impl </span>PeerAddr {
+    <span class="doccomment">/// Unwrap into inner `SocketAddr` value.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; SocketAddr {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+}
 
-<span class="kw">impl</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">PeerAddr</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">MissingPeerAddr</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="attribute">#[derive(Debug, Display, Error)]
+#[non_exhaustive]
+#[display(fmt = <span class="string">&quot;Missing peer address&quot;</span>)]
+</span><span class="kw">pub struct </span>MissingPeerAddr;
 
-    <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">peer_addr</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">addr</span>) =&gt; <span class="ident">ok</span>(<span class="ident">PeerAddr</span>(<span class="ident">addr</span>)),
-            <span class="prelude-val">None</span> =&gt; {
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>MissingPeerAddr {}
+
+<span class="kw">impl </span>FromRequest <span class="kw">for </span>PeerAddr {
+    <span class="kw">type </span>Error = MissingPeerAddr;
+    <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt;&gt;;
+
+    <span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">match </span>req.peer_addr() {
+            <span class="prelude-val">Some</span>(addr) =&gt; ok(PeerAddr(addr)),
+            <span class="prelude-val">None </span>=&gt; {
                 <span class="macro">log::error!</span>(<span class="string">&quot;Missing peer address.&quot;</span>);
-                <span class="ident">err</span>(<span class="ident">MissingPeerAddr</span>)
+                err(MissingPeerAddr)
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test::TestRequest</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test::TestRequest;
 
-    <span class="kw">const</span> <span class="ident">X_FORWARDED_FOR</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;x-forwarded-for&quot;</span>;
-    <span class="kw">const</span> <span class="ident">X_FORWARDED_HOST</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;x-forwarded-host&quot;</span>;
-    <span class="kw">const</span> <span class="ident">X_FORWARDED_PROTO</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;x-forwarded-proto&quot;</span>;
+    <span class="kw">const </span>X_FORWARDED_FOR: <span class="kw-2">&amp;</span>str = <span class="string">&quot;x-forwarded-for&quot;</span>;
+    <span class="kw">const </span>X_FORWARDED_HOST: <span class="kw-2">&amp;</span>str = <span class="string">&quot;x-forwarded-host&quot;</span>;
+    <span class="kw">const </span>X_FORWARDED_PROTO: <span class="kw-2">&amp;</span>str = <span class="string">&quot;x-forwarded-proto&quot;</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">info_default</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">scheme</span>(), <span class="string">&quot;http&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">host</span>(), <span class="string">&quot;localhost:8080&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>info_default() {
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.scheme(), <span class="string">&quot;http&quot;</span>);
+        <span class="macro">assert_eq!</span>(info.host(), <span class="string">&quot;localhost:8080&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">host_header</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::HOST</span>, <span class="string">&quot;rust-lang.org&quot;</span>))
-            .<span class="ident">to_http_request</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>host_header() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::HOST, <span class="string">&quot;rust-lang.org&quot;</span>))
+            .to_http_request();
 
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">scheme</span>(), <span class="string">&quot;http&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">host</span>(), <span class="string">&quot;rust-lang.org&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">None</span>);
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.scheme(), <span class="string">&quot;http&quot;</span>);
+        <span class="macro">assert_eq!</span>(info.host(), <span class="string">&quot;rust-lang.org&quot;</span>);
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">x_forwarded_for_header</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">X_FORWARDED_FOR</span>, <span class="string">&quot;192.0.2.60&quot;</span>))
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>x_forwarded_for_header() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((X_FORWARDED_FOR, <span class="string">&quot;192.0.2.60&quot;</span>))
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">x_forwarded_host_header</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">X_FORWARDED_HOST</span>, <span class="string">&quot;192.0.2.60&quot;</span>))
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">host</span>(), <span class="string">&quot;192.0.2.60&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>x_forwarded_host_header() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((X_FORWARDED_HOST, <span class="string">&quot;192.0.2.60&quot;</span>))
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.host(), <span class="string">&quot;192.0.2.60&quot;</span>);
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">x_forwarded_proto_header</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">X_FORWARDED_PROTO</span>, <span class="string">&quot;https&quot;</span>))
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">scheme</span>(), <span class="string">&quot;https&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>x_forwarded_proto_header() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((X_FORWARDED_PROTO, <span class="string">&quot;https&quot;</span>))
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.scheme(), <span class="string">&quot;https&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">forwarded_header</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::FORWARDED</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>forwarded_header() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::FORWARDED,
                 <span class="string">&quot;for=192.0.2.60; proto=https; by=203.0.113.43; host=rust-lang.org&quot;</span>,
             ))
-            .<span class="ident">to_http_request</span>();
+            .to_http_request();
 
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">scheme</span>(), <span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">host</span>(), <span class="string">&quot;rust-lang.org&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.scheme(), <span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert_eq!</span>(info.host(), <span class="string">&quot;rust-lang.org&quot;</span>);
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::FORWARDED</span>,
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::FORWARDED,
                 <span class="string">&quot;for=192.0.2.60; proto=https; by=203.0.113.43; host=rust-lang.org&quot;</span>,
             ))
-            .<span class="ident">to_http_request</span>();
+            .to_http_request();
 
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">scheme</span>(), <span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">host</span>(), <span class="string">&quot;rust-lang.org&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.scheme(), <span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert_eq!</span>(info.host(), <span class="string">&quot;rust-lang.org&quot;</span>);
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">forwarded_case_sensitivity</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::FORWARDED</span>, <span class="string">&quot;For=192.0.2.60&quot;</span>))
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>forwarded_case_sensitivity() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::FORWARDED, <span class="string">&quot;For=192.0.2.60&quot;</span>))
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">forwarded_weird_whitespace</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::FORWARDED</span>, <span class="string">&quot;for= 1.2.3.4; proto= https&quot;</span>))
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;1.2.3.4&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">scheme</span>(), <span class="string">&quot;https&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>forwarded_weird_whitespace() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::FORWARDED, <span class="string">&quot;for= 1.2.3.4; proto= https&quot;</span>))
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">Some</span>(<span class="string">&quot;1.2.3.4&quot;</span>));
+        <span class="macro">assert_eq!</span>(info.scheme(), <span class="string">&quot;https&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::FORWARDED</span>, <span class="string">&quot;  for = 1.2.3.4  &quot;</span>))
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;1.2.3.4&quot;</span>));
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::FORWARDED, <span class="string">&quot;  for = 1.2.3.4  &quot;</span>))
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">Some</span>(<span class="string">&quot;1.2.3.4&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">forwarded_for_quoted</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::FORWARDED</span>, <span class="string">r#&quot;for=&quot;192.0.2.60:8080&quot;&quot;#</span>))
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60:8080&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>forwarded_for_quoted() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::FORWARDED, <span class="string">r#&quot;for=&quot;192.0.2.60:8080&quot;&quot;#</span>))
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60:8080&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">forwarded_for_ipv6</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::FORWARDED</span>, <span class="string">r#&quot;for=&quot;[2001:db8:cafe::17]:4711&quot;&quot;#</span>))
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;[2001:db8:cafe::17]:4711&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>forwarded_for_ipv6() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::FORWARDED, <span class="string">r#&quot;for=&quot;[2001:db8:cafe::17]:4711&quot;&quot;#</span>))
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">Some</span>(<span class="string">&quot;[2001:db8:cafe::17]:4711&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">forwarded_for_multiple</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::FORWARDED</span>, <span class="string">&quot;for=192.0.2.60, for=198.51.100.17&quot;</span>))
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="comment">// takes the first value</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>forwarded_for_multiple() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::FORWARDED, <span class="string">&quot;for=192.0.2.60, for=198.51.100.17&quot;</span>))
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="comment">// takes the first value
+        </span><span class="macro">assert_eq!</span>(info.realip_remote_addr(), <span class="prelude-val">Some</span>(<span class="string">&quot;192.0.2.60&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">scheme_from_uri</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::get</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;https://actix.rs/test&quot;</span>)
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">scheme</span>(), <span class="string">&quot;https&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>scheme_from_uri() {
+        <span class="kw">let </span>req = TestRequest::get()
+            .uri(<span class="string">&quot;https://actix.rs/test&quot;</span>)
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.scheme(), <span class="string">&quot;https&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">host_from_uri</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::get</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;https://actix.rs/test&quot;</span>)
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">host</span>(), <span class="string">&quot;actix.rs&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>host_from_uri() {
+        <span class="kw">let </span>req = TestRequest::get()
+            .uri(<span class="string">&quot;https://actix.rs/test&quot;</span>)
+            .to_http_request();
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.host(), <span class="string">&quot;actix.rs&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">host_from_server_hostname</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::get</span>();
-        <span class="ident">req</span>.<span class="ident">set_server_hostname</span>(<span class="string">&quot;actix.rs&quot;</span>);
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">to_http_request</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>host_from_server_hostname() {
+        <span class="kw">let </span><span class="kw-2">mut </span>req = TestRequest::get();
+        req.set_server_hostname(<span class="string">&quot;actix.rs&quot;</span>);
+        <span class="kw">let </span>req = req.to_http_request();
 
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">info</span>.<span class="ident">host</span>(), <span class="string">&quot;actix.rs&quot;</span>);
+        <span class="kw">let </span>info = req.connection_info();
+        <span class="macro">assert_eq!</span>(info.host(), <span class="string">&quot;actix.rs&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">conn_info_extract</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;https://actix.rs/test&quot;</span>)
-            .<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">conn_info</span> <span class="op">=</span> <span class="ident">ConnectionInfo::extract</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">conn_info</span>.<span class="ident">scheme</span>(), <span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">conn_info</span>.<span class="ident">host</span>(), <span class="string">&quot;actix.rs&quot;</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>conn_info_extract() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .uri(<span class="string">&quot;https://actix.rs/test&quot;</span>)
+            .to_http_request();
+        <span class="kw">let </span>conn_info = ConnectionInfo::extract(<span class="kw-2">&amp;</span>req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(conn_info.scheme(), <span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert_eq!</span>(conn_info.host(), <span class="string">&quot;actix.rs&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">peer_addr_extract</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">PeerAddr::extract</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>peer_addr_extract() {
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
+        <span class="kw">let </span>res = PeerAddr::extract(<span class="kw-2">&amp;</span>req).<span class="kw">await</span>;
+        <span class="macro">assert!</span>(res.is_err());
 
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="string">&quot;127.0.0.1:8080&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">peer_addr</span>(<span class="ident">addr</span>).<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">PeerAddr::extract</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">peer_addr</span>, <span class="ident">PeerAddr</span>(<span class="ident">addr</span>));
+        <span class="kw">let </span>addr = <span class="string">&quot;127.0.0.1:8080&quot;</span>.parse().unwrap();
+        <span class="kw">let </span>req = TestRequest::default().peer_addr(addr).to_http_request();
+        <span class="kw">let </span>peer_addr = PeerAddr::extract(<span class="kw-2">&amp;</span>req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(peer_addr, PeerAddr(addr));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remote_address</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">ConnectionInfo::extract</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">peer_addr</span>().<span class="ident">is_none</span>());
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>remote_address() {
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
+        <span class="kw">let </span>res = ConnectionInfo::extract(<span class="kw-2">&amp;</span>req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert!</span>(res.peer_addr().is_none());
 
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="string">&quot;127.0.0.1:8080&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">peer_addr</span>(<span class="ident">addr</span>).<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">conn_info</span> <span class="op">=</span> <span class="ident">ConnectionInfo::extract</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">conn_info</span>.<span class="ident">peer_addr</span>().<span class="ident">unwrap</span>(), <span class="string">&quot;127.0.0.1&quot;</span>);
+        <span class="kw">let </span>addr = <span class="string">&quot;127.0.0.1:8080&quot;</span>.parse().unwrap();
+        <span class="kw">let </span>req = TestRequest::default().peer_addr(addr).to_http_request();
+        <span class="kw">let </span>conn_info = ConnectionInfo::extract(<span class="kw-2">&amp;</span>req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(conn_info.peer_addr().unwrap(), <span class="string">&quot;127.0.0.1&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">real_ip_from_socket_addr</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">ConnectionInfo::extract</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">realip_remote_addr</span>().<span class="ident">is_none</span>());
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>real_ip_from_socket_addr() {
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
+        <span class="kw">let </span>res = ConnectionInfo::extract(<span class="kw-2">&amp;</span>req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert!</span>(res.realip_remote_addr().is_none());
 
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="string">&quot;127.0.0.1:8080&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">peer_addr</span>(<span class="ident">addr</span>).<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">conn_info</span> <span class="op">=</span> <span class="ident">ConnectionInfo::extract</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">conn_info</span>.<span class="ident">realip_remote_addr</span>().<span class="ident">unwrap</span>(), <span class="string">&quot;127.0.0.1&quot;</span>);
+        <span class="kw">let </span>addr = <span class="string">&quot;127.0.0.1:8080&quot;</span>.parse().unwrap();
+        <span class="kw">let </span>req = TestRequest::default().peer_addr(addr).to_http_request();
+        <span class="kw">let </span>conn_info = ConnectionInfo::extract(<span class="kw-2">&amp;</span>req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(conn_info.realip_remote_addr().unwrap(), <span class="string">&quot;127.0.0.1&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

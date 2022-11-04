@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bytestring-1.1.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../bytestring/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../bytestring/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../bytestring/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/bytestring-1.1.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../bytestring/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../bytestring/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../bytestring/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -350,357 +350,357 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A UTF-8 encoded read-only string using Bytes as storage.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A UTF-8 encoded read-only string using Bytes as storage.
 
-<span class="attribute">#![<span class="ident">no_std</span>]</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">rust_2018_idioms</span>, <span class="ident">nonstandard_style</span>)]</span>
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">future_incompatible</span>, <span class="ident">missing_docs</span>)]</span>
+</span><span class="attribute">#![no_std]
+#![deny(rust_2018_idioms, nonstandard_style)]
+#![warn(future_incompatible, missing_docs)]
 
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
+</span><span class="kw">extern crate </span>alloc;
 
-<span class="kw">use</span> <span class="ident">alloc</span>::{
-    <span class="ident">boxed::Box</span>,
-    <span class="ident">string</span>::{<span class="ident">String</span>, <span class="ident">ToString</span>},
-    <span class="ident">vec::Vec</span>,
+<span class="kw">use </span>alloc::{
+    boxed::Box,
+    string::{String, ToString},
+    vec::Vec,
 };
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">borrow</span>, <span class="ident">convert::TryFrom</span>, <span class="ident">fmt</span>, <span class="ident">hash</span>, <span class="ident">ops</span>, <span class="ident">str</span>};
+<span class="kw">use </span>core::{borrow, convert::TryFrom, fmt, hash, ops, str};
 
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+<span class="kw">use </span>bytes::Bytes;
 
-<span class="doccomment">/// An immutable UTF-8 encoded string with [`Bytes`] as a storage.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ByteString</span>(<span class="ident">Bytes</span>);
+<span class="doccomment">/// An immutable UTF-8 encoded string with [`Bytes`] as a storage.
+</span><span class="attribute">#[derive(Clone, Default, Eq, PartialOrd, Ord)]
+</span><span class="kw">pub struct </span>ByteString(Bytes);
 
-<span class="kw">impl</span> <span class="ident">ByteString</span> {
-    <span class="doccomment">/// Creates a new empty `ByteString`.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ByteString</span>(<span class="ident">Bytes::new</span>())
+<span class="kw">impl </span>ByteString {
+    <span class="doccomment">/// Creates a new empty `ByteString`.
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+        ByteString(Bytes::new())
     }
 
-    <span class="doccomment">/// Get a reference to the underlying `Bytes` object.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Bytes</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
+    <span class="doccomment">/// Get a reference to the underlying `Bytes` object.
+    </span><span class="kw">pub fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Bytes {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Unwraps this `ByteString` into the underlying `Bytes` object.
+    </span><span class="kw">pub fn </span>into_bytes(<span class="self">self</span>) -&gt; Bytes {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Creates a new `ByteString` from a `&amp;&#39;static str`.
+    </span><span class="kw">pub const fn </span>from_static(src: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; ByteString {
+        <span class="self">Self</span>(Bytes::from_static(src.as_bytes()))
     }
 
-    <span class="doccomment">/// Unwraps this `ByteString` into the underlying `Bytes` object.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_bytes</span>(<span class="self">self</span>) -&gt; <span class="ident">Bytes</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
-
-    <span class="doccomment">/// Creates a new `ByteString` from a `&amp;&#39;static str`.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_static</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">ByteString</span> {
-        <span class="self">Self</span>(<span class="ident">Bytes::from_static</span>(<span class="ident">src</span>.<span class="ident">as_bytes</span>()))
-    }
-
-    <span class="doccomment">/// Creates a new `ByteString` from a Bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">/// This function is unsafe because it does not check the bytes passed to it are valid UTF-8.</span>
-    <span class="doccomment">/// If this constraint is violated, it may cause memory unsafety issues with future users of</span>
-    <span class="doccomment">/// the `ByteString`, as we assume that `ByteString`s are valid UTF-8. However, the most likely</span>
-    <span class="doccomment">/// issue is that the data gets corrupted.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_bytes_unchecked</span>(<span class="ident">src</span>: <span class="ident">Bytes</span>) -&gt; <span class="ident">ByteString</span> {
-        <span class="self">Self</span>(<span class="ident">src</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>[..] <span class="op">==</span> <span class="ident">other</span>
+    <span class="doccomment">/// Creates a new `ByteString` from a Bytes.
+    ///
+    /// # Safety
+    /// This function is unsafe because it does not check the bytes passed to it are valid UTF-8.
+    /// If this constraint is violated, it may cause memory unsafety issues with future users of
+    /// the `ByteString`, as we assume that `ByteString`s are valid UTF-8. However, the most likely
+    /// issue is that the data gets corrupted.
+    </span><span class="kw">pub const unsafe fn </span>from_bytes_unchecked(src: Bytes) -&gt; ByteString {
+        <span class="self">Self</span>(src)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>[..] <span class="op">==</span> <span class="ident">other</span>.<span class="ident">as_ref</span>()
+<span class="kw">impl </span>PartialEq&lt;str&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="kw-2">&amp;</span><span class="self">self</span>[..] == other
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ref</span>()
+<span class="kw">impl</span>&lt;T: AsRef&lt;str&gt;&gt; PartialEq&lt;T&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>T) -&gt; bool {
+        <span class="kw-2">&amp;</span><span class="self">self</span>[..] == other.as_ref()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>
+<span class="kw">impl </span>AsRef&lt;[u8]&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="self">self</span>.<span class="number">0</span>.as_ref()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">hash::Hash</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">hash</span>(<span class="ident">state</span>);
+<span class="kw">impl </span>AsRef&lt;str&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;*</span><span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>hash::Hash <span class="kw">for </span>ByteString {
+    <span class="kw">fn </span>hash&lt;H: hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+        (<span class="kw-2">**</span><span class="self">self</span>).hash(state);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ops::Deref</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">str</span>;
+<span class="kw">impl </span>ops::Deref <span class="kw">for </span>ByteString {
+    <span class="kw">type </span>Target = str;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ref</span>();
-        <span class="comment">// SAFETY:</span>
-        <span class="comment">// UTF-8 validity is guaranteed at during construction.</span>
-        <span class="kw">unsafe</span> { <span class="ident">str::from_utf8_unchecked</span>(<span class="ident">bytes</span>) }
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw">let </span>bytes = <span class="self">self</span>.<span class="number">0</span>.as_ref();
+        <span class="comment">// SAFETY:
+        // UTF-8 validity is guaranteed at during construction.
+        </span><span class="kw">unsafe </span>{ str::from_utf8_unchecked(bytes) }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">borrow::Borrow</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">fn</span> <span class="ident">borrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>
+<span class="kw">impl </span>borrow::Borrow&lt;str&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;*</span><span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>From&lt;String&gt; <span class="kw">for </span>ByteString {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(value: String) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Bytes::from(value))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Bytes::from</span>(<span class="ident">value</span>))
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>ByteString {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(value: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Bytes::copy_from_slice(value.as_ref()))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">value</span>.<span class="ident">as_ref</span>()))
+<span class="kw">impl </span>From&lt;Box&lt;str&gt;&gt; <span class="kw">for </span>ByteString {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(value: Box&lt;str&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Bytes::from(value.into_boxed_bytes()))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Bytes::from</span>(<span class="ident">value</span>.<span class="ident">into_boxed_bytes</span>()))
+<span class="kw">impl </span>From&lt;ByteString&gt; <span class="kw">for </span>String {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(value: ByteString) -&gt; <span class="self">Self </span>{
+        value.to_string()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ByteString</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">ByteString</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">value</span>.<span class="ident">to_string</span>()
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>[u8]&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">type </span>Error = str::Utf8Error;
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let _ </span>= str::from_utf8(value)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(ByteString(Bytes::copy_from_slice(value)))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">str::Utf8Error</span>;
+<span class="kw">impl </span>TryFrom&lt;Vec&lt;u8&gt;&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">type </span>Error = str::Utf8Error;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">str::from_utf8</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">ByteString</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">value</span>)))
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_from(value: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>buf = String::from_utf8(value).map_err(|err| err.utf8_error())<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(ByteString(Bytes::from(buf)))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">str::Utf8Error</span>;
+<span class="kw">impl </span>TryFrom&lt;Bytes&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">type </span>Error = str::Utf8Error;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">value</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">utf8_error</span>())<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">ByteString</span>(<span class="ident">Bytes::from</span>(<span class="ident">buf</span>)))
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_from(value: Bytes) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let _ </span>= str::from_utf8(value.as_ref())<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(ByteString(value))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">str::Utf8Error</span>;
+<span class="kw">impl </span>TryFrom&lt;bytes::BytesMut&gt; <span class="kw">for </span>ByteString {
+    <span class="kw">type </span>Error = str::Utf8Error;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">Bytes</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">str::from_utf8</span>(<span class="ident">value</span>.<span class="ident">as_ref</span>())<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">ByteString</span>(<span class="ident">value</span>))
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_from(value: bytes::BytesMut) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let _ </span>= str::from_utf8(<span class="kw-2">&amp;</span>value)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(ByteString(value.freeze()))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">bytes::BytesMut</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">str::Utf8Error</span>;
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">bytes::BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">ByteString</span>(<span class="ident">value</span>.<span class="ident">freeze</span>()))
-    }
-}
-
-<span class="macro">macro_rules!</span> <span class="ident">array_impls</span> {
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">expr</span>)<span class="op">+</span>) =&gt; {
+<span class="macro">macro_rules! </span>array_impls {
+    ($(<span class="macro-nonterminal">$len</span>:expr)+) =&gt; {
         $(
-            <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-                <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">str::Utf8Error</span>;
+            <span class="kw">impl </span>TryFrom&lt;[u8; <span class="macro-nonterminal">$len</span>]&gt; <span class="kw">for </span>ByteString {
+                <span class="kw">type </span>Error = str::Utf8Error;
 
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: [<span class="ident">u8</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-                    <span class="ident">ByteString::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>[..])
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>try_from(value: [u8; <span class="macro-nonterminal">$len</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+                    ByteString::try_from(<span class="kw-2">&amp;</span>value[..])
                 }
             }
 
-            <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-                <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">str::Utf8Error</span>;
+            <span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>[u8; <span class="macro-nonterminal">$len</span>]&gt; <span class="kw">for </span>ByteString {
+                <span class="kw">type </span>Error = str::Utf8Error;
 
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-                    <span class="ident">ByteString::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>[..])
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>[u8; <span class="macro-nonterminal">$len</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+                    ByteString::try_from(<span class="kw-2">&amp;</span>value[..])
                 }
             }
-        )<span class="op">+</span>
+        )+
     }
 }
 
-<span class="macro">array_impls!</span>(<span class="number">0</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span> <span class="number">7</span> <span class="number">8</span> <span class="number">9</span> <span class="number">10</span> <span class="number">11</span> <span class="number">12</span> <span class="number">13</span> <span class="number">14</span> <span class="number">15</span> <span class="number">16</span> <span class="number">17</span> <span class="number">18</span> <span class="number">19</span> <span class="number">20</span> <span class="number">21</span> <span class="number">22</span> <span class="number">23</span> <span class="number">24</span> <span class="number">25</span> <span class="number">26</span> <span class="number">27</span> <span class="number">28</span> <span class="number">29</span> <span class="number">30</span> <span class="number">31</span> <span class="number">32</span>);
+<span class="macro">array_impls!</span>(<span class="number">0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32</span>);
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">fmt</span>(<span class="ident">fmt</span>)
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ByteString {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        (<span class="kw-2">**</span><span class="self">self</span>).fmt(fmt)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">fmt</span>(<span class="ident">fmt</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>ByteString {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        (<span class="kw-2">**</span><span class="self">self</span>).fmt(fmt)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">serde</span> {
-    <span class="kw">use</span> <span class="ident">alloc::string::String</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">mod </span>serde {
+    <span class="kw">use </span>alloc::string::String;
 
-    <span class="kw">use</span> <span class="ident">serde::de</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>};
-    <span class="kw">use</span> <span class="ident">serde::ser</span>::{<span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
+    <span class="kw">use </span>serde::de::{Deserialize, Deserializer};
+    <span class="kw">use </span>serde::ser::{Serialize, Serializer};
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ByteString</span>;
+    <span class="kw">use </span><span class="kw">super</span>::ByteString;
 
-    <span class="kw">impl</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">S</span>: <span class="ident">Serializer</span>,
+    <span class="kw">impl </span>Serialize <span class="kw">for </span>ByteString {
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+        <span class="kw">where
+            </span>S: Serializer,
         {
-            <span class="ident">serializer</span>.<span class="ident">serialize_str</span>(<span class="self">self</span>.<span class="ident">as_ref</span>())
+            serializer.serialize_str(<span class="self">self</span>.as_ref())
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ByteString</span> {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ByteString {
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+        <span class="kw">where
+            </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
         {
-            <span class="ident">String::deserialize</span>(<span class="ident">deserializer</span>).<span class="ident">map</span>(<span class="ident">ByteString::from</span>)
+            String::deserialize(deserializer).map(ByteString::from)
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">mod</span> <span class="ident">serde_impl_tests</span> {
-        <span class="kw">use</span> <span class="ident">serde::de::DeserializeOwned</span>;
-        <span class="kw">use</span> <span class="ident">static_assertions::assert_impl_all</span>;
+    <span class="attribute">#[cfg(test)]
+    </span><span class="kw">mod </span>serde_impl_tests {
+        <span class="kw">use </span>serde::de::DeserializeOwned;
+        <span class="kw">use </span>static_assertions::assert_impl_all;
 
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="macro">assert_impl_all!</span>(<span class="ident">ByteString</span>: <span class="ident">Serialize</span>, <span class="ident">DeserializeOwned</span>);
+        <span class="macro">assert_impl_all!</span>(ByteString: Serialize, DeserializeOwned);
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">alloc::borrow::ToOwned</span>;
-    <span class="kw">use</span> <span class="ident">core::hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>alloc::borrow::ToOwned;
+    <span class="kw">use </span>core::hash::{Hash, Hasher};
 
-    <span class="kw">use</span> <span class="ident">ahash::AHasher</span>;
-    <span class="kw">use</span> <span class="ident">static_assertions::assert_impl_all</span>;
+    <span class="kw">use </span>ahash::AHasher;
+    <span class="kw">use </span>static_assertions::assert_impl_all;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="macro">assert_impl_all!</span>(<span class="ident">ByteString</span>: <span class="ident">Send</span>, <span class="ident">Sync</span>, <span class="ident">Unpin</span>, <span class="ident">Sized</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">ByteString</span>: <span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">ByteString</span>: <span class="ident">fmt::Debug</span>, <span class="ident">fmt::Display</span>);
+    <span class="macro">assert_impl_all!</span>(ByteString: Send, Sync, Unpin, Sized);
+    <span class="macro">assert_impl_all!</span>(ByteString: Clone, Default, Eq, PartialOrd, Ord);
+    <span class="macro">assert_impl_all!</span>(ByteString: fmt::Debug, fmt::Display);
 
-    <span class="attribute">#[<span class="ident">rustversion::since</span>(<span class="number">1.56</span>)]</span>
-    <span class="kw">mod</span> <span class="ident">above_1_56_impls</span> {
-        <span class="comment">// `[Ref]UnwindSafe` traits were only in std until rust 1.56</span>
+    <span class="attribute">#[rustversion::since(<span class="number">1.56</span>)]
+    </span><span class="kw">mod </span>above_1_56_impls {
+        <span class="comment">// `[Ref]UnwindSafe` traits were only in std until rust 1.56
 
-        <span class="kw">use</span> <span class="ident">core::panic</span>::{<span class="ident">RefUnwindSafe</span>, <span class="ident">UnwindSafe</span>};
+        </span><span class="kw">use </span>core::panic::{RefUnwindSafe, UnwindSafe};
 
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-        <span class="macro">assert_impl_all!</span>(<span class="ident">ByteString</span>: <span class="ident">UnwindSafe</span>, <span class="ident">RefUnwindSafe</span>);
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
+        <span class="macro">assert_impl_all!</span>(ByteString: UnwindSafe, RefUnwindSafe);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_partial_eq</span>() {
-        <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">ByteString</span> <span class="op">=</span> <span class="ident">ByteString::from_static</span>(<span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="kw-2">*</span><span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;test&quot;</span>.<span class="ident">to_owned</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_partial_eq() {
+        <span class="kw">let </span>s: ByteString = ByteString::from_static(<span class="string">&quot;test&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;test&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="kw-2">*</span><span class="string">&quot;test&quot;</span>);
+        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;test&quot;</span>.to_owned());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_new</span>() {
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">ByteString</span> <span class="op">=</span> <span class="ident">ByteString::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_new() {
+        <span class="kw">let _</span>: ByteString = ByteString::new();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_hash</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher1</span> <span class="op">=</span> <span class="ident">AHasher::default</span>();
-        <span class="string">&quot;str&quot;</span>.<span class="ident">hash</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher1</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_hash() {
+        <span class="kw">let </span><span class="kw-2">mut </span>hasher1 = AHasher::default();
+        <span class="string">&quot;str&quot;</span>.hash(<span class="kw-2">&amp;mut </span>hasher1);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher2</span> <span class="op">=</span> <span class="ident">AHasher::default</span>();
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ByteString::from_static</span>(<span class="string">&quot;str&quot;</span>);
-        <span class="ident">s</span>.<span class="ident">hash</span>(<span class="kw-2">&amp;mut</span> <span class="ident">hasher2</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">hasher1</span>.<span class="ident">finish</span>(), <span class="ident">hasher2</span>.<span class="ident">finish</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>hasher2 = AHasher::default();
+        <span class="kw">let </span>s = ByteString::from_static(<span class="string">&quot;str&quot;</span>);
+        s.hash(<span class="kw-2">&amp;mut </span>hasher2);
+        <span class="macro">assert_eq!</span>(hasher1.finish(), hasher2.finish());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_from_string</span>() {
-        <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">ByteString</span> <span class="op">=</span> <span class="string">&quot;hello&quot;</span>.<span class="ident">to_owned</span>().<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>, <span class="string">&quot;hello&quot;</span>);
-        <span class="kw">let</span> <span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">as_ref</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;hello&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_from_string() {
+        <span class="kw">let </span>s: ByteString = <span class="string">&quot;hello&quot;</span>.to_owned().into();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>s, <span class="string">&quot;hello&quot;</span>);
+        <span class="kw">let </span>t: <span class="kw-2">&amp;</span>str = s.as_ref();
+        <span class="macro">assert_eq!</span>(t, <span class="string">&quot;hello&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_from_str</span>() {
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">ByteString</span> <span class="op">=</span> <span class="string">&quot;str&quot;</span>.<span class="ident">into</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_from_str() {
+        <span class="kw">let _</span>: ByteString = <span class="string">&quot;str&quot;</span>.into();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_from_static_str</span>() {
-        <span class="kw">static</span> <span class="ident">_S</span>: <span class="ident">ByteString</span> <span class="op">=</span> <span class="ident">ByteString::from_static</span>(<span class="string">&quot;hello&quot;</span>);
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ByteString::from_static</span>(<span class="string">&quot;str&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_from_static_str() {
+        <span class="kw">static </span>_S: ByteString = ByteString::from_static(<span class="string">&quot;hello&quot;</span>);
+        <span class="kw">let _ </span>= ByteString::from_static(<span class="string">&quot;str&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_try_from_slice</span>() {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ByteString::try_from</span>(<span class="string">b&quot;nice bytes&quot;</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_try_from_slice() {
+        <span class="kw">let _ </span>= ByteString::try_from(<span class="string">b&quot;nice bytes&quot;</span>).unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_try_from_array</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_try_from_array() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">ByteString::try_from</span>([<span class="string">b&#39;h&#39;</span>, <span class="string">b&#39;i&#39;</span>]).<span class="ident">unwrap</span>(),
-            <span class="ident">ByteString::from_static</span>(<span class="string">&quot;hi&quot;</span>)
+            ByteString::try_from([<span class="string">b&#39;h&#39;</span>, <span class="string">b&#39;i&#39;</span>]).unwrap(),
+            ByteString::from_static(<span class="string">&quot;hi&quot;</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_try_from_bytes</span>() {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ByteString::try_from</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;nice bytes&quot;</span>)).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_try_from_bytes() {
+        <span class="kw">let _ </span>= ByteString::try_from(Bytes::from_static(<span class="string">b&quot;nice bytes&quot;</span>)).unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_try_from_bytes_mut</span>() {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ByteString::try_from</span>(<span class="ident">bytes::BytesMut::from</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;nice bytes&quot;</span>[..])).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_try_from_bytes_mut() {
+        <span class="kw">let _ </span>= ByteString::try_from(bytes::BytesMut::from(<span class="kw-2">&amp;</span><span class="string">b&quot;nice bytes&quot;</span>[..])).unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_serialize</span>() {
-        <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">ByteString</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="string">r#&quot;&quot;nice bytes&quot;&quot;#</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">&quot;nice bytes&quot;</span>);
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    #[test]
+    </span><span class="kw">fn </span>test_serialize() {
+        <span class="kw">let </span>s: ByteString = serde_json::from_str(<span class="string">r#&quot;&quot;nice bytes&quot;&quot;#</span>).unwrap();
+        <span class="macro">assert_eq!</span>(s, <span class="string">&quot;nice bytes&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_deserialize</span>() {
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">ByteString::from_static</span>(<span class="string">&quot;nice bytes&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="string">r#&quot;&quot;nice bytes&quot;&quot;#</span>);
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+    #[test]
+    </span><span class="kw">fn </span>test_deserialize() {
+        <span class="kw">let </span>s = serde_json::to_string(<span class="kw-2">&amp;</span>ByteString::from_static(<span class="string">&quot;nice bytes&quot;</span>)).unwrap();
+        <span class="macro">assert_eq!</span>(s, <span class="string">r#&quot;&quot;nice bytes&quot;&quot;#</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="bytestring" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="bytestring" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

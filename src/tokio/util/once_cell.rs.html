@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.21.2/src/util/once_cell.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>once_cell.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.21.2/src/util/once_cell.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>once_cell.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -68,75 +68,75 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">loom</span>, <span class="ident">allow</span>(<span class="ident">dead_code</span>))]</span>
-<span class="kw">use</span> <span class="ident">std::cell::UnsafeCell</span>;
-<span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Once</span>;
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(loom, allow(dead_code))]
+</span><span class="kw">use </span>std::cell::UnsafeCell;
+<span class="kw">use </span>std::mem::MaybeUninit;
+<span class="kw">use </span>std::sync::Once;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">once</span>: <span class="ident">Once</span>,
-    <span class="ident">value</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>OnceCell&lt;T&gt; {
+    once: Once,
+    value: UnsafeCell&lt;MaybeUninit&lt;T&gt;&gt;,
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">unsafe impl</span>&lt;T: Send + Sync&gt; Send <span class="kw">for </span>OnceCell&lt;T&gt; {}
+<span class="kw">unsafe impl</span>&lt;T: Send + Sync&gt; Sync <span class="kw">for </span>OnceCell&lt;T&gt; {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">once</span>: <span class="ident">Once::new</span>(),
-            <span class="ident">value</span>: <span class="ident">UnsafeCell::new</span>(<span class="ident">MaybeUninit::uninit</span>()),
+<span class="kw">impl</span>&lt;T&gt; OnceCell&lt;T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            once: Once::new(),
+            value: UnsafeCell::new(MaybeUninit::uninit()),
         }
     }
 
-    <span class="doccomment">/// Get the value inside this cell, intiailizing it using the provided</span>
-    <span class="doccomment">/// function if necessary.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the `init` closure panics, then the `OnceCell` is poisoned and all</span>
-    <span class="doccomment">/// future calls to `get` will panic.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">init</span>: <span class="kw">fn</span>() -&gt; <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">once</span>.<span class="ident">is_completed</span>() {
-            <span class="self">self</span>.<span class="ident">do_init</span>(<span class="ident">init</span>);
+    <span class="doccomment">/// Get the value inside this cell, intiailizing it using the provided
+    /// function if necessary.
+    ///
+    /// If the `init` closure panics, then the `OnceCell` is poisoned and all
+    /// future calls to `get` will panic.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, init: <span class="kw">fn</span>() -&gt; T) -&gt; <span class="kw-2">&amp;</span>T {
+        <span class="kw">if </span>!<span class="self">self</span>.once.is_completed() {
+            <span class="self">self</span>.do_init(init);
         }
 
-        <span class="comment">// Safety: The `std::sync::Once` guarantees that we can only reach this</span>
-        <span class="comment">// line if a `call_once` closure has been run exactly once and without</span>
-        <span class="comment">// panicking. Thus, the value is not uninitialized.</span>
-        <span class="comment">//</span>
-        <span class="comment">// There is also no race because the only `&amp;self` method that modifies</span>
-        <span class="comment">// `value` is `do_init`, but if the `call_once` closure is still</span>
-        <span class="comment">// running, then no thread has gotten past the `call_once`.</span>
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="self">self</span>.<span class="ident">value</span>.<span class="ident">get</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span>) }
+        <span class="comment">// Safety: The `std::sync::Once` guarantees that we can only reach this
+        // line if a `call_once` closure has been run exactly once and without
+        // panicking. Thus, the value is not uninitialized.
+        //
+        // There is also no race because the only `&amp;self` method that modifies
+        // `value` is `do_init`, but if the `call_once` closure is still
+        // running, then no thread has gotten past the `call_once`.
+        </span><span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(<span class="self">self</span>.value.get() <span class="kw">as </span><span class="kw-2">*const </span>T) }
     }
 
-    <span class="attribute">#[<span class="ident">cold</span>]</span>
-    <span class="kw">fn</span> <span class="ident">do_init</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">init</span>: <span class="kw">fn</span>() -&gt; <span class="ident">T</span>) {
-        <span class="kw">let</span> <span class="ident">value_ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">get</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>;
+    <span class="attribute">#[cold]
+    </span><span class="kw">fn </span>do_init(<span class="kw-2">&amp;</span><span class="self">self</span>, init: <span class="kw">fn</span>() -&gt; T) {
+        <span class="kw">let </span>value_ptr = <span class="self">self</span>.value.get() <span class="kw">as </span><span class="kw-2">*mut </span>T;
 
-        <span class="self">self</span>.<span class="ident">once</span>.<span class="ident">call_once</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">set_to</span> <span class="op">=</span> <span class="ident">init</span>();
+        <span class="self">self</span>.once.call_once(|| {
+            <span class="kw">let </span>set_to = init();
 
-            <span class="comment">// Safety: The `std::sync::Once` guarantees that this initialization</span>
-            <span class="comment">// will run at most once, and that no thread can get past the</span>
-            <span class="comment">// `call_once` until it has run exactly once. Thus, we have</span>
-            <span class="comment">// exclusive access to `value`.</span>
-            <span class="kw">unsafe</span> {
-                <span class="ident">std::ptr::write</span>(<span class="ident">value_ptr</span>, <span class="ident">set_to</span>);
+            <span class="comment">// Safety: The `std::sync::Once` guarantees that this initialization
+            // will run at most once, and that no thread can get past the
+            // `call_once` until it has run exactly once. Thus, we have
+            // exclusive access to `value`.
+            </span><span class="kw">unsafe </span>{
+                std::ptr::write(value_ptr, set_to);
             }
         });
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">once</span>.<span class="ident">is_completed</span>() {
-            <span class="kw">let</span> <span class="ident">value_ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">get</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>;
-            <span class="kw">unsafe</span> {
-                <span class="ident">std::ptr::drop_in_place</span>(<span class="ident">value_ptr</span>);
+<span class="kw">impl</span>&lt;T&gt; Drop <span class="kw">for </span>OnceCell&lt;T&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.once.is_completed() {
+            <span class="kw">let </span>value_ptr = <span class="self">self</span>.value.get() <span class="kw">as </span><span class="kw-2">*mut </span>T;
+            <span class="kw">unsafe </span>{
+                std::ptr::drop_in_place(value_ptr);
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -317,177 +317,177 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Lettre is an email library that allows creating and sending messages. It provides:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * An easy to use email builder</span>
-<span class="doccomment">//! * Pluggable email transports</span>
-<span class="doccomment">//! * Unicode support</span>
-<span class="doccomment">//! * Secure defaults</span>
-<span class="doccomment">//! * Async support</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Lettre requires Rust 1.56.0 or newer.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Features</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This section lists each lettre feature and briefly explains it.</span>
-<span class="doccomment">//! More info about each module can be found in the corresponding module page.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Features with `📫` near them are enabled by default.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Typed message builder</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _Strongly typed [`message`] builder_</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * **builder** 📫: Enable the [`Message`] builder</span>
-<span class="doccomment">//! * **hostname** 📫: Try to use the actual system hostname in the `Message-ID` header</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### SMTP transport</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _Send emails using [`SMTP`]_</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * **smtp-transport** 📫: Enable the SMTP transport</span>
-<span class="doccomment">//! * **pool** 📫: Connection pool for SMTP transport</span>
-<span class="doccomment">//! * **hostname** 📫: Try to use the actual system hostname for the SMTP `CLIENTID`</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #### SMTP over TLS via the native-tls crate</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _Secure SMTP connections using TLS from the `native-tls` crate_</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Uses schannel on Windows, Security-Framework on macOS, and OpenSSL on Linux.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * **native-tls** 📫: TLS support for the synchronous version of the API</span>
-<span class="doccomment">//! * **tokio1-native-tls**: TLS support for the `tokio1` async version of the API</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! NOTE: native-tls isn&#39;t supported with `async-std`</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #### SMTP over TLS via the boring crate (Boring TLS)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _Secure SMTP connections using TLS from the `boring-tls` crate_</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * **boring-tls**: TLS support for the synchronous version of the API</span>
-<span class="doccomment">//! * **tokio1-boring-tls**: TLS support for the `tokio1` async version of the API</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! NOTE: boring-tls isn&#39;t supported with `async-std`</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #### SMTP over TLS via the rustls crate</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _Secure SMTP connections using TLS from the `rustls-tls` crate_</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Rustls uses [ring] as the cryptography implementation. As a result, [not all Rust&#39;s targets are supported][ring-support].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * **rustls-tls**: TLS support for the synchronous version of the API</span>
-<span class="doccomment">//! * **tokio1-rustls-tls**: TLS support for the `tokio1` async version of the API</span>
-<span class="doccomment">//! * **async-std1-rustls-tls**: TLS support for the `async-std1` async version of the API</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Sendmail transport</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _Send emails using the [`sendmail`] command_</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * **sendmail-transport**: Enable the `sendmail` transport</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### File transport</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _Save emails as an `.eml` [`file`]_</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * **file-transport**: Enable the file transport (saves emails into an `.eml` file)</span>
-<span class="doccomment">//! * **file-transport-envelope**: Allow writing the envelope into a JSON file (additionally saves envelopes into a `.json` file)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Async execution runtimes</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _Use [tokio] or [async-std] as an async execution runtime for sending emails_</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The correct runtime version must be chosen in order for lettre to work correctly.</span>
-<span class="doccomment">//! For example, when sending emails from a Tokio 1.x context, the Tokio 1.x executor</span>
-<span class="doccomment">//! ([`Tokio1Executor`]) must be used. Using a different version (for example Tokio 0.2.x),</span>
-<span class="doccomment">//! or async-std, would result in a runtime panic.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * **tokio1**: Allow to asynchronously send emails using [Tokio 1.x]</span>
-<span class="doccomment">//! * **async-std1**: Allow to asynchronously send emails using [async-std 1.x]</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! NOTE: native-tls isn&#39;t supported with `async-std`</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Misc features</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _Additional features_</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * **serde**: Serialization/Deserialization of entities</span>
-<span class="doccomment">//! * **tracing**: Logging using the `tracing` crate</span>
-<span class="doccomment">//! * **mime03**: Allow creating a [`ContentType`] from an existing [mime 0.3] `Mime` struct</span>
-<span class="doccomment">//! * **dkim**: Add support for signing email with DKIM</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`SMTP`]: crate::transport::smtp</span>
-<span class="doccomment">//! [`sendmail`]: crate::transport::sendmail</span>
-<span class="doccomment">//! [`file`]: crate::transport::file</span>
-<span class="doccomment">//! [`ContentType`]: crate::message::header::ContentType</span>
-<span class="doccomment">//! [tokio]: https://docs.rs/tokio/1</span>
-<span class="doccomment">//! [async-std]: https://docs.rs/async-std/1</span>
-<span class="doccomment">//! [ring]: https://github.com/briansmith/ring#ring</span>
-<span class="doccomment">//! [ring-support]: https://github.com/briansmith/ring#online-automated-testing</span>
-<span class="doccomment">//! [Tokio 1.x]: https://docs.rs/tokio/1</span>
-<span class="doccomment">//! [async-std 1.x]: https://docs.rs/async-std/1</span>
-<span class="doccomment">//! [mime 0.3]: https://docs.rs/mime/0.3</span>
-<span class="doccomment">//! [DKIM]: https://datatracker.ietf.org/doc/html/rfc6376</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Lettre is an email library that allows creating and sending messages. It provides:
+//!
+//! * An easy to use email builder
+//! * Pluggable email transports
+//! * Unicode support
+//! * Secure defaults
+//! * Async support
+//!
+//! Lettre requires Rust 1.56.0 or newer.
+//!
+//! ## Features
+//!
+//! This section lists each lettre feature and briefly explains it.
+//! More info about each module can be found in the corresponding module page.
+//!
+//! Features with `📫` near them are enabled by default.
+//!
+//! ### Typed message builder
+//!
+//! _Strongly typed [`message`] builder_
+//!
+//! * **builder** 📫: Enable the [`Message`] builder
+//! * **hostname** 📫: Try to use the actual system hostname in the `Message-ID` header
+//!
+//! ### SMTP transport
+//!
+//! _Send emails using [`SMTP`]_
+//!
+//! * **smtp-transport** 📫: Enable the SMTP transport
+//! * **pool** 📫: Connection pool for SMTP transport
+//! * **hostname** 📫: Try to use the actual system hostname for the SMTP `CLIENTID`
+//!
+//! #### SMTP over TLS via the native-tls crate
+//!
+//! _Secure SMTP connections using TLS from the `native-tls` crate_
+//!
+//! Uses schannel on Windows, Security-Framework on macOS, and OpenSSL on Linux.
+//!
+//! * **native-tls** 📫: TLS support for the synchronous version of the API
+//! * **tokio1-native-tls**: TLS support for the `tokio1` async version of the API
+//!
+//! NOTE: native-tls isn&#39;t supported with `async-std`
+//!
+//! #### SMTP over TLS via the boring crate (Boring TLS)
+//!
+//! _Secure SMTP connections using TLS from the `boring-tls` crate_
+//!
+//! * **boring-tls**: TLS support for the synchronous version of the API
+//! * **tokio1-boring-tls**: TLS support for the `tokio1` async version of the API
+//!
+//! NOTE: boring-tls isn&#39;t supported with `async-std`
+//!
+//! #### SMTP over TLS via the rustls crate
+//!
+//! _Secure SMTP connections using TLS from the `rustls-tls` crate_
+//!
+//! Rustls uses [ring] as the cryptography implementation. As a result, [not all Rust&#39;s targets are supported][ring-support].
+//!
+//! * **rustls-tls**: TLS support for the synchronous version of the API
+//! * **tokio1-rustls-tls**: TLS support for the `tokio1` async version of the API
+//! * **async-std1-rustls-tls**: TLS support for the `async-std1` async version of the API
+//!
+//! ### Sendmail transport
+//!
+//! _Send emails using the [`sendmail`] command_
+//!
+//! * **sendmail-transport**: Enable the `sendmail` transport
+//!
+//! ### File transport
+//!
+//! _Save emails as an `.eml` [`file`]_
+//!
+//! * **file-transport**: Enable the file transport (saves emails into an `.eml` file)
+//! * **file-transport-envelope**: Allow writing the envelope into a JSON file (additionally saves envelopes into a `.json` file)
+//!
+//! ### Async execution runtimes
+//!
+//! _Use [tokio] or [async-std] as an async execution runtime for sending emails_
+//!
+//! The correct runtime version must be chosen in order for lettre to work correctly.
+//! For example, when sending emails from a Tokio 1.x context, the Tokio 1.x executor
+//! ([`Tokio1Executor`]) must be used. Using a different version (for example Tokio 0.2.x),
+//! or async-std, would result in a runtime panic.
+//!
+//! * **tokio1**: Allow to asynchronously send emails using [Tokio 1.x]
+//! * **async-std1**: Allow to asynchronously send emails using [async-std 1.x]
+//!
+//! NOTE: native-tls isn&#39;t supported with `async-std`
+//!
+//! ### Misc features
+//!
+//! _Additional features_
+//!
+//! * **serde**: Serialization/Deserialization of entities
+//! * **tracing**: Logging using the `tracing` crate
+//! * **mime03**: Allow creating a [`ContentType`] from an existing [mime 0.3] `Mime` struct
+//! * **dkim**: Add support for signing email with DKIM
+//!
+//! [`SMTP`]: crate::transport::smtp
+//! [`sendmail`]: crate::transport::sendmail
+//! [`file`]: crate::transport::file
+//! [`ContentType`]: crate::message::header::ContentType
+//! [tokio]: https://docs.rs/tokio/1
+//! [async-std]: https://docs.rs/async-std/1
+//! [ring]: https://github.com/briansmith/ring#ring
+//! [ring-support]: https://github.com/briansmith/ring#online-automated-testing
+//! [Tokio 1.x]: https://docs.rs/tokio/1
+//! [async-std 1.x]: https://docs.rs/async-std/1
+//! [mime 0.3]: https://docs.rs/mime/0.3
+//! [DKIM]: https://datatracker.ietf.org/doc/html/rfc6376
 
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/crate/lettre/0.10.1&quot;</span>)]</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://lettre.rs/favicon.ico&quot;</span>)]</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://avatars0.githubusercontent.com/u/15113230?v=4&quot;</span>)]</span>
-<span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>)]</span>
-<span class="attribute">#![<span class="ident">deny</span>(
-    <span class="ident">missing_copy_implementations</span>,
-    <span class="ident">trivial_casts</span>,
-    <span class="ident">trivial_numeric_casts</span>,
-    <span class="ident">unstable_features</span>,
-    <span class="ident">unused_import_braces</span>,
-    <span class="ident">rust_2018_idioms</span>,
-    <span class="ident">clippy::string_add</span>,
-    <span class="ident">clippy::string_add_assign</span>,
-    <span class="ident">clippy::clone_on_ref_ptr</span>,
-    <span class="ident">clippy::verbose_file_reads</span>,
-    <span class="ident">clippy::unnecessary_self_imports</span>,
-    <span class="ident">clippy::string_to_string</span>,
-    <span class="ident">clippy::mem_forget</span>,
-    <span class="ident">clippy::cast_lossless</span>,
-    <span class="ident">clippy::inefficient_to_string</span>,
-    <span class="ident">clippy::inline_always</span>,
-    <span class="ident">clippy::linkedlist</span>,
-    <span class="ident">clippy::macro_use_imports</span>,
-    <span class="ident">clippy::manual_assert</span>,
-    <span class="ident">clippy::unnecessary_join</span>,
-    <span class="ident">clippy::wildcard_imports</span>,
-    <span class="ident">clippy::zero_sized_map_values</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
+</span><span class="attribute">#![doc(html_root_url = <span class="string">&quot;https://docs.rs/crate/lettre/0.10.1&quot;</span>)]
+#![doc(html_favicon_url = <span class="string">&quot;https://lettre.rs/favicon.ico&quot;</span>)]
+#![doc(html_logo_url = <span class="string">&quot;https://avatars0.githubusercontent.com/u/15113230?v=4&quot;</span>)]
+#![forbid(unsafe_code)]
+#![deny(
+    missing_copy_implementations,
+    trivial_casts,
+    trivial_numeric_casts,
+    unstable_features,
+    unused_import_braces,
+    rust_2018_idioms,
+    clippy::string_add,
+    clippy::string_add_assign,
+    clippy::clone_on_ref_ptr,
+    clippy::verbose_file_reads,
+    clippy::unnecessary_self_imports,
+    clippy::string_to_string,
+    clippy::mem_forget,
+    clippy::cast_lossless,
+    clippy::inefficient_to_string,
+    clippy::inline_always,
+    clippy::linkedlist,
+    clippy::macro_use_imports,
+    clippy::manual_assert,
+    clippy::unnecessary_join,
+    clippy::wildcard_imports,
+    clippy::zero_sized_map_values
+)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">lettre_ignore_tls_mismatch</span>))]</span>
-<span class="kw">mod</span> <span class="ident">compiletime_checks</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="macro">compile_error!</span>(<span class="string">&quot;feature \&quot;native-tls\&quot; and feature \&quot;boring-tls\&quot; cannot be enabled at the same time, otherwise
+#[cfg(not(lettre_ignore_tls_mismatch))]
+</span><span class="kw">mod </span>compiletime_checks {
+    <span class="attribute">#[cfg(all(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="macro">compile_error!</span>(<span class="string">&quot;feature \&quot;native-tls\&quot; and feature \&quot;boring-tls\&quot; cannot be enabled at the same time, otherwise
     the executable will fail to link.&quot;</span>);
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>,
-        <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1-native-tls&quot;</span>)
-    ))]</span>
-    <span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `tokio1` and the `native-tls` features, but the `tokio1-native-tls` feature hasn&#39;t been turned on.
+    <span class="attribute">#[cfg(all(
+        feature = <span class="string">&quot;tokio1&quot;</span>,
+        feature = <span class="string">&quot;native-tls&quot;</span>,
+        not(feature = <span class="string">&quot;tokio1-native-tls&quot;</span>)
+    ))]
+    </span><span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `tokio1` and the `native-tls` features, but the `tokio1-native-tls` feature hasn&#39;t been turned on.
     If you were trying to opt into `rustls-tls` and did not activate `native-tls`, disable the default-features of lettre in `Cargo.toml` and manually add the required features.
     Make sure to apply the same to any of your crate dependencies that use the `lettre` crate.&quot;</span>);
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>,
-        <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1-rustls-tls&quot;</span>)
-    ))]</span>
-    <span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `tokio1` and the `rustls-tls` features, but the `tokio1-rustls-tls` feature hasn&#39;t been turned on.
+    <span class="attribute">#[cfg(all(
+        feature = <span class="string">&quot;tokio1&quot;</span>,
+        feature = <span class="string">&quot;rustls-tls&quot;</span>,
+        not(feature = <span class="string">&quot;tokio1-rustls-tls&quot;</span>)
+    ))]
+    </span><span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `tokio1` and the `rustls-tls` features, but the `tokio1-rustls-tls` feature hasn&#39;t been turned on.
     If you&#39;d like to use `native-tls` make sure that the `rustls-tls` feature hasn&#39;t been enabled by mistake.
     Make sure to apply the same to any of your crate dependencies that use the `lettre` crate.&quot;</span>);
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>,
-        <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1-boring-tls&quot;</span>)
-    ))]</span>
-    <span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `tokio1` and the `boring-tls` features, but the `tokio1-boring-tls` feature hasn&#39;t been turned on.
+    <span class="attribute">#[cfg(all(
+        feature = <span class="string">&quot;tokio1&quot;</span>,
+        feature = <span class="string">&quot;boring-tls&quot;</span>,
+        not(feature = <span class="string">&quot;tokio1-boring-tls&quot;</span>)
+    ))]
+    </span><span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `tokio1` and the `boring-tls` features, but the `tokio1-boring-tls` feature hasn&#39;t been turned on.
     If you&#39;d like to use `boring-tls` make sure that the `rustls-tls` feature hasn&#39;t been enabled by mistake.
     Make sure to apply the same to any of your crate dependencies that use the `lettre` crate.&quot;</span>);
 
@@ -500,139 +500,139 @@
     compile_error!(&quot;Lettre is being built with the `async-std1` and the `native-tls` features, but the `async-std1-native-tls` feature hasn&#39;t been turned on.
     If you&#39;d like to use rustls make sure that the `native-tls` hasn&#39;t been enabled by mistake (you may need to import lettre without default features)
     If you&#39;re building a library which depends on lettre import it without default features and enable just the features you need.&quot;);
-    */</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>,
-        <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1-native-tls&quot;</span>)
-    ))]</span>
-    <span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `async-std1` and the `native-tls` features, but the async-std integration doesn&#39;t support native-tls yet.
+    */
+    </span><span class="attribute">#[cfg(all(
+        feature = <span class="string">&quot;async-std1&quot;</span>,
+        feature = <span class="string">&quot;native-tls&quot;</span>,
+        not(feature = <span class="string">&quot;async-std1-native-tls&quot;</span>)
+    ))]
+    </span><span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `async-std1` and the `native-tls` features, but the async-std integration doesn&#39;t support native-tls yet.
 If you&#39;d like to work on the issue please take a look at https://github.com/lettre/lettre/issues/576.
 If you were trying to opt into `rustls-tls` and did not activate `native-tls`, disable the default-features of lettre in `Cargo.toml` and manually add the required features.
 Make sure to apply the same to any of your crate dependencies that use the `lettre` crate.&quot;</span>);
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>,
-        <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1-rustls-tls&quot;</span>)
-    ))]</span>
-    <span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `async-std1` and the `rustls-tls` features, but the `async-std1-rustls-tls` feature hasn&#39;t been turned on.
+    <span class="attribute">#[cfg(all(
+        feature = <span class="string">&quot;async-std1&quot;</span>,
+        feature = <span class="string">&quot;rustls-tls&quot;</span>,
+        not(feature = <span class="string">&quot;async-std1-rustls-tls&quot;</span>)
+    ))]
+    </span><span class="macro">compile_error!</span>(<span class="string">&quot;Lettre is being built with the `async-std1` and the `rustls-tls` features, but the `async-std1-rustls-tls` feature hasn&#39;t been turned on.
 If you&#39;d like to use `native-tls` make sure that the `rustls-tls` hasn&#39;t been enabled by mistake.
 Make sure to apply the same to any of your crate dependencies that use the `lettre` crate.&quot;</span>);
 }
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">address</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">executor</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">message</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">transport</span>;
+<span class="kw">pub mod </span>address;
+<span class="kw">pub mod </span>error;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+</span><span class="kw">mod </span>executor;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;builder&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;builder&quot;</span>)))]
+</span><span class="kw">pub mod </span>message;
+<span class="kw">pub mod </span>transport;
 
-<span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
+<span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::executor::AsyncStd1Executor</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::executor::Executor</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::executor::Tokio1Executor</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::transport::AsyncTransport</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::address::Address</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message::Message</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;file-transport&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>)
-))]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::file::AsyncFileTransport</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;file-transport&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::file::FileTransport</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sendmail-transport&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>)
-))]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::sendmail::AsyncSendmailTransport</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sendmail-transport&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::sendmail::SendmailTransport</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;smtp-transport&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>)
-))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp::AsyncSmtpTransport</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;smtp-transport&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp::SmtpTransport</span>;
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::Transport</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">address::Envelope</span>, <span class="ident">error::Error</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;async-std1&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::executor::AsyncStd1Executor;
+<span class="attribute">#[cfg(all(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>)))]
+</span><span class="kw">pub use </span><span class="self">self</span>::executor::Executor;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;tokio1&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::executor::Tokio1Executor;
+<span class="attribute">#[cfg(all(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>)))]
+#[doc(inline)]
+</span><span class="kw">pub use </span><span class="self">self</span>::transport::AsyncTransport;
+<span class="kw">pub use </span><span class="kw">crate</span>::address::Address;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;builder&quot;</span>)]
+#[doc(inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::message::Message;
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;file-transport&quot;</span>,
+    any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>)
+))]
+#[doc(inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::transport::file::AsyncFileTransport;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;file-transport&quot;</span>)]
+#[doc(inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::transport::file::FileTransport;
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;sendmail-transport&quot;</span>,
+    any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>)
+))]
+#[doc(inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::transport::sendmail::AsyncSendmailTransport;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sendmail-transport&quot;</span>)]
+#[doc(inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::transport::sendmail::SendmailTransport;
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;smtp-transport&quot;</span>,
+    any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>)
+))]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::transport::smtp::AsyncSmtpTransport;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;smtp-transport&quot;</span>)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::transport::smtp::SmtpTransport;
+<span class="attribute">#[doc(inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::transport::Transport;
+<span class="kw">use crate</span>::{address::Envelope, error::Error};
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">BoxError</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>BoxError = Box&lt;<span class="kw">dyn </span>StdError + Send + Sync&gt;;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message</span>::{<span class="ident">header</span>, <span class="ident">header::Headers</span>, <span class="ident">Mailbox</span>, <span class="ident">Mailboxes</span>};
+<span class="attribute">#[cfg(test)]
+#[cfg(feature = <span class="string">&quot;builder&quot;</span>)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::message::{header, header::Headers, Mailbox, Mailboxes};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">envelope_from_headers</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">Mailboxes::new</span>().<span class="ident">with</span>(<span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">Mailboxes::new</span>().<span class="ident">with</span>(<span class="string">&quot;amousset@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>envelope_from_headers() {
+        <span class="kw">let </span>from = Mailboxes::new().with(<span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap());
+        <span class="kw">let </span>to = Mailboxes::new().with(<span class="string">&quot;amousset@example.com&quot;</span>.parse().unwrap());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header::From</span>(<span class="ident">from</span>));
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header::To</span>(<span class="ident">to</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.set(header::From(from));
+        headers.set(header::To(to));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Envelope::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">headers</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Envelope::new</span>(
-                <span class="prelude-val">Some</span>(<span class="ident">Address::new</span>(<span class="string">&quot;kayo&quot;</span>, <span class="string">&quot;example.com&quot;</span>).<span class="ident">unwrap</span>()),
-                <span class="macro">vec!</span>[<span class="ident">Address::new</span>(<span class="string">&quot;amousset&quot;</span>, <span class="string">&quot;example.com&quot;</span>).<span class="ident">unwrap</span>()]
+            Envelope::try_from(<span class="kw-2">&amp;</span>headers).unwrap(),
+            Envelope::new(
+                <span class="prelude-val">Some</span>(Address::new(<span class="string">&quot;kayo&quot;</span>, <span class="string">&quot;example.com&quot;</span>).unwrap()),
+                <span class="macro">vec!</span>[Address::new(<span class="string">&quot;amousset&quot;</span>, <span class="string">&quot;example.com&quot;</span>).unwrap()]
             )
-            .<span class="ident">unwrap</span>()
+            .unwrap()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">envelope_from_headers_sender</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">Mailboxes::new</span>().<span class="ident">with</span>(<span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">sender</span> <span class="op">=</span> <span class="ident">Mailbox::new</span>(<span class="prelude-val">None</span>, <span class="string">&quot;kayo2@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">Mailboxes::new</span>().<span class="ident">with</span>(<span class="string">&quot;amousset@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>envelope_from_headers_sender() {
+        <span class="kw">let </span>from = Mailboxes::new().with(<span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap());
+        <span class="kw">let </span>sender = Mailbox::new(<span class="prelude-val">None</span>, <span class="string">&quot;kayo2@example.com&quot;</span>.parse().unwrap());
+        <span class="kw">let </span>to = Mailboxes::new().with(<span class="string">&quot;amousset@example.com&quot;</span>.parse().unwrap());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header::From::from</span>(<span class="ident">from</span>));
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header::Sender::from</span>(<span class="ident">sender</span>));
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header::To::from</span>(<span class="ident">to</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.set(header::From::from(from));
+        headers.set(header::Sender::from(sender));
+        headers.set(header::To::from(to));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Envelope::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">headers</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Envelope::new</span>(
-                <span class="prelude-val">Some</span>(<span class="ident">Address::new</span>(<span class="string">&quot;kayo2&quot;</span>, <span class="string">&quot;example.com&quot;</span>).<span class="ident">unwrap</span>()),
-                <span class="macro">vec!</span>[<span class="ident">Address::new</span>(<span class="string">&quot;amousset&quot;</span>, <span class="string">&quot;example.com&quot;</span>).<span class="ident">unwrap</span>()]
+            Envelope::try_from(<span class="kw-2">&amp;</span>headers).unwrap(),
+            Envelope::new(
+                <span class="prelude-val">Some</span>(Address::new(<span class="string">&quot;kayo2&quot;</span>, <span class="string">&quot;example.com&quot;</span>).unwrap()),
+                <span class="macro">vec!</span>[Address::new(<span class="string">&quot;amousset&quot;</span>, <span class="string">&quot;example.com&quot;</span>).unwrap()]
             )
-            .<span class="ident">unwrap</span>()
+            .unwrap()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">envelope_from_headers_no_to</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">Mailboxes::new</span>().<span class="ident">with</span>(<span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">sender</span> <span class="op">=</span> <span class="ident">Mailbox::new</span>(<span class="prelude-val">None</span>, <span class="string">&quot;kayo2@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>envelope_from_headers_no_to() {
+        <span class="kw">let </span>from = Mailboxes::new().with(<span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap());
+        <span class="kw">let </span>sender = Mailbox::new(<span class="prelude-val">None</span>, <span class="string">&quot;kayo2@example.com&quot;</span>.parse().unwrap());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header::From::from</span>(<span class="ident">from</span>));
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header::Sender::from</span>(<span class="ident">sender</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.set(header::From::from(from));
+        headers.set(header::Sender::from(sender));
 
-        <span class="macro">assert!</span>(<span class="ident">Envelope::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">headers</span>).<span class="ident">is_err</span>(),);
+        <span class="macro">assert!</span>(Envelope::try_from(<span class="kw-2">&amp;</span>headers).is_err(),);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

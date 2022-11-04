@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/polyval-0.6.0/src/backend/soft64.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>soft64.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../polyval/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../polyval/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/polyval-0.6.0/src/backend/soft64.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>soft64.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../polyval/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../polyval/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../polyval/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -225,230 +225,230 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Constant-time software implementation of POLYVAL for 64-bit architectures.</span>
-<span class="doccomment">//! Adapted from BearSSL&#39;s `ghash_ctmul64.c`:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;https://bearssl.org/gitweb/?p=BearSSL;a=blob;f=src/hash/ghash_ctmul64.c;hb=4b6046412&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Copyright (c) 2016 Thomas Pornin &lt;pornin@bolet.org&gt;</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Constant-time software implementation of POLYVAL for 64-bit architectures.
+//! Adapted from BearSSL&#39;s `ghash_ctmul64.c`:
+//!
+//! &lt;https://bearssl.org/gitweb/?p=BearSSL;a=blob;f=src/hash/ghash_ctmul64.c;hb=4b6046412&gt;
+//!
+//! Copyright (c) 2016 Thomas Pornin &lt;pornin@bolet.org&gt;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Block</span>, <span class="ident">Key</span>, <span class="ident">Tag</span>};
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">num::Wrapping</span>,
-    <span class="ident">ops</span>::{<span class="ident">Add</span>, <span class="ident">Mul</span>},
+</span><span class="kw">use crate</span>::{Block, Key, Tag};
+<span class="kw">use </span>core::{
+    num::Wrapping,
+    ops::{Add, Mul},
 };
-<span class="kw">use</span> <span class="ident">universal_hash</span>::{
-    <span class="ident">consts</span>::{<span class="ident">U1</span>, <span class="ident">U16</span>},
-    <span class="ident">crypto_common</span>::{<span class="ident">BlockSizeUser</span>, <span class="ident">KeySizeUser</span>, <span class="ident">ParBlocksSizeUser</span>},
-    <span class="ident">KeyInit</span>, <span class="ident">Reset</span>, <span class="ident">UhfBackend</span>, <span class="ident">UniversalHash</span>,
+<span class="kw">use </span>universal_hash::{
+    consts::{U1, U16},
+    crypto_common::{BlockSizeUser, KeySizeUser, ParBlocksSizeUser},
+    KeyInit, Reset, UhfBackend, UniversalHash,
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">zeroize::Zeroize</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">use </span>zeroize::Zeroize;
 
-<span class="doccomment">/// **POLYVAL**: GHASH-like universal hash over GF(2^128).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Polyval</span> {
-    <span class="doccomment">/// GF(2^128) field element input blocks are multiplied by</span>
-    <span class="ident">h</span>: <span class="ident">U64x2</span>,
+<span class="doccomment">/// **POLYVAL**: GHASH-like universal hash over GF(2^128).
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>Polyval {
+    <span class="doccomment">/// GF(2^128) field element input blocks are multiplied by
+    </span>h: U64x2,
 
-    <span class="doccomment">/// Field element representing the computed universal hash</span>
-    <span class="ident">s</span>: <span class="ident">U64x2</span>,
+    <span class="doccomment">/// Field element representing the computed universal hash
+    </span>s: U64x2,
 }
 
-<span class="kw">impl</span> <span class="ident">KeySizeUser</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">type</span> <span class="ident">KeySize</span> <span class="op">=</span> <span class="ident">U16</span>;
+<span class="kw">impl </span>KeySizeUser <span class="kw">for </span>Polyval {
+    <span class="kw">type </span>KeySize = U16;
 }
 
-<span class="kw">impl</span> <span class="ident">KeyInit</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="doccomment">/// Initialize POLYVAL with the given `H` field element</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">h</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">h</span>: <span class="ident">h</span>.<span class="ident">into</span>(),
-            <span class="ident">s</span>: <span class="ident">U64x2::default</span>(),
+<span class="kw">impl </span>KeyInit <span class="kw">for </span>Polyval {
+    <span class="doccomment">/// Initialize POLYVAL with the given `H` field element
+    </span><span class="kw">fn </span>new(h: <span class="kw-2">&amp;</span>Key) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            h: h.into(),
+            s: U64x2::default(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span>;
+<span class="kw">impl </span>BlockSizeUser <span class="kw">for </span>Polyval {
+    <span class="kw">type </span>BlockSize = U16;
 }
 
-<span class="kw">impl</span> <span class="ident">ParBlocksSizeUser</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">type</span> <span class="ident">ParBlocksSize</span> <span class="op">=</span> <span class="ident">U1</span>;
+<span class="kw">impl </span>ParBlocksSizeUser <span class="kw">for </span>Polyval {
+    <span class="kw">type </span>ParBlocksSize = U1;
 }
 
-<span class="kw">impl</span> <span class="ident">UhfBackend</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">fn</span> <span class="ident">proc_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span>) {
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">U64x2::from</span>(<span class="ident">x</span>);
-        <span class="self">self</span>.<span class="ident">s</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">s</span> <span class="op">+</span> <span class="ident">x</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">h</span>;
+<span class="kw">impl </span>UhfBackend <span class="kw">for </span>Polyval {
+    <span class="kw">fn </span>proc_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x: <span class="kw-2">&amp;</span>Block) {
+        <span class="kw">let </span>x = U64x2::from(x);
+        <span class="self">self</span>.s = (<span class="self">self</span>.s + x) * <span class="self">self</span>.h;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">UniversalHash</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">fn</span> <span class="ident">update_with_backend</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">universal_hash::UhfClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>UniversalHash <span class="kw">for </span>Polyval {
+    <span class="kw">fn </span>update_with_backend(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        f: <span class="kw">impl </span>universal_hash::UhfClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;,
     ) {
-        <span class="ident">f</span>.<span class="ident">call</span>(<span class="self">self</span>);
+        f.call(<span class="self">self</span>);
     }
 
-    <span class="doccomment">/// Get POLYVAL result (i.e. computed `S` field element)</span>
-    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="self">self</span>) -&gt; <span class="ident">Tag</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">Block::default</span>();
+    <span class="doccomment">/// Get POLYVAL result (i.e. computed `S` field element)
+    </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; Tag {
+        <span class="kw">let </span><span class="kw-2">mut </span>block = Block::default();
 
-        <span class="kw">for</span> (<span class="ident">chunk</span>, <span class="ident">i</span>) <span class="kw">in</span> <span class="ident">block</span>.<span class="ident">chunks_mut</span>(<span class="number">8</span>).<span class="ident">zip</span>(<span class="kw-2">&amp;</span>[<span class="self">self</span>.<span class="ident">s</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="ident">s</span>.<span class="number">1</span>]) {
-            <span class="ident">chunk</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">to_le_bytes</span>());
+        <span class="kw">for </span>(chunk, i) <span class="kw">in </span>block.chunks_mut(<span class="number">8</span>).zip(<span class="kw-2">&amp;</span>[<span class="self">self</span>.s.<span class="number">0</span>, <span class="self">self</span>.s.<span class="number">1</span>]) {
+            chunk.copy_from_slice(<span class="kw-2">&amp;</span>i.to_le_bytes());
         }
 
-        <span class="ident">block</span>
+        block
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Reset</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">s</span> <span class="op">=</span> <span class="ident">U64x2::default</span>();
+<span class="kw">impl </span>Reset <span class="kw">for </span>Polyval {
+    <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.s = U64x2::default();
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">h</span>.<span class="ident">zeroize</span>();
-        <span class="self">self</span>.<span class="ident">s</span>.<span class="ident">zeroize</span>();
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">impl </span>Drop <span class="kw">for </span>Polyval {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.h.zeroize();
+        <span class="self">self</span>.s.zeroize();
     }
 }
 
-<span class="doccomment">/// 2 x `u64` values</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">struct</span> <span class="ident">U64x2</span>(<span class="ident">u64</span>, <span class="ident">u64</span>);
+<span class="doccomment">/// 2 x `u64` values
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
+</span><span class="kw">struct </span>U64x2(u64, u64);
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Block</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">U64x2</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span>) -&gt; <span class="ident">U64x2</span> {
-        <span class="ident">U64x2</span>(
-            <span class="ident">u64::from_le_bytes</span>(<span class="ident">bytes</span>[..<span class="number">8</span>].<span class="ident">try_into</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">u64::from_le_bytes</span>(<span class="ident">bytes</span>[<span class="number">8</span>..].<span class="ident">try_into</span>().<span class="ident">unwrap</span>()),
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>Block&gt; <span class="kw">for </span>U64x2 {
+    <span class="kw">fn </span>from(bytes: <span class="kw-2">&amp;</span>Block) -&gt; U64x2 {
+        U64x2(
+            u64::from_le_bytes(bytes[..<span class="number">8</span>].try_into().unwrap()),
+            u64::from_le_bytes(bytes[<span class="number">8</span>..].try_into().unwrap()),
         )
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::suspicious_arithmetic_impl</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Add</span> <span class="kw">for</span> <span class="ident">U64x2</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
+<span class="attribute">#[allow(clippy::suspicious_arithmetic_impl)]
+</span><span class="kw">impl </span>Add <span class="kw">for </span>U64x2 {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
 
-    <span class="doccomment">/// Adds two POLYVAL field elements.</span>
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">U64x2</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">^</span> <span class="ident">rhs</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="number">1</span> <span class="op">^</span> <span class="ident">rhs</span>.<span class="number">1</span>)
+    <span class="doccomment">/// Adds two POLYVAL field elements.
+    </span><span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>::Output {
+        U64x2(<span class="self">self</span>.<span class="number">0 </span>^ rhs.<span class="number">0</span>, <span class="self">self</span>.<span class="number">1 </span>^ rhs.<span class="number">1</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::suspicious_arithmetic_impl</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Mul</span> <span class="kw">for</span> <span class="ident">U64x2</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
+<span class="attribute">#[allow(clippy::suspicious_arithmetic_impl)]
+</span><span class="kw">impl </span>Mul <span class="kw">for </span>U64x2 {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
 
-    <span class="doccomment">/// Computes carryless POLYVAL multiplication over GF(2^128) in constant time.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Method described at:</span>
-    <span class="doccomment">/// &lt;https://www.bearssl.org/constanttime.html#ghash-for-gcm&gt;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// POLYVAL multiplication is effectively the little endian equivalent of</span>
-    <span class="doccomment">/// GHASH multiplication, aside from one small detail described here:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// &lt;https://crypto.stackexchange.com/questions/66448/how-does-bearssls-gcm-modular-reduction-work/66462#66462&gt;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// &gt; The product of two bit-reversed 128-bit polynomials yields the</span>
-    <span class="doccomment">/// &gt; bit-reversed result over 255 bits, not 256. The BearSSL code ends up</span>
-    <span class="doccomment">/// &gt; with a 256-bit result in zw[], and that value is shifted by one bit,</span>
-    <span class="doccomment">/// &gt; because of that reversed convention issue. Thus, the code must</span>
-    <span class="doccomment">/// &gt; include a shifting step to put it back where it should</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This shift is unnecessary for POLYVAL and has been removed.</span>
-    <span class="kw">fn</span> <span class="ident">mul</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">h0</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
-        <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">h0r</span> <span class="op">=</span> <span class="ident">rev64</span>(<span class="ident">h0</span>);
-        <span class="kw">let</span> <span class="ident">h1r</span> <span class="op">=</span> <span class="ident">rev64</span>(<span class="ident">h1</span>);
-        <span class="kw">let</span> <span class="ident">h2</span> <span class="op">=</span> <span class="ident">h0</span> <span class="op">^</span> <span class="ident">h1</span>;
-        <span class="kw">let</span> <span class="ident">h2r</span> <span class="op">=</span> <span class="ident">h0r</span> <span class="op">^</span> <span class="ident">h1r</span>;
+    <span class="doccomment">/// Computes carryless POLYVAL multiplication over GF(2^128) in constant time.
+    ///
+    /// Method described at:
+    /// &lt;https://www.bearssl.org/constanttime.html#ghash-for-gcm&gt;
+    ///
+    /// POLYVAL multiplication is effectively the little endian equivalent of
+    /// GHASH multiplication, aside from one small detail described here:
+    ///
+    /// &lt;https://crypto.stackexchange.com/questions/66448/how-does-bearssls-gcm-modular-reduction-work/66462#66462&gt;
+    ///
+    /// &gt; The product of two bit-reversed 128-bit polynomials yields the
+    /// &gt; bit-reversed result over 255 bits, not 256. The BearSSL code ends up
+    /// &gt; with a 256-bit result in zw[], and that value is shifted by one bit,
+    /// &gt; because of that reversed convention issue. Thus, the code must
+    /// &gt; include a shifting step to put it back where it should
+    ///
+    /// This shift is unnecessary for POLYVAL and has been removed.
+    </span><span class="kw">fn </span>mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>h0 = <span class="self">self</span>.<span class="number">0</span>;
+        <span class="kw">let </span>h1 = <span class="self">self</span>.<span class="number">1</span>;
+        <span class="kw">let </span>h0r = rev64(h0);
+        <span class="kw">let </span>h1r = rev64(h1);
+        <span class="kw">let </span>h2 = h0 ^ h1;
+        <span class="kw">let </span>h2r = h0r ^ h1r;
 
-        <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="number">0</span>;
-        <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">y0r</span> <span class="op">=</span> <span class="ident">rev64</span>(<span class="ident">y0</span>);
-        <span class="kw">let</span> <span class="ident">y1r</span> <span class="op">=</span> <span class="ident">rev64</span>(<span class="ident">y1</span>);
-        <span class="kw">let</span> <span class="ident">y2</span> <span class="op">=</span> <span class="ident">y0</span> <span class="op">^</span> <span class="ident">y1</span>;
-        <span class="kw">let</span> <span class="ident">y2r</span> <span class="op">=</span> <span class="ident">y0r</span> <span class="op">^</span> <span class="ident">y1r</span>;
-        <span class="kw">let</span> <span class="ident">z0</span> <span class="op">=</span> <span class="ident">bmul64</span>(<span class="ident">y0</span>, <span class="ident">h0</span>);
-        <span class="kw">let</span> <span class="ident">z1</span> <span class="op">=</span> <span class="ident">bmul64</span>(<span class="ident">y1</span>, <span class="ident">h1</span>);
+        <span class="kw">let </span>y0 = rhs.<span class="number">0</span>;
+        <span class="kw">let </span>y1 = rhs.<span class="number">1</span>;
+        <span class="kw">let </span>y0r = rev64(y0);
+        <span class="kw">let </span>y1r = rev64(y1);
+        <span class="kw">let </span>y2 = y0 ^ y1;
+        <span class="kw">let </span>y2r = y0r ^ y1r;
+        <span class="kw">let </span>z0 = bmul64(y0, h0);
+        <span class="kw">let </span>z1 = bmul64(y1, h1);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z2</span> <span class="op">=</span> <span class="ident">bmul64</span>(<span class="ident">y2</span>, <span class="ident">h2</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z0h</span> <span class="op">=</span> <span class="ident">bmul64</span>(<span class="ident">y0r</span>, <span class="ident">h0r</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z1h</span> <span class="op">=</span> <span class="ident">bmul64</span>(<span class="ident">y1r</span>, <span class="ident">h1r</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z2h</span> <span class="op">=</span> <span class="ident">bmul64</span>(<span class="ident">y2r</span>, <span class="ident">h2r</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>z2 = bmul64(y2, h2);
+        <span class="kw">let </span><span class="kw-2">mut </span>z0h = bmul64(y0r, h0r);
+        <span class="kw">let </span><span class="kw-2">mut </span>z1h = bmul64(y1r, h1r);
+        <span class="kw">let </span><span class="kw-2">mut </span>z2h = bmul64(y2r, h2r);
 
-        <span class="ident">z2</span> <span class="op">^</span><span class="op">=</span> <span class="ident">z0</span> <span class="op">^</span> <span class="ident">z1</span>;
-        <span class="ident">z2h</span> <span class="op">^</span><span class="op">=</span> <span class="ident">z0h</span> <span class="op">^</span> <span class="ident">z1h</span>;
-        <span class="ident">z0h</span> <span class="op">=</span> <span class="ident">rev64</span>(<span class="ident">z0h</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1</span>;
-        <span class="ident">z1h</span> <span class="op">=</span> <span class="ident">rev64</span>(<span class="ident">z1h</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1</span>;
-        <span class="ident">z2h</span> <span class="op">=</span> <span class="ident">rev64</span>(<span class="ident">z2h</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1</span>;
+        z2 ^= z0 ^ z1;
+        z2h ^= z0h ^ z1h;
+        z0h = rev64(z0h) &gt;&gt; <span class="number">1</span>;
+        z1h = rev64(z1h) &gt;&gt; <span class="number">1</span>;
+        z2h = rev64(z2h) &gt;&gt; <span class="number">1</span>;
 
-        <span class="kw">let</span> <span class="ident">v0</span> <span class="op">=</span> <span class="ident">z0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v1</span> <span class="op">=</span> <span class="ident">z0h</span> <span class="op">^</span> <span class="ident">z2</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v2</span> <span class="op">=</span> <span class="ident">z1</span> <span class="op">^</span> <span class="ident">z2h</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v3</span> <span class="op">=</span> <span class="ident">z1h</span>;
+        <span class="kw">let </span>v0 = z0;
+        <span class="kw">let </span><span class="kw-2">mut </span>v1 = z0h ^ z2;
+        <span class="kw">let </span><span class="kw-2">mut </span>v2 = z1 ^ z2h;
+        <span class="kw">let </span><span class="kw-2">mut </span>v3 = z1h;
 
-        <span class="ident">v2</span> <span class="op">^</span><span class="op">=</span> <span class="ident">v0</span> <span class="op">^</span> (<span class="ident">v0</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1</span>) <span class="op">^</span> (<span class="ident">v0</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2</span>) <span class="op">^</span> (<span class="ident">v0</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">7</span>);
-        <span class="ident">v1</span> <span class="op">^</span><span class="op">=</span> (<span class="ident">v0</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">63</span>) <span class="op">^</span> (<span class="ident">v0</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">62</span>) <span class="op">^</span> (<span class="ident">v0</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">57</span>);
-        <span class="ident">v3</span> <span class="op">^</span><span class="op">=</span> <span class="ident">v1</span> <span class="op">^</span> (<span class="ident">v1</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1</span>) <span class="op">^</span> (<span class="ident">v1</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2</span>) <span class="op">^</span> (<span class="ident">v1</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">7</span>);
-        <span class="ident">v2</span> <span class="op">^</span><span class="op">=</span> (<span class="ident">v1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">63</span>) <span class="op">^</span> (<span class="ident">v1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">62</span>) <span class="op">^</span> (<span class="ident">v1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">57</span>);
+        v2 ^= v0 ^ (v0 &gt;&gt; <span class="number">1</span>) ^ (v0 &gt;&gt; <span class="number">2</span>) ^ (v0 &gt;&gt; <span class="number">7</span>);
+        v1 ^= (v0 &lt;&lt; <span class="number">63</span>) ^ (v0 &lt;&lt; <span class="number">62</span>) ^ (v0 &lt;&lt; <span class="number">57</span>);
+        v3 ^= v1 ^ (v1 &gt;&gt; <span class="number">1</span>) ^ (v1 &gt;&gt; <span class="number">2</span>) ^ (v1 &gt;&gt; <span class="number">7</span>);
+        v2 ^= (v1 &lt;&lt; <span class="number">63</span>) ^ (v1 &lt;&lt; <span class="number">62</span>) ^ (v1 &lt;&lt; <span class="number">57</span>);
 
-        <span class="ident">U64x2</span>(<span class="ident">v2</span>, <span class="ident">v3</span>)
+        U64x2(v2, v3)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Zeroize</span> <span class="kw">for</span> <span class="ident">U64x2</span> {
-    <span class="kw">fn</span> <span class="ident">zeroize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">zeroize</span>();
-        <span class="self">self</span>.<span class="number">1</span>.<span class="ident">zeroize</span>();
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">impl </span>Zeroize <span class="kw">for </span>U64x2 {
+    <span class="kw">fn </span>zeroize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.<span class="number">0</span>.zeroize();
+        <span class="self">self</span>.<span class="number">1</span>.zeroize();
     }
 }
 
-<span class="doccomment">/// Multiplication in GF(2)[X], truncated to the low 64-bits, with “holes”</span>
-<span class="doccomment">/// (sequences of zeroes) to avoid carry spilling.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When carries do occur, they wind up in a &quot;hole&quot; and are subsequently masked</span>
-<span class="doccomment">/// out of the result.</span>
-<span class="kw">fn</span> <span class="ident">bmul64</span>(<span class="ident">x</span>: <span class="ident">u64</span>, <span class="ident">y</span>: <span class="ident">u64</span>) -&gt; <span class="ident">u64</span> {
-    <span class="kw">let</span> <span class="ident">x0</span> <span class="op">=</span> <span class="ident">Wrapping</span>(<span class="ident">x</span> <span class="op">&amp;</span> <span class="number">0x1111_1111_1111_1111</span>);
-    <span class="kw">let</span> <span class="ident">x1</span> <span class="op">=</span> <span class="ident">Wrapping</span>(<span class="ident">x</span> <span class="op">&amp;</span> <span class="number">0x2222_2222_2222_2222</span>);
-    <span class="kw">let</span> <span class="ident">x2</span> <span class="op">=</span> <span class="ident">Wrapping</span>(<span class="ident">x</span> <span class="op">&amp;</span> <span class="number">0x4444_4444_4444_4444</span>);
-    <span class="kw">let</span> <span class="ident">x3</span> <span class="op">=</span> <span class="ident">Wrapping</span>(<span class="ident">x</span> <span class="op">&amp;</span> <span class="number">0x8888_8888_8888_8888</span>);
-    <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">Wrapping</span>(<span class="ident">y</span> <span class="op">&amp;</span> <span class="number">0x1111_1111_1111_1111</span>);
-    <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="ident">Wrapping</span>(<span class="ident">y</span> <span class="op">&amp;</span> <span class="number">0x2222_2222_2222_2222</span>);
-    <span class="kw">let</span> <span class="ident">y2</span> <span class="op">=</span> <span class="ident">Wrapping</span>(<span class="ident">y</span> <span class="op">&amp;</span> <span class="number">0x4444_4444_4444_4444</span>);
-    <span class="kw">let</span> <span class="ident">y3</span> <span class="op">=</span> <span class="ident">Wrapping</span>(<span class="ident">y</span> <span class="op">&amp;</span> <span class="number">0x8888_8888_8888_8888</span>);
+<span class="doccomment">/// Multiplication in GF(2)[X], truncated to the low 64-bits, with “holes”
+/// (sequences of zeroes) to avoid carry spilling.
+///
+/// When carries do occur, they wind up in a &quot;hole&quot; and are subsequently masked
+/// out of the result.
+</span><span class="kw">fn </span>bmul64(x: u64, y: u64) -&gt; u64 {
+    <span class="kw">let </span>x0 = Wrapping(x &amp; <span class="number">0x1111_1111_1111_1111</span>);
+    <span class="kw">let </span>x1 = Wrapping(x &amp; <span class="number">0x2222_2222_2222_2222</span>);
+    <span class="kw">let </span>x2 = Wrapping(x &amp; <span class="number">0x4444_4444_4444_4444</span>);
+    <span class="kw">let </span>x3 = Wrapping(x &amp; <span class="number">0x8888_8888_8888_8888</span>);
+    <span class="kw">let </span>y0 = Wrapping(y &amp; <span class="number">0x1111_1111_1111_1111</span>);
+    <span class="kw">let </span>y1 = Wrapping(y &amp; <span class="number">0x2222_2222_2222_2222</span>);
+    <span class="kw">let </span>y2 = Wrapping(y &amp; <span class="number">0x4444_4444_4444_4444</span>);
+    <span class="kw">let </span>y3 = Wrapping(y &amp; <span class="number">0x8888_8888_8888_8888</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z0</span> <span class="op">=</span> ((<span class="ident">x0</span> <span class="op">*</span> <span class="ident">y0</span>) <span class="op">^</span> (<span class="ident">x1</span> <span class="op">*</span> <span class="ident">y3</span>) <span class="op">^</span> (<span class="ident">x2</span> <span class="op">*</span> <span class="ident">y2</span>) <span class="op">^</span> (<span class="ident">x3</span> <span class="op">*</span> <span class="ident">y1</span>)).<span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z1</span> <span class="op">=</span> ((<span class="ident">x0</span> <span class="op">*</span> <span class="ident">y1</span>) <span class="op">^</span> (<span class="ident">x1</span> <span class="op">*</span> <span class="ident">y0</span>) <span class="op">^</span> (<span class="ident">x2</span> <span class="op">*</span> <span class="ident">y3</span>) <span class="op">^</span> (<span class="ident">x3</span> <span class="op">*</span> <span class="ident">y2</span>)).<span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z2</span> <span class="op">=</span> ((<span class="ident">x0</span> <span class="op">*</span> <span class="ident">y2</span>) <span class="op">^</span> (<span class="ident">x1</span> <span class="op">*</span> <span class="ident">y1</span>) <span class="op">^</span> (<span class="ident">x2</span> <span class="op">*</span> <span class="ident">y0</span>) <span class="op">^</span> (<span class="ident">x3</span> <span class="op">*</span> <span class="ident">y3</span>)).<span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z3</span> <span class="op">=</span> ((<span class="ident">x0</span> <span class="op">*</span> <span class="ident">y3</span>) <span class="op">^</span> (<span class="ident">x1</span> <span class="op">*</span> <span class="ident">y2</span>) <span class="op">^</span> (<span class="ident">x2</span> <span class="op">*</span> <span class="ident">y1</span>) <span class="op">^</span> (<span class="ident">x3</span> <span class="op">*</span> <span class="ident">y0</span>)).<span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>z0 = ((x0 * y0) ^ (x1 * y3) ^ (x2 * y2) ^ (x3 * y1)).<span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>z1 = ((x0 * y1) ^ (x1 * y0) ^ (x2 * y3) ^ (x3 * y2)).<span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>z2 = ((x0 * y2) ^ (x1 * y1) ^ (x2 * y0) ^ (x3 * y3)).<span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>z3 = ((x0 * y3) ^ (x1 * y2) ^ (x2 * y1) ^ (x3 * y0)).<span class="number">0</span>;
 
-    <span class="ident">z0</span> <span class="op">&amp;=</span> <span class="number">0x1111_1111_1111_1111</span>;
-    <span class="ident">z1</span> <span class="op">&amp;=</span> <span class="number">0x2222_2222_2222_2222</span>;
-    <span class="ident">z2</span> <span class="op">&amp;=</span> <span class="number">0x4444_4444_4444_4444</span>;
-    <span class="ident">z3</span> <span class="op">&amp;=</span> <span class="number">0x8888_8888_8888_8888</span>;
+    z0 &amp;= <span class="number">0x1111_1111_1111_1111</span>;
+    z1 &amp;= <span class="number">0x2222_2222_2222_2222</span>;
+    z2 &amp;= <span class="number">0x4444_4444_4444_4444</span>;
+    z3 &amp;= <span class="number">0x8888_8888_8888_8888</span>;
 
-    <span class="ident">z0</span> <span class="op">|</span> <span class="ident">z1</span> <span class="op">|</span> <span class="ident">z2</span> <span class="op">|</span> <span class="ident">z3</span>
+    z0 | z1 | z2 | z3
 }
 
-<span class="doccomment">/// Bit-reverse a `u64` in constant time</span>
-<span class="kw">fn</span> <span class="ident">rev64</span>(<span class="kw-2">mut</span> <span class="ident">x</span>: <span class="ident">u64</span>) -&gt; <span class="ident">u64</span> {
-    <span class="ident">x</span> <span class="op">=</span> ((<span class="ident">x</span> <span class="op">&amp;</span> <span class="number">0x5555_5555_5555_5555</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>) <span class="op">|</span> ((<span class="ident">x</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1</span>) <span class="op">&amp;</span> <span class="number">0x5555_5555_5555_5555</span>);
-    <span class="ident">x</span> <span class="op">=</span> ((<span class="ident">x</span> <span class="op">&amp;</span> <span class="number">0x3333_3333_3333_3333</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2</span>) <span class="op">|</span> ((<span class="ident">x</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2</span>) <span class="op">&amp;</span> <span class="number">0x3333_3333_3333_3333</span>);
-    <span class="ident">x</span> <span class="op">=</span> ((<span class="ident">x</span> <span class="op">&amp;</span> <span class="number">0x0f0f_0f0f_0f0f_0f0f</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>) <span class="op">|</span> ((<span class="ident">x</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>) <span class="op">&amp;</span> <span class="number">0x0f0f_0f0f_0f0f_0f0f</span>);
-    <span class="ident">x</span> <span class="op">=</span> ((<span class="ident">x</span> <span class="op">&amp;</span> <span class="number">0x00ff_00ff_00ff_00ff</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>) <span class="op">|</span> ((<span class="ident">x</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="op">&amp;</span> <span class="number">0x00ff_00ff_00ff_00ff</span>);
-    <span class="ident">x</span> <span class="op">=</span> ((<span class="ident">x</span> <span class="op">&amp;</span> <span class="number">0xffff_0000_ffff</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>) <span class="op">|</span> ((<span class="ident">x</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">16</span>) <span class="op">&amp;</span> <span class="number">0xffff_0000_ffff</span>);
-    (<span class="ident">x</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>) <span class="op">|</span> (<span class="ident">x</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">32</span>)
+<span class="doccomment">/// Bit-reverse a `u64` in constant time
+</span><span class="kw">fn </span>rev64(<span class="kw-2">mut </span>x: u64) -&gt; u64 {
+    x = ((x &amp; <span class="number">0x5555_5555_5555_5555</span>) &lt;&lt; <span class="number">1</span>) | ((x &gt;&gt; <span class="number">1</span>) &amp; <span class="number">0x5555_5555_5555_5555</span>);
+    x = ((x &amp; <span class="number">0x3333_3333_3333_3333</span>) &lt;&lt; <span class="number">2</span>) | ((x &gt;&gt; <span class="number">2</span>) &amp; <span class="number">0x3333_3333_3333_3333</span>);
+    x = ((x &amp; <span class="number">0x0f0f_0f0f_0f0f_0f0f</span>) &lt;&lt; <span class="number">4</span>) | ((x &gt;&gt; <span class="number">4</span>) &amp; <span class="number">0x0f0f_0f0f_0f0f_0f0f</span>);
+    x = ((x &amp; <span class="number">0x00ff_00ff_00ff_00ff</span>) &lt;&lt; <span class="number">8</span>) | ((x &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0x00ff_00ff_00ff_00ff</span>);
+    x = ((x &amp; <span class="number">0xffff_0000_ffff</span>) &lt;&lt; <span class="number">16</span>) | ((x &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0xffff_0000_ffff</span>);
+    (x &lt;&lt; <span class="number">32</span>) | (x &gt;&gt; <span class="number">32</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="polyval" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="polyval" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/any/migrate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>migrate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/any/migrate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>migrate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -230,237 +230,237 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::any::connection::AnyConnectionKind</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::any::kind::AnyKind</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::any</span>::{<span class="ident">Any</span>, <span class="ident">AnyConnection</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::migrate</span>::{<span class="ident">AppliedMigration</span>, <span class="ident">Migrate</span>, <span class="ident">MigrateDatabase</span>, <span class="ident">MigrateError</span>, <span class="ident">Migration</span>};
-<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::any::connection::AnyConnectionKind;
+<span class="kw">use </span><span class="kw">crate</span>::any::kind::AnyKind;
+<span class="kw">use </span><span class="kw">crate</span>::any::{Any, AnyConnection};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::migrate::{AppliedMigration, Migrate, MigrateDatabase, MigrateError, Migration};
+<span class="kw">use </span>futures_core::future::BoxFuture;
+<span class="kw">use </span>std::str::FromStr;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">impl</span> <span class="ident">MigrateDatabase</span> <span class="kw">for</span> <span class="ident">Any</span> {
-    <span class="kw">fn</span> <span class="ident">create_database</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">match</span> <span class="ident">AnyKind::from_str</span>(<span class="ident">url</span>)<span class="question-mark">?</span> {
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-                <span class="ident">AnyKind::Postgres</span> =&gt; <span class="ident"><span class="kw">crate</span>::postgres::Postgres::create_database</span>(<span class="ident">url</span>).<span class="kw">await</span>,
+<span class="kw">impl </span>MigrateDatabase <span class="kw">for </span>Any {
+    <span class="kw">fn </span>create_database(url: <span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">match </span>AnyKind::from_str(url)<span class="question-mark">? </span>{
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+                </span>AnyKind::Postgres =&gt; <span class="kw">crate</span>::postgres::Postgres::create_database(url).<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-                <span class="ident">AnyKind::Sqlite</span> =&gt; <span class="ident"><span class="kw">crate</span>::sqlite::Sqlite::create_database</span>(<span class="ident">url</span>).<span class="kw">await</span>,
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+                </span>AnyKind::Sqlite =&gt; <span class="kw">crate</span>::sqlite::Sqlite::create_database(url).<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-                <span class="ident">AnyKind::MySql</span> =&gt; <span class="ident"><span class="kw">crate</span>::mysql::MySql::create_database</span>(<span class="ident">url</span>).<span class="kw">await</span>,
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+                </span>AnyKind::MySql =&gt; <span class="kw">crate</span>::mysql::MySql::create_database(url).<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-                <span class="ident">AnyKind::Mssql</span> =&gt; <span class="macro">unimplemented!</span>(),
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+                </span>AnyKind::Mssql =&gt; <span class="macro">unimplemented!</span>(),
             }
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">database_exists</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">match</span> <span class="ident">AnyKind::from_str</span>(<span class="ident">url</span>)<span class="question-mark">?</span> {
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-                <span class="ident">AnyKind::Postgres</span> =&gt; <span class="ident"><span class="kw">crate</span>::postgres::Postgres::database_exists</span>(<span class="ident">url</span>).<span class="kw">await</span>,
+    <span class="kw">fn </span>database_exists(url: <span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;bool, Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">match </span>AnyKind::from_str(url)<span class="question-mark">? </span>{
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+                </span>AnyKind::Postgres =&gt; <span class="kw">crate</span>::postgres::Postgres::database_exists(url).<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-                <span class="ident">AnyKind::Sqlite</span> =&gt; <span class="ident"><span class="kw">crate</span>::sqlite::Sqlite::database_exists</span>(<span class="ident">url</span>).<span class="kw">await</span>,
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+                </span>AnyKind::Sqlite =&gt; <span class="kw">crate</span>::sqlite::Sqlite::database_exists(url).<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-                <span class="ident">AnyKind::MySql</span> =&gt; <span class="ident"><span class="kw">crate</span>::mysql::MySql::database_exists</span>(<span class="ident">url</span>).<span class="kw">await</span>,
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+                </span>AnyKind::MySql =&gt; <span class="kw">crate</span>::mysql::MySql::database_exists(url).<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-                <span class="ident">AnyKind::Mssql</span> =&gt; <span class="macro">unimplemented!</span>(),
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+                </span>AnyKind::Mssql =&gt; <span class="macro">unimplemented!</span>(),
             }
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">drop_database</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">match</span> <span class="ident">AnyKind::from_str</span>(<span class="ident">url</span>)<span class="question-mark">?</span> {
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-                <span class="ident">AnyKind::Postgres</span> =&gt; <span class="ident"><span class="kw">crate</span>::postgres::Postgres::drop_database</span>(<span class="ident">url</span>).<span class="kw">await</span>,
+    <span class="kw">fn </span>drop_database(url: <span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">match </span>AnyKind::from_str(url)<span class="question-mark">? </span>{
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+                </span>AnyKind::Postgres =&gt; <span class="kw">crate</span>::postgres::Postgres::drop_database(url).<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-                <span class="ident">AnyKind::Sqlite</span> =&gt; <span class="ident"><span class="kw">crate</span>::sqlite::Sqlite::drop_database</span>(<span class="ident">url</span>).<span class="kw">await</span>,
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+                </span>AnyKind::Sqlite =&gt; <span class="kw">crate</span>::sqlite::Sqlite::drop_database(url).<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-                <span class="ident">AnyKind::MySql</span> =&gt; <span class="ident"><span class="kw">crate</span>::mysql::MySql::drop_database</span>(<span class="ident">url</span>).<span class="kw">await</span>,
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+                </span>AnyKind::MySql =&gt; <span class="kw">crate</span>::mysql::MySql::drop_database(url).<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-                <span class="ident">AnyKind::Mssql</span> =&gt; <span class="macro">unimplemented!</span>(),
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+                </span>AnyKind::Mssql =&gt; <span class="macro">unimplemented!</span>(),
             }
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Migrate</span> <span class="kw">for</span> <span class="ident">AnyConnection</span> {
-    <span class="kw">fn</span> <span class="ident">ensure_migrations_table</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MigrateError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">ensure_migrations_table</span>(),
+<span class="kw">impl </span>Migrate <span class="kw">for </span>AnyConnection {
+    <span class="kw">fn </span>ensure_migrations_table(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), MigrateError&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.ensure_migrations_table(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Sqlite</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">ensure_migrations_table</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.ensure_migrations_table(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">ensure_migrations_table</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyConnectionKind::MySql(conn) =&gt; conn.ensure_migrations_table(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Mssql</span>(<span class="ident">_conn</span>) =&gt; <span class="macro">unimplemented!</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyConnectionKind::Mssql(_conn) =&gt; <span class="macro">unimplemented!</span>(),
         }
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">i64</span>, <span class="ident">bool</span>)<span class="op">&gt;</span>, <span class="ident">MigrateError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">version</span>(),
+    <span class="attribute">#[allow(deprecated)]
+    </span><span class="kw">fn </span>version(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(i64, bool)&gt;, MigrateError&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.version(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Sqlite</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">version</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.version(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">version</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyConnectionKind::MySql(conn) =&gt; conn.version(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Mssql</span>(<span class="ident">_conn</span>) =&gt; <span class="macro">unimplemented!</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyConnectionKind::Mssql(_conn) =&gt; <span class="macro">unimplemented!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">dirty_version</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>, <span class="ident">MigrateError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">dirty_version</span>(),
+    <span class="kw">fn </span>dirty_version(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;i64&gt;, MigrateError&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.dirty_version(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Sqlite</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">dirty_version</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.dirty_version(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">dirty_version</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyConnectionKind::MySql(conn) =&gt; conn.dirty_version(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Mssql</span>(<span class="ident">_conn</span>) =&gt; <span class="macro">unimplemented!</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyConnectionKind::Mssql(_conn) =&gt; <span class="macro">unimplemented!</span>(),
         }
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">validate</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>: <span class="lifetime">&#39;m</span>, <span class="lifetime">&#39;m</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;e</span> <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">migration</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;m</span> <span class="ident">Migration</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;m</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MigrateError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">validate</span>(<span class="ident">migration</span>),
+    <span class="attribute">#[allow(deprecated)]
+    </span><span class="kw">fn </span>validate&lt;<span class="lifetime">&#39;e</span>: <span class="lifetime">&#39;m</span>, <span class="lifetime">&#39;m</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;e </span><span class="kw-2">mut </span><span class="self">self</span>,
+        migration: <span class="kw-2">&amp;</span><span class="lifetime">&#39;m </span>Migration,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;m</span>, <span class="prelude-ty">Result</span>&lt;(), MigrateError&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.validate(migration),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Sqlite</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">validate</span>(<span class="ident">migration</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.validate(migration),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">validate</span>(<span class="ident">migration</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyConnectionKind::MySql(conn) =&gt; conn.validate(migration),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Mssql</span>(<span class="ident">_conn</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">migration</span>;
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyConnectionKind::Mssql(_conn) =&gt; {
+                <span class="kw">let _ </span>= migration;
                 <span class="macro">unimplemented!</span>()
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">list_applied_migrations</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AppliedMigration</span><span class="op">&gt;</span>, <span class="ident">MigrateError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">list_applied_migrations</span>(),
+    <span class="kw">fn </span>list_applied_migrations(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;Vec&lt;AppliedMigration&gt;, MigrateError&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.list_applied_migrations(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Sqlite</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">list_applied_migrations</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.list_applied_migrations(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">list_applied_migrations</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyConnectionKind::MySql(conn) =&gt; conn.list_applied_migrations(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Mssql</span>(<span class="ident">_conn</span>) =&gt; <span class="macro">unimplemented!</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyConnectionKind::Mssql(_conn) =&gt; <span class="macro">unimplemented!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">lock</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MigrateError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">lock</span>(),
+    <span class="kw">fn </span>lock(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), MigrateError&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.lock(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Sqlite</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">lock</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.lock(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">lock</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyConnectionKind::MySql(conn) =&gt; conn.lock(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Mssql</span>(<span class="ident">_conn</span>) =&gt; <span class="macro">unimplemented!</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyConnectionKind::Mssql(_conn) =&gt; <span class="macro">unimplemented!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">unlock</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MigrateError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">unlock</span>(),
+    <span class="kw">fn </span>unlock(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), MigrateError&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.unlock(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Sqlite</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">unlock</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.unlock(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">unlock</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyConnectionKind::MySql(conn) =&gt; conn.unlock(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Mssql</span>(<span class="ident">_conn</span>) =&gt; <span class="macro">unimplemented!</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyConnectionKind::Mssql(_conn) =&gt; <span class="macro">unimplemented!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">apply</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>: <span class="lifetime">&#39;m</span>, <span class="lifetime">&#39;m</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;e</span> <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">migration</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;m</span> <span class="ident">Migration</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;m</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span>, <span class="ident">MigrateError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">apply</span>(<span class="ident">migration</span>),
+    <span class="kw">fn </span>apply&lt;<span class="lifetime">&#39;e</span>: <span class="lifetime">&#39;m</span>, <span class="lifetime">&#39;m</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;e </span><span class="kw-2">mut </span><span class="self">self</span>,
+        migration: <span class="kw-2">&amp;</span><span class="lifetime">&#39;m </span>Migration,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;m</span>, <span class="prelude-ty">Result</span>&lt;Duration, MigrateError&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.apply(migration),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Sqlite</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">apply</span>(<span class="ident">migration</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.apply(migration),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">apply</span>(<span class="ident">migration</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyConnectionKind::MySql(conn) =&gt; conn.apply(migration),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Mssql</span>(<span class="ident">_conn</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">migration</span>;
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyConnectionKind::Mssql(_conn) =&gt; {
+                <span class="kw">let _ </span>= migration;
                 <span class="macro">unimplemented!</span>()
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">revert</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>: <span class="lifetime">&#39;m</span>, <span class="lifetime">&#39;m</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;e</span> <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">migration</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;m</span> <span class="ident">Migration</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;m</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span>, <span class="ident">MigrateError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">revert</span>(<span class="ident">migration</span>),
+    <span class="kw">fn </span>revert&lt;<span class="lifetime">&#39;e</span>: <span class="lifetime">&#39;m</span>, <span class="lifetime">&#39;m</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;e </span><span class="kw-2">mut </span><span class="self">self</span>,
+        migration: <span class="kw-2">&amp;</span><span class="lifetime">&#39;m </span>Migration,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;m</span>, <span class="prelude-ty">Result</span>&lt;Duration, MigrateError&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>AnyConnectionKind::Postgres(conn) =&gt; conn.revert(migration),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Sqlite</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">revert</span>(<span class="ident">migration</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+            </span>AnyConnectionKind::Sqlite(conn) =&gt; conn.revert(migration),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>.<span class="ident">revert</span>(<span class="ident">migration</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>AnyConnectionKind::MySql(conn) =&gt; conn.revert(migration),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">AnyConnectionKind::Mssql</span>(<span class="ident">_conn</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">migration</span>;
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>AnyConnectionKind::Mssql(_conn) =&gt; {
+                <span class="kw">let _ </span>= migration;
                 <span class="macro">unimplemented!</span>()
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

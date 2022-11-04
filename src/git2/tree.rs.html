@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/tree.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tree.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/tree.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tree.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -565,572 +565,572 @@
 <span id="565">565</span>
 <span id="566">566</span>
 <span id="567">567</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">libc</span>::{<span class="self">self</span>, <span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_void</span>};
-<span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
-<span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>};
-<span class="kw">use</span> <span class="ident">std::marker</span>;
-<span class="kw">use</span> <span class="ident">std::mem</span>;
-<span class="kw">use</span> <span class="ident">std::ops::Range</span>;
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
-<span class="kw">use</span> <span class="ident">std::str</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>libc::{<span class="self">self</span>, c_char, c_int, c_void};
+<span class="kw">use </span>std::cmp::Ordering;
+<span class="kw">use </span>std::ffi::{CStr, CString};
+<span class="kw">use </span>std::marker;
+<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::ops::Range;
+<span class="kw">use </span>std::path::Path;
+<span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::str;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util</span>::{<span class="ident">c_cmp_to_ordering</span>, <span class="ident">path_to_repo_path</span>, <span class="ident">Binding</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">panic</span>, <span class="ident">raw</span>, <span class="ident">Error</span>, <span class="ident">Object</span>, <span class="ident">ObjectType</span>, <span class="ident">Oid</span>, <span class="ident">Repository</span>};
+<span class="kw">use </span><span class="kw">crate</span>::util::{c_cmp_to_ordering, path_to_repo_path, Binding};
+<span class="kw">use crate</span>::{panic, raw, Error, Object, ObjectType, Oid, Repository};
 
-<span class="doccomment">/// A structure to represent a git [tree][1]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [1]: http://git-scm.com/book/en/Git-Internals-Git-Objects</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_tree</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A structure to represent a git [tree][1]
+///
+/// [1]: http://git-scm.com/book/en/Git-Internals-Git-Objects
+</span><span class="kw">pub struct </span>Tree&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    raw: <span class="kw-2">*mut </span>raw::git_tree,
+    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;,
 }
 
-<span class="doccomment">/// A structure representing an entry inside of a tree. An entry is borrowed</span>
-<span class="doccomment">/// from a tree.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> {
-    <span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_tree_entry</span>,
-    <span class="ident">owned</span>: <span class="ident">bool</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;tree</span> <span class="ident">raw::git_tree_entry</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A structure representing an entry inside of a tree. An entry is borrowed
+/// from a tree.
+</span><span class="kw">pub struct </span>TreeEntry&lt;<span class="lifetime">&#39;tree</span>&gt; {
+    raw: <span class="kw-2">*mut </span>raw::git_tree_entry,
+    owned: bool,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;tree </span>raw::git_tree_entry&gt;,
 }
 
-<span class="doccomment">/// An iterator over the entries in a tree.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TreeIter</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> {
-    <span class="ident">range</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;tree</span> <span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An iterator over the entries in a tree.
+</span><span class="kw">pub struct </span>TreeIter&lt;<span class="lifetime">&#39;tree</span>&gt; {
+    range: Range&lt;usize&gt;,
+    tree: <span class="kw-2">&amp;</span><span class="lifetime">&#39;tree </span>Tree&lt;<span class="lifetime">&#39;tree</span>&gt;,
 }
 
-<span class="doccomment">/// A binary indicator of whether a tree walk should be performed in pre-order</span>
-<span class="doccomment">/// or post-order.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TreeWalkMode</span> {
-    <span class="doccomment">/// Runs the traversal in pre order.</span>
-    <span class="ident">PreOrder</span> <span class="op">=</span> <span class="number">0</span>,
-    <span class="doccomment">/// Runs the traversal in post order.</span>
-    <span class="ident">PostOrder</span> <span class="op">=</span> <span class="number">1</span>,
+<span class="doccomment">/// A binary indicator of whether a tree walk should be performed in pre-order
+/// or post-order.
+</span><span class="kw">pub enum </span>TreeWalkMode {
+    <span class="doccomment">/// Runs the traversal in pre order.
+    </span>PreOrder = <span class="number">0</span>,
+    <span class="doccomment">/// Runs the traversal in post order.
+    </span>PostOrder = <span class="number">1</span>,
 }
 
-<span class="doccomment">/// Possible return codes for tree walking callback functions.</span>
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">i32</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TreeWalkResult</span> {
-    <span class="doccomment">/// Continue with the traversal as normal.</span>
-    <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="number">0</span>,
-    <span class="doccomment">/// Skip the current node (in pre-order mode).</span>
-    <span class="ident">Skip</span> <span class="op">=</span> <span class="number">1</span>,
-    <span class="doccomment">/// Completely stop the traversal.</span>
-    <span class="ident">Abort</span> <span class="op">=</span> <span class="ident">raw::GIT_EUSER</span>,
+<span class="doccomment">/// Possible return codes for tree walking callback functions.
+</span><span class="attribute">#[repr(i32)]
+</span><span class="kw">pub enum </span>TreeWalkResult {
+    <span class="doccomment">/// Continue with the traversal as normal.
+    </span><span class="prelude-val">Ok </span>= <span class="number">0</span>,
+    <span class="doccomment">/// Skip the current node (in pre-order mode).
+    </span>Skip = <span class="number">1</span>,
+    <span class="doccomment">/// Completely stop the traversal.
+    </span>Abort = raw::GIT_EUSER,
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TreeWalkResult</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span> <span class="kw">as</span> <span class="ident">i32</span>
+<span class="kw">impl </span>Into&lt;i32&gt; <span class="kw">for </span>TreeWalkResult {
+    <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; i32 {
+        <span class="self">self </span><span class="kw">as </span>i32
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">raw::git_treewalk_mode</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TreeWalkMode</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;msvc&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">raw::git_treewalk_mode</span> {
-        <span class="self">self</span> <span class="kw">as</span> <span class="ident">i32</span>
+<span class="kw">impl </span>Into&lt;raw::git_treewalk_mode&gt; <span class="kw">for </span>TreeWalkMode {
+    <span class="attribute">#[cfg(target_env = <span class="string">&quot;msvc&quot;</span>)]
+    </span><span class="kw">fn </span>into(<span class="self">self</span>) -&gt; raw::git_treewalk_mode {
+        <span class="self">self </span><span class="kw">as </span>i32
     }
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;msvc&quot;</span>))]</span>
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">raw::git_treewalk_mode</span> {
-        <span class="self">self</span> <span class="kw">as</span> <span class="ident">u32</span>
+    <span class="attribute">#[cfg(not(target_env = <span class="string">&quot;msvc&quot;</span>))]
+    </span><span class="kw">fn </span>into(<span class="self">self</span>) -&gt; raw::git_treewalk_mode {
+        <span class="self">self </span><span class="kw">as </span>u32
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Get the id (SHA1) of a repository object</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Oid</span> {
-        <span class="kw">unsafe</span> { <span class="ident">Binding::from_raw</span>(<span class="ident">raw::git_tree_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>)) }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Tree&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="doccomment">/// Get the id (SHA1) of a repository object
+    </span><span class="kw">pub fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Oid {
+        <span class="kw">unsafe </span>{ Binding::from_raw(raw::git_tree_id(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the number of entries listed in this tree.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">unsafe</span> { <span class="ident">raw::git_tree_entrycount</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>) <span class="kw">as</span> <span class="ident">usize</span> }
+    <span class="doccomment">/// Get the number of entries listed in this tree.
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">unsafe </span>{ raw::git_tree_entrycount(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) <span class="kw">as </span>usize }
     }
 
-    <span class="doccomment">/// Return `true` if there is not entry</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span>
-    }
+    <span class="doccomment">/// Return `true` if there is not entry
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() == <span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Returns an iterator over the entries in this tree.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TreeIter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">TreeIter</span> {
-            <span class="ident">range</span>: <span class="number">0</span>..<span class="self">self</span>.<span class="ident">len</span>(),
-            <span class="ident">tree</span>: <span class="self">self</span>,
+    <span class="doccomment">/// Returns an iterator over the entries in this tree.
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TreeIter&lt;<span class="lifetime">&#39;_</span>&gt; {
+        TreeIter {
+            range: <span class="number">0</span>..<span class="self">self</span>.len(),
+            tree: <span class="self">self</span>,
         }
     }
 
-    <span class="doccomment">/// Traverse the entries in a tree and its subtrees in post or pre order.</span>
-    <span class="doccomment">/// The callback function will be run on each node of the tree that&#39;s</span>
-    <span class="doccomment">/// walked. The return code of this function will determine how the walk</span>
-    <span class="doccomment">/// continues.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// libgit requires that the callback be an integer, where 0 indicates a</span>
-    <span class="doccomment">/// successful visit, 1 skips the node, and -1 aborts the traversal completely.</span>
-    <span class="doccomment">/// You may opt to use the enum [`TreeWalkResult`](TreeWalkResult) instead.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```ignore</span>
-    <span class="doccomment">/// let mut ct = 0;</span>
-    <span class="doccomment">/// tree.walk(TreeWalkMode::PreOrder, |_, entry| {</span>
-    <span class="doccomment">///     assert_eq!(entry.name(), Some(&quot;foo&quot;));</span>
-    <span class="doccomment">///     ct += 1;</span>
-    <span class="doccomment">///     TreeWalkResult::Ok</span>
-    <span class="doccomment">/// }).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(ct, 1);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [libgit documentation][1] for more information.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [1]: https://libgit2.org/libgit2/#HEAD/group/tree/git_tree_walk</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walk</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">TreeWalkMode</span>, <span class="kw-2">mut</span> <span class="ident">callback</span>: <span class="ident">C</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">T</span>,
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Traverse the entries in a tree and its subtrees in post or pre order.
+    /// The callback function will be run on each node of the tree that&#39;s
+    /// walked. The return code of this function will determine how the walk
+    /// continues.
+    ///
+    /// libgit requires that the callback be an integer, where 0 indicates a
+    /// successful visit, 1 skips the node, and -1 aborts the traversal completely.
+    /// You may opt to use the enum [`TreeWalkResult`](TreeWalkResult) instead.
+    ///
+    /// ```ignore
+    /// let mut ct = 0;
+    /// tree.walk(TreeWalkMode::PreOrder, |_, entry| {
+    ///     assert_eq!(entry.name(), Some(&quot;foo&quot;));
+    ///     ct += 1;
+    ///     TreeWalkResult::Ok
+    /// }).unwrap();
+    /// assert_eq!(ct, 1);
+    /// ```
+    ///
+    /// See [libgit documentation][1] for more information.
+    ///
+    /// [1]: https://libgit2.org/libgit2/#HEAD/group/tree/git_tree_walk
+    </span><span class="kw">pub fn </span>walk&lt;C, T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, mode: TreeWalkMode, <span class="kw-2">mut </span>callback: C) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    <span class="kw">where
+        </span>C: FnMut(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>TreeEntry&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; T,
+        T: Into&lt;i32&gt;,
     {
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">TreeWalkCbData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="ident">callback</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">TreeWalkCb</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="attribute">#[allow(unused)]
+        </span><span class="kw">struct </span>TreeWalkCbData&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+            <span class="kw">pub </span>callback: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>TreeWalkCb&lt;<span class="lifetime">&#39;a</span>, T&gt;,
         }
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">TreeWalkCbData</span> {
-                <span class="ident">callback</span>: <span class="kw-2">&amp;mut</span> <span class="ident">callback</span>,
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>data = TreeWalkCbData {
+                callback: <span class="kw-2">&amp;mut </span>callback,
             };
-            <span class="ident">raw::git_tree_walk</span>(
-                <span class="self">self</span>.<span class="ident">raw</span>(),
-                <span class="ident">mode</span>.<span class="ident">into</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">treewalk_cb</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
-                <span class="kw-2">&amp;mut</span> <span class="ident">data</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
+            raw::git_tree_walk(
+                <span class="self">self</span>.raw(),
+                mode.into(),
+                <span class="prelude-val">Some</span>(treewalk_cb::&lt;T&gt;),
+                <span class="kw-2">&amp;mut </span>data <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span><span class="kw-2">*mut </span>c_void,
             );
             <span class="prelude-val">Ok</span>(())
         }
     }
 
-    <span class="doccomment">/// Lookup a tree entry by SHA value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">Oid</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">raw::git_tree_entry_byid</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>(), <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">id</span>.<span class="ident">raw</span>());
-            <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
-                <span class="prelude-val">None</span>
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">entry_from_raw_const</span>(<span class="ident">ptr</span>))
+    <span class="doccomment">/// Lookup a tree entry by SHA value.
+    </span><span class="kw">pub fn </span>get_id(<span class="kw-2">&amp;</span><span class="self">self</span>, id: Oid) -&gt; <span class="prelude-ty">Option</span>&lt;TreeEntry&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>ptr = raw::git_tree_entry_byid(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw(), <span class="kw-2">&amp;*</span>id.raw());
+            <span class="kw">if </span>ptr.is_null() {
+                <span class="prelude-val">None
+            </span>} <span class="kw">else </span>{
+                <span class="prelude-val">Some</span>(entry_from_raw_const(ptr))
             }
         }
     }
 
-    <span class="doccomment">/// Lookup a tree entry by its position in the tree</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">raw::git_tree_entry_byindex</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">n</span> <span class="kw">as</span> <span class="ident">libc::size_t</span>);
-            <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
-                <span class="prelude-val">None</span>
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">entry_from_raw_const</span>(<span class="ident">ptr</span>))
+    <span class="doccomment">/// Lookup a tree entry by its position in the tree
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, n: usize) -&gt; <span class="prelude-ty">Option</span>&lt;TreeEntry&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>ptr = raw::git_tree_entry_byindex(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw(), n <span class="kw">as </span>libc::size_t);
+            <span class="kw">if </span>ptr.is_null() {
+                <span class="prelude-val">None
+            </span>} <span class="kw">else </span>{
+                <span class="prelude-val">Some</span>(entry_from_raw_const(ptr))
             }
         }
     }
 
-    <span class="doccomment">/// Lookup a tree entry by its filename</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_name_bytes</span>(<span class="ident">filename</span>.<span class="ident">as_bytes</span>())
+    <span class="doccomment">/// Lookup a tree entry by its filename
+    </span><span class="kw">pub fn </span>get_name(<span class="kw-2">&amp;</span><span class="self">self</span>, filename: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;TreeEntry&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+        <span class="self">self</span>.get_name_bytes(filename.as_bytes())
     }
 
-    <span class="doccomment">/// Lookup a tree entry by its filename, specified as bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This allows for non-UTF-8 filenames.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_name_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">filename</span> <span class="op">=</span> <span class="ident">CString::new</span>(<span class="ident">filename</span>).<span class="ident">unwrap</span>();
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="macro">call!</span>(<span class="ident">raw::git_tree_entry_byname</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">filename</span>));
-            <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
-                <span class="prelude-val">None</span>
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">entry_from_raw_const</span>(<span class="ident">ptr</span>))
+    <span class="doccomment">/// Lookup a tree entry by its filename, specified as bytes.
+    ///
+    /// This allows for non-UTF-8 filenames.
+    </span><span class="kw">pub fn </span>get_name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>, filename: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;TreeEntry&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+        <span class="kw">let </span>filename = CString::new(filename).unwrap();
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>ptr = <span class="macro">call!</span>(raw::git_tree_entry_byname(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw(), filename));
+            <span class="kw">if </span>ptr.is_null() {
+                <span class="prelude-val">None
+            </span>} <span class="kw">else </span>{
+                <span class="prelude-val">Some</span>(entry_from_raw_const(ptr))
             }
         }
     }
 
-    <span class="doccomment">/// Retrieve a tree entry contained in a tree or in any of its subtrees,</span>
-    <span class="doccomment">/// given its relative path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path_to_repo_path</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">unsafe</span> {
-            <span class="macro">try_call!</span>(<span class="ident">raw::git_tree_entry_bypath</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ret</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">path</span>));
-            <span class="prelude-val">Ok</span>(<span class="ident">Binding::from_raw</span>(<span class="ident">ret</span>))
+    <span class="doccomment">/// Retrieve a tree entry contained in a tree or in any of its subtrees,
+    /// given its relative path.
+    </span><span class="kw">pub fn </span>get_path(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;TreeEntry&lt;<span class="lifetime">&#39;static</span>&gt;, Error&gt; {
+        <span class="kw">let </span>path = path_to_repo_path(path)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_tree_entry_bypath(<span class="kw-2">&amp;mut </span>ret, <span class="kw-2">&amp;*</span><span class="self">self</span>.raw(), path));
+            <span class="prelude-val">Ok</span>(Binding::from_raw(ret))
         }
     }
 
-    <span class="doccomment">/// Casts this Tree to be usable as an `Object`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span>) }
+    <span class="doccomment">/// Casts this Tree to be usable as an `Object`
+    </span><span class="kw">pub fn </span>as_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(<span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*const </span>Object&lt;<span class="lifetime">&#39;repo</span>&gt;) }
     }
 
-    <span class="doccomment">/// Consumes this Tree to be returned as an `Object`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_object</span>(<span class="self">self</span>) -&gt; <span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq!</span>(<span class="ident">mem::size_of_val</span>(<span class="kw-2">&amp;</span><span class="self">self</span>), <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
-        <span class="kw">unsafe</span> { <span class="ident">mem::transmute</span>(<span class="self">self</span>) }
+    <span class="doccomment">/// Consumes this Tree to be returned as an `Object`
+    </span><span class="kw">pub fn </span>into_object(<span class="self">self</span>) -&gt; Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+        <span class="macro">assert_eq!</span>(mem::size_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>), mem::size_of::&lt;Object&lt;<span class="lifetime">&#39;_</span>&gt;&gt;());
+        <span class="kw">unsafe </span>{ mem::transmute(<span class="self">self</span>) }
     }
 }
 
-<span class="kw">type</span> <span class="ident">TreeWalkCb</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">dyn</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">T</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>;
+<span class="kw">type </span>TreeWalkCb&lt;<span class="lifetime">&#39;a</span>, T&gt; = <span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>TreeEntry&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; T + <span class="lifetime">&#39;a</span>;
 
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">treewalk_cb</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-    <span class="ident">root</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-    <span class="ident">entry</span>: <span class="kw-2">*const</span> <span class="ident">raw::git_tree_entry</span>,
-    <span class="ident">payload</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-) -&gt; <span class="ident">c_int</span> {
-    <span class="kw">match</span> <span class="ident">panic::wrap</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">CStr::from_ptr</span>(<span class="ident">root</span>).<span class="ident">to_str</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="op">-</span><span class="number">1</span>,
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>treewalk_cb&lt;T: Into&lt;i32&gt;&gt;(
+    root: <span class="kw-2">*const </span>c_char,
+    entry: <span class="kw-2">*const </span>raw::git_tree_entry,
+    payload: <span class="kw-2">*mut </span>c_void,
+) -&gt; c_int {
+    <span class="kw">match </span>panic::wrap(|| <span class="kw">unsafe </span>{
+        <span class="kw">let </span>root = <span class="kw">match </span>CStr::from_ptr(root).to_str() {
+            <span class="prelude-val">Ok</span>(value) =&gt; value,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span>-<span class="number">1</span>,
         };
-        <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">entry_from_raw_const</span>(<span class="ident">entry</span>);
-        <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="ident">payload</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">TreeWalkCb</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-        (<span class="kw-2">*</span><span class="ident">payload</span>)(<span class="ident">root</span>, <span class="kw-2">&amp;</span><span class="ident">entry</span>).<span class="ident">into</span>()
+        <span class="kw">let </span>entry = entry_from_raw_const(entry);
+        <span class="kw">let </span>payload = payload <span class="kw">as </span><span class="kw-2">*mut &amp;mut </span>TreeWalkCb&lt;<span class="lifetime">&#39;_</span>, T&gt;;
+        (<span class="kw-2">*</span>payload)(root, <span class="kw-2">&amp;</span>entry).into()
     }) {
-        <span class="prelude-val">Some</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>,
-        <span class="prelude-val">None</span> =&gt; <span class="op">-</span><span class="number">1</span>,
+        <span class="prelude-val">Some</span>(value) =&gt; value,
+        <span class="prelude-val">None </span>=&gt; -<span class="number">1</span>,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Binding</span> <span class="kw">for</span> <span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Raw</span> <span class="op">=</span> <span class="kw-2">*mut</span> <span class="ident">raw::git_tree</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Tree&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_tree;
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_tree</span>) -&gt; <span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-        <span class="ident">Tree</span> {
-            <span class="ident">raw</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span>,
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_tree) -&gt; Tree&lt;<span class="lifetime">&#39;repo</span>&gt; {
+        Tree {
+            raw,
+            _marker: marker::PhantomData,
         }
     }
-    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">raw::git_tree</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>
+    <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>raw::git_tree {
+        <span class="self">self</span>.raw
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">std::fmt::Debug</span> <span class="kw">for</span> <span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std::fmt::Error</span><span class="op">&gt;</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Tree&quot;</span>).<span class="ident">field</span>(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>()).<span class="ident">finish</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; std::fmt::Debug <span class="kw">for </span>Tree&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        f.debug_struct(<span class="string">&quot;Tree&quot;</span>).field(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id()).finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">as_object</span>().<span class="ident">clone</span>().<span class="ident">into_tree</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Clone <span class="kw">for </span>Tree&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.as_object().clone().into_tree().ok().unwrap()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">unsafe</span> { <span class="ident">raw::git_tree_free</span>(<span class="self">self</span>.<span class="ident">raw</span>) }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Tree&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">unsafe </span>{ raw::git_tree_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;iter</span><span class="op">&gt;</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;iter</span> <span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;iter</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">TreeIter</span><span class="op">&lt;</span><span class="lifetime">&#39;iter</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::IntoIter</span> {
-        <span class="self">self</span>.<span class="ident">iter</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;iter</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;iter </span>Tree&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">type </span>Item = TreeEntry&lt;<span class="lifetime">&#39;iter</span>&gt;;
+    <span class="kw">type </span>IntoIter = TreeIter&lt;<span class="lifetime">&#39;iter</span>&gt;;
+    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        <span class="self">self</span>.iter()
     }
 }
 
-<span class="doccomment">/// Create a new tree entry from the raw pointer provided.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The lifetime of the entry is tied to the tree provided and the function</span>
-<span class="doccomment">/// is unsafe because the validity of the pointer cannot be guaranteed.</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">entry_from_raw_const</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span>(<span class="ident">raw</span>: <span class="kw-2">*const</span> <span class="ident">raw::git_tree_entry</span>) -&gt; <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> {
-    <span class="ident">TreeEntry</span> {
-        <span class="ident">raw</span>: <span class="ident">raw</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">raw::git_tree_entry</span>,
-        <span class="ident">owned</span>: <span class="bool-val">false</span>,
-        <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span>,
+<span class="doccomment">/// Create a new tree entry from the raw pointer provided.
+///
+/// The lifetime of the entry is tied to the tree provided and the function
+/// is unsafe because the validity of the pointer cannot be guaranteed.
+</span><span class="kw">pub unsafe fn </span>entry_from_raw_const&lt;<span class="lifetime">&#39;tree</span>&gt;(raw: <span class="kw-2">*const </span>raw::git_tree_entry) -&gt; TreeEntry&lt;<span class="lifetime">&#39;tree</span>&gt; {
+    TreeEntry {
+        raw: raw <span class="kw">as </span><span class="kw-2">*mut </span>raw::git_tree_entry,
+        owned: <span class="bool-val">false</span>,
+        _marker: marker::PhantomData,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Get the id of the object pointed by the entry</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Oid</span> {
-        <span class="kw">unsafe</span> { <span class="ident">Binding::from_raw</span>(<span class="ident">raw::git_tree_entry_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>)) }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;tree</span>&gt; TreeEntry&lt;<span class="lifetime">&#39;tree</span>&gt; {
+    <span class="doccomment">/// Get the id of the object pointed by the entry
+    </span><span class="kw">pub fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Oid {
+        <span class="kw">unsafe </span>{ Binding::from_raw(raw::git_tree_entry_id(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the filename of a tree entry</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if the name is not valid utf-8</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="ident">str::from_utf8</span>(<span class="self">self</span>.<span class="ident">name_bytes</span>()).<span class="ident">ok</span>()
+    <span class="doccomment">/// Get the filename of a tree entry
+    ///
+    /// Returns `None` if the name is not valid utf-8
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        str::from_utf8(<span class="self">self</span>.name_bytes()).ok()
     }
 
-    <span class="doccomment">/// Get the filename of a tree entry</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::opt_bytes</span>(<span class="self">self</span>, <span class="ident">raw::git_tree_entry_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>() }
+    <span class="doccomment">/// Get the filename of a tree entry
+    </span><span class="kw">pub fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_tree_entry_name(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw())).unwrap() }
     }
 
-    <span class="doccomment">/// Convert a tree entry to the object it points to.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_object</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">repo</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Repository</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">unsafe</span> {
-            <span class="macro">try_call!</span>(<span class="ident">raw::git_tree_entry_to_object</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">ret</span>,
-                <span class="ident">repo</span>.<span class="ident">raw</span>(),
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>()
+    <span class="doccomment">/// Convert a tree entry to the object it points to.
+    </span><span class="kw">pub fn </span>to_object&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, repo: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Repository) -&gt; <span class="prelude-ty">Result</span>&lt;Object&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_tree_entry_to_object(
+                <span class="kw-2">&amp;mut </span>ret,
+                repo.raw(),
+                <span class="kw-2">&amp;*</span><span class="self">self</span>.raw()
             ));
-            <span class="prelude-val">Ok</span>(<span class="ident">Binding::from_raw</span>(<span class="ident">ret</span>))
+            <span class="prelude-val">Ok</span>(Binding::from_raw(ret))
         }
     }
 
-    <span class="doccomment">/// Get the type of the object pointed by the entry</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span> {
-        <span class="ident">ObjectType::from_raw</span>(<span class="kw">unsafe</span> { <span class="ident">raw::git_tree_entry_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>) })
+    <span class="doccomment">/// Get the type of the object pointed by the entry
+    </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ObjectType&gt; {
+        ObjectType::from_raw(<span class="kw">unsafe </span>{ raw::git_tree_entry_type(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) })
     }
 
-    <span class="doccomment">/// Get the UNIX file attributes of a tree entry</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filemode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="kw">unsafe</span> { <span class="ident">raw::git_tree_entry_filemode</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>) <span class="kw">as</span> <span class="ident">i32</span> }
+    <span class="doccomment">/// Get the UNIX file attributes of a tree entry
+    </span><span class="kw">pub fn </span>filemode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="kw">unsafe </span>{ raw::git_tree_entry_filemode(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) <span class="kw">as </span>i32 }
     }
 
-    <span class="doccomment">/// Get the raw UNIX file attributes of a tree entry</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filemode_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="kw">unsafe</span> { <span class="ident">raw::git_tree_entry_filemode_raw</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>) <span class="kw">as</span> <span class="ident">i32</span> }
+    <span class="doccomment">/// Get the raw UNIX file attributes of a tree entry
+    </span><span class="kw">pub fn </span>filemode_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="kw">unsafe </span>{ raw::git_tree_entry_filemode_raw(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) <span class="kw">as </span>i32 }
     }
 
-    <span class="doccomment">/// Convert this entry of any lifetime into an owned signature with a static</span>
-    <span class="doccomment">/// lifetime.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This will use the `Clone::clone` implementation under the hood.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">me</span> <span class="op">=</span> <span class="ident">mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>);
-            <span class="ident">me</span>.<span class="ident">clone</span>()
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Binding</span> <span class="kw">for</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Raw</span> <span class="op">=</span> <span class="kw-2">*mut</span> <span class="ident">raw::git_tree_entry</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_tree_entry</span>) -&gt; <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">TreeEntry</span> {
-            <span class="ident">raw</span>,
-            <span class="ident">owned</span>: <span class="bool-val">true</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span>,
-        }
-    }
-    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">raw::git_tree_entry</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">unsafe</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">raw::git_tree_entry_dup</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ret</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>()), <span class="number">0</span>);
-            <span class="ident">Binding::from_raw</span>(<span class="ident">ret</span>)
+    <span class="doccomment">/// Convert this entry of any lifetime into an owned signature with a static
+    /// lifetime.
+    ///
+    /// This will use the `Clone::clone` implementation under the hood.
+    </span><span class="kw">pub fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TreeEntry&lt;<span class="lifetime">&#39;static</span>&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>me = mem::transmute::&lt;<span class="kw-2">&amp;</span>TreeEntry&lt;<span class="lifetime">&#39;tree</span>&gt;, <span class="kw-2">&amp;</span>TreeEntry&lt;<span class="lifetime">&#39;static</span>&gt;&gt;(<span class="self">self</span>);
+            me.clone()
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Binding <span class="kw">for </span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_tree_entry;
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_tree_entry) -&gt; TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt; {
+        TreeEntry {
+            raw,
+            owned: <span class="bool-val">true</span>,
+            _marker: marker::PhantomData,
+        }
     }
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Ordering</span> {
-        <span class="ident">c_cmp_to_ordering</span>(<span class="kw">unsafe</span> { <span class="ident">raw::git_tree_entry_cmp</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>(), <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">other</span>.<span class="ident">raw</span>()) })
+    <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>raw::git_tree_entry {
+        <span class="self">self</span>.raw
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>) <span class="op">==</span> <span class="ident">Ordering::Equal</span>
-    }
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">owned</span> {
-            <span class="kw">unsafe</span> { <span class="ident">raw::git_tree_entry_free</span>(<span class="self">self</span>.<span class="ident">raw</span>) }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Clone <span class="kw">for </span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
+        <span class="kw">unsafe </span>{
+            <span class="macro">assert_eq!</span>(raw::git_tree_entry_dup(<span class="kw-2">&amp;mut </span>ret, <span class="kw-2">&amp;*</span><span class="self">self</span>.raw()), <span class="number">0</span>);
+            Binding::from_raw(ret)
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">TreeIter</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">range</span>.<span class="ident">next</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">tree</span>.<span class="ident">get</span>(<span class="ident">i</span>))
-    }
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">range</span>.<span class="ident">size_hint</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialOrd <span class="kw">for </span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">TreeIter</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">range</span>.<span class="ident">next_back</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">tree</span>.<span class="ident">get</span>(<span class="ident">i</span>))
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Ord <span class="kw">for </span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Ordering {
+        c_cmp_to_ordering(<span class="kw">unsafe </span>{ raw::git_tree_entry_cmp(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw(), <span class="kw-2">&amp;*</span>other.raw()) })
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">TreeIter</span><span class="op">&lt;</span><span class="lifetime">&#39;tree</span><span class="op">&gt;</span> {}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">TreeWalkMode</span>, <span class="ident">TreeWalkResult</span>};
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Object</span>, <span class="ident">ObjectType</span>, <span class="ident">Repository</span>, <span class="ident">Tree</span>, <span class="ident">TreeEntry</span>};
-    <span class="kw">use</span> <span class="ident">std::fs::File</span>;
-    <span class="kw">use</span> <span class="ident">std::io::prelude</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">std::path::Path</span>;
-    <span class="kw">use</span> <span class="ident">tempfile::TempDir</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PartialEq <span class="kw">for </span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; bool {
+        <span class="self">self</span>.cmp(other) == Ordering::Equal
+    }
+}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Eq <span class="kw">for </span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt; {}
 
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestTreeIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">entries</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">repo</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Repository</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Drop <span class="kw">for </span>TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.owned {
+            <span class="kw">unsafe </span>{ raw::git_tree_entry_free(<span class="self">self</span>.raw) }
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;tree</span>&gt; Iterator <span class="kw">for </span>TreeIter&lt;<span class="lifetime">&#39;tree</span>&gt; {
+    <span class="kw">type </span>Item = TreeEntry&lt;<span class="lifetime">&#39;tree</span>&gt;;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TreeEntry&lt;<span class="lifetime">&#39;tree</span>&gt;&gt; {
+        <span class="self">self</span>.range.next().and_then(|i| <span class="self">self</span>.tree.get(i))
+    }
+    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="self">self</span>.range.size_hint()
+    }
+}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;tree</span>&gt; DoubleEndedIterator <span class="kw">for </span>TreeIter&lt;<span class="lifetime">&#39;tree</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TreeEntry&lt;<span class="lifetime">&#39;tree</span>&gt;&gt; {
+        <span class="self">self</span>.range.next_back().and_then(|i| <span class="self">self</span>.tree.get(i))
+    }
+}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;tree</span>&gt; ExactSizeIterator <span class="kw">for </span>TreeIter&lt;<span class="lifetime">&#39;tree</span>&gt; {}
+
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::{TreeWalkMode, TreeWalkResult};
+    <span class="kw">use crate</span>::{Object, ObjectType, Repository, Tree, TreeEntry};
+    <span class="kw">use </span>std::fs::File;
+    <span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+    <span class="kw">use </span>std::path::Path;
+    <span class="kw">use </span>tempfile::TempDir;
+
+    <span class="kw">pub struct </span>TestTreeIter&lt;<span class="lifetime">&#39;a</span>&gt; {
+        entries: Vec&lt;TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+        repo: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Repository,
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">TestTreeIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>TestTreeIter&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">type </span>Item = TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt;;
 
-        <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TreeEntry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">is_empty</span>() {
-                <span class="prelude-val">None</span>
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">remove</span>(<span class="number">0</span>);
+        <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TreeEntry&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+            <span class="kw">if </span><span class="self">self</span>.entries.is_empty() {
+                <span class="prelude-val">None
+            </span>} <span class="kw">else </span>{
+                <span class="kw">let </span>entry = <span class="self">self</span>.entries.remove(<span class="number">0</span>);
 
-                <span class="kw">match</span> <span class="ident">entry</span>.<span class="ident">kind</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">ObjectType::Tree</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">obj</span>: <span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">to_object</span>(<span class="self">self</span>.<span class="ident">repo</span>).<span class="ident">unwrap</span>();
+                <span class="kw">match </span>entry.kind() {
+                    <span class="prelude-val">Some</span>(ObjectType::Tree) =&gt; {
+                        <span class="kw">let </span>obj: Object&lt;<span class="lifetime">&#39;a</span>&gt; = entry.to_object(<span class="self">self</span>.repo).unwrap();
 
-                        <span class="kw">let</span> <span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">as_tree</span>().<span class="ident">unwrap</span>();
+                        <span class="kw">let </span>tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;a</span>&gt; = obj.as_tree().unwrap();
 
-                        <span class="kw">for</span> <span class="ident">entry</span> <span class="kw">in</span> <span class="ident">tree</span>.<span class="ident">iter</span>() {
-                            <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">entry</span>.<span class="ident">to_owned</span>());
+                        <span class="kw">for </span>entry <span class="kw">in </span>tree.iter() {
+                            <span class="self">self</span>.entries.push(entry.to_owned());
                         }
                     }
-                    <span class="kw">_</span> =&gt; {}
+                    <span class="kw">_ </span>=&gt; {}
                 }
 
-                <span class="prelude-val">Some</span>(<span class="ident">entry</span>)
+                <span class="prelude-val">Some</span>(entry)
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">tree_iter</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span>(<span class="ident">tree</span>: <span class="kw-2">&amp;</span><span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span>, <span class="ident">repo</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;repo</span> <span class="ident">Repository</span>) -&gt; <span class="ident">TestTreeIter</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">initial</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+    <span class="kw">fn </span>tree_iter&lt;<span class="lifetime">&#39;repo</span>&gt;(tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;repo</span>&gt;, repo: <span class="kw-2">&amp;</span><span class="lifetime">&#39;repo </span>Repository) -&gt; TestTreeIter&lt;<span class="lifetime">&#39;repo</span>&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>initial = <span class="macro">vec!</span>[];
 
-        <span class="kw">for</span> <span class="ident">entry</span> <span class="kw">in</span> <span class="ident">tree</span>.<span class="ident">iter</span>() {
-            <span class="ident">initial</span>.<span class="ident">push</span>(<span class="ident">entry</span>.<span class="ident">to_owned</span>());
+        <span class="kw">for </span>entry <span class="kw">in </span>tree.iter() {
+            initial.push(entry.to_owned());
         }
 
-        <span class="ident">TestTreeIter</span> {
-            <span class="ident">entries</span>: <span class="ident">initial</span>,
-            <span class="ident">repo</span>: <span class="ident">repo</span>,
-        }
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">smoke_tree_iter</span>() {
-        <span class="kw">let</span> (<span class="ident">td</span>, <span class="ident">repo</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::test::repo_init</span>();
-
-        <span class="ident">setup_repo</span>(<span class="kw-2">&amp;</span><span class="ident">td</span>, <span class="kw-2">&amp;</span><span class="ident">repo</span>);
-
-        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">head</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">target</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">commit</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_commit</span>(<span class="ident">target</span>).<span class="ident">unwrap</span>();
-
-        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_tree</span>(<span class="ident">commit</span>.<span class="ident">tree_id</span>()).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">tree</span>.<span class="ident">id</span>(), <span class="ident">commit</span>.<span class="ident">tree_id</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">tree</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-
-        <span class="kw">for</span> <span class="ident">entry</span> <span class="kw">in</span> <span class="ident">tree_iter</span>(<span class="kw-2">&amp;</span><span class="ident">tree</span>, <span class="kw-2">&amp;</span><span class="ident">repo</span>) {
-            <span class="macro">println!</span>(<span class="string">&quot;iter entry {:?}&quot;</span>, <span class="ident">entry</span>.<span class="ident">name</span>());
+        TestTreeIter {
+            entries: initial,
+            repo: repo,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">setup_repo</span>(<span class="ident">td</span>: <span class="kw-2">&amp;</span><span class="ident">TempDir</span>, <span class="ident">repo</span>: <span class="kw-2">&amp;</span><span class="ident">Repository</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">index</span>().<span class="ident">unwrap</span>();
-        <span class="ident">File::create</span>(<span class="kw-2">&amp;</span><span class="ident">td</span>.<span class="ident">path</span>().<span class="ident">join</span>(<span class="string">&quot;foo&quot;</span>))
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">write_all</span>(<span class="string">b&quot;foo&quot;</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="ident">index</span>.<span class="ident">add_path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;foo&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">index</span>.<span class="ident">write_tree</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">signature</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_tree</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">repo</span>
-            .<span class="ident">find_commit</span>(<span class="ident">repo</span>.<span class="ident">head</span>().<span class="ident">unwrap</span>().<span class="ident">target</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">unwrap</span>();
-        <span class="ident">repo</span>.<span class="ident">commit</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>smoke_tree_iter() {
+        <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
+
+        setup_repo(<span class="kw-2">&amp;</span>td, <span class="kw-2">&amp;</span>repo);
+
+        <span class="kw">let </span>head = repo.head().unwrap();
+        <span class="kw">let </span>target = head.target().unwrap();
+        <span class="kw">let </span>commit = repo.find_commit(target).unwrap();
+
+        <span class="kw">let </span>tree = repo.find_tree(commit.tree_id()).unwrap();
+        <span class="macro">assert_eq!</span>(tree.id(), commit.tree_id());
+        <span class="macro">assert_eq!</span>(tree.len(), <span class="number">1</span>);
+
+        <span class="kw">for </span>entry <span class="kw">in </span>tree_iter(<span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>repo) {
+            <span class="macro">println!</span>(<span class="string">&quot;iter entry {:?}&quot;</span>, entry.name());
+        }
+    }
+
+    <span class="kw">fn </span>setup_repo(td: <span class="kw-2">&amp;</span>TempDir, repo: <span class="kw-2">&amp;</span>Repository) {
+        <span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
+        File::create(<span class="kw-2">&amp;</span>td.path().join(<span class="string">&quot;foo&quot;</span>))
+            .unwrap()
+            .write_all(<span class="string">b&quot;foo&quot;</span>)
+            .unwrap();
+        index.add_path(Path::new(<span class="string">&quot;foo&quot;</span>)).unwrap();
+        <span class="kw">let </span>id = index.write_tree().unwrap();
+        <span class="kw">let </span>sig = repo.signature().unwrap();
+        <span class="kw">let </span>tree = repo.find_tree(id).unwrap();
+        <span class="kw">let </span>parent = repo
+            .find_commit(repo.head().unwrap().target().unwrap())
+            .unwrap();
+        repo.commit(
             <span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>),
-            <span class="kw-2">&amp;</span><span class="ident">sig</span>,
-            <span class="kw-2">&amp;</span><span class="ident">sig</span>,
+            <span class="kw-2">&amp;</span>sig,
+            <span class="kw-2">&amp;</span>sig,
             <span class="string">&quot;another commit&quot;</span>,
-            <span class="kw-2">&amp;</span><span class="ident">tree</span>,
-            <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">parent</span>],
+            <span class="kw-2">&amp;</span>tree,
+            <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>parent],
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">smoke</span>() {
-        <span class="kw">let</span> (<span class="ident">td</span>, <span class="ident">repo</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::test::repo_init</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>smoke() {
+        <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
 
-        <span class="ident">setup_repo</span>(<span class="kw-2">&amp;</span><span class="ident">td</span>, <span class="kw-2">&amp;</span><span class="ident">repo</span>);
+        setup_repo(<span class="kw-2">&amp;</span>td, <span class="kw-2">&amp;</span>repo);
 
-        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">head</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">target</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">commit</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_commit</span>(<span class="ident">target</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>head = repo.head().unwrap();
+        <span class="kw">let </span>target = head.target().unwrap();
+        <span class="kw">let </span>commit = repo.find_commit(target).unwrap();
 
-        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_tree</span>(<span class="ident">commit</span>.<span class="ident">tree_id</span>()).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">tree</span>.<span class="ident">id</span>(), <span class="ident">commit</span>.<span class="ident">tree_id</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">tree</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="kw">let </span>tree = repo.find_tree(commit.tree_id()).unwrap();
+        <span class="macro">assert_eq!</span>(tree.id(), commit.tree_id());
+        <span class="macro">assert_eq!</span>(tree.len(), <span class="number">1</span>);
         {
-            <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">tree</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">e1</span> <span class="op">==</span> <span class="ident">tree</span>.<span class="ident">get_id</span>(<span class="ident">e1</span>.<span class="ident">id</span>()).<span class="ident">unwrap</span>());
-            <span class="macro">assert!</span>(<span class="ident">e1</span> <span class="op">==</span> <span class="ident">tree</span>.<span class="ident">get_name</span>(<span class="string">&quot;foo&quot;</span>).<span class="ident">unwrap</span>());
-            <span class="macro">assert!</span>(<span class="ident">e1</span> <span class="op">==</span> <span class="ident">tree</span>.<span class="ident">get_name_bytes</span>(<span class="string">b&quot;foo&quot;</span>).<span class="ident">unwrap</span>());
-            <span class="macro">assert!</span>(<span class="ident">e1</span> <span class="op">==</span> <span class="ident">tree</span>.<span class="ident">get_path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;foo&quot;</span>)).<span class="ident">unwrap</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">e1</span>.<span class="ident">name</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
-            <span class="ident">e1</span>.<span class="ident">to_object</span>(<span class="kw-2">&amp;</span><span class="ident">repo</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let </span>e1 = tree.get(<span class="number">0</span>).unwrap();
+            <span class="macro">assert!</span>(e1 == tree.get_id(e1.id()).unwrap());
+            <span class="macro">assert!</span>(e1 == tree.get_name(<span class="string">&quot;foo&quot;</span>).unwrap());
+            <span class="macro">assert!</span>(e1 == tree.get_name_bytes(<span class="string">b&quot;foo&quot;</span>).unwrap());
+            <span class="macro">assert!</span>(e1 == tree.get_path(Path::new(<span class="string">&quot;foo&quot;</span>)).unwrap());
+            <span class="macro">assert_eq!</span>(e1.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
+            e1.to_object(<span class="kw-2">&amp;</span>repo).unwrap();
         }
-        <span class="ident">tree</span>.<span class="ident">into_object</span>();
+        tree.into_object();
 
-        <span class="ident">repo</span>.<span class="ident">find_object</span>(<span class="ident">commit</span>.<span class="ident">tree_id</span>(), <span class="prelude-val">None</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">as_tree</span>()
-            .<span class="ident">unwrap</span>();
-        <span class="ident">repo</span>.<span class="ident">find_object</span>(<span class="ident">commit</span>.<span class="ident">tree_id</span>(), <span class="prelude-val">None</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">into_tree</span>()
-            .<span class="ident">ok</span>()
-            .<span class="ident">unwrap</span>();
+        repo.find_object(commit.tree_id(), <span class="prelude-val">None</span>)
+            .unwrap()
+            .as_tree()
+            .unwrap();
+        repo.find_object(commit.tree_id(), <span class="prelude-val">None</span>)
+            .unwrap()
+            .into_tree()
+            .ok()
+            .unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">tree_walk</span>() {
-        <span class="kw">let</span> (<span class="ident">td</span>, <span class="ident">repo</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::test::repo_init</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>tree_walk() {
+        <span class="kw">let </span>(td, repo) = <span class="kw">crate</span>::test::repo_init();
 
-        <span class="ident">setup_repo</span>(<span class="kw-2">&amp;</span><span class="ident">td</span>, <span class="kw-2">&amp;</span><span class="ident">repo</span>);
+        setup_repo(<span class="kw-2">&amp;</span>td, <span class="kw-2">&amp;</span>repo);
 
-        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">head</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">target</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">commit</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_commit</span>(<span class="ident">target</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_tree</span>(<span class="ident">commit</span>.<span class="ident">tree_id</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>head = repo.head().unwrap();
+        <span class="kw">let </span>target = head.target().unwrap();
+        <span class="kw">let </span>commit = repo.find_commit(target).unwrap();
+        <span class="kw">let </span>tree = repo.find_tree(commit.tree_id()).unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ct</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">tree</span>.<span class="ident">walk</span>(<span class="ident">TreeWalkMode::PreOrder</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">entry</span><span class="op">|</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">entry</span>.<span class="ident">name</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
-            <span class="ident">ct</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="number">0</span>
+        <span class="kw">let </span><span class="kw-2">mut </span>ct = <span class="number">0</span>;
+        tree.walk(TreeWalkMode::PreOrder, |<span class="kw">_</span>, entry| {
+            <span class="macro">assert_eq!</span>(entry.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
+            ct += <span class="number">1</span>;
+            <span class="number">0
+        </span>})
+        .unwrap();
+        <span class="macro">assert_eq!</span>(ct, <span class="number">1</span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>ct = <span class="number">0</span>;
+        tree.walk(TreeWalkMode::PreOrder, |<span class="kw">_</span>, entry| {
+            <span class="macro">assert_eq!</span>(entry.name(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
+            ct += <span class="number">1</span>;
+            TreeWalkResult::Ok
         })
-        .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">ct</span>, <span class="number">1</span>);
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ct</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">tree</span>.<span class="ident">walk</span>(<span class="ident">TreeWalkMode::PreOrder</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">entry</span><span class="op">|</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">entry</span>.<span class="ident">name</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>));
-            <span class="ident">ct</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">TreeWalkResult::Ok</span>
-        })
-        .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">ct</span>, <span class="number">1</span>);
+        .unwrap();
+        <span class="macro">assert_eq!</span>(ct, <span class="number">1</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

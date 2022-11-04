@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dashmap-5.4.0/src/iter.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>iter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dashmap/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dashmap-5.4.0/src/iter.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>iter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dashmap/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -313,320 +313,320 @@
 <span id="313">313</span>
 <span id="314">314</span>
 <span id="315">315</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::mapref::multiple</span>::{<span class="ident">RefMulti</span>, <span class="ident">RefMutMulti</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::util</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::lock</span>::{<span class="ident">RwLockReadGuard</span>, <span class="ident">RwLockWriteGuard</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::t::Map</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util::SharedValue</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DashMap</span>, <span class="ident">HashMap</span>};
-<span class="kw">use</span> <span class="ident">core::hash</span>::{<span class="ident">BuildHasher</span>, <span class="ident">Hash</span>};
-<span class="kw">use</span> <span class="ident">core::mem</span>;
-<span class="kw">use</span> <span class="ident">hashbrown::hash_map</span>;
-<span class="kw">use</span> <span class="ident">std::collections::hash_map::RandomState</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::mapref::multiple::{RefMulti, RefMutMulti};
+<span class="kw">use </span><span class="kw">super</span>::util;
+<span class="kw">use </span><span class="kw">crate</span>::lock::{RwLockReadGuard, RwLockWriteGuard};
+<span class="kw">use </span><span class="kw">crate</span>::t::Map;
+<span class="kw">use </span><span class="kw">crate</span>::util::SharedValue;
+<span class="kw">use crate</span>::{DashMap, HashMap};
+<span class="kw">use </span>core::hash::{BuildHasher, Hash};
+<span class="kw">use </span>core::mem;
+<span class="kw">use </span>hashbrown::hash_map;
+<span class="kw">use </span>std::collections::hash_map::RandomState;
+<span class="kw">use </span>std::sync::Arc;
 
-<span class="doccomment">/// Iterator over a DashMap yielding key value pairs.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use dashmap::DashMap;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let map = DashMap::new();</span>
-<span class="doccomment">/// map.insert(&quot;hello&quot;, &quot;world&quot;);</span>
-<span class="doccomment">/// map.insert(&quot;alex&quot;, &quot;steve&quot;);</span>
-<span class="doccomment">/// let pairs: Vec&lt;(&amp;&#39;static str, &amp;&#39;static str)&gt; = map.into_iter().collect();</span>
-<span class="doccomment">/// assert_eq!(pairs.len(), 2);</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OwningIter</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span> <span class="op">=</span> <span class="ident">RandomState</span><span class="op">&gt;</span> {
-    <span class="ident">map</span>: <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>,
-    <span class="ident">shard_i</span>: <span class="ident">usize</span>,
-    <span class="ident">current</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GuardOwningIter</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Iterator over a DashMap yielding key value pairs.
+///
+/// # Examples
+///
+/// ```
+/// use dashmap::DashMap;
+///
+/// let map = DashMap::new();
+/// map.insert(&quot;hello&quot;, &quot;world&quot;);
+/// map.insert(&quot;alex&quot;, &quot;steve&quot;);
+/// let pairs: Vec&lt;(&amp;&#39;static str, &amp;&#39;static str)&gt; = map.into_iter().collect();
+/// assert_eq!(pairs.len(), 2);
+/// ```
+</span><span class="kw">pub struct </span>OwningIter&lt;K, V, S = RandomState&gt; {
+    map: DashMap&lt;K, V, S&gt;,
+    shard_i: usize,
+    current: <span class="prelude-ty">Option</span>&lt;GuardOwningIter&lt;K, V&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">OwningIter</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">map</span>,
-            <span class="ident">shard_i</span>: <span class="number">0</span>,
-            <span class="ident">current</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl</span>&lt;K: Eq + Hash, V, S: BuildHasher + Clone&gt; OwningIter&lt;K, V, S&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(map: DashMap&lt;K, V, S&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            map,
+            shard_i: <span class="number">0</span>,
+            current: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">type</span> <span class="ident">GuardOwningIter</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">hash_map::IntoIter</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">SharedValue</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">type </span>GuardOwningIter&lt;K, V&gt; = hash_map::IntoIter&lt;K, SharedValue&lt;V&gt;&gt;;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">OwningIter</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="ident">K</span>, <span class="ident">V</span>);
+<span class="kw">impl</span>&lt;K: Eq + Hash, V, S: BuildHasher + Clone&gt; Iterator <span class="kw">for </span>OwningIter&lt;K, V, S&gt; {
+    <span class="kw">type </span>Item = (K, V);
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">as_mut</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">k</span>, <span class="ident">v</span>)) <span class="op">=</span> <span class="ident">current</span>.<span class="ident">next</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">k</span>, <span class="ident">v</span>.<span class="ident">into_inner</span>()));
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(current) = <span class="self">self</span>.current.as_mut() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((k, v)) = current.next() {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>((k, v.into_inner()));
                 }
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">shard_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">_shard_count</span>() {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">if </span><span class="self">self</span>.shard_i == <span class="self">self</span>.map._shard_count() {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
 
-            <span class="comment">//let guard = unsafe { self.map._yield_read_shard(self.shard_i) };</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shard_wl</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">_yield_write_shard</span>(<span class="self">self</span>.<span class="ident">shard_i</span>) };
+            <span class="comment">//let guard = unsafe { self.map._yield_read_shard(self.shard_i) };
+            </span><span class="kw">let </span><span class="kw-2">mut </span>shard_wl = <span class="kw">unsafe </span>{ <span class="self">self</span>.map._yield_write_shard(<span class="self">self</span>.shard_i) };
 
-            <span class="kw">let</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">_hasher</span>();
+            <span class="kw">let </span>hasher = <span class="self">self</span>.map._hasher();
 
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">shard_wl</span>, <span class="ident">HashMap::with_hasher</span>(<span class="ident">hasher</span>));
+            <span class="kw">let </span>map = mem::replace(<span class="kw-2">&amp;mut *</span>shard_wl, HashMap::with_hasher(hasher));
 
-            <span class="ident">drop</span>(<span class="ident">shard_wl</span>);
+            drop(shard_wl);
 
-            <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">into_iter</span>();
+            <span class="kw">let </span>iter = map.into_iter();
 
-            <span class="comment">//unsafe { ptr::write(&amp;mut self.current, Some((arcee, iter))); }</span>
-            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">iter</span>);
+            <span class="comment">//unsafe { ptr::write(&amp;mut self.current, Some((arcee, iter))); }
+            </span><span class="self">self</span>.current = <span class="prelude-val">Some</span>(iter);
 
-            <span class="self">self</span>.<span class="ident">shard_i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="self">self</span>.shard_i += <span class="number">1</span>;
         }
     }
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">OwningIter</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Send</span>,
-    <span class="ident">V</span>: <span class="ident">Send</span>,
-    <span class="ident">S</span>: <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Send</span>,
+<span class="kw">unsafe impl</span>&lt;K, V, S&gt; Send <span class="kw">for </span>OwningIter&lt;K, V, S&gt;
+<span class="kw">where
+    </span>K: Eq + Hash + Send,
+    V: Send,
+    S: BuildHasher + Clone + Send,
 {
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">OwningIter</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Sync</span>,
-    <span class="ident">V</span>: <span class="ident">Sync</span>,
-    <span class="ident">S</span>: <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Sync</span>,
+<span class="kw">unsafe impl</span>&lt;K, V, S&gt; Sync <span class="kw">for </span>OwningIter&lt;K, V, S&gt;
+<span class="kw">where
+    </span>K: Eq + Hash + Sync,
+    V: Sync,
+    S: BuildHasher + Clone + Sync,
 {
 }
 
-<span class="kw">type</span> <span class="ident">GuardIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="op">=</span> (
-    <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLockReadGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">hash_map::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">SharedValue</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">type </span>GuardIter&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; = (
+    Arc&lt;RwLockReadGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;&gt;,
+    hash_map::Iter&lt;<span class="lifetime">&#39;a</span>, K, SharedValue&lt;V&gt;&gt;,
 );
 
-<span class="kw">type</span> <span class="ident">GuardIterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="op">=</span> (
-    <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLockWriteGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">hash_map::IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">SharedValue</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">type </span>GuardIterMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; = (
+    Arc&lt;RwLockWriteGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;&gt;,
+    hash_map::IterMut&lt;<span class="lifetime">&#39;a</span>, K, SharedValue&lt;V&gt;&gt;,
 );
 
-<span class="doccomment">/// Iterator over a DashMap yielding immutable references.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use dashmap::DashMap;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let map = DashMap::new();</span>
-<span class="doccomment">/// map.insert(&quot;hello&quot;, &quot;world&quot;);</span>
-<span class="doccomment">/// assert_eq!(map.iter().count(), 1);</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span> <span class="op">=</span> <span class="ident">RandomState</span>, <span class="ident">M</span> <span class="op">=</span> <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">M</span>,
-    <span class="ident">shard_i</span>: <span class="ident">usize</span>,
-    <span class="ident">current</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GuardIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Iterator over a DashMap yielding immutable references.
+///
+/// # Examples
+///
+/// ```
+/// use dashmap::DashMap;
+///
+/// let map = DashMap::new();
+/// map.insert(&quot;hello&quot;, &quot;world&quot;);
+/// assert_eq!(map.iter().count(), 1);
+/// ```
+</span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V, S = RandomState, M = DashMap&lt;K, V, S&gt;&gt; {
+    map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>M,
+    shard_i: usize,
+    current: <span class="prelude-ty">Option</span>&lt;GuardIter&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, <span class="ident">K</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span>, <span class="ident">V</span>: <span class="ident">Clone</span>, <span class="ident">S</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;i</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Iter::new</span>(<span class="self">self</span>.<span class="ident">map</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, K: Clone + Hash + Eq, V: Clone, S: Clone + BuildHasher&gt; Clone <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;i</span>, K, V, S&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Iter::new(<span class="self">self</span>.map)
     }
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;i</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Send</span>,
-    <span class="ident">V</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Send</span>,
-    <span class="ident">S</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">M</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>,
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, K, V, S, M&gt; Send <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;i</span>, K, V, S, M&gt;
+<span class="kw">where
+    </span>K: <span class="lifetime">&#39;a </span>+ Eq + Hash + Send,
+    V: <span class="lifetime">&#39;a </span>+ Send,
+    S: <span class="lifetime">&#39;a </span>+ BuildHasher + Clone,
+    M: Map&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;,
 {
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;i</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Sync</span>,
-    <span class="ident">V</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Sync</span>,
-    <span class="ident">S</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">M</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>,
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, K, V, S, M&gt; Sync <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;i</span>, K, V, S, M&gt;
+<span class="kw">where
+    </span>K: <span class="lifetime">&#39;a </span>+ Eq + Hash + Sync,
+    V: <span class="lifetime">&#39;a </span>+ Sync,
+    S: <span class="lifetime">&#39;a </span>+ BuildHasher + Clone,
+    M: Map&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;,
 {
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">M</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">M</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">map</span>,
-            <span class="ident">shard_i</span>: <span class="number">0</span>,
-            <span class="ident">current</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash, V, S: <span class="lifetime">&#39;a </span>+ BuildHasher + Clone, M: Map&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt; Iter&lt;<span class="lifetime">&#39;a</span>, K, V, S, M&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>M) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            map,
+            shard_i: <span class="number">0</span>,
+            current: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">M</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Iterator</span>
-    <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash, V, S: <span class="lifetime">&#39;a </span>+ BuildHasher + Clone, M: Map&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt; Iterator
+    <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>, K, V, S, M&gt;
 {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">RefMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Item = RefMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">as_mut</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">k</span>, <span class="ident">v</span>)) <span class="op">=</span> <span class="ident">current</span>.<span class="number">1</span>.<span class="ident">next</span>() {
-                    <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="ident">current</span>.<span class="number">0</span>.<span class="ident">clone</span>();
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(current) = <span class="self">self</span>.current.as_mut() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((k, v)) = current.<span class="number">1</span>.next() {
+                    <span class="kw">let </span>guard = current.<span class="number">0</span>.clone();
 
-                    <span class="kw">return</span> <span class="kw">unsafe</span> { <span class="prelude-val">Some</span>(<span class="ident">RefMulti::new</span>(<span class="ident">guard</span>, <span class="ident">k</span>, <span class="ident">v</span>.<span class="ident">get</span>())) };
+                    <span class="kw">return unsafe </span>{ <span class="prelude-val">Some</span>(RefMulti::new(guard, k, v.get())) };
                 }
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">shard_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">_shard_count</span>() {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">if </span><span class="self">self</span>.shard_i == <span class="self">self</span>.map._shard_count() {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">_yield_read_shard</span>(<span class="self">self</span>.<span class="ident">shard_i</span>) };
+            <span class="kw">let </span>guard = <span class="kw">unsafe </span>{ <span class="self">self</span>.map._yield_read_shard(<span class="self">self</span>.shard_i) };
 
-            <span class="kw">let</span> <span class="ident">sref</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">util::change_lifetime_const</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">guard</span>) };
+            <span class="kw">let </span>sref: <span class="kw-2">&amp;</span>HashMap&lt;K, V, S&gt; = <span class="kw">unsafe </span>{ util::change_lifetime_const(<span class="kw-2">&amp;*</span>guard) };
 
-            <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">sref</span>.<span class="ident">iter</span>();
+            <span class="kw">let </span>iter = sref.iter();
 
-            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">Arc::new</span>(<span class="ident">guard</span>), <span class="ident">iter</span>));
+            <span class="self">self</span>.current = <span class="prelude-val">Some</span>((Arc::new(guard), iter));
 
-            <span class="self">self</span>.<span class="ident">shard_i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="self">self</span>.shard_i += <span class="number">1</span>;
         }
     }
 }
 
-<span class="doccomment">/// Iterator over a DashMap yielding mutable references.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use dashmap::DashMap;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let map = DashMap::new();</span>
-<span class="doccomment">/// map.insert(&quot;Johnny&quot;, 21);</span>
-<span class="doccomment">/// map.iter_mut().for_each(|mut r| *r += 1);</span>
-<span class="doccomment">/// assert_eq!(*map.get(&quot;Johnny&quot;).unwrap(), 22);</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span> <span class="op">=</span> <span class="ident">RandomState</span>, <span class="ident">M</span> <span class="op">=</span> <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">M</span>,
-    <span class="ident">shard_i</span>: <span class="ident">usize</span>,
-    <span class="ident">current</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GuardIterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Iterator over a DashMap yielding mutable references.
+///
+/// # Examples
+///
+/// ```
+/// use dashmap::DashMap;
+///
+/// let map = DashMap::new();
+/// map.insert(&quot;Johnny&quot;, 21);
+/// map.iter_mut().for_each(|mut r| *r += 1);
+/// assert_eq!(*map.get(&quot;Johnny&quot;).unwrap(), 22);
+/// ```
+</span><span class="kw">pub struct </span>IterMut&lt;<span class="lifetime">&#39;a</span>, K, V, S = RandomState, M = DashMap&lt;K, V, S&gt;&gt; {
+    map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>M,
+    shard_i: usize,
+    current: <span class="prelude-ty">Option</span>&lt;GuardIterMut&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt;,
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;i</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Send</span>,
-    <span class="ident">V</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Send</span>,
-    <span class="ident">S</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">M</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>,
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, K, V, S, M&gt; Send <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;i</span>, K, V, S, M&gt;
+<span class="kw">where
+    </span>K: <span class="lifetime">&#39;a </span>+ Eq + Hash + Send,
+    V: <span class="lifetime">&#39;a </span>+ Send,
+    S: <span class="lifetime">&#39;a </span>+ BuildHasher + Clone,
+    M: Map&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;,
 {
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;i</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Sync</span>,
-    <span class="ident">V</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Sync</span>,
-    <span class="ident">S</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">M</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>,
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;i</span>, K, V, S, M&gt; Sync <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;i</span>, K, V, S, M&gt;
+<span class="kw">where
+    </span>K: <span class="lifetime">&#39;a </span>+ Eq + Hash + Sync,
+    V: <span class="lifetime">&#39;a </span>+ Sync,
+    S: <span class="lifetime">&#39;a </span>+ BuildHasher + Clone,
+    M: Map&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;,
 {
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">M</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash, V, S: <span class="lifetime">&#39;a </span>+ BuildHasher + Clone, M: Map&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt;
+    IterMut&lt;<span class="lifetime">&#39;a</span>, K, V, S, M&gt;
 {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">M</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">map</span>,
-            <span class="ident">shard_i</span>: <span class="number">0</span>,
-            <span class="ident">current</span>: <span class="prelude-val">None</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>M) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            map,
+            shard_i: <span class="number">0</span>,
+            current: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BuildHasher</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">M</span>: <span class="ident">Map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Iterator</span>
-    <span class="kw">for</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span>, <span class="ident">M</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash, V, S: <span class="lifetime">&#39;a </span>+ BuildHasher + Clone, M: Map&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;&gt; Iterator
+    <span class="kw">for </span>IterMut&lt;<span class="lifetime">&#39;a</span>, K, V, S, M&gt;
 {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">RefMutMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Item = RefMutMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt;;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">as_mut</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">k</span>, <span class="ident">v</span>)) <span class="op">=</span> <span class="ident">current</span>.<span class="number">1</span>.<span class="ident">next</span>() {
-                    <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="ident">current</span>.<span class="number">0</span>.<span class="ident">clone</span>();
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(current) = <span class="self">self</span>.current.as_mut() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((k, v)) = current.<span class="number">1</span>.next() {
+                    <span class="kw">let </span>guard = current.<span class="number">0</span>.clone();
 
-                    <span class="kw">unsafe</span> {
-                        <span class="kw">let</span> <span class="ident">k</span> <span class="op">=</span> <span class="ident">util::change_lifetime_const</span>(<span class="ident">k</span>);
+                    <span class="kw">unsafe </span>{
+                        <span class="kw">let </span>k = util::change_lifetime_const(k);
 
-                        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">v</span>.<span class="ident">as_ptr</span>();
+                        <span class="kw">let </span>v = <span class="kw-2">&amp;mut *</span>v.as_ptr();
 
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">RefMutMulti::new</span>(<span class="ident">guard</span>, <span class="ident">k</span>, <span class="ident">v</span>));
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(RefMutMulti::new(guard, k, v));
                     }
                 }
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">shard_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">_shard_count</span>() {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">if </span><span class="self">self</span>.shard_i == <span class="self">self</span>.map._shard_count() {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guard</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">_yield_write_shard</span>(<span class="self">self</span>.<span class="ident">shard_i</span>) };
+            <span class="kw">let </span><span class="kw-2">mut </span>guard = <span class="kw">unsafe </span>{ <span class="self">self</span>.map._yield_write_shard(<span class="self">self</span>.shard_i) };
 
-            <span class="kw">let</span> <span class="ident">sref</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">util::change_lifetime_mut</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">guard</span>) };
+            <span class="kw">let </span>sref: <span class="kw-2">&amp;mut </span>HashMap&lt;K, V, S&gt; = <span class="kw">unsafe </span>{ util::change_lifetime_mut(<span class="kw-2">&amp;mut *</span>guard) };
 
-            <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">sref</span>.<span class="ident">iter_mut</span>();
+            <span class="kw">let </span>iter = sref.iter_mut();
 
-            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">Arc::new</span>(<span class="ident">guard</span>), <span class="ident">iter</span>));
+            <span class="self">self</span>.current = <span class="prelude-val">Some</span>((Arc::new(guard), iter));
 
-            <span class="self">self</span>.<span class="ident">shard_i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="self">self</span>.shard_i += <span class="number">1</span>;
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::DashMap</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">crate</span>::DashMap;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">iter_mut_manual_count</span>() {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">DashMap::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>iter_mut_manual_count() {
+        <span class="kw">let </span>map = DashMap::new();
 
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;Johnny&quot;</span>, <span class="number">21</span>);
+        map.insert(<span class="string">&quot;Johnny&quot;</span>, <span class="number">21</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(map.len(), <span class="number">1</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>c = <span class="number">0</span>;
 
-        <span class="kw">for</span> <span class="ident">shard</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">shards</span>() {
-            <span class="ident">c</span> <span class="op">+</span><span class="op">=</span> <span class="ident">shard</span>.<span class="ident">write</span>().<span class="ident">iter_mut</span>().<span class="ident">count</span>();
+        <span class="kw">for </span>shard <span class="kw">in </span>map.shards() {
+            c += shard.write().iter_mut().count();
         }
 
-        <span class="macro">assert_eq!</span>(<span class="ident">c</span>, <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(c, <span class="number">1</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">iter_mut_count</span>() {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">DashMap::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>iter_mut_count() {
+        <span class="kw">let </span>map = DashMap::new();
 
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;Johnny&quot;</span>, <span class="number">21</span>);
+        map.insert(<span class="string">&quot;Johnny&quot;</span>, <span class="number">21</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(map.len(), <span class="number">1</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">iter_mut</span>().<span class="ident">count</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(map.iter_mut().count(), <span class="number">1</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">iter_count</span>() {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">DashMap::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>iter_count() {
+        <span class="kw">let </span>map = DashMap::new();
 
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;Johnny&quot;</span>, <span class="number">21</span>);
+        map.insert(<span class="string">&quot;Johnny&quot;</span>, <span class="number">21</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(map.len(), <span class="number">1</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">iter</span>().<span class="ident">count</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(map.iter().count(), <span class="number">1</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dashmap" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dashmap" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

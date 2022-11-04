@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/web.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>web.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/web.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>web.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -195,200 +195,200 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Essentials helper functions and types for application registration.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Request Extractors</span>
-<span class="doccomment">//! - [`Data`]: Application data item</span>
-<span class="doccomment">//! - [`ReqData`]: Request-local data item</span>
-<span class="doccomment">//! - [`Path`]: URL path parameters / dynamic segments</span>
-<span class="doccomment">//! - [`Query`]: URL query parameters</span>
-<span class="doccomment">//! - [`Header`]: Typed header</span>
-<span class="doccomment">//! - [`Json`]: JSON payload</span>
-<span class="doccomment">//! - [`Form`]: URL-encoded payload</span>
-<span class="doccomment">//! - [`Bytes`]: Raw payload</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Responders</span>
-<span class="doccomment">//! - [`Json`]: JSON request payload</span>
-<span class="doccomment">//! - [`Bytes`]: Raw request payload</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Essentials helper functions and types for application registration.
+//!
+//! # Request Extractors
+//! - [`Data`]: Application data item
+//! - [`ReqData`]: Request-local data item
+//! - [`Path`]: URL path parameters / dynamic segments
+//! - [`Query`]: URL query parameters
+//! - [`Header`]: Typed header
+//! - [`Json`]: JSON payload
+//! - [`Form`]: URL-encoded payload
+//! - [`Bytes`]: Raw payload
+//!
+//! # Responders
+//! - [`Json`]: JSON request payload
+//! - [`Bytes`]: Raw request payload
 
-<span class="kw">use</span> <span class="ident">std::future::Future</span>;
+</span><span class="kw">use </span>std::future::Future;
 
-<span class="kw">use</span> <span class="ident">actix_router::IntoPatterns</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">BufMut</span>, <span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
+<span class="kw">use </span>actix_router::IntoPatterns;
+<span class="kw">pub use </span>bytes::{Buf, BufMut, Bytes, BytesMut};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error::BlockingError</span>, <span class="ident">http::Method</span>, <span class="ident">service::WebService</span>, <span class="ident">FromRequest</span>, <span class="ident">Handler</span>, <span class="ident">Resource</span>,
-    <span class="ident">Responder</span>, <span class="ident">Route</span>, <span class="ident">Scope</span>,
+<span class="kw">use crate</span>::{
+    error::BlockingError, http::Method, service::WebService, FromRequest, Handler, Resource,
+    Responder, Route, Scope,
 };
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::config::ServiceConfig</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::data::Data</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::request_data::ReqData</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::<span class="kw-2">*</span>;
+<span class="kw">pub use </span><span class="kw">crate</span>::config::ServiceConfig;
+<span class="kw">pub use </span><span class="kw">crate</span>::data::Data;
+<span class="kw">pub use </span><span class="kw">crate</span>::request_data::ReqData;
+<span class="kw">pub use </span><span class="kw">crate</span>::types::<span class="kw-2">*</span>;
 
-<span class="doccomment">/// Creates a new resource for a specific path.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Resources may have dynamic path segments. For example, a resource with the path `/a/{name}/c`</span>
-<span class="doccomment">/// would match all incoming requests with paths such as `/a/b/c`, `/a/1/c`, or `/a/etc/c`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A dynamic segment is specified in the form `{identifier}`, where the identifier can be used</span>
-<span class="doccomment">/// later in a request handler to access the matched value for that segment. This is done by looking</span>
-<span class="doccomment">/// up the identifier in the `Path` object returned by [`HttpRequest.match_info()`] method.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// By default, each segment matches the regular expression `[^{}/]+`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can also specify a custom regex in the form `{identifier:regex}`:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For instance, to route `GET`-requests on any route matching `/users/{userid}/{friend}` and store</span>
-<span class="doccomment">/// `userid` and `friend` in the exposed `Path` object:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, App, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new().service(</span>
-<span class="doccomment">///     web::resource(&quot;/users/{userid}/{friend}&quot;)</span>
-<span class="doccomment">///         .route(web::get().to(|| HttpResponse::Ok()))</span>
-<span class="doccomment">///         .route(web::head().to(|| HttpResponse::MethodNotAllowed()))</span>
-<span class="doccomment">/// );</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resource</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">T</span>) -&gt; <span class="ident">Resource</span> {
-    <span class="ident">Resource::new</span>(<span class="ident">path</span>)
+<span class="doccomment">/// Creates a new resource for a specific path.
+///
+/// Resources may have dynamic path segments. For example, a resource with the path `/a/{name}/c`
+/// would match all incoming requests with paths such as `/a/b/c`, `/a/1/c`, or `/a/etc/c`.
+///
+/// A dynamic segment is specified in the form `{identifier}`, where the identifier can be used
+/// later in a request handler to access the matched value for that segment. This is done by looking
+/// up the identifier in the `Path` object returned by [`HttpRequest.match_info()`] method.
+///
+/// By default, each segment matches the regular expression `[^{}/]+`.
+///
+/// You can also specify a custom regex in the form `{identifier:regex}`:
+///
+/// For instance, to route `GET`-requests on any route matching `/users/{userid}/{friend}` and store
+/// `userid` and `friend` in the exposed `Path` object:
+///
+/// ```
+/// use actix_web::{web, App, HttpResponse};
+///
+/// let app = App::new().service(
+///     web::resource(&quot;/users/{userid}/{friend}&quot;)
+///         .route(web::get().to(|| HttpResponse::Ok()))
+///         .route(web::head().to(|| HttpResponse::MethodNotAllowed()))
+/// );
+/// ```
+</span><span class="kw">pub fn </span>resource&lt;T: IntoPatterns&gt;(path: T) -&gt; Resource {
+    Resource::new(path)
 }
 
-<span class="doccomment">/// Creates scope for common path prefix.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Scopes collect multiple paths under a common path prefix. The scope&#39;s path can contain dynamic</span>
-<span class="doccomment">/// path segments.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Avoid Trailing Slashes</span>
-<span class="doccomment">/// Avoid using trailing slashes in the scope prefix (e.g., `web::scope(&quot;/scope/&quot;)`). It will almost</span>
-<span class="doccomment">/// certainly not have the expected behavior. See the [documentation on resource definitions][pat]</span>
-<span class="doccomment">/// to understand why this is the case and how to correctly construct scope/prefix definitions.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// In this example, three routes are set up (and will handle any method):</span>
-<span class="doccomment">/// - `/{project_id}/path1`</span>
-<span class="doccomment">/// - `/{project_id}/path2`</span>
-<span class="doccomment">/// - `/{project_id}/path3`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, App, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new().service(</span>
-<span class="doccomment">///     web::scope(&quot;/{project_id}&quot;)</span>
-<span class="doccomment">///         .service(web::resource(&quot;/path1&quot;).to(|| HttpResponse::Ok()))</span>
-<span class="doccomment">///         .service(web::resource(&quot;/path2&quot;).to(|| HttpResponse::Ok()))</span>
-<span class="doccomment">///         .service(web::resource(&quot;/path3&quot;).to(|| HttpResponse::MethodNotAllowed()))</span>
-<span class="doccomment">/// );</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [pat]: crate::dev::ResourceDef#prefix-resources</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scope</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Scope</span> {
-    <span class="ident">Scope::new</span>(<span class="ident">path</span>)
+<span class="doccomment">/// Creates scope for common path prefix.
+///
+/// Scopes collect multiple paths under a common path prefix. The scope&#39;s path can contain dynamic
+/// path segments.
+///
+/// # Avoid Trailing Slashes
+/// Avoid using trailing slashes in the scope prefix (e.g., `web::scope(&quot;/scope/&quot;)`). It will almost
+/// certainly not have the expected behavior. See the [documentation on resource definitions][pat]
+/// to understand why this is the case and how to correctly construct scope/prefix definitions.
+///
+/// # Examples
+/// In this example, three routes are set up (and will handle any method):
+/// - `/{project_id}/path1`
+/// - `/{project_id}/path2`
+/// - `/{project_id}/path3`
+///
+/// ```
+/// use actix_web::{web, App, HttpResponse};
+///
+/// let app = App::new().service(
+///     web::scope(&quot;/{project_id}&quot;)
+///         .service(web::resource(&quot;/path1&quot;).to(|| HttpResponse::Ok()))
+///         .service(web::resource(&quot;/path2&quot;).to(|| HttpResponse::Ok()))
+///         .service(web::resource(&quot;/path3&quot;).to(|| HttpResponse::MethodNotAllowed()))
+/// );
+/// ```
+///
+/// [pat]: crate::dev::ResourceDef#prefix-resources
+</span><span class="kw">pub fn </span>scope(path: <span class="kw-2">&amp;</span>str) -&gt; Scope {
+    Scope::new(path)
 }
 
-<span class="doccomment">/// Creates a new un-configured route.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">route</span>() -&gt; <span class="ident">Route</span> {
-    <span class="ident">Route::new</span>()
+<span class="doccomment">/// Creates a new un-configured route.
+</span><span class="kw">pub fn </span>route() -&gt; Route {
+    Route::new()
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">method_route</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_fn</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_const</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot; Creates a new route with `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_const</span>), <span class="string">&quot;` method guard.&quot;</span>)]</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// # Examples</span>
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot; In this example, one `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_const</span>), <span class="string">&quot; /{project_id}` route is set up:&quot;</span>)]</span>
-        <span class="doccomment">/// ```</span>
-        <span class="doccomment">/// use actix_web::{web, App, HttpResponse};</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// let app = App::new().service(</span>
-        <span class="doccomment">///     web::resource(&quot;/{project_id}&quot;)</span>
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;         .route(web::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_fn</span>), <span class="string">&quot;().to(|| HttpResponse::Ok()))&quot;</span>)]</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// );</span>
-        <span class="doccomment">/// ```</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_fn</span>() -&gt; <span class="ident">Route</span> {
-            <span class="ident">method</span>(<span class="ident">Method</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_const</span>)
+<span class="macro">macro_rules! </span>method_route {
+    (<span class="macro-nonterminal">$method_fn</span>:ident, <span class="macro-nonterminal">$method_const</span>:ident) =&gt; {
+        <span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot; Creates a new route with `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_const</span>), <span class="string">&quot;` method guard.&quot;</span>)]
+        </span><span class="doccomment">///
+        /// # Examples
+        </span><span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot; In this example, one `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_const</span>), <span class="string">&quot; /{project_id}` route is set up:&quot;</span>)]
+        </span><span class="doccomment">/// ```
+        /// use actix_web::{web, App, HttpResponse};
+        ///
+        /// let app = App::new().service(
+        ///     web::resource(&quot;/{project_id}&quot;)
+        </span><span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;         .route(web::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_fn</span>), <span class="string">&quot;().to(|| HttpResponse::Ok()))&quot;</span>)]
+        </span><span class="doccomment">///
+        /// );
+        /// ```
+        </span><span class="kw">pub fn </span><span class="macro-nonterminal">$method_fn</span>() -&gt; Route {
+            method(Method::<span class="macro-nonterminal">$method_const</span>)
         }
     };
 }
 
-<span class="macro">method_route!</span>(<span class="ident">get</span>, <span class="ident">GET</span>);
-<span class="macro">method_route!</span>(<span class="ident">post</span>, <span class="ident">POST</span>);
-<span class="macro">method_route!</span>(<span class="ident">put</span>, <span class="ident">PUT</span>);
-<span class="macro">method_route!</span>(<span class="ident">patch</span>, <span class="ident">PATCH</span>);
-<span class="macro">method_route!</span>(<span class="ident">delete</span>, <span class="ident">DELETE</span>);
-<span class="macro">method_route!</span>(<span class="ident">head</span>, <span class="ident">HEAD</span>);
-<span class="macro">method_route!</span>(<span class="ident">trace</span>, <span class="ident">TRACE</span>);
+<span class="macro">method_route!</span>(get, GET);
+<span class="macro">method_route!</span>(post, POST);
+<span class="macro">method_route!</span>(put, PUT);
+<span class="macro">method_route!</span>(patch, PATCH);
+<span class="macro">method_route!</span>(delete, DELETE);
+<span class="macro">method_route!</span>(head, HEAD);
+<span class="macro">method_route!</span>(trace, TRACE);
 
-<span class="doccomment">/// Creates a new route with specified method guard.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// In this example, one `GET /{project_id}` route is set up:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, http, App, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new().service(</span>
-<span class="doccomment">///     web::resource(&quot;/{project_id}&quot;)</span>
-<span class="doccomment">///         .route(web::method(http::Method::GET).to(|| HttpResponse::Ok()))</span>
-<span class="doccomment">/// );</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method</span>(<span class="ident">method</span>: <span class="ident">Method</span>) -&gt; <span class="ident">Route</span> {
-    <span class="ident">Route::new</span>().<span class="ident">method</span>(<span class="ident">method</span>)
+<span class="doccomment">/// Creates a new route with specified method guard.
+///
+/// # Examples
+/// In this example, one `GET /{project_id}` route is set up:
+///
+/// ```
+/// use actix_web::{web, http, App, HttpResponse};
+///
+/// let app = App::new().service(
+///     web::resource(&quot;/{project_id}&quot;)
+///         .route(web::method(http::Method::GET).to(|| HttpResponse::Ok()))
+/// );
+/// ```
+</span><span class="kw">pub fn </span>method(method: Method) -&gt; Route {
+    Route::new().method(method)
 }
 
-<span class="doccomment">/// Creates a new any-method route with handler.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, App, HttpResponse, Responder};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// async fn index() -&gt; impl Responder {</span>
-<span class="doccomment">///    HttpResponse::Ok()</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// App::new().service(</span>
-<span class="doccomment">///     web::resource(&quot;/&quot;).route(</span>
-<span class="doccomment">///         web::to(index))</span>
-<span class="doccomment">/// );</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">handler</span>: <span class="ident">F</span>) -&gt; <span class="ident">Route</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Handler</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>,
-    <span class="ident">Args</span>: <span class="ident">FromRequest</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">F::Output</span>: <span class="ident">Responder</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="doccomment">/// Creates a new any-method route with handler.
+///
+/// ```
+/// use actix_web::{web, App, HttpResponse, Responder};
+///
+/// async fn index() -&gt; impl Responder {
+///    HttpResponse::Ok()
+/// }
+///
+/// App::new().service(
+///     web::resource(&quot;/&quot;).route(
+///         web::to(index))
+/// );
+/// ```
+</span><span class="kw">pub fn </span>to&lt;F, Args&gt;(handler: F) -&gt; Route
+<span class="kw">where
+    </span>F: Handler&lt;Args&gt;,
+    Args: FromRequest + <span class="lifetime">&#39;static</span>,
+    F::Output: Responder + <span class="lifetime">&#39;static</span>,
 {
-    <span class="ident">Route::new</span>().<span class="ident">to</span>(<span class="ident">handler</span>)
+    Route::new().to(handler)
 }
 
-<span class="doccomment">/// Creates a raw service for a specific path.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{dev, web, guard, App, Error, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// async fn my_service(req: dev::ServiceRequest) -&gt; Result&lt;dev::ServiceResponse, Error&gt; {</span>
-<span class="doccomment">///     Ok(req.into_response(HttpResponse::Ok().finish()))</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new().service(</span>
-<span class="doccomment">///     web::service(&quot;/users/*&quot;)</span>
-<span class="doccomment">///         .guard(guard::Header(&quot;content-type&quot;, &quot;text/plain&quot;))</span>
-<span class="doccomment">///         .finish(my_service)</span>
-<span class="doccomment">/// );</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">service</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoPatterns</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">T</span>) -&gt; <span class="ident">WebService</span> {
-    <span class="ident">WebService::new</span>(<span class="ident">path</span>)
+<span class="doccomment">/// Creates a raw service for a specific path.
+///
+/// ```
+/// use actix_web::{dev, web, guard, App, Error, HttpResponse};
+///
+/// async fn my_service(req: dev::ServiceRequest) -&gt; Result&lt;dev::ServiceResponse, Error&gt; {
+///     Ok(req.into_response(HttpResponse::Ok().finish()))
+/// }
+///
+/// let app = App::new().service(
+///     web::service(&quot;/users/*&quot;)
+///         .guard(guard::Header(&quot;content-type&quot;, &quot;text/plain&quot;))
+///         .finish(my_service)
+/// );
+/// ```
+</span><span class="kw">pub fn </span>service&lt;T: IntoPatterns&gt;(path: T) -&gt; WebService {
+    WebService::new(path)
 }
 
-<span class="doccomment">/// Executes blocking function on a thread pool, returns future that resolves to result of the</span>
-<span class="doccomment">/// function execution.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">BlockingError</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">R</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">R</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="doccomment">/// Executes blocking function on a thread pool, returns future that resolves to result of the
+/// function execution.
+</span><span class="kw">pub fn </span>block&lt;F, R&gt;(f: F) -&gt; <span class="kw">impl </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;R, BlockingError&gt;&gt;
+<span class="kw">where
+    </span>F: FnOnce() -&gt; R + Send + <span class="lifetime">&#39;static</span>,
+    R: Send + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">actix_rt::task::spawn_blocking</span>(<span class="ident">f</span>);
-    <span class="kw">async</span> { <span class="ident">fut</span>.<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">BlockingError</span>) }
+    <span class="kw">let </span>fut = actix_rt::task::spawn_blocking(f);
+    <span class="kw">async </span>{ fut.<span class="kw">await</span>.map_err(|<span class="kw">_</span>| BlockingError) }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

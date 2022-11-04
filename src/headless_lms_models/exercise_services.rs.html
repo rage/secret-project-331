@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_services.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercise_services.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_services.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercise_services.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -271,258 +271,258 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">url::Url</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>url::Url;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exercise_service_info</span>::{<span class="ident">get_all_exercise_services_by_type</span>, <span class="ident">ExerciseServiceInfo</span>},
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+<span class="kw">use crate</span>::{
+    exercise_service_info::{get_all_exercise_services_by_type, ExerciseServiceInfo},
+    prelude::<span class="kw-2">*</span>,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseService</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">slug</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">public_url</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.</span>
-    <span class="kw">pub</span> <span class="ident">internal_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">max_reprocessing_submissions_at_once</span>: <span class="ident">i32</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExerciseService {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>slug: String,
+    <span class="kw">pub </span>public_url: String,
+    <span class="doccomment">/// This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
+    </span><span class="kw">pub </span>internal_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>max_reprocessing_submissions_at_once: i32,
 }
 
-<span class="doccomment">/// Exercise service definition that the CMS can use to render the editor view.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseServiceIframeRenderingInfo</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">slug</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">public_iframe_url</span>: <span class="ident">String</span>,
+<span class="doccomment">/// Exercise service definition that the CMS can use to render the editor view.
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExerciseServiceIframeRenderingInfo {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>slug: String,
+    <span class="kw">pub </span>public_iframe_url: String,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseServiceNewOrUpdate</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">slug</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">public_url</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">internal_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">max_reprocessing_submissions_at_once</span>: <span class="ident">i32</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExerciseServiceNewOrUpdate {
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>slug: String,
+    <span class="kw">pub </span>public_url: String,
+    <span class="kw">pub </span>internal_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>max_reprocessing_submissions_at_once: i32,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_service</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseService</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseService</span>,
+<span class="kw">pub async fn </span>get_exercise_service(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+) -&gt; ModelResult&lt;ExerciseService&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseService,
         <span class="string">r#&quot;
 SELECT *
 FROM exercise_services
 WHERE id = $1
   &quot;#</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_exercise_service</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_service_update</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseServiceNewOrUpdate</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseService</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseService</span>,
+<span class="kw">pub async fn </span>update_exercise_service(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    exercise_service_update: <span class="kw-2">&amp;</span>ExerciseServiceNewOrUpdate,
+) -&gt; ModelResult&lt;ExerciseService&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseService,
         <span class="string">r#&quot;
 UPDATE exercise_services
     SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5
 WHERE id=$6
     RETURNING *
         &quot;#</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">name</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">slug</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">public_url</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">internal_url</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">max_reprocessing_submissions_at_once</span>,
-        <span class="ident">id</span>
+        exercise_service_update.name,
+        exercise_service_update.slug,
+        exercise_service_update.public_url,
+        exercise_service_update.internal_url,
+        exercise_service_update.max_reprocessing_submissions_at_once,
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_exercise_service</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseService</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseService</span>,
+<span class="kw">pub async fn </span>delete_exercise_service(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+) -&gt; ModelResult&lt;ExerciseService&gt; {
+    <span class="kw">let </span>deleted = <span class="macro">sqlx::query_as!</span>(
+        ExerciseService,
         <span class="string">r#&quot;
 UPDATE exercise_services
     SET deleted_at = now()
 WHERE id = $1
     RETURNING *
         &quot;#</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">deleted</span>)
+    <span class="prelude-val">Ok</span>(deleted)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_service_by_exercise_type</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseService</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseService</span>,
+<span class="kw">pub async fn </span>get_exercise_service_by_exercise_type(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_type: <span class="kw-2">&amp;</span>str,
+) -&gt; ModelResult&lt;ExerciseService&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseService,
         <span class="string">r#&quot;
 SELECT *
 FROM exercise_services
 WHERE slug = $1
 AND deleted_at IS NULL
   &quot;#</span>,
-        <span class="ident">exercise_type</span>
+        exercise_type
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_service_internally_preferred_baseurl_by_exercise_type</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span> <span class="ident">get_exercise_service_by_exercise_type</span>(<span class="ident">conn</span>, <span class="ident">exercise_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">get_exercise_service_internally_preferred_baseurl</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service</span>)
+<span class="kw">pub async fn </span>get_exercise_service_internally_preferred_baseurl_by_exercise_type(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_type: <span class="kw-2">&amp;</span>str,
+) -&gt; ModelResult&lt;Url&gt; {
+    <span class="kw">let </span>exercise_service = get_exercise_service_by_exercise_type(conn, exercise_type).<span class="kw">await</span><span class="question-mark">?</span>;
+    get_exercise_service_internally_preferred_baseurl(<span class="kw-2">&amp;</span>exercise_service)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_exercise_service_internally_preferred_baseurl</span>(
-    <span class="ident">exercise_service</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseService</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">stored_url_str</span> <span class="op">=</span> <span class="ident">exercise_service</span>
-        .<span class="ident">internal_url</span>
-        .<span class="ident">as_ref</span>()
-        .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service</span>.<span class="ident">public_url</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="ident">stored_url_str</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-        <span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::Generic</span>,
-            <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+<span class="kw">pub fn </span>get_exercise_service_internally_preferred_baseurl(
+    exercise_service: <span class="kw-2">&amp;</span>ExerciseService,
+) -&gt; ModelResult&lt;Url&gt; {
+    <span class="kw">let </span>stored_url_str = exercise_service
+        .internal_url
+        .as_ref()
+        .unwrap_or(<span class="kw-2">&amp;</span>exercise_service.public_url);
+    <span class="kw">let </span><span class="kw-2">mut </span>url = Url::parse(stored_url_str).map_err(|original_error| {
+        ModelError::new(
+            ModelErrorType::Generic,
+            original_error.to_string(),
+            <span class="prelude-val">Some</span>(original_error.into()),
         )
     })<span class="question-mark">?</span>;
-    <span class="comment">// remove the path because all relative urls in service info assume</span>
-    <span class="comment">// that the base url prefix has no path</span>
-    <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="string">&quot;&quot;</span>);
-    <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
+    <span class="comment">// remove the path because all relative urls in service info assume
+    // that the base url prefix has no path
+    </span>url.set_path(<span class="string">&quot;&quot;</span>);
+    <span class="prelude-val">Ok</span>(url)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_exercise_service_externally_preferred_baseurl</span>(
-    <span class="ident">exercise_service</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseService</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">stored_url_str</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">exercise_service</span>.<span class="ident">public_url</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="ident">stored_url_str</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-        <span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::Generic</span>,
-            <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+<span class="kw">pub fn </span>get_exercise_service_externally_preferred_baseurl(
+    exercise_service: <span class="kw-2">&amp;</span>ExerciseService,
+) -&gt; ModelResult&lt;Url&gt; {
+    <span class="kw">let </span>stored_url_str = <span class="kw-2">&amp;</span>exercise_service.public_url;
+    <span class="kw">let </span><span class="kw-2">mut </span>url = Url::parse(stored_url_str).map_err(|original_error| {
+        ModelError::new(
+            ModelErrorType::Generic,
+            original_error.to_string(),
+            <span class="prelude-val">Some</span>(original_error.into()),
         )
     })<span class="question-mark">?</span>;
-    <span class="comment">// remove the path because all relative urls in service info assume</span>
-    <span class="comment">// that the base url prefix has no path</span>
-    <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="string">&quot;&quot;</span>);
-    <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
+    <span class="comment">// remove the path because all relative urls in service info assume
+    // that the base url prefix has no path
+    </span>url.set_path(<span class="string">&quot;&quot;</span>);
+    <span class="prelude-val">Ok</span>(url)
 }
 
 <span class="doccomment">/**
 Returns a url that can be used to grade a submission for this exercise service.
-*/</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_internal_grade_url</span>(
-    <span class="ident">exercise_service</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseService</span>,
-    <span class="ident">exercise_service_info</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseServiceInfo</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">get_exercise_service_internally_preferred_baseurl</span>(<span class="ident">exercise_service</span>)<span class="question-mark">?</span>;
-    <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>.<span class="ident">grade_endpoint_path</span>);
-    <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
+*/
+</span><span class="kw">pub async fn </span>get_internal_grade_url(
+    exercise_service: <span class="kw-2">&amp;</span>ExerciseService,
+    exercise_service_info: <span class="kw-2">&amp;</span>ExerciseServiceInfo,
+) -&gt; ModelResult&lt;Url&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>url = get_exercise_service_internally_preferred_baseurl(exercise_service)<span class="question-mark">?</span>;
+    url.set_path(<span class="kw-2">&amp;</span>exercise_service_info.grade_endpoint_path);
+    <span class="prelude-val">Ok</span>(url)
 }
 
 <span class="doccomment">/**
 Returns a url that can be used to generate a public version of a private spec.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_internal_public_spec_url</span>(
-    <span class="ident">exercise_service</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseService</span>,
-    <span class="ident">exercise_service_info</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseServiceInfo</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">get_exercise_service_internally_preferred_baseurl</span>(<span class="ident">exercise_service</span>)<span class="question-mark">?</span>;
-    <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>.<span class="ident">public_spec_endpoint_path</span>);
-    <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
+*/
+</span><span class="kw">pub fn </span>get_internal_public_spec_url(
+    exercise_service: <span class="kw-2">&amp;</span>ExerciseService,
+    exercise_service_info: <span class="kw-2">&amp;</span>ExerciseServiceInfo,
+) -&gt; ModelResult&lt;Url&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>url = get_exercise_service_internally_preferred_baseurl(exercise_service)<span class="question-mark">?</span>;
+    url.set_path(<span class="kw-2">&amp;</span>exercise_service_info.public_spec_endpoint_path);
+    <span class="prelude-val">Ok</span>(url)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_model_solution_url</span>(
-    <span class="ident">exercise_service</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseService</span>,
-    <span class="ident">exercise_service_info</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseServiceInfo</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">get_exercise_service_internally_preferred_baseurl</span>(<span class="ident">exercise_service</span>)<span class="question-mark">?</span>;
-    <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>.<span class="ident">model_solution_spec_endpoint_path</span>);
-    <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
+<span class="kw">pub fn </span>get_model_solution_url(
+    exercise_service: <span class="kw-2">&amp;</span>ExerciseService,
+    exercise_service_info: <span class="kw-2">&amp;</span>ExerciseServiceInfo,
+) -&gt; ModelResult&lt;Url&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>url = get_exercise_service_internally_preferred_baseurl(exercise_service)<span class="question-mark">?</span>;
+    url.set_path(<span class="kw-2">&amp;</span>exercise_service_info.model_solution_spec_endpoint_path);
+    <span class="prelude-val">Ok</span>(url)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_services</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseService</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseService</span>,
+<span class="kw">pub async fn </span>get_exercise_services(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; ModelResult&lt;Vec&lt;ExerciseService&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseService,
         <span class="string">r#&quot;
 SELECT *
 FROM exercise_services
 WHERE deleted_at IS NULL
-&quot;#</span>
-    )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+&quot;#
+    </span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_exercise_services_iframe_rendering_infos</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseServiceIframeRenderingInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">services</span> <span class="op">=</span> <span class="ident">get_exercise_services</span>(<span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">service_infos</span> <span class="op">=</span> <span class="ident">get_all_exercise_services_by_type</span>(<span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">services</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">exercise_service</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">service_info</span>)) <span class="op">=</span> <span class="ident">service_infos</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service</span>.<span class="ident">slug</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">url</span>) <span class="op">=</span>  <span class="ident">get_exercise_service_externally_preferred_baseurl</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service</span>) {
-                    <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">service_info</span>.<span class="ident">user_interface_iframe_path</span>);
-                    <span class="prelude-val">Some</span>(<span class="ident">ExerciseServiceIframeRenderingInfo</span> {
-                        <span class="ident">id</span>: <span class="ident">exercise_service</span>.<span class="ident">id</span>,
-                        <span class="ident">name</span>: <span class="ident">exercise_service</span>.<span class="ident">name</span>,
-                        <span class="ident">slug</span>: <span class="ident">exercise_service</span>.<span class="ident">slug</span>,
-                        <span class="ident">public_iframe_url</span>: <span class="ident">url</span>.<span class="ident">to_string</span>(),
+<span class="kw">pub async fn </span>get_all_exercise_services_iframe_rendering_infos(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+) -&gt; ModelResult&lt;Vec&lt;ExerciseServiceIframeRenderingInfo&gt;&gt; {
+    <span class="kw">let </span>services = get_exercise_services(conn).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>service_infos = get_all_exercise_services_by_type(conn).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = services
+        .into_iter()
+        .filter_map(|exercise_service| {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, service_info)) = service_infos.get(<span class="kw-2">&amp;</span>exercise_service.slug) {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>url) =  get_exercise_service_externally_preferred_baseurl(<span class="kw-2">&amp;</span>exercise_service) {
+                    url.set_path(<span class="kw-2">&amp;</span>service_info.user_interface_iframe_path);
+                    <span class="prelude-val">Some</span>(ExerciseServiceIframeRenderingInfo {
+                        id: exercise_service.id,
+                        name: exercise_service.name,
+                        slug: exercise_service.slug,
+                        public_iframe_url: url.to_string(),
                     })
-                } <span class="kw">else</span> {
-                    <span class="macro">warn!</span>(<span class="ident">exercise_service_id</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">exercise_service</span>.<span class="ident">id</span>, <span class="string">&quot;Skipping exercise service from the list because it has an invalid base url&quot;</span>);
-                    <span class="prelude-val">None</span>
-                }
+                } <span class="kw">else </span>{
+                    <span class="macro">warn!</span>(exercise_service_id = <span class="question-mark">?</span>exercise_service.id, <span class="string">&quot;Skipping exercise service from the list because it has an invalid base url&quot;</span>);
+                    <span class="prelude-val">None
+                </span>}
 
-            } <span class="kw">else</span> {
-                <span class="macro">warn!</span>(<span class="ident">exercise_service_id</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">exercise_service</span>.<span class="ident">id</span>, <span class="string">&quot;Skipping exercise service from the list because it doesn&#39;t have a service info&quot;</span>);
-                <span class="prelude-val">None</span>
-            }
+            } <span class="kw">else </span>{
+                <span class="macro">warn!</span>(exercise_service_id = <span class="question-mark">?</span>exercise_service.id, <span class="string">&quot;Skipping exercise service from the list because it doesn&#39;t have a service info&quot;</span>);
+                <span class="prelude-val">None
+            </span>}
         })
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_exercise_service</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_service_update</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseServiceNewOrUpdate</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseService</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseService</span>,
+<span class="kw">pub async fn </span>insert_exercise_service(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_service_update: <span class="kw-2">&amp;</span>ExerciseServiceNewOrUpdate,
+) -&gt; ModelResult&lt;ExerciseService&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseService,
         <span class="string">r#&quot;
 INSERT INTO exercise_services (
     name,
@@ -534,15 +534,15 @@ INSERT INTO exercise_services (
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *
   &quot;#</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">name</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">slug</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">public_url</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">internal_url</span>,
-        <span class="ident">exercise_service_update</span>.<span class="ident">max_reprocessing_submissions_at_once</span>
+        exercise_service_update.name,
+        exercise_service_update.slug,
+        exercise_service_update.public_url,
+        exercise_service_update.internal_url,
+        exercise_service_update.max_reprocessing_submissions_at_once
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

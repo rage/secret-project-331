@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/buffer/ring_buffer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ring_buffer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/buffer/ring_buffer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ring_buffer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -377,384 +377,384 @@
 <span id="377">377</span>
 <span id="378">378</span>
 <span id="379">379</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::RealArray</span>;
-<span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">core::mem::MaybeUninit</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::RealArray;
+<span class="kw">use </span>core::marker::PhantomData;
+<span class="kw">use </span>core::mem::MaybeUninit;
 
-<span class="doccomment">/// A Ring Buffer of items</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">RingBuf</span> {
-    <span class="doccomment">/// The type of stored items inside the Ring Buffer</span>
-    <span class="kw">type</span> <span class="ident">Item</span>;
+<span class="doccomment">/// A Ring Buffer of items
+</span><span class="kw">pub trait </span>RingBuf {
+    <span class="doccomment">/// The type of stored items inside the Ring Buffer
+    </span><span class="kw">type </span>Item;
 
-    <span class="doccomment">/// Creates a new instance of the Ring Buffer</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span>;
-    <span class="doccomment">/// Creates a new instance of the Ring Buffer with the given capacity.</span>
-    <span class="doccomment">/// `RingBuf` implementations are allowed to ignore the `capacity` hint and</span>
-    <span class="doccomment">/// utilize their default capacity.</span>
-    <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">cap</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span>;
+    <span class="doccomment">/// Creates a new instance of the Ring Buffer
+    </span><span class="kw">fn </span>new() -&gt; <span class="self">Self</span>;
+    <span class="doccomment">/// Creates a new instance of the Ring Buffer with the given capacity.
+    /// `RingBuf` implementations are allowed to ignore the `capacity` hint and
+    /// utilize their default capacity.
+    </span><span class="kw">fn </span>with_capacity(cap: usize) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// The capacity of the buffer</span>
-    <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
-    <span class="doccomment">/// The amount of stored items in the buffer</span>
-    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
-    <span class="doccomment">/// Returns true if no item is stored inside the buffer.</span>
-    <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span>
-    }
+    <span class="doccomment">/// The capacity of the buffer
+    </span><span class="kw">fn </span>capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
+    <span class="doccomment">/// The amount of stored items in the buffer
+    </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
+    <span class="doccomment">/// Returns true if no item is stored inside the buffer.
+    </span><span class="kw">fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() == <span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Returns true if there is enough space in the buffer to</span>
-    <span class="doccomment">/// store another item.</span>
-    <span class="kw">fn</span> <span class="ident">can_push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
-    <span class="doccomment">/// Stores the item at the end of the buffer.</span>
-    <span class="doccomment">/// Panics if there is not enough free space.</span>
-    <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="ident"><span class="self">Self</span>::Item</span>);
-    <span class="doccomment">/// Returns the oldest item inside the buffer.</span>
-    <span class="doccomment">/// Panics if there is no available item.</span>
-    <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Item</span>;
+    <span class="doccomment">/// Returns true if there is enough space in the buffer to
+    /// store another item.
+    </span><span class="kw">fn </span>can_push(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+    <span class="doccomment">/// Stores the item at the end of the buffer.
+    /// Panics if there is not enough free space.
+    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="self">Self</span>::Item);
+    <span class="doccomment">/// Returns the oldest item inside the buffer.
+    /// Panics if there is no available item.
+    </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Item;
 }
 
-<span class="doccomment">/// An array-backed Ring Buffer</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `A` is the type of the backing array. The backing array must be a real</span>
-<span class="doccomment">/// array. In order to verify this it must satisfy the [`RealArray`] constraint.</span>
-<span class="doccomment">/// In order to create a Ring Buffer backed by an array of 5 integer elements,</span>
-<span class="doccomment">/// the following code can be utilized:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use futures_intrusive::buffer::{ArrayBuf, RingBuf};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// type Buffer5 = ArrayBuf&lt;i32, [i32; 5]&gt;;</span>
-<span class="doccomment">/// let buffer = Buffer5::new();</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ArrayBuf</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">A</span>: <span class="ident">core::convert::AsMut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core::convert::AsRef</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">RealArray</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An array-backed Ring Buffer
+///
+/// `A` is the type of the backing array. The backing array must be a real
+/// array. In order to verify this it must satisfy the [`RealArray`] constraint.
+/// In order to create a Ring Buffer backed by an array of 5 integer elements,
+/// the following code can be utilized:
+///
+/// ```
+/// use futures_intrusive::buffer::{ArrayBuf, RingBuf};
+///
+/// type Buffer5 = ArrayBuf&lt;i32, [i32; 5]&gt;;
+/// let buffer = Buffer5::new();
+/// ```
+</span><span class="kw">pub struct </span>ArrayBuf&lt;T, A&gt;
+<span class="kw">where
+    </span>A: core::convert::AsMut&lt;[T]&gt; + core::convert::AsRef&lt;[T]&gt; + RealArray&lt;T&gt;,
 {
-    <span class="ident">buffer</span>: <span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
-    <span class="ident">size</span>: <span class="ident">usize</span>,
-    <span class="ident">recv_idx</span>: <span class="ident">usize</span>,
-    <span class="ident">send_idx</span>: <span class="ident">usize</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    buffer: MaybeUninit&lt;A&gt;,
+    size: usize,
+    recv_idx: usize,
+    send_idx: usize,
+    _phantom: PhantomData&lt;T&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">ArrayBuf</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">A</span>: <span class="ident">core::convert::AsMut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core::convert::AsRef</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">RealArray</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, A&gt; core::fmt::Debug <span class="kw">for </span>ArrayBuf&lt;T, A&gt;
+<span class="kw">where
+    </span>A: core::convert::AsMut&lt;[T]&gt; + core::convert::AsRef&lt;[T]&gt; + RealArray&lt;T&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(
+    <span class="kw">fn </span>fmt(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">core::fmt::Error</span><span class="op">&gt;</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;ArrayBuf&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">size</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;cap&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">capacity</span>())
-            .<span class="ident">finish</span>()
+        f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
+        f.debug_struct(<span class="string">&quot;ArrayBuf&quot;</span>)
+            .field(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.size)
+            .field(<span class="string">&quot;cap&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.capacity())
+            .finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span> <span class="ident">ArrayBuf</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">A</span>: <span class="ident">core::convert::AsMut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core::convert::AsRef</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">RealArray</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, A&gt; ArrayBuf&lt;T, A&gt;
+<span class="kw">where
+    </span>A: core::convert::AsMut&lt;[T]&gt; + core::convert::AsRef&lt;[T]&gt; + RealArray&lt;T&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">next_idx</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">last_idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="ident">last_idx</span> <span class="op">+</span> <span class="number">1</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">capacity</span>() {
-            <span class="kw">return</span> <span class="number">0</span>;
+    <span class="kw">fn </span>next_idx(<span class="kw-2">&amp;mut </span><span class="self">self</span>, last_idx: usize) -&gt; usize {
+        <span class="kw">if </span>last_idx + <span class="number">1 </span>== <span class="self">self</span>.capacity() {
+            <span class="kw">return </span><span class="number">0</span>;
         }
-        <span class="ident">last_idx</span> <span class="op">+</span> <span class="number">1</span>
-    }
+        last_idx + <span class="number">1
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span> <span class="ident">RingBuf</span> <span class="kw">for</span> <span class="ident">ArrayBuf</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">A</span>: <span class="ident">core::convert::AsMut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core::convert::AsRef</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">RealArray</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, A&gt; RingBuf <span class="kw">for </span>ArrayBuf&lt;T, A&gt;
+<span class="kw">where
+    </span>A: core::convert::AsMut&lt;[T]&gt; + core::convert::AsRef&lt;[T]&gt; + RealArray&lt;T&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span>;
+    <span class="kw">type </span>Item = T;
 
-    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ArrayBuf</span> {
-            <span class="ident">buffer</span>: <span class="ident">MaybeUninit::uninit</span>(),
-            <span class="ident">send_idx</span>: <span class="number">0</span>,
-            <span class="ident">recv_idx</span>: <span class="number">0</span>,
-            <span class="ident">size</span>: <span class="number">0</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+        ArrayBuf {
+            buffer: MaybeUninit::uninit(),
+            send_idx: <span class="number">0</span>,
+            recv_idx: <span class="number">0</span>,
+            size: <span class="number">0</span>,
+            _phantom: PhantomData,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">_cap</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// The fixed size array backed Ring Buffer doesn&#39;t support an adjustable</span>
-        <span class="comment">// capacity. Therefore only the default capacity is utilized.</span>
-        <span class="ident"><span class="self">Self</span>::new</span>()
+    <span class="kw">fn </span>with_capacity(_cap: usize) -&gt; <span class="self">Self </span>{
+        <span class="comment">// The fixed size array backed Ring Buffer doesn&#39;t support an adjustable
+        // capacity. Therefore only the default capacity is utilized.
+        </span><span class="self">Self</span>::new()
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="ident">A::LEN</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        A::LEN
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">size</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.size
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">can_push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">capacity</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>can_push(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() != <span class="self">self</span>.capacity()
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident"><span class="self">Self</span>::Item</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">can_push</span>());
-        <span class="comment">// Safety: We asserted that there is available space for an item.</span>
-        <span class="comment">// Therefore the memory address is valid.</span>
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">arr_ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>;
-            <span class="ident">arr_ptr</span>.<span class="ident">add</span>(<span class="self">self</span>.<span class="ident">send_idx</span>).<span class="ident">write</span>(<span class="ident">value</span>);
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="self">Self</span>::Item) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.can_push());
+        <span class="comment">// Safety: We asserted that there is available space for an item.
+        // Therefore the memory address is valid.
+        </span><span class="kw">unsafe </span>{
+            <span class="kw">let </span>arr_ptr = <span class="self">self</span>.buffer.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>T;
+            arr_ptr.add(<span class="self">self</span>.send_idx).write(value);
         }
-        <span class="self">self</span>.<span class="ident">send_idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next_idx</span>(<span class="self">self</span>.<span class="ident">send_idx</span>);
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="self">self</span>.send_idx = <span class="self">self</span>.next_idx(<span class="self">self</span>.send_idx);
+        <span class="self">self</span>.size += <span class="number">1</span>;
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Item</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">size</span> <span class="op">&gt;</span> <span class="number">0</span>);
-        <span class="comment">// Safety: We asserted that there is an element available, so it must</span>
-        <span class="comment">// have been written before.</span>
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">arr_ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>;
-            <span class="ident">arr_ptr</span>.<span class="ident">add</span>(<span class="self">self</span>.<span class="ident">recv_idx</span>).<span class="ident">read</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Item {
+        <span class="macro">assert!</span>(<span class="self">self</span>.size &gt; <span class="number">0</span>);
+        <span class="comment">// Safety: We asserted that there is an element available, so it must
+        // have been written before.
+        </span><span class="kw">let </span>val = <span class="kw">unsafe </span>{
+            <span class="kw">let </span>arr_ptr = <span class="self">self</span>.buffer.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>T;
+            arr_ptr.add(<span class="self">self</span>.recv_idx).read()
         };
-        <span class="self">self</span>.<span class="ident">recv_idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next_idx</span>(<span class="self">self</span>.<span class="ident">recv_idx</span>);
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">val</span>
+        <span class="self">self</span>.recv_idx = <span class="self">self</span>.next_idx(<span class="self">self</span>.recv_idx);
+        <span class="self">self</span>.size -= <span class="number">1</span>;
+        val
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">ArrayBuf</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">A</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">A</span>: <span class="ident">core::convert::AsMut</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">core::convert::AsRef</span><span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">RealArray</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, A&gt; Drop <span class="kw">for </span>ArrayBuf&lt;T, A&gt;
+<span class="kw">where
+    </span>A: core::convert::AsMut&lt;[T]&gt; + core::convert::AsRef&lt;[T]&gt; + RealArray&lt;T&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// Drop all elements which are still stored inside the buffer</span>
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">size</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="comment">// Safety: This drops only as many elements as have been written via</span>
-            <span class="comment">// ptr::write and haven&#39;t read via ptr::read before</span>
-            <span class="kw">unsafe</span> {
-                <span class="kw">let</span> <span class="ident">arr_ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>;
-                <span class="ident">arr_ptr</span>.<span class="ident">add</span>(<span class="self">self</span>.<span class="ident">recv_idx</span>).<span class="ident">drop_in_place</span>();
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// Drop all elements which are still stored inside the buffer
+        </span><span class="kw">while </span><span class="self">self</span>.size &gt; <span class="number">0 </span>{
+            <span class="comment">// Safety: This drops only as many elements as have been written via
+            // ptr::write and haven&#39;t read via ptr::read before
+            </span><span class="kw">unsafe </span>{
+                <span class="kw">let </span>arr_ptr = <span class="self">self</span>.buffer.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>T;
+                arr_ptr.add(<span class="self">self</span>.recv_idx).drop_in_place();
             }
-            <span class="self">self</span>.<span class="ident">recv_idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next_idx</span>(<span class="self">self</span>.<span class="ident">recv_idx</span>);
-            <span class="self">self</span>.<span class="ident">size</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="self">self</span>.recv_idx = <span class="self">self</span>.next_idx(<span class="self">self</span>.recv_idx);
+            <span class="self">self</span>.size -= <span class="number">1</span>;
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">if_alloc</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">alloc::collections::VecDeque</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">mod </span>if_alloc {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>alloc::collections::VecDeque;
 
-    <span class="doccomment">/// A Ring Buffer which stores all items on the heap.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `FixedHeapBuf` will allocate its capacity ahead of time. This is good</span>
-    <span class="doccomment">/// fit when you have a constant latency between two components.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FixedHeapBuf</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">buffer</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// The capacity is stored extra, since VecDeque can allocate space for</span>
-        <span class="doccomment">/// more elements than specified.</span>
-        <span class="ident">cap</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// A Ring Buffer which stores all items on the heap.
+    ///
+    /// The `FixedHeapBuf` will allocate its capacity ahead of time. This is good
+    /// fit when you have a constant latency between two components.
+    </span><span class="kw">pub struct </span>FixedHeapBuf&lt;T&gt; {
+        buffer: VecDeque&lt;T&gt;,
+        <span class="doccomment">/// The capacity is stored extra, since VecDeque can allocate space for
+        /// more elements than specified.
+        </span>cap: usize,
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">FixedHeapBuf</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">fmt</span>(
+    <span class="kw">impl</span>&lt;T&gt; core::fmt::Debug <span class="kw">for </span>FixedHeapBuf&lt;T&gt; {
+        <span class="kw">fn </span>fmt(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
-            <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>,
-        ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">core::fmt::Error</span><span class="op">&gt;</span> {
-            <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;FixedHeapBuf&quot;</span>)
-                .<span class="ident">field</span>(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>())
-                .<span class="ident">field</span>(<span class="string">&quot;cap&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>)
-                .<span class="ident">finish</span>()
+            f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
+            f.debug_struct(<span class="string">&quot;FixedHeapBuf&quot;</span>)
+                .field(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.buffer.len())
+                .field(<span class="string">&quot;cap&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.cap)
+                .finish()
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">RingBuf</span> <span class="kw">for</span> <span class="ident">FixedHeapBuf</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span>;
+    <span class="kw">impl</span>&lt;T&gt; RingBuf <span class="kw">for </span>FixedHeapBuf&lt;T&gt; {
+        <span class="kw">type </span>Item = T;
 
-        <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-            <span class="ident">FixedHeapBuf</span> {
-                <span class="ident">buffer</span>: <span class="ident">VecDeque::new</span>(),
-                <span class="ident">cap</span>: <span class="number">0</span>,
+        <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+            FixedHeapBuf {
+                buffer: VecDeque::new(),
+                cap: <span class="number">0</span>,
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">cap</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-            <span class="ident">FixedHeapBuf</span> {
-                <span class="ident">buffer</span>: <span class="ident">VecDeque::with_capacity</span>(<span class="ident">cap</span>),
-                <span class="ident">cap</span>,
+        <span class="kw">fn </span>with_capacity(cap: usize) -&gt; <span class="self">Self </span>{
+            FixedHeapBuf {
+                buffer: VecDeque::with_capacity(cap),
+                cap,
             }
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-            <span class="self">self</span>.<span class="ident">cap</span>
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+            <span class="self">self</span>.cap
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-            <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>()
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+            <span class="self">self</span>.buffer.len()
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">can_push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-            <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">cap</span>
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>can_push(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+            <span class="self">self</span>.buffer.len() != <span class="self">self</span>.cap
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident"><span class="self">Self</span>::Item</span>) {
-            <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">can_push</span>());
-            <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">push_back</span>(<span class="ident">value</span>);
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="self">Self</span>::Item) {
+            <span class="macro">assert!</span>(<span class="self">self</span>.can_push());
+            <span class="self">self</span>.buffer.push_back(value);
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Item</span> {
-            <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span>);
-            <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>()
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Item {
+            <span class="macro">assert!</span>(<span class="self">self</span>.buffer.len() &gt; <span class="number">0</span>);
+            <span class="self">self</span>.buffer.pop_front().unwrap()
         }
     }
 
-    <span class="doccomment">/// A Ring Buffer which stores all items on the heap but grows dynamically.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A `GrowingHeapBuf` does not allocate the capacity ahead of time, as</span>
-    <span class="doccomment">/// opposed to the `FixedHeapBuf`. This makes it a good fit when you have</span>
-    <span class="doccomment">/// unpredictable latency between two components, when you want to</span>
-    <span class="doccomment">/// amortize your allocation costs or when you are using an external</span>
-    <span class="doccomment">/// back-pressure mechanism.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GrowingHeapBuf</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">buffer</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// The maximum number of elements in the buffer.</span>
-        <span class="ident">limit</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// A Ring Buffer which stores all items on the heap but grows dynamically.
+    ///
+    /// A `GrowingHeapBuf` does not allocate the capacity ahead of time, as
+    /// opposed to the `FixedHeapBuf`. This makes it a good fit when you have
+    /// unpredictable latency between two components, when you want to
+    /// amortize your allocation costs or when you are using an external
+    /// back-pressure mechanism.
+    </span><span class="kw">pub struct </span>GrowingHeapBuf&lt;T&gt; {
+        buffer: VecDeque&lt;T&gt;,
+        <span class="doccomment">/// The maximum number of elements in the buffer.
+        </span>limit: usize,
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">GrowingHeapBuf</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">fmt</span>(
+    <span class="kw">impl</span>&lt;T&gt; core::fmt::Debug <span class="kw">for </span>GrowingHeapBuf&lt;T&gt; {
+        <span class="kw">fn </span>fmt(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
-            <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>,
-        ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">core::fmt::Error</span><span class="op">&gt;</span> {
-            <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GrowingHeapBuf&quot;</span>)
-                .<span class="ident">field</span>(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>())
-                .<span class="ident">field</span>(<span class="string">&quot;limit&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">limit</span>)
-                .<span class="ident">finish</span>()
+            f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
+            f.debug_struct(<span class="string">&quot;GrowingHeapBuf&quot;</span>)
+                .field(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.buffer.len())
+                .field(<span class="string">&quot;limit&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.limit)
+                .finish()
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">RingBuf</span> <span class="kw">for</span> <span class="ident">GrowingHeapBuf</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span>;
+    <span class="kw">impl</span>&lt;T&gt; RingBuf <span class="kw">for </span>GrowingHeapBuf&lt;T&gt; {
+        <span class="kw">type </span>Item = T;
 
-        <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-            <span class="ident">GrowingHeapBuf</span> {
-                <span class="ident">buffer</span>: <span class="ident">VecDeque::new</span>(),
-                <span class="ident">limit</span>: <span class="number">0</span>,
+        <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+            GrowingHeapBuf {
+                buffer: VecDeque::new(),
+                limit: <span class="number">0</span>,
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">limit</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-            <span class="ident">GrowingHeapBuf</span> {
-                <span class="ident">buffer</span>: <span class="ident">VecDeque::new</span>(),
-                <span class="ident">limit</span>,
+        <span class="kw">fn </span>with_capacity(limit: usize) -&gt; <span class="self">Self </span>{
+            GrowingHeapBuf {
+                buffer: VecDeque::new(),
+                limit,
             }
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-            <span class="self">self</span>.<span class="ident">limit</span>
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+            <span class="self">self</span>.limit
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-            <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>()
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+            <span class="self">self</span>.buffer.len()
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">can_push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-            <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">limit</span>
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>can_push(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+            <span class="self">self</span>.buffer.len() != <span class="self">self</span>.limit
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident"><span class="self">Self</span>::Item</span>) {
-            <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">can_push</span>());
-            <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">push_back</span>(<span class="ident">value</span>);
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="self">Self</span>::Item) {
+            <span class="macro">debug_assert!</span>(<span class="self">self</span>.can_push());
+            <span class="self">self</span>.buffer.push_back(value);
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Item</span> {
-            <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span>);
-            <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>()
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Item {
+            <span class="macro">debug_assert!</span>(<span class="self">self</span>.buffer.len() &gt; <span class="number">0</span>);
+            <span class="self">self</span>.buffer.pop_front().unwrap()
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">if_alloc</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">pub use </span>if_alloc::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::buffer::ring_buffer::if_alloc::FixedHeapBuf</span>;
+<span class="attribute">#[cfg(test)]
+#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::buffer::ring_buffer::if_alloc::FixedHeapBuf;
 
-    <span class="kw">fn</span> <span class="ident">test_ring_buf</span><span class="op">&lt;</span><span class="ident">Buf</span>: <span class="ident">RingBuf</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">Buf</span>) {
-        <span class="macro">assert_eq!</span>(<span class="number">5</span>, <span class="ident">buf</span>.<span class="ident">capacity</span>());
-        <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
-        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">buf</span>.<span class="ident">is_empty</span>());
-        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">buf</span>.<span class="ident">can_push</span>());
+    <span class="kw">fn </span>test_ring_buf&lt;Buf: RingBuf&lt;Item = u32&gt;&gt;(<span class="kw-2">mut </span>buf: Buf) {
+        <span class="macro">assert_eq!</span>(<span class="number">5</span>, buf.capacity());
+        <span class="macro">assert_eq!</span>(<span class="number">0</span>, buf.len());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, buf.is_empty());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, buf.can_push());
 
-        <span class="ident">buf</span>.<span class="ident">push</span>(<span class="number">1</span>);
-        <span class="ident">buf</span>.<span class="ident">push</span>(<span class="number">2</span>);
-        <span class="ident">buf</span>.<span class="ident">push</span>(<span class="number">3</span>);
-        <span class="macro">assert_eq!</span>(<span class="number">5</span>, <span class="ident">buf</span>.<span class="ident">capacity</span>());
-        <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
-        <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">buf</span>.<span class="ident">is_empty</span>());
-        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">buf</span>.<span class="ident">can_push</span>());
+        buf.push(<span class="number">1</span>);
+        buf.push(<span class="number">2</span>);
+        buf.push(<span class="number">3</span>);
+        <span class="macro">assert_eq!</span>(<span class="number">5</span>, buf.capacity());
+        <span class="macro">assert_eq!</span>(<span class="number">3</span>, buf.len());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, buf.is_empty());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, buf.can_push());
 
-        <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">buf</span>.<span class="ident">pop</span>());
-        <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">buf</span>.<span class="ident">pop</span>());
-        <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
-        <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">buf</span>.<span class="ident">is_empty</span>());
-        <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">buf</span>.<span class="ident">pop</span>());
-        <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
-        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">buf</span>.<span class="ident">is_empty</span>());
+        <span class="macro">assert_eq!</span>(<span class="number">1</span>, buf.pop());
+        <span class="macro">assert_eq!</span>(<span class="number">2</span>, buf.pop());
+        <span class="macro">assert_eq!</span>(<span class="number">1</span>, buf.len());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, buf.is_empty());
+        <span class="macro">assert_eq!</span>(<span class="number">3</span>, buf.pop());
+        <span class="macro">assert_eq!</span>(<span class="number">0</span>, buf.len());
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, buf.is_empty());
 
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">val</span>) <span class="kw">in</span> [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>].<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="ident">buf</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">val</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="number">4</span>, <span class="ident">buf</span>.<span class="ident">can_push</span>());
-            <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">buf</span>.<span class="ident">is_empty</span>());
+        <span class="kw">for </span>(i, val) <span class="kw">in </span>[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>].iter().enumerate() {
+            buf.push(<span class="kw-2">*</span>val);
+            <span class="macro">assert_eq!</span>(i + <span class="number">1</span>, buf.len());
+            <span class="macro">assert_eq!</span>(i != <span class="number">4</span>, buf.can_push());
+            <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, buf.is_empty());
         }
 
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">val</span>) <span class="kw">in</span> [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>].<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">val</span>, <span class="ident">buf</span>.<span class="ident">pop</span>());
-            <span class="macro">assert_eq!</span>(<span class="number">4</span> <span class="op">-</span> <span class="ident">i</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
-            <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">buf</span>.<span class="ident">can_push</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">i</span> <span class="op">==</span> <span class="number">4</span>, <span class="ident">buf</span>.<span class="ident">is_empty</span>());
+        <span class="kw">for </span>(i, val) <span class="kw">in </span>[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>].iter().enumerate() {
+            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>val, buf.pop());
+            <span class="macro">assert_eq!</span>(<span class="number">4 </span>- i, buf.len());
+            <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, buf.can_push());
+            <span class="macro">assert_eq!</span>(i == <span class="number">4</span>, buf.is_empty());
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_array_ring_buf</span>() {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">ArrayBuf</span>::<span class="op">&lt;</span><span class="ident">u32</span>, [<span class="ident">u32</span>; <span class="number">5</span>]<span class="op">&gt;</span><span class="ident">::new</span>();
-        <span class="ident">test_ring_buf</span>(<span class="ident">buf</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_array_ring_buf() {
+        <span class="kw">let </span>buf = ArrayBuf::&lt;u32, [u32; <span class="number">5</span>]&gt;::new();
+        test_ring_buf(buf);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_heap_ring_buf</span>() {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">FixedHeapBuf</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="number">5</span>);
-        <span class="ident">test_ring_buf</span>(<span class="ident">buf</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_heap_ring_buf() {
+        <span class="kw">let </span>buf = FixedHeapBuf::&lt;u32&gt;::with_capacity(<span class="number">5</span>);
+        test_ring_buf(buf);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_growing_ring_buf</span>() {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">GrowingHeapBuf</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="number">5</span>);
-        <span class="ident">test_ring_buf</span>(<span class="ident">buf</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_growing_ring_buf() {
+        <span class="kw">let </span>buf = GrowingHeapBuf::&lt;u32&gt;::with_capacity(<span class="number">5</span>);
+        test_ring_buf(buf);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

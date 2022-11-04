@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/response/responder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>responder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/response/responder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>responder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -354,359 +354,359 @@
 <span id="352">352</span>
 <span id="353">353</span>
 <span id="354">354</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 
-<span class="kw">use</span> <span class="ident">actix_http</span>::{
-    <span class="ident">body</span>::{<span class="ident">BoxBody</span>, <span class="ident">EitherBody</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">header::TryIntoHeaderPair</span>,
-    <span class="ident">StatusCode</span>,
+<span class="kw">use </span>actix_http::{
+    body::{BoxBody, EitherBody, MessageBody},
+    header::TryIntoHeaderPair,
+    StatusCode,
 };
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
+<span class="kw">use </span>bytes::{Bytes, BytesMut};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::CustomizeResponder</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Error</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>};
+<span class="kw">use </span><span class="kw">super</span>::CustomizeResponder;
+<span class="kw">use crate</span>::{Error, HttpRequest, HttpResponse};
 
-<span class="doccomment">/// Trait implemented by types that can be converted to an HTTP response.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Any types that implement this trait can be used in the return type of a handler. Since handlers</span>
-<span class="doccomment">/// will only have one return type, it is idiomatic to use opaque return types `-&gt; impl Responder`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Implementations</span>
-<span class="doccomment">/// It is often not required to implement `Responder` for your own types due to a broad base of</span>
-<span class="doccomment">/// built-in implementations:</span>
-<span class="doccomment">/// - `HttpResponse` and `HttpResponseBuilder`</span>
-<span class="doccomment">/// - `Option&lt;R&gt;` where `R: Responder`</span>
-<span class="doccomment">/// - `Result&lt;R, E&gt;` where `R: Responder` and [`E: ResponseError`](crate::ResponseError)</span>
-<span class="doccomment">/// - `(R, StatusCode) where `R: Responder`</span>
-<span class="doccomment">/// - `&amp;&#39;static str`, `String`, `&amp;&#39;_ String`, `Cow&lt;&#39;_, str&gt;`, [`ByteString`](bytestring::ByteString)</span>
-<span class="doccomment">/// - `&amp;&#39;static [u8]`, `Vec&lt;u8&gt;`, `Bytes`, `BytesMut`</span>
-<span class="doccomment">/// - [`Json&lt;T&gt;`](crate::web::Json) and [`Form&lt;T&gt;`](crate::web::Form) where `T: Serialize`</span>
-<span class="doccomment">/// - [`Either&lt;L, R&gt;`](crate::web::Either) where `L: Serialize` and `R: Serialize`</span>
-<span class="doccomment">/// - [`CustomizeResponder&lt;R&gt;`]</span>
-<span class="doccomment">/// - [`actix_files::NamedFile`](https://docs.rs/actix-files/latest/actix_files/struct.NamedFile.html)</span>
-<span class="doccomment">/// - [Experimental responders from `actix-web-lab`](https://docs.rs/actix-web-lab/latest/actix_web_lab/respond/index.html)</span>
-<span class="doccomment">/// - Third party integrations may also have implemented `Responder` where appropriate. For example,</span>
-<span class="doccomment">///   HTML templating engines.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Customizing Responder Output</span>
-<span class="doccomment">/// Calling [`.customize()`](Responder::customize) on any responder type will wrap it in a</span>
-<span class="doccomment">/// [`CustomizeResponder`] capable of overriding various parts of the response such as the status</span>
-<span class="doccomment">/// code and header map.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Responder</span> {
-    <span class="kw">type</span> <span class="ident">Body</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>;
+<span class="doccomment">/// Trait implemented by types that can be converted to an HTTP response.
+///
+/// Any types that implement this trait can be used in the return type of a handler. Since handlers
+/// will only have one return type, it is idiomatic to use opaque return types `-&gt; impl Responder`.
+///
+/// # Implementations
+/// It is often not required to implement `Responder` for your own types due to a broad base of
+/// built-in implementations:
+/// - `HttpResponse` and `HttpResponseBuilder`
+/// - `Option&lt;R&gt;` where `R: Responder`
+/// - `Result&lt;R, E&gt;` where `R: Responder` and [`E: ResponseError`](crate::ResponseError)
+/// - `(R, StatusCode) where `R: Responder`
+/// - `&amp;&#39;static str`, `String`, `&amp;&#39;_ String`, `Cow&lt;&#39;_, str&gt;`, [`ByteString`](bytestring::ByteString)
+/// - `&amp;&#39;static [u8]`, `Vec&lt;u8&gt;`, `Bytes`, `BytesMut`
+/// - [`Json&lt;T&gt;`](crate::web::Json) and [`Form&lt;T&gt;`](crate::web::Form) where `T: Serialize`
+/// - [`Either&lt;L, R&gt;`](crate::web::Either) where `L: Serialize` and `R: Serialize`
+/// - [`CustomizeResponder&lt;R&gt;`]
+/// - [`actix_files::NamedFile`](https://docs.rs/actix-files/latest/actix_files/struct.NamedFile.html)
+/// - [Experimental responders from `actix-web-lab`](https://docs.rs/actix-web-lab/latest/actix_web_lab/respond/index.html)
+/// - Third party integrations may also have implemented `Responder` where appropriate. For example,
+///   HTML templating engines.
+///
+/// # Customizing Responder Output
+/// Calling [`.customize()`](Responder::customize) on any responder type will wrap it in a
+/// [`CustomizeResponder`] capable of overriding various parts of the response such as the status
+/// code and header map.
+</span><span class="kw">pub trait </span>Responder {
+    <span class="kw">type </span>Body: MessageBody + <span class="lifetime">&#39;static</span>;
 
-    <span class="doccomment">/// Convert self to `HttpResponse`.</span>
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Convert self to `HttpResponse`.
+    </span><span class="kw">fn </span>respond_to(<span class="self">self</span>, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt;;
 
-    <span class="doccomment">/// Wraps responder to allow alteration of its response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`CustomizeResponder`] docs for more details on its capabilities.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::{Responder, http::StatusCode, test::TestRequest};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let responder = &quot;Hello world!&quot;</span>
-    <span class="doccomment">///     .customize()</span>
-    <span class="doccomment">///     .with_status(StatusCode::BAD_REQUEST)</span>
-    <span class="doccomment">///     .insert_header((&quot;x-hello&quot;, &quot;world&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let request = TestRequest::default().to_http_request();</span>
-    <span class="doccomment">/// let response = responder.respond_to(&amp;request);</span>
-    <span class="doccomment">/// assert_eq!(response.status(), StatusCode::BAD_REQUEST);</span>
-    <span class="doccomment">/// assert_eq!(response.headers().get(&quot;x-hello&quot;).unwrap(), &quot;world&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">customize</span>(<span class="self">self</span>) -&gt; <span class="ident">CustomizeResponder</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="doccomment">/// Wraps responder to allow alteration of its response.
+    ///
+    /// See [`CustomizeResponder`] docs for more details on its capabilities.
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::{Responder, http::StatusCode, test::TestRequest};
+    ///
+    /// let responder = &quot;Hello world!&quot;
+    ///     .customize()
+    ///     .with_status(StatusCode::BAD_REQUEST)
+    ///     .insert_header((&quot;x-hello&quot;, &quot;world&quot;));
+    ///
+    /// let request = TestRequest::default().to_http_request();
+    /// let response = responder.respond_to(&amp;request);
+    /// assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    /// assert_eq!(response.headers().get(&quot;x-hello&quot;).unwrap(), &quot;world&quot;);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>customize(<span class="self">self</span>) -&gt; CustomizeResponder&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
-        <span class="ident">CustomizeResponder::new</span>(<span class="self">self</span>)
+        CustomizeResponder::new(<span class="self">self</span>)
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer `.customize().with_status(header)`.&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">with_status</span>(<span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="ident">CustomizeResponder</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="attribute">#[doc(hidden)]
+    #[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Prefer `.customize().with_status(header)`.&quot;</span>)]
+    </span><span class="kw">fn </span>with_status(<span class="self">self</span>, status: StatusCode) -&gt; CustomizeResponder&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
-        <span class="self">self</span>.<span class="ident">customize</span>().<span class="ident">with_status</span>(<span class="ident">status</span>)
+        <span class="self">self</span>.customize().with_status(status)
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer `.customize().insert_header(header)`.&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">with_header</span>(<span class="self">self</span>, <span class="ident">header</span>: <span class="kw">impl</span> <span class="ident">TryIntoHeaderPair</span>) -&gt; <span class="ident">CustomizeResponder</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="attribute">#[doc(hidden)]
+    #[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Prefer `.customize().insert_header(header)`.&quot;</span>)]
+    </span><span class="kw">fn </span>with_header(<span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; CustomizeResponder&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
-        <span class="self">self</span>.<span class="ident">customize</span>().<span class="ident">insert_header</span>(<span class="ident">header</span>)
+        <span class="self">self</span>.customize().insert_header(header)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="ident">actix_http::Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">BoxBody</span>;
+<span class="kw">impl </span>Responder <span class="kw">for </span>actix_http::Response&lt;BoxBody&gt; {
+    <span class="kw">type </span>Body = BoxBody;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="ident">HttpResponse::from</span>(<span class="self">self</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>respond_to(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        HttpResponse::from(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="ident">actix_http::ResponseBuilder</span> {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">BoxBody</span>;
+<span class="kw">impl </span>Responder <span class="kw">for </span>actix_http::ResponseBuilder {
+    <span class="kw">type </span>Body = BoxBody;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">finish</span>().<span class="ident">map_into_boxed_body</span>().<span class="ident">respond_to</span>(<span class="ident">req</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>respond_to(<span class="kw-2">mut </span><span class="self">self</span>, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        <span class="self">self</span>.finish().map_into_boxed_body().respond_to(req)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Responder</span><span class="op">&gt;</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">R::Body</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;R: Responder&gt; Responder <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;R&gt; {
+    <span class="kw">type </span>Body = EitherBody&lt;R::Body&gt;;
 
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">respond_to</span>(<span class="ident">req</span>).<span class="ident">map_into_left_body</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">HttpResponse::new</span>(<span class="ident">StatusCode::NOT_FOUND</span>).<span class="ident">map_into_right_body</span>(),
+    <span class="kw">fn </span>respond_to(<span class="self">self</span>, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="prelude-val">Some</span>(val) =&gt; val.respond_to(req).map_into_left_body(),
+            <span class="prelude-val">None </span>=&gt; HttpResponse::new(StatusCode::NOT_FOUND).map_into_right_body(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">R</span>: <span class="ident">Responder</span>,
-    <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;R, E&gt; Responder <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;R, E&gt;
+<span class="kw">where
+    </span>R: Responder,
+    E: Into&lt;Error&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">R::Body</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Body = EitherBody&lt;R::Body&gt;;
 
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">respond_to</span>(<span class="ident">req</span>).<span class="ident">map_into_left_body</span>(),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">HttpResponse::from_error</span>(<span class="ident">err</span>.<span class="ident">into</span>()).<span class="ident">map_into_right_body</span>(),
+    <span class="kw">fn </span>respond_to(<span class="self">self</span>, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="prelude-val">Ok</span>(val) =&gt; val.respond_to(req).map_into_left_body(),
+            <span class="prelude-val">Err</span>(err) =&gt; HttpResponse::from_error(err.into()).map_into_right_body(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Responder</span><span class="op">&gt;</span> <span class="ident">Responder</span> <span class="kw">for</span> (<span class="ident">R</span>, <span class="ident">StatusCode</span>) {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">R::Body</span>;
+<span class="kw">impl</span>&lt;R: Responder&gt; Responder <span class="kw">for </span>(R, StatusCode) {
+    <span class="kw">type </span>Body = R::Body;
 
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">respond_to</span>(<span class="ident">req</span>);
-        <span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">status_mut</span>() <span class="op">=</span> <span class="self">self</span>.<span class="number">1</span>;
-        <span class="ident">res</span>
+    <span class="kw">fn </span>respond_to(<span class="self">self</span>, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>res = <span class="self">self</span>.<span class="number">0</span>.respond_to(req);
+        <span class="kw-2">*</span>res.status_mut() = <span class="self">self</span>.<span class="number">1</span>;
+        res
     }
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_responder_by_forward_into_base_response</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">res</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>:<span class="ident">ty</span>) =&gt; {
-        <span class="kw">impl</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">res</span> {
-            <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>;
+<span class="macro">macro_rules! </span>impl_responder_by_forward_into_base_response {
+    (<span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$body</span>:ty) =&gt; {
+        <span class="kw">impl </span>Responder <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
+            <span class="kw">type </span>Body = <span class="macro-nonterminal">$body</span>;
 
-            <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">actix_http::Response</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-                <span class="ident">res</span>.<span class="ident">into</span>()
+            <span class="kw">fn </span>respond_to(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+                <span class="kw">let </span>res: actix_http::Response&lt;<span class="kw">_</span>&gt; = <span class="self">self</span>.into();
+                res.into()
             }
         }
     };
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">res</span>:<span class="ident">ty</span>) =&gt; {
-        <span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">res</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">res</span>);
+    (<span class="macro-nonterminal">$res</span>:ty) =&gt; {
+        <span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$res</span>);
     };
 }
 
-<span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]);
-<span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>);
-<span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="ident">Bytes</span>);
-<span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="ident">BytesMut</span>);
+<span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]);
+<span class="macro">impl_responder_by_forward_into_base_response!</span>(Vec&lt;u8&gt;);
+<span class="macro">impl_responder_by_forward_into_base_response!</span>(Bytes);
+<span class="macro">impl_responder_by_forward_into_base_response!</span>(BytesMut);
 
-<span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>);
-<span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="ident">String</span>);
-<span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="ident">bytestring::ByteString</span>);
+<span class="macro">impl_responder_by_forward_into_base_response!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str);
+<span class="macro">impl_responder_by_forward_into_base_response!</span>(String);
+<span class="macro">impl_responder_by_forward_into_base_response!</span>(bytestring::ByteString);
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_into_string_responder</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">res</span>:<span class="ident">ty</span>) =&gt; {
-        <span class="kw">impl</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">res</span> {
-            <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">String</span>;
+<span class="macro">macro_rules! </span>impl_into_string_responder {
+    (<span class="macro-nonterminal">$res</span>:ty) =&gt; {
+        <span class="kw">impl </span>Responder <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
+            <span class="kw">type </span>Body = String;
 
-            <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">string</span>: <span class="ident">String</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-                <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">actix_http::Response</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">string</span>.<span class="ident">into</span>();
-                <span class="ident">res</span>.<span class="ident">into</span>()
+            <span class="kw">fn </span>respond_to(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+                <span class="kw">let </span>string: String = <span class="self">self</span>.into();
+                <span class="kw">let </span>res: actix_http::Response&lt;<span class="kw">_</span>&gt; = string.into();
+                res.into()
             }
         }
     };
 }
 
-<span class="macro">impl_into_string_responder!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">String</span>);
-<span class="macro">impl_into_string_responder!</span>(<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">str</span><span class="op">&gt;</span>);
+<span class="macro">impl_into_string_responder!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>String);
+<span class="macro">impl_into_string_responder!</span>(Cow&lt;<span class="lifetime">&#39;_</span>, str&gt;);
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_service::Service</span>;
-    <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_service::Service;
+    <span class="kw">use </span>bytes::{Bytes, BytesMut};
 
-    <span class="kw">use</span> <span class="ident">actix_http::body::to_bytes</span>;
+    <span class="kw">use </span>actix_http::body::to_bytes;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">error</span>,
-        <span class="ident">http</span>::{
-            <span class="ident">header</span>::{<span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>},
-            <span class="ident">StatusCode</span>,
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{
+        error,
+        http::{
+            header::{HeaderValue, CONTENT_TYPE},
+            StatusCode,
         },
-        <span class="ident">test</span>::{<span class="ident">assert_body_eq</span>, <span class="ident">init_service</span>, <span class="ident">TestRequest</span>},
-        <span class="ident">web</span>, <span class="ident">App</span>,
+        test::{assert_body_eq, init_service, TestRequest},
+        web, App,
     };
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_option_responder</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
-            <span class="ident">App::new</span>()
-                .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/none&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">async</span> { <span class="prelude-ty">Option</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span><span class="ident">::None</span> }))
-                .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/some&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">async</span> { <span class="prelude-val">Some</span>(<span class="string">&quot;some&quot;</span>) })),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_option_responder() {
+        <span class="kw">let </span>srv = init_service(
+            App::new()
+                .service(web::resource(<span class="string">&quot;/none&quot;</span>).to(|| <span class="kw">async </span>{ <span class="prelude-ty">Option</span>::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;::None }))
+                .service(web::resource(<span class="string">&quot;/some&quot;</span>).to(|| <span class="kw">async </span>{ <span class="prelude-val">Some</span>(<span class="string">&quot;some&quot;</span>) })),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/none&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::NOT_FOUND</span>);
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/none&quot;</span>).to_request();
+        <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/some&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_body_eq!</span>(<span class="ident">resp</span>, <span class="string">b&quot;some&quot;</span>);
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/some&quot;</span>).to_request();
+        <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
+        <span class="macro">assert_body_eq!</span>(resp, <span class="string">b&quot;some&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_responder</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_responder() {
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>res = <span class="string">&quot;test&quot;</span>.respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
-        );
-
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="string">b&quot;test&quot;</span>.<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/octet-stream&quot;</span>)
-        );
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>().<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>res = <span class="string">b&quot;test&quot;</span>.respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
-        );
-
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
-        );
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
 
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;test&quot;</span>);
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Cow::Borrowed</span>(<span class="ident">s</span>.<span class="ident">as_str</span>()).<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>res = <span class="string">&quot;test&quot;</span>.to_string().respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
-        );
-
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Cow</span>::<span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="ident">::Owned</span>(<span class="ident">s</span>).<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
-        );
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Cow::Borrowed</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>res = (<span class="kw-2">&amp;</span><span class="string">&quot;test&quot;</span>.to_string()).respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
-        );
-
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>).<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/octet-stream&quot;</span>)
-        );
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="string">b&quot;test&quot;</span>.<span class="ident">as_ref</span>()).<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>s = String::from(<span class="string">&quot;test&quot;</span>);
+        <span class="kw">let </span>res = Cow::Borrowed(s.as_str()).respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/octet-stream&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
 
-        <span class="comment">// InternalError</span>
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">error::InternalError::new</span>(<span class="string">&quot;err&quot;</span>, <span class="ident">StatusCode::BAD_REQUEST</span>).<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
+        <span class="kw">let </span>res = Cow::&lt;<span class="lifetime">&#39;_</span>, str&gt;::Owned(s).respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+        );
+        <span class="macro">assert_eq!</span>(
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
+        );
+
+        <span class="kw">let </span>res = Cow::Borrowed(<span class="string">&quot;test&quot;</span>).respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+        );
+        <span class="macro">assert_eq!</span>(
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
+        );
+
+        <span class="kw">let </span>res = Bytes::from_static(<span class="string">b&quot;test&quot;</span>).respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
+        );
+        <span class="macro">assert_eq!</span>(
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
+        );
+
+        <span class="kw">let </span>res = BytesMut::from(<span class="string">b&quot;test&quot;</span>.as_ref()).respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
+        );
+        <span class="macro">assert_eq!</span>(
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
+        );
+
+        <span class="comment">// InternalError
+        </span><span class="kw">let </span>res = error::InternalError::new(<span class="string">&quot;err&quot;</span>, StatusCode::BAD_REQUEST).respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::BAD_REQUEST);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_result_responder</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_result_responder() {
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
 
-        <span class="comment">// Result&lt;I, E&gt;</span>
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Error</span><span class="op">&gt;</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="comment">// Result&lt;I, E&gt;
+        </span><span class="kw">let </span>resp = <span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, Error&gt;(<span class="string">&quot;test&quot;</span>.to_string()).respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            resp.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">resp</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(resp.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="prelude-val">Err</span>::<span class="op">&lt;</span><span class="ident">String</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">error::InternalError::new</span>(<span class="string">&quot;err&quot;</span>, <span class="ident">StatusCode::BAD_REQUEST</span>))
-            .<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
+        <span class="kw">let </span>res = <span class="prelude-val">Err</span>::&lt;String, <span class="kw">_</span>&gt;(error::InternalError::new(<span class="string">&quot;err&quot;</span>, StatusCode::BAD_REQUEST))
+            .respond_to(<span class="kw-2">&amp;</span>req);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::BAD_REQUEST);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

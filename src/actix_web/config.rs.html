@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -429,434 +429,434 @@
 <span id="427">427</span>
 <span id="428">428</span>
 <span id="429">429</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">net::SocketAddr</span>, <span class="ident">rc::Rc</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{net::SocketAddr, rc::Rc};
 
-<span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">boxed</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">ServiceFactory</span>, <span class="ident">ServiceFactoryExt</span> <span class="kw">as</span> <span class="kw">_</span>};
+<span class="kw">use </span>actix_service::{boxed, IntoServiceFactory, ServiceFactory, ServiceFactoryExt <span class="kw">as _</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">data::Data</span>,
-    <span class="ident">dev</span>::{<span class="ident">Extensions</span>, <span class="ident">ResourceDef</span>},
-    <span class="ident">error::Error</span>,
-    <span class="ident">guard::Guard</span>,
-    <span class="ident">resource::Resource</span>,
-    <span class="ident">rmap::ResourceMap</span>,
-    <span class="ident">route::Route</span>,
-    <span class="ident">service</span>::{
-        <span class="ident">AppServiceFactory</span>, <span class="ident">BoxedHttpServiceFactory</span>, <span class="ident">HttpServiceFactory</span>, <span class="ident">ServiceFactoryWrapper</span>,
-        <span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>,
+<span class="kw">use crate</span>::{
+    data::Data,
+    dev::{Extensions, ResourceDef},
+    error::Error,
+    guard::Guard,
+    resource::Resource,
+    rmap::ResourceMap,
+    route::Route,
+    service::{
+        AppServiceFactory, BoxedHttpServiceFactory, HttpServiceFactory, ServiceFactoryWrapper,
+        ServiceRequest, ServiceResponse,
     },
 };
 
-<span class="kw">type</span> <span class="ident">Guards</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">type </span>Guards = Vec&lt;Box&lt;<span class="kw">dyn </span>Guard&gt;&gt;;
 
-<span class="doccomment">/// Application configuration</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AppService</span> {
-    <span class="ident">config</span>: <span class="ident">AppConfig</span>,
-    <span class="ident">root</span>: <span class="ident">bool</span>,
-    <span class="ident">default</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">BoxedHttpServiceFactory</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-    <span class="ident">services</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(
-        <span class="ident">ResourceDef</span>,
-        <span class="ident">BoxedHttpServiceFactory</span>,
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Guards</span><span class="op">&gt;</span>,
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    )<span class="op">&gt;</span>,
+<span class="doccomment">/// Application configuration
+</span><span class="kw">pub struct </span>AppService {
+    config: AppConfig,
+    root: bool,
+    default: Rc&lt;BoxedHttpServiceFactory&gt;,
+    <span class="attribute">#[allow(clippy::type_complexity)]
+    </span>services: Vec&lt;(
+        ResourceDef,
+        BoxedHttpServiceFactory,
+        <span class="prelude-ty">Option</span>&lt;Guards&gt;,
+        <span class="prelude-ty">Option</span>&lt;Rc&lt;ResourceMap&gt;&gt;,
+    )&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">AppService</span> {
-    <span class="doccomment">/// Crate server settings instance.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">config</span>: <span class="ident">AppConfig</span>, <span class="ident">default</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">BoxedHttpServiceFactory</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">AppService</span> {
-            <span class="ident">config</span>,
-            <span class="ident">default</span>,
-            <span class="ident">root</span>: <span class="bool-val">true</span>,
-            <span class="ident">services</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">impl </span>AppService {
+    <span class="doccomment">/// Crate server settings instance.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(config: AppConfig, default: Rc&lt;BoxedHttpServiceFactory&gt;) -&gt; <span class="self">Self </span>{
+        AppService {
+            config,
+            default,
+            root: <span class="bool-val">true</span>,
+            services: Vec::new(),
         }
     }
 
-    <span class="doccomment">/// Check if root is being configured</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_root</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">root</span>
+    <span class="doccomment">/// Check if root is being configured
+    </span><span class="kw">pub fn </span>is_root(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.root
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_services</span>(
+    <span class="attribute">#[allow(clippy::type_complexity)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_services(
         <span class="self">self</span>,
     ) -&gt; (
-        <span class="ident">AppConfig</span>,
-        <span class="ident">Vec</span><span class="op">&lt;</span>(
-            <span class="ident">ResourceDef</span>,
-            <span class="ident">BoxedHttpServiceFactory</span>,
-            <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Guards</span><span class="op">&gt;</span>,
-            <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        )<span class="op">&gt;</span>,
+        AppConfig,
+        Vec&lt;(
+            ResourceDef,
+            BoxedHttpServiceFactory,
+            <span class="prelude-ty">Option</span>&lt;Guards&gt;,
+            <span class="prelude-ty">Option</span>&lt;Rc&lt;ResourceMap&gt;&gt;,
+        )&gt;,
     ) {
-        (<span class="self">self</span>.<span class="ident">config</span>, <span class="self">self</span>.<span class="ident">services</span>)
+        (<span class="self">self</span>.config, <span class="self">self</span>.services)
     }
 
-    <span class="doccomment">/// Clones inner config and default service, returning new `AppService` with empty service list</span>
-    <span class="doccomment">/// marked as non-root.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">clone_config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">AppService</span> {
-            <span class="ident">config</span>: <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">clone</span>(),
-            <span class="ident">default</span>: <span class="self">self</span>.<span class="ident">default</span>.<span class="ident">clone</span>(),
-            <span class="ident">services</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">root</span>: <span class="bool-val">false</span>,
+    <span class="doccomment">/// Clones inner config and default service, returning new `AppService` with empty service list
+    /// marked as non-root.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clone_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        AppService {
+            config: <span class="self">self</span>.config.clone(),
+            default: <span class="self">self</span>.default.clone(),
+            services: Vec::new(),
+            root: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="doccomment">/// Returns reference to configuration.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">AppConfig</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>
+    <span class="doccomment">/// Returns reference to configuration.
+    </span><span class="kw">pub fn </span>config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AppConfig {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.config
     }
 
-    <span class="doccomment">/// Returns default handler factory.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">BoxedHttpServiceFactory</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">default</span>.<span class="ident">clone</span>()
+    <span class="doccomment">/// Returns default handler factory.
+    </span><span class="kw">pub fn </span>default_service(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rc&lt;BoxedHttpServiceFactory&gt; {
+        <span class="self">self</span>.default.clone()
     }
 
-    <span class="doccomment">/// Register HTTP service.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_service</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">rdef</span>: <span class="ident">ResourceDef</span>,
-        <span class="ident">guards</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">factory</span>: <span class="ident">F</span>,
-        <span class="ident">nested</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ResourceMap</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">ServiceRequest</span><span class="op">&gt;</span>,
-        <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-                <span class="ident">ServiceRequest</span>,
-                <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>,
-                <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>,
-                <span class="ident">Config</span> <span class="op">=</span> (),
-                <span class="ident">InitError</span> <span class="op">=</span> (),
-            <span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Register HTTP service.
+    </span><span class="kw">pub fn </span>register_service&lt;F, S&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        rdef: ResourceDef,
+        guards: <span class="prelude-ty">Option</span>&lt;Vec&lt;Box&lt;<span class="kw">dyn </span>Guard&gt;&gt;&gt;,
+        factory: F,
+        nested: <span class="prelude-ty">Option</span>&lt;Rc&lt;ResourceMap&gt;&gt;,
+    ) <span class="kw">where
+        </span>F: IntoServiceFactory&lt;S, ServiceRequest&gt;,
+        S: ServiceFactory&lt;
+                ServiceRequest,
+                Response = ServiceResponse,
+                Error = Error,
+                Config = (),
+                InitError = (),
+            &gt; + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">services</span>
-            .<span class="ident">push</span>((<span class="ident">rdef</span>, <span class="ident">boxed::factory</span>(<span class="ident">factory</span>.<span class="ident">into_factory</span>()), <span class="ident">guards</span>, <span class="ident">nested</span>));
+        <span class="self">self</span>.services
+            .push((rdef, boxed::factory(factory.into_factory()), guards, nested));
     }
 }
 
-<span class="doccomment">/// Application connection config.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AppConfig</span> {
-    <span class="ident">secure</span>: <span class="ident">bool</span>,
-    <span class="ident">host</span>: <span class="ident">String</span>,
-    <span class="ident">addr</span>: <span class="ident">SocketAddr</span>,
+<span class="doccomment">/// Application connection config.
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>AppConfig {
+    secure: bool,
+    host: String,
+    addr: SocketAddr,
 }
 
-<span class="kw">impl</span> <span class="ident">AppConfig</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">secure</span>: <span class="ident">bool</span>, <span class="ident">host</span>: <span class="ident">String</span>, <span class="ident">addr</span>: <span class="ident">SocketAddr</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">AppConfig</span> { <span class="ident">secure</span>, <span class="ident">host</span>, <span class="ident">addr</span> }
+<span class="kw">impl </span>AppConfig {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(secure: bool, host: String, addr: SocketAddr) -&gt; <span class="self">Self </span>{
+        AppConfig { secure, host, addr }
     }
 
-    <span class="doccomment">/// Needed in actix-test crate. Semver exempt.</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">__priv_test_new</span>(<span class="ident">secure</span>: <span class="ident">bool</span>, <span class="ident">host</span>: <span class="ident">String</span>, <span class="ident">addr</span>: <span class="ident">SocketAddr</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">AppConfig::new</span>(<span class="ident">secure</span>, <span class="ident">host</span>, <span class="ident">addr</span>)
+    <span class="doccomment">/// Needed in actix-test crate. Semver exempt.
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>__priv_test_new(secure: bool, host: String, addr: SocketAddr) -&gt; <span class="self">Self </span>{
+        AppConfig::new(secure, host, addr)
     }
 
-    <span class="doccomment">/// Server host name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Host name is used by application router as a hostname for URL generation.</span>
-    <span class="doccomment">/// Check [ConnectionInfo](super::dev::ConnectionInfo::host())</span>
-    <span class="doccomment">/// documentation for more information.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default host name is set to a &quot;localhost&quot; value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">host</span>
+    <span class="doccomment">/// Server host name.
+    ///
+    /// Host name is used by application router as a hostname for URL generation.
+    /// Check [ConnectionInfo](super::dev::ConnectionInfo::host())
+    /// documentation for more information.
+    ///
+    /// By default host name is set to a &quot;localhost&quot; value.
+    </span><span class="kw">pub fn </span>host(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.host
     }
 
-    <span class="doccomment">/// Returns true if connection is secure (i.e., running over `https:`).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secure</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">secure</span>
+    <span class="doccomment">/// Returns true if connection is secure (i.e., running over `https:`).
+    </span><span class="kw">pub fn </span>secure(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.secure
     }
 
-    <span class="doccomment">/// Returns the socket address of the local half of this TCP connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SocketAddr</span> {
-        <span class="self">self</span>.<span class="ident">addr</span>
+    <span class="doccomment">/// Returns the socket address of the local half of this TCP connection
+    </span><span class="kw">pub fn </span>local_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SocketAddr {
+        <span class="self">self</span>.addr
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">set_host</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="self">self</span>.<span class="ident">host</span> <span class="op">=</span> <span class="ident">host</span>.<span class="ident">to_owned</span>();
+    <span class="attribute">#[cfg(test)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_host(<span class="kw-2">&amp;mut </span><span class="self">self</span>, host: <span class="kw-2">&amp;</span>str) {
+        <span class="self">self</span>.host = host.to_owned();
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">AppConfig</span> {
-    <span class="doccomment">/// Returns the default AppConfig.</span>
-    <span class="doccomment">/// Note: The included socket address is &quot;127.0.0.1&quot;.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// 127.0.0.1: non-routable meta address that denotes an unknown, invalid or non-applicable target.</span>
-    <span class="doccomment">/// If you need a service only accessed by itself, use a loopback address.</span>
-    <span class="doccomment">/// A loopback address for IPv4 is any loopback address that begins with &quot;127&quot;.</span>
-    <span class="doccomment">/// Loopback addresses should be only used to test your application locally.</span>
-    <span class="doccomment">/// The default configuration provides a loopback address.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// 0.0.0.0: if configured to use this special address, the application will listen to any IP address configured on the machine.</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">AppConfig::new</span>(
+<span class="kw">impl </span>Default <span class="kw">for </span>AppConfig {
+    <span class="doccomment">/// Returns the default AppConfig.
+    /// Note: The included socket address is &quot;127.0.0.1&quot;.
+    ///
+    /// 127.0.0.1: non-routable meta address that denotes an unknown, invalid or non-applicable target.
+    /// If you need a service only accessed by itself, use a loopback address.
+    /// A loopback address for IPv4 is any loopback address that begins with &quot;127&quot;.
+    /// Loopback addresses should be only used to test your application locally.
+    /// The default configuration provides a loopback address.
+    ///
+    /// 0.0.0.0: if configured to use this special address, the application will listen to any IP address configured on the machine.
+    </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        AppConfig::new(
             <span class="bool-val">false</span>,
-            <span class="string">&quot;localhost:8080&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="string">&quot;127.0.0.1:8080&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+            <span class="string">&quot;localhost:8080&quot;</span>.to_owned(),
+            <span class="string">&quot;127.0.0.1:8080&quot;</span>.parse().unwrap(),
         )
     }
 }
 
-<span class="doccomment">/// Enables parts of app configuration to be declared separately from the app itself. Helpful for</span>
-<span class="doccomment">/// modularizing large applications.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Merge a `ServiceConfig` into an app using [`App::configure`](crate::App::configure). Scope and</span>
-<span class="doccomment">/// resources services have similar methods.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, App, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // this function could be located in different module</span>
-<span class="doccomment">/// fn config(cfg: &amp;mut web::ServiceConfig) {</span>
-<span class="doccomment">///     cfg.service(web::resource(&quot;/test&quot;)</span>
-<span class="doccomment">///         .route(web::get().to(|| HttpResponse::Ok()))</span>
-<span class="doccomment">///         .route(web::head().to(|| HttpResponse::MethodNotAllowed()))</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // merge `/test` routes from config function to App</span>
-<span class="doccomment">/// App::new().configure(config);</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ServiceConfig</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">services</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">AppServiceFactory</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">external</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ResourceDef</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">app_data</span>: <span class="ident">Extensions</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">default</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">BoxedHttpServiceFactory</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Enables parts of app configuration to be declared separately from the app itself. Helpful for
+/// modularizing large applications.
+///
+/// Merge a `ServiceConfig` into an app using [`App::configure`](crate::App::configure). Scope and
+/// resources services have similar methods.
+///
+/// ```
+/// use actix_web::{web, App, HttpResponse};
+///
+/// // this function could be located in different module
+/// fn config(cfg: &amp;mut web::ServiceConfig) {
+///     cfg.service(web::resource(&quot;/test&quot;)
+///         .route(web::get().to(|| HttpResponse::Ok()))
+///         .route(web::head().to(|| HttpResponse::MethodNotAllowed()))
+///     );
+/// }
+///
+/// // merge `/test` routes from config function to App
+/// App::new().configure(config);
+/// ```
+</span><span class="kw">pub struct </span>ServiceConfig {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) services: Vec&lt;Box&lt;<span class="kw">dyn </span>AppServiceFactory&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) external: Vec&lt;ResourceDef&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) app_data: Extensions,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) default: <span class="prelude-ty">Option</span>&lt;Rc&lt;BoxedHttpServiceFactory&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ServiceConfig</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">services</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">external</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">app_data</span>: <span class="ident">Extensions::new</span>(),
-            <span class="ident">default</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>ServiceConfig {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            services: Vec::new(),
+            external: Vec::new(),
+            app_data: Extensions::new(),
+            default: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Add shared app data item.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Counterpart to [`App::data()`](crate::App::data).</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Use `.app_data(Data::new(val))` instead.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">U</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">data</span>));
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Add shared app data item.
+    ///
+    /// Counterpart to [`App::data()`](crate::App::data).
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Use `.app_data(Data::new(val))` instead.&quot;</span>)]
+    </span><span class="kw">pub fn </span>data&lt;U: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: U) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="self">self</span>.app_data(Data::new(data));
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Add arbitrary app data item.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Counterpart to [`App::app_data()`](crate::App::app_data).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_data</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ext</span>: <span class="ident">U</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">app_data</span>.<span class="ident">insert</span>(<span class="ident">ext</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Add arbitrary app data item.
+    ///
+    /// Counterpart to [`App::app_data()`](crate::App::app_data).
+    </span><span class="kw">pub fn </span>app_data&lt;U: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ext: U) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="self">self</span>.app_data.insert(ext);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Default service to be used if no matching resource could be found.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Counterpart to [`App::default_service()`](crate::App::default_service).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_service</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">ServiceRequest</span><span class="op">&gt;</span>,
-        <span class="ident">U</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-                <span class="ident">ServiceRequest</span>,
-                <span class="ident">Config</span> <span class="op">=</span> (),
-                <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>,
-                <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>,
-            <span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">U::InitError</span>: <span class="ident">std::fmt::Debug</span>,
+    <span class="doccomment">/// Default service to be used if no matching resource could be found.
+    ///
+    /// Counterpart to [`App::default_service()`](crate::App::default_service).
+    </span><span class="kw">pub fn </span>default_service&lt;F, U&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span>F: IntoServiceFactory&lt;U, ServiceRequest&gt;,
+        U: ServiceFactory&lt;
+                ServiceRequest,
+                Config = (),
+                Response = ServiceResponse,
+                Error = Error,
+            &gt; + <span class="lifetime">&#39;static</span>,
+        U::InitError: std::fmt::Debug,
     {
-        <span class="kw">let</span> <span class="ident">svc</span> <span class="op">=</span> <span class="ident">f</span>
-            .<span class="ident">into_factory</span>()
-            .<span class="ident">map_init_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">log::error!</span>(<span class="string">&quot;Can not construct default service: {:?}&quot;</span>, <span class="ident">err</span>));
+        <span class="kw">let </span>svc = f
+            .into_factory()
+            .map_init_err(|err| <span class="macro">log::error!</span>(<span class="string">&quot;Can not construct default service: {:?}&quot;</span>, err));
 
-        <span class="self">self</span>.<span class="ident">default</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">boxed::factory</span>(<span class="ident">svc</span>)));
+        <span class="self">self</span>.default = <span class="prelude-val">Some</span>(Rc::new(boxed::factory(svc)));
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Run external configuration as part of the application building process</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Counterpart to [`App::configure()`](crate::App::configure) that allows for easy nesting.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">configure</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>),
+    <span class="doccomment">/// Run external configuration as part of the application building process
+    ///
+    /// Counterpart to [`App::configure()`](crate::App::configure) that allows for easy nesting.
+    </span><span class="kw">pub fn </span>configure&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span>F: FnOnce(<span class="kw-2">&amp;mut </span>ServiceConfig),
     {
-        <span class="ident">f</span>(<span class="self">self</span>);
-        <span class="self">self</span>
-    }
+        f(<span class="self">self</span>);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Configure route for a specific path.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Counterpart to [`App::route()`](crate::App::route).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">route</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">mut</span> <span class="ident">route</span>: <span class="ident">Route</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">service</span>(
-            <span class="ident">Resource::new</span>(<span class="ident">path</span>)
-                .<span class="ident">add_guards</span>(<span class="ident">route</span>.<span class="ident">take_guards</span>())
-                .<span class="ident">route</span>(<span class="ident">route</span>),
+    <span class="doccomment">/// Configure route for a specific path.
+    ///
+    /// Counterpart to [`App::route()`](crate::App::route).
+    </span><span class="kw">pub fn </span>route(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>str, <span class="kw-2">mut </span>route: Route) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="self">self</span>.service(
+            Resource::new(path)
+                .add_guards(route.take_guards())
+                .route(route),
         )
     }
 
-    <span class="doccomment">/// Register HTTP service factory.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Counterpart to [`App::service()`](crate::App::service).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">service</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">factory</span>: <span class="ident">F</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">HttpServiceFactory</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Register HTTP service factory.
+    ///
+    /// Counterpart to [`App::service()`](crate::App::service).
+    </span><span class="kw">pub fn </span>service&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, factory: F) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span>F: HttpServiceFactory + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">services</span>
-            .<span class="ident">push</span>(<span class="ident">Box::new</span>(<span class="ident">ServiceFactoryWrapper::new</span>(<span class="ident">factory</span>)));
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.services
+            .push(Box::new(ServiceFactoryWrapper::new(factory)));
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Register an external resource.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// External resources are useful for URL generation purposes only and are never considered for</span>
-    <span class="doccomment">/// matching at request time. Calls to [`HttpRequest::url_for()`](crate::HttpRequest::url_for)</span>
-    <span class="doccomment">/// will work as expected.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Counterpart to [`App::external_resource()`](crate::App::external_resource).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">external_resource</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">url</span>: <span class="ident">U</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">N</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
-        <span class="ident">U</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Register an external resource.
+    ///
+    /// External resources are useful for URL generation purposes only and are never considered for
+    /// matching at request time. Calls to [`HttpRequest::url_for()`](crate::HttpRequest::url_for)
+    /// will work as expected.
+    ///
+    /// Counterpart to [`App::external_resource()`](crate::App::external_resource).
+    </span><span class="kw">pub fn </span>external_resource&lt;N, U&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: N, url: U) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span>N: AsRef&lt;str&gt;,
+        U: AsRef&lt;str&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdef</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="ident">url</span>.<span class="ident">as_ref</span>());
-        <span class="ident">rdef</span>.<span class="ident">set_name</span>(<span class="ident">name</span>.<span class="ident">as_ref</span>());
-        <span class="self">self</span>.<span class="ident">external</span>.<span class="ident">push</span>(<span class="ident">rdef</span>);
-        <span class="self">self</span>
-    }
+        <span class="kw">let </span><span class="kw-2">mut </span>rdef = ResourceDef::new(url.as_ref());
+        rdef.set_name(name.as_ref());
+        <span class="self">self</span>.external.push(rdef);
+        <span class="self">self
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_service::Service</span>;
-    <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_service::Service;
+    <span class="kw">use </span>bytes::Bytes;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http</span>::{<span class="ident">Method</span>, <span class="ident">StatusCode</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test</span>::{<span class="ident">assert_body_eq</span>, <span class="ident">call_service</span>, <span class="ident">init_service</span>, <span class="ident">read_body</span>, <span class="ident">TestRequest</span>};
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">web</span>, <span class="ident">App</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>};
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::http::{Method, StatusCode};
+    <span class="kw">use </span><span class="kw">crate</span>::test::{assert_body_eq, call_service, init_service, read_body, TestRequest};
+    <span class="kw">use crate</span>::{web, App, HttpRequest, HttpResponse};
 
-    <span class="comment">// allow deprecated `ServiceConfig::data`</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_data</span>() {
-        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="op">|</span><span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span><span class="op">|</span> {
-            <span class="ident">cfg</span>.<span class="ident">data</span>(<span class="number">10usize</span>);
-            <span class="ident">cfg</span>.<span class="ident">app_data</span>(<span class="number">15u8</span>);
+    <span class="comment">// allow deprecated `ServiceConfig::data`
+    </span><span class="attribute">#[allow(deprecated)]
+    #[actix_rt::test]
+    </span><span class="kw">async fn </span>test_data() {
+        <span class="kw">let </span>cfg = |cfg: <span class="kw-2">&amp;mut </span>ServiceConfig| {
+            cfg.data(<span class="number">10usize</span>);
+            cfg.app_data(<span class="number">15u8</span>);
         };
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App::new</span>().<span class="ident">configure</span>(<span class="ident">cfg</span>).<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to</span>(
-            <span class="op">|</span><span class="kw">_</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
-                <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">app_data</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(), <span class="number">15u8</span>);
-                <span class="ident">HttpResponse::Ok</span>()
+        <span class="kw">let </span>srv = init_service(App::new().configure(cfg).service(web::resource(<span class="string">&quot;/&quot;</span>).to(
+            |<span class="kw">_</span>: web::Data&lt;usize&gt;, req: HttpRequest| {
+                <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>req.app_data::&lt;u8&gt;().unwrap(), <span class="number">15u8</span>);
+                HttpResponse::Ok()
             },
         )))
         .<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>req = TestRequest::default().to_request();
+        <span class="kw">let </span>resp = srv.call(req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_external_resource</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
-            <span class="ident">App::new</span>()
-                .<span class="ident">configure</span>(<span class="op">|</span><span class="ident">cfg</span><span class="op">|</span> {
-                    <span class="ident">cfg</span>.<span class="ident">external_resource</span>(<span class="string">&quot;youtube&quot;</span>, <span class="string">&quot;https://youtube.com/watch/{video_id}&quot;</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_external_resource() {
+        <span class="kw">let </span>srv = init_service(
+            App::new()
+                .configure(|cfg| {
+                    cfg.external_resource(<span class="string">&quot;youtube&quot;</span>, <span class="string">&quot;https://youtube.com/watch/{video_id}&quot;</span>);
                 })
-                .<span class="ident">route</span>(
+                .route(
                     <span class="string">&quot;/test&quot;</span>,
-                    <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="op">|</span><span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">|</span> {
-                        <span class="ident">HttpResponse::Ok</span>()
-                            .<span class="ident">body</span>(<span class="ident">req</span>.<span class="ident">url_for</span>(<span class="string">&quot;youtube&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;12345&quot;</span>]).<span class="ident">unwrap</span>().<span class="ident">to_string</span>())
+                    web::get().to(|req: HttpRequest| {
+                        HttpResponse::Ok()
+                            .body(req.url_for(<span class="string">&quot;youtube&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;12345&quot;</span>]).unwrap().to_string())
                     }),
                 ),
         )
         .<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">read_body</span>(<span class="ident">resp</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">body</span>, <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;https://youtube.com/watch/12345&quot;</span>));
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test&quot;</span>).to_request();
+        <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
+        <span class="kw">let </span>body = read_body(resp).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b&quot;https://youtube.com/watch/12345&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">registers_default_service</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(
-            <span class="ident">App::new</span>()
-                .<span class="ident">configure</span>(<span class="op">|</span><span class="ident">cfg</span><span class="op">|</span> {
-                    <span class="ident">cfg</span>.<span class="ident">default_service</span>(
-                        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse::NotFound</span>().<span class="ident">body</span>(<span class="string">&quot;four oh four&quot;</span>)),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>registers_default_service() {
+        <span class="kw">let </span>srv = init_service(
+            App::new()
+                .configure(|cfg| {
+                    cfg.default_service(
+                        web::get().to(|| HttpResponse::NotFound().body(<span class="string">&quot;four oh four&quot;</span>)),
                     );
                 })
-                .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/scoped&quot;</span>).<span class="ident">configure</span>(<span class="op">|</span><span class="ident">cfg</span><span class="op">|</span> {
-                    <span class="ident">cfg</span>.<span class="ident">default_service</span>(
-                        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse::NotFound</span>().<span class="ident">body</span>(<span class="string">&quot;scoped four oh four&quot;</span>)),
+                .service(web::scope(<span class="string">&quot;/scoped&quot;</span>).configure(|cfg| {
+                    cfg.default_service(
+                        web::get().to(|| HttpResponse::NotFound().body(<span class="string">&quot;scoped four oh four&quot;</span>)),
                     );
                 })),
         )
         .<span class="kw">await</span>;
 
-        <span class="comment">// app registers default service</span>
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/path/i/did/not-configure&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::NOT_FOUND</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">read_body</span>(<span class="ident">resp</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">body</span>, <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;four oh four&quot;</span>));
+        <span class="comment">// app registers default service
+        </span><span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/path/i/did/not-configure&quot;</span>).to_request();
+        <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
+        <span class="kw">let </span>body = read_body(resp).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b&quot;four oh four&quot;</span>));
 
-        <span class="comment">// scope registers default service</span>
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/scoped/path/i/did/not-configure&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::NOT_FOUND</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">read_body</span>(<span class="ident">resp</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">body</span>, <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;scoped four oh four&quot;</span>));
+        <span class="comment">// scope registers default service
+        </span><span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/scoped/path/i/did/not-configure&quot;</span>).to_request();
+        <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::NOT_FOUND);
+        <span class="kw">let </span>body = read_body(resp).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(body, Bytes::from_static(<span class="string">b&quot;scoped four oh four&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_service</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App::new</span>().<span class="ident">configure</span>(<span class="op">|</span><span class="ident">cfg</span><span class="op">|</span> {
-            <span class="ident">cfg</span>.<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/test&quot;</span>).<span class="ident">route</span>(<span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">HttpResponse::Created</span>)))
-                .<span class="ident">route</span>(<span class="string">&quot;/index.html&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">HttpResponse::Ok</span>));
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_service() {
+        <span class="kw">let </span>srv = init_service(App::new().configure(|cfg| {
+            cfg.service(web::resource(<span class="string">&quot;/test&quot;</span>).route(web::get().to(HttpResponse::Created)))
+                .route(<span class="string">&quot;/index.html&quot;</span>, web::get().to(HttpResponse::Ok));
         }))
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/test&quot;</span>)
-            .<span class="ident">method</span>(<span class="ident">Method::GET</span>)
-            .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::CREATED</span>);
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/test&quot;</span>)
+            .method(Method::GET)
+            .to_request();
+        <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::CREATED);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/index.html&quot;</span>)
-            .<span class="ident">method</span>(<span class="ident">Method::GET</span>)
-            .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/index.html&quot;</span>)
+            .method(Method::GET)
+            .to_request();
+        <span class="kw">let </span>resp = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">nested_service_configure</span>() {
-        <span class="kw">fn</span> <span class="ident">cfg_root</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-            <span class="ident">cfg</span>.<span class="ident">configure</span>(<span class="ident">cfg_sub</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>nested_service_configure() {
+        <span class="kw">fn </span>cfg_root(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+            cfg.configure(cfg_sub);
         }
 
-        <span class="kw">fn</span> <span class="ident">cfg_sub</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-            <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">async</span> { <span class="string">&quot;hello world&quot;</span> }));
+        <span class="kw">fn </span>cfg_sub(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+            cfg.route(<span class="string">&quot;/&quot;</span>, web::get().to(|| <span class="kw">async </span>{ <span class="string">&quot;hello world&quot; </span>}));
         }
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App::new</span>().<span class="ident">configure</span>(<span class="ident">cfg_root</span>)).<span class="kw">await</span>;
+        <span class="kw">let </span>srv = init_service(App::new().configure(cfg_root)).<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::with_uri</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">srv</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_body_eq!</span>(<span class="ident">res</span>, <span class="string">b&quot;hello world&quot;</span>);
+        <span class="kw">let </span>req = TestRequest::with_uri(<span class="string">&quot;/&quot;</span>).to_request();
+        <span class="kw">let </span>res = call_service(<span class="kw-2">&amp;</span>srv, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_body_eq!</span>(res, <span class="string">b&quot;hello world&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

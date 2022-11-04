@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dashmap-5.4.0/src/mapref/multiple.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>multiple.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dashmap/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dashmap-5.4.0/src/mapref/multiple.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>multiple.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../dashmap/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../dashmap/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -105,112 +105,112 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::lock</span>::{<span class="ident">RwLockReadGuard</span>, <span class="ident">RwLockWriteGuard</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HashMap</span>;
-<span class="kw">use</span> <span class="ident">core::hash::BuildHasher</span>;
-<span class="kw">use</span> <span class="ident">core::hash::Hash</span>;
-<span class="kw">use</span> <span class="ident">core::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
-<span class="kw">use</span> <span class="ident">std::collections::hash_map::RandomState</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::lock::{RwLockReadGuard, RwLockWriteGuard};
+<span class="kw">use </span><span class="kw">crate</span>::HashMap;
+<span class="kw">use </span>core::hash::BuildHasher;
+<span class="kw">use </span>core::hash::Hash;
+<span class="kw">use </span>core::ops::{Deref, DerefMut};
+<span class="kw">use </span>std::collections::hash_map::RandomState;
+<span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RefMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span> <span class="op">=</span> <span class="ident">RandomState</span><span class="op">&gt;</span> {
-    <span class="ident">_guard</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLockReadGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">k</span>: <span class="kw-2">*const</span> <span class="ident">K</span>,
-    <span class="ident">v</span>: <span class="kw-2">*const</span> <span class="ident">V</span>,
+<span class="kw">pub struct </span>RefMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S = RandomState&gt; {
+    _guard: Arc&lt;RwLockReadGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;&gt;,
+    k: <span class="kw-2">*const </span>K,
+    v: <span class="kw-2">*const </span>V,
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Sync</span>, <span class="ident">V</span>: <span class="ident">Sync</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">RefMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {}
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Sync</span>, <span class="ident">V</span>: <span class="ident">Sync</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">RefMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash + Sync, V: Sync, S: BuildHasher&gt; Send <span class="kw">for </span>RefMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash + Sync, V: Sync, S: BuildHasher&gt; Sync <span class="kw">for </span>RefMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">RefMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">guard</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLockReadGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">k</span>: <span class="kw-2">*const</span> <span class="ident">K</span>,
-        <span class="ident">v</span>: <span class="kw-2">*const</span> <span class="ident">V</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">_guard</span>: <span class="ident">guard</span>,
-            <span class="ident">k</span>,
-            <span class="ident">v</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash, V, S: BuildHasher&gt; RefMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>new(
+        guard: Arc&lt;RwLockReadGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;&gt;,
+        k: <span class="kw-2">*const </span>K,
+        v: <span class="kw-2">*const </span>V,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            _guard: guard,
+            k,
+            v,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">K</span> {
-        <span class="self">self</span>.<span class="ident">pair</span>().<span class="number">0</span>
-    }
+    <span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
+        <span class="self">self</span>.pair().<span class="number">0
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">V</span> {
-        <span class="self">self</span>.<span class="ident">pair</span>().<span class="number">1</span>
-    }
+    <span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>V {
+        <span class="self">self</span>.pair().<span class="number">1
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="kw-2">&amp;</span><span class="ident">V</span>) {
-        <span class="kw">unsafe</span> { (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">k</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">v</span>) }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">RefMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">V</span>;
-
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">V</span> {
-        <span class="self">self</span>.<span class="ident">value</span>()
+    <span class="kw">pub fn </span>pair(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V) {
+        <span class="kw">unsafe </span>{ (<span class="kw-2">&amp;*</span><span class="self">self</span>.k, <span class="kw-2">&amp;*</span><span class="self">self</span>.v) }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RefMutMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span> <span class="op">=</span> <span class="ident">RandomState</span><span class="op">&gt;</span> {
-    <span class="ident">_guard</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLockWriteGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">k</span>: <span class="kw-2">*const</span> <span class="ident">K</span>,
-    <span class="ident">v</span>: <span class="kw-2">*mut</span> <span class="ident">V</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash, V, S: BuildHasher&gt; Deref <span class="kw">for </span>RefMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+    <span class="kw">type </span>Target = V;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>V {
+        <span class="self">self</span>.value()
+    }
 }
 
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Sync</span>, <span class="ident">V</span>: <span class="ident">Sync</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">RefMutMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {}
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Sync</span>, <span class="ident">V</span>: <span class="ident">Sync</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">RefMutMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {}
+<span class="kw">pub struct </span>RefMutMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S = RandomState&gt; {
+    _guard: Arc&lt;RwLockWriteGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;&gt;,
+    k: <span class="kw-2">*const </span>K,
+    v: <span class="kw-2">*mut </span>V,
+}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">RefMutMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">guard</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLockWriteGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">k</span>: <span class="kw-2">*const</span> <span class="ident">K</span>,
-        <span class="ident">v</span>: <span class="kw-2">*mut</span> <span class="ident">V</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">_guard</span>: <span class="ident">guard</span>,
-            <span class="ident">k</span>,
-            <span class="ident">v</span>,
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash + Sync, V: Sync, S: BuildHasher&gt; Send <span class="kw">for </span>RefMutMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash + Sync, V: Sync, S: BuildHasher&gt; Sync <span class="kw">for </span>RefMutMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash, V, S: BuildHasher&gt; RefMutMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>new(
+        guard: Arc&lt;RwLockWriteGuard&lt;<span class="lifetime">&#39;a</span>, HashMap&lt;K, V, S&gt;&gt;&gt;,
+        k: <span class="kw-2">*const </span>K,
+        v: <span class="kw-2">*mut </span>V,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            _guard: guard,
+            k,
+            v,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">K</span> {
-        <span class="self">self</span>.<span class="ident">pair</span>().<span class="number">0</span>
+    <span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
+        <span class="self">self</span>.pair().<span class="number">0
+    </span>}
+
+    <span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>V {
+        <span class="self">self</span>.pair().<span class="number">1
+    </span>}
+
+    <span class="kw">pub fn </span>value_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>V {
+        <span class="self">self</span>.pair_mut().<span class="number">1
+    </span>}
+
+    <span class="kw">pub fn </span>pair(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V) {
+        <span class="kw">unsafe </span>{ (<span class="kw-2">&amp;*</span><span class="self">self</span>.k, <span class="kw-2">&amp;*</span><span class="self">self</span>.v) }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">V</span> {
-        <span class="self">self</span>.<span class="ident">pair</span>().<span class="number">1</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">V</span> {
-        <span class="self">self</span>.<span class="ident">pair_mut</span>().<span class="number">1</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pair</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="kw-2">&amp;</span><span class="ident">V</span>) {
-        <span class="kw">unsafe</span> { (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">k</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">v</span>) }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pair_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="kw-2">&amp;mut</span> <span class="ident">V</span>) {
-        <span class="kw">unsafe</span> { (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">k</span>, <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">v</span>) }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">RefMutMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">V</span>;
-
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">V</span> {
-        <span class="self">self</span>.<span class="ident">value</span>()
+    <span class="kw">pub fn </span>pair_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;mut </span>V) {
+        <span class="kw">unsafe </span>{ (<span class="kw-2">&amp;*</span><span class="self">self</span>.k, <span class="kw-2">&amp;mut *</span><span class="self">self</span>.v) }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span>, <span class="ident">V</span>, <span class="ident">S</span>: <span class="ident">BuildHasher</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">RefMutMulti</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">V</span> {
-        <span class="self">self</span>.<span class="ident">value_mut</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash, V, S: BuildHasher&gt; Deref <span class="kw">for </span>RefMutMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+    <span class="kw">type </span>Target = V;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>V {
+        <span class="self">self</span>.value()
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, K: Eq + Hash, V, S: BuildHasher&gt; DerefMut <span class="kw">for </span>RefMutMulti&lt;<span class="lifetime">&#39;a</span>, K, V, S&gt; {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>V {
+        <span class="self">self</span>.value_mut()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dashmap" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="dashmap" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

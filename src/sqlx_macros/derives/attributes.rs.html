@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/derives/attributes.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>attributes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/derives/attributes.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>attributes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -324,331 +324,331 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Ident</span>, <span class="ident">Span</span>, <span class="ident">TokenStream</span>};
-<span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">quote</span>, <span class="ident">quote_spanned</span>};
-<span class="kw">use</span> <span class="ident">syn::punctuated::Punctuated</span>;
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span>;
-<span class="kw">use</span> <span class="ident">syn::token::Comma</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">Attribute</span>, <span class="ident">DeriveInput</span>, <span class="ident">Field</span>, <span class="ident">Lit</span>, <span class="ident">Meta</span>, <span class="ident">MetaNameValue</span>, <span class="ident">NestedMeta</span>, <span class="ident">Variant</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>proc_macro2::{Ident, Span, TokenStream};
+<span class="kw">use </span>quote::{quote, quote_spanned};
+<span class="kw">use </span>syn::punctuated::Punctuated;
+<span class="kw">use </span>syn::spanned::Spanned;
+<span class="kw">use </span>syn::token::Comma;
+<span class="kw">use </span>syn::{Attribute, DeriveInput, Field, Lit, Meta, MetaNameValue, NestedMeta, Variant};
 
-<span class="macro">macro_rules!</span> <span class="ident">assert_attribute</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="kw">if</span> <span class="op">!</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>));
+<span class="macro">macro_rules! </span>assert_attribute {
+    (<span class="macro-nonterminal">$e</span>:expr, <span class="macro-nonterminal">$err</span>:expr, <span class="macro-nonterminal">$input</span>:expr) =&gt; {
+        <span class="kw">if </span>!<span class="macro-nonterminal">$e </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(<span class="macro-nonterminal">$input</span>, <span class="macro-nonterminal">$err</span>));
         }
     };
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">fail</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>))
+<span class="macro">macro_rules! </span>fail {
+    (<span class="macro-nonterminal">$t</span>:expr, <span class="macro-nonterminal">$m</span>:expr) =&gt; {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(<span class="macro-nonterminal">$t</span>, <span class="macro-nonterminal">$m</span>))
     };
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">try_set</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">v</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span> {
-            <span class="prelude-val">None</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">v</span>),
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="macro">fail!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>, <span class="string">&quot;duplicate attribute&quot;</span>),
+<span class="macro">macro_rules! </span>try_set {
+    (<span class="macro-nonterminal">$i</span>:ident, <span class="macro-nonterminal">$v</span>:expr, <span class="macro-nonterminal">$t</span>:expr) =&gt; {
+        <span class="kw">match </span><span class="macro-nonterminal">$i </span>{
+            <span class="prelude-val">None </span>=&gt; <span class="macro-nonterminal">$i </span>= <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$v</span>),
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="macro">fail!</span>(<span class="macro-nonterminal">$t</span>, <span class="string">&quot;duplicate attribute&quot;</span>),
         }
     };
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeName</span> {
-    <span class="kw">pub</span> <span class="ident">val</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">span</span>: <span class="ident">Span</span>,
-    <span class="doccomment">/// Whether the old sqlx(rename) syntax was used instead of sqlx(type_name)</span>
-    <span class="kw">pub</span> <span class="ident">deprecated_rename</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>TypeName {
+    <span class="kw">pub </span>val: String,
+    <span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// Whether the old sqlx(rename) syntax was used instead of sqlx(type_name)
+    </span><span class="kw">pub </span>deprecated_rename: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">TypeName</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">val</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">deprecated_rename</span> {
-            <span class="macro">quote_spanned!</span>(<span class="self">self</span>.<span class="ident">span</span>=&gt; {
-                <span class="ident">::sqlx::_rename</span>();
-                #<span class="ident">val</span>
+<span class="kw">impl </span>TypeName {
+    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream {
+        <span class="kw">let </span>val = <span class="kw-2">&amp;</span><span class="self">self</span>.val;
+        <span class="kw">if </span><span class="self">self</span>.deprecated_rename {
+            <span class="macro">quote_spanned!</span>(<span class="self">self</span>.span=&gt; {
+                ::sqlx::_rename();
+                #val
             })
-        } <span class="kw">else</span> {
-            <span class="macro">quote!</span> { #<span class="ident">val</span> }
+        } <span class="kw">else </span>{
+            <span class="macro">quote! </span>{ #val }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RenameAll</span> {
-    <span class="ident">LowerCase</span>,
-    <span class="ident">SnakeCase</span>,
-    <span class="ident">UpperCase</span>,
-    <span class="ident">ScreamingSnakeCase</span>,
-    <span class="ident">KebabCase</span>,
-    <span class="ident">CamelCase</span>,
-    <span class="ident">PascalCase</span>,
+<span class="attribute">#[derive(Copy, Clone)]
+</span><span class="kw">pub enum </span>RenameAll {
+    LowerCase,
+    SnakeCase,
+    UpperCase,
+    ScreamingSnakeCase,
+    KebabCase,
+    CamelCase,
+    PascalCase,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SqlxContainerAttributes</span> {
-    <span class="kw">pub</span> <span class="ident">transparent</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">type_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TypeName</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">rename_all</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RenameAll</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">repr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>SqlxContainerAttributes {
+    <span class="kw">pub </span>transparent: bool,
+    <span class="kw">pub </span>type_name: <span class="prelude-ty">Option</span>&lt;TypeName&gt;,
+    <span class="kw">pub </span>rename_all: <span class="prelude-ty">Option</span>&lt;RenameAll&gt;,
+    <span class="kw">pub </span>repr: <span class="prelude-ty">Option</span>&lt;Ident&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SqlxChildAttributes</span> {
-    <span class="kw">pub</span> <span class="ident">rename</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">default</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">flatten</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">try_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>SqlxChildAttributes {
+    <span class="kw">pub </span>rename: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>default: bool,
+    <span class="kw">pub </span>flatten: bool,
+    <span class="kw">pub </span>try_from: <span class="prelude-ty">Option</span>&lt;Ident&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_container_attributes</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">Attribute</span>]) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">SqlxContainerAttributes</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transparent</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">repr</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">type_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rename_all</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+<span class="kw">pub fn </span>parse_container_attributes(input: <span class="kw-2">&amp;</span>[Attribute]) -&gt; syn::Result&lt;SqlxContainerAttributes&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>transparent = <span class="prelude-val">None</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>repr = <span class="prelude-val">None</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>type_name = <span class="prelude-val">None</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>rename_all = <span class="prelude-val">None</span>;
 
-    <span class="kw">for</span> <span class="ident">attr</span> <span class="kw">in</span> <span class="ident">input</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;sqlx&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;repr&quot;</span>))
+    <span class="kw">for </span>attr <span class="kw">in </span>input
+        .iter()
+        .filter(|a| a.path.is_ident(<span class="string">&quot;sqlx&quot;</span>) || a.path.is_ident(<span class="string">&quot;repr&quot;</span>))
     {
-        <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span> <span class="ident">attr</span>
-            .<span class="ident">parse_meta</span>()
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">attr</span>, <span class="ident">e</span>))<span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">meta</span> {
-            <span class="ident">Meta::List</span>(<span class="ident">list</span>) <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;sqlx&quot;</span>) =&gt; {
-                <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="ident">list</span>.<span class="ident">nested</span>.<span class="ident">iter</span>() {
-                    <span class="kw">match</span> <span class="ident">value</span> {
-                        <span class="ident">NestedMeta::Meta</span>(<span class="ident">meta</span>) =&gt; <span class="kw">match</span> <span class="ident">meta</span> {
-                            <span class="ident">Meta::Path</span>(<span class="ident">p</span>) <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">is_ident</span>(<span class="string">&quot;transparent&quot;</span>) =&gt; {
-                                <span class="macro">try_set!</span>(<span class="ident">transparent</span>, <span class="bool-val">true</span>, <span class="ident">value</span>)
+        <span class="kw">let </span>meta = attr
+            .parse_meta()
+            .map_err(|e| syn::Error::new_spanned(attr, e))<span class="question-mark">?</span>;
+        <span class="kw">match </span>meta {
+            Meta::List(list) <span class="kw">if </span>list.path.is_ident(<span class="string">&quot;sqlx&quot;</span>) =&gt; {
+                <span class="kw">for </span>value <span class="kw">in </span>list.nested.iter() {
+                    <span class="kw">match </span>value {
+                        NestedMeta::Meta(meta) =&gt; <span class="kw">match </span>meta {
+                            Meta::Path(p) <span class="kw">if </span>p.is_ident(<span class="string">&quot;transparent&quot;</span>) =&gt; {
+                                <span class="macro">try_set!</span>(transparent, <span class="bool-val">true</span>, value)
                             }
 
-                            <span class="ident">Meta::NameValue</span>(<span class="ident">MetaNameValue</span> {
-                                <span class="ident">path</span>,
-                                <span class="ident">lit</span>: <span class="ident">Lit::Str</span>(<span class="ident">val</span>),
+                            Meta::NameValue(MetaNameValue {
+                                path,
+                                lit: Lit::Str(val),
                                 ..
-                            }) <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;rename_all&quot;</span>) =&gt; {
-                                <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">val</span>.<span class="ident">value</span>() {
-                                    <span class="string">&quot;lowercase&quot;</span> =&gt; <span class="ident">RenameAll::LowerCase</span>,
-                                    <span class="string">&quot;snake_case&quot;</span> =&gt; <span class="ident">RenameAll::SnakeCase</span>,
-                                    <span class="string">&quot;UPPERCASE&quot;</span> =&gt; <span class="ident">RenameAll::UpperCase</span>,
-                                    <span class="string">&quot;SCREAMING_SNAKE_CASE&quot;</span> =&gt; <span class="ident">RenameAll::ScreamingSnakeCase</span>,
-                                    <span class="string">&quot;kebab-case&quot;</span> =&gt; <span class="ident">RenameAll::KebabCase</span>,
-                                    <span class="string">&quot;camelCase&quot;</span> =&gt; <span class="ident">RenameAll::CamelCase</span>,
-                                    <span class="string">&quot;PascalCase&quot;</span> =&gt; <span class="ident">RenameAll::PascalCase</span>,
-                                    <span class="kw">_</span> =&gt; <span class="macro">fail!</span>(<span class="ident">meta</span>, <span class="string">&quot;unexpected value for rename_all&quot;</span>),
+                            }) <span class="kw">if </span>path.is_ident(<span class="string">&quot;rename_all&quot;</span>) =&gt; {
+                                <span class="kw">let </span>val = <span class="kw">match </span><span class="kw-2">&amp;*</span>val.value() {
+                                    <span class="string">&quot;lowercase&quot; </span>=&gt; RenameAll::LowerCase,
+                                    <span class="string">&quot;snake_case&quot; </span>=&gt; RenameAll::SnakeCase,
+                                    <span class="string">&quot;UPPERCASE&quot; </span>=&gt; RenameAll::UpperCase,
+                                    <span class="string">&quot;SCREAMING_SNAKE_CASE&quot; </span>=&gt; RenameAll::ScreamingSnakeCase,
+                                    <span class="string">&quot;kebab-case&quot; </span>=&gt; RenameAll::KebabCase,
+                                    <span class="string">&quot;camelCase&quot; </span>=&gt; RenameAll::CamelCase,
+                                    <span class="string">&quot;PascalCase&quot; </span>=&gt; RenameAll::PascalCase,
+                                    <span class="kw">_ </span>=&gt; <span class="macro">fail!</span>(meta, <span class="string">&quot;unexpected value for rename_all&quot;</span>),
                                 };
 
-                                <span class="macro">try_set!</span>(<span class="ident">rename_all</span>, <span class="ident">val</span>, <span class="ident">value</span>)
+                                <span class="macro">try_set!</span>(rename_all, val, value)
                             }
 
-                            <span class="ident">Meta::NameValue</span>(<span class="ident">MetaNameValue</span> {
-                                <span class="ident">path</span>,
-                                <span class="ident">lit</span>: <span class="ident">Lit::Str</span>(<span class="ident">val</span>),
+                            Meta::NameValue(MetaNameValue {
+                                path,
+                                lit: Lit::Str(val),
                                 ..
-                            }) <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;type_name&quot;</span>) =&gt; {
+                            }) <span class="kw">if </span>path.is_ident(<span class="string">&quot;type_name&quot;</span>) =&gt; {
                                 <span class="macro">try_set!</span>(
-                                    <span class="ident">type_name</span>,
-                                    <span class="ident">TypeName</span> {
-                                        <span class="ident">val</span>: <span class="ident">val</span>.<span class="ident">value</span>(),
-                                        <span class="ident">span</span>: <span class="ident">value</span>.<span class="ident">span</span>(),
-                                        <span class="ident">deprecated_rename</span>: <span class="bool-val">false</span>
-                                    },
-                                    <span class="ident">value</span>
+                                    type_name,
+                                    TypeName {
+                                        val: val.value(),
+                                        span: value.span(),
+                                        deprecated_rename: <span class="bool-val">false
+                                    </span>},
+                                    value
                                 )
                             }
 
-                            <span class="ident">Meta::NameValue</span>(<span class="ident">MetaNameValue</span> {
-                                <span class="ident">path</span>,
-                                <span class="ident">lit</span>: <span class="ident">Lit::Str</span>(<span class="ident">val</span>),
+                            Meta::NameValue(MetaNameValue {
+                                path,
+                                lit: Lit::Str(val),
                                 ..
-                            }) <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;rename&quot;</span>) =&gt; {
+                            }) <span class="kw">if </span>path.is_ident(<span class="string">&quot;rename&quot;</span>) =&gt; {
                                 <span class="macro">try_set!</span>(
-                                    <span class="ident">type_name</span>,
-                                    <span class="ident">TypeName</span> {
-                                        <span class="ident">val</span>: <span class="ident">val</span>.<span class="ident">value</span>(),
-                                        <span class="ident">span</span>: <span class="ident">value</span>.<span class="ident">span</span>(),
-                                        <span class="ident">deprecated_rename</span>: <span class="bool-val">true</span>
-                                    },
-                                    <span class="ident">value</span>
+                                    type_name,
+                                    TypeName {
+                                        val: val.value(),
+                                        span: value.span(),
+                                        deprecated_rename: <span class="bool-val">true
+                                    </span>},
+                                    value
                                 )
                             }
 
-                            <span class="ident">u</span> =&gt; <span class="macro">fail!</span>(<span class="ident">u</span>, <span class="string">&quot;unexpected attribute&quot;</span>),
+                            u =&gt; <span class="macro">fail!</span>(u, <span class="string">&quot;unexpected attribute&quot;</span>),
                         },
-                        <span class="ident">u</span> =&gt; <span class="macro">fail!</span>(<span class="ident">u</span>, <span class="string">&quot;unexpected attribute&quot;</span>),
+                        u =&gt; <span class="macro">fail!</span>(u, <span class="string">&quot;unexpected attribute&quot;</span>),
                     }
                 }
             }
-            <span class="ident">Meta::List</span>(<span class="ident">list</span>) <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;repr&quot;</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">nested</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-                    <span class="macro">fail!</span>(<span class="kw-2">&amp;</span><span class="ident">list</span>.<span class="ident">nested</span>, <span class="string">&quot;expected one value&quot;</span>)
+            Meta::List(list) <span class="kw">if </span>list.path.is_ident(<span class="string">&quot;repr&quot;</span>) =&gt; {
+                <span class="kw">if </span>list.nested.len() != <span class="number">1 </span>{
+                    <span class="macro">fail!</span>(<span class="kw-2">&amp;</span>list.nested, <span class="string">&quot;expected one value&quot;</span>)
                 }
-                <span class="kw">match</span> <span class="ident">list</span>.<span class="ident">nested</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>() {
-                    <span class="ident">NestedMeta::Meta</span>(<span class="ident">Meta::Path</span>(<span class="ident">p</span>)) <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">get_ident</span>().<span class="ident">is_some</span>() =&gt; {
-                        <span class="macro">try_set!</span>(<span class="ident">repr</span>, <span class="ident">p</span>.<span class="ident">get_ident</span>().<span class="ident">unwrap</span>().<span class="ident">clone</span>(), <span class="ident">list</span>);
+                <span class="kw">match </span>list.nested.first().unwrap() {
+                    NestedMeta::Meta(Meta::Path(p)) <span class="kw">if </span>p.get_ident().is_some() =&gt; {
+                        <span class="macro">try_set!</span>(repr, p.get_ident().unwrap().clone(), list);
                     }
-                    <span class="ident">u</span> =&gt; <span class="macro">fail!</span>(<span class="ident">u</span>, <span class="string">&quot;unexpected value&quot;</span>),
+                    u =&gt; <span class="macro">fail!</span>(u, <span class="string">&quot;unexpected value&quot;</span>),
                 }
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">SqlxContainerAttributes</span> {
-        <span class="ident">transparent</span>: <span class="ident">transparent</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>),
-        <span class="ident">repr</span>,
-        <span class="ident">type_name</span>,
-        <span class="ident">rename_all</span>,
+    <span class="prelude-val">Ok</span>(SqlxContainerAttributes {
+        transparent: transparent.unwrap_or(<span class="bool-val">false</span>),
+        repr,
+        type_name,
+        rename_all,
     })
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_child_attributes</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">Attribute</span>]) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">SqlxChildAttributes</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rename</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">try_from</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flatten</span> <span class="op">=</span> <span class="bool-val">false</span>;
+<span class="kw">pub fn </span>parse_child_attributes(input: <span class="kw-2">&amp;</span>[Attribute]) -&gt; syn::Result&lt;SqlxChildAttributes&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>rename = <span class="prelude-val">None</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>default = <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>try_from = <span class="prelude-val">None</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>flatten = <span class="bool-val">false</span>;
 
-    <span class="kw">for</span> <span class="ident">attr</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;sqlx&quot;</span>)) {
-        <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span> <span class="ident">attr</span>
-            .<span class="ident">parse_meta</span>()
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">attr</span>, <span class="ident">e</span>))<span class="question-mark">?</span>;
+    <span class="kw">for </span>attr <span class="kw">in </span>input.iter().filter(|a| a.path.is_ident(<span class="string">&quot;sqlx&quot;</span>)) {
+        <span class="kw">let </span>meta = attr
+            .parse_meta()
+            .map_err(|e| syn::Error::new_spanned(attr, e))<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Meta::List</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">meta</span> {
-            <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="ident">list</span>.<span class="ident">nested</span>.<span class="ident">iter</span>() {
-                <span class="kw">match</span> <span class="ident">value</span> {
-                    <span class="ident">NestedMeta::Meta</span>(<span class="ident">meta</span>) =&gt; <span class="kw">match</span> <span class="ident">meta</span> {
-                        <span class="ident">Meta::NameValue</span>(<span class="ident">MetaNameValue</span> {
-                            <span class="ident">path</span>,
-                            <span class="ident">lit</span>: <span class="ident">Lit::Str</span>(<span class="ident">val</span>),
+        <span class="kw">if let </span>Meta::List(list) = meta {
+            <span class="kw">for </span>value <span class="kw">in </span>list.nested.iter() {
+                <span class="kw">match </span>value {
+                    NestedMeta::Meta(meta) =&gt; <span class="kw">match </span>meta {
+                        Meta::NameValue(MetaNameValue {
+                            path,
+                            lit: Lit::Str(val),
                             ..
-                        }) <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;rename&quot;</span>) =&gt; <span class="macro">try_set!</span>(<span class="ident">rename</span>, <span class="ident">val</span>.<span class="ident">value</span>(), <span class="ident">value</span>),
-                        <span class="ident">Meta::NameValue</span>(<span class="ident">MetaNameValue</span> {
-                            <span class="ident">path</span>,
-                            <span class="ident">lit</span>: <span class="ident">Lit::Str</span>(<span class="ident">val</span>),
+                        }) <span class="kw">if </span>path.is_ident(<span class="string">&quot;rename&quot;</span>) =&gt; <span class="macro">try_set!</span>(rename, val.value(), value),
+                        Meta::NameValue(MetaNameValue {
+                            path,
+                            lit: Lit::Str(val),
                             ..
-                        }) <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;try_from&quot;</span>) =&gt; <span class="macro">try_set!</span>(<span class="ident">try_from</span>, <span class="ident">val</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>, <span class="ident">value</span>),
-                        <span class="ident">Meta::Path</span>(<span class="ident">path</span>) <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;default&quot;</span>) =&gt; <span class="ident">default</span> <span class="op">=</span> <span class="bool-val">true</span>,
-                        <span class="ident">Meta::Path</span>(<span class="ident">path</span>) <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;flatten&quot;</span>) =&gt; <span class="ident">flatten</span> <span class="op">=</span> <span class="bool-val">true</span>,
-                        <span class="ident">u</span> =&gt; <span class="macro">fail!</span>(<span class="ident">u</span>, <span class="string">&quot;unexpected attribute&quot;</span>),
+                        }) <span class="kw">if </span>path.is_ident(<span class="string">&quot;try_from&quot;</span>) =&gt; <span class="macro">try_set!</span>(try_from, val.parse()<span class="question-mark">?</span>, value),
+                        Meta::Path(path) <span class="kw">if </span>path.is_ident(<span class="string">&quot;default&quot;</span>) =&gt; default = <span class="bool-val">true</span>,
+                        Meta::Path(path) <span class="kw">if </span>path.is_ident(<span class="string">&quot;flatten&quot;</span>) =&gt; flatten = <span class="bool-val">true</span>,
+                        u =&gt; <span class="macro">fail!</span>(u, <span class="string">&quot;unexpected attribute&quot;</span>),
                     },
-                    <span class="ident">u</span> =&gt; <span class="macro">fail!</span>(<span class="ident">u</span>, <span class="string">&quot;unexpected attribute&quot;</span>),
+                    u =&gt; <span class="macro">fail!</span>(u, <span class="string">&quot;unexpected attribute&quot;</span>),
                 }
             }
         }
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">SqlxChildAttributes</span> {
-        <span class="ident">rename</span>,
-        <span class="ident">default</span>,
-        <span class="ident">flatten</span>,
-        <span class="ident">try_from</span>,
+    <span class="prelude-val">Ok</span>(SqlxChildAttributes {
+        rename,
+        default,
+        flatten,
+        try_from,
     })
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_transparent_attributes</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">SqlxContainerAttributes</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">parse_container_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+<span class="kw">pub fn </span>check_transparent_attributes(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    field: <span class="kw-2">&amp;</span>Field,
+) -&gt; syn::Result&lt;SqlxContainerAttributes&gt; {
+    <span class="kw">let </span>attributes = parse_container_attributes(<span class="kw-2">&amp;</span>input.attrs)<span class="question-mark">?</span>;
 
     <span class="macro">assert_attribute!</span>(
-        <span class="ident">attributes</span>.<span class="ident">rename_all</span>.<span class="ident">is_none</span>(),
+        attributes.rename_all.is_none(),
         <span class="string">&quot;unexpected #[sqlx(rename_all = ..)]&quot;</span>,
-        <span class="ident">field</span>
+        field
     );
 
-    <span class="kw">let</span> <span class="ident">ch_attributes</span> <span class="op">=</span> <span class="ident">parse_child_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>ch_attributes = parse_child_attributes(<span class="kw-2">&amp;</span>field.attrs)<span class="question-mark">?</span>;
 
     <span class="macro">assert_attribute!</span>(
-        <span class="ident">ch_attributes</span>.<span class="ident">rename</span>.<span class="ident">is_none</span>(),
+        ch_attributes.rename.is_none(),
         <span class="string">&quot;unexpected #[sqlx(rename = ..)]&quot;</span>,
-        <span class="ident">field</span>
+        field
     );
 
-    <span class="prelude-val">Ok</span>(<span class="ident">attributes</span>)
+    <span class="prelude-val">Ok</span>(attributes)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_enum_attributes</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">SqlxContainerAttributes</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">parse_container_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+<span class="kw">pub fn </span>check_enum_attributes(input: <span class="kw-2">&amp;</span>DeriveInput) -&gt; syn::Result&lt;SqlxContainerAttributes&gt; {
+    <span class="kw">let </span>attributes = parse_container_attributes(<span class="kw-2">&amp;</span>input.attrs)<span class="question-mark">?</span>;
 
     <span class="macro">assert_attribute!</span>(
-        <span class="op">!</span><span class="ident">attributes</span>.<span class="ident">transparent</span>,
+        !attributes.transparent,
         <span class="string">&quot;unexpected #[sqlx(transparent)]&quot;</span>,
-        <span class="ident">input</span>
+        input
     );
 
-    <span class="prelude-val">Ok</span>(<span class="ident">attributes</span>)
+    <span class="prelude-val">Ok</span>(attributes)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_weak_enum_attributes</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">variants</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Variant</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">SqlxContainerAttributes</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">check_enum_attributes</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+<span class="kw">pub fn </span>check_weak_enum_attributes(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    variants: <span class="kw-2">&amp;</span>Punctuated&lt;Variant, Comma&gt;,
+) -&gt; syn::Result&lt;SqlxContainerAttributes&gt; {
+    <span class="kw">let </span>attributes = check_enum_attributes(input)<span class="question-mark">?</span>;
 
-    <span class="macro">assert_attribute!</span>(<span class="ident">attributes</span>.<span class="ident">repr</span>.<span class="ident">is_some</span>(), <span class="string">&quot;expected #[repr(..)]&quot;</span>, <span class="ident">input</span>);
+    <span class="macro">assert_attribute!</span>(attributes.repr.is_some(), <span class="string">&quot;expected #[repr(..)]&quot;</span>, input);
 
     <span class="macro">assert_attribute!</span>(
-        <span class="ident">attributes</span>.<span class="ident">rename_all</span>.<span class="ident">is_none</span>(),
+        attributes.rename_all.is_none(),
         <span class="string">&quot;unexpected #[sqlx(c = ..)]&quot;</span>,
-        <span class="ident">input</span>
+        input
     );
 
-    <span class="kw">for</span> <span class="ident">variant</span> <span class="kw">in</span> <span class="ident">variants</span> {
-        <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">parse_child_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+    <span class="kw">for </span>variant <span class="kw">in </span>variants {
+        <span class="kw">let </span>attributes = parse_child_attributes(<span class="kw-2">&amp;</span>variant.attrs)<span class="question-mark">?</span>;
 
         <span class="macro">assert_attribute!</span>(
-            <span class="ident">attributes</span>.<span class="ident">rename</span>.<span class="ident">is_none</span>(),
+            attributes.rename.is_none(),
             <span class="string">&quot;unexpected #[sqlx(rename = ..)]&quot;</span>,
-            <span class="ident">variant</span>
+            variant
         );
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">attributes</span>)
+    <span class="prelude-val">Ok</span>(attributes)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_strong_enum_attributes</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">_variants</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Variant</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">SqlxContainerAttributes</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">check_enum_attributes</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+<span class="kw">pub fn </span>check_strong_enum_attributes(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    _variants: <span class="kw-2">&amp;</span>Punctuated&lt;Variant, Comma&gt;,
+) -&gt; syn::Result&lt;SqlxContainerAttributes&gt; {
+    <span class="kw">let </span>attributes = check_enum_attributes(input)<span class="question-mark">?</span>;
 
-    <span class="macro">assert_attribute!</span>(<span class="ident">attributes</span>.<span class="ident">repr</span>.<span class="ident">is_none</span>(), <span class="string">&quot;unexpected #[repr(..)]&quot;</span>, <span class="ident">input</span>);
+    <span class="macro">assert_attribute!</span>(attributes.repr.is_none(), <span class="string">&quot;unexpected #[repr(..)]&quot;</span>, input);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">attributes</span>)
+    <span class="prelude-val">Ok</span>(attributes)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_struct_attributes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DeriveInput</span>,
-    <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Field</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">SqlxContainerAttributes</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">parse_container_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+<span class="kw">pub fn </span>check_struct_attributes&lt;<span class="lifetime">&#39;a</span>&gt;(
+    input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DeriveInput,
+    fields: <span class="kw-2">&amp;</span>Punctuated&lt;Field, Comma&gt;,
+) -&gt; syn::Result&lt;SqlxContainerAttributes&gt; {
+    <span class="kw">let </span>attributes = parse_container_attributes(<span class="kw-2">&amp;</span>input.attrs)<span class="question-mark">?</span>;
 
     <span class="macro">assert_attribute!</span>(
-        <span class="op">!</span><span class="ident">attributes</span>.<span class="ident">transparent</span>,
+        !attributes.transparent,
         <span class="string">&quot;unexpected #[sqlx(transparent)]&quot;</span>,
-        <span class="ident">input</span>
+        input
     );
 
     <span class="macro">assert_attribute!</span>(
-        <span class="ident">attributes</span>.<span class="ident">rename_all</span>.<span class="ident">is_none</span>(),
+        attributes.rename_all.is_none(),
         <span class="string">&quot;unexpected #[sqlx(rename_all = ..)]&quot;</span>,
-        <span class="ident">input</span>
+        input
     );
 
-    <span class="macro">assert_attribute!</span>(<span class="ident">attributes</span>.<span class="ident">repr</span>.<span class="ident">is_none</span>(), <span class="string">&quot;unexpected #[repr(..)]&quot;</span>, <span class="ident">input</span>);
+    <span class="macro">assert_attribute!</span>(attributes.repr.is_none(), <span class="string">&quot;unexpected #[repr(..)]&quot;</span>, input);
 
-    <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="ident">fields</span> {
-        <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">parse_child_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+    <span class="kw">for </span>field <span class="kw">in </span>fields {
+        <span class="kw">let </span>attributes = parse_child_attributes(<span class="kw-2">&amp;</span>field.attrs)<span class="question-mark">?</span>;
 
         <span class="macro">assert_attribute!</span>(
-            <span class="ident">attributes</span>.<span class="ident">rename</span>.<span class="ident">is_none</span>(),
+            attributes.rename.is_none(),
             <span class="string">&quot;unexpected #[sqlx(rename = ..)]&quot;</span>,
-            <span class="ident">field</span>
+            field
         );
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">attributes</span>)
+    <span class="prelude-val">Ok</span>(attributes)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

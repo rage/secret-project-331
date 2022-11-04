@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cipher-0.4.3/src/stream_wrapper.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stream_wrapper.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cipher/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cipher/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cipher-0.4.3/src/stream_wrapper.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stream_wrapper.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cipher/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cipher/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cipher/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -239,244 +239,244 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">errors::StreamCipherError</span>, <span class="ident">Block</span>, <span class="ident">OverflowError</span>, <span class="ident">SeekNum</span>, <span class="ident">StreamCipher</span>, <span class="ident">StreamCipherCore</span>,
-    <span class="ident">StreamCipherSeek</span>, <span class="ident">StreamCipherSeekCore</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    errors::StreamCipherError, Block, OverflowError, SeekNum, StreamCipher, StreamCipherCore,
+    StreamCipherSeek, StreamCipherSeekCore,
 };
-<span class="kw">use</span> <span class="ident">crypto_common</span>::{
-    <span class="ident">typenum</span>::{<span class="ident">IsLess</span>, <span class="ident">Le</span>, <span class="ident">NonZero</span>, <span class="ident">Unsigned</span>, <span class="ident">U256</span>},
-    <span class="ident">BlockSizeUser</span>, <span class="ident">Iv</span>, <span class="ident">IvSizeUser</span>, <span class="ident">Key</span>, <span class="ident">KeyInit</span>, <span class="ident">KeyIvInit</span>, <span class="ident">KeySizeUser</span>,
+<span class="kw">use </span>crypto_common::{
+    typenum::{IsLess, Le, NonZero, Unsigned, U256},
+    BlockSizeUser, Iv, IvSizeUser, Key, KeyInit, KeyIvInit, KeySizeUser,
 };
-<span class="kw">use</span> <span class="ident">inout::InOutBuf</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">zeroize</span>::{<span class="ident">Zeroize</span>, <span class="ident">ZeroizeOnDrop</span>};
+<span class="kw">use </span>inout::InOutBuf;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">use </span>zeroize::{Zeroize, ZeroizeOnDrop};
 
-<span class="doccomment">/// Wrapper around [`StreamCipherCore`] implementations.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// It handles data buffering and implements the slice-based traits.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">BlockSizeUser</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+<span class="doccomment">/// Wrapper around [`StreamCipherCore`] implementations.
+///
+/// It handles data buffering and implements the slice-based traits.
+</span><span class="attribute">#[derive(Clone, Default)]
+</span><span class="kw">pub struct </span>StreamCipherCoreWrapper&lt;T: BlockSizeUser&gt;
+<span class="kw">where
+    </span>T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
-    <span class="ident">core</span>: <span class="ident">T</span>,
-    <span class="ident">buffer</span>: <span class="ident">Block</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">pos</span>: <span class="ident">u8</span>,
+    core: T,
+    buffer: Block&lt;T&gt;,
+    pos: u8,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">StreamCipherCore</span><span class="op">&gt;</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+<span class="kw">impl</span>&lt;T: StreamCipherCore&gt; StreamCipherCoreWrapper&lt;T&gt;
+<span class="kw">where
+    </span>T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
-    <span class="doccomment">/// Return reference to the core type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_core</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">core</span>
+    <span class="doccomment">/// Return reference to the core type.
+    </span><span class="kw">pub fn </span>get_core(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.core
     }
 
-    <span class="doccomment">/// Return reference to the core type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_core</span>(<span class="ident">core</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">core</span>,
-            <span class="ident">buffer</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">pos</span>: <span class="number">0</span>,
+    <span class="doccomment">/// Return reference to the core type.
+    </span><span class="kw">pub fn </span>from_core(core: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            core,
+            buffer: Default::default(),
+            pos: <span class="number">0</span>,
         }
     }
 
-    <span class="doccomment">/// Return current cursor position.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">get_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pos</span> <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">if</span> <span class="ident">pos</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">T::BlockSize::USIZE</span> {
+    <span class="doccomment">/// Return current cursor position.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>get_pos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">let </span>pos = <span class="self">self</span>.pos <span class="kw">as </span>usize;
+        <span class="kw">if </span>pos &gt;= T::BlockSize::USIZE {
             <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>);
-            <span class="comment">// SAFETY: `pos` is set only to values smaller than block size</span>
-            <span class="kw">unsafe</span> { <span class="ident">core::hint::unreachable_unchecked</span>() }
+            <span class="comment">// SAFETY: `pos` is set only to values smaller than block size
+            </span><span class="kw">unsafe </span>{ core::hint::unreachable_unchecked() }
         }
-        <span class="self">self</span>.<span class="ident">pos</span> <span class="kw">as</span> <span class="ident">usize</span>
+        <span class="self">self</span>.pos <span class="kw">as </span>usize
     }
 
-    <span class="doccomment">/// Return size of the internall buffer in bytes.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="ident">T::BlockSize::USIZE</span>
+    <span class="doccomment">/// Return size of the internall buffer in bytes.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        T::BlockSize::USIZE
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">set_pos_unchecked</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">usize</span>) {
-        <span class="macro">debug_assert!</span>(<span class="ident">pos</span> <span class="op">&lt;</span> <span class="ident">T::BlockSize::USIZE</span>);
-        <span class="self">self</span>.<span class="ident">pos</span> <span class="op">=</span> <span class="ident">pos</span> <span class="kw">as</span> <span class="ident">u8</span>;
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>set_pos_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pos: usize) {
+        <span class="macro">debug_assert!</span>(pos &lt; T::BlockSize::USIZE);
+        <span class="self">self</span>.pos = pos <span class="kw">as </span>u8;
     }
 
-    <span class="doccomment">/// Return number of remaining bytes in the internall buffer.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">remaining</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">size</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">get_pos</span>()
+    <span class="doccomment">/// Return number of remaining bytes in the internall buffer.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>remaining(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.size() - <span class="self">self</span>.get_pos()
     }
 
-    <span class="kw">fn</span> <span class="ident">check_remaining</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dlen</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">StreamCipherError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">rem_blocks</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">core</span>.<span class="ident">remaining_blocks</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+    <span class="kw">fn </span>check_remaining(<span class="kw-2">&amp;</span><span class="self">self</span>, dlen: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), StreamCipherError&gt; {
+        <span class="kw">let </span>rem_blocks = <span class="kw">match </span><span class="self">self</span>.core.remaining_blocks() {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
         };
 
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pos</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="ident">dlen</span>
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">rem</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">remaining</span>();
-            <span class="kw">if</span> <span class="ident">dlen</span> <span class="op">&gt;</span> <span class="ident">rem</span> {
-                <span class="ident">dlen</span> <span class="op">-</span> <span class="ident">rem</span>
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        <span class="kw">let </span>bytes = <span class="kw">if </span><span class="self">self</span>.pos == <span class="number">0 </span>{
+            dlen
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>rem = <span class="self">self</span>.remaining();
+            <span class="kw">if </span>dlen &gt; rem {
+                dlen - rem
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
             }
         };
-        <span class="kw">let</span> <span class="ident">bs</span> <span class="op">=</span> <span class="ident">T::BlockSize::USIZE</span>;
-        <span class="kw">let</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">bytes</span> <span class="op">%</span> <span class="ident">bs</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="ident">bytes</span> <span class="op">/</span> <span class="ident">bs</span>
-        } <span class="kw">else</span> {
-            <span class="ident">bytes</span> <span class="op">/</span> <span class="ident">bs</span> <span class="op">+</span> <span class="number">1</span>
-        };
-        <span class="kw">if</span> <span class="ident">blocks</span> <span class="op">&gt;</span> <span class="ident">rem_blocks</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">StreamCipherError</span>)
-        } <span class="kw">else</span> {
+        <span class="kw">let </span>bs = T::BlockSize::USIZE;
+        <span class="kw">let </span>blocks = <span class="kw">if </span>bytes % bs == <span class="number">0 </span>{
+            bytes / bs
+        } <span class="kw">else </span>{
+            bytes / bs + <span class="number">1
+        </span>};
+        <span class="kw">if </span>blocks &gt; rem_blocks {
+            <span class="prelude-val">Err</span>(StreamCipherError)
+        } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(())
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">StreamCipherCore</span><span class="op">&gt;</span> <span class="ident">StreamCipher</span> <span class="kw">for</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+<span class="kw">impl</span>&lt;T: StreamCipherCore&gt; StreamCipher <span class="kw">for </span>StreamCipherCoreWrapper&lt;T&gt;
+<span class="kw">where
+    </span>T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_apply_keystream_inout</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="kw-2">mut</span> <span class="ident">data</span>: <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">u8</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">StreamCipherError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">check_remaining</span>(<span class="ident">data</span>.<span class="ident">len</span>())<span class="question-mark">?</span>;
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_apply_keystream_inout(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        <span class="kw-2">mut </span>data: InOutBuf&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, u8&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), StreamCipherError&gt; {
+        <span class="self">self</span>.check_remaining(data.len())<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_pos</span>();
-        <span class="kw">if</span> <span class="ident">pos</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="kw">let</span> <span class="ident">rem</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>[<span class="ident">pos</span>..];
-            <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>();
-            <span class="kw">if</span> <span class="ident">n</span> <span class="op">&lt;</span> <span class="ident">rem</span>.<span class="ident">len</span>() {
-                <span class="ident">data</span>.<span class="ident">xor_in2out</span>(<span class="kw-2">&amp;</span><span class="ident">rem</span>[..<span class="ident">n</span>]);
-                <span class="self">self</span>.<span class="ident">set_pos_unchecked</span>(<span class="ident">pos</span> <span class="op">+</span> <span class="ident">n</span>);
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        <span class="kw">let </span>pos = <span class="self">self</span>.get_pos();
+        <span class="kw">if </span>pos != <span class="number">0 </span>{
+            <span class="kw">let </span>rem = <span class="kw-2">&amp;</span><span class="self">self</span>.buffer[pos..];
+            <span class="kw">let </span>n = data.len();
+            <span class="kw">if </span>n &lt; rem.len() {
+                data.xor_in2out(<span class="kw-2">&amp;</span>rem[..n]);
+                <span class="self">self</span>.set_pos_unchecked(pos + n);
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
             }
-            <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">split_at</span>(<span class="ident">rem</span>.<span class="ident">len</span>());
-            <span class="ident">data</span> <span class="op">=</span> <span class="ident">right</span>;
-            <span class="ident">left</span>.<span class="ident">xor_in2out</span>(<span class="ident">rem</span>);
+            <span class="kw">let </span>(<span class="kw-2">mut </span>left, right) = data.split_at(rem.len());
+            data = right;
+            left.xor_in2out(rem);
         }
 
-        <span class="kw">let</span> (<span class="ident">blocks</span>, <span class="kw-2">mut</span> <span class="ident">leftover</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">into_chunks</span>();
-        <span class="self">self</span>.<span class="ident">core</span>.<span class="ident">apply_keystream_blocks_inout</span>(<span class="ident">blocks</span>);
+        <span class="kw">let </span>(blocks, <span class="kw-2">mut </span>leftover) = data.into_chunks();
+        <span class="self">self</span>.core.apply_keystream_blocks_inout(blocks);
 
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">leftover</span>.<span class="ident">len</span>();
-        <span class="kw">if</span> <span class="ident">n</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">core</span>.<span class="ident">write_keystream_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buffer</span>);
-            <span class="ident">leftover</span>.<span class="ident">xor_in2out</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>[..<span class="ident">n</span>]);
+        <span class="kw">let </span>n = leftover.len();
+        <span class="kw">if </span>n != <span class="number">0 </span>{
+            <span class="self">self</span>.core.write_keystream_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer);
+            leftover.xor_in2out(<span class="kw-2">&amp;</span><span class="self">self</span>.buffer[..n]);
         }
-        <span class="self">self</span>.<span class="ident">set_pos_unchecked</span>(<span class="ident">n</span>);
+        <span class="self">self</span>.set_pos_unchecked(n);
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">StreamCipherSeekCore</span><span class="op">&gt;</span> <span class="ident">StreamCipherSeek</span> <span class="kw">for</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+<span class="kw">impl</span>&lt;T: StreamCipherSeekCore&gt; StreamCipherSeek <span class="kw">for </span>StreamCipherCoreWrapper&lt;T&gt;
+<span class="kw">where
+    </span>T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
-    <span class="kw">fn</span> <span class="ident">try_current_pos</span><span class="op">&lt;</span><span class="ident">SN</span>: <span class="ident">SeekNum</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SN</span>, <span class="ident">OverflowError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="self">Self</span> { <span class="ident">core</span>, <span class="ident">pos</span>, .. } <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">SN::from_block_byte</span>(<span class="ident">core</span>.<span class="ident">get_block_pos</span>(), <span class="kw-2">*</span><span class="ident">pos</span>, <span class="ident">T::BlockSize::U8</span>)
+    <span class="kw">fn </span>try_current_pos&lt;SN: SeekNum&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SN, OverflowError&gt; {
+        <span class="kw">let </span><span class="self">Self </span>{ core, pos, .. } = <span class="self">self</span>;
+        SN::from_block_byte(core.get_block_pos(), <span class="kw-2">*</span>pos, T::BlockSize::U8)
     }
 
-    <span class="kw">fn</span> <span class="ident">try_seek</span><span class="op">&lt;</span><span class="ident">SN</span>: <span class="ident">SeekNum</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_pos</span>: <span class="ident">SN</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">StreamCipherError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="self">Self</span> { <span class="ident">core</span>, <span class="ident">buffer</span>, <span class="ident">pos</span> } <span class="op">=</span> <span class="self">self</span>;
-        <span class="kw">let</span> (<span class="ident">block_pos</span>, <span class="ident">byte_pos</span>) <span class="op">=</span> <span class="ident">new_pos</span>.<span class="ident">into_block_byte</span>(<span class="ident">T::BlockSize::U8</span>)<span class="question-mark">?</span>;
-        <span class="ident">core</span>.<span class="ident">set_block_pos</span>(<span class="ident">block_pos</span>);
-        <span class="kw">if</span> <span class="ident">byte_pos</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">core</span>.<span class="ident">write_keystream_block</span>(<span class="ident">buffer</span>);
+    <span class="kw">fn </span>try_seek&lt;SN: SeekNum&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_pos: SN) -&gt; <span class="prelude-ty">Result</span>&lt;(), StreamCipherError&gt; {
+        <span class="kw">let </span><span class="self">Self </span>{ core, buffer, pos } = <span class="self">self</span>;
+        <span class="kw">let </span>(block_pos, byte_pos) = new_pos.into_block_byte(T::BlockSize::U8)<span class="question-mark">?</span>;
+        core.set_block_pos(block_pos);
+        <span class="kw">if </span>byte_pos != <span class="number">0 </span>{
+            <span class="self">self</span>.core.write_keystream_block(buffer);
         }
-        <span class="kw-2">*</span><span class="ident">pos</span> <span class="op">=</span> <span class="ident">byte_pos</span>;
+        <span class="kw-2">*</span>pos = byte_pos;
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="comment">// Note: ideally we would only implement the InitInner trait and everything</span>
-<span class="comment">// else would be handled by blanket impls, but unfortunately it will</span>
-<span class="comment">// not work properly without mutually exclusive traits, see:</span>
-<span class="comment">// https://github.com/rust-lang/rfcs/issues/1053</span>
+<span class="comment">// Note: ideally we would only implement the InitInner trait and everything
+// else would be handled by blanket impls, but unfortunately it will
+// not work properly without mutually exclusive traits, see:
+// https://github.com/rust-lang/rfcs/issues/1053
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">KeySizeUser</span> <span class="op">+</span> <span class="ident">BlockSizeUser</span><span class="op">&gt;</span> <span class="ident">KeySizeUser</span> <span class="kw">for</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+</span><span class="kw">impl</span>&lt;T: KeySizeUser + BlockSizeUser&gt; KeySizeUser <span class="kw">for </span>StreamCipherCoreWrapper&lt;T&gt;
+<span class="kw">where
+    </span>T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
-    <span class="kw">type</span> <span class="ident">KeySize</span> <span class="op">=</span> <span class="ident">T::KeySize</span>;
+    <span class="kw">type </span>KeySize = T::KeySize;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IvSizeUser</span> <span class="op">+</span> <span class="ident">BlockSizeUser</span><span class="op">&gt;</span> <span class="ident">IvSizeUser</span> <span class="kw">for</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+<span class="kw">impl</span>&lt;T: IvSizeUser + BlockSizeUser&gt; IvSizeUser <span class="kw">for </span>StreamCipherCoreWrapper&lt;T&gt;
+<span class="kw">where
+    </span>T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
-    <span class="kw">type</span> <span class="ident">IvSize</span> <span class="op">=</span> <span class="ident">T::IvSize</span>;
+    <span class="kw">type </span>IvSize = T::IvSize;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">KeyIvInit</span> <span class="op">+</span> <span class="ident">BlockSizeUser</span><span class="op">&gt;</span> <span class="ident">KeyIvInit</span> <span class="kw">for</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+<span class="kw">impl</span>&lt;T: KeyIvInit + BlockSizeUser&gt; KeyIvInit <span class="kw">for </span>StreamCipherCoreWrapper&lt;T&gt;
+<span class="kw">where
+    </span>T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">iv</span>: <span class="kw-2">&amp;</span><span class="ident">Iv</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">core</span>: <span class="ident">T::new</span>(<span class="ident">key</span>, <span class="ident">iv</span>),
-            <span class="ident">buffer</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">pos</span>: <span class="number">0</span>,
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>new(key: <span class="kw-2">&amp;</span>Key&lt;<span class="self">Self</span>&gt;, iv: <span class="kw-2">&amp;</span>Iv&lt;<span class="self">Self</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            core: T::new(key, iv),
+            buffer: Default::default(),
+            pos: <span class="number">0</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">KeyInit</span> <span class="op">+</span> <span class="ident">BlockSizeUser</span><span class="op">&gt;</span> <span class="ident">KeyInit</span> <span class="kw">for</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+<span class="kw">impl</span>&lt;T: KeyInit + BlockSizeUser&gt; KeyInit <span class="kw">for </span>StreamCipherCoreWrapper&lt;T&gt;
+<span class="kw">where
+    </span>T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">core</span>: <span class="ident">T::new</span>(<span class="ident">key</span>),
-            <span class="ident">buffer</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">pos</span>: <span class="number">0</span>,
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>new(key: <span class="kw-2">&amp;</span>Key&lt;<span class="self">Self</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            core: T::new(key),
+            buffer: Default::default(),
+            pos: <span class="number">0</span>,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">BlockSizeUser</span>,
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">impl</span>&lt;T&gt; Drop <span class="kw">for </span>StreamCipherCoreWrapper&lt;T&gt;
+<span class="kw">where
+    </span>T: BlockSizeUser,
+    T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">zeroize</span>();
-        <span class="self">self</span>.<span class="ident">pos</span>.<span class="ident">zeroize</span>();
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.buffer.zeroize();
+        <span class="self">self</span>.pos.zeroize();
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ZeroizeOnDrop</span> <span class="kw">for</span> <span class="ident">StreamCipherCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">BlockSizeUser</span> <span class="op">+</span> <span class="ident">ZeroizeOnDrop</span>,
-    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
-    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">impl</span>&lt;T&gt; ZeroizeOnDrop <span class="kw">for </span>StreamCipherCoreWrapper&lt;T&gt;
+<span class="kw">where
+    </span>T: BlockSizeUser + ZeroizeOnDrop,
+    T::BlockSize: IsLess&lt;U256&gt;,
+    Le&lt;T::BlockSize, U256&gt;: NonZero,
 {
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cipher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cipher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

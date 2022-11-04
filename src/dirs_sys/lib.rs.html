@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dirs-sys-0.3.7/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dirs_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dirs_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dirs_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dirs-sys-0.3.7/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dirs_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dirs_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dirs_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -214,221 +214,221 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::ffi::OsString;
+<span class="kw">use </span>std::path::PathBuf;
 
-<span class="comment">// we don&#39;t need to explicitly handle empty strings in the code above,</span>
-<span class="comment">// because an empty string is not considered to be a absolute path here.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_absolute_path</span>(<span class="ident">path</span>: <span class="ident">OsString</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">path</span>);
-    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_absolute</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">path</span>)
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    }
+<span class="comment">// we don&#39;t need to explicitly handle empty strings in the code above,
+// because an empty string is not considered to be a absolute path here.
+</span><span class="kw">pub fn </span>is_absolute_path(path: OsString) -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    <span class="kw">let </span>path = PathBuf::from(path);
+    <span class="kw">if </span>path.is_absolute() {
+        <span class="prelude-val">Some</span>(path)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)))]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">libc</span>;
+<span class="attribute">#[cfg(all(unix, not(target_os = <span class="string">&quot;redox&quot;</span>)))]
+</span><span class="kw">extern crate </span>libc;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)))]</span>
-<span class="kw">mod</span> <span class="ident">target_unix_not_redox</span> {
+<span class="attribute">#[cfg(all(unix, not(target_os = <span class="string">&quot;redox&quot;</span>)))]
+</span><span class="kw">mod </span>target_unix_not_redox {
 
-<span class="kw">use</span> <span class="ident">std::env</span>;
-<span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">CStr</span>, <span class="ident">OsString</span>};
-<span class="kw">use</span> <span class="ident">std::mem</span>;
-<span class="kw">use</span> <span class="ident">std::os::unix::ffi::OsStringExt</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
+<span class="kw">use </span>std::env;
+<span class="kw">use </span>std::ffi::{CStr, OsString};
+<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::os::unix::ffi::OsStringExt;
+<span class="kw">use </span>std::path::PathBuf;
+<span class="kw">use </span>std::ptr;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::libc</span>;
+<span class="kw">use </span><span class="kw">super</span>::libc;
 
-<span class="comment">// https://github.com/rust-lang/rust/blob/master/src/libstd/sys/unix/os.rs#L498</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">home_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">return</span> <span class="ident">env::var_os</span>(<span class="string">&quot;HOME&quot;</span>)
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">h</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">h</span>.<span class="ident">is_empty</span>() { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="ident">h</span>) })
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">unsafe</span> { <span class="ident">fallback</span>() })
-        .<span class="ident">map</span>(<span class="ident">PathBuf::from</span>);
+<span class="comment">// https://github.com/rust-lang/rust/blob/master/src/libstd/sys/unix/os.rs#L498
+</span><span class="kw">pub fn </span>home_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    <span class="kw">return </span>env::var_os(<span class="string">&quot;HOME&quot;</span>)
+        .and_then(|h| <span class="kw">if </span>h.is_empty() { <span class="prelude-val">None </span>} <span class="kw">else </span>{ <span class="prelude-val">Some</span>(h) })
+        .or_else(|| <span class="kw">unsafe </span>{ fallback() })
+        .map(PathBuf::from);
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;emscripten&quot;</span>))]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">fallback</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
-    }
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;emscripten&quot;</span>)))]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">fallback</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">amt</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">libc::sysconf</span>(<span class="ident">libc::_SC_GETPW_R_SIZE_MAX</span>) {
-            <span class="ident">n</span> <span class="kw">if</span> <span class="ident">n</span> <span class="op">&lt;</span> <span class="number">0</span> =&gt; <span class="number">512</span> <span class="kw">as</span> <span class="ident">usize</span>,
-            <span class="ident">n</span> =&gt; <span class="ident">n</span> <span class="kw">as</span> <span class="ident">usize</span>,
+    <span class="attribute">#[cfg(any(target_os = <span class="string">&quot;android&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>, target_os = <span class="string">&quot;emscripten&quot;</span>))]
+    </span><span class="kw">unsafe fn </span>fallback() -&gt; <span class="prelude-ty">Option</span>&lt;OsString&gt; {
+        <span class="prelude-val">None
+    </span>}
+    <span class="attribute">#[cfg(not(any(target_os = <span class="string">&quot;android&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>, target_os = <span class="string">&quot;emscripten&quot;</span>)))]
+    </span><span class="kw">unsafe fn </span>fallback() -&gt; <span class="prelude-ty">Option</span>&lt;OsString&gt; {
+        <span class="kw">let </span>amt = <span class="kw">match </span>libc::sysconf(libc::_SC_GETPW_R_SIZE_MAX) {
+            n <span class="kw">if </span>n &lt; <span class="number">0 </span>=&gt; <span class="number">512 </span><span class="kw">as </span>usize,
+            n =&gt; n <span class="kw">as </span>usize,
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">amt</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">passwd</span>: <span class="ident">libc::passwd</span> <span class="op">=</span> <span class="ident">mem::zeroed</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">match</span> <span class="ident">libc::getpwuid_r</span>(
-            <span class="ident">libc::getuid</span>(),
-            <span class="kw-2">&amp;mut</span> <span class="ident">passwd</span>,
-            <span class="ident">buf</span>.<span class="ident">as_mut_ptr</span>(),
-            <span class="ident">buf</span>.<span class="ident">capacity</span>(),
-            <span class="kw-2">&amp;mut</span> <span class="ident">result</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::with_capacity(amt);
+        <span class="kw">let </span><span class="kw-2">mut </span>passwd: libc::passwd = mem::zeroed();
+        <span class="kw">let </span><span class="kw-2">mut </span>result = ptr::null_mut();
+        <span class="kw">match </span>libc::getpwuid_r(
+            libc::getuid(),
+            <span class="kw-2">&amp;mut </span>passwd,
+            buf.as_mut_ptr(),
+            buf.capacity(),
+            <span class="kw-2">&amp;mut </span>result,
         ) {
-            <span class="number">0</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">result</span>.<span class="ident">is_null</span>() =&gt; {
-                <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">passwd</span>.<span class="ident">pw_dir</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span>;
-                <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">CStr::from_ptr</span>(<span class="ident">ptr</span>).<span class="ident">to_bytes</span>();
-                <span class="kw">if</span> <span class="ident">bytes</span>.<span class="ident">is_empty</span>() {
-                    <span class="prelude-val">None</span>
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">OsStringExt::from_vec</span>(<span class="ident">bytes</span>.<span class="ident">to_vec</span>()))
+            <span class="number">0 </span><span class="kw">if </span>!result.is_null() =&gt; {
+                <span class="kw">let </span>ptr = passwd.pw_dir <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>;
+                <span class="kw">let </span>bytes = CStr::from_ptr(ptr).to_bytes();
+                <span class="kw">if </span>bytes.is_empty() {
+                    <span class="prelude-val">None
+                </span>} <span class="kw">else </span>{
+                    <span class="prelude-val">Some</span>(OsStringExt::from_vec(bytes.to_vec()))
                 }
             }
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::target_unix_not_redox::home_dir</span>;
+<span class="attribute">#[cfg(all(unix, not(target_os = <span class="string">&quot;redox&quot;</span>)))]
+</span><span class="kw">pub use </span><span class="self">self</span>::target_unix_not_redox::home_dir;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">redox_users</span>;
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;redox&quot;</span>)]
+</span><span class="kw">extern crate </span>redox_users;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">target_redox</span> {
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;redox&quot;</span>)]
+</span><span class="kw">mod </span>target_redox {
 
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+<span class="kw">use </span>std::path::PathBuf;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::redox_users</span>::{<span class="ident">All</span>, <span class="ident">AllUsers</span>, <span class="ident">Config</span>};
+<span class="kw">use </span><span class="kw">super</span>::redox_users::{All, AllUsers, Config};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">home_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">current_uid</span> <span class="op">=</span> <span class="ident">redox_users::get_uid</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">users</span> <span class="op">=</span> <span class="ident">AllUsers::basic</span>(<span class="ident">Config::default</span>()).<span class="ident">ok</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">users</span>.<span class="ident">get_by_id</span>(<span class="ident">current_uid</span>)<span class="question-mark">?</span>;
+<span class="kw">pub fn </span>home_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    <span class="kw">let </span>current_uid = redox_users::get_uid().ok()<span class="question-mark">?</span>;
+    <span class="kw">let </span>users = AllUsers::basic(Config::default()).ok()<span class="question-mark">?</span>;
+    <span class="kw">let </span>user = users.get_by_id(current_uid)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Some</span>(<span class="ident">PathBuf::from</span>(<span class="ident">user</span>.<span class="ident">home</span>.<span class="ident">clone</span>()))
+    <span class="prelude-val">Some</span>(PathBuf::from(user.home.clone()))
 }
 
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::target_redox::home_dir</span>;
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;redox&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::target_redox::home_dir;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>))))]</span>
-<span class="kw">mod</span> <span class="ident">xdg_user_dirs</span>;
+<span class="attribute">#[cfg(all(unix, not(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))))]
+</span><span class="kw">mod </span>xdg_user_dirs;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>))))]</span>
-<span class="kw">mod</span> <span class="ident">target_unix_not_mac</span> {
+<span class="attribute">#[cfg(all(unix, not(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))))]
+</span><span class="kw">mod </span>target_unix_not_mac {
 
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
-<span class="kw">use</span> <span class="ident">std::env</span>;
-<span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
+<span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::env;
+<span class="kw">use </span>std::path::{Path, PathBuf};
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">home_dir</span>, <span class="ident">is_absolute_path</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::xdg_user_dirs</span>;
+<span class="kw">use super</span>::{home_dir, is_absolute_path};
+<span class="kw">use </span><span class="kw">super</span>::xdg_user_dirs;
 
-<span class="kw">fn</span> <span class="ident">user_dir_file</span>(<span class="ident">home_dir</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">PathBuf</span> {
-    <span class="ident">env::var_os</span>(<span class="string">&quot;XDG_CONFIG_HOME&quot;</span>).<span class="ident">and_then</span>(<span class="ident">is_absolute_path</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">home_dir</span>.<span class="ident">join</span>(<span class="string">&quot;.config&quot;</span>)).<span class="ident">join</span>(<span class="string">&quot;user-dirs.dirs&quot;</span>)
+<span class="kw">fn </span>user_dir_file(home_dir: <span class="kw-2">&amp;</span>Path) -&gt; PathBuf {
+    env::var_os(<span class="string">&quot;XDG_CONFIG_HOME&quot;</span>).and_then(is_absolute_path).unwrap_or_else(|| home_dir.join(<span class="string">&quot;.config&quot;</span>)).join(<span class="string">&quot;user-dirs.dirs&quot;</span>)
 }
 
-<span class="comment">// this could be optimized further to not create a map and instead retrieve the requested path only</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">user_dir</span>(<span class="ident">user_dir_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">home_dir</span>) <span class="op">=</span> <span class="ident">home_dir</span>() {
-        <span class="ident">xdg_user_dirs::single</span>(<span class="kw-2">&amp;</span><span class="ident">home_dir</span>, <span class="kw-2">&amp;</span><span class="ident">user_dir_file</span>(<span class="kw-2">&amp;</span><span class="ident">home_dir</span>), <span class="ident">user_dir_name</span>).<span class="ident">remove</span>(<span class="ident">user_dir_name</span>)
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
+<span class="comment">// this could be optimized further to not create a map and instead retrieve the requested path only
+</span><span class="kw">pub fn </span>user_dir(user_dir_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(home_dir) = home_dir() {
+        xdg_user_dirs::single(<span class="kw-2">&amp;</span>home_dir, <span class="kw-2">&amp;</span>user_dir_file(<span class="kw-2">&amp;</span>home_dir), user_dir_name).remove(user_dir_name)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>}
+}
+
+<span class="kw">pub fn </span>user_dirs(home_dir_path: <span class="kw-2">&amp;</span>Path) -&gt; HashMap&lt;String, PathBuf&gt; {
+    xdg_user_dirs::all(home_dir_path, <span class="kw-2">&amp;</span>user_dir_file(home_dir_path))
+}
+
+}
+
+<span class="attribute">#[cfg(all(unix, not(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))))]
+</span><span class="kw">pub use </span><span class="self">self</span>::target_unix_not_mac::{user_dir, user_dirs};
+
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)]
+</span><span class="kw">extern crate </span>winapi;
+
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)]
+</span><span class="kw">mod </span>target_windows {
+
+<span class="kw">use </span>std::ffi::OsString;
+<span class="kw">use </span>std::os::windows::ffi::OsStringExt;
+<span class="kw">use </span>std::path::PathBuf;
+<span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::slice;
+
+<span class="kw">use </span><span class="kw">super</span>::winapi;
+<span class="kw">use </span><span class="kw">super</span>::winapi::shared::winerror;
+<span class="kw">use </span><span class="kw">super</span>::winapi::um::{combaseapi, knownfolders, shlobj, shtypes, winbase, winnt};
+
+<span class="kw">pub fn </span>known_folder(folder_id: shtypes::REFKNOWNFOLDERID) -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    <span class="kw">unsafe </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>path_ptr: winnt::PWSTR = ptr::null_mut();
+        <span class="kw">let </span>result = shlobj::SHGetKnownFolderPath(folder_id, <span class="number">0</span>, ptr::null_mut(), <span class="kw-2">&amp;mut </span>path_ptr);
+        <span class="kw">if </span>result == winerror::S_OK {
+            <span class="kw">let </span>len = winbase::lstrlenW(path_ptr) <span class="kw">as </span>usize;
+            <span class="kw">let </span>path = slice::from_raw_parts(path_ptr, len);
+            <span class="kw">let </span>ostr: OsString = OsStringExt::from_wide(path);
+            combaseapi::CoTaskMemFree(path_ptr <span class="kw">as </span><span class="kw-2">*mut </span>winapi::ctypes::c_void);
+            <span class="prelude-val">Some</span>(PathBuf::from(ostr))
+        } <span class="kw">else </span>{
+            combaseapi::CoTaskMemFree(path_ptr <span class="kw">as </span><span class="kw-2">*mut </span>winapi::ctypes::c_void);
+            <span class="prelude-val">None
+        </span>}
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">user_dirs</span>(<span class="ident">home_dir_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">xdg_user_dirs::all</span>(<span class="ident">home_dir_path</span>, <span class="kw-2">&amp;</span><span class="ident">user_dir_file</span>(<span class="ident">home_dir_path</span>))
+<span class="kw">pub fn </span>known_folder_profile() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_Profile)
+}
+
+<span class="kw">pub fn </span>known_folder_roaming_app_data() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_RoamingAppData)
+}
+
+<span class="kw">pub fn </span>known_folder_local_app_data() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_LocalAppData)
+}
+
+<span class="kw">pub fn </span>known_folder_music() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_Music)
+}
+
+<span class="kw">pub fn </span>known_folder_desktop() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_Desktop)
+}
+
+<span class="kw">pub fn </span>known_folder_documents() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_Documents)
+}
+
+<span class="kw">pub fn </span>known_folder_downloads() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_Downloads)
+}
+
+<span class="kw">pub fn </span>known_folder_pictures() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_Pictures)
+}
+
+<span class="kw">pub fn </span>known_folder_public() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_Public)
+}
+<span class="kw">pub fn </span>known_folder_templates() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_Templates)
+}
+<span class="kw">pub fn </span>known_folder_videos() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    known_folder(<span class="kw-2">&amp;</span>knownfolders::FOLDERID_Videos)
 }
 
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>))))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::target_unix_not_mac</span>::{<span class="ident">user_dir</span>, <span class="ident">user_dirs</span>};
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">winapi</span>;
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">target_windows</span> {
-
-<span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
-<span class="kw">use</span> <span class="ident">std::os::windows::ffi::OsStringExt</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
-<span class="kw">use</span> <span class="ident">std::slice</span>;
-
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::winapi</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::winapi::shared::winerror</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::winapi::um</span>::{<span class="ident">combaseapi</span>, <span class="ident">knownfolders</span>, <span class="ident">shlobj</span>, <span class="ident">shtypes</span>, <span class="ident">winbase</span>, <span class="ident">winnt</span>};
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder</span>(<span class="ident">folder_id</span>: <span class="ident">shtypes::REFKNOWNFOLDERID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path_ptr</span>: <span class="ident">winnt::PWSTR</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">shlobj::SHGetKnownFolderPath</span>(<span class="ident">folder_id</span>, <span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">path_ptr</span>);
-        <span class="kw">if</span> <span class="ident">result</span> <span class="op">==</span> <span class="ident">winerror::S_OK</span> {
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">winbase::lstrlenW</span>(<span class="ident">path_ptr</span>) <span class="kw">as</span> <span class="ident">usize</span>;
-            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">slice::from_raw_parts</span>(<span class="ident">path_ptr</span>, <span class="ident">len</span>);
-            <span class="kw">let</span> <span class="ident">ostr</span>: <span class="ident">OsString</span> <span class="op">=</span> <span class="ident">OsStringExt::from_wide</span>(<span class="ident">path</span>);
-            <span class="ident">combaseapi::CoTaskMemFree</span>(<span class="ident">path_ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">winapi::ctypes::c_void</span>);
-            <span class="prelude-val">Some</span>(<span class="ident">PathBuf::from</span>(<span class="ident">ostr</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">combaseapi::CoTaskMemFree</span>(<span class="ident">path_ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">winapi::ctypes::c_void</span>);
-            <span class="prelude-val">None</span>
-        }
-    }
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_profile</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_Profile</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_roaming_app_data</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_RoamingAppData</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_local_app_data</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_LocalAppData</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_music</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_Music</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_desktop</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_Desktop</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_documents</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_Documents</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_downloads</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_Downloads</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_pictures</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_Pictures</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_public</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_Public</span>)
-}
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_templates</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_Templates</span>)
-}
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">known_folder_videos</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">known_folder</span>(<span class="kw-2">&amp;</span><span class="ident">knownfolders::FOLDERID_Videos</span>)
-}
-
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::target_windows</span>::{
-    <span class="ident">known_folder</span>, <span class="ident">known_folder_profile</span>, <span class="ident">known_folder_roaming_app_data</span>, <span class="ident">known_folder_local_app_data</span>,
-    <span class="ident">known_folder_music</span>, <span class="ident">known_folder_desktop</span>, <span class="ident">known_folder_documents</span>, <span class="ident">known_folder_downloads</span>,
-    <span class="ident">known_folder_pictures</span>, <span class="ident">known_folder_public</span>, <span class="ident">known_folder_templates</span>, <span class="ident">known_folder_videos</span>
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::target_windows::{
+    known_folder, known_folder_profile, known_folder_roaming_app_data, known_folder_local_app_data,
+    known_folder_music, known_folder_desktop, known_folder_documents, known_folder_downloads,
+    known_folder_pictures, known_folder_public, known_folder_templates, known_folder_videos
 };
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dirs_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dirs_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

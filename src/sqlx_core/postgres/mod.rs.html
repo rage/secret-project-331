@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -63,70 +63,70 @@
 <span id="63">63</span>
 <span id="64">64</span>
 <span id="65">65</span>
-</pre><pre class="rust"><code><span class="doccomment">//! **PostgreSQL** database driver.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! **PostgreSQL** database driver.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::executor::Executor</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::executor::Executor;
 
-<span class="kw">mod</span> <span class="ident">advisory_lock</span>;
-<span class="kw">mod</span> <span class="ident">arguments</span>;
-<span class="kw">mod</span> <span class="ident">column</span>;
-<span class="kw">mod</span> <span class="ident">connection</span>;
-<span class="kw">mod</span> <span class="ident">copy</span>;
-<span class="kw">mod</span> <span class="ident">database</span>;
-<span class="kw">mod</span> <span class="ident">error</span>;
-<span class="kw">mod</span> <span class="ident">io</span>;
-<span class="kw">mod</span> <span class="ident">listener</span>;
-<span class="kw">mod</span> <span class="ident">message</span>;
-<span class="kw">mod</span> <span class="ident">options</span>;
-<span class="kw">mod</span> <span class="ident">query_result</span>;
-<span class="kw">mod</span> <span class="ident">row</span>;
-<span class="kw">mod</span> <span class="ident">statement</span>;
-<span class="kw">mod</span> <span class="ident">transaction</span>;
-<span class="kw">mod</span> <span class="ident">type_info</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">types</span>;
-<span class="kw">mod</span> <span class="ident">value</span>;
+<span class="kw">mod </span>advisory_lock;
+<span class="kw">mod </span>arguments;
+<span class="kw">mod </span>column;
+<span class="kw">mod </span>connection;
+<span class="kw">mod </span>copy;
+<span class="kw">mod </span>database;
+<span class="kw">mod </span>error;
+<span class="kw">mod </span>io;
+<span class="kw">mod </span>listener;
+<span class="kw">mod </span>message;
+<span class="kw">mod </span>options;
+<span class="kw">mod </span>query_result;
+<span class="kw">mod </span>row;
+<span class="kw">mod </span>statement;
+<span class="kw">mod </span>transaction;
+<span class="kw">mod </span>type_info;
+<span class="kw">pub mod </span>types;
+<span class="kw">mod </span>value;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">migrate</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+</span><span class="kw">mod </span>migrate;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">testing</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+</span><span class="kw">mod </span>testing;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">advisory_lock</span>::{<span class="ident">PgAdvisoryLock</span>, <span class="ident">PgAdvisoryLockGuard</span>, <span class="ident">PgAdvisoryLockKey</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">arguments</span>::{<span class="ident">PgArgumentBuffer</span>, <span class="ident">PgArguments</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">column::PgColumn</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">connection::PgConnection</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">copy::PgCopyIn</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">database::Postgres</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::{<span class="ident">PgDatabaseError</span>, <span class="ident">PgErrorPosition</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">listener</span>::{<span class="ident">PgListener</span>, <span class="ident">PgNotification</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">message::PgSeverity</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">options</span>::{<span class="ident">PgConnectOptions</span>, <span class="ident">PgSslMode</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">query_result::PgQueryResult</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">row::PgRow</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">statement::PgStatement</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">transaction::PgTransactionManager</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">type_info</span>::{<span class="ident">PgTypeInfo</span>, <span class="ident">PgTypeKind</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">types::PgHasArrayType</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">value</span>::{<span class="ident">PgValue</span>, <span class="ident">PgValueFormat</span>, <span class="ident">PgValueRef</span>};
+<span class="kw">pub use </span>advisory_lock::{PgAdvisoryLock, PgAdvisoryLockGuard, PgAdvisoryLockKey};
+<span class="kw">pub use </span>arguments::{PgArgumentBuffer, PgArguments};
+<span class="kw">pub use </span>column::PgColumn;
+<span class="kw">pub use </span>connection::PgConnection;
+<span class="kw">pub use </span>copy::PgCopyIn;
+<span class="kw">pub use </span>database::Postgres;
+<span class="kw">pub use </span>error::{PgDatabaseError, PgErrorPosition};
+<span class="kw">pub use </span>listener::{PgListener, PgNotification};
+<span class="kw">pub use </span>message::PgSeverity;
+<span class="kw">pub use </span>options::{PgConnectOptions, PgSslMode};
+<span class="kw">pub use </span>query_result::PgQueryResult;
+<span class="kw">pub use </span>row::PgRow;
+<span class="kw">pub use </span>statement::PgStatement;
+<span class="kw">pub use </span>transaction::PgTransactionManager;
+<span class="kw">pub use </span>type_info::{PgTypeInfo, PgTypeKind};
+<span class="kw">pub use </span>types::PgHasArrayType;
+<span class="kw">pub use </span>value::{PgValue, PgValueFormat, PgValueRef};
 
-<span class="doccomment">/// An alias for [`Pool`][crate::pool::Pool], specialized for Postgres.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PgPool</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pool::Pool</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span>;
+<span class="doccomment">/// An alias for [`Pool`][crate::pool::Pool], specialized for Postgres.
+</span><span class="kw">pub type </span>PgPool = <span class="kw">crate</span>::pool::Pool&lt;Postgres&gt;;
 
-<span class="doccomment">/// An alias for [`PoolOptions`][crate::pool::PoolOptions], specialized for Postgres.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PgPoolOptions</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pool::PoolOptions</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span>;
+<span class="doccomment">/// An alias for [`PoolOptions`][crate::pool::PoolOptions], specialized for Postgres.
+</span><span class="kw">pub type </span>PgPoolOptions = <span class="kw">crate</span>::pool::PoolOptions&lt;Postgres&gt;;
 
-<span class="doccomment">/// An alias for [`Executor&lt;&#39;_, Database = Postgres&gt;`][Executor].</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PgExecutor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span>: <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident">Postgres</span><span class="op">&gt;</span> {}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">T</span>: <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PgExecutor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span> {}
+<span class="doccomment">/// An alias for [`Executor&lt;&#39;_, Database = Postgres&gt;`][Executor].
+</span><span class="kw">pub trait </span>PgExecutor&lt;<span class="lifetime">&#39;c</span>&gt;: Executor&lt;<span class="lifetime">&#39;c</span>, Database = Postgres&gt; {}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>, T: Executor&lt;<span class="lifetime">&#39;c</span>, Database = Postgres&gt;&gt; PgExecutor&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw">for </span>T {}
 
-<span class="macro">impl_into_arguments_for_arguments!</span>(<span class="ident">PgArguments</span>);
-<span class="macro">impl_executor_for_pool_connection!</span>(<span class="ident">Postgres</span>, <span class="ident">PgConnection</span>, <span class="ident">PgRow</span>);
-<span class="macro">impl_executor_for_transaction!</span>(<span class="ident">Postgres</span>, <span class="ident">PgRow</span>);
-<span class="macro">impl_acquire!</span>(<span class="ident">Postgres</span>, <span class="ident">PgConnection</span>);
-<span class="macro">impl_column_index_for_row!</span>(<span class="ident">PgRow</span>);
-<span class="macro">impl_column_index_for_statement!</span>(<span class="ident">PgStatement</span>);
-<span class="macro">impl_into_maybe_pool!</span>(<span class="ident">Postgres</span>, <span class="ident">PgConnection</span>);
-<span class="macro">impl_encode_for_option!</span>(<span class="ident">Postgres</span>);
+<span class="macro">impl_into_arguments_for_arguments!</span>(PgArguments);
+<span class="macro">impl_executor_for_pool_connection!</span>(Postgres, PgConnection, PgRow);
+<span class="macro">impl_executor_for_transaction!</span>(Postgres, PgRow);
+<span class="macro">impl_acquire!</span>(Postgres, PgConnection);
+<span class="macro">impl_column_index_for_row!</span>(PgRow);
+<span class="macro">impl_column_index_for_statement!</span>(PgStatement);
+<span class="macro">impl_into_maybe_pool!</span>(Postgres, PgConnection);
+<span class="macro">impl_encode_for_option!</span>(Postgres);
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/prior_eval.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>prior_eval.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/prior_eval.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>prior_eval.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -692,179 +692,179 @@
 <span id="692">692</span>
 <span id="693">693</span>
 <span id="694">694</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">core</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::alloc</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::alloc</span>::{<span class="ident">SliceWrapper</span>, <span class="ident">SliceWrapperMut</span>, <span class="ident">Allocator</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::interface</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::backward_references::BrotliEncoderParams</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::input_pair</span>::{<span class="ident">InputPair</span>, <span class="ident">InputReference</span>, <span class="ident">InputReferenceMut</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ir_interpret</span>::{<span class="ident">IRInterpreter</span>, <span class="ident">push_base</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::util</span>::{<span class="ident">floatX</span>, <span class="ident">FastLog2u16</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::find_stride</span>;
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">s16</span>, <span class="ident">v8</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;simd&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">packed_simd_2::IntoBits</span>;
-<span class="comment">// the high nibble, followed by the low nibbles</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CONTEXT_MAP_PRIOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">256</span> <span class="op">*</span> <span class="number">17</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">STRIDE_PRIOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">256</span> <span class="op">*</span> <span class="number">256</span> <span class="op">*</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ADV_PRIOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">65536</span> <span class="op">+</span> (<span class="number">20</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>);
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DEFAULT_SPEED</span>: (<span class="ident">u16</span>, <span class="ident">u16</span>) <span class="op">=</span> (<span class="number">8</span>, <span class="number">8192</span>);
+</pre><pre class="rust"><code><span class="kw">use </span>core;
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc;
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::{SliceWrapper, SliceWrapperMut, Allocator};
+<span class="kw">use </span><span class="kw">super</span>::interface;
+<span class="kw">use </span><span class="kw">super</span>::backward_references::BrotliEncoderParams;
+<span class="kw">use </span><span class="kw">super</span>::input_pair::{InputPair, InputReference, InputReferenceMut};
+<span class="kw">use </span><span class="kw">super</span>::ir_interpret::{IRInterpreter, push_base};
+<span class="kw">use </span><span class="kw">super</span>::util::{floatX, FastLog2u16};
+<span class="kw">use </span><span class="kw">super</span>::find_stride;
+<span class="kw">use super</span>::{s16, v8};
+<span class="attribute">#[cfg(feature=<span class="string">&quot;simd&quot;</span>)]
+</span><span class="kw">use </span>packed_simd_2::IntoBits;
+<span class="comment">// the high nibble, followed by the low nibbles
+</span><span class="kw">pub const </span>CONTEXT_MAP_PRIOR_SIZE: usize = <span class="number">256 </span>* <span class="number">17</span>;
+<span class="kw">pub const </span>STRIDE_PRIOR_SIZE: usize = <span class="number">256 </span>* <span class="number">256 </span>* <span class="number">2</span>;
+<span class="kw">pub const </span>ADV_PRIOR_SIZE: usize = <span class="number">65536 </span>+ (<span class="number">20 </span>&lt;&lt; <span class="number">16</span>);
+<span class="kw">pub const </span>DEFAULT_SPEED: (u16, u16) = (<span class="number">8</span>, <span class="number">8192</span>);
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WhichPrior</span> {
-    <span class="ident">CM</span> <span class="op">=</span> <span class="number">0</span>,
-    <span class="ident">ADV</span> <span class="op">=</span> <span class="number">1</span>,
-    <span class="ident">SLOW_CM</span> <span class="op">=</span> <span class="number">2</span>,
-    <span class="ident">FAST_CM</span> <span class="op">=</span> <span class="number">3</span>,
-    <span class="ident">STRIDE1</span> <span class="op">=</span> <span class="number">4</span>,
-    <span class="ident">STRIDE2</span> <span class="op">=</span> <span class="number">5</span>,
-    <span class="ident">STRIDE3</span> <span class="op">=</span> <span class="number">6</span>,
-    <span class="ident">STRIDE4</span> <span class="op">=</span> <span class="number">7</span>,
-<span class="comment">//    STRIDE8 = 8,</span>
-    <span class="ident">NUM_PRIORS</span> <span class="op">=</span> <span class="number">8</span>,
-    <span class="comment">// future ideas</span>
-}
+<span class="kw">pub enum </span>WhichPrior {
+    CM = <span class="number">0</span>,
+    ADV = <span class="number">1</span>,
+    SLOW_CM = <span class="number">2</span>,
+    FAST_CM = <span class="number">3</span>,
+    STRIDE1 = <span class="number">4</span>,
+    STRIDE2 = <span class="number">5</span>,
+    STRIDE3 = <span class="number">6</span>,
+    STRIDE4 = <span class="number">7</span>,
+<span class="comment">//    STRIDE8 = 8,
+    </span>NUM_PRIORS = <span class="number">8</span>,
+    <span class="comment">// future ideas
+</span>}
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Prior</span> {
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span>;
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup_mut</span>(<span class="ident">data</span>:<span class="kw-2">&amp;mut</span> [<span class="ident">s16</span>], <span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">CDF</span> {
-        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::lookup_lin</span>(<span class="ident">stride_byte</span>, <span class="ident">selected_context</span>, <span class="ident">actual_context</span>,
-                             <span class="ident">high_nibble</span>);
-        <span class="ident">CDF::from</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>[<span class="ident">index</span>])
+<span class="kw">pub trait </span>Prior {
+    <span class="kw">fn </span>lookup_lin(stride_byte: u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize;
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>lookup_mut(data:<span class="kw-2">&amp;mut </span>[s16], stride_byte: u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; CDF {
+        <span class="kw">let </span>index = <span class="self">Self</span>::lookup_lin(stride_byte, selected_context, actual_context,
+                             high_nibble);
+        CDF::from(<span class="kw-2">&amp;mut </span>data[index])
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup</span>(<span class="ident">data</span>:<span class="kw-2">&amp;</span>[<span class="ident">s16</span>], <span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">s16</span> {
-        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::lookup_lin</span>(<span class="ident">stride_byte</span>, <span class="ident">selected_context</span>, <span class="ident">actual_context</span>,
-                             <span class="ident">high_nibble</span>);
-        <span class="kw-2">&amp;</span><span class="ident">data</span>[<span class="ident">index</span>]
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>lookup(data:<span class="kw-2">&amp;</span>[s16], stride_byte: u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; <span class="kw-2">&amp;</span>s16 {
+        <span class="kw">let </span>index = <span class="self">Self</span>::lookup_lin(stride_byte, selected_context, actual_context,
+                             high_nibble);
+        <span class="kw-2">&amp;</span>data[index]
     }
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">score_index</span>(<span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>: <span class="ident">u8</span>, <span class="ident">actual_context</span>: <span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="ident">which</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::which</span>();
-        <span class="macro">assert!</span>(<span class="ident">which</span> <span class="op">&lt;</span> <span class="ident">WhichPrior::NUM_PRIORS</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="macro">assert!</span>(<span class="ident">actual_context</span> <span class="op">&lt;</span> <span class="number">256</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">nibble</span>) <span class="op">=</span> <span class="ident">high_nibble</span> {
-            <span class="ident">WhichPrior::NUM_PRIORS</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> (<span class="ident">actual_context</span> <span class="op">+</span> <span class="number">4096</span> <span class="op">+</span> <span class="number">256</span> <span class="op">*</span> <span class="ident">nibble</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">+</span> <span class="ident">which</span>
-        } <span class="kw">else</span> {
-            <span class="ident">WhichPrior::NUM_PRIORS</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> (<span class="ident">actual_context</span> <span class="op">+</span> <span class="number">256</span> <span class="op">*</span> (<span class="ident">stride_byte</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>) <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">+</span> <span class="ident">which</span>
+    <span class="attribute">#[allow(unused_variables)]
+    #[inline(always)]
+    </span><span class="kw">fn </span>score_index(stride_byte: u8, selected_context: u8, actual_context: usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+        <span class="kw">let </span>which = <span class="self">Self</span>::which();
+        <span class="macro">assert!</span>(which &lt; WhichPrior::NUM_PRIORS <span class="kw">as </span>usize);
+        <span class="macro">assert!</span>(actual_context &lt; <span class="number">256</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(nibble) = high_nibble {
+            WhichPrior::NUM_PRIORS <span class="kw">as </span>usize * (actual_context + <span class="number">4096 </span>+ <span class="number">256 </span>* nibble <span class="kw">as </span>usize) + which
+        } <span class="kw">else </span>{
+            WhichPrior::NUM_PRIORS <span class="kw">as </span>usize * (actual_context + <span class="number">256 </span>* (stride_byte &gt;&gt; <span class="number">4</span>) <span class="kw">as </span>usize) + which
         }
     }
-    <span class="kw">fn</span> <span class="ident">which</span>() -&gt; <span class="ident">usize</span>;
+    <span class="kw">fn </span>which() -&gt; usize;
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">upper_score_index</span>(<span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">_selected_context</span>: <span class="ident">u8</span>, <span class="ident">actual_context</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-  <span class="ident">actual_context</span> <span class="op">+</span> <span class="number">256</span> <span class="op">*</span> (<span class="ident">stride_byte</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>) <span class="kw">as</span> <span class="ident">usize</span>
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>upper_score_index(stride_byte: u8, _selected_context: u8, actual_context: usize) -&gt; usize {
+  actual_context + <span class="number">256 </span>* (stride_byte &gt;&gt; <span class="number">4</span>) <span class="kw">as </span>usize
 }
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">lower_score_index</span>(<span class="ident">_stride_byte</span>: <span class="ident">u8</span>, <span class="ident">_selected_context</span>: <span class="ident">u8</span>, <span class="ident">actual_context</span>: <span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="ident">u8</span>) -&gt; <span class="ident">usize</span> {
-    <span class="macro">debug_assert!</span>(<span class="ident">actual_context</span><span class="op">&lt;</span> <span class="number">256</span>);
-    <span class="macro">debug_assert!</span>(<span class="ident">high_nibble</span> <span class="op">&lt;</span> <span class="number">16</span>);
-  <span class="ident">actual_context</span> <span class="op">+</span> <span class="number">4096</span> <span class="op">+</span> <span class="number">256</span> <span class="op">*</span> <span class="ident">high_nibble</span> <span class="kw">as</span> <span class="ident">usize</span>
-}
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">stride_lookup_lin</span>(<span class="ident">stride_byte</span>:<span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">nibble</span>) <span class="op">=</span> <span class="ident">high_nibble</span> {
-        <span class="number">1</span> <span class="op">+</span> <span class="number">2</span> <span class="op">*</span> (<span class="ident">actual_context</span> <span class="kw">as</span> <span class="ident">usize</span>
-                 <span class="op">|</span> ((<span class="ident">stride_byte</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>)
-                 <span class="op">|</span> ((<span class="ident">nibble</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">12</span>))
-    } <span class="kw">else</span> {
-        <span class="number">2</span> <span class="op">*</span> (<span class="ident">actual_context</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">|</span> ((<span class="ident">stride_byte</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>))
-    }
-}
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stride1Prior</span>{
-}
-<span class="kw">impl</span> <span class="ident">Stride1Prior</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>() -&gt; <span class="ident">usize</span>{
-        <span class="number">0</span>
-    }
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>lower_score_index(_stride_byte: u8, _selected_context: u8, actual_context: usize, high_nibble: u8) -&gt; usize {
+    <span class="macro">debug_assert!</span>(actual_context&lt; <span class="number">256</span>);
+    <span class="macro">debug_assert!</span>(high_nibble &lt; <span class="number">16</span>);
+  actual_context + <span class="number">4096 </span>+ <span class="number">256 </span>* high_nibble <span class="kw">as </span>usize
 }
 
-<span class="kw">impl</span> <span class="ident">Prior</span> <span class="kw">for</span> <span class="ident">Stride1Prior</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>:<span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="ident">stride_lookup_lin</span>(<span class="ident">stride_byte</span>, <span class="ident">selected_context</span>, <span class="ident">actual_context</span>, <span class="ident">high_nibble</span>)
+<span class="attribute">#[allow(unused_variables)]
+#[inline(always)]
+</span><span class="kw">fn </span>stride_lookup_lin(stride_byte:u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(nibble) = high_nibble {
+        <span class="number">1 </span>+ <span class="number">2 </span>* (actual_context <span class="kw">as </span>usize
+                 | ((stride_byte <span class="kw">as </span>usize &amp; <span class="number">0xf</span>) &lt;&lt; <span class="number">8</span>)
+                 | ((nibble <span class="kw">as </span>usize) &lt;&lt; <span class="number">12</span>))
+    } <span class="kw">else </span>{
+        <span class="number">2 </span>* (actual_context <span class="kw">as </span>usize | ((stride_byte <span class="kw">as </span>usize) &lt;&lt; <span class="number">8</span>))
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">which</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">WhichPrior::STRIDE1</span> <span class="kw">as</span> <span class="ident">usize</span>
+}
+<span class="kw">pub struct </span>Stride1Prior{
+}
+<span class="kw">impl </span>Stride1Prior {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">pub fn </span>offset() -&gt; usize{
+        <span class="number">0
+    </span>}
+}
+
+<span class="kw">impl </span>Prior <span class="kw">for </span>Stride1Prior {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>lookup_lin(stride_byte:u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+        stride_lookup_lin(stride_byte, selected_context, actual_context, high_nibble)
+    }
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>which() -&gt; usize {
+        WhichPrior::STRIDE1 <span class="kw">as </span>usize
     }
 }
 <span class="comment">/*impl StridePrior for Stride1Prior {
     const STRIDE_OFFSET:usize = 0;
-}*/</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stride2Prior</span>{
+}*/
+</span><span class="kw">pub struct </span>Stride2Prior{
 }
-<span class="kw">impl</span> <span class="ident">Stride2Prior</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>() -&gt; <span class="ident">usize</span>{
-        <span class="number">1</span>
-    }
+<span class="kw">impl </span>Stride2Prior {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>offset() -&gt; usize{
+        <span class="number">1
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">Prior</span> <span class="kw">for</span> <span class="ident">Stride2Prior</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>:<span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="ident">stride_lookup_lin</span>(<span class="ident">stride_byte</span>, <span class="ident">selected_context</span>, <span class="ident">actual_context</span>, <span class="ident">high_nibble</span>)
+<span class="kw">impl </span>Prior <span class="kw">for </span>Stride2Prior {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>lookup_lin(stride_byte:u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+        stride_lookup_lin(stride_byte, selected_context, actual_context, high_nibble)
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">which</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">WhichPrior::STRIDE2</span> <span class="kw">as</span> <span class="ident">usize</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>which() -&gt; usize {
+        WhichPrior::STRIDE2 <span class="kw">as </span>usize
     }
 }
 <span class="comment">/*impl StridePrior for Stride2Prior {
     const STRIDE_OFFSET:usize = 1;
-}*/</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stride3Prior</span>{
+}*/
+</span><span class="kw">pub struct </span>Stride3Prior{
 }
-<span class="kw">impl</span> <span class="ident">Stride3Prior</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>() -&gt; <span class="ident">usize</span>{
-        <span class="number">2</span>
-    }
+<span class="kw">impl </span>Stride3Prior {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>offset() -&gt; usize{
+        <span class="number">2
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">Prior</span> <span class="kw">for</span> <span class="ident">Stride3Prior</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>:<span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="ident">stride_lookup_lin</span>(<span class="ident">stride_byte</span>, <span class="ident">selected_context</span>, <span class="ident">actual_context</span>, <span class="ident">high_nibble</span>)
+<span class="kw">impl </span>Prior <span class="kw">for </span>Stride3Prior {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>lookup_lin(stride_byte:u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+        stride_lookup_lin(stride_byte, selected_context, actual_context, high_nibble)
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">which</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">WhichPrior::STRIDE3</span> <span class="kw">as</span> <span class="ident">usize</span>
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>which() -&gt; usize {
+        WhichPrior::STRIDE3 <span class="kw">as </span>usize
     }
 }
 
 <span class="comment">/*impl StridePrior for Stride3Prior {
     const STRIDE_OFFSET:usize = 2;
-}*/</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stride4Prior</span>{
+}*/
+</span><span class="kw">pub struct </span>Stride4Prior{
 }
-<span class="kw">impl</span> <span class="ident">Stride4Prior</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>() -&gt; <span class="ident">usize</span>{
-        <span class="number">3</span>
-    }
+<span class="kw">impl </span>Stride4Prior {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>offset() -&gt; usize{
+        <span class="number">3
+    </span>}
 }
-<span class="kw">impl</span> <span class="ident">Prior</span> <span class="kw">for</span> <span class="ident">Stride4Prior</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>:<span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="ident">stride_lookup_lin</span>(<span class="ident">stride_byte</span>, <span class="ident">selected_context</span>, <span class="ident">actual_context</span>, <span class="ident">high_nibble</span>)
+<span class="kw">impl </span>Prior <span class="kw">for </span>Stride4Prior {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>lookup_lin(stride_byte:u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+        stride_lookup_lin(stride_byte, selected_context, actual_context, high_nibble)
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">which</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">WhichPrior::STRIDE4</span> <span class="kw">as</span> <span class="ident">usize</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>which() -&gt; usize {
+        WhichPrior::STRIDE4 <span class="kw">as </span>usize
     }
 }
 
 <span class="comment">/*impl StridePrior for Stride4Prior {
     const STRIDE_OFFSET:usize = 3;
-}*/</span>
-<span class="comment">/*pub struct Stride8Prior{
+}*/
+/*pub struct Stride8Prior{
 }
 impl StridePrior for Stride8Prior {
     const STRIDE_OFFSET:usize = 7;
@@ -884,425 +884,425 @@ impl Prior for Stride8Prior {
       WhichPrior::STRIDE8 as usize
     }
 }
-*/</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CMPrior</span> {
+*/
+</span><span class="kw">pub struct </span>CMPrior {
 }
-<span class="kw">impl</span> <span class="ident">Prior</span> <span class="kw">for</span> <span class="ident">CMPrior</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">nibble</span>) <span class="op">=</span> <span class="ident">high_nibble</span> {
-            (<span class="ident">nibble</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">+</span> <span class="number">17</span> <span class="op">*</span> <span class="ident">actual_context</span>
-        } <span class="kw">else</span> {
-            <span class="number">17</span> <span class="op">*</span> <span class="ident">actual_context</span> <span class="kw">as</span> <span class="ident">usize</span>
+<span class="kw">impl </span>Prior <span class="kw">for </span>CMPrior {
+    <span class="attribute">#[allow(unused_variables)]
+    #[inline(always)]
+    </span><span class="kw">fn </span>lookup_lin(stride_byte: u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(nibble) = high_nibble {
+            (nibble <span class="kw">as </span>usize + <span class="number">1</span>) + <span class="number">17 </span>* actual_context
+        } <span class="kw">else </span>{
+            <span class="number">17 </span>* actual_context <span class="kw">as </span>usize
         }
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">which</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">WhichPrior::CM</span> <span class="kw">as</span> <span class="ident">usize</span>
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>which() -&gt; usize {
+        WhichPrior::CM <span class="kw">as </span>usize
     }
 }
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FastCMPrior</span> {
+<span class="kw">pub struct </span>FastCMPrior {
 }
-<span class="kw">impl</span> <span class="ident">Prior</span> <span class="kw">for</span> <span class="ident">FastCMPrior</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">nibble</span>) <span class="op">=</span> <span class="ident">high_nibble</span> {
-            <span class="number">2</span> <span class="op">*</span> <span class="ident">actual_context</span>
-        } <span class="kw">else</span> {
-            <span class="number">2</span> <span class="op">*</span> <span class="ident">actual_context</span> <span class="op">+</span> <span class="number">1</span>
-        }
+<span class="kw">impl </span>Prior <span class="kw">for </span>FastCMPrior {
+    <span class="attribute">#[allow(unused_variables)]
+    #[inline(always)]
+    </span><span class="kw">fn </span>lookup_lin(stride_byte: u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(nibble) = high_nibble {
+            <span class="number">2 </span>* actual_context
+        } <span class="kw">else </span>{
+            <span class="number">2 </span>* actual_context + <span class="number">1
+        </span>}
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">which</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">WhichPrior::FAST_CM</span> <span class="kw">as</span> <span class="ident">usize</span>
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>which() -&gt; usize {
+        WhichPrior::FAST_CM <span class="kw">as </span>usize
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SlowCMPrior</span> {
+<span class="kw">pub struct </span>SlowCMPrior {
 }
-<span class="kw">impl</span> <span class="ident">Prior</span> <span class="kw">for</span> <span class="ident">SlowCMPrior</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">nibble</span>) <span class="op">=</span> <span class="ident">high_nibble</span> {
-            (<span class="ident">nibble</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">+</span> <span class="number">17</span> <span class="op">*</span> <span class="ident">actual_context</span>
-        } <span class="kw">else</span> {
-            <span class="number">17</span> <span class="op">*</span> <span class="ident">actual_context</span> <span class="kw">as</span> <span class="ident">usize</span>
+<span class="kw">impl </span>Prior <span class="kw">for </span>SlowCMPrior {
+    <span class="attribute">#[allow(unused_variables)]
+    #[inline(always)]
+    </span><span class="kw">fn </span>lookup_lin(stride_byte: u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(nibble) = high_nibble {
+            (nibble <span class="kw">as </span>usize + <span class="number">1</span>) + <span class="number">17 </span>* actual_context
+        } <span class="kw">else </span>{
+            <span class="number">17 </span>* actual_context <span class="kw">as </span>usize
         }
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">which</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">WhichPrior::SLOW_CM</span> <span class="kw">as</span> <span class="ident">usize</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>which() -&gt; usize {
+        WhichPrior::SLOW_CM <span class="kw">as </span>usize
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AdvPrior</span> {
+<span class="kw">pub struct </span>AdvPrior {
 }
-<span class="kw">impl</span> <span class="ident">Prior</span> <span class="kw">for</span> <span class="ident">AdvPrior</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">lookup_lin</span>(<span class="ident">stride_byte</span>: <span class="ident">u8</span>, <span class="ident">selected_context</span>:<span class="ident">u8</span>, <span class="ident">actual_context</span>:<span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">nibble</span>) <span class="op">=</span> <span class="ident">high_nibble</span> {
-            <span class="number">65536</span> <span class="op">+</span> ((<span class="ident">actual_context</span> <span class="kw">as</span> <span class="ident">usize</span>)
-                  <span class="op">|</span> ((<span class="ident">stride_byte</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>)
-                  <span class="op">|</span> ((<span class="ident">nibble</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>))
-        } <span class="kw">else</span> {
-            (<span class="ident">actual_context</span> <span class="kw">as</span> <span class="ident">usize</span>)
-             <span class="op">|</span> ((<span class="ident">stride_byte</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf0</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>)
+<span class="kw">impl </span>Prior <span class="kw">for </span>AdvPrior {
+    <span class="attribute">#[allow(unused_variables)]
+    #[inline(always)]
+    </span><span class="kw">fn </span>lookup_lin(stride_byte: u8, selected_context:u8, actual_context:usize, high_nibble: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; usize {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(nibble) = high_nibble {
+            <span class="number">65536 </span>+ ((actual_context <span class="kw">as </span>usize)
+                  | ((stride_byte <span class="kw">as </span>usize) &lt;&lt; <span class="number">8</span>)
+                  | ((nibble <span class="kw">as </span>usize &amp; <span class="number">0xf</span>) &lt;&lt; <span class="number">16</span>))
+        } <span class="kw">else </span>{
+            (actual_context <span class="kw">as </span>usize)
+             | ((stride_byte <span class="kw">as </span>usize &amp; <span class="number">0xf0</span>) &lt;&lt; <span class="number">8</span>)
         }
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">which</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">WhichPrior::ADV</span> <span class="kw">as</span> <span class="ident">usize</span>
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>which() -&gt; usize {
+        WhichPrior::ADV <span class="kw">as </span>usize
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CDF</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">cdf</span>:<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">s16</span>,
+<span class="kw">pub struct </span>CDF&lt;<span class="lifetime">&#39;a</span>&gt; {
+    cdf:<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>s16,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CDF</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">nibble_u8</span>:<span class="ident">u8</span>) -&gt; <span class="ident">floatX</span> {
-        <span class="kw">let</span> <span class="ident">nibble</span> <span class="op">=</span> <span class="ident">nibble_u8</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pdf</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cdf</span>.<span class="ident">extract</span>(<span class="ident">usize::from</span>(<span class="ident">nibble</span>));
-        <span class="kw">if</span> <span class="ident">nibble_u8</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="ident">pdf</span> <span class="op">-</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">cdf</span>.<span class="ident">extract</span>(<span class="ident">usize::from</span>(<span class="ident">nibble</span> <span class="op">-</span> <span class="number">1</span>));
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CDF&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>cost(<span class="kw-2">&amp;</span><span class="self">self</span>, nibble_u8:u8) -&gt; floatX {
+        <span class="kw">let </span>nibble = nibble_u8 <span class="kw">as </span>usize &amp; <span class="number">0xf</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>pdf = <span class="self">self</span>.cdf.extract(usize::from(nibble));
+        <span class="kw">if </span>nibble_u8 != <span class="number">0 </span>{
+            pdf -= <span class="self">self</span>.cdf.extract(usize::from(nibble - <span class="number">1</span>));
         }
-        <span class="ident">FastLog2u16</span>(<span class="self">self</span>.<span class="ident">cdf</span>.<span class="ident">extract</span>(<span class="number">15</span>) <span class="kw">as</span> <span class="ident">u16</span>) <span class="op">-</span> <span class="ident">FastLog2u16</span>(<span class="ident">pdf</span> <span class="kw">as</span> <span class="ident">u16</span>)
+        FastLog2u16(<span class="self">self</span>.cdf.extract(<span class="number">15</span>) <span class="kw">as </span>u16) - FastLog2u16(pdf <span class="kw">as </span>u16)
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">nibble_u8</span>:<span class="ident">u8</span>, <span class="ident">speed</span>: (<span class="ident">u16</span>, <span class="ident">u16</span>)) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">cdf</span>;
-        <span class="kw">let</span> <span class="ident">increment_v</span> <span class="op">=</span> <span class="ident">s16::splat</span>(<span class="ident">speed</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">i16</span>);
-        <span class="kw">let</span> <span class="ident">one_to_16</span> <span class="op">=</span> <span class="ident">s16::new</span>(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>,<span class="number">11</span>,<span class="number">12</span>,<span class="number">13</span>,<span class="number">14</span>,<span class="number">15</span>,<span class="number">16</span>);
-        <span class="kw">let</span> <span class="ident">mask_v</span>: <span class="ident">s16</span> <span class="op">=</span> <span class="ident">one_to_16</span>.<span class="ident">gt</span>(<span class="ident">s16::splat</span>(<span class="ident">i16::from</span>(<span class="ident">nibble_u8</span>))).<span class="ident">into_bits</span>();
-        <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">cdf</span> <span class="op">+</span> (<span class="ident">increment_v</span> <span class="op">&amp;</span> <span class="ident">mask_v</span>);
-        <span class="kw">if</span> <span class="ident">cdf</span>.<span class="ident">extract</span>(<span class="number">15</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="ident">speed</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">i16</span>{
-            <span class="kw">let</span> <span class="ident">cdf_bias</span> <span class="op">=</span> <span class="ident">one_to_16</span>;
-            <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">cdf</span> <span class="op">+</span> <span class="ident">cdf_bias</span> <span class="op">-</span> ((<span class="ident">cdf</span> <span class="op">+</span> <span class="ident">cdf_bias</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2</span>);
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, nibble_u8:u8, speed: (u16, u16)) {
+        <span class="kw">let </span><span class="kw-2">mut </span>cdf = <span class="kw-2">*</span><span class="self">self</span>.cdf;
+        <span class="kw">let </span>increment_v = s16::splat(speed.<span class="number">0 </span><span class="kw">as </span>i16);
+        <span class="kw">let </span>one_to_16 = s16::new(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>,<span class="number">11</span>,<span class="number">12</span>,<span class="number">13</span>,<span class="number">14</span>,<span class="number">15</span>,<span class="number">16</span>);
+        <span class="kw">let </span>mask_v: s16 = one_to_16.gt(s16::splat(i16::from(nibble_u8))).into_bits();
+        cdf = cdf + (increment_v &amp; mask_v);
+        <span class="kw">if </span>cdf.extract(<span class="number">15</span>) &gt;= speed.<span class="number">1 </span><span class="kw">as </span>i16{
+            <span class="kw">let </span>cdf_bias = one_to_16;
+            cdf = cdf + cdf_bias - ((cdf + cdf_bias) &gt;&gt; <span class="number">2</span>);
         }
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">cdf</span> <span class="op">=</span> <span class="ident">cdf</span>;
+        <span class="kw-2">*</span><span class="self">self</span>.cdf = cdf;
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">s16</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CDF</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">cdf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">s16</span>) -&gt; <span class="ident">CDF</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">CDF</span> {
-            <span class="ident">cdf</span>:<span class="ident">cdf</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>s16&gt; <span class="kw">for </span>CDF&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>from(cdf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>s16) -&gt; CDF&lt;<span class="lifetime">&#39;a</span>&gt; {
+        CDF {
+            cdf:cdf,
         }
     }
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init_cdfs</span>(<span class="ident">cdfs</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">s16</span>]) {
-  <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">cdfs</span>.<span class="ident">iter_mut</span>() {
-    <span class="kw-2">*</span><span class="ident">item</span> <span class="op">=</span> <span class="ident">s16::new</span>(<span class="number">4</span>, <span class="number">8</span>, <span class="number">12</span>, <span class="number">16</span>, <span class="number">20</span>, <span class="number">24</span>, <span class="number">28</span>, <span class="number">32</span>, <span class="number">36</span>, <span class="number">40</span>, <span class="number">44</span>, <span class="number">48</span>, <span class="number">52</span>, <span class="number">56</span>, <span class="number">60</span>, <span class="number">64</span>);
+<span class="kw">pub fn </span>init_cdfs(cdfs: <span class="kw-2">&amp;mut </span>[s16]) {
+  <span class="kw">for </span>item <span class="kw">in </span>cdfs.iter_mut() {
+    <span class="kw-2">*</span>item = s16::new(<span class="number">4</span>, <span class="number">8</span>, <span class="number">12</span>, <span class="number">16</span>, <span class="number">20</span>, <span class="number">24</span>, <span class="number">28</span>, <span class="number">32</span>, <span class="number">36</span>, <span class="number">40</span>, <span class="number">44</span>, <span class="number">48</span>, <span class="number">52</span>, <span class="number">56</span>, <span class="number">60</span>, <span class="number">64</span>);
    }
 }
 
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PriorEval</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-                     <span class="ident">Alloc</span>:<span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span>,
-                     <span class="op">&gt;</span> {
-    <span class="ident">input</span>: <span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">context_map</span>: <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">block_type</span>: <span class="ident">u8</span>,
-    <span class="ident">local_byte_offset</span>: <span class="ident">usize</span>,
-    <span class="ident">_nop</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,    
-    <span class="ident">cm_priors</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-    <span class="ident">slow_cm_priors</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-    <span class="ident">fast_cm_priors</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-    <span class="ident">stride_priors</span>: [<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>; <span class="number">4</span>],
-    <span class="ident">adv_priors</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-    <span class="ident">_stride_pyramid_leaves</span>: [<span class="ident">u8</span>; <span class="ident">find_stride::NUM_LEAF_NODES</span>],
-    <span class="ident">score</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-    <span class="ident">cm_speed</span>: [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>],
-    <span class="ident">stride_speed</span>: [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>],
-    <span class="ident">cur_stride</span>: <span class="ident">u8</span>,
+<span class="kw">pub struct </span>PriorEval&lt;<span class="lifetime">&#39;a</span>,
+                     Alloc:alloc::Allocator&lt;s16&gt; + alloc::Allocator&lt;u32&gt; + alloc::Allocator&lt;v8&gt;,
+                     &gt; {
+    input: InputPair&lt;<span class="lifetime">&#39;a</span>&gt;,
+    context_map: interface::PredictionModeContextMap&lt;InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    block_type: u8,
+    local_byte_offset: usize,
+    _nop: &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory,    
+    cm_priors: &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory,
+    slow_cm_priors: &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory,
+    fast_cm_priors: &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory,
+    stride_priors: [&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory; <span class="number">4</span>],
+    adv_priors: &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory,
+    _stride_pyramid_leaves: [u8; find_stride::NUM_LEAF_NODES],
+    score: &lt;Alloc <span class="kw">as </span>Allocator&lt;v8&gt;&gt;::AllocatedMemory,
+    cm_speed: [(u16, u16);<span class="number">2</span>],
+    stride_speed: [(u16, u16);<span class="number">2</span>],
+    cur_stride: u8,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-     <span class="ident">Alloc</span>:<span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span>,
-     <span class="op">&gt;</span> <span class="ident">PriorEval</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
-              <span class="ident">input</span>: <span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-              <span class="ident">stride</span>: [<span class="ident">u8</span>; <span class="ident">find_stride::NUM_LEAF_NODES</span>],
-              <span class="ident">prediction_mode</span>: <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-              <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliEncoderParams</span>,
-              ) -&gt; <span class="self">Self</span> {
-      <span class="kw">let</span> <span class="ident">do_alloc</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">prior_bitmask_detection</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>;
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cm_speed</span> <span class="op">=</span> <span class="ident">prediction_mode</span>.<span class="ident">context_map_speed</span>();
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stride_speed</span> <span class="op">=</span> <span class="ident">prediction_mode</span>.<span class="ident">stride_context_speed</span>();
-      <span class="kw">if</span> <span class="ident">cm_speed</span>[<span class="number">0</span>] <span class="op">==</span> (<span class="number">0</span>,<span class="number">0</span>) {
-          <span class="ident">cm_speed</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">params</span>.<span class="ident">literal_adaptation</span>[<span class="number">2</span>]
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>,
+     Alloc:alloc::Allocator&lt;s16&gt; + alloc::Allocator&lt;u32&gt; + alloc::Allocator&lt;v8&gt;,
+     &gt; PriorEval&lt;<span class="lifetime">&#39;a</span>, Alloc&gt; {
+  <span class="kw">pub fn </span>new(alloc: <span class="kw-2">&amp;mut </span>Alloc,
+              input: InputPair&lt;<span class="lifetime">&#39;a</span>&gt;,
+              stride: [u8; find_stride::NUM_LEAF_NODES],
+              prediction_mode: interface::PredictionModeContextMap&lt;InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+              params: <span class="kw-2">&amp;</span>BrotliEncoderParams,
+              ) -&gt; <span class="self">Self </span>{
+      <span class="kw">let </span>do_alloc = params.prior_bitmask_detection != <span class="number">0</span>;
+      <span class="kw">let </span><span class="kw-2">mut </span>cm_speed = prediction_mode.context_map_speed();
+      <span class="kw">let </span><span class="kw-2">mut </span>stride_speed = prediction_mode.stride_context_speed();
+      <span class="kw">if </span>cm_speed[<span class="number">0</span>] == (<span class="number">0</span>,<span class="number">0</span>) {
+          cm_speed[<span class="number">0</span>] = params.literal_adaptation[<span class="number">2</span>]
       }
-      <span class="kw">if</span> <span class="ident">cm_speed</span>[<span class="number">0</span>] <span class="op">==</span> (<span class="number">0</span>,<span class="number">0</span>) {
-          <span class="ident">cm_speed</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">DEFAULT_SPEED</span>;
+      <span class="kw">if </span>cm_speed[<span class="number">0</span>] == (<span class="number">0</span>,<span class="number">0</span>) {
+          cm_speed[<span class="number">0</span>] = DEFAULT_SPEED;
       }
-      <span class="kw">if</span> <span class="ident">cm_speed</span>[<span class="number">1</span>] <span class="op">==</span> (<span class="number">0</span>,<span class="number">0</span>) {
-          <span class="ident">cm_speed</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">params</span>.<span class="ident">literal_adaptation</span>[<span class="number">3</span>]
+      <span class="kw">if </span>cm_speed[<span class="number">1</span>] == (<span class="number">0</span>,<span class="number">0</span>) {
+          cm_speed[<span class="number">1</span>] = params.literal_adaptation[<span class="number">3</span>]
       }
-      <span class="kw">if</span> <span class="ident">cm_speed</span>[<span class="number">1</span>] <span class="op">==</span> (<span class="number">0</span>,<span class="number">0</span>) {
-          <span class="ident">cm_speed</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">cm_speed</span>[<span class="number">0</span>];
+      <span class="kw">if </span>cm_speed[<span class="number">1</span>] == (<span class="number">0</span>,<span class="number">0</span>) {
+          cm_speed[<span class="number">1</span>] = cm_speed[<span class="number">0</span>];
       }
-      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">==</span> (<span class="number">0</span>, <span class="number">0</span>) {
-          <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">params</span>.<span class="ident">literal_adaptation</span>[<span class="number">0</span>]
+      <span class="kw">if </span>stride_speed[<span class="number">0</span>] == (<span class="number">0</span>, <span class="number">0</span>) {
+          stride_speed[<span class="number">0</span>] = params.literal_adaptation[<span class="number">0</span>]
       }
-      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">==</span> (<span class="number">0</span>, <span class="number">0</span>) {
-          <span class="ident">stride_speed</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">DEFAULT_SPEED</span>;
+      <span class="kw">if </span>stride_speed[<span class="number">0</span>] == (<span class="number">0</span>, <span class="number">0</span>) {
+          stride_speed[<span class="number">0</span>] = DEFAULT_SPEED;
       }
-      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">==</span> (<span class="number">0</span>, <span class="number">0</span>) {
-          <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">params</span>.<span class="ident">literal_adaptation</span>[<span class="number">1</span>]
+      <span class="kw">if </span>stride_speed[<span class="number">1</span>] == (<span class="number">0</span>, <span class="number">0</span>) {
+          stride_speed[<span class="number">1</span>] = params.literal_adaptation[<span class="number">1</span>]
       }
-      <span class="kw">if</span> <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">==</span> (<span class="number">0</span>, <span class="number">0</span>) {
-          <span class="ident">stride_speed</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">stride_speed</span>[<span class="number">0</span>];
+      <span class="kw">if </span>stride_speed[<span class="number">1</span>] == (<span class="number">0</span>, <span class="number">0</span>) {
+          stride_speed[<span class="number">1</span>] = stride_speed[<span class="number">0</span>];
       }
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">PriorEval</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>{
-         <span class="ident">input</span>: <span class="ident">input</span>,
-         <span class="ident">context_map</span>: <span class="ident">prediction_mode</span>,
-         <span class="ident">block_type</span>: <span class="number">0</span>,
-         <span class="ident">cur_stride</span>: <span class="number">1</span>,
-         <span class="ident">local_byte_offset</span>: <span class="number">0</span>,
-         <span class="ident">_nop</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>(),
-         <span class="ident">cm_priors</span>: <span class="kw">if</span> <span class="ident">do_alloc</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">CONTEXT_MAP_PRIOR_SIZE</span>)} <span class="kw">else</span> {
-             <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-         <span class="ident">slow_cm_priors</span>: <span class="kw">if</span> <span class="ident">do_alloc</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">CONTEXT_MAP_PRIOR_SIZE</span>)} <span class="kw">else</span> {
-             <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-         <span class="ident">fast_cm_priors</span>: <span class="kw">if</span> <span class="ident">do_alloc</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">CONTEXT_MAP_PRIOR_SIZE</span>)} <span class="kw">else</span> {
-             <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-         <span class="ident">stride_priors</span>: [
-             <span class="kw">if</span> <span class="ident">do_alloc</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">STRIDE_PRIOR_SIZE</span>)} <span class="kw">else</span> {
-                 <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-             <span class="kw">if</span> <span class="ident">do_alloc</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">STRIDE_PRIOR_SIZE</span>)} <span class="kw">else</span> {
-                 <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-             <span class="kw">if</span> <span class="ident">do_alloc</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">STRIDE_PRIOR_SIZE</span>)} <span class="kw">else</span> {
-                 <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-             <span class="kw">if</span> <span class="ident">do_alloc</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">STRIDE_PRIOR_SIZE</span>)} <span class="kw">else</span> {
-                 <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
+      <span class="kw">let </span><span class="kw-2">mut </span>ret = PriorEval::&lt;Alloc&gt;{
+         input: input,
+         context_map: prediction_mode,
+         block_type: <span class="number">0</span>,
+         cur_stride: <span class="number">1</span>,
+         local_byte_offset: <span class="number">0</span>,
+         _nop: &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory::default(),
+         cm_priors: <span class="kw">if </span>do_alloc {&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::alloc_cell(alloc, CONTEXT_MAP_PRIOR_SIZE)} <span class="kw">else </span>{
+             &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()},
+         slow_cm_priors: <span class="kw">if </span>do_alloc {&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::alloc_cell(alloc, CONTEXT_MAP_PRIOR_SIZE)} <span class="kw">else </span>{
+             &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()},
+         fast_cm_priors: <span class="kw">if </span>do_alloc {&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::alloc_cell(alloc, CONTEXT_MAP_PRIOR_SIZE)} <span class="kw">else </span>{
+             &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()},
+         stride_priors: [
+             <span class="kw">if </span>do_alloc {&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::alloc_cell(alloc, STRIDE_PRIOR_SIZE)} <span class="kw">else </span>{
+                 &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()},
+             <span class="kw">if </span>do_alloc {&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::alloc_cell(alloc, STRIDE_PRIOR_SIZE)} <span class="kw">else </span>{
+                 &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()},
+             <span class="kw">if </span>do_alloc {&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::alloc_cell(alloc, STRIDE_PRIOR_SIZE)} <span class="kw">else </span>{
+                 &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()},
+             <span class="kw">if </span>do_alloc {&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::alloc_cell(alloc, STRIDE_PRIOR_SIZE)} <span class="kw">else </span>{
+                 &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()},
              <span class="comment">/*if do_alloc {m16x16.alloc_cell(STRIDE_PRIOR_SIZE)} else {
                  Alloc16x16::AllocatedMemory::default()},*/</span>],
-         <span class="ident">adv_priors</span>: <span class="kw">if</span> <span class="ident">do_alloc</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="ident">ADV_PRIOR_SIZE</span>)} <span class="kw">else</span> {
-             <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-         <span class="ident">_stride_pyramid_leaves</span>: <span class="ident">stride</span>,
-         <span class="ident">score</span>: <span class="kw">if</span> <span class="ident">do_alloc</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">alloc</span>, <span class="number">8192</span>)} <span class="kw">else</span> {
-             <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-         <span class="ident">cm_speed</span>: <span class="ident">cm_speed</span>,
-         <span class="ident">stride_speed</span>: <span class="ident">stride_speed</span>,
+         adv_priors: <span class="kw">if </span>do_alloc {&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::alloc_cell(alloc, ADV_PRIOR_SIZE)} <span class="kw">else </span>{
+             &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()},
+         _stride_pyramid_leaves: stride,
+         score: <span class="kw">if </span>do_alloc {&lt;Alloc <span class="kw">as </span>Allocator&lt;v8&gt;&gt;::alloc_cell(alloc, <span class="number">8192</span>)} <span class="kw">else </span>{
+             &lt;Alloc <span class="kw">as </span>Allocator&lt;v8&gt;&gt;::AllocatedMemory::default()},
+         cm_speed: cm_speed,
+         stride_speed: stride_speed,
       };
-      <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">cm_priors</span>.<span class="ident">slice_mut</span>());
-      <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">slow_cm_priors</span>.<span class="ident">slice_mut</span>());
-      <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">fast_cm_priors</span>.<span class="ident">slice_mut</span>());
-      <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">stride_priors</span>[<span class="number">0</span>].<span class="ident">slice_mut</span>());
-      <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">stride_priors</span>[<span class="number">1</span>].<span class="ident">slice_mut</span>());
-      <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">stride_priors</span>[<span class="number">2</span>].<span class="ident">slice_mut</span>());
-      <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">stride_priors</span>[<span class="number">3</span>].<span class="ident">slice_mut</span>());
-      <span class="comment">//init_cdfs(ret.stride_priors[4].slice_mut());</span>
-      <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">adv_priors</span>.<span class="ident">slice_mut</span>());
-      <span class="ident">ret</span>
+      init_cdfs(ret.cm_priors.slice_mut());
+      init_cdfs(ret.slow_cm_priors.slice_mut());
+      init_cdfs(ret.fast_cm_priors.slice_mut());
+      init_cdfs(ret.stride_priors[<span class="number">0</span>].slice_mut());
+      init_cdfs(ret.stride_priors[<span class="number">1</span>].slice_mut());
+      init_cdfs(ret.stride_priors[<span class="number">2</span>].slice_mut());
+      init_cdfs(ret.stride_priors[<span class="number">3</span>].slice_mut());
+      <span class="comment">//init_cdfs(ret.stride_priors[4].slice_mut());
+      </span>init_cdfs(ret.adv_priors.slice_mut());
+      ret
    }
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">choose_bitmask</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-       <span class="kw">let</span> <span class="ident">epsilon</span> <span class="op">=</span> <span class="number">6.0</span>;
-       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_popularity</span> <span class="op">=</span> <span class="number">0u32</span>;
-       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_popularity_index</span> <span class="op">=</span> <span class="number">0u8</span>;
-       <span class="macro">assert_eq!</span>(<span class="ident">WhichPrior::NUM_PRIORS</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="number">8</span>);
-       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">popularity</span> <span class="op">=</span> [<span class="number">0u32</span>; <span class="number">8</span>];
-       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bitmask</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="ident"><span class="kw">super</span>::interface::NUM_MIXING_VALUES</span>];
-       <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">score</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">score</span>.<span class="ident">slice</span>().<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-           <span class="kw">let</span> <span class="ident">cm_score</span> <span class="op">=</span> <span class="ident">score</span>.<span class="ident">extract</span>(<span class="ident">WhichPrior::CM</span> <span class="kw">as</span> <span class="ident">usize</span>);
-           <span class="kw">let</span> <span class="ident">slow_cm_score</span> <span class="op">=</span> <span class="ident">score</span>.<span class="ident">extract</span>(<span class="ident">WhichPrior::SLOW_CM</span> <span class="kw">as</span> <span class="ident">usize</span>);
-           <span class="kw">let</span> <span class="ident">fast_cm_score</span> <span class="op">=</span> <span class="ident">score</span>.<span class="ident">extract</span>(<span class="ident">WhichPrior::FAST_CM</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">+</span> <span class="number">16.0</span>;
-           <span class="kw">let</span> <span class="ident">stride1_score</span> <span class="op">=</span> <span class="ident">score</span>.<span class="ident">extract</span>(<span class="ident">WhichPrior::STRIDE1</span> <span class="kw">as</span> <span class="ident">usize</span>);
-           <span class="kw">let</span> <span class="ident">stride2_score</span> <span class="op">=</span> <span class="ident">score</span>.<span class="ident">extract</span>(<span class="ident">WhichPrior::STRIDE2</span> <span class="kw">as</span> <span class="ident">usize</span>);
-           <span class="kw">let</span> <span class="ident">stride3_score</span> <span class="op">=</span> <span class="ident">score</span>.<span class="ident">extract</span>(<span class="ident">WhichPrior::STRIDE3</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">+</span> <span class="number">16.0</span>;
-           <span class="kw">let</span> <span class="ident">stride4_score</span> <span class="op">=</span> <span class="ident">score</span>.<span class="ident">extract</span>(<span class="ident">WhichPrior::STRIDE4</span> <span class="kw">as</span> <span class="ident">usize</span>);
-         <span class="comment">//let stride8_score = score.extract(WhichPrior::STRIDE8) * 1.125 + 16.0;</span>
-           <span class="kw">let</span> <span class="ident">stride8_score</span> <span class="op">=</span> <span class="ident">stride4_score</span> <span class="op">+</span> <span class="number">1.0</span>; <span class="comment">// FIXME: never lowest -- ignore stride 8</span>
-           <span class="kw">let</span> <span class="ident">stride_score</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">stride1_score</span> <span class="kw">as</span> <span class="ident">u64</span>,
-                                             <span class="ident">core::cmp::min</span>(<span class="ident">stride2_score</span> <span class="kw">as</span> <span class="ident">u64</span>,
-                                                            <span class="ident">core::cmp::min</span>(<span class="ident">stride3_score</span> <span class="kw">as</span> <span class="ident">u64</span>,
-                                                                           <span class="ident">core::cmp::min</span>(<span class="ident">stride4_score</span> <span class="kw">as</span> <span class="ident">u64</span>,
-                                                                                          <span class="ident">stride8_score</span> <span class="kw">as</span> <span class="ident">u64</span>))));
+   <span class="kw">pub fn </span>choose_bitmask(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+       <span class="kw">let </span>epsilon = <span class="number">6.0</span>;
+       <span class="kw">let </span><span class="kw-2">mut </span>max_popularity = <span class="number">0u32</span>;
+       <span class="kw">let </span><span class="kw-2">mut </span>max_popularity_index = <span class="number">0u8</span>;
+       <span class="macro">assert_eq!</span>(WhichPrior::NUM_PRIORS <span class="kw">as </span>usize, <span class="number">8</span>);
+       <span class="kw">let </span><span class="kw-2">mut </span>popularity = [<span class="number">0u32</span>; <span class="number">8</span>];
+       <span class="kw">let </span><span class="kw-2">mut </span>bitmask = [<span class="number">0u8</span>; <span class="kw">super</span>::interface::NUM_MIXING_VALUES];
+       <span class="kw">for </span>(i, score) <span class="kw">in </span><span class="self">self</span>.score.slice().iter().enumerate() {
+           <span class="kw">let </span>cm_score = score.extract(WhichPrior::CM <span class="kw">as </span>usize);
+           <span class="kw">let </span>slow_cm_score = score.extract(WhichPrior::SLOW_CM <span class="kw">as </span>usize);
+           <span class="kw">let </span>fast_cm_score = score.extract(WhichPrior::FAST_CM <span class="kw">as </span>usize) + <span class="number">16.0</span>;
+           <span class="kw">let </span>stride1_score = score.extract(WhichPrior::STRIDE1 <span class="kw">as </span>usize);
+           <span class="kw">let </span>stride2_score = score.extract(WhichPrior::STRIDE2 <span class="kw">as </span>usize);
+           <span class="kw">let </span>stride3_score = score.extract(WhichPrior::STRIDE3 <span class="kw">as </span>usize) + <span class="number">16.0</span>;
+           <span class="kw">let </span>stride4_score = score.extract(WhichPrior::STRIDE4 <span class="kw">as </span>usize);
+         <span class="comment">//let stride8_score = score.extract(WhichPrior::STRIDE8) * 1.125 + 16.0;
+           </span><span class="kw">let </span>stride8_score = stride4_score + <span class="number">1.0</span>; <span class="comment">// FIXME: never lowest -- ignore stride 8
+           </span><span class="kw">let </span>stride_score = core::cmp::min(stride1_score <span class="kw">as </span>u64,
+                                             core::cmp::min(stride2_score <span class="kw">as </span>u64,
+                                                            core::cmp::min(stride3_score <span class="kw">as </span>u64,
+                                                                           core::cmp::min(stride4_score <span class="kw">as </span>u64,
+                                                                                          stride8_score <span class="kw">as </span>u64))));
                                   
-           <span class="kw">let</span> <span class="ident">adv_score</span> <span class="op">=</span> <span class="ident">score</span>.<span class="ident">extract</span>(<span class="ident">WhichPrior::ADV</span> <span class="kw">as</span> <span class="ident">usize</span>);
-           <span class="kw">if</span> <span class="ident">adv_score</span> <span class="op">+</span> <span class="ident">epsilon</span> <span class="op">&lt;</span> <span class="ident">stride_score</span> <span class="kw">as</span> <span class="ident">floatX</span> <span class="op">&amp;&amp;</span> <span class="ident">adv_score</span> <span class="op">+</span> <span class="ident">epsilon</span> <span class="op">&lt;</span> <span class="ident">cm_score</span> <span class="op">&amp;&amp;</span> <span class="ident">adv_score</span> <span class="op">+</span> <span class="ident">epsilon</span> <span class="op">&lt;</span> <span class="ident">slow_cm_score</span> <span class="op">&amp;&amp;</span> <span class="ident">adv_score</span> <span class="op">+</span> <span class="ident">epsilon</span> <span class="op">&lt;</span> <span class="ident">fast_cm_score</span> {
-               <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="number">1</span>;
-           } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">slow_cm_score</span> <span class="op">+</span> <span class="ident">epsilon</span> <span class="op">&lt;</span> <span class="ident">stride_score</span> <span class="kw">as</span> <span class="ident">floatX</span> <span class="op">&amp;&amp;</span> <span class="ident">slow_cm_score</span> <span class="op">+</span> <span class="ident">epsilon</span> <span class="op">&lt;</span> <span class="ident">cm_score</span> <span class="op">&amp;&amp;</span> <span class="ident">slow_cm_score</span> <span class="op">+</span> <span class="ident">epsilon</span> <span class="op">&lt;</span> <span class="ident">fast_cm_score</span> {
-               <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="number">2</span>;
-           } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">fast_cm_score</span> <span class="op">+</span> <span class="ident">epsilon</span> <span class="op">&lt;</span> <span class="ident">stride_score</span> <span class="kw">as</span> <span class="ident">floatX</span> <span class="op">&amp;&amp;</span> <span class="ident">fast_cm_score</span> <span class="op">+</span> <span class="ident">epsilon</span> <span class="op">&lt;</span> <span class="ident">cm_score</span> {
-               <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="number">3</span>;
-           } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">epsilon</span> <span class="op">+</span> (<span class="ident">stride_score</span> <span class="kw">as</span> <span class="ident">floatX</span>) <span class="op">&lt;</span> <span class="ident">cm_score</span> {
-               <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">WhichPrior::STRIDE1</span> <span class="kw">as</span> <span class="ident">u8</span>;
-               <span class="kw">if</span> <span class="ident">stride_score</span> <span class="op">==</span> <span class="ident">stride8_score</span> <span class="kw">as</span> <span class="ident">u64</span> {
-                   <span class="comment">//bitmask[i] = WhichPrior::STRIDE8 as u8;</span>
+           <span class="kw">let </span>adv_score = score.extract(WhichPrior::ADV <span class="kw">as </span>usize);
+           <span class="kw">if </span>adv_score + epsilon &lt; stride_score <span class="kw">as </span>floatX &amp;&amp; adv_score + epsilon &lt; cm_score &amp;&amp; adv_score + epsilon &lt; slow_cm_score &amp;&amp; adv_score + epsilon &lt; fast_cm_score {
+               bitmask[i] = <span class="number">1</span>;
+           } <span class="kw">else if </span>slow_cm_score + epsilon &lt; stride_score <span class="kw">as </span>floatX &amp;&amp; slow_cm_score + epsilon &lt; cm_score &amp;&amp; slow_cm_score + epsilon &lt; fast_cm_score {
+               bitmask[i] = <span class="number">2</span>;
+           } <span class="kw">else if </span>fast_cm_score + epsilon &lt; stride_score <span class="kw">as </span>floatX &amp;&amp; fast_cm_score + epsilon &lt; cm_score {
+               bitmask[i] = <span class="number">3</span>;
+           } <span class="kw">else if </span>epsilon + (stride_score <span class="kw">as </span>floatX) &lt; cm_score {
+               bitmask[i] = WhichPrior::STRIDE1 <span class="kw">as </span>u8;
+               <span class="kw">if </span>stride_score == stride8_score <span class="kw">as </span>u64 {
+                   <span class="comment">//bitmask[i] = WhichPrior::STRIDE8 as u8;
+               </span>}
+               <span class="kw">if </span>stride_score == stride4_score <span class="kw">as </span>u64 {
+                   bitmask[i] = WhichPrior::STRIDE4 <span class="kw">as </span>u8;
                }
-               <span class="kw">if</span> <span class="ident">stride_score</span> <span class="op">==</span> <span class="ident">stride4_score</span> <span class="kw">as</span> <span class="ident">u64</span> {
-                   <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">WhichPrior::STRIDE4</span> <span class="kw">as</span> <span class="ident">u8</span>;
+               <span class="kw">if </span>stride_score == stride3_score <span class="kw">as </span>u64 {
+                   bitmask[i] = WhichPrior::STRIDE3 <span class="kw">as </span>u8;
                }
-               <span class="kw">if</span> <span class="ident">stride_score</span> <span class="op">==</span> <span class="ident">stride3_score</span> <span class="kw">as</span> <span class="ident">u64</span> {
-                   <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">WhichPrior::STRIDE3</span> <span class="kw">as</span> <span class="ident">u8</span>;
+               <span class="kw">if </span>stride_score == stride2_score <span class="kw">as </span>u64 {
+                   bitmask[i] = WhichPrior::STRIDE2 <span class="kw">as </span>u8;
                }
-               <span class="kw">if</span> <span class="ident">stride_score</span> <span class="op">==</span> <span class="ident">stride2_score</span> <span class="kw">as</span> <span class="ident">u64</span> {
-                   <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">WhichPrior::STRIDE2</span> <span class="kw">as</span> <span class="ident">u8</span>;
+               <span class="kw">if </span>stride_score == stride1_score <span class="kw">as </span>u64 {
+                   bitmask[i] = WhichPrior::STRIDE1 <span class="kw">as </span>u8;
                }
-               <span class="kw">if</span> <span class="ident">stride_score</span> <span class="op">==</span> <span class="ident">stride1_score</span> <span class="kw">as</span> <span class="ident">u64</span> {
-                   <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">WhichPrior::STRIDE1</span> <span class="kw">as</span> <span class="ident">u8</span>;
-               }
-           } <span class="kw">else</span> {
-               <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="number">0</span>;
+           } <span class="kw">else </span>{
+               bitmask[i] = <span class="number">0</span>;
            }
-           <span class="kw">if</span> <span class="ident">stride_score</span> <span class="op">==</span> <span class="number">0</span> {
-               <span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">max_popularity_index</span>;
-               <span class="comment">//eprintln!(&quot;Miss {}[{}] ~ {}&quot;, bitmask[i], i, max_popularity_index);</span>
-           } <span class="kw">else</span> {
-               <span class="ident">popularity</span>[<span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-               <span class="kw">if</span> <span class="ident">popularity</span>[<span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">&gt;</span> <span class="ident">max_popularity</span> {
-                   <span class="ident">max_popularity</span> <span class="op">=</span> <span class="ident">popularity</span>[<span class="ident">bitmask</span>[<span class="ident">i</span>] <span class="kw">as</span> <span class="ident">usize</span>];
-                   <span class="ident">max_popularity_index</span> <span class="op">=</span> <span class="ident">bitmask</span>[<span class="ident">i</span>];
+           <span class="kw">if </span>stride_score == <span class="number">0 </span>{
+               bitmask[i] = max_popularity_index;
+               <span class="comment">//eprintln!(&quot;Miss {}[{}] ~ {}&quot;, bitmask[i], i, max_popularity_index);
+           </span>} <span class="kw">else </span>{
+               popularity[bitmask[i] <span class="kw">as </span>usize] += <span class="number">1</span>;
+               <span class="kw">if </span>popularity[bitmask[i] <span class="kw">as </span>usize] &gt; max_popularity {
+                   max_popularity = popularity[bitmask[i] <span class="kw">as </span>usize];
+                   max_popularity_index = bitmask[i];
                }
-               <span class="comment">//eprintln!(&quot;Score {} {} {} {} {}: {}[{}] max={},{}&quot;, cm_score, adv_score, slow_cm_score, fast_cm_score, stride_score, bitmask[i], i, max_popularity, max_popularity_index);</span>
-           }
+               <span class="comment">//eprintln!(&quot;Score {} {} {} {} {}: {}[{}] max={},{}&quot;, cm_score, adv_score, slow_cm_score, fast_cm_score, stride_score, bitmask[i], i, max_popularity, max_popularity_index);
+           </span>}
        }
-       <span class="self">self</span>.<span class="ident">context_map</span>.<span class="ident">set_mixing_values</span>(<span class="kw-2">&amp;</span><span class="ident">bitmask</span>);
+       <span class="self">self</span>.context_map.set_mixing_values(<span class="kw-2">&amp;</span>bitmask);
    }
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-               <span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) {
-       <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">score</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-       <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">cm_priors</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-       <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">slow_cm_priors</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-       <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">fast_cm_priors</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-      <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">0</span>], <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-       <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">1</span>], <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-       <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">2</span>], <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-       <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">3</span>], <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-       <span class="comment">//&lt;Alloc as Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(&amp;mut self.stride_priors[4], &lt;Alloc as Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));</span>
-       <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">adv_priors</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+   <span class="kw">pub fn </span>free(<span class="kw-2">&amp;mut </span><span class="self">self</span>,
+               alloc: <span class="kw-2">&amp;mut </span>Alloc) {
+       &lt;Alloc <span class="kw">as </span>Allocator&lt;v8&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.score, &lt;Alloc <span class="kw">as </span>Allocator&lt;v8&gt;&gt;::AllocatedMemory::default()));
+       &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.cm_priors, &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));
+       &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.slow_cm_priors, &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));
+       &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.fast_cm_priors, &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));
+      &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stride_priors[<span class="number">0</span>], &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));
+       &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stride_priors[<span class="number">1</span>], &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));
+       &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stride_priors[<span class="number">2</span>], &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));
+       &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stride_priors[<span class="number">3</span>], &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));
+       <span class="comment">//&lt;Alloc as Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(&amp;mut self.stride_priors[4], &lt;Alloc as Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));
+       </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.adv_priors, &lt;Alloc <span class="kw">as </span>Allocator&lt;s16&gt;&gt;::AllocatedMemory::default()));
    }
                 
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_prediction_mode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-       <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">context_map</span>, <span class="ident">interface::PredictionModeContextMap</span>::<span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>{
-          <span class="ident">literal_context_map</span>:<span class="ident">InputReferenceMut::default</span>(),
-          <span class="ident">predmode_speed_and_distance_context_map</span>:<span class="ident">InputReferenceMut::default</span>(),
+   <span class="kw">pub fn </span>take_prediction_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; interface::PredictionModeContextMap&lt;InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+       core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.context_map, interface::PredictionModeContextMap::&lt;InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;&gt;{
+          literal_context_map:InputReferenceMut::default(),
+          predmode_speed_and_distance_context_map:InputReferenceMut::default(),
        })
    }
-  <span class="kw">fn</span> <span class="ident">update_cost_base</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stride_prior</span>: [<span class="ident">u8</span>;<span class="number">8</span>], <span class="ident">stride_prior_offset</span>:<span class="ident">usize</span>, <span class="ident">selected_bits</span>: <span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">literal</span>: <span class="ident">u8</span>) {
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">l_score</span> <span class="op">=</span> <span class="ident">v8::splat</span>(<span class="number">0.0</span>);
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">h_score</span> <span class="op">=</span> <span class="ident">v8::splat</span>(<span class="number">0.0</span>);
-      <span class="kw">let</span> <span class="ident">base_stride_prior</span> <span class="op">=</span> <span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="self">self</span>.<span class="ident">cur_stride</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&amp;</span> <span class="number">7</span>];
-      <span class="kw">let</span> <span class="ident">hscore_index</span> <span class="op">=</span> <span class="ident">upper_score_index</span>(<span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>);
-      <span class="kw">let</span> <span class="ident">lscore_index</span> <span class="op">=</span> <span class="ident">lower_score_index</span>(<span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="ident">literal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="number">4</span>);
+  <span class="kw">fn </span>update_cost_base(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stride_prior: [u8;<span class="number">8</span>], stride_prior_offset:usize, selected_bits: u8, cm_prior: usize, literal: u8) {
+      <span class="kw">let </span><span class="kw-2">mut </span>l_score = v8::splat(<span class="number">0.0</span>);
+      <span class="kw">let </span><span class="kw-2">mut </span>h_score = v8::splat(<span class="number">0.0</span>);
+      <span class="kw">let </span>base_stride_prior = stride_prior[stride_prior_offset.wrapping_sub(<span class="self">self</span>.cur_stride <span class="kw">as </span>usize) &amp; <span class="number">7</span>];
+      <span class="kw">let </span>hscore_index = upper_score_index(base_stride_prior, selected_bits, cm_prior);
+      <span class="kw">let </span>lscore_index = lower_score_index(base_stride_prior, selected_bits, cm_prior, literal&gt;&gt;<span class="number">4</span>);
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">CMPrior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">cm_priors</span>.<span class="ident">slice_mut</span>(),
-                                              <span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">None</span>);
-           <span class="ident">h_score</span> <span class="op">=</span> <span class="ident">h_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="number">4</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>, <span class="self">self</span>.<span class="ident">cm_speed</span>[<span class="number">1</span>]);
+           <span class="kw">type </span>CurPrior = CMPrior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.cm_priors.slice_mut(),
+                                              base_stride_prior, selected_bits, cm_prior, <span class="prelude-val">None</span>);
+           h_score = h_score.replace(CurPrior::which(), cdf.cost(literal&gt;&gt;<span class="number">4</span>));
+           cdf.update(literal &gt;&gt; <span class="number">4</span>, <span class="self">self</span>.cm_speed[<span class="number">1</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">CMPrior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">cm_priors</span>.<span class="ident">slice_mut</span>(),
-                                              <span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">Some</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>));
-           <span class="ident">l_score</span> <span class="op">=</span> <span class="ident">l_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.<span class="ident">cm_speed</span>[<span class="number">0</span>]);
+           <span class="kw">type </span>CurPrior = CMPrior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.cm_priors.slice_mut(),
+                                              base_stride_prior, selected_bits, cm_prior, <span class="prelude-val">Some</span>(literal &gt;&gt; <span class="number">4</span>));
+           l_score = l_score.replace(CurPrior::which(), cdf.cost(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>));
+           cdf.update(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.cm_speed[<span class="number">0</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">SlowCMPrior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">slow_cm_priors</span>.<span class="ident">slice_mut</span>(),
-                                              <span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">None</span>);
-           <span class="ident">h_score</span> <span class="op">=</span> <span class="ident">h_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="number">4</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>, (<span class="number">0</span>,<span class="number">1024</span>));
+           <span class="kw">type </span>CurPrior = SlowCMPrior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.slow_cm_priors.slice_mut(),
+                                              base_stride_prior, selected_bits, cm_prior, <span class="prelude-val">None</span>);
+           h_score = h_score.replace(CurPrior::which(), cdf.cost(literal&gt;&gt;<span class="number">4</span>));
+           cdf.update(literal &gt;&gt; <span class="number">4</span>, (<span class="number">0</span>,<span class="number">1024</span>));
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">SlowCMPrior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">slow_cm_priors</span>.<span class="ident">slice_mut</span>(),
-                                              <span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">Some</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>));
-           <span class="ident">l_score</span> <span class="op">=</span> <span class="ident">l_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>, (<span class="number">0</span>,<span class="number">1024</span>));
+           <span class="kw">type </span>CurPrior = SlowCMPrior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.slow_cm_priors.slice_mut(),
+                                              base_stride_prior, selected_bits, cm_prior, <span class="prelude-val">Some</span>(literal &gt;&gt; <span class="number">4</span>));
+           l_score = l_score.replace(CurPrior::which(), cdf.cost(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>));
+           cdf.update(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>, (<span class="number">0</span>,<span class="number">1024</span>));
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">FastCMPrior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">fast_cm_priors</span>.<span class="ident">slice_mut</span>(),
-                                              <span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">None</span>);
-           <span class="ident">h_score</span> <span class="op">=</span> <span class="ident">h_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="number">4</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>, <span class="self">self</span>.<span class="ident">cm_speed</span>[<span class="number">0</span>]);
+           <span class="kw">type </span>CurPrior = FastCMPrior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.fast_cm_priors.slice_mut(),
+                                              base_stride_prior, selected_bits, cm_prior, <span class="prelude-val">None</span>);
+           h_score = h_score.replace(CurPrior::which(), cdf.cost(literal&gt;&gt;<span class="number">4</span>));
+           cdf.update(literal &gt;&gt; <span class="number">4</span>, <span class="self">self</span>.cm_speed[<span class="number">0</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">FastCMPrior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">fast_cm_priors</span>.<span class="ident">slice_mut</span>(),
-                                              <span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">Some</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>));
-           <span class="ident">l_score</span> <span class="op">=</span> <span class="ident">l_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.<span class="ident">cm_speed</span>[<span class="number">0</span>]);
+           <span class="kw">type </span>CurPrior = FastCMPrior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.fast_cm_priors.slice_mut(),
+                                              base_stride_prior, selected_bits, cm_prior, <span class="prelude-val">Some</span>(literal &gt;&gt; <span class="number">4</span>));
+           l_score = l_score.replace(CurPrior::which(), cdf.cost(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>));
+           cdf.update(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.cm_speed[<span class="number">0</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">Stride1Prior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">0</span>].<span class="ident">slice_mut</span>(),
-                                              <span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="ident">CurPrior::offset</span>())<span class="kw-2">&amp;</span><span class="number">7</span>], <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">None</span>);
-           <span class="ident">h_score</span> <span class="op">=</span> <span class="ident">h_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="number">4</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">1</span>]);
+           <span class="kw">type </span>CurPrior = Stride1Prior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.stride_priors[<span class="number">0</span>].slice_mut(),
+                                              stride_prior[stride_prior_offset.wrapping_sub(CurPrior::offset())<span class="kw-2">&amp;</span><span class="number">7</span>], selected_bits, cm_prior, <span class="prelude-val">None</span>);
+           h_score = h_score.replace(CurPrior::which(), cdf.cost(literal&gt;&gt;<span class="number">4</span>));
+           cdf.update(literal &gt;&gt; <span class="number">4</span>, <span class="self">self</span>.stride_speed[<span class="number">1</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">Stride1Prior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">0</span>].<span class="ident">slice_mut</span>(),
-                                              <span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="ident">CurPrior::offset</span>())<span class="kw-2">&amp;</span><span class="number">7</span>],
-                                              <span class="ident">selected_bits</span>,
-                                              <span class="ident">cm_prior</span>,
-                                              <span class="prelude-val">Some</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>));
-           <span class="ident">l_score</span> <span class="op">=</span> <span class="ident">l_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">0</span>]);
+           <span class="kw">type </span>CurPrior = Stride1Prior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.stride_priors[<span class="number">0</span>].slice_mut(),
+                                              stride_prior[stride_prior_offset.wrapping_sub(CurPrior::offset())<span class="kw-2">&amp;</span><span class="number">7</span>],
+                                              selected_bits,
+                                              cm_prior,
+                                              <span class="prelude-val">Some</span>(literal &gt;&gt; <span class="number">4</span>));
+           l_score = l_score.replace(CurPrior::which(), cdf.cost(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>));
+           cdf.update(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.stride_speed[<span class="number">0</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">Stride2Prior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">1</span>].<span class="ident">slice_mut</span>(),
-                                              <span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="ident">CurPrior::offset</span>())<span class="kw-2">&amp;</span><span class="number">7</span>], <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">None</span>);
-           <span class="ident">h_score</span> <span class="op">=</span> <span class="ident">h_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="number">4</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">1</span>]);
+           <span class="kw">type </span>CurPrior = Stride2Prior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.stride_priors[<span class="number">1</span>].slice_mut(),
+                                              stride_prior[stride_prior_offset.wrapping_sub(CurPrior::offset())<span class="kw-2">&amp;</span><span class="number">7</span>], selected_bits, cm_prior, <span class="prelude-val">None</span>);
+           h_score = h_score.replace(CurPrior::which(), cdf.cost(literal&gt;&gt;<span class="number">4</span>));
+           cdf.update(literal &gt;&gt; <span class="number">4</span>, <span class="self">self</span>.stride_speed[<span class="number">1</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">Stride2Prior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">1</span>].<span class="ident">slice_mut</span>(),
-                                              <span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="ident">CurPrior::offset</span>())<span class="kw-2">&amp;</span><span class="number">7</span>],
-                                              <span class="ident">selected_bits</span>,
-                                              <span class="ident">cm_prior</span>,
-                                              <span class="prelude-val">Some</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>));
-           <span class="ident">l_score</span> <span class="op">=</span> <span class="ident">l_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">0</span>]);
+           <span class="kw">type </span>CurPrior = Stride2Prior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.stride_priors[<span class="number">1</span>].slice_mut(),
+                                              stride_prior[stride_prior_offset.wrapping_sub(CurPrior::offset())<span class="kw-2">&amp;</span><span class="number">7</span>],
+                                              selected_bits,
+                                              cm_prior,
+                                              <span class="prelude-val">Some</span>(literal &gt;&gt; <span class="number">4</span>));
+           l_score = l_score.replace(CurPrior::which(), cdf.cost(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>));
+           cdf.update(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.stride_speed[<span class="number">0</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">Stride3Prior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">2</span>].<span class="ident">slice_mut</span>(),
-                                              <span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="ident">CurPrior::offset</span>())<span class="kw-2">&amp;</span><span class="number">7</span>], <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">None</span>);
-           <span class="ident">h_score</span> <span class="op">=</span> <span class="ident">h_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="number">4</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">1</span>]);
+           <span class="kw">type </span>CurPrior = Stride3Prior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.stride_priors[<span class="number">2</span>].slice_mut(),
+                                              stride_prior[stride_prior_offset.wrapping_sub(CurPrior::offset())<span class="kw-2">&amp;</span><span class="number">7</span>], selected_bits, cm_prior, <span class="prelude-val">None</span>);
+           h_score = h_score.replace(CurPrior::which(), cdf.cost(literal&gt;&gt;<span class="number">4</span>));
+           cdf.update(literal &gt;&gt; <span class="number">4</span>, <span class="self">self</span>.stride_speed[<span class="number">1</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">Stride3Prior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">2</span>].<span class="ident">slice_mut</span>(),
-                                              <span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="ident">CurPrior::offset</span>())<span class="kw-2">&amp;</span><span class="number">7</span>],
-                                              <span class="ident">selected_bits</span>,
-                                              <span class="ident">cm_prior</span>,
-                                              <span class="prelude-val">Some</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>));
-           <span class="ident">l_score</span> <span class="op">=</span> <span class="ident">l_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">0</span>]);
+           <span class="kw">type </span>CurPrior = Stride3Prior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.stride_priors[<span class="number">2</span>].slice_mut(),
+                                              stride_prior[stride_prior_offset.wrapping_sub(CurPrior::offset())<span class="kw-2">&amp;</span><span class="number">7</span>],
+                                              selected_bits,
+                                              cm_prior,
+                                              <span class="prelude-val">Some</span>(literal &gt;&gt; <span class="number">4</span>));
+           l_score = l_score.replace(CurPrior::which(), cdf.cost(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>));
+           cdf.update(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.stride_speed[<span class="number">0</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">Stride4Prior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">3</span>].<span class="ident">slice_mut</span>(),
-                                              <span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="ident">CurPrior::offset</span>())<span class="kw-2">&amp;</span><span class="number">7</span>], <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">None</span>);
-           <span class="ident">h_score</span> <span class="op">=</span> <span class="ident">h_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="number">4</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">1</span>]);
+           <span class="kw">type </span>CurPrior = Stride4Prior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.stride_priors[<span class="number">3</span>].slice_mut(),
+                                              stride_prior[stride_prior_offset.wrapping_sub(CurPrior::offset())<span class="kw-2">&amp;</span><span class="number">7</span>], selected_bits, cm_prior, <span class="prelude-val">None</span>);
+           h_score = h_score.replace(CurPrior::which(), cdf.cost(literal&gt;&gt;<span class="number">4</span>));
+           cdf.update(literal &gt;&gt; <span class="number">4</span>, <span class="self">self</span>.stride_speed[<span class="number">1</span>]);
        }
        {
-           <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">Stride4Prior</span>;
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>[<span class="number">3</span>].<span class="ident">slice_mut</span>(),
-                                              <span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="ident">CurPrior::offset</span>())<span class="kw-2">&amp;</span><span class="number">7</span>],
-                                              <span class="ident">selected_bits</span>,
-                                              <span class="ident">cm_prior</span>,
-                                              <span class="prelude-val">Some</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>));
-           <span class="ident">l_score</span> <span class="op">=</span> <span class="ident">l_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">0</span>]);
+           <span class="kw">type </span>CurPrior = Stride4Prior;
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.stride_priors[<span class="number">3</span>].slice_mut(),
+                                              stride_prior[stride_prior_offset.wrapping_sub(CurPrior::offset())<span class="kw-2">&amp;</span><span class="number">7</span>],
+                                              selected_bits,
+                                              cm_prior,
+                                              <span class="prelude-val">Some</span>(literal &gt;&gt; <span class="number">4</span>));
+           l_score = l_score.replace(CurPrior::which(), cdf.cost(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>));
+           cdf.update(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.stride_speed[<span class="number">0</span>]);
        }
 <span class="comment">/*       {
            type CurPrior = Stride8Prior;
@@ -1321,70 +1321,70 @@ impl Prior for Stride8Prior {
            l_score = l_score.replace(CurPrior::which(), cdf.cost(literal&amp;0xf));
            cdf.update(literal&amp;0xf, self.stride_speed[0]);
        }
-*/</span>
-       <span class="kw">type</span> <span class="ident">CurPrior</span> <span class="op">=</span> <span class="ident">AdvPrior</span>;
+*/
+       </span><span class="kw">type </span>CurPrior = AdvPrior;
        {
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">adv_priors</span>.<span class="ident">slice_mut</span>(),
-                                              <span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">None</span>);
-           <span class="ident">h_score</span> <span class="op">=</span> <span class="ident">h_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="number">4</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">1</span>]);
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.adv_priors.slice_mut(),
+                                              base_stride_prior, selected_bits, cm_prior, <span class="prelude-val">None</span>);
+           h_score = h_score.replace(CurPrior::which(), cdf.cost(literal&gt;&gt;<span class="number">4</span>));
+           cdf.update(literal &gt;&gt; <span class="number">4</span>, <span class="self">self</span>.stride_speed[<span class="number">1</span>]);
        }
        {
-           <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cdf</span> <span class="op">=</span> <span class="ident">CurPrior::lookup_mut</span>(<span class="self">self</span>.<span class="ident">adv_priors</span>.<span class="ident">slice_mut</span>(),
-                                              <span class="ident">base_stride_prior</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="prelude-val">Some</span>(<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>));
-           <span class="ident">l_score</span> <span class="op">=</span> <span class="ident">l_score</span>.<span class="ident">replace</span>(<span class="ident">CurPrior::which</span>(), <span class="ident">cdf</span>.<span class="ident">cost</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>));
-           <span class="ident">cdf</span>.<span class="ident">update</span>(<span class="ident">literal</span><span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.<span class="ident">stride_speed</span>[<span class="number">0</span>]);
+           <span class="kw">let </span><span class="kw-2">mut </span>cdf = CurPrior::lookup_mut(<span class="self">self</span>.adv_priors.slice_mut(),
+                                              base_stride_prior, selected_bits, cm_prior, <span class="prelude-val">Some</span>(literal &gt;&gt; <span class="number">4</span>));
+           l_score = l_score.replace(CurPrior::which(), cdf.cost(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>));
+           cdf.update(literal<span class="kw-2">&amp;</span><span class="number">0xf</span>, <span class="self">self</span>.stride_speed[<span class="number">0</span>]);
        }
-       <span class="self">self</span>.<span class="ident">score</span>.<span class="ident">slice_mut</span>()[<span class="ident">lscore_index</span>] <span class="op">+</span><span class="op">=</span> <span class="ident">l_score</span>;
-       <span class="self">self</span>.<span class="ident">score</span>.<span class="ident">slice_mut</span>()[<span class="ident">hscore_index</span>] <span class="op">+</span><span class="op">=</span> <span class="ident">h_score</span>;
+       <span class="self">self</span>.score.slice_mut()[lscore_index] += l_score;
+       <span class="self">self</span>.score.slice_mut()[hscore_index] += h_score;
   }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">IRInterpreter</span> <span class="kw">for</span> <span class="ident">PriorEval</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">inc_local_byte_offset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">inc</span>: <span class="ident">usize</span>) {
-        <span class="self">self</span>.<span class="ident">local_byte_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">inc</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Alloc: alloc::Allocator&lt;s16&gt; + alloc::Allocator&lt;u32&gt; + alloc::Allocator&lt;v8&gt;&gt; IRInterpreter <span class="kw">for </span>PriorEval&lt;<span class="lifetime">&#39;a</span>, Alloc&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>inc_local_byte_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, inc: usize) {
+        <span class="self">self</span>.local_byte_offset += inc;
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">local_byte_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">local_byte_offset</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>local_byte_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.local_byte_offset
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">update_block_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_type</span>: <span class="ident">u8</span>, <span class="ident">stride</span>: <span class="ident">u8</span>) {
-        <span class="self">self</span>.<span class="ident">block_type</span> <span class="op">=</span> <span class="ident">new_type</span>;
-        <span class="self">self</span>.<span class="ident">cur_stride</span> <span class="op">=</span> <span class="ident">stride</span>;
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>update_block_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_type: u8, stride: u8) {
+        <span class="self">self</span>.block_type = new_type;
+        <span class="self">self</span>.cur_stride = stride;
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">block_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="ident">block_type</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>block_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.block_type
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">literal_data_at_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>:<span class="ident">usize</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="ident">input</span>[<span class="ident">index</span>]
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>literal_data_at_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, index:usize) -&gt; u8 {
+        <span class="self">self</span>.input[index]
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">literal_context_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="self">self</span>.<span class="ident">context_map</span>.<span class="ident">literal_context_map</span>.<span class="ident">slice</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>literal_context_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="self">self</span>.context_map.literal_context_map.slice()
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">prediction_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">::interface::LiteralPredictionModeNibble</span> {
-        <span class="self">self</span>.<span class="ident">context_map</span>.<span class="ident">literal_prediction_mode</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>prediction_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ::interface::LiteralPredictionModeNibble {
+        <span class="self">self</span>.context_map.literal_prediction_mode()
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">update_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stride_prior</span>: [<span class="ident">u8</span>;<span class="number">8</span>], <span class="ident">stride_prior_offset</span>: <span class="ident">usize</span>, <span class="ident">selected_bits</span>: <span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">literal</span>: <span class="ident">u8</span>) {
-        <span class="comment">//let stride = self.cur_stride as usize;</span>
-        <span class="self">self</span>.<span class="ident">update_cost_base</span>(<span class="ident">stride_prior</span>, <span class="ident">stride_prior_offset</span>, <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="ident">literal</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>update_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stride_prior: [u8;<span class="number">8</span>], stride_prior_offset: usize, selected_bits: u8, cm_prior: usize, literal: u8) {
+        <span class="comment">//let stride = self.cur_stride as usize;
+        </span><span class="self">self</span>.update_cost_base(stride_prior, stride_prior_offset, selected_bits, cm_prior, literal)
     }
 }
 
 
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">s16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">v8</span><span class="op">&gt;</span><span class="op">&gt;</span>  <span class="ident">interface::CommandProcessor</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PriorEval</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">val</span>: <span class="ident">interface::Command</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="ident">push_base</span>(<span class="self">self</span>, <span class="ident">val</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, Alloc: alloc::Allocator&lt;s16&gt; + alloc::Allocator&lt;u32&gt; + alloc::Allocator&lt;v8&gt;&gt;  interface::CommandProcessor&lt;<span class="lifetime">&#39;b</span>&gt; <span class="kw">for </span>PriorEval&lt;<span class="lifetime">&#39;a</span>, Alloc&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            val: interface::Command&lt;InputReference&lt;<span class="lifetime">&#39;b</span>&gt;&gt;) {
+        push_base(<span class="self">self</span>, val)
     }
 }
 
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

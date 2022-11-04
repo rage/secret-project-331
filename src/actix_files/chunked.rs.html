@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.2/src/chunked.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chunked.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_files/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.2/src/chunked.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chunked.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_files/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -216,223 +216,223 @@
 <span id="216">216</span>
 <span id="217">217</span>
 <span id="218">218</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cmp</span>, <span class="ident">fmt</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">io</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    cmp, fmt,
+    future::Future,
+    io,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">error::Error</span>, <span class="ident">web::Bytes</span>};
-<span class="kw">use</span> <span class="ident">futures_core</span>::{<span class="ident">ready</span>, <span class="ident">Stream</span>};
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>actix_web::{error::Error, web::Bytes};
+<span class="kw">use </span>futures_core::{ready, Stream};
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">bytes::BytesMut</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+</span><span class="kw">use </span>bytes::BytesMut;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::named::File</span>;
+<span class="kw">use </span><span class="kw">super</span>::named::File;
 
-<span class="macro">pin_project!</span> {
-    <span class="doccomment">/// Adapter to read a `std::file::File` in chunks.</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChunkedReadFile</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span> {
-        <span class="ident">size</span>: <span class="ident">u64</span>,
-        <span class="ident">offset</span>: <span class="ident">u64</span>,
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">state</span>: <span class="ident">ChunkedReadFileState</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span>,
-        <span class="ident">counter</span>: <span class="ident">u64</span>,
-        <span class="ident">callback</span>: <span class="ident">F</span>,
+<span class="macro">pin_project! </span>{
+    <span class="doccomment">/// Adapter to read a `std::file::File` in chunks.
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub struct </span>ChunkedReadFile&lt;F, Fut&gt; {
+        size: u64,
+        offset: u64,
+        <span class="attribute">#[pin]
+        </span>state: ChunkedReadFileState&lt;Fut&gt;,
+        counter: u64,
+        callback: F,
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>))]</span>
-<span class="macro">pin_project!</span> {
-    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">ChunkedReadFileStateProj</span>]</span>
-    <span class="attribute">#[<span class="ident">project_replace</span> <span class="op">=</span> <span class="ident">ChunkedReadFileStateProjReplace</span>]</span>
-    <span class="kw">enum</span> <span class="ident">ChunkedReadFileState</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
-        <span class="ident">File</span> { <span class="ident">file</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span>, },
-        <span class="ident">Future</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">fut</span>: <span class="ident">Fut</span> },
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+</span><span class="macro">pin_project! </span>{
+    <span class="attribute">#[project = ChunkedReadFileStateProj]
+    #[project_replace = ChunkedReadFileStateProjReplace]
+    </span><span class="kw">enum </span>ChunkedReadFileState&lt;Fut&gt; {
+        File { file: <span class="prelude-ty">Option</span>&lt;File&gt;, },
+        Future { <span class="attribute">#[pin] </span>fut: Fut },
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>)]</span>
-<span class="macro">pin_project!</span> {
-    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">ChunkedReadFileStateProj</span>]</span>
-    <span class="attribute">#[<span class="ident">project_replace</span> <span class="op">=</span> <span class="ident">ChunkedReadFileStateProjReplace</span>]</span>
-    <span class="kw">enum</span> <span class="ident">ChunkedReadFileState</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
-        <span class="ident">File</span> { <span class="ident">file</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">File</span>, <span class="ident">BytesMut</span>)<span class="op">&gt;</span> },
-        <span class="ident">Future</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">fut</span>: <span class="ident">Fut</span> },
+<span class="attribute">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+</span><span class="macro">pin_project! </span>{
+    <span class="attribute">#[project = ChunkedReadFileStateProj]
+    #[project_replace = ChunkedReadFileStateProjReplace]
+    </span><span class="kw">enum </span>ChunkedReadFileState&lt;Fut&gt; {
+        File { file: <span class="prelude-ty">Option</span>&lt;(File, BytesMut)&gt; },
+        Future { <span class="attribute">#[pin] </span>fut: Fut },
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">ChunkedReadFile</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;ChunkedReadFile&quot;</span>)
+<span class="kw">impl</span>&lt;F, Fut&gt; fmt::Debug <span class="kw">for </span>ChunkedReadFile&lt;F, Fut&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">&quot;ChunkedReadFile&quot;</span>)
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_chunked_read</span>(
-    <span class="ident">size</span>: <span class="ident">u64</span>,
-    <span class="ident">offset</span>: <span class="ident">u64</span>,
-    <span class="ident">file</span>: <span class="ident">File</span>,
-) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">ChunkedReadFile</span> {
-        <span class="ident">size</span>,
-        <span class="ident">offset</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>))]</span>
-        <span class="ident">state</span>: <span class="ident">ChunkedReadFileState::File</span> { <span class="ident">file</span>: <span class="prelude-val">Some</span>(<span class="ident">file</span>) },
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>)]</span>
-        <span class="ident">state</span>: <span class="ident">ChunkedReadFileState::File</span> {
-            <span class="ident">file</span>: <span class="prelude-val">Some</span>((<span class="ident">file</span>, <span class="ident">BytesMut::new</span>())),
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_chunked_read(
+    size: u64,
+    offset: u64,
+    file: File,
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;&gt; {
+    ChunkedReadFile {
+        size,
+        offset,
+        <span class="attribute">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+        </span>state: ChunkedReadFileState::File { file: <span class="prelude-val">Some</span>(file) },
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+        </span>state: ChunkedReadFileState::File {
+            file: <span class="prelude-val">Some</span>((file, BytesMut::new())),
         },
-        <span class="ident">counter</span>: <span class="number">0</span>,
-        <span class="ident">callback</span>: <span class="ident">chunked_read_file_callback</span>,
+        counter: <span class="number">0</span>,
+        callback: chunked_read_file_callback,
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">chunked_read_file_callback</span>(
-    <span class="kw-2">mut</span> <span class="ident">file</span>: <span class="ident">File</span>,
-    <span class="ident">offset</span>: <span class="ident">u64</span>,
-    <span class="ident">max_bytes</span>: <span class="ident">usize</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">File</span>, <span class="ident">Bytes</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">io</span>::{<span class="ident">Read</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Seek</span> <span class="kw">as</span> <span class="kw">_</span>};
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+</span><span class="kw">async fn </span>chunked_read_file_callback(
+    <span class="kw-2">mut </span>file: File,
+    offset: u64,
+    max_bytes: usize,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(File, Bytes), Error&gt; {
+    <span class="kw">use </span>io::{Read <span class="kw">as _</span>, Seek <span class="kw">as _</span>};
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">actix_web::web::block</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">max_bytes</span>);
+    <span class="kw">let </span>res = actix_web::web::block(<span class="kw">move </span>|| {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::with_capacity(max_bytes);
 
-        <span class="ident">file</span>.<span class="ident">seek</span>(<span class="ident">io::SeekFrom::Start</span>(<span class="ident">offset</span>))<span class="question-mark">?</span>;
+        file.seek(io::SeekFrom::Start(offset))<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">n_bytes</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">by_ref</span>().<span class="ident">take</span>(<span class="ident">max_bytes</span> <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>n_bytes = file.by_ref().take(max_bytes <span class="kw">as </span>u64).read_to_end(<span class="kw-2">&amp;mut </span>buf)<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="ident">n_bytes</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">io::Error::from</span>(<span class="ident">io::ErrorKind::UnexpectedEof</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>((<span class="ident">file</span>, <span class="ident">Bytes::from</span>(<span class="ident">buf</span>)))
+        <span class="kw">if </span>n_bytes == <span class="number">0 </span>{
+            <span class="prelude-val">Err</span>(io::Error::from(io::ErrorKind::UnexpectedEof))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>((file, Bytes::from(buf)))
         }
     })
-    .<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
+    .<span class="kw">await</span><span class="question-mark">??</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>)]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">chunked_read_file_callback</span>(
-    <span class="ident">file</span>: <span class="ident">File</span>,
-    <span class="ident">offset</span>: <span class="ident">u64</span>,
-    <span class="ident">max_bytes</span>: <span class="ident">usize</span>,
-    <span class="kw-2">mut</span> <span class="ident">bytes_mut</span>: <span class="ident">BytesMut</span>,
-) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>(<span class="ident">File</span>, <span class="ident">Bytes</span>, <span class="ident">BytesMut</span>)<span class="op">&gt;</span> {
-    <span class="ident">bytes_mut</span>.<span class="ident">reserve</span>(<span class="ident">max_bytes</span>);
+<span class="attribute">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+</span><span class="kw">async fn </span>chunked_read_file_callback(
+    file: File,
+    offset: u64,
+    max_bytes: usize,
+    <span class="kw-2">mut </span>bytes_mut: BytesMut,
+) -&gt; io::Result&lt;(File, Bytes, BytesMut)&gt; {
+    bytes_mut.reserve(max_bytes);
 
-    <span class="kw">let</span> (<span class="ident">res</span>, <span class="kw-2">mut</span> <span class="ident">bytes_mut</span>) <span class="op">=</span> <span class="ident">file</span>.<span class="ident">read_at</span>(<span class="ident">bytes_mut</span>, <span class="ident">offset</span>).<span class="kw">await</span>;
-    <span class="kw">let</span> <span class="ident">n_bytes</span> <span class="op">=</span> <span class="ident">res</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>(res, <span class="kw-2">mut </span>bytes_mut) = file.read_at(bytes_mut, offset).<span class="kw">await</span>;
+    <span class="kw">let </span>n_bytes = res<span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="ident">n_bytes</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::UnexpectedEof</span>.<span class="ident">into</span>());
+    <span class="kw">if </span>n_bytes == <span class="number">0 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(io::ErrorKind::UnexpectedEof.into());
     }
 
-    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">bytes_mut</span>.<span class="ident">split_to</span>(<span class="ident">n_bytes</span>).<span class="ident">freeze</span>();
+    <span class="kw">let </span>bytes = bytes_mut.split_to(n_bytes).freeze();
 
-    <span class="prelude-val">Ok</span>((<span class="ident">file</span>, <span class="ident">bytes</span>, <span class="ident">bytes_mut</span>))
+    <span class="prelude-val">Ok</span>((file, bytes, bytes_mut))
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">ChunkedReadFile</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">File</span>, <span class="ident">u64</span>, <span class="ident">usize</span>, <span class="ident">BytesMut</span>) -&gt; <span class="ident">Fut</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">io::Result</span><span class="op">&lt;</span>(<span class="ident">File</span>, <span class="ident">Bytes</span>, <span class="ident">BytesMut</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+</span><span class="kw">impl</span>&lt;F, Fut&gt; Stream <span class="kw">for </span>ChunkedReadFile&lt;F, Fut&gt;
+<span class="kw">where
+    </span>F: Fn(File, u64, usize, BytesMut) -&gt; Fut,
+    Fut: Future&lt;Output = io::Result&lt;(File, Bytes, BytesMut)&gt;&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
-        <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>() {
-            <span class="ident">ChunkedReadFileStateProj::File</span> { <span class="ident">file</span> } =&gt; {
-                <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">size</span>;
-                <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">offset</span>;
-                <span class="kw">let</span> <span class="ident">counter</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">counter</span>;
+    <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.as_mut().project();
+        <span class="kw">match </span>this.state.as_mut().project() {
+            ChunkedReadFileStateProj::File { file } =&gt; {
+                <span class="kw">let </span>size = <span class="kw-2">*</span>this.size;
+                <span class="kw">let </span>offset = <span class="kw-2">*</span>this.offset;
+                <span class="kw">let </span>counter = <span class="kw-2">*</span>this.counter;
 
-                <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="ident">counter</span> {
-                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> <span class="ident">max_bytes</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">size</span>.<span class="ident">saturating_sub</span>(<span class="ident">counter</span>), <span class="number">65_536</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+                <span class="kw">if </span>size == counter {
+                    Poll::Ready(<span class="prelude-val">None</span>)
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>max_bytes = cmp::min(size.saturating_sub(counter), <span class="number">65_536</span>) <span class="kw">as </span>usize;
 
-                    <span class="kw">let</span> (<span class="ident">file</span>, <span class="ident">bytes_mut</span>) <span class="op">=</span> <span class="ident">file</span>
-                        .<span class="ident">take</span>()
-                        .<span class="ident">expect</span>(<span class="string">&quot;ChunkedReadFile polled after completion&quot;</span>);
+                    <span class="kw">let </span>(file, bytes_mut) = file
+                        .take()
+                        .expect(<span class="string">&quot;ChunkedReadFile polled after completion&quot;</span>);
 
-                    <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> (<span class="ident">this</span>.<span class="ident">callback</span>)(<span class="ident">file</span>, <span class="ident">offset</span>, <span class="ident">max_bytes</span>, <span class="ident">bytes_mut</span>);
+                    <span class="kw">let </span>fut = (this.callback)(file, offset, max_bytes, bytes_mut);
 
-                    <span class="ident">this</span>.<span class="ident">state</span>
-                        .<span class="ident">project_replace</span>(<span class="ident">ChunkedReadFileState::Future</span> { <span class="ident">fut</span> });
+                    this.state
+                        .project_replace(ChunkedReadFileState::Future { fut });
 
-                    <span class="self">self</span>.<span class="ident">poll_next</span>(<span class="ident">cx</span>)
+                    <span class="self">self</span>.poll_next(cx)
                 }
             }
-            <span class="ident">ChunkedReadFileStateProj::Future</span> { <span class="ident">fut</span> } =&gt; {
-                <span class="kw">let</span> (<span class="ident">file</span>, <span class="ident">bytes</span>, <span class="ident">bytes_mut</span>) <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+            ChunkedReadFileStateProj::Future { fut } =&gt; {
+                <span class="kw">let </span>(file, bytes, bytes_mut) = <span class="macro">ready!</span>(fut.poll(cx))<span class="question-mark">?</span>;
 
-                <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">project_replace</span>(<span class="ident">ChunkedReadFileState::File</span> {
-                    <span class="ident">file</span>: <span class="prelude-val">Some</span>((<span class="ident">file</span>, <span class="ident">bytes_mut</span>)),
+                this.state.project_replace(ChunkedReadFileState::File {
+                    file: <span class="prelude-val">Some</span>((file, bytes_mut)),
                 });
 
-                <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
-                <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">counter</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
+                <span class="kw-2">*</span>this.offset += bytes.len() <span class="kw">as </span>u64;
+                <span class="kw-2">*</span>this.counter += bytes.len() <span class="kw">as </span>u64;
 
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)))
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)))
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">ChunkedReadFile</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">File</span>, <span class="ident">u64</span>, <span class="ident">usize</span>) -&gt; <span class="ident">Fut</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">File</span>, <span class="ident">Bytes</span>), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+</span><span class="kw">impl</span>&lt;F, Fut&gt; Stream <span class="kw">for </span>ChunkedReadFile&lt;F, Fut&gt;
+<span class="kw">where
+    </span>F: Fn(File, u64, usize) -&gt; Fut,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;(File, Bytes), Error&gt;&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
-        <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>() {
-            <span class="ident">ChunkedReadFileStateProj::File</span> { <span class="ident">file</span> } =&gt; {
-                <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">size</span>;
-                <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">offset</span>;
-                <span class="kw">let</span> <span class="ident">counter</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">counter</span>;
+    <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.as_mut().project();
+        <span class="kw">match </span>this.state.as_mut().project() {
+            ChunkedReadFileStateProj::File { file } =&gt; {
+                <span class="kw">let </span>size = <span class="kw-2">*</span>this.size;
+                <span class="kw">let </span>offset = <span class="kw-2">*</span>this.offset;
+                <span class="kw">let </span>counter = <span class="kw-2">*</span>this.counter;
 
-                <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="ident">counter</span> {
-                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> <span class="ident">max_bytes</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">size</span>.<span class="ident">saturating_sub</span>(<span class="ident">counter</span>), <span class="number">65_536</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+                <span class="kw">if </span>size == counter {
+                    Poll::Ready(<span class="prelude-val">None</span>)
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>max_bytes = cmp::min(size.saturating_sub(counter), <span class="number">65_536</span>) <span class="kw">as </span>usize;
 
-                    <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">file</span>
-                        .<span class="ident">take</span>()
-                        .<span class="ident">expect</span>(<span class="string">&quot;ChunkedReadFile polled after completion&quot;</span>);
+                    <span class="kw">let </span>file = file
+                        .take()
+                        .expect(<span class="string">&quot;ChunkedReadFile polled after completion&quot;</span>);
 
-                    <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> (<span class="ident">this</span>.<span class="ident">callback</span>)(<span class="ident">file</span>, <span class="ident">offset</span>, <span class="ident">max_bytes</span>);
+                    <span class="kw">let </span>fut = (this.callback)(file, offset, max_bytes);
 
-                    <span class="ident">this</span>.<span class="ident">state</span>
-                        .<span class="ident">project_replace</span>(<span class="ident">ChunkedReadFileState::Future</span> { <span class="ident">fut</span> });
+                    this.state
+                        .project_replace(ChunkedReadFileState::Future { fut });
 
-                    <span class="self">self</span>.<span class="ident">poll_next</span>(<span class="ident">cx</span>)
+                    <span class="self">self</span>.poll_next(cx)
                 }
             }
-            <span class="ident">ChunkedReadFileStateProj::Future</span> { <span class="ident">fut</span> } =&gt; {
-                <span class="kw">let</span> (<span class="ident">file</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+            ChunkedReadFileStateProj::Future { fut } =&gt; {
+                <span class="kw">let </span>(file, bytes) = <span class="macro">ready!</span>(fut.poll(cx))<span class="question-mark">?</span>;
 
-                <span class="ident">this</span>.<span class="ident">state</span>
-                    .<span class="ident">project_replace</span>(<span class="ident">ChunkedReadFileState::File</span> { <span class="ident">file</span>: <span class="prelude-val">Some</span>(<span class="ident">file</span>) });
+                this.state
+                    .project_replace(ChunkedReadFileState::File { file: <span class="prelude-val">Some</span>(file) });
 
-                <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
-                <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">counter</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
+                <span class="kw-2">*</span>this.offset += bytes.len() <span class="kw">as </span>u64;
+                <span class="kw-2">*</span>this.counter += bytes.len() <span class="kw">as </span>u64;
 
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)))
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)))
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_files" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_files" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

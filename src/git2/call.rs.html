@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/call.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/call.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -244,251 +244,251 @@
 <span id="244">244</span>
 <span id="245">245</span>
 <span id="246">246</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">macro_use</span>]</span>
-<span class="kw">use</span> <span class="ident">libc</span>;
+</pre><pre class="rust"><code><span class="attribute">#![macro_use]
+</span><span class="kw">use </span>libc;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
+<span class="kw">use </span><span class="kw">crate</span>::Error;
 
-<span class="macro">macro_rules!</span> <span class="ident">call</span> {
-    (<span class="ident">raw</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>)) =&gt; (
-        <span class="ident">raw</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>($(<span class="ident"><span class="kw">crate</span>::call::convert</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>)),<span class="kw-2">*</span>)
+<span class="macro">macro_rules! </span>call {
+    (raw::<span class="macro-nonterminal">$p</span>:ident ($(<span class="macro-nonterminal">$e</span>:expr),<span class="kw-2">*</span>)) =&gt; (
+        raw::<span class="macro-nonterminal">$p</span>($(<span class="kw">crate</span>::call::convert(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$e</span>)),<span class="kw-2">*</span>)
     )
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">try_call</span> {
-    (<span class="ident">raw</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">ident</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>)) =&gt; ({
-        <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::call::c_try</span>(<span class="ident">raw</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>($(<span class="ident"><span class="kw">crate</span>::call::convert</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>)),<span class="kw-2">*</span>)) {
-            <span class="prelude-val">Ok</span>(<span class="ident">o</span>) =&gt; <span class="ident">o</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; { <span class="ident"><span class="kw">crate</span>::panic::check</span>(); <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) }
+<span class="macro">macro_rules! </span>try_call {
+    (raw::<span class="macro-nonterminal">$p</span>:ident ($(<span class="macro-nonterminal">$e</span>:expr),<span class="kw-2">*</span>)) =&gt; ({
+        <span class="kw">match </span><span class="kw">crate</span>::call::c_try(raw::<span class="macro-nonterminal">$p</span>($(<span class="kw">crate</span>::call::convert(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$e</span>)),<span class="kw-2">*</span>)) {
+            <span class="prelude-val">Ok</span>(o) =&gt; o,
+            <span class="prelude-val">Err</span>(e) =&gt; { <span class="kw">crate</span>::panic::check(); <span class="kw">return </span><span class="prelude-val">Err</span>(e) }
         }
     })
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">try_call_iter</span> {
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="kw">match</span> <span class="macro">call!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span>)<span class="kw-2">*</span>) {
-            <span class="number">0</span> =&gt; {}
-            <span class="ident">raw::GIT_ITEROVER</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
-            <span class="ident">e</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::call::last_error</span>(<span class="ident">e</span>)))
+<span class="macro">macro_rules! </span>try_call_iter {
+    ($(<span class="macro-nonterminal">$f</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="kw">match </span><span class="macro">call!</span>($(<span class="macro-nonterminal">$f</span>)<span class="kw-2">*</span>) {
+            <span class="number">0 </span>=&gt; {}
+            raw::GIT_ITEROVER =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+            e =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::call::last_error(e)))
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">T</span>;
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub trait </span>Convert&lt;T&gt; {
+    <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; T;
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span>: <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">u</span>: <span class="kw-2">&amp;</span><span class="ident">U</span>) -&gt; <span class="ident">T</span> {
-    <span class="ident">u</span>.<span class="ident">convert</span>()
+<span class="kw">pub fn </span>convert&lt;T, U: Convert&lt;T&gt;&gt;(u: <span class="kw-2">&amp;</span>U) -&gt; T {
+    u.convert()
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">c_try</span>(<span class="ident">ret</span>: <span class="ident">libc::c_int</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">libc::c_int</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">ret</span> {
-        <span class="ident">n</span> <span class="kw">if</span> <span class="ident">n</span> <span class="op">&lt;</span> <span class="number">0</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">last_error</span>(<span class="ident">n</span>)),
-        <span class="ident">n</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">n</span>),
+<span class="kw">pub fn </span>c_try(ret: libc::c_int) -&gt; <span class="prelude-ty">Result</span>&lt;libc::c_int, Error&gt; {
+    <span class="kw">match </span>ret {
+        n <span class="kw">if </span>n &lt; <span class="number">0 </span>=&gt; <span class="prelude-val">Err</span>(last_error(n)),
+        n =&gt; <span class="prelude-val">Ok</span>(n),
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_error</span>(<span class="ident">code</span>: <span class="ident">libc::c_int</span>) -&gt; <span class="ident">Error</span> {
-    <span class="comment">// nowadays this unwrap is safe as `Error::last_error` always returns</span>
-    <span class="comment">// `Some`.</span>
-    <span class="ident">Error::last_error</span>(<span class="ident">code</span>).<span class="ident">unwrap</span>()
+<span class="kw">pub fn </span>last_error(code: libc::c_int) -&gt; Error {
+    <span class="comment">// nowadays this unwrap is safe as `Error::last_error` always returns
+    // `Some`.
+    </span>Error::last_error(code).unwrap()
 }
 
-<span class="kw">mod</span> <span class="ident">impls</span> {
-    <span class="kw">use</span> <span class="ident">std::ffi::CString</span>;
-    <span class="kw">use</span> <span class="ident">std::ptr</span>;
+<span class="kw">mod </span>impls {
+    <span class="kw">use </span>std::ffi::CString;
+    <span class="kw">use </span>std::ptr;
 
-    <span class="kw">use</span> <span class="ident">libc</span>;
+    <span class="kw">use </span>libc;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::call::Convert</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">raw</span>, <span class="ident">BranchType</span>, <span class="ident">ConfigLevel</span>, <span class="ident">Direction</span>, <span class="ident">ObjectType</span>, <span class="ident">ResetType</span>};
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">AutotagOption</span>, <span class="ident">DiffFormat</span>, <span class="ident">FetchPrune</span>, <span class="ident">FileFavor</span>, <span class="ident">SubmoduleIgnore</span>, <span class="ident">SubmoduleUpdate</span>,
+    <span class="kw">use </span><span class="kw">crate</span>::call::Convert;
+    <span class="kw">use crate</span>::{raw, BranchType, ConfigLevel, Direction, ObjectType, ResetType};
+    <span class="kw">use crate</span>::{
+        AutotagOption, DiffFormat, FetchPrune, FileFavor, SubmoduleIgnore, SubmoduleUpdate,
     };
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">T</span> {
-            <span class="kw-2">*</span><span class="self">self</span>
+    <span class="kw">impl</span>&lt;T: Copy&gt; Convert&lt;T&gt; <span class="kw">for </span>T {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; T {
+            <span class="kw-2">*</span><span class="self">self
+        </span>}
+    }
+
+    <span class="kw">impl </span>Convert&lt;libc::c_int&gt; <span class="kw">for </span>bool {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; libc::c_int {
+            <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>libc::c_int
+        }
+    }
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Convert&lt;<span class="kw-2">*const </span>T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*const </span>T {
+            <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span>T
+        }
+    }
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Convert&lt;<span class="kw-2">*mut </span>T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>T {
+            <span class="kw-2">&amp;**</span><span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span>T <span class="kw">as </span><span class="kw-2">*mut </span>T
+        }
+    }
+    <span class="kw">impl</span>&lt;T&gt; Convert&lt;<span class="kw-2">*const </span>T&gt; <span class="kw">for </span><span class="kw-2">*mut </span>T {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*const </span>T {
+            <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span>T
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">libc::c_int</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">bool</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">libc::c_int</span> {
-            <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">libc::c_int</span>
-        }
-    }
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="kw-2">*const</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">T</span> {
-            <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span>
-        }
-    }
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">T</span> {
-            <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>
-        }
-    }
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="kw-2">*const</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">*mut</span> <span class="ident">T</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">T</span> {
-            <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span>
+    <span class="kw">impl </span>Convert&lt;<span class="kw-2">*const </span>libc::c_char&gt; <span class="kw">for </span>CString {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*const </span>libc::c_char {
+            <span class="self">self</span>.as_ptr()
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="kw-2">*const</span> <span class="ident">libc::c_char</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CString</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">libc::c_char</span> {
-            <span class="self">self</span>.<span class="ident">as_ptr</span>()
+    <span class="kw">impl</span>&lt;T, U: Convert&lt;<span class="kw-2">*const </span>T&gt;&gt; Convert&lt;<span class="kw-2">*const </span>T&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;U&gt; {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*const </span>T {
+            <span class="self">self</span>.as_ref().map(|s| s.convert()).unwrap_or(ptr::null())
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span>: <span class="ident">Convert</span><span class="op">&lt;</span><span class="kw-2">*const</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="kw-2">*const</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">T</span> {
-            <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">convert</span>()).<span class="ident">unwrap_or</span>(<span class="ident">ptr::null</span>())
+    <span class="kw">impl</span>&lt;T, U: Convert&lt;<span class="kw-2">*mut </span>T&gt;&gt; Convert&lt;<span class="kw-2">*mut </span>T&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;U&gt; {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>T {
+            <span class="self">self</span>.as_ref()
+                .map(|s| s.convert())
+                .unwrap_or(ptr::null_mut())
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span>: <span class="ident">Convert</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">T</span> {
-            <span class="self">self</span>.<span class="ident">as_ref</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">convert</span>())
-                .<span class="ident">unwrap_or</span>(<span class="ident">ptr::null_mut</span>())
-        }
-    }
-
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_reset_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResetType</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_reset_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">ResetType::Soft</span> =&gt; <span class="ident">raw::GIT_RESET_SOFT</span>,
-                <span class="ident">ResetType::Hard</span> =&gt; <span class="ident">raw::GIT_RESET_HARD</span>,
-                <span class="ident">ResetType::Mixed</span> =&gt; <span class="ident">raw::GIT_RESET_MIXED</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_reset_t&gt; <span class="kw">for </span>ResetType {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_reset_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                ResetType::Soft =&gt; raw::GIT_RESET_SOFT,
+                ResetType::Hard =&gt; raw::GIT_RESET_HARD,
+                ResetType::Mixed =&gt; raw::GIT_RESET_MIXED,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_direction</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Direction</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_direction</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">Direction::Push</span> =&gt; <span class="ident">raw::GIT_DIRECTION_PUSH</span>,
-                <span class="ident">Direction::Fetch</span> =&gt; <span class="ident">raw::GIT_DIRECTION_FETCH</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_direction&gt; <span class="kw">for </span>Direction {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_direction {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                Direction::Push =&gt; raw::GIT_DIRECTION_PUSH,
+                Direction::Fetch =&gt; raw::GIT_DIRECTION_FETCH,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_object_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ObjectType</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_object_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">ObjectType::Any</span> =&gt; <span class="ident">raw::GIT_OBJECT_ANY</span>,
-                <span class="ident">ObjectType::Commit</span> =&gt; <span class="ident">raw::GIT_OBJECT_COMMIT</span>,
-                <span class="ident">ObjectType::Tree</span> =&gt; <span class="ident">raw::GIT_OBJECT_TREE</span>,
-                <span class="ident">ObjectType::Blob</span> =&gt; <span class="ident">raw::GIT_OBJECT_BLOB</span>,
-                <span class="ident">ObjectType::Tag</span> =&gt; <span class="ident">raw::GIT_OBJECT_TAG</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_object_t&gt; <span class="kw">for </span>ObjectType {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_object_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                ObjectType::Any =&gt; raw::GIT_OBJECT_ANY,
+                ObjectType::Commit =&gt; raw::GIT_OBJECT_COMMIT,
+                ObjectType::Tree =&gt; raw::GIT_OBJECT_TREE,
+                ObjectType::Blob =&gt; raw::GIT_OBJECT_BLOB,
+                ObjectType::Tag =&gt; raw::GIT_OBJECT_TAG,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_object_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ObjectType</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_object_t</span> {
-            <span class="self">self</span>.<span class="ident">unwrap_or</span>(<span class="ident">ObjectType::Any</span>).<span class="ident">convert</span>()
+    <span class="kw">impl </span>Convert&lt;raw::git_object_t&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;ObjectType&gt; {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_object_t {
+            <span class="self">self</span>.unwrap_or(ObjectType::Any).convert()
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_branch_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BranchType</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_branch_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">BranchType::Remote</span> =&gt; <span class="ident">raw::GIT_BRANCH_REMOTE</span>,
-                <span class="ident">BranchType::Local</span> =&gt; <span class="ident">raw::GIT_BRANCH_LOCAL</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_branch_t&gt; <span class="kw">for </span>BranchType {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_branch_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                BranchType::Remote =&gt; raw::GIT_BRANCH_REMOTE,
+                BranchType::Local =&gt; raw::GIT_BRANCH_LOCAL,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_branch_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BranchType</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_branch_t</span> {
-            <span class="self">self</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">convert</span>()).<span class="ident">unwrap_or</span>(<span class="ident">raw::GIT_BRANCH_ALL</span>)
+    <span class="kw">impl </span>Convert&lt;raw::git_branch_t&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;BranchType&gt; {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_branch_t {
+            <span class="self">self</span>.map(|s| s.convert()).unwrap_or(raw::GIT_BRANCH_ALL)
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_config_level_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ConfigLevel</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_config_level_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">ConfigLevel::ProgramData</span> =&gt; <span class="ident">raw::GIT_CONFIG_LEVEL_PROGRAMDATA</span>,
-                <span class="ident">ConfigLevel::System</span> =&gt; <span class="ident">raw::GIT_CONFIG_LEVEL_SYSTEM</span>,
-                <span class="ident">ConfigLevel::XDG</span> =&gt; <span class="ident">raw::GIT_CONFIG_LEVEL_XDG</span>,
-                <span class="ident">ConfigLevel::Global</span> =&gt; <span class="ident">raw::GIT_CONFIG_LEVEL_GLOBAL</span>,
-                <span class="ident">ConfigLevel::Local</span> =&gt; <span class="ident">raw::GIT_CONFIG_LEVEL_LOCAL</span>,
-                <span class="ident">ConfigLevel::App</span> =&gt; <span class="ident">raw::GIT_CONFIG_LEVEL_APP</span>,
-                <span class="ident">ConfigLevel::Highest</span> =&gt; <span class="ident">raw::GIT_CONFIG_HIGHEST_LEVEL</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_config_level_t&gt; <span class="kw">for </span>ConfigLevel {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_config_level_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                ConfigLevel::ProgramData =&gt; raw::GIT_CONFIG_LEVEL_PROGRAMDATA,
+                ConfigLevel::System =&gt; raw::GIT_CONFIG_LEVEL_SYSTEM,
+                ConfigLevel::XDG =&gt; raw::GIT_CONFIG_LEVEL_XDG,
+                ConfigLevel::Global =&gt; raw::GIT_CONFIG_LEVEL_GLOBAL,
+                ConfigLevel::Local =&gt; raw::GIT_CONFIG_LEVEL_LOCAL,
+                ConfigLevel::App =&gt; raw::GIT_CONFIG_LEVEL_APP,
+                ConfigLevel::Highest =&gt; raw::GIT_CONFIG_HIGHEST_LEVEL,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_diff_format_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DiffFormat</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_diff_format_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">DiffFormat::Patch</span> =&gt; <span class="ident">raw::GIT_DIFF_FORMAT_PATCH</span>,
-                <span class="ident">DiffFormat::PatchHeader</span> =&gt; <span class="ident">raw::GIT_DIFF_FORMAT_PATCH_HEADER</span>,
-                <span class="ident">DiffFormat::Raw</span> =&gt; <span class="ident">raw::GIT_DIFF_FORMAT_RAW</span>,
-                <span class="ident">DiffFormat::NameOnly</span> =&gt; <span class="ident">raw::GIT_DIFF_FORMAT_NAME_ONLY</span>,
-                <span class="ident">DiffFormat::NameStatus</span> =&gt; <span class="ident">raw::GIT_DIFF_FORMAT_NAME_STATUS</span>,
-                <span class="ident">DiffFormat::PatchId</span> =&gt; <span class="ident">raw::GIT_DIFF_FORMAT_PATCH_ID</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_diff_format_t&gt; <span class="kw">for </span>DiffFormat {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_diff_format_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                DiffFormat::Patch =&gt; raw::GIT_DIFF_FORMAT_PATCH,
+                DiffFormat::PatchHeader =&gt; raw::GIT_DIFF_FORMAT_PATCH_HEADER,
+                DiffFormat::Raw =&gt; raw::GIT_DIFF_FORMAT_RAW,
+                DiffFormat::NameOnly =&gt; raw::GIT_DIFF_FORMAT_NAME_ONLY,
+                DiffFormat::NameStatus =&gt; raw::GIT_DIFF_FORMAT_NAME_STATUS,
+                DiffFormat::PatchId =&gt; raw::GIT_DIFF_FORMAT_PATCH_ID,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_merge_file_favor_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FileFavor</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_merge_file_favor_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">FileFavor::Normal</span> =&gt; <span class="ident">raw::GIT_MERGE_FILE_FAVOR_NORMAL</span>,
-                <span class="ident">FileFavor::Ours</span> =&gt; <span class="ident">raw::GIT_MERGE_FILE_FAVOR_OURS</span>,
-                <span class="ident">FileFavor::Theirs</span> =&gt; <span class="ident">raw::GIT_MERGE_FILE_FAVOR_THEIRS</span>,
-                <span class="ident">FileFavor::Union</span> =&gt; <span class="ident">raw::GIT_MERGE_FILE_FAVOR_UNION</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_merge_file_favor_t&gt; <span class="kw">for </span>FileFavor {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_merge_file_favor_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                FileFavor::Normal =&gt; raw::GIT_MERGE_FILE_FAVOR_NORMAL,
+                FileFavor::Ours =&gt; raw::GIT_MERGE_FILE_FAVOR_OURS,
+                FileFavor::Theirs =&gt; raw::GIT_MERGE_FILE_FAVOR_THEIRS,
+                FileFavor::Union =&gt; raw::GIT_MERGE_FILE_FAVOR_UNION,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_submodule_ignore_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SubmoduleIgnore</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_submodule_ignore_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">SubmoduleIgnore::Unspecified</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_IGNORE_UNSPECIFIED</span>,
-                <span class="ident">SubmoduleIgnore::None</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_IGNORE_NONE</span>,
-                <span class="ident">SubmoduleIgnore::Untracked</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_IGNORE_UNTRACKED</span>,
-                <span class="ident">SubmoduleIgnore::Dirty</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_IGNORE_DIRTY</span>,
-                <span class="ident">SubmoduleIgnore::All</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_IGNORE_ALL</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_submodule_ignore_t&gt; <span class="kw">for </span>SubmoduleIgnore {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_submodule_ignore_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                SubmoduleIgnore::Unspecified =&gt; raw::GIT_SUBMODULE_IGNORE_UNSPECIFIED,
+                SubmoduleIgnore::None =&gt; raw::GIT_SUBMODULE_IGNORE_NONE,
+                SubmoduleIgnore::Untracked =&gt; raw::GIT_SUBMODULE_IGNORE_UNTRACKED,
+                SubmoduleIgnore::Dirty =&gt; raw::GIT_SUBMODULE_IGNORE_DIRTY,
+                SubmoduleIgnore::All =&gt; raw::GIT_SUBMODULE_IGNORE_ALL,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_submodule_update_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SubmoduleUpdate</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_submodule_update_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">SubmoduleUpdate::Checkout</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_UPDATE_CHECKOUT</span>,
-                <span class="ident">SubmoduleUpdate::Rebase</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_UPDATE_REBASE</span>,
-                <span class="ident">SubmoduleUpdate::Merge</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_UPDATE_MERGE</span>,
-                <span class="ident">SubmoduleUpdate::None</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_UPDATE_NONE</span>,
-                <span class="ident">SubmoduleUpdate::Default</span> =&gt; <span class="ident">raw::GIT_SUBMODULE_UPDATE_DEFAULT</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_submodule_update_t&gt; <span class="kw">for </span>SubmoduleUpdate {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_submodule_update_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                SubmoduleUpdate::Checkout =&gt; raw::GIT_SUBMODULE_UPDATE_CHECKOUT,
+                SubmoduleUpdate::Rebase =&gt; raw::GIT_SUBMODULE_UPDATE_REBASE,
+                SubmoduleUpdate::Merge =&gt; raw::GIT_SUBMODULE_UPDATE_MERGE,
+                SubmoduleUpdate::None =&gt; raw::GIT_SUBMODULE_UPDATE_NONE,
+                SubmoduleUpdate::Default =&gt; raw::GIT_SUBMODULE_UPDATE_DEFAULT,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_remote_autotag_option_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AutotagOption</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_remote_autotag_option_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">AutotagOption::Unspecified</span> =&gt; <span class="ident">raw::GIT_REMOTE_DOWNLOAD_TAGS_UNSPECIFIED</span>,
-                <span class="ident">AutotagOption::None</span> =&gt; <span class="ident">raw::GIT_REMOTE_DOWNLOAD_TAGS_NONE</span>,
-                <span class="ident">AutotagOption::Auto</span> =&gt; <span class="ident">raw::GIT_REMOTE_DOWNLOAD_TAGS_AUTO</span>,
-                <span class="ident">AutotagOption::All</span> =&gt; <span class="ident">raw::GIT_REMOTE_DOWNLOAD_TAGS_ALL</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_remote_autotag_option_t&gt; <span class="kw">for </span>AutotagOption {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_remote_autotag_option_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                AutotagOption::Unspecified =&gt; raw::GIT_REMOTE_DOWNLOAD_TAGS_UNSPECIFIED,
+                AutotagOption::None =&gt; raw::GIT_REMOTE_DOWNLOAD_TAGS_NONE,
+                AutotagOption::Auto =&gt; raw::GIT_REMOTE_DOWNLOAD_TAGS_AUTO,
+                AutotagOption::All =&gt; raw::GIT_REMOTE_DOWNLOAD_TAGS_ALL,
             }
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">Convert</span><span class="op">&lt;</span><span class="ident">raw::git_fetch_prune_t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FetchPrune</span> {
-        <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_fetch_prune_t</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">FetchPrune::Unspecified</span> =&gt; <span class="ident">raw::GIT_FETCH_PRUNE_UNSPECIFIED</span>,
-                <span class="ident">FetchPrune::On</span> =&gt; <span class="ident">raw::GIT_FETCH_PRUNE</span>,
-                <span class="ident">FetchPrune::Off</span> =&gt; <span class="ident">raw::GIT_FETCH_NO_PRUNE</span>,
+    <span class="kw">impl </span>Convert&lt;raw::git_fetch_prune_t&gt; <span class="kw">for </span>FetchPrune {
+        <span class="kw">fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_fetch_prune_t {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                FetchPrune::Unspecified =&gt; raw::GIT_FETCH_PRUNE_UNSPECIFIED,
+                FetchPrune::On =&gt; raw::GIT_FETCH_PRUNE,
+                FetchPrune::Off =&gt; raw::GIT_FETCH_NO_PRUNE,
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

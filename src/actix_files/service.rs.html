@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.2/src/service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_files/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.2/src/service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_files/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -193,200 +193,200 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">ops::Deref</span>, <span class="ident">path::PathBuf</span>, <span class="ident">rc::Rc</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{fmt, io, ops::Deref, path::PathBuf, rc::Rc};
 
-<span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">body::BoxBody</span>,
-    <span class="ident">dev</span>::{<span class="self">self</span>, <span class="ident">Service</span>, <span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>},
-    <span class="ident">error::Error</span>,
-    <span class="ident">guard::Guard</span>,
-    <span class="ident">http</span>::{<span class="ident">header</span>, <span class="ident">Method</span>},
-    <span class="ident">HttpResponse</span>,
+<span class="kw">use </span>actix_web::{
+    body::BoxBody,
+    dev::{<span class="self">self</span>, Service, ServiceRequest, ServiceResponse},
+    error::Error,
+    guard::Guard,
+    http::{header, Method},
+    HttpResponse,
 };
-<span class="kw">use</span> <span class="ident">futures_core::future::LocalBoxFuture</span>;
+<span class="kw">use </span>futures_core::future::LocalBoxFuture;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">named</span>, <span class="ident">Directory</span>, <span class="ident">DirectoryRenderer</span>, <span class="ident">FilesError</span>, <span class="ident">HttpService</span>, <span class="ident">MimeOverride</span>, <span class="ident">NamedFile</span>,
-    <span class="ident">PathBufWrap</span>, <span class="ident">PathFilter</span>,
+<span class="kw">use crate</span>::{
+    named, Directory, DirectoryRenderer, FilesError, HttpService, MimeOverride, NamedFile,
+    PathBufWrap, PathFilter,
 };
 
-<span class="doccomment">/// Assembled file serving service.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FilesService</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">FilesServiceInner</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Assembled file serving service.
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>FilesService(<span class="kw">pub</span>(<span class="kw">crate</span>) Rc&lt;FilesServiceInner&gt;);
 
-<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">FilesService</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">FilesServiceInner</span>;
+<span class="kw">impl </span>Deref <span class="kw">for </span>FilesService {
+    <span class="kw">type </span>Target = FilesServiceInner;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;*</span><span class="self">self</span>.<span class="number">0
+    </span>}
+}
+
+<span class="kw">pub struct </span>FilesServiceInner {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) directory: PathBuf,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) index: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) show_index: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) redirect_to_slash: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) default: <span class="prelude-ty">Option</span>&lt;HttpService&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) renderer: Rc&lt;DirectoryRenderer&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) mime_override: <span class="prelude-ty">Option</span>&lt;Rc&lt;MimeOverride&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) path_filter: <span class="prelude-ty">Option</span>&lt;Rc&lt;PathFilter&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) file_flags: named::Flags,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) guards: <span class="prelude-ty">Option</span>&lt;Rc&lt;<span class="kw">dyn </span>Guard&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) hidden_files: bool,
+}
+
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>FilesServiceInner {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">&quot;FilesServiceInner&quot;</span>)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FilesServiceInner</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">directory</span>: <span class="ident">PathBuf</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">index</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">show_index</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">redirect_to_slash</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">default</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpService</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">renderer</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">DirectoryRenderer</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">mime_override</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">MimeOverride</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">path_filter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">PathFilter</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">file_flags</span>: <span class="ident">named::Flags</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">guards</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">hidden_files</span>: <span class="ident">bool</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">FilesServiceInner</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;FilesServiceInner&quot;</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">FilesService</span> {
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_err</span>(
+<span class="kw">impl </span>FilesService {
+    <span class="kw">async fn </span>handle_err(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">err</span>: <span class="ident">io::Error</span>,
-        <span class="ident">req</span>: <span class="ident">ServiceRequest</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="macro">log::debug!</span>(<span class="string">&quot;error handling {}: {}&quot;</span>, <span class="ident">req</span>.<span class="ident">path</span>(), <span class="ident">err</span>);
+        err: io::Error,
+        req: ServiceRequest,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ServiceResponse, Error&gt; {
+        <span class="macro">log::debug!</span>(<span class="string">&quot;error handling {}: {}&quot;</span>, req.path(), err);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">default</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">default</span> {
-            <span class="ident">default</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">error_response</span>(<span class="ident">err</span>))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>default) = <span class="self">self</span>.default {
+            default.call(req).<span class="kw">await
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(req.error_response(err))
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serve_named_file</span>(
+    <span class="kw">fn </span>serve_named_file(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">req</span>: <span class="ident">ServiceRequest</span>,
-        <span class="kw-2">mut</span> <span class="ident">named_file</span>: <span class="ident">NamedFile</span>,
-    ) -&gt; <span class="ident">ServiceResponse</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">mime_override</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">mime_override</span> {
-            <span class="kw">let</span> <span class="ident">new_disposition</span> <span class="op">=</span> <span class="ident">mime_override</span>(<span class="kw-2">&amp;</span><span class="ident">named_file</span>.<span class="ident">content_type</span>.<span class="ident">type_</span>());
-            <span class="ident">named_file</span>.<span class="ident">content_disposition</span>.<span class="ident">disposition</span> <span class="op">=</span> <span class="ident">new_disposition</span>;
+        req: ServiceRequest,
+        <span class="kw-2">mut </span>named_file: NamedFile,
+    ) -&gt; ServiceResponse {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>mime_override) = <span class="self">self</span>.mime_override {
+            <span class="kw">let </span>new_disposition = mime_override(<span class="kw-2">&amp;</span>named_file.content_type.type_());
+            named_file.content_disposition.disposition = new_disposition;
         }
-        <span class="ident">named_file</span>.<span class="ident">flags</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">file_flags</span>;
+        named_file.flags = <span class="self">self</span>.file_flags;
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">named_file</span>.<span class="ident">into_response</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="ident">ServiceResponse::new</span>(<span class="ident">req</span>, <span class="ident">res</span>)
+        <span class="kw">let </span>(req, <span class="kw">_</span>) = req.into_parts();
+        <span class="kw">let </span>res = named_file.into_response(<span class="kw-2">&amp;</span>req);
+        ServiceResponse::new(req, res)
     }
 
-    <span class="kw">fn</span> <span class="ident">show_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>, <span class="ident">path</span>: <span class="ident">PathBuf</span>) -&gt; <span class="ident">ServiceResponse</span> {
-        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">Directory::new</span>(<span class="self">self</span>.<span class="ident">directory</span>.<span class="ident">clone</span>(), <span class="ident">path</span>);
+    <span class="kw">fn </span>show_index(<span class="kw-2">&amp;</span><span class="self">self</span>, req: ServiceRequest, path: PathBuf) -&gt; ServiceResponse {
+        <span class="kw">let </span>dir = Directory::new(<span class="self">self</span>.directory.clone(), path);
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
+        <span class="kw">let </span>(req, <span class="kw">_</span>) = req.into_parts();
 
-        (<span class="self">self</span>.<span class="ident">renderer</span>)(<span class="kw-2">&amp;</span><span class="ident">dir</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">ServiceResponse::from_err</span>(<span class="ident">e</span>, <span class="ident">req</span>))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">FilesService</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;FilesService&quot;</span>)
+        (<span class="self">self</span>.renderer)(<span class="kw-2">&amp;</span>dir, <span class="kw-2">&amp;</span>req).unwrap_or_else(|e| ServiceResponse::from_err(e, req))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FilesService</span> {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Response</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>FilesService {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="string">&quot;FilesService&quot;</span>)
+    }
+}
+
+<span class="kw">impl </span>Service&lt;ServiceRequest&gt; <span class="kw">for </span>FilesService {
+    <span class="kw">type </span>Response = ServiceResponse&lt;BoxBody&gt;;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Response, <span class="self">Self</span>::Error&gt;&gt;;
 
     <span class="macro">dev::always_ready!</span>();
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">is_method_valid</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">guard</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">guards</span> {
-            <span class="comment">// execute user defined guards</span>
-            (<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">guard</span>).<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>())
-        } <span class="kw">else</span> {
-            <span class="comment">// default behavior</span>
-            <span class="macro">matches!</span>(<span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">method</span>(), <span class="ident">Method::HEAD</span> <span class="op">|</span> <span class="ident">Method::GET</span>)
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: ServiceRequest) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>is_method_valid = <span class="kw">if let </span><span class="prelude-val">Some</span>(guard) = <span class="kw-2">&amp;</span><span class="self">self</span>.guards {
+            <span class="comment">// execute user defined guards
+            </span>(<span class="kw-2">**</span>guard).check(<span class="kw-2">&amp;</span>req.guard_ctx())
+        } <span class="kw">else </span>{
+            <span class="comment">// default behavior
+            </span><span class="macro">matches!</span>(<span class="kw-2">*</span>req.method(), Method::HEAD | Method::GET)
         };
 
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
+        <span class="kw">let </span>this = <span class="self">self</span>.clone();
 
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">is_method_valid</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(
-                    <span class="ident">HttpResponse::MethodNotAllowed</span>()
-                        .<span class="ident">insert_header</span>(<span class="ident">header::ContentType</span>(<span class="ident">mime::TEXT_PLAIN_UTF_8</span>))
-                        .<span class="ident">body</span>(<span class="string">&quot;Request did not meet this resource&#39;s requirements.&quot;</span>),
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">if </span>!is_method_valid {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(req.into_response(
+                    HttpResponse::MethodNotAllowed()
+                        .insert_header(header::ContentType(mime::TEXT_PLAIN_UTF_8))
+                        .body(<span class="string">&quot;Request did not meet this resource&#39;s requirements.&quot;</span>),
                 ));
             }
 
-            <span class="kw">let</span> <span class="ident">path_on_disk</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">PathBufWrap::parse_path</span>(
-                <span class="ident">req</span>.<span class="ident">match_info</span>().<span class="ident">unprocessed</span>(),
-                <span class="ident">this</span>.<span class="ident">hidden_files</span>,
+            <span class="kw">let </span>path_on_disk = <span class="kw">match </span>PathBufWrap::parse_path(
+                req.match_info().unprocessed(),
+                this.hidden_files,
             ) {
-                <span class="prelude-val">Ok</span>(<span class="ident">item</span>) =&gt; <span class="ident">item</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">error_response</span>(<span class="ident">err</span>)),
+                <span class="prelude-val">Ok</span>(item) =&gt; item,
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(req.error_response(err)),
             };
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">filter</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">this</span>.<span class="ident">path_filter</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">filter</span>(<span class="ident">path_on_disk</span>.<span class="ident">as_ref</span>(), <span class="ident">req</span>.<span class="ident">head</span>()) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">default</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">default</span> {
-                        <span class="kw">return</span> <span class="ident">default</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>;
-                    } <span class="kw">else</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(<span class="ident">HttpResponse::NotFound</span>().<span class="ident">finish</span>()));
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(filter) = <span class="kw-2">&amp;</span>this.path_filter {
+                <span class="kw">if </span>!filter(path_on_disk.as_ref(), req.head()) {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>default) = this.default {
+                        <span class="kw">return </span>default.call(req).<span class="kw">await</span>;
+                    } <span class="kw">else </span>{
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(req.into_response(HttpResponse::NotFound().finish()));
                     }
                 }
             }
 
-            <span class="comment">// full file path</span>
-            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">directory</span>.<span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="ident">path_on_disk</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">canonicalize</span>() {
-                <span class="kw">return</span> <span class="ident">this</span>.<span class="ident">handle_err</span>(<span class="ident">err</span>, <span class="ident">req</span>).<span class="kw">await</span>;
+            <span class="comment">// full file path
+            </span><span class="kw">let </span>path = this.directory.join(<span class="kw-2">&amp;</span>path_on_disk);
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = path.canonicalize() {
+                <span class="kw">return </span>this.handle_err(err, req).<span class="kw">await</span>;
             }
 
-            <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_dir</span>() {
-                <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">redirect_to_slash</span>
-                    <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">req</span>.<span class="ident">path</span>().<span class="ident">ends_with</span>(<span class="string">&#39;/&#39;</span>)
-                    <span class="op">&amp;&amp;</span> (<span class="ident">this</span>.<span class="ident">index</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">this</span>.<span class="ident">show_index</span>)
+            <span class="kw">if </span>path.is_dir() {
+                <span class="kw">if </span>this.redirect_to_slash
+                    &amp;&amp; !req.path().ends_with(<span class="string">&#39;/&#39;</span>)
+                    &amp;&amp; (this.index.is_some() || this.show_index)
                 {
-                    <span class="kw">let</span> <span class="ident">redirect_to</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/&quot;</span>, <span class="ident">req</span>.<span class="ident">path</span>());
+                    <span class="kw">let </span>redirect_to = <span class="macro">format!</span>(<span class="string">&quot;{}/&quot;</span>, req.path());
 
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(
-                        <span class="ident">HttpResponse::Found</span>()
-                            .<span class="ident">insert_header</span>((<span class="ident">header::LOCATION</span>, <span class="ident">redirect_to</span>))
-                            .<span class="ident">finish</span>(),
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(req.into_response(
+                        HttpResponse::Found()
+                            .insert_header((header::LOCATION, redirect_to))
+                            .finish(),
                     ));
                 }
 
-                <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">index</span> {
-                    <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">index</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">named_path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">join</span>(<span class="ident">index</span>);
-                        <span class="kw">match</span> <span class="ident">NamedFile::open_async</span>(<span class="ident">named_path</span>).<span class="kw">await</span> {
-                            <span class="prelude-val">Ok</span>(<span class="ident">named_file</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">this</span>.<span class="ident">serve_named_file</span>(<span class="ident">req</span>, <span class="ident">named_file</span>)),
-                            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">show_index</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">this</span>.<span class="ident">show_index</span>(<span class="ident">req</span>, <span class="ident">path</span>)),
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">this</span>.<span class="ident">handle_err</span>(<span class="ident">err</span>, <span class="ident">req</span>).<span class="kw">await</span>,
+                <span class="kw">match </span>this.index {
+                    <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>index) =&gt; {
+                        <span class="kw">let </span>named_path = path.join(index);
+                        <span class="kw">match </span>NamedFile::open_async(named_path).<span class="kw">await </span>{
+                            <span class="prelude-val">Ok</span>(named_file) =&gt; <span class="prelude-val">Ok</span>(this.serve_named_file(req, named_file)),
+                            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="kw">if </span>this.show_index =&gt; <span class="prelude-val">Ok</span>(this.show_index(req, path)),
+                            <span class="prelude-val">Err</span>(err) =&gt; this.handle_err(err, req).<span class="kw">await</span>,
                         }
                     }
-                    <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">show_index</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">this</span>.<span class="ident">show_index</span>(<span class="ident">req</span>, <span class="ident">path</span>)),
-                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ServiceResponse::from_err</span>(
-                        <span class="ident">FilesError::IsDirectory</span>,
-                        <span class="ident">req</span>.<span class="ident">into_parts</span>().<span class="number">0</span>,
+                    <span class="prelude-val">None </span><span class="kw">if </span>this.show_index =&gt; <span class="prelude-val">Ok</span>(this.show_index(req, path)),
+                    <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(ServiceResponse::from_err(
+                        FilesError::IsDirectory,
+                        req.into_parts().<span class="number">0</span>,
                     )),
                 }
-            } <span class="kw">else</span> {
-                <span class="kw">match</span> <span class="ident">NamedFile::open_async</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="kw">await</span> {
-                    <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">named_file</span>) =&gt; {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">mime_override</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">mime_override</span> {
-                            <span class="kw">let</span> <span class="ident">new_disposition</span> <span class="op">=</span>
-                                <span class="ident">mime_override</span>(<span class="kw-2">&amp;</span><span class="ident">named_file</span>.<span class="ident">content_type</span>.<span class="ident">type_</span>());
-                            <span class="ident">named_file</span>.<span class="ident">content_disposition</span>.<span class="ident">disposition</span> <span class="op">=</span> <span class="ident">new_disposition</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">match </span>NamedFile::open_async(<span class="kw-2">&amp;</span>path).<span class="kw">await </span>{
+                    <span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>named_file) =&gt; {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>mime_override) = this.mime_override {
+                            <span class="kw">let </span>new_disposition =
+                                mime_override(<span class="kw-2">&amp;</span>named_file.content_type.type_());
+                            named_file.content_disposition.disposition = new_disposition;
                         }
-                        <span class="ident">named_file</span>.<span class="ident">flags</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">file_flags</span>;
+                        named_file.flags = this.file_flags;
 
-                        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
-                        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">named_file</span>.<span class="ident">into_response</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-                        <span class="prelude-val">Ok</span>(<span class="ident">ServiceResponse::new</span>(<span class="ident">req</span>, <span class="ident">res</span>))
+                        <span class="kw">let </span>(req, <span class="kw">_</span>) = req.into_parts();
+                        <span class="kw">let </span>res = named_file.into_response(<span class="kw-2">&amp;</span>req);
+                        <span class="prelude-val">Ok</span>(ServiceResponse::new(req, res))
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">this</span>.<span class="ident">handle_err</span>(<span class="ident">err</span>, <span class="ident">req</span>).<span class="kw">await</span>,
+                    <span class="prelude-val">Err</span>(err) =&gt; this.handle_err(err, req).<span class="kw">await</span>,
                 }
             }
         })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_files" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_files" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/chapters.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chapters.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/chapters.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chapters.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -638,164 +638,164 @@
 <span id="638">638</span>
 <span id="639">639</span>
 <span id="640">640</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">course_modules</span>,
-    <span class="ident">pages</span>::{<span class="ident">PageMetadata</span>, <span class="ident">PageWithExercises</span>},
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">user_exercise_states::get_user_course_instance_chapter_metrics</span>,
+<span class="kw">use crate</span>::{
+    course_modules,
+    pages::{PageMetadata, PageWithExercises},
+    prelude::<span class="kw-2">*</span>,
+    user_exercise_states::get_user_course_instance_chapter_metrics,
 };
-<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
-    <span class="ident">file_store::FileStore</span>, <span class="ident">numbers::option_f32_to_f32_two_decimals_with_none_as_zero</span>,
-    <span class="ident">ApplicationConfiguration</span>,
+<span class="kw">use </span>headless_lms_utils::{
+    file_store::FileStore, numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
+    ApplicationConfiguration,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DatabaseChapter</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_image_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>DatabaseChapter {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>color: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>chapter_image_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>chapter_number: i32,
+    <span class="kw">pub </span>front_page_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>opens_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>deadline: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>copied_from: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>course_module_id: Uuid,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Chapter</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_image_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>Chapter {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>color: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>chapter_image_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>chapter_number: i32,
+    <span class="kw">pub </span>front_page_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>opens_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>deadline: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>copied_from: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>course_module_id: Uuid,
 }
 
-<span class="kw">impl</span> <span class="ident">Chapter</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_database_chapter</span>(
-        <span class="ident">chapter</span>: <span class="kw-2">&amp;</span><span class="ident">DatabaseChapter</span>,
-        <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">FileStore</span>,
-        <span class="ident">app_conf</span>: <span class="kw-2">&amp;</span><span class="ident">ApplicationConfiguration</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">chapter_image_url</span> <span class="op">=</span> <span class="ident">chapter</span>.<span class="ident">chapter_image_path</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">image</span>);
-            <span class="ident">file_store</span>.<span class="ident">get_download_url</span>(<span class="ident">path</span>.<span class="ident">as_path</span>(), <span class="ident">app_conf</span>)
+<span class="kw">impl </span>Chapter {
+    <span class="kw">pub fn </span>from_database_chapter(
+        chapter: <span class="kw-2">&amp;</span>DatabaseChapter,
+        file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
+        app_conf: <span class="kw-2">&amp;</span>ApplicationConfiguration,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>chapter_image_url = chapter.chapter_image_path.as_ref().map(|image| {
+            <span class="kw">let </span>path = PathBuf::from(image);
+            file_store.get_download_url(path.as_path(), app_conf)
         });
-        <span class="self">Self</span> {
-            <span class="ident">id</span>: <span class="ident">chapter</span>.<span class="ident">id</span>,
-            <span class="ident">created_at</span>: <span class="ident">chapter</span>.<span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>: <span class="ident">chapter</span>.<span class="ident">updated_at</span>,
-            <span class="ident">name</span>: <span class="ident">chapter</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
-            <span class="ident">color</span>: <span class="ident">chapter</span>.<span class="ident">color</span>.<span class="ident">clone</span>(),
-            <span class="ident">course_id</span>: <span class="ident">chapter</span>.<span class="ident">course_id</span>,
-            <span class="ident">deleted_at</span>: <span class="ident">chapter</span>.<span class="ident">deleted_at</span>,
-            <span class="ident">chapter_image_url</span>,
-            <span class="ident">chapter_number</span>: <span class="ident">chapter</span>.<span class="ident">chapter_number</span>,
-            <span class="ident">front_page_id</span>: <span class="ident">chapter</span>.<span class="ident">front_page_id</span>,
-            <span class="ident">opens_at</span>: <span class="ident">chapter</span>.<span class="ident">opens_at</span>,
-            <span class="ident">copied_from</span>: <span class="ident">chapter</span>.<span class="ident">copied_from</span>,
-            <span class="ident">deadline</span>: <span class="ident">chapter</span>.<span class="ident">deadline</span>,
-            <span class="ident">course_module_id</span>: <span class="ident">chapter</span>.<span class="ident">course_module_id</span>,
+        <span class="self">Self </span>{
+            id: chapter.id,
+            created_at: chapter.created_at,
+            updated_at: chapter.updated_at,
+            name: chapter.name.clone(),
+            color: chapter.color.clone(),
+            course_id: chapter.course_id,
+            deleted_at: chapter.deleted_at,
+            chapter_image_url,
+            chapter_number: chapter.chapter_number,
+            front_page_id: chapter.front_page_id,
+            opens_at: chapter.opens_at,
+            copied_from: chapter.copied_from,
+            deadline: chapter.deadline,
+            course_module_id: chapter.course_module_id,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ChapterStatus</span> {
-    <span class="ident">Open</span>,
-    <span class="ident">Closed</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+</span><span class="kw">pub enum </span>ChapterStatus {
+    Open,
+    Closed,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ChapterStatus</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Closed</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>ChapterStatus {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Closed
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChapterPagesWithExercises</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageWithExercises</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="kw">pub struct </span>ChapterPagesWithExercises {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>chapter_number: i32,
+    <span class="kw">pub </span>pages: Vec&lt;PageWithExercises&gt;,
 }
 
-<span class="comment">// Represents the subset of page fields that are required to create a new course.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewChapter</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// If undefined when creating a chapter, will use the course default one.</span>
-    <span class="doccomment">/// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED</span>
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+<span class="comment">// Represents the subset of page fields that are required to create a new course.
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>NewChapter {
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>color: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>chapter_number: i32,
+    <span class="kw">pub </span>front_page_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>opens_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>deadline: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="doccomment">/// If undefined when creating a chapter, will use the course default one.
+    /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+    </span><span class="kw">pub </span>course_module_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChapterUpdate</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED</span>
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ChapterUpdate {
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>color: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>front_page_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>deadline: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>opens_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="doccomment">/// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+    </span><span class="kw">pub </span>course_module_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChapterInfo</span> {
-    <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>ChapterInfo {
+    <span class="kw">pub </span>chapter_id: Uuid,
+    <span class="kw">pub </span>chapter_name: String,
+    <span class="kw">pub </span>chapter_front_page_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">new_chapter</span>: <span class="kw-2">&amp;</span><span class="ident">NewChapter</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="comment">// Refactor notice: At the moment frontend can optionally decide which module the new chapter</span>
-    <span class="comment">// belongs to. However, chapters should be grouped in a way that all chapters in the same</span>
-    <span class="comment">// module have consecutive order numbers. Hence this issue should be resolved first. Ideally</span>
-    <span class="comment">// this bit was not needed at all.</span>
-    <span class="comment">// ---------- ----------</span>
-    <span class="kw">let</span> <span class="ident">course_module_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_module_id</span>) <span class="op">=</span> <span class="ident">new_chapter</span>.<span class="ident">course_module_id</span> {
-        <span class="ident">course_module_id</span>
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">module</span> <span class="op">=</span> <span class="ident">course_modules::get_default_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">new_chapter</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">module</span>.<span class="ident">id</span>
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    new_chapter: <span class="kw-2">&amp;</span>NewChapter,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="comment">// Refactor notice: At the moment frontend can optionally decide which module the new chapter
+    // belongs to. However, chapters should be grouped in a way that all chapters in the same
+    // module have consecutive order numbers. Hence this issue should be resolved first. Ideally
+    // this bit was not needed at all.
+    // ---------- ----------
+    </span><span class="kw">let </span>course_module_id = <span class="kw">if let </span><span class="prelude-val">Some</span>(course_module_id) = new_chapter.course_module_id {
+        course_module_id
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>module = course_modules::get_default_by_course_id(conn, new_chapter.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        module.id
     };
-    <span class="comment">// ---------- ----------</span>
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="comment">// ---------- ----------
+    </span><span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">r&quot;
 INSERT INTO chapters(
     id,
@@ -810,98 +810,98 @@ INSERT INTO chapters(
 VALUES($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">new_chapter</span>.<span class="ident">name</span>,
-        <span class="ident">new_chapter</span>.<span class="ident">color</span>,
-        <span class="ident">new_chapter</span>.<span class="ident">course_id</span>,
-        <span class="ident">new_chapter</span>.<span class="ident">chapter_number</span>,
-        <span class="ident">new_chapter</span>.<span class="ident">deadline</span>,
-        <span class="ident">new_chapter</span>.<span class="ident">opens_at</span>,
-        <span class="ident">course_module_id</span>,
+        pkey_policy.into_uuid(),
+        new_chapter.name,
+        new_chapter.color,
+        new_chapter.course_id,
+        new_chapter.chapter_number,
+        new_chapter.deadline,
+        new_chapter.opens_at,
+        course_module_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_front_page</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">front_page_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>set_front_page(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    chapter_id: Uuid,
+    front_page_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;UPDATE chapters SET front_page_id = $1 WHERE id = $2&quot;</span>,
-        <span class="ident">front_page_id</span>,
-        <span class="ident">chapter_id</span>
+        front_page_id,
+        chapter_id
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_opens_at</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">opens_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>set_opens_at(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    chapter_id: Uuid,
+    opens_at: DateTime&lt;Utc&gt;,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;UPDATE chapters SET opens_at = $1 WHERE id = $2&quot;</span>,
-        <span class="ident">opens_at</span>,
-        <span class="ident">chapter_id</span>,
+        opens_at,
+        chapter_id,
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Checks the opens_at field for the chapter and compares it to the current time. If null, the chapter is always open.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_open</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="doccomment">/// Checks the opens_at field for the chapter and compares it to the current time. If null, the chapter is always open.
+</span><span class="kw">pub async fn </span>is_open(conn: <span class="kw-2">&amp;mut </span>PgConnection, chapter_id: Uuid) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT opens_at
 FROM chapters
 WHERE id = $1
 &quot;#</span>,
-        <span class="ident">chapter_id</span>
+        chapter_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">open</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">opens_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Utc::now</span>()).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>);
-    <span class="prelude-val">Ok</span>(<span class="ident">open</span>)
+    <span class="kw">let </span>open = res.opens_at.map(|o| o &lt;= Utc::now()).unwrap_or(<span class="bool-val">true</span>);
+    <span class="prelude-val">Ok</span>(open)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapter</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">DatabaseChapter</span>,
+<span class="kw">pub async fn </span>get_chapter(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    chapter_id: Uuid,
+) -&gt; ModelResult&lt;DatabaseChapter&gt; {
+    <span class="kw">let </span>chapter = <span class="macro">sqlx::query_as!</span>(
+        DatabaseChapter,
         <span class="string">&quot;
 SELECT *
 from chapters
 where id = $1;&quot;</span>,
-        <span class="ident">chapter_id</span>,
+        chapter_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">chapter</span>)
+    <span class="prelude-val">Ok</span>(chapter)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT course_id from chapters where id = $1&quot;</span>, <span class="ident">chapter_id</span>)
-        .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">course_id</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>)
+<span class="kw">pub async fn </span>get_course_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, chapter_id: Uuid) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>course_id = <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT course_id from chapters where id = $1&quot;</span>, chapter_id)
+        .fetch_one(conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.course_id;
+    <span class="prelude-val">Ok</span>(course_id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_chapter</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">chapter_update</span>: <span class="ident">ChapterUpdate</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">DatabaseChapter</span>,
+<span class="kw">pub async fn </span>update_chapter(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    chapter_id: Uuid,
+    chapter_update: ChapterUpdate,
+) -&gt; ModelResult&lt;DatabaseChapter&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        DatabaseChapter,
         <span class="string">r#&quot;
 UPDATE chapters
 SET name = $2,
@@ -912,104 +912,104 @@ SET name = $2,
 WHERE id = $1
 RETURNING *;
     &quot;#</span>,
-        <span class="ident">chapter_id</span>,
-        <span class="ident">chapter_update</span>.<span class="ident">name</span>,
-        <span class="ident">chapter_update</span>.<span class="ident">deadline</span>,
-        <span class="ident">chapter_update</span>.<span class="ident">opens_at</span>,
-        <span class="ident">chapter_update</span>.<span class="ident">course_module_id</span>,
-        <span class="ident">chapter_update</span>.<span class="ident">color</span>,
+        chapter_id,
+        chapter_update.name,
+        chapter_update.deadline,
+        chapter_update.opens_at,
+        chapter_update.course_module_id,
+        chapter_update.color,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_chapter_image_path</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">chapter_image_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">updated_chapter</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">DatabaseChapter</span>,
+<span class="kw">pub async fn </span>update_chapter_image_path(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    chapter_id: Uuid,
+    chapter_image_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+) -&gt; ModelResult&lt;DatabaseChapter&gt; {
+    <span class="kw">let </span>updated_chapter = <span class="macro">sqlx::query_as!</span>(
+        DatabaseChapter,
         <span class="string">&quot;
 UPDATE chapters
 SET chapter_image_path = $1
 WHERE id = $2
 RETURNING *;&quot;</span>,
-        <span class="ident">chapter_image_path</span>,
-        <span class="ident">chapter_id</span>
+        chapter_image_path,
+        chapter_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">updated_chapter</span>)
+    <span class="prelude-val">Ok</span>(updated_chapter)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChapterWithStatus</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">status</span>: <span class="ident">ChapterStatus</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_image_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_module_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ChapterWithStatus {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>color: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>chapter_number: i32,
+    <span class="kw">pub </span>front_page_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>opens_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>status: ChapterStatus,
+    <span class="kw">pub </span>chapter_image_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>course_module_id: Uuid,
 }
 
-<span class="kw">impl</span> <span class="ident">ChapterWithStatus</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_database_chapter_timestamp_and_image_url</span>(
-        <span class="ident">database_chapter</span>: <span class="ident">DatabaseChapter</span>,
-        <span class="ident">timestamp</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-        <span class="ident">chapter_image_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">open</span> <span class="op">=</span> <span class="ident">database_chapter</span>
-            .<span class="ident">opens_at</span>
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">timestamp</span>)
-            .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>);
-        <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">open</span> {
-            <span class="ident">ChapterStatus::Open</span>
-        } <span class="kw">else</span> {
-            <span class="ident">ChapterStatus::Closed</span>
+<span class="kw">impl </span>ChapterWithStatus {
+    <span class="kw">pub fn </span>from_database_chapter_timestamp_and_image_url(
+        database_chapter: DatabaseChapter,
+        timestamp: DateTime&lt;Utc&gt;,
+        chapter_image_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>open = database_chapter
+            .opens_at
+            .map(|o| o &lt;= timestamp)
+            .unwrap_or(<span class="bool-val">true</span>);
+        <span class="kw">let </span>status = <span class="kw">if </span>open {
+            ChapterStatus::Open
+        } <span class="kw">else </span>{
+            ChapterStatus::Closed
         };
-        <span class="ident">ChapterWithStatus</span> {
-            <span class="ident">id</span>: <span class="ident">database_chapter</span>.<span class="ident">id</span>,
-            <span class="ident">created_at</span>: <span class="ident">database_chapter</span>.<span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>: <span class="ident">database_chapter</span>.<span class="ident">updated_at</span>,
-            <span class="ident">name</span>: <span class="ident">database_chapter</span>.<span class="ident">name</span>,
-            <span class="ident">color</span>: <span class="ident">database_chapter</span>.<span class="ident">color</span>,
-            <span class="ident">course_id</span>: <span class="ident">database_chapter</span>.<span class="ident">course_id</span>,
-            <span class="ident">deleted_at</span>: <span class="ident">database_chapter</span>.<span class="ident">deleted_at</span>,
-            <span class="ident">chapter_number</span>: <span class="ident">database_chapter</span>.<span class="ident">chapter_number</span>,
-            <span class="ident">front_page_id</span>: <span class="ident">database_chapter</span>.<span class="ident">front_page_id</span>,
-            <span class="ident">opens_at</span>: <span class="ident">database_chapter</span>.<span class="ident">opens_at</span>,
-            <span class="ident">status</span>,
-            <span class="ident">chapter_image_url</span>,
-            <span class="ident">course_module_id</span>: <span class="ident">database_chapter</span>.<span class="ident">course_module_id</span>,
+        ChapterWithStatus {
+            id: database_chapter.id,
+            created_at: database_chapter.created_at,
+            updated_at: database_chapter.updated_at,
+            name: database_chapter.name,
+            color: database_chapter.color,
+            course_id: database_chapter.course_id,
+            deleted_at: database_chapter.deleted_at,
+            chapter_number: database_chapter.chapter_number,
+            front_page_id: database_chapter.front_page_id,
+            opens_at: database_chapter.opens_at,
+            status,
+            chapter_image_url,
+            course_module_id: database_chapter.course_module_id,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserCourseInstanceChapterProgress</span> {
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="ident">f32</span>,
-    <span class="kw">pub</span> <span class="ident">score_maximum</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">total_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">attempted_exercises</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>UserCourseInstanceChapterProgress {
+    <span class="kw">pub </span>score_given: f32,
+    <span class="kw">pub </span>score_maximum: i32,
+    <span class="kw">pub </span>total_exercises: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    <span class="kw">pub </span>attempted_exercises: <span class="prelude-ty">Option</span>&lt;u32&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_chapters</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">DatabaseChapter</span>,
+<span class="kw">pub async fn </span>course_chapters(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;DatabaseChapter&gt;&gt; {
+    <span class="kw">let </span>chapters = <span class="macro">sqlx::query_as!</span>(
+        DatabaseChapter,
         <span class="string">r#&quot;
 SELECT id,
   created_at,
@@ -1029,19 +1029,19 @@ FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
 &quot;#</span>,
-        <span class="ident">course_id</span>
+        course_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">chapters</span>)
+    <span class="prelude-val">Ok</span>(chapters)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_instance_chapters</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">DatabaseChapter</span>,
+<span class="kw">pub async fn </span>course_instance_chapters(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;DatabaseChapter&gt;&gt; {
+    <span class="kw">let </span>chapters = <span class="macro">sqlx::query_as!</span>(
+        DatabaseChapter,
         <span class="string">r#&quot;
 SELECT id,
   created_at,
@@ -1061,94 +1061,94 @@ FROM chapters
 WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
   AND deleted_at IS NULL;
 &quot;#</span>,
-        <span class="ident">course_instance_id</span>
+        course_instance_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">chapters</span>)
+    <span class="prelude-val">Ok</span>(chapters)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_chapter</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">DatabaseChapter</span>,
+<span class="kw">pub async fn </span>delete_chapter(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    chapter_id: Uuid,
+) -&gt; ModelResult&lt;DatabaseChapter&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>deleted = <span class="macro">sqlx::query_as!</span>(
+        DatabaseChapter,
         <span class="string">r#&quot;
 UPDATE chapters
 SET deleted_at = now()
 WHERE id = $1
 RETURNING *;
 &quot;#</span>,
-        <span class="ident">chapter_id</span>
+        chapter_id
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// We&#39;ll also delete all the pages and exercises so that they don&#39;t conflict with future chapters</span>
-    <span class="macro">sqlx::query!</span>(
+    <span class="comment">// We&#39;ll also delete all the pages and exercises so that they don&#39;t conflict with future chapters
+    </span><span class="macro">sqlx::query!</span>(
         <span class="string">&quot;UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;&quot;</span>,
-        <span class="ident">chapter_id</span>
+        chapter_id
     )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .execute(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));&quot;</span>,
-        <span class="ident">chapter_id</span>
+        chapter_id
     )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    .execute(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);&quot;</span>,
-        <span class="ident">chapter_id</span>
+        chapter_id
     )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    .execute(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;&quot;</span>,
-        <span class="ident">chapter_id</span>
+        chapter_id
     )
-    .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .execute(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">deleted</span>)
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(deleted)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_user_course_instance_chapter_progress</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserCourseInstanceChapterProgress</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exercises::get_exercises_by_chapter_id</span>(<span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>get_user_course_instance_chapter_progress(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    chapter_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;UserCourseInstanceChapterProgress&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>exercises = <span class="kw">crate</span>::exercises::get_exercises_by_chapter_id(conn, chapter_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">exercise_ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercises</span>.<span class="ident">iter_mut</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">id</span>).<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="ident">score_maximum</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">exercises</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">score_maximum</span>).<span class="ident">sum</span>();
+    <span class="kw">let </span>exercise_ids: Vec&lt;Uuid&gt; = exercises.iter_mut().map(|e| e.id).collect();
+    <span class="kw">let </span>score_maximum: i32 = exercises.into_iter().map(|e| e.score_maximum).sum();
 
-    <span class="kw">let</span> <span class="ident">user_chapter_metrics</span> <span class="op">=</span>
-        <span class="ident">get_user_course_instance_chapter_metrics</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_ids</span>, <span class="ident">user_id</span>)
+    <span class="kw">let </span>user_chapter_metrics =
+        get_user_course_instance_chapter_metrics(conn, course_instance_id, <span class="kw-2">&amp;</span>exercise_ids, user_id)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">UserCourseInstanceChapterProgress</span> {
-        <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals_with_none_as_zero</span>(
-            <span class="ident">user_chapter_metrics</span>.<span class="ident">score_given</span>,
+    <span class="kw">let </span>result = UserCourseInstanceChapterProgress {
+        score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
+            user_chapter_metrics.score_given,
         ),
-        <span class="ident">score_maximum</span>,
-        <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_ids</span>.<span class="ident">len</span>())
-            .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
-            .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
-        <span class="ident">attempted_exercises</span>: <span class="ident">user_chapter_metrics</span>
-            .<span class="ident">attempted_exercises</span>
-            .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)
-            .<span class="ident">transpose</span>()<span class="question-mark">?</span>,
+        score_maximum,
+        total_exercises: <span class="prelude-val">Some</span>(exercise_ids.len())
+            .map(TryInto::try_into)
+            .transpose()<span class="question-mark">?</span>,
+        attempted_exercises: user_chapter_metrics
+            .attempted_exercises
+            .map(TryInto::try_into)
+            .transpose()<span class="question-mark">?</span>,
     };
-    <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+    <span class="prelude-val">Ok</span>(result)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapter_by_page_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">DatabaseChapter</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">DatabaseChapter</span>,
+<span class="kw">pub async fn </span>get_chapter_by_page_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    page_id: Uuid,
+) -&gt; ModelResult&lt;DatabaseChapter&gt; {
+    <span class="kw">let </span>chapter = <span class="macro">sqlx::query_as!</span>(
+        DatabaseChapter,
         <span class="string">&quot;
 SELECT c.*
 FROM chapters c,
@@ -1157,20 +1157,20 @@ WHERE c.id = p.chapter_id
   AND p.id = $1
   AND c.deleted_at IS NULL
     &quot;</span>,
-        <span class="ident">page_id</span>
+        page_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">chapter</span>)
+    <span class="prelude-val">Ok</span>(chapter)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapter_info_by_page_metadata</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">current_page_metadata</span>: <span class="kw-2">&amp;</span><span class="ident">PageMetadata</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ChapterInfo</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">chapter_page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ChapterInfo</span>,
+<span class="kw">pub async fn </span>get_chapter_info_by_page_metadata(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    current_page_metadata: <span class="kw-2">&amp;</span>PageMetadata,
+) -&gt; ModelResult&lt;ChapterInfo&gt; {
+    <span class="kw">let </span>chapter_page = <span class="macro">sqlx::query_as!</span>(
+        ChapterInfo,
         <span class="string">&quot;
         SELECT
             c.id as chapter_id,
@@ -1181,102 +1181,102 @@ WHERE c.id = p.chapter_id
         AND c.course_id = $2
             AND c.deleted_at IS NULL;
         &quot;</span>,
-        <span class="ident">current_page_metadata</span>.<span class="ident">chapter_id</span>,
-        <span class="ident">current_page_metadata</span>.<span class="ident">course_id</span>
+        current_page_metadata.chapter_id,
+        current_page_metadata.course_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">chapter_page</span>)
+    <span class="prelude-val">Ok</span>(chapter_page)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_module</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">module_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>set_module(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    chapter_id: Uuid,
+    module_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE chapters
 SET course_module_id = $2
 WHERE id = $1
 &quot;</span>,
-        <span class="ident">chapter_id</span>,
-        <span class="ident">module_id</span>
+        chapter_id,
+        module_id
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_for_module</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">module_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_for_module(conn: <span class="kw-2">&amp;mut </span>PgConnection, module_id: Uuid) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT id
 FROM chapters
 WHERE course_module_id = $1
 AND deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">module_id</span>
+        module_id
     )
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">id</span>)
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .map(|c| c.id)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">mod</span> <span class="ident">constraints</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-        <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">courses::NewCourse</span>, <span class="ident">library</span>, <span class="ident">test_helper</span>::<span class="kw-2">*</span>};
+    <span class="kw">mod </span>constraints {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use crate</span>::{courses::NewCourse, library, test_helper::<span class="kw-2">*</span>};
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">cannot_create_chapter_for_different_course_than_its_module</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, <span class="ident">course</span>: <span class="ident">course_1</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, :<span class="ident">course_module</span>);
-            <span class="kw">let</span> <span class="ident">course_2</span> <span class="op">=</span> <span class="ident">library::content_management::create_new_course</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">NewCourse</span> {
-                    <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">slug</span>: <span class="string">&quot;course-2&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">organization_id</span>: <span class="ident">org</span>,
-                    <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;Teacher&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">description</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
-                    <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>cannot_create_chapter_for_different_course_than_its_module() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, course: course_1, instance: _instance, :course_module);
+            <span class="kw">let </span>course_2 = library::content_management::create_new_course(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewCourse {
+                    name: <span class="string">&quot;&quot;</span>.to_string(),
+                    slug: <span class="string">&quot;course-2&quot;</span>.to_string(),
+                    organization_id: org,
+                    language_code: <span class="string">&quot;en-US&quot;</span>.to_string(),
+                    teacher_in_charge_name: <span class="string">&quot;Teacher&quot;</span>.to_string(),
+                    teacher_in_charge_email: <span class="string">&quot;teacher@example.com&quot;</span>.to_string(),
+                    description: <span class="string">&quot;&quot;</span>.to_string(),
+                    is_draft: <span class="bool-val">false</span>,
+                    is_test_mode: <span class="bool-val">false</span>,
                 },
-                <span class="ident">user</span>,
+                user,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>()
-            .<span class="number">0</span>
-            .<span class="ident">id</span>;
-            <span class="kw">let</span> <span class="ident">chapter_result_2</span> <span class="op">=</span> <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="kw-2">&amp;</span><span class="ident">NewChapter</span> {
-                    <span class="ident">name</span>: <span class="string">&quot;Chapter of second course&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">color</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">course_id</span>: <span class="ident">course_2</span>,
-                    <span class="ident">chapter_number</span>: <span class="number">0</span>,
-                    <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_module</span>.<span class="ident">id</span>),
+            .<span class="kw">await
+            </span>.unwrap()
+            .<span class="number">0
+            </span>.id;
+            <span class="kw">let </span>chapter_result_2 = insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                <span class="kw-2">&amp;</span>NewChapter {
+                    name: <span class="string">&quot;Chapter of second course&quot;</span>.to_string(),
+                    color: <span class="prelude-val">None</span>,
+                    course_id: course_2,
+                    chapter_number: <span class="number">0</span>,
+                    front_page_id: <span class="prelude-val">None</span>,
+                    opens_at: <span class="prelude-val">None</span>,
+                    deadline: <span class="prelude-val">None</span>,
+                    course_module_id: <span class="prelude-val">Some</span>(course_module.id),
                 },
             )
             .<span class="kw">await</span>;
             <span class="macro">assert!</span>(
-                <span class="ident">chapter_result_2</span>.<span class="ident">is_err</span>(),
-                <span class="string">&quot;Expected chapter creation to fail when course module belongs to a different course.&quot;</span>
-            );
+                chapter_result_2.is_err(),
+                <span class="string">&quot;Expected chapter creation to fail when course module belongs to a different course.&quot;
+            </span>);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/resources/default_object_access_control.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>default_object_access_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/resources/default_object_access_control.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>default_object_access_control.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -371,378 +371,378 @@
 <span id="371">371</span>
 <span id="372">372</span>
 <span id="373">373</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(unused_imports)]
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::resources::common</span>::{<span class="ident">Entity</span>, <span class="ident">ProjectTeam</span>, <span class="ident">Role</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">error::GoogleResponse</span>, <span class="ident">resources::common::ListResponse</span>};
+</span><span class="kw">pub use </span><span class="kw">crate</span>::resources::common::{Entity, ProjectTeam, Role};
+<span class="kw">use crate</span>::{error::GoogleResponse, resources::common::ListResponse};
 
-<span class="doccomment">/// The DefaultObjectAccessControls resources represent the Access Control Lists (ACLs) applied to a</span>
-<span class="doccomment">/// new object within Google Cloud Storage when no ACL was provided for that object. ACLs let you</span>
-<span class="doccomment">/// specify who has access to your data and to what extent.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DefaultObjectAccessControl</span> {
-    <span class="doccomment">/// The kind of item this is. For object access control entries, this is always</span>
-    <span class="doccomment">/// storage#objectAccessControl.</span>
-    <span class="kw">pub</span> <span class="ident">kind</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The entity holding the permission, in one of the following forms:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * `user-userId`</span>
-    <span class="doccomment">/// * `user-email`</span>
-    <span class="doccomment">/// * `group-groupId`</span>
-    <span class="doccomment">/// * `group-email`</span>
-    <span class="doccomment">/// * `domain-domain`</span>
-    <span class="doccomment">/// * `project-team-projectId`</span>
-    <span class="doccomment">/// * `allUsers`</span>
-    <span class="doccomment">/// * `allAuthenticatedUsers`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Examples:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * The user liz@example.com would be user-liz@example.com.</span>
-    <span class="doccomment">/// * The group example@googlegroups.com would be group-example@googlegroups.com.</span>
-    <span class="doccomment">/// * To refer to all members of the G Suite for Business domain example.com, the entity would</span>
-    <span class="doccomment">/// be domain-example.com.</span>
-    <span class="kw">pub</span> <span class="ident">entity</span>: <span class="ident">Entity</span>,
-    <span class="doccomment">/// The access permission for the entity.</span>
-    <span class="kw">pub</span> <span class="ident">role</span>: <span class="ident">Role</span>,
-    <span class="doccomment">/// The email address associated with the entity, if any.</span>
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The ID for the entity, if any.</span>
-    <span class="kw">pub</span> <span class="ident">entity_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The domain associated with the entity, if any.</span>
-    <span class="kw">pub</span> <span class="ident">domain</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The project team associated with the entity, if any.</span>
-    <span class="kw">pub</span> <span class="ident">project_team</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ProjectTeam</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// HTTP 1.1 Entity tag for the access-control entry.</span>
-    <span class="kw">pub</span> <span class="ident">etag</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The bucket this resource belongs to.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">bucket</span>: <span class="ident">String</span>, <span class="comment">// this field is not returned by Google, but we populate it manually for the</span>
-                        <span class="comment">// convenience of the end user.</span>
+<span class="doccomment">/// The DefaultObjectAccessControls resources represent the Access Control Lists (ACLs) applied to a
+/// new object within Google Cloud Storage when no ACL was provided for that object. ACLs let you
+/// specify who has access to your data and to what extent.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>DefaultObjectAccessControl {
+    <span class="doccomment">/// The kind of item this is. For object access control entries, this is always
+    /// storage#objectAccessControl.
+    </span><span class="kw">pub </span>kind: String,
+    <span class="doccomment">/// The entity holding the permission, in one of the following forms:
+    ///
+    /// * `user-userId`
+    /// * `user-email`
+    /// * `group-groupId`
+    /// * `group-email`
+    /// * `domain-domain`
+    /// * `project-team-projectId`
+    /// * `allUsers`
+    /// * `allAuthenticatedUsers`
+    ///
+    /// Examples:
+    ///
+    /// * The user liz@example.com would be user-liz@example.com.
+    /// * The group example@googlegroups.com would be group-example@googlegroups.com.
+    /// * To refer to all members of the G Suite for Business domain example.com, the entity would
+    /// be domain-example.com.
+    </span><span class="kw">pub </span>entity: Entity,
+    <span class="doccomment">/// The access permission for the entity.
+    </span><span class="kw">pub </span>role: Role,
+    <span class="doccomment">/// The email address associated with the entity, if any.
+    </span><span class="kw">pub </span>email: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// The ID for the entity, if any.
+    </span><span class="kw">pub </span>entity_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// The domain associated with the entity, if any.
+    </span><span class="kw">pub </span>domain: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// The project team associated with the entity, if any.
+    </span><span class="kw">pub </span>project_team: <span class="prelude-ty">Option</span>&lt;ProjectTeam&gt;,
+    <span class="doccomment">/// HTTP 1.1 Entity tag for the access-control entry.
+    </span><span class="kw">pub </span>etag: String,
+    <span class="doccomment">/// The bucket this resource belongs to.
+    </span><span class="attribute">#[serde(default)]
+    </span><span class="kw">pub </span>bucket: String, <span class="comment">// this field is not returned by Google, but we populate it manually for the
+                        // convenience of the end user.
+</span>}
+
+<span class="doccomment">/// Model that can be used to create a new DefaultObjectAccessControl object.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>NewDefaultObjectAccessControl {
+    <span class="doccomment">/// The entity holding the permission, in one of the following forms:
+    ///
+    /// * `user-userId`
+    /// * `user-email`
+    /// * `group-groupId`
+    /// * `group-email`
+    /// * `domain-domain`
+    /// * `project-team-projectId`
+    /// * `allUsers`
+    /// * `allAuthenticatedUsers`
+    ///
+    /// Examples:
+    ///
+    /// * The user liz@example.com would be user-liz@example.com.
+    /// * The group example@googlegroups.com would be group-example@googlegroups.com.
+    /// * To refer to all members of the G Suite for Business domain example.com, the entity would
+    /// be domain-example.com.
+    </span><span class="kw">pub </span>entity: Entity,
+    <span class="doccomment">/// The access permission for the entity.
+    </span><span class="kw">pub </span>role: Role,
 }
 
-<span class="doccomment">/// Model that can be used to create a new DefaultObjectAccessControl object.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewDefaultObjectAccessControl</span> {
-    <span class="doccomment">/// The entity holding the permission, in one of the following forms:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * `user-userId`</span>
-    <span class="doccomment">/// * `user-email`</span>
-    <span class="doccomment">/// * `group-groupId`</span>
-    <span class="doccomment">/// * `group-email`</span>
-    <span class="doccomment">/// * `domain-domain`</span>
-    <span class="doccomment">/// * `project-team-projectId`</span>
-    <span class="doccomment">/// * `allUsers`</span>
-    <span class="doccomment">/// * `allAuthenticatedUsers`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Examples:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * The user liz@example.com would be user-liz@example.com.</span>
-    <span class="doccomment">/// * The group example@googlegroups.com would be group-example@googlegroups.com.</span>
-    <span class="doccomment">/// * To refer to all members of the G Suite for Business domain example.com, the entity would</span>
-    <span class="doccomment">/// be domain-example.com.</span>
-    <span class="kw">pub</span> <span class="ident">entity</span>: <span class="ident">Entity</span>,
-    <span class="doccomment">/// The access permission for the entity.</span>
-    <span class="kw">pub</span> <span class="ident">role</span>: <span class="ident">Role</span>,
-}
+<span class="kw">impl </span>DefaultObjectAccessControl {
+    <span class="doccomment">/// Create a new `DefaultObjectAccessControl` entry on the specified bucket.
+    /// ### Important
+    /// Important: This method fails with a `400 Bad Request` response for buckets with uniform
+    /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
+    /// control access instead.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::default_object_access_control::{
+    ///     DefaultObjectAccessControl, NewDefaultObjectAccessControl, Role, Entity,
+    /// };
+    ///
+    /// let new_acl = NewDefaultObjectAccessControl {
+    ///     entity: Entity::AllAuthenticatedUsers,
+    ///     role: Role::Reader,
+    /// };
+    /// let default_acl = DefaultObjectAccessControl::create(&quot;mybucket&quot;, &amp;new_acl).await?;
+    /// # default_acl.delete().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>create(
+        bucket: <span class="kw-2">&amp;</span>str,
+        new_acl: <span class="kw-2">&amp;</span>NewDefaultObjectAccessControl,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT
+            .default_object_access_control()
+            .create(bucket, new_acl)
+            .<span class="kw">await
+    </span>}
 
-<span class="kw">impl</span> <span class="ident">DefaultObjectAccessControl</span> {
-    <span class="doccomment">/// Create a new `DefaultObjectAccessControl` entry on the specified bucket.</span>
-    <span class="doccomment">/// ### Important</span>
-    <span class="doccomment">/// Important: This method fails with a `400 Bad Request` response for buckets with uniform</span>
-    <span class="doccomment">/// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to</span>
-    <span class="doccomment">/// control access instead.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::default_object_access_control::{</span>
-    <span class="doccomment">///     DefaultObjectAccessControl, NewDefaultObjectAccessControl, Role, Entity,</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let new_acl = NewDefaultObjectAccessControl {</span>
-    <span class="doccomment">///     entity: Entity::AllAuthenticatedUsers,</span>
-    <span class="doccomment">///     role: Role::Reader,</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// let default_acl = DefaultObjectAccessControl::create(&quot;mybucket&quot;, &amp;new_acl).await?;</span>
-    <span class="doccomment">/// # default_acl.delete().await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>(
-        <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">new_acl</span>: <span class="kw-2">&amp;</span><span class="ident">NewDefaultObjectAccessControl</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
-            .<span class="ident">default_object_access_control</span>()
-            .<span class="ident">create</span>(<span class="ident">bucket</span>, <span class="ident">new_acl</span>)
-            .<span class="kw">await</span>
+    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::create`.
+    ///
+    /// ### Features
+    /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>create_sync(
+        bucket: <span class="kw-2">&amp;</span>str,
+        new_acl: <span class="kw-2">&amp;</span>NewDefaultObjectAccessControl,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::create(bucket, new_acl))
     }
 
-    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::create`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Features</span>
-    <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_sync</span>(
-        <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">new_acl</span>: <span class="kw-2">&amp;</span><span class="ident">NewDefaultObjectAccessControl</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::create</span>(<span class="ident">bucket</span>, <span class="ident">new_acl</span>))
+    <span class="doccomment">/// Retrieves default object ACL entries on the specified bucket.
+    /// ### Important
+    /// Important: This method fails with a `400 Bad Request` response for buckets with uniform
+    /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
+    /// control access instead.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::default_object_access_control::DefaultObjectAccessControl;
+    ///
+    /// let default_acls = DefaultObjectAccessControl::list(&quot;mybucket&quot;).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>list(bucket: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT
+            .default_object_access_control()
+            .list(bucket)
+            .<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::list`.
+    ///
+    /// ### Features
+    /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>list_sync(bucket: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;<span class="self">Self</span>&gt;&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::list(bucket))
     }
 
-    <span class="doccomment">/// Retrieves default object ACL entries on the specified bucket.</span>
-    <span class="doccomment">/// ### Important</span>
-    <span class="doccomment">/// Important: This method fails with a `400 Bad Request` response for buckets with uniform</span>
-    <span class="doccomment">/// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to</span>
-    <span class="doccomment">/// control access instead.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::default_object_access_control::DefaultObjectAccessControl;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let default_acls = DefaultObjectAccessControl::list(&quot;mybucket&quot;).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
-            .<span class="ident">default_object_access_control</span>()
-            .<span class="ident">list</span>(<span class="ident">bucket</span>)
-            .<span class="kw">await</span>
+    <span class="doccomment">/// Read a single `DefaultObjectAccessControl`.
+    /// The `bucket` argument is the name of the bucket whose `DefaultObjectAccessControl` is to be
+    /// read, and the `entity` argument is the entity holding the permission. Options are
+    /// Can be &quot;user-`userId`&quot;, &quot;user-`email_address`&quot;, &quot;group-`group_id`&quot;, &quot;group-`email_address`&quot;,
+    /// &quot;allUsers&quot;, or &quot;allAuthenticatedUsers&quot;.
+    /// ### Important
+    /// Important: This method fails with a `400 Bad Request` response for buckets with uniform
+    /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
+    /// control access instead.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::default_object_access_control::{DefaultObjectAccessControl, Entity};
+    ///
+    /// let default_acl = DefaultObjectAccessControl::read(&quot;mybucket&quot;, &amp;Entity::AllUsers).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>read(bucket: <span class="kw-2">&amp;</span>str, entity: <span class="kw-2">&amp;</span>Entity) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT
+            .default_object_access_control()
+            .read(bucket, entity)
+            .<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::read`.
+    ///
+    /// ### Features
+    /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>read_sync(bucket: <span class="kw-2">&amp;</span>str, entity: <span class="kw-2">&amp;</span>Entity) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::read(bucket, entity))
     }
 
-    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::list`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Features</span>
-    <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_sync</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::list</span>(<span class="ident">bucket</span>))
+    <span class="doccomment">/// Update the current `DefaultObjectAccessControl`.
+    /// ### Important
+    /// Important: This method fails with a `400 Bad Request` response for buckets with uniform
+    /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
+    /// control access instead.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::default_object_access_control::{DefaultObjectAccessControl, Entity};
+    ///
+    /// let mut default_acl = DefaultObjectAccessControl::read(&quot;my_bucket&quot;, &amp;Entity::AllUsers).await?;
+    /// default_acl.entity = Entity::AllAuthenticatedUsers;
+    /// default_acl.update().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT
+            .default_object_access_control()
+            .update(<span class="self">self</span>)
+            .<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::update`.
+    ///
+    /// ### Features
+    /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>update_sync(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.update())
     }
 
-    <span class="doccomment">/// Read a single `DefaultObjectAccessControl`.</span>
-    <span class="doccomment">/// The `bucket` argument is the name of the bucket whose `DefaultObjectAccessControl` is to be</span>
-    <span class="doccomment">/// read, and the `entity` argument is the entity holding the permission. Options are</span>
-    <span class="doccomment">/// Can be &quot;user-`userId`&quot;, &quot;user-`email_address`&quot;, &quot;group-`group_id`&quot;, &quot;group-`email_address`&quot;,</span>
-    <span class="doccomment">/// &quot;allUsers&quot;, or &quot;allAuthenticatedUsers&quot;.</span>
-    <span class="doccomment">/// ### Important</span>
-    <span class="doccomment">/// Important: This method fails with a `400 Bad Request` response for buckets with uniform</span>
-    <span class="doccomment">/// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to</span>
-    <span class="doccomment">/// control access instead.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::default_object_access_control::{DefaultObjectAccessControl, Entity};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let default_acl = DefaultObjectAccessControl::read(&quot;mybucket&quot;, &amp;Entity::AllUsers).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="ident">Entity</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
-            .<span class="ident">default_object_access_control</span>()
-            .<span class="ident">read</span>(<span class="ident">bucket</span>, <span class="ident">entity</span>)
-            .<span class="kw">await</span>
-    }
+    <span class="doccomment">/// Delete this &#39;DefaultObjectAccessControl`.
+    /// ### Important
+    /// Important: This method fails with a `400 Bad Request` response for buckets with uniform
+    /// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to
+    /// control access instead.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::default_object_access_control::{DefaultObjectAccessControl, Entity};
+    ///
+    /// let mut default_acl = DefaultObjectAccessControl::read(&quot;my_bucket&quot;, &amp;Entity::AllUsers).await?;
+    /// default_acl.delete().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>delete(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="kw">crate</span>::Error&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT
+            .default_object_access_control()
+            .delete(<span class="self">self</span>)
+            .<span class="kw">await
+    </span>}
 
-    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::read`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Features</span>
-    <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_sync</span>(<span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="ident">Entity</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::read</span>(<span class="ident">bucket</span>, <span class="ident">entity</span>))
-    }
-
-    <span class="doccomment">/// Update the current `DefaultObjectAccessControl`.</span>
-    <span class="doccomment">/// ### Important</span>
-    <span class="doccomment">/// Important: This method fails with a `400 Bad Request` response for buckets with uniform</span>
-    <span class="doccomment">/// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to</span>
-    <span class="doccomment">/// control access instead.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::default_object_access_control::{DefaultObjectAccessControl, Entity};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut default_acl = DefaultObjectAccessControl::read(&quot;my_bucket&quot;, &amp;Entity::AllUsers).await?;</span>
-    <span class="doccomment">/// default_acl.entity = Entity::AllAuthenticatedUsers;</span>
-    <span class="doccomment">/// default_acl.update().await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
-            .<span class="ident">default_object_access_control</span>()
-            .<span class="ident">update</span>(<span class="self">self</span>)
-            .<span class="kw">await</span>
-    }
-
-    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::update`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Features</span>
-    <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_sync</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">update</span>())
-    }
-
-    <span class="doccomment">/// Delete this &#39;DefaultObjectAccessControl`.</span>
-    <span class="doccomment">/// ### Important</span>
-    <span class="doccomment">/// Important: This method fails with a `400 Bad Request` response for buckets with uniform</span>
-    <span class="doccomment">/// bucket-level access enabled. Use `Bucket::get_iam_policy` and `Bucket::set_iam_policy` to</span>
-    <span class="doccomment">/// control access instead.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::default_object_access_control::{DefaultObjectAccessControl, Entity};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut default_acl = DefaultObjectAccessControl::read(&quot;my_bucket&quot;, &amp;Entity::AllUsers).await?;</span>
-    <span class="doccomment">/// default_acl.delete().await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
-            .<span class="ident">default_object_access_control</span>()
-            .<span class="ident">delete</span>(<span class="self">self</span>)
-            .<span class="kw">await</span>
-    }
-
-    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::delete`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Features</span>
-    <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_sync</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">delete</span>())
+    <span class="doccomment">/// The synchronous equivalent of `DefautObjectAccessControl::delete`.
+    ///
+    /// ### Features
+    /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>delete_sync(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="kw">crate</span>::Error&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">self</span>.delete())
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>))]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">new_acl</span> <span class="op">=</span> <span class="ident">NewDefaultObjectAccessControl</span> {
-            <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
-            <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>create() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
+        <span class="kw">let </span>new_acl = NewDefaultObjectAccessControl {
+            entity: Entity::AllUsers,
+            role: Role::Reader,
         };
-        <span class="ident">DefaultObjectAccessControl::create</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">new_acl</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        DefaultObjectAccessControl::create(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>new_acl).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket</span>().<span class="kw">await</span>;
-        <span class="ident">NewDefaultObjectAccessControl</span> {
-            <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
-            <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>read() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
+        NewDefaultObjectAccessControl {
+            entity: Entity::AllUsers,
+            role: Role::Reader,
         };
-        <span class="ident">DefaultObjectAccessControl::read</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">Entity::AllUsers</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        DefaultObjectAccessControl::read(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>Entity::AllUsers).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket</span>().<span class="kw">await</span>;
-        <span class="ident">DefaultObjectAccessControl::list</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>list() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
+        DefaultObjectAccessControl::list(<span class="kw-2">&amp;</span>bucket.name).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">new_acl</span> <span class="op">=</span> <span class="ident">NewDefaultObjectAccessControl</span> {
-            <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
-            <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
+        <span class="kw">let </span>new_acl = NewDefaultObjectAccessControl {
+            entity: Entity::AllUsers,
+            role: Role::Reader,
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default_acl</span> <span class="op">=</span> <span class="ident">DefaultObjectAccessControl::create</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">new_acl</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">default_acl</span>.<span class="ident">entity</span> <span class="op">=</span> <span class="ident">Entity::AllAuthenticatedUsers</span>;
-        <span class="ident">default_acl</span>.<span class="ident">update</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>default_acl = DefaultObjectAccessControl::create(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>new_acl).<span class="kw">await</span><span class="question-mark">?</span>;
+        default_acl.entity = Entity::AllAuthenticatedUsers;
+        default_acl.update().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">default_acl</span> <span class="op">=</span>
-            <span class="ident">DefaultObjectAccessControl::read</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">Entity::AllAuthenticatedUsers</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">default_acl</span>.<span class="ident">delete</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket().<span class="kw">await</span>;
+        <span class="kw">let </span>default_acl =
+            DefaultObjectAccessControl::read(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>Entity::AllAuthenticatedUsers).<span class="kw">await</span><span class="question-mark">?</span>;
+        default_acl.delete().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">mod</span> <span class="ident">sync</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">mod </span>sync {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">create</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket_sync</span>();
-            <span class="kw">let</span> <span class="ident">new_acl</span> <span class="op">=</span> <span class="ident">NewDefaultObjectAccessControl</span> {
-                <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
-                <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>create() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
+            <span class="kw">let </span>new_acl = NewDefaultObjectAccessControl {
+                entity: Entity::AllUsers,
+                role: Role::Reader,
             };
-            <span class="ident">DefaultObjectAccessControl::create_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">new_acl</span>)<span class="question-mark">?</span>;
+            DefaultObjectAccessControl::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>new_acl)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">read</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket_sync</span>();
-            <span class="kw">let</span> <span class="ident">new_acl</span> <span class="op">=</span> <span class="ident">NewDefaultObjectAccessControl</span> {
-                <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
-                <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>read() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
+            <span class="kw">let </span>new_acl = NewDefaultObjectAccessControl {
+                entity: Entity::AllUsers,
+                role: Role::Reader,
             };
-            <span class="ident">DefaultObjectAccessControl::create_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">new_acl</span>)<span class="question-mark">?</span>;
-            <span class="ident">DefaultObjectAccessControl::read_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">Entity::AllUsers</span>)<span class="question-mark">?</span>;
+            DefaultObjectAccessControl::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>new_acl)<span class="question-mark">?</span>;
+            DefaultObjectAccessControl::read_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>Entity::AllUsers)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">list</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket_sync</span>();
-            <span class="ident">DefaultObjectAccessControl::list_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>)<span class="question-mark">?</span>;
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>list() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
+            DefaultObjectAccessControl::list_sync(<span class="kw-2">&amp;</span>bucket.name)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">update</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket_sync</span>();
-            <span class="kw">let</span> <span class="ident">new_acl</span> <span class="op">=</span> <span class="ident">NewDefaultObjectAccessControl</span> {
-                <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
-                <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
+            <span class="kw">let </span>new_acl = NewDefaultObjectAccessControl {
+                entity: Entity::AllUsers,
+                role: Role::Reader,
             };
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default_acl</span> <span class="op">=</span> <span class="ident">DefaultObjectAccessControl::create_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">new_acl</span>)<span class="question-mark">?</span>;
-            <span class="ident">default_acl</span>.<span class="ident">entity</span> <span class="op">=</span> <span class="ident">Entity::AllAuthenticatedUsers</span>;
-            <span class="ident">default_acl</span>.<span class="ident">update_sync</span>()<span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>default_acl = DefaultObjectAccessControl::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>new_acl)<span class="question-mark">?</span>;
+            default_acl.entity = Entity::AllAuthenticatedUsers;
+            default_acl.update_sync()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">delete</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::read_test_bucket_sync</span>();
-            <span class="kw">let</span> <span class="ident">new_acl</span> <span class="op">=</span> <span class="ident">NewDefaultObjectAccessControl</span> {
-                <span class="ident">entity</span>: <span class="ident">Entity::AllUsers</span>,
-                <span class="ident">role</span>: <span class="ident">Role::Reader</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            <span class="kw">let </span>bucket = <span class="kw">crate</span>::read_test_bucket_sync();
+            <span class="kw">let </span>new_acl = NewDefaultObjectAccessControl {
+                entity: Entity::AllUsers,
+                role: Role::Reader,
             };
-            <span class="kw">let</span> <span class="ident">acl</span> <span class="op">=</span> <span class="ident">DefaultObjectAccessControl::create_sync</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">new_acl</span>)<span class="question-mark">?</span>;
-            <span class="ident">acl</span>.<span class="ident">delete_sync</span>()<span class="question-mark">?</span>;
+            <span class="kw">let </span>acl = DefaultObjectAccessControl::create_sync(<span class="kw-2">&amp;</span>bucket.name, <span class="kw-2">&amp;</span>new_acl)<span class="question-mark">?</span>;
+            acl.delete_sync()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

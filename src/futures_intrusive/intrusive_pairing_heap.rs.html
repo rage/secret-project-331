@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/intrusive_pairing_heap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>intrusive_pairing_heap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../futures_intrusive/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/intrusive_pairing_heap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>intrusive_pairing_heap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../futures_intrusive/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -435,412 +435,412 @@
 <span id="435">435</span>
 <span id="436">436</span>
 <span id="437">437</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Implements an intrusive priority queue based on a pairing heap.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! A [pairing heap] is a heap data structure (i.e. a tree whose nodes carry</span>
-<span class="doccomment">//! values, with the property that every node&#39;s value is lesser or equal to its</span>
-<span class="doccomment">//! children&#39;s) that supports the following operations:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - finding a minimum element in `O(1)`</span>
-<span class="doccomment">//!    - This is trivial: the heap property guarantees that the root is a</span>
-<span class="doccomment">//!      minimum element.</span>
-<span class="doccomment">//! - insertion of a new node in `O(1)`</span>
-<span class="doccomment">//! - deletion in `O(log n)`, _amortized_</span>
-<span class="doccomment">//!    - However, note that any _individual_ deletion may take `O(N)` time. For</span>
-<span class="doccomment">//!      example, if we take an empty heap and insert N elements, the tree will</span>
-<span class="doccomment">//!      have a very degenerate (shallow) shape. Then, deleting the root will</span>
-<span class="doccomment">//!      take `O(N)` time, but it will also reorganize the tree to make</span>
-<span class="doccomment">//!      successive deletes cheaper.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [pairing heap]: https://en.wikipedia.org/wiki/Pairing_heap</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Implements an intrusive priority queue based on a pairing heap.
+//!
+//! A [pairing heap] is a heap data structure (i.e. a tree whose nodes carry
+//! values, with the property that every node&#39;s value is lesser or equal to its
+//! children&#39;s) that supports the following operations:
+//!
+//! - finding a minimum element in `O(1)`
+//!    - This is trivial: the heap property guarantees that the root is a
+//!      minimum element.
+//! - insertion of a new node in `O(1)`
+//! - deletion in `O(log n)`, _amortized_
+//!    - However, note that any _individual_ deletion may take `O(N)` time. For
+//!      example, if we take an empty heap and insert N elements, the tree will
+//!      have a very degenerate (shallow) shape. Then, deleting the root will
+//!      take `O(N)` time, but it will also reorganize the tree to make
+//!      successive deletes cheaper.
+//!
+//! [pairing heap]: https://en.wikipedia.org/wiki/Pairing_heap
 
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">marker::PhantomPinned</span>,
-    <span class="ident">mem</span>,
-    <span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>, <span class="ident">Drop</span>},
-    <span class="ident">ptr::NonNull</span>,
+</span><span class="kw">use </span>core::{
+    marker::PhantomPinned,
+    mem,
+    ops::{Deref, DerefMut, Drop},
+    ptr::NonNull,
 };
 
-<span class="doccomment">/// Compares `a` and `b` without unwinding.</span>
-<span class="doccomment">/// This is necessary to avoid reentrancy in the heap.</span>
-<span class="kw">fn</span> <span class="ident">safe_lesser</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">struct</span> <span class="ident">DropBomb</span>;
-    <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">DropBomb</span> {
-        <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+<span class="doccomment">/// Compares `a` and `b` without unwinding.
+/// This is necessary to avoid reentrancy in the heap.
+</span><span class="kw">fn </span>safe_lesser&lt;T: Ord&gt;(a: <span class="kw-2">&amp;</span>T, b: <span class="kw-2">&amp;</span>T) -&gt; bool {
+    <span class="kw">struct </span>DropBomb;
+    <span class="kw">impl </span>Drop <span class="kw">for </span>DropBomb {
+        <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
             <span class="macro">panic!</span>(<span class="string">&quot;Panicked while comparing&quot;</span>);
         }
     }
-    <span class="comment">// If `T::cmp` panics, force a double-panic (and therefore an abort).</span>
-    <span class="kw">let</span> <span class="ident">bomb</span> <span class="op">=</span> <span class="ident">DropBomb</span>;
-    <span class="kw">let</span> <span class="ident">ordering</span> <span class="op">=</span> <span class="ident">a</span> <span class="op">&lt;</span> <span class="ident">b</span>;
-    <span class="ident">mem::forget</span>(<span class="ident">bomb</span>);
-    <span class="ident">ordering</span>
+    <span class="comment">// If `T::cmp` panics, force a double-panic (and therefore an abort).
+    </span><span class="kw">let </span>bomb = DropBomb;
+    <span class="kw">let </span>ordering = a &lt; b;
+    mem::forget(bomb);
+    ordering
 }
 
-<span class="doccomment">/// A node which carries data of type `T` and is stored in an intrusive heap.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Nodes will be compared based on `T`&#39;s [`Ord`] impl. Those comparisons must</span>
-<span class="doccomment">/// not panic - otherwise, the program will abort.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The parent. `None` if this is the root.</span>
-    <span class="ident">parent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The previous sibling. `None` if there is no previous sibling.</span>
-    <span class="ident">prev</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The next sibling. `None` if there is no next sibling.</span>
-    <span class="ident">next</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The first child. `None` if there are no children.</span>
-    <span class="ident">first_child</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The data which is associated to this heap item.</span>
-    <span class="ident">data</span>: <span class="ident">T</span>,
-    <span class="doccomment">/// Prevents `HeapNode`s from being `Unpin`. They may never be moved, since</span>
-    <span class="doccomment">/// the heap semantics require addresses to be stable.</span>
-    <span class="ident">_pin</span>: <span class="ident">PhantomPinned</span>,
+<span class="doccomment">/// A node which carries data of type `T` and is stored in an intrusive heap.
+///
+/// Nodes will be compared based on `T`&#39;s [`Ord`] impl. Those comparisons must
+/// not panic - otherwise, the program will abort.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>HeapNode&lt;T&gt; {
+    <span class="doccomment">/// The parent. `None` if this is the root.
+    </span>parent: <span class="prelude-ty">Option</span>&lt;NonNull&lt;HeapNode&lt;T&gt;&gt;&gt;,
+    <span class="doccomment">/// The previous sibling. `None` if there is no previous sibling.
+    </span>prev: <span class="prelude-ty">Option</span>&lt;NonNull&lt;HeapNode&lt;T&gt;&gt;&gt;,
+    <span class="doccomment">/// The next sibling. `None` if there is no next sibling.
+    </span>next: <span class="prelude-ty">Option</span>&lt;NonNull&lt;HeapNode&lt;T&gt;&gt;&gt;,
+    <span class="doccomment">/// The first child. `None` if there are no children.
+    </span>first_child: <span class="prelude-ty">Option</span>&lt;NonNull&lt;HeapNode&lt;T&gt;&gt;&gt;,
+    <span class="doccomment">/// The data which is associated to this heap item.
+    </span>data: T,
+    <span class="doccomment">/// Prevents `HeapNode`s from being `Unpin`. They may never be moved, since
+    /// the heap semantics require addresses to be stable.
+    </span>_pin: PhantomPinned,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new node with the associated data</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">data</span>: <span class="ident">T</span>) -&gt; <span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">HeapNode</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="ident">parent</span>: <span class="prelude-val">None</span>,
-            <span class="ident">prev</span>: <span class="prelude-val">None</span>,
-            <span class="ident">next</span>: <span class="prelude-val">None</span>,
-            <span class="ident">first_child</span>: <span class="prelude-val">None</span>,
-            <span class="ident">data</span>,
-            <span class="ident">_pin</span>: <span class="ident">PhantomPinned</span>,
+<span class="kw">impl</span>&lt;T&gt; HeapNode&lt;T&gt; {
+    <span class="doccomment">/// Creates a new node with the associated data
+    </span><span class="kw">pub fn </span>new(data: T) -&gt; HeapNode&lt;T&gt; {
+        HeapNode::&lt;T&gt; {
+            parent: <span class="prelude-val">None</span>,
+            prev: <span class="prelude-val">None</span>,
+            next: <span class="prelude-val">None</span>,
+            first_child: <span class="prelude-val">None</span>,
+            data,
+            _pin: PhantomPinned,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_root</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">is_none</span>() {
-            <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.<span class="ident">prev</span>, <span class="prelude-val">None</span>);
-            <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.<span class="ident">next</span>, <span class="prelude-val">None</span>);
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+    <span class="kw">fn </span>is_root(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">if </span><span class="self">self</span>.parent.is_none() {
+            <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.prev, <span class="prelude-val">None</span>);
+            <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.next, <span class="prelude-val">None</span>);
+            <span class="bool-val">true
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
+<span class="kw">impl</span>&lt;T&gt; Deref <span class="kw">for </span>HeapNode&lt;T&gt; {
+    <span class="kw">type </span>Target = T;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.data
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">data</span>
+<span class="kw">impl</span>&lt;T&gt; DerefMut <span class="kw">for </span>HeapNode&lt;T&gt; {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.data
     }
 }
 
-<span class="doccomment">/// Add a child to a node.</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">add_child</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(
-    <span class="kw-2">mut</span> <span class="ident">parent</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw-2">mut</span> <span class="ident">child</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Add a child to a node.
+</span><span class="kw">unsafe fn </span>add_child&lt;T: Ord&gt;(
+    <span class="kw-2">mut </span>parent: NonNull&lt;HeapNode&lt;T&gt;&gt;,
+    <span class="kw-2">mut </span>child: NonNull&lt;HeapNode&lt;T&gt;&gt;,
 ) {
-    <span class="comment">// require parent &lt;= child</span>
-    <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="ident">safe_lesser</span>(<span class="kw-2">&amp;</span><span class="ident">child</span>.<span class="ident">as_ref</span>().<span class="ident">data</span>, <span class="kw-2">&amp;</span><span class="ident">parent</span>.<span class="ident">as_ref</span>().<span class="ident">data</span>));
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">old_first_child</span>) <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">as_mut</span>().<span class="ident">first_child</span>.<span class="ident">take</span>() {
-        <span class="ident">child</span>.<span class="ident">as_mut</span>().<span class="ident">next</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">old_first_child</span>);
-        <span class="macro">debug_assert_eq!</span>(<span class="ident">old_first_child</span>.<span class="ident">as_ref</span>().<span class="ident">prev</span>, <span class="prelude-val">None</span>);
-        <span class="ident">old_first_child</span>.<span class="ident">as_mut</span>().<span class="ident">prev</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">child</span>);
+    <span class="comment">// require parent &lt;= child
+    </span><span class="macro">debug_assert!</span>(!safe_lesser(<span class="kw-2">&amp;</span>child.as_ref().data, <span class="kw-2">&amp;</span>parent.as_ref().data));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>old_first_child) = parent.as_mut().first_child.take() {
+        child.as_mut().next = <span class="prelude-val">Some</span>(old_first_child);
+        <span class="macro">debug_assert_eq!</span>(old_first_child.as_ref().prev, <span class="prelude-val">None</span>);
+        old_first_child.as_mut().prev = <span class="prelude-val">Some</span>(child);
     }
-    <span class="ident">parent</span>.<span class="ident">as_mut</span>().<span class="ident">first_child</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">child</span>);
-    <span class="ident">child</span>.<span class="ident">as_mut</span>().<span class="ident">parent</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>);
+    parent.as_mut().first_child = <span class="prelude-val">Some</span>(child);
+    child.as_mut().parent = <span class="prelude-val">Some</span>(parent);
 }
 
-<span class="doccomment">/// Merge two root heaps. Returns the new root.</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">meld</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(
-    <span class="ident">left</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">right</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="macro">debug_assert!</span>(<span class="ident">left</span>.<span class="ident">as_ref</span>().<span class="ident">is_root</span>());
-    <span class="macro">debug_assert!</span>(<span class="ident">right</span>.<span class="ident">as_ref</span>().<span class="ident">is_root</span>());
-    <span class="comment">// The lesser node should become the root.</span>
-    <span class="kw">if</span> <span class="ident">safe_lesser</span>(<span class="kw-2">&amp;</span><span class="ident">left</span>.<span class="ident">as_ref</span>().<span class="ident">data</span>, <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">as_ref</span>().<span class="ident">data</span>) {
-        <span class="ident">add_child</span>(<span class="ident">left</span>, <span class="ident">right</span>);
-        <span class="ident">left</span>
-    } <span class="kw">else</span> {
-        <span class="ident">add_child</span>(<span class="ident">right</span>, <span class="ident">left</span>);
-        <span class="ident">right</span>
-    }
-}
-
-<span class="doccomment">/// Merge two root heaps, where the left might be empty. Returns the new root.</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">maybe_meld</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(
-    <span class="ident">left</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">right</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">left</span>) <span class="op">=</span> <span class="ident">left</span> {
-        <span class="ident">meld</span>(<span class="ident">left</span>, <span class="ident">right</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">right</span>
+<span class="doccomment">/// Merge two root heaps. Returns the new root.
+</span><span class="kw">unsafe fn </span>meld&lt;T: Ord&gt;(
+    left: NonNull&lt;HeapNode&lt;T&gt;&gt;,
+    right: NonNull&lt;HeapNode&lt;T&gt;&gt;,
+) -&gt; NonNull&lt;HeapNode&lt;T&gt;&gt; {
+    <span class="macro">debug_assert!</span>(left.as_ref().is_root());
+    <span class="macro">debug_assert!</span>(right.as_ref().is_root());
+    <span class="comment">// The lesser node should become the root.
+    </span><span class="kw">if </span>safe_lesser(<span class="kw-2">&amp;</span>left.as_ref().data, <span class="kw-2">&amp;</span>right.as_ref().data) {
+        add_child(left, right);
+        left
+    } <span class="kw">else </span>{
+        add_child(right, left);
+        right
     }
 }
 
-<span class="doccomment">/// Given the first child in a child list, traverse and find the last child.</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">last_child</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-    <span class="ident">first_child</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cur</span> <span class="op">=</span> <span class="ident">first_child</span>;
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">cur</span>.<span class="ident">as_ref</span>().<span class="ident">next</span> {
-        <span class="ident">cur</span> <span class="op">=</span> <span class="ident">next</span>;
+<span class="doccomment">/// Merge two root heaps, where the left might be empty. Returns the new root.
+</span><span class="kw">unsafe fn </span>maybe_meld&lt;T: Ord&gt;(
+    left: <span class="prelude-ty">Option</span>&lt;NonNull&lt;HeapNode&lt;T&gt;&gt;&gt;,
+    right: NonNull&lt;HeapNode&lt;T&gt;&gt;,
+) -&gt; NonNull&lt;HeapNode&lt;T&gt;&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(left) = left {
+        meld(left, right)
+    } <span class="kw">else </span>{
+        right
     }
-    <span class="ident">cur</span>
 }
 
-<span class="doccomment">/// Given a pointer to the last node in a child list, unlink it and return the</span>
-<span class="doccomment">/// previous node (which has become the last node in its list).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// That is, given a list `A &lt;-&gt; B &lt;-&gt; C`, `unlink_prev(C)` will return `B` and</span>
-<span class="doccomment">/// also unlink `C` to become `A &lt;-&gt; B    C`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the node was a lone child, returns `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Parent/child pointers are untouched.</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">unlink_prev</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-    <span class="kw-2">mut</span> <span class="ident">node</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">node</span>.<span class="ident">as_ref</span>().<span class="ident">next</span>, <span class="prelude-val">None</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">as_mut</span>().<span class="ident">prev</span>.<span class="ident">take</span>()<span class="question-mark">?</span>;
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">prev</span>.<span class="ident">as_ref</span>().<span class="ident">next</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>));
-    <span class="ident">prev</span>.<span class="ident">as_mut</span>().<span class="ident">next</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="prelude-val">Some</span>(<span class="ident">prev</span>)
+<span class="doccomment">/// Given the first child in a child list, traverse and find the last child.
+</span><span class="kw">unsafe fn </span>last_child&lt;T&gt;(
+    first_child: NonNull&lt;HeapNode&lt;T&gt;&gt;,
+) -&gt; NonNull&lt;HeapNode&lt;T&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>cur = first_child;
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = cur.as_ref().next {
+        cur = next;
+    }
+    cur
 }
 
-<span class="doccomment">/// Merge together a child list. Each child in the child list is expected to</span>
-<span class="doccomment">/// have an equal `parent`. Returns the new merged root, whose `parent` will be unset.</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">merge_children</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(
-    <span class="ident">first_child</span>: <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">common_parent</span> <span class="op">=</span> <span class="ident">first_child</span>.<span class="ident">as_ref</span>().<span class="ident">parent</span>;
-    <span class="macro">debug_assert!</span>(<span class="ident">common_parent</span>.<span class="ident">is_some</span>());
+<span class="doccomment">/// Given a pointer to the last node in a child list, unlink it and return the
+/// previous node (which has become the last node in its list).
+///
+/// That is, given a list `A &lt;-&gt; B &lt;-&gt; C`, `unlink_prev(C)` will return `B` and
+/// also unlink `C` to become `A &lt;-&gt; B    C`.
+///
+/// If the node was a lone child, returns `None`.
+///
+/// Parent/child pointers are untouched.
+</span><span class="kw">unsafe fn </span>unlink_prev&lt;T&gt;(
+    <span class="kw-2">mut </span>node: NonNull&lt;HeapNode&lt;T&gt;&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;NonNull&lt;HeapNode&lt;T&gt;&gt;&gt; {
+    <span class="macro">debug_assert_eq!</span>(node.as_ref().next, <span class="prelude-val">None</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>prev = node.as_mut().prev.take()<span class="question-mark">?</span>;
+    <span class="macro">debug_assert_eq!</span>(prev.as_ref().next, <span class="prelude-val">Some</span>(node));
+    prev.as_mut().next = <span class="prelude-val">None</span>;
+    <span class="prelude-val">Some</span>(prev)
+}
 
-    <span class="comment">// Traverse the children right-to-left. This is important for the analysis</span>
-    <span class="comment">// to work. Reading: &quot;Pairing heaps: the forward variant&quot;,</span>
-    <span class="comment">// https://arxiv.org/pdf/1709.01152.pdf</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">last_child</span>(<span class="ident">first_child</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="comment">// Loop invariant: `node` is the first unprocessed child, `current`</span>
-    <span class="comment">// is the merged result of all processed children.</span>
-    <span class="kw">loop</span> {
-        <span class="comment">// All nodes in the list should have the same parent.</span>
-        <span class="kw">let</span> <span class="ident">node_parent</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">as_mut</span>().<span class="ident">parent</span>.<span class="ident">take</span>();
-        <span class="macro">debug_assert_eq!</span>(<span class="ident">node_parent</span>, <span class="ident">common_parent</span>);
+<span class="doccomment">/// Merge together a child list. Each child in the child list is expected to
+/// have an equal `parent`. Returns the new merged root, whose `parent` will be unset.
+</span><span class="kw">unsafe fn </span>merge_children&lt;T: Ord&gt;(
+    first_child: NonNull&lt;HeapNode&lt;T&gt;&gt;,
+) -&gt; NonNull&lt;HeapNode&lt;T&gt;&gt; {
+    <span class="kw">let </span>common_parent = first_child.as_ref().parent;
+    <span class="macro">debug_assert!</span>(common_parent.is_some());
 
-        <span class="comment">// Grab the last two unprocessed elements.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prev</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev</span>) <span class="op">=</span> <span class="ident">unlink_prev</span>(<span class="ident">node</span>) {
-            <span class="ident">prev</span>
-        } <span class="kw">else</span> {
-            <span class="comment">// Odd case.</span>
-            <span class="kw">return</span> <span class="ident">maybe_meld</span>(<span class="ident">current</span>, <span class="ident">node</span>);
+    <span class="comment">// Traverse the children right-to-left. This is important for the analysis
+    // to work. Reading: &quot;Pairing heaps: the forward variant&quot;,
+    // https://arxiv.org/pdf/1709.01152.pdf
+    </span><span class="kw">let </span><span class="kw-2">mut </span>node = last_child(first_child);
+    <span class="kw">let </span><span class="kw-2">mut </span>current = <span class="prelude-val">None</span>;
+    <span class="comment">// Loop invariant: `node` is the first unprocessed child, `current`
+    // is the merged result of all processed children.
+    </span><span class="kw">loop </span>{
+        <span class="comment">// All nodes in the list should have the same parent.
+        </span><span class="kw">let </span>node_parent = node.as_mut().parent.take();
+        <span class="macro">debug_assert_eq!</span>(node_parent, common_parent);
+
+        <span class="comment">// Grab the last two unprocessed elements.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>prev = <span class="kw">if let </span><span class="prelude-val">Some</span>(prev) = unlink_prev(node) {
+            prev
+        } <span class="kw">else </span>{
+            <span class="comment">// Odd case.
+            </span><span class="kw">return </span>maybe_meld(current, node);
         };
 
-        <span class="comment">// All nodes in the list should have the same parent.</span>
-        <span class="kw">let</span> <span class="ident">prev_parent</span> <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">as_mut</span>().<span class="ident">parent</span>.<span class="ident">take</span>();
-        <span class="macro">debug_assert_eq!</span>(<span class="ident">prev_parent</span>, <span class="ident">common_parent</span>);
+        <span class="comment">// All nodes in the list should have the same parent.
+        </span><span class="kw">let </span>prev_parent = prev.as_mut().parent.take();
+        <span class="macro">debug_assert_eq!</span>(prev_parent, common_parent);
 
-        <span class="comment">// Unlink `prev` from `prev.prev`.</span>
-        <span class="kw">let</span> <span class="ident">prev_prev</span> <span class="op">=</span> <span class="ident">unlink_prev</span>(<span class="ident">prev</span>);
+        <span class="comment">// Unlink `prev` from `prev.prev`.
+        </span><span class="kw">let </span>prev_prev = unlink_prev(prev);
 
-        <span class="comment">// Meld the pair, then meld it into the accumulator.</span>
-        <span class="kw">let</span> <span class="ident">cur</span> <span class="op">=</span> <span class="ident">maybe_meld</span>(<span class="ident">current</span>, <span class="ident">meld</span>(<span class="ident">prev</span>, <span class="ident">node</span>));
+        <span class="comment">// Meld the pair, then meld it into the accumulator.
+        </span><span class="kw">let </span>cur = maybe_meld(current, meld(prev, node));
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev_prev</span>) <span class="op">=</span> <span class="ident">prev_prev</span> {
-            <span class="ident">node</span> <span class="op">=</span> <span class="ident">prev_prev</span>;
-            <span class="ident">current</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cur</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(prev_prev) = prev_prev {
+            node = prev_prev;
+            current = <span class="prelude-val">Some</span>(cur);
             <span class="kw">continue</span>;
-        } <span class="kw">else</span> {
-            <span class="comment">// Even case.</span>
-            <span class="kw">return</span> <span class="ident">cur</span>;
+        } <span class="kw">else </span>{
+            <span class="comment">// Even case.
+            </span><span class="kw">return </span>cur;
         }
     }
 }
 
-<span class="doccomment">/// An intrusive min-heap of nodes, where each node carries associated data</span>
-<span class="doccomment">/// of type `T`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PairingHeap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">root</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An intrusive min-heap of nodes, where each node carries associated data
+/// of type `T`.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>PairingHeap&lt;T&gt; {
+    root: <span class="prelude-ty">Option</span>&lt;NonNull&lt;HeapNode&lt;T&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span> <span class="ident">PairingHeap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates an empty heap</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">PairingHeap</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> { <span class="ident">root</span>: <span class="prelude-val">None</span> }
+<span class="kw">impl</span>&lt;T: Ord&gt; PairingHeap&lt;T&gt; {
+    <span class="doccomment">/// Creates an empty heap
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        PairingHeap::&lt;T&gt; { root: <span class="prelude-val">None </span>}
     }
 
-    <span class="doccomment">/// Adds a node to the heap.</span>
-    <span class="doccomment">/// Safety: This function is only safe as long as `node` is guaranteed to</span>
-    <span class="doccomment">/// get removed from the list before it gets moved or dropped.</span>
-    <span class="doccomment">/// In addition to this `node` may not be added to another other heap before</span>
-    <span class="doccomment">/// it is removed from the current one.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="comment">// The node should not already be in a heap.</span>
-        <span class="macro">debug_assert!</span>(<span class="ident">node</span>.<span class="ident">is_root</span>());
-        <span class="macro">debug_assert_eq!</span>(<span class="ident">node</span>.<span class="ident">first_child</span>, <span class="prelude-val">None</span>);
+    <span class="doccomment">/// Adds a node to the heap.
+    /// Safety: This function is only safe as long as `node` is guaranteed to
+    /// get removed from the list before it gets moved or dropped.
+    /// In addition to this `node` may not be added to another other heap before
+    /// it is removed from the current one.
+    </span><span class="kw">pub unsafe fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: <span class="kw-2">&amp;mut </span>HeapNode&lt;T&gt;) {
+        <span class="comment">// The node should not already be in a heap.
+        </span><span class="macro">debug_assert!</span>(node.is_root());
+        <span class="macro">debug_assert_eq!</span>(node.first_child, <span class="prelude-val">None</span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">root</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">root</span> {
-            <span class="self">self</span>.<span class="ident">root</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">meld</span>(<span class="ident">root</span>, <span class="ident">node</span>.<span class="ident">into</span>()));
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">root</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(root) = <span class="self">self</span>.root {
+            <span class="self">self</span>.root = <span class="prelude-val">Some</span>(meld(root, node.into()));
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.root = <span class="prelude-val">Some</span>(node.into());
         }
     }
 
-    <span class="doccomment">/// Returns the smallest element in the heap without removing it.</span>
-    <span class="doccomment">/// The function is only safe as long as valid pointers are stored inside</span>
-    <span class="doccomment">/// the heap.</span>
-    <span class="doccomment">/// The returned pointer is only guaranteed to be valid as long as the heap</span>
-    <span class="doccomment">/// is not mutated</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peek_min</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">root</span>
+    <span class="doccomment">/// Returns the smallest element in the heap without removing it.
+    /// The function is only safe as long as valid pointers are stored inside
+    /// the heap.
+    /// The returned pointer is only guaranteed to be valid as long as the heap
+    /// is not mutated
+    </span><span class="kw">pub fn </span>peek_min(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonNull&lt;HeapNode&lt;T&gt;&gt;&gt; {
+        <span class="self">self</span>.root
     }
 
-    <span class="doccomment">/// Removes the given node from the heap.</span>
-    <span class="doccomment">/// The node must be a member of this heap, and not a member of any other</span>
-    <span class="doccomment">/// heap.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">parent</span>.<span class="ident">take</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">parent</span>) <span class="op">=</span> <span class="ident">parent</span> {
-            <span class="comment">// Unlink this node from its parent.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">prev</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">prev</span> {
-                <span class="ident">prev</span>.<span class="ident">as_mut</span>().<span class="ident">next</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">next</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">parent</span>.<span class="ident">as_mut</span>().<span class="ident">first_child</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">next</span>;
+    <span class="doccomment">/// Removes the given node from the heap.
+    /// The node must be a member of this heap, and not a member of any other
+    /// heap.
+    </span><span class="kw">pub unsafe fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: <span class="kw-2">&amp;mut </span>HeapNode&lt;T&gt;) {
+        <span class="kw">let </span>parent = node.parent.take();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>parent) = parent {
+            <span class="comment">// Unlink this node from its parent.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>prev) = node.prev {
+                prev.as_mut().next = node.next;
+            } <span class="kw">else </span>{
+                parent.as_mut().first_child = node.next;
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">next</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">next</span> {
-                <span class="ident">next</span>.<span class="ident">as_mut</span>().<span class="ident">prev</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">prev</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>next) = node.next {
+                next.as_mut().prev = node.prev;
             }
-            <span class="ident">node</span>.<span class="ident">next</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="ident">node</span>.<span class="ident">prev</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        } <span class="kw">else</span> {
-            <span class="macro">debug_assert_eq!</span>(<span class="ident">node</span>.<span class="ident">next</span>, <span class="prelude-val">None</span>);
-            <span class="macro">debug_assert_eq!</span>(<span class="ident">node</span>.<span class="ident">prev</span>, <span class="prelude-val">None</span>);
-            <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.<span class="ident">root</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()));
-            <span class="self">self</span>.<span class="ident">root</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            node.next = <span class="prelude-val">None</span>;
+            node.prev = <span class="prelude-val">None</span>;
+        } <span class="kw">else </span>{
+            <span class="macro">debug_assert_eq!</span>(node.next, <span class="prelude-val">None</span>);
+            <span class="macro">debug_assert_eq!</span>(node.prev, <span class="prelude-val">None</span>);
+            <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.root, <span class="prelude-val">Some</span>(node.into()));
+            <span class="self">self</span>.root = <span class="prelude-val">None</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">first_child</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">first_child</span>.<span class="ident">take</span>() {
-            <span class="comment">// Merge together the children.</span>
-            <span class="kw">let</span> <span class="ident">children</span> <span class="op">=</span> <span class="ident">merge_children</span>(<span class="ident">first_child</span>);
-            <span class="comment">// Add the children back into the parent.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="ident">parent</span> {
-                <span class="comment">// The heap property is preserved because we had `parent.data`</span>
-                <span class="comment">// &lt;= `node.data`, and `node.data` &lt;= `child.data` for all</span>
-                <span class="comment">// children.</span>
-                <span class="ident">add_child</span>(<span class="ident">parent</span>, <span class="ident">children</span>);
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">root</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">children</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(first_child) = node.first_child.take() {
+            <span class="comment">// Merge together the children.
+            </span><span class="kw">let </span>children = merge_children(first_child);
+            <span class="comment">// Add the children back into the parent.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = parent {
+                <span class="comment">// The heap property is preserved because we had `parent.data`
+                // &lt;= `node.data`, and `node.data` &lt;= `child.data` for all
+                // children.
+                </span>add_child(parent, children);
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.root = <span class="prelude-val">Some</span>(children);
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">HeapNode</span>, <span class="ident">PairingHeap</span>};
-    <span class="kw">use</span> <span class="ident">core::ptr::NonNull</span>;
+<span class="attribute">#[cfg(all(test, feature = <span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::{HeapNode, PairingHeap};
+    <span class="kw">use </span>core::ptr::NonNull;
 
-    <span class="comment">// Recursively check the provided node and all descendants for:</span>
-    <span class="comment">// - pointer consistency: parent pointers and next/prev</span>
-    <span class="comment">// - the heap property: `node.data &lt;= child.data` for all children</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">validate_heap_node</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(
-        <span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-        <span class="ident">parent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HeapNode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// Recursively check the provided node and all descendants for:
+    // - pointer consistency: parent pointers and next/prev
+    // - the heap property: `node.data &lt;= child.data` for all children
+    </span><span class="kw">unsafe fn </span>validate_heap_node&lt;T: Ord&gt;(
+        node: <span class="kw-2">&amp;</span>HeapNode&lt;T&gt;,
+        parent: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>HeapNode&lt;T&gt;&gt;,
     ) {
-        <span class="macro">assert_eq!</span>(<span class="ident">node</span>.<span class="ident">parent</span>, <span class="ident">parent</span>.<span class="ident">map</span>(<span class="ident">NonNull::from</span>));
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">parent</span> {
-            <span class="macro">assert!</span>(<span class="ident">p</span>.<span class="ident">data</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">node</span>.<span class="ident">data</span>);
+        <span class="macro">assert_eq!</span>(node.parent, parent.map(NonNull::from));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = parent {
+            <span class="macro">assert!</span>(p.data &lt;= node.data);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">prev</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">prev</span>.<span class="ident">as_ref</span>().<span class="ident">next</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(prev) = node.prev {
+            <span class="macro">assert_eq!</span>(prev.as_ref().next, <span class="prelude-val">Some</span>(node.into()));
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">next</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">next</span>.<span class="ident">as_ref</span>().<span class="ident">prev</span>, <span class="prelude-val">Some</span>(<span class="ident">node</span>.<span class="ident">into</span>()));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(next) = node.next {
+            <span class="macro">assert_eq!</span>(next.as_ref().prev, <span class="prelude-val">Some</span>(node.into()));
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">child</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">first_child</span>;
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">child</span> {
-            <span class="ident">validate_heap_node</span>(<span class="ident">c</span>.<span class="ident">as_ref</span>(), <span class="prelude-val">Some</span>(<span class="ident">node</span>));
-            <span class="ident">child</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">as_ref</span>().<span class="ident">next</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>child = node.first_child;
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = child {
+            validate_heap_node(c.as_ref(), <span class="prelude-val">Some</span>(node));
+            child = c.as_ref().next;
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">validate_heap</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(<span class="ident">heap</span>: <span class="kw-2">&amp;</span><span class="ident">PairingHeap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">root</span>) <span class="op">=</span> <span class="ident">heap</span>.<span class="ident">root</span> {
-            <span class="comment">// This is also sufficient to check that `heap.root` is indeed a</span>
-            <span class="comment">// minimum element of the heap.</span>
-            <span class="kw">unsafe</span> {
-                <span class="ident">validate_heap_node</span>(<span class="ident">root</span>.<span class="ident">as_ref</span>(), <span class="prelude-val">None</span>);
+    <span class="kw">fn </span>validate_heap&lt;T: Ord&gt;(heap: <span class="kw-2">&amp;</span>PairingHeap&lt;T&gt;) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(root) = heap.root {
+            <span class="comment">// This is also sufficient to check that `heap.root` is indeed a
+            // minimum element of the heap.
+            </span><span class="kw">unsafe </span>{
+                validate_heap_node(root.as_ref(), <span class="prelude-val">None</span>);
             }
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">insert_and_remove</span>() {
-        <span class="comment">// This test exhaustively covers every possible schedule of inserting,</span>
-        <span class="comment">// then removing, each of five different nodes from the heap.</span>
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-        <span class="kw">enum</span> <span class="ident">Action</span> {
-            <span class="ident">Insert</span>(<span class="ident">u8</span>),
-            <span class="ident">Remove</span>(<span class="ident">u8</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>insert_and_remove() {
+        <span class="comment">// This test exhaustively covers every possible schedule of inserting,
+        // then removing, each of five different nodes from the heap.
+        </span><span class="attribute">#[derive(Copy, Clone, Debug)]
+        </span><span class="kw">enum </span>Action {
+            Insert(u8),
+            Remove(u8),
         }
 
-        <span class="kw">fn</span> <span class="ident">generate_schedules</span>(
-            <span class="ident">current</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Action</span><span class="op">&gt;</span>,
-            <span class="ident">available</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Action</span><span class="op">&gt;</span>,
-            <span class="ident">f</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;</span>[<span class="ident">Action</span>]),
+        <span class="kw">fn </span>generate_schedules(
+            current: <span class="kw-2">&amp;mut </span>Vec&lt;Action&gt;,
+            available: <span class="kw-2">&amp;mut </span>Vec&lt;Action&gt;,
+            f: <span class="kw">fn</span>(<span class="kw-2">&amp;</span>[Action]),
         ) {
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">available</span>.<span class="ident">len</span>() {
-                <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">available</span>.<span class="ident">swap_remove</span>(<span class="ident">i</span>);
-                <span class="ident">current</span>.<span class="ident">push</span>(<span class="ident">action</span>);
-                <span class="ident">f</span>(<span class="ident">current</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Action::Insert</span>(<span class="ident">j</span>) <span class="op">=</span> <span class="ident">action</span> {
-                    <span class="ident">available</span>.<span class="ident">push</span>(<span class="ident">Action::Remove</span>(<span class="ident">j</span>));
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..available.len() {
+                <span class="kw">let </span>action = available.swap_remove(i);
+                current.push(action);
+                f(current);
+                <span class="kw">if let </span>Action::Insert(j) = action {
+                    available.push(Action::Remove(j));
                 }
-                <span class="ident">generate_schedules</span>(<span class="ident">current</span>, <span class="ident">available</span>, <span class="ident">f</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Action::Insert</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">action</span> {
-                    <span class="ident">available</span>.<span class="ident">pop</span>();
+                generate_schedules(current, available, f);
+                <span class="kw">if let </span>Action::Insert(<span class="kw">_</span>) = action {
+                    available.pop();
                 }
-                <span class="ident">current</span>.<span class="ident">pop</span>();
-                <span class="comment">// the opposite of `swap_remove`</span>
-                <span class="ident">available</span>.<span class="ident">push</span>(<span class="ident">action</span>);
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">available</span>.<span class="ident">len</span>();
-                <span class="ident">available</span>.<span class="ident">swap</span>(<span class="ident">i</span>, <span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>);
+                current.pop();
+                <span class="comment">// the opposite of `swap_remove`
+                </span>available.push(action);
+                <span class="kw">let </span>len = available.len();
+                available.swap(i, len - <span class="number">1</span>);
             }
         }
-        <span class="kw">let</span> <span class="ident">max</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">miri</span>) {
-            <span class="comment">// Miri is really slow, make things easier.</span>
-            <span class="number">3</span>
-        } <span class="kw">else</span> {
-            <span class="comment">// 5 runs in a reasonable amount of time but still exercises</span>
-            <span class="comment">// interesting cases.</span>
-            <span class="number">5</span>
-        };
-        <span class="ident">generate_schedules</span>(
-            <span class="kw-2">&amp;mut</span> <span class="macro">vec!</span>[],
-            <span class="kw-2">&amp;mut</span> (<span class="number">0</span>..<span class="ident">max</span>).<span class="ident">map</span>(<span class="ident">Action::Insert</span>).<span class="ident">collect</span>(),
-            <span class="op">|</span><span class="ident">schedule</span><span class="op">|</span> <span class="kw">unsafe</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> [
-                    <span class="ident">HeapNode::new</span>(<span class="number">0u8</span>),
-                    <span class="ident">HeapNode::new</span>(<span class="number">1</span>),
-                    <span class="ident">HeapNode::new</span>(<span class="number">2</span>),
-                    <span class="ident">HeapNode::new</span>(<span class="number">3</span>),
-                    <span class="ident">HeapNode::new</span>(<span class="number">4</span>),
+        <span class="kw">let </span>max = <span class="kw">if </span><span class="macro">cfg!</span>(miri) {
+            <span class="comment">// Miri is really slow, make things easier.
+            </span><span class="number">3
+        </span>} <span class="kw">else </span>{
+            <span class="comment">// 5 runs in a reasonable amount of time but still exercises
+            // interesting cases.
+            </span><span class="number">5
+        </span>};
+        generate_schedules(
+            <span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[],
+            <span class="kw-2">&amp;mut </span>(<span class="number">0</span>..max).map(Action::Insert).collect(),
+            |schedule| <span class="kw">unsafe </span>{
+                <span class="kw">let </span><span class="kw-2">mut </span>nodes = [
+                    HeapNode::new(<span class="number">0u8</span>),
+                    HeapNode::new(<span class="number">1</span>),
+                    HeapNode::new(<span class="number">2</span>),
+                    HeapNode::new(<span class="number">3</span>),
+                    HeapNode::new(<span class="number">4</span>),
                 ];
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">heap</span> <span class="op">=</span> <span class="ident">PairingHeap::new</span>();
-                <span class="kw">for</span> <span class="ident">action</span> <span class="kw">in</span> <span class="ident">schedule</span> {
-                    <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">action</span> {
-                        <span class="ident">Action::Insert</span>(<span class="ident">n</span>) =&gt; {
-                            <span class="ident">heap</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>[<span class="ident">n</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-                            <span class="ident">validate_heap</span>(<span class="kw-2">&amp;</span><span class="ident">heap</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>heap = PairingHeap::new();
+                <span class="kw">for </span>action <span class="kw">in </span>schedule {
+                    <span class="kw">match </span><span class="kw-2">*</span>action {
+                        Action::Insert(n) =&gt; {
+                            heap.insert(<span class="kw-2">&amp;mut </span>nodes[n <span class="kw">as </span>usize]);
+                            validate_heap(<span class="kw-2">&amp;</span>heap);
                         }
-                        <span class="ident">Action::Remove</span>(<span class="ident">n</span>) =&gt; {
-                            <span class="ident">heap</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>[<span class="ident">n</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-                            <span class="macro">assert!</span>(<span class="ident">nodes</span>[<span class="ident">n</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">is_root</span>());
-                            <span class="macro">assert_eq!</span>(<span class="ident">nodes</span>[<span class="ident">n</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">first_child</span>, <span class="prelude-val">None</span>);
-                            <span class="ident">validate_heap</span>(<span class="kw-2">&amp;</span><span class="ident">heap</span>);
+                        Action::Remove(n) =&gt; {
+                            heap.remove(<span class="kw-2">&amp;mut </span>nodes[n <span class="kw">as </span>usize]);
+                            <span class="macro">assert!</span>(nodes[n <span class="kw">as </span>usize].is_root());
+                            <span class="macro">assert_eq!</span>(nodes[n <span class="kw">as </span>usize].first_child, <span class="prelude-val">None</span>);
+                            validate_heap(<span class="kw-2">&amp;</span>heap);
                         }
                     }
                 }
@@ -848,29 +848,29 @@
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">equal_values</span>() {
-        <span class="comment">// Check that things behave properly in the presence of equal values.</span>
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> [
-                <span class="ident">HeapNode::new</span>(<span class="number">0u8</span>),
-                <span class="ident">HeapNode::new</span>(<span class="number">0</span>),
-                <span class="ident">HeapNode::new</span>(<span class="number">0</span>),
-                <span class="ident">HeapNode::new</span>(<span class="number">0</span>),
-                <span class="ident">HeapNode::new</span>(<span class="number">0</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>equal_values() {
+        <span class="comment">// Check that things behave properly in the presence of equal values.
+        </span><span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>nodes = [
+                HeapNode::new(<span class="number">0u8</span>),
+                HeapNode::new(<span class="number">0</span>),
+                HeapNode::new(<span class="number">0</span>),
+                HeapNode::new(<span class="number">0</span>),
+                HeapNode::new(<span class="number">0</span>),
             ];
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">heap</span> <span class="op">=</span> <span class="ident">PairingHeap::new</span>();
-            <span class="kw">for</span> <span class="ident">node</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span> {
-                <span class="ident">heap</span>.<span class="ident">insert</span>(<span class="ident">node</span>);
-                <span class="ident">validate_heap</span>(<span class="kw-2">&amp;</span><span class="ident">heap</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>heap = PairingHeap::new();
+            <span class="kw">for </span>node <span class="kw">in </span><span class="kw-2">&amp;mut </span>nodes {
+                heap.insert(node);
+                validate_heap(<span class="kw-2">&amp;</span>heap);
             }
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">5</span> {
-                <span class="ident">heap</span>.<span class="ident">remove</span>(<span class="ident">heap</span>.<span class="ident">peek_min</span>().<span class="ident">unwrap</span>().<span class="ident">as_mut</span>());
-                <span class="ident">validate_heap</span>(<span class="kw-2">&amp;</span><span class="ident">heap</span>);
+            <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">5 </span>{
+                heap.remove(heap.peek_min().unwrap().as_mut());
+                validate_heap(<span class="kw-2">&amp;</span>heap);
             }
-            <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">peek_min</span>(), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(heap.peek_min(), <span class="prelude-val">None</span>);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

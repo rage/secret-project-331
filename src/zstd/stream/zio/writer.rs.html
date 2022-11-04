@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/stream/zio/writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../zstd/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/stream/zio/writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../zstd/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -292,299 +292,299 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::io::{<span class="self">self</span>, Write};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream::raw</span>::{<span class="ident">InBuffer</span>, <span class="ident">Operation</span>, <span class="ident">OutBuffer</span>};
+<span class="kw">use </span><span class="kw">crate</span>::stream::raw::{InBuffer, Operation, OutBuffer};
 
-<span class="comment">// input -&gt; [ zstd -&gt; buffer -&gt; writer ]</span>
+<span class="comment">// input -&gt; [ zstd -&gt; buffer -&gt; writer ]
 
-<span class="doccomment">/// Implements the [`Write`] API around an [`Operation`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This can be used to wrap a raw in-memory operation in a write-focused API.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// It can be used with either compression or decompression, and forwards the</span>
-<span class="doccomment">/// output to a wrapped `Write`.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Writer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">D</span><span class="op">&gt;</span> {
-    <span class="ident">writer</span>: <span class="ident">W</span>,
-    <span class="ident">operation</span>: <span class="ident">D</span>,
+</span><span class="doccomment">/// Implements the [`Write`] API around an [`Operation`].
+///
+/// This can be used to wrap a raw in-memory operation in a write-focused API.
+///
+/// It can be used with either compression or decompression, and forwards the
+/// output to a wrapped `Write`.
+</span><span class="kw">pub struct </span>Writer&lt;W, D&gt; {
+    writer: W,
+    operation: D,
 
-    <span class="ident">offset</span>: <span class="ident">usize</span>,
-    <span class="ident">buffer</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+    offset: usize,
+    buffer: Vec&lt;u8&gt;,
 
-    <span class="comment">// When `true`, indicates that nothing should be added to the buffer.</span>
-    <span class="comment">// All that&#39;s left if to empty the buffer.</span>
-    <span class="ident">finished</span>: <span class="ident">bool</span>,
+    <span class="comment">// When `true`, indicates that nothing should be added to the buffer.
+    // All that&#39;s left if to empty the buffer.
+    </span>finished: bool,
 
-    <span class="ident">finished_frame</span>: <span class="ident">bool</span>,
+    finished_frame: bool,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="ident">Writer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">D</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">W</span>: <span class="ident">Write</span>,
-    <span class="ident">D</span>: <span class="ident">Operation</span>,
+<span class="kw">impl</span>&lt;W, D&gt; Writer&lt;W, D&gt;
+<span class="kw">where
+    </span>W: Write,
+    D: Operation,
 {
-    <span class="doccomment">/// Creates a new `Writer`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// All output from the given operation will be forwarded to `writer`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="ident">W</span>, <span class="ident">operation</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Writer</span> {
-            <span class="ident">writer</span>,
-            <span class="ident">operation</span>,
+    <span class="doccomment">/// Creates a new `Writer`.
+    ///
+    /// All output from the given operation will be forwarded to `writer`.
+    </span><span class="kw">pub fn </span>new(writer: W, operation: D) -&gt; <span class="self">Self </span>{
+        Writer {
+            writer,
+            operation,
 
-            <span class="ident">offset</span>: <span class="number">0</span>,
-            <span class="comment">// 32KB buffer? That&#39;s what flate2 uses</span>
-            <span class="ident">buffer</span>: <span class="ident">Vec::with_capacity</span>(<span class="number">32</span> <span class="op">*</span> <span class="number">1024</span>),
+            offset: <span class="number">0</span>,
+            <span class="comment">// 32KB buffer? That&#39;s what flate2 uses
+            </span>buffer: Vec::with_capacity(<span class="number">32 </span>* <span class="number">1024</span>),
 
-            <span class="ident">finished</span>: <span class="bool-val">false</span>,
-            <span class="ident">finished_frame</span>: <span class="bool-val">false</span>,
+            finished: <span class="bool-val">false</span>,
+            finished_frame: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="doccomment">/// Ends the stream.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This *must* be called after all data has been written to finish the</span>
-    <span class="doccomment">/// stream.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If you forget to call this and just drop the `Writer`, you *will* have</span>
-    <span class="doccomment">/// an incomplete output.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Keep calling it until it returns `Ok(())`, then don&#39;t call it again.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">loop</span> {
-            <span class="comment">// Keep trying until we&#39;re really done.</span>
-            <span class="self">self</span>.<span class="ident">write_from_offset</span>()<span class="question-mark">?</span>;
+    <span class="doccomment">/// Ends the stream.
+    ///
+    /// This *must* be called after all data has been written to finish the
+    /// stream.
+    ///
+    /// If you forget to call this and just drop the `Writer`, you *will* have
+    /// an incomplete output.
+    ///
+    /// Keep calling it until it returns `Ok(())`, then don&#39;t call it again.
+    </span><span class="kw">pub fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">loop </span>{
+            <span class="comment">// Keep trying until we&#39;re really done.
+            </span><span class="self">self</span>.write_from_offset()<span class="question-mark">?</span>;
 
-            <span class="comment">// At this point the buffer has been fully written out.</span>
+            <span class="comment">// At this point the buffer has been fully written out.
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">finished</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            </span><span class="kw">if </span><span class="self">self</span>.finished {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
             }
 
-            <span class="comment">// Let&#39;s fill this buffer again!</span>
+            <span class="comment">// Let&#39;s fill this buffer again!
 
-            <span class="kw">let</span> <span class="ident">finished_frame</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">finished_frame</span>;
-            <span class="kw">let</span> <span class="ident">hint</span> <span class="op">=</span>
-                <span class="self">self</span>.<span class="ident">with_buffer</span>(<span class="op">|</span><span class="ident">dst</span>, <span class="ident">op</span><span class="op">|</span> <span class="ident">op</span>.<span class="ident">finish</span>(<span class="ident">dst</span>, <span class="ident">finished_frame</span>));
-            <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="comment">// println!(&quot;Hint: {:?}\nOut:{:?}&quot;, hint, &amp;self.buffer);</span>
+            </span><span class="kw">let </span>finished_frame = <span class="self">self</span>.finished_frame;
+            <span class="kw">let </span>hint =
+                <span class="self">self</span>.with_buffer(|dst, op| op.finish(dst, finished_frame));
+            <span class="self">self</span>.offset = <span class="number">0</span>;
+            <span class="comment">// println!(&quot;Hint: {:?}\nOut:{:?}&quot;, hint, &amp;self.buffer);
 
-            <span class="comment">// We return here if zstd had a problem.</span>
-            <span class="comment">// Could happen with invalid data, ...</span>
-            <span class="kw">let</span> <span class="ident">hint</span> <span class="op">=</span> <span class="ident">hint</span><span class="question-mark">?</span>;
+            // We return here if zstd had a problem.
+            // Could happen with invalid data, ...
+            </span><span class="kw">let </span>hint = hint<span class="question-mark">?</span>;
 
-            <span class="kw">if</span> <span class="ident">hint</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// This happens if we are decoding an incomplete frame.</span>
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-                    <span class="ident">io::ErrorKind::UnexpectedEof</span>,
+            <span class="kw">if </span>hint != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.buffer.is_empty() {
+                <span class="comment">// This happens if we are decoding an incomplete frame.
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
                     <span class="string">&quot;incomplete frame&quot;</span>,
                 ));
             }
 
-            <span class="comment">// println!(&quot;Finishing {}, {}&quot;, bytes_written, hint);</span>
+            <span class="comment">// println!(&quot;Finishing {}, {}&quot;, bytes_written, hint);
 
-            <span class="self">self</span>.<span class="ident">finished</span> <span class="op">=</span> <span class="ident">hint</span> <span class="op">==</span> <span class="number">0</span>;
+            </span><span class="self">self</span>.finished = hint == <span class="number">0</span>;
         }
     }
 
-    <span class="doccomment">/// Run the given closure on `self.buffer`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The buffer will be cleared, and made available wrapped in an `OutBuffer`.</span>
-    <span class="kw">fn</span> <span class="ident">with_buffer</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">T</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">OutBuffer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">D</span>) -&gt; <span class="ident">T</span>,
+    <span class="doccomment">/// Run the given closure on `self.buffer`.
+    ///
+    /// The buffer will be cleared, and made available wrapped in an `OutBuffer`.
+    </span><span class="kw">fn </span>with_buffer&lt;F, T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: F) -&gt; T
+    <span class="kw">where
+        </span>F: FnOnce(<span class="kw-2">&amp;mut </span>OutBuffer&lt;<span class="lifetime">&#39;_</span>, Vec&lt;u8&gt;&gt;, <span class="kw-2">&amp;mut </span>D) -&gt; T,
     {
-        <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">clear</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">OutBuffer::around</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buffer</span>);
-        <span class="comment">// eprintln!(&quot;Output: {:?}&quot;, output);</span>
-        <span class="ident">f</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">operation</span>)
+        <span class="self">self</span>.buffer.clear();
+        <span class="kw">let </span><span class="kw-2">mut </span>output = OutBuffer::around(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer);
+        <span class="comment">// eprintln!(&quot;Output: {:?}&quot;, output);
+        </span>f(<span class="kw-2">&amp;mut </span>output, <span class="kw-2">&amp;mut </span><span class="self">self</span>.operation)
     }
 
-    <span class="doccomment">/// Attempt to write `self.buffer` to the wrapped writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `Ok(())` once all the buffer has been written.</span>
-    <span class="kw">fn</span> <span class="ident">write_from_offset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="comment">// The code looks a lot like `write_all`, but keeps track of what has</span>
-        <span class="comment">// been written in case we&#39;re interrupted.</span>
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">offset</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">len</span>() {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>[<span class="self">self</span>.<span class="ident">offset</span>..]) {
+    <span class="doccomment">/// Attempt to write `self.buffer` to the wrapped writer.
+    ///
+    /// Returns `Ok(())` once all the buffer has been written.
+    </span><span class="kw">fn </span>write_from_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="comment">// The code looks a lot like `write_all`, but keeps track of what has
+        // been written in case we&#39;re interrupted.
+        </span><span class="kw">while </span><span class="self">self</span>.offset &lt; <span class="self">self</span>.buffer.len() {
+            <span class="kw">match </span><span class="self">self</span>.writer.write(<span class="kw-2">&amp;</span><span class="self">self</span>.buffer[<span class="self">self</span>.offset..]) {
                 <span class="prelude-val">Ok</span>(<span class="number">0</span>) =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-                        <span class="ident">io::ErrorKind::WriteZero</span>,
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
+                        io::ErrorKind::WriteZero,
                         <span class="string">&quot;writer will not accept any more data&quot;</span>,
                     ))
                 }
-                <span class="prelude-val">Ok</span>(<span class="ident">n</span>) =&gt; <span class="self">self</span>.<span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>,
-                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">io::ErrorKind::Interrupted</span> =&gt; (),
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                <span class="prelude-val">Ok</span>(n) =&gt; <span class="self">self</span>.offset += n,
+                <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>e) <span class="kw">if </span>e.kind() == io::ErrorKind::Interrupted =&gt; (),
+                <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Return the wrapped `Writer` and `Operation`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Careful: if you call this before calling [`Writer::finish()`], the</span>
-    <span class="doccomment">/// output may be incomplete.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; (<span class="ident">W</span>, <span class="ident">D</span>) {
-        (<span class="self">self</span>.<span class="ident">writer</span>, <span class="self">self</span>.<span class="ident">operation</span>)
+    <span class="doccomment">/// Return the wrapped `Writer` and `Operation`.
+    ///
+    /// Careful: if you call this before calling [`Writer::finish()`], the
+    /// output may be incomplete.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; (W, D) {
+        (<span class="self">self</span>.writer, <span class="self">self</span>.operation)
     }
 
-    <span class="doccomment">/// Gives a reference to the inner writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">writer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">writer</span>
+    <span class="doccomment">/// Gives a reference to the inner writer.
+    </span><span class="kw">pub fn </span>writer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.writer
     }
 
-    <span class="doccomment">/// Gives a mutable reference to the inner writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">writer_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">writer</span>
+    <span class="doccomment">/// Gives a mutable reference to the inner writer.
+    </span><span class="kw">pub fn </span>writer_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.writer
     }
 
-    <span class="doccomment">/// Gives a reference to the inner operation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">operation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">D</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">operation</span>
+    <span class="doccomment">/// Gives a reference to the inner operation.
+    </span><span class="kw">pub fn </span>operation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>D {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.operation
     }
 
-    <span class="doccomment">/// Gives a mutable reference to the inner operation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">operation_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">D</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">operation</span>
+    <span class="doccomment">/// Gives a mutable reference to the inner operation.
+    </span><span class="kw">pub fn </span>operation_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>D {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.operation
     }
 
-    <span class="doccomment">/// Returns the offset in the current buffer. Only useful for debugging.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">offset</span>
+    <span class="doccomment">/// Returns the offset in the current buffer. Only useful for debugging.
+    </span><span class="attribute">#[cfg(test)]
+    </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.offset
     }
 
-    <span class="doccomment">/// Returns the current buffer. Only useful for debugging.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buffer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>
+    <span class="doccomment">/// Returns the current buffer. Only useful for debugging.
+    </span><span class="attribute">#[cfg(test)]
+    </span><span class="kw">pub fn </span>buffer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.buffer
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">Writer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">D</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">W</span>: <span class="ident">Write</span>,
-    <span class="ident">D</span>: <span class="ident">Operation</span>,
+<span class="kw">impl</span>&lt;W, D&gt; Write <span class="kw">for </span>Writer&lt;W, D&gt;
+<span class="kw">where
+    </span>W: Write,
+    D: Operation,
 {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="comment">// Keep trying until _something_ has been consumed.</span>
-        <span class="comment">// As soon as some input has been taken, we cannot afford</span>
-        <span class="comment">// to take any chance: if an error occurs, the user couldn&#39;t know</span>
-        <span class="comment">// that some data _was_ successfully written.</span>
-        <span class="kw">loop</span> {
-            <span class="comment">// First, write any pending data from `self.buffer`.</span>
-            <span class="self">self</span>.<span class="ident">write_from_offset</span>()<span class="question-mark">?</span>;
-            <span class="comment">// At this point `self.buffer` can safely be discarded.</span>
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="comment">// Keep trying until _something_ has been consumed.
+        // As soon as some input has been taken, we cannot afford
+        // to take any chance: if an error occurs, the user couldn&#39;t know
+        // that some data _was_ successfully written.
+        </span><span class="kw">loop </span>{
+            <span class="comment">// First, write any pending data from `self.buffer`.
+            </span><span class="self">self</span>.write_from_offset()<span class="question-mark">?</span>;
+            <span class="comment">// At this point `self.buffer` can safely be discarded.
 
-            <span class="comment">// Support writing concatenated frames by re-initializing the</span>
-            <span class="comment">// context.</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">finished_frame</span> {
-                <span class="self">self</span>.<span class="ident">operation</span>.<span class="ident">reinit</span>()<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">finished_frame</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            // Support writing concatenated frames by re-initializing the
+            // context.
+            </span><span class="kw">if </span><span class="self">self</span>.finished_frame {
+                <span class="self">self</span>.operation.reinit()<span class="question-mark">?</span>;
+                <span class="self">self</span>.finished_frame = <span class="bool-val">false</span>;
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">InBuffer::around</span>(<span class="ident">buf</span>);
-            <span class="kw">let</span> <span class="ident">hint</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">with_buffer</span>(<span class="op">|</span><span class="ident">dst</span>, <span class="ident">op</span><span class="op">|</span> <span class="ident">op</span>.<span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="ident">src</span>, <span class="ident">dst</span>));
-            <span class="kw">let</span> <span class="ident">bytes_read</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">pos</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>src = InBuffer::around(buf);
+            <span class="kw">let </span>hint = <span class="self">self</span>.with_buffer(|dst, op| op.run(<span class="kw-2">&amp;mut </span>src, dst));
+            <span class="kw">let </span>bytes_read = src.pos;
 
-            <span class="comment">// eprintln!(</span>
-            <span class="comment">//     &quot;Write Hint: {:?}\n src: {:?}\n dst: {:?}&quot;,</span>
-            <span class="comment">//     hint, src, self.buffer</span>
-            <span class="comment">// );</span>
+            <span class="comment">// eprintln!(
+            //     &quot;Write Hint: {:?}\n src: {:?}\n dst: {:?}&quot;,
+            //     hint, src, self.buffer
+            // );
 
-            <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">let</span> <span class="ident">hint</span> <span class="op">=</span> <span class="ident">hint</span><span class="question-mark">?</span>;
+            </span><span class="self">self</span>.offset = <span class="number">0</span>;
+            <span class="kw">let </span>hint = hint<span class="question-mark">?</span>;
 
-            <span class="kw">if</span> <span class="ident">hint</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="self">self</span>.<span class="ident">finished_frame</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="kw">if </span>hint == <span class="number">0 </span>{
+                <span class="self">self</span>.finished_frame = <span class="bool-val">true</span>;
             }
 
-            <span class="comment">// As we said, as soon as we&#39;ve consumed something, return.</span>
-            <span class="kw">if</span> <span class="ident">bytes_read</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">buf</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// println!(&quot;Returning {}&quot;, bytes_read);</span>
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">bytes_read</span>);
+            <span class="comment">// As we said, as soon as we&#39;ve consumed something, return.
+            </span><span class="kw">if </span>bytes_read &gt; <span class="number">0 </span>|| buf.is_empty() {
+                <span class="comment">// println!(&quot;Returning {}&quot;, bytes_read);
+                </span><span class="kw">return </span><span class="prelude-val">Ok</span>(bytes_read);
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finished</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">finished</span>;
-        <span class="kw">loop</span> {
-            <span class="comment">// If the output is blocked or has an error, return now.</span>
-            <span class="self">self</span>.<span class="ident">write_from_offset</span>()<span class="question-mark">?</span>;
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>finished = <span class="self">self</span>.finished;
+        <span class="kw">loop </span>{
+            <span class="comment">// If the output is blocked or has an error, return now.
+            </span><span class="self">self</span>.write_from_offset()<span class="question-mark">?</span>;
 
-            <span class="kw">if</span> <span class="ident">finished</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            <span class="kw">if </span>finished {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
             }
 
-            <span class="kw">let</span> <span class="ident">hint</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">with_buffer</span>(<span class="op">|</span><span class="ident">dst</span>, <span class="ident">op</span><span class="op">|</span> <span class="ident">op</span>.<span class="ident">flush</span>(<span class="ident">dst</span>));
+            <span class="kw">let </span>hint = <span class="self">self</span>.with_buffer(|dst, op| op.flush(dst));
 
-            <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">let</span> <span class="ident">hint</span> <span class="op">=</span> <span class="ident">hint</span><span class="question-mark">?</span>;
+            <span class="self">self</span>.offset = <span class="number">0</span>;
+            <span class="kw">let </span>hint = hint<span class="question-mark">?</span>;
 
-            <span class="ident">finished</span> <span class="op">=</span> <span class="ident">hint</span> <span class="op">==</span> <span class="number">0</span>;
+            finished = hint == <span class="number">0</span>;
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Writer</span>;
-    <span class="kw">use</span> <span class="ident">std::io::Write</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::Writer;
+    <span class="kw">use </span>std::io::Write;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_noop</span>() {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream::raw::NoOp</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_noop() {
+        <span class="kw">use </span><span class="kw">crate</span>::stream::raw::NoOp;
 
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">b&quot;AbcdefghAbcdefgh.&quot;</span>;
+        <span class="kw">let </span>input = <span class="string">b&quot;AbcdefghAbcdefgh.&quot;</span>;
 
-        <span class="comment">// Test writer</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="comment">// Test writer
+        </span><span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">Writer::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>, <span class="ident">NoOp</span>);
-            <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="ident">input</span>).<span class="ident">unwrap</span>();
-            <span class="ident">writer</span>.<span class="ident">finish</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let </span><span class="kw-2">mut </span>writer = Writer::new(<span class="kw-2">&amp;mut </span>output, NoOp);
+            writer.write_all(input).unwrap();
+            writer.finish().unwrap();
         }
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>, <span class="ident">input</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>output, input);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_compress</span>() {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream::raw::Encoder</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_compress() {
+        <span class="kw">use </span><span class="kw">crate</span>::stream::raw::Encoder;
 
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">b&quot;AbcdefghAbcdefgh.&quot;</span>;
+        <span class="kw">let </span>input = <span class="string">b&quot;AbcdefghAbcdefgh.&quot;</span>;
 
-        <span class="comment">// Test writer</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="comment">// Test writer
+        </span><span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span>
-                <span class="ident">Writer::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>, <span class="ident">Encoder::new</span>(<span class="number">1</span>).<span class="ident">unwrap</span>());
-            <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="ident">input</span>).<span class="ident">unwrap</span>();
-            <span class="ident">writer</span>.<span class="ident">finish</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let </span><span class="kw-2">mut </span>writer =
+                Writer::new(<span class="kw-2">&amp;mut </span>output, Encoder::new(<span class="number">1</span>).unwrap());
+            writer.write_all(input).unwrap();
+            writer.finish().unwrap();
         }
-        <span class="comment">// println!(&quot;Output: {:?}&quot;, output);</span>
-        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::decode_all</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>[..]).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">decoded</span>, <span class="ident">input</span>);
+        <span class="comment">// println!(&quot;Output: {:?}&quot;, output);
+        </span><span class="kw">let </span>decoded = <span class="kw">crate</span>::decode_all(<span class="kw-2">&amp;</span>output[..]).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>decoded, input);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_decompress</span>() {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream::raw::Decoder</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_decompress() {
+        <span class="kw">use </span><span class="kw">crate</span>::stream::raw::Decoder;
 
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">b&quot;AbcdefghAbcdefgh.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">compressed</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::encode_all</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>[..], <span class="number">1</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>input = <span class="string">b&quot;AbcdefghAbcdefgh.&quot;</span>;
+        <span class="kw">let </span>compressed = <span class="kw">crate</span>::encode_all(<span class="kw-2">&amp;</span>input[..], <span class="number">1</span>).unwrap();
 
-        <span class="comment">// Test writer</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="comment">// Test writer
+        </span><span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">Writer::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>, <span class="ident">Decoder::new</span>().<span class="ident">unwrap</span>());
-            <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">compressed</span>).<span class="ident">unwrap</span>();
-            <span class="ident">writer</span>.<span class="ident">finish</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let </span><span class="kw-2">mut </span>writer = Writer::new(<span class="kw-2">&amp;mut </span>output, Decoder::new().unwrap());
+            writer.write_all(<span class="kw-2">&amp;</span>compressed).unwrap();
+            writer.finish().unwrap();
         }
-        <span class="comment">// println!(&quot;Output: {:?}&quot;, output);</span>
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>, <span class="ident">input</span>);
+        <span class="comment">// println!(&quot;Output: {:?}&quot;, output);
+        </span><span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>output, input);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

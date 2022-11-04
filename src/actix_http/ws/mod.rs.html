@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/ws/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/ws/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -352,357 +352,357 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
-</pre><pre class="rust"><code><span class="doccomment">//! WebSocket protocol implementation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! To setup a WebSocket, first perform the WebSocket handshake then on success convert `Payload` into a</span>
-<span class="doccomment">//! `WsStream` stream and then use `WsWriter` to communicate with the peer.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! WebSocket protocol implementation.
+//!
+//! To setup a WebSocket, first perform the WebSocket handshake then on success convert `Payload` into a
+//! `WsStream` stream and then use `WsWriter` to communicate with the peer.
 
-<span class="kw">use</span> <span class="ident">std::io</span>;
+</span><span class="kw">use </span>std::io;
 
-<span class="kw">use</span> <span class="ident">derive_more</span>::{<span class="ident">Display</span>, <span class="ident">Error</span>, <span class="ident">From</span>};
-<span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">header</span>, <span class="ident">Method</span>, <span class="ident">StatusCode</span>};
+<span class="kw">use </span>derive_more::{Display, Error, From};
+<span class="kw">use </span>http::{header, Method, StatusCode};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::body::BoxBody</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">header::HeaderValue</span>, <span class="ident">RequestHead</span>, <span class="ident">Response</span>, <span class="ident">ResponseBuilder</span>};
+<span class="kw">use </span><span class="kw">crate</span>::body::BoxBody;
+<span class="kw">use crate</span>::{header::HeaderValue, RequestHead, Response, ResponseBuilder};
 
-<span class="kw">mod</span> <span class="ident">codec</span>;
-<span class="kw">mod</span> <span class="ident">dispatcher</span>;
-<span class="kw">mod</span> <span class="ident">frame</span>;
-<span class="kw">mod</span> <span class="ident">mask</span>;
-<span class="kw">mod</span> <span class="ident">proto</span>;
+<span class="kw">mod </span>codec;
+<span class="kw">mod </span>dispatcher;
+<span class="kw">mod </span>frame;
+<span class="kw">mod </span>mask;
+<span class="kw">mod </span>proto;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::codec</span>::{<span class="ident">Codec</span>, <span class="ident">Frame</span>, <span class="ident">Item</span>, <span class="ident">Message</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::dispatcher::Dispatcher</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::frame::Parser</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::proto</span>::{<span class="ident">hash_key</span>, <span class="ident">CloseCode</span>, <span class="ident">CloseReason</span>, <span class="ident">OpCode</span>};
+<span class="kw">pub use </span><span class="self">self</span>::codec::{Codec, Frame, Item, Message};
+<span class="kw">pub use </span><span class="self">self</span>::dispatcher::Dispatcher;
+<span class="kw">pub use </span><span class="self">self</span>::frame::Parser;
+<span class="kw">pub use </span><span class="self">self</span>::proto::{hash_key, CloseCode, CloseReason, OpCode};
 
-<span class="doccomment">/// WebSocket protocol errors.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">Error</span>, <span class="ident">From</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ProtocolError</span> {
-    <span class="doccomment">/// Received an unmasked frame from client.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Received an unmasked frame from client.&quot;</span>)]</span>
-    <span class="ident">UnmaskedFrame</span>,
+<span class="doccomment">/// WebSocket protocol errors.
+</span><span class="attribute">#[derive(Debug, Display, Error, From)]
+</span><span class="kw">pub enum </span>ProtocolError {
+    <span class="doccomment">/// Received an unmasked frame from client.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Received an unmasked frame from client.&quot;</span>)]
+    </span>UnmaskedFrame,
 
-    <span class="doccomment">/// Received a masked frame from server.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Received a masked frame from server.&quot;</span>)]</span>
-    <span class="ident">MaskedFrame</span>,
+    <span class="doccomment">/// Received a masked frame from server.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Received a masked frame from server.&quot;</span>)]
+    </span>MaskedFrame,
 
-    <span class="doccomment">/// Encountered invalid opcode.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Invalid opcode: {}.&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">InvalidOpcode</span>(<span class="attribute">#[<span class="ident">error</span>(<span class="ident">not</span>(<span class="ident">source</span>))]</span> <span class="ident">u8</span>),
+    <span class="doccomment">/// Encountered invalid opcode.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Invalid opcode: {}.&quot;</span>, _0)]
+    </span>InvalidOpcode(<span class="attribute">#[error(not(source))] </span>u8),
 
-    <span class="doccomment">/// Invalid control frame length</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Invalid control frame length: {}.&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">InvalidLength</span>(<span class="attribute">#[<span class="ident">error</span>(<span class="ident">not</span>(<span class="ident">source</span>))]</span> <span class="ident">usize</span>),
+    <span class="doccomment">/// Invalid control frame length
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Invalid control frame length: {}.&quot;</span>, _0)]
+    </span>InvalidLength(<span class="attribute">#[error(not(source))] </span>usize),
 
-    <span class="doccomment">/// Bad opcode.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Bad opcode.&quot;</span>)]</span>
-    <span class="ident">BadOpCode</span>,
+    <span class="doccomment">/// Bad opcode.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Bad opcode.&quot;</span>)]
+    </span>BadOpCode,
 
-    <span class="doccomment">/// A payload reached size limit.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;A payload reached size limit.&quot;</span>)]</span>
-    <span class="ident">Overflow</span>,
+    <span class="doccomment">/// A payload reached size limit.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;A payload reached size limit.&quot;</span>)]
+    </span>Overflow,
 
-    <span class="doccomment">/// Continuation is not started.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Continuation is not started.&quot;</span>)]</span>
-    <span class="ident">ContinuationNotStarted</span>,
+    <span class="doccomment">/// Continuation is not started.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Continuation is not started.&quot;</span>)]
+    </span>ContinuationNotStarted,
 
-    <span class="doccomment">/// Received new continuation but it is already started.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Received new continuation but it is already started.&quot;</span>)]</span>
-    <span class="ident">ContinuationStarted</span>,
+    <span class="doccomment">/// Received new continuation but it is already started.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Received new continuation but it is already started.&quot;</span>)]
+    </span>ContinuationStarted,
 
-    <span class="doccomment">/// Unknown continuation fragment.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Unknown continuation fragment: {}.&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">ContinuationFragment</span>(<span class="attribute">#[<span class="ident">error</span>(<span class="ident">not</span>(<span class="ident">source</span>))]</span> <span class="ident">OpCode</span>),
+    <span class="doccomment">/// Unknown continuation fragment.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Unknown continuation fragment: {}.&quot;</span>, _0)]
+    </span>ContinuationFragment(<span class="attribute">#[error(not(source))] </span>OpCode),
 
-    <span class="doccomment">/// I/O error.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;I/O error: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">Io</span>(<span class="ident">io::Error</span>),
+    <span class="doccomment">/// I/O error.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;I/O error: {}&quot;</span>, _0)]
+    </span>Io(io::Error),
 }
 
-<span class="doccomment">/// WebSocket handshake errors</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Display</span>, <span class="ident">Error</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HandshakeError</span> {
-    <span class="doccomment">/// Only get method is allowed.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Method not allowed.&quot;</span>)]</span>
-    <span class="ident">GetMethodRequired</span>,
+<span class="doccomment">/// WebSocket handshake errors
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, Error)]
+</span><span class="kw">pub enum </span>HandshakeError {
+    <span class="doccomment">/// Only get method is allowed.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Method not allowed.&quot;</span>)]
+    </span>GetMethodRequired,
 
-    <span class="doccomment">/// Upgrade header if not set to WebSocket.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;WebSocket upgrade is expected.&quot;</span>)]</span>
-    <span class="ident">NoWebsocketUpgrade</span>,
+    <span class="doccomment">/// Upgrade header if not set to WebSocket.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;WebSocket upgrade is expected.&quot;</span>)]
+    </span>NoWebsocketUpgrade,
 
-    <span class="doccomment">/// Connection header is not set to upgrade.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Connection upgrade is expected.&quot;</span>)]</span>
-    <span class="ident">NoConnectionUpgrade</span>,
+    <span class="doccomment">/// Connection header is not set to upgrade.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Connection upgrade is expected.&quot;</span>)]
+    </span>NoConnectionUpgrade,
 
-    <span class="doccomment">/// WebSocket version header is not set.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;WebSocket version header is required.&quot;</span>)]</span>
-    <span class="ident">NoVersionHeader</span>,
+    <span class="doccomment">/// WebSocket version header is not set.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;WebSocket version header is required.&quot;</span>)]
+    </span>NoVersionHeader,
 
-    <span class="doccomment">/// Unsupported WebSocket version.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Unsupported WebSocket version.&quot;</span>)]</span>
-    <span class="ident">UnsupportedVersion</span>,
+    <span class="doccomment">/// Unsupported WebSocket version.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Unsupported WebSocket version.&quot;</span>)]
+    </span>UnsupportedVersion,
 
-    <span class="doccomment">/// WebSocket key is not set or wrong.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Unknown websocket key.&quot;</span>)]</span>
-    <span class="ident">BadWebsocketKey</span>,
+    <span class="doccomment">/// WebSocket key is not set or wrong.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Unknown websocket key.&quot;</span>)]
+    </span>BadWebsocketKey,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">HandshakeError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">HandshakeError</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">HandshakeError::GetMethodRequired</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::new</span>(<span class="ident">StatusCode::METHOD_NOT_ALLOWED</span>);
-                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::declare_interior_mutable_const</span>)]</span>
-                <span class="kw">const</span> <span class="ident">HV_GET</span>: <span class="ident">HeaderValue</span> <span class="op">=</span> <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;GET&quot;</span>);
-                <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::ALLOW</span>, <span class="ident">HV_GET</span>);
-                <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;HandshakeError&gt; <span class="kw">for </span>Response&lt;BoxBody&gt; {
+    <span class="kw">fn </span>from(err: HandshakeError) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>err {
+            HandshakeError::GetMethodRequired =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>res = Response::new(StatusCode::METHOD_NOT_ALLOWED);
+                <span class="attribute">#[allow(clippy::declare_interior_mutable_const)]
+                </span><span class="kw">const </span>HV_GET: HeaderValue = HeaderValue::from_static(<span class="string">&quot;GET&quot;</span>);
+                res.headers_mut().insert(header::ALLOW, HV_GET);
+                res
             }
 
-            <span class="ident">HandshakeError::NoWebsocketUpgrade</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
-                <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;No WebSocket Upgrade header found&quot;</span>);
-                <span class="ident">res</span>
+            HandshakeError::NoWebsocketUpgrade =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>res = Response::bad_request();
+                res.head_mut().reason = <span class="prelude-val">Some</span>(<span class="string">&quot;No WebSocket Upgrade header found&quot;</span>);
+                res
             }
 
-            <span class="ident">HandshakeError::NoConnectionUpgrade</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
-                <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;No Connection upgrade&quot;</span>);
-                <span class="ident">res</span>
+            HandshakeError::NoConnectionUpgrade =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>res = Response::bad_request();
+                res.head_mut().reason = <span class="prelude-val">Some</span>(<span class="string">&quot;No Connection upgrade&quot;</span>);
+                res
             }
 
-            <span class="ident">HandshakeError::NoVersionHeader</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
-                <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;WebSocket version header is required&quot;</span>);
-                <span class="ident">res</span>
+            HandshakeError::NoVersionHeader =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>res = Response::bad_request();
+                res.head_mut().reason = <span class="prelude-val">Some</span>(<span class="string">&quot;WebSocket version header is required&quot;</span>);
+                res
             }
 
-            <span class="ident">HandshakeError::UnsupportedVersion</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
-                <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Unsupported WebSocket version&quot;</span>);
-                <span class="ident">res</span>
+            HandshakeError::UnsupportedVersion =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>res = Response::bad_request();
+                res.head_mut().reason = <span class="prelude-val">Some</span>(<span class="string">&quot;Unsupported WebSocket version&quot;</span>);
+                res
             }
 
-            <span class="ident">HandshakeError::BadWebsocketKey</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::bad_request</span>();
-                <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Handshake error&quot;</span>);
-                <span class="ident">res</span>
+            HandshakeError::BadWebsocketKey =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>res = Response::bad_request();
+                res.head_mut().reason = <span class="prelude-val">Some</span>(<span class="string">&quot;Handshake error&quot;</span>);
+                res
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HandshakeError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="kw-2">&amp;</span><span class="ident">HandshakeError</span>) -&gt; <span class="self">Self</span> {
-        (<span class="kw-2">*</span><span class="ident">err</span>).<span class="ident">into</span>()
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>HandshakeError&gt; <span class="kw">for </span>Response&lt;BoxBody&gt; {
+    <span class="kw">fn </span>from(err: <span class="kw-2">&amp;</span>HandshakeError) -&gt; <span class="self">Self </span>{
+        (<span class="kw-2">*</span>err).into()
     }
 }
 
-<span class="doccomment">/// Verify WebSocket handshake request and create handshake response.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResponseBuilder</span>, <span class="ident">HandshakeError</span><span class="op">&gt;</span> {
-    <span class="ident">verify_handshake</span>(<span class="ident">req</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">handshake_response</span>(<span class="ident">req</span>))
+<span class="doccomment">/// Verify WebSocket handshake request and create handshake response.
+</span><span class="kw">pub fn </span>handshake(req: <span class="kw-2">&amp;</span>RequestHead) -&gt; <span class="prelude-ty">Result</span>&lt;ResponseBuilder, HandshakeError&gt; {
+    verify_handshake(req)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(handshake_response(req))
 }
 
-<span class="doccomment">/// Verify WebSocket handshake request.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_handshake</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">HandshakeError</span><span class="op">&gt;</span> {
-    <span class="comment">// WebSocket accepts only GET</span>
-    <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">method</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Method::GET</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandshakeError::GetMethodRequired</span>);
+<span class="doccomment">/// Verify WebSocket handshake request.
+</span><span class="kw">pub fn </span>verify_handshake(req: <span class="kw-2">&amp;</span>RequestHead) -&gt; <span class="prelude-ty">Result</span>&lt;(), HandshakeError&gt; {
+    <span class="comment">// WebSocket accepts only GET
+    </span><span class="kw">if </span>req.method != Method::GET {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(HandshakeError::GetMethodRequired);
     }
 
-    <span class="comment">// Check for &quot;UPGRADE&quot; to WebSocket header</span>
-    <span class="kw">let</span> <span class="ident">has_hdr</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hdr</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::UPGRADE</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">hdr</span>.<span class="ident">to_str</span>() {
-            <span class="ident">s</span>.<span class="ident">to_ascii_lowercase</span>().<span class="ident">contains</span>(<span class="string">&quot;websocket&quot;</span>)
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
-    } <span class="kw">else</span> {
-        <span class="bool-val">false</span>
+    <span class="comment">// Check for &quot;UPGRADE&quot; to WebSocket header
+    </span><span class="kw">let </span>has_hdr = <span class="kw">if let </span><span class="prelude-val">Some</span>(hdr) = req.headers().get(header::UPGRADE) {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = hdr.to_str() {
+            s.to_ascii_lowercase().contains(<span class="string">&quot;websocket&quot;</span>)
+        } <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
+    } <span class="kw">else </span>{
+        <span class="bool-val">false
+    </span>};
+    <span class="kw">if </span>!has_hdr {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(HandshakeError::NoWebsocketUpgrade);
+    }
+
+    <span class="comment">// Upgrade connection
+    </span><span class="kw">if </span>!req.upgrade() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(HandshakeError::NoConnectionUpgrade);
+    }
+
+    <span class="comment">// check supported version
+    </span><span class="kw">if </span>!req.headers().contains_key(header::SEC_WEBSOCKET_VERSION) {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(HandshakeError::NoVersionHeader);
+    }
+    <span class="kw">let </span>supported_ver = {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(hdr) = req.headers().get(header::SEC_WEBSOCKET_VERSION) {
+            hdr == <span class="string">&quot;13&quot; </span>|| hdr == <span class="string">&quot;8&quot; </span>|| hdr == <span class="string">&quot;7&quot;
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     };
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">has_hdr</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandshakeError::NoWebsocketUpgrade</span>);
+    <span class="kw">if </span>!supported_ver {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(HandshakeError::UnsupportedVersion);
     }
 
-    <span class="comment">// Upgrade connection</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">req</span>.<span class="ident">upgrade</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandshakeError::NoConnectionUpgrade</span>);
-    }
-
-    <span class="comment">// check supported version</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">contains_key</span>(<span class="ident">header::SEC_WEBSOCKET_VERSION</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandshakeError::NoVersionHeader</span>);
-    }
-    <span class="kw">let</span> <span class="ident">supported_ver</span> <span class="op">=</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hdr</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::SEC_WEBSOCKET_VERSION</span>) {
-            <span class="ident">hdr</span> <span class="op">==</span> <span class="string">&quot;13&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">hdr</span> <span class="op">==</span> <span class="string">&quot;8&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">hdr</span> <span class="op">==</span> <span class="string">&quot;7&quot;</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
-    };
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">supported_ver</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandshakeError::UnsupportedVersion</span>);
-    }
-
-    <span class="comment">// check client handshake for validity</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">contains_key</span>(<span class="ident">header::SEC_WEBSOCKET_KEY</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandshakeError::BadWebsocketKey</span>);
+    <span class="comment">// check client handshake for validity
+    </span><span class="kw">if </span>!req.headers().contains_key(header::SEC_WEBSOCKET_KEY) {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(HandshakeError::BadWebsocketKey);
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Create WebSocket handshake response.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This function returns handshake `Response`, ready to send to peer.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake_response</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="ident">ResponseBuilder</span> {
-    <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::SEC_WEBSOCKET_KEY</span>).<span class="ident">unwrap</span>();
-        <span class="ident">proto::hash_key</span>(<span class="ident">key</span>.<span class="ident">as_ref</span>())
+<span class="doccomment">/// Create WebSocket handshake response.
+///
+/// This function returns handshake `Response`, ready to send to peer.
+</span><span class="kw">pub fn </span>handshake_response(req: <span class="kw-2">&amp;</span>RequestHead) -&gt; ResponseBuilder {
+    <span class="kw">let </span>key = {
+        <span class="kw">let </span>key = req.headers().get(header::SEC_WEBSOCKET_KEY).unwrap();
+        proto::hash_key(key.as_ref())
     };
 
-    <span class="ident">Response::build</span>(<span class="ident">StatusCode::SWITCHING_PROTOCOLS</span>)
-        .<span class="ident">upgrade</span>(<span class="string">&quot;websocket&quot;</span>)
-        .<span class="ident">insert_header</span>((
-            <span class="ident">header::SEC_WEBSOCKET_ACCEPT</span>,
-            <span class="comment">// key is known to be header value safe ascii</span>
-            <span class="ident">HeaderValue::from_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>).<span class="ident">unwrap</span>(),
+    Response::build(StatusCode::SWITCHING_PROTOCOLS)
+        .upgrade(<span class="string">&quot;websocket&quot;</span>)
+        .insert_header((
+            header::SEC_WEBSOCKET_ACCEPT,
+            <span class="comment">// key is known to be header value safe ascii
+            </span>HeaderValue::from_bytes(<span class="kw-2">&amp;</span>key).unwrap(),
         ))
-        .<span class="ident">take</span>()
+        .take()
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">header</span>, <span class="ident">Method</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use crate</span>::{header, Method};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test::TestRequest</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test::TestRequest;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_handshake</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">method</span>(<span class="ident">Method::POST</span>).<span class="ident">finish</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_handshake() {
+        <span class="kw">let </span>req = TestRequest::default().method(Method::POST).finish();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">HandshakeError::GetMethodRequired</span>,
-            <span class="ident">verify_handshake</span>(<span class="ident">req</span>.<span class="ident">head</span>()).<span class="ident">unwrap_err</span>(),
+            HandshakeError::GetMethodRequired,
+            verify_handshake(req.head()).unwrap_err(),
         );
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">finish</span>();
+        <span class="kw">let </span>req = TestRequest::default().finish();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">HandshakeError::NoWebsocketUpgrade</span>,
-            <span class="ident">verify_handshake</span>(<span class="ident">req</span>.<span class="ident">head</span>()).<span class="ident">unwrap_err</span>(),
+            HandshakeError::NoWebsocketUpgrade,
+            verify_handshake(req.head()).unwrap_err(),
         );
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::UPGRADE</span>, <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;test&quot;</span>)))
-            .<span class="ident">finish</span>();
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::UPGRADE, header::HeaderValue::from_static(<span class="string">&quot;test&quot;</span>)))
+            .finish();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">HandshakeError::NoWebsocketUpgrade</span>,
-            <span class="ident">verify_handshake</span>(<span class="ident">req</span>.<span class="ident">head</span>()).<span class="ident">unwrap_err</span>(),
+            HandshakeError::NoWebsocketUpgrade,
+            verify_handshake(req.head()).unwrap_err(),
         );
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::UPGRADE</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;websocket&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::UPGRADE,
+                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
             ))
-            .<span class="ident">finish</span>();
+            .finish();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">HandshakeError::NoConnectionUpgrade</span>,
-            <span class="ident">verify_handshake</span>(<span class="ident">req</span>.<span class="ident">head</span>()).<span class="ident">unwrap_err</span>(),
+            HandshakeError::NoConnectionUpgrade,
+            verify_handshake(req.head()).unwrap_err(),
         );
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::UPGRADE</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;websocket&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::UPGRADE,
+                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
             ))
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::CONNECTION</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;upgrade&quot;</span>),
+            .insert_header((
+                header::CONNECTION,
+                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
             ))
-            .<span class="ident">finish</span>();
+            .finish();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">HandshakeError::NoVersionHeader</span>,
-            <span class="ident">verify_handshake</span>(<span class="ident">req</span>.<span class="ident">head</span>()).<span class="ident">unwrap_err</span>(),
+            HandshakeError::NoVersionHeader,
+            verify_handshake(req.head()).unwrap_err(),
         );
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::UPGRADE</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;websocket&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::UPGRADE,
+                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
             ))
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::CONNECTION</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;upgrade&quot;</span>),
+            .insert_header((
+                header::CONNECTION,
+                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
             ))
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::SEC_WEBSOCKET_VERSION</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;5&quot;</span>),
+            .insert_header((
+                header::SEC_WEBSOCKET_VERSION,
+                header::HeaderValue::from_static(<span class="string">&quot;5&quot;</span>),
             ))
-            .<span class="ident">finish</span>();
+            .finish();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">HandshakeError::UnsupportedVersion</span>,
-            <span class="ident">verify_handshake</span>(<span class="ident">req</span>.<span class="ident">head</span>()).<span class="ident">unwrap_err</span>(),
+            HandshakeError::UnsupportedVersion,
+            verify_handshake(req.head()).unwrap_err(),
         );
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::UPGRADE</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;websocket&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::UPGRADE,
+                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
             ))
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::CONNECTION</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;upgrade&quot;</span>),
+            .insert_header((
+                header::CONNECTION,
+                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
             ))
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::SEC_WEBSOCKET_VERSION</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;13&quot;</span>),
+            .insert_header((
+                header::SEC_WEBSOCKET_VERSION,
+                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
             ))
-            .<span class="ident">finish</span>();
+            .finish();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">HandshakeError::BadWebsocketKey</span>,
-            <span class="ident">verify_handshake</span>(<span class="ident">req</span>.<span class="ident">head</span>()).<span class="ident">unwrap_err</span>(),
+            HandshakeError::BadWebsocketKey,
+            verify_handshake(req.head()).unwrap_err(),
         );
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::UPGRADE</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;websocket&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::UPGRADE,
+                header::HeaderValue::from_static(<span class="string">&quot;websocket&quot;</span>),
             ))
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::CONNECTION</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;upgrade&quot;</span>),
+            .insert_header((
+                header::CONNECTION,
+                header::HeaderValue::from_static(<span class="string">&quot;upgrade&quot;</span>),
             ))
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::SEC_WEBSOCKET_VERSION</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;13&quot;</span>),
+            .insert_header((
+                header::SEC_WEBSOCKET_VERSION,
+                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
             ))
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::SEC_WEBSOCKET_KEY</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;13&quot;</span>),
+            .insert_header((
+                header::SEC_WEBSOCKET_KEY,
+                header::HeaderValue::from_static(<span class="string">&quot;13&quot;</span>),
             ))
-            .<span class="ident">finish</span>();
+            .finish();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">StatusCode::SWITCHING_PROTOCOLS</span>,
-            <span class="ident">handshake_response</span>(<span class="ident">req</span>.<span class="ident">head</span>()).<span class="ident">finish</span>().<span class="ident">status</span>()
+            StatusCode::SWITCHING_PROTOCOLS,
+            handshake_response(req.head()).finish().status()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_ws_error_http_response</span>() {
-        <span class="kw">let</span> <span class="ident">resp</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HandshakeError::GetMethodRequired</span>.<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::METHOD_NOT_ALLOWED</span>);
-        <span class="kw">let</span> <span class="ident">resp</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HandshakeError::NoWebsocketUpgrade</span>.<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
-        <span class="kw">let</span> <span class="ident">resp</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HandshakeError::NoConnectionUpgrade</span>.<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
-        <span class="kw">let</span> <span class="ident">resp</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HandshakeError::NoVersionHeader</span>.<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
-        <span class="kw">let</span> <span class="ident">resp</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HandshakeError::UnsupportedVersion</span>.<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
-        <span class="kw">let</span> <span class="ident">resp</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HandshakeError::BadWebsocketKey</span>.<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_ws_error_http_response() {
+        <span class="kw">let </span>resp: Response&lt;BoxBody&gt; = HandshakeError::GetMethodRequired.into();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::METHOD_NOT_ALLOWED);
+        <span class="kw">let </span>resp: Response&lt;BoxBody&gt; = HandshakeError::NoWebsocketUpgrade.into();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
+        <span class="kw">let </span>resp: Response&lt;BoxBody&gt; = HandshakeError::NoConnectionUpgrade.into();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
+        <span class="kw">let </span>resp: Response&lt;BoxBody&gt; = HandshakeError::NoVersionHeader.into();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
+        <span class="kw">let </span>resp: Response&lt;BoxBody&gt; = HandshakeError::UnsupportedVersion.into();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
+        <span class="kw">let </span>resp: Response&lt;BoxBody&gt; = HandshakeError::BadWebsocketKey.into();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

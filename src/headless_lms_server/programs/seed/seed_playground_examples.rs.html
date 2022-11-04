@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_playground_examples.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>seed_playground_examples.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/seed/seed_playground_examples.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>seed_playground_examples.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -776,26 +776,26 @@
 <span id="776">776</span>
 <span id="777">777</span>
 <span id="778">778</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_models::playground_examples</span>::{<span class="self">self</span>, <span class="ident">PlaygroundExampleData</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>chrono::{TimeZone, Utc};
+<span class="kw">use </span>headless_lms_models::playground_examples::{<span class="self">self</span>, PlaygroundExampleData};
 
-<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Pool</span>, <span class="ident">Postgres</span>};
+<span class="kw">use </span>sqlx::{Pool, Postgres};
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">seed_playground_examples</span>(<span class="ident">db_pool</span>: <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>seed_playground_examples(db_pool: Pool&lt;Postgres&gt;) -&gt; anyhow::Result&lt;()&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;playground examples&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">db_pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes, example, checkbox&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>({
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes, example, checkbox&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>({
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;57f03d8e-e768-485c-b0c3-a3e485a3e18a&quot;</span>,
                 <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Internet safety quizz&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Answer the following guestions about staying safe on the internet.&quot;</span>,
-                <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-                <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+                <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+                <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
                 <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;items&quot;</span>: [
@@ -808,12 +808,12 @@
                         <span class="string">&quot;title&quot;</span>: <span class="string">&quot;The s in https stands for secure.&quot;</span>,
                         <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;57f03d8e-e768-485c-b0c3-a3e485a3e18a&quot;</span>,
                         <span class="string">&quot;options&quot;</span>: [],
-                        <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>
-                    },
+                        <span class="string">&quot;maxValue&quot;</span>: null,
+                        <span class="string">&quot;maxWords&quot;</span>: null,
+                        <span class="string">&quot;minValue&quot;</span>: null,
+                        <span class="string">&quot;minWords&quot;</span>: null,
+                        <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;
+                    </span>},
                     {
                         <span class="string">&quot;id&quot;</span>: <span class="string">&quot;818fc326-ed38-4fe5-95d3-0f9d15032d01&quot;</span>,
                         <span class="string">&quot;body&quot;</span>: <span class="string">&quot;&quot;</span>,
@@ -823,12 +823,12 @@
                         <span class="string">&quot;title&quot;</span>: <span class="string">&quot;I use a strong, unique password that can&#39;t easily be guessed by those who knows me.&quot;</span>,
                         <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;57f03d8e-e768-485c-b0c3-a3e485a3e18a&quot;</span>,
                         <span class="string">&quot;options&quot;</span>: [],
-                        <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>
-                    },
+                        <span class="string">&quot;maxValue&quot;</span>: null,
+                        <span class="string">&quot;maxWords&quot;</span>: null,
+                        <span class="string">&quot;minValue&quot;</span>: null,
+                        <span class="string">&quot;minWords&quot;</span>: null,
+                        <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;
+                    </span>},
                 ],
                 <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;51ee97a7-684f-4cba-8a01-8c558803c4f7&quot;</span>,
@@ -838,19 +838,19 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice, row&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>(
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, multiple-choice, row&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>(
               {
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;3ee47b02-ba13-46a7-957e-fd4f21fc290b&quot;</span>,
                 <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;5209f752-9db9-4daf-a7bc-64e21987b719&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Something about CSS and color codes&quot;</span>,
-                <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-                <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+                <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+                <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
                 <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Something about CSS and color codes&quot;</span>,
@@ -861,13 +861,13 @@
                         <span class="string">&quot;id&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                         <span class="string">&quot;body&quot;</span>: <span class="string">&quot;[markdown]Which of the color codes represent the color **red**?[/markdown]&quot;</span>,
                         <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                        <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                        <span class="string">&quot;formatRegex&quot;</span>: null,
+                        <span class="string">&quot;maxLabel&quot;</span>: null,
+                        <span class="string">&quot;maxValue&quot;</span>: null,
+                        <span class="string">&quot;maxWords&quot;</span>: null,
+                        <span class="string">&quot;minLabel&quot;</span>: null,
+                        <span class="string">&quot;minValue&quot;</span>: null,
+                        <span class="string">&quot;minWords&quot;</span>: null,
                         <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
                         <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
                         <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;3ee47b02-ba13-46a7-957e-fd4f21fc290b&quot;</span>,
@@ -878,35 +878,35 @@
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;8d17a216-9655-4558-adfb-cf66fb3e08ba&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#00ff00&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;11e0f3ac-fe21-4524-93e6-27efd4a92595&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#0000ff&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;e0033168-9f92-4d71-9c23-7698de9ea3b0&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#663300&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">3</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2931180f-827f-468c-a616-a8df6e94f717&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#ff0000&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">4</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;9f5a09d7-c03f-44dd-85db-38065600c2c3&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#ffffff&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">5</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                         ]
@@ -918,19 +918,19 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice, column&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>(
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, multiple-choice, column&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>(
               {
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;3ee47b02-ba13-46a7-957e-fd4f21fc290b&quot;</span>,
                 <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;5209f752-9db9-4daf-a7bc-64e21987b719&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Something about CSS and color codes&quot;</span>,
-                <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-                <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+                <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+                <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
                 <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Something about CSS and color codes&quot;</span>,
@@ -941,13 +941,13 @@
                         <span class="string">&quot;id&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                         <span class="string">&quot;body&quot;</span>: <span class="string">&quot;[markdown]Which of the color codes represent the color **red**?[/markdown]&quot;</span>,
                         <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;column&quot;</span>,
-                        <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                        <span class="string">&quot;formatRegex&quot;</span>: null,
+                        <span class="string">&quot;maxLabel&quot;</span>: null,
+                        <span class="string">&quot;maxValue&quot;</span>: null,
+                        <span class="string">&quot;maxWords&quot;</span>: null,
+                        <span class="string">&quot;minLabel&quot;</span>: null,
+                        <span class="string">&quot;minValue&quot;</span>: null,
+                        <span class="string">&quot;minWords&quot;</span>: null,
                         <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
                         <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
                         <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;3ee47b02-ba13-46a7-957e-fd4f21fc290b&quot;</span>,
@@ -958,35 +958,35 @@
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;8d17a216-9655-4558-adfb-cf66fb3e08ba&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#00ff00&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;11e0f3ac-fe21-4524-93e6-27efd4a92595&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#0000ff&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;e0033168-9f92-4d71-9c23-7698de9ea3b0&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#663300&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">3</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2931180f-827f-468c-a616-a8df6e94f717&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#ff0000&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">4</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;9f5a09d7-c03f-44dd-85db-38065600c2c3&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#ffffff&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">5</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                         ]
@@ -997,19 +997,19 @@
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice, long text&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>(
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, multiple-choice, long text&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>(
             {
               <span class="string">&quot;id&quot;</span>: <span class="string">&quot;fd0221d1-a205-42d0-b187-3ead6a1a0e6e&quot;</span>,
               <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;5209f752-9db9-4daf-a7bc-64e21987b719&quot;</span>,
               <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Short questions, long answers&quot;</span>,
-              <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-              <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+              <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+              <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
               <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
               <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
               <span class="string">&quot;title&quot;</span>: <span class="string">&quot;General questions&quot;</span>,
@@ -1020,13 +1020,13 @@
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;88ff824f-8aa2-4629-b727-86f98092ab22&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;select shortest answer&quot;</span>,
                       <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                      <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
-                      <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
-                      <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                      <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                      <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
-                      <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                      <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;formatRegex&quot;</span>: null,
+                      <span class="string">&quot;maxLabel&quot;</span>: null,
+                      <span class="string">&quot;maxValue&quot;</span>: null,
+                      <span class="string">&quot;maxWords&quot;</span>: null,
+                      <span class="string">&quot;minLabel&quot;</span>: null,
+                      <span class="string">&quot;minValue&quot;</span>: null,
+                      <span class="string">&quot;minWords&quot;</span>: null,
                       <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
                       <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;6160b703-0c27-448b-84aa-1f0d23a037a7&quot;</span>,
@@ -1037,21 +1037,21 @@
                               <span class="string">&quot;id&quot;</span>: <span class="string">&quot;d174aecf-bb77-467f-b1e7-92a0e54af29f&quot;</span>,
                               <span class="string">&quot;body&quot;</span>: <span class="string">&quot;short answer&quot;</span>,
                               <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                              <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                              <span class="string">&quot;title&quot;</span>: null,
                               <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                           },
                           {
                               <span class="string">&quot;id&quot;</span>: <span class="string">&quot;45a3c513-5dd9-4239-96f1-3dd1f53379cc&quot;</span>,
                               <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer&quot;</span>,
                               <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
-                              <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                              <span class="string">&quot;title&quot;</span>: null,
                               <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                           },
                           {
                               <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2176ea44-46c6-48d6-a2be-1f8188b06545&quot;</span>,
                               <span class="string">&quot;body&quot;</span>: <span class="string">&quot;very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long answer&quot;</span>,
                               <span class="string">&quot;order&quot;</span>: <span class="number">3</span>,
-                              <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                              <span class="string">&quot;title&quot;</span>: null,
                               <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                           },
                           ]
@@ -1063,19 +1063,19 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice, multi&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>(
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, multiple-choice, multi&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>(
               {
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;3ee47b02-ba13-46a7-957e-fd4f21fc290b&quot;</span>,
                 <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;5209f752-9db9-4daf-a7bc-64e21987b719&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Something about CSS and color codes&quot;</span>,
-                <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-                <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+                <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+                <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
                 <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Something about CSS and color codes&quot;</span>,
@@ -1086,13 +1086,13 @@
                         <span class="string">&quot;id&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                         <span class="string">&quot;body&quot;</span>: <span class="string">&quot;[markdown]Which of the color codes represent the color **red**?[/markdown]&quot;</span>,
                         <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                        <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                        <span class="string">&quot;formatRegex&quot;</span>: null,
+                        <span class="string">&quot;maxLabel&quot;</span>: null,
+                        <span class="string">&quot;maxValue&quot;</span>: null,
+                        <span class="string">&quot;maxWords&quot;</span>: null,
+                        <span class="string">&quot;minLabel&quot;</span>: null,
+                        <span class="string">&quot;minValue&quot;</span>: null,
+                        <span class="string">&quot;minWords&quot;</span>: null,
                         <span class="string">&quot;multi&quot;</span>: <span class="bool-val">true</span>,
                         <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
                         <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;3ee47b02-ba13-46a7-957e-fd4f21fc290b&quot;</span>,
@@ -1103,35 +1103,35 @@
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;8d17a216-9655-4558-adfb-cf66fb3e08ba&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#00ff00&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;11e0f3ac-fe21-4524-93e6-27efd4a92595&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#0000ff&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;e0033168-9f92-4d71-9c23-7698de9ea3b0&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#663300&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">3</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2931180f-827f-468c-a616-a8df6e94f717&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#ff0000&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">4</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                             {
                                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;9f5a09d7-c03f-44dd-85db-38065600c2c3&quot;</span>,
                                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;#ffffff&quot;</span>,
                                 <span class="string">&quot;order&quot;</span>: <span class="number">5</span>,
-                                <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                                <span class="string">&quot;title&quot;</span>: null,
                                 <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;a6bc7e17-dc82-409e-b0d4-08bb8d24dc76&quot;</span>,
                             },
                         ]
@@ -1143,18 +1143,18 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, essay&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>(              {
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, essay&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>(              {
               <span class="string">&quot;id&quot;</span>: <span class="string">&quot;47cbd36c-0c32-41f2-8a4a-b008de7d3494&quot;</span>,
               <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;fdf0fed9-7665-4712-9cca-652d5bfe5233&quot;</span>,
               <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Of CSS and system design of the Noldor&quot;</span>,
-              <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-              <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+              <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+              <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
               <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
               <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
               <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Of CSS and system design of the Noldor&quot;</span>,
@@ -1165,11 +1165,11 @@
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;371b59cb-735d-4202-b8cb-bed967945ffd&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Which colour did the Fëanorian lamps emit when Tuor met Gelmir and Arminas at the gate of Annon-in-Gelydh? Give your answer in colours colourname, hexadecimal colour code and in RGB colour code. Could this have deeper contextual meaning considering the events of the previous chapter? Explain in 500 words.&quot;</span>,
                       <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                      <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
-                      <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;maxLabel&quot;</span>: null,
+                      <span class="string">&quot;maxValue&quot;</span>: null,
                       <span class="string">&quot;maxWords&quot;</span>: <span class="number">600</span>,
-                      <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
-                      <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;minLabel&quot;</span>: null,
+                      <span class="string">&quot;minValue&quot;</span>: null,
                       <span class="string">&quot;minWords&quot;</span>: <span class="number">500</span>,
                       <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
@@ -1182,18 +1182,18 @@
             })
         }).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice dropdown&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>({
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, multiple-choice dropdown&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>({
             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4&quot;</span>,
             <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;32b060d5-78e8-4b97-a933-7458319f30a2&quot;</span>,
-            <span class="string">&quot;body&quot;</span>: <span class="ident">null</span>,
-            <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-            <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+            <span class="string">&quot;body&quot;</span>: null,
+            <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+            <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
             <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
             <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
             <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Questions about CSS and color codes&quot;</span>,
@@ -1204,38 +1204,38 @@
                     <span class="string">&quot;id&quot;</span>: <span class="string">&quot;37469182-8220-46d3-b3c2-7d215a1bfc03&quot;</span>,
                     <span class="string">&quot;body&quot;</span>: <span class="string">&quot;How many different CSS hexadecimal color codes there are?&quot;</span>,
                     <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: null,
+                    <span class="string">&quot;maxLabel&quot;</span>: null,
+                    <span class="string">&quot;maxValue&quot;</span>: null,
+                    <span class="string">&quot;maxWords&quot;</span>: null,
+                    <span class="string">&quot;minLabel&quot;</span>: null,
+                    <span class="string">&quot;minValue&quot;</span>: null,
+                    <span class="string">&quot;minWords&quot;</span>: null,
                     <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
                     <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
                     <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4&quot;</span>,
-                    <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;title&quot;</span>: null,
                     <span class="string">&quot;type&quot;</span>: <span class="string">&quot;multiple-choice-dropdown&quot;</span>,
                     <span class="string">&quot;options&quot;</span>: [
                         {
                             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;d0514fbb-1081-4602-b564-22dd5374dd46&quot;</span>,
                             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;at least two&quot;</span>,
                             <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;title&quot;</span>: null,
                             <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;37469182-8220-46d3-b3c2-7d215a1bfc03&quot;</span>,
                         },
                         {
                             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;a7a58b81-bd76-4b9a-9060-1516597cb9b7&quot;</span>,
                             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;more than 2.546 * 10^56&quot;</span>,
                             <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
-                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;title&quot;</span>: null,
                             <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;37469182-8220-46d3-b3c2-7d215a1bfc03&quot;</span>,
                         },
                         {
                             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;255ff119-1705-4f79-baed-cf8f0c3ca214&quot;</span>,
                             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;I don&#39;t believe in hexadecimal color codes&quot;</span>,
                             <span class="string">&quot;order&quot;</span>: <span class="number">3</span>,
-                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;title&quot;</span>: null,
                             <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;37469182-8220-46d3-b3c2-7d215a1bfc03&quot;</span>,
                         },
                     ]
@@ -1244,38 +1244,38 @@
                     <span class="string">&quot;id&quot;</span>: <span class="string">&quot;da705796-f8e3-420c-a717-a3064e351eed&quot;</span>,
                     <span class="string">&quot;body&quot;</span>: <span class="string">&quot;What other ways there are to represent colors in CSS?&quot;</span>,
                     <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                    <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: null,
+                    <span class="string">&quot;maxLabel&quot;</span>: null,
+                    <span class="string">&quot;maxValue&quot;</span>: null,
+                    <span class="string">&quot;maxWords&quot;</span>: null,
+                    <span class="string">&quot;minLabel&quot;</span>: null,
+                    <span class="string">&quot;minValue&quot;</span>: null,
+                    <span class="string">&quot;minWords&quot;</span>: null,
                     <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
                     <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
                     <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;1af3cc18-d8d8-4cc6-9bf9-be63d79e19a4&quot;</span>,
-                    <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;title&quot;</span>: null,
                     <span class="string">&quot;type&quot;</span>: <span class="string">&quot;multiple-choice-dropdown&quot;</span>,
                     <span class="string">&quot;options&quot;</span>: [
                         {
                             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;dd31dfda-2bf0-4f66-af45-de6ee8ded54a&quot;</span>,
                             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;RGB -color system&quot;</span>,
                             <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;title&quot;</span>: null,
                             <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;da705796-f8e3-420c-a717-a3064e351eed&quot;</span>,
                         },
                         {
                             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;af864a7e-46d5-46c4-b027-413cb4e5fa68&quot;</span>,
                             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Human readable text representation&quot;</span>,
                             <span class="string">&quot;order&quot;</span>: <span class="number">2</span>,
-                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;title&quot;</span>: null,
                             <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;da705796-f8e3-420c-a717-a3064e351eed&quot;</span>,
                         },
                         {
                             <span class="string">&quot;id&quot;</span>: <span class="string">&quot;66df5778-f80c-42b4-a544-4fb35d44a80f&quot;</span>,
                             <span class="string">&quot;body&quot;</span>: <span class="string">&quot;I&#39;m colorblind, so I don&#39;t really care :/&quot;</span>,
                             <span class="string">&quot;order&quot;</span>: <span class="number">3</span>,
-                            <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                            <span class="string">&quot;title&quot;</span>: null,
                             <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;da705796-f8e3-420c-a717-a3064e351eed&quot;</span>,
                         },
                     ]
@@ -1285,19 +1285,19 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
 
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, open&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>({
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, open&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>({
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;801b9275-5034-438d-922f-104af517468a&quot;</span>,
                 <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Open answer question&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;&quot;</span>,
-                <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-                <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+                <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+                <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
                 <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;items&quot;</span>: [
                     {
@@ -1309,10 +1309,10 @@
                         <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Date formats&quot;</span>,
                         <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;801b9275-5034-438d-922f-104af517468a&quot;</span>,
                         <span class="string">&quot;options&quot;</span>: [],
-                        <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                        <span class="string">&quot;maxValue&quot;</span>: null,
+                        <span class="string">&quot;maxWords&quot;</span>: null,
+                        <span class="string">&quot;minValue&quot;</span>: null,
+                        <span class="string">&quot;minWords&quot;</span>: null,
                         <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
                         <span class="string">&quot;formatRegex&quot;</span>: <span class="string">&quot;\\d{4}-\\d{2}-\\d{2}&quot;</span>,
                     }
@@ -1326,18 +1326,18 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, scale&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>({
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, scale&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>({
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;3d3c633d-ea60-412f-8c85-8cab7742a5b8&quot;</span>,
                 <span class="string">&quot;title&quot;</span>: <span class="string">&quot;The regex quiz&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Please answer to the following guestions based on your feelings about using regex. Use the scale 1 = completely disagree, 7 = completely agree&quot;</span>,
-                <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-                <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+                <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+                <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
                 <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;items&quot;</span>: [
                   {
@@ -1350,11 +1350,11 @@
                     <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;3d3c633d-ea60-412f-8c85-8cab7742a5b8&quot;</span>,
                     <span class="string">&quot;options&quot;</span>: [],
                     <span class="string">&quot;maxValue&quot;</span>: <span class="number">4</span>,
-                    <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;maxWords&quot;</span>: null,
                     <span class="string">&quot;minValue&quot;</span>: <span class="number">1</span>,
-                    <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;minWords&quot;</span>: null,
                     <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: null,
                   },
                   {
                     <span class="string">&quot;id&quot;</span>: <span class="string">&quot;b3ce858c-a5ed-4cf7-a9ee-62ef91d1a75a&quot;</span>,
@@ -1366,11 +1366,11 @@
                     <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;3d3c633d-ea60-412f-8c85-8cab7742a5b8&quot;</span>,
                     <span class="string">&quot;options&quot;</span>: [],
                     <span class="string">&quot;maxValue&quot;</span>: <span class="number">7</span>,
-                    <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;maxWords&quot;</span>: null,
                     <span class="string">&quot;minValue&quot;</span>: <span class="number">1</span>,
-                    <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;minWords&quot;</span>: null,
                     <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: null,
                   },
                   {
                     <span class="string">&quot;id&quot;</span>: <span class="string">&quot;eb7f6898-7ba5-4f89-8e24-a17f57381131&quot;</span>,
@@ -1382,34 +1382,34 @@
                     <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;3d3c633d-ea60-412f-8c85-8cab7742a5b8&quot;</span>,
                     <span class="string">&quot;options&quot;</span>: [],
                     <span class="string">&quot;maxValue&quot;</span>: <span class="number">15</span>,
-                    <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;maxWords&quot;</span>: null,
                     <span class="string">&quot;minValue&quot;</span>: <span class="number">1</span>,
-                    <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;minWords&quot;</span>: null,
                     <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                    <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
+                    <span class="string">&quot;formatRegex&quot;</span>: null,
                   }
                 ],
                 <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;f5bed4ff-63ec-44cd-9056-86eb00df84ca&quot;</span>,
-                <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>
-              }),
+                <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true
+              </span>}),
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, multiple-choice clickable&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>({
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, multiple-choice clickable&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>({
               <span class="string">&quot;id&quot;</span>: <span class="string">&quot;3562f83c-4d5d-41a9-aceb-a8f98511dd5d&quot;</span>,
               <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Of favorite colors&quot;</span>,
-              <span class="string">&quot;body&quot;</span>: <span class="ident">null</span>,
-              <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>,<span class="number">9</span>,<span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>,<span class="number">59</span>,<span class="number">59</span>).<span class="ident">to_string</span>(),
-              <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>,<span class="number">9</span>,<span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>,<span class="number">59</span>,<span class="number">59</span>).<span class="ident">to_string</span>(),
+              <span class="string">&quot;body&quot;</span>: null,
+              <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>,<span class="number">9</span>,<span class="number">1</span>).and_hms(<span class="number">23</span>,<span class="number">59</span>,<span class="number">59</span>).to_string(),
+              <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>,<span class="number">9</span>,<span class="number">1</span>).and_hms(<span class="number">23</span>,<span class="number">59</span>,<span class="number">59</span>).to_string(),
               <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
               <span class="string">&quot;items&quot;</span>: [
                 {
@@ -1425,104 +1425,104 @@
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;f4ef5add-cfed-4819-b1a7-b1c7a72330ea&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;AliceBlue&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                     {
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;ee6535ca-fed6-4d22-9988-bed91e3decb4&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;AntiqueWhite&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                     {
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;404c62f0-44f2-492c-a6cf-522e5cff492b&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Aqua&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                     {
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;74e09ced-233e-4db6-a67f-d4835a596956&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Cyan&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                     {
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;797463cf-9592-46f8-9018-7d2b3d2c0882&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Cornsilk&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                     {
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;f5e46e15-cb14-455f-8b72-472fed50d6f8&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;LawnGreen&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                     {
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2bfea5dd-ad64-456a-8518-c6754bd40a90&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;LightGoldenRodYellow&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                     {
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;d045ec97-a89a-4964-9bea-a5baab69786f&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;MediumSpringGreen&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                     {
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;fc901148-7d65-4150-b077-5dc53947ee7a&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Sienna&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                     {
                       <span class="string">&quot;id&quot;</span>: <span class="string">&quot;73a8f612-7bd4-48ca-9dae-2baa1a55a1da&quot;</span>,
                       <span class="string">&quot;body&quot;</span>: <span class="string">&quot;WhiteSmoke&quot;</span>,
                       <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
-                      <span class="string">&quot;title&quot;</span>: <span class="ident">null</span>,
+                      <span class="string">&quot;title&quot;</span>: null,
                       <span class="string">&quot;quizItemId&quot;</span>: <span class="string">&quot;d2422f0c-2378-4099-bde7-e1231ceac220&quot;</span>,
                     },
                   ],
                   <span class="string">&quot;maxValue&quot;</span>: <span class="number">4</span>,
-                  <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
+                  <span class="string">&quot;maxWords&quot;</span>: null,
                   <span class="string">&quot;minValue&quot;</span>: <span class="number">1</span>,
-                  <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                  <span class="string">&quot;minWords&quot;</span>: null,
                   <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                  <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
+                  <span class="string">&quot;formatRegex&quot;</span>: null,
                 },
               ],
               <span class="string">&quot;tries&quot;</span>: <span class="number">1</span>,
               <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
               <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;f5bed4ff-63ec-44cd-9056-86eb00df84ca&quot;</span>,
-              <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true</span>
-            }),
+              <span class="string">&quot;triesLimited&quot;</span>: <span class="bool-val">true
+            </span>}),
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">array</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">6</span>]; <span class="number">6</span>];
-    <span class="ident">playground_examples::insert_playground_example</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PlaygroundExampleData</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes example, matrix&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">500</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span>(
+    <span class="kw">let </span>array = <span class="macro">vec!</span>[<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">6</span>]; <span class="number">6</span>];
+    playground_examples::insert_playground_example(
+        <span class="kw-2">&amp;mut </span>conn,
+        PlaygroundExampleData {
+            name: <span class="string">&quot;Quizzes example, matrix&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://project-331.local/quizzes/iframe&quot;</span>.to_string(),
+            width: <span class="number">500</span>,
+            data: <span class="macro">serde_json::json!</span>(
             {
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;91cf86bd-39f1-480f-a16c-5b0ad36dc787&quot;</span>,
                 <span class="string">&quot;courseId&quot;</span>: <span class="string">&quot;2764d02f-bea3-47fe-9529-21c801bdf6f5&quot;</span>,
                 <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Something about matrices and numbers&quot;</span>,
-                <span class="string">&quot;deadline&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
-                <span class="string">&quot;open&quot;</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).<span class="ident">to_string</span>(),
+                <span class="string">&quot;deadline&quot;</span>: Utc.ymd(<span class="number">2121</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
+                <span class="string">&quot;open&quot;</span>: Utc.ymd(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">1</span>).and_hms(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).to_string(),
                 <span class="string">&quot;part&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;section&quot;</span>: <span class="number">1</span>,
                 <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Something about matrices and numbers&quot;</span>,
@@ -1533,20 +1533,20 @@
                         <span class="string">&quot;id&quot;</span>: <span class="string">&quot;b17f3965-2223-48c9-9063-50f1ebafcf08&quot;</span>,
                         <span class="string">&quot;body&quot;</span>: <span class="string">&quot;Create a matrix that represents 4x4&quot;</span>,
                         <span class="string">&quot;direction&quot;</span>: <span class="string">&quot;row&quot;</span>,
-                        <span class="string">&quot;formatRegex&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxLabel&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;maxWords&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minLabel&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minValue&quot;</span>: <span class="ident">null</span>,
-                        <span class="string">&quot;minWords&quot;</span>: <span class="ident">null</span>,
+                        <span class="string">&quot;formatRegex&quot;</span>: null,
+                        <span class="string">&quot;maxLabel&quot;</span>: null,
+                        <span class="string">&quot;maxValue&quot;</span>: null,
+                        <span class="string">&quot;maxWords&quot;</span>: null,
+                        <span class="string">&quot;minLabel&quot;</span>: null,
+                        <span class="string">&quot;minValue&quot;</span>: null,
+                        <span class="string">&quot;minWords&quot;</span>: null,
                         <span class="string">&quot;multi&quot;</span>: <span class="bool-val">false</span>,
                         <span class="string">&quot;order&quot;</span>: <span class="number">1</span>,
                         <span class="string">&quot;quizId&quot;</span>: <span class="string">&quot;91cf86bd-39f1-480f-a16c-5b0ad36dc787&quot;</span>,
                         <span class="string">&quot;title&quot;</span>: <span class="string">&quot;Matrices are interesting&quot;</span>,
                         <span class="string">&quot;type&quot;</span>: <span class="string">&quot;matrix&quot;</span>,
                         <span class="string">&quot;options&quot;</span>: [],
-                        <span class="string">&quot;optionCells&quot;</span>: <span class="ident">array</span>,
+                        <span class="string">&quot;optionCells&quot;</span>: array,
                         }
                         ]}),
         },
@@ -1555,4 +1555,4 @@
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

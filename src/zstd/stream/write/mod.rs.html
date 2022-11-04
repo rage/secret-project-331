@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/stream/write/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../zstd/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/stream/write/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../zstd/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -402,409 +402,409 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Implement push-based [`Write`] trait for both compressing and decompressing.</span>
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
+</pre><pre class="rust"><code><span class="doccomment">//! Implement push-based [`Write`] trait for both compressing and decompressing.
+</span><span class="kw">use </span>std::io::{<span class="self">self</span>, Write};
 
-<span class="kw">use</span> <span class="ident">zstd_safe</span>;
+<span class="kw">use </span>zstd_safe;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::dict</span>::{<span class="ident">DecoderDictionary</span>, <span class="ident">EncoderDictionary</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream</span>::{<span class="ident">raw</span>, <span class="ident">zio</span>};
+<span class="kw">use </span><span class="kw">crate</span>::dict::{DecoderDictionary, EncoderDictionary};
+<span class="kw">use </span><span class="kw">crate</span>::stream::{raw, zio};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests;
 
-<span class="doccomment">/// An encoder that compress and forward data to another writer.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This allows to compress a stream of data</span>
-<span class="doccomment">/// (good for files or heavy network stream).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Don&#39;t forget to call [`finish()`] before dropping it!</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Alternatively, you can call [`auto_finish()`] to use an</span>
-<span class="doccomment">/// [`AutoFinishEncoder`] that will finish on drop.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note: The zstd library has its own internal input buffer (~128kb).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`finish()`]: #method.finish</span>
-<span class="doccomment">/// [`auto_finish()`]: #method.auto_finish</span>
-<span class="doccomment">/// [`AutoFinishEncoder`]: AutoFinishEncoder</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> {
-    <span class="comment">// output writer (compressed data)</span>
-    <span class="ident">writer</span>: <span class="ident">zio::Writer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">raw::Encoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An encoder that compress and forward data to another writer.
+///
+/// This allows to compress a stream of data
+/// (good for files or heavy network stream).
+///
+/// Don&#39;t forget to call [`finish()`] before dropping it!
+///
+/// Alternatively, you can call [`auto_finish()`] to use an
+/// [`AutoFinishEncoder`] that will finish on drop.
+///
+/// Note: The zstd library has its own internal input buffer (~128kb).
+///
+/// [`finish()`]: #method.finish
+/// [`auto_finish()`]: #method.auto_finish
+/// [`AutoFinishEncoder`]: AutoFinishEncoder
+</span><span class="kw">pub struct </span>Encoder&lt;<span class="lifetime">&#39;a</span>, W: Write&gt; {
+    <span class="comment">// output writer (compressed data)
+    </span>writer: zio::Writer&lt;W, raw::Encoder&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
-<span class="doccomment">/// A decoder that decompress and forward data to another writer.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that you probably want to `flush()` after writing your stream content.</span>
-<span class="doccomment">/// You can use [`auto_flush()`] to automatically flush the writer on drop.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`auto_flush()`]: Decoder::auto_flush</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Decoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> {
-    <span class="comment">// output writer (decompressed data)</span>
-    <span class="ident">writer</span>: <span class="ident">zio::Writer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">raw::Decoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A decoder that decompress and forward data to another writer.
+///
+/// Note that you probably want to `flush()` after writing your stream content.
+/// You can use [`auto_flush()`] to automatically flush the writer on drop.
+///
+/// [`auto_flush()`]: Decoder::auto_flush
+</span><span class="kw">pub struct </span>Decoder&lt;<span class="lifetime">&#39;a</span>, W: Write&gt; {
+    <span class="comment">// output writer (decompressed data)
+    </span>writer: zio::Writer&lt;W, raw::Decoder&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
-<span class="doccomment">/// A wrapper around an `Encoder&lt;W&gt;` that finishes the stream on drop.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This can be created by the [`auto_finish()`] method on the [`Encoder`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`auto_finish()`]: Encoder::auto_finish</span>
-<span class="doccomment">/// [`Encoder`]: Encoder</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AutoFinishEncoder</span><span class="op">&lt;</span>
+<span class="doccomment">/// A wrapper around an `Encoder&lt;W&gt;` that finishes the stream on drop.
+///
+/// This can be created by the [`auto_finish()`] method on the [`Encoder`].
+///
+/// [`auto_finish()`]: Encoder::auto_finish
+/// [`Encoder`]: Encoder
+</span><span class="kw">pub struct </span>AutoFinishEncoder&lt;
     <span class="lifetime">&#39;a</span>,
-    <span class="ident">W</span>: <span class="ident">Write</span>,
-    <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>) <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-<span class="op">&gt;</span> {
-    <span class="comment">// We wrap this in an option to take it during drop.</span>
-    <span class="ident">encoder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Encoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    W: Write,
+    F: FnMut(io::Result&lt;W&gt;) = Box&lt;<span class="kw">dyn </span>Send + FnMut(io::Result&lt;W&gt;)&gt;,
+&gt; {
+    <span class="comment">// We wrap this in an option to take it during drop.
+    </span>encoder: <span class="prelude-ty">Option</span>&lt;Encoder&lt;<span class="lifetime">&#39;a</span>, W&gt;&gt;,
 
-    <span class="ident">on_finish</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
+    on_finish: <span class="prelude-ty">Option</span>&lt;F&gt;,
 }
 
-<span class="doccomment">/// A wrapper around a `Decoder&lt;W&gt;` that flushes the stream on drop.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This can be created by the [`auto_flush()`] method on the [`Decoder`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`auto_flush()`]: Decoder::auto_flush</span>
-<span class="doccomment">/// [`Decoder`]: Decoder</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AutoFlushDecoder</span><span class="op">&lt;</span>
+<span class="doccomment">/// A wrapper around a `Decoder&lt;W&gt;` that flushes the stream on drop.
+///
+/// This can be created by the [`auto_flush()`] method on the [`Decoder`].
+///
+/// [`auto_flush()`]: Decoder::auto_flush
+/// [`Decoder`]: Decoder
+</span><span class="kw">pub struct </span>AutoFlushDecoder&lt;
     <span class="lifetime">&#39;a</span>,
-    <span class="ident">W</span>: <span class="ident">Write</span>,
-    <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>) <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>)<span class="op">&gt;</span>,
-<span class="op">&gt;</span> {
-    <span class="comment">// We wrap this in an option to take it during drop.</span>
-    <span class="ident">decoder</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Decoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    W: Write,
+    F: FnMut(io::Result&lt;()&gt;) = Box&lt;<span class="kw">dyn </span>Send + FnMut(io::Result&lt;()&gt;)&gt;,
+&gt; {
+    <span class="comment">// We wrap this in an option to take it during drop.
+    </span>decoder: <span class="prelude-ty">Option</span>&lt;Decoder&lt;<span class="lifetime">&#39;a</span>, W&gt;&gt;,
 
-    <span class="ident">on_flush</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
+    on_flush: <span class="prelude-ty">Option</span>&lt;F&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="ident">Write</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="ident">AutoFlushDecoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">decoder</span>: <span class="ident">Decoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span>, <span class="ident">on_flush</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">AutoFlushDecoder</span> {
-            <span class="ident">decoder</span>: <span class="prelude-val">Some</span>(<span class="ident">decoder</span>),
-            <span class="ident">on_flush</span>: <span class="prelude-val">Some</span>(<span class="ident">on_flush</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W: Write, F: FnMut(io::Result&lt;()&gt;)&gt; AutoFlushDecoder&lt;<span class="lifetime">&#39;a</span>, W, F&gt; {
+    <span class="kw">fn </span>new(decoder: Decoder&lt;<span class="lifetime">&#39;a</span>, W&gt;, on_flush: F) -&gt; <span class="self">Self </span>{
+        AutoFlushDecoder {
+            decoder: <span class="prelude-val">Some</span>(decoder),
+            on_flush: <span class="prelude-val">Some</span>(on_flush),
         }
     }
 
-    <span class="doccomment">/// Acquires a reference to the underlying writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">decoder</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">get_ref</span>()
+    <span class="doccomment">/// Acquires a reference to the underlying writer.
+    </span><span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+        <span class="self">self</span>.decoder.as_ref().unwrap().get_ref()
     }
 
-    <span class="doccomment">/// Acquires a mutable reference to the underlying writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that mutation of the writer may result in surprising results if</span>
-    <span class="doccomment">/// this decoder is continued to be used.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Mostly used for testing purposes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">decoder</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">get_mut</span>()
+    <span class="doccomment">/// Acquires a mutable reference to the underlying writer.
+    ///
+    /// Note that mutation of the writer may result in surprising results if
+    /// this decoder is continued to be used.
+    ///
+    /// Mostly used for testing purposes.
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+        <span class="self">self</span>.decoder.as_mut().unwrap().get_mut()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">AutoFlushDecoder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">W</span>: <span class="ident">Write</span>,
-    <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>),
+<span class="kw">impl</span>&lt;W, F&gt; Drop <span class="kw">for </span>AutoFlushDecoder&lt;<span class="lifetime">&#39;_</span>, W, F&gt;
+<span class="kw">where
+    </span>W: Write,
+    F: FnMut(io::Result&lt;()&gt;),
 {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">decoder</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">decoder</span>.<span class="ident">flush</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">on_finish</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">on_flush</span>.<span class="ident">take</span>() {
-            <span class="ident">on_finish</span>(<span class="ident">result</span>);
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>decoder = <span class="self">self</span>.decoder.take().unwrap();
+        <span class="kw">let </span>result = decoder.flush();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>on_finish) = <span class="self">self</span>.on_flush.take() {
+            on_finish(result);
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">AutoFlushDecoder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">decoder</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">write</span>(<span class="ident">buf</span>)
+<span class="kw">impl</span>&lt;W: Write, F: FnMut(io::Result&lt;()&gt;)&gt; Write <span class="kw">for </span>AutoFlushDecoder&lt;<span class="lifetime">&#39;_</span>, W, F&gt; {
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="self">self</span>.decoder.as_mut().unwrap().write(buf)
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">decoder</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">flush</span>()
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.decoder.as_mut().unwrap().flush()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="ident">Write</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="ident">AutoFinishEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">encoder</span>: <span class="ident">Encoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span>, <span class="ident">on_finish</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">AutoFinishEncoder</span> {
-            <span class="ident">encoder</span>: <span class="prelude-val">Some</span>(<span class="ident">encoder</span>),
-            <span class="ident">on_finish</span>: <span class="prelude-val">Some</span>(<span class="ident">on_finish</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W: Write, F: FnMut(io::Result&lt;W&gt;)&gt; AutoFinishEncoder&lt;<span class="lifetime">&#39;a</span>, W, F&gt; {
+    <span class="kw">fn </span>new(encoder: Encoder&lt;<span class="lifetime">&#39;a</span>, W&gt;, on_finish: F) -&gt; <span class="self">Self </span>{
+        AutoFinishEncoder {
+            encoder: <span class="prelude-val">Some</span>(encoder),
+            on_finish: <span class="prelude-val">Some</span>(on_finish),
         }
     }
 
-    <span class="doccomment">/// Acquires a reference to the underlying writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">get_ref</span>()
+    <span class="doccomment">/// Acquires a reference to the underlying writer.
+    </span><span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+        <span class="self">self</span>.encoder.as_ref().unwrap().get_ref()
     }
 
-    <span class="doccomment">/// Acquires a mutable reference to the underlying writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that mutation of the writer may result in surprising results if</span>
-    <span class="doccomment">/// this encoder is continued to be used.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Mostly used for testing purposes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">get_mut</span>()
+    <span class="doccomment">/// Acquires a mutable reference to the underlying writer.
+    ///
+    /// Note that mutation of the writer may result in surprising results if
+    /// this encoder is continued to be used.
+    ///
+    /// Mostly used for testing purposes.
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+        <span class="self">self</span>.encoder.as_mut().unwrap().get_mut()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">AutoFinishEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">finish</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">on_finish</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">on_finish</span>.<span class="ident">take</span>() {
-            <span class="ident">on_finish</span>(<span class="ident">result</span>);
+<span class="kw">impl</span>&lt;W: Write, F: FnMut(io::Result&lt;W&gt;)&gt; Drop <span class="kw">for </span>AutoFinishEncoder&lt;<span class="lifetime">&#39;_</span>, W, F&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>result = <span class="self">self</span>.encoder.take().unwrap().finish();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>on_finish) = <span class="self">self</span>.on_finish.take() {
+            on_finish(result);
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">AutoFinishEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">write</span>(<span class="ident">buf</span>)
+<span class="kw">impl</span>&lt;W: Write, F: FnMut(io::Result&lt;W&gt;)&gt; Write <span class="kw">for </span>AutoFinishEncoder&lt;<span class="lifetime">&#39;_</span>, W, F&gt; {
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="self">self</span>.encoder.as_mut().unwrap().write(buf)
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">encoder</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">flush</span>()
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new encoder.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `level`: compression level (1-21).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A level of `0` uses zstd&#39;s default (currently `3`).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="ident">W</span>, <span class="ident">level</span>: <span class="ident">i32</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::with_dictionary</span>(<span class="ident">writer</span>, <span class="ident">level</span>, <span class="kw-2">&amp;</span>[])
-    }
-
-    <span class="doccomment">/// Creates a new encoder, using an existing dictionary.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// (Provides better compression ratio for small files,</span>
-    <span class="doccomment">/// but requires the dictionary to be present during decompression.)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A level of `0` uses zstd&#39;s default (currently `3`).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_dictionary</span>(
-        <span class="ident">writer</span>: <span class="ident">W</span>,
-        <span class="ident">level</span>: <span class="ident">i32</span>,
-        <span class="ident">dictionary</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">raw::Encoder::with_dictionary</span>(<span class="ident">level</span>, <span class="ident">dictionary</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">zio::Writer::new</span>(<span class="ident">writer</span>, <span class="ident">encoder</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">Encoder</span> { <span class="ident">writer</span> })
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.encoder.as_mut().unwrap().flush()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new encoder, using an existing prepared `EncoderDictionary`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// (Provides better compression ratio for small files,</span>
-    <span class="doccomment">/// but requires the dictionary to be present during decompression.)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_prepared_dictionary</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(
-        <span class="ident">writer</span>: <span class="ident">W</span>,
-        <span class="ident">dictionary</span>: <span class="kw-2">&amp;</span><span class="ident">EncoderDictionary</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
+<span class="kw">impl</span>&lt;W: Write&gt; Encoder&lt;<span class="lifetime">&#39;static</span>, W&gt; {
+    <span class="doccomment">/// Creates a new encoder.
+    ///
+    /// `level`: compression level (1-21).
+    ///
+    /// A level of `0` uses zstd&#39;s default (currently `3`).
+    </span><span class="kw">pub fn </span>new(writer: W, level: i32) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::with_dictionary(writer, level, <span class="kw-2">&amp;</span>[])
+    }
+
+    <span class="doccomment">/// Creates a new encoder, using an existing dictionary.
+    ///
+    /// (Provides better compression ratio for small files,
+    /// but requires the dictionary to be present during decompression.)
+    ///
+    /// A level of `0` uses zstd&#39;s default (currently `3`).
+    </span><span class="kw">pub fn </span>with_dictionary(
+        writer: W,
+        level: i32,
+        dictionary: <span class="kw-2">&amp;</span>[u8],
+    ) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>encoder = raw::Encoder::with_dictionary(level, dictionary)<span class="question-mark">?</span>;
+        <span class="kw">let </span>writer = zio::Writer::new(writer, encoder);
+        <span class="prelude-val">Ok</span>(Encoder { writer })
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W: Write&gt; Encoder&lt;<span class="lifetime">&#39;a</span>, W&gt; {
+    <span class="doccomment">/// Creates a new encoder, using an existing prepared `EncoderDictionary`.
+    ///
+    /// (Provides better compression ratio for small files,
+    /// but requires the dictionary to be present during decompression.)
+    </span><span class="kw">pub fn </span>with_prepared_dictionary&lt;<span class="lifetime">&#39;b</span>&gt;(
+        writer: W,
+        dictionary: <span class="kw-2">&amp;</span>EncoderDictionary&lt;<span class="lifetime">&#39;b</span>&gt;,
+    ) -&gt; io::Result&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
     {
-        <span class="kw">let</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">raw::Encoder::with_prepared_dictionary</span>(<span class="ident">dictionary</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">zio::Writer::new</span>(<span class="ident">writer</span>, <span class="ident">encoder</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">Encoder</span> { <span class="ident">writer</span> })
+        <span class="kw">let </span>encoder = raw::Encoder::with_prepared_dictionary(dictionary)<span class="question-mark">?</span>;
+        <span class="kw">let </span>writer = zio::Writer::new(writer, encoder);
+        <span class="prelude-val">Ok</span>(Encoder { writer })
     }
 
-    <span class="doccomment">/// Returns a wrapper around `self` that will finish the stream on drop.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panic</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics on drop if an error happens when finishing the stream.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">auto_finish</span>(<span class="self">self</span>) -&gt; <span class="ident">AutoFinishEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">on_finish</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> {
-            <span class="ident">result</span>.<span class="ident">unwrap</span>();
+    <span class="doccomment">/// Returns a wrapper around `self` that will finish the stream on drop.
+    ///
+    /// # Panic
+    ///
+    /// Panics on drop if an error happens when finishing the stream.
+    </span><span class="kw">pub fn </span>auto_finish(<span class="self">self</span>) -&gt; AutoFinishEncoder&lt;<span class="lifetime">&#39;a</span>, W&gt; {
+        <span class="self">self</span>.on_finish(Box::new(|result| {
+            result.unwrap();
         }))
     }
 
-    <span class="doccomment">/// Returns an encoder that will finish the stream on drop.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Calls the given callback with the result from `finish()`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_finish</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>)<span class="op">&gt;</span>(
+    <span class="doccomment">/// Returns an encoder that will finish the stream on drop.
+    ///
+    /// Calls the given callback with the result from `finish()`.
+    </span><span class="kw">pub fn </span>on_finish&lt;F: FnMut(io::Result&lt;W&gt;)&gt;(
         <span class="self">self</span>,
-        <span class="ident">f</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="ident">AutoFinishEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="ident">AutoFinishEncoder::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+        f: F,
+    ) -&gt; AutoFinishEncoder&lt;<span class="lifetime">&#39;a</span>, W, F&gt; {
+        AutoFinishEncoder::new(<span class="self">self</span>, f)
     }
 
-    <span class="doccomment">/// Acquires a reference to the underlying writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">writer</span>()
+    <span class="doccomment">/// Acquires a reference to the underlying writer.
+    </span><span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+        <span class="self">self</span>.writer.writer()
     }
 
-    <span class="doccomment">/// Acquires a mutable reference to the underlying writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that mutation of the writer may result in surprising results if</span>
-    <span class="doccomment">/// this encoder is continued to be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">writer_mut</span>()
+    <span class="doccomment">/// Acquires a mutable reference to the underlying writer.
+    ///
+    /// Note that mutation of the writer may result in surprising results if
+    /// this encoder is continued to be used.
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+        <span class="self">self</span>.writer.writer_mut()
     }
 
-    <span class="doccomment">/// **Required**: Finishes the stream.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// You *need* to finish the stream when you&#39;re done writing, either with</span>
-    <span class="doccomment">/// this method or with [`try_finish(self)`](#method.try_finish).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This returns the inner writer in case you need it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To get back `self` in case an error happened, use `try_finish`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// **Note**: If you don&#39;t want (or can&#39;t) call `finish()` manually after</span>
-    <span class="doccomment">///           writing your data, consider using `auto_finish()` to get an</span>
-    <span class="doccomment">///           `AutoFinishEncoder`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">try_finish</span>().<span class="ident">map_err</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">err</span>)<span class="op">|</span> <span class="ident">err</span>)
+    <span class="doccomment">/// **Required**: Finishes the stream.
+    ///
+    /// You *need* to finish the stream when you&#39;re done writing, either with
+    /// this method or with [`try_finish(self)`](#method.try_finish).
+    ///
+    /// This returns the inner writer in case you need it.
+    ///
+    /// To get back `self` in case an error happened, use `try_finish`.
+    ///
+    /// **Note**: If you don&#39;t want (or can&#39;t) call `finish()` manually after
+    ///           writing your data, consider using `auto_finish()` to get an
+    ///           `AutoFinishEncoder`.
+    </span><span class="kw">pub fn </span>finish(<span class="self">self</span>) -&gt; io::Result&lt;W&gt; {
+        <span class="self">self</span>.try_finish().map_err(|(<span class="kw">_</span>, err)| err)
     }
 
-    <span class="doccomment">/// **Required**: Attempts to finish the stream.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// You *need* to finish the stream when you&#39;re done writing, either with</span>
-    <span class="doccomment">/// this method or with [`finish(self)`](#method.finish).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This returns the inner writer if the finish was successful, or the</span>
-    <span class="doccomment">/// object plus an error if it wasn&#39;t.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `write` on this object will panic after `try_finish` has been called,</span>
-    <span class="doccomment">/// even if it fails.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_finish</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">W</span>, (<span class="self">Self</span>, <span class="ident">io::Error</span>)<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">finish</span>() {
-            <span class="comment">// Return the writer, because why not</span>
-            <span class="prelude-val">Ok</span>(()) =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">into_inner</span>().<span class="number">0</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>((<span class="self">self</span>, <span class="ident">e</span>)),
+    <span class="doccomment">/// **Required**: Attempts to finish the stream.
+    ///
+    /// You *need* to finish the stream when you&#39;re done writing, either with
+    /// this method or with [`finish(self)`](#method.finish).
+    ///
+    /// This returns the inner writer if the finish was successful, or the
+    /// object plus an error if it wasn&#39;t.
+    ///
+    /// `write` on this object will panic after `try_finish` has been called,
+    /// even if it fails.
+    </span><span class="kw">pub fn </span>try_finish(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;W, (<span class="self">Self</span>, io::Error)&gt; {
+        <span class="kw">match </span><span class="self">self</span>.writer.finish() {
+            <span class="comment">// Return the writer, because why not
+            </span><span class="prelude-val">Ok</span>(()) =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.writer.into_inner().<span class="number">0</span>),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>((<span class="self">self</span>, e)),
         }
     }
 
-    <span class="doccomment">/// Attemps to finish the stream.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// You *need* to finish the stream when you&#39;re done writing, either with</span>
-    <span class="doccomment">/// this method or with [`finish(self)`](#method.finish).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">do_finish</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">finish</span>()
+    <span class="doccomment">/// Attemps to finish the stream.
+    ///
+    /// You *need* to finish the stream when you&#39;re done writing, either with
+    /// this method or with [`finish(self)`](#method.finish).
+    </span><span class="kw">pub fn </span>do_finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.writer.finish()
     }
 
-    <span class="doccomment">/// Return a recommendation for the size of data to write at once.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recommended_input_size</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">zstd_safe::CCtx::in_size</span>()
+    <span class="doccomment">/// Return a recommendation for the size of data to write at once.
+    </span><span class="kw">pub fn </span>recommended_input_size() -&gt; usize {
+        zstd_safe::CCtx::in_size()
     }
 
-    <span class="macro">crate::encoder_common!</span>(<span class="ident">writer</span>);
+    <span class="macro">crate::encoder_common!</span>(writer);
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write</span>(<span class="ident">buf</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W: Write&gt; Write <span class="kw">for </span>Encoder&lt;<span class="lifetime">&#39;a</span>, W&gt; {
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="self">self</span>.writer.write(buf)
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">flush</span>()
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">Decoder</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new decoder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="ident">W</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::with_dictionary</span>(<span class="ident">writer</span>, <span class="kw-2">&amp;</span>[])
-    }
-
-    <span class="doccomment">/// Creates a new decoder, using an existing dictionary.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// (Provides better compression ratio for small files,</span>
-    <span class="doccomment">/// but requires the dictionary to be present during decompression.)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_dictionary</span>(<span class="ident">writer</span>: <span class="ident">W</span>, <span class="ident">dictionary</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">raw::Decoder::with_dictionary</span>(<span class="ident">dictionary</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">zio::Writer::new</span>(<span class="ident">writer</span>, <span class="ident">decoder</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">Decoder</span> { <span class="ident">writer</span> })
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.writer.flush()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">Decoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new decoder, using an existing prepared `DecoderDictionary`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// (Provides better compression ratio for small files,</span>
-    <span class="doccomment">/// but requires the dictionary to be present during decompression.)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_prepared_dictionary</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(
-        <span class="ident">writer</span>: <span class="ident">W</span>,
-        <span class="ident">dictionary</span>: <span class="kw-2">&amp;</span><span class="ident">DecoderDictionary</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
+<span class="kw">impl</span>&lt;W: Write&gt; Decoder&lt;<span class="lifetime">&#39;static</span>, W&gt; {
+    <span class="doccomment">/// Creates a new decoder.
+    </span><span class="kw">pub fn </span>new(writer: W) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::with_dictionary(writer, <span class="kw-2">&amp;</span>[])
+    }
+
+    <span class="doccomment">/// Creates a new decoder, using an existing dictionary.
+    ///
+    /// (Provides better compression ratio for small files,
+    /// but requires the dictionary to be present during decompression.)
+    </span><span class="kw">pub fn </span>with_dictionary(writer: W, dictionary: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>decoder = raw::Decoder::with_dictionary(dictionary)<span class="question-mark">?</span>;
+        <span class="kw">let </span>writer = zio::Writer::new(writer, decoder);
+        <span class="prelude-val">Ok</span>(Decoder { writer })
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, W: Write&gt; Decoder&lt;<span class="lifetime">&#39;a</span>, W&gt; {
+    <span class="doccomment">/// Creates a new decoder, using an existing prepared `DecoderDictionary`.
+    ///
+    /// (Provides better compression ratio for small files,
+    /// but requires the dictionary to be present during decompression.)
+    </span><span class="kw">pub fn </span>with_prepared_dictionary&lt;<span class="lifetime">&#39;b</span>&gt;(
+        writer: W,
+        dictionary: <span class="kw-2">&amp;</span>DecoderDictionary&lt;<span class="lifetime">&#39;b</span>&gt;,
+    ) -&gt; io::Result&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>,
     {
-        <span class="kw">let</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">raw::Decoder::with_prepared_dictionary</span>(<span class="ident">dictionary</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">zio::Writer::new</span>(<span class="ident">writer</span>, <span class="ident">decoder</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">Decoder</span> { <span class="ident">writer</span> })
+        <span class="kw">let </span>decoder = raw::Decoder::with_prepared_dictionary(dictionary)<span class="question-mark">?</span>;
+        <span class="kw">let </span>writer = zio::Writer::new(writer, decoder);
+        <span class="prelude-val">Ok</span>(Decoder { writer })
     }
 
-    <span class="doccomment">/// Acquires a reference to the underlying writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">writer</span>()
+    <span class="doccomment">/// Acquires a reference to the underlying writer.
+    </span><span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+        <span class="self">self</span>.writer.writer()
     }
 
-    <span class="doccomment">/// Acquires a mutable reference to the underlying writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that mutation of the writer may result in surprising results if</span>
-    <span class="doccomment">/// this decoder is continued to be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">writer_mut</span>()
+    <span class="doccomment">/// Acquires a mutable reference to the underlying writer.
+    ///
+    /// Note that mutation of the writer may result in surprising results if
+    /// this decoder is continued to be used.
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+        <span class="self">self</span>.writer.writer_mut()
     }
 
-    <span class="doccomment">/// Returns the inner `Write`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">into_inner</span>().<span class="number">0</span>
+    <span class="doccomment">/// Returns the inner `Write`.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; W {
+        <span class="self">self</span>.writer.into_inner().<span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Return a recommendation for the size of data to write at once.
+    </span><span class="kw">pub fn </span>recommended_input_size() -&gt; usize {
+        zstd_safe::DCtx::in_size()
     }
 
-    <span class="doccomment">/// Return a recommendation for the size of data to write at once.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recommended_input_size</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">zstd_safe::DCtx::in_size</span>()
-    }
-
-    <span class="doccomment">/// Returns a wrapper around `self` that will flush the stream on drop.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panic</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics on drop if an error happens when flushing the stream.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">auto_flush</span>(<span class="self">self</span>) -&gt; <span class="ident">AutoFlushDecoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">on_flush</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> {
-            <span class="ident">result</span>.<span class="ident">unwrap</span>();
+    <span class="doccomment">/// Returns a wrapper around `self` that will flush the stream on drop.
+    ///
+    /// # Panic
+    ///
+    /// Panics on drop if an error happens when flushing the stream.
+    </span><span class="kw">pub fn </span>auto_flush(<span class="self">self</span>) -&gt; AutoFlushDecoder&lt;<span class="lifetime">&#39;a</span>, W&gt; {
+        <span class="self">self</span>.on_flush(Box::new(|result| {
+            result.unwrap();
         }))
     }
 
-    <span class="doccomment">/// Returns a decoder that will flush the stream on drop.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Calls the given callback with the result from `flush()`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_flush</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>)<span class="op">&gt;</span>(
+    <span class="doccomment">/// Returns a decoder that will flush the stream on drop.
+    ///
+    /// Calls the given callback with the result from `flush()`.
+    </span><span class="kw">pub fn </span>on_flush&lt;F: FnMut(io::Result&lt;()&gt;)&gt;(
         <span class="self">self</span>,
-        <span class="ident">f</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="ident">AutoFlushDecoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="ident">AutoFlushDecoder::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+        f: F,
+    ) -&gt; AutoFlushDecoder&lt;<span class="lifetime">&#39;a</span>, W, F&gt; {
+        AutoFlushDecoder::new(<span class="self">self</span>, f)
     }
 
-    <span class="macro">crate::decoder_common!</span>(<span class="ident">writer</span>);
+    <span class="macro">crate::decoder_common!</span>(writer);
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">Decoder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write</span>(<span class="ident">buf</span>)
+<span class="kw">impl</span>&lt;W: Write&gt; Write <span class="kw">for </span>Decoder&lt;<span class="lifetime">&#39;_</span>, W&gt; {
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="self">self</span>.writer.write(buf)
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">flush</span>()
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.writer.flush()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">_assert_traits</span>() {
-    <span class="kw">fn</span> <span class="ident">_assert_send</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span><span class="op">&gt;</span>(<span class="kw">_</span>: <span class="ident">T</span>) {}
+<span class="kw">fn </span>_assert_traits() {
+    <span class="kw">fn </span>_assert_send&lt;T: Send&gt;(<span class="kw">_</span>: T) {}
 
-    <span class="ident">_assert_send</span>(<span class="ident">Decoder::new</span>(<span class="ident">Vec::new</span>()));
-    <span class="ident">_assert_send</span>(<span class="ident">Encoder::new</span>(<span class="ident">Vec::new</span>(), <span class="number">1</span>));
-    <span class="ident">_assert_send</span>(<span class="ident">Decoder::new</span>(<span class="ident">Vec::new</span>()).<span class="ident">unwrap</span>().<span class="ident">auto_flush</span>());
-    <span class="ident">_assert_send</span>(<span class="ident">Encoder::new</span>(<span class="ident">Vec::new</span>(), <span class="number">1</span>).<span class="ident">unwrap</span>().<span class="ident">auto_finish</span>());
+    _assert_send(Decoder::new(Vec::new()));
+    _assert_send(Encoder::new(Vec::new(), <span class="number">1</span>));
+    _assert_send(Decoder::new(Vec::new()).unwrap().auto_flush());
+    _assert_send(Encoder::new(Vec::new(), <span class="number">1</span>).unwrap().auto_finish());
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

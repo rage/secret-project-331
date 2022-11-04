@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/codec/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../async_compression/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/codec/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../async_compression/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -82,89 +82,89 @@
 <span id="82">82</span>
 <span id="83">83</span>
 <span id="84">84</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util::PartialBuffer</span>;
-<span class="kw">use</span> <span class="ident">std::io::Result</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::util::PartialBuffer;
+<span class="kw">use </span>std::io::Result;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">brotli</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bzip2&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">bzip2</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">deflate</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;flate2&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">flate</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gzip&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">gzip</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;lzma&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">lzma</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xz&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">xz</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xz2&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">xz2</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zlib&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">zlib</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zstd&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">zstd</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;brotli&quot;</span>)]
+</span><span class="kw">mod </span>brotli;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;bzip2&quot;</span>)]
+</span><span class="kw">mod </span>bzip2;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;deflate&quot;</span>)]
+</span><span class="kw">mod </span>deflate;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;flate2&quot;</span>)]
+</span><span class="kw">mod </span>flate;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;gzip&quot;</span>)]
+</span><span class="kw">mod </span>gzip;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;lzma&quot;</span>)]
+</span><span class="kw">mod </span>lzma;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;xz&quot;</span>)]
+</span><span class="kw">mod </span>xz;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;xz2&quot;</span>)]
+</span><span class="kw">mod </span>xz2;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zlib&quot;</span>)]
+</span><span class="kw">mod </span>zlib;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zstd&quot;</span>)]
+</span><span class="kw">mod </span>zstd;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::brotli</span>::{<span class="ident">BrotliDecoder</span>, <span class="ident">BrotliEncoder</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bzip2&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::bzip2</span>::{<span class="ident">BzDecoder</span>, <span class="ident">BzEncoder</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::deflate</span>::{<span class="ident">DeflateDecoder</span>, <span class="ident">DeflateEncoder</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;flate2&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::flate</span>::{<span class="ident">FlateDecoder</span>, <span class="ident">FlateEncoder</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gzip&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::gzip</span>::{<span class="ident">GzipDecoder</span>, <span class="ident">GzipEncoder</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;lzma&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lzma</span>::{<span class="ident">LzmaDecoder</span>, <span class="ident">LzmaEncoder</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xz&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::xz</span>::{<span class="ident">XzDecoder</span>, <span class="ident">XzEncoder</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xz2&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::xz2</span>::{<span class="ident">Xz2Decoder</span>, <span class="ident">Xz2Encoder</span>, <span class="ident">Xz2FileFormat</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zlib&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::zlib</span>::{<span class="ident">ZlibDecoder</span>, <span class="ident">ZlibEncoder</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zstd&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::zstd</span>::{<span class="ident">ZstdDecoder</span>, <span class="ident">ZstdEncoder</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;brotli&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::brotli::{BrotliDecoder, BrotliEncoder};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;bzip2&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::bzip2::{BzDecoder, BzEncoder};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;deflate&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::deflate::{DeflateDecoder, DeflateEncoder};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;flate2&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::flate::{FlateDecoder, FlateEncoder};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;gzip&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::gzip::{GzipDecoder, GzipEncoder};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;lzma&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::lzma::{LzmaDecoder, LzmaEncoder};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;xz&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::xz::{XzDecoder, XzEncoder};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;xz2&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::xz2::{Xz2Decoder, Xz2Encoder, Xz2FileFormat};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zlib&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::zlib::{ZlibDecoder, ZlibEncoder};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zstd&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::zstd::{ZstdDecoder, ZstdEncoder};
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Encode</span> {
-    <span class="kw">fn</span> <span class="ident">encode</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+<span class="kw">pub trait </span>Encode {
+    <span class="kw">fn </span>encode(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt;&gt;,
+        output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
 
-    <span class="doccomment">/// Returns whether the internal buffers are flushed</span>
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>)
-        -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Returns whether the internal buffers are flushed
+    </span><span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>, output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;)
+        -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt;;
 
-    <span class="doccomment">/// Returns whether the internal buffers are flushed and the end of the stream is written</span>
-    <span class="kw">fn</span> <span class="ident">finish</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Returns whether the internal buffers are flushed and the end of the stream is written
+    </span><span class="kw">fn </span>finish(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt;;
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Decode</span> {
-    <span class="doccomment">/// Reinitializes this decoder ready to decode a new member/frame of data.</span>
-    <span class="kw">fn</span> <span class="ident">reinit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+<span class="kw">pub trait </span>Decode {
+    <span class="doccomment">/// Reinitializes this decoder ready to decode a new member/frame of data.
+    </span><span class="kw">fn </span>reinit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
 
-    <span class="doccomment">/// Returns whether the end of the stream has been read</span>
-    <span class="kw">fn</span> <span class="ident">decode</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Returns whether the end of the stream has been read
+    </span><span class="kw">fn </span>decode(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt;&gt;,
+        output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt;;
 
-    <span class="doccomment">/// Returns whether the internal buffers are flushed</span>
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>)
-        -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Returns whether the internal buffers are flushed
+    </span><span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>, output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;)
+        -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt;;
 
-    <span class="doccomment">/// Returns whether the internal buffers are flushed</span>
-    <span class="kw">fn</span> <span class="ident">finish</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Returns whether the internal buffers are flushed
+    </span><span class="kw">fn </span>finish(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt;;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

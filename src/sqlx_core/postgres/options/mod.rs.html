@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/options/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/options/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -486,493 +486,493 @@
 <span id="486">486</span>
 <span id="487">487</span>
 <span id="488">488</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
-<span class="kw">use</span> <span class="ident">std::env::var</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="ident">Display</span>, <span class="ident">Write</span>};
-<span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::env::var;
+<span class="kw">use </span>std::fmt::{Display, Write};
+<span class="kw">use </span>std::path::{Path, PathBuf};
 
-<span class="kw">mod</span> <span class="ident">connect</span>;
-<span class="kw">mod</span> <span class="ident">parse</span>;
-<span class="kw">mod</span> <span class="ident">pgpass</span>;
-<span class="kw">mod</span> <span class="ident">ssl_mode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connection::LogSettings</span>, <span class="ident">net::CertificateInput</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ssl_mode::PgSslMode</span>;
+<span class="kw">mod </span>connect;
+<span class="kw">mod </span>parse;
+<span class="kw">mod </span>pgpass;
+<span class="kw">mod </span>ssl_mode;
+<span class="kw">use crate</span>::{connection::LogSettings, net::CertificateInput};
+<span class="kw">pub use </span>ssl_mode::PgSslMode;
 
-<span class="doccomment">/// Options and flags which can be used to configure a PostgreSQL connection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A value of `PgConnectOptions` can be parsed from a connection URL,</span>
-<span class="doccomment">/// as described by [libpq](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The general form for a connection URL is:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```text</span>
-<span class="doccomment">/// postgresql://[user[:password]@][host][:port][/dbname][?param1=value1&amp;...]</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Parameters</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Parameter|Default|Description|</span>
-<span class="doccomment">/// |---------|-------|-----------|</span>
-<span class="doccomment">/// | `sslmode` | `prefer` | Determines whether or with what priority a secure SSL TCP/IP connection will be negotiated. See [`PgSslMode`]. |</span>
-<span class="doccomment">/// | `sslrootcert` | `None` | Sets the name of a file containing a list of trusted SSL Certificate Authorities. |</span>
-<span class="doccomment">/// | `statement-cache-capacity` | `100` | The maximum number of prepared statements stored in the cache. Set to `0` to disable. |</span>
-<span class="doccomment">/// | `host` | `None` | Path to the directory containing a PostgreSQL unix domain socket, which will be used instead of TCP if set. |</span>
-<span class="doccomment">/// | `hostaddr` | `None` | Same as `host`, but only accepts IP addresses. |</span>
-<span class="doccomment">/// | `application-name` | `None` | The name will be displayed in the pg_stat_activity view and included in CSV log entries. |</span>
-<span class="doccomment">/// | `user` | result of `whoami` | PostgreSQL user name to connect as. |</span>
-<span class="doccomment">/// | `password` | `None` | Password to be used if the server demands password authentication. |</span>
-<span class="doccomment">/// | `port` | `5432` | Port number to connect to at the server host, or socket file name extension for Unix-domain connections. |</span>
-<span class="doccomment">/// | `dbname` | `None` | The database name. |</span>
-<span class="doccomment">/// | `options` | `None` | The runtime parameters to send to the server at connection start. |</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The URL scheme designator can be either `postgresql://` or `postgres://`.</span>
-<span class="doccomment">/// Each of the URL parts is optional.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```text</span>
-<span class="doccomment">/// postgresql://</span>
-<span class="doccomment">/// postgresql://localhost</span>
-<span class="doccomment">/// postgresql://localhost:5433</span>
-<span class="doccomment">/// postgresql://localhost/mydb</span>
-<span class="doccomment">/// postgresql://user@localhost</span>
-<span class="doccomment">/// postgresql://user:secret@localhost</span>
-<span class="doccomment">/// postgresql://localhost?dbname=mydb&amp;user=postgres&amp;password=postgres</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,no_run</span>
-<span class="doccomment">/// # use sqlx_core::error::Error;</span>
-<span class="doccomment">/// # use sqlx_core::connection::{Connection, ConnectOptions};</span>
-<span class="doccomment">/// # use sqlx_core::postgres::{PgConnectOptions, PgConnection, PgSslMode};</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # fn main() {</span>
-<span class="doccomment">/// # #[cfg(feature = &quot;_rt-async-std&quot;)]</span>
-<span class="doccomment">/// # sqlx_rt::async_std::task::block_on::&lt;_, Result&lt;(), Error&gt;&gt;(async move {</span>
-<span class="doccomment">/// // URL connection string</span>
-<span class="doccomment">/// let conn = PgConnection::connect(&quot;postgres://localhost/mydb&quot;).await?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Manually-constructed options</span>
-<span class="doccomment">/// let conn = PgConnectOptions::new()</span>
-<span class="doccomment">///     .host(&quot;secret-host&quot;)</span>
-<span class="doccomment">///     .port(2525)</span>
-<span class="doccomment">///     .username(&quot;secret-user&quot;)</span>
-<span class="doccomment">///     .password(&quot;secret-password&quot;)</span>
-<span class="doccomment">///     .ssl_mode(PgSslMode::Require)</span>
-<span class="doccomment">///     .connect().await?;</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }).unwrap();</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgConnectOptions</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">host</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">port</span>: <span class="ident">u16</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">socket</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">username</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">password</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">database</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ssl_mode</span>: <span class="ident">PgSslMode</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ssl_root_cert</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CertificateInput</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">statement_cache_capacity</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">application_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">log_settings</span>: <span class="ident">LogSettings</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">extra_float_digits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">options</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Options and flags which can be used to configure a PostgreSQL connection.
+///
+/// A value of `PgConnectOptions` can be parsed from a connection URL,
+/// as described by [libpq](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING).
+///
+/// The general form for a connection URL is:
+///
+/// ```text
+/// postgresql://[user[:password]@][host][:port][/dbname][?param1=value1&amp;...]
+/// ```
+///
+/// ## Parameters
+///
+/// |Parameter|Default|Description|
+/// |---------|-------|-----------|
+/// | `sslmode` | `prefer` | Determines whether or with what priority a secure SSL TCP/IP connection will be negotiated. See [`PgSslMode`]. |
+/// | `sslrootcert` | `None` | Sets the name of a file containing a list of trusted SSL Certificate Authorities. |
+/// | `statement-cache-capacity` | `100` | The maximum number of prepared statements stored in the cache. Set to `0` to disable. |
+/// | `host` | `None` | Path to the directory containing a PostgreSQL unix domain socket, which will be used instead of TCP if set. |
+/// | `hostaddr` | `None` | Same as `host`, but only accepts IP addresses. |
+/// | `application-name` | `None` | The name will be displayed in the pg_stat_activity view and included in CSV log entries. |
+/// | `user` | result of `whoami` | PostgreSQL user name to connect as. |
+/// | `password` | `None` | Password to be used if the server demands password authentication. |
+/// | `port` | `5432` | Port number to connect to at the server host, or socket file name extension for Unix-domain connections. |
+/// | `dbname` | `None` | The database name. |
+/// | `options` | `None` | The runtime parameters to send to the server at connection start. |
+///
+/// The URL scheme designator can be either `postgresql://` or `postgres://`.
+/// Each of the URL parts is optional.
+///
+/// ```text
+/// postgresql://
+/// postgresql://localhost
+/// postgresql://localhost:5433
+/// postgresql://localhost/mydb
+/// postgresql://user@localhost
+/// postgresql://user:secret@localhost
+/// postgresql://localhost?dbname=mydb&amp;user=postgres&amp;password=postgres
+/// ```
+///
+/// # Example
+///
+/// ```rust,no_run
+/// # use sqlx_core::error::Error;
+/// # use sqlx_core::connection::{Connection, ConnectOptions};
+/// # use sqlx_core::postgres::{PgConnectOptions, PgConnection, PgSslMode};
+/// #
+/// # fn main() {
+/// # #[cfg(feature = &quot;_rt-async-std&quot;)]
+/// # sqlx_rt::async_std::task::block_on::&lt;_, Result&lt;(), Error&gt;&gt;(async move {
+/// // URL connection string
+/// let conn = PgConnection::connect(&quot;postgres://localhost/mydb&quot;).await?;
+///
+/// // Manually-constructed options
+/// let conn = PgConnectOptions::new()
+///     .host(&quot;secret-host&quot;)
+///     .port(2525)
+///     .username(&quot;secret-user&quot;)
+///     .password(&quot;secret-password&quot;)
+///     .ssl_mode(PgSslMode::Require)
+///     .connect().await?;
+/// # Ok(())
+/// # }).unwrap();
+/// # }
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>PgConnectOptions {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) host: String,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) port: u16,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) socket: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) username: String,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) password: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) database: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) ssl_mode: PgSslMode,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) ssl_root_cert: <span class="prelude-ty">Option</span>&lt;CertificateInput&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) statement_cache_capacity: usize,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) application_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) log_settings: LogSettings,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) extra_float_digits: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;static</span>, str&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) options: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PgConnectOptions</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new_without_pgpass</span>().<span class="ident">apply_pgpass</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>PgConnectOptions {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new_without_pgpass().apply_pgpass()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PgConnectOptions</span> {
-    <span class="doccomment">/// Creates a new, default set of options ready for configuration.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default, this reads the following environment variables and sets their</span>
-    <span class="doccomment">/// equivalent options.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///  * `PGHOST`</span>
-    <span class="doccomment">///  * `PGPORT`</span>
-    <span class="doccomment">///  * `PGUSER`</span>
-    <span class="doccomment">///  * `PGPASSWORD`</span>
-    <span class="doccomment">///  * `PGDATABASE`</span>
-    <span class="doccomment">///  * `PGSSLROOTCERT`</span>
-    <span class="doccomment">///  * `PGSSLMODE`</span>
-    <span class="doccomment">///  * `PGAPPNAME`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new_without_pgpass</span>().<span class="ident">apply_pgpass</span>()
+<span class="kw">impl </span>PgConnectOptions {
+    <span class="doccomment">/// Creates a new, default set of options ready for configuration.
+    ///
+    /// By default, this reads the following environment variables and sets their
+    /// equivalent options.
+    ///
+    ///  * `PGHOST`
+    ///  * `PGPORT`
+    ///  * `PGUSER`
+    ///  * `PGPASSWORD`
+    ///  * `PGDATABASE`
+    ///  * `PGSSLROOTCERT`
+    ///  * `PGSSLMODE`
+    ///  * `PGAPPNAME`
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new();
+    /// ```
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new_without_pgpass().apply_pgpass()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_without_pgpass</span>() -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">port</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGPORT&quot;</span>)
-            .<span class="ident">ok</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">parse</span>().<span class="ident">ok</span>())
-            .<span class="ident">unwrap_or</span>(<span class="number">5432</span>);
+    <span class="kw">pub fn </span>new_without_pgpass() -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>port = var(<span class="string">&quot;PGPORT&quot;</span>)
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(<span class="number">5432</span>);
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGHOST&quot;</span>).<span class="ident">ok</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default_host</span>(<span class="ident">port</span>));
+        <span class="kw">let </span>host = var(<span class="string">&quot;PGHOST&quot;</span>).ok().unwrap_or_else(|| default_host(port));
 
-        <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGUSER&quot;</span>).<span class="ident">ok</span>().<span class="ident">unwrap_or_else</span>(<span class="ident">whoami::username</span>);
+        <span class="kw">let </span>username = var(<span class="string">&quot;PGUSER&quot;</span>).ok().unwrap_or_else(whoami::username);
 
-        <span class="kw">let</span> <span class="ident">database</span> <span class="op">=</span> <span class="ident">var</span>(<span class="string">&quot;PGDATABASE&quot;</span>).<span class="ident">ok</span>();
+        <span class="kw">let </span>database = var(<span class="string">&quot;PGDATABASE&quot;</span>).ok();
 
-        <span class="ident">PgConnectOptions</span> {
-            <span class="ident">port</span>,
-            <span class="ident">host</span>,
-            <span class="ident">socket</span>: <span class="prelude-val">None</span>,
-            <span class="ident">username</span>,
-            <span class="ident">password</span>: <span class="ident">var</span>(<span class="string">&quot;PGPASSWORD&quot;</span>).<span class="ident">ok</span>(),
-            <span class="ident">database</span>,
-            <span class="ident">ssl_root_cert</span>: <span class="ident">var</span>(<span class="string">&quot;PGSSLROOTCERT&quot;</span>).<span class="ident">ok</span>().<span class="ident">map</span>(<span class="ident">CertificateInput::from</span>),
-            <span class="ident">ssl_mode</span>: <span class="ident">var</span>(<span class="string">&quot;PGSSLMODE&quot;</span>)
-                .<span class="ident">ok</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">parse</span>().<span class="ident">ok</span>())
-                .<span class="ident">unwrap_or_default</span>(),
-            <span class="ident">statement_cache_capacity</span>: <span class="number">100</span>,
-            <span class="ident">application_name</span>: <span class="ident">var</span>(<span class="string">&quot;PGAPPNAME&quot;</span>).<span class="ident">ok</span>(),
-            <span class="ident">extra_float_digits</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;3&quot;</span>.<span class="ident">into</span>()),
-            <span class="ident">log_settings</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">options</span>: <span class="ident">var</span>(<span class="string">&quot;PGOPTIONS&quot;</span>).<span class="ident">ok</span>(),
+        PgConnectOptions {
+            port,
+            host,
+            socket: <span class="prelude-val">None</span>,
+            username,
+            password: var(<span class="string">&quot;PGPASSWORD&quot;</span>).ok(),
+            database,
+            ssl_root_cert: var(<span class="string">&quot;PGSSLROOTCERT&quot;</span>).ok().map(CertificateInput::from),
+            ssl_mode: var(<span class="string">&quot;PGSSLMODE&quot;</span>)
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or_default(),
+            statement_cache_capacity: <span class="number">100</span>,
+            application_name: var(<span class="string">&quot;PGAPPNAME&quot;</span>).ok(),
+            extra_float_digits: <span class="prelude-val">Some</span>(<span class="string">&quot;3&quot;</span>.into()),
+            log_settings: Default::default(),
+            options: var(<span class="string">&quot;PGOPTIONS&quot;</span>).ok(),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">apply_pgpass</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">password</span>.<span class="ident">is_none</span>() {
-            <span class="self">self</span>.<span class="ident">password</span> <span class="op">=</span> <span class="ident">pgpass::load_password</span>(
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">host</span>,
-                <span class="self">self</span>.<span class="ident">port</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">username</span>,
-                <span class="self">self</span>.<span class="ident">database</span>.<span class="ident">as_deref</span>(),
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>apply_pgpass(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">if </span><span class="self">self</span>.password.is_none() {
+            <span class="self">self</span>.password = pgpass::load_password(
+                <span class="kw-2">&amp;</span><span class="self">self</span>.host,
+                <span class="self">self</span>.port,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.username,
+                <span class="self">self</span>.database.as_deref(),
             );
         }
 
-        <span class="self">self</span>
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets the name of the host to connect to.
+    ///
+    /// If a host name begins with a slash, it specifies
+    /// Unix-domain communication rather than TCP/IP communication; the value is the name of
+    /// the directory in which the socket file is stored.
+    ///
+    /// The default behavior when host is not specified, or is empty,
+    /// is to connect to a Unix-domain socket
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .host(&quot;localhost&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>host(<span class="kw-2">mut </span><span class="self">self</span>, host: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.host = host.to_owned();
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets the port to connect to at the server host.
+    ///
+    /// The default port for PostgreSQL is `5432`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .port(5432);
+    /// ```
+    </span><span class="kw">pub fn </span>port(<span class="kw-2">mut </span><span class="self">self</span>, port: u16) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.port = port;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets a custom path to a directory containing a unix domain socket,
+    /// switching the connection method from TCP to the corresponding socket.
+    ///
+    /// By default set to `None`.
+    </span><span class="kw">pub fn </span>socket(<span class="kw-2">mut </span><span class="self">self</span>, path: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.socket = <span class="prelude-val">Some</span>(path.as_ref().to_path_buf());
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets the username to connect as.
+    ///
+    /// Defaults to be the same as the operating system name of
+    /// the user running the application.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .username(&quot;postgres&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>username(<span class="kw-2">mut </span><span class="self">self</span>, username: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.username = username.to_owned();
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets the password to use if the server demands password authentication.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .username(&quot;root&quot;)
+    ///     .password(&quot;safe-and-secure&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>password(<span class="kw-2">mut </span><span class="self">self</span>, password: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.password = <span class="prelude-val">Some</span>(password.to_owned());
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets the database name. Defaults to be the same as the user name.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .database(&quot;postgres&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>database(<span class="kw-2">mut </span><span class="self">self</span>, database: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.database = <span class="prelude-val">Some</span>(database.to_owned());
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Get the current database name.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .database(&quot;postgres&quot;);
+    /// assert!(options.get_database().is_some());
+    /// ```
+    </span><span class="kw">pub fn </span>get_database(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.database.as_deref()
     }
 
-    <span class="doccomment">/// Sets the name of the host to connect to.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If a host name begins with a slash, it specifies</span>
-    <span class="doccomment">/// Unix-domain communication rather than TCP/IP communication; the value is the name of</span>
-    <span class="doccomment">/// the directory in which the socket file is stored.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default behavior when host is not specified, or is empty,</span>
-    <span class="doccomment">/// is to connect to a Unix-domain socket</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     .host(&quot;localhost&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">host</span> <span class="op">=</span> <span class="ident">host</span>.<span class="ident">to_owned</span>();
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets whether or with what priority a secure SSL TCP/IP connection will be negotiated
+    /// with the server.
+    ///
+    /// By default, the SSL mode is [`Prefer`](PgSslMode::Prefer), and the client will
+    /// first attempt an SSL connection but fallback to a non-SSL connection on failure.
+    ///
+    /// Ignored for Unix domain socket communication.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// let options = PgConnectOptions::new()
+    ///     .ssl_mode(PgSslMode::Require);
+    /// ```
+    </span><span class="kw">pub fn </span>ssl_mode(<span class="kw-2">mut </span><span class="self">self</span>, mode: PgSslMode) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.ssl_mode = mode;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the port to connect to at the server host.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default port for PostgreSQL is `5432`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     .port(5432);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">port</span>: <span class="ident">u16</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">port</span> <span class="op">=</span> <span class="ident">port</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the name of a file containing SSL certificate authority (CA) certificate(s).
+    /// If the file exists, the server&#39;s certificate will be verified to be signed by
+    /// one of these authorities.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// let options = PgConnectOptions::new()
+    ///     // Providing a CA certificate with less than VerifyCa is pointless
+    ///     .ssl_mode(PgSslMode::VerifyCa)
+    ///     .ssl_root_cert(&quot;./ca-certificate.crt&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>ssl_root_cert(<span class="kw-2">mut </span><span class="self">self</span>, cert: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.ssl_root_cert = <span class="prelude-val">Some</span>(CertificateInput::File(cert.as_ref().to_path_buf()));
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets a custom path to a directory containing a unix domain socket,</span>
-    <span class="doccomment">/// switching the connection method from TCP to the corresponding socket.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default set to `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">socket</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">socket</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>().<span class="ident">to_path_buf</span>());
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets PEM encoded trusted SSL Certificate Authorities (CA).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// let options = PgConnectOptions::new()
+    ///     // Providing a CA certificate with less than VerifyCa is pointless
+    ///     .ssl_mode(PgSslMode::VerifyCa)
+    ///     .ssl_root_cert_from_pem(vec![]);
+    /// ```
+    </span><span class="kw">pub fn </span>ssl_root_cert_from_pem(<span class="kw-2">mut </span><span class="self">self</span>, pem_certificate: Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.ssl_root_cert = <span class="prelude-val">Some</span>(CertificateInput::Inline(pem_certificate));
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the username to connect as.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to be the same as the operating system name of</span>
-    <span class="doccomment">/// the user running the application.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     .username(&quot;postgres&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">username</span> <span class="op">=</span> <span class="ident">username</span>.<span class="ident">to_owned</span>();
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the capacity of the connection&#39;s statement cache in a number of stored
+    /// distinct statements. Caching is handled using LRU, meaning when the
+    /// amount of queries hits the defined limit, the oldest statement will get
+    /// dropped.
+    ///
+    /// The default cache capacity is 100 statements.
+    </span><span class="kw">pub fn </span>statement_cache_capacity(<span class="kw-2">mut </span><span class="self">self</span>, capacity: usize) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.statement_cache_capacity = capacity;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the password to use if the server demands password authentication.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     .username(&quot;root&quot;)</span>
-    <span class="doccomment">///     .password(&quot;safe-and-secure&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">password</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">password</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>.<span class="ident">to_owned</span>());
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the application name. Defaults to None
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .application_name(&quot;my-app&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>application_name(<span class="kw-2">mut </span><span class="self">self</span>, application_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.application_name = <span class="prelude-val">Some</span>(application_name.to_owned());
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the database name. Defaults to be the same as the user name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     .database(&quot;postgres&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">database</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">database</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">database</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">database</span>.<span class="ident">to_owned</span>());
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets or removes the `extra_float_digits` connection option.
+    ///
+    /// This changes the default precision of floating-point values returned in text mode (when
+    /// not using prepared statements such as calling methods of [`Executor`] directly).
+    ///
+    /// Historically, Postgres would by default round floating-point values to 6 and 15 digits
+    /// for `float4`/`REAL` (`f32`) and `float8`/`DOUBLE` (`f64`), respectively, which would mean
+    /// that the returned value may not be exactly the same as its representation in Postgres.
+    ///
+    /// The nominal range for this value is `-15` to `3`, where negative values for this option
+    /// cause floating-points to be rounded to that many fewer digits than normal (`-1` causes
+    /// `float4` to be rounded to 5 digits instead of six, or 14 instead of 15 for `float8`),
+    /// positive values cause Postgres to emit that many extra digits of precision over default
+    /// (or simply use maximum precision in Postgres 12 and later),
+    /// and 0 means keep the default behavior (or the &quot;old&quot; behavior described above
+    /// as of Postgres 12).
+    ///
+    /// SQLx sets this value to 3 by default, which tells Postgres to return floating-point values
+    /// at their maximum precision in the hope that the parsed value will be identical to its
+    /// counterpart in Postgres. This is also the default in Postgres 12 and later anyway.
+    ///
+    /// However, older versions of Postgres and alternative implementations that talk the Postgres
+    /// protocol may not support this option, or the full range of values.
+    ///
+    /// If you get an error like &quot;unknown option `extra_float_digits`&quot; when connecting, try
+    /// setting this to `None` or consult the manual of your database for the allowed range
+    /// of values.
+    ///
+    /// For more information, see:
+    /// * [Postgres manual, 20.11.2: Client Connection Defaults; Locale and Formatting][20.11.2]
+    /// * [Postgres manual, 8.1.3: Numeric Types; Floating-point Types][8.1.3]
+    ///
+    /// [`Executor`]: crate::executor::Executor
+    /// [20.11.2]: https://www.postgresql.org/docs/current/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-FORMAT
+    /// [8.1.3]: https://www.postgresql.org/docs/current/datatype-numeric.html#DATATYPE-FLOAT
+    ///
+    /// ### Examples
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    ///
+    /// let mut options = PgConnectOptions::new()
+    ///     // for Redshift and Postgres 10
+    ///     .extra_float_digits(2);
+    ///
+    /// let mut options = PgConnectOptions::new()
+    ///     // don&#39;t send the option at all (Postgres 9 and older)
+    ///     .extra_float_digits(None);
+    /// ```
+    </span><span class="kw">pub fn </span>extra_float_digits(<span class="kw-2">mut </span><span class="self">self</span>, extra_float_digits: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;i8&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.extra_float_digits = extra_float_digits.into().map(|it| it.to_string().into());
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Get the current database name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     .database(&quot;postgres&quot;);</span>
-    <span class="doccomment">/// assert!(options.get_database().is_some());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_database</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">database</span>.<span class="ident">as_deref</span>()
-    }
-
-    <span class="doccomment">/// Sets whether or with what priority a secure SSL TCP/IP connection will be negotiated</span>
-    <span class="doccomment">/// with the server.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default, the SSL mode is [`Prefer`](PgSslMode::Prefer), and the client will</span>
-    <span class="doccomment">/// first attempt an SSL connection but fallback to a non-SSL connection on failure.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Ignored for Unix domain socket communication.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     .ssl_mode(PgSslMode::Require);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">PgSslMode</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ssl_mode</span> <span class="op">=</span> <span class="ident">mode</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Sets the name of a file containing SSL certificate authority (CA) certificate(s).</span>
-    <span class="doccomment">/// If the file exists, the server&#39;s certificate will be verified to be signed by</span>
-    <span class="doccomment">/// one of these authorities.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     // Providing a CA certificate with less than VerifyCa is pointless</span>
-    <span class="doccomment">///     .ssl_mode(PgSslMode::VerifyCa)</span>
-    <span class="doccomment">///     .ssl_root_cert(&quot;./ca-certificate.crt&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_root_cert</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cert</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ssl_root_cert</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CertificateInput::File</span>(<span class="ident">cert</span>.<span class="ident">as_ref</span>().<span class="ident">to_path_buf</span>()));
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Sets PEM encoded trusted SSL Certificate Authorities (CA).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     // Providing a CA certificate with less than VerifyCa is pointless</span>
-    <span class="doccomment">///     .ssl_mode(PgSslMode::VerifyCa)</span>
-    <span class="doccomment">///     .ssl_root_cert_from_pem(vec![]);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_root_cert_from_pem</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pem_certificate</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ssl_root_cert</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">CertificateInput::Inline</span>(<span class="ident">pem_certificate</span>));
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Sets the capacity of the connection&#39;s statement cache in a number of stored</span>
-    <span class="doccomment">/// distinct statements. Caching is handled using LRU, meaning when the</span>
-    <span class="doccomment">/// amount of queries hits the defined limit, the oldest statement will get</span>
-    <span class="doccomment">/// dropped.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default cache capacity is 100 statements.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement_cache_capacity</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">capacity</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">statement_cache_capacity</span> <span class="op">=</span> <span class="ident">capacity</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Sets the application name. Defaults to None</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     .application_name(&quot;my-app&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">application_name</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">application_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">application_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">application_name</span>.<span class="ident">to_owned</span>());
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Sets or removes the `extra_float_digits` connection option.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This changes the default precision of floating-point values returned in text mode (when</span>
-    <span class="doccomment">/// not using prepared statements such as calling methods of [`Executor`] directly).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Historically, Postgres would by default round floating-point values to 6 and 15 digits</span>
-    <span class="doccomment">/// for `float4`/`REAL` (`f32`) and `float8`/`DOUBLE` (`f64`), respectively, which would mean</span>
-    <span class="doccomment">/// that the returned value may not be exactly the same as its representation in Postgres.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The nominal range for this value is `-15` to `3`, where negative values for this option</span>
-    <span class="doccomment">/// cause floating-points to be rounded to that many fewer digits than normal (`-1` causes</span>
-    <span class="doccomment">/// `float4` to be rounded to 5 digits instead of six, or 14 instead of 15 for `float8`),</span>
-    <span class="doccomment">/// positive values cause Postgres to emit that many extra digits of precision over default</span>
-    <span class="doccomment">/// (or simply use maximum precision in Postgres 12 and later),</span>
-    <span class="doccomment">/// and 0 means keep the default behavior (or the &quot;old&quot; behavior described above</span>
-    <span class="doccomment">/// as of Postgres 12).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// SQLx sets this value to 3 by default, which tells Postgres to return floating-point values</span>
-    <span class="doccomment">/// at their maximum precision in the hope that the parsed value will be identical to its</span>
-    <span class="doccomment">/// counterpart in Postgres. This is also the default in Postgres 12 and later anyway.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// However, older versions of Postgres and alternative implementations that talk the Postgres</span>
-    <span class="doccomment">/// protocol may not support this option, or the full range of values.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If you get an error like &quot;unknown option `extra_float_digits`&quot; when connecting, try</span>
-    <span class="doccomment">/// setting this to `None` or consult the manual of your database for the allowed range</span>
-    <span class="doccomment">/// of values.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For more information, see:</span>
-    <span class="doccomment">/// * [Postgres manual, 20.11.2: Client Connection Defaults; Locale and Formatting][20.11.2]</span>
-    <span class="doccomment">/// * [Postgres manual, 8.1.3: Numeric Types; Floating-point Types][8.1.3]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Executor`]: crate::executor::Executor</span>
-    <span class="doccomment">/// [20.11.2]: https://www.postgresql.org/docs/current/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-FORMAT</span>
-    <span class="doccomment">/// [8.1.3]: https://www.postgresql.org/docs/current/datatype-numeric.html#DATATYPE-FLOAT</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Examples</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     // for Redshift and Postgres 10</span>
-    <span class="doccomment">///     .extra_float_digits(2);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     // don&#39;t send the option at all (Postgres 9 and older)</span>
-    <span class="doccomment">///     .extra_float_digits(None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extra_float_digits</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">extra_float_digits</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">extra_float_digits</span> <span class="op">=</span> <span class="ident">extra_float_digits</span>.<span class="ident">into</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">it</span><span class="op">|</span> <span class="ident">it</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Set additional startup options for the connection as a list of key-value pairs.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use sqlx_core::postgres::PgConnectOptions;</span>
-    <span class="doccomment">/// let options = PgConnectOptions::new()</span>
-    <span class="doccomment">///     .options([(&quot;geqo&quot;, &quot;off&quot;), (&quot;statement_timeout&quot;, &quot;5min&quot;)]);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">options</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">options</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Display</span>,
-        <span class="ident">V</span>: <span class="ident">Display</span>,
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>,
+    <span class="doccomment">/// Set additional startup options for the connection as a list of key-value pairs.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .options([(&quot;geqo&quot;, &quot;off&quot;), (&quot;statement_timeout&quot;, &quot;5min&quot;)]);
+    /// ```
+    </span><span class="kw">pub fn </span>options&lt;K, V, I&gt;(<span class="kw-2">mut </span><span class="self">self</span>, options: I) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>K: Display,
+        V: Display,
+        I: IntoIterator&lt;Item = (K, V)&gt;,
     {
-        <span class="comment">// Do this in here so `options_str` is only set if we have an option to insert</span>
-        <span class="kw">let</span> <span class="ident">options_str</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">get_or_insert_with</span>(<span class="ident">String::new</span>);
-        <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">options</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">options_str</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">options_str</span>.<span class="ident">push</span>(<span class="string">&#39; &#39;</span>);
+        <span class="comment">// Do this in here so `options_str` is only set if we have an option to insert
+        </span><span class="kw">let </span>options_str = <span class="self">self</span>.options.get_or_insert_with(String::new);
+        <span class="kw">for </span>(k, v) <span class="kw">in </span>options {
+            <span class="kw">if </span>!options_str.is_empty() {
+                options_str.push(<span class="string">&#39; &#39;</span>);
             }
 
-            <span class="macro">write!</span>(<span class="ident">options_str</span>, <span class="string">&quot;-c {}={}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write an option to the string&quot;</span>);
+            <span class="macro">write!</span>(options_str, <span class="string">&quot;-c {}={}&quot;</span>, k, v).expect(<span class="string">&quot;failed to write an option to the string&quot;</span>);
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// We try using a socket if hostname starts with `/` or if socket parameter</span>
-    <span class="doccomment">/// is specified.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">fetch_socket</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">socket</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">socket</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="ident">socket</span>.<span class="ident">display</span>(), <span class="self">self</span>.<span class="ident">port</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">full_path</span>)
+    <span class="doccomment">/// We try using a socket if hostname starts with `/` or if socket parameter
+    /// is specified.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fetch_socket(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+        <span class="kw">match </span><span class="self">self</span>.socket {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>socket) =&gt; {
+                <span class="kw">let </span>full_path = <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, socket.display(), <span class="self">self</span>.port);
+                <span class="prelude-val">Some</span>(full_path)
             }
-            <span class="prelude-val">None</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">host</span>.<span class="ident">starts_with</span>(<span class="string">&#39;/&#39;</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">full_path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="self">self</span>.<span class="ident">host</span>, <span class="self">self</span>.<span class="ident">port</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">full_path</span>)
+            <span class="prelude-val">None </span><span class="kw">if </span><span class="self">self</span>.host.starts_with(<span class="string">&#39;/&#39;</span>) =&gt; {
+                <span class="kw">let </span>full_path = <span class="macro">format!</span>(<span class="string">&quot;{}/.s.PGSQL.{}&quot;</span>, <span class="self">self</span>.host, <span class="self">self</span>.port);
+                <span class="prelude-val">Some</span>(full_path)
             }
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">default_host</span>(<span class="ident">port</span>: <span class="ident">u16</span>) -&gt; <span class="ident">String</span> {
-    <span class="comment">// try to check for the existence of a unix socket and uses that</span>
-    <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;.s.PGSQL.{}&quot;</span>, <span class="ident">port</span>);
-    <span class="kw">let</span> <span class="ident">candidates</span> <span class="op">=</span> [
-        <span class="string">&quot;/var/run/postgresql&quot;</span>, <span class="comment">// Debian</span>
-        <span class="string">&quot;/private/tmp&quot;</span>,        <span class="comment">// OSX (homebrew)</span>
-        <span class="string">&quot;/tmp&quot;</span>,                <span class="comment">// Default</span>
-    ];
+<span class="kw">fn </span>default_host(port: u16) -&gt; String {
+    <span class="comment">// try to check for the existence of a unix socket and uses that
+    </span><span class="kw">let </span>socket = <span class="macro">format!</span>(<span class="string">&quot;.s.PGSQL.{}&quot;</span>, port);
+    <span class="kw">let </span>candidates = [
+        <span class="string">&quot;/var/run/postgresql&quot;</span>, <span class="comment">// Debian
+        </span><span class="string">&quot;/private/tmp&quot;</span>,        <span class="comment">// OSX (homebrew)
+        </span><span class="string">&quot;/tmp&quot;</span>,                <span class="comment">// Default
+    </span>];
 
-    <span class="kw">for</span> <span class="ident">candidate</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {
-        <span class="kw">if</span> <span class="ident">Path::new</span>(<span class="ident">candidate</span>).<span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="ident">socket</span>).<span class="ident">exists</span>() {
-            <span class="kw">return</span> <span class="ident">candidate</span>.<span class="ident">to_string</span>();
+    <span class="kw">for </span>candidate <span class="kw">in </span><span class="kw-2">&amp;</span>candidates {
+        <span class="kw">if </span>Path::new(candidate).join(<span class="kw-2">&amp;</span>socket).exists() {
+            <span class="kw">return </span>candidate.to_string();
         }
     }
 
-    <span class="comment">// fallback to localhost if no socket was found</span>
-    <span class="string">&quot;localhost&quot;</span>.<span class="ident">to_owned</span>()
+    <span class="comment">// fallback to localhost if no socket was found
+    </span><span class="string">&quot;localhost&quot;</span>.to_owned()
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_options_formatting</span>() {
-    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">PgConnectOptions::new</span>().<span class="ident">options</span>([(<span class="string">&quot;geqo&quot;</span>, <span class="string">&quot;off&quot;</span>)]);
-    <span class="macro">assert_eq!</span>(<span class="ident">options</span>.<span class="ident">options</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off&quot;</span>.<span class="ident">to_string</span>()));
-    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">options</span>([(<span class="string">&quot;search_path&quot;</span>, <span class="string">&quot;sqlx&quot;</span>)]);
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_options_formatting() {
+    <span class="kw">let </span>options = PgConnectOptions::new().options([(<span class="string">&quot;geqo&quot;</span>, <span class="string">&quot;off&quot;</span>)]);
+    <span class="macro">assert_eq!</span>(options.options, <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off&quot;</span>.to_string()));
+    <span class="kw">let </span>options = options.options([(<span class="string">&quot;search_path&quot;</span>, <span class="string">&quot;sqlx&quot;</span>)]);
     <span class="macro">assert_eq!</span>(
-        <span class="ident">options</span>.<span class="ident">options</span>,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off -c search_path=sqlx&quot;</span>.<span class="ident">to_string</span>())
+        options.options,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off -c search_path=sqlx&quot;</span>.to_string())
     );
-    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">PgConnectOptions::new</span>().<span class="ident">options</span>([(<span class="string">&quot;geqo&quot;</span>, <span class="string">&quot;off&quot;</span>), (<span class="string">&quot;statement_timeout&quot;</span>, <span class="string">&quot;5min&quot;</span>)]);
+    <span class="kw">let </span>options = PgConnectOptions::new().options([(<span class="string">&quot;geqo&quot;</span>, <span class="string">&quot;off&quot;</span>), (<span class="string">&quot;statement_timeout&quot;</span>, <span class="string">&quot;5min&quot;</span>)]);
     <span class="macro">assert_eq!</span>(
-        <span class="ident">options</span>.<span class="ident">options</span>,
-        <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off -c statement_timeout=5min&quot;</span>.<span class="ident">to_string</span>())
+        options.options,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;-c geqo=off -c statement_timeout=5min&quot;</span>.to_string())
     );
-    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">PgConnectOptions::new</span>();
-    <span class="macro">assert_eq!</span>(<span class="ident">options</span>.<span class="ident">options</span>, <span class="prelude-val">None</span>);
+    <span class="kw">let </span>options = PgConnectOptions::new();
+    <span class="macro">assert_eq!</span>(options.options, <span class="prelude-val">None</span>);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

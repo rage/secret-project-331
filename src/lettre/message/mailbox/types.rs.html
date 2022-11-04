@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/mailbox/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/mailbox/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -599,113 +599,113 @@
 <span id="597">597</span>
 <span id="598">598</span>
 <span id="599">599</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">fmt</span>::{<span class="ident">Display</span>, <span class="ident">Formatter</span>, <span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">FmtResult</span>, <span class="ident">Write</span>},
-    <span class="ident">mem</span>,
-    <span class="ident">slice::Iter</span>,
-    <span class="ident">str::FromStr</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    fmt::{Display, Formatter, <span class="prelude-ty">Result </span><span class="kw">as </span>FmtResult, Write},
+    mem,
+    slice::Iter,
+    str::FromStr,
 };
 
-<span class="kw">use</span> <span class="ident">email_encoding::headers::EmailWriter</span>;
+<span class="kw">use </span>email_encoding::headers::EmailWriter;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::address</span>::{<span class="ident">Address</span>, <span class="ident">AddressError</span>};
+<span class="kw">use </span><span class="kw">crate</span>::address::{Address, AddressError};
 
-<span class="doccomment">/// Represents an email address with an optional name for the sender/recipient.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This type contains email address and the sender/recipient name (_Some Name \&lt;user@domain.tld\&gt;_ or _withoutname@domain.tld_).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **NOTE**: Enable feature &quot;serde&quot; to be able serialize/deserialize it using [serde](https://serde.rs/).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can create a `Mailbox` from a string and an [`Address`]:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use lettre::{Address, message::Mailbox};</span>
-<span class="doccomment">/// # use std::error::Error;</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">/// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;</span>
-<span class="doccomment">/// let mailbox = Mailbox::new(None, address);</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can also create one from a string literal:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use lettre::message::Mailbox;</span>
-<span class="doccomment">/// # use std::error::Error;</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">/// let mailbox: Mailbox = &quot;John Smith &lt;example@email.com&gt;&quot;.parse()?;</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mailbox</span> {
-    <span class="doccomment">/// The name associated with the address.</span>
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Represents an email address with an optional name for the sender/recipient.
+///
+/// This type contains email address and the sender/recipient name (_Some Name \&lt;user@domain.tld\&gt;_ or _withoutname@domain.tld_).
+///
+/// **NOTE**: Enable feature &quot;serde&quot; to be able serialize/deserialize it using [serde](https://serde.rs/).
+///
+/// # Examples
+///
+/// You can create a `Mailbox` from a string and an [`Address`]:
+///
+/// ```
+/// # use lettre::{Address, message::Mailbox};
+/// # use std::error::Error;
+/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+/// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;
+/// let mailbox = Mailbox::new(None, address);
+/// # Ok(())
+/// # }
+/// ```
+///
+/// You can also create one from a string literal:
+///
+/// ```
+/// # use lettre::message::Mailbox;
+/// # use std::error::Error;
+/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+/// let mailbox: Mailbox = &quot;John Smith &lt;example@email.com&gt;&quot;.parse()?;
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
+</span><span class="kw">pub struct </span>Mailbox {
+    <span class="doccomment">/// The name associated with the address.
+    </span><span class="kw">pub </span>name: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
-    <span class="doccomment">/// The email address itself.</span>
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">Address</span>,
+    <span class="doccomment">/// The email address itself.
+    </span><span class="kw">pub </span>email: Address,
 }
 
-<span class="kw">impl</span> <span class="ident">Mailbox</span> {
-    <span class="doccomment">/// Creates a new `Mailbox` using an email address and the name of the recipient if there is one.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use lettre::{message::Mailbox, Address};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;</span>
-    <span class="doccomment">/// let mailbox = Mailbox::new(None, address);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">email</span>: <span class="ident">Address</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Mailbox</span> { <span class="ident">name</span>, <span class="ident">email</span> }
+<span class="kw">impl </span>Mailbox {
+    <span class="doccomment">/// Creates a new `Mailbox` using an email address and the name of the recipient if there is one.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lettre::{message::Mailbox, Address};
+    ///
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;
+    /// let mailbox = Mailbox::new(None, address);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>new(name: <span class="prelude-ty">Option</span>&lt;String&gt;, email: Address) -&gt; <span class="self">Self </span>{
+        Mailbox { name, email }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EmailWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">FmtResult</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span> {
-            <span class="ident">email_encoding::headers::quoted_string::encode</span>(<span class="ident">name</span>, <span class="ident">w</span>)<span class="question-mark">?</span>;
-            <span class="ident">w</span>.<span class="ident">space</span>();
-            <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;&lt;&#39;</span>)<span class="question-mark">?</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, w: <span class="kw-2">&amp;mut </span>EmailWriter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; FmtResult {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="kw-2">&amp;</span><span class="self">self</span>.name {
+            email_encoding::headers::quoted_string::encode(name, w)<span class="question-mark">?</span>;
+            w.space();
+            w.write_char(<span class="string">&#39;&lt;&#39;</span>)<span class="question-mark">?</span>;
         }
 
-        <span class="ident">w</span>.<span class="ident">write_str</span>(<span class="self">self</span>.<span class="ident">email</span>.<span class="ident">as_ref</span>())<span class="question-mark">?</span>;
+        w.write_str(<span class="self">self</span>.email.as_ref())<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">is_some</span>() {
-            <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;&gt;&#39;</span>)<span class="question-mark">?</span>;
+        <span class="kw">if </span><span class="self">self</span>.name.is_some() {
+            w.write_char(<span class="string">&#39;&gt;&#39;</span>)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Mailbox</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">FmtResult</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">name</span> {
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">trim</span>();
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">name</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">write_word</span>(<span class="ident">f</span>, <span class="ident">name</span>)<span class="question-mark">?</span>;
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot; &lt;&quot;</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">email</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
-                <span class="kw">return</span> <span class="ident">f</span>.<span class="ident">write_char</span>(<span class="string">&#39;&gt;&#39;</span>);
+<span class="kw">impl </span>Display <span class="kw">for </span>Mailbox {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; FmtResult {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>name) = <span class="self">self</span>.name {
+            <span class="kw">let </span>name = name.trim();
+            <span class="kw">if </span>!name.is_empty() {
+                write_word(f, name)<span class="question-mark">?</span>;
+                f.write_str(<span class="string">&quot; &lt;&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.email.fmt(f)<span class="question-mark">?</span>;
+                <span class="kw">return </span>f.write_char(<span class="string">&#39;&gt;&#39;</span>);
             }
         }
-        <span class="self">self</span>.<span class="ident">email</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
+        <span class="self">self</span>.email.fmt(f)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span>(<span class="ident">S</span>, <span class="ident">T</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Mailbox</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">AddressError</span>;
+<span class="kw">impl</span>&lt;S: Into&lt;String&gt;, T: Into&lt;String&gt;&gt; TryFrom&lt;(S, T)&gt; <span class="kw">for </span>Mailbox {
+    <span class="kw">type </span>Error = AddressError;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">header</span>: (<span class="ident">S</span>, <span class="ident">T</span>)) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">address</span>) <span class="op">=</span> <span class="ident">header</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">Mailbox::new</span>(<span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">into</span>()), <span class="ident">address</span>.<span class="ident">into</span>().<span class="ident">parse</span>()<span class="question-mark">?</span>))
+    <span class="kw">fn </span>try_from(header: (S, T)) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>(name, address) = header;
+        <span class="prelude-val">Ok</span>(Mailbox::new(<span class="prelude-val">Some</span>(name.into()), address.into().parse()<span class="question-mark">?</span>))
     }
 }
 
@@ -717,486 +717,486 @@ impl&lt;S: AsRef&lt;&amp;str&gt;, T: AsRef&lt;&amp;str&gt;&gt; TryFrom&lt;(S, T)
         let (name, address) = header;
         Ok(Mailbox::new(Some(name.as_ref()), address.as_ref().parse()?))
     }
-}*/</span>
+}*/
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Mailbox</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">AddressError</span>;
+</span><span class="kw">impl </span>FromStr <span class="kw">for </span>Mailbox {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= AddressError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Mailbox</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> (<span class="ident">src</span>.<span class="ident">find</span>(<span class="string">&#39;&lt;&#39;</span>), <span class="ident">src</span>.<span class="ident">find</span>(<span class="string">&#39;&gt;&#39;</span>)) {
-            (<span class="prelude-val">Some</span>(<span class="ident">addr_open</span>), <span class="prelude-val">Some</span>(<span class="ident">addr_close</span>)) <span class="kw">if</span> <span class="ident">addr_open</span> <span class="op">&lt;</span> <span class="ident">addr_close</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">split_at</span>(<span class="ident">addr_open</span>).<span class="number">0</span>;
-                <span class="kw">let</span> <span class="ident">addr_open</span> <span class="op">=</span> <span class="ident">addr_open</span> <span class="op">+</span> <span class="number">1</span>;
-                <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">split_at</span>(<span class="ident">addr_open</span>).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="ident">addr_close</span> <span class="op">-</span> <span class="ident">addr_open</span>).<span class="number">0</span>;
-                <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">addr</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">trim</span>();
-                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">is_empty</span>() {
-                    <span class="prelude-val">None</span>
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">into</span>())
+    <span class="kw">fn </span>from_str(src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Mailbox, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">match </span>(src.find(<span class="string">&#39;&lt;&#39;</span>), src.find(<span class="string">&#39;&gt;&#39;</span>)) {
+            (<span class="prelude-val">Some</span>(addr_open), <span class="prelude-val">Some</span>(addr_close)) <span class="kw">if </span>addr_open &lt; addr_close =&gt; {
+                <span class="kw">let </span>name = src.split_at(addr_open).<span class="number">0</span>;
+                <span class="kw">let </span>addr_open = addr_open + <span class="number">1</span>;
+                <span class="kw">let </span>addr = src.split_at(addr_open).<span class="number">1</span>.split_at(addr_close - addr_open).<span class="number">0</span>;
+                <span class="kw">let </span>addr = addr.parse()<span class="question-mark">?</span>;
+                <span class="kw">let </span>name = name.trim();
+                <span class="kw">let </span>name = <span class="kw">if </span>name.is_empty() {
+                    <span class="prelude-val">None
+                </span>} <span class="kw">else </span>{
+                    <span class="prelude-val">Some</span>(name.into())
                 };
-                <span class="prelude-val">Ok</span>(<span class="ident">Mailbox::new</span>(<span class="ident">name</span>, <span class="ident">addr</span>))
+                <span class="prelude-val">Ok</span>(Mailbox::new(name, addr))
             }
-            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">AddressError::Unbalanced</span>),
-            <span class="kw">_</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
-                <span class="prelude-val">Ok</span>(<span class="ident">Mailbox::new</span>(<span class="prelude-val">None</span>, <span class="ident">addr</span>))
+            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(AddressError::Unbalanced),
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">let </span>addr = src.parse()<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(Mailbox::new(<span class="prelude-val">None</span>, addr))
             }
         }
     }
 }
 
-<span class="doccomment">/// Represents a sequence of [`Mailbox`] instances.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This type contains a sequence of mailboxes (_Some Name \&lt;user@domain.tld\&gt;, Another Name \&lt;other@domain.tld\&gt;, withoutname@domain.tld, ..._).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **NOTE**: Enable feature &quot;serde&quot; to be able serialize/deserialize it using [serde](https://serde.rs/).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mailboxes</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Represents a sequence of [`Mailbox`] instances.
+///
+/// This type contains a sequence of mailboxes (_Some Name \&lt;user@domain.tld\&gt;, Another Name \&lt;other@domain.tld\&gt;, withoutname@domain.tld, ..._).
+///
+/// **NOTE**: Enable feature &quot;serde&quot; to be able serialize/deserialize it using [serde](https://serde.rs/).
+</span><span class="attribute">#[derive(Debug, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
+</span><span class="kw">pub struct </span>Mailboxes(Vec&lt;Mailbox&gt;);
 
-<span class="kw">impl</span> <span class="ident">Mailboxes</span> {
-    <span class="doccomment">/// Creates a new list of [`Mailbox`] instances.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use lettre::message::Mailboxes;</span>
-    <span class="doccomment">/// let mailboxes = Mailboxes::new();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Mailboxes</span>(<span class="ident">Vec::new</span>())
+<span class="kw">impl </span>Mailboxes {
+    <span class="doccomment">/// Creates a new list of [`Mailbox`] instances.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lettre::message::Mailboxes;
+    /// let mailboxes = Mailboxes::new();
+    /// ```
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        Mailboxes(Vec::new())
     }
 
-    <span class="doccomment">/// Adds a new [`Mailbox`] to the list, in a builder style pattern.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use lettre::{</span>
-    <span class="doccomment">///     message::{Mailbox, Mailboxes},</span>
-    <span class="doccomment">///     Address,</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;</span>
-    <span class="doccomment">/// let mut mailboxes = Mailboxes::new().with(Mailbox::new(None, address));</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">push</span>(<span class="ident">mbox</span>);
-        <span class="self">self</span>
+    <span class="doccomment">/// Adds a new [`Mailbox`] to the list, in a builder style pattern.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lettre::{
+    ///     message::{Mailbox, Mailboxes},
+    ///     Address,
+    /// };
+    ///
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;
+    /// let mut mailboxes = Mailboxes::new().with(Mailbox::new(None, address));
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>with(<span class="kw-2">mut </span><span class="self">self</span>, mbox: Mailbox) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.<span class="number">0</span>.push(mbox);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Adds a new [`Mailbox`] to the list, in a Vec::push style pattern.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lettre::{
+    ///     message::{Mailbox, Mailboxes},
+    ///     Address,
+    /// };
+    ///
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;
+    /// let mut mailboxes = Mailboxes::new();
+    /// mailboxes.push(Mailbox::new(None, address));
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mbox: Mailbox) {
+        <span class="self">self</span>.<span class="number">0</span>.push(mbox);
     }
 
-    <span class="doccomment">/// Adds a new [`Mailbox`] to the list, in a Vec::push style pattern.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use lettre::{</span>
-    <span class="doccomment">///     message::{Mailbox, Mailboxes},</span>
-    <span class="doccomment">///     Address,</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;</span>
-    <span class="doccomment">/// let mut mailboxes = Mailboxes::new();</span>
-    <span class="doccomment">/// mailboxes.push(Mailbox::new(None, address));</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">push</span>(<span class="ident">mbox</span>);
+    <span class="doccomment">/// Extracts the first [`Mailbox`] if it exists.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lettre::{
+    ///     message::{Mailbox, Mailboxes},
+    ///     Address,
+    /// };
+    ///
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let empty = Mailboxes::new();
+    /// assert!(empty.into_single().is_none());
+    ///
+    /// let mut mailboxes = Mailboxes::new();
+    /// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;
+    ///
+    /// mailboxes.push(Mailbox::new(None, address));
+    /// assert!(mailboxes.into_single().is_some());
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>into_single(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Mailbox&gt; {
+        <span class="self">self</span>.into()
     }
 
-    <span class="doccomment">/// Extracts the first [`Mailbox`] if it exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use lettre::{</span>
-    <span class="doccomment">///     message::{Mailbox, Mailboxes},</span>
-    <span class="doccomment">///     Address,</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let empty = Mailboxes::new();</span>
-    <span class="doccomment">/// assert!(empty.into_single().is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut mailboxes = Mailboxes::new();</span>
-    <span class="doccomment">/// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// mailboxes.push(Mailbox::new(None, address));</span>
-    <span class="doccomment">/// assert!(mailboxes.into_single().is_some());</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_single</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">into</span>()
+    <span class="doccomment">/// Creates an iterator over the [`Mailbox`] instances that are currently stored.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lettre::{
+    ///     message::{Mailbox, Mailboxes},
+    ///     Address,
+    /// };
+    ///
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let mut mailboxes = Mailboxes::new();
+    ///
+    /// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;
+    /// mailboxes.push(Mailbox::new(None, address));
+    ///
+    /// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;
+    /// mailboxes.push(Mailbox::new(None, address));
+    ///
+    /// let mut iter = mailboxes.iter();
+    ///
+    /// assert!(iter.next().is_some());
+    /// assert!(iter.next().is_some());
+    ///
+    /// assert!(iter.next().is_none());
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;_</span>, Mailbox&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.iter()
     }
 
-    <span class="doccomment">/// Creates an iterator over the [`Mailbox`] instances that are currently stored.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use lettre::{</span>
-    <span class="doccomment">///     message::{Mailbox, Mailboxes},</span>
-    <span class="doccomment">///     Address,</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let mut mailboxes = Mailboxes::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;</span>
-    <span class="doccomment">/// mailboxes.push(Mailbox::new(None, address));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let address = Address::new(&quot;example&quot;, &quot;email.com&quot;)?;</span>
-    <span class="doccomment">/// mailboxes.push(Mailbox::new(None, address));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = mailboxes.iter();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(iter.next().is_some());</span>
-    <span class="doccomment">/// assert!(iter.next().is_some());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(iter.next().is_none());</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Mailbox</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>()
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">w</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EmailWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">FmtResult</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">for</span> <span class="ident">mailbox</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">first</span>) {
-                <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;,&#39;</span>)<span class="question-mark">?</span>;
-                <span class="ident">w</span>.<span class="ident">space</span>();
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, w: <span class="kw-2">&amp;mut </span>EmailWriter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; FmtResult {
+        <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
+        <span class="kw">for </span>mailbox <span class="kw">in </span><span class="self">self</span>.iter() {
+            <span class="kw">if </span>!mem::take(<span class="kw-2">&amp;mut </span>first) {
+                w.write_char(<span class="string">&#39;,&#39;</span>)<span class="question-mark">?</span>;
+                w.space();
             }
 
-            <span class="ident">mailbox</span>.<span class="ident">encode</span>(<span class="ident">w</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Mailboxes</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Mailboxes</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">mailbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Mailboxes</span>(<span class="macro">vec!</span>[<span class="ident">mailbox</span>])
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Mailboxes</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">mailboxes</span>: <span class="ident">Mailboxes</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> {
-        <span class="ident">mailboxes</span>.<span class="ident">into_iter</span>().<span class="ident">next</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Mailboxes</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Mailboxes</span>(<span class="ident">vec</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Mailboxes</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">mailboxes</span>: <span class="ident">Mailboxes</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> {
-        <span class="ident">mailboxes</span>.<span class="number">0</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">FromIterator</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Mailboxes</span> {
-    <span class="kw">fn</span> <span class="ident">from_iter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Mailbox</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Vec::from_iter</span>(<span class="ident">iter</span>))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Extend</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Mailboxes</span> {
-    <span class="kw">fn</span> <span class="ident">extend</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Mailbox</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">iter</span>: <span class="ident">T</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">extend</span>(<span class="ident">iter</span>);
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="ident">Mailboxes</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Mailbox</span>;
-    <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">::std::vec::IntoIter</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::IntoIter</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">into_iter</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Mailboxes</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">FmtResult</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">iter</span>();
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mbox</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-            <span class="ident">mbox</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
-
-            <span class="kw">for</span> <span class="ident">mbox</span> <span class="kw">in</span> <span class="ident">iter</span> {
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
-                <span class="ident">mbox</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
-            }
+            mailbox.encode(w)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Mailboxes</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">AddressError</span>;
+<span class="kw">impl </span>Default <span class="kw">for </span>Mailboxes {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="kw-2">mut</span> <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mailboxes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">impl </span>From&lt;Mailbox&gt; <span class="kw">for </span>Mailboxes {
+    <span class="kw">fn </span>from(mailbox: Mailbox) -&gt; <span class="self">Self </span>{
+        Mailboxes(<span class="macro">vec!</span>[mailbox])
+    }
+}
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">src</span>.<span class="ident">is_empty</span>() {
-            <span class="comment">// n-1 elements</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">skip</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">src</span>[<span class="ident">skip</span>..].<span class="ident">find</span>(<span class="string">&#39;,&#39;</span>) {
-                <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">src</span>[..<span class="ident">skip</span> <span class="op">+</span> <span class="ident">i</span>];
+<span class="kw">impl </span>From&lt;Mailboxes&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;Mailbox&gt; {
+    <span class="kw">fn </span>from(mailboxes: Mailboxes) -&gt; <span class="prelude-ty">Option</span>&lt;Mailbox&gt; {
+        mailboxes.into_iter().next()
+    }
+}
 
-                <span class="kw">match</span> <span class="ident">left</span>.<span class="ident">trim</span>().<span class="ident">parse</span>() {
-                    <span class="prelude-val">Ok</span>(<span class="ident">mailbox</span>) =&gt; {
-                        <span class="ident">mailboxes</span>.<span class="ident">push</span>(<span class="ident">mailbox</span>);
+<span class="kw">impl </span>From&lt;Vec&lt;Mailbox&gt;&gt; <span class="kw">for </span>Mailboxes {
+    <span class="kw">fn </span>from(vec: Vec&lt;Mailbox&gt;) -&gt; <span class="self">Self </span>{
+        Mailboxes(vec)
+    }
+}
 
-                        <span class="ident">src</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">src</span>[<span class="ident">left</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="string">&quot;,&quot;</span>.<span class="ident">len</span>()..];
-                        <span class="ident">skip</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="kw">impl </span>From&lt;Mailboxes&gt; <span class="kw">for </span>Vec&lt;Mailbox&gt; {
+    <span class="kw">fn </span>from(mailboxes: Mailboxes) -&gt; Vec&lt;Mailbox&gt; {
+        mailboxes.<span class="number">0
+    </span>}
+}
+
+<span class="kw">impl </span>FromIterator&lt;Mailbox&gt; <span class="kw">for </span>Mailboxes {
+    <span class="kw">fn </span>from_iter&lt;T: IntoIterator&lt;Item = Mailbox&gt;&gt;(iter: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Vec::from_iter(iter))
+    }
+}
+
+<span class="kw">impl </span>Extend&lt;Mailbox&gt; <span class="kw">for </span>Mailboxes {
+    <span class="kw">fn </span>extend&lt;T: IntoIterator&lt;Item = Mailbox&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, iter: T) {
+        <span class="self">self</span>.<span class="number">0</span>.extend(iter);
+    }
+}
+
+<span class="kw">impl </span>IntoIterator <span class="kw">for </span>Mailboxes {
+    <span class="kw">type </span>Item = Mailbox;
+    <span class="kw">type </span>IntoIter = ::std::vec::IntoIter&lt;Mailbox&gt;;
+
+    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        <span class="self">self</span>.<span class="number">0</span>.into_iter()
+    }
+}
+
+<span class="kw">impl </span>Display <span class="kw">for </span>Mailboxes {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; FmtResult {
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.iter();
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(mbox) = iter.next() {
+            mbox.fmt(f)<span class="question-mark">?</span>;
+
+            <span class="kw">for </span>mbox <span class="kw">in </span>iter {
+                f.write_str(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                mbox.fmt(f)<span class="question-mark">?</span>;
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="kw">impl </span>FromStr <span class="kw">for </span>Mailboxes {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= AddressError;
+
+    <span class="kw">fn </span>from_str(<span class="kw-2">mut </span>src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>mailboxes = Vec::new();
+
+        <span class="kw">if </span>!src.is_empty() {
+            <span class="comment">// n-1 elements
+            </span><span class="kw">let </span><span class="kw-2">mut </span>skip = <span class="number">0</span>;
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(i) = src[skip..].find(<span class="string">&#39;,&#39;</span>) {
+                <span class="kw">let </span>left = <span class="kw-2">&amp;</span>src[..skip + i];
+
+                <span class="kw">match </span>left.trim().parse() {
+                    <span class="prelude-val">Ok</span>(mailbox) =&gt; {
+                        mailboxes.push(mailbox);
+
+                        src = <span class="kw-2">&amp;</span>src[left.len() + <span class="string">&quot;,&quot;</span>.len()..];
+                        skip = <span class="number">0</span>;
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">AddressError::MissingParts</span>) =&gt; {
-                        <span class="ident">skip</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="string">&quot;,&quot;</span>.<span class="ident">len</span>();
+                    <span class="prelude-val">Err</span>(AddressError::MissingParts) =&gt; {
+                        skip = left.len() + <span class="string">&quot;,&quot;</span>.len();
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+                    <span class="prelude-val">Err</span>(err) =&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(err);
                     }
                 }
             }
 
-            <span class="comment">// last element</span>
-            <span class="kw">let</span> <span class="ident">mailbox</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">trim</span>().<span class="ident">parse</span>()<span class="question-mark">?</span>;
-            <span class="ident">mailboxes</span>.<span class="ident">push</span>(<span class="ident">mailbox</span>);
+            <span class="comment">// last element
+            </span><span class="kw">let </span>mailbox = src.trim().parse()<span class="question-mark">?</span>;
+            mailboxes.push(mailbox);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Mailboxes</span>(<span class="ident">mailboxes</span>))
+        <span class="prelude-val">Ok</span>(Mailboxes(mailboxes))
     }
 }
 
-<span class="comment">// https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.6</span>
-<span class="kw">fn</span> <span class="ident">write_word</span>(<span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">FmtResult</span> {
-    <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">as_bytes</span>().<span class="ident">iter</span>().<span class="ident">copied</span>().<span class="ident">all</span>(<span class="ident">is_valid_atom_char</span>) {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">s</span>)
-    } <span class="kw">else</span> {
-        <span class="comment">// Quoted string: https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.5</span>
-        <span class="ident">f</span>.<span class="ident">write_char</span>(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">c</span> <span class="kw">in</span> <span class="ident">s</span>.<span class="ident">as_bytes</span>() {
-            <span class="ident">write_quoted_string_char</span>(<span class="ident">f</span>, <span class="ident">c</span>)<span class="question-mark">?</span>;
+<span class="comment">// https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.6
+</span><span class="kw">fn </span>write_word(f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;, s: <span class="kw-2">&amp;</span>str) -&gt; FmtResult {
+    <span class="kw">if </span>s.as_bytes().iter().copied().all(is_valid_atom_char) {
+        f.write_str(s)
+    } <span class="kw">else </span>{
+        <span class="comment">// Quoted string: https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.5
+        </span>f.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
+        <span class="kw">for </span><span class="kw-2">&amp;</span>c <span class="kw">in </span>s.as_bytes() {
+            write_quoted_string_char(f, c)<span class="question-mark">?</span>;
         }
-        <span class="ident">f</span>.<span class="ident">write_char</span>(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
+        f.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="comment">// https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.4</span>
-<span class="kw">fn</span> <span class="ident">is_valid_atom_char</span>(<span class="ident">c</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
-    <span class="macro">matches!</span>(<span class="ident">c</span>,
-		<span class="comment">// Not really allowed but can be inserted between atoms.</span>
-		<span class="string">b&#39;\t&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39; &#39;</span> <span class="op">|</span>
+<span class="comment">// https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.4
+</span><span class="kw">fn </span>is_valid_atom_char(c: u8) -&gt; bool {
+    <span class="macro">matches!</span>(c,
+		<span class="comment">// Not really allowed but can be inserted between atoms.
+		</span><span class="string">b&#39;\t&#39; </span>|
+		<span class="string">b&#39; &#39; </span>|
 
-		<span class="string">b&#39;!&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;#&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;$&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;%&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;&amp;&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;\&#39;&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;*&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;+&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;-&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;/&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;0&#39;</span>..<span class="op">=</span><span class="string">b&#39;8&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;=&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;?&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;A&#39;</span>..<span class="op">=</span><span class="string">b&#39;Z&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;^&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;_&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;`&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;z&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;{&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;|&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;}&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39;~&#39;</span> <span class="op">|</span>
+		<span class="string">b&#39;!&#39; </span>|
+		<span class="string">b&#39;#&#39; </span>|
+		<span class="string">b&#39;$&#39; </span>|
+		<span class="string">b&#39;%&#39; </span>|
+		<span class="string">b&#39;&amp;&#39; </span>|
+		<span class="string">b&#39;\&#39;&#39; </span>|
+		<span class="string">b&#39;*&#39; </span>|
+		<span class="string">b&#39;+&#39; </span>|
+		<span class="string">b&#39;-&#39; </span>|
+		<span class="string">b&#39;/&#39; </span>|
+		<span class="string">b&#39;0&#39;</span>..=<span class="string">b&#39;8&#39; </span>|
+		<span class="string">b&#39;=&#39; </span>|
+		<span class="string">b&#39;?&#39; </span>|
+		<span class="string">b&#39;A&#39;</span>..=<span class="string">b&#39;Z&#39; </span>|
+		<span class="string">b&#39;^&#39; </span>|
+		<span class="string">b&#39;_&#39; </span>|
+		<span class="string">b&#39;`&#39; </span>|
+		<span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;z&#39; </span>|
+		<span class="string">b&#39;{&#39; </span>|
+		<span class="string">b&#39;|&#39; </span>|
+		<span class="string">b&#39;}&#39; </span>|
+		<span class="string">b&#39;~&#39; </span>|
 
-		<span class="comment">// Not techically allowed but will be escaped into allowed characters.</span>
-		<span class="number">128</span>..<span class="op">=</span><span class="number">255</span>)
+		<span class="comment">// Not techically allowed but will be escaped into allowed characters.
+		</span><span class="number">128</span>..=<span class="number">255</span>)
 }
 
-<span class="comment">// https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.5</span>
-<span class="kw">fn</span> <span class="ident">write_quoted_string_char</span>(<span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">c</span>: <span class="ident">u8</span>) -&gt; <span class="ident">FmtResult</span> {
-    <span class="kw">match</span> <span class="ident">c</span> {
-		<span class="comment">// NO-WS-CTL: https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.1</span>
-		<span class="number">1</span>..<span class="op">=</span><span class="number">8</span> <span class="op">|</span> <span class="number">11</span> <span class="op">|</span> <span class="number">12</span> <span class="op">|</span> <span class="number">14</span>..<span class="op">=</span><span class="number">31</span> <span class="op">|</span> <span class="number">127</span> <span class="op">|</span>
+<span class="comment">// https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.5
+</span><span class="kw">fn </span>write_quoted_string_char(f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;, c: u8) -&gt; FmtResult {
+    <span class="kw">match </span>c {
+		<span class="comment">// NO-WS-CTL: https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.1
+		</span><span class="number">1</span>..=<span class="number">8 </span>| <span class="number">11 </span>| <span class="number">12 </span>| <span class="number">14</span>..=<span class="number">31 </span>| <span class="number">127 </span>|
 
-		<span class="comment">// Note, not qcontent but can be put before or after any qcontent.</span>
-		<span class="string">b&#39;\t&#39;</span> <span class="op">|</span>
-		<span class="string">b&#39; &#39;</span> <span class="op">|</span>
+		<span class="comment">// Note, not qcontent but can be put before or after any qcontent.
+		</span><span class="string">b&#39;\t&#39; </span>|
+		<span class="string">b&#39; &#39; </span>|
 
-		<span class="comment">// The rest of the US-ASCII except \ and &quot;</span>
-		<span class="number">33</span> <span class="op">|</span>
-		<span class="number">35</span>..<span class="op">=</span><span class="number">91</span> <span class="op">|</span>
-		<span class="number">93</span>..<span class="op">=</span><span class="number">126</span> <span class="op">|</span>
+		<span class="comment">// The rest of the US-ASCII except \ and &quot;
+		</span><span class="number">33 </span>|
+		<span class="number">35</span>..=<span class="number">91 </span>|
+		<span class="number">93</span>..=<span class="number">126 </span>|
 
-		<span class="comment">// Non-ascii characters will be escaped separately later.</span>
-		<span class="number">128</span>..<span class="op">=</span><span class="number">255</span>
+		<span class="comment">// Non-ascii characters will be escaped separately later.
+		</span><span class="number">128</span>..=<span class="number">255
 
-		=&gt; <span class="ident">f</span>.<span class="ident">write_char</span>(<span class="ident">c</span>.<span class="ident">into</span>()),
+		</span>=&gt; f.write_char(c.into()),
 
-		<span class="comment">// Can not be encoded.</span>
-		<span class="string">b&#39;\n&#39;</span> <span class="op">|</span> <span class="string">b&#39;\r&#39;</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">std::fmt::Error</span>),
+		<span class="comment">// Can not be encoded.
+		</span><span class="string">b&#39;\n&#39; </span>| <span class="string">b&#39;\r&#39; </span>=&gt; <span class="prelude-val">Err</span>(std::fmt::Error),
 
-		<span class="ident">c</span> =&gt; {
-			<span class="comment">// quoted-pair https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.2</span>
-			<span class="ident">f</span>.<span class="ident">write_char</span>(<span class="string">&#39;\\&#39;</span>)<span class="question-mark">?</span>;
-			<span class="ident">f</span>.<span class="ident">write_char</span>(<span class="ident">c</span>.<span class="ident">into</span>())
+		c =&gt; {
+			<span class="comment">// quoted-pair https://datatracker.ietf.org/doc/html/rfc2822#section-3.2.2
+			</span>f.write_char(<span class="string">&#39;\\&#39;</span>)<span class="question-mark">?</span>;
+			f.write_char(c.into())
 		}
 	}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>std::convert::TryInto;
 
-    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+    <span class="kw">use </span>pretty_assertions::assert_eq;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Mailbox</span>;
+    <span class="kw">use </span><span class="kw">super</span>::Mailbox;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mailbox_format_address_only</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>mailbox_format_address_only() {
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">Mailbox::new</span>(<span class="prelude-val">None</span>, <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
+                Mailbox::new(<span class="prelude-val">None</span>, <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap())
             ),
-            <span class="string">&quot;kayo@example.com&quot;</span>
-        );
+            <span class="string">&quot;kayo@example.com&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mailbox_format_address_with_name</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>mailbox_format_address_with_name() {
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">Mailbox::new</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;K.&quot;</span>.<span class="ident">into</span>()), <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
+                Mailbox::new(<span class="prelude-val">Some</span>(<span class="string">&quot;K.&quot;</span>.into()), <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap())
             ),
-            <span class="string">&quot;\&quot;K.\&quot; &lt;kayo@example.com&gt;&quot;</span>
-        );
+            <span class="string">&quot;\&quot;K.\&quot; &lt;kayo@example.com&gt;&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mailbox_format_address_with_comma</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>mailbox_format_address_with_comma() {
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">Mailbox::new</span>(
-                    <span class="prelude-val">Some</span>(<span class="string">&quot;Last, First&quot;</span>.<span class="ident">into</span>()),
-                    <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()
+                Mailbox::new(
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;Last, First&quot;</span>.into()),
+                    <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()
                 )
             ),
-            <span class="string">r#&quot;&quot;Last, First&quot; &lt;kayo@example.com&gt;&quot;#</span>
-        );
+            <span class="string">r#&quot;&quot;Last, First&quot; &lt;kayo@example.com&gt;&quot;#
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mailbox_format_address_with_color</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>mailbox_format_address_with_color() {
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">Mailbox::new</span>(
-                    <span class="prelude-val">Some</span>(<span class="string">&quot;Chris&#39;s Wiki :: blog&quot;</span>.<span class="ident">into</span>()),
-                    <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()
+                Mailbox::new(
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;Chris&#39;s Wiki :: blog&quot;</span>.into()),
+                    <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()
                 )
             ),
-            <span class="string">r#&quot;&quot;Chris&#39;s Wiki :: blog&quot; &lt;kayo@example.com&gt;&quot;#</span>
-        );
+            <span class="string">r#&quot;&quot;Chris&#39;s Wiki :: blog&quot; &lt;kayo@example.com&gt;&quot;#
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_address_with_empty_name</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>format_address_with_empty_name() {
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">Mailbox::new</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>.<span class="ident">into</span>()), <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
+                Mailbox::new(<span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>.into()), <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap())
             ),
-            <span class="string">&quot;kayo@example.com&quot;</span>
-        );
+            <span class="string">&quot;kayo@example.com&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_address_with_name_trim</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>format_address_with_name_trim() {
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">Mailbox::new</span>(<span class="prelude-val">Some</span>(<span class="string">&quot; K. &quot;</span>.<span class="ident">into</span>()), <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
+                Mailbox::new(<span class="prelude-val">Some</span>(<span class="string">&quot; K. &quot;</span>.into()), <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap())
             ),
-            <span class="string">&quot;\&quot;K.\&quot; &lt;kayo@example.com&gt;&quot;</span>
+            <span class="string">&quot;\&quot;K.\&quot; &lt;kayo@example.com&gt;&quot;
+        </span>);
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_address_only() {
+        <span class="macro">assert_eq!</span>(
+            <span class="string">&quot;kayo@example.com&quot;</span>.parse(),
+            <span class="prelude-val">Ok</span>(Mailbox::new(<span class="prelude-val">None</span>, <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()))
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_address_only</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_address_with_name() {
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>(),
-            <span class="prelude-val">Ok</span>(<span class="ident">Mailbox::new</span>(<span class="prelude-val">None</span>, <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()))
-        );
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_address_with_name</span>() {
-        <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;K. &lt;kayo@example.com&gt;&quot;</span>.<span class="ident">parse</span>(),
-            <span class="prelude-val">Ok</span>(<span class="ident">Mailbox::new</span>(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;K.&quot;</span>.<span class="ident">into</span>()),
-                <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()
+            <span class="string">&quot;K. &lt;kayo@example.com&gt;&quot;</span>.parse(),
+            <span class="prelude-val">Ok</span>(Mailbox::new(
+                <span class="prelude-val">Some</span>(<span class="string">&quot;K.&quot;</span>.into()),
+                <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()
             ))
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_address_with_empty_name</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_address_with_empty_name() {
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;&lt;kayo@example.com&gt;&quot;</span>.<span class="ident">parse</span>(),
-            <span class="prelude-val">Ok</span>(<span class="ident">Mailbox::new</span>(<span class="prelude-val">None</span>, <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()))
+            <span class="string">&quot;&lt;kayo@example.com&gt;&quot;</span>.parse(),
+            <span class="prelude-val">Ok</span>(Mailbox::new(<span class="prelude-val">None</span>, <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()))
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_address_with_empty_name_trim</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_address_with_empty_name_trim() {
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot; &lt;kayo@example.com&gt;&quot;</span>.<span class="ident">parse</span>(),
-            <span class="prelude-val">Ok</span>(<span class="ident">Mailbox::new</span>(<span class="prelude-val">None</span>, <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()))
+            <span class="string">&quot; &lt;kayo@example.com&gt;&quot;</span>.parse(),
+            <span class="prelude-val">Ok</span>(Mailbox::new(<span class="prelude-val">None</span>, <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()))
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_address_from_tuple</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_address_from_tuple() {
         <span class="macro">assert_eq!</span>(
-            (<span class="string">&quot;K.&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">try_into</span>(),
-            <span class="prelude-val">Ok</span>(<span class="ident">Mailbox::new</span>(
-                <span class="prelude-val">Some</span>(<span class="string">&quot;K.&quot;</span>.<span class="ident">into</span>()),
-                <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()
+            (<span class="string">&quot;K.&quot;</span>.to_string(), <span class="string">&quot;kayo@example.com&quot;</span>.to_string()).try_into(),
+            <span class="prelude-val">Ok</span>(Mailbox::new(
+                <span class="prelude-val">Some</span>(<span class="string">&quot;K.&quot;</span>.into()),
+                <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()
             ))
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

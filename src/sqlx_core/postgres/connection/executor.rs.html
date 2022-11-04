@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/executor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>executor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/executor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>executor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -454,153 +454,153 @@
 <span id="454">454</span>
 <span id="455">455</span>
 <span id="456">456</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::describe::Describe</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::executor</span>::{<span class="ident">Execute</span>, <span class="ident">Executor</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::logger::QueryLogger</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::message</span>::{
-    <span class="self">self</span>, <span class="ident">Bind</span>, <span class="ident">Close</span>, <span class="ident">CommandComplete</span>, <span class="ident">DataRow</span>, <span class="ident">MessageFormat</span>, <span class="ident">ParameterDescription</span>, <span class="ident">Parse</span>, <span class="ident">Query</span>,
-    <span class="ident">RowDescription</span>,
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::describe::Describe;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::executor::{Execute, Executor};
+<span class="kw">use </span><span class="kw">crate</span>::logger::QueryLogger;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::message::{
+    <span class="self">self</span>, Bind, Close, CommandComplete, DataRow, MessageFormat, ParameterDescription, Parse, Query,
+    RowDescription,
 };
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::statement::PgStatementMetadata</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::type_info::PgType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::Oid</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{
-    <span class="ident">statement::PgStatement</span>, <span class="ident">PgArguments</span>, <span class="ident">PgConnection</span>, <span class="ident">PgQueryResult</span>, <span class="ident">PgRow</span>, <span class="ident">PgTypeInfo</span>,
-    <span class="ident">PgValueFormat</span>, <span class="ident">Postgres</span>,
+<span class="kw">use </span><span class="kw">crate</span>::postgres::statement::PgStatementMetadata;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::type_info::PgType;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::types::Oid;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{
+    statement::PgStatement, PgArguments, PgConnection, PgQueryResult, PgRow, PgTypeInfo,
+    PgValueFormat, Postgres,
 };
-<span class="kw">use</span> <span class="ident">either::Either</span>;
-<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">futures_core::stream::BoxStream</span>;
-<span class="kw">use</span> <span class="ident">futures_core::Stream</span>;
-<span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">pin_mut</span>, <span class="ident">TryStreamExt</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">sync::Arc</span>};
+<span class="kw">use </span>either::Either;
+<span class="kw">use </span>futures_core::future::BoxFuture;
+<span class="kw">use </span>futures_core::stream::BoxStream;
+<span class="kw">use </span>futures_core::Stream;
+<span class="kw">use </span>futures_util::{pin_mut, TryStreamExt};
+<span class="kw">use </span>std::{borrow::Cow, sync::Arc};
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">prepare</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">parameters</span>: <span class="kw-2">&amp;</span>[<span class="ident">PgTypeInfo</span>],
-    <span class="ident">metadata</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PgStatementMetadata</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Oid</span>, <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PgStatementMetadata</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">next_statement_id</span>;
-    <span class="ident">conn</span>.<span class="ident">next_statement_id</span>.<span class="ident">incr_one</span>();
+<span class="kw">async fn </span>prepare(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    sql: <span class="kw-2">&amp;</span>str,
+    parameters: <span class="kw-2">&amp;</span>[PgTypeInfo],
+    metadata: <span class="prelude-ty">Option</span>&lt;Arc&lt;PgStatementMetadata&gt;&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(Oid, Arc&lt;PgStatementMetadata&gt;), Error&gt; {
+    <span class="kw">let </span>id = conn.next_statement_id;
+    conn.next_statement_id.incr_one();
 
-    <span class="comment">// build a list of type OIDs to send to the database in the PARSE command</span>
-    <span class="comment">// we have not yet started the query sequence, so we are *safe* to cleanly make</span>
-    <span class="comment">// additional queries here to get any missing OIDs</span>
+    <span class="comment">// build a list of type OIDs to send to the database in the PARSE command
+    // we have not yet started the query sequence, so we are *safe* to cleanly make
+    // additional queries here to get any missing OIDs
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">param_types</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">parameters</span>.<span class="ident">len</span>());
+    </span><span class="kw">let </span><span class="kw-2">mut </span>param_types = Vec::with_capacity(parameters.len());
 
-    <span class="kw">for</span> <span class="ident">ty</span> <span class="kw">in</span> <span class="ident">parameters</span> {
-        <span class="ident">param_types</span>.<span class="ident">push</span>(<span class="kw">if</span> <span class="kw">let</span> <span class="ident">PgType::DeclareWithName</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="number">0</span> {
-            <span class="ident">conn</span>.<span class="ident">fetch_type_id_by_name</span>(<span class="ident">name</span>).<span class="kw">await</span><span class="question-mark">?</span>
-        } <span class="kw">else</span> {
-            <span class="ident">ty</span>.<span class="number">0</span>.<span class="ident">oid</span>()
+    <span class="kw">for </span>ty <span class="kw">in </span>parameters {
+        param_types.push(<span class="kw">if let </span>PgType::DeclareWithName(name) = <span class="kw-2">&amp;</span>ty.<span class="number">0 </span>{
+            conn.fetch_type_id_by_name(name).<span class="kw">await</span><span class="question-mark">?
+        </span>} <span class="kw">else </span>{
+            ty.<span class="number">0</span>.oid()
         });
     }
 
-    <span class="comment">// flush and wait until we are re-ready</span>
-    <span class="ident">conn</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// flush and wait until we are re-ready
+    </span>conn.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// next we send the PARSE command to the server</span>
-    <span class="ident">conn</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">Parse</span> {
-        <span class="ident">param_types</span>: <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">param_types</span>,
-        <span class="ident">query</span>: <span class="ident">sql</span>,
-        <span class="ident">statement</span>: <span class="ident">id</span>,
+    <span class="comment">// next we send the PARSE command to the server
+    </span>conn.stream.write(Parse {
+        param_types: <span class="kw-2">&amp;*</span>param_types,
+        query: sql,
+        statement: id,
     });
 
-    <span class="kw">if</span> <span class="ident">metadata</span>.<span class="ident">is_none</span>() {
-        <span class="comment">// get the statement columns and parameters</span>
-        <span class="ident">conn</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">message::Describe::Statement</span>(<span class="ident">id</span>));
+    <span class="kw">if </span>metadata.is_none() {
+        <span class="comment">// get the statement columns and parameters
+        </span>conn.stream.write(message::Describe::Statement(id));
     }
 
-    <span class="comment">// we ask for the server to immediately send us the result of the PARSE command</span>
-    <span class="ident">conn</span>.<span class="ident">write_sync</span>();
-    <span class="ident">conn</span>.<span class="ident">stream</span>.<span class="ident">flush</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// we ask for the server to immediately send us the result of the PARSE command
+    </span>conn.write_sync();
+    conn.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// indicates that the SQL query string is now successfully parsed and has semantic validity</span>
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">conn</span>
-        .<span class="ident">stream</span>
-        .<span class="ident">recv_expect</span>(<span class="ident">MessageFormat::ParseComplete</span>)
+    <span class="comment">// indicates that the SQL query string is now successfully parsed and has semantic validity
+    </span><span class="kw">let _ </span>= conn
+        .stream
+        .recv_expect(MessageFormat::ParseComplete)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">metadata</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">metadata</span>) <span class="op">=</span> <span class="ident">metadata</span> {
-        <span class="comment">// each SYNC produces one READY FOR QUERY</span>
-        <span class="ident">conn</span>.<span class="ident">recv_ready_for_query</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>metadata = <span class="kw">if let </span><span class="prelude-val">Some</span>(metadata) = metadata {
+        <span class="comment">// each SYNC produces one READY FOR QUERY
+        </span>conn.recv_ready_for_query().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// we already have metadata</span>
-        <span class="ident">metadata</span>
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">parameters</span> <span class="op">=</span> <span class="ident">recv_desc_params</span>(<span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// we already have metadata
+        </span>metadata
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>parameters = recv_desc_params(conn).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">recv_desc_rows</span>(<span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>rows = recv_desc_rows(conn).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// each SYNC produces one READY FOR QUERY</span>
-        <span class="ident">conn</span>.<span class="ident">recv_ready_for_query</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// each SYNC produces one READY FOR QUERY
+        </span>conn.recv_ready_for_query().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">parameters</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">handle_parameter_description</span>(<span class="ident">parameters</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>parameters = conn.handle_parameter_description(parameters).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> (<span class="ident">columns</span>, <span class="ident">column_names</span>) <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">handle_row_description</span>(<span class="ident">rows</span>, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>(columns, column_names) = conn.handle_row_description(rows, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// ensure that if we did fetch custom data, we wait until we are fully ready before</span>
-        <span class="comment">// continuing</span>
-        <span class="ident">conn</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// ensure that if we did fetch custom data, we wait until we are fully ready before
+        // continuing
+        </span>conn.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="ident">Arc::new</span>(<span class="ident">PgStatementMetadata</span> {
-            <span class="ident">parameters</span>,
-            <span class="ident">columns</span>,
-            <span class="ident">column_names</span>,
+        Arc::new(PgStatementMetadata {
+            parameters,
+            columns,
+            column_names,
         })
     };
 
-    <span class="prelude-val">Ok</span>((<span class="ident">id</span>, <span class="ident">metadata</span>))
+    <span class="prelude-val">Ok</span>((id, metadata))
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv_desc_params</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParameterDescription</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="ident">conn</span>.<span class="ident">stream</span>
-        .<span class="ident">recv_expect</span>(<span class="ident">MessageFormat::ParameterDescription</span>)
-        .<span class="kw">await</span>
-}
+<span class="kw">async fn </span>recv_desc_params(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; <span class="prelude-ty">Result</span>&lt;ParameterDescription, Error&gt; {
+    conn.stream
+        .recv_expect(MessageFormat::ParameterDescription)
+        .<span class="kw">await
+</span>}
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv_desc_rows</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RowDescription</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">rows</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RowDescription</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">conn</span>.<span class="ident">stream</span>.<span class="ident">recv</span>().<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="comment">// describes the rows that will be returned when the statement is eventually executed</span>
-        <span class="ident">message</span> <span class="kw">if</span> <span class="ident">message</span>.<span class="ident">format</span> <span class="op">==</span> <span class="ident">MessageFormat::RowDescription</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>),
+<span class="kw">async fn </span>recv_desc_rows(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;RowDescription&gt;, Error&gt; {
+    <span class="kw">let </span>rows: <span class="prelude-ty">Option</span>&lt;RowDescription&gt; = <span class="kw">match </span>conn.stream.recv().<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="comment">// describes the rows that will be returned when the statement is eventually executed
+        </span>message <span class="kw">if </span>message.format == MessageFormat::RowDescription =&gt; <span class="prelude-val">Some</span>(message.decode()<span class="question-mark">?</span>),
 
-        <span class="comment">// no data would be returned if this statement was executed</span>
-        <span class="ident">message</span> <span class="kw">if</span> <span class="ident">message</span>.<span class="ident">format</span> <span class="op">==</span> <span class="ident">MessageFormat::NoData</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="comment">// no data would be returned if this statement was executed
+        </span>message <span class="kw">if </span>message.format == MessageFormat::NoData =&gt; <span class="prelude-val">None</span>,
 
-        <span class="ident">message</span> =&gt; {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
+        message =&gt; {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
                 <span class="string">&quot;expecting RowDescription or NoData but received {:?}&quot;</span>,
-                <span class="ident">message</span>.<span class="ident">format</span>
+                message.format
             ));
         }
     };
 
-    <span class="prelude-val">Ok</span>(<span class="ident">rows</span>)
+    <span class="prelude-val">Ok</span>(rows)
 }
 
-<span class="kw">impl</span> <span class="ident">PgConnection</span> {
-    <span class="comment">// wait for CloseComplete to indicate a statement was closed</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">wait_for_close_complete</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="comment">// we need to wait for the [CloseComplete] to be returned from the server</span>
-        <span class="kw">while</span> <span class="ident">count</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">recv</span>().<span class="kw">await</span><span class="question-mark">?</span> {
-                <span class="ident">message</span> <span class="kw">if</span> <span class="ident">message</span>.<span class="ident">format</span> <span class="op">==</span> <span class="ident">MessageFormat::PortalSuspended</span> =&gt; {
-                    <span class="comment">// there was an open portal</span>
-                    <span class="comment">// this can happen if the last time a statement was used it was not fully executed</span>
+<span class="kw">impl </span>PgConnection {
+    <span class="comment">// wait for CloseComplete to indicate a statement was closed
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>wait_for_close_complete(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>count: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="comment">// we need to wait for the [CloseComplete] to be returned from the server
+        </span><span class="kw">while </span>count &gt; <span class="number">0 </span>{
+            <span class="kw">match </span><span class="self">self</span>.stream.recv().<span class="kw">await</span><span class="question-mark">? </span>{
+                message <span class="kw">if </span>message.format == MessageFormat::PortalSuspended =&gt; {
+                    <span class="comment">// there was an open portal
+                    // this can happen if the last time a statement was used it was not fully executed
+                </span>}
+
+                message <span class="kw">if </span>message.format == MessageFormat::CloseComplete =&gt; {
+                    <span class="comment">// successfully closed the statement (and freed up the server resources)
+                    </span>count -= <span class="number">1</span>;
                 }
 
-                <span class="ident">message</span> <span class="kw">if</span> <span class="ident">message</span>.<span class="ident">format</span> <span class="op">==</span> <span class="ident">MessageFormat::CloseComplete</span> =&gt; {
-                    <span class="comment">// successfully closed the statement (and freed up the server resources)</span>
-                    <span class="ident">count</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-                }
-
-                <span class="ident">message</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
+                message =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
                         <span class="string">&quot;expecting PortalSuspended or CloseComplete but received {:?}&quot;</span>,
-                        <span class="ident">message</span>.<span class="ident">format</span>
+                        message.format
                     ));
                 }
             }
@@ -609,200 +609,200 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">write_sync</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">message::Sync</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_sync(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.stream.write(message::Sync);
 
-        <span class="comment">// all SYNC messages will return a ReadyForQuery</span>
-        <span class="self">self</span>.<span class="ident">pending_ready_for_query_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// all SYNC messages will return a ReadyForQuery
+        </span><span class="self">self</span>.pending_ready_for_query_count += <span class="number">1</span>;
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_prepare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">parameters</span>: <span class="kw-2">&amp;</span>[<span class="ident">PgTypeInfo</span>],
-        <span class="comment">// should we store the result of this prepare to the cache</span>
-        <span class="ident">store_to_cache</span>: <span class="ident">bool</span>,
-        <span class="comment">// optional metadata that was provided by the user, this means they are reusing</span>
-        <span class="comment">// a statement object</span>
-        <span class="ident">metadata</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PgStatementMetadata</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Oid</span>, <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PgStatementMetadata</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_statement</span>.<span class="ident">get_mut</span>(<span class="ident">sql</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="kw-2">*</span><span class="ident">statement</span>).<span class="ident">clone</span>());
+    <span class="kw">async fn </span>get_or_prepare&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        sql: <span class="kw-2">&amp;</span>str,
+        parameters: <span class="kw-2">&amp;</span>[PgTypeInfo],
+        <span class="comment">// should we store the result of this prepare to the cache
+        </span>store_to_cache: bool,
+        <span class="comment">// optional metadata that was provided by the user, this means they are reusing
+        // a statement object
+        </span>metadata: <span class="prelude-ty">Option</span>&lt;Arc&lt;PgStatementMetadata&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(Oid, Arc&lt;PgStatementMetadata&gt;), Error&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(statement) = <span class="self">self</span>.cache_statement.get_mut(sql) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="kw-2">*</span>statement).clone());
         }
 
-        <span class="kw">let</span> <span class="ident">statement</span> <span class="op">=</span> <span class="ident">prepare</span>(<span class="self">self</span>, <span class="ident">sql</span>, <span class="ident">parameters</span>, <span class="ident">metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>statement = prepare(<span class="self">self</span>, sql, parameters, metadata).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="ident">store_to_cache</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">cache_statement</span>.<span class="ident">is_enabled</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_statement</span>.<span class="ident">insert</span>(<span class="ident">sql</span>, <span class="ident">statement</span>.<span class="ident">clone</span>()) {
-                <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">Close::Statement</span>(<span class="ident">id</span>));
-                <span class="self">self</span>.<span class="ident">write_sync</span>();
+        <span class="kw">if </span>store_to_cache &amp;&amp; <span class="self">self</span>.cache_statement.is_enabled() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((id, <span class="kw">_</span>)) = <span class="self">self</span>.cache_statement.insert(sql, statement.clone()) {
+                <span class="self">self</span>.stream.write(Close::Statement(id));
+                <span class="self">self</span>.write_sync();
 
-                <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">flush</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="self">self</span>.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">wait_for_close_complete</span>(<span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">recv_ready_for_query</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="self">self</span>.wait_for_close_complete(<span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="self">self</span>.recv_ready_for_query().<span class="kw">await</span><span class="question-mark">?</span>;
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">statement</span>)
+        <span class="prelude-val">Ok</span>(statement)
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-        <span class="ident">arguments</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PgArguments</span><span class="op">&gt;</span>,
-        <span class="ident">limit</span>: <span class="ident">u8</span>,
-        <span class="ident">persistent</span>: <span class="ident">bool</span>,
-        <span class="ident">metadata_opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PgStatementMetadata</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">PgQueryResult</span>, <span class="ident">PgRow</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;e</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">QueryLogger::new</span>(<span class="ident">query</span>, <span class="self">self</span>.<span class="ident">log_settings</span>.<span class="ident">clone</span>());
+    <span class="kw">async fn </span>run&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span><span class="self">self</span>,
+        query: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str,
+        arguments: <span class="prelude-ty">Option</span>&lt;PgArguments&gt;,
+        limit: u8,
+        persistent: bool,
+        metadata_opt: <span class="prelude-ty">Option</span>&lt;Arc&lt;PgStatementMetadata&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Either&lt;PgQueryResult, PgRow&gt;, Error&gt;&gt; + <span class="lifetime">&#39;e</span>, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>logger = QueryLogger::new(query, <span class="self">self</span>.log_settings.clone());
 
-        <span class="comment">// before we continue, wait until we are &quot;ready&quot; to accept more queries</span>
-        <span class="self">self</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// before we continue, wait until we are &quot;ready&quot; to accept more queries
+        </span><span class="self">self</span>.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">metadata</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PgStatementMetadata</span><span class="op">&gt;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>metadata: Arc&lt;PgStatementMetadata&gt;;
 
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">arguments</span>) <span class="op">=</span> <span class="ident">arguments</span> {
-            <span class="comment">// prepare the statement if this our first time executing it</span>
-            <span class="comment">// always return the statement ID here</span>
-            <span class="kw">let</span> (<span class="ident">statement</span>, <span class="ident">metadata_</span>) <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">get_or_prepare</span>(<span class="ident">query</span>, <span class="kw-2">&amp;</span><span class="ident">arguments</span>.<span class="ident">types</span>, <span class="ident">persistent</span>, <span class="ident">metadata_opt</span>)
+        <span class="kw">let </span>format = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>arguments) = arguments {
+            <span class="comment">// prepare the statement if this our first time executing it
+            // always return the statement ID here
+            </span><span class="kw">let </span>(statement, metadata_) = <span class="self">self
+                </span>.get_or_prepare(query, <span class="kw-2">&amp;</span>arguments.types, persistent, metadata_opt)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="ident">metadata</span> <span class="op">=</span> <span class="ident">metadata_</span>;
+            metadata = metadata_;
 
-            <span class="comment">// patch holes created during encoding</span>
-            <span class="ident">arguments</span>.<span class="ident">apply_patches</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="ident">metadata</span>.<span class="ident">parameters</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="comment">// patch holes created during encoding
+            </span>arguments.apply_patches(<span class="self">self</span>, <span class="kw-2">&amp;</span>metadata.parameters).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="comment">// consume messages till `ReadyForQuery` before bind and execute</span>
-            <span class="self">self</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="comment">// consume messages till `ReadyForQuery` before bind and execute
+            </span><span class="self">self</span>.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="comment">// bind to attach the arguments to the statement and create a portal</span>
-            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">Bind</span> {
-                <span class="ident">portal</span>: <span class="prelude-val">None</span>,
-                <span class="ident">statement</span>,
-                <span class="ident">formats</span>: <span class="kw-2">&amp;</span>[<span class="ident">PgValueFormat::Binary</span>],
-                <span class="ident">num_params</span>: <span class="ident">arguments</span>.<span class="ident">types</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i16</span>,
-                <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">arguments</span>.<span class="ident">buffer</span>,
-                <span class="ident">result_formats</span>: <span class="kw-2">&amp;</span>[<span class="ident">PgValueFormat::Binary</span>],
+            <span class="comment">// bind to attach the arguments to the statement and create a portal
+            </span><span class="self">self</span>.stream.write(Bind {
+                portal: <span class="prelude-val">None</span>,
+                statement,
+                formats: <span class="kw-2">&amp;</span>[PgValueFormat::Binary],
+                num_params: arguments.types.len() <span class="kw">as </span>i16,
+                params: <span class="kw-2">&amp;*</span>arguments.buffer,
+                result_formats: <span class="kw-2">&amp;</span>[PgValueFormat::Binary],
             });
 
-            <span class="comment">// executes the portal up to the passed limit</span>
-            <span class="comment">// the protocol-level limit acts nearly identically to the `LIMIT` in SQL</span>
-            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">message::Execute</span> {
-                <span class="ident">portal</span>: <span class="prelude-val">None</span>,
-                <span class="ident">limit</span>: <span class="ident">limit</span>.<span class="ident">into</span>(),
+            <span class="comment">// executes the portal up to the passed limit
+            // the protocol-level limit acts nearly identically to the `LIMIT` in SQL
+            </span><span class="self">self</span>.stream.write(message::Execute {
+                portal: <span class="prelude-val">None</span>,
+                limit: limit.into(),
             });
-            <span class="comment">// From https://www.postgresql.org/docs/current/protocol-flow.html:</span>
-            <span class="comment">//</span>
-            <span class="comment">// &quot;An unnamed portal is destroyed at the end of the transaction, or as</span>
-            <span class="comment">// soon as the next Bind statement specifying the unnamed portal as</span>
-            <span class="comment">// destination is issued. (Note that a simple Query message also</span>
-            <span class="comment">// destroys the unnamed portal.&quot;</span>
+            <span class="comment">// From https://www.postgresql.org/docs/current/protocol-flow.html:
+            //
+            // &quot;An unnamed portal is destroyed at the end of the transaction, or as
+            // soon as the next Bind statement specifying the unnamed portal as
+            // destination is issued. (Note that a simple Query message also
+            // destroys the unnamed portal.&quot;
 
-            <span class="comment">// we ask the database server to close the unnamed portal and free the associated resources</span>
-            <span class="comment">// earlier - after the execution of the current query.</span>
-            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">message::Close::Portal</span>(<span class="prelude-val">None</span>));
+            // we ask the database server to close the unnamed portal and free the associated resources
+            // earlier - after the execution of the current query.
+            </span><span class="self">self</span>.stream.write(message::Close::Portal(<span class="prelude-val">None</span>));
 
-            <span class="comment">// finally, [Sync] asks postgres to process the messages that we sent and respond with</span>
-            <span class="comment">// a [ReadyForQuery] message when it&#39;s completely done. Theoretically, we could send</span>
-            <span class="comment">// dozens of queries before a [Sync] and postgres can handle that. Execution on the server</span>
-            <span class="comment">// is still serial but it would reduce round-trips. Some kind of builder pattern that is</span>
-            <span class="comment">// termed batching might suit this.</span>
-            <span class="self">self</span>.<span class="ident">write_sync</span>();
+            <span class="comment">// finally, [Sync] asks postgres to process the messages that we sent and respond with
+            // a [ReadyForQuery] message when it&#39;s completely done. Theoretically, we could send
+            // dozens of queries before a [Sync] and postgres can handle that. Execution on the server
+            // is still serial but it would reduce round-trips. Some kind of builder pattern that is
+            // termed batching might suit this.
+            </span><span class="self">self</span>.write_sync();
 
-            <span class="comment">// prepared statements are binary</span>
-            <span class="ident">PgValueFormat::Binary</span>
-        } <span class="kw">else</span> {
-            <span class="comment">// Query will trigger a ReadyForQuery</span>
-            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">Query</span>(<span class="ident">query</span>));
-            <span class="self">self</span>.<span class="ident">pending_ready_for_query_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="comment">// prepared statements are binary
+            </span>PgValueFormat::Binary
+        } <span class="kw">else </span>{
+            <span class="comment">// Query will trigger a ReadyForQuery
+            </span><span class="self">self</span>.stream.write(Query(query));
+            <span class="self">self</span>.pending_ready_for_query_count += <span class="number">1</span>;
 
-            <span class="comment">// metadata starts out as &quot;nothing&quot;</span>
-            <span class="ident">metadata</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">PgStatementMetadata::default</span>());
+            <span class="comment">// metadata starts out as &quot;nothing&quot;
+            </span>metadata = Arc::new(PgStatementMetadata::default());
 
-            <span class="comment">// and unprepared statements are text</span>
-            <span class="ident">PgValueFormat::Text</span>
+            <span class="comment">// and unprepared statements are text
+            </span>PgValueFormat::Text
         };
 
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">flush</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="self">self</span>.stream.flush().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="macro">try_stream!</span> {
-            <span class="kw">loop</span> {
-                <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">recv</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="macro">try_stream! </span>{
+            <span class="kw">loop </span>{
+                <span class="kw">let </span>message = <span class="self">self</span>.stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
 
-                <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">format</span> {
-                    <span class="ident">MessageFormat::BindComplete</span>
-                    <span class="op">|</span> <span class="ident">MessageFormat::ParseComplete</span>
-                    <span class="op">|</span> <span class="ident">MessageFormat::ParameterDescription</span>
-                    <span class="op">|</span> <span class="ident">MessageFormat::NoData</span>
-                    <span class="comment">// unnamed portal has been closed</span>
-                    <span class="op">|</span> <span class="ident">MessageFormat::CloseComplete</span>
+                <span class="kw">match </span>message.format {
+                    MessageFormat::BindComplete
+                    | MessageFormat::ParseComplete
+                    | MessageFormat::ParameterDescription
+                    | MessageFormat::NoData
+                    <span class="comment">// unnamed portal has been closed
+                    </span>| MessageFormat::CloseComplete
                     =&gt; {
-                        <span class="comment">// harmless messages to ignore</span>
-                    }
+                        <span class="comment">// harmless messages to ignore
+                    </span>}
 
-                    <span class="comment">// &quot;Execute phase is always terminated by the appearance of</span>
-                    <span class="comment">// exactly one of these messages: CommandComplete,</span>
-                    <span class="comment">// EmptyQueryResponse (if the portal was created from an</span>
-                    <span class="comment">// empty query string), ErrorResponse, or PortalSuspended&quot;</span>
-                    <span class="ident">MessageFormat::CommandComplete</span> =&gt; {
-                        <span class="comment">// a SQL command completed normally</span>
-                        <span class="kw">let</span> <span class="ident">cc</span>: <span class="ident">CommandComplete</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
+                    <span class="comment">// &quot;Execute phase is always terminated by the appearance of
+                    // exactly one of these messages: CommandComplete,
+                    // EmptyQueryResponse (if the portal was created from an
+                    // empty query string), ErrorResponse, or PortalSuspended&quot;
+                    </span>MessageFormat::CommandComplete =&gt; {
+                        <span class="comment">// a SQL command completed normally
+                        </span><span class="kw">let </span>cc: CommandComplete = message.decode()<span class="question-mark">?</span>;
 
-                        <span class="kw">let</span> <span class="ident">rows_affected</span> <span class="op">=</span> <span class="ident">cc</span>.<span class="ident">rows_affected</span>();
-                        <span class="ident">logger</span>.<span class="ident">increase_rows_affected</span>(<span class="ident">rows_affected</span>);
-                        <span class="macro">r#yield!</span>(<span class="ident">Either::Left</span>(<span class="ident">PgQueryResult</span> {
-                            <span class="ident">rows_affected</span>,
+                        <span class="kw">let </span>rows_affected = cc.rows_affected();
+                        logger.increase_rows_affected(rows_affected);
+                        <span class="macro">r#yield!</span>(Either::Left(PgQueryResult {
+                            rows_affected,
                         }));
                     }
 
-                    <span class="ident">MessageFormat::EmptyQueryResponse</span> =&gt; {
-                        <span class="comment">// empty query string passed to an unprepared execute</span>
-                    }
+                    MessageFormat::EmptyQueryResponse =&gt; {
+                        <span class="comment">// empty query string passed to an unprepared execute
+                    </span>}
 
-                    <span class="comment">// Message::ErrorResponse is handled in self.stream.recv()</span>
+                    <span class="comment">// Message::ErrorResponse is handled in self.stream.recv()
 
-                    <span class="comment">// incomplete query execution has finished</span>
-                    <span class="ident">MessageFormat::PortalSuspended</span> =&gt; {}
+                    // incomplete query execution has finished
+                    </span>MessageFormat::PortalSuspended =&gt; {}
 
-                    <span class="ident">MessageFormat::RowDescription</span> =&gt; {
-                        <span class="comment">// indicates that a *new* set of rows are about to be returned</span>
-                        <span class="kw">let</span> (<span class="ident">columns</span>, <span class="ident">column_names</span>) <span class="op">=</span> <span class="self">self</span>
-                            .<span class="ident">handle_row_description</span>(<span class="prelude-val">Some</span>(<span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>), <span class="bool-val">false</span>)
+                    MessageFormat::RowDescription =&gt; {
+                        <span class="comment">// indicates that a *new* set of rows are about to be returned
+                        </span><span class="kw">let </span>(columns, column_names) = <span class="self">self
+                            </span>.handle_row_description(<span class="prelude-val">Some</span>(message.decode()<span class="question-mark">?</span>), <span class="bool-val">false</span>)
                             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-                        <span class="ident">metadata</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">PgStatementMetadata</span> {
-                            <span class="ident">column_names</span>,
-                            <span class="ident">columns</span>,
-                            <span class="ident">parameters</span>: <span class="ident">Vec::default</span>(),
+                        metadata = Arc::new(PgStatementMetadata {
+                            column_names,
+                            columns,
+                            parameters: Vec::default(),
                         });
                     }
 
-                    <span class="ident">MessageFormat::DataRow</span> =&gt; {
-                        <span class="ident">logger</span>.<span class="ident">increment_rows_returned</span>();
+                    MessageFormat::DataRow =&gt; {
+                        logger.increment_rows_returned();
 
-                        <span class="comment">// one of the set of rows returned by a SELECT, FETCH, etc query</span>
-                        <span class="kw">let</span> <span class="ident">data</span>: <span class="ident">DataRow</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
-                        <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">PgRow</span> {
-                            <span class="ident">data</span>,
-                            <span class="ident">format</span>,
-                            <span class="ident">metadata</span>: <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">metadata</span>),
+                        <span class="comment">// one of the set of rows returned by a SELECT, FETCH, etc query
+                        </span><span class="kw">let </span>data: DataRow = message.decode()<span class="question-mark">?</span>;
+                        <span class="kw">let </span>row = PgRow {
+                            data,
+                            format,
+                            metadata: Arc::clone(<span class="kw-2">&amp;</span>metadata),
                         };
 
-                        <span class="macro">r#yield!</span>(<span class="ident">Either::Right</span>(<span class="ident">row</span>));
+                        <span class="macro">r#yield!</span>(Either::Right(row));
                     }
 
-                    <span class="ident">MessageFormat::ReadyForQuery</span> =&gt; {
-                        <span class="comment">// processing of the query string is complete</span>
-                        <span class="self">self</span>.<span class="ident">handle_ready_for_query</span>(<span class="ident">message</span>)<span class="question-mark">?</span>;
+                    MessageFormat::ReadyForQuery =&gt; {
+                        <span class="comment">// processing of the query string is complete
+                        </span><span class="self">self</span>.handle_ready_for_query(message)<span class="question-mark">?</span>;
                         <span class="kw">break</span>;
                     }
 
-                    <span class="kw">_</span> =&gt; {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
                             <span class="string">&quot;execute: unexpected message: {:?}&quot;</span>,
-                            <span class="ident">message</span>.<span class="ident">format</span>
+                            message.format
                         ));
                     }
                 }
@@ -813,54 +813,54 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">PgConnection</span> {
-    <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="ident">Postgres</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>&gt; Executor&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>PgConnection {
+    <span class="kw">type </span>Database = Postgres;
 
-    <span class="kw">fn</span> <span class="ident">fetch_many</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>fetch_many&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, E: <span class="lifetime">&#39;q</span>&gt;(
         <span class="self">self</span>,
-        <span class="kw-2">mut</span> <span class="ident">query</span>: <span class="ident">E</span>,
-    ) -&gt; <span class="ident">BoxStream</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="ident">PgQueryResult</span>, <span class="ident">PgRow</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+        <span class="kw-2">mut </span>query: E,
+    ) -&gt; BoxStream&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;Either&lt;PgQueryResult, PgRow&gt;, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        E: Execute&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt;,
     {
-        <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">sql</span>();
-        <span class="kw">let</span> <span class="ident">metadata</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">statement</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">metadata</span>));
-        <span class="kw">let</span> <span class="ident">arguments</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">take_arguments</span>();
-        <span class="kw">let</span> <span class="ident">persistent</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">persistent</span>();
+        <span class="kw">let </span>sql = query.sql();
+        <span class="kw">let </span>metadata = query.statement().map(|s| Arc::clone(<span class="kw-2">&amp;</span>s.metadata));
+        <span class="kw">let </span>arguments = query.take_arguments();
+        <span class="kw">let </span>persistent = query.persistent();
 
-        <span class="ident">Box::pin</span>(<span class="macro">try_stream!</span> {
-            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">sql</span>, <span class="ident">arguments</span>, <span class="number">0</span>, <span class="ident">persistent</span>, <span class="ident">metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="macro">pin_mut!</span>(<span class="ident">s</span>);
+        Box::pin(<span class="macro">try_stream! </span>{
+            <span class="kw">let </span>s = <span class="self">self</span>.run(sql, arguments, <span class="number">0</span>, persistent, metadata).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="macro">pin_mut!</span>(s);
 
-            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">try_next</span>().<span class="kw">await</span><span class="question-mark">?</span> {
-                <span class="macro">r#yield!</span>(<span class="ident">v</span>);
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(v) = s.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
+                <span class="macro">r#yield!</span>(v);
             }
 
             <span class="prelude-val">Ok</span>(())
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">fetch_optional</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>fetch_optional&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, E: <span class="lifetime">&#39;q</span>&gt;(
         <span class="self">self</span>,
-        <span class="kw-2">mut</span> <span class="ident">query</span>: <span class="ident">E</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PgRow</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+        <span class="kw-2">mut </span>query: E,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;PgRow&gt;, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        E: Execute&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt;,
     {
-        <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">sql</span>();
-        <span class="kw">let</span> <span class="ident">metadata</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">statement</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">metadata</span>));
-        <span class="kw">let</span> <span class="ident">arguments</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">take_arguments</span>();
-        <span class="kw">let</span> <span class="ident">persistent</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">persistent</span>();
+        <span class="kw">let </span>sql = query.sql();
+        <span class="kw">let </span>metadata = query.statement().map(|s| Arc::clone(<span class="kw-2">&amp;</span>s.metadata));
+        <span class="kw">let </span>arguments = query.take_arguments();
+        <span class="kw">let </span>persistent = query.persistent();
 
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">run</span>(<span class="ident">sql</span>, <span class="ident">arguments</span>, <span class="number">1</span>, <span class="ident">persistent</span>, <span class="ident">metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="macro">pin_mut!</span>(<span class="ident">s</span>);
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>s = <span class="self">self</span>.run(sql, arguments, <span class="number">1</span>, persistent, metadata).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="macro">pin_mut!</span>(s);
 
-            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">try_next</span>().<span class="kw">await</span><span class="question-mark">?</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Either::Right</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">s</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">r</span>));
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(s) = s.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
+                <span class="kw">if let </span>Either::Right(r) = s {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(r));
                 }
             }
 
@@ -868,47 +868,47 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">prepare_with</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>prepare_with&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-        <span class="ident">parameters</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;e</span> [<span class="ident">PgTypeInfo</span>],
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str,
+        parameters: <span class="kw-2">&amp;</span><span class="lifetime">&#39;e </span>[PgTypeInfo],
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;PgStatement&lt;<span class="lifetime">&#39;q</span>&gt;, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
     {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="self">self</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        Box::pin(<span class="kw">async move </span>{
+            <span class="self">self</span>.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">metadata</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_or_prepare</span>(<span class="ident">sql</span>, <span class="ident">parameters</span>, <span class="bool-val">true</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>(<span class="kw">_</span>, metadata) = <span class="self">self</span>.get_or_prepare(sql, parameters, <span class="bool-val">true</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(<span class="ident">PgStatement</span> {
-                <span class="ident">sql</span>: <span class="ident">Cow::Borrowed</span>(<span class="ident">sql</span>),
-                <span class="ident">metadata</span>,
+            <span class="prelude-val">Ok</span>(PgStatement {
+                sql: Cow::Borrowed(sql),
+                metadata,
             })
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">describe</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>describe&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;Describe&lt;<span class="self">Self</span>::Database&gt;, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
     {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="self">self</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        Box::pin(<span class="kw">async move </span>{
+            <span class="self">self</span>.wait_until_ready().<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let</span> (<span class="ident">stmt_id</span>, <span class="ident">metadata</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_or_prepare</span>(<span class="ident">sql</span>, <span class="kw-2">&amp;</span>[], <span class="bool-val">true</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>(stmt_id, metadata) = <span class="self">self</span>.get_or_prepare(sql, <span class="kw-2">&amp;</span>[], <span class="bool-val">true</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="ident">nullable</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_nullable_for_columns</span>(<span class="ident">stmt_id</span>, <span class="kw-2">&amp;</span><span class="ident">metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>nullable = <span class="self">self</span>.get_nullable_for_columns(stmt_id, <span class="kw-2">&amp;</span>metadata).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(<span class="ident">Describe</span> {
-                <span class="ident">columns</span>: <span class="ident">metadata</span>.<span class="ident">columns</span>.<span class="ident">clone</span>(),
-                <span class="ident">nullable</span>,
-                <span class="ident">parameters</span>: <span class="prelude-val">Some</span>(<span class="ident">Either::Left</span>(<span class="ident">metadata</span>.<span class="ident">parameters</span>.<span class="ident">clone</span>())),
+            <span class="prelude-val">Ok</span>(Describe {
+                columns: metadata.columns.clone(),
+                nullable,
+                parameters: <span class="prelude-val">Some</span>(Either::Left(metadata.parameters.clone())),
             })
         })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/client/tls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/client/tls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -469,474 +469,474 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">sync::Arc</span>, <span class="ident">time::SystemTime</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+</span><span class="kw">use </span>std::{sync::Arc, time::SystemTime};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">boring::ssl</span>::{<span class="ident">SslConnector</span>, <span class="ident">SslVersion</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">native_tls</span>::{<span class="ident">Protocol</span>, <span class="ident">TlsConnector</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">rustls</span>::{
-    <span class="ident">client</span>::{<span class="ident">ServerCertVerified</span>, <span class="ident">ServerCertVerifier</span>, <span class="ident">WebPkiVerifier</span>},
-    <span class="ident">ClientConfig</span>, <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">TlsError</span>, <span class="ident">OwnedTrustAnchor</span>, <span class="ident">RootCertStore</span>, <span class="ident">ServerName</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+</span><span class="kw">use </span>boring::ssl::{SslConnector, SslVersion};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+</span><span class="kw">use </span>native_tls::{Protocol, TlsConnector};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+</span><span class="kw">use </span>rustls::{
+    client::{ServerCertVerified, ServerCertVerifier, WebPkiVerifier},
+    ClientConfig, Error <span class="kw">as </span>TlsError, OwnedTrustAnchor, RootCertStore, ServerName,
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp</span>::{<span class="ident">error</span>, <span class="ident">Error</span>};
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+</span><span class="kw">use </span><span class="kw">crate</span>::transport::smtp::{error, Error};
 
-<span class="doccomment">/// TLS protocol versions.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TlsVersion</span> {
-    <span class="doccomment">/// TLS 1.0</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Should only be used when trying to support legacy</span>
-    <span class="doccomment">/// SMTP servers that haven&#39;t updated to</span>
-    <span class="doccomment">/// at least TLS 1.2 yet.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Supported by `native-tls` and `boring-tls`.</span>
-    <span class="ident">Tlsv10</span>,
-    <span class="doccomment">/// TLS 1.1</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Should only be used when trying to support legacy</span>
-    <span class="doccomment">/// SMTP servers that haven&#39;t updated to</span>
-    <span class="doccomment">/// at least TLS 1.2 yet.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Supported by `native-tls` and `boring-tls`.</span>
-    <span class="ident">Tlsv11</span>,
-    <span class="doccomment">/// TLS 1.2</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A good option for most SMTP servers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Supported by all TLS backends.</span>
-    <span class="ident">Tlsv12</span>,
-    <span class="doccomment">/// TLS 1.3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The most secure option, altough not supported by all SMTP servers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Altough it is technically supported by all TLS backends,</span>
-    <span class="doccomment">/// trying to set it for `native-tls` will give a runtime error.</span>
-    <span class="ident">Tlsv13</span>,
+<span class="doccomment">/// TLS protocol versions.
+</span><span class="attribute">#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
+#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+</span><span class="kw">pub enum </span>TlsVersion {
+    <span class="doccomment">/// TLS 1.0
+    ///
+    /// Should only be used when trying to support legacy
+    /// SMTP servers that haven&#39;t updated to
+    /// at least TLS 1.2 yet.
+    ///
+    /// Supported by `native-tls` and `boring-tls`.
+    </span>Tlsv10,
+    <span class="doccomment">/// TLS 1.1
+    ///
+    /// Should only be used when trying to support legacy
+    /// SMTP servers that haven&#39;t updated to
+    /// at least TLS 1.2 yet.
+    ///
+    /// Supported by `native-tls` and `boring-tls`.
+    </span>Tlsv11,
+    <span class="doccomment">/// TLS 1.2
+    ///
+    /// A good option for most SMTP servers.
+    ///
+    /// Supported by all TLS backends.
+    </span>Tlsv12,
+    <span class="doccomment">/// TLS 1.3
+    ///
+    /// The most secure option, altough not supported by all SMTP servers.
+    ///
+    /// Altough it is technically supported by all TLS backends,
+    /// trying to set it for `native-tls` will give a runtime error.
+    </span>Tlsv13,
 }
 
-<span class="doccomment">/// How to apply TLS to a client connection</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_copy_implementations</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Tls</span> {
-    <span class="doccomment">/// Insecure connection only (for testing purposes)</span>
-    <span class="prelude-val">None</span>,
-    <span class="doccomment">/// Start with insecure connection and use `STARTTLS` when available</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="ident">Opportunistic</span>(<span class="ident">TlsParameters</span>),
-    <span class="doccomment">/// Start with insecure connection and require `STARTTLS`</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="ident">Required</span>(<span class="ident">TlsParameters</span>),
-    <span class="doccomment">/// Use TLS wrapped connection</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="ident">Wrapper</span>(<span class="ident">TlsParameters</span>),
+<span class="doccomment">/// How to apply TLS to a client connection
+</span><span class="attribute">#[derive(Clone)]
+#[allow(missing_copy_implementations)]
+</span><span class="kw">pub enum </span>Tls {
+    <span class="doccomment">/// Insecure connection only (for testing purposes)
+    </span><span class="prelude-val">None</span>,
+    <span class="doccomment">/// Start with insecure connection and use `STARTTLS` when available
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span>Opportunistic(TlsParameters),
+    <span class="doccomment">/// Start with insecure connection and require `STARTTLS`
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span>Required(TlsParameters),
+    <span class="doccomment">/// Use TLS wrapped connection
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span>Wrapper(TlsParameters),
 }
 
-<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Tls</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::None</span> =&gt; <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;None&quot;</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-            <span class="ident"><span class="self">Self</span>::Opportunistic</span>(<span class="kw">_</span>) =&gt; <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Opportunistic&quot;</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-            <span class="ident"><span class="self">Self</span>::Required</span>(<span class="kw">_</span>) =&gt; <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Required&quot;</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-            <span class="ident"><span class="self">Self</span>::Wrapper</span>(<span class="kw">_</span>) =&gt; <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Wrapper&quot;</span>),
+<span class="kw">impl </span>Debug <span class="kw">for </span>Tls {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
+            <span class="self">Self</span>::None =&gt; f.pad(<span class="string">&quot;None&quot;</span>),
+            <span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            </span><span class="self">Self</span>::Opportunistic(<span class="kw">_</span>) =&gt; f.pad(<span class="string">&quot;Opportunistic&quot;</span>),
+            <span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            </span><span class="self">Self</span>::Required(<span class="kw">_</span>) =&gt; f.pad(<span class="string">&quot;Required&quot;</span>),
+            <span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            </span><span class="self">Self</span>::Wrapper(<span class="kw">_</span>) =&gt; f.pad(<span class="string">&quot;Wrapper&quot;</span>),
         }
     }
 }
 
-<span class="doccomment">/// Parameters to use for secure clients</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TlsParameters</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">connector</span>: <span class="ident">InnerTlsParameters</span>,
-    <span class="doccomment">/// The domain name which is expected in the TLS certificate from the server</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">domain</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">accept_invalid_hostnames</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// Parameters to use for secure clients
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>TlsParameters {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) connector: InnerTlsParameters,
+    <span class="doccomment">/// The domain name which is expected in the TLS certificate from the server
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) domain: String,
+    <span class="kw">pub</span>(<span class="kw">super</span>) accept_invalid_hostnames: bool,
 }
 
-<span class="doccomment">/// Builder for `TlsParameters`</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TlsParametersBuilder</span> {
-    <span class="ident">domain</span>: <span class="ident">String</span>,
-    <span class="ident">root_certs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Certificate</span><span class="op">&gt;</span>,
-    <span class="ident">accept_invalid_hostnames</span>: <span class="ident">bool</span>,
-    <span class="ident">accept_invalid_certs</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="ident">min_tls_version</span>: <span class="ident">TlsVersion</span>,
+<span class="doccomment">/// Builder for `TlsParameters`
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>TlsParametersBuilder {
+    domain: String,
+    root_certs: Vec&lt;Certificate&gt;,
+    accept_invalid_hostnames: bool,
+    accept_invalid_certs: bool,
+    <span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span>min_tls_version: TlsVersion,
 }
 
-<span class="kw">impl</span> <span class="ident">TlsParametersBuilder</span> {
-    <span class="doccomment">/// Creates a new builder for `TlsParameters`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">domain</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">domain</span>,
-            <span class="ident">root_certs</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">accept_invalid_hostnames</span>: <span class="bool-val">false</span>,
-            <span class="ident">accept_invalid_certs</span>: <span class="bool-val">false</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-            <span class="ident">min_tls_version</span>: <span class="ident">TlsVersion::Tlsv12</span>,
+<span class="kw">impl </span>TlsParametersBuilder {
+    <span class="doccomment">/// Creates a new builder for `TlsParameters`
+    </span><span class="kw">pub fn </span>new(domain: String) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            domain,
+            root_certs: Vec::new(),
+            accept_invalid_hostnames: <span class="bool-val">false</span>,
+            accept_invalid_certs: <span class="bool-val">false</span>,
+            <span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            </span>min_tls_version: TlsVersion::Tlsv12,
         }
     }
 
-    <span class="doccomment">/// Add a custom root certificate</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Can be used to safely connect to a server using a self signed certificate, for example.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_root_certificate</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cert</span>: <span class="ident">Certificate</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">root_certs</span>.<span class="ident">push</span>(<span class="ident">cert</span>);
-        <span class="self">self</span>
+    <span class="doccomment">/// Add a custom root certificate
+    ///
+    /// Can be used to safely connect to a server using a self signed certificate, for example.
+    </span><span class="kw">pub fn </span>add_root_certificate(<span class="kw-2">mut </span><span class="self">self</span>, cert: Certificate) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.root_certs.push(cert);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Controls whether certificates with an invalid hostname are accepted
+    ///
+    /// Defaults to `false`.
+    ///
+    /// # Warning
+    ///
+    /// You should think very carefully before using this method.
+    /// If hostname verification is disabled *any* valid certificate,
+    /// including those from other sites, are trusted.
+    ///
+    /// This method introduces significant vulnerabilities to man-in-the-middle attacks.
+    ///
+    /// Hostname verification can only be disabled with the `native-tls` TLS backend.
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))))]
+    </span><span class="kw">pub fn </span>dangerous_accept_invalid_hostnames(<span class="kw-2">mut </span><span class="self">self</span>, accept_invalid_hostnames: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.accept_invalid_hostnames = accept_invalid_hostnames;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Controls which minimum TLS version is allowed
+    ///
+    /// Defaults to [`Tlsv12`][TlsVersion::Tlsv12].
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="kw">pub fn </span>set_min_tls_version(<span class="kw-2">mut </span><span class="self">self</span>, min_tls_version: TlsVersion) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.min_tls_version = min_tls_version;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Controls whether invalid certificates are accepted
+    ///
+    /// Defaults to `false`.
+    ///
+    /// # Warning
+    ///
+    /// You should think very carefully before using this method.
+    /// If certificate verification is disabled, *any* certificate
+    /// is trusted for use, including:
+    ///
+    /// * Self signed certificates
+    /// * Certificates from different hostnames
+    /// * Expired certificates
+    ///
+    /// This method should only be used as a last resort, as it introduces
+    /// significant vulnerabilities to man-in-the-middle attacks.
+    </span><span class="kw">pub fn </span>dangerous_accept_invalid_certs(<span class="kw-2">mut </span><span class="self">self</span>, accept_invalid_certs: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.accept_invalid_certs = accept_invalid_certs;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Creates a new `TlsParameters` using native-tls, boring-tls or rustls
+    /// depending on which one is available
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TlsParameters, Error&gt; {
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+        </span><span class="kw">return </span><span class="self">self</span>.build_rustls();
+        <span class="attribute">#[cfg(all(not(feature = <span class="string">&quot;rustls-tls&quot;</span>), feature = <span class="string">&quot;native-tls&quot;</span>))]
+        </span><span class="kw">return </span><span class="self">self</span>.build_native();
+        <span class="attribute">#[cfg(all(not(feature = <span class="string">&quot;rustls-tls&quot;</span>), feature = <span class="string">&quot;boring-tls&quot;</span>))]
+        </span><span class="kw">return </span><span class="self">self</span>.build_boring();
     }
 
-    <span class="doccomment">/// Controls whether certificates with an invalid hostname are accepted</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to `false`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Warning</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// You should think very carefully before using this method.</span>
-    <span class="doccomment">/// If hostname verification is disabled *any* valid certificate,</span>
-    <span class="doccomment">/// including those from other sites, are trusted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method introduces significant vulnerabilities to man-in-the-middle attacks.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Hostname verification can only be disabled with the `native-tls` TLS backend.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dangerous_accept_invalid_hostnames</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">accept_invalid_hostnames</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">accept_invalid_hostnames</span> <span class="op">=</span> <span class="ident">accept_invalid_hostnames</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Creates a new `TlsParameters` using native-tls with the provided configuration
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;native-tls&quot;</span>)))]
+    </span><span class="kw">pub fn </span>build_native(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TlsParameters, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>tls_builder = TlsConnector::builder();
 
-    <span class="doccomment">/// Controls which minimum TLS version is allowed</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to [`Tlsv12`][TlsVersion::Tlsv12].</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_min_tls_version</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">min_tls_version</span>: <span class="ident">TlsVersion</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">min_tls_version</span> <span class="op">=</span> <span class="ident">min_tls_version</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Controls whether invalid certificates are accepted</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to `false`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Warning</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// You should think very carefully before using this method.</span>
-    <span class="doccomment">/// If certificate verification is disabled, *any* certificate</span>
-    <span class="doccomment">/// is trusted for use, including:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Self signed certificates</span>
-    <span class="doccomment">/// * Certificates from different hostnames</span>
-    <span class="doccomment">/// * Expired certificates</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method should only be used as a last resort, as it introduces</span>
-    <span class="doccomment">/// significant vulnerabilities to man-in-the-middle attacks.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dangerous_accept_invalid_certs</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">accept_invalid_certs</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">accept_invalid_certs</span> <span class="op">=</span> <span class="ident">accept_invalid_certs</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Creates a new `TlsParameters` using native-tls, boring-tls or rustls</span>
-    <span class="doccomment">/// depending on which one is available</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsParameters</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-        <span class="kw">return</span> <span class="self">self</span>.<span class="ident">build_rustls</span>();
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>))]</span>
-        <span class="kw">return</span> <span class="self">self</span>.<span class="ident">build_native</span>();
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-        <span class="kw">return</span> <span class="self">self</span>.<span class="ident">build_boring</span>();
-    }
-
-    <span class="doccomment">/// Creates a new `TlsParameters` using native-tls with the provided configuration</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_native</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsParameters</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tls_builder</span> <span class="op">=</span> <span class="ident">TlsConnector::builder</span>();
-
-        <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">root_certs</span> {
-            <span class="ident">tls_builder</span>.<span class="ident">add_root_certificate</span>(<span class="ident">cert</span>.<span class="ident">native_tls</span>);
+        <span class="kw">for </span>cert <span class="kw">in </span><span class="self">self</span>.root_certs {
+            tls_builder.add_root_certificate(cert.native_tls);
         }
-        <span class="ident">tls_builder</span>.<span class="ident">danger_accept_invalid_hostnames</span>(<span class="self">self</span>.<span class="ident">accept_invalid_hostnames</span>);
-        <span class="ident">tls_builder</span>.<span class="ident">danger_accept_invalid_certs</span>(<span class="self">self</span>.<span class="ident">accept_invalid_certs</span>);
+        tls_builder.danger_accept_invalid_hostnames(<span class="self">self</span>.accept_invalid_hostnames);
+        tls_builder.danger_accept_invalid_certs(<span class="self">self</span>.accept_invalid_certs);
 
-        <span class="kw">let</span> <span class="ident">min_tls_version</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">min_tls_version</span> {
-            <span class="ident">TlsVersion::Tlsv10</span> =&gt; <span class="ident">Protocol::Tlsv10</span>,
-            <span class="ident">TlsVersion::Tlsv11</span> =&gt; <span class="ident">Protocol::Tlsv11</span>,
-            <span class="ident">TlsVersion::Tlsv12</span> =&gt; <span class="ident">Protocol::Tlsv12</span>,
-            <span class="ident">TlsVersion::Tlsv13</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::tls</span>(
+        <span class="kw">let </span>min_tls_version = <span class="kw">match </span><span class="self">self</span>.min_tls_version {
+            TlsVersion::Tlsv10 =&gt; Protocol::Tlsv10,
+            TlsVersion::Tlsv11 =&gt; Protocol::Tlsv11,
+            TlsVersion::Tlsv12 =&gt; Protocol::Tlsv12,
+            TlsVersion::Tlsv13 =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(
                     <span class="string">&quot;min tls version Tlsv13 not supported in native tls&quot;</span>,
                 ))
             }
         };
 
-        <span class="ident">tls_builder</span>.<span class="ident">min_protocol_version</span>(<span class="prelude-val">Some</span>(<span class="ident">min_tls_version</span>));
-        <span class="kw">let</span> <span class="ident">connector</span> <span class="op">=</span> <span class="ident">tls_builder</span>.<span class="ident">build</span>().<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">TlsParameters</span> {
-            <span class="ident">connector</span>: <span class="ident">InnerTlsParameters::NativeTls</span>(<span class="ident">connector</span>),
-            <span class="ident">domain</span>: <span class="self">self</span>.<span class="ident">domain</span>,
-            <span class="ident">accept_invalid_hostnames</span>: <span class="self">self</span>.<span class="ident">accept_invalid_hostnames</span>,
+        tls_builder.min_protocol_version(<span class="prelude-val">Some</span>(min_tls_version));
+        <span class="kw">let </span>connector = tls_builder.build().map_err(error::tls)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(TlsParameters {
+            connector: InnerTlsParameters::NativeTls(connector),
+            domain: <span class="self">self</span>.domain,
+            accept_invalid_hostnames: <span class="self">self</span>.accept_invalid_hostnames,
         })
     }
 
-    <span class="doccomment">/// Creates a new `TlsParameters` using boring-tls with the provided configuration</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_boring</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsParameters</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">boring::ssl</span>::{<span class="ident">SslMethod</span>, <span class="ident">SslVerifyMode</span>};
+    <span class="doccomment">/// Creates a new `TlsParameters` using boring-tls with the provided configuration
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)))]
+    </span><span class="kw">pub fn </span>build_boring(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TlsParameters, Error&gt; {
+        <span class="kw">use </span>boring::ssl::{SslMethod, SslVerifyMode};
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tls_builder</span> <span class="op">=</span> <span class="ident">SslConnector::builder</span>(<span class="ident">SslMethod::tls_client</span>()).<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>tls_builder = SslConnector::builder(SslMethod::tls_client()).map_err(error::tls)<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">accept_invalid_certs</span> {
-            <span class="ident">tls_builder</span>.<span class="ident">set_verify</span>(<span class="ident">SslVerifyMode::NONE</span>);
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">cert_store</span> <span class="op">=</span> <span class="ident">tls_builder</span>.<span class="ident">cert_store_mut</span>();
+        <span class="kw">if </span><span class="self">self</span>.accept_invalid_certs {
+            tls_builder.set_verify(SslVerifyMode::NONE);
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>cert_store = tls_builder.cert_store_mut();
 
-            <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">root_certs</span> {
-                <span class="ident">cert_store</span>.<span class="ident">add_cert</span>(<span class="ident">cert</span>.<span class="ident">boring_tls</span>).<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+            <span class="kw">for </span>cert <span class="kw">in </span><span class="self">self</span>.root_certs {
+                cert_store.add_cert(cert.boring_tls).map_err(error::tls)<span class="question-mark">?</span>;
             }
         }
 
-        <span class="kw">let</span> <span class="ident">min_tls_version</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">min_tls_version</span> {
-            <span class="ident">TlsVersion::Tlsv10</span> =&gt; <span class="ident">SslVersion::TLS1</span>,
-            <span class="ident">TlsVersion::Tlsv11</span> =&gt; <span class="ident">SslVersion::TLS1_1</span>,
-            <span class="ident">TlsVersion::Tlsv12</span> =&gt; <span class="ident">SslVersion::TLS1_2</span>,
-            <span class="ident">TlsVersion::Tlsv13</span> =&gt; <span class="ident">SslVersion::TLS1_3</span>,
+        <span class="kw">let </span>min_tls_version = <span class="kw">match </span><span class="self">self</span>.min_tls_version {
+            TlsVersion::Tlsv10 =&gt; SslVersion::TLS1,
+            TlsVersion::Tlsv11 =&gt; SslVersion::TLS1_1,
+            TlsVersion::Tlsv12 =&gt; SslVersion::TLS1_2,
+            TlsVersion::Tlsv13 =&gt; SslVersion::TLS1_3,
         };
 
-        <span class="ident">tls_builder</span>
-            .<span class="ident">set_min_proto_version</span>(<span class="prelude-val">Some</span>(<span class="ident">min_tls_version</span>))
-            .<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">connector</span> <span class="op">=</span> <span class="ident">tls_builder</span>.<span class="ident">build</span>();
-        <span class="prelude-val">Ok</span>(<span class="ident">TlsParameters</span> {
-            <span class="ident">connector</span>: <span class="ident">InnerTlsParameters::BoringTls</span>(<span class="ident">connector</span>),
-            <span class="ident">domain</span>: <span class="self">self</span>.<span class="ident">domain</span>,
-            <span class="ident">accept_invalid_hostnames</span>: <span class="self">self</span>.<span class="ident">accept_invalid_hostnames</span>,
+        tls_builder
+            .set_min_proto_version(<span class="prelude-val">Some</span>(min_tls_version))
+            .map_err(error::tls)<span class="question-mark">?</span>;
+        <span class="kw">let </span>connector = tls_builder.build();
+        <span class="prelude-val">Ok</span>(TlsParameters {
+            connector: InnerTlsParameters::BoringTls(connector),
+            domain: <span class="self">self</span>.domain,
+            accept_invalid_hostnames: <span class="self">self</span>.accept_invalid_hostnames,
         })
     }
 
-    <span class="doccomment">/// Creates a new `TlsParameters` using rustls with the provided configuration</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_rustls</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TlsParameters</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">ClientConfig::builder</span>();
+    <span class="doccomment">/// Creates a new `TlsParameters` using rustls with the provided configuration
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)))]
+    </span><span class="kw">pub fn </span>build_rustls(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;TlsParameters, Error&gt; {
+        <span class="kw">let </span>tls = ClientConfig::builder();
 
-        <span class="kw">let</span> <span class="ident">just_version3</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">rustls::version::TLS13</span>];
-        <span class="kw">let</span> <span class="ident">supported_versions</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">min_tls_version</span> {
-            <span class="ident">TlsVersion::Tlsv10</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::tls</span>(<span class="string">&quot;min tls version Tlsv10 not supported in rustls&quot;</span>))
+        <span class="kw">let </span>just_version3 = <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>rustls::version::TLS13];
+        <span class="kw">let </span>supported_versions = <span class="kw">match </span><span class="self">self</span>.min_tls_version {
+            TlsVersion::Tlsv10 =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(<span class="string">&quot;min tls version Tlsv10 not supported in rustls&quot;</span>))
             }
-            <span class="ident">TlsVersion::Tlsv11</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::tls</span>(<span class="string">&quot;min tls version Tlsv11 not supported in rustls&quot;</span>))
+            TlsVersion::Tlsv11 =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(error::tls(<span class="string">&quot;min tls version Tlsv11 not supported in rustls&quot;</span>))
             }
-            <span class="ident">TlsVersion::Tlsv12</span> =&gt; <span class="ident">rustls::ALL_VERSIONS</span>,
-            <span class="ident">TlsVersion::Tlsv13</span> =&gt; <span class="ident">just_version3</span>,
+            TlsVersion::Tlsv12 =&gt; rustls::ALL_VERSIONS,
+            TlsVersion::Tlsv13 =&gt; just_version3,
         };
 
-        <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">tls</span>
-            .<span class="ident">with_safe_default_cipher_suites</span>()
-            .<span class="ident">with_safe_default_kx_groups</span>()
-            .<span class="ident">with_protocol_versions</span>(<span class="ident">supported_versions</span>)
-            .<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>tls = tls
+            .with_safe_default_cipher_suites()
+            .with_safe_default_kx_groups()
+            .with_protocol_versions(supported_versions)
+            .map_err(error::tls)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">accept_invalid_certs</span> {
-            <span class="ident">tls</span>.<span class="ident">with_custom_certificate_verifier</span>(<span class="ident">Arc::new</span>(<span class="ident">InvalidCertsVerifier</span> {}))
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root_cert_store</span> <span class="op">=</span> <span class="ident">RootCertStore::empty</span>();
-            <span class="kw">for</span> <span class="ident">cert</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">root_certs</span> {
-                <span class="kw">for</span> <span class="ident">rustls_cert</span> <span class="kw">in</span> <span class="ident">cert</span>.<span class="ident">rustls</span> {
-                    <span class="ident">root_cert_store</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="ident">rustls_cert</span>).<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>tls = <span class="kw">if </span><span class="self">self</span>.accept_invalid_certs {
+            tls.with_custom_certificate_verifier(Arc::new(InvalidCertsVerifier {}))
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>root_cert_store = RootCertStore::empty();
+            <span class="kw">for </span>cert <span class="kw">in </span><span class="self">self</span>.root_certs {
+                <span class="kw">for </span>rustls_cert <span class="kw">in </span>cert.rustls {
+                    root_cert_store.add(<span class="kw-2">&amp;</span>rustls_cert).map_err(error::tls)<span class="question-mark">?</span>;
                 }
             }
-            <span class="ident">root_cert_store</span>.<span class="ident">add_server_trust_anchors</span>(<span class="ident">webpki_roots::TLS_SERVER_ROOTS</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">map</span>(
-                <span class="op">|</span><span class="ident">ta</span><span class="op">|</span> {
-                    <span class="ident">OwnedTrustAnchor::from_subject_spki_name_constraints</span>(
-                        <span class="ident">ta</span>.<span class="ident">subject</span>,
-                        <span class="ident">ta</span>.<span class="ident">spki</span>,
-                        <span class="ident">ta</span>.<span class="ident">name_constraints</span>,
+            root_cert_store.add_server_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.<span class="number">0</span>.iter().map(
+                |ta| {
+                    OwnedTrustAnchor::from_subject_spki_name_constraints(
+                        ta.subject,
+                        ta.spki,
+                        ta.name_constraints,
                     )
                 },
             ));
 
-            <span class="ident">tls</span>.<span class="ident">with_custom_certificate_verifier</span>(<span class="ident">Arc::new</span>(<span class="ident">WebPkiVerifier::new</span>(
-                <span class="ident">root_cert_store</span>,
+            tls.with_custom_certificate_verifier(Arc::new(WebPkiVerifier::new(
+                root_cert_store,
                 <span class="prelude-val">None</span>,
             )))
         };
-        <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">tls</span>.<span class="ident">with_no_client_auth</span>();
+        <span class="kw">let </span>tls = tls.with_no_client_auth();
 
-        <span class="prelude-val">Ok</span>(<span class="ident">TlsParameters</span> {
-            <span class="ident">connector</span>: <span class="ident">InnerTlsParameters::RustlsTls</span>(<span class="ident">Arc::new</span>(<span class="ident">tls</span>)),
-            <span class="ident">domain</span>: <span class="self">self</span>.<span class="ident">domain</span>,
-            <span class="ident">accept_invalid_hostnames</span>: <span class="self">self</span>.<span class="ident">accept_invalid_hostnames</span>,
+        <span class="prelude-val">Ok</span>(TlsParameters {
+            connector: InnerTlsParameters::RustlsTls(Arc::new(tls)),
+            domain: <span class="self">self</span>.domain,
+            accept_invalid_hostnames: <span class="self">self</span>.accept_invalid_hostnames,
         })
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::enum_variant_names</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">InnerTlsParameters</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-    <span class="ident">NativeTls</span>(<span class="ident">TlsConnector</span>),
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-    <span class="ident">RustlsTls</span>(<span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">ClientConfig</span><span class="op">&gt;</span>),
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
-    <span class="ident">BoringTls</span>(<span class="ident">SslConnector</span>),
+<span class="attribute">#[derive(Clone)]
+#[allow(clippy::enum_variant_names)]
+</span><span class="kw">pub enum </span>InnerTlsParameters {
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+    </span>NativeTls(TlsConnector),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+    </span>RustlsTls(Arc&lt;ClientConfig&gt;),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+    </span>BoringTls(SslConnector),
 }
 
-<span class="kw">impl</span> <span class="ident">TlsParameters</span> {
-    <span class="doccomment">/// Creates a new `TlsParameters` using native-tls or rustls</span>
-    <span class="doccomment">/// depending on which one is available</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">domain</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">TlsParametersBuilder::new</span>(<span class="ident">domain</span>).<span class="ident">build</span>()
+<span class="kw">impl </span>TlsParameters {
+    <span class="doccomment">/// Creates a new `TlsParameters` using native-tls or rustls
+    /// depending on which one is available
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span><span class="kw">pub fn </span>new(domain: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        TlsParametersBuilder::new(domain).build()
     }
 
-    <span class="doccomment">/// Creates a new `TlsParameters` builder</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>(<span class="ident">domain</span>: <span class="ident">String</span>) -&gt; <span class="ident">TlsParametersBuilder</span> {
-        <span class="ident">TlsParametersBuilder::new</span>(<span class="ident">domain</span>)
+    <span class="doccomment">/// Creates a new `TlsParameters` builder
+    </span><span class="kw">pub fn </span>builder(domain: String) -&gt; TlsParametersBuilder {
+        TlsParametersBuilder::new(domain)
     }
 
-    <span class="doccomment">/// Creates a new `TlsParameters` using native-tls</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_native</span>(<span class="ident">domain</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">TlsParametersBuilder::new</span>(<span class="ident">domain</span>).<span class="ident">build_native</span>()
+    <span class="doccomment">/// Creates a new `TlsParameters` using native-tls
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;native-tls&quot;</span>)))]
+    </span><span class="kw">pub fn </span>new_native(domain: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        TlsParametersBuilder::new(domain).build_native()
     }
 
-    <span class="doccomment">/// Creates a new `TlsParameters` using rustls</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_rustls</span>(<span class="ident">domain</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">TlsParametersBuilder::new</span>(<span class="ident">domain</span>).<span class="ident">build_rustls</span>()
+    <span class="doccomment">/// Creates a new `TlsParameters` using rustls
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)))]
+    </span><span class="kw">pub fn </span>new_rustls(domain: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        TlsParametersBuilder::new(domain).build_rustls()
     }
 
-    <span class="doccomment">/// Creates a new `TlsParameters` using boring</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_boring</span>(<span class="ident">domain</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">TlsParametersBuilder::new</span>(<span class="ident">domain</span>).<span class="ident">build_boring</span>()
+    <span class="doccomment">/// Creates a new `TlsParameters` using boring
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)))]
+    </span><span class="kw">pub fn </span>new_boring(domain: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        TlsParametersBuilder::new(domain).build_boring()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">domain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">domain</span>
+    <span class="kw">pub fn </span>domain(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.domain
     }
 }
 
-<span class="doccomment">/// A client certificate that can be used with [`TlsParametersBuilder::add_root_certificate`]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_copy_implementations</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Certificate</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-    <span class="ident">native_tls</span>: <span class="ident">native_tls::Certificate</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-    <span class="ident">rustls</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">rustls::Certificate</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
-    <span class="ident">boring_tls</span>: <span class="ident">boring::x509::X509</span>,
+<span class="doccomment">/// A client certificate that can be used with [`TlsParametersBuilder::add_root_certificate`]
+</span><span class="attribute">#[derive(Clone)]
+#[allow(missing_copy_implementations)]
+</span><span class="kw">pub struct </span>Certificate {
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+    </span>native_tls: native_tls::Certificate,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+    </span>rustls: Vec&lt;rustls::Certificate&gt;,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+    </span>boring_tls: boring::x509::X509,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-<span class="kw">impl</span> <span class="ident">Certificate</span> {
-    <span class="doccomment">/// Create a `Certificate` from a DER encoded certificate</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">der</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-        <span class="kw">let</span> <span class="ident">native_tls_cert</span> <span class="op">=</span> <span class="ident">native_tls::Certificate::from_der</span>(<span class="kw-2">&amp;</span><span class="ident">der</span>).<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+</span><span class="kw">impl </span>Certificate {
+    <span class="doccomment">/// Create a `Certificate` from a DER encoded certificate
+    </span><span class="kw">pub fn </span>from_der(der: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+        </span><span class="kw">let </span>native_tls_cert = native_tls::Certificate::from_der(<span class="kw-2">&amp;</span>der).map_err(error::tls)<span class="question-mark">?</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
-        <span class="kw">let</span> <span class="ident">boring_tls_cert</span> <span class="op">=</span> <span class="ident">boring::x509::X509::from_der</span>(<span class="kw-2">&amp;</span><span class="ident">der</span>).<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+        </span><span class="kw">let </span>boring_tls_cert = boring::x509::X509::from_der(<span class="kw-2">&amp;</span>der).map_err(error::tls)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-            <span class="ident">native_tls</span>: <span class="ident">native_tls_cert</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-            <span class="ident">rustls</span>: <span class="macro">vec!</span>[<span class="ident">rustls::Certificate</span>(<span class="ident">der</span>)],
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
-            <span class="ident">boring_tls</span>: <span class="ident">boring_tls_cert</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            </span>native_tls: native_tls_cert,
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            </span>rustls: <span class="macro">vec!</span>[rustls::Certificate(der)],
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            </span>boring_tls: boring_tls_cert,
         })
     }
 
-    <span class="doccomment">/// Create a `Certificate` from a PEM encoded certificate</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pem</span>(<span class="ident">pem</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-        <span class="kw">let</span> <span class="ident">native_tls_cert</span> <span class="op">=</span> <span class="ident">native_tls::Certificate::from_pem</span>(<span class="ident">pem</span>).<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Create a `Certificate` from a PEM encoded certificate
+    </span><span class="kw">pub fn </span>from_pem(pem: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+        </span><span class="kw">let </span>native_tls_cert = native_tls::Certificate::from_pem(pem).map_err(error::tls)<span class="question-mark">?</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
-        <span class="kw">let</span> <span class="ident">boring_tls_cert</span> <span class="op">=</span> <span class="ident">boring::x509::X509::from_pem</span>(<span class="ident">pem</span>).<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>;
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+        </span><span class="kw">let </span>boring_tls_cert = boring::x509::X509::from_pem(pem).map_err(error::tls)<span class="question-mark">?</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-        <span class="kw">let</span> <span class="ident">rustls_cert</span> <span class="op">=</span> {
-            <span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+        </span><span class="kw">let </span>rustls_cert = {
+            <span class="kw">use </span>std::io::Cursor;
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pem</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">pem</span>);
-            <span class="ident">rustls_pemfile::certs</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pem</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">error::tls</span>(<span class="string">&quot;invalid certificates&quot;</span>))<span class="question-mark">?</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="ident">rustls::Certificate</span>)
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+            <span class="kw">let </span><span class="kw-2">mut </span>pem = Cursor::new(pem);
+            rustls_pemfile::certs(<span class="kw-2">&amp;mut </span>pem)
+                .map_err(|<span class="kw">_</span>| error::tls(<span class="string">&quot;invalid certificates&quot;</span>))<span class="question-mark">?
+                </span>.into_iter()
+                .map(rustls::Certificate)
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
         };
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
-            <span class="ident">native_tls</span>: <span class="ident">native_tls_cert</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-            <span class="ident">rustls</span>: <span class="ident">rustls_cert</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
-            <span class="ident">boring_tls</span>: <span class="ident">boring_tls_cert</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;native-tls&quot;</span>)]
+            </span>native_tls: native_tls_cert,
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+            </span>rustls: rustls_cert,
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;boring-tls&quot;</span>)]
+            </span>boring_tls: boring_tls_cert,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Certificate</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Certificate&quot;</span>).<span class="ident">finish</span>()
+<span class="kw">impl </span>Debug <span class="kw">for </span>Certificate {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;Certificate&quot;</span>).finish()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-<span class="kw">struct</span> <span class="ident">InvalidCertsVerifier</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+</span><span class="kw">struct </span>InvalidCertsVerifier;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">ServerCertVerifier</span> <span class="kw">for</span> <span class="ident">InvalidCertsVerifier</span> {
-    <span class="kw">fn</span> <span class="ident">verify_server_cert</span>(
+<span class="attribute">#[cfg(feature = <span class="string">&quot;rustls-tls&quot;</span>)]
+</span><span class="kw">impl </span>ServerCertVerifier <span class="kw">for </span>InvalidCertsVerifier {
+    <span class="kw">fn </span>verify_server_cert(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">_end_entity</span>: <span class="kw-2">&amp;</span><span class="ident">rustls::Certificate</span>,
-        <span class="ident">_intermediates</span>: <span class="kw-2">&amp;</span>[<span class="ident">rustls::Certificate</span>],
-        <span class="ident">_server_name</span>: <span class="kw-2">&amp;</span><span class="ident">ServerName</span>,
-        <span class="ident">_scts</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
-        <span class="ident">_ocsp_response</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">_now</span>: <span class="ident">SystemTime</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServerCertVerified</span>, <span class="ident">TlsError</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">ServerCertVerified::assertion</span>())
+        _end_entity: <span class="kw-2">&amp;</span>rustls::Certificate,
+        _intermediates: <span class="kw-2">&amp;</span>[rustls::Certificate],
+        _server_name: <span class="kw-2">&amp;</span>ServerName,
+        _scts: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>[u8]&gt;,
+        _ocsp_response: <span class="kw-2">&amp;</span>[u8],
+        _now: SystemTime,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ServerCertVerified, TlsError&gt; {
+        <span class="prelude-val">Ok</span>(ServerCertVerified::assertion())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

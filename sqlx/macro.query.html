@@ -1,19 +1,19 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Statically checked SQL query with `println!()` style syntax."><meta name="keywords" content="rust, rustlang, rust-lang, query"><title>query in sqlx - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In sqlx</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../sqlx/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="#">query</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/sqlx/macros/mod.rs.html#305-321">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules!</span> <span class="ident">query</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>) =&gt; { ... };
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">query</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; { ... };
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Statically checked SQL query with `println!()` style syntax."><meta name="keywords" content="rust, rustlang, rust-lang, query"><title>query in sqlx - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../normalize.css"><link rel="stylesheet" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../ayu.css" disabled><link rel="stylesheet" href="../dark.css" disabled><link rel="stylesheet" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In sqlx</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../sqlx/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="#">query</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/sqlx/macros/mod.rs.html#305-321">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules! </span>query {
+    (<span class="macro-nonterminal">$query</span>:expr) =&gt; { ... };
+    (<span class="macro-nonterminal">$query</span>:expr, $(<span class="macro-nonterminal">$args</span>:tt)<span class="kw-2">*</span>) =&gt; { ... };
 }</code></pre></div>
 </div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Statically checked SQL query with <code>println!()</code> style syntax.</p>
 <p>This expands to an instance of <a href="query/struct.Map.html" title="crate::query::Map"><code>query::Map</code></a> that outputs an ad-hoc anonymous
 struct type, if the query has at least one output column that is not <code>Void</code>, or <code>()</code> (unit) otherwise:</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="comment">// let mut conn = &lt;impl sqlx::Executor&gt;;</span>
-<span class="kw">let</span> <span class="ident">account</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">&quot;select (1) as id, &#39;Herp Derpinson&#39; as name&quot;</span>)
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="comment">// let mut conn = &lt;impl sqlx::Executor&gt;;
+</span><span class="kw">let </span>account = <span class="macro">sqlx::query!</span>(<span class="string">&quot;select (1) as id, &#39;Herp Derpinson&#39; as name&quot;</span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="comment">// anonymous struct has `#[derive(Debug)]` for convenience</span>
-<span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">account</span>);
-<span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">account</span>.<span class="ident">id</span>, <span class="ident">account</span>.<span class="ident">name</span>);
+<span class="comment">// anonymous struct has `#[derive(Debug)]` for convenience
+</span><span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, account);
+<span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, account.id, account.name);
 </code></pre></div>
 <p><strong>The method you want to call depends on how many rows you’re expecting.</strong></p>
 <div><table><thead><tr><th>Number of Rows</th><th>Method to Call*</th><th>Returns</th><th>Notes</th></tr></thead><tbody>
@@ -58,17 +58,17 @@ so we now use the [<code>dotenvy</code>] crate instead. The file format is the s
 <p>Like <code>println!()</code> and the other formatting macros, you can add bind parameters to your SQL
 and this macro will typecheck passed arguments and error on missing ones:</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="comment">// let mut conn = &lt;impl sqlx::Executor&gt;;</span>
-<span class="kw">let</span> <span class="ident">account</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="comment">// just pretend &quot;accounts&quot; is a real table</span>
-        <span class="string">&quot;select * from (select (1) as id, &#39;Herp Derpinson&#39; as name) accounts where id = ?&quot;</span>,
-        <span class="number">1i32</span>
-    )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="comment">// let mut conn = &lt;impl sqlx::Executor&gt;;
+</span><span class="kw">let </span>account = <span class="macro">sqlx::query!</span>(
+        <span class="comment">// just pretend &quot;accounts&quot; is a real table
+        </span><span class="string">&quot;select * from (select (1) as id, &#39;Herp Derpinson&#39; as name) accounts where id = ?&quot;</span>,
+        <span class="number">1i32
+    </span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">account</span>);
-<span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">account</span>.<span class="ident">id</span>, <span class="ident">account</span>.<span class="ident">name</span>);</code></pre></div>
+<span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, account);
+<span class="macro">println!</span>(<span class="string">&quot;{}: {}&quot;</span>, account.id, account.name);</code></pre></div>
 <p>Bind parameters in the SQL string are specific to the database backend:</p>
 <ul>
 <li>Postgres: <code>$N</code> where <code>N</code> is the 1-based positional argument index</li>
@@ -106,13 +106,13 @@ of <code>EXPLAIN</code> to identify columns that may or may not be <code>NULL</c
 <p>For typechecking of bind parameters, casts using <code>as</code> are treated as overrides for the inferred
 types of bind parameters and no typechecking is emitted:</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx::Type</span>)]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">struct</span> <span class="ident">MyInt4</span>(<span class="ident">i32</span>);
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="attribute">#[derive(sqlx::Type)]
+#[sqlx(transparent)]
+</span><span class="kw">struct </span>MyInt4(i32);
 
-<span class="kw">let</span> <span class="ident">my_int</span> <span class="op">=</span> <span class="ident">MyInt4</span>(<span class="number">1</span>);
+<span class="kw">let </span>my_int = MyInt4(<span class="number">1</span>);
 
-<span class="macro">sqlx::query!</span>(<span class="string">&quot;select $1::int4 as id&quot;</span>, <span class="ident">my_int</span> <span class="kw">as</span> <span class="ident">MyInt4</span>)</code></pre></div>
+<span class="macro">sqlx::query!</span>(<span class="string">&quot;select $1::int4 as id&quot;</span>, my_int <span class="kw">as </span>MyInt4)</code></pre></div>
 <p>Using <code>expr as _</code> or <code>expr : _</code> simply signals to the macro to not type-check that bind expression,
 and then that syntax is stripped from the expression so as to not trigger type errors
 (or an unstable syntax feature in the case of the latter, which is called type ascription).</p>
@@ -124,28 +124,28 @@ for arbitrary text in column names:</p>
 inferred nullability and forces the column to be treated as <code>NOT NULL</code>; this is useful e.g. for
 selecting expressions in Postgres where we cannot infer nullability:</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="comment">// Postgres: using a raw query string lets us use unescaped double-quotes</span>
-<span class="comment">// Note that this query wouldn&#39;t work in SQLite as we still don&#39;t know the exact type of `id`</span>
-<span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;select 1 as &quot;id!&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id!`&quot; instead</span>
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="comment">// Postgres: using a raw query string lets us use unescaped double-quotes
+// Note that this query wouldn&#39;t work in SQLite as we still don&#39;t know the exact type of `id`
+</span><span class="kw">let </span>record = <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;select 1 as &quot;id!&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id!`&quot; instead
+    </span>.fetch_one(<span class="kw-2">&amp;mut </span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="comment">// For Postgres this would have been inferred to be Option&lt;i32&gt; instead</span>
-<span class="macro">assert_eq!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="number">1i32</span>);
+<span class="comment">// For Postgres this would have been inferred to be Option&lt;i32&gt; instead
+</span><span class="macro">assert_eq!</span>(record.id, <span class="number">1i32</span>);
 </code></pre></div>
 <h6 id="force-nullable"><a href="#force-nullable">Force Nullable</a></h6>
 <p>Selecting a column <code>foo as &quot;foo?&quot;</code> (Postgres / SQLite) or <code>foo as `foo?`</code> (MySQL) overrides
 inferred nullability and forces the column to be treated as nullable; this is provided mainly
 for symmetry with <code>!</code>.</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="comment">// Postgres/SQLite:</span>
-<span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;select 1 as &quot;id?&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id?`&quot; instead</span>
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="comment">// Postgres/SQLite:
+</span><span class="kw">let </span>record = <span class="macro">sqlx::query!</span>(<span class="string">r#&quot;select 1 as &quot;id?&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id?`&quot; instead
+    </span>.fetch_one(<span class="kw-2">&amp;mut </span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="comment">// For Postgres this would have been inferred to be Option&lt;i32&gt; anyway</span>
-<span class="comment">// but this is just a basic example</span>
-<span class="macro">assert_eq!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="number">1i32</span>));</code></pre></div>
+<span class="comment">// For Postgres this would have been inferred to be Option&lt;i32&gt; anyway
+// but this is just a basic example
+</span><span class="macro">assert_eq!</span>(record.id, <span class="prelude-val">Some</span>(<span class="number">1i32</span>));</code></pre></div>
 <p>MySQL should be accurate with regards to nullability as it directly tells us when a column is
 expected to never be <code>NULL</code>. Any mistakes should be considered a bug in MySQL.</p>
 <p>However, inference in SQLite and Postgres is more fragile as it depends primarily on observing
@@ -160,16 +160,16 @@ analysis errs on the side of producing false positives (marking columns nullable
 in practice) but there are likely edge cases that it does not cover yet.</p>
 <p>Using <code>?</code> as an override we can fix this for columns we know to be nullable in practice:</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="comment">// Ironically this is the exact column we primarily look at to determine nullability in Postgres</span>
-<span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-    <span class="string">r#&quot;select attnotnull as &quot;attnotnull?&quot; from (values (1)) ids left join pg_attribute on false&quot;#</span>
-)
-.<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="comment">// Ironically this is the exact column we primarily look at to determine nullability in Postgres
+</span><span class="kw">let </span>record = <span class="macro">sqlx::query!</span>(
+    <span class="string">r#&quot;select attnotnull as &quot;attnotnull?&quot; from (values (1)) ids left join pg_attribute on false&quot;#
+</span>)
+.fetch_one(<span class="kw-2">&amp;mut </span>conn)
 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="comment">// Although we do our best, under Postgres this might have been inferred to be `bool`</span>
-<span class="comment">// In that case, we would have gotten an error</span>
-<span class="macro">assert_eq!</span>(<span class="ident">record</span>.<span class="ident">attnotnull</span>, <span class="prelude-val">None</span>);</code></pre></div>
+<span class="comment">// Although we do our best, under Postgres this might have been inferred to be `bool`
+// In that case, we would have gotten an error
+</span><span class="macro">assert_eq!</span>(record.attnotnull, <span class="prelude-val">None</span>);</code></pre></div>
 <p>If you find that you need to use this override, please open an issue with a query we can use
 to reproduce the problem. For Postgres users, especially helpful would be the output of
 <code>EXPLAIN (VERBOSE, FORMAT JSON) &lt;your query&gt;</code> with bind parameters substituted in the query
@@ -182,21 +182,21 @@ overrides the inferred type which is useful when selecting user-defined custom t
 at runtime instead of compile-time). Note that this syntax alone doesn’t override inferred nullability,
 but it is compatible with the forced not-null and forced nullable annotations:</p>
 
-<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">sqlx::Type</span>)]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">struct</span> <span class="ident">MyInt4</span>(<span class="ident">i32</span>);
+<div class="example-wrap ignore"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="attribute">#[derive(sqlx::Type)]
+#[sqlx(transparent)]
+</span><span class="kw">struct </span>MyInt4(i32);
 
-<span class="kw">let</span> <span class="ident">my_int</span> <span class="op">=</span> <span class="ident">MyInt4</span>(<span class="number">1</span>);
+<span class="kw">let </span>my_int = MyInt4(<span class="number">1</span>);
 
-<span class="comment">// Postgres/SQLite</span>
-<span class="macro">sqlx::query!</span>(<span class="string">r#&quot;select 1 as &quot;id!: MyInt4&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id: MyInt4`&quot; instead</span>
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
+<span class="comment">// Postgres/SQLite
+</span><span class="macro">sqlx::query!</span>(<span class="string">r#&quot;select 1 as &quot;id!: MyInt4&quot;&quot;#</span>) <span class="comment">// MySQL: use &quot;select 1 as `id: MyInt4`&quot; instead
+    </span>.fetch_one(<span class="kw-2">&amp;mut </span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-<span class="comment">// For Postgres this would have been inferred to be `Option&lt;i32&gt;`, MySQL/SQLite `i32`</span>
-<span class="comment">// Note that while using `id: MyInt4` (without the `!`) would work the same for MySQL/SQLite,</span>
-<span class="comment">// Postgres would expect `Some(MyInt4(1))` and the code wouldn&#39;t compile</span>
-<span class="macro">assert_eq!</span>(<span class="ident">record</span>.<span class="ident">id</span>, <span class="ident">MyInt4</span>(<span class="number">1</span>));</code></pre></div>
+<span class="comment">// For Postgres this would have been inferred to be `Option&lt;i32&gt;`, MySQL/SQLite `i32`
+// Note that while using `id: MyInt4` (without the `!`) would work the same for MySQL/SQLite,
+// Postgres would expect `Some(MyInt4(1))` and the code wouldn&#39;t compile
+</span><span class="macro">assert_eq!</span>(record.id, MyInt4(<span class="number">1</span>));</code></pre></div>
 <h6 id="overrides-cheatsheet"><a href="#overrides-cheatsheet">Overrides cheatsheet</a></h6><div><table><thead><tr><th>Syntax</th><th>Nullability</th><th>Type</th></tr></thead><tbody>
 <tr><td><code>foo!</code></td><td>Forced not-null</td><td>Inferred</td></tr>
 <tr><td><code>foo?</code></td><td>Forced nullable</td><td>Inferred</td></tr>
@@ -227,4 +227,4 @@ project and your database schema itself, run
 <li>[query_file!] if you want to define the SQL query out-of-line,</li>
 <li>[query_file_as!] if you want both of the above.</li>
 </ul>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="sqlx" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="sqlx" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

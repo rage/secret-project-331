@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/csv_export.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>csv_export.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/csv_export.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>csv_export.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -517,257 +517,257 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">csv::Writer</span>;
-<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">stream::FuturesUnordered</span>, <span class="ident">Stream</span>, <span class="ident">StreamExt</span>, <span class="ident">TryStreamExt</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
-    <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">exercise_task_submissions</span>, <span class="ident">exercises</span>, <span class="ident">user_exercise_states</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::{Context, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>csv::Writer;
+<span class="kw">use </span>futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
+<span class="kw">use </span>headless_lms_models::{
+    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
 };
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
-<span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">collections::HashMap</span>,
-    <span class="ident">io</span>,
-    <span class="ident">io::Write</span>,
-    <span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>},
+<span class="kw">use </span>serde::Serialize;
+<span class="kw">use </span>sqlx::PgConnection;
+<span class="kw">use </span>std::{
+    collections::HashMap,
+    io,
+    io::Write,
+    sync::{Arc, Mutex},
 };
-<span class="kw">use</span> <span class="ident">tokio</span>::{<span class="ident">sync::mpsc::UnboundedSender</span>, <span class="ident">task::JoinHandle</span>};
-<span class="kw">use</span> <span class="ident">tokio_stream::wrappers::UnboundedReceiverStream</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use </span>tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
+<span class="kw">use </span>tokio_stream::wrappers::UnboundedReceiverStream;
+<span class="kw">use </span>uuid::Uuid;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::authorization</span>::{<span class="ident">AuthorizationToken</span>, <span class="ident">AuthorizedResponse</span>};
-<span class="doccomment">/// Convenience struct for creating CSV data.</span>
-<span class="kw">struct</span> <span class="ident">CsvWriter</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> {
-    <span class="ident">csv_writer</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Writer</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">handles</span>: <span class="ident">FuturesUnordered</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">use </span><span class="kw">super</span>::authorization::{AuthorizationToken, AuthorizedResponse};
+<span class="doccomment">/// Convenience struct for creating CSV data.
+</span><span class="kw">struct </span>CsvWriter&lt;W: Write&gt; {
+    csv_writer: Arc&lt;Mutex&lt;Writer&lt;W&gt;&gt;&gt;,
+    handles: FuturesUnordered&lt;JoinHandle&lt;<span class="prelude-ty">Result</span>&lt;()&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">CsvWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new CsvWriter, and also writes the given headers before returning.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_with_initialized_headers</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">writer</span>: <span class="ident">W</span>, <span class="ident">headers</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">T</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;W: Write + Send + <span class="lifetime">&#39;static</span>&gt; CsvWriter&lt;W&gt; {
+    <span class="doccomment">/// Creates a new CsvWriter, and also writes the given headers before returning.
+    </span><span class="kw">async fn </span>new_with_initialized_headers&lt;I, T&gt;(writer: W, headers: I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span>I: IntoIterator&lt;Item = T&gt; + Send + <span class="lifetime">&#39;static</span>,
+        T: AsRef&lt;[u8]&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">csv::WriterBuilder::new</span>()
-            .<span class="ident">has_headers</span>(<span class="bool-val">false</span>)
-            .<span class="ident">from_writer</span>(<span class="ident">writer</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>writer = csv::WriterBuilder::new()
+            .has_headers(<span class="bool-val">false</span>)
+            .from_writer(writer);
 
-        <span class="comment">// write headers first</span>
-        <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">tokio::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="ident">writer</span>
-                .<span class="ident">write_record</span>(<span class="ident">headers</span>)
-                .<span class="ident">context</span>(<span class="string">&quot;Failed to write headers&quot;</span>)<span class="question-mark">?</span>;
-            <span class="prelude-ty">Result</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">anyhow::Error</span><span class="op">&gt;</span><span class="ident">::Ok</span>(<span class="ident">writer</span>)
+        <span class="comment">// write headers first
+        </span><span class="kw">let </span>writer = tokio::task::spawn_blocking(<span class="kw">move </span>|| {
+            writer
+                .write_record(headers)
+                .context(<span class="string">&quot;Failed to write headers&quot;</span>)<span class="question-mark">?</span>;
+            <span class="prelude-ty">Result</span>::&lt;<span class="kw">_</span>, anyhow::Error&gt;::Ok(writer)
         })
-        .<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
+        .<span class="kw">await</span><span class="question-mark">??</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">csv_writer</span>: <span class="ident">Arc::new</span>(<span class="ident">Mutex::new</span>(<span class="ident">writer</span>)),
-            <span class="ident">handles</span>: <span class="ident">FuturesUnordered::new</span>(),
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            csv_writer: Arc::new(Mutex::new(writer)),
+            handles: FuturesUnordered::new(),
         })
     }
 
-    <span class="doccomment">/// Spawns a task that writes a single CSV record</span>
-    <span class="kw">fn</span> <span class="ident">write_record</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">csv_row</span>: <span class="ident">I</span>)
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">T</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
+    <span class="doccomment">/// Spawns a task that writes a single CSV record
+    </span><span class="kw">fn </span>write_record&lt;I, T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, csv_row: I)
+    <span class="kw">where
+        </span>I: IntoIterator&lt;Item = T&gt; + Send + <span class="lifetime">&#39;static</span>,
+        T: AsRef&lt;[u8]&gt;,
     {
-        <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">csv_writer</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">tokio::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="ident">writer</span>
-                .<span class="ident">lock</span>()
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to lock mutex&quot;</span>))<span class="question-mark">?</span>
-                .<span class="ident">write_record</span>(<span class="ident">csv_row</span>)
-                .<span class="ident">context</span>(<span class="string">&quot;Failed to serialize points&quot;</span>)
+        <span class="kw">let </span>writer = <span class="self">self</span>.csv_writer.clone();
+        <span class="kw">let </span>handle = tokio::task::spawn_blocking(<span class="kw">move </span>|| {
+            writer
+                .lock()
+                .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to lock mutex&quot;</span>))<span class="question-mark">?
+                </span>.write_record(csv_row)
+                .context(<span class="string">&quot;Failed to serialize points&quot;</span>)
         });
-        <span class="self">self</span>.<span class="ident">handles</span>.<span class="ident">push</span>(<span class="ident">handle</span>);
+        <span class="self">self</span>.handles.push(handle);
     }
 
-    <span class="doccomment">/// Waits for handles to finish, flushes the writer and extracts the inner writer.</span>
-    <span class="doccomment">/// Should always be called before dropping the writer to make sure writing the CSV finishes properly.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="comment">// ensure every task is finished before the writer is extracted</span>
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">handle</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">handles</span>.<span class="ident">next</span>().<span class="kw">await</span> {
-            <span class="ident">handle</span><span class="question-mark">?</span><span class="question-mark">?</span>;
+    <span class="doccomment">/// Waits for handles to finish, flushes the writer and extracts the inner writer.
+    /// Should always be called before dropping the writer to make sure writing the CSV finishes properly.
+    </span><span class="kw">async fn </span>finish(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;W&gt; {
+        <span class="comment">// ensure every task is finished before the writer is extracted
+        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(handle) = <span class="self">self</span>.handles.next().<span class="kw">await </span>{
+            handle<span class="question-mark">??</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">tokio::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>;
-            <span class="ident">Arc::try_unwrap</span>(<span class="self">self</span>.<span class="ident">csv_writer</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to extract inner writer from arc&quot;</span>))<span class="question-mark">?</span>
-                .<span class="ident">into_inner</span>()
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+        <span class="kw">let </span>writer = tokio::task::spawn_blocking(<span class="kw">move </span>|| {
+            <span class="kw">let _ </span>= <span class="kw-2">&amp;</span><span class="self">self</span>;
+            Arc::try_unwrap(<span class="self">self</span>.csv_writer)
+                .map_err(|<span class="kw">_</span>| <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Failed to extract inner writer from arc&quot;</span>))<span class="question-mark">?
+                </span>.into_inner()
+                .map_err(|e| {
                     <span class="macro">anyhow::anyhow!</span>(
                         <span class="string">&quot;Failed to extract inner writer from mutex: {}&quot;</span>,
-                        <span class="ident">e</span>.<span class="ident">to_string</span>()
+                        e.to_string()
                     )
-                })<span class="question-mark">?</span>
-                .<span class="ident">into_inner</span>()
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+                })<span class="question-mark">?
+                </span>.into_inner()
+                .map_err(|e| {
                     <span class="macro">anyhow::anyhow!</span>(
                         <span class="string">&quot;Failed to extract inner writer from CSV writer: {}&quot;</span>,
-                        <span class="ident">e</span>.<span class="ident">to_string</span>()
+                        e.to_string()
                     )
                 })
         })
-        .<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">writer</span>)
+        .<span class="kw">await</span><span class="question-mark">??</span>;
+        <span class="prelude-val">Ok</span>(writer)
     }
 }
 
-<span class="comment">// Writes the points as csv into the writer</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">export_course_instance_points</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">writer</span>: <span class="ident">W</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">W</span>: <span class="ident">Write</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="comment">// Writes the points as csv into the writer
+</span><span class="kw">pub async fn </span>export_course_instance_points&lt;W&gt;(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+    writer: W,
+) -&gt; <span class="prelude-ty">Result</span>&lt;W&gt;
+<span class="kw">where
+    </span>W: Write + Send + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">let</span> <span class="ident">csv_fields_before_headers</span> <span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">let </span>csv_fields_before_headers = <span class="number">1</span>;
 
-    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="ident">course_instances::get_course_instance</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="ident">chapters::course_chapters</span>(<span class="ident">conn</span>, <span class="ident">course_instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">chapters</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">chapter_number</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chapter_number_to_header_idx</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">chapter</span>) <span class="kw">in</span> <span class="ident">chapters</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="ident">chapter_number_to_header_idx</span>
-            .<span class="ident">insert</span>(<span class="ident">chapter</span>.<span class="ident">chapter_number</span>, <span class="ident">csv_fields_before_headers</span> <span class="op">+</span> <span class="ident">idx</span>);
+    <span class="kw">let </span>course_instance = course_instances::get_course_instance(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>chapters = chapters::course_chapters(conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    chapters.sort_by_key(|c| c.chapter_number);
+    <span class="kw">let </span><span class="kw-2">mut </span>chapter_number_to_header_idx = HashMap::new();
+    <span class="kw">for </span>(idx, chapter) <span class="kw">in </span>chapters.iter().enumerate() {
+        chapter_number_to_header_idx
+            .insert(chapter.chapter_number, csv_fields_before_headers + idx);
     }
 
-    <span class="kw">let</span> <span class="ident">header_count</span> <span class="op">=</span> <span class="ident">csv_fields_before_headers</span> <span class="op">+</span> <span class="ident">chapters</span>.<span class="ident">len</span>();
-    <span class="comment">// remember to update csv_fields_before_headers if this changes!</span>
-    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">IntoIterator::into_iter</span>([<span class="string">&quot;user_id&quot;</span>.<span class="ident">to_string</span>()])
-        .<span class="ident">chain</span>(<span class="ident">chapters</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">chapter_number</span>.<span class="ident">to_string</span>()));
+    <span class="kw">let </span>header_count = csv_fields_before_headers + chapters.len();
+    <span class="comment">// remember to update csv_fields_before_headers if this changes!
+    </span><span class="kw">let </span>headers = IntoIterator::into_iter([<span class="string">&quot;user_id&quot;</span>.to_string()])
+        .chain(chapters.into_iter().map(|c| c.chapter_number.to_string()));
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">user_exercise_states::stream_course_instance_points</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>stream = user_exercise_states::stream_course_instance_points(conn, course_instance_id);
 
-    <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">CsvWriter::new_with_initialized_headers</span>(<span class="ident">writer</span>, <span class="ident">headers</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">try_next</span>().<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">csv_row</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>(); <span class="ident">header_count</span>];
-        <span class="ident">csv_row</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">next</span>.<span class="ident">user_id</span>.<span class="ident">to_string</span>();
-        <span class="kw">for</span> <span class="ident">points</span> <span class="kw">in</span> <span class="ident">next</span>.<span class="ident">points_for_each_chapter</span> {
-            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">chapter_number_to_header_idx</span>
-                .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">points</span>.<span class="ident">chapter_number</span>)
-                .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Unexpected chapter number {}&quot;</span>, <span class="ident">points</span>.<span class="ident">chapter_number</span>))<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">csv_row</span>
-                .<span class="ident">get_mut</span>(<span class="kw-2">*</span><span class="ident">idx</span>)
-                .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Invalid chapter number {}&quot;</span>, <span class="ident">idx</span>))<span class="question-mark">?</span>;
-            <span class="kw-2">*</span><span class="ident">item</span> <span class="op">=</span> <span class="ident">points</span>.<span class="ident">points_for_chapter</span>.<span class="ident">to_string</span>();
+    <span class="kw">let </span>writer = CsvWriter::new_with_initialized_headers(writer, headers).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = stream.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>csv_row = <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>.to_string(); header_count];
+        csv_row[<span class="number">0</span>] = next.user_id.to_string();
+        <span class="kw">for </span>points <span class="kw">in </span>next.points_for_each_chapter {
+            <span class="kw">let </span>idx = chapter_number_to_header_idx
+                .get(<span class="kw-2">&amp;</span>points.chapter_number)
+                .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;Unexpected chapter number {}&quot;</span>, points.chapter_number))<span class="question-mark">?</span>;
+            <span class="kw">let </span>item = csv_row
+                .get_mut(<span class="kw-2">*</span>idx)
+                .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;Invalid chapter number {}&quot;</span>, idx))<span class="question-mark">?</span>;
+            <span class="kw-2">*</span>item = points.points_for_chapter.to_string();
         }
-        <span class="ident">writer</span>.<span class="ident">write_record</span>(<span class="ident">csv_row</span>);
+        writer.write_record(csv_row);
     }
-    <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">writer</span>.<span class="ident">finish</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">writer</span>)
+    <span class="kw">let </span>writer = writer.finish().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(writer)
 }
 
-<span class="comment">// Writes the points as csv into the writer</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">export_exam_points</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">exam_id</span>: <span class="ident">Uuid</span>, <span class="ident">writer</span>: <span class="ident">W</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">W</span>: <span class="ident">Write</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="comment">// Writes the points as csv into the writer
+</span><span class="kw">pub async fn </span>export_exam_points&lt;W&gt;(conn: <span class="kw-2">&amp;mut </span>PgConnection, exam_id: Uuid, writer: W) -&gt; <span class="prelude-ty">Result</span>&lt;W&gt;
+<span class="kw">where
+    </span>W: Write + Send + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">let</span> <span class="ident">csv_fields_before_headers</span> <span class="op">=</span> <span class="number">2</span>;
+    <span class="kw">let </span>csv_fields_before_headers = <span class="number">2</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="ident">exercises::get_exercises_by_exam_id</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// I&#39;s fine to sort just by order number because exams have no chapters</span>
-    <span class="ident">exercises</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">order_number</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">order_number</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>exercises = exercises::get_exercises_by_exam_id(conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// I&#39;s fine to sort just by order number because exams have no chapters
+    </span>exercises.sort_by(|a, b| a.order_number.cmp(<span class="kw-2">&amp;</span>b.order_number));
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_id_to_header_idx</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">exercise</span>) <span class="kw">in</span> <span class="ident">exercises</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="ident">exercise_id_to_header_idx</span>.<span class="ident">insert</span>(<span class="ident">exercise</span>.<span class="ident">id</span>, <span class="ident">csv_fields_before_headers</span> <span class="op">+</span> <span class="ident">idx</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>exercise_id_to_header_idx = HashMap::new();
+    <span class="kw">for </span>(idx, exercise) <span class="kw">in </span>exercises.iter().enumerate() {
+        exercise_id_to_header_idx.insert(exercise.id, csv_fields_before_headers + idx);
     }
 
-    <span class="kw">let</span> <span class="ident">header_count</span> <span class="op">=</span> <span class="ident">csv_fields_before_headers</span> <span class="op">+</span> <span class="ident">exercises</span>.<span class="ident">len</span>();
-    <span class="comment">// remember to update csv_fields_before_headers if this changes!</span>
-    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">IntoIterator::into_iter</span>([<span class="string">&quot;user_id&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;email&quot;</span>.<span class="ident">to_string</span>()]).<span class="ident">chain</span>(
-        <span class="ident">exercises</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">e</span>.<span class="ident">order_number</span>, <span class="ident">e</span>.<span class="ident">name</span>)),
+    <span class="kw">let </span>header_count = csv_fields_before_headers + exercises.len();
+    <span class="comment">// remember to update csv_fields_before_headers if this changes!
+    </span><span class="kw">let </span>headers = IntoIterator::into_iter([<span class="string">&quot;user_id&quot;</span>.to_string(), <span class="string">&quot;email&quot;</span>.to_string()]).chain(
+        exercises
+            .into_iter()
+            .map(|e| <span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, e.order_number, e.name)),
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">user_exercise_states::stream_exam_points</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>stream = user_exercise_states::stream_exam_points(conn, exam_id);
 
-    <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">CsvWriter::new_with_initialized_headers</span>(<span class="ident">writer</span>, <span class="ident">headers</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">try_next</span>().<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">csv_row</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>(); <span class="ident">header_count</span>];
-        <span class="ident">csv_row</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">next</span>.<span class="ident">user_id</span>.<span class="ident">to_string</span>();
-        <span class="ident">csv_row</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">next</span>.<span class="ident">email</span>;
-        <span class="kw">for</span> <span class="ident">points</span> <span class="kw">in</span> <span class="ident">next</span>.<span class="ident">points_for_exercise</span> {
-            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">exercise_id_to_header_idx</span>
-                .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">points</span>.<span class="ident">exercise_id</span>)
-                .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Unexpected exercise id {}&quot;</span>, <span class="ident">points</span>.<span class="ident">exercise_id</span>))<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">csv_row</span>
-                .<span class="ident">get_mut</span>(<span class="kw-2">*</span><span class="ident">idx</span>)
-                .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Invalid index {}&quot;</span>, <span class="ident">idx</span>))<span class="question-mark">?</span>;
-            <span class="kw-2">*</span><span class="ident">item</span> <span class="op">=</span> <span class="ident">points</span>.<span class="ident">score_given</span>.<span class="ident">to_string</span>();
+    <span class="kw">let </span>writer = CsvWriter::new_with_initialized_headers(writer, headers).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = stream.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>csv_row = <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>.to_string(); header_count];
+        csv_row[<span class="number">0</span>] = next.user_id.to_string();
+        csv_row[<span class="number">1</span>] = next.email;
+        <span class="kw">for </span>points <span class="kw">in </span>next.points_for_exercise {
+            <span class="kw">let </span>idx = exercise_id_to_header_idx
+                .get(<span class="kw-2">&amp;</span>points.exercise_id)
+                .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;Unexpected exercise id {}&quot;</span>, points.exercise_id))<span class="question-mark">?</span>;
+            <span class="kw">let </span>item = csv_row
+                .get_mut(<span class="kw-2">*</span>idx)
+                .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;Invalid index {}&quot;</span>, idx))<span class="question-mark">?</span>;
+            <span class="kw-2">*</span>item = points.score_given.to_string();
         }
-        <span class="ident">writer</span>.<span class="ident">write_record</span>(<span class="ident">csv_row</span>);
+        writer.write_record(csv_row);
     }
-    <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">writer</span>.<span class="ident">finish</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">writer</span>)
+    <span class="kw">let </span>writer = writer.finish().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(writer)
 }
 
-<span class="comment">// Writes the submissions as csv into the writer</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">export_exam_submissions</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">writer</span>: <span class="ident">W</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">W</span>: <span class="ident">Write</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="comment">// Writes the submissions as csv into the writer
+</span><span class="kw">pub async fn </span>export_exam_submissions&lt;W&gt;(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exam_id: Uuid,
+    writer: W,
+) -&gt; <span class="prelude-ty">Result</span>&lt;W&gt;
+<span class="kw">where
+    </span>W: Write + Send + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">IntoIterator::into_iter</span>([
-        <span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="string">&quot;user_id&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="string">&quot;created_at&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="string">&quot;exercise_id&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="string">&quot;exercise_task_id&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="string">&quot;score_given&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="string">&quot;data_json&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>headers = IntoIterator::into_iter([
+        <span class="string">&quot;id&quot;</span>.to_string(),
+        <span class="string">&quot;user_id&quot;</span>.to_string(),
+        <span class="string">&quot;created_at&quot;</span>.to_string(),
+        <span class="string">&quot;exercise_id&quot;</span>.to_string(),
+        <span class="string">&quot;exercise_task_id&quot;</span>.to_string(),
+        <span class="string">&quot;score_given&quot;</span>.to_string(),
+        <span class="string">&quot;data_json&quot;</span>.to_string(),
     ]);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">exercise_task_submissions::stream_exam_submissions</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>stream = exercise_task_submissions::stream_exam_submissions(conn, exam_id);
 
-    <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">CsvWriter::new_with_initialized_headers</span>(<span class="ident">writer</span>, <span class="ident">headers</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">try_next</span>().<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="kw">let</span> <span class="ident">csv_row</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="ident">next</span>.<span class="ident">id</span>.<span class="ident">to_string</span>(),
-            <span class="ident">next</span>.<span class="ident">user_id</span>.<span class="ident">to_string</span>(),
-            <span class="ident">next</span>.<span class="ident">created_at</span>.<span class="ident">to_string</span>(),
-            <span class="ident">next</span>.<span class="ident">exercise_id</span>.<span class="ident">to_string</span>(),
-            <span class="ident">next</span>.<span class="ident">exercise_task_id</span>.<span class="ident">to_string</span>(),
-            <span class="ident">next</span>.<span class="ident">score_given</span>.<span class="ident">unwrap_or</span>(<span class="number">0.0</span>).<span class="ident">to_string</span>(),
-            <span class="ident">next</span>.<span class="ident">data_json</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">to_string</span>())
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()),
+    <span class="kw">let </span>writer = CsvWriter::new_with_initialized_headers(writer, headers).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(next) = stream.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">let </span>csv_row = <span class="macro">vec!</span>[
+            next.id.to_string(),
+            next.user_id.to_string(),
+            next.created_at.to_string(),
+            next.exercise_id.to_string(),
+            next.exercise_task_id.to_string(),
+            next.score_given.unwrap_or(<span class="number">0.0</span>).to_string(),
+            next.data_json
+                .map(|o| o.to_string())
+                .unwrap_or_else(|| <span class="string">&quot;&quot;</span>.to_string()),
         ];
-        <span class="ident">writer</span>.<span class="ident">write_record</span>(<span class="ident">csv_row</span>);
+        writer.write_record(csv_row);
     }
-    <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">writer</span>.<span class="ident">finish</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">writer</span>)
+    <span class="kw">let </span>writer = writer.finish().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(writer)
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CSVExportAdapter</span> {
-    <span class="kw">pub</span> <span class="ident">sender</span>: <span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">authorization_token</span>: <span class="ident">AuthorizationToken</span>,
+<span class="kw">pub struct </span>CSVExportAdapter {
+    <span class="kw">pub </span>sender: UnboundedSender&lt;ControllerResult&lt;Bytes&gt;&gt;,
+    <span class="kw">pub </span>authorization_token: AuthorizationToken,
 }
-<span class="kw">impl</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">CSVExportAdapter</span> {
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">impl </span>Write <span class="kw">for </span>CSVExportAdapter {
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; std::io::Result&lt;()&gt; {
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Bytes::copy_from_slice</span>(<span class="ident">buf</span>);
-        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">authorization_token</span>;
-        <span class="self">self</span>.<span class="ident">sender</span>
-            .<span class="ident">send</span>(<span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">bytes</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">e</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">buf</span>.<span class="ident">len</span>())
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; std::io::Result&lt;usize&gt; {
+        <span class="kw">let </span>bytes = Bytes::copy_from_slice(buf);
+        <span class="kw">let </span>token = <span class="self">self</span>.authorization_token;
+        <span class="self">self</span>.sender
+            .send(token.authorized_ok(bytes))
+            .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(buf.len())
     }
 }
 
@@ -787,254 +787,254 @@ HttpResponse::Ok()
         receiver,
     ))),
 ```
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_authorized_streamable</span>(
-    <span class="ident">stream</span>: <span class="ident">UnboundedReceiverStream</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizedResponse</span><span class="op">&lt;</span><span class="ident">bytes::Bytes</span><span class="op">&gt;</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bytes::Bytes</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">stream</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="ident">item</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">item2</span><span class="op">|</span> <span class="ident">item2</span>.<span class="ident">data</span>))
+*/
+</span><span class="kw">pub fn </span>make_authorized_streamable(
+    stream: UnboundedReceiverStream&lt;<span class="prelude-ty">Result</span>&lt;AuthorizedResponse&lt;bytes::Bytes&gt;, ControllerError&gt;&gt;,
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;bytes::Bytes, ControllerError&gt;&gt; {
+    stream.map(|item| item.map(|item2| item2.data))
 }
 
 <span class="doccomment">/**
   For streaming arrays of json objects.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serializable_sqlx_result_stream_to_json_stream</span>(
-    <span class="ident">stream</span>: <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Serialize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bytes::Bytes</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res_stream</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">n</span>, <span class="ident">item</span>)<span class="op">|</span> {
-        <span class="ident">item</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">item2</span><span class="op">|</span> {
-            <span class="kw">match</span> <span class="ident">serde_json::to_vec</span>(<span class="kw-2">&amp;</span><span class="ident">item2</span>) {
-                <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">v</span>) =&gt; {
-                    <span class="comment">// Only item index available, we don&#39;t know the length of the stream</span>
-                    <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
-                        <span class="comment">// Start of array character to the beginning of the stream</span>
-                        <span class="ident">v</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="string">b&#39;[&#39;</span>);
-                    } <span class="kw">else</span> {
-                        <span class="comment">// Separator character before every item excluding the first item</span>
-                        <span class="ident">v</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="string">b&#39;,&#39;</span>);
+*/
+</span><span class="kw">pub fn </span>serializable_sqlx_result_stream_to_json_stream(
+    stream: <span class="kw">impl </span>Stream&lt;Item = sqlx::Result&lt;<span class="kw">impl </span>Serialize&gt;&gt;,
+) -&gt; <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;bytes::Bytes, ControllerError&gt;&gt; {
+    <span class="kw">let </span>res_stream = stream.enumerate().map(|(n, item)| {
+        item.map(|item2| {
+            <span class="kw">match </span>serde_json::to_vec(<span class="kw-2">&amp;</span>item2) {
+                <span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>v) =&gt; {
+                    <span class="comment">// Only item index available, we don&#39;t know the length of the stream
+                    </span><span class="kw">if </span>n == <span class="number">0 </span>{
+                        <span class="comment">// Start of array character to the beginning of the stream
+                        </span>v.insert(<span class="number">0</span>, <span class="string">b&#39;[&#39;</span>);
+                    } <span class="kw">else </span>{
+                        <span class="comment">// Separator character before every item excluding the first item
+                        </span>v.insert(<span class="number">0</span>, <span class="string">b&#39;,&#39;</span>);
                     }
-                    <span class="ident">Bytes::from</span>(<span class="ident">v</span>)
+                    Bytes::from(v)
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                    <span class="comment">// Since we&#39;re already streaming a response, we have no way to change the status code of the response anymore.</span>
-                    <span class="comment">// Our best option at this point is to write the error to the response, hopefully causing the response to be invalid json.</span>
-                    <span class="macro">error!</span>(<span class="string">&quot;Failed to serialize item: {}&quot;</span>, <span class="ident">e</span>);
-                    <span class="ident">Bytes::from</span>(<span class="macro">format!</span>(
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    <span class="comment">// Since we&#39;re already streaming a response, we have no way to change the status code of the response anymore.
+                    // Our best option at this point is to write the error to the response, hopefully causing the response to be invalid json.
+                    </span><span class="macro">error!</span>(<span class="string">&quot;Failed to serialize item: {}&quot;</span>, e);
+                    Bytes::from(<span class="macro">format!</span>(
                         <span class="string">&quot;Streaming error: Failed to serialize item. Details: {:?}&quot;</span>,
-                        <span class="ident">e</span>
+                        e
                     ))
                 }
             }
         })
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+        .map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
             )
         })
     });
-    <span class="comment">// Chaining the end of the json array character here because in the previous map we don&#39;t know the length of the stream</span>
-    <span class="ident">res_stream</span>.<span class="ident">chain</span>(<span class="ident">tokio_stream::iter</span>(<span class="macro">vec!</span>[<span class="prelude-val">Ok</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;]&quot;</span>))]))
+    <span class="comment">// Chaining the end of the json array character here because in the previous map we don&#39;t know the length of the stream
+    </span>res_stream.chain(tokio_stream::iter(<span class="macro">vec!</span>[<span class="prelude-val">Ok</span>(Bytes::from_static(<span class="string">b&quot;]&quot;</span>))]))
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::{
-        <span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Cursor</span>},
-        <span class="ident">sync::mpsc::Sender</span>,
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>std::{
+        io::{<span class="self">self</span>, Cursor},
+        sync::mpsc::Sender,
     };
 
-    <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-    <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
-        <span class="ident">exercise_slides</span>,
-        <span class="ident">exercise_task_gradings::ExerciseTaskGradingResult</span>,
-        <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">NewExerciseTask</span>},
-        <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">GradingProgress</span>},
-        <span class="ident">library::grading</span>::{
-            <span class="ident">GradingPolicy</span>, <span class="ident">StudentExerciseSlideSubmission</span>, <span class="ident">StudentExerciseTaskSubmission</span>,
+    <span class="kw">use </span>bytes::Bytes;
+    <span class="kw">use </span>headless_lms_models::{
+        exercise_slides,
+        exercise_task_gradings::ExerciseTaskGradingResult,
+        exercise_tasks::{<span class="self">self</span>, NewExerciseTask},
+        exercises::{<span class="self">self</span>, GradingProgress},
+        library::grading::{
+            GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseTaskSubmission,
         },
-        <span class="ident">user_exercise_states::ExerciseWithUserState</span>,
-        <span class="ident">users</span>,
+        user_exercise_states::ExerciseWithUserState,
+        users,
     };
-    <span class="kw">use</span> <span class="ident">models::chapters::NewChapter</span>;
-    <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
+    <span class="kw">use </span>models::chapters::NewChapter;
+    <span class="kw">use </span>serde_json::Value;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test_helper::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">exports</span>() {
-        <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>, :<span class="ident">task</span>);
+    <span class="attribute">#[actix_web::test]
+    </span><span class="kw">async fn </span>exports() {
+        <span class="macro">insert_data!</span>(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
 
-        <span class="kw">let</span> <span class="ident">u2</span> <span class="op">=</span> <span class="ident">users::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="kw">let </span>u2 = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
             <span class="string">&quot;second@example.org&quot;</span>,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">c2</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">PKeyPolicy::Generate</span>,
-            <span class="kw-2">&amp;</span><span class="ident">NewChapter</span> {
-                <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">color</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;#065853&quot;</span>.<span class="ident">to_string</span>()),
-                <span class="ident">course_id</span>: <span class="ident">course</span>,
-                <span class="ident">chapter_number</span>: <span class="number">2</span>,
-                <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
-                <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-                <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_module</span>.<span class="ident">id</span>),
+        .<span class="kw">await
+        </span>.unwrap();
+        <span class="kw">let </span>c2 = chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            <span class="kw-2">&amp;</span>NewChapter {
+                name: <span class="string">&quot;&quot;</span>.to_string(),
+                color: <span class="prelude-val">Some</span>(<span class="string">&quot;#065853&quot;</span>.to_string()),
+                course_id: course,
+                chapter_number: <span class="number">2</span>,
+                front_page_id: <span class="prelude-val">None</span>,
+                opens_at: <span class="prelude-val">None</span>,
+                deadline: <span class="prelude-val">None</span>,
+                course_module_id: <span class="prelude-val">Some</span>(course_module.id),
             },
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">course</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page</span>, <span class="ident">c2</span>, <span class="number">0</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">s2</span> <span class="op">=</span> <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">e2</span>, <span class="number">0</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">et2</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">PKeyPolicy::Generate</span>,
-            <span class="ident">NewExerciseTask</span> {
-                <span class="ident">exercise_slide_id</span>: <span class="ident">s2</span>,
-                <span class="ident">exercise_type</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
-                <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                <span class="ident">order_number</span>: <span class="number">1</span>,
+        .<span class="kw">await
+        </span>.unwrap();
+        <span class="kw">let </span>e2 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="string">&quot;&quot;</span>, page, c2, <span class="number">0</span>)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span>s2 = exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, e2, <span class="number">0</span>)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span>et2 = exercise_tasks::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            NewExerciseTask {
+                exercise_slide_id: s2,
+                exercise_type: <span class="string">&quot;&quot;</span>.to_string(),
+                assignment: <span class="macro">vec!</span>[],
+                public_spec: <span class="prelude-val">Some</span>(Value::Null),
+                private_spec: <span class="prelude-val">Some</span>(Value::Null),
+                model_solution_spec: <span class="prelude-val">Some</span>(Value::Null),
+                order_number: <span class="number">1</span>,
             },
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">e3</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">course</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page</span>, <span class="ident">c2</span>, <span class="number">1</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">s3</span> <span class="op">=</span> <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">e3</span>, <span class="number">0</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">et3</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">PKeyPolicy::Generate</span>,
-            <span class="ident">NewExerciseTask</span> {
-                <span class="ident">exercise_slide_id</span>: <span class="ident">s3</span>,
-                <span class="ident">exercise_type</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
-                <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                <span class="ident">order_number</span>: <span class="number">2</span>,
+        .<span class="kw">await
+        </span>.unwrap();
+        <span class="kw">let </span>e3 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, <span class="string">&quot;&quot;</span>, page, c2, <span class="number">1</span>)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span>s3 = exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, e3, <span class="number">0</span>)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span>et3 = exercise_tasks::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            NewExerciseTask {
+                exercise_slide_id: s3,
+                exercise_type: <span class="string">&quot;&quot;</span>.to_string(),
+                assignment: <span class="macro">vec!</span>[],
+                public_spec: <span class="prelude-val">Some</span>(Value::Null),
+                private_spec: <span class="prelude-val">Some</span>(Value::Null),
+                model_solution_spec: <span class="prelude-val">Some</span>(Value::Null),
+                order_number: <span class="number">2</span>,
             },
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>, <span class="ident">slide</span>, <span class="ident">task</span>, <span class="ident">user</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">12.34</span>).<span class="kw">await</span>;
-        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="ident">s2</span>, <span class="ident">et2</span>, <span class="ident">user</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">23.45</span>).<span class="kw">await</span>;
-        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e2</span>, <span class="ident">s2</span>, <span class="ident">et2</span>, <span class="ident">u2</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">34.56</span>).<span class="kw">await</span>;
-        <span class="ident">submit_and_grade</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">e3</span>, <span class="ident">s3</span>, <span class="ident">et3</span>, <span class="ident">u2</span>, <span class="ident">instance</span>.<span class="ident">id</span>, <span class="number">45.67</span>).<span class="kw">await</span>;
+        .<span class="kw">await
+        </span>.unwrap();
+        submit_and_grade(tx.as_mut(), exercise, slide, task, user, instance.id, <span class="number">12.34</span>).<span class="kw">await</span>;
+        submit_and_grade(tx.as_mut(), e2, s2, et2, user, instance.id, <span class="number">23.45</span>).<span class="kw">await</span>;
+        submit_and_grade(tx.as_mut(), e2, s2, et2, u2, instance.id, <span class="number">34.56</span>).<span class="kw">await</span>;
+        submit_and_grade(tx.as_mut(), e3, s3, et3, u2, instance.id, <span class="number">45.67</span>).<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">export_course_instance_points</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">instance</span>.<span class="ident">id</span>, <span class="ident">buf</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">buf</span>);
+        <span class="kw">let </span>buf = <span class="macro">vec!</span>[];
+        <span class="kw">let </span>buf = export_course_instance_points(tx.as_mut(), instance.id, buf)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span>buf = Cursor::new(buf);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">buf</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">record</span> <span class="kw">in</span> <span class="ident">reader</span>.<span class="ident">records</span>() {
-            <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">record</span>.<span class="ident">unwrap</span>();
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">record</span>.<span class="ident">as_slice</span>());
-            <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="kw-2">&amp;</span><span class="ident">record</span>[<span class="number">0</span>]).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="ident">record</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">second</span> <span class="op">=</span> <span class="ident">record</span>[<span class="number">2</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">user_id</span> <span class="op">==</span> <span class="ident">user</span> {
-                <span class="macro">assert!</span>((<span class="ident">first</span> <span class="op">-</span> <span class="number">0.1234</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.1</span> <span class="op">&amp;&amp;</span> (<span class="ident">second</span> <span class="op">-</span> <span class="number">0.2345</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.1</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">user_id</span> <span class="op">==</span> <span class="ident">u2</span> {
-                <span class="macro">assert!</span>((<span class="ident">first</span> <span class="op">-</span> <span class="number">0.0</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.1</span> <span class="op">&amp;&amp;</span> (<span class="ident">second</span> <span class="op">-</span> <span class="number">0.8023</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.1</span>);
-            } <span class="kw">else</span> {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = csv::Reader::from_reader(buf);
+        <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+        <span class="kw">for </span>record <span class="kw">in </span>reader.records() {
+            count += <span class="number">1</span>;
+            <span class="kw">let </span>record = record.unwrap();
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, record.as_slice());
+            <span class="kw">let </span>user_id = Uuid::parse_str(<span class="kw-2">&amp;</span>record[<span class="number">0</span>]).unwrap();
+            <span class="kw">let </span>first = record[<span class="number">1</span>].parse::&lt;f32&gt;().unwrap();
+            <span class="kw">let </span>second = record[<span class="number">2</span>].parse::&lt;f32&gt;().unwrap();
+            <span class="kw">if </span>user_id == user {
+                <span class="macro">assert!</span>((first - <span class="number">0.1234</span>).abs() &lt; <span class="number">0.1 </span>&amp;&amp; (second - <span class="number">0.2345</span>).abs() &lt; <span class="number">0.1</span>);
+            } <span class="kw">else if </span>user_id == u2 {
+                <span class="macro">assert!</span>((first - <span class="number">0.0</span>).abs() &lt; <span class="number">0.1 </span>&amp;&amp; (second - <span class="number">0.8023</span>).abs() &lt; <span class="number">0.1</span>);
+            } <span class="kw">else </span>{
                 <span class="macro">panic!</span>(<span class="string">&quot;unexpected user id&quot;</span>);
             }
         }
-        <span class="macro">assert_eq!</span>(<span class="ident">count</span>, <span class="number">2</span>)
+        <span class="macro">assert_eq!</span>(count, <span class="number">2</span>)
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">submit_and_grade</span>(
-        <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-        <span class="ident">ex</span>: <span class="ident">Uuid</span>,
-        <span class="ident">ex_slide</span>: <span class="ident">Uuid</span>,
-        <span class="ident">et</span>: <span class="ident">Uuid</span>,
-        <span class="ident">u</span>: <span class="ident">Uuid</span>,
-        <span class="ident">ci</span>: <span class="ident">Uuid</span>,
-        <span class="ident">score_given</span>: <span class="ident">f32</span>,
+    <span class="kw">async fn </span>submit_and_grade(
+        tx: <span class="kw-2">&amp;mut </span>PgConnection,
+        ex: Uuid,
+        ex_slide: Uuid,
+        et: Uuid,
+        u: Uuid,
+        ci: Uuid,
+        score_given: f32,
     ) {
-        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>, <span class="ident">ex</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(<span class="ident">tx</span>, <span class="ident">u</span>, <span class="ident">ex</span>, <span class="prelude-val">Some</span>(<span class="ident">ci</span>), <span class="prelude-val">None</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="ident">user_exercise_states::upsert_selected_exercise_slide_id</span>(
-            <span class="ident">tx</span>,
-            <span class="ident">u</span>,
-            <span class="ident">ex</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">ci</span>),
+        <span class="kw">let </span>exercise = exercises::get_by_id(tx, ex).<span class="kw">await</span>.unwrap();
+        user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, <span class="prelude-val">Some</span>(ci), <span class="prelude-val">None</span>)
+            .<span class="kw">await
+            </span>.unwrap();
+        user_exercise_states::upsert_selected_exercise_slide_id(
+            tx,
+            u,
+            ex,
+            <span class="prelude-val">Some</span>(ci),
             <span class="prelude-val">None</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">ex_slide</span>),
+            <span class="prelude-val">Some</span>(ex_slide),
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span>
-            <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(<span class="ident">tx</span>, <span class="ident">u</span>, <span class="ident">ex</span>, <span class="prelude-val">Some</span>(<span class="ident">ci</span>), <span class="prelude-val">None</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_with_user_state</span> <span class="op">=</span>
-            <span class="ident">ExerciseWithUserState::new</span>(<span class="ident">exercise</span>, <span class="ident">user_exercise_state</span>).<span class="ident">unwrap</span>();
-        <span class="ident">headless_lms_models::library::grading::grade_user_submission</span>(
-            <span class="ident">tx</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">exercise_with_user_state</span>,
-            <span class="ident">StudentExerciseSlideSubmission</span> {
-                <span class="ident">exercise_slide_id</span>: <span class="ident">ex_slide</span>,
-                <span class="ident">exercise_task_submissions</span>: <span class="macro">vec!</span>[<span class="ident">StudentExerciseTaskSubmission</span> {
-                    <span class="ident">exercise_task_id</span>: <span class="ident">et</span>,
-                    <span class="ident">data_json</span>: <span class="ident">Value::Null</span>,
+        .<span class="kw">await
+        </span>.unwrap();
+        <span class="kw">let </span>user_exercise_state =
+            user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, <span class="prelude-val">Some</span>(ci), <span class="prelude-val">None</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>exercise_with_user_state =
+            ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
+        headless_lms_models::library::grading::grade_user_submission(
+            tx,
+            <span class="kw-2">&amp;mut </span>exercise_with_user_state,
+            StudentExerciseSlideSubmission {
+                exercise_slide_id: ex_slide,
+                exercise_task_submissions: <span class="macro">vec!</span>[StudentExerciseTaskSubmission {
+                    exercise_task_id: et,
+                    data_json: Value::Null,
                 }],
             },
-            <span class="ident">GradingPolicy::Fixed</span>(<span class="ident">HashMap::from</span>([(
-                <span class="ident">et</span>,
-                <span class="ident">ExerciseTaskGradingResult</span> {
-                    <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
-                    <span class="ident">score_given</span>,
-                    <span class="ident">score_maximum</span>: <span class="number">100</span>,
+            GradingPolicy::Fixed(HashMap::from([(
+                et,
+                ExerciseTaskGradingResult {
+                    feedback_json: <span class="prelude-val">None</span>,
+                    feedback_text: <span class="prelude-val">None</span>,
+                    grading_progress: GradingProgress::FullyGraded,
+                    score_given,
+                    score_maximum: <span class="number">100</span>,
                 },
             )])),
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
+        .<span class="kw">await
+        </span>.unwrap();
     }
 
-    <span class="kw">struct</span> <span class="ident">WriteAdapter</span> {
-        <span class="ident">sender</span>: <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>,
+    <span class="kw">struct </span>WriteAdapter {
+        sender: Sender&lt;Bytes&gt;,
     }
 
-    <span class="kw">impl</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">WriteAdapter</span> {
-        <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">impl </span>Write <span class="kw">for </span>WriteAdapter {
+        <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; std::io::Result&lt;()&gt; {
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Bytes::copy_from_slice</span>(<span class="ident">buf</span>);
-            <span class="self">self</span>.<span class="ident">sender</span>
-                .<span class="ident">send</span>(<span class="ident">bytes</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">e</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="ident">buf</span>.<span class="ident">len</span>())
+        <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; std::io::Result&lt;usize&gt; {
+            <span class="kw">let </span>bytes = Bytes::copy_from_slice(buf);
+            <span class="self">self</span>.sender
+                .send(bytes)
+                .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(buf.len())
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/open_university_registration_link_fetcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>open_university_registration_link_fetcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/open_university_registration_link_fetcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>open_university_registration_link_fetcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -134,141 +134,141 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::env</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::env;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::setup_tracing</span>;
-<span class="kw">use</span> <span class="ident">anyhow::Context</span>;
-<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">NaiveDateTime</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">dotenv::dotenv</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_models</span> <span class="kw">as</span> <span class="ident">models</span>;
-<span class="kw">use</span> <span class="ident">reqwest::Client</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">PgConnection</span>, <span class="ident">PgPool</span>};
+<span class="kw">use </span><span class="kw">crate</span>::setup_tracing;
+<span class="kw">use </span>anyhow::Context;
+<span class="kw">use </span>chrono::{NaiveDateTime, Utc};
+<span class="kw">use </span>dotenv::dotenv;
+<span class="kw">use </span>headless_lms_models <span class="kw">as </span>models;
+<span class="kw">use </span>reqwest::Client;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>sqlx::{PgConnection, PgPool};
 
-<span class="kw">const</span> <span class="ident">OPEN_UNIVERSITY_REGISTRATION_BASE_URL</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span>
+<span class="kw">const </span>OPEN_UNIVERSITY_REGISTRATION_BASE_URL: <span class="kw-2">&amp;</span>str =
     <span class="string">&quot;https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=&quot;</span>;
-<span class="kw">const</span> <span class="ident">OPEN_UNIVERSITY_COURSE_URL</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;OPEN_UNIVERSITY_COURSE_URL&quot;</span>;
-<span class="kw">const</span> <span class="ident">OPEN_UNIVERSITY_TOKEN</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;OPEN_UNIVERSITY_TOKEN&quot;</span>;
+<span class="kw">const </span>OPEN_UNIVERSITY_COURSE_URL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;OPEN_UNIVERSITY_COURSE_URL&quot;</span>;
+<span class="kw">const </span>OPEN_UNIVERSITY_TOKEN: <span class="kw-2">&amp;</span>str = <span class="string">&quot;OPEN_UNIVERSITY_TOKEN&quot;</span>;
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="ident">env::set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,actix_web=info,sqlx=warn&quot;</span>);
-    <span class="ident">dotenv</span>().<span class="ident">ok</span>();
-    <span class="ident">setup_tracing</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">database_url</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;DATABASE_URL&quot;</span>)
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;postgres://localhost/headless_lms_dev&quot;</span>.<span class="ident">to_string</span>());
-    <span class="kw">let</span> <span class="ident">open_university_course_url</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="ident">OPEN_UNIVERSITY_COURSE_URL</span>);
-    <span class="kw">let</span> <span class="ident">open_university_token</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="ident">OPEN_UNIVERSITY_TOKEN</span>);
-    <span class="kw">match</span> (<span class="ident">open_university_course_url</span>, <span class="ident">open_university_token</span>) {
-        (<span class="prelude-val">Ok</span>(<span class="ident">url</span>), <span class="prelude-val">Ok</span>(<span class="ident">token</span>)) =&gt; {
+<span class="kw">pub async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
+    env::set_var(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,actix_web=info,sqlx=warn&quot;</span>);
+    dotenv().ok();
+    setup_tracing()<span class="question-mark">?</span>;
+    <span class="kw">let </span>database_url = env::var(<span class="string">&quot;DATABASE_URL&quot;</span>)
+        .unwrap_or_else(|<span class="kw">_</span>| <span class="string">&quot;postgres://localhost/headless_lms_dev&quot;</span>.to_string());
+    <span class="kw">let </span>open_university_course_url = env::var(OPEN_UNIVERSITY_COURSE_URL);
+    <span class="kw">let </span>open_university_token = env::var(OPEN_UNIVERSITY_TOKEN);
+    <span class="kw">match </span>(open_university_course_url, open_university_token) {
+        (<span class="prelude-val">Ok</span>(url), <span class="prelude-val">Ok</span>(token)) =&gt; {
             <span class="macro">tracing::info!</span>(<span class="string">&quot;Fetching and updating Open University completion links.&quot;</span>);
-            <span class="kw">let</span> <span class="ident">db_pool</span> <span class="op">=</span> <span class="ident">PgPool::connect</span>(<span class="kw-2">&amp;</span><span class="ident">database_url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">db_pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">fetch_and_update_completion_links</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">token</span>).<span class="kw">await</span>;
-            <span class="kw">match</span> <span class="ident">res</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">updates</span>) =&gt; {
-                    <span class="macro">tracing::info!</span>(<span class="string">&quot;{} registration completion links were updated.&quot;</span>, <span class="ident">updates</span>)
+            <span class="kw">let </span>db_pool = PgPool::connect(<span class="kw-2">&amp;</span>database_url).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>conn = db_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>res = fetch_and_update_completion_links(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>url, <span class="kw-2">&amp;</span>token).<span class="kw">await</span>;
+            <span class="kw">match </span>res {
+                <span class="prelude-val">Ok</span>(updates) =&gt; {
+                    <span class="macro">tracing::info!</span>(<span class="string">&quot;{} registration completion links were updated.&quot;</span>, updates)
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">tracing::error!</span>(
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">tracing::error!</span>(
                     <span class="string">&quot;Updating open university completion links resulted in an error: {:#?}&quot;</span>,
-                    <span class="ident">err</span>,
+                    err,
                 ),
             };
         }
-        <span class="kw">_</span> =&gt; {
+        <span class="kw">_ </span>=&gt; {
             <span class="macro">tracing::info!</span>(
                 <span class="string">&quot;Open university completion link fetch job was a no-op; environment values {} and {} need to be defined.&quot;</span>,
-                <span class="ident">OPEN_UNIVERSITY_COURSE_URL</span>,
-                <span class="ident">OPEN_UNIVERSITY_TOKEN</span>,
+                OPEN_UNIVERSITY_COURSE_URL,
+                OPEN_UNIVERSITY_TOKEN,
             );
         }
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Fetches up-to-date Open University completion registration links, upserts them to database and</span>
-<span class="doccomment">/// returns to amount of updated records.</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_and_update_completion_links</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">open_university_course_url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">open_university_token</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">updates</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::default</span>();
-    <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Utc::now</span>().<span class="ident">naive_utc</span>();
-    <span class="kw">for</span> <span class="ident">uh_course_code</span> <span class="kw">in</span> <span class="ident">models::course_modules::get_all_uh_course_codes</span>(<span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">open_university_course_url</span>, <span class="kw-2">&amp;</span><span class="ident">uh_course_code</span>);
-        <span class="comment">// TODO: Handle error if no info found for single course code</span>
-        <span class="kw">let</span> <span class="ident">infos</span> <span class="op">=</span>
-            <span class="ident">get_open_university_info_for_course_code</span>(<span class="kw-2">&amp;</span><span class="ident">client</span>, <span class="kw-2">&amp;</span><span class="ident">url</span>, <span class="ident">open_university_token</span>).<span class="kw">await</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">infos</span>) <span class="op">=</span> <span class="ident">infos</span> {
-            <span class="comment">// Select link that has already started and has the latest end date.</span>
-            <span class="kw">let</span> <span class="ident">best_candidate</span> <span class="op">=</span> <span class="ident">select_best_candidate</span>(<span class="ident">now</span>, <span class="ident">infos</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">open_university_info</span>) <span class="op">=</span> <span class="ident">best_candidate</span> {
-                <span class="comment">// Only update link if there is a new one.</span>
-                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span>
-                    <span class="ident">update_course_registration_link</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">uh_course_code</span>, <span class="kw-2">&amp;</span><span class="ident">open_university_info</span>)
+<span class="doccomment">/// Fetches up-to-date Open University completion registration links, upserts them to database and
+/// returns to amount of updated records.
+</span><span class="kw">async fn </span>fetch_and_update_completion_links(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    open_university_course_url: <span class="kw-2">&amp;</span>str,
+    open_university_token: <span class="kw-2">&amp;</span>str,
+) -&gt; anyhow::Result&lt;u32&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>updates = <span class="number">0</span>;
+    <span class="kw">let </span>client = Client::default();
+    <span class="kw">let </span>now = Utc::now().naive_utc();
+    <span class="kw">for </span>uh_course_code <span class="kw">in </span>models::course_modules::get_all_uh_course_codes(conn).<span class="kw">await</span><span class="question-mark">? </span>{
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="kw-2">&amp;</span>open_university_course_url, <span class="kw-2">&amp;</span>uh_course_code);
+        <span class="comment">// TODO: Handle error if no info found for single course code
+        </span><span class="kw">let </span>infos =
+            get_open_university_info_for_course_code(<span class="kw-2">&amp;</span>client, <span class="kw-2">&amp;</span>url, open_university_token).<span class="kw">await</span>;
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(infos) = infos {
+            <span class="comment">// Select link that has already started and has the latest end date.
+            </span><span class="kw">let </span>best_candidate = select_best_candidate(now, infos);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(open_university_info) = best_candidate {
+                <span class="comment">// Only update link if there is a new one.
+                </span><span class="kw">let </span>res =
+                    update_course_registration_link(conn, <span class="kw-2">&amp;</span>uh_course_code, <span class="kw-2">&amp;</span>open_university_info)
                         .<span class="kw">await</span>;
-                <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_err</span>() {
-                    <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to update link for course code {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">uh_course_code</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">updates</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="kw">if </span>res.is_err() {
+                    <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to update link for course code {}&quot;</span>, <span class="kw-2">&amp;</span>uh_course_code);
+                } <span class="kw">else </span>{
+                    updates += <span class="number">1</span>;
                 }
             }
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="macro">tracing::error!</span>(
                 <span class="string">&quot;Failed to get completion registration info for course code &#39;{}&#39;.&quot;</span>,
-                <span class="ident">uh_course_code</span>,
+                uh_course_code,
             );
         }
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">updates</span>)
+    <span class="prelude-val">Ok</span>(updates)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">OpenUniversityInfo</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;oodi_id&quot;</span>)]</span>
-    <span class="ident">link</span>: <span class="ident">String</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;alkupvm&quot;</span>)]</span>
-    <span class="ident">start_date</span>: <span class="ident">NaiveDateTime</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;loppupvm&quot;</span>)]</span>
-    <span class="ident">end_date</span>: <span class="ident">NaiveDateTime</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Debug)]
+</span><span class="kw">struct </span>OpenUniversityInfo {
+    <span class="attribute">#[serde(rename = <span class="string">&quot;oodi_id&quot;</span>)]
+    </span>link: String,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;alkupvm&quot;</span>)]
+    </span>start_date: NaiveDateTime,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;loppupvm&quot;</span>)]
+    </span>end_date: NaiveDateTime,
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_open_university_info_for_course_code</span>(
-    <span class="ident">client</span>: <span class="kw-2">&amp;</span><span class="ident">Client</span>,
-    <span class="ident">course_url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OpenUniversityInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>
-        .<span class="ident">get</span>(<span class="ident">course_url</span>)
-        .<span class="ident">header</span>(<span class="string">&quot;Authorized&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;Basic {}&quot;</span>, <span class="ident">token</span>))
-        .<span class="ident">send</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">context</span>(<span class="string">&quot;Failed to send a request to Open University.&quot;</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">alternatives</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OpenUniversityInfo</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">alternatives</span>)
+<span class="kw">async fn </span>get_open_university_info_for_course_code(
+    client: <span class="kw-2">&amp;</span>Client,
+    course_url: <span class="kw-2">&amp;</span>str,
+    token: <span class="kw-2">&amp;</span>str,
+) -&gt; anyhow::Result&lt;Vec&lt;OpenUniversityInfo&gt;&gt; {
+    <span class="kw">let </span>res = client
+        .get(course_url)
+        .header(<span class="string">&quot;Authorized&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;Basic {}&quot;</span>, token))
+        .send()
+        .<span class="kw">await
+        </span>.context(<span class="string">&quot;Failed to send a request to Open University.&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>alternatives: Vec&lt;OpenUniversityInfo&gt; = res.json().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(alternatives)
 }
 
-<span class="kw">fn</span> <span class="ident">select_best_candidate</span>(
-    <span class="ident">now</span>: <span class="ident">NaiveDateTime</span>,
-    <span class="ident">c</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OpenUniversityInfo</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OpenUniversityInfo</span><span class="op">&gt;</span> {
-    <span class="ident">c</span>.<span class="ident">into_iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">start_date</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">now</span>)
-        .<span class="ident">max_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">end_date</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">end_date</span>))
+<span class="kw">fn </span>select_best_candidate(
+    now: NaiveDateTime,
+    c: Vec&lt;OpenUniversityInfo&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;OpenUniversityInfo&gt; {
+    c.into_iter()
+        .filter(|x| x.start_date &lt;= now)
+        .max_by(|a, b| a.end_date.cmp(<span class="kw-2">&amp;</span>b.end_date))
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_course_registration_link</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">uh_course_code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">open_university_info</span>: <span class="kw-2">&amp;</span><span class="ident">OpenUniversityInfo</span>,
-) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">full_url</span> <span class="op">=</span> <span class="macro">format!</span>(
+<span class="kw">async fn </span>update_course_registration_link(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    uh_course_code: <span class="kw-2">&amp;</span>str,
+    open_university_info: <span class="kw-2">&amp;</span>OpenUniversityInfo,
+) -&gt; anyhow::Result&lt;()&gt; {
+    <span class="kw">let </span>full_url = <span class="macro">format!</span>(
         <span class="string">&quot;{}{}&quot;</span>,
-        <span class="ident">OPEN_UNIVERSITY_REGISTRATION_BASE_URL</span>, <span class="ident">open_university_info</span>.<span class="ident">link</span>,
+        OPEN_UNIVERSITY_REGISTRATION_BASE_URL, open_university_info.link,
     );
-    <span class="ident">models::open_university_registration_links::upsert</span>(<span class="ident">conn</span>, <span class="ident">uh_course_code</span>, <span class="kw-2">&amp;</span><span class="ident">full_url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    models::open_university_registration_links::upsert(conn, uh_course_code, <span class="kw-2">&amp;</span>full_url).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

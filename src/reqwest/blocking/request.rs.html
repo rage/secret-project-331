@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1064,1071 +1064,1071 @@
 <span id="1064">1064</span>
 <span id="1065">1065</span>
 <span id="1066">1066</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::convert::TryFrom;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">base64::encode</span>;
-<span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">request::Parts</span>, <span class="ident">Request</span> <span class="kw">as</span> <span class="ident">HttpRequest</span>, <span class="ident">Version</span>};
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde_json</span>;
-<span class="kw">use</span> <span class="ident">serde_urlencoded</span>;
+<span class="kw">use </span>base64::encode;
+<span class="kw">use </span>http::{request::Parts, Request <span class="kw">as </span>HttpRequest, Version};
+<span class="kw">use </span>serde::Serialize;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+</span><span class="kw">use </span>serde_json;
+<span class="kw">use </span>serde_urlencoded;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::body</span>::{<span class="self">self</span>, <span class="ident">Body</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::multipart</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Client</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::header</span>::{<span class="ident">HeaderMap</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">async_impl</span>, <span class="ident">Method</span>, <span class="ident">Url</span>};
+<span class="kw">use </span><span class="kw">super</span>::body::{<span class="self">self</span>, Body};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;multipart&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">super</span>::multipart;
+<span class="kw">use </span><span class="kw">super</span>::Client;
+<span class="kw">use </span><span class="kw">crate</span>::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
+<span class="kw">use crate</span>::{async_impl, Method, Url};
 
-<span class="doccomment">/// A request which can be executed with `Client::execute()`.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Request</span> {
-    <span class="ident">body</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>,
-    <span class="ident">inner</span>: <span class="ident">async_impl::Request</span>,
+<span class="doccomment">/// A request which can be executed with `Client::execute()`.
+</span><span class="kw">pub struct </span>Request {
+    body: <span class="prelude-ty">Option</span>&lt;Body&gt;,
+    inner: async_impl::Request,
 }
 
-<span class="doccomment">/// A builder to construct the properties of a `Request`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// To construct a `RequestBuilder`, refer to the `Client` documentation.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;RequestBuilder does nothing until you &#39;send&#39; it&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RequestBuilder</span> {
-    <span class="ident">client</span>: <span class="ident">Client</span>,
-    <span class="ident">request</span>: <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A builder to construct the properties of a `Request`.
+///
+/// To construct a `RequestBuilder`, refer to the `Client` documentation.
+</span><span class="attribute">#[derive(Debug)]
+#[must_use = <span class="string">&quot;RequestBuilder does nothing until you &#39;send&#39; it&quot;</span>]
+</span><span class="kw">pub struct </span>RequestBuilder {
+    client: Client,
+    request: <span class="kw">crate</span>::Result&lt;Request&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Request</span> {
-    <span class="doccomment">/// Constructs a new request.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">method</span>: <span class="ident">Method</span>, <span class="ident">url</span>: <span class="ident">Url</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Request</span> {
-            <span class="ident">body</span>: <span class="prelude-val">None</span>,
-            <span class="ident">inner</span>: <span class="ident">async_impl::Request::new</span>(<span class="ident">method</span>, <span class="ident">url</span>),
+<span class="kw">impl </span>Request {
+    <span class="doccomment">/// Constructs a new request.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>new(method: Method, url: Url) -&gt; <span class="self">Self </span>{
+        Request {
+            body: <span class="prelude-val">None</span>,
+            inner: async_impl::Request::new(method, url),
         }
     }
 
-    <span class="doccomment">/// Get the method.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Method</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">method</span>()
+    <span class="doccomment">/// Get the method.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>method(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Method {
+        <span class="self">self</span>.inner.method()
     }
 
-    <span class="doccomment">/// Get a mutable reference to the method.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Method</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">method_mut</span>()
+    <span class="doccomment">/// Get a mutable reference to the method.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>method_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Method {
+        <span class="self">self</span>.inner.method_mut()
     }
 
-    <span class="doccomment">/// Get the url.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Url</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">url</span>()
+    <span class="doccomment">/// Get the url.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Url {
+        <span class="self">self</span>.inner.url()
     }
 
-    <span class="doccomment">/// Get a mutable reference to the url.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Url</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">url_mut</span>()
+    <span class="doccomment">/// Get a mutable reference to the url.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>url_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Url {
+        <span class="self">self</span>.inner.url_mut()
     }
 
-    <span class="doccomment">/// Get the headers.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">headers</span>()
+    <span class="doccomment">/// Get the headers.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
+        <span class="self">self</span>.inner.headers()
     }
 
-    <span class="doccomment">/// Get a mutable reference to the headers.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">headers_mut</span>()
+    <span class="doccomment">/// Get a mutable reference to the headers.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>HeaderMap {
+        <span class="self">self</span>.inner.headers_mut()
     }
 
-    <span class="doccomment">/// Get the http version.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Version</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">version</span>()
+    <span class="doccomment">/// Get the http version.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Version {
+        <span class="self">self</span>.inner.version()
     }
 
-    <span class="doccomment">/// Get a mutable reference to the http version.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Version</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">version_mut</span>()
+    <span class="doccomment">/// Get a mutable reference to the http version.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>version_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Version {
+        <span class="self">self</span>.inner.version_mut()
     }
 
-    <span class="doccomment">/// Get the body.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Body</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">as_ref</span>()
+    <span class="doccomment">/// Get the body.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>body(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Body&gt; {
+        <span class="self">self</span>.body.as_ref()
     }
 
-    <span class="doccomment">/// Get a mutable reference to the body.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">body</span>
+    <span class="doccomment">/// Get a mutable reference to the body.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>body_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Body&gt; {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.body
     }
 
-    <span class="doccomment">/// Get the timeout.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">timeout</span>()
+    <span class="doccomment">/// Get the timeout.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>timeout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Duration&gt; {
+        <span class="self">self</span>.inner.timeout()
     }
 
-    <span class="doccomment">/// Get a mutable reference to the timeout.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timeout_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">timeout_mut</span>()
+    <span class="doccomment">/// Get a mutable reference to the timeout.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>timeout_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Duration&gt; {
+        <span class="self">self</span>.inner.timeout_mut()
     }
 
-    <span class="doccomment">/// Attempts to clone the `Request`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// None is returned if a body is which can not be cloned. This can be because the body is a</span>
-    <span class="doccomment">/// stream.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">body</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">as_ref</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">body</span>) <span class="op">=</span> <span class="ident">body</span>.<span class="ident">try_clone</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">body</span>)
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="doccomment">/// Attempts to clone the `Request`.
+    ///
+    /// None is returned if a body is which can not be cloned. This can be because the body is a
+    /// stream.
+    </span><span class="kw">pub fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Request&gt; {
+        <span class="kw">let </span>body = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>body) = <span class="self">self</span>.body.as_ref() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(body) = body.try_clone() {
+                <span class="prelude-val">Some</span>(body)
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Request::new</span>(<span class="self">self</span>.<span class="ident">method</span>().<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">url</span>().<span class="ident">clone</span>());
-        <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">headers_mut</span>() <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>().<span class="ident">clone</span>();
-        <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">version_mut</span>() <span class="op">=</span> <span class="self">self</span>.<span class="ident">version</span>().<span class="ident">clone</span>();
-        <span class="ident">req</span>.<span class="ident">body</span> <span class="op">=</span> <span class="ident">body</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">req</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
+        <span class="kw">let </span><span class="kw-2">mut </span>req = Request::new(<span class="self">self</span>.method().clone(), <span class="self">self</span>.url().clone());
+        <span class="kw-2">*</span>req.headers_mut() = <span class="self">self</span>.headers().clone();
+        <span class="kw-2">*</span>req.version_mut() = <span class="self">self</span>.version().clone();
+        req.body = body;
+        <span class="prelude-val">Some</span>(req)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_async</span>(<span class="self">self</span>) -&gt; (<span class="ident">async_impl::Request</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">body::Sender</span><span class="op">&gt;</span>) {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::header::CONTENT_LENGTH</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_async(<span class="self">self</span>) -&gt; (async_impl::Request, <span class="prelude-ty">Option</span>&lt;body::Sender&gt;) {
+        <span class="kw">use </span><span class="kw">crate</span>::header::CONTENT_LENGTH;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req_async</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>;
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">body</span><span class="op">|</span> {
-            <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">body</span>, <span class="ident">len</span>) <span class="op">=</span> <span class="ident">body</span>.<span class="ident">into_async</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">len</span> {
-                <span class="ident">req_async</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="ident">len</span>.<span class="ident">into</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>req_async = <span class="self">self</span>.inner;
+        <span class="kw">let </span>body = <span class="self">self</span>.body.and_then(|body| {
+            <span class="kw">let </span>(tx, body, len) = body.into_async();
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(len) = len {
+                req_async.headers_mut().insert(CONTENT_LENGTH, len.into());
             }
-            <span class="kw-2">*</span><span class="ident">req_async</span>.<span class="ident">body_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">body</span>);
-            <span class="ident">tx</span>
+            <span class="kw-2">*</span>req_async.body_mut() = <span class="prelude-val">Some</span>(body);
+            tx
         });
-        (<span class="ident">req_async</span>, <span class="ident">body</span>)
+        (req_async, body)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">RequestBuilder</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">client</span>: <span class="ident">Client</span>, <span class="ident">request</span>: <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>) -&gt; <span class="ident">RequestBuilder</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">RequestBuilder</span> { <span class="ident">client</span>, <span class="ident">request</span> };
+<span class="kw">impl </span>RequestBuilder {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(client: Client, request: <span class="kw">crate</span>::Result&lt;Request&gt;) -&gt; RequestBuilder {
+        <span class="kw">let </span><span class="kw-2">mut </span>builder = RequestBuilder { client, request };
 
-        <span class="kw">let</span> <span class="ident">auth</span> <span class="op">=</span> <span class="ident">builder</span>
-            .<span class="ident">request</span>
-            .<span class="ident">as_mut</span>()
-            .<span class="ident">ok</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">async_impl::request::extract_authority</span>(<span class="ident">req</span>.<span class="ident">url_mut</span>()));
+        <span class="kw">let </span>auth = builder
+            .request
+            .as_mut()
+            .ok()
+            .and_then(|req| async_impl::request::extract_authority(req.url_mut()));
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">username</span>, <span class="ident">password</span>)) <span class="op">=</span> <span class="ident">auth</span> {
-            <span class="ident">builder</span>.<span class="ident">basic_auth</span>(<span class="ident">username</span>, <span class="ident">password</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">builder</span>
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((username, password)) = auth {
+            builder.basic_auth(username, password)
+        } <span class="kw">else </span>{
+            builder
         }
     }
 
-    <span class="doccomment">/// Add a `Header` to this Request.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use reqwest::header::USER_AGENT;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let res = client.get(&quot;https://www.rust-lang.org&quot;)</span>
-    <span class="doccomment">///     .header(USER_AGENT, &quot;foo&quot;)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">RequestBuilder</span>
-    <span class="kw">where</span>
-        <span class="ident">HeaderName</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
-        <span class="ident">HeaderValue</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">HeaderName</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">http::Error</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">HeaderValue</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">http::Error</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Add a `Header` to this Request.
+    ///
+    /// ```rust
+    /// use reqwest::header::USER_AGENT;
+    ///
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = reqwest::blocking::Client::new();
+    /// let res = client.get(&quot;https://www.rust-lang.org&quot;)
+    ///     .header(USER_AGENT, &quot;foo&quot;)
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>header&lt;K, V&gt;(<span class="self">self</span>, key: K, value: V) -&gt; RequestBuilder
+    <span class="kw">where
+        </span>HeaderName: TryFrom&lt;K&gt;,
+        HeaderValue: TryFrom&lt;V&gt;,
+        &lt;HeaderName <span class="kw">as </span>TryFrom&lt;K&gt;&gt;::Error: Into&lt;http::Error&gt;,
+        &lt;HeaderValue <span class="kw">as </span>TryFrom&lt;V&gt;&gt;::Error: Into&lt;http::Error&gt;,
     {
-        <span class="self">self</span>.<span class="ident">header_sensitive</span>(<span class="ident">key</span>, <span class="ident">value</span>, <span class="bool-val">false</span>)
+        <span class="self">self</span>.header_sensitive(key, value, <span class="bool-val">false</span>)
     }
 
-    <span class="doccomment">/// Add a `Header` to this Request with ability to define if header_value is sensitive.</span>
-    <span class="kw">fn</span> <span class="ident">header_sensitive</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>, <span class="ident">sensitive</span>: <span class="ident">bool</span>) -&gt; <span class="ident">RequestBuilder</span>
-    <span class="kw">where</span>
-        <span class="ident">HeaderName</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
-        <span class="ident">HeaderValue</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">HeaderName</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">http::Error</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">HeaderValue</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">http::Error</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Add a `Header` to this Request with ability to define if header_value is sensitive.
+    </span><span class="kw">fn </span>header_sensitive&lt;K, V&gt;(<span class="kw-2">mut </span><span class="self">self</span>, key: K, value: V, sensitive: bool) -&gt; RequestBuilder
+    <span class="kw">where
+        </span>HeaderName: TryFrom&lt;K&gt;,
+        HeaderValue: TryFrom&lt;V&gt;,
+        &lt;HeaderName <span class="kw">as </span>TryFrom&lt;K&gt;&gt;::Error: Into&lt;http::Error&gt;,
+        &lt;HeaderValue <span class="kw">as </span>TryFrom&lt;V&gt;&gt;::Error: Into&lt;http::Error&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
-            <span class="kw">match</span> <span class="op">&lt;</span><span class="ident">HeaderName</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">key</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">key</span>) =&gt; <span class="kw">match</span> <span class="op">&lt;</span><span class="ident">HeaderValue</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">value</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">value</span>) =&gt; {
-                        <span class="ident">value</span>.<span class="ident">set_sensitive</span>(<span class="ident">sensitive</span>);
-                        <span class="ident">req</span>.<span class="ident">headers_mut</span>().<span class="ident">append</span>(<span class="ident">key</span>, <span class="ident">value</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>error = <span class="prelude-val">None</span>;
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = <span class="self">self</span>.request {
+            <span class="kw">match </span>&lt;HeaderName <span class="kw">as </span>TryFrom&lt;K&gt;&gt;::try_from(key) {
+                <span class="prelude-val">Ok</span>(key) =&gt; <span class="kw">match </span>&lt;HeaderValue <span class="kw">as </span>TryFrom&lt;V&gt;&gt;::try_from(value) {
+                    <span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>value) =&gt; {
+                        value.set_sensitive(sensitive);
+                        req.headers_mut().append(key, value);
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="ident">e</span>.<span class="ident">into</span>())),
+                    <span class="prelude-val">Err</span>(e) =&gt; error = <span class="prelude-val">Some</span>(<span class="kw">crate</span>::error::builder(e.into())),
                 },
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="ident">e</span>.<span class="ident">into</span>())),
+                <span class="prelude-val">Err</span>(e) =&gt; error = <span class="prelude-val">Some</span>(<span class="kw">crate</span>::error::builder(e.into())),
             };
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">error</span> {
-            <span class="self">self</span>.<span class="ident">request</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = error {
+            <span class="self">self</span>.request = <span class="prelude-val">Err</span>(err);
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Add a set of Headers to the existing ones on this Request.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The headers will be merged in to any already set.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT, CONTENT_TYPE};</span>
-    <span class="doccomment">/// # use std::fs;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// fn construct_headers() -&gt; HeaderMap {</span>
-    <span class="doccomment">///     let mut headers = HeaderMap::new();</span>
-    <span class="doccomment">///     headers.insert(USER_AGENT, HeaderValue::from_static(&quot;reqwest&quot;));</span>
-    <span class="doccomment">///     headers.insert(CONTENT_TYPE, HeaderValue::from_static(&quot;image/png&quot;));</span>
-    <span class="doccomment">///     headers</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let file = fs::File::open(&quot;much_beauty.png&quot;)?;</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let res = client.post(&quot;http://httpbin.org/post&quot;)</span>
-    <span class="doccomment">///     .headers(construct_headers())</span>
-    <span class="doccomment">///     .body(file)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">headers</span>: <span class="ident"><span class="kw">crate</span>::header::HeaderMap</span>) -&gt; <span class="ident">RequestBuilder</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
-            <span class="ident"><span class="kw">crate</span>::util::replace_headers</span>(<span class="ident">req</span>.<span class="ident">headers_mut</span>(), <span class="ident">headers</span>);
+    <span class="doccomment">/// Add a set of Headers to the existing ones on this Request.
+    ///
+    /// The headers will be merged in to any already set.
+    ///
+    /// ```rust
+    /// use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT, CONTENT_TYPE};
+    /// # use std::fs;
+    ///
+    /// fn construct_headers() -&gt; HeaderMap {
+    ///     let mut headers = HeaderMap::new();
+    ///     headers.insert(USER_AGENT, HeaderValue::from_static(&quot;reqwest&quot;));
+    ///     headers.insert(CONTENT_TYPE, HeaderValue::from_static(&quot;image/png&quot;));
+    ///     headers
+    /// }
+    ///
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let file = fs::File::open(&quot;much_beauty.png&quot;)?;
+    /// let client = reqwest::blocking::Client::new();
+    /// let res = client.post(&quot;http://httpbin.org/post&quot;)
+    ///     .headers(construct_headers())
+    ///     .body(file)
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">mut </span><span class="self">self</span>, headers: <span class="kw">crate</span>::header::HeaderMap) -&gt; RequestBuilder {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = <span class="self">self</span>.request {
+            <span class="kw">crate</span>::util::replace_headers(req.headers_mut(), headers);
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Enable HTTP basic authentication.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let resp = client.delete(&quot;http://httpbin.org/delete&quot;)</span>
-    <span class="doccomment">///     .basic_auth(&quot;admin&quot;, Some(&quot;good password&quot;))</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">basic_auth</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">P</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">username</span>: <span class="ident">U</span>, <span class="ident">password</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="ident">RequestBuilder</span>
-    <span class="kw">where</span>
-        <span class="ident">U</span>: <span class="ident">fmt::Display</span>,
-        <span class="ident">P</span>: <span class="ident">fmt::Display</span>,
+    <span class="doccomment">/// Enable HTTP basic authentication.
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = reqwest::blocking::Client::new();
+    /// let resp = client.delete(&quot;http://httpbin.org/delete&quot;)
+    ///     .basic_auth(&quot;admin&quot;, Some(&quot;good password&quot;))
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>basic_auth&lt;U, P&gt;(<span class="self">self</span>, username: U, password: <span class="prelude-ty">Option</span>&lt;P&gt;) -&gt; RequestBuilder
+    <span class="kw">where
+        </span>U: fmt::Display,
+        P: fmt::Display,
     {
-        <span class="kw">let</span> <span class="ident">auth</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">password</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">password</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">username</span>, <span class="ident">password</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, <span class="ident">username</span>),
+        <span class="kw">let </span>auth = <span class="kw">match </span>password {
+            <span class="prelude-val">Some</span>(password) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, username, password),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, username),
         };
-        <span class="kw">let</span> <span class="ident">header_value</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Basic {}&quot;</span>, <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="ident">auth</span>));
-        <span class="self">self</span>.<span class="ident">header_sensitive</span>(<span class="ident"><span class="kw">crate</span>::header::AUTHORIZATION</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">header_value</span>, <span class="bool-val">true</span>)
+        <span class="kw">let </span>header_value = <span class="macro">format!</span>(<span class="string">&quot;Basic {}&quot;</span>, encode(<span class="kw-2">&amp;</span>auth));
+        <span class="self">self</span>.header_sensitive(<span class="kw">crate</span>::header::AUTHORIZATION, <span class="kw-2">&amp;*</span>header_value, <span class="bool-val">true</span>)
     }
 
-    <span class="doccomment">/// Enable HTTP bearer authentication.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let resp = client.delete(&quot;http://httpbin.org/delete&quot;)</span>
-    <span class="doccomment">///     .bearer_auth(&quot;token&quot;)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bearer_auth</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">token</span>: <span class="ident">T</span>) -&gt; <span class="ident">RequestBuilder</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">fmt::Display</span>,
+    <span class="doccomment">/// Enable HTTP bearer authentication.
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = reqwest::blocking::Client::new();
+    /// let resp = client.delete(&quot;http://httpbin.org/delete&quot;)
+    ///     .bearer_auth(&quot;token&quot;)
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>bearer_auth&lt;T&gt;(<span class="self">self</span>, token: T) -&gt; RequestBuilder
+    <span class="kw">where
+        </span>T: fmt::Display,
     {
-        <span class="kw">let</span> <span class="ident">header_value</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Bearer {}&quot;</span>, <span class="ident">token</span>);
-        <span class="self">self</span>.<span class="ident">header_sensitive</span>(<span class="ident"><span class="kw">crate</span>::header::AUTHORIZATION</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">header_value</span>, <span class="bool-val">true</span>)
+        <span class="kw">let </span>header_value = <span class="macro">format!</span>(<span class="string">&quot;Bearer {}&quot;</span>, token);
+        <span class="self">self</span>.header_sensitive(<span class="kw">crate</span>::header::AUTHORIZATION, <span class="kw-2">&amp;*</span>header_value, <span class="bool-val">true</span>)
     }
 
-    <span class="doccomment">/// Set the request body.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Using a string:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let res = client.post(&quot;http://httpbin.org/post&quot;)</span>
-    <span class="doccomment">///     .body(&quot;from a &amp;str!&quot;)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Using a `File`:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let file = std::fs::File::open(&quot;from_a_file.txt&quot;)?;</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let res = client.post(&quot;http://httpbin.org/post&quot;)</span>
-    <span class="doccomment">///     .body(file)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Using arbitrary bytes:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use std::fs;</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// // from bytes!</span>
-    <span class="doccomment">/// let bytes: Vec&lt;u8&gt; = vec![1, 10, 100];</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let res = client.post(&quot;http://httpbin.org/post&quot;)</span>
-    <span class="doccomment">///     .body(bytes)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">body</span>: <span class="ident">T</span>) -&gt; <span class="ident">RequestBuilder</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
-            <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">body_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">body</span>.<span class="ident">into</span>());
+    <span class="doccomment">/// Set the request body.
+    ///
+    /// # Examples
+    ///
+    /// Using a string:
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = reqwest::blocking::Client::new();
+    /// let res = client.post(&quot;http://httpbin.org/post&quot;)
+    ///     .body(&quot;from a &amp;str!&quot;)
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// Using a `File`:
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let file = std::fs::File::open(&quot;from_a_file.txt&quot;)?;
+    /// let client = reqwest::blocking::Client::new();
+    /// let res = client.post(&quot;http://httpbin.org/post&quot;)
+    ///     .body(file)
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// Using arbitrary bytes:
+    ///
+    /// ```rust
+    /// # use std::fs;
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// // from bytes!
+    /// let bytes: Vec&lt;u8&gt; = vec![1, 10, 100];
+    /// let client = reqwest::blocking::Client::new();
+    /// let res = client.post(&quot;http://httpbin.org/post&quot;)
+    ///     .body(bytes)
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>body&lt;T: Into&lt;Body&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, body: T) -&gt; RequestBuilder {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = <span class="self">self</span>.request {
+            <span class="kw-2">*</span>req.body_mut() = <span class="prelude-val">Some</span>(body.into());
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Enables a request timeout.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The timeout is applied from when the request starts connecting until the</span>
-    <span class="doccomment">/// response body has finished. It affects only this request and overrides</span>
-    <span class="doccomment">/// the timeout configured using `ClientBuilder::timeout()`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">RequestBuilder</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
-            <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">timeout_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">timeout</span>);
+    <span class="doccomment">/// Enables a request timeout.
+    ///
+    /// The timeout is applied from when the request starts connecting until the
+    /// response body has finished. It affects only this request and overrides
+    /// the timeout configured using `ClientBuilder::timeout()`.
+    </span><span class="kw">pub fn </span>timeout(<span class="kw-2">mut </span><span class="self">self</span>, timeout: Duration) -&gt; RequestBuilder {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = <span class="self">self</span>.request {
+            <span class="kw-2">*</span>req.timeout_mut() = <span class="prelude-val">Some</span>(timeout);
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Modify the query string of the URL.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Modifies the URL of this request, adding the parameters provided.</span>
-    <span class="doccomment">/// This method appends and does not overwrite. This means that it can</span>
-    <span class="doccomment">/// be called multiple times and that existing query parameters are not</span>
-    <span class="doccomment">/// overwritten if the same key is used. The key will simply show up</span>
-    <span class="doccomment">/// twice in the query string.</span>
-    <span class="doccomment">/// Calling `.query(&amp;[(&quot;foo&quot;, &quot;a&quot;), (&quot;foo&quot;, &quot;b&quot;)])` gives `&quot;foo=a&amp;foo=b&quot;`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use reqwest::Error;</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Error&gt; {</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let res = client.get(&quot;http://httpbin.org&quot;)</span>
-    <span class="doccomment">///     .query(&amp;[(&quot;lang&quot;, &quot;rust&quot;)])</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">/// This method does not support serializing a single key-value</span>
-    <span class="doccomment">/// pair. Instead of using `.query((&quot;key&quot;, &quot;val&quot;))`, use a sequence, such</span>
-    <span class="doccomment">/// as `.query(&amp;[(&quot;key&quot;, &quot;val&quot;)])`. It&#39;s also possible to serialize structs</span>
-    <span class="doccomment">/// and maps into a key-value pair.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// This method will fail if the object you provide cannot be serialized</span>
-    <span class="doccomment">/// into a query string.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">RequestBuilder</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
-            <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">url_mut</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">query_pairs_mut</span>();
-            <span class="kw">let</span> <span class="ident">serializer</span> <span class="op">=</span> <span class="ident">serde_urlencoded::Serializer::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pairs</span>);
+    <span class="doccomment">/// Modify the query string of the URL.
+    ///
+    /// Modifies the URL of this request, adding the parameters provided.
+    /// This method appends and does not overwrite. This means that it can
+    /// be called multiple times and that existing query parameters are not
+    /// overwritten if the same key is used. The key will simply show up
+    /// twice in the query string.
+    /// Calling `.query(&amp;[(&quot;foo&quot;, &quot;a&quot;), (&quot;foo&quot;, &quot;b&quot;)])` gives `&quot;foo=a&amp;foo=b&quot;`.
+    ///
+    /// ```rust
+    /// # use reqwest::Error;
+    /// #
+    /// # fn run() -&gt; Result&lt;(), Error&gt; {
+    /// let client = reqwest::blocking::Client::new();
+    /// let res = client.get(&quot;http://httpbin.org&quot;)
+    ///     .query(&amp;[(&quot;lang&quot;, &quot;rust&quot;)])
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    /// This method does not support serializing a single key-value
+    /// pair. Instead of using `.query((&quot;key&quot;, &quot;val&quot;))`, use a sequence, such
+    /// as `.query(&amp;[(&quot;key&quot;, &quot;val&quot;)])`. It&#39;s also possible to serialize structs
+    /// and maps into a key-value pair.
+    ///
+    /// # Errors
+    /// This method will fail if the object you provide cannot be serialized
+    /// into a query string.
+    </span><span class="kw">pub fn </span>query&lt;T: Serialize + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">mut </span><span class="self">self</span>, query: <span class="kw-2">&amp;</span>T) -&gt; RequestBuilder {
+        <span class="kw">let </span><span class="kw-2">mut </span>error = <span class="prelude-val">None</span>;
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = <span class="self">self</span>.request {
+            <span class="kw">let </span>url = req.url_mut();
+            <span class="kw">let </span><span class="kw-2">mut </span>pairs = url.query_pairs_mut();
+            <span class="kw">let </span>serializer = serde_urlencoded::Serializer::new(<span class="kw-2">&amp;mut </span>pairs);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">query</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>) {
-                <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="ident">err</span>));
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = query.serialize(serializer) {
+                error = <span class="prelude-val">Some</span>(<span class="kw">crate</span>::error::builder(err));
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">query</span>() {
-                <span class="ident">req</span>.<span class="ident">url_mut</span>().<span class="ident">set_query</span>(<span class="prelude-val">None</span>);
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = <span class="self">self</span>.request {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>) = req.url().query() {
+                req.url_mut().set_query(<span class="prelude-val">None</span>);
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">error</span> {
-            <span class="self">self</span>.<span class="ident">request</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = error {
+            <span class="self">self</span>.request = <span class="prelude-val">Err</span>(err);
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set HTTP version</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">version</span>: <span class="ident">Version</span>) -&gt; <span class="ident">RequestBuilder</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
-            <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">version_mut</span>() <span class="op">=</span> <span class="ident">version</span>;
+    <span class="doccomment">/// Set HTTP version
+    </span><span class="kw">pub fn </span>version(<span class="kw-2">mut </span><span class="self">self</span>, version: Version) -&gt; RequestBuilder {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = <span class="self">self</span>.request {
+            <span class="kw-2">*</span>req.version_mut() = version;
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Send a form body.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Sets the body to the url encoded serialization of the passed value,</span>
-    <span class="doccomment">/// and also sets the `Content-Type: application/x-www-form-urlencoded`</span>
-    <span class="doccomment">/// header.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use reqwest::Error;</span>
-    <span class="doccomment">/// # use std::collections::HashMap;</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Error&gt; {</span>
-    <span class="doccomment">/// let mut params = HashMap::new();</span>
-    <span class="doccomment">/// params.insert(&quot;lang&quot;, &quot;rust&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let res = client.post(&quot;http://httpbin.org&quot;)</span>
-    <span class="doccomment">///     .form(&amp;params)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails if the passed value cannot be serialized into</span>
-    <span class="doccomment">/// url encoded format</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">form</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">form</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">RequestBuilder</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
-            <span class="kw">match</span> <span class="ident">serde_urlencoded::to_string</span>(<span class="ident">form</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">body</span>) =&gt; {
-                    <span class="ident">req</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(
-                        <span class="ident">CONTENT_TYPE</span>,
-                        <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>),
+    <span class="doccomment">/// Send a form body.
+    ///
+    /// Sets the body to the url encoded serialization of the passed value,
+    /// and also sets the `Content-Type: application/x-www-form-urlencoded`
+    /// header.
+    ///
+    /// ```rust
+    /// # use reqwest::Error;
+    /// # use std::collections::HashMap;
+    /// #
+    /// # fn run() -&gt; Result&lt;(), Error&gt; {
+    /// let mut params = HashMap::new();
+    /// params.insert(&quot;lang&quot;, &quot;rust&quot;);
+    ///
+    /// let client = reqwest::blocking::Client::new();
+    /// let res = client.post(&quot;http://httpbin.org&quot;)
+    ///     .form(&amp;params)
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// This method fails if the passed value cannot be serialized into
+    /// url encoded format
+    </span><span class="kw">pub fn </span>form&lt;T: Serialize + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">mut </span><span class="self">self</span>, form: <span class="kw-2">&amp;</span>T) -&gt; RequestBuilder {
+        <span class="kw">let </span><span class="kw-2">mut </span>error = <span class="prelude-val">None</span>;
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = <span class="self">self</span>.request {
+            <span class="kw">match </span>serde_urlencoded::to_string(form) {
+                <span class="prelude-val">Ok</span>(body) =&gt; {
+                    req.headers_mut().insert(
+                        CONTENT_TYPE,
+                        HeaderValue::from_static(<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>),
                     );
-                    <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">body_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">body</span>.<span class="ident">into</span>());
+                    <span class="kw-2">*</span>req.body_mut() = <span class="prelude-val">Some</span>(body.into());
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="ident">err</span>)),
+                <span class="prelude-val">Err</span>(err) =&gt; error = <span class="prelude-val">Some</span>(<span class="kw">crate</span>::error::builder(err)),
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">error</span> {
-            <span class="self">self</span>.<span class="ident">request</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = error {
+            <span class="self">self</span>.request = <span class="prelude-val">Err</span>(err);
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Send a JSON body.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Sets the body to the JSON serialization of the passed value, and</span>
-    <span class="doccomment">/// also sets the `Content-Type: application/json` header.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Optional</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This requires the optional `json` feature enabled.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use reqwest::Error;</span>
-    <span class="doccomment">/// # use std::collections::HashMap;</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Error&gt; {</span>
-    <span class="doccomment">/// let mut map = HashMap::new();</span>
-    <span class="doccomment">/// map.insert(&quot;lang&quot;, &quot;rust&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let res = client.post(&quot;http://httpbin.org&quot;)</span>
-    <span class="doccomment">///     .json(&amp;map)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Serialization can fail if `T`&#39;s implementation of `Serialize` decides to</span>
-    <span class="doccomment">/// fail, or if `T` contains a map with non-string keys.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">json</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">RequestBuilder</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">request</span> {
-            <span class="kw">match</span> <span class="ident">serde_json::to_vec</span>(<span class="ident">json</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">body</span>) =&gt; {
-                    <span class="ident">req</span>.<span class="ident">headers_mut</span>()
-                        .<span class="ident">insert</span>(<span class="ident">CONTENT_TYPE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/json&quot;</span>));
-                    <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">body_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">body</span>.<span class="ident">into</span>());
+    <span class="doccomment">/// Send a JSON body.
+    ///
+    /// Sets the body to the JSON serialization of the passed value, and
+    /// also sets the `Content-Type: application/json` header.
+    ///
+    /// # Optional
+    ///
+    /// This requires the optional `json` feature enabled.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use reqwest::Error;
+    /// # use std::collections::HashMap;
+    /// #
+    /// # fn run() -&gt; Result&lt;(), Error&gt; {
+    /// let mut map = HashMap::new();
+    /// map.insert(&quot;lang&quot;, &quot;rust&quot;);
+    ///
+    /// let client = reqwest::blocking::Client::new();
+    /// let res = client.post(&quot;http://httpbin.org&quot;)
+    ///     .json(&amp;map)
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// Serialization can fail if `T`&#39;s implementation of `Serialize` decides to
+    /// fail, or if `T` contains a map with non-string keys.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;json&quot;</span>)))]
+    </span><span class="kw">pub fn </span>json&lt;T: Serialize + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">mut </span><span class="self">self</span>, json: <span class="kw-2">&amp;</span>T) -&gt; RequestBuilder {
+        <span class="kw">let </span><span class="kw-2">mut </span>error = <span class="prelude-val">None</span>;
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = <span class="self">self</span>.request {
+            <span class="kw">match </span>serde_json::to_vec(json) {
+                <span class="prelude-val">Ok</span>(body) =&gt; {
+                    req.headers_mut()
+                        .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>));
+                    <span class="kw-2">*</span>req.body_mut() = <span class="prelude-val">Some</span>(body.into());
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>(<span class="ident">err</span>)),
+                <span class="prelude-val">Err</span>(err) =&gt; error = <span class="prelude-val">Some</span>(<span class="kw">crate</span>::error::builder(err)),
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">error</span> {
-            <span class="self">self</span>.<span class="ident">request</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = error {
+            <span class="self">self</span>.request = <span class="prelude-val">Err</span>(err);
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sends a multipart/form-data body.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use reqwest::Error;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let form = reqwest::blocking::multipart::Form::new()</span>
-    <span class="doccomment">///     .text(&quot;key3&quot;, &quot;value3&quot;)</span>
-    <span class="doccomment">///     .file(&quot;file&quot;, &quot;/path/to/field&quot;)?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let response = client.post(&quot;your url&quot;)</span>
-    <span class="doccomment">///     .multipart(form)</span>
-    <span class="doccomment">///     .send()?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`multipart`](multipart/) for more examples.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multipart</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">multipart</span>: <span class="ident">multipart::Form</span>) -&gt; <span class="ident">RequestBuilder</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">header</span>(
-            <span class="ident">CONTENT_TYPE</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;multipart/form-data; boundary={}&quot;</span>, <span class="ident">multipart</span>.<span class="ident">boundary</span>()).<span class="ident">as_str</span>(),
+    <span class="doccomment">/// Sends a multipart/form-data body.
+    ///
+    /// ```
+    /// # use reqwest::Error;
+    ///
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = reqwest::blocking::Client::new();
+    /// let form = reqwest::blocking::multipart::Form::new()
+    ///     .text(&quot;key3&quot;, &quot;value3&quot;)
+    ///     .file(&quot;file&quot;, &quot;/path/to/field&quot;)?;
+    ///
+    /// let response = client.post(&quot;your url&quot;)
+    ///     .multipart(form)
+    ///     .send()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// See [`multipart`](multipart/) for more examples.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;multipart&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;multipart&quot;</span>)))]
+    </span><span class="kw">pub fn </span>multipart(<span class="self">self</span>, <span class="kw-2">mut </span>multipart: multipart::Form) -&gt; RequestBuilder {
+        <span class="kw">let </span><span class="kw-2">mut </span>builder = <span class="self">self</span>.header(
+            CONTENT_TYPE,
+            <span class="macro">format!</span>(<span class="string">&quot;multipart/form-data; boundary={}&quot;</span>, multipart.boundary()).as_str(),
         );
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">request</span> {
-            <span class="kw-2">*</span><span class="ident">req</span>.<span class="ident">body_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">multipart</span>.<span class="ident">compute_length</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">length</span>) =&gt; <span class="ident">Body::sized</span>(<span class="ident">multipart</span>.<span class="ident">reader</span>(), <span class="ident">length</span>),
-                <span class="prelude-val">None</span> =&gt; <span class="ident">Body::new</span>(<span class="ident">multipart</span>.<span class="ident">reader</span>()),
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref mut </span>req) = builder.request {
+            <span class="kw-2">*</span>req.body_mut() = <span class="prelude-val">Some</span>(<span class="kw">match </span>multipart.compute_length() {
+                <span class="prelude-val">Some</span>(length) =&gt; Body::sized(multipart.reader(), length),
+                <span class="prelude-val">None </span>=&gt; Body::new(multipart.reader()),
             })
         }
-        <span class="ident">builder</span>
+        builder
     }
 
-    <span class="doccomment">/// Build a `Request`, which can be inspected, modified and executed with</span>
-    <span class="doccomment">/// `Client::execute()`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">request</span>
+    <span class="doccomment">/// Build a `Request`, which can be inspected, modified and executed with
+    /// `Client::execute()`.
+    </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;Request&gt; {
+        <span class="self">self</span>.request
     }
 
-    <span class="doccomment">/// Constructs the Request and sends it the target URL, returning a Response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method fails if there was an error while sending request,</span>
-    <span class="doccomment">/// redirect loop was detected or redirect limit was exhausted.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">super</span>::Response</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">execute</span>(<span class="self">self</span>.<span class="ident">request</span><span class="question-mark">?</span>)
+    <span class="doccomment">/// Constructs the Request and sends it the target URL, returning a Response.
+    ///
+    /// # Errors
+    ///
+    /// This method fails if there was an error while sending request,
+    /// redirect loop was detected or redirect limit was exhausted.
+    </span><span class="kw">pub fn </span>send(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw">super</span>::Response&gt; {
+        <span class="self">self</span>.client.execute(<span class="self">self</span>.request<span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Attempts to clone the `RequestBuilder`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// None is returned if a body is which can not be cloned. This can be because the body is a</span>
-    <span class="doccomment">/// stream.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// With a static body</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let builder = client.post(&quot;http://httpbin.org/post&quot;)</span>
-    <span class="doccomment">///     .body(&quot;from a &amp;str!&quot;);</span>
-    <span class="doccomment">/// let clone = builder.try_clone();</span>
-    <span class="doccomment">/// assert!(clone.is_some());</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Without a body</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let builder = client.get(&quot;http://httpbin.org/get&quot;);</span>
-    <span class="doccomment">/// let clone = builder.try_clone();</span>
-    <span class="doccomment">/// assert!(clone.is_some());</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// With a non-clonable body</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let client = reqwest::blocking::Client::new();</span>
-    <span class="doccomment">/// let builder = client.get(&quot;http://httpbin.org/get&quot;)</span>
-    <span class="doccomment">///     .body(reqwest::blocking::Body::new(std::io::empty()));</span>
-    <span class="doccomment">/// let clone = builder.try_clone();</span>
-    <span class="doccomment">/// assert!(clone.is_none());</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RequestBuilder</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">request</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">ok</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">try_clone</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">RequestBuilder</span> {
-                <span class="ident">client</span>: <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">clone</span>(),
-                <span class="ident">request</span>: <span class="prelude-val">Ok</span>(<span class="ident">req</span>),
+    <span class="doccomment">/// Attempts to clone the `RequestBuilder`.
+    ///
+    /// None is returned if a body is which can not be cloned. This can be because the body is a
+    /// stream.
+    ///
+    /// # Examples
+    ///
+    /// With a static body
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = reqwest::blocking::Client::new();
+    /// let builder = client.post(&quot;http://httpbin.org/post&quot;)
+    ///     .body(&quot;from a &amp;str!&quot;);
+    /// let clone = builder.try_clone();
+    /// assert!(clone.is_some());
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// Without a body
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = reqwest::blocking::Client::new();
+    /// let builder = client.get(&quot;http://httpbin.org/get&quot;);
+    /// let clone = builder.try_clone();
+    /// assert!(clone.is_some());
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// With a non-clonable body
+    ///
+    /// ```rust
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let client = reqwest::blocking::Client::new();
+    /// let builder = client.get(&quot;http://httpbin.org/get&quot;)
+    ///     .body(reqwest::blocking::Body::new(std::io::empty()));
+    /// let clone = builder.try_clone();
+    /// assert!(clone.is_none());
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;RequestBuilder&gt; {
+        <span class="self">self</span>.request
+            .as_ref()
+            .ok()
+            .and_then(|req| req.try_clone())
+            .map(|req| RequestBuilder {
+                client: <span class="self">self</span>.client.clone(),
+                request: <span class="prelude-val">Ok</span>(req),
             })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">HttpRequest</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Request</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T&gt; TryFrom&lt;HttpRequest&lt;T&gt;&gt; <span class="kw">for </span>Request
+<span class="kw">where
+    </span>T: Into&lt;Body&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
+    <span class="kw">type </span>Error = <span class="kw">crate</span>::Error;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">parts</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
-        <span class="kw">let</span> <span class="ident">Parts</span> {
-            <span class="ident">method</span>,
-            <span class="ident">uri</span>,
-            <span class="ident">headers</span>,
+    <span class="kw">fn </span>try_from(req: HttpRequest&lt;T&gt;) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>(parts, body) = req.into_parts();
+        <span class="kw">let </span>Parts {
+            method,
+            uri,
+            headers,
             ..
-        } <span class="op">=</span> <span class="ident">parts</span>;
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="kw-2">&amp;</span><span class="ident">uri</span>.<span class="ident">to_string</span>()).<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">async_impl::Request::new</span>(<span class="ident">method</span>, <span class="ident">url</span>);
-        <span class="ident"><span class="kw">crate</span>::util::replace_headers</span>(<span class="ident">inner</span>.<span class="ident">headers_mut</span>(), <span class="ident">headers</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">Request</span> {
-            <span class="ident">body</span>: <span class="prelude-val">Some</span>(<span class="ident">body</span>.<span class="ident">into</span>()),
-            <span class="ident">inner</span>,
+        } = parts;
+        <span class="kw">let </span>url = Url::parse(<span class="kw-2">&amp;</span>uri.to_string()).map_err(<span class="kw">crate</span>::error::builder)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>inner = async_impl::Request::new(method, url);
+        <span class="kw">crate</span>::util::replace_headers(inner.headers_mut(), headers);
+        <span class="prelude-val">Ok</span>(Request {
+            body: <span class="prelude-val">Some</span>(body.into()),
+            inner,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Request</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">fmt_request_fields</span>(<span class="kw-2">&amp;mut</span> <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Request&quot;</span>), <span class="self">self</span>).<span class="ident">finish</span>()
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Request {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        fmt_request_fields(<span class="kw-2">&amp;mut </span>f.debug_struct(<span class="string">&quot;Request&quot;</span>), <span class="self">self</span>).finish()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">fmt_request_fields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span>(
-    <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">fmt::DebugStruct</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span>,
-    <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">Request</span>,
-) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">fmt::DebugStruct</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> {
-    <span class="ident">f</span>.<span class="ident">field</span>(<span class="string">&quot;method&quot;</span>, <span class="ident">req</span>.<span class="ident">method</span>())
-        .<span class="ident">field</span>(<span class="string">&quot;url&quot;</span>, <span class="ident">req</span>.<span class="ident">url</span>())
-        .<span class="ident">field</span>(<span class="string">&quot;headers&quot;</span>, <span class="ident">req</span>.<span class="ident">headers</span>())
+<span class="kw">fn </span>fmt_request_fields&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;(
+    f: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>fmt::DebugStruct&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt;,
+    req: <span class="kw-2">&amp;</span>Request,
+) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>fmt::DebugStruct&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+    f.field(<span class="string">&quot;method&quot;</span>, req.method())
+        .field(<span class="string">&quot;url&quot;</span>, req.url())
+        .field(<span class="string">&quot;headers&quot;</span>, req.headers())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span></span>::{<span class="ident">body</span>, <span class="ident">Client</span>};
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">HttpRequest</span>, <span class="ident">Request</span>, <span class="ident">Version</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::header</span>::{<span class="ident">HeaderMap</span>, <span class="ident">HeaderValue</span>, <span class="ident">ACCEPT</span>, <span class="ident">CONTENT_TYPE</span>, <span class="ident">HOST</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Method</span>;
-    <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-    <span class="kw">use</span> <span class="ident">serde_json</span>;
-    <span class="kw">use</span> <span class="ident">serde_urlencoded</span>;
-    <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
-    <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::{body, Client};
+    <span class="kw">use super</span>::{HttpRequest, Request, Version};
+    <span class="kw">use </span><span class="kw">crate</span>::header::{HeaderMap, HeaderValue, ACCEPT, CONTENT_TYPE, HOST};
+    <span class="kw">use </span><span class="kw">crate</span>::Method;
+    <span class="kw">use </span>serde::Serialize;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+    </span><span class="kw">use </span>serde_json;
+    <span class="kw">use </span>serde_urlencoded;
+    <span class="kw">use </span>std::collections::{BTreeMap, HashMap};
+    <span class="kw">use </span>std::convert::TryFrom;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">basic_get_request</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">get</span>(<span class="ident">some_url</span>).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>basic_get_request() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.get(some_url).build().unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">method</span>(), <span class="kw-2">&amp;</span><span class="ident">Method::GET</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="ident">some_url</span>);
+        <span class="macro">assert_eq!</span>(r.method(), <span class="kw-2">&amp;</span>Method::GET);
+        <span class="macro">assert_eq!</span>(r.url().as_str(), some_url);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">basic_head_request</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">head</span>(<span class="ident">some_url</span>).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>basic_head_request() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.head(some_url).build().unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">method</span>(), <span class="kw-2">&amp;</span><span class="ident">Method::HEAD</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="ident">some_url</span>);
+        <span class="macro">assert_eq!</span>(r.method(), <span class="kw-2">&amp;</span>Method::HEAD);
+        <span class="macro">assert_eq!</span>(r.url().as_str(), some_url);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">basic_post_request</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="ident">some_url</span>).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>basic_post_request() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.post(some_url).build().unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">method</span>(), <span class="kw-2">&amp;</span><span class="ident">Method::POST</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="ident">some_url</span>);
+        <span class="macro">assert_eq!</span>(r.method(), <span class="kw-2">&amp;</span>Method::POST);
+        <span class="macro">assert_eq!</span>(r.url().as_str(), some_url);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">basic_put_request</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">put</span>(<span class="ident">some_url</span>).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>basic_put_request() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.put(some_url).build().unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">method</span>(), <span class="kw-2">&amp;</span><span class="ident">Method::PUT</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="ident">some_url</span>);
+        <span class="macro">assert_eq!</span>(r.method(), <span class="kw-2">&amp;</span>Method::PUT);
+        <span class="macro">assert_eq!</span>(r.url().as_str(), some_url);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">basic_patch_request</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">patch</span>(<span class="ident">some_url</span>).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>basic_patch_request() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.patch(some_url).build().unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">method</span>(), <span class="kw-2">&amp;</span><span class="ident">Method::PATCH</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="ident">some_url</span>);
+        <span class="macro">assert_eq!</span>(r.method(), <span class="kw-2">&amp;</span>Method::PATCH);
+        <span class="macro">assert_eq!</span>(r.url().as_str(), some_url);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">basic_delete_request</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">delete</span>(<span class="ident">some_url</span>).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>basic_delete_request() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.delete(some_url).build().unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">method</span>(), <span class="kw-2">&amp;</span><span class="ident">Method::DELETE</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="ident">some_url</span>);
+        <span class="macro">assert_eq!</span>(r.method(), <span class="kw-2">&amp;</span>Method::DELETE);
+        <span class="macro">assert_eq!</span>(r.url().as_str(), some_url);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_header</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="ident">some_url</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_header() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.post(some_url);
 
-        <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;google.com&quot;</span>);
+        <span class="kw">let </span>header = HeaderValue::from_static(<span class="string">&quot;google.com&quot;</span>);
 
-        <span class="comment">// Add a copy of the header to the request builder</span>
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">header</span>(<span class="ident">HOST</span>, <span class="ident">header</span>.<span class="ident">clone</span>()).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+        <span class="comment">// Add a copy of the header to the request builder
+        </span><span class="kw">let </span>r = r.header(HOST, header.clone()).build().unwrap();
 
-        <span class="comment">// then check it was actually added</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">HOST</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">header</span>));
+        <span class="comment">// then check it was actually added
+        </span><span class="macro">assert_eq!</span>(r.headers().get(HOST), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>header));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_headers</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="ident">some_url</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_headers() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.post(some_url);
 
-        <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;google.com&quot;</span>);
+        <span class="kw">let </span>header = HeaderValue::from_static(<span class="string">&quot;google.com&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">HOST</span>, <span class="ident">header</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
+        headers.insert(HOST, header);
 
-        <span class="comment">// Add a copy of the headers to the request builder</span>
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">headers</span>(<span class="ident">headers</span>.<span class="ident">clone</span>()).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+        <span class="comment">// Add a copy of the headers to the request builder
+        </span><span class="kw">let </span>r = r.headers(headers.clone()).build().unwrap();
 
-        <span class="comment">// then make sure they were added correctly</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">headers</span>(), <span class="kw-2">&amp;</span><span class="ident">headers</span>);
+        <span class="comment">// then make sure they were added correctly
+        </span><span class="macro">assert_eq!</span>(r.headers(), <span class="kw-2">&amp;</span>headers);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_headers_multi</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="ident">some_url</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_headers_multi() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.post(some_url);
 
-        <span class="kw">let</span> <span class="ident">header_json</span> <span class="op">=</span> <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/json&quot;</span>);
-        <span class="kw">let</span> <span class="ident">header_xml</span> <span class="op">=</span> <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/xml&quot;</span>);
+        <span class="kw">let </span>header_json = HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>);
+        <span class="kw">let </span>header_xml = HeaderValue::from_static(<span class="string">&quot;application/xml&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
-        <span class="ident">headers</span>.<span class="ident">append</span>(<span class="ident">ACCEPT</span>, <span class="ident">header_json</span>);
-        <span class="ident">headers</span>.<span class="ident">append</span>(<span class="ident">ACCEPT</span>, <span class="ident">header_xml</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
+        headers.append(ACCEPT, header_json);
+        headers.append(ACCEPT, header_xml);
 
-        <span class="comment">// Add a copy of the headers to the request builder</span>
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">headers</span>(<span class="ident">headers</span>.<span class="ident">clone</span>()).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+        <span class="comment">// Add a copy of the headers to the request builder
+        </span><span class="kw">let </span>r = r.headers(headers.clone()).build().unwrap();
 
-        <span class="comment">// then make sure they were added correctly</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">headers</span>(), <span class="kw-2">&amp;</span><span class="ident">headers</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_values</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">headers</span>().<span class="ident">get_all</span>(<span class="ident">ACCEPT</span>).<span class="ident">iter</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">all_values</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">&quot;application/json&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">all_values</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">&quot;application/xml&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">all_values</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);
+        <span class="comment">// then make sure they were added correctly
+        </span><span class="macro">assert_eq!</span>(r.headers(), <span class="kw-2">&amp;</span>headers);
+        <span class="kw">let </span><span class="kw-2">mut </span>all_values = r.headers().get_all(ACCEPT).iter();
+        <span class="macro">assert_eq!</span>(all_values.next().unwrap(), <span class="kw-2">&amp;</span><span class="string">&quot;application/json&quot;</span>);
+        <span class="macro">assert_eq!</span>(all_values.next().unwrap(), <span class="kw-2">&amp;</span><span class="string">&quot;application/xml&quot;</span>);
+        <span class="macro">assert_eq!</span>(all_values.next(), <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_body</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="ident">some_url</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_body() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.post(some_url);
 
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="string">&quot;Some interesting content&quot;</span>;
+        <span class="kw">let </span>body = <span class="string">&quot;Some interesting content&quot;</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">body</span>(<span class="ident">body</span>).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>r = r.body(body).build().unwrap();
 
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">body::read_to_string</span>(<span class="ident">r</span>.<span class="ident">body_mut</span>().<span class="ident">take</span>().<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>buf = body::read_to_string(r.body_mut().take().unwrap()).unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">buf</span>, <span class="ident">body</span>);
+        <span class="macro">assert_eq!</span>(buf, body);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_query_append</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">get</span>(<span class="ident">some_url</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_query_append() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>r = client.get(some_url);
 
-        <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">query</span>(<span class="kw-2">&amp;</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)]);
-        <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">query</span>(<span class="kw-2">&amp;</span>[(<span class="string">&quot;qux&quot;</span>, <span class="number">3</span>)]);
+        r = r.query(<span class="kw-2">&amp;</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)]);
+        r = r.query(<span class="kw-2">&amp;</span>[(<span class="string">&quot;qux&quot;</span>, <span class="number">3</span>)]);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">build</span>().<span class="ident">expect</span>(<span class="string">&quot;request is valid&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">query</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo=bar&amp;qux=3&quot;</span>));
+        <span class="kw">let </span>req = r.build().expect(<span class="string">&quot;request is valid&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.url().query(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo=bar&amp;qux=3&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_query_append_same</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">get</span>(<span class="ident">some_url</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_query_append_same() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>r = client.get(some_url);
 
-        <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">query</span>(<span class="kw-2">&amp;</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;a&quot;</span>), (<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;b&quot;</span>)]);
+        r = r.query(<span class="kw-2">&amp;</span>[(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;a&quot;</span>), (<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;b&quot;</span>)]);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">build</span>().<span class="ident">expect</span>(<span class="string">&quot;request is valid&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">query</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo=a&amp;foo=b&quot;</span>));
+        <span class="kw">let </span>req = r.build().expect(<span class="string">&quot;request is valid&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.url().query(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo=a&amp;foo=b&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_query_struct</span>() {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">Params</span> {
-            <span class="ident">foo</span>: <span class="ident">String</span>,
-            <span class="ident">qux</span>: <span class="ident">i32</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_query_struct() {
+        <span class="attribute">#[derive(Serialize)]
+        </span><span class="kw">struct </span>Params {
+            foo: String,
+            qux: i32,
         }
 
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">get</span>(<span class="ident">some_url</span>);
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>r = client.get(some_url);
 
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">Params</span> {
-            <span class="ident">foo</span>: <span class="string">&quot;bar&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">qux</span>: <span class="number">3</span>,
+        <span class="kw">let </span>params = Params {
+            foo: <span class="string">&quot;bar&quot;</span>.into(),
+            qux: <span class="number">3</span>,
         };
 
-        <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>);
+        r = r.query(<span class="kw-2">&amp;</span>params);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">build</span>().<span class="ident">expect</span>(<span class="string">&quot;request is valid&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">query</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo=bar&amp;qux=3&quot;</span>));
+        <span class="kw">let </span>req = r.build().expect(<span class="string">&quot;request is valid&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.url().query(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo=bar&amp;qux=3&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_query_map</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="ident">params</span>.<span class="ident">insert</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>);
-        <span class="ident">params</span>.<span class="ident">insert</span>(<span class="string">&quot;qux&quot;</span>, <span class="string">&quot;three&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_query_map() {
+        <span class="kw">let </span><span class="kw-2">mut </span>params = BTreeMap::new();
+        params.insert(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>);
+        params.insert(<span class="string">&quot;qux&quot;</span>, <span class="string">&quot;three&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">get</span>(<span class="ident">some_url</span>);
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>r = client.get(some_url);
 
-        <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>);
+        r = r.query(<span class="kw-2">&amp;</span>params);
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">build</span>().<span class="ident">expect</span>(<span class="string">&quot;request is valid&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">query</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo=bar&amp;qux=three&quot;</span>));
+        <span class="kw">let </span>req = r.build().expect(<span class="string">&quot;request is valid&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.url().query(), <span class="prelude-val">Some</span>(<span class="string">&quot;foo=bar&amp;qux=three&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_form</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="ident">some_url</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_form() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.post(some_url);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">form_data</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="ident">form_data</span>.<span class="ident">insert</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>form_data = HashMap::new();
+        form_data.insert(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">form</span>(<span class="kw-2">&amp;</span><span class="ident">form_data</span>).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>r = r.form(<span class="kw-2">&amp;</span>form_data).build().unwrap();
 
-        <span class="comment">// Make sure the content type was set</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">r</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="kw-2">&amp;</span><span class="string">&quot;application/x-www-form-urlencoded&quot;</span>
-        );
+        <span class="comment">// Make sure the content type was set
+        </span><span class="macro">assert_eq!</span>(
+            r.headers().get(CONTENT_TYPE).unwrap(),
+            <span class="kw-2">&amp;</span><span class="string">&quot;application/x-www-form-urlencoded&quot;
+        </span>);
 
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">body::read_to_string</span>(<span class="ident">r</span>.<span class="ident">body_mut</span>().<span class="ident">take</span>().<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>buf = body::read_to_string(r.body_mut().take().unwrap()).unwrap();
 
-        <span class="kw">let</span> <span class="ident">body_should_be</span> <span class="op">=</span> <span class="ident">serde_urlencoded::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">form_data</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">buf</span>, <span class="ident">body_should_be</span>);
+        <span class="kw">let </span>body_should_be = serde_urlencoded::to_string(<span class="kw-2">&amp;</span>form_data).unwrap();
+        <span class="macro">assert_eq!</span>(buf, body_should_be);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">add_json</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="ident">some_url</span>);
+    <span class="attribute">#[test]
+    #[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+    </span><span class="kw">fn </span>add_json() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.post(some_url);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">json_data</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="ident">json_data</span>.<span class="ident">insert</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>json_data = HashMap::new();
+        json_data.insert(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">json_data</span>).<span class="ident">build</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>r = r.json(<span class="kw-2">&amp;</span>json_data).build().unwrap();
 
-        <span class="comment">// Make sure the content type was set</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">&quot;application/json&quot;</span>);
+        <span class="comment">// Make sure the content type was set
+        </span><span class="macro">assert_eq!</span>(r.headers().get(CONTENT_TYPE).unwrap(), <span class="kw-2">&amp;</span><span class="string">&quot;application/json&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">body::read_to_string</span>(<span class="ident">r</span>.<span class="ident">body_mut</span>().<span class="ident">take</span>().<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>buf = body::read_to_string(r.body_mut().take().unwrap()).unwrap();
 
-        <span class="kw">let</span> <span class="ident">body_should_be</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">json_data</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">buf</span>, <span class="ident">body_should_be</span>);
+        <span class="kw">let </span>body_should_be = serde_json::to_string(<span class="kw-2">&amp;</span>json_data).unwrap();
+        <span class="macro">assert_eq!</span>(buf, body_should_be);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">add_json_fail</span>() {
-        <span class="kw">use</span> <span class="ident">serde::ser::Error</span> <span class="kw">as</span> <span class="kw">_</span>;
-        <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
-        <span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="kw">_</span>;
-        <span class="kw">struct</span> <span class="ident">MyStruct</span>;
-        <span class="kw">impl</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">MyStruct</span> {
-            <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">S</span>: <span class="ident">Serializer</span>,
+    <span class="attribute">#[test]
+    #[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+    </span><span class="kw">fn </span>add_json_fail() {
+        <span class="kw">use </span>serde::ser::Error <span class="kw">as _</span>;
+        <span class="kw">use </span>serde::{Serialize, Serializer};
+        <span class="kw">use </span>std::error::Error <span class="kw">as _</span>;
+        <span class="kw">struct </span>MyStruct;
+        <span class="kw">impl </span>Serialize <span class="kw">for </span>MyStruct {
+            <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, _serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+            <span class="kw">where
+                </span>S: Serializer,
             {
-                <span class="prelude-val">Err</span>(<span class="ident">S::Error::custom</span>(<span class="string">&quot;nope&quot;</span>))
+                <span class="prelude-val">Err</span>(S::Error::custom(<span class="string">&quot;nope&quot;</span>))
             }
         }
 
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">post</span>(<span class="ident">some_url</span>);
-        <span class="kw">let</span> <span class="ident">json_data</span> <span class="op">=</span> <span class="ident">MyStruct</span>;
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">json_data</span>).<span class="ident">build</span>().<span class="ident">unwrap_err</span>();
-        <span class="macro">assert!</span>(<span class="ident">err</span>.<span class="ident">is_builder</span>()); <span class="comment">// well, duh ;)</span>
-        <span class="macro">assert!</span>(<span class="ident">err</span>.<span class="ident">source</span>().<span class="ident">unwrap</span>().<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">serde_json::Error</span><span class="op">&gt;</span>());
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>r = client.post(some_url);
+        <span class="kw">let </span>json_data = MyStruct;
+        <span class="kw">let </span>err = r.json(<span class="kw-2">&amp;</span>json_data).build().unwrap_err();
+        <span class="macro">assert!</span>(err.is_builder()); <span class="comment">// well, duh ;)
+        </span><span class="macro">assert!</span>(err.source().unwrap().is::&lt;serde_json::Error&gt;());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_replace_headers</span>() {
-        <span class="kw">use</span> <span class="ident">http::HeaderMap</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_replace_headers() {
+        <span class="kw">use </span>http::HeaderMap;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="ident">headers</span>.<span class="ident">append</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;baz&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = HeaderMap::new();
+        headers.insert(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>.parse().unwrap());
+        headers.append(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;baz&quot;</span>.parse().unwrap());
 
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="string">&quot;https://hyper.rs&quot;</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;im-a&quot;</span>, <span class="string">&quot;keeper&quot;</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;pop me&quot;</span>)
-            .<span class="ident">headers</span>(<span class="ident">headers</span>)
-            .<span class="ident">build</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;request build&quot;</span>);
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>req = client
+            .get(<span class="string">&quot;https://hyper.rs&quot;</span>)
+            .header(<span class="string">&quot;im-a&quot;</span>, <span class="string">&quot;keeper&quot;</span>)
+            .header(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;pop me&quot;</span>)
+            .headers(headers)
+            .build()
+            .expect(<span class="string">&quot;request build&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;im-a&quot;</span>], <span class="string">&quot;keeper&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.headers()[<span class="string">&quot;im-a&quot;</span>], <span class="string">&quot;keeper&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">foo</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get_all</span>(<span class="string">&quot;foo&quot;</span>).<span class="ident">iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">foo</span>.<span class="ident">len</span>(), <span class="number">2</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">foo</span>[<span class="number">0</span>], <span class="string">&quot;bar&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">foo</span>[<span class="number">1</span>], <span class="string">&quot;baz&quot;</span>);
+        <span class="kw">let </span>foo = req.headers().get_all(<span class="string">&quot;foo&quot;</span>).iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="macro">assert_eq!</span>(foo.len(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(foo[<span class="number">0</span>], <span class="string">&quot;bar&quot;</span>);
+        <span class="macro">assert_eq!</span>(foo[<span class="number">1</span>], <span class="string">&quot;baz&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">normalize_empty_query</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://google.com/&quot;</span>;
-        <span class="kw">let</span> <span class="ident">empty_query</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>)] <span class="op">=</span> <span class="kw-2">&amp;</span>[];
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>normalize_empty_query() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://google.com/&quot;</span>;
+        <span class="kw">let </span>empty_query: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)] = <span class="kw-2">&amp;</span>[];
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="ident">some_url</span>)
-            .<span class="ident">query</span>(<span class="ident">empty_query</span>)
-            .<span class="ident">build</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;request build&quot;</span>);
+        <span class="kw">let </span>req = client
+            .get(some_url)
+            .query(empty_query)
+            .build()
+            .expect(<span class="string">&quot;request build&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">query</span>(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;https://google.com/&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.url().query(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(req.url().as_str(), <span class="string">&quot;https://google.com/&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">convert_url_authority_into_basic_auth</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://Aladdin:open sesame@localhost/&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>convert_url_authority_into_basic_auth() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://Aladdin:open sesame@localhost/&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">get</span>(<span class="ident">some_url</span>).<span class="ident">build</span>().<span class="ident">expect</span>(<span class="string">&quot;request build&quot;</span>);
+        <span class="kw">let </span>req = client.get(some_url).build().expect(<span class="string">&quot;request build&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;https://localhost/&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.url().as_str(), <span class="string">&quot;https://localhost/&quot;</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>],
-            <span class="string">&quot;Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==&quot;</span>
-        );
+            req.headers()[<span class="string">&quot;authorization&quot;</span>],
+            <span class="string">&quot;Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">convert_from_http_request</span>() {
-        <span class="kw">let</span> <span class="ident">http_request</span> <span class="op">=</span> <span class="ident">HttpRequest::builder</span>()
-            .<span class="ident">method</span>(<span class="string">&quot;GET&quot;</span>)
-            .<span class="ident">uri</span>(<span class="string">&quot;http://localhost/&quot;</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;User-Agent&quot;</span>, <span class="string">&quot;my-awesome-agent/1.0&quot;</span>)
-            .<span class="ident">body</span>(<span class="string">&quot;test test test&quot;</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">req</span>: <span class="ident">Request</span> <span class="op">=</span> <span class="ident">Request::try_from</span>(<span class="ident">http_request</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">body</span>().<span class="ident">is_none</span>(), <span class="bool-val">false</span>);
-        <span class="kw">let</span> <span class="ident">test_data</span> <span class="op">=</span> <span class="string">b&quot;test test test&quot;</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">body</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">test_data</span>[..]));
-        <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>(<span class="string">&quot;User-Agent&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;my-awesome-agent/1.0&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="ident">Method::GET</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;http://localhost/&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>convert_from_http_request() {
+        <span class="kw">let </span>http_request = HttpRequest::builder()
+            .method(<span class="string">&quot;GET&quot;</span>)
+            .uri(<span class="string">&quot;http://localhost/&quot;</span>)
+            .header(<span class="string">&quot;User-Agent&quot;</span>, <span class="string">&quot;my-awesome-agent/1.0&quot;</span>)
+            .body(<span class="string">&quot;test test test&quot;</span>)
+            .unwrap();
+        <span class="kw">let </span>req: Request = Request::try_from(http_request).unwrap();
+        <span class="macro">assert_eq!</span>(req.body().is_none(), <span class="bool-val">false</span>);
+        <span class="kw">let </span>test_data = <span class="string">b&quot;test test test&quot;</span>;
+        <span class="macro">assert_eq!</span>(req.body().unwrap().as_bytes(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>test_data[..]));
+        <span class="kw">let </span>headers = req.headers();
+        <span class="macro">assert_eq!</span>(headers.get(<span class="string">&quot;User-Agent&quot;</span>).unwrap(), <span class="string">&quot;my-awesome-agent/1.0&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.method(), Method::GET);
+        <span class="macro">assert_eq!</span>(req.url().as_str(), <span class="string">&quot;http://localhost/&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">set_http_request_version</span>() {
-        <span class="kw">let</span> <span class="ident">http_request</span> <span class="op">=</span> <span class="ident">HttpRequest::builder</span>()
-            .<span class="ident">method</span>(<span class="string">&quot;GET&quot;</span>)
-            .<span class="ident">uri</span>(<span class="string">&quot;http://localhost/&quot;</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;User-Agent&quot;</span>, <span class="string">&quot;my-awesome-agent/1.0&quot;</span>)
-            .<span class="ident">version</span>(<span class="ident">Version::HTTP_11</span>)
-            .<span class="ident">body</span>(<span class="string">&quot;test test test&quot;</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">req</span>: <span class="ident">Request</span> <span class="op">=</span> <span class="ident">Request::try_from</span>(<span class="ident">http_request</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">body</span>().<span class="ident">is_none</span>(), <span class="bool-val">false</span>);
-        <span class="kw">let</span> <span class="ident">test_data</span> <span class="op">=</span> <span class="string">b&quot;test test test&quot;</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">body</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">test_data</span>[..]));
-        <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>(<span class="string">&quot;User-Agent&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;my-awesome-agent/1.0&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="ident">Method::GET</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;http://localhost/&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">version</span>(), <span class="ident">Version::HTTP_11</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>set_http_request_version() {
+        <span class="kw">let </span>http_request = HttpRequest::builder()
+            .method(<span class="string">&quot;GET&quot;</span>)
+            .uri(<span class="string">&quot;http://localhost/&quot;</span>)
+            .header(<span class="string">&quot;User-Agent&quot;</span>, <span class="string">&quot;my-awesome-agent/1.0&quot;</span>)
+            .version(Version::HTTP_11)
+            .body(<span class="string">&quot;test test test&quot;</span>)
+            .unwrap();
+        <span class="kw">let </span>req: Request = Request::try_from(http_request).unwrap();
+        <span class="macro">assert_eq!</span>(req.body().is_none(), <span class="bool-val">false</span>);
+        <span class="kw">let </span>test_data = <span class="string">b&quot;test test test&quot;</span>;
+        <span class="macro">assert_eq!</span>(req.body().unwrap().as_bytes(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>test_data[..]));
+        <span class="kw">let </span>headers = req.headers();
+        <span class="macro">assert_eq!</span>(headers.get(<span class="string">&quot;User-Agent&quot;</span>).unwrap(), <span class="string">&quot;my-awesome-agent/1.0&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.method(), Method::GET);
+        <span class="macro">assert_eq!</span>(req.url().as_str(), <span class="string">&quot;http://localhost/&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.version(), Version::HTTP_11);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_basic_auth_sensitive_header</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://localhost/&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_basic_auth_sensitive_header() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://localhost/&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="ident">some_url</span>)
-            .<span class="ident">basic_auth</span>(<span class="string">&quot;Aladdin&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;open sesame&quot;</span>))
-            .<span class="ident">build</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;request build&quot;</span>);
+        <span class="kw">let </span>req = client
+            .get(some_url)
+            .basic_auth(<span class="string">&quot;Aladdin&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;open sesame&quot;</span>))
+            .build()
+            .expect(<span class="string">&quot;request build&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;https://localhost/&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.url().as_str(), <span class="string">&quot;https://localhost/&quot;</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>],
-            <span class="string">&quot;Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==&quot;</span>
-        );
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>].<span class="ident">is_sensitive</span>(), <span class="bool-val">true</span>);
+            req.headers()[<span class="string">&quot;authorization&quot;</span>],
+            <span class="string">&quot;Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==&quot;
+        </span>);
+        <span class="macro">assert_eq!</span>(req.headers()[<span class="string">&quot;authorization&quot;</span>].is_sensitive(), <span class="bool-val">true</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bearer_auth_sensitive_header</span>() {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::new</span>();
-        <span class="kw">let</span> <span class="ident">some_url</span> <span class="op">=</span> <span class="string">&quot;https://localhost/&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bearer_auth_sensitive_header() {
+        <span class="kw">let </span>client = Client::new();
+        <span class="kw">let </span>some_url = <span class="string">&quot;https://localhost/&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="ident">some_url</span>)
-            .<span class="ident">bearer_auth</span>(<span class="string">&quot;Hold my bear&quot;</span>)
-            .<span class="ident">build</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;request build&quot;</span>);
+        <span class="kw">let </span>req = client
+            .get(some_url)
+            .bearer_auth(<span class="string">&quot;Hold my bear&quot;</span>)
+            .build()
+            .expect(<span class="string">&quot;request build&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">url</span>().<span class="ident">as_str</span>(), <span class="string">&quot;https://localhost/&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>], <span class="string">&quot;Bearer Hold my bear&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">headers</span>()[<span class="string">&quot;authorization&quot;</span>].<span class="ident">is_sensitive</span>(), <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(req.url().as_str(), <span class="string">&quot;https://localhost/&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.headers()[<span class="string">&quot;authorization&quot;</span>], <span class="string">&quot;Bearer Hold my bear&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.headers()[<span class="string">&quot;authorization&quot;</span>].is_sensitive(), <span class="bool-val">true</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

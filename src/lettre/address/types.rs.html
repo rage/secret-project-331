@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/address/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/address/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -302,307 +302,307 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Representation of an email address</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Representation of an email address
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">error::Error</span>,
-    <span class="ident">ffi::OsStr</span>,
-    <span class="ident">fmt</span>::{<span class="ident">Display</span>, <span class="ident">Formatter</span>, <span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">FmtResult</span>},
-    <span class="ident">net::IpAddr</span>,
-    <span class="ident">str::FromStr</span>,
+</span><span class="kw">use </span>std::{
+    error::Error,
+    ffi::OsStr,
+    fmt::{Display, Formatter, <span class="prelude-ty">Result </span><span class="kw">as </span>FmtResult},
+    net::IpAddr,
+    str::FromStr,
 };
 
-<span class="kw">use</span> <span class="ident">email_address::EmailAddress</span>;
-<span class="kw">use</span> <span class="ident">idna::domain_to_ascii</span>;
+<span class="kw">use </span>email_address::EmailAddress;
+<span class="kw">use </span>idna::domain_to_ascii;
 
-<span class="doccomment">/// Represents an email address with a user and a domain name.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This type contains email in canonical form (_user@domain.tld_).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **NOTE**: Enable feature &quot;serde&quot; to be able serialize/deserialize it using [serde](https://serde.rs/).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can create an `Address` from a user and a domain:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use lettre::Address;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # use std::error::Error;</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">/// let address = Address::new(&quot;user&quot;, &quot;email.com&quot;)?;</span>
-<span class="doccomment">/// assert_eq!(address.user(), &quot;user&quot;);</span>
-<span class="doccomment">/// assert_eq!(address.domain(), &quot;email.com&quot;);</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can also create an `Address` from a string literal by parsing it:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use lettre::Address;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # use std::error::Error;</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">/// let address = &quot;user@email.com&quot;.parse::&lt;Address&gt;()?;</span>
-<span class="doccomment">/// assert_eq!(address.user(), &quot;user&quot;);</span>
-<span class="doccomment">/// assert_eq!(address.domain(), &quot;email.com&quot;);</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Address</span> {
-    <span class="doccomment">/// Complete address</span>
-    <span class="ident">serialized</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Index into `serialized` before the &#39;@&#39;</span>
-    <span class="ident">at_start</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// Represents an email address with a user and a domain name.
+///
+/// This type contains email in canonical form (_user@domain.tld_).
+///
+/// **NOTE**: Enable feature &quot;serde&quot; to be able serialize/deserialize it using [serde](https://serde.rs/).
+///
+/// # Examples
+///
+/// You can create an `Address` from a user and a domain:
+///
+/// ```
+/// use lettre::Address;
+///
+/// # use std::error::Error;
+/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+/// let address = Address::new(&quot;user&quot;, &quot;email.com&quot;)?;
+/// assert_eq!(address.user(), &quot;user&quot;);
+/// assert_eq!(address.domain(), &quot;email.com&quot;);
+/// # Ok(())
+/// # }
+/// ```
+///
+/// You can also create an `Address` from a string literal by parsing it:
+///
+/// ```
+/// use lettre::Address;
+///
+/// # use std::error::Error;
+/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+/// let address = &quot;user@email.com&quot;.parse::&lt;Address&gt;()?;
+/// assert_eq!(address.user(), &quot;user&quot;);
+/// assert_eq!(address.domain(), &quot;email.com&quot;);
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
+</span><span class="kw">pub struct </span>Address {
+    <span class="doccomment">/// Complete address
+    </span>serialized: String,
+    <span class="doccomment">/// Index into `serialized` before the &#39;@&#39;
+    </span>at_start: usize,
 }
 
-<span class="kw">impl</span> <span class="ident">Address</span> {
-    <span class="doccomment">/// Creates a new email address from a user and domain.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use lettre::Address;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let address = Address::new(&quot;user&quot;, &quot;email.com&quot;)?;</span>
-    <span class="doccomment">/// let expected = &quot;user@email.com&quot;.parse::&lt;Address&gt;()?;</span>
-    <span class="doccomment">/// assert_eq!(expected, address);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">D</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">user</span>: <span class="ident">U</span>, <span class="ident">domain</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">AddressError</span><span class="op">&gt;</span> {
-        (<span class="ident">user</span>, <span class="ident">domain</span>).<span class="ident">try_into</span>()
+<span class="kw">impl </span>Address {
+    <span class="doccomment">/// Creates a new email address from a user and domain.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lettre::Address;
+    ///
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let address = Address::new(&quot;user&quot;, &quot;email.com&quot;)?;
+    /// let expected = &quot;user@email.com&quot;.parse::&lt;Address&gt;()?;
+    /// assert_eq!(expected, address);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>new&lt;U: AsRef&lt;str&gt;, D: AsRef&lt;str&gt;&gt;(user: U, domain: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, AddressError&gt; {
+        (user, domain).try_into()
     }
 
-    <span class="doccomment">/// Gets the user portion of the `Address`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use lettre::Address;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let address = Address::new(&quot;user&quot;, &quot;email.com&quot;)?;</span>
-    <span class="doccomment">/// assert_eq!(address.user(), &quot;user&quot;);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">user</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialized</span>[..<span class="self">self</span>.<span class="ident">at_start</span>]
+    <span class="doccomment">/// Gets the user portion of the `Address`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lettre::Address;
+    ///
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let address = Address::new(&quot;user&quot;, &quot;email.com&quot;)?;
+    /// assert_eq!(address.user(), &quot;user&quot;);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>user(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.serialized[..<span class="self">self</span>.at_start]
     }
 
-    <span class="doccomment">/// Gets the domain portion of the `Address`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use lettre::Address;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let address = Address::new(&quot;user&quot;, &quot;email.com&quot;)?;</span>
-    <span class="doccomment">/// assert_eq!(address.domain(), &quot;email.com&quot;);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">domain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialized</span>[<span class="self">self</span>.<span class="ident">at_start</span> <span class="op">+</span> <span class="number">1</span>..]
+    <span class="doccomment">/// Gets the domain portion of the `Address`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lettre::Address;
+    ///
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let address = Address::new(&quot;user&quot;, &quot;email.com&quot;)?;
+    /// assert_eq!(address.domain(), &quot;email.com&quot;);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>domain(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.serialized[<span class="self">self</span>.at_start + <span class="number">1</span>..]
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">check_user</span>(<span class="ident">user</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">AddressError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">EmailAddress::is_valid_local_part</span>(<span class="ident">user</span>) {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>check_user(user: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), AddressError&gt; {
+        <span class="kw">if </span>EmailAddress::is_valid_local_part(user) {
             <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">AddressError::InvalidUser</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(AddressError::InvalidUser)
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">check_domain</span>(<span class="ident">domain</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">AddressError</span><span class="op">&gt;</span> {
-        <span class="ident">Address::check_domain_ascii</span>(<span class="ident">domain</span>).<span class="ident">or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="ident">domain_to_ascii</span>(<span class="ident">domain</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">AddressError::InvalidDomain</span>)
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">domain</span><span class="op">|</span> <span class="ident">Address::check_domain_ascii</span>(<span class="kw-2">&amp;</span><span class="ident">domain</span>))
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>check_domain(domain: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), AddressError&gt; {
+        Address::check_domain_ascii(domain).or_else(|<span class="kw">_</span>| {
+            domain_to_ascii(domain)
+                .map_err(|<span class="kw">_</span>| AddressError::InvalidDomain)
+                .and_then(|domain| Address::check_domain_ascii(<span class="kw-2">&amp;</span>domain))
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">check_domain_ascii</span>(<span class="ident">domain</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">AddressError</span><span class="op">&gt;</span> {
-        <span class="comment">// Domain</span>
-        <span class="kw">if</span> <span class="ident">EmailAddress::is_valid_domain</span>(<span class="ident">domain</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    <span class="kw">fn </span>check_domain_ascii(domain: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), AddressError&gt; {
+        <span class="comment">// Domain
+        </span><span class="kw">if </span>EmailAddress::is_valid_domain(domain) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="comment">// IP</span>
-        <span class="kw">let</span> <span class="ident">ip</span> <span class="op">=</span> <span class="ident">domain</span>
-            .<span class="ident">strip_prefix</span>(<span class="string">&#39;[&#39;</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ip</span><span class="op">|</span> <span class="ident">ip</span>.<span class="ident">strip_suffix</span>(<span class="string">&#39;]&#39;</span>))
-            .<span class="ident">unwrap_or</span>(<span class="ident">domain</span>);
+        <span class="comment">// IP
+        </span><span class="kw">let </span>ip = domain
+            .strip_prefix(<span class="string">&#39;[&#39;</span>)
+            .and_then(|ip| ip.strip_suffix(<span class="string">&#39;]&#39;</span>))
+            .unwrap_or(domain);
 
-        <span class="kw">if</span> <span class="ident">ip</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>().<span class="ident">is_ok</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        <span class="kw">if </span>ip.parse::&lt;IpAddr&gt;().is_ok() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="prelude-val">Err</span>(<span class="ident">AddressError::InvalidDomain</span>)
+        <span class="prelude-val">Err</span>(AddressError::InvalidDomain)
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;smtp-transport&quot;</span>)]</span>
-    <span class="doccomment">/// Check if the address contains non-ascii chars</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_ascii</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">serialized</span>.<span class="ident">is_ascii</span>()
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;smtp-transport&quot;</span>)]
+    </span><span class="doccomment">/// Check if the address contains non-ascii chars
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>is_ascii(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.serialized.is_ascii()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Address</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">FmtResult</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialized</span>)
+<span class="kw">impl </span>Display <span class="kw">for </span>Address {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; FmtResult {
+        f.write_str(<span class="kw-2">&amp;</span><span class="self">self</span>.serialized)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Address</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">AddressError</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>Address {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= AddressError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">AddressError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">at_start</span> <span class="op">=</span> <span class="ident">check_address</span>(<span class="ident">val</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">Address</span> {
-            <span class="ident">serialized</span>: <span class="ident">val</span>.<span class="ident">into</span>(),
-            <span class="ident">at_start</span>,
+    <span class="kw">fn </span>from_str(val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, AddressError&gt; {
+        <span class="kw">let </span>at_start = check_address(val)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Address {
+            serialized: val.into(),
+            at_start,
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span>(<span class="ident">U</span>, <span class="ident">D</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Address</span>
-<span class="kw">where</span>
-    <span class="ident">U</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    <span class="ident">D</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;U, D&gt; TryFrom&lt;(U, D)&gt; <span class="kw">for </span>Address
+<span class="kw">where
+    </span>U: AsRef&lt;str&gt;,
+    D: AsRef&lt;str&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">AddressError</span>;
+    <span class="kw">type </span>Error = AddressError;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>((<span class="ident">user</span>, <span class="ident">domain</span>): (<span class="ident">U</span>, <span class="ident">D</span>)) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">user</span>.<span class="ident">as_ref</span>();
-        <span class="ident">Address::check_user</span>(<span class="ident">user</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>try_from((user, domain): (U, D)) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>user = user.as_ref();
+        Address::check_user(user)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">domain</span> <span class="op">=</span> <span class="ident">domain</span>.<span class="ident">as_ref</span>();
-        <span class="ident">Address::check_domain</span>(<span class="ident">domain</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>domain = domain.as_ref();
+        Address::check_domain(domain)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">serialized</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}@{}&quot;</span>, <span class="ident">user</span>, <span class="ident">domain</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">Address</span> {
-            <span class="ident">serialized</span>,
-            <span class="ident">at_start</span>: <span class="ident">user</span>.<span class="ident">len</span>(),
+        <span class="kw">let </span>serialized = <span class="macro">format!</span>(<span class="string">&quot;{}@{}&quot;</span>, user, domain);
+        <span class="prelude-val">Ok</span>(Address {
+            serialized,
+            at_start: user.len(),
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Address</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">AddressError</span>;
+<span class="kw">impl </span>TryFrom&lt;String&gt; <span class="kw">for </span>Address {
+    <span class="kw">type </span>Error = AddressError;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">serialized</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">AddressError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">at_start</span> <span class="op">=</span> <span class="ident">check_address</span>(<span class="kw-2">&amp;</span><span class="ident">serialized</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">Address</span> {
-            <span class="ident">serialized</span>,
-            <span class="ident">at_start</span>,
+    <span class="kw">fn </span>try_from(serialized: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, AddressError&gt; {
+        <span class="kw">let </span>at_start = check_address(<span class="kw-2">&amp;</span>serialized)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Address {
+            serialized,
+            at_start,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Address</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialized</span>
+<span class="kw">impl </span>AsRef&lt;str&gt; <span class="kw">for </span>Address {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.serialized
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">OsStr</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Address</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">OsStr</span> {
-        <span class="self">self</span>.<span class="ident">serialized</span>.<span class="ident">as_ref</span>()
+<span class="kw">impl </span>AsRef&lt;OsStr&gt; <span class="kw">for </span>Address {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>OsStr {
+        <span class="self">self</span>.serialized.as_ref()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">check_address</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">AddressError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">rsplitn</span>(<span class="number">2</span>, <span class="string">&#39;@&#39;</span>);
-    <span class="kw">let</span> <span class="ident">domain</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">next</span>().<span class="ident">ok_or</span>(<span class="ident">AddressError::MissingParts</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">next</span>().<span class="ident">ok_or</span>(<span class="ident">AddressError::MissingParts</span>)<span class="question-mark">?</span>;
+<span class="kw">fn </span>check_address(val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;usize, AddressError&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>parts = val.rsplitn(<span class="number">2</span>, <span class="string">&#39;@&#39;</span>);
+    <span class="kw">let </span>domain = parts.next().ok_or(AddressError::MissingParts)<span class="question-mark">?</span>;
+    <span class="kw">let </span>user = parts.next().ok_or(AddressError::MissingParts)<span class="question-mark">?</span>;
 
-    <span class="ident">Address::check_user</span>(<span class="ident">user</span>)<span class="question-mark">?</span>;
-    <span class="ident">Address::check_domain</span>(<span class="ident">domain</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">user</span>.<span class="ident">len</span>())
+    Address::check_user(user)<span class="question-mark">?</span>;
+    Address::check_domain(domain)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(user.len())
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="doccomment">/// Errors in email addresses parsing</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AddressError</span> {
-    <span class="doccomment">/// Missing domain or user</span>
-    <span class="ident">MissingParts</span>,
-    <span class="doccomment">/// Unbalanced angle bracket</span>
-    <span class="ident">Unbalanced</span>,
-    <span class="doccomment">/// Invalid email user</span>
-    <span class="ident">InvalidUser</span>,
-    <span class="doccomment">/// Invalid email domain</span>
-    <span class="ident">InvalidDomain</span>,
+<span class="attribute">#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+</span><span class="doccomment">/// Errors in email addresses parsing
+</span><span class="kw">pub enum </span>AddressError {
+    <span class="doccomment">/// Missing domain or user
+    </span>MissingParts,
+    <span class="doccomment">/// Unbalanced angle bracket
+    </span>Unbalanced,
+    <span class="doccomment">/// Invalid email user
+    </span>InvalidUser,
+    <span class="doccomment">/// Invalid email domain
+    </span>InvalidDomain,
 }
 
-<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">AddressError</span> {}
+<span class="kw">impl </span>Error <span class="kw">for </span>AddressError {}
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">AddressError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">FmtResult</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AddressError::MissingParts</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;Missing domain or user&quot;</span>),
-            <span class="ident">AddressError::Unbalanced</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;Unbalanced angle bracket&quot;</span>),
-            <span class="ident">AddressError::InvalidUser</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;Invalid email user&quot;</span>),
-            <span class="ident">AddressError::InvalidDomain</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;Invalid email domain&quot;</span>),
+<span class="kw">impl </span>Display <span class="kw">for </span>AddressError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; FmtResult {
+        <span class="kw">match </span><span class="self">self </span>{
+            AddressError::MissingParts =&gt; f.write_str(<span class="string">&quot;Missing domain or user&quot;</span>),
+            AddressError::Unbalanced =&gt; f.write_str(<span class="string">&quot;Unbalanced angle bracket&quot;</span>),
+            AddressError::InvalidUser =&gt; f.write_str(<span class="string">&quot;Invalid email user&quot;</span>),
+            AddressError::InvalidDomain =&gt; f.write_str(<span class="string">&quot;Invalid email domain&quot;</span>),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ascii_address</span>() {
-        <span class="kw">let</span> <span class="ident">addr_str</span> <span class="op">=</span> <span class="string">&quot;something@example.com&quot;</span>;
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">Address::from_str</span>(<span class="ident">addr_str</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">addr2</span> <span class="op">=</span> <span class="ident">Address::new</span>(<span class="string">&quot;something&quot;</span>, <span class="string">&quot;example.com&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>, <span class="ident">addr2</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">domain</span>(), <span class="string">&quot;example.com&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">domain</span>(), <span class="string">&quot;example.com&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ascii_address() {
+        <span class="kw">let </span>addr_str = <span class="string">&quot;something@example.com&quot;</span>;
+        <span class="kw">let </span>addr = Address::from_str(addr_str).unwrap();
+        <span class="kw">let </span>addr2 = Address::new(<span class="string">&quot;something&quot;</span>, <span class="string">&quot;example.com&quot;</span>).unwrap();
+        <span class="macro">assert_eq!</span>(addr, addr2);
+        <span class="macro">assert_eq!</span>(addr.user(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(addr.domain(), <span class="string">&quot;example.com&quot;</span>);
+        <span class="macro">assert_eq!</span>(addr2.user(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(addr2.domain(), <span class="string">&quot;example.com&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ascii_address_ipv4</span>() {
-        <span class="kw">let</span> <span class="ident">addr_str</span> <span class="op">=</span> <span class="string">&quot;something@1.1.1.1&quot;</span>;
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">Address::from_str</span>(<span class="ident">addr_str</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">addr2</span> <span class="op">=</span> <span class="ident">Address::new</span>(<span class="string">&quot;something&quot;</span>, <span class="string">&quot;1.1.1.1&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>, <span class="ident">addr2</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">domain</span>(), <span class="string">&quot;1.1.1.1&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">domain</span>(), <span class="string">&quot;1.1.1.1&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ascii_address_ipv4() {
+        <span class="kw">let </span>addr_str = <span class="string">&quot;something@1.1.1.1&quot;</span>;
+        <span class="kw">let </span>addr = Address::from_str(addr_str).unwrap();
+        <span class="kw">let </span>addr2 = Address::new(<span class="string">&quot;something&quot;</span>, <span class="string">&quot;1.1.1.1&quot;</span>).unwrap();
+        <span class="macro">assert_eq!</span>(addr, addr2);
+        <span class="macro">assert_eq!</span>(addr.user(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(addr.domain(), <span class="string">&quot;1.1.1.1&quot;</span>);
+        <span class="macro">assert_eq!</span>(addr2.user(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(addr2.domain(), <span class="string">&quot;1.1.1.1&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ascii_address_ipv6</span>() {
-        <span class="kw">let</span> <span class="ident">addr_str</span> <span class="op">=</span> <span class="string">&quot;something@[2606:4700:4700::1111]&quot;</span>;
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">Address::from_str</span>(<span class="ident">addr_str</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">addr2</span> <span class="op">=</span> <span class="ident">Address::new</span>(<span class="string">&quot;something&quot;</span>, <span class="string">&quot;[2606:4700:4700::1111]&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>, <span class="ident">addr2</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr</span>.<span class="ident">domain</span>(), <span class="string">&quot;[2606:4700:4700::1111]&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">user</span>(), <span class="string">&quot;something&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">addr2</span>.<span class="ident">domain</span>(), <span class="string">&quot;[2606:4700:4700::1111]&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ascii_address_ipv6() {
+        <span class="kw">let </span>addr_str = <span class="string">&quot;something@[2606:4700:4700::1111]&quot;</span>;
+        <span class="kw">let </span>addr = Address::from_str(addr_str).unwrap();
+        <span class="kw">let </span>addr2 = Address::new(<span class="string">&quot;something&quot;</span>, <span class="string">&quot;[2606:4700:4700::1111]&quot;</span>).unwrap();
+        <span class="macro">assert_eq!</span>(addr, addr2);
+        <span class="macro">assert_eq!</span>(addr.user(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(addr.domain(), <span class="string">&quot;[2606:4700:4700::1111]&quot;</span>);
+        <span class="macro">assert_eq!</span>(addr2.user(), <span class="string">&quot;something&quot;</span>);
+        <span class="macro">assert_eq!</span>(addr2.domain(), <span class="string">&quot;[2606:4700:4700::1111]&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">check_parts</span>() {
-        <span class="macro">assert!</span>(<span class="ident">Address::check_user</span>(<span class="string">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;</span>).<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>check_parts() {
+        <span class="macro">assert!</span>(Address::check_user(<span class="string">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&quot;</span>).is_err());
         <span class="macro">assert!</span>(
-            <span class="ident">Address::check_domain</span>(<span class="string">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com&quot;</span>).<span class="ident">is_err</span>()
+            Address::check_domain(<span class="string">&quot;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com&quot;</span>).is_err()
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

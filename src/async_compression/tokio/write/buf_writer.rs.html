@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/tokio/write/buf_writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>buf_writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../async_compression/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/tokio/write/buf_writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>buf_writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../async_compression/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -207,214 +207,214 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
-</pre><pre class="rust"><code><span class="comment">// Originally sourced from `futures_util::io::buf_writer`, needs to be redefined locally so that</span>
-<span class="comment">// the `AsyncBufWrite` impl can access its internals, and changed a bit to make it more efficient</span>
-<span class="comment">// with those methods.</span>
+</pre><pre class="rust"><code><span class="comment">// Originally sourced from `futures_util::io::buf_writer`, needs to be redefined locally so that
+// the `AsyncBufWrite` impl can access its internals, and changed a bit to make it more efficient
+// with those methods.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::AsyncBufWrite</span>;
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cmp::min</span>,
-    <span class="ident">fmt</span>, <span class="ident">io</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span><span class="kw">super</span>::AsyncBufWrite;
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>pin_project_lite::pin_project;
+<span class="kw">use </span>std::{
+    cmp::min,
+    fmt, io,
+    pin::Pin,
+    task::{Context, Poll},
 };
-<span class="kw">use</span> <span class="ident">tokio::io::AsyncWrite</span>;
+<span class="kw">use </span>tokio::io::AsyncWrite;
 
-<span class="kw">const</span> <span class="ident">DEFAULT_BUF_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">8192</span>;
+<span class="kw">const </span>DEFAULT_BUF_SIZE: usize = <span class="number">8192</span>;
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BufWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">inner</span>: <span class="ident">W</span>,
-        <span class="ident">buf</span>: <span class="ident">Box</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
-        <span class="ident">written</span>: <span class="ident">usize</span>,
-        <span class="ident">buffered</span>: <span class="ident">usize</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>BufWriter&lt;W&gt; {
+        <span class="attribute">#[pin]
+        </span>inner: W,
+        buf: Box&lt;[u8]&gt;,
+        written: usize,
+        buffered: usize,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">AsyncWrite</span><span class="op">&gt;</span> <span class="ident">BufWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new `BufWriter` with a default buffer capacity. The default is currently 8 KB,</span>
-    <span class="doccomment">/// but may change in the future.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="ident">W</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::with_capacity</span>(<span class="ident">DEFAULT_BUF_SIZE</span>, <span class="ident">inner</span>)
+<span class="kw">impl</span>&lt;W: AsyncWrite&gt; BufWriter&lt;W&gt; {
+    <span class="doccomment">/// Creates a new `BufWriter` with a default buffer capacity. The default is currently 8 KB,
+    /// but may change in the future.
+    </span><span class="kw">pub fn </span>new(inner: W) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::with_capacity(DEFAULT_BUF_SIZE, inner)
     }
 
-    <span class="doccomment">/// Creates a new `BufWriter` with the specified buffer capacity.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">cap</span>: <span class="ident">usize</span>, <span class="ident">inner</span>: <span class="ident">W</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">inner</span>,
-            <span class="ident">buf</span>: <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">cap</span>].<span class="ident">into</span>(),
-            <span class="ident">written</span>: <span class="number">0</span>,
-            <span class="ident">buffered</span>: <span class="number">0</span>,
+    <span class="doccomment">/// Creates a new `BufWriter` with the specified buffer capacity.
+    </span><span class="kw">pub fn </span>with_capacity(cap: usize, inner: W) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner,
+            buf: <span class="macro">vec!</span>[<span class="number">0</span>; cap].into(),
+            written: <span class="number">0</span>,
+            buffered: <span class="number">0</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">partial_flush_buf</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+    <span class="kw">fn </span>partial_flush_buf(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.project();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="prelude-val">Ok</span>(());
-        <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span> <span class="op">&lt;</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span> {
-            <span class="kw">match</span> <span class="ident">this</span>
-                .<span class="ident">inner</span>
-                .<span class="ident">as_mut</span>()
-                .<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;</span><span class="ident">this</span>.<span class="ident">buf</span>[<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span>..<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span>])
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="prelude-val">Ok</span>(());
+        <span class="kw">while </span><span class="kw-2">*</span>this.written &lt; <span class="kw-2">*</span>this.buffered {
+            <span class="kw">match </span>this
+                .inner
+                .as_mut()
+                .poll_write(cx, <span class="kw-2">&amp;</span>this.buf[<span class="kw-2">*</span>this.written..<span class="kw-2">*</span>this.buffered])
             {
-                <span class="ident">Poll::Pending</span> =&gt; {
+                Poll::Pending =&gt; {
                     <span class="kw">break</span>;
                 }
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>)) =&gt; {
-                    <span class="ident">ret</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-                        <span class="ident">io::ErrorKind::WriteZero</span>,
+                Poll::Ready(<span class="prelude-val">Ok</span>(<span class="number">0</span>)) =&gt; {
+                    ret = <span class="prelude-val">Err</span>(io::Error::new(
+                        io::ErrorKind::WriteZero,
                         <span class="string">&quot;failed to write the buffered data&quot;</span>,
                     ));
                     <span class="kw">break</span>;
                 }
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">n</span>)) =&gt; <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>,
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; {
-                    <span class="ident">ret</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
+                Poll::Ready(<span class="prelude-val">Ok</span>(n)) =&gt; <span class="kw-2">*</span>this.written += n,
+                Poll::Ready(<span class="prelude-val">Err</span>(e)) =&gt; {
+                    ret = <span class="prelude-val">Err</span>(e);
                     <span class="kw">break</span>;
                 }
             }
         }
 
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="ident">this</span>.<span class="ident">buf</span>.<span class="ident">copy_within</span>(<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span>..<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span>, <span class="number">0</span>);
-            <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span> <span class="op">-</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span>;
-            <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">if </span><span class="kw-2">*</span>this.written &gt; <span class="number">0 </span>{
+            this.buf.copy_within(<span class="kw-2">*</span>this.written..<span class="kw-2">*</span>this.buffered, <span class="number">0</span>);
+            <span class="kw-2">*</span>this.buffered -= <span class="kw-2">*</span>this.written;
+            <span class="kw-2">*</span>this.written = <span class="number">0</span>;
 
-            <span class="ident">Poll::Ready</span>(<span class="ident">ret</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="ident">Poll::Ready</span>(<span class="ident">ret</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">ret</span><span class="question-mark">?</span>;
-            <span class="ident">Poll::Pending</span>
+            Poll::Ready(ret)
+        } <span class="kw">else if </span><span class="kw-2">*</span>this.buffered == <span class="number">0 </span>{
+            Poll::Ready(ret)
+        } <span class="kw">else </span>{
+            ret<span class="question-mark">?</span>;
+            Poll::Pending
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">flush_buf</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+    <span class="kw">fn </span>flush_buf(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.project();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="prelude-val">Ok</span>(());
-        <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span> <span class="op">&lt;</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span> {
-            <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">this</span>
-                .<span class="ident">inner</span>
-                .<span class="ident">as_mut</span>()
-                .<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;</span><span class="ident">this</span>.<span class="ident">buf</span>[<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span>..<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span>]))
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="prelude-val">Ok</span>(());
+        <span class="kw">while </span><span class="kw-2">*</span>this.written &lt; <span class="kw-2">*</span>this.buffered {
+            <span class="kw">match </span><span class="macro">ready!</span>(this
+                .inner
+                .as_mut()
+                .poll_write(cx, <span class="kw-2">&amp;</span>this.buf[<span class="kw-2">*</span>this.written..<span class="kw-2">*</span>this.buffered]))
             {
                 <span class="prelude-val">Ok</span>(<span class="number">0</span>) =&gt; {
-                    <span class="ident">ret</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-                        <span class="ident">io::ErrorKind::WriteZero</span>,
+                    ret = <span class="prelude-val">Err</span>(io::Error::new(
+                        io::ErrorKind::WriteZero,
                         <span class="string">&quot;failed to write the buffered data&quot;</span>,
                     ));
                     <span class="kw">break</span>;
                 }
-                <span class="prelude-val">Ok</span>(<span class="ident">n</span>) =&gt; <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                    <span class="ident">ret</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
+                <span class="prelude-val">Ok</span>(n) =&gt; <span class="kw-2">*</span>this.written += n,
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    ret = <span class="prelude-val">Err</span>(e);
                     <span class="kw">break</span>;
                 }
             }
         }
-        <span class="ident">this</span>.<span class="ident">buf</span>.<span class="ident">copy_within</span>(<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span>..<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span>, <span class="number">0</span>);
-        <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span> <span class="op">-</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span>;
-        <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">written</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">Poll::Ready</span>(<span class="ident">ret</span>)
+        this.buf.copy_within(<span class="kw-2">*</span>this.written..<span class="kw-2">*</span>this.buffered, <span class="number">0</span>);
+        <span class="kw-2">*</span>this.buffered -= <span class="kw-2">*</span>this.written;
+        <span class="kw-2">*</span>this.written = <span class="number">0</span>;
+        Poll::Ready(ret)
     }
 
-    <span class="doccomment">/// Gets a reference to the underlying writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>
+    <span class="doccomment">/// Gets a reference to the underlying writer.
+    </span><span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.inner
     }
 
-    <span class="doccomment">/// Gets a mutable reference to the underlying writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It is inadvisable to directly write to the underlying writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>
+    <span class="doccomment">/// Gets a mutable reference to the underlying writer.
+    ///
+    /// It is inadvisable to directly write to the underlying writer.
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner
     }
 
-    <span class="doccomment">/// Gets a pinned mutable reference to the underlying writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It is inadvisable to directly write to the underlying writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_pin_mut</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">project</span>().<span class="ident">inner</span>
+    <span class="doccomment">/// Gets a pinned mutable reference to the underlying writer.
+    ///
+    /// It is inadvisable to directly write to the underlying writer.
+    </span><span class="kw">pub fn </span>get_pin_mut(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; Pin&lt;<span class="kw-2">&amp;mut </span>W&gt; {
+        <span class="self">self</span>.project().inner
     }
 
-    <span class="doccomment">/// Consumes this `BufWriter`, returning the underlying writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that any leftover data in the internal buffer is lost.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>
+    <span class="doccomment">/// Consumes this `BufWriter`, returning the underlying writer.
+    ///
+    /// Note that any leftover data in the internal buffer is lost.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; W {
+        <span class="self">self</span>.inner
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">AsyncWrite</span><span class="op">&gt;</span> <span class="ident">AsyncWrite</span> <span class="kw">for</span> <span class="ident">BufWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">poll_write</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span> <span class="op">+</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">this</span>.<span class="ident">buf</span>.<span class="ident">len</span>() {
-            <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">partial_flush_buf</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+<span class="kw">impl</span>&lt;W: AsyncWrite&gt; AsyncWrite <span class="kw">for </span>BufWriter&lt;W&gt; {
+    <span class="kw">fn </span>poll_write(
+        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        buf: <span class="kw-2">&amp;</span>[u8],
+    ) -&gt; Poll&lt;io::Result&lt;usize&gt;&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.as_mut().project();
+        <span class="kw">if </span><span class="kw-2">*</span>this.buffered + buf.len() &gt; this.buf.len() {
+            <span class="macro">ready!</span>(<span class="self">self</span>.as_mut().partial_flush_buf(cx))<span class="question-mark">?</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
-        <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">this</span>.<span class="ident">buf</span>.<span class="ident">len</span>() {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="ident">buf</span>)
-            } <span class="kw">else</span> {
-                <span class="comment">// The only way that `partial_flush_buf` would have returned with</span>
-                <span class="comment">// `this.buffered != 0` is if it were Pending, so our waker was already queued</span>
-                <span class="ident">Poll::Pending</span>
+        <span class="kw">let </span>this = <span class="self">self</span>.as_mut().project();
+        <span class="kw">if </span>buf.len() &gt;= this.buf.len() {
+            <span class="kw">if </span><span class="kw-2">*</span>this.buffered == <span class="number">0 </span>{
+                this.inner.poll_write(cx, buf)
+            } <span class="kw">else </span>{
+                <span class="comment">// The only way that `partial_flush_buf` would have returned with
+                // `this.buffered != 0` is if it were Pending, so our waker was already queued
+                </span>Poll::Pending
             }
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">min</span>(<span class="ident">this</span>.<span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
-            <span class="ident">this</span>.<span class="ident">buf</span>[<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span>..<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span> <span class="op">+</span> <span class="ident">len</span>].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">len</span>]);
-            <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span>;
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">len</span>))
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>len = min(this.buf.len() - <span class="kw-2">*</span>this.buffered, buf.len());
+            this.buf[<span class="kw-2">*</span>this.buffered..<span class="kw-2">*</span>this.buffered + len].copy_from_slice(<span class="kw-2">&amp;</span>buf[..len]);
+            <span class="kw-2">*</span>this.buffered += len;
+            Poll::Ready(<span class="prelude-val">Ok</span>(len))
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">flush_buf</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">project</span>().<span class="ident">inner</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>)
+    <span class="kw">fn </span>poll_flush(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
+        <span class="macro">ready!</span>(<span class="self">self</span>.as_mut().flush_buf(cx))<span class="question-mark">?</span>;
+        <span class="self">self</span>.project().inner.poll_flush(cx)
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_shutdown</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">flush_buf</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">project</span>().<span class="ident">inner</span>.<span class="ident">poll_shutdown</span>(<span class="ident">cx</span>)
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">AsyncWrite</span><span class="op">&gt;</span> <span class="ident">AsyncBufWrite</span> <span class="kw">for</span> <span class="ident">BufWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">poll_partial_flush_buf</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">partial_flush_buf</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut</span> <span class="ident">this</span>.<span class="ident">buf</span>[<span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">buffered</span>..]))
-    }
-
-    <span class="kw">fn</span> <span class="ident">produce</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">amt</span>: <span class="ident">usize</span>) {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">project</span>().<span class="ident">buffered</span> <span class="op">+</span><span class="op">=</span> <span class="ident">amt</span>;
+    <span class="kw">fn </span>poll_shutdown(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
+        <span class="macro">ready!</span>(<span class="self">self</span>.as_mut().flush_buf(cx))<span class="question-mark">?</span>;
+        <span class="self">self</span>.project().inner.poll_shutdown(cx)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">fmt::Debug</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">BufWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;BufWriter&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;writer&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>)
-            .<span class="ident">field</span>(
+<span class="kw">impl</span>&lt;W: AsyncWrite&gt; AsyncBufWrite <span class="kw">for </span>BufWriter&lt;W&gt; {
+    <span class="kw">fn </span>poll_partial_flush_buf(
+        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;io::Result&lt;<span class="kw-2">&amp;mut </span>[u8]&gt;&gt; {
+        <span class="macro">ready!</span>(<span class="self">self</span>.as_mut().partial_flush_buf(cx))<span class="question-mark">?</span>;
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
+        Poll::Ready(<span class="prelude-val">Ok</span>(<span class="kw-2">&amp;mut </span>this.buf[<span class="kw-2">*</span>this.buffered..]))
+    }
+
+    <span class="kw">fn </span>produce(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, amt: usize) {
+        <span class="kw-2">*</span><span class="self">self</span>.project().buffered += amt;
+    }
+}
+
+<span class="kw">impl</span>&lt;W: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>BufWriter&lt;W&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;BufWriter&quot;</span>)
+            .field(<span class="string">&quot;writer&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.inner)
+            .field(
                 <span class="string">&quot;buffer&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">buffered</span>, <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">len</span>()),
+                <span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.buffered, <span class="self">self</span>.buf.len()),
             )
-            .<span class="ident">field</span>(<span class="string">&quot;written&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">written</span>)
-            .<span class="ident">finish</span>()
+            .field(<span class="string">&quot;written&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.written)
+            .finish()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

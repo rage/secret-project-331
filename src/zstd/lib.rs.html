@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../zstd/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../zstd/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -76,83 +76,83 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Rust binding to the [zstd library][zstd].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This crate provides:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * An [encoder](stream/write/struct.Encoder.html) to compress data using zstd</span>
-<span class="doccomment">//!   and send the output to another write.</span>
-<span class="doccomment">//! * A [decoder](stream/read/struct.Decoder.html) to read input data from a `Read`</span>
-<span class="doccomment">//!   and decompress it.</span>
-<span class="doccomment">//! * Convenient functions for common tasks.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Example</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! use std::io;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Uncompress input and print the result.</span>
-<span class="doccomment">//! zstd::stream::copy_decode(io::stdin(), io::stdout()).unwrap();</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [zstd]: https://github.com/facebook/zstd</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;doc-cfg&quot;</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Rust binding to the [zstd library][zstd].
+//!
+//! This crate provides:
+//!
+//! * An [encoder](stream/write/struct.Encoder.html) to compress data using zstd
+//!   and send the output to another write.
+//! * A [decoder](stream/read/struct.Decoder.html) to read input data from a `Read`
+//!   and decompress it.
+//! * Convenient functions for common tasks.
+//!
+//! # Example
+//!
+//! ```no_run
+//! use std::io;
+//!
+//! // Uncompress input and print the result.
+//! zstd::stream::copy_decode(io::stdin(), io::stdout()).unwrap();
+//! ```
+//!
+//! [zstd]: https://github.com/facebook/zstd
+</span><span class="attribute">#![deny(missing_docs)]
+#![cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, feature(doc_cfg))]
 
-<span class="comment">// Re-export the zstd-safe crate.</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">zstd_safe</span>;
+</span><span class="comment">// Re-export the zstd-safe crate.
+</span><span class="kw">pub use </span>zstd_safe;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">bulk</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dict</span>;
+<span class="kw">pub mod </span>bulk;
+<span class="kw">pub mod </span>dict;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">stream</span>;
+<span class="attribute">#[macro_use]
+</span><span class="kw">pub mod </span>stream;
 
-<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use </span>std::io;
 
-<span class="doccomment">/// Default compression level.</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">zstd_safe::CLEVEL_DEFAULT</span> <span class="kw">as</span> <span class="ident">DEFAULT_COMPRESSION_LEVEL</span>;
+<span class="doccomment">/// Default compression level.
+</span><span class="kw">pub use </span>zstd_safe::CLEVEL_DEFAULT <span class="kw">as </span>DEFAULT_COMPRESSION_LEVEL;
 
-<span class="doccomment">/// The accepted range of compression levels.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compression_level_range</span>(
-) -&gt; <span class="ident">std::ops::RangeInclusive</span><span class="op">&lt;</span><span class="ident">zstd_safe::CompressionLevel</span><span class="op">&gt;</span> {
-    <span class="ident">zstd_safe::min_c_level</span>()..<span class="op">=</span><span class="ident">zstd_safe::max_c_level</span>()
+<span class="doccomment">/// The accepted range of compression levels.
+</span><span class="kw">pub fn </span>compression_level_range(
+) -&gt; std::ops::RangeInclusive&lt;zstd_safe::CompressionLevel&gt; {
+    zstd_safe::min_c_level()..=zstd_safe::max_c_level()
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stream</span>::{<span class="ident">decode_all</span>, <span class="ident">encode_all</span>, <span class="ident">Decoder</span>, <span class="ident">Encoder</span>};
+<span class="attribute">#[doc(no_inline)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::stream::{decode_all, encode_all, Decoder, Encoder};
 
-<span class="doccomment">/// Returns the error message as io::Error based on error_code.</span>
-<span class="kw">fn</span> <span class="ident">map_error_code</span>(<span class="ident">code</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Error</span> {
-    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">zstd_safe::get_error_name</span>(<span class="ident">code</span>);
-    <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">msg</span>.<span class="ident">to_string</span>())
+<span class="doccomment">/// Returns the error message as io::Error based on error_code.
+</span><span class="kw">fn </span>map_error_code(code: usize) -&gt; io::Error {
+    <span class="kw">let </span>msg = zstd_safe::get_error_name(code);
+    io::Error::new(io::ErrorKind::Other, msg.to_string())
 }
 
-<span class="comment">// Some helper functions to write full-cycle tests.</span>
+<span class="comment">// Some helper functions to write full-cycle tests.
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">fn</span> <span class="ident">test_cycle</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">g</span>: <span class="ident">G</span>)
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    <span class="ident">G</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+</span><span class="attribute">#[cfg(test)]
+</span><span class="kw">fn </span>test_cycle&lt;F, G&gt;(data: <span class="kw-2">&amp;</span>[u8], f: F, g: G)
+<span class="kw">where
+    </span>F: Fn(<span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt;,
+    G: Fn(<span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt;,
 {
-    <span class="kw">let</span> <span class="ident">mid</span> <span class="op">=</span> <span class="ident">f</span>(<span class="ident">data</span>);
-    <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">g</span>(<span class="kw-2">&amp;</span><span class="ident">mid</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">data</span>, <span class="kw-2">&amp;</span><span class="ident">end</span>[..]);
+    <span class="kw">let </span>mid = f(data);
+    <span class="kw">let </span>end = g(<span class="kw-2">&amp;</span>mid);
+    <span class="macro">assert_eq!</span>(data, <span class="kw-2">&amp;</span>end[..]);
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">fn</span> <span class="ident">test_cycle_unwrap</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">g</span>: <span class="ident">G</span>)
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">G</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">fn </span>test_cycle_unwrap&lt;F, G&gt;(data: <span class="kw-2">&amp;</span>[u8], f: F, g: G)
+<span class="kw">where
+    </span>F: Fn(<span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt;,
+    G: Fn(<span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt;,
 {
-    <span class="ident">test_cycle</span>(<span class="ident">data</span>, <span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">f</span>(<span class="ident">data</span>).<span class="ident">unwrap</span>(), <span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">g</span>(<span class="ident">data</span>).<span class="ident">unwrap</span>())
+    test_cycle(data, |data| f(data).unwrap(), |data| g(data).unwrap())
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">default_compression_level_in_range</span>() {
-    <span class="macro">assert!</span>(<span class="ident">compression_level_range</span>().<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">DEFAULT_COMPRESSION_LEVEL</span>));
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>default_compression_level_in_range() {
+    <span class="macro">assert!</span>(compression_level_range().contains(<span class="kw-2">&amp;</span>DEFAULT_COMPRESSION_LEVEL));
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

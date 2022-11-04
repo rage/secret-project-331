@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/polyval-0.6.0/src/backend/autodetect.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>autodetect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../polyval/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../polyval/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/polyval-0.6.0/src/backend/autodetect.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>autodetect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../polyval/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../polyval/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../polyval/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -115,120 +115,120 @@
 <span id="113">113</span>
 <span id="114">114</span>
 <span id="115">115</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Autodetection for CPU intrinsics, with fallback to the &quot;soft&quot; backend when</span>
-<span class="doccomment">//! they are unavailable.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Autodetection for CPU intrinsics, with fallback to the &quot;soft&quot; backend when
+//! they are unavailable.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">backend::soft</span>, <span class="ident">Key</span>, <span class="ident">Tag</span>};
-<span class="kw">use</span> <span class="ident">core::mem::ManuallyDrop</span>;
-<span class="kw">use</span> <span class="ident">universal_hash</span>::{
-    <span class="ident">consts::U16</span>,
-    <span class="ident">crypto_common</span>::{<span class="ident">BlockSizeUser</span>, <span class="ident">KeySizeUser</span>},
-    <span class="ident">KeyInit</span>, <span class="ident">Reset</span>, <span class="ident">UniversalHash</span>,
+</span><span class="kw">use crate</span>::{backend::soft, Key, Tag};
+<span class="kw">use </span>core::mem::ManuallyDrop;
+<span class="kw">use </span>universal_hash::{
+    consts::U16,
+    crypto_common::{BlockSizeUser, KeySizeUser},
+    KeyInit, Reset, UniversalHash,
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;aarch64&quot;</span>, <span class="ident">polyval_armv8</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::pmull</span> <span class="kw">as</span> <span class="ident">intrinsics</span>;
+<span class="attribute">#[cfg(all(target_arch = <span class="string">&quot;aarch64&quot;</span>, polyval_armv8))]
+</span><span class="kw">use </span><span class="kw">super</span>::pmull <span class="kw">as </span>intrinsics;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>, <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::clmul</span> <span class="kw">as</span> <span class="ident">intrinsics</span>;
+<span class="attribute">#[cfg(any(target_arch = <span class="string">&quot;x86_64&quot;</span>, target_arch = <span class="string">&quot;x86&quot;</span>))]
+</span><span class="kw">use </span><span class="kw">super</span>::clmul <span class="kw">as </span>intrinsics;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;aarch64&quot;</span>, <span class="ident">polyval_armv8</span>))]</span>
-<span class="macro">cpufeatures::new!</span>(<span class="ident">mul_intrinsics</span>, <span class="string">&quot;aes&quot;</span>); <span class="comment">// `aes` implies PMULL</span>
+<span class="attribute">#[cfg(all(target_arch = <span class="string">&quot;aarch64&quot;</span>, polyval_armv8))]
+</span><span class="macro">cpufeatures::new!</span>(mul_intrinsics, <span class="string">&quot;aes&quot;</span>); <span class="comment">// `aes` implies PMULL
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>, <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>))]</span>
-<span class="macro">cpufeatures::new!</span>(<span class="ident">mul_intrinsics</span>, <span class="string">&quot;pclmulqdq&quot;</span>);
+</span><span class="attribute">#[cfg(any(target_arch = <span class="string">&quot;x86_64&quot;</span>, target_arch = <span class="string">&quot;x86&quot;</span>))]
+</span><span class="macro">cpufeatures::new!</span>(mul_intrinsics, <span class="string">&quot;pclmulqdq&quot;</span>);
 
-<span class="doccomment">/// **POLYVAL**: GHASH-like universal hash over GF(2^128).</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Polyval</span> {
-    <span class="ident">inner</span>: <span class="ident">Inner</span>,
-    <span class="ident">token</span>: <span class="ident">mul_intrinsics::InitToken</span>,
+<span class="doccomment">/// **POLYVAL**: GHASH-like universal hash over GF(2^128).
+</span><span class="kw">pub struct </span>Polyval {
+    inner: Inner,
+    token: mul_intrinsics::InitToken,
 }
 
-<span class="kw">union</span> <span class="ident">Inner</span> {
-    <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">intrinsics::Polyval</span><span class="op">&gt;</span>,
-    <span class="ident">soft</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">soft::Polyval</span><span class="op">&gt;</span>,
+<span class="kw">union </span>Inner {
+    intrinsics: ManuallyDrop&lt;intrinsics::Polyval&gt;,
+    soft: ManuallyDrop&lt;soft::Polyval&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">KeySizeUser</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">type</span> <span class="ident">KeySize</span> <span class="op">=</span> <span class="ident">U16</span>;
+<span class="kw">impl </span>KeySizeUser <span class="kw">for </span>Polyval {
+    <span class="kw">type </span>KeySize = U16;
 }
 
-<span class="kw">impl</span> <span class="ident">KeyInit</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="doccomment">/// Initialize POLYVAL with the given `H` field element</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">h</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> (<span class="ident">token</span>, <span class="ident">has_intrinsics</span>) <span class="op">=</span> <span class="ident">mul_intrinsics::init_get</span>();
+<span class="kw">impl </span>KeyInit <span class="kw">for </span>Polyval {
+    <span class="doccomment">/// Initialize POLYVAL with the given `H` field element
+    </span><span class="kw">fn </span>new(h: <span class="kw-2">&amp;</span>Key) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>(token, has_intrinsics) = mul_intrinsics::init_get();
 
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">has_intrinsics</span> {
-            <span class="ident">Inner</span> {
-                <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">intrinsics::Polyval::new</span>(<span class="ident">h</span>)),
+        <span class="kw">let </span>inner = <span class="kw">if </span>has_intrinsics {
+            Inner {
+                intrinsics: ManuallyDrop::new(intrinsics::Polyval::new(h)),
             }
-        } <span class="kw">else</span> {
-            <span class="ident">Inner</span> {
-                <span class="ident">soft</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">soft::Polyval::new</span>(<span class="ident">h</span>)),
+        } <span class="kw">else </span>{
+            Inner {
+                soft: ManuallyDrop::new(soft::Polyval::new(h)),
             }
         };
 
-        <span class="self">Self</span> { <span class="ident">inner</span>, <span class="ident">token</span> }
+        <span class="self">Self </span>{ inner, token }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span>;
+<span class="kw">impl </span>BlockSizeUser <span class="kw">for </span>Polyval {
+    <span class="kw">type </span>BlockSize = U16;
 }
 
-<span class="kw">impl</span> <span class="ident">UniversalHash</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">fn</span> <span class="ident">update_with_backend</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">universal_hash::UhfClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>UniversalHash <span class="kw">for </span>Polyval {
+    <span class="kw">fn </span>update_with_backend(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        f: <span class="kw">impl </span>universal_hash::UhfClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;,
     ) {
-        <span class="kw">unsafe</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>)
+        <span class="kw">unsafe </span>{
+            <span class="kw">if </span><span class="self">self</span>.token.get() {
+                f.call(<span class="kw-2">&amp;mut *</span><span class="self">self</span>.inner.intrinsics)
+            } <span class="kw">else </span>{
+                f.call(<span class="kw-2">&amp;mut *</span><span class="self">self</span>.inner.soft)
             }
         }
     }
 
-    <span class="doccomment">/// Get POLYVAL result (i.e. computed `S` field element)</span>
-    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="self">self</span>) -&gt; <span class="ident">Tag</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                <span class="ident">ManuallyDrop::into_inner</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>).<span class="ident">finalize</span>()
-            } <span class="kw">else</span> {
-                <span class="ident">ManuallyDrop::into_inner</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>).<span class="ident">finalize</span>()
+    <span class="doccomment">/// Get POLYVAL result (i.e. computed `S` field element)
+    </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; Tag {
+        <span class="kw">unsafe </span>{
+            <span class="kw">if </span><span class="self">self</span>.token.get() {
+                ManuallyDrop::into_inner(<span class="self">self</span>.inner.intrinsics).finalize()
+            } <span class="kw">else </span>{
+                ManuallyDrop::into_inner(<span class="self">self</span>.inner.soft).finalize()
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-            <span class="ident">Inner</span> {
-                <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop::new</span>(<span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>).<span class="ident">clone</span>() }),
+<span class="kw">impl </span>Clone <span class="kw">for </span>Polyval {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>inner = <span class="kw">if </span><span class="self">self</span>.token.get() {
+            Inner {
+                intrinsics: ManuallyDrop::new(<span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.inner.intrinsics).clone() }),
             }
-        } <span class="kw">else</span> {
-            <span class="ident">Inner</span> {
-                <span class="ident">soft</span>: <span class="ident">ManuallyDrop::new</span>(<span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>).<span class="ident">clone</span>() }),
+        } <span class="kw">else </span>{
+            Inner {
+                soft: ManuallyDrop::new(<span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.inner.soft).clone() }),
             }
         };
 
-        <span class="self">Self</span> {
-            <span class="ident">inner</span>,
-            <span class="ident">token</span>: <span class="self">self</span>.<span class="ident">token</span>,
+        <span class="self">Self </span>{
+            inner,
+            token: <span class="self">self</span>.token,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Reset</span> <span class="kw">for</span> <span class="ident">Polyval</span> {
-    <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-            <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>).<span class="ident">reset</span>() }
-        } <span class="kw">else</span> {
-            <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>).<span class="ident">reset</span>() }
+<span class="kw">impl </span>Reset <span class="kw">for </span>Polyval {
+    <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.token.get() {
+            <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.inner.intrinsics).reset() }
+        } <span class="kw">else </span>{
+            <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.inner.soft).reset() }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="polyval" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="polyval" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

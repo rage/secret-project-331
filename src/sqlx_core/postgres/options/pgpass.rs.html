@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/options/pgpass.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pgpass.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/options/pgpass.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pgpass.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -326,295 +326,295 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
-<span class="kw">use</span> <span class="ident">std::env::var_os</span>;
-<span class="kw">use</span> <span class="ident">std::fs::File</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>};
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::env::var_os;
+<span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>std::io::{BufRead, BufReader};
+<span class="kw">use </span>std::path::PathBuf;
 
-<span class="doccomment">/// try to load a password from the various pgpass file locations</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_password</span>(
-    <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">port</span>: <span class="ident">u16</span>,
-    <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">database</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">custom_file</span> <span class="op">=</span> <span class="ident">var_os</span>(<span class="string">&quot;PGPASSFILE&quot;</span>);
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">file</span>) <span class="op">=</span> <span class="ident">custom_file</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>) <span class="op">=</span>
-            <span class="ident">load_password_from_file</span>(<span class="ident">PathBuf::from</span>(<span class="ident">file</span>), <span class="ident">host</span>, <span class="ident">port</span>, <span class="ident">username</span>, <span class="ident">database</span>)
+<span class="doccomment">/// try to load a password from the various pgpass file locations
+</span><span class="kw">pub fn </span>load_password(
+    host: <span class="kw-2">&amp;</span>str,
+    port: u16,
+    username: <span class="kw-2">&amp;</span>str,
+    database: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">let </span>custom_file = var_os(<span class="string">&quot;PGPASSFILE&quot;</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(file) = custom_file {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(password) =
+            load_password_from_file(PathBuf::from(file), host, port, username, database)
         {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>);
+            <span class="kw">return </span><span class="prelude-val">Some</span>(password);
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>))]</span>
-    <span class="kw">let</span> <span class="ident">default_file</span> <span class="op">=</span> <span class="ident">dirs::home_dir</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">join</span>(<span class="string">&quot;.pgpass&quot;</span>));
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-    <span class="kw">let</span> <span class="ident">default_file</span> <span class="op">=</span> <span class="ident">dirs::data_dir</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">join</span>(<span class="string">&quot;postgres&quot;</span>).<span class="ident">join</span>(<span class="string">&quot;pgpass.conf&quot;</span>));
-    <span class="ident">load_password_from_file</span>(<span class="ident">default_file</span><span class="question-mark">?</span>, <span class="ident">host</span>, <span class="ident">port</span>, <span class="ident">username</span>, <span class="ident">database</span>)
+    <span class="attribute">#[cfg(not(target_os = <span class="string">&quot;windows&quot;</span>))]
+    </span><span class="kw">let </span>default_file = dirs::home_dir().map(|path| path.join(<span class="string">&quot;.pgpass&quot;</span>));
+    <span class="attribute">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)]
+    </span><span class="kw">let </span>default_file = dirs::data_dir().map(|path| path.join(<span class="string">&quot;postgres&quot;</span>).join(<span class="string">&quot;pgpass.conf&quot;</span>));
+    load_password_from_file(default_file<span class="question-mark">?</span>, host, port, username, database)
 }
 
-<span class="doccomment">/// try to extract a password from a pgpass file</span>
-<span class="kw">fn</span> <span class="ident">load_password_from_file</span>(
-    <span class="ident">path</span>: <span class="ident">PathBuf</span>,
-    <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">port</span>: <span class="ident">u16</span>,
-    <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">database</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>;
+<span class="doccomment">/// try to extract a password from a pgpass file
+</span><span class="kw">fn </span>load_password_from_file(
+    path: PathBuf,
+    host: <span class="kw-2">&amp;</span>str,
+    port: u16,
+    username: <span class="kw-2">&amp;</span>str,
+    database: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">let </span>file = File::open(<span class="kw-2">&amp;</span>path).ok()<span class="question-mark">?</span>;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>)]</span>
-    {
-        <span class="kw">use</span> <span class="ident">std::os::unix::fs::PermissionsExt</span>;
+    <span class="attribute">#[cfg(target_os = <span class="string">&quot;linux&quot;</span>)]
+    </span>{
+        <span class="kw">use </span>std::os::unix::fs::PermissionsExt;
 
-        <span class="comment">// check file permissions on linux</span>
+        <span class="comment">// check file permissions on linux
 
-        <span class="kw">let</span> <span class="ident">metadata</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">metadata</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">permissions</span> <span class="op">=</span> <span class="ident">metadata</span>.<span class="ident">permissions</span>();
-        <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">permissions</span>.<span class="ident">mode</span>();
-        <span class="kw">if</span> <span class="ident">mode</span> <span class="op">&amp;</span> <span class="number">0o77</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+        </span><span class="kw">let </span>metadata = file.metadata().ok()<span class="question-mark">?</span>;
+        <span class="kw">let </span>permissions = metadata.permissions();
+        <span class="kw">let </span>mode = permissions.mode();
+        <span class="kw">if </span>mode &amp; <span class="number">0o77 </span>!= <span class="number">0 </span>{
             <span class="macro">log::warn!</span>(
                 <span class="string">&quot;ignoring {}: permissions for not strict enough: {:o}&quot;</span>,
-                <span class="ident">path</span>.<span class="ident">to_string_lossy</span>(),
-                <span class="ident">mode</span>
+                path.to_string_lossy(),
+                mode
             );
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
     }
 
-    <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">file</span>);
-    <span class="ident">load_password_from_reader</span>(<span class="ident">reader</span>, <span class="ident">host</span>, <span class="ident">port</span>, <span class="ident">username</span>, <span class="ident">database</span>)
+    <span class="kw">let </span>reader = BufReader::new(file);
+    load_password_from_reader(reader, host, port, username, database)
 }
 
-<span class="kw">fn</span> <span class="ident">load_password_from_reader</span>(
-    <span class="kw-2">mut</span> <span class="ident">reader</span>: <span class="kw">impl</span> <span class="ident">BufRead</span>,
-    <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">port</span>: <span class="ident">u16</span>,
-    <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">database</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">String::new</span>();
+<span class="kw">fn </span>load_password_from_reader(
+    <span class="kw-2">mut </span>reader: <span class="kw">impl </span>BufRead,
+    host: <span class="kw-2">&amp;</span>str,
+    port: u16,
+    username: <span class="kw-2">&amp;</span>str,
+    database: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>line = String::new();
 
-    <span class="comment">// https://stackoverflow.com/a/55041833</span>
-    <span class="kw">fn</span> <span class="ident">trim_newline</span>(<span class="ident">s</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>) {
-        <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">ends_with</span>(<span class="string">&#39;\n&#39;</span>) {
-            <span class="ident">s</span>.<span class="ident">pop</span>();
-            <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">ends_with</span>(<span class="string">&#39;\r&#39;</span>) {
-                <span class="ident">s</span>.<span class="ident">pop</span>();
+    <span class="comment">// https://stackoverflow.com/a/55041833
+    </span><span class="kw">fn </span>trim_newline(s: <span class="kw-2">&amp;mut </span>String) {
+        <span class="kw">if </span>s.ends_with(<span class="string">&#39;\n&#39;</span>) {
+            s.pop();
+            <span class="kw">if </span>s.ends_with(<span class="string">&#39;\r&#39;</span>) {
+                s.pop();
             }
         }
     }
 
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">read_line</span>(<span class="kw-2">&amp;mut</span> <span class="ident">line</span>) {
-        <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
+    <span class="kw">while let </span><span class="prelude-val">Ok</span>(n) = reader.read_line(<span class="kw-2">&amp;mut </span>line) {
+        <span class="kw">if </span>n == <span class="number">0 </span>{
             <span class="kw">break</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&#39;#&#39;</span>) {
-            <span class="comment">// comment, do nothing</span>
-        } <span class="kw">else</span> {
-            <span class="comment">// try to load password from line</span>
-            <span class="ident">trim_newline</span>(<span class="kw-2">&amp;mut</span> <span class="ident">line</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>) <span class="op">=</span> <span class="ident">load_password_from_line</span>(<span class="kw-2">&amp;</span><span class="ident">line</span>, <span class="ident">host</span>, <span class="ident">port</span>, <span class="ident">username</span>, <span class="ident">database</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>);
+        <span class="kw">if </span>line.starts_with(<span class="string">&#39;#&#39;</span>) {
+            <span class="comment">// comment, do nothing
+        </span>} <span class="kw">else </span>{
+            <span class="comment">// try to load password from line
+            </span>trim_newline(<span class="kw-2">&amp;mut </span>line);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(password) = load_password_from_line(<span class="kw-2">&amp;</span>line, host, port, username, database) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(password);
             }
         }
 
-        <span class="ident">line</span>.<span class="ident">clear</span>();
+        line.clear();
     }
 
-    <span class="prelude-val">None</span>
-}
+    <span class="prelude-val">None
+</span>}
 
-<span class="doccomment">/// try to check all fields &amp; extract the password</span>
-<span class="kw">fn</span> <span class="ident">load_password_from_line</span>(
-    <span class="kw-2">mut</span> <span class="ident">line</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">port</span>: <span class="ident">u16</span>,
-    <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">database</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">whole_line</span> <span class="op">=</span> <span class="ident">line</span>;
+<span class="doccomment">/// try to check all fields &amp; extract the password
+</span><span class="kw">fn </span>load_password_from_line(
+    <span class="kw-2">mut </span>line: <span class="kw-2">&amp;</span>str,
+    host: <span class="kw-2">&amp;</span>str,
+    port: u16,
+    username: <span class="kw-2">&amp;</span>str,
+    database: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">let </span>whole_line = line;
 
-    <span class="comment">// Pgpass line ordering: hostname, port, database, username, password</span>
-    <span class="comment">// See: https://www.postgresql.org/docs/9.3/libpq-pgpass.html</span>
-    <span class="kw">match</span> <span class="ident">line</span>.<span class="ident">trim_start</span>().<span class="ident">chars</span>().<span class="ident">next</span>() {
-        <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&#39;#&#39;</span>) =&gt; <span class="prelude-val">None</span>,
-        <span class="kw">_</span> =&gt; {
-            <span class="ident">matches_next_field</span>(<span class="ident">whole_line</span>, <span class="kw-2">&amp;mut</span> <span class="ident">line</span>, <span class="ident">host</span>)<span class="question-mark">?</span>;
-            <span class="ident">matches_next_field</span>(<span class="ident">whole_line</span>, <span class="kw-2">&amp;mut</span> <span class="ident">line</span>, <span class="kw-2">&amp;</span><span class="ident">port</span>.<span class="ident">to_string</span>())<span class="question-mark">?</span>;
-            <span class="ident">matches_next_field</span>(<span class="ident">whole_line</span>, <span class="kw-2">&amp;mut</span> <span class="ident">line</span>, <span class="ident">database</span>.<span class="ident">unwrap_or_default</span>())<span class="question-mark">?</span>;
-            <span class="ident">matches_next_field</span>(<span class="ident">whole_line</span>, <span class="kw-2">&amp;mut</span> <span class="ident">line</span>, <span class="ident">username</span>)<span class="question-mark">?</span>;
-            <span class="prelude-val">Some</span>(<span class="ident">line</span>.<span class="ident">to_owned</span>())
+    <span class="comment">// Pgpass line ordering: hostname, port, database, username, password
+    // See: https://www.postgresql.org/docs/9.3/libpq-pgpass.html
+    </span><span class="kw">match </span>line.trim_start().chars().next() {
+        <span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(<span class="string">&#39;#&#39;</span>) =&gt; <span class="prelude-val">None</span>,
+        <span class="kw">_ </span>=&gt; {
+            matches_next_field(whole_line, <span class="kw-2">&amp;mut </span>line, host)<span class="question-mark">?</span>;
+            matches_next_field(whole_line, <span class="kw-2">&amp;mut </span>line, <span class="kw-2">&amp;</span>port.to_string())<span class="question-mark">?</span>;
+            matches_next_field(whole_line, <span class="kw-2">&amp;mut </span>line, database.unwrap_or_default())<span class="question-mark">?</span>;
+            matches_next_field(whole_line, <span class="kw-2">&amp;mut </span>line, username)<span class="question-mark">?</span>;
+            <span class="prelude-val">Some</span>(line.to_owned())
         }
     }
 }
 
-<span class="doccomment">/// check if the next field matches the provided value</span>
-<span class="kw">fn</span> <span class="ident">matches_next_field</span>(<span class="ident">whole_line</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">line</span>: <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">field</span> <span class="op">=</span> <span class="ident">find_next_field</span>(<span class="ident">line</span>);
-    <span class="kw">match</span> <span class="ident">field</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">field</span>) =&gt; {
-            <span class="kw">if</span> <span class="ident">field</span> <span class="op">==</span> <span class="string">&quot;*&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">field</span> <span class="op">==</span> <span class="ident">value</span> {
+<span class="doccomment">/// check if the next field matches the provided value
+</span><span class="kw">fn </span>matches_next_field(whole_line: <span class="kw-2">&amp;</span>str, line: <span class="kw-2">&amp;mut &amp;</span>str, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+    <span class="kw">let </span>field = find_next_field(line);
+    <span class="kw">match </span>field {
+        <span class="prelude-val">Some</span>(field) =&gt; {
+            <span class="kw">if </span>field == <span class="string">&quot;*&quot; </span>|| field == value {
                 <span class="prelude-val">Some</span>(())
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            }
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         }
-        <span class="prelude-val">None</span> =&gt; {
-            <span class="macro">log::warn!</span>(<span class="string">&quot;Malformed line in pgpass file: {}&quot;</span>, <span class="ident">whole_line</span>);
-            <span class="prelude-val">None</span>
-        }
+        <span class="prelude-val">None </span>=&gt; {
+            <span class="macro">log::warn!</span>(<span class="string">&quot;Malformed line in pgpass file: {}&quot;</span>, whole_line);
+            <span class="prelude-val">None
+        </span>}
     }
 }
 
-<span class="doccomment">/// extract the next value from a line in a pgpass file</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `line` will get updated to point behind the field and delimiter</span>
-<span class="kw">fn</span> <span class="ident">find_next_field</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">line</span>: <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">escaping</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">escaped_string</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_added</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="doccomment">/// extract the next value from a line in a pgpass file
+///
+/// `line` will get updated to point behind the field and delimiter
+</span><span class="kw">fn </span>find_next_field&lt;<span class="lifetime">&#39;a</span>&gt;(line: <span class="kw-2">&amp;mut &amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>escaping = <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>escaped_string = <span class="prelude-val">None</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>last_added = <span class="number">0</span>;
 
-    <span class="kw">let</span> <span class="ident">char_indicies</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">char_indices</span>();
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">char_indicies</span> {
-        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;:&#39;</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">escaping</span> {
-            <span class="kw">let</span> (<span class="ident">field</span>, <span class="ident">rest</span>) <span class="op">=</span> <span class="ident">line</span>.<span class="ident">split_at</span>(<span class="ident">idx</span>);
-            <span class="kw-2">*</span><span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">rest</span>[<span class="number">1</span>..];
+    <span class="kw">let </span>char_indicies = line.char_indices();
+    <span class="kw">for </span>(idx, c) <span class="kw">in </span>char_indicies {
+        <span class="kw">if </span>c == <span class="string">&#39;:&#39; </span>&amp;&amp; !escaping {
+            <span class="kw">let </span>(field, rest) = line.split_at(idx);
+            <span class="kw-2">*</span>line = <span class="kw-2">&amp;</span>rest[<span class="number">1</span>..];
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">escaped_string</span>) <span class="op">=</span> <span class="ident">escaped_string</span> {
-                <span class="ident">escaped_string</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>[<span class="ident">last_added</span>..];
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">escaped_string</span>));
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Cow::Borrowed</span>(<span class="ident">field</span>));
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>escaped_string) = escaped_string {
+                escaped_string += <span class="kw-2">&amp;</span>field[last_added..];
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Cow::Owned(escaped_string));
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Cow::Borrowed(field));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\\&#39;</span> {
-            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">escaped_string</span>.<span class="ident">get_or_insert_with</span>(<span class="ident">String::new</span>);
+        } <span class="kw">else if </span>c == <span class="string">&#39;\\&#39; </span>{
+            <span class="kw">let </span>s = escaped_string.get_or_insert_with(String::new);
 
-            <span class="kw">if</span> <span class="ident">escaping</span> {
-                <span class="ident">s</span>.<span class="ident">push</span>(<span class="string">&#39;\\&#39;</span>);
-            } <span class="kw">else</span> {
-                <span class="kw-2">*</span><span class="ident">s</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">line</span>[<span class="ident">last_added</span>..<span class="ident">idx</span>];
+            <span class="kw">if </span>escaping {
+                s.push(<span class="string">&#39;\\&#39;</span>);
+            } <span class="kw">else </span>{
+                <span class="kw-2">*</span>s += <span class="kw-2">&amp;</span>line[last_added..idx];
             }
 
-            <span class="ident">escaping</span> <span class="op">=</span> <span class="op">!</span><span class="ident">escaping</span>;
-            <span class="ident">last_added</span> <span class="op">=</span> <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">escaping</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            escaping = !escaping;
+            last_added = idx + <span class="number">1</span>;
+        } <span class="kw">else </span>{
+            escaping = <span class="bool-val">false</span>;
         }
     }
 
-    <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">return </span><span class="prelude-val">None</span>;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">find_next_field</span>, <span class="ident">load_password_from_line</span>, <span class="ident">load_password_from_reader</span>};
-    <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::{find_next_field, load_password_from_line, load_password_from_reader};
+    <span class="kw">use </span>std::borrow::Cow;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_find_next_field</span>() {
-        <span class="kw">fn</span> <span class="ident">test_case</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">result</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">rest</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-            <span class="macro">assert_eq!</span>(<span class="ident">find_next_field</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input</span>), <span class="ident">result</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">input</span>, <span class="ident">rest</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_find_next_field() {
+        <span class="kw">fn </span>test_case&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">mut </span>input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, result: <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;&gt;, rest: <span class="kw-2">&amp;</span>str) {
+            <span class="macro">assert_eq!</span>(find_next_field(<span class="kw-2">&amp;mut </span>input), result);
+            <span class="macro">assert_eq!</span>(input, rest);
         }
 
-        <span class="comment">// normal field</span>
-        <span class="ident">test_case</span>(<span class="string">&quot;foo:bar:baz&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">Cow::Borrowed</span>(<span class="string">&quot;foo&quot;</span>)), <span class="string">&quot;bar:baz&quot;</span>);
-        <span class="comment">// \ escaped</span>
-        <span class="ident">test_case</span>(
+        <span class="comment">// normal field
+        </span>test_case(<span class="string">&quot;foo:bar:baz&quot;</span>, <span class="prelude-val">Some</span>(Cow::Borrowed(<span class="string">&quot;foo&quot;</span>)), <span class="string">&quot;bar:baz&quot;</span>);
+        <span class="comment">// \ escaped
+        </span>test_case(
             <span class="string">&quot;foo\\\\:bar:baz&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="string">&quot;foo\\&quot;</span>.<span class="ident">to_owned</span>())),
+            <span class="prelude-val">Some</span>(Cow::Owned(<span class="string">&quot;foo\\&quot;</span>.to_owned())),
             <span class="string">&quot;bar:baz&quot;</span>,
         );
-        <span class="comment">// : escaped</span>
-        <span class="ident">test_case</span>(
+        <span class="comment">// : escaped
+        </span>test_case(
             <span class="string">&quot;foo\\::bar:baz&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="string">&quot;foo:&quot;</span>.<span class="ident">to_owned</span>())),
+            <span class="prelude-val">Some</span>(Cow::Owned(<span class="string">&quot;foo:&quot;</span>.to_owned())),
             <span class="string">&quot;bar:baz&quot;</span>,
         );
-        <span class="comment">// unnecessary escape</span>
-        <span class="ident">test_case</span>(
+        <span class="comment">// unnecessary escape
+        </span>test_case(
             <span class="string">&quot;foo\\a:bar:baz&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="string">&quot;fooa&quot;</span>.<span class="ident">to_owned</span>())),
+            <span class="prelude-val">Some</span>(Cow::Owned(<span class="string">&quot;fooa&quot;</span>.to_owned())),
             <span class="string">&quot;bar:baz&quot;</span>,
         );
-        <span class="comment">// other text after escape</span>
-        <span class="ident">test_case</span>(
+        <span class="comment">// other text after escape
+        </span>test_case(
             <span class="string">&quot;foo\\\\a:bar:baz&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="string">&quot;foo\\a&quot;</span>.<span class="ident">to_owned</span>())),
+            <span class="prelude-val">Some</span>(Cow::Owned(<span class="string">&quot;foo\\a&quot;</span>.to_owned())),
             <span class="string">&quot;bar:baz&quot;</span>,
         );
-        <span class="comment">// double escape</span>
-        <span class="ident">test_case</span>(
+        <span class="comment">// double escape
+        </span>test_case(
             <span class="string">&quot;foo\\\\\\\\a:bar:baz&quot;</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="string">&quot;foo\\\\a&quot;</span>.<span class="ident">to_owned</span>())),
+            <span class="prelude-val">Some</span>(Cow::Owned(<span class="string">&quot;foo\\\\a&quot;</span>.to_owned())),
             <span class="string">&quot;bar:baz&quot;</span>,
         );
-        <span class="comment">// utf8 support</span>
-        <span class="ident">test_case</span>(<span class="string">&quot;🦀:bar:baz&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">Cow::Borrowed</span>(<span class="string">&quot;🦀&quot;</span>)), <span class="string">&quot;bar:baz&quot;</span>);
+        <span class="comment">// utf8 support
+        </span>test_case(<span class="string">&quot;🦀:bar:baz&quot;</span>, <span class="prelude-val">Some</span>(Cow::Borrowed(<span class="string">&quot;🦀&quot;</span>)), <span class="string">&quot;bar:baz&quot;</span>);
 
-        <span class="comment">// missing delimiter (eof)</span>
-        <span class="ident">test_case</span>(<span class="string">&quot;foo&quot;</span>, <span class="prelude-val">None</span>, <span class="string">&quot;foo&quot;</span>);
-        <span class="comment">// missing delimiter after escape</span>
-        <span class="ident">test_case</span>(<span class="string">&quot;foo\\:&quot;</span>, <span class="prelude-val">None</span>, <span class="string">&quot;foo\\:&quot;</span>);
-        <span class="comment">// missing delimiter after unused trailing escape</span>
-        <span class="ident">test_case</span>(<span class="string">&quot;foo\\&quot;</span>, <span class="prelude-val">None</span>, <span class="string">&quot;foo\\&quot;</span>);
+        <span class="comment">// missing delimiter (eof)
+        </span>test_case(<span class="string">&quot;foo&quot;</span>, <span class="prelude-val">None</span>, <span class="string">&quot;foo&quot;</span>);
+        <span class="comment">// missing delimiter after escape
+        </span>test_case(<span class="string">&quot;foo\\:&quot;</span>, <span class="prelude-val">None</span>, <span class="string">&quot;foo\\:&quot;</span>);
+        <span class="comment">// missing delimiter after unused trailing escape
+        </span>test_case(<span class="string">&quot;foo\\&quot;</span>, <span class="prelude-val">None</span>, <span class="string">&quot;foo\\&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_load_password_from_line</span>() {
-        <span class="comment">// normal</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_line</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_load_password_from_line() {
+        <span class="comment">// normal
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_line(
                 <span class="string">&quot;localhost:5432:bar:foo:baz&quot;</span>,
                 <span class="string">&quot;localhost&quot;</span>,
                 <span class="number">5432</span>,
                 <span class="string">&quot;foo&quot;</span>,
                 <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)
             ),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">to_owned</span>())
+            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.to_owned())
         );
-        <span class="comment">// wildcard</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_line</span>(<span class="string">&quot;*:5432:bar:foo:baz&quot;</span>, <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">to_owned</span>())
+        <span class="comment">// wildcard
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_line(<span class="string">&quot;*:5432:bar:foo:baz&quot;</span>, <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)),
+            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.to_owned())
         );
-        <span class="comment">// accept wildcard with missing db</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_line</span>(<span class="string">&quot;localhost:5432:*:foo:baz&quot;</span>, <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">None</span>),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">to_owned</span>())
+        <span class="comment">// accept wildcard with missing db
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_line(<span class="string">&quot;localhost:5432:*:foo:baz&quot;</span>, <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.to_owned())
         );
 
-        <span class="comment">// doesn&#39;t match</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_line</span>(
+        <span class="comment">// doesn&#39;t match
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_line(
                 <span class="string">&quot;thishost:5432:bar:foo:baz&quot;</span>,
                 <span class="string">&quot;thathost&quot;</span>,
                 <span class="number">5432</span>,
                 <span class="string">&quot;foo&quot;</span>,
                 <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)
             ),
-            <span class="prelude-val">None</span>
-        );
-        <span class="comment">// malformed entry</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_line</span>(
+            <span class="prelude-val">None
+        </span>);
+        <span class="comment">// malformed entry
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_line(
                 <span class="string">&quot;localhost:5432:bar:foo&quot;</span>,
                 <span class="string">&quot;localhost&quot;</span>,
                 <span class="number">5432</span>,
                 <span class="string">&quot;foo&quot;</span>,
                 <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)
             ),
-            <span class="prelude-val">None</span>
-        );
+            <span class="prelude-val">None
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_load_password_from_reader</span>() {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="string">b&quot;\
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_load_password_from_reader() {
+        <span class="kw">let </span>file = <span class="string">b&quot;\
             localhost:5432:bar:foo:baz\n\
             # mixed line endings (also a comment!)\n\
             *:5432:bar:foo:baz\r\n\
@@ -626,33 +626,33 @@
             localhost:5432:*:foo:baz
         &quot;</span>;
 
-        <span class="comment">// normal</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">to_owned</span>())
+        <span class="comment">// normal
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_reader(<span class="kw-2">&amp;mut &amp;</span>file[..], <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)),
+            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.to_owned())
         );
-        <span class="comment">// wildcard</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foobar&quot;</span>)),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">to_owned</span>())
+        <span class="comment">// wildcard
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_reader(<span class="kw-2">&amp;mut &amp;</span>file[..], <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foobar&quot;</span>)),
+            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.to_owned())
         );
-        <span class="comment">// accept wildcard with missing db</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">None</span>),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">to_owned</span>())
+        <span class="comment">// accept wildcard with missing db
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_reader(<span class="kw-2">&amp;mut &amp;</span>file[..], <span class="string">&quot;localhost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(<span class="string">&quot;baz&quot;</span>.to_owned())
         );
 
-        <span class="comment">// doesn&#39;t match</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;thathost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foobar&quot;</span>)),
-            <span class="prelude-val">None</span>
-        );
-        <span class="comment">// malformed entry</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">load_password_from_reader</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">file</span>[..], <span class="string">&quot;thathost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foobar&quot;</span>)),
-            <span class="prelude-val">None</span>
-        );
+        <span class="comment">// doesn&#39;t match
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_reader(<span class="kw-2">&amp;mut &amp;</span>file[..], <span class="string">&quot;thathost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foobar&quot;</span>)),
+            <span class="prelude-val">None
+        </span>);
+        <span class="comment">// malformed entry
+        </span><span class="macro">assert_eq!</span>(
+            load_password_from_reader(<span class="kw-2">&amp;mut &amp;</span>file[..], <span class="string">&quot;thathost&quot;</span>, <span class="number">5432</span>, <span class="string">&quot;foo&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;foobar&quot;</span>)),
+            <span class="prelude-val">None
+        </span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

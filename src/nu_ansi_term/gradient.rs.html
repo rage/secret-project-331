@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/nu-ansi-term-0.46.0/src/gradient.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gradient.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../nu_ansi_term/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../nu_ansi_term/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../nu_ansi_term/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/nu-ansi-term-0.46.0/src/gradient.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gradient.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../nu_ansi_term/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../nu_ansi_term/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../nu_ansi_term/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -103,110 +103,110 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">rgb::Rgb</span>, <span class="ident">Color</span>};
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{rgb::Rgb, Color};
 
-<span class="doccomment">/// Linear color gradient between two color stops</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Gradient</span> {
-    <span class="doccomment">/// Start Color of Gradient</span>
-    <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">Rgb</span>,
+<span class="doccomment">/// Linear color gradient between two color stops
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>Gradient {
+    <span class="doccomment">/// Start Color of Gradient
+    </span><span class="kw">pub </span>start: Rgb,
 
-    <span class="doccomment">/// End Color of Gradient</span>
-    <span class="kw">pub</span> <span class="ident">end</span>: <span class="ident">Rgb</span>,
+    <span class="doccomment">/// End Color of Gradient
+    </span><span class="kw">pub </span>end: Rgb,
 }
 
-<span class="kw">impl</span> <span class="ident">Gradient</span> {
-    <span class="doccomment">/// Creates a new [Gradient] with two [Rgb] colors, `start` and `end`</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">start</span>: <span class="ident">Rgb</span>, <span class="ident">end</span>: <span class="ident">Rgb</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">start</span>, <span class="ident">end</span> }
+<span class="kw">impl </span>Gradient {
+    <span class="doccomment">/// Creates a new [Gradient] with two [Rgb] colors, `start` and `end`
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub const fn </span>new(start: Rgb, end: Rgb) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ start, end }
     }
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_color_rgb</span>(<span class="ident">start</span>: <span class="ident">Color</span>, <span class="ident">end</span>: <span class="ident">Color</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">start_grad</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">start</span> {
-            <span class="ident">Color::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>) =&gt; <span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> },
-            <span class="kw">_</span> =&gt; <span class="ident">Rgb</span> { <span class="ident">r</span>: <span class="number">0</span>, <span class="ident">g</span>: <span class="number">0</span>, <span class="ident">b</span>: <span class="number">0</span> },
+    <span class="kw">pub const fn </span>from_color_rgb(start: Color, end: Color) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>start_grad = <span class="kw">match </span>start {
+            Color::Rgb(r, g, b) =&gt; Rgb { r, g, b },
+            <span class="kw">_ </span>=&gt; Rgb { r: <span class="number">0</span>, g: <span class="number">0</span>, b: <span class="number">0 </span>},
         };
-        <span class="kw">let</span> <span class="ident">end_grad</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">end</span> {
-            <span class="ident">Color::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>) =&gt; <span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> },
-            <span class="kw">_</span> =&gt; <span class="ident">Rgb</span> { <span class="ident">r</span>: <span class="number">0</span>, <span class="ident">g</span>: <span class="number">0</span>, <span class="ident">b</span>: <span class="number">0</span> },
+        <span class="kw">let </span>end_grad = <span class="kw">match </span>end {
+            Color::Rgb(r, g, b) =&gt; Rgb { r, g, b },
+            <span class="kw">_ </span>=&gt; Rgb { r: <span class="number">0</span>, g: <span class="number">0</span>, b: <span class="number">0 </span>},
         };
 
-        <span class="self">Self</span> {
-            <span class="ident">start</span>: <span class="ident">start_grad</span>,
-            <span class="ident">end</span>: <span class="ident">end_grad</span>,
+        <span class="self">Self </span>{
+            start: start_grad,
+            end: end_grad,
         }
     }
 
-    <span class="doccomment">/// Computes the [Rgb] color between `start` and `end` for `t`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="ident">f32</span>) -&gt; <span class="ident">Rgb</span> {
-        <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">lerp</span>(<span class="self">self</span>.<span class="ident">end</span>, <span class="ident">t</span>)
+    <span class="doccomment">/// Computes the [Rgb] color between `start` and `end` for `t`
+    </span><span class="kw">pub fn </span>at(<span class="kw-2">&amp;</span><span class="self">self</span>, t: f32) -&gt; Rgb {
+        <span class="self">self</span>.start.lerp(<span class="self">self</span>.end, t)
     }
 
-    <span class="doccomment">/// Returns the reverse of `self`</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">reverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="self">self</span>.<span class="ident">end</span>, <span class="self">self</span>.<span class="ident">start</span>)
+    <span class="doccomment">/// Returns the reverse of `self`
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub const fn </span>reverse(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(<span class="self">self</span>.end, <span class="self">self</span>.start)
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">target</span>: <span class="ident">TargetGround</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="ident">delta</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">/</span> <span class="ident">text</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f32</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">char_indices</span>().<span class="ident">fold</span>(<span class="ident">String::new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, (<span class="ident">i</span>, <span class="ident">c</span>)<span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="attribute">#[allow(dead_code)]
+    </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>, text: <span class="kw-2">&amp;</span>str, target: TargetGround) -&gt; String {
+        <span class="kw">let </span>delta = <span class="number">1.0 </span>/ text.len() <span class="kw">as </span>f32;
+        <span class="kw">let </span><span class="kw-2">mut </span>result = text.char_indices().fold(String::new(), |<span class="kw-2">mut </span>acc, (i, c)| {
+            <span class="kw">let </span>temp = <span class="macro">format!</span>(
                 <span class="string">&quot;\x1B[{}m{}&quot;</span>,
-                <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">*</span> <span class="ident">delta</span>).<span class="ident">ansi_color_code</span>(<span class="ident">target</span>),
-                <span class="ident">c</span>
+                <span class="self">self</span>.at(i <span class="kw">as </span>f32 * delta).ansi_color_code(target),
+                c
             );
-            <span class="ident">acc</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">temp</span>);
-            <span class="ident">acc</span>
+            acc.push_str(<span class="kw-2">&amp;</span>temp);
+            acc
         });
 
-        <span class="ident">result</span>.<span class="ident">push_str</span>(<span class="string">&quot;\x1B[0m&quot;</span>);
-        <span class="ident">result</span>
+        result.push_str(<span class="string">&quot;\x1B[0m&quot;</span>);
+        result
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_all_gradient_text</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">foreground</span>: <span class="ident">Gradient</span>, <span class="ident">background</span>: <span class="ident">Gradient</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="ident">delta</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">/</span> <span class="ident">text</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f32</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">char_indices</span>().<span class="ident">fold</span>(<span class="ident">String::new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, (<span class="ident">i</span>, <span class="ident">c</span>)<span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">step</span> <span class="op">=</span> <span class="ident">i</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">*</span> <span class="ident">delta</span>;
-        <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="macro">format!</span>(
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">pub fn </span>build_all_gradient_text(text: <span class="kw-2">&amp;</span>str, foreground: Gradient, background: Gradient) -&gt; String {
+    <span class="kw">let </span>delta = <span class="number">1.0 </span>/ text.len() <span class="kw">as </span>f32;
+    <span class="kw">let </span><span class="kw-2">mut </span>result = text.char_indices().fold(String::new(), |<span class="kw-2">mut </span>acc, (i, c)| {
+        <span class="kw">let </span>step = i <span class="kw">as </span>f32 * delta;
+        <span class="kw">let </span>temp = <span class="macro">format!</span>(
             <span class="string">&quot;\x1B[{};{}m{}&quot;</span>,
-            <span class="ident">foreground</span>
-                .<span class="ident">at</span>(<span class="ident">step</span>)
-                .<span class="ident">ansi_color_code</span>(<span class="ident">TargetGround::Foreground</span>),
-            <span class="ident">background</span>
-                .<span class="ident">at</span>(<span class="ident">step</span>)
-                .<span class="ident">ansi_color_code</span>(<span class="ident">TargetGround::Background</span>),
-            <span class="ident">c</span>
+            foreground
+                .at(step)
+                .ansi_color_code(TargetGround::Foreground),
+            background
+                .at(step)
+                .ansi_color_code(TargetGround::Background),
+            c
         );
-        <span class="ident">acc</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">temp</span>);
-        <span class="ident">acc</span>
+        acc.push_str(<span class="kw-2">&amp;</span>temp);
+        acc
     });
 
-    <span class="ident">result</span>.<span class="ident">push_str</span>(<span class="string">&quot;\x1B[0m&quot;</span>);
-    <span class="ident">result</span>
+    result.push_str(<span class="string">&quot;\x1B[0m&quot;</span>);
+    result
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TargetGround</span> {
-    <span class="ident">Foreground</span>,
-    <span class="ident">Background</span>,
+<span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>TargetGround {
+    Foreground,
+    Background,
 }
 
-<span class="kw">impl</span> <span class="ident">TargetGround</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Foreground</span> =&gt; <span class="number">30</span>,
-            <span class="ident"><span class="self">Self</span>::Background</span> =&gt; <span class="number">40</span>,
+<span class="kw">impl </span>TargetGround {
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub const fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Foreground =&gt; <span class="number">30</span>,
+            <span class="self">Self</span>::Background =&gt; <span class="number">40</span>,
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ANSIColorCode</span> {
-    <span class="kw">fn</span> <span class="ident">ansi_color_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">target</span>: <span class="ident">TargetGround</span>) -&gt; <span class="ident">String</span>;
+<span class="kw">pub trait </span>ANSIColorCode {
+    <span class="kw">fn </span>ansi_color_code(<span class="kw-2">&amp;</span><span class="self">self</span>, target: TargetGround) -&gt; String;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="nu_ansi_term" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="nu_ansi_term" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

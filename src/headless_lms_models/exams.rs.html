@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exams.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exams.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exams.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exams.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -415,38 +415,38 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>chrono::Duration;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">courses::Course</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_utils::document_schema_processor::GutenbergBlock</span>;
+<span class="kw">use crate</span>::{courses::Course, prelude::<span class="kw-2">*</span>};
+<span class="kw">use </span>headless_lms_utils::document_schema_processor::GutenbergBlock;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Exam</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
-    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">courses</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">time_minutes</span>: <span class="ident">i32</span>,
+<span class="attribute">#[derive(Debug, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>Exam {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>instructions: serde_json::Value,
+    <span class="kw">pub </span>page_id: Uuid,
+    <span class="kw">pub </span>courses: Vec&lt;Course&gt;,
+    <span class="kw">pub </span>starts_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>ends_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>time_minutes: i32,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OrgExam</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
-    <span class="kw">pub</span> <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">time_minutes</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>OrgExam {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>instructions: serde_json::Value,
+    <span class="kw">pub </span>starts_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>ends_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>time_minutes: i32,
+    <span class="kw">pub </span>organization_id: Uuid,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Exam</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;Exam&gt; {
+    <span class="kw">let </span>exam = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT exams.id,
   exams.name,
@@ -459,13 +459,13 @@ FROM exams
   JOIN pages ON pages.exam_id = exams.id
 WHERE exams.id = $1
 &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+    <span class="kw">let </span>courses = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">&quot;
 SELECT id,
   slug,
@@ -487,61 +487,61 @@ FROM courses
 WHERE course_exams.exam_id = $1
 AND deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">Exam</span> {
-        <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
-        <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
-        <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
-        <span class="ident">page_id</span>: <span class="ident">exam</span>.<span class="ident">page_id</span>,
-        <span class="ident">starts_at</span>: <span class="ident">exam</span>.<span class="ident">starts_at</span>,
-        <span class="ident">ends_at</span>: <span class="ident">exam</span>.<span class="ident">ends_at</span>,
-        <span class="ident">time_minutes</span>: <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
-        <span class="ident">courses</span>,
+    <span class="prelude-val">Ok</span>(Exam {
+        id: exam.id,
+        name: exam.name,
+        instructions: exam.instructions,
+        page_id: exam.page_id,
+        starts_at: exam.starts_at,
+        ends_at: exam.ends_at,
+        time_minutes: exam.time_minutes,
+        courses,
     })
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseExam</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseExam {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>course_name: String,
+    <span class="kw">pub </span>name: String,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewExam</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">time_minutes</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>NewExam {
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>starts_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>ends_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>time_minutes: i32,
+    <span class="kw">pub </span>organization_id: Uuid,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamInstructions</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
+<span class="attribute">#[derive(Debug, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExamInstructions {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>instructions: serde_json::Value,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamInstructionsUpdate</span> {
-    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExamInstructionsUpdate {
+    <span class="kw">pub </span>instructions: serde_json::Value,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">exam</span>: <span class="kw-2">&amp;</span><span class="ident">NewExam</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    exam: <span class="kw-2">&amp;</span>NewExam,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exams (
     id,
@@ -555,32 +555,32 @@ INSERT INTO exams (
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">exam</span>.<span class="ident">name</span>,
-        <span class="ident">serde_json::Value::Array</span>(<span class="macro">vec!</span>[]),
-        <span class="ident">exam</span>.<span class="ident">starts_at</span>,
-        <span class="ident">exam</span>.<span class="ident">ends_at</span>,
-        <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
-        <span class="ident">exam</span>.<span class="ident">organization_id</span>
+        pkey_policy.into_uuid(),
+        exam.name,
+        serde_json::Value::Array(<span class="macro">vec!</span>[]),
+        exam.starts_at,
+        exam.ends_at,
+        exam.time_minutes,
+        exam.organization_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">edit</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    <span class="ident">starts_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">ends_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">time_minutes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">time_minutes</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span>).<span class="ident">unwrap_or_default</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::InvalidRequest</span>,
-            <span class="string">&quot;Exam duration has to be positive&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">pub async fn </span>edit(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+    starts_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    ends_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    time_minutes: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">if </span>time_minutes.map(|i| i &gt; <span class="number">0</span>).unwrap_or_default() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            <span class="string">&quot;Exam duration has to be positive&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
@@ -593,52 +593,52 @@ SET name = COALESCE($2, name),
   time_minutes = $5
 WHERE id = $1
 &quot;</span>,
-        <span class="ident">id</span>,
-        <span class="ident">name</span>,
-        <span class="ident">starts_at</span>,
-        <span class="ident">ends_at</span>,
-        <span class="ident">time_minutes</span>,
+        id,
+        name,
+        starts_at,
+        ends_at,
+        time_minutes,
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_course</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>, <span class="ident">course</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>set_course(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid, course: Uuid) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO course_exams (course_id, exam_id)
 VALUES ($1, $2)
 &quot;</span>,
-        <span class="ident">course</span>,
-        <span class="ident">id</span>,
+        course,
+        id,
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">unset_course</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>, <span class="ident">course</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>unset_course(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid, course: Uuid) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 DELETE FROM course_exams
 WHERE exam_id = $1
   AND course_id = $2
 &quot;</span>,
-        <span class="ident">id</span>,
-        <span class="ident">course</span>
+        id,
+        course
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exams_for_organization</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">organization</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrgExam</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">OrgExam</span>,
+<span class="kw">pub async fn </span>get_exams_for_organization(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    organization: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;OrgExam&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        OrgExam,
         <span class="string">&quot;
 SELECT id,
   name,
@@ -651,19 +651,19 @@ FROM exams
 WHERE exams.organization_id = $1
   AND exams.deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">organization</span>
+        organization
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_exams_for_organization</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">organization</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseExam</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseExam</span>,
+<span class="kw">pub async fn </span>get_course_exams_for_organization(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    organization: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;CourseExam&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseExam,
         <span class="string">&quot;
 SELECT exams.id,
   courses.id as course_id,
@@ -676,19 +676,19 @@ WHERE exams.organization_id = $1
   AND exams.deleted_at IS NULL
   AND courses.deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">organization</span>
+        organization
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exams_for_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseExam</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseExam</span>,
+<span class="kw">pub async fn </span>get_exams_for_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;CourseExam&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CourseExam,
         <span class="string">&quot;
 SELECT exams.id,
   courses.id as course_id,
@@ -700,64 +700,64 @@ FROM exams
   AND exams.deleted_at IS NULL
   AND courses.deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">course</span>
+        course
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">enroll</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">exam_id</span>: <span class="ident">Uuid</span>, <span class="ident">user_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>enroll(conn: <span class="kw-2">&amp;mut </span>PgConnection, exam_id: Uuid, user_id: Uuid) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exam_enrollments (exam_id, user_id)
 VALUES ($1, $2)
 &quot;</span>,
-        <span class="ident">exam_id</span>,
-        <span class="ident">user_id</span>
+        exam_id,
+        user_id
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Checks whether a submission can be made for the given exam.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">verify_exam_submission_can_be_made</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">get</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">get_enrollment</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user_id</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::PreconditionFailed</span>,
-                <span class="string">&quot;User has no enrollment for the exam&quot;</span>.<span class="ident">to_string</span>(),
+<span class="doccomment">/// Checks whether a submission can be made for the given exam.
+</span><span class="kw">pub async fn </span>verify_exam_submission_can_be_made(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>exam = get(conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>enrollment = get_enrollment(conn, exam_id, user_id)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                <span class="string">&quot;User has no enrollment for the exam&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">student_has_time</span> <span class="op">=</span>
-        <span class="ident">Utc::now</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">enrollment</span>.<span class="ident">started_at</span> <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="ident">exam</span>.<span class="ident">time_minutes</span>.<span class="ident">into</span>());
-    <span class="kw">let</span> <span class="ident">exam_is_ongoing</span> <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">ends_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ea</span><span class="op">|</span> <span class="ident">Utc::now</span>() <span class="op">&lt;</span> <span class="ident">ea</span>).<span class="ident">unwrap_or_default</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">student_has_time</span> <span class="op">&amp;&amp;</span> <span class="ident">exam_is_ongoing</span>)
+    <span class="kw">let </span>student_has_time =
+        Utc::now() &lt;= enrollment.started_at + Duration::minutes(exam.time_minutes.into());
+    <span class="kw">let </span>exam_is_ongoing = exam.ends_at.map(|ea| Utc::now() &lt; ea).unwrap_or_default();
+    <span class="prelude-val">Ok</span>(student_has_time &amp;&amp; exam_is_ongoing)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamEnrollment</span> {
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">started_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExamEnrollment {
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>exam_id: Uuid,
+    <span class="kw">pub </span>started_at: DateTime&lt;Utc&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_enrollment</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExamEnrollment</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExamEnrollment</span>,
+<span class="kw">pub async fn </span>get_enrollment(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExamEnrollment&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExamEnrollment,
         <span class="string">&quot;
 SELECT user_id,
   exam_id,
@@ -767,56 +767,56 @@ WHERE exam_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">exam_id</span>,
-        <span class="ident">user_id</span>
+        exam_id,
+        user_id
     )
-    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .fetch_optional(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">exam_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_organization_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, exam_id: Uuid) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>organization_id = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT organization_id
 FROM exams
 WHERE id = $1
 &quot;</span>,
-        <span class="ident">exam_id</span>
+        exam_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">organization_id</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">organization_id</span>)
+    .fetch_one(conn)
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.organization_id;
+    <span class="prelude-val">Ok</span>(organization_id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exam_instructions_data</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExamInstructions</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exam_instructions_data</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExamInstructions</span>,
+<span class="kw">pub async fn </span>get_exam_instructions_data(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exam_id: Uuid,
+) -&gt; ModelResult&lt;ExamInstructions&gt; {
+    <span class="kw">let </span>exam_instructions_data = <span class="macro">sqlx::query_as!</span>(
+        ExamInstructions,
         <span class="string">&quot;
 SELECT id, instructions
 FROM exams
 WHERE id = $1;
 &quot;</span>,
-        <span class="ident">exam_id</span>
+        exam_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">exam_instructions_data</span>)
+    <span class="prelude-val">Ok</span>(exam_instructions_data)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_exam_instructions</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">instructions_update</span>: <span class="ident">ExamInstructionsUpdate</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExamInstructions</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">parsed_content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">serde_json::from_value</span>(<span class="ident">instructions_update</span>.<span class="ident">instructions</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">updated_data</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExamInstructions</span>,
+<span class="kw">pub async fn </span>update_exam_instructions(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exam_id: Uuid,
+    instructions_update: ExamInstructionsUpdate,
+) -&gt; ModelResult&lt;ExamInstructions&gt; {
+    <span class="kw">let </span>parsed_content: Vec&lt;GutenbergBlock&gt; =
+        serde_json::from_value(instructions_update.instructions)<span class="question-mark">?</span>;
+    <span class="kw">let </span>updated_data = <span class="macro">sqlx::query_as!</span>(
+        ExamInstructions,
         <span class="string">&quot;
     UPDATE exams
     SET instructions = $1
@@ -824,13 +824,13 @@ WHERE id = $1;
     RETURNING id,
         instructions
     &quot;</span>,
-        <span class="ident">serde_json::to_value</span>(<span class="ident">parsed_content</span>)<span class="question-mark">?</span>,
-        <span class="ident">exam_id</span>
+        serde_json::to_value(parsed_content)<span class="question-mark">?</span>,
+        exam_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">updated_data</span>)
+    <span class="prelude-val">Ok</span>(updated_data)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

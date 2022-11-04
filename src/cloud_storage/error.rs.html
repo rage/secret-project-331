@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cloud_storage/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cloud_storage/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -478,485 +478,485 @@
 <span id="478">478</span>
 <span id="479">479</span>
 <span id="480">480</span>
-</pre><pre class="rust"><code><span class="doccomment">/// Represents any of the ways storing something in Google Cloud Storage can fail.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
-    <span class="doccomment">/// If the error is caused by a non 2xx response by Google, this variant is returned.</span>
-    <span class="ident">Google</span>(<span class="ident">GoogleErrorResponse</span>),
-    <span class="doccomment">/// If another network error causes something to fail, this variant is used.</span>
-    <span class="ident">Reqwest</span>(<span class="ident">reqwest::Error</span>),
-    <span class="doccomment">/// If we encounter a problem decoding the private key, this variant is used.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring&quot;</span>)]</span>
-    <span class="ident">Pem</span>(<span class="ident">pem::PemError</span>),
-    <span class="doccomment">/// If we encounter a problem parsing the private key, this variant is used.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring&quot;</span>)]</span>
-    <span class="ident">KeyRejected</span>(<span class="ident">ring::error::KeyRejected</span>),
-    <span class="doccomment">/// If we encounter a problem signing a request, this variant is used.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring&quot;</span>)]</span>
-    <span class="ident">Signing</span>(<span class="ident">ring::error::Unspecified</span>),
-    <span class="doccomment">/// If we encouter a SSL error, for example an invalid certificate, this variant is used.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-    <span class="ident">Ssl</span>(<span class="ident">openssl::error::ErrorStack</span>),
-    <span class="doccomment">/// If we have problems creating or parsing a json web token, this variant is used.</span>
-    <span class="ident">Jwt</span>(<span class="ident">jsonwebtoken::errors::Error</span>),
-    <span class="doccomment">/// If we cannot deserialize one of the repsonses sent by Google, this variant is used.</span>
-    <span class="ident">Serialization</span>(<span class="ident">serde_json::error::Error</span>),
-    <span class="doccomment">/// If another failure causes the error, this variant is populated.</span>
-    <span class="ident">Other</span>(<span class="ident">String</span>),
+</pre><pre class="rust"><code><span class="doccomment">/// Represents any of the ways storing something in Google Cloud Storage can fail.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>Error {
+    <span class="doccomment">/// If the error is caused by a non 2xx response by Google, this variant is returned.
+    </span>Google(GoogleErrorResponse),
+    <span class="doccomment">/// If another network error causes something to fail, this variant is used.
+    </span>Reqwest(reqwest::Error),
+    <span class="doccomment">/// If we encounter a problem decoding the private key, this variant is used.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+    </span>Pem(pem::PemError),
+    <span class="doccomment">/// If we encounter a problem parsing the private key, this variant is used.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+    </span>KeyRejected(ring::error::KeyRejected),
+    <span class="doccomment">/// If we encounter a problem signing a request, this variant is used.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+    </span>Signing(ring::error::Unspecified),
+    <span class="doccomment">/// If we encouter a SSL error, for example an invalid certificate, this variant is used.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+    </span>Ssl(openssl::error::ErrorStack),
+    <span class="doccomment">/// If we have problems creating or parsing a json web token, this variant is used.
+    </span>Jwt(jsonwebtoken::errors::Error),
+    <span class="doccomment">/// If we cannot deserialize one of the repsonses sent by Google, this variant is used.
+    </span>Serialization(serde_json::error::Error),
+    <span class="doccomment">/// If another failure causes the error, this variant is populated.
+    </span>Other(String),
 }
 
-<span class="kw">impl</span> <span class="ident">Error</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Error</span> {
-        <span class="ident">Error::Other</span>(<span class="ident">msg</span>.<span class="ident">to_string</span>())
+<span class="kw">impl </span>Error {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(msg: <span class="kw-2">&amp;</span>str) -&gt; Error {
+        Error::Other(msg.to_string())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std::fmt::Error</span><span class="op">&gt;</span> {
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Error {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        <span class="macro">writeln!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Google</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">e</span>),
-            <span class="ident"><span class="self">Self</span>::Reqwest</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">e</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Ssl</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">e</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Pem</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">e</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::KeyRejected</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">e</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Signing</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">e</span>),
-            <span class="ident"><span class="self">Self</span>::Jwt</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">e</span>),
-            <span class="ident"><span class="self">Self</span>::Serialization</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">e</span>),
-            <span class="ident"><span class="self">Self</span>::Other</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+<span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">&#39;static</span>)&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Google(e) =&gt; <span class="prelude-val">Some</span>(e),
+            <span class="self">Self</span>::Reqwest(e) =&gt; <span class="prelude-val">Some</span>(e),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+            </span><span class="self">Self</span>::Ssl(e) =&gt; <span class="prelude-val">Some</span>(e),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+            </span><span class="self">Self</span>::Pem(e) =&gt; <span class="prelude-val">Some</span>(e),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+            </span><span class="self">Self</span>::KeyRejected(e) =&gt; <span class="prelude-val">Some</span>(e),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+            </span><span class="self">Self</span>::Signing(e) =&gt; <span class="prelude-val">Some</span>(e),
+            <span class="self">Self</span>::Jwt(e) =&gt; <span class="prelude-val">Some</span>(e),
+            <span class="self">Self</span>::Serialization(e) =&gt; <span class="prelude-val">Some</span>(e),
+            <span class="self">Self</span>::Other(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">reqwest::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">reqwest::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Reqwest</span>(<span class="ident">err</span>)
+<span class="kw">impl </span>From&lt;reqwest::Error&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: reqwest::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Reqwest(err)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">openssl::error::ErrorStack</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">openssl::error::ErrorStack</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Ssl</span>(<span class="ident">err</span>)
+<span class="attribute">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;openssl::error::ErrorStack&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: openssl::error::ErrorStack) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Ssl(err)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">pem::PemError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">pem::PemError</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Pem</span>(<span class="ident">err</span>)
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;pem::PemError&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: pem::PemError) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Pem(err)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ring::error::KeyRejected</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ring::error::KeyRejected</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::KeyRejected</span>(<span class="ident">err</span>)
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;ring::error::KeyRejected&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: ring::error::KeyRejected) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::KeyRejected(err)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ring::error::Unspecified</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ring::error::Unspecified</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Signing</span>(<span class="ident">err</span>)
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ring&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;ring::error::Unspecified&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: ring::error::Unspecified) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Signing(err)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">jsonwebtoken::errors::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">jsonwebtoken::errors::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Jwt</span>(<span class="ident">err</span>)
+<span class="kw">impl </span>From&lt;jsonwebtoken::errors::Error&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: jsonwebtoken::errors::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Jwt(err)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">serde_json::error::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">serde_json::error::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Serialization</span>(<span class="ident">err</span>)
+<span class="kw">impl </span>From&lt;serde_json::error::Error&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: serde_json::error::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Serialization(err)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">reqwest::header::InvalidHeaderValue</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">reqwest::header::InvalidHeaderValue</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Other</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
+<span class="kw">impl </span>From&lt;reqwest::header::InvalidHeaderValue&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: reqwest::header::InvalidHeaderValue) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Other(err.to_string())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">std::io::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Other</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
+<span class="kw">impl </span>From&lt;std::io::Error&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: std::io::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Other(err.to_string())
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">Success</span>(<span class="ident">T</span>),
-    <span class="ident">Error</span>(<span class="ident">GoogleErrorResponse</span>),
+<span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+#[serde(untagged)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>GoogleResponse&lt;T&gt; {
+    Success(T),
+    Error(GoogleErrorResponse),
 }
 
-<span class="comment">// TODO comment this in when try_trait (#42327) get stabilized and enjoy the nicer handling of</span>
-<span class="comment">// errors</span>
-<span class="comment">//</span>
-<span class="comment">// impl&lt;T&gt; std::ops::Try for GoogleResponse&lt;T&gt; {</span>
-<span class="comment">//     type Ok = T;</span>
-<span class="comment">//     type Error = Error;</span>
-<span class="comment">//</span>
-<span class="comment">//     fn into_result(self) -&gt; Result&lt;Self::Ok, Error&gt; {</span>
-<span class="comment">//         match self {</span>
-<span class="comment">//             GoogleResponse::Success(t) =&gt; Ok(t),</span>
-<span class="comment">//             GoogleResponse::Error(error) =&gt; Err(Error::Google(error)),</span>
-<span class="comment">//         }</span>
-<span class="comment">//     }</span>
-<span class="comment">//</span>
-<span class="comment">//     fn from_error(_a: Error) -&gt; Self {</span>
-<span class="comment">//         unimplemented!()</span>
-<span class="comment">//     }</span>
-<span class="comment">//</span>
-<span class="comment">//     fn from_ok(t: T) -&gt; Self {</span>
-<span class="comment">//         GoogleResponse::Success(t)</span>
-<span class="comment">//     }</span>
-<span class="comment">// }</span>
+<span class="comment">// TODO comment this in when try_trait (#42327) get stabilized and enjoy the nicer handling of
+// errors
+//
+// impl&lt;T&gt; std::ops::Try for GoogleResponse&lt;T&gt; {
+//     type Ok = T;
+//     type Error = Error;
+//
+//     fn into_result(self) -&gt; Result&lt;Self::Ok, Error&gt; {
+//         match self {
+//             GoogleResponse::Success(t) =&gt; Ok(t),
+//             GoogleResponse::Error(error) =&gt; Err(Error::Google(error)),
+//         }
+//     }
+//
+//     fn from_error(_a: Error) -&gt; Self {
+//         unimplemented!()
+//     }
+//
+//     fn from_ok(t: T) -&gt; Self {
+//         GoogleResponse::Success(t)
+//     }
+// }
 
-<span class="doccomment">/// The structure of a error response returned by Google.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GoogleErrorResponse</span> {
-    <span class="doccomment">/// A container for the error information.</span>
-    <span class="kw">pub</span> <span class="ident">error</span>: <span class="ident">ErrorList</span>,
+</span><span class="doccomment">/// The structure of a error response returned by Google.
+</span><span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>GoogleErrorResponse {
+    <span class="doccomment">/// A container for the error information.
+    </span><span class="kw">pub </span>error: ErrorList,
 }
 
-<span class="kw">impl</span> <span class="ident">GoogleErrorResponse</span> {
-    <span class="doccomment">/// Return list of errors returned by Google</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">errors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">GoogleError</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">error</span>.<span class="ident">errors</span>
+<span class="kw">impl </span>GoogleErrorResponse {
+    <span class="doccomment">/// Return list of errors returned by Google
+    </span><span class="kw">pub fn </span>errors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[GoogleError] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.error.errors
     }
 
-    <span class="doccomment">/// Check whether errors contain given reason</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">errors_has_reason</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">reason</span>: <span class="kw-2">&amp;</span><span class="ident">Reason</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">errors</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">google_error</span><span class="op">|</span> <span class="ident">google_error</span>.<span class="ident">is_reason</span>(<span class="ident">reason</span>))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">GoogleErrorResponse</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std::fmt::Error</span><span class="op">&gt;</span> {
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
+    <span class="doccomment">/// Check whether errors contain given reason
+    </span><span class="kw">pub fn </span>errors_has_reason(<span class="kw-2">&amp;</span><span class="self">self</span>, reason: <span class="kw-2">&amp;</span>Reason) -&gt; bool {
+        <span class="self">self</span>.errors()
+            .iter()
+            .any(|google_error| google_error.is_reason(reason))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">GoogleErrorResponse</span> {}
-
-<span class="doccomment">/// A container for the error information.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ErrorList</span> {
-    <span class="doccomment">/// A container for the error details.</span>
-    <span class="kw">pub</span> <span class="ident">errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GoogleError</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// An HTTP status code value, without the textual description.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Example values include: 400 (Bad Request), 401 (Unauthorized), and 404 (Not Found).</span>
-    <span class="kw">pub</span> <span class="ident">code</span>: <span class="ident">u16</span>,
-    <span class="doccomment">/// Description of the error. Same as errors.message.</span>
-    <span class="kw">pub</span> <span class="ident">message</span>: <span class="ident">String</span>,
-}
-
-<span class="doccomment">/// Google Error structure</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GoogleError</span> {
-    <span class="doccomment">/// The scope of the error. Example values include: global and push.</span>
-    <span class="kw">pub</span> <span class="ident">domain</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Example values include `invalid`, `invalidParameter`, and `required`.</span>
-    <span class="kw">pub</span> <span class="ident">reason</span>: <span class="ident">Reason</span>,
-    <span class="doccomment">/// Description of the error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Example values include `Invalid argument`, `Login required`, and `Required parameter:</span>
-    <span class="doccomment">/// project`.</span>
-    <span class="kw">pub</span> <span class="ident">message</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The location or part of the request that caused the error. Use with `location` to pinpoint</span>
-    <span class="doccomment">/// the error. For example, if you specify an invalid value for a parameter, the `locationType`</span>
-    <span class="doccomment">/// will be parameter and the location will be the name of the parameter.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Example values include `header` and `parameter`.</span>
-    <span class="kw">pub</span> <span class="ident">location_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The specific item within the `locationType` that caused the error. For example, if you</span>
-    <span class="doccomment">/// specify an invalid value for a parameter, the `location` will be the name of the parameter.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Example values include: `Authorization`, `project`, and `projection`.</span>
-    <span class="kw">pub</span> <span class="ident">location</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">GoogleError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">message</span>)
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>GoogleErrorResponse {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        <span class="macro">writeln!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">GoogleError</span> {}
+<span class="kw">impl </span>std::error::Error <span class="kw">for </span>GoogleErrorResponse {}
 
-<span class="kw">impl</span> <span class="ident">GoogleError</span> {
-    <span class="doccomment">/// Check what was the reason of error</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_reason</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">reason</span>: <span class="kw-2">&amp;</span><span class="ident">Reason</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">reason</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">reason</span>
+<span class="doccomment">/// A container for the error information.
+</span><span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>ErrorList {
+    <span class="doccomment">/// A container for the error details.
+    </span><span class="kw">pub </span>errors: Vec&lt;GoogleError&gt;,
+    <span class="doccomment">/// An HTTP status code value, without the textual description.
+    ///
+    /// Example values include: 400 (Bad Request), 401 (Unauthorized), and 404 (Not Found).
+    </span><span class="kw">pub </span>code: u16,
+    <span class="doccomment">/// Description of the error. Same as errors.message.
+    </span><span class="kw">pub </span>message: String,
+}
+
+<span class="doccomment">/// Google Error structure
+</span><span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>GoogleError {
+    <span class="doccomment">/// The scope of the error. Example values include: global and push.
+    </span><span class="kw">pub </span>domain: String,
+    <span class="doccomment">/// Example values include `invalid`, `invalidParameter`, and `required`.
+    </span><span class="kw">pub </span>reason: Reason,
+    <span class="doccomment">/// Description of the error.
+    ///
+    /// Example values include `Invalid argument`, `Login required`, and `Required parameter:
+    /// project`.
+    </span><span class="kw">pub </span>message: String,
+    <span class="doccomment">/// The location or part of the request that caused the error. Use with `location` to pinpoint
+    /// the error. For example, if you specify an invalid value for a parameter, the `locationType`
+    /// will be parameter and the location will be the name of the parameter.
+    ///
+    /// Example values include `header` and `parameter`.
+    </span><span class="kw">pub </span>location_type: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// The specific item within the `locationType` that caused the error. For example, if you
+    /// specify an invalid value for a parameter, the `location` will be the name of the parameter.
+    ///
+    /// Example values include: `Authorization`, `project`, and `projection`.
+    </span><span class="kw">pub </span>location: <span class="prelude-ty">Option</span>&lt;String&gt;,
+}
+
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>GoogleError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.message)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">GoogleErrorResponse</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">GoogleErrorResponse</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Google</span>(<span class="ident">err</span>)
+<span class="kw">impl </span>std::error::Error <span class="kw">for </span>GoogleError {}
+
+<span class="kw">impl </span>GoogleError {
+    <span class="doccomment">/// Check what was the reason of error
+    </span><span class="kw">pub fn </span>is_reason(<span class="kw-2">&amp;</span><span class="self">self</span>, reason: <span class="kw-2">&amp;</span>Reason) -&gt; bool {
+        <span class="self">self</span>.reason == <span class="kw-2">*</span>reason
     }
 }
 
-<span class="doccomment">/// Google provides a list of codes, but testing indicates that this list is not exhaustive.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Reason</span> {
-    <span class="doccomment">/// When requesting a download using alt=media URL parameter, the direct URL path to use is</span>
-    <span class="doccomment">/// prefixed by /download. If this is omitted, the service will issue this redirect with the</span>
-    <span class="doccomment">/// appropriate media download path in the Location header.</span>
-    <span class="ident">MediaDownloadRedirect</span>,
-    <span class="doccomment">/// The conditional request would have been successful, but the condition was false, so no body</span>
-    <span class="doccomment">/// was sent.</span>
-    <span class="ident">NotModified</span>,
-    <span class="doccomment">/// Resource temporarily located elsewhere according to the Location header. Among other</span>
-    <span class="doccomment">/// reasons, this can occur when cookie-based authentication is being used, e.g., when using the</span>
-    <span class="doccomment">/// Storage Browser, and it receives a request to download content.</span>
-    <span class="ident">TemporaryRedirect</span>,
-    <span class="comment">// /// Indicates an incomplete resumable upload and provides the range of bytes already received by</span>
-    <span class="comment">// /// Cloud Storage. Responses with this status do not contain a body.</span>
-    <span class="comment">// ResumeIncomplete,</span>
-
-    <span class="comment">// &lt;bad requests&gt;</span>
-    <span class="doccomment">/// Undocumeten variant that is sometimes returned by Google.</span>
-    <span class="ident">Invalid</span>,
-    <span class="doccomment">/// The request cannot be completed based on your current Cloud Storage settings. For example,</span>
-    <span class="doccomment">/// you cannot lock a retention policy if the requested bucket doesn&#39;t have a retention policy,</span>
-    <span class="doccomment">/// and you cannot set ACLs if the requested bucket has Bucket Policy Only enabled.</span>
-    <span class="ident">BadRequest</span>,
-    <span class="doccomment">/// The retention period on a locked bucket cannot be reduced.</span>
-    <span class="ident">BadRequestException</span>,
-    <span class="doccomment">/// Bad Cloud KMS key.</span>
-    <span class="ident">CloudKmsBadKey</span>,
-    <span class="doccomment">/// Cloud KMS key name cannot be changed.</span>
-    <span class="ident">CloudKmsCannotChangeKeyName</span>,
-    <span class="doccomment">/// Resource&#39;s Cloud KMS decryption key not found.</span>
-    <span class="ident">CloudKmsDecryptionKeyNotFound</span>,
-    <span class="doccomment">/// Cloud KMS key is disabled, destroyed, or scheduled to be destroyed.</span>
-    <span class="ident">CloudKmsDisabledKey</span>,
-    <span class="doccomment">/// Cloud KMS encryption key not found.</span>
-    <span class="ident">CloudKmsEncryptionKeyNotFound</span>,
-    <span class="doccomment">/// Cloud KMS key location not allowed.</span>
-    <span class="ident">CloudKmsKeyLocationNotAllowed</span>,
-    <span class="doccomment">/// Missing an encryption algorithm, or the provided algorithm is not &quot;AE256.&quot;</span>
-    <span class="ident">CustomerEncryptionAlgorithmIsInvalid</span>,
-    <span class="doccomment">/// Missing an encryption key, or it is not Base64 encoded, or it does not meet the required</span>
-    <span class="doccomment">/// length of the encryption algorithm.</span>
-    <span class="ident">CustomerEncryptionKeyFormatIsInvalid</span>,
-    <span class="doccomment">/// The provided encryption key is incorrect.</span>
-    <span class="ident">CustomerEncryptionKeyIsIncorrect</span>,
-    <span class="doccomment">/// Missing a SHA256 hash of the encryption key, or it is not Base64 encoded, or it does not</span>
-    <span class="doccomment">/// match the encryption key.</span>
-    <span class="ident">CustomerEncryptionKeySha256IsInvalid</span>,
-    <span class="doccomment">/// The value for the alt URL parameter was not recognized.</span>
-    <span class="ident">InvalidAltValue</span>,
-    <span class="doccomment">/// The value for one of fields in the request body was invalid.</span>
-    <span class="ident">InvalidArgument</span>,
-    <span class="doccomment">/// The value for one of the URL parameters was invalid. In addition to normal URL parameter</span>
-    <span class="doccomment">/// validation, any URL parameters that have a corresponding value in provided JSON request</span>
-    <span class="doccomment">/// bodies must match if they are both specified. If using JSONP, you will get this error if you</span>
-    <span class="doccomment">/// provide an alt parameter that is not json.</span>
-    <span class="ident">InvalidParameter</span>,
-    <span class="doccomment">/// Uploads or normal API request was sent to a `/download/*` path. Use the same path, but</span>
-    <span class="doccomment">/// without the /download prefix.</span>
-    <span class="ident">NotDownload</span>,
-    <span class="doccomment">/// Downloads or normal API request was sent to an `/upload/*` path. Use the same path, but</span>
-    <span class="doccomment">/// without the `/upload` prefix.</span>
-    <span class="ident">NotUpload</span>,
-    <span class="doccomment">/// Could not parse the body of the request according to the provided Content-Type.</span>
-    <span class="ident">ParseError</span>,
-    <span class="doccomment">/// Channel id must match the following regular expression: `[A-Za-z0-9\\-_\\+/=]+`.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;push.channelIdInvalid&quot;</span>)]</span>
-    <span class="ident">PushChannelIdInvalid</span>,
-    <span class="doccomment">/// `storage.objects.watchAll`&#39;s id property must be unique across channels.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;push.channelIdNotUnique&quot;</span>)]</span>
-    <span class="ident">PushChannelIdNotUnique</span>,
-    <span class="doccomment">/// `storage.objects.watchAll`&#39;s address property must contain a valid URL.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;push.webhookUrlNoHostOrAddress&quot;</span>)]</span>
-    <span class="ident">PushWebhookUrlNoHostOrAddress</span>,
-    <span class="doccomment">/// `storage.objects.watchAll`&#39;s address property must be an HTTPS URL.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;push.webhookUrlNotHttps&quot;</span>)]</span>
-    <span class="ident">PushWebhookUrlNotHttps</span>,
-    <span class="doccomment">/// A required URL parameter or required request body JSON property is missing.</span>
-    <span class="ident">Required</span>,
-    <span class="doccomment">/// The resource is encrypted with a customer-supplied encryption key, but the request did not</span>
-    <span class="doccomment">/// provide one.</span>
-    <span class="ident">ResourceIsEncryptedWithCustomerEncryptionKey</span>,
-    <span class="doccomment">/// The resource is not encrypted with a customer-supplied encryption key, but the request</span>
-    <span class="doccomment">/// provided one.</span>
-    <span class="ident">ResourceNotEncryptedWithCustomerEncryptionKey</span>,
-    <span class="doccomment">/// A request was made to an API version that has been turned down. Clients will need to update</span>
-    <span class="doccomment">/// to a supported version.</span>
-    <span class="ident">TurnedDown</span>,
-    <span class="doccomment">/// The user project specified in the request does not match the user project specifed in an</span>
-    <span class="doccomment">/// earlier, related request.</span>
-    <span class="ident">UserProjectInconsistent</span>,
-    <span class="doccomment">/// The user project specified in the request is invalid, either because it is a malformed</span>
-    <span class="doccomment">/// project id or because it refers to a non-existent project.</span>
-    <span class="ident">UserProjectInvalid</span>,
-    <span class="doccomment">/// The requested bucket has Requester Pays enabled, the requester is not an owner of the</span>
-    <span class="doccomment">/// bucket, and no user project was present in the request.</span>
-    <span class="ident">UserProjectMissing</span>,
-    <span class="doccomment">/// storage.objects.insert must be invoked as an upload rather than a metadata.</span>
-    <span class="ident">WrongUrlForUpload</span>,
-    <span class="comment">// &lt;/bad requests&gt;</span>
-
-    <span class="comment">// &lt;unauthorized&gt;</span>
-    <span class="doccomment">/// Access to a Requester Pays bucket requires authentication.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;AuthenticationRequiredRequesterPays&quot;</span>)]</span>
-    <span class="ident">AuthenticationRequiredRequesterPays</span>,
-    <span class="doccomment">/// This error indicates a problem with the authorization provided in the request to Cloud</span>
-    <span class="doccomment">/// Storage. The following are some situations where that will occur:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * The OAuth access token has expired and needs to be refreshed. This can be avoided by</span>
-    <span class="doccomment">///   refreshing the access token early, but code can also catch this error, refresh the token</span>
-    <span class="doccomment">///   and retry automatically.</span>
-    <span class="doccomment">/// * Multiple non-matching authorizations were provided; choose one mode only.</span>
-    <span class="doccomment">/// * The OAuth access token&#39;s bound project does not match the project associated with the</span>
-    <span class="doccomment">///   provided developer key.</span>
-    <span class="doccomment">/// * The Authorization header was of an unrecognized format or uses an unsupported credential</span>
-    <span class="doccomment">///   type.</span>
-    <span class="ident">AuthError</span>,
-    <span class="doccomment">/// When downloading content from a cookie-authenticated site, e.g., using the Storage Browser,</span>
-    <span class="doccomment">/// the response will redirect to a temporary domain. This error will occur if access to said</span>
-    <span class="doccomment">/// domain occurs after the domain expires. Issue the original request again, and receive a new</span>
-    <span class="doccomment">/// redirect.</span>
-    <span class="ident">LockedDomainExpired</span>,
-    <span class="doccomment">/// Requests to storage.objects.watchAll will fail unless you verify you own the domain.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;push.webhookUrlUnauthorized&quot;</span>)]</span>
-    <span class="ident">PushWebhookUrlUnauthorized</span>,
-    <span class="comment">// /// Access to a non-public method that requires authorization was made, but none was provided in</span>
-    <span class="comment">// /// the Authorization header or through other means.</span>
-    <span class="comment">// Required,</span>
-    <span class="comment">// &lt;/unauthorized&gt;</span>
-
-    <span class="comment">// &lt;forbidden&gt;</span>
-    <span class="doccomment">///  The account associated with the project that owns the bucket or object has been disabled. Check the Google Cloud Console to see if there is a problem with billing, and if not, contact account support.</span>
-    <span class="ident">AccountDisabled</span>,
-    <span class="doccomment">/// The Cloud Storage JSON API is restricted by law from operating with certain countries.</span>
-    <span class="ident">CountryBlocked</span>,
-    <span class="doccomment">///  According to access control policy, the current user does not have access to perform the requested action. This code applies even if the resource being acted on doesn&#39;t exist.</span>
-    <span class="ident">Forbidden</span>,
-    <span class="doccomment">///  According to access control policy, the current user does not have access to perform the requested action. This code applies even if the resource being acted on doesn&#39;t exist.</span>
-    <span class="ident">InsufficientPermissions</span>,
-    <span class="doccomment">///  Object overwrite or deletion is not allowed due to an active hold on the object.</span>
-    <span class="ident">ObjectUnderActiveHold</span>,
-    <span class="doccomment">///  The Cloud Storage rate limit was exceeded. Retry using exponential backoff.</span>
-    <span class="ident">RateLimitExceeded</span>,
-    <span class="doccomment">///  Object overwrite or deletion is not allowed until the object meets the retention period set by the retention policy on the bucket.</span>
-    <span class="ident">RetentionPolicyNotMet</span>,
-    <span class="doccomment">///  Requests to this API require SSL.</span>
-    <span class="ident">SslRequired</span>,
-    <span class="doccomment">///  Calls to storage.channels.stop require that the caller own the channel.</span>
-    <span class="ident">StopChannelCallerNotOwner</span>,
-    <span class="doccomment">///  This error implies that for the project associated with the OAuth token or the developer key provided, access to Cloud Storage JSON API is not enabled. This is most commonly because Cloud Storage JSON API is not enabled in the Google Cloud Console, though there are other cases where the project is blocked or has been deleted when this can occur.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;UsageLimits.accessNotConfigured&quot;</span>)]</span>
-    <span class="ident">UsageLimitsAccessNotConfigured</span>,
-    <span class="doccomment">/// The requester is not authorized to use the project specified in their request. The</span>
-    <span class="doccomment">/// requester must have either the serviceusage.services.use permission or the Editor role for</span>
-    <span class="doccomment">/// the specified project.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;UserProjectAccessDenied&quot;</span>)]</span>
-    <span class="ident">UserProjectAccessDenied</span>,
-    <span class="doccomment">/// There is a problem with the project used in the request that prevents the operation from</span>
-    <span class="doccomment">/// completing successfully. One issue could be billing. Check the billing page to see if you</span>
-    <span class="doccomment">/// have a past due balance or if the credit card (or other payment mechanism) on your account is expired. For project creation, see the Projects page in the Google Cloud Console. For other problems, see the Resources and Support page.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;UserProjectAccountProblem&quot;</span>)]</span>
-    <span class="ident">UserProjectAccountProblem</span>,
-    <span class="doccomment">/// The developer-specified per-user rate quota was exceeded. If you are the developer, then</span>
-    <span class="doccomment">/// you can view these quotas at Quotas pane in the Google Cloud Console.</span>
-    <span class="ident">UserRateLimitExceeded</span>,
-    <span class="doccomment">/// Seems to indicate the same thing</span>
-    <span class="comment">// NONEXHAUST</span>
-    <span class="ident">QuotaExceeded</span>,
-    <span class="comment">// &lt;/forbidden&gt;</span>
-    <span class="doccomment">/// Either there is no API method associated with the URL path of the request, or the request</span>
-    <span class="doccomment">/// refers to one or more resources that were not found.</span>
-    <span class="ident">NotFound</span>,
-    <span class="doccomment">/// Either there is no API method associated with the URL path of the request, or the request</span>
-    <span class="doccomment">/// refers to one or more resources that were not found.</span>
-    <span class="ident">MethodNotAllowed</span>,
-    <span class="doccomment">/// The request timed out. Please try again using truncated exponential backoff.</span>
-    <span class="ident">UploadBrokenConnection</span>,
-    <span class="doccomment">/// A request to change a resource, usually a storage.*.update or storage.*.patch method, failed</span>
-    <span class="doccomment">/// to commit the change due to a conflicting concurrent change to the same resource. The</span>
-    <span class="doccomment">/// request can be retried, though care should be taken to consider the new state of the</span>
-    <span class="doccomment">/// resource to avoid blind overwriting of other agent&#39;s changes.</span>
-    <span class="ident">Conflict</span>,
-    <span class="doccomment">/// You have attempted to use a resumable upload session that is no longer available. If the</span>
-    <span class="doccomment">/// reported status code was not successful and you still wish to upload the file, you must</span>
-    <span class="doccomment">/// start a new session.</span>
-    <span class="ident">Gone</span>,
-    <span class="comment">// /// You must provide the Content-Length HTTP header. This error has no response body.</span>
-    <span class="comment">// LengthRequired,</span>
-
-    <span class="comment">// &lt;precondition failed&gt;</span>
-    <span class="doccomment">/// At least one of the pre-conditions you specified did not hold.</span>
-    <span class="ident">ConditionNotMet</span>,
-    <span class="doccomment">/// Request violates an OrgPolicy constraint.</span>
-    <span class="ident">OrgPolicyConstraintFailed</span>,
-    <span class="comment">// &lt;/precondition failed&gt;</span>
-    <span class="doccomment">/// The Cloud Storage JSON API supports up to 5 TB objects.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This error may, alternatively, arise if copying objects between locations and/or storage</span>
-    <span class="doccomment">/// classes can not complete within 30 seconds. In this case, use the `Object::rewrite` method</span>
-    <span class="doccomment">/// instead.</span>
-    <span class="ident">UploadTooLarge</span>,
-    <span class="doccomment">/// The requested Range cannot be satisfied.</span>
-    <span class="ident">RequestedRangeNotSatisfiable</span>,
-    <span class="doccomment">/// A [Cloud Storage JSON API usage limit](https://cloud.google.com/storage/quotas) was</span>
-    <span class="doccomment">/// exceeded. If your application tries to use more than its limit, additional requests will</span>
-    <span class="doccomment">/// fail. Throttle your client&#39;s requests, and/or use truncated exponential backoff.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;usageLimits.rateLimitExceeded&quot;</span>)]</span>
-    <span class="ident">UsageLimitsRateLimitExceeded</span>,
-
-    <span class="comment">// &lt;internal server error&gt;</span>
-    <span class="doccomment">/// We encountered an internal error. Please try again using truncated exponential backoff.</span>
-    <span class="ident">BackendError</span>,
-    <span class="doccomment">/// We encountered an internal error. Please try again using truncated exponential backoff.</span>
-    <span class="ident">InternalError</span>,
-    <span class="comment">// &lt;/internal server error&gt;</span>
-    <span class="doccomment">/// May be returned by Google, meaning undocumented.</span>
-    <span class="comment">// NONEXHAUST</span>
-    <span class="ident">GatewayTimeout</span>,
+<span class="kw">impl </span>From&lt;GoogleErrorResponse&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: GoogleErrorResponse) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Google(err)
+    }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">enum</span> <span class="ident">BadRequest</span> {}
+<span class="doccomment">/// Google provides a list of codes, but testing indicates that this list is not exhaustive.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub enum </span>Reason {
+    <span class="doccomment">/// When requesting a download using alt=media URL parameter, the direct URL path to use is
+    /// prefixed by /download. If this is omitted, the service will issue this redirect with the
+    /// appropriate media download path in the Location header.
+    </span>MediaDownloadRedirect,
+    <span class="doccomment">/// The conditional request would have been successful, but the condition was false, so no body
+    /// was sent.
+    </span>NotModified,
+    <span class="doccomment">/// Resource temporarily located elsewhere according to the Location header. Among other
+    /// reasons, this can occur when cookie-based authentication is being used, e.g., when using the
+    /// Storage Browser, and it receives a request to download content.
+    </span>TemporaryRedirect,
+    <span class="comment">// /// Indicates an incomplete resumable upload and provides the range of bytes already received by
+    // /// Cloud Storage. Responses with this status do not contain a body.
+    // ResumeIncomplete,
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Unauthorized</span> {}
+    // &lt;bad requests&gt;
+    </span><span class="doccomment">/// Undocumeten variant that is sometimes returned by Google.
+    </span>Invalid,
+    <span class="doccomment">/// The request cannot be completed based on your current Cloud Storage settings. For example,
+    /// you cannot lock a retention policy if the requested bucket doesn&#39;t have a retention policy,
+    /// and you cannot set ACLs if the requested bucket has Bucket Policy Only enabled.
+    </span>BadRequest,
+    <span class="doccomment">/// The retention period on a locked bucket cannot be reduced.
+    </span>BadRequestException,
+    <span class="doccomment">/// Bad Cloud KMS key.
+    </span>CloudKmsBadKey,
+    <span class="doccomment">/// Cloud KMS key name cannot be changed.
+    </span>CloudKmsCannotChangeKeyName,
+    <span class="doccomment">/// Resource&#39;s Cloud KMS decryption key not found.
+    </span>CloudKmsDecryptionKeyNotFound,
+    <span class="doccomment">/// Cloud KMS key is disabled, destroyed, or scheduled to be destroyed.
+    </span>CloudKmsDisabledKey,
+    <span class="doccomment">/// Cloud KMS encryption key not found.
+    </span>CloudKmsEncryptionKeyNotFound,
+    <span class="doccomment">/// Cloud KMS key location not allowed.
+    </span>CloudKmsKeyLocationNotAllowed,
+    <span class="doccomment">/// Missing an encryption algorithm, or the provided algorithm is not &quot;AE256.&quot;
+    </span>CustomerEncryptionAlgorithmIsInvalid,
+    <span class="doccomment">/// Missing an encryption key, or it is not Base64 encoded, or it does not meet the required
+    /// length of the encryption algorithm.
+    </span>CustomerEncryptionKeyFormatIsInvalid,
+    <span class="doccomment">/// The provided encryption key is incorrect.
+    </span>CustomerEncryptionKeyIsIncorrect,
+    <span class="doccomment">/// Missing a SHA256 hash of the encryption key, or it is not Base64 encoded, or it does not
+    /// match the encryption key.
+    </span>CustomerEncryptionKeySha256IsInvalid,
+    <span class="doccomment">/// The value for the alt URL parameter was not recognized.
+    </span>InvalidAltValue,
+    <span class="doccomment">/// The value for one of fields in the request body was invalid.
+    </span>InvalidArgument,
+    <span class="doccomment">/// The value for one of the URL parameters was invalid. In addition to normal URL parameter
+    /// validation, any URL parameters that have a corresponding value in provided JSON request
+    /// bodies must match if they are both specified. If using JSONP, you will get this error if you
+    /// provide an alt parameter that is not json.
+    </span>InvalidParameter,
+    <span class="doccomment">/// Uploads or normal API request was sent to a `/download/*` path. Use the same path, but
+    /// without the /download prefix.
+    </span>NotDownload,
+    <span class="doccomment">/// Downloads or normal API request was sent to an `/upload/*` path. Use the same path, but
+    /// without the `/upload` prefix.
+    </span>NotUpload,
+    <span class="doccomment">/// Could not parse the body of the request according to the provided Content-Type.
+    </span>ParseError,
+    <span class="doccomment">/// Channel id must match the following regular expression: `[A-Za-z0-9\\-_\\+/=]+`.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;push.channelIdInvalid&quot;</span>)]
+    </span>PushChannelIdInvalid,
+    <span class="doccomment">/// `storage.objects.watchAll`&#39;s id property must be unique across channels.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;push.channelIdNotUnique&quot;</span>)]
+    </span>PushChannelIdNotUnique,
+    <span class="doccomment">/// `storage.objects.watchAll`&#39;s address property must contain a valid URL.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;push.webhookUrlNoHostOrAddress&quot;</span>)]
+    </span>PushWebhookUrlNoHostOrAddress,
+    <span class="doccomment">/// `storage.objects.watchAll`&#39;s address property must be an HTTPS URL.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;push.webhookUrlNotHttps&quot;</span>)]
+    </span>PushWebhookUrlNotHttps,
+    <span class="doccomment">/// A required URL parameter or required request body JSON property is missing.
+    </span>Required,
+    <span class="doccomment">/// The resource is encrypted with a customer-supplied encryption key, but the request did not
+    /// provide one.
+    </span>ResourceIsEncryptedWithCustomerEncryptionKey,
+    <span class="doccomment">/// The resource is not encrypted with a customer-supplied encryption key, but the request
+    /// provided one.
+    </span>ResourceNotEncryptedWithCustomerEncryptionKey,
+    <span class="doccomment">/// A request was made to an API version that has been turned down. Clients will need to update
+    /// to a supported version.
+    </span>TurnedDown,
+    <span class="doccomment">/// The user project specified in the request does not match the user project specifed in an
+    /// earlier, related request.
+    </span>UserProjectInconsistent,
+    <span class="doccomment">/// The user project specified in the request is invalid, either because it is a malformed
+    /// project id or because it refers to a non-existent project.
+    </span>UserProjectInvalid,
+    <span class="doccomment">/// The requested bucket has Requester Pays enabled, the requester is not an owner of the
+    /// bucket, and no user project was present in the request.
+    </span>UserProjectMissing,
+    <span class="doccomment">/// storage.objects.insert must be invoked as an upload rather than a metadata.
+    </span>WrongUrlForUpload,
+    <span class="comment">// &lt;/bad requests&gt;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Forbidden</span> {}
+    // &lt;unauthorized&gt;
+    </span><span class="doccomment">/// Access to a Requester Pays bucket requires authentication.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;AuthenticationRequiredRequesterPays&quot;</span>)]
+    </span>AuthenticationRequiredRequesterPays,
+    <span class="doccomment">/// This error indicates a problem with the authorization provided in the request to Cloud
+    /// Storage. The following are some situations where that will occur:
+    ///
+    /// * The OAuth access token has expired and needs to be refreshed. This can be avoided by
+    ///   refreshing the access token early, but code can also catch this error, refresh the token
+    ///   and retry automatically.
+    /// * Multiple non-matching authorizations were provided; choose one mode only.
+    /// * The OAuth access token&#39;s bound project does not match the project associated with the
+    ///   provided developer key.
+    /// * The Authorization header was of an unrecognized format or uses an unsupported credential
+    ///   type.
+    </span>AuthError,
+    <span class="doccomment">/// When downloading content from a cookie-authenticated site, e.g., using the Storage Browser,
+    /// the response will redirect to a temporary domain. This error will occur if access to said
+    /// domain occurs after the domain expires. Issue the original request again, and receive a new
+    /// redirect.
+    </span>LockedDomainExpired,
+    <span class="doccomment">/// Requests to storage.objects.watchAll will fail unless you verify you own the domain.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;push.webhookUrlUnauthorized&quot;</span>)]
+    </span>PushWebhookUrlUnauthorized,
+    <span class="comment">// /// Access to a non-public method that requires authorization was made, but none was provided in
+    // /// the Authorization header or through other means.
+    // Required,
+    // &lt;/unauthorized&gt;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">enum</span> <span class="ident">PreconditionFailed</span> {}
+    // &lt;forbidden&gt;
+    </span><span class="doccomment">///  The account associated with the project that owns the bucket or object has been disabled. Check the Google Cloud Console to see if there is a problem with billing, and if not, contact account support.
+    </span>AccountDisabled,
+    <span class="doccomment">/// The Cloud Storage JSON API is restricted by law from operating with certain countries.
+    </span>CountryBlocked,
+    <span class="doccomment">///  According to access control policy, the current user does not have access to perform the requested action. This code applies even if the resource being acted on doesn&#39;t exist.
+    </span>Forbidden,
+    <span class="doccomment">///  According to access control policy, the current user does not have access to perform the requested action. This code applies even if the resource being acted on doesn&#39;t exist.
+    </span>InsufficientPermissions,
+    <span class="doccomment">///  Object overwrite or deletion is not allowed due to an active hold on the object.
+    </span>ObjectUnderActiveHold,
+    <span class="doccomment">///  The Cloud Storage rate limit was exceeded. Retry using exponential backoff.
+    </span>RateLimitExceeded,
+    <span class="doccomment">///  Object overwrite or deletion is not allowed until the object meets the retention period set by the retention policy on the bucket.
+    </span>RetentionPolicyNotMet,
+    <span class="doccomment">///  Requests to this API require SSL.
+    </span>SslRequired,
+    <span class="doccomment">///  Calls to storage.channels.stop require that the caller own the channel.
+    </span>StopChannelCallerNotOwner,
+    <span class="doccomment">///  This error implies that for the project associated with the OAuth token or the developer key provided, access to Cloud Storage JSON API is not enabled. This is most commonly because Cloud Storage JSON API is not enabled in the Google Cloud Console, though there are other cases where the project is blocked or has been deleted when this can occur.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;UsageLimits.accessNotConfigured&quot;</span>)]
+    </span>UsageLimitsAccessNotConfigured,
+    <span class="doccomment">/// The requester is not authorized to use the project specified in their request. The
+    /// requester must have either the serviceusage.services.use permission or the Editor role for
+    /// the specified project.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;UserProjectAccessDenied&quot;</span>)]
+    </span>UserProjectAccessDenied,
+    <span class="doccomment">/// There is a problem with the project used in the request that prevents the operation from
+    /// completing successfully. One issue could be billing. Check the billing page to see if you
+    /// have a past due balance or if the credit card (or other payment mechanism) on your account is expired. For project creation, see the Projects page in the Google Cloud Console. For other problems, see the Resources and Support page.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;UserProjectAccountProblem&quot;</span>)]
+    </span>UserProjectAccountProblem,
+    <span class="doccomment">/// The developer-specified per-user rate quota was exceeded. If you are the developer, then
+    /// you can view these quotas at Quotas pane in the Google Cloud Console.
+    </span>UserRateLimitExceeded,
+    <span class="doccomment">/// Seems to indicate the same thing
+    </span><span class="comment">// NONEXHAUST
+    </span>QuotaExceeded,
+    <span class="comment">// &lt;/forbidden&gt;
+    </span><span class="doccomment">/// Either there is no API method associated with the URL path of the request, or the request
+    /// refers to one or more resources that were not found.
+    </span>NotFound,
+    <span class="doccomment">/// Either there is no API method associated with the URL path of the request, or the request
+    /// refers to one or more resources that were not found.
+    </span>MethodNotAllowed,
+    <span class="doccomment">/// The request timed out. Please try again using truncated exponential backoff.
+    </span>UploadBrokenConnection,
+    <span class="doccomment">/// A request to change a resource, usually a storage.*.update or storage.*.patch method, failed
+    /// to commit the change due to a conflicting concurrent change to the same resource. The
+    /// request can be retried, though care should be taken to consider the new state of the
+    /// resource to avoid blind overwriting of other agent&#39;s changes.
+    </span>Conflict,
+    <span class="doccomment">/// You have attempted to use a resumable upload session that is no longer available. If the
+    /// reported status code was not successful and you still wish to upload the file, you must
+    /// start a new session.
+    </span>Gone,
+    <span class="comment">// /// You must provide the Content-Length HTTP header. This error has no response body.
+    // LengthRequired,
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">enum</span> <span class="ident">InternalServerError</span> {}
+    // &lt;precondition failed&gt;
+    </span><span class="doccomment">/// At least one of the pre-conditions you specified did not hold.
+    </span>ConditionNotMet,
+    <span class="doccomment">/// Request violates an OrgPolicy constraint.
+    </span>OrgPolicyConstraintFailed,
+    <span class="comment">// &lt;/precondition failed&gt;
+    </span><span class="doccomment">/// The Cloud Storage JSON API supports up to 5 TB objects.
+    ///
+    /// This error may, alternatively, arise if copying objects between locations and/or storage
+    /// classes can not complete within 30 seconds. In this case, use the `Object::rewrite` method
+    /// instead.
+    </span>UploadTooLarge,
+    <span class="doccomment">/// The requested Range cannot be satisfied.
+    </span>RequestedRangeNotSatisfiable,
+    <span class="doccomment">/// A [Cloud Storage JSON API usage limit](https://cloud.google.com/storage/quotas) was
+    /// exceeded. If your application tries to use more than its limit, additional requests will
+    /// fail. Throttle your client&#39;s requests, and/or use truncated exponential backoff.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;usageLimits.rateLimitExceeded&quot;</span>)]
+    </span>UsageLimitsRateLimitExceeded,
+
+    <span class="comment">// &lt;internal server error&gt;
+    </span><span class="doccomment">/// We encountered an internal error. Please try again using truncated exponential backoff.
+    </span>BackendError,
+    <span class="doccomment">/// We encountered an internal error. Please try again using truncated exponential backoff.
+    </span>InternalError,
+    <span class="comment">// &lt;/internal server error&gt;
+    </span><span class="doccomment">/// May be returned by Google, meaning undocumented.
+    </span><span class="comment">// NONEXHAUST
+    </span>GatewayTimeout,
+}
+
+<span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">enum </span>BadRequest {}
+
+<span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">enum </span>Unauthorized {}
+
+<span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">enum </span>Forbidden {}
+
+<span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">enum </span>PreconditionFailed {}
+
+<span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">enum </span>InternalServerError {}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

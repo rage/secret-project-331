@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/alloc-no-stdlib-2.0.4/src/stack_allocator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stack_allocator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../alloc_no_stdlib/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../alloc_no_stdlib/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../alloc_no_stdlib/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/alloc-no-stdlib-2.0.4/src/stack_allocator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stack_allocator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../alloc_no_stdlib/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../alloc_no_stdlib/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../alloc_no_stdlib/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -98,100 +98,100 @@
 <span id="98">98</span>
 <span id="99">99</span>
 <span id="100">100</span>
-</pre><pre class="rust"><code><span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">core</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::allocated_memory</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::allocated_stack_memory::AllocatedStackMemory</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::SliceWrapper</span>;
+</pre><pre class="rust"><code><span class="kw">extern crate </span>core;
+<span class="kw">use </span><span class="kw">super</span>::allocated_memory;
+<span class="kw">use </span><span class="kw">super</span>::allocated_stack_memory::AllocatedStackMemory;
+<span class="kw">use </span><span class="kw">super</span>::SliceWrapper;
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">AllocatedMemory</span> : <span class="ident">allocated_memory::AllocatedSlice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">alloc_cell</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">len</span> : <span class="ident">usize</span>) -&gt; <span class="ident"><span class="self">Self</span>::AllocatedMemory</span>;
-    <span class="kw">fn</span> <span class="ident">free_cell</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span> : <span class="ident"><span class="self">Self</span>::AllocatedMemory</span>);
+<span class="kw">pub trait </span>Allocator&lt;T&gt; {
+    <span class="kw">type </span>AllocatedMemory : allocated_memory::AllocatedSlice&lt;T&gt;;
+    <span class="kw">fn </span>alloc_cell(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len : usize) -&gt; <span class="self">Self</span>::AllocatedMemory;
+    <span class="kw">fn </span>free_cell(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data : <span class="self">Self</span>::AllocatedMemory);
 }
 
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StackAllocator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-                           <span class="ident">T</span> :<span class="lifetime">&#39;a</span>,
-                           <span class="ident">U</span> : <span class="ident">allocated_memory::AllocatedSlice</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">T</span>]<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">nop</span> : <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">T</span>],
-    <span class="kw">pub</span> <span class="ident">system_resources</span> : <span class="ident">U</span>,
-    <span class="kw">pub</span> <span class="ident">free_list_start</span> : <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">free_list_overflow_count</span> : <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">initialize</span> : <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span>[<span class="ident">T</span>]),
+<span class="kw">pub struct </span>StackAllocator&lt;<span class="lifetime">&#39;a</span>,
+                           T :<span class="lifetime">&#39;a</span>,
+                           U : allocated_memory::AllocatedSlice&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[T]&gt;&gt; {
+    <span class="kw">pub </span>nop : <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[T],
+    <span class="kw">pub </span>system_resources : U,
+    <span class="kw">pub </span>free_list_start : usize,
+    <span class="kw">pub </span>free_list_overflow_count : usize,
+    <span class="kw">pub </span>initialize : <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span>[T]),
 }
 
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span> : <span class="lifetime">&#39;a</span>, <span class="ident">U</span> : <span class="ident">allocated_memory::AllocatedSlice</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">&gt;</span>
-     <span class="ident">StackAllocator</span> <span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clear_if_necessary</span>(<span class="self">self</span> : <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">index</span> : <span class="ident">usize</span>, <span class="ident">data</span> : <span class="ident">AllocatedStackMemory</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>)
-    -&gt; <span class="ident">AllocatedStackMemory</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">index</span> <span class="op">+</span> <span class="number">1</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice</span>().<span class="ident">len</span>() {
-            <span class="kw">let</span> <span class="ident">fnp</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">initialize</span>;
-            <span class="ident">fnp</span>(<span class="ident">data</span>.<span class="ident">mem</span>);
+<span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>, T : <span class="lifetime">&#39;a</span>, U : allocated_memory::AllocatedSlice&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut</span>[T]&gt; &gt;
+     StackAllocator &lt;<span class="lifetime">&#39;a</span>, T, U&gt; {
+    <span class="kw">fn </span>clear_if_necessary(<span class="self">self </span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, index : usize, data : AllocatedStackMemory&lt;<span class="lifetime">&#39;a</span>, T&gt;)
+    -&gt; AllocatedStackMemory&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+        <span class="kw">if </span>index + <span class="number">1 </span>!= <span class="self">self</span>.system_resources.slice().len() {
+            <span class="kw">let </span>fnp = <span class="self">self</span>.initialize;
+            fnp(data.mem);
         }
-        <span class="kw">return</span> <span class="ident">data</span>;
+        <span class="kw">return </span>data;
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span> : <span class="lifetime">&#39;a</span>, <span class="ident">U</span> : <span class="ident">allocated_memory::AllocatedSlice</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span>[<span class="ident">T</span>]<span class="op">&gt;</span> <span class="op">&gt;</span>
-    <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StackAllocator</span> <span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">AllocatedMemory</span> <span class="op">=</span> <span class="ident">AllocatedStackMemory</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">alloc_cell</span>(<span class="self">self</span> : <span class="kw-2">&amp;mut</span> <span class="ident">StackAllocator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>,
-                  <span class="ident">len</span> : <span class="ident">usize</span>) -&gt; <span class="ident">AllocatedStackMemory</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="ident">AllocatedStackMemory</span>::<span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span><span class="ident">::default</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T : <span class="lifetime">&#39;a</span>, U : allocated_memory::AllocatedSlice&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut</span>[T]&gt; &gt;
+    Allocator&lt;T&gt; <span class="kw">for </span>StackAllocator &lt;<span class="lifetime">&#39;a</span>, T, U&gt; {
+    <span class="kw">type </span>AllocatedMemory = AllocatedStackMemory&lt;<span class="lifetime">&#39;a</span>, T&gt;;
+    <span class="kw">fn </span>alloc_cell(<span class="self">self </span>: <span class="kw-2">&amp;mut </span>StackAllocator&lt;<span class="lifetime">&#39;a</span>, T, U&gt;,
+                  len : usize) -&gt; AllocatedStackMemory&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+        <span class="kw">if </span>len == <span class="number">0 </span>{
+            <span class="kw">return </span>AllocatedStackMemory::&lt;<span class="lifetime">&#39;a</span>, T&gt;::default();
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">free_list_start</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> : <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">for</span> <span class="ident">free_resource</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice</span>()[<span class="self">self</span>.<span class="ident">free_list_start</span>..].<span class="ident">iter</span>() {
-            <span class="kw">if</span> <span class="ident">free_resource</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">len</span> {
-                <span class="ident">found</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>index : usize = <span class="self">self</span>.free_list_start;
+        <span class="kw">let </span><span class="kw-2">mut </span>found : bool = <span class="bool-val">false</span>;
+        <span class="kw">for </span>free_resource <span class="kw">in </span><span class="self">self</span>.system_resources.slice()[<span class="self">self</span>.free_list_start..].iter() {
+            <span class="kw">if </span>free_resource.len() &gt;= len {
+                found = <span class="bool-val">true</span>;
                 <span class="kw">break</span>;
             }
-            <span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            index += <span class="number">1</span>;
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">found</span> {
+        <span class="kw">if </span>!found {
             <span class="macro">panic!</span>(<span class="string">&quot;OOM&quot;</span>);
         }
-        <span class="kw">let</span> <span class="ident">available_slice</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice_mut</span>()[<span class="ident">index</span>],
+        <span class="kw">let </span>available_slice = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.system_resources.slice_mut()[index],
                                                     <span class="kw-2">&amp;mut</span>[]);
-        <span class="kw">if</span> <span class="ident">available_slice</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">len</span>
-           <span class="op">|</span><span class="op">|</span> (<span class="ident">available_slice</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">len</span> <span class="op">+</span> <span class="number">32</span>
-               <span class="op">&amp;&amp;</span> <span class="ident">index</span> <span class="op">+</span> <span class="number">1</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice</span>().<span class="ident">len</span>()) {
-            <span class="comment">// we don&#39;t want really small wasted slices</span>
-            <span class="comment">// we must assign free_list_start</span>
-            <span class="kw">if</span> <span class="ident">index</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">free_list_start</span> {
-                <span class="macro">assert!</span>(<span class="ident">index</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">free_list_start</span>);
-                <span class="kw">let</span> <span class="ident">farthest_free_list</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice_mut</span>()[<span class="self">self</span>.<span class="ident">free_list_start</span>],
-                    <span class="kw-2">&amp;mut</span> []);
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice_mut</span>()[<span class="ident">index</span>],
-                                   <span class="ident">farthest_free_list</span>);
+        <span class="kw">if </span>available_slice.len() == len
+           || (available_slice.len() &lt; len + <span class="number">32
+               </span>&amp;&amp; index + <span class="number">1 </span>!= <span class="self">self</span>.system_resources.slice().len()) {
+            <span class="comment">// we don&#39;t want really small wasted slices
+            // we must assign free_list_start
+            </span><span class="kw">if </span>index != <span class="self">self</span>.free_list_start {
+                <span class="macro">assert!</span>(index &gt; <span class="self">self</span>.free_list_start);
+                <span class="kw">let </span>farthest_free_list = core::mem::replace(
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.system_resources.slice_mut()[<span class="self">self</span>.free_list_start],
+                    <span class="kw-2">&amp;mut </span>[]);
+                <span class="kw">let _ </span>= core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.system_resources.slice_mut()[index],
+                                   farthest_free_list);
             }
-            <span class="self">self</span>.<span class="ident">free_list_start</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">clear_if_necessary</span>(<span class="ident">index</span>,
-                                           <span class="ident">AllocatedStackMemory</span>::<span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>{<span class="ident">mem</span>:<span class="ident">available_slice</span>});
-        } <span class="kw">else</span> { <span class="comment">// the memory allocated was not the entire range of items. Split and move on</span>
-            <span class="kw">let</span> (<span class="ident">retval</span>, <span class="ident">return_to_sender</span>) <span class="op">=</span> <span class="ident">available_slice</span>.<span class="ident">split_at_mut</span>(<span class="ident">len</span>);
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice_mut</span>()[<span class="ident">index</span>], <span class="ident">return_to_sender</span>);
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">clear_if_necessary</span>(<span class="ident">index</span>, <span class="ident">AllocatedStackMemory</span>::<span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>{<span class="ident">mem</span>:<span class="ident">retval</span>});
+            <span class="self">self</span>.free_list_start += <span class="number">1</span>;
+            <span class="kw">return </span><span class="self">self</span>.clear_if_necessary(index,
+                                           AllocatedStackMemory::&lt;<span class="lifetime">&#39;a</span>, T&gt;{mem:available_slice});
+        } <span class="kw">else </span>{ <span class="comment">// the memory allocated was not the entire range of items. Split and move on
+            </span><span class="kw">let </span>(retval, return_to_sender) = available_slice.split_at_mut(len);
+            <span class="kw">let _ </span>= core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.system_resources.slice_mut()[index], return_to_sender);
+            <span class="kw">return </span><span class="self">self</span>.clear_if_necessary(index, AllocatedStackMemory::&lt;<span class="lifetime">&#39;a</span>, T&gt;{mem:retval});
         }
     }
-    <span class="kw">fn</span> <span class="ident">free_cell</span>(<span class="self">self</span> : <span class="kw-2">&amp;mut</span> <span class="ident">StackAllocator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>,
-                 <span class="ident">val</span> : <span class="ident">AllocatedStackMemory</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="ident">val</span>.<span class="ident">slice</span>().<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> {
+    <span class="kw">fn </span>free_cell(<span class="self">self </span>: <span class="kw-2">&amp;mut </span>StackAllocator&lt;<span class="lifetime">&#39;a</span>, T, U&gt;,
+                 val : AllocatedStackMemory&lt;<span class="lifetime">&#39;a</span>, T&gt;) {
+        <span class="kw">if </span>val.slice().len() == <span class="number">0 </span>{
             <span class="kw">return</span>;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">free_list_start</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">free_list_start</span> <span class="op">-</span><span class="op">=</span><span class="number">1</span>;
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice_mut</span>()[<span class="self">self</span>.<span class="ident">free_list_start</span>],
-                               <span class="ident">val</span>.<span class="ident">mem</span>);
+        <span class="kw">if </span><span class="self">self</span>.free_list_start &gt; <span class="number">0 </span>{
+            <span class="self">self</span>.free_list_start -=<span class="number">1</span>;
+            <span class="kw">let _ </span>= core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.system_resources.slice_mut()[<span class="self">self</span>.free_list_start],
+                               val.mem);
 
-        } <span class="kw">else</span> {
-            <span class="kw">for</span> <span class="ident">_i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">3</span> {
-               <span class="self">self</span>.<span class="ident">free_list_overflow_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-               <span class="self">self</span>.<span class="ident">free_list_overflow_count</span> <span class="op">%</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice</span>().<span class="ident">len</span>();
-               <span class="kw">if</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice</span>()[<span class="self">self</span>.<span class="ident">free_list_overflow_count</span>].<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">val</span>.<span class="ident">mem</span>.<span class="ident">len</span>() {
-                   <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">system_resources</span>.<span class="ident">slice_mut</span>()[<span class="self">self</span>.<span class="ident">free_list_overflow_count</span>],
-                                      <span class="ident">val</span>.<span class="ident">mem</span>);
+        } <span class="kw">else </span>{
+            <span class="kw">for </span>_i <span class="kw">in </span><span class="number">0</span>..<span class="number">3 </span>{
+               <span class="self">self</span>.free_list_overflow_count += <span class="number">1</span>;
+               <span class="self">self</span>.free_list_overflow_count %= <span class="self">self</span>.system_resources.slice().len();
+               <span class="kw">if </span><span class="self">self</span>.system_resources.slice()[<span class="self">self</span>.free_list_overflow_count].len() &lt; val.mem.len() {
+                   <span class="kw">let _ </span>= core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.system_resources.slice_mut()[<span class="self">self</span>.free_list_overflow_count],
+                                      val.mem);
                    <span class="kw">return</span>;
                }
             }
@@ -199,4 +199,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="alloc_no_stdlib" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="alloc_no_stdlib" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

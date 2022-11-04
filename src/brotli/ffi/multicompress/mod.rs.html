@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/ffi/multicompress/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../brotli/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/ffi/multicompress/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../brotli/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -391,398 +391,398 @@
 <span id="391">391</span>
 <span id="392">392</span>
 <span id="393">393</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;safe&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">panic</span>,<span class="ident">thread</span>, <span class="ident">io</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::io::Write</span>;
-<span class="kw">mod</span> <span class="ident">test</span>;
-<span class="kw">use</span> <span class="ident">core</span>;
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
-<span class="kw">use</span> <span class="ident">brotli_decompressor</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::compressor</span>;
-<span class="kw">use</span> <span class="ident">::enc::encode</span>::{<span class="ident">BrotliEncoderCreateInstance</span>,
-                    <span class="ident">BrotliEncoderOperation</span>,
-                    <span class="ident">BrotliEncoderSetParameter</span>,
-                    <span class="ident">BrotliEncoderCompressStream</span>,
-                    <span class="ident">BrotliEncoderIsFinished</span>,
-                    <span class="ident">BrotliEncoderDestroyInstance</span>,
+</pre><pre class="rust"><code><span class="attribute">#![cfg(not(feature=<span class="string">&quot;safe&quot;</span>))]
+#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::{panic,thread, io};
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::io::Write;
+<span class="kw">mod </span>test;
+<span class="kw">use </span>core;
+<span class="attribute">#[allow(unused_imports)]
+</span><span class="kw">use </span>brotli_decompressor;
+<span class="kw">use </span><span class="kw">super</span>::compressor;
+<span class="kw">use </span>::enc::encode::{BrotliEncoderCreateInstance,
+                    BrotliEncoderOperation,
+                    BrotliEncoderSetParameter,
+                    BrotliEncoderCompressStream,
+                    BrotliEncoderIsFinished,
+                    BrotliEncoderDestroyInstance,
 };
-<span class="kw">use</span> <span class="ident">brotli_decompressor::ffi::alloc_util::SubclassableAllocator</span>;
-<span class="kw">use</span> <span class="ident">brotli_decompressor::ffi::interface</span>::{
-  <span class="ident">brotli_alloc_func</span>,
-  <span class="ident">brotli_free_func</span>,
-  <span class="ident">CAllocator</span>,
-  <span class="ident">c_void</span>,
+<span class="kw">use </span>brotli_decompressor::ffi::alloc_util::SubclassableAllocator;
+<span class="kw">use </span>brotli_decompressor::ffi::interface::{
+  brotli_alloc_func,
+  brotli_free_func,
+  CAllocator,
+  c_void,
 };
-<span class="kw">use</span> <span class="ident">brotli_decompressor::ffi</span>::{
-  <span class="ident">slice_from_raw_parts_or_nil</span>,
-  <span class="ident">slice_from_raw_parts_or_nil_mut</span>,
+<span class="kw">use </span>brotli_decompressor::ffi::{
+  slice_from_raw_parts_or_nil,
+  slice_from_raw_parts_or_nil_mut,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::alloc_util::BrotliSubclassableAllocator</span>;
-<span class="kw">use</span> <span class="ident">::enc</span>;
-<span class="kw">use</span> <span class="ident">::enc::backward_references</span>::{<span class="ident">BrotliEncoderParams</span>, <span class="ident">UnionHasher</span>};
-<span class="kw">use</span> <span class="ident">::enc::encode</span>::{<span class="ident">BrotliEncoderParameter</span>, <span class="ident">set_parameter</span>};
-<span class="kw">use</span> <span class="ident">::enc::threading</span>::{<span class="ident">SendAlloc</span>,<span class="ident">Owned</span>};
-<span class="kw">use</span> <span class="ident">alloc::SliceWrapper</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAX_THREADS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16</span>;
+<span class="kw">use </span><span class="kw">super</span>::alloc_util::BrotliSubclassableAllocator;
+<span class="kw">use </span>::enc;
+<span class="kw">use </span>::enc::backward_references::{BrotliEncoderParams, UnionHasher};
+<span class="kw">use </span>::enc::encode::{BrotliEncoderParameter, set_parameter};
+<span class="kw">use </span>::enc::threading::{SendAlloc,Owned};
+<span class="kw">use </span>alloc::SliceWrapper;
+<span class="kw">pub const </span>MAX_THREADS: usize = <span class="number">16</span>;
 
-<span class="kw">struct</span> <span class="ident">SliceRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]);
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SliceRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] { <span class="self">self</span>.<span class="number">0</span> }
+<span class="kw">struct </span>SliceRef&lt;<span class="lifetime">&#39;a</span>&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SliceWrapper&lt;u8&gt; <span class="kw">for </span>SliceRef&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] { <span class="self">self</span>.<span class="number">0 </span>}
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">make_send_alloc</span> {
-  (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">alloc_func</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">free_func</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">opaque</span>: <span class="ident">expr</span>) =&gt; (
-    <span class="ident">SendAlloc::new</span>(<span class="ident">BrotliSubclassableAllocator::new</span>(
-      <span class="ident">SubclassableAllocator::new</span>(
-        <span class="ident">CAllocator</span>{
-          <span class="ident">alloc_func</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">alloc_func</span>,
-          <span class="ident">free_func</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">free_func</span>,
-          <span class="ident">opaque</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">opaque</span>,
-        })), <span class="ident">UnionHasher::Uninit</span>)
+<span class="macro">macro_rules! </span>make_send_alloc {
+  (<span class="macro-nonterminal">$alloc_func</span>: expr, <span class="macro-nonterminal">$free_func</span>: expr, <span class="macro-nonterminal">$opaque</span>: expr) =&gt; (
+    SendAlloc::new(BrotliSubclassableAllocator::new(
+      SubclassableAllocator::new(
+        CAllocator{
+          alloc_func:<span class="macro-nonterminal">$alloc_func</span>,
+          free_func:<span class="macro-nonterminal">$free_func</span>,
+          opaque:<span class="macro-nonterminal">$opaque</span>,
+        })), UnionHasher::Uninit)
   )
 }
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderMaxCompressedSizeMulti</span>(<span class="ident">input_size</span>: <span class="ident">usize</span>, <span class="ident">num_threads</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-  <span class="ident">::enc::encode::BrotliEncoderMaxCompressedSizeMulti</span>(<span class="ident">input_size</span>, <span class="ident">num_threads</span>)
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub extern fn </span>BrotliEncoderMaxCompressedSizeMulti(input_size: usize, num_threads: usize) -&gt; usize {
+  ::enc::encode::BrotliEncoderMaxCompressedSizeMulti(input_size, num_threads)
 }
 
-<span class="kw">fn</span> <span class="ident">help_brotli_encoder_compress_single</span>(
-  <span class="ident">param_keys</span>: <span class="kw-2">&amp;</span>[<span class="ident">BrotliEncoderParameter</span>],
-  <span class="ident">param_values</span>: <span class="kw-2">&amp;</span>[<span class="ident">u32</span>],
-  <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-  <span class="ident">output</span>: <span class="kw-2">&amp;mut</span>[<span class="ident">u8</span>],
-  <span class="ident">encoded_size</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
-  <span class="ident">m8</span>: <span class="ident">BrotliSubclassableAllocator</span>,
-) -&gt; <span class="ident">i32</span> {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">BrotliEncoderCreateInstance</span>(<span class="ident">m8</span>);
-  <span class="kw">for</span> (<span class="ident">p</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">param_keys</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">param_values</span>.<span class="ident">iter</span>()) {
-    <span class="ident">BrotliEncoderSetParameter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">encoder</span>, <span class="kw-2">*</span><span class="ident">p</span>, <span class="kw-2">*</span><span class="ident">v</span>);
+<span class="kw">fn </span>help_brotli_encoder_compress_single(
+  param_keys: <span class="kw-2">&amp;</span>[BrotliEncoderParameter],
+  param_values: <span class="kw-2">&amp;</span>[u32],
+  input: <span class="kw-2">&amp;</span>[u8],
+  output: <span class="kw-2">&amp;mut</span>[u8],
+  encoded_size: <span class="kw-2">&amp;mut </span>usize,
+  m8: BrotliSubclassableAllocator,
+) -&gt; i32 {
+  <span class="kw">let </span><span class="kw-2">mut </span>encoder = BrotliEncoderCreateInstance(m8);
+  <span class="kw">for </span>(p, v) <span class="kw">in </span>param_keys.iter().zip(param_values.iter()) {
+    BrotliEncoderSetParameter(<span class="kw-2">&amp;mut </span>encoder, <span class="kw-2">*</span>p, <span class="kw-2">*</span>v);
   }
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_in</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>();
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_in_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_out</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">len</span>();
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_out_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_out</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">0usize</span>);
-  <span class="ident">result</span> <span class="op">=</span> <span class="ident">BrotliEncoderCompressStream</span>(<span class="kw-2">&amp;mut</span> <span class="ident">encoder</span>,
-                                       <span class="ident">BrotliEncoderOperation::BROTLI_OPERATION_FINISH</span>,
-                                       <span class="kw-2">&amp;mut</span> <span class="ident">available_in</span>,
-                                       <span class="ident">input</span>,
-                                       <span class="kw-2">&amp;mut</span> <span class="ident">next_in_offset</span>,  
-                                       <span class="kw-2">&amp;mut</span> <span class="ident">available_out</span>,
-                                       <span class="ident">output</span>,
-                                       <span class="kw-2">&amp;mut</span> <span class="ident">next_out_offset</span>,
-                                       <span class="kw-2">&amp;mut</span> <span class="ident">total_out</span>,
-                                       <span class="kw-2">&amp;mut</span> <span class="op">|</span><span class="ident">_a</span>,<span class="ident">_b</span>,<span class="ident">_c</span>,<span class="ident">_d</span><span class="op">|</span>());
-  <span class="kw">if</span> <span class="ident">BrotliEncoderIsFinished</span>(<span class="kw-2">&amp;</span><span class="ident">encoder</span>) <span class="op">==</span> <span class="number">0</span> {
-    <span class="ident">result</span> <span class="op">=</span> <span class="number">0i32</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>result;
+  <span class="kw">let </span><span class="kw-2">mut </span>available_in = input.len();
+  <span class="kw">let </span><span class="kw-2">mut </span>next_in_offset = <span class="number">0usize</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>available_out = output.len();
+  <span class="kw">let </span><span class="kw-2">mut </span>next_out_offset = <span class="number">0usize</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>total_out = <span class="prelude-val">Some</span>(<span class="number">0usize</span>);
+  result = BrotliEncoderCompressStream(<span class="kw-2">&amp;mut </span>encoder,
+                                       BrotliEncoderOperation::BROTLI_OPERATION_FINISH,
+                                       <span class="kw-2">&amp;mut </span>available_in,
+                                       input,
+                                       <span class="kw-2">&amp;mut </span>next_in_offset,  
+                                       <span class="kw-2">&amp;mut </span>available_out,
+                                       output,
+                                       <span class="kw-2">&amp;mut </span>next_out_offset,
+                                       <span class="kw-2">&amp;mut </span>total_out,
+                                       <span class="kw-2">&amp;mut </span>|_a,_b,_c,_d|());
+  <span class="kw">if </span>BrotliEncoderIsFinished(<span class="kw-2">&amp;</span>encoder) == <span class="number">0 </span>{
+    result = <span class="number">0i32</span>;
   }
-  <span class="kw-2">*</span><span class="ident">encoded_size</span> <span class="op">=</span> <span class="ident">total_out</span>.<span class="ident">unwrap</span>();
-  <span class="ident">BrotliEncoderDestroyInstance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">encoder</span>);
-  <span class="ident">result</span>
+  <span class="kw-2">*</span>encoded_size = total_out.unwrap();
+  BrotliEncoderDestroyInstance(<span class="kw-2">&amp;mut </span>encoder);
+  result
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderCompressMulti</span>(
-  <span class="ident">num_params</span>: <span class="ident">usize</span>,
-  <span class="ident">param_keys</span>: <span class="kw-2">*const</span> <span class="ident">BrotliEncoderParameter</span>,
-  <span class="ident">param_values</span>: <span class="kw-2">*const</span> <span class="ident">u32</span>,
-  <span class="ident">input_size</span>: <span class="ident">usize</span>,
-  <span class="ident">input</span>: <span class="kw-2">*const</span> <span class="ident">u8</span>,
-  <span class="ident">encoded_size</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-  <span class="ident">encoded</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>,
-  <span class="ident">desired_num_threads</span>: <span class="ident">usize</span>,
-  <span class="ident">alloc_func</span>: <span class="ident">brotli_alloc_func</span>,
-  <span class="ident">free_func</span>: <span class="ident">brotli_free_func</span>,
-  <span class="ident">alloc_opaque_per_thread</span>: <span class="kw-2">*mut</span><span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-) -&gt; <span class="ident">i32</span> {
-  <span class="kw">if</span> <span class="ident">desired_num_threads</span> <span class="op">==</span> <span class="number">0</span> {
-    <span class="kw">return</span> <span class="number">0</span>;
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliEncoderCompressMulti(
+  num_params: usize,
+  param_keys: <span class="kw-2">*const </span>BrotliEncoderParameter,
+  param_values: <span class="kw-2">*const </span>u32,
+  input_size: usize,
+  input: <span class="kw-2">*const </span>u8,
+  encoded_size: <span class="kw-2">*mut </span>usize,
+  encoded: <span class="kw-2">*mut </span>u8,
+  desired_num_threads: usize,
+  alloc_func: brotli_alloc_func,
+  free_func: brotli_free_func,
+  alloc_opaque_per_thread: <span class="kw-2">*mut*mut </span>c_void,
+) -&gt; i32 {
+  <span class="kw">if </span>desired_num_threads == <span class="number">0 </span>{
+    <span class="kw">return </span><span class="number">0</span>;
   }
-  <span class="kw">let</span> <span class="ident">num_threads</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">desired_num_threads</span>, <span class="ident">MAX_THREADS</span>);
-  <span class="kw">match</span> <span class="ident">compressor::catch_panic</span>(<span class="op">|</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="ident">param_keys_slice</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">param_keys</span>, <span class="ident">num_params</span>);
-    <span class="kw">let</span> <span class="ident">param_values_slice</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">param_values</span>, <span class="ident">num_params</span>);
-    <span class="kw">let</span> <span class="ident">input_slice</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">input</span>, <span class="ident">input_size</span>);
-    <span class="kw">let</span> <span class="ident">output_slice</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="ident">encoded</span>, <span class="kw-2">*</span><span class="ident">encoded_size</span>);
-    <span class="kw">if</span> <span class="ident">num_threads</span> <span class="op">==</span> <span class="number">1</span> {
-      <span class="kw">let</span> <span class="ident">allocators</span> <span class="op">=</span> <span class="ident">CAllocator</span> {
-        <span class="ident">alloc_func</span>:<span class="ident">alloc_func</span>,
-        <span class="ident">free_func</span>:<span class="ident">free_func</span>,
-        <span class="ident">opaque</span>:<span class="kw">if</span> <span class="ident">alloc_opaque_per_thread</span>.<span class="ident">is_null</span>() {<span class="ident">core::ptr::null_mut</span>()} <span class="kw">else</span> {<span class="kw-2">*</span><span class="ident">alloc_opaque_per_thread</span>},
+  <span class="kw">let </span>num_threads = core::cmp::min(desired_num_threads, MAX_THREADS);
+  <span class="kw">match </span>compressor::catch_panic(|| {
+    <span class="kw">let </span>param_keys_slice = slice_from_raw_parts_or_nil(param_keys, num_params);
+    <span class="kw">let </span>param_values_slice = slice_from_raw_parts_or_nil(param_values, num_params);
+    <span class="kw">let </span>input_slice = slice_from_raw_parts_or_nil(input, input_size);
+    <span class="kw">let </span>output_slice = slice_from_raw_parts_or_nil_mut(encoded, <span class="kw-2">*</span>encoded_size);
+    <span class="kw">if </span>num_threads == <span class="number">1 </span>{
+      <span class="kw">let </span>allocators = CAllocator {
+        alloc_func:alloc_func,
+        free_func:free_func,
+        opaque:<span class="kw">if </span>alloc_opaque_per_thread.is_null() {core::ptr::null_mut()} <span class="kw">else </span>{<span class="kw-2">*</span>alloc_opaque_per_thread},
       };
-      <span class="kw">let</span> <span class="ident">m8</span> <span class="op">=</span> <span class="ident">BrotliSubclassableAllocator::new</span>(
-        <span class="ident">SubclassableAllocator::new</span>(<span class="ident">allocators</span>.<span class="ident">clone</span>()));
-      <span class="kw">return</span> <span class="ident">help_brotli_encoder_compress_single</span>(
-        <span class="ident">param_keys_slice</span>,
-        <span class="ident">param_values_slice</span>,
-        <span class="ident">input_slice</span>,
-        <span class="ident">output_slice</span>,
-        <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">encoded_size</span>,
-        <span class="ident">m8</span>,
+      <span class="kw">let </span>m8 = BrotliSubclassableAllocator::new(
+        SubclassableAllocator::new(allocators.clone()));
+      <span class="kw">return </span>help_brotli_encoder_compress_single(
+        param_keys_slice,
+        param_values_slice,
+        input_slice,
+        output_slice,
+        <span class="kw-2">&amp;mut *</span>encoded_size,
+        m8,
       )
     }
-    <span class="kw">let</span> <span class="ident">null_opaques</span> <span class="op">=</span> [<span class="ident">core::ptr::null_mut</span>::<span class="op">&lt;</span><span class="ident">c_void</span><span class="op">&gt;</span>();<span class="ident">MAX_THREADS</span>];
-    <span class="kw">let</span> <span class="ident">alloc_opaque</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">alloc_opaque_per_thread</span>.<span class="ident">is_null</span>() {
-      <span class="kw-2">&amp;</span><span class="ident">null_opaques</span>[..]
-    } <span class="kw">else</span> {
-      <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">alloc_opaque_per_thread</span>, <span class="ident">desired_num_threads</span>)
+    <span class="kw">let </span>null_opaques = [core::ptr::null_mut::&lt;c_void&gt;();MAX_THREADS];
+    <span class="kw">let </span>alloc_opaque = <span class="kw">if </span>alloc_opaque_per_thread.is_null() {
+      <span class="kw-2">&amp;</span>null_opaques[..]
+    } <span class="kw">else </span>{
+      slice_from_raw_parts_or_nil(alloc_opaque_per_thread, desired_num_threads)
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">BrotliEncoderParams::default</span>();
-    <span class="kw">for</span> (<span class="ident">k</span>,<span class="ident">v</span>) <span class="kw">in</span> <span class="ident">param_keys_slice</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">param_values_slice</span>.<span class="ident">iter</span>()) {
-      <span class="kw">if</span> <span class="ident">set_parameter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>, <span class="kw-2">*</span><span class="ident">k</span>, <span class="kw-2">*</span><span class="ident">v</span>) <span class="op">==</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>params = BrotliEncoderParams::default();
+    <span class="kw">for </span>(k,v) <span class="kw">in </span>param_keys_slice.iter().zip(param_values_slice.iter()) {
+      <span class="kw">if </span>set_parameter(<span class="kw-2">&amp;mut </span>params, <span class="kw-2">*</span>k, <span class="kw-2">*</span>v) == <span class="number">0 </span>{
+        <span class="kw">return </span><span class="number">0</span>;
       }
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc_array</span>:[<span class="kw">_</span>;<span class="ident">MAX_THREADS</span>] <span class="op">=</span> [
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">0</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">1</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">2</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">3</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">4</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">5</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">6</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">7</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">8</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">9</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">10</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">11</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">12</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">13</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">14</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">15</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
+    <span class="kw">let </span><span class="kw-2">mut </span>alloc_array:[<span class="kw">_</span>;MAX_THREADS] = [
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">0</span>]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">1</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">2</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">3</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">4</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">5</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">6</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">7</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">8</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">9</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">10</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">11</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">12</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">13</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">14</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">15</span>%desired_num_threads]),
     ];
 
-    <span class="kw">let</span> <span class="ident">owned_input</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">Owned::new</span>(<span class="ident">SliceRef</span>(<span class="ident">input_slice</span>));
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">enc::compress_multi_no_threadpool</span>(
-      <span class="kw-2">&amp;</span><span class="ident">params</span>,
-      <span class="ident">owned_input</span>,
-      <span class="ident">output_slice</span>,
-      <span class="kw-2">&amp;mut</span> <span class="ident">alloc_array</span>[..<span class="ident">num_threads</span>],
+    <span class="kw">let </span>owned_input = <span class="kw-2">&amp;mut </span>Owned::new(SliceRef(input_slice));
+    <span class="kw">let </span>res = enc::compress_multi_no_threadpool(
+      <span class="kw-2">&amp;</span>params,
+      owned_input,
+      output_slice,
+      <span class="kw-2">&amp;mut </span>alloc_array[..num_threads],
     );
-    <span class="kw">match</span> <span class="ident">res</span> {
-      <span class="prelude-val">Ok</span>(<span class="ident">size</span>) =&gt; {
-        <span class="kw-2">*</span><span class="ident">encoded_size</span> <span class="op">=</span> <span class="ident">size</span>;
-        <span class="kw">return</span> <span class="number">1</span>;
+    <span class="kw">match </span>res {
+      <span class="prelude-val">Ok</span>(size) =&gt; {
+        <span class="kw-2">*</span>encoded_size = size;
+        <span class="kw">return </span><span class="number">1</span>;
       },
-      <span class="prelude-val">Err</span>(<span class="ident">_err</span>) =&gt; {
-        <span class="kw">return</span> <span class="number">0</span>;
+      <span class="prelude-val">Err</span>(_err) =&gt; {
+        <span class="kw">return </span><span class="number">0</span>;
       }
     }
   }) {
-    <span class="prelude-val">Ok</span>(<span class="ident">ret</span>) =&gt; <span class="kw">return</span> <span class="ident">ret</span>,
-    <span class="prelude-val">Err</span>(<span class="ident">panic_err</span>) =&gt; {
-      <span class="ident">error_print</span>(<span class="ident">panic_err</span>);
-      <span class="kw">return</span> <span class="number">0</span>;
+    <span class="prelude-val">Ok</span>(ret) =&gt; <span class="kw">return </span>ret,
+    <span class="prelude-val">Err</span>(panic_err) =&gt; {
+      error_print(panic_err);
+      <span class="kw">return </span><span class="number">0</span>;
     },
   }
 }
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrotliEncoderWorkPool</span> {
-  <span class="ident">custom_allocator</span>: <span class="ident">CAllocator</span>,
-  <span class="ident">work_pool</span>: <span class="ident">enc::WorkerPool</span><span class="op">&lt;</span><span class="ident">enc::CompressionThreadResult</span><span class="op">&lt;</span><span class="ident">BrotliSubclassableAllocator</span><span class="op">&gt;</span>,
-                             <span class="ident">UnionHasher</span><span class="op">&lt;</span><span class="ident">BrotliSubclassableAllocator</span><span class="op">&gt;</span>,
-                             <span class="ident">BrotliSubclassableAllocator</span>,
-                             (<span class="ident">SliceRef</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>, <span class="ident">BrotliEncoderParams</span>)<span class="op">&gt;</span>,
+<span class="attribute">#[repr(C)]
+</span><span class="kw">pub struct </span>BrotliEncoderWorkPool {
+  custom_allocator: CAllocator,
+  work_pool: enc::WorkerPool&lt;enc::CompressionThreadResult&lt;BrotliSubclassableAllocator&gt;,
+                             UnionHasher&lt;BrotliSubclassableAllocator&gt;,
+                             BrotliSubclassableAllocator,
+                             (SliceRef&lt;<span class="lifetime">&#39;static</span>&gt;, BrotliEncoderParams)&gt;,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">brotli_new_work_pool_without_custom_alloc</span>(<span class="ident">_to_box</span>: <span class="ident">BrotliEncoderWorkPool</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span>{
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">fn </span>brotli_new_work_pool_without_custom_alloc(_to_box: BrotliEncoderWorkPool) -&gt; <span class="kw-2">*mut </span>BrotliEncoderWorkPool{
     <span class="macro">panic!</span>(<span class="string">&quot;Must supply allocators if calling divans when compiled without features=std&quot;</span>);
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">brotli_new_work_pool_without_custom_alloc</span>(<span class="ident">to_box</span>: <span class="ident">BrotliEncoderWorkPool</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span>{
-    <span class="ident">brotli_decompressor::ffi::alloc_util::Box</span>::<span class="op">&lt;</span><span class="ident">BrotliEncoderWorkPool</span><span class="op">&gt;</span><span class="ident">::into_raw</span>(
-        <span class="ident">brotli_decompressor::ffi::alloc_util::Box</span>::<span class="op">&lt;</span><span class="ident">BrotliEncoderWorkPool</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">to_box</span>))
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">fn </span>brotli_new_work_pool_without_custom_alloc(to_box: BrotliEncoderWorkPool) -&gt; <span class="kw-2">*mut </span>BrotliEncoderWorkPool{
+    brotli_decompressor::ffi::alloc_util::Box::&lt;BrotliEncoderWorkPool&gt;::into_raw(
+        brotli_decompressor::ffi::alloc_util::Box::&lt;BrotliEncoderWorkPool&gt;::new(to_box))
 }
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderCreateWorkPool</span>(
-  <span class="ident">num_threads</span>: <span class="ident">usize</span>,
-  <span class="ident">alloc_func</span>: <span class="ident">brotli_alloc_func</span>,
-  <span class="ident">free_func</span>: <span class="ident">brotli_free_func</span>,
-  <span class="ident">opaque</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-) -&gt; <span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span> {
-  <span class="kw">match</span> <span class="ident">catch_panic_wstate</span>(<span class="op">|</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="ident">allocators</span> <span class="op">=</span> <span class="ident">CAllocator</span> {
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliEncoderCreateWorkPool(
+  num_threads: usize,
+  alloc_func: brotli_alloc_func,
+  free_func: brotli_free_func,
+  opaque: <span class="kw-2">*mut </span>c_void,
+) -&gt; <span class="kw-2">*mut </span>BrotliEncoderWorkPool {
+  <span class="kw">match </span>catch_panic_wstate(|| {
+    <span class="kw">let </span>allocators = CAllocator {
     
-      <span class="ident">alloc_func</span>:<span class="ident">alloc_func</span>,
-      <span class="ident">free_func</span>:<span class="ident">free_func</span>,
-      <span class="ident">opaque</span>:<span class="ident">opaque</span>,
+      alloc_func:alloc_func,
+      free_func:free_func,
+      opaque:opaque,
     };
-    <span class="kw">let</span> <span class="ident">to_box</span> <span class="op">=</span> <span class="ident">BrotliEncoderWorkPool</span> {
-      <span class="ident">custom_allocator</span>: <span class="ident">allocators</span>.<span class="ident">clone</span>(),
-      <span class="ident">work_pool</span>: <span class="ident">enc::new_work_pool</span>(<span class="ident">core::cmp::min</span>(<span class="ident">num_threads</span>, <span class="ident">MAX_THREADS</span>)),
+    <span class="kw">let </span>to_box = BrotliEncoderWorkPool {
+      custom_allocator: allocators.clone(),
+      work_pool: enc::new_work_pool(core::cmp::min(num_threads, MAX_THREADS)),
     };
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alloc</span>) <span class="op">=</span> <span class="ident">alloc_func</span> {
-      <span class="kw">if</span> <span class="ident">free_func</span>.<span class="ident">is_none</span>() {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(alloc) = alloc_func {
+      <span class="kw">if </span>free_func.is_none() {
         <span class="macro">panic!</span>(<span class="string">&quot;either both alloc and free must exist or neither&quot;</span>);
       }
-      <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">alloc</span>(<span class="ident">allocators</span>.<span class="ident">opaque</span>, <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">BrotliEncoderWorkPool</span><span class="op">&gt;</span>());
-      <span class="kw">let</span> <span class="ident">brotli_work_pool_ptr</span> <span class="op">=</span> <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
-      <span class="ident">core::ptr::write</span>(<span class="ident">brotli_work_pool_ptr</span>, <span class="ident">to_box</span>);
-      <span class="ident">brotli_work_pool_ptr</span>
-    } <span class="kw">else</span> {
-      <span class="ident">brotli_new_work_pool_without_custom_alloc</span>(<span class="ident">to_box</span>)
+      <span class="kw">let </span>ptr = alloc(allocators.opaque, core::mem::size_of::&lt;BrotliEncoderWorkPool&gt;());
+      <span class="kw">let </span>brotli_work_pool_ptr = core::mem::transmute::&lt;<span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>BrotliEncoderWorkPool&gt;(ptr);
+      core::ptr::write(brotli_work_pool_ptr, to_box);
+      brotli_work_pool_ptr
+    } <span class="kw">else </span>{
+      brotli_new_work_pool_without_custom_alloc(to_box)
     }
   }) {
-      <span class="prelude-val">Ok</span>(<span class="ident">ret</span>) =&gt; <span class="ident">ret</span>,
-      <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-          <span class="ident">error_print</span>(<span class="ident">err</span>);
-          <span class="ident">core::ptr::null_mut</span>()
+      <span class="prelude-val">Ok</span>(ret) =&gt; ret,
+      <span class="prelude-val">Err</span>(err) =&gt; {
+          error_print(err);
+          core::ptr::null_mut()
       }
   }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">free_work_pool_no_custom_alloc</span>(<span class="ident">_work_pool</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span>) {
-    <span class="kw">let</span> <span class="ident">_state</span> <span class="op">=</span> <span class="ident">brotli_decompressor::ffi::alloc_util::Box::from_raw</span>(<span class="ident">_work_pool</span>);
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">unsafe fn </span>free_work_pool_no_custom_alloc(_work_pool: <span class="kw-2">*mut </span>BrotliEncoderWorkPool) {
+    <span class="kw">let </span>_state = brotli_decompressor::ffi::alloc_util::Box::from_raw(_work_pool);
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">free_work_pool_no_custom_alloc</span>(<span class="ident">_work_pool</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span>) {
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">unsafe fn </span>free_work_pool_no_custom_alloc(_work_pool: <span class="kw-2">*mut </span>BrotliEncoderWorkPool) {
     <span class="macro">unreachable!</span>();
 }
-<span class="kw">struct</span> <span class="ident">UnsafeUnwindBox</span>(<span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]</span>
-<span class="kw">impl</span> <span class="ident">panic::RefUnwindSafe</span> <span class="kw">for</span> <span class="ident">UnsafeUnwindBox</span>{}
+<span class="kw">struct </span>UnsafeUnwindBox(<span class="kw-2">*mut </span>BrotliEncoderWorkPool);
+<span class="attribute">#[cfg(all(feature=<span class="string">&quot;std&quot;</span>, not(feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]
+</span><span class="kw">impl </span>panic::RefUnwindSafe <span class="kw">for </span>UnsafeUnwindBox{}
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderDestroyWorkPool</span>(<span class="ident">work_pool_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span>) {
-  <span class="kw">let</span> <span class="ident">wpp</span> <span class="op">=</span> <span class="ident">UnsafeUnwindBox</span>(<span class="ident">work_pool_ptr</span>);
-  <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">panic_err</span>) <span class="op">=</span> <span class="ident">compressor::catch_panic</span>(<span class="op">|</span><span class="op">|</span> {
-  <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">wpp</span>.<span class="number">0</span>).<span class="ident">custom_allocator</span>.<span class="ident">alloc_func</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">free_fn</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">wpp</span>.<span class="number">0</span>).<span class="ident">custom_allocator</span>.<span class="ident">free_func</span> {
-      <span class="kw">let</span> <span class="ident">_to_free</span> <span class="op">=</span> <span class="ident">core::ptr::read</span>(<span class="ident">wpp</span>.<span class="number">0</span>);
-      <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span>, <span class="kw-2">*mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>(<span class="ident">wpp</span>.<span class="number">0</span>);
-      <span class="ident">free_fn</span>((<span class="kw-2">*</span><span class="ident">wpp</span>.<span class="number">0</span>).<span class="ident">custom_allocator</span>.<span class="ident">opaque</span>, <span class="ident">ptr</span>);
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliEncoderDestroyWorkPool(work_pool_ptr: <span class="kw-2">*mut </span>BrotliEncoderWorkPool) {
+  <span class="kw">let </span>wpp = UnsafeUnwindBox(work_pool_ptr);
+  <span class="kw">if let </span><span class="prelude-val">Err</span>(panic_err) = compressor::catch_panic(|| {
+  <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = (<span class="kw-2">*</span>wpp.<span class="number">0</span>).custom_allocator.alloc_func {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(free_fn) = (<span class="kw-2">*</span>wpp.<span class="number">0</span>).custom_allocator.free_func {
+      <span class="kw">let </span>_to_free = core::ptr::read(wpp.<span class="number">0</span>);
+      <span class="kw">let </span>ptr = core::mem::transmute::&lt;<span class="kw-2">*mut </span>BrotliEncoderWorkPool, <span class="kw-2">*mut </span>c_void&gt;(wpp.<span class="number">0</span>);
+      free_fn((<span class="kw-2">*</span>wpp.<span class="number">0</span>).custom_allocator.opaque, ptr);
     }
-  } <span class="kw">else</span> {
-    <span class="ident">free_work_pool_no_custom_alloc</span>(<span class="ident">wpp</span>.<span class="number">0</span>);
+  } <span class="kw">else </span>{
+    free_work_pool_no_custom_alloc(wpp.<span class="number">0</span>);
   }
-  <span class="number">0</span>
-  }) {
-      <span class="ident">error_print</span>(<span class="ident">panic_err</span>);
+  <span class="number">0
+  </span>}) {
+      error_print(panic_err);
   }
 }
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliEncoderCompressWorkPool</span>(
-  <span class="ident">work_pool</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span>,
-  <span class="ident">num_params</span>: <span class="ident">usize</span>,
-  <span class="ident">param_keys</span>: <span class="kw-2">*const</span> <span class="ident">BrotliEncoderParameter</span>,
-  <span class="ident">param_values</span>: <span class="kw-2">*const</span> <span class="ident">u32</span>,
-  <span class="ident">input_size</span>: <span class="ident">usize</span>,
-  <span class="ident">input</span>: <span class="kw-2">*const</span> <span class="ident">u8</span>,
-  <span class="ident">encoded_size</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-  <span class="ident">encoded</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>,
-  <span class="ident">desired_num_threads</span>: <span class="ident">usize</span>,
-  <span class="ident">alloc_func</span>: <span class="ident">brotli_alloc_func</span>,
-  <span class="ident">free_func</span>: <span class="ident">brotli_free_func</span>,
-  <span class="ident">alloc_opaque_per_thread</span>: <span class="kw-2">*mut</span><span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-) -&gt; <span class="ident">i32</span> {
-  <span class="kw">if</span> <span class="ident">desired_num_threads</span> <span class="op">==</span> <span class="number">0</span> {
-    <span class="kw">return</span> <span class="number">0</span>;
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliEncoderCompressWorkPool(
+  work_pool: <span class="kw-2">*mut </span>BrotliEncoderWorkPool,
+  num_params: usize,
+  param_keys: <span class="kw-2">*const </span>BrotliEncoderParameter,
+  param_values: <span class="kw-2">*const </span>u32,
+  input_size: usize,
+  input: <span class="kw-2">*const </span>u8,
+  encoded_size: <span class="kw-2">*mut </span>usize,
+  encoded: <span class="kw-2">*mut </span>u8,
+  desired_num_threads: usize,
+  alloc_func: brotli_alloc_func,
+  free_func: brotli_free_func,
+  alloc_opaque_per_thread: <span class="kw-2">*mut*mut </span>c_void,
+) -&gt; i32 {
+  <span class="kw">if </span>desired_num_threads == <span class="number">0 </span>{
+    <span class="kw">return </span><span class="number">0</span>;
   }
-  <span class="kw">if</span> <span class="ident">work_pool</span>.<span class="ident">is_null</span>() {
-    <span class="kw">match</span> <span class="ident">compressor::catch_panic</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">BrotliEncoderCompressMulti</span>(
-      <span class="ident">num_params</span>,
-      <span class="ident">param_keys</span>,
-      <span class="ident">param_values</span>,
-      <span class="ident">input_size</span>,
-      <span class="ident">input</span>,
-      <span class="ident">encoded_size</span>,
-      <span class="ident">encoded</span>,
-      <span class="ident">desired_num_threads</span>,
-      <span class="ident">alloc_func</span>,
-      <span class="ident">free_func</span>,
-      <span class="ident">alloc_opaque_per_thread</span>)) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ret</span>) =&gt; <span class="kw">return</span> <span class="ident">ret</span>, <span class="comment">// no panic</span>
-        <span class="prelude-val">Err</span>(<span class="ident">panic_err</span>) =&gt; {
-          <span class="ident">error_print</span>(<span class="ident">panic_err</span>); <span class="comment">// print panic</span>
-          <span class="kw">return</span> <span class="number">0</span>; <span class="comment">// fail</span>
-      }
+  <span class="kw">if </span>work_pool.is_null() {
+    <span class="kw">match </span>compressor::catch_panic(|| BrotliEncoderCompressMulti(
+      num_params,
+      param_keys,
+      param_values,
+      input_size,
+      input,
+      encoded_size,
+      encoded,
+      desired_num_threads,
+      alloc_func,
+      free_func,
+      alloc_opaque_per_thread)) {
+        <span class="prelude-val">Ok</span>(ret) =&gt; <span class="kw">return </span>ret, <span class="comment">// no panic
+        </span><span class="prelude-val">Err</span>(panic_err) =&gt; {
+          error_print(panic_err); <span class="comment">// print panic
+          </span><span class="kw">return </span><span class="number">0</span>; <span class="comment">// fail
+      </span>}
     }
   }
-  <span class="kw">let</span> <span class="ident">work_pool_wrapper</span> <span class="op">=</span> <span class="ident">UnsafeUnwindBox</span>(<span class="ident">work_pool</span>);
-  <span class="kw">match</span> <span class="ident">compressor::catch_panic</span>(<span class="op">|</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="ident">null_opaques</span> <span class="op">=</span> [<span class="ident">core::ptr::null_mut</span>::<span class="op">&lt;</span><span class="ident">c_void</span><span class="op">&gt;</span>();<span class="ident">MAX_THREADS</span>];
-    <span class="kw">let</span> <span class="ident">alloc_opaque</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">alloc_opaque_per_thread</span>.<span class="ident">is_null</span>() {
-      <span class="kw-2">&amp;</span><span class="ident">null_opaques</span>[..]
-    } <span class="kw">else</span> {
-      <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">alloc_opaque_per_thread</span>, <span class="ident">desired_num_threads</span>)
+  <span class="kw">let </span>work_pool_wrapper = UnsafeUnwindBox(work_pool);
+  <span class="kw">match </span>compressor::catch_panic(|| {
+    <span class="kw">let </span>null_opaques = [core::ptr::null_mut::&lt;c_void&gt;();MAX_THREADS];
+    <span class="kw">let </span>alloc_opaque = <span class="kw">if </span>alloc_opaque_per_thread.is_null() {
+      <span class="kw-2">&amp;</span>null_opaques[..]
+    } <span class="kw">else </span>{
+      slice_from_raw_parts_or_nil(alloc_opaque_per_thread, desired_num_threads)
     };
-    <span class="kw">let</span> <span class="ident">param_keys_slice</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">param_keys</span>, <span class="ident">num_params</span>);
-    <span class="kw">let</span> <span class="ident">param_values_slice</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">param_values</span>, <span class="ident">num_params</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">BrotliEncoderParams::default</span>();
-    <span class="kw">for</span> (<span class="ident">k</span>,<span class="ident">v</span>) <span class="kw">in</span> <span class="ident">param_keys_slice</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">param_values_slice</span>.<span class="ident">iter</span>()) {
-      <span class="kw">if</span> <span class="ident">set_parameter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>, <span class="kw-2">*</span><span class="ident">k</span>, <span class="kw-2">*</span><span class="ident">v</span>) <span class="op">==</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="number">0</span>;
+    <span class="kw">let </span>param_keys_slice = slice_from_raw_parts_or_nil(param_keys, num_params);
+    <span class="kw">let </span>param_values_slice = slice_from_raw_parts_or_nil(param_values, num_params);
+    <span class="kw">let </span><span class="kw-2">mut </span>params = BrotliEncoderParams::default();
+    <span class="kw">for </span>(k,v) <span class="kw">in </span>param_keys_slice.iter().zip(param_values_slice.iter()) {
+      <span class="kw">if </span>set_parameter(<span class="kw-2">&amp;mut </span>params, <span class="kw-2">*</span>k, <span class="kw-2">*</span>v) == <span class="number">0 </span>{
+        <span class="kw">return </span><span class="number">0</span>;
       }
     }
-    <span class="kw">let</span> <span class="ident">num_threads</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">desired_num_threads</span>, <span class="ident">MAX_THREADS</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc_array</span>:[<span class="kw">_</span>;<span class="ident">MAX_THREADS</span>] <span class="op">=</span> [
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">0</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">1</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">2</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">3</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">4</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">5</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">6</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">7</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">8</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">9</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">10</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">11</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">12</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">13</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">14</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
-      <span class="macro">make_send_alloc!</span>(<span class="ident">alloc_func</span>, <span class="ident">free_func</span>, <span class="ident">alloc_opaque</span>[<span class="number">15</span><span class="op">%</span><span class="ident">desired_num_threads</span>]),
+    <span class="kw">let </span>num_threads = core::cmp::min(desired_num_threads, MAX_THREADS);
+    <span class="kw">let </span><span class="kw-2">mut </span>alloc_array:[<span class="kw">_</span>;MAX_THREADS] = [
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">0</span>]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">1</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">2</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">3</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">4</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">5</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">6</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">7</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">8</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">9</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">10</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">11</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">12</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">13</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">14</span>%desired_num_threads]),
+      <span class="macro">make_send_alloc!</span>(alloc_func, free_func, alloc_opaque[<span class="number">15</span>%desired_num_threads]),
     ];
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">enc::compress_worker_pool</span>(
-      <span class="kw-2">&amp;</span><span class="ident">params</span>,
-      <span class="kw-2">&amp;mut</span> <span class="ident">Owned::new</span>(<span class="ident">SliceRef</span>(<span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">input</span>, <span class="ident">input_size</span>))),
-      <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="ident">encoded</span>, <span class="kw-2">*</span><span class="ident">encoded_size</span>),
-      <span class="kw-2">&amp;mut</span> <span class="ident">alloc_array</span>[..<span class="ident">num_threads</span>],
-      <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">work_pool_wrapper</span>.<span class="number">0</span>).<span class="ident">work_pool</span>,
+    <span class="kw">let </span>res = enc::compress_worker_pool(
+      <span class="kw-2">&amp;</span>params,
+      <span class="kw-2">&amp;mut </span>Owned::new(SliceRef(slice_from_raw_parts_or_nil(input, input_size))),
+      slice_from_raw_parts_or_nil_mut(encoded, <span class="kw-2">*</span>encoded_size),
+      <span class="kw-2">&amp;mut </span>alloc_array[..num_threads],
+      <span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span>work_pool_wrapper.<span class="number">0</span>).work_pool,
     );
-    <span class="kw">match</span> <span class="ident">res</span> {
-      <span class="prelude-val">Ok</span>(<span class="ident">size</span>) =&gt; {
-        <span class="kw-2">*</span><span class="ident">encoded_size</span> <span class="op">=</span> <span class="ident">size</span>;
-        <span class="kw">return</span> <span class="number">1</span>;
+    <span class="kw">match </span>res {
+      <span class="prelude-val">Ok</span>(size) =&gt; {
+        <span class="kw-2">*</span>encoded_size = size;
+        <span class="kw">return </span><span class="number">1</span>;
       },
-      <span class="prelude-val">Err</span>(<span class="ident">_err</span>) =&gt; {
-        <span class="kw">return</span> <span class="number">0</span>;
+      <span class="prelude-val">Err</span>(_err) =&gt; {
+        <span class="kw">return </span><span class="number">0</span>;
       },
     }
   }) {
-    <span class="prelude-val">Ok</span>(<span class="ident">ret</span>) =&gt; <span class="ident">ret</span>, <span class="comment">// no panic</span>
-    <span class="prelude-val">Err</span>(<span class="ident">panic_err</span>) =&gt; {
-      <span class="ident">error_print</span>(<span class="ident">panic_err</span>); <span class="comment">// print panic</span>
-      <span class="number">0</span> <span class="comment">// fail</span>
-    },
+    <span class="prelude-val">Ok</span>(ret) =&gt; ret, <span class="comment">// no panic
+    </span><span class="prelude-val">Err</span>(panic_err) =&gt; {
+      error_print(panic_err); <span class="comment">// print panic
+      </span><span class="number">0 </span><span class="comment">// fail
+    </span>},
   }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]</span>
-<span class="kw">fn</span> <span class="ident">catch_panic_wstate</span><span class="op">&lt;</span><span class="ident">F</span>:<span class="ident">FnOnce</span>()-&gt;<span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span><span class="op">+</span><span class="ident">panic::UnwindSafe</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">thread::Result</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span><span class="op">&gt;</span> {
-    <span class="ident">panic::catch_unwind</span>(<span class="ident">f</span>)
+<span class="attribute">#[cfg(all(feature=<span class="string">&quot;std&quot;</span>, not(feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]
+</span><span class="kw">fn </span>catch_panic_wstate&lt;F:FnOnce()-&gt;<span class="kw-2">*mut </span>BrotliEncoderWorkPool+panic::UnwindSafe&gt;(f: F) -&gt; thread::Result&lt;<span class="kw-2">*mut </span>BrotliEncoderWorkPool&gt; {
+    panic::catch_unwind(f)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]</span>
-<span class="kw">fn</span> <span class="ident">error_print</span><span class="op">&lt;</span><span class="prelude-val">Err</span>:<span class="ident">core::fmt::Debug</span><span class="op">&gt;</span>(<span class="ident">err</span>: <span class="prelude-val">Err</span>) {
-    <span class="kw">let</span> <span class="ident">_ign</span> <span class="op">=</span> <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">io::stderr</span>(), <span class="string">&quot;Internal Error {:?}&quot;</span>, <span class="ident">err</span>);
+<span class="attribute">#[cfg(all(feature=<span class="string">&quot;std&quot;</span>, not(feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]
+</span><span class="kw">fn </span>error_print&lt;<span class="prelude-val">Err</span>:core::fmt::Debug&gt;(err: <span class="prelude-val">Err</span>) {
+    <span class="kw">let </span>_ign = <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut </span>io::stderr(), <span class="string">&quot;Internal Error {:?}&quot;</span>, err);
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>), <span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">catch_panic_wstate</span><span class="op">&lt;</span><span class="ident">F</span>:<span class="ident">FnOnce</span>()-&gt;<span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">BrotliEncoderWorkPool</span>, ()<span class="op">&gt;</span> {
-    <span class="prelude-val">Ok</span>(<span class="ident">f</span>())
+<span class="attribute">#[cfg(any(not(feature=<span class="string">&quot;std&quot;</span>), feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>))]
+</span><span class="kw">fn </span>catch_panic_wstate&lt;F:FnOnce()-&gt;<span class="kw-2">*mut </span>BrotliEncoderWorkPool&gt;(f: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">*mut </span>BrotliEncoderWorkPool, ()&gt; {
+    <span class="prelude-val">Ok</span>(f())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>), <span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">error_print</span><span class="op">&lt;</span><span class="prelude-val">Err</span><span class="op">&gt;</span>(<span class="ident">_err</span>: <span class="prelude-val">Err</span>) {
+<span class="attribute">#[cfg(any(not(feature=<span class="string">&quot;std&quot;</span>), feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>))]
+</span><span class="kw">fn </span>error_print&lt;<span class="prelude-val">Err</span>&gt;(_err: <span class="prelude-val">Err</span>) {
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

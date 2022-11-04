@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -780,677 +780,677 @@
 <span id="778">778</span>
 <span id="779">779</span>
 <span id="780">780</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Provides a strongly typed way to build emails</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Usage</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This section demonstrates how to build messages.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;style&gt;</span>
-<span class="doccomment">//! summary, details:not([open]) { cursor: pointer; }</span>
-<span class="doccomment">//! &lt;/style&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Plain body</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The easiest way of creating a message, which uses a plain text body.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use lettre::message::Message;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # use std::error::Error;</span>
-<span class="doccomment">//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">//! let m = Message::builder()</span>
-<span class="doccomment">//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .subject(&quot;Happy new year&quot;)</span>
-<span class="doccomment">//!     .body(String::from(&quot;Be happy!&quot;))?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Which produces:</span>
-<span class="doccomment">//! &lt;details&gt;</span>
-<span class="doccomment">//! &lt;summary&gt;Click to expand&lt;/summary&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```sh</span>
-<span class="doccomment">//! From: NoBody &lt;nobody@domain.tld&gt;</span>
-<span class="doccomment">//! Reply-To: Yuin &lt;yuin@domain.tld&gt;</span>
-<span class="doccomment">//! To: Hei &lt;hei@domain.tld&gt;</span>
-<span class="doccomment">//! Subject: Happy new year</span>
-<span class="doccomment">//! Date: Sat, 12 Dec 2020 16:33:19 GMT</span>
-<span class="doccomment">//! Content-Transfer-Encoding: 7bit</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Be happy!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! &lt;/details&gt;</span>
-<span class="doccomment">//! &lt;br /&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The unicode header data is encoded using _UTF8-Base64_ encoding, when necessary.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The `Content-Transfer-Encoding` is chosen based on the best encoding</span>
-<span class="doccomment">//! available for the given body, between `7bit`, `quoted-printable` and `base64`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Plain and HTML body</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Uses a MIME body to include both plain text and HTML versions of the body.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! # use std::error::Error;</span>
-<span class="doccomment">//! use lettre::message::{header, Message, MultiPart, SinglePart};</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">//! let m = Message::builder()</span>
-<span class="doccomment">//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .subject(&quot;Happy new year&quot;)</span>
-<span class="doccomment">//!     .multipart(MultiPart::alternative_plain_html(</span>
-<span class="doccomment">//!         String::from(&quot;Hello, world! :)&quot;),</span>
-<span class="doccomment">//!         String::from(&quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=\&quot;cid:123\&quot;&gt;&lt;/p&gt;&quot;),</span>
-<span class="doccomment">//!     ))?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Which produces:</span>
-<span class="doccomment">//! &lt;details&gt;</span>
-<span class="doccomment">//! &lt;summary&gt;Click to expand&lt;/summary&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```sh</span>
-<span class="doccomment">//! From: NoBody &lt;nobody@domain.tld&gt;</span>
-<span class="doccomment">//! Reply-To: Yuin &lt;yuin@domain.tld&gt;</span>
-<span class="doccomment">//! To: Hei &lt;hei@domain.tld&gt;</span>
-<span class="doccomment">//! Subject: Happy new year</span>
-<span class="doccomment">//! MIME-Version: 1.0</span>
-<span class="doccomment">//! Date: Sat, 12 Dec 2020 16:33:19 GMT</span>
-<span class="doccomment">//! Content-Type: multipart/alternative; boundary=&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1</span>
-<span class="doccomment">//! Content-Type: text/plain; charset=utf8</span>
-<span class="doccomment">//! Content-Transfer-Encoding: 7bit</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Hello, world! :)</span>
-<span class="doccomment">//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1</span>
-<span class="doccomment">//! Content-Type: text/html; charset=utf8</span>
-<span class="doccomment">//! Content-Transfer-Encoding: 7bit</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=&quot;cid:123&quot;&gt;&lt;/p&gt;</span>
-<span class="doccomment">//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! &lt;/details&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Complex MIME body</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This example shows how to include both plain and HTML versions of the body,</span>
-<span class="doccomment">//! attachments and inlined images.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! # use std::error::Error;</span>
-<span class="doccomment">//! use std::fs;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! use lettre::message::{header, Attachment, Body, Message, MultiPart, SinglePart};</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">//! let image = fs::read(&quot;docs/lettre.png&quot;)?;</span>
-<span class="doccomment">//! // this image_body can be cloned and reused between emails.</span>
-<span class="doccomment">//! // since `Body` holds a pre-encoded body, reusing it means avoiding having</span>
-<span class="doccomment">//! // to re-encode the same body for every email (this clearly only applies</span>
-<span class="doccomment">//! // when sending multiple emails with the same attachment).</span>
-<span class="doccomment">//! let image_body = Body::new(image);</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let m = Message::builder()</span>
-<span class="doccomment">//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .subject(&quot;Happy new year&quot;)</span>
-<span class="doccomment">//!     .multipart(</span>
-<span class="doccomment">//!         MultiPart::mixed()</span>
-<span class="doccomment">//!             .multipart(</span>
-<span class="doccomment">//!                 MultiPart::alternative()</span>
-<span class="doccomment">//!                     .singlepart(SinglePart::plain(String::from(&quot;Hello, world! :)&quot;)))</span>
-<span class="doccomment">//!                     .multipart(</span>
-<span class="doccomment">//!                         MultiPart::related()</span>
-<span class="doccomment">//!                             .singlepart(SinglePart::html(String::from(</span>
-<span class="doccomment">//!                                 &quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;&quot;,</span>
-<span class="doccomment">//!                             )))</span>
-<span class="doccomment">//!                             .singlepart(</span>
-<span class="doccomment">//!                                 Attachment::new_inline(String::from(&quot;123&quot;))</span>
-<span class="doccomment">//!                                     .body(image_body, &quot;image/png&quot;.parse().unwrap()),</span>
-<span class="doccomment">//!                             ),</span>
-<span class="doccomment">//!                     ),</span>
-<span class="doccomment">//!             )</span>
-<span class="doccomment">//!             .singlepart(Attachment::new(String::from(&quot;example.rs&quot;)).body(</span>
-<span class="doccomment">//!                 String::from(&quot;fn main() { println!(\&quot;Hello, World!\&quot;) }&quot;),</span>
-<span class="doccomment">//!                 &quot;text/plain&quot;.parse().unwrap(),</span>
-<span class="doccomment">//!             )),</span>
-<span class="doccomment">//!     )?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Which produces:</span>
-<span class="doccomment">//! &lt;details&gt;</span>
-<span class="doccomment">//! &lt;summary&gt;Click to expand&lt;/summary&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```sh</span>
-<span class="doccomment">//! From: NoBody &lt;nobody@domain.tld&gt;</span>
-<span class="doccomment">//! Reply-To: Yuin &lt;yuin@domain.tld&gt;</span>
-<span class="doccomment">//! To: Hei &lt;hei@domain.tld&gt;</span>
-<span class="doccomment">//! Subject: Happy new year</span>
-<span class="doccomment">//! MIME-Version: 1.0</span>
-<span class="doccomment">//! Date: Sat, 12 Dec 2020 16:30:45 GMT</span>
-<span class="doccomment">//! Content-Type: multipart/mixed; boundary=&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1</span>
-<span class="doccomment">//! Content-Type: multipart/alternative; boundary=&quot;EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk&quot;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! --EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk</span>
-<span class="doccomment">//! Content-Type: text/plain; charset=utf8</span>
-<span class="doccomment">//! Content-Transfer-Encoding: 7bit</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Hello, world! :)</span>
-<span class="doccomment">//! --EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk</span>
-<span class="doccomment">//! Content-Type: multipart/related; boundary=&quot;eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr&quot;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! --eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr</span>
-<span class="doccomment">//! Content-Type: text/html; charset=utf8</span>
-<span class="doccomment">//! Content-Transfer-Encoding: 7bit</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;</span>
-<span class="doccomment">//! --eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr</span>
-<span class="doccomment">//! Content-Type: image/png</span>
-<span class="doccomment">//! Content-Disposition: inline</span>
-<span class="doccomment">//! Content-ID: &lt;123&gt;</span>
-<span class="doccomment">//! Content-Transfer-Encoding: base64</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! PHNtaWxlLXJhdy1pbWFnZS1kYXRhPg==</span>
-<span class="doccomment">//! --eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr--</span>
-<span class="doccomment">//! --EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk--</span>
-<span class="doccomment">//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1</span>
-<span class="doccomment">//! Content-Type: text/plain; charset=utf8</span>
-<span class="doccomment">//! Content-Disposition: attachment; filename=&quot;example.rs&quot;</span>
-<span class="doccomment">//! Content-Transfer-Encoding: 7bit</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! fn main() { println!(&quot;Hello, World!&quot;) }</span>
-<span class="doccomment">//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! &lt;/details&gt;</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Provides a strongly typed way to build emails
+//!
+//! ## Usage
+//!
+//! This section demonstrates how to build messages.
+//!
+//! &lt;style&gt;
+//! summary, details:not([open]) { cursor: pointer; }
+//! &lt;/style&gt;
+//!
+//!
+//! ### Plain body
+//!
+//! The easiest way of creating a message, which uses a plain text body.
+//!
+//! ```rust
+//! use lettre::message::Message;
+//!
+//! # use std::error::Error;
+//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+//! let m = Message::builder()
+//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
+//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
+//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
+//!     .subject(&quot;Happy new year&quot;)
+//!     .body(String::from(&quot;Be happy!&quot;))?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! Which produces:
+//! &lt;details&gt;
+//! &lt;summary&gt;Click to expand&lt;/summary&gt;
+//!
+//! ```sh
+//! From: NoBody &lt;nobody@domain.tld&gt;
+//! Reply-To: Yuin &lt;yuin@domain.tld&gt;
+//! To: Hei &lt;hei@domain.tld&gt;
+//! Subject: Happy new year
+//! Date: Sat, 12 Dec 2020 16:33:19 GMT
+//! Content-Transfer-Encoding: 7bit
+//!
+//! Be happy!
+//! ```
+//! &lt;/details&gt;
+//! &lt;br /&gt;
+//!
+//! The unicode header data is encoded using _UTF8-Base64_ encoding, when necessary.
+//!
+//! The `Content-Transfer-Encoding` is chosen based on the best encoding
+//! available for the given body, between `7bit`, `quoted-printable` and `base64`.
+//!
+//! ### Plain and HTML body
+//!
+//! Uses a MIME body to include both plain text and HTML versions of the body.
+//!
+//! ```rust
+//! # use std::error::Error;
+//! use lettre::message::{header, Message, MultiPart, SinglePart};
+//!
+//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+//! let m = Message::builder()
+//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
+//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
+//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
+//!     .subject(&quot;Happy new year&quot;)
+//!     .multipart(MultiPart::alternative_plain_html(
+//!         String::from(&quot;Hello, world! :)&quot;),
+//!         String::from(&quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=\&quot;cid:123\&quot;&gt;&lt;/p&gt;&quot;),
+//!     ))?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! Which produces:
+//! &lt;details&gt;
+//! &lt;summary&gt;Click to expand&lt;/summary&gt;
+//!
+//! ```sh
+//! From: NoBody &lt;nobody@domain.tld&gt;
+//! Reply-To: Yuin &lt;yuin@domain.tld&gt;
+//! To: Hei &lt;hei@domain.tld&gt;
+//! Subject: Happy new year
+//! MIME-Version: 1.0
+//! Date: Sat, 12 Dec 2020 16:33:19 GMT
+//! Content-Type: multipart/alternative; boundary=&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;
+//!
+//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
+//! Content-Type: text/plain; charset=utf8
+//! Content-Transfer-Encoding: 7bit
+//!
+//! Hello, world! :)
+//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
+//! Content-Type: text/html; charset=utf8
+//! Content-Transfer-Encoding: 7bit
+//!
+//! &lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=&quot;cid:123&quot;&gt;&lt;/p&gt;
+//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--
+//! ```
+//! &lt;/details&gt;
+//!
+//! ### Complex MIME body
+//!
+//! This example shows how to include both plain and HTML versions of the body,
+//! attachments and inlined images.
+//!
+//! ```rust
+//! # use std::error::Error;
+//! use std::fs;
+//!
+//! use lettre::message::{header, Attachment, Body, Message, MultiPart, SinglePart};
+//!
+//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+//! let image = fs::read(&quot;docs/lettre.png&quot;)?;
+//! // this image_body can be cloned and reused between emails.
+//! // since `Body` holds a pre-encoded body, reusing it means avoiding having
+//! // to re-encode the same body for every email (this clearly only applies
+//! // when sending multiple emails with the same attachment).
+//! let image_body = Body::new(image);
+//!
+//! let m = Message::builder()
+//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
+//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
+//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
+//!     .subject(&quot;Happy new year&quot;)
+//!     .multipart(
+//!         MultiPart::mixed()
+//!             .multipart(
+//!                 MultiPart::alternative()
+//!                     .singlepart(SinglePart::plain(String::from(&quot;Hello, world! :)&quot;)))
+//!                     .multipart(
+//!                         MultiPart::related()
+//!                             .singlepart(SinglePart::html(String::from(
+//!                                 &quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;&quot;,
+//!                             )))
+//!                             .singlepart(
+//!                                 Attachment::new_inline(String::from(&quot;123&quot;))
+//!                                     .body(image_body, &quot;image/png&quot;.parse().unwrap()),
+//!                             ),
+//!                     ),
+//!             )
+//!             .singlepart(Attachment::new(String::from(&quot;example.rs&quot;)).body(
+//!                 String::from(&quot;fn main() { println!(\&quot;Hello, World!\&quot;) }&quot;),
+//!                 &quot;text/plain&quot;.parse().unwrap(),
+//!             )),
+//!     )?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! Which produces:
+//! &lt;details&gt;
+//! &lt;summary&gt;Click to expand&lt;/summary&gt;
+//!
+//! ```sh
+//! From: NoBody &lt;nobody@domain.tld&gt;
+//! Reply-To: Yuin &lt;yuin@domain.tld&gt;
+//! To: Hei &lt;hei@domain.tld&gt;
+//! Subject: Happy new year
+//! MIME-Version: 1.0
+//! Date: Sat, 12 Dec 2020 16:30:45 GMT
+//! Content-Type: multipart/mixed; boundary=&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;
+//!
+//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
+//! Content-Type: multipart/alternative; boundary=&quot;EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk&quot;
+//!
+//! --EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk
+//! Content-Type: text/plain; charset=utf8
+//! Content-Transfer-Encoding: 7bit
+//!
+//! Hello, world! :)
+//! --EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk
+//! Content-Type: multipart/related; boundary=&quot;eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr&quot;
+//!
+//! --eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr
+//! Content-Type: text/html; charset=utf8
+//! Content-Transfer-Encoding: 7bit
+//!
+//! &lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;
+//! --eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr
+//! Content-Type: image/png
+//! Content-Disposition: inline
+//! Content-ID: &lt;123&gt;
+//! Content-Transfer-Encoding: base64
+//!
+//! PHNtaWxlLXJhdy1pbWFnZS1kYXRhPg==
+//! --eM5Z18WZVOQsqi5GQ71XGAXk6NNvHUA1Xv1FWrXr--
+//! --EyXdAZIgZuyUjAounq4Aj44a6MpJfqCKhm6pE1zk--
+//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1
+//! Content-Type: text/plain; charset=utf8
+//! Content-Disposition: attachment; filename=&quot;example.rs&quot;
+//! Content-Transfer-Encoding: 7bit
+//!
+//! fn main() { println!(&quot;Hello, World!&quot;) }
+//! --0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--
+//! ```
+//! &lt;/details&gt;
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io::Write</span>, <span class="ident">iter</span>, <span class="ident">time::SystemTime</span>};
+</span><span class="kw">use </span>std::{io::Write, iter, time::SystemTime};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">attachment::Attachment</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">body</span>::{<span class="ident">Body</span>, <span class="ident">IntoBody</span>, <span class="ident">MaybeString</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dkim&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">dkim</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mailbox</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mimebody</span>::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>attachment::Attachment;
+<span class="kw">pub use </span>body::{Body, IntoBody, MaybeString};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+</span><span class="kw">pub use </span>dkim::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>mailbox::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>mimebody::<span class="kw-2">*</span>;
 
-<span class="kw">mod</span> <span class="ident">attachment</span>;
-<span class="kw">mod</span> <span class="ident">body</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dkim&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dkim</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">header</span>;
-<span class="kw">mod</span> <span class="ident">mailbox</span>;
-<span class="kw">mod</span> <span class="ident">mimebody</span>;
+<span class="kw">mod </span>attachment;
+<span class="kw">mod </span>body;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+</span><span class="kw">pub mod </span>dkim;
+<span class="kw">pub mod </span>header;
+<span class="kw">mod </span>mailbox;
+<span class="kw">mod </span>mimebody;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">address::Envelope</span>,
-    <span class="ident">message::header</span>::{<span class="ident">ContentTransferEncoding</span>, <span class="ident">Header</span>, <span class="ident">Headers</span>, <span class="ident">MailboxesHeader</span>},
-    <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">EmailError</span>,
+<span class="kw">use crate</span>::{
+    address::Envelope,
+    message::header::{ContentTransferEncoding, Header, Headers, MailboxesHeader},
+    Error <span class="kw">as </span>EmailError,
 };
 
-<span class="kw">const</span> <span class="ident">DEFAULT_MESSAGE_ID_DOMAIN</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;localhost&quot;</span>;
+<span class="kw">const </span>DEFAULT_MESSAGE_ID_DOMAIN: <span class="kw-2">&amp;</span>str = <span class="string">&quot;localhost&quot;</span>;
 
-<span class="doccomment">/// Something that can be formatted as an email message</span>
-<span class="kw">trait</span> <span class="ident">EmailFormat</span> {
-    <span class="comment">// Use a writer?</span>
-    <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Something that can be formatted as an email message
+</span><span class="kw">trait </span>EmailFormat {
+    <span class="comment">// Use a writer?
+    </span><span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;);
 }
 
-<span class="doccomment">/// A builder for messages</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageBuilder</span> {
-    <span class="ident">headers</span>: <span class="ident">Headers</span>,
-    <span class="ident">envelope</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Envelope</span><span class="op">&gt;</span>,
-    <span class="ident">drop_bcc</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// A builder for messages
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>MessageBuilder {
+    headers: Headers,
+    envelope: <span class="prelude-ty">Option</span>&lt;Envelope&gt;,
+    drop_bcc: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">MessageBuilder</span> {
-    <span class="doccomment">/// Creates a new default message builder</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">headers</span>: <span class="ident">Headers::new</span>(),
-            <span class="ident">envelope</span>: <span class="prelude-val">None</span>,
-            <span class="ident">drop_bcc</span>: <span class="bool-val">true</span>,
+<span class="kw">impl </span>MessageBuilder {
+    <span class="doccomment">/// Creates a new default message builder
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            headers: Headers::new(),
+            envelope: <span class="prelude-val">None</span>,
+            drop_bcc: <span class="bool-val">true</span>,
         }
     }
 
-    <span class="doccomment">/// Set or add mailbox to `From` header</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.mailbox(header::From(mbox))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">mailbox</span>(<span class="ident">header::From::from</span>(<span class="ident">Mailboxes::from</span>(<span class="ident">mbox</span>)))
+    <span class="doccomment">/// Set or add mailbox to `From` header
+    ///
+    /// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).
+    ///
+    /// Shortcut for `self.mailbox(header::From(mbox))`.
+    </span><span class="kw">pub fn </span>from(<span class="self">self</span>, mbox: Mailbox) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.mailbox(header::From::from(Mailboxes::from(mbox)))
     }
 
-    <span class="doccomment">/// Set `Sender` header. Should be used when providing several `From` mailboxes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.header(header::Sender(mbox))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sender</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::Sender::from</span>(<span class="ident">mbox</span>))
+    <span class="doccomment">/// Set `Sender` header. Should be used when providing several `From` mailboxes.
+    ///
+    /// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).
+    ///
+    /// Shortcut for `self.header(header::Sender(mbox))`.
+    </span><span class="kw">pub fn </span>sender(<span class="self">self</span>, mbox: Mailbox) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.header(header::Sender::from(mbox))
     }
 
-    <span class="doccomment">/// Add `Date` header to message</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.header(header::Date::new(st))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">date</span>(<span class="self">self</span>, <span class="ident">st</span>: <span class="ident">SystemTime</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::Date::new</span>(<span class="ident">st</span>))
+    <span class="doccomment">/// Add `Date` header to message
+    ///
+    /// Shortcut for `self.header(header::Date::new(st))`.
+    </span><span class="kw">pub fn </span>date(<span class="self">self</span>, st: SystemTime) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.header(header::Date::new(st))
     }
 
-    <span class="doccomment">/// Set `Date` header using current date/time</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.date(SystemTime::now())`, it is automatically inserted</span>
-    <span class="doccomment">/// if no date has been provided.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">date_now</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">date</span>(<span class="ident">SystemTime::now</span>())
+    <span class="doccomment">/// Set `Date` header using current date/time
+    ///
+    /// Shortcut for `self.date(SystemTime::now())`, it is automatically inserted
+    /// if no date has been provided.
+    </span><span class="kw">pub fn </span>date_now(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.date(SystemTime::now())
     }
 
-    <span class="doccomment">/// Set or add mailbox to `ReplyTo` header</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.mailbox(header::ReplyTo(mbox))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reply_to</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">mailbox</span>(<span class="ident">header::ReplyTo</span>(<span class="ident">mbox</span>.<span class="ident">into</span>()))
+    <span class="doccomment">/// Set or add mailbox to `ReplyTo` header
+    ///
+    /// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).
+    ///
+    /// Shortcut for `self.mailbox(header::ReplyTo(mbox))`.
+    </span><span class="kw">pub fn </span>reply_to(<span class="self">self</span>, mbox: Mailbox) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.mailbox(header::ReplyTo(mbox.into()))
     }
 
-    <span class="doccomment">/// Set or add mailbox to `To` header</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.mailbox(header::To(mbox))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">mailbox</span>(<span class="ident">header::To</span>(<span class="ident">mbox</span>.<span class="ident">into</span>()))
+    <span class="doccomment">/// Set or add mailbox to `To` header
+    ///
+    /// Shortcut for `self.mailbox(header::To(mbox))`.
+    </span><span class="kw">pub fn </span>to(<span class="self">self</span>, mbox: Mailbox) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.mailbox(header::To(mbox.into()))
     }
 
-    <span class="doccomment">/// Set or add mailbox to `Cc` header</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.mailbox(header::Cc(mbox))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cc</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">mailbox</span>(<span class="ident">header::Cc</span>(<span class="ident">mbox</span>.<span class="ident">into</span>()))
+    <span class="doccomment">/// Set or add mailbox to `Cc` header
+    ///
+    /// Shortcut for `self.mailbox(header::Cc(mbox))`.
+    </span><span class="kw">pub fn </span>cc(<span class="self">self</span>, mbox: Mailbox) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.mailbox(header::Cc(mbox.into()))
     }
 
-    <span class="doccomment">/// Set or add mailbox to `Bcc` header</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.mailbox(header::Bcc(mbox))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bcc</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">mailbox</span>(<span class="ident">header::Bcc</span>(<span class="ident">mbox</span>.<span class="ident">into</span>()))
+    <span class="doccomment">/// Set or add mailbox to `Bcc` header
+    ///
+    /// Shortcut for `self.mailbox(header::Bcc(mbox))`.
+    </span><span class="kw">pub fn </span>bcc(<span class="self">self</span>, mbox: Mailbox) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.mailbox(header::Bcc(mbox.into()))
     }
 
-    <span class="doccomment">/// Set or add message id to [`In-Reply-To`</span>
-    <span class="doccomment">/// header](https://tools.ietf.org/html/rfc5322#section-3.6.4)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">in_reply_to</span>(<span class="self">self</span>, <span class="ident">id</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::InReplyTo::from</span>(<span class="ident">id</span>))
+    <span class="doccomment">/// Set or add message id to [`In-Reply-To`
+    /// header](https://tools.ietf.org/html/rfc5322#section-3.6.4)
+    </span><span class="kw">pub fn </span>in_reply_to(<span class="self">self</span>, id: String) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.header(header::InReplyTo::from(id))
     }
 
-    <span class="doccomment">/// Set or add message id to [`References`</span>
-    <span class="doccomment">/// header](https://tools.ietf.org/html/rfc5322#section-3.6.4)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">references</span>(<span class="self">self</span>, <span class="ident">id</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::References::from</span>(<span class="ident">id</span>))
+    <span class="doccomment">/// Set or add message id to [`References`
+    /// header](https://tools.ietf.org/html/rfc5322#section-3.6.4)
+    </span><span class="kw">pub fn </span>references(<span class="self">self</span>, id: String) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.header(header::References::from(id))
     }
 
-    <span class="doccomment">/// Set `Subject` header to message</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.header(header::Subject(subject.into()))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subject</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">subject</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">subject</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::Subject::from</span>(<span class="ident">s</span>))
+    <span class="doccomment">/// Set `Subject` header to message
+    ///
+    /// Shortcut for `self.header(header::Subject(subject.into()))`.
+    </span><span class="kw">pub fn </span>subject&lt;S: Into&lt;String&gt;&gt;(<span class="self">self</span>, subject: S) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>s: String = subject.into();
+        <span class="self">self</span>.header(header::Subject::from(s))
     }
 
-    <span class="doccomment">/// Set [Message-ID</span>
-    <span class="doccomment">/// header](https://tools.ietf.org/html/rfc5322#section-3.6.4)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Should generally be inserted by the mail relay.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `None` is provided, an id will be generated in the</span>
-    <span class="doccomment">/// `&lt;UUID@HOSTNAME&gt;`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message_id</span>(<span class="self">self</span>, <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">i</span>) =&gt; <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::MessageId::from</span>(<span class="ident">i</span>)),
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hostname&quot;</span>)]</span>
-                <span class="kw">let</span> <span class="ident">hostname</span> <span class="op">=</span> <span class="ident">hostname::get</span>()
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ())
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into_string</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()))
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">DEFAULT_MESSAGE_ID_DOMAIN</span>.<span class="ident">to_string</span>());
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hostname&quot;</span>))]</span>
-                <span class="kw">let</span> <span class="ident">hostname</span> <span class="op">=</span> <span class="ident">DEFAULT_MESSAGE_ID_DOMAIN</span>.<span class="ident">to_string</span>();
+    <span class="doccomment">/// Set [Message-ID
+    /// header](https://tools.ietf.org/html/rfc5322#section-3.6.4)
+    ///
+    /// Should generally be inserted by the mail relay.
+    ///
+    /// If `None` is provided, an id will be generated in the
+    /// `&lt;UUID@HOSTNAME&gt;`.
+    </span><span class="kw">pub fn </span>message_id(<span class="self">self</span>, id: <span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>id {
+            <span class="prelude-val">Some</span>(i) =&gt; <span class="self">self</span>.header(header::MessageId::from(i)),
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;hostname&quot;</span>)]
+                </span><span class="kw">let </span>hostname = hostname::get()
+                    .map_err(|<span class="kw">_</span>| ())
+                    .and_then(|s| s.into_string().map_err(|<span class="kw">_</span>| ()))
+                    .unwrap_or_else(|<span class="kw">_</span>| DEFAULT_MESSAGE_ID_DOMAIN.to_string());
+                <span class="attribute">#[cfg(not(feature = <span class="string">&quot;hostname&quot;</span>))]
+                </span><span class="kw">let </span>hostname = DEFAULT_MESSAGE_ID_DOMAIN.to_string();
 
-                <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::MessageId::from</span>(
-                    <span class="comment">// https://tools.ietf.org/html/rfc5322#section-3.6.4</span>
-                    <span class="macro">format!</span>(<span class="string">&quot;&lt;{}@{}&gt;&quot;</span>, <span class="ident">make_message_id</span>(), <span class="ident">hostname</span>),
+                <span class="self">self</span>.header(header::MessageId::from(
+                    <span class="comment">// https://tools.ietf.org/html/rfc5322#section-3.6.4
+                    </span><span class="macro">format!</span>(<span class="string">&quot;&lt;{}@{}&gt;&quot;</span>, make_message_id(), hostname),
                 ))
             }
         }
     }
 
-    <span class="doccomment">/// Set [User-Agent</span>
-    <span class="doccomment">/// header](https://tools.ietf.org/html/draft-melnikov-email-user-agent-004)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">user_agent</span>(<span class="self">self</span>, <span class="ident">id</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::UserAgent::from</span>(<span class="ident">id</span>))
+    <span class="doccomment">/// Set [User-Agent
+    /// header](https://tools.ietf.org/html/draft-melnikov-email-user-agent-004)
+    </span><span class="kw">pub fn </span>user_agent(<span class="self">self</span>, id: String) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.header(header::UserAgent::from(id))
     }
 
-    <span class="doccomment">/// Set custom header to message</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set custom header to message
+    </span><span class="kw">pub fn </span>header&lt;H: Header&gt;(<span class="kw-2">mut </span><span class="self">self</span>, header: H) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.headers.set(header);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Add mailbox to header</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mailbox</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span> <span class="op">+</span> <span class="ident">MailboxesHeader</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">header_</span>) =&gt; {
-                <span class="ident">header_</span>.<span class="ident">join_mailboxes</span>(<span class="ident">header</span>);
-                <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header_</span>)
+    <span class="doccomment">/// Add mailbox to header
+    </span><span class="kw">pub fn </span>mailbox&lt;H: Header + MailboxesHeader&gt;(<span class="self">self</span>, header: H) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span><span class="self">self</span>.headers.get::&lt;H&gt;() {
+            <span class="prelude-val">Some</span>(<span class="kw-2">mut </span>header_) =&gt; {
+                header_.join_mailboxes(header);
+                <span class="self">self</span>.header(header_)
             }
-            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.header(header),
         }
     }
 
-    <span class="doccomment">/// Force specific envelope (by default it is derived from headers)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">envelope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">envelope</span>: <span class="ident">Envelope</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">envelope</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">envelope</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Force specific envelope (by default it is derived from headers)
+    </span><span class="kw">pub fn </span>envelope(<span class="kw-2">mut </span><span class="self">self</span>, envelope: Envelope) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.envelope = <span class="prelude-val">Some</span>(envelope);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Keep the `Bcc` header</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default the `Bcc` header is removed from the email after</span>
-    <span class="doccomment">/// using it to generate the message envelope. In some cases though,</span>
-    <span class="doccomment">/// like when saving the email as an `.eml`, or sending through</span>
-    <span class="doccomment">/// some transports (like the Gmail API) that don&#39;t take a separate</span>
-    <span class="doccomment">/// envelope value, it becomes necessary to keep the `Bcc` header.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Calling this method overrides the default behaviour.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_bcc</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">drop_bcc</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Keep the `Bcc` header
+    ///
+    /// By default the `Bcc` header is removed from the email after
+    /// using it to generate the message envelope. In some cases though,
+    /// like when saving the email as an `.eml`, or sending through
+    /// some transports (like the Gmail API) that don&#39;t take a separate
+    /// envelope value, it becomes necessary to keep the `Bcc` header.
+    ///
+    /// Calling this method overrides the default behaviour.
+    </span><span class="kw">pub fn </span>keep_bcc(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.drop_bcc = <span class="bool-val">false</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="comment">// TODO: High-level methods for attachments and embedded files</span>
+    <span class="comment">// TODO: High-level methods for attachments and embedded files
 
-    <span class="doccomment">/// Create message from body</span>
-    <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>, <span class="ident">body</span>: <span class="ident">MessageBody</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">EmailError</span><span class="op">&gt;</span> {
-        <span class="comment">// Check for missing required headers</span>
-        <span class="comment">// https://tools.ietf.org/html/rfc5322#section-3.6</span>
+    </span><span class="doccomment">/// Create message from body
+    </span><span class="kw">fn </span>build(<span class="self">self</span>, body: MessageBody) -&gt; <span class="prelude-ty">Result</span>&lt;Message, EmailError&gt; {
+        <span class="comment">// Check for missing required headers
+        // https://tools.ietf.org/html/rfc5322#section-3.6
 
-        <span class="comment">// Insert Date if missing</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">header::Date</span><span class="op">&gt;</span>().<span class="ident">is_none</span>() {
-            <span class="self">self</span>.<span class="ident">date_now</span>()
-        } <span class="kw">else</span> {
-            <span class="self">self</span>
-        };
+        // Insert Date if missing
+        </span><span class="kw">let </span><span class="kw-2">mut </span>res = <span class="kw">if </span><span class="self">self</span>.headers.get::&lt;header::Date&gt;().is_none() {
+            <span class="self">self</span>.date_now()
+        } <span class="kw">else </span>{
+            <span class="self">self
+        </span>};
 
-        <span class="comment">// Fail is missing correct originator (Sender or From)</span>
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">header::From</span><span class="op">&gt;</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">header::From</span>(<span class="ident">f</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">from</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">into</span>();
-                <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">res</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">header::Sender</span><span class="op">&gt;</span>().<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">EmailError::TooManyFrom</span>);
+        <span class="comment">// Fail is missing correct originator (Sender or From)
+        </span><span class="kw">match </span>res.headers.get::&lt;header::From&gt;() {
+            <span class="prelude-val">Some</span>(header::From(f)) =&gt; {
+                <span class="kw">let </span>from: Vec&lt;Mailbox&gt; = f.into();
+                <span class="kw">if </span>from.len() &gt; <span class="number">1 </span>&amp;&amp; res.headers.get::&lt;header::Sender&gt;().is_none() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(EmailError::TooManyFrom);
                 }
             }
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">EmailError::MissingFrom</span>);
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(EmailError::MissingFrom);
             }
         }
 
-        <span class="kw">let</span> <span class="ident">envelope</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">envelope</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="ident">Envelope::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>.<span class="ident">headers</span>)<span class="question-mark">?</span>,
+        <span class="kw">let </span>envelope = <span class="kw">match </span>res.envelope {
+            <span class="prelude-val">Some</span>(e) =&gt; e,
+            <span class="prelude-val">None </span>=&gt; Envelope::try_from(<span class="kw-2">&amp;</span>res.headers)<span class="question-mark">?</span>,
         };
 
-        <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">drop_bcc</span> {
-            <span class="comment">// Remove `Bcc` headers now the envelope is set</span>
-            <span class="ident">res</span>.<span class="ident">headers</span>.<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">header::Bcc</span><span class="op">&gt;</span>();
+        <span class="kw">if </span>res.drop_bcc {
+            <span class="comment">// Remove `Bcc` headers now the envelope is set
+            </span>res.headers.remove::&lt;header::Bcc&gt;();
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Message</span> {
-            <span class="ident">headers</span>: <span class="ident">res</span>.<span class="ident">headers</span>,
-            <span class="ident">body</span>,
-            <span class="ident">envelope</span>,
+        <span class="prelude-val">Ok</span>(Message {
+            headers: res.headers,
+            body,
+            envelope,
         })
     }
 
-    <span class="doccomment">/// Create [`Message`] using a [`Vec&lt;u8&gt;`], [`String`], or [`Body`] body</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Automatically gets encoded with `7bit`, `quoted-printable` or `base64`</span>
-    <span class="doccomment">/// `Content-Transfer-Encoding`, based on the most efficient and valid encoding</span>
-    <span class="doccomment">/// for `body`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">body</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">EmailError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">maybe_encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">into_body</span>(<span class="ident">maybe_encoding</span>);
+    <span class="doccomment">/// Create [`Message`] using a [`Vec&lt;u8&gt;`], [`String`], or [`Body`] body
+    ///
+    /// Automatically gets encoded with `7bit`, `quoted-printable` or `base64`
+    /// `Content-Transfer-Encoding`, based on the most efficient and valid encoding
+    /// for `body`.
+    </span><span class="kw">pub fn </span>body&lt;T: IntoBody&gt;(<span class="kw-2">mut </span><span class="self">self</span>, body: T) -&gt; <span class="prelude-ty">Result</span>&lt;Message, EmailError&gt; {
+        <span class="kw">let </span>maybe_encoding = <span class="self">self</span>.headers.get::&lt;ContentTransferEncoding&gt;();
+        <span class="kw">let </span>body = body.into_body(maybe_encoding);
 
-        <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">body</span>.<span class="ident">encoding</span>());
-        <span class="self">self</span>.<span class="ident">build</span>(<span class="ident">MessageBody::Raw</span>(<span class="ident">body</span>.<span class="ident">into_vec</span>()))
+        <span class="self">self</span>.headers.set(body.encoding());
+        <span class="self">self</span>.build(MessageBody::Raw(body.into_vec()))
     }
 
-    <span class="doccomment">/// Create message using mime body ([`MultiPart`][self::MultiPart])</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multipart</span>(<span class="self">self</span>, <span class="ident">part</span>: <span class="ident">MultiPart</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">EmailError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">mime_1_0</span>().<span class="ident">build</span>(<span class="ident">MessageBody::Mime</span>(<span class="ident">Part::Multi</span>(<span class="ident">part</span>)))
+    <span class="doccomment">/// Create message using mime body ([`MultiPart`][self::MultiPart])
+    </span><span class="kw">pub fn </span>multipart(<span class="self">self</span>, part: MultiPart) -&gt; <span class="prelude-ty">Result</span>&lt;Message, EmailError&gt; {
+        <span class="self">self</span>.mime_1_0().build(MessageBody::Mime(Part::Multi(part)))
     }
 
-    <span class="doccomment">/// Create message using mime body ([`SinglePart`][self::SinglePart])</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">singlepart</span>(<span class="self">self</span>, <span class="ident">part</span>: <span class="ident">SinglePart</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">EmailError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">mime_1_0</span>().<span class="ident">build</span>(<span class="ident">MessageBody::Mime</span>(<span class="ident">Part::Single</span>(<span class="ident">part</span>)))
+    <span class="doccomment">/// Create message using mime body ([`SinglePart`][self::SinglePart])
+    </span><span class="kw">pub fn </span>singlepart(<span class="self">self</span>, part: SinglePart) -&gt; <span class="prelude-ty">Result</span>&lt;Message, EmailError&gt; {
+        <span class="self">self</span>.mime_1_0().build(MessageBody::Mime(Part::Single(part)))
     }
 
-    <span class="doccomment">/// Set `MIME-Version` header to 1.0</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.header(header::MIME_VERSION_1_0)`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Not exposed as it is set by body methods</span>
-    <span class="kw">fn</span> <span class="ident">mime_1_0</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::MIME_VERSION_1_0</span>)
+    <span class="doccomment">/// Set `MIME-Version` header to 1.0
+    ///
+    /// Shortcut for `self.header(header::MIME_VERSION_1_0)`.
+    ///
+    /// Not exposed as it is set by body methods
+    </span><span class="kw">fn </span>mime_1_0(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.header(header::MIME_VERSION_1_0)
     }
 }
 
-<span class="doccomment">/// Email message which can be formatted</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Message</span> {
-    <span class="ident">headers</span>: <span class="ident">Headers</span>,
-    <span class="ident">body</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">envelope</span>: <span class="ident">Envelope</span>,
+<span class="doccomment">/// Email message which can be formatted
+</span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;builder&quot;</span>)))]
+#[derive(Clone, Debug)]
+</span><span class="kw">pub struct </span>Message {
+    headers: Headers,
+    body: MessageBody,
+    envelope: Envelope,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">enum</span> <span class="ident">MessageBody</span> {
-    <span class="ident">Mime</span>(<span class="ident">Part</span>),
-    <span class="ident">Raw</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>),
+<span class="attribute">#[derive(Clone, Debug)]
+</span><span class="kw">enum </span>MessageBody {
+    Mime(Part),
+    Raw(Vec&lt;u8&gt;),
 }
 
-<span class="kw">impl</span> <span class="ident">Message</span> {
-    <span class="doccomment">/// Create a new message builder without headers</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">MessageBuilder</span> {
-        <span class="ident">MessageBuilder::new</span>()
+<span class="kw">impl </span>Message {
+    <span class="doccomment">/// Create a new message builder without headers
+    </span><span class="kw">pub fn </span>builder() -&gt; MessageBuilder {
+        MessageBuilder::new()
     }
 
-    <span class="doccomment">/// Get the headers from the Message</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Headers</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">headers</span>
+    <span class="doccomment">/// Get the headers from the Message
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Headers {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.headers
     }
 
-    <span class="doccomment">/// Get `Message` envelope</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">envelope</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Envelope</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">envelope</span>
+    <span class="doccomment">/// Get `Message` envelope
+    </span><span class="kw">pub fn </span>envelope(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Envelope {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.envelope
     }
 
-    <span class="doccomment">/// Get message content formatted for SMTP</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">formatted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="self">self</span>.<span class="ident">format</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out</span>);
-        <span class="ident">out</span>
+    <span class="doccomment">/// Get message content formatted for SMTP
+    </span><span class="kw">pub fn </span>formatted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
+        <span class="self">self</span>.format(<span class="kw-2">&amp;mut </span>out);
+        out
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dkim&quot;</span>)]</span>
-    <span class="doccomment">/// Format body for signing</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">body_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">body</span> {
-            <span class="ident">MessageBody::Mime</span>(<span class="ident">p</span>) =&gt; <span class="ident">p</span>.<span class="ident">format</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out</span>),
-            <span class="ident">MessageBody::Raw</span>(<span class="ident">r</span>) =&gt; <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="ident">r</span>),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+    </span><span class="doccomment">/// Format body for signing
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>body_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.body {
+            MessageBody::Mime(p) =&gt; p.format(<span class="kw-2">&amp;mut </span>out),
+            MessageBody::Raw(r) =&gt; out.extend_from_slice(r),
         };
-        <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
-        <span class="ident">out</span>
+        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+        out
     }
 
-    <span class="doccomment">/// Sign the message using Dkim</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Example:</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use lettre::{</span>
-    <span class="doccomment">///     message::dkim::{DkimConfig, DkimSigningAlgorithm, DkimSigningKey},</span>
-    <span class="doccomment">///     Message,</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut message = Message::builder()</span>
-    <span class="doccomment">///     .from(&quot;Alice &lt;alice@example.org&gt;&quot;.parse().unwrap())</span>
-    <span class="doccomment">///     .reply_to(&quot;Bob &lt;bob@example.org&gt;&quot;.parse().unwrap())</span>
-    <span class="doccomment">///     .to(&quot;Carla &lt;carla@example.net&gt;&quot;.parse().unwrap())</span>
-    <span class="doccomment">///     .subject(&quot;Hello&quot;)</span>
-    <span class="doccomment">///     .body(&quot;Hi there, it&#39;s a test email, with utf-8 chars ë!\n\n\n&quot;.to_string())</span>
-    <span class="doccomment">///     .unwrap();</span>
-    <span class="doccomment">/// let key = &quot;-----BEGIN RSA PRIVATE KEY-----</span>
-    <span class="doccomment">/// MIIEowIBAAKCAQEAt2gawjoybf0mAz0mSX0cq1ah5F9cPazZdCwLnFBhRufxaZB8</span>
-    <span class="doccomment">/// NLTdc9xfPIOK8l/xGrN7Nd63J4cTATqZukumczkA46O8YKHwa53pNT6NYwCNtDUL</span>
-    <span class="doccomment">/// eBu+7xUW18GmDzkIFkxGO2R5kkTeWPlKvKpEiicIMfl0OmyW/fI3AbtM7e/gmqQ4</span>
-    <span class="doccomment">/// kEYIO0mTjPT+jTgWE4JIi5KUTHudUBtfMKcSFyM2HkUOExl1c9+A4epjRFQwEXMA</span>
-    <span class="doccomment">/// hM5GrqZoOdUm4fIpvGpLIGIxFgHPpZYbyq6yJZzH3+5aKyCHrsHawPuPiCD45zsU</span>
-    <span class="doccomment">/// re31zCE6b6k1sDiiBR4CaRHnbL7hxFp0aNLOVQIDAQABAoIBAGMK3gBrKxaIcUGo</span>
-    <span class="doccomment">/// gQeIf7XrJ6vK72YC9L8uleqI4a9Hy++E7f4MedZ6eBeWta8jrnEL4Yp6xg+beuDc</span>
-    <span class="doccomment">/// A24+Mhng+6Dyp+TLLqj+8pQlPnbrMprRVms7GIXFrrs+wO1RkBNyhy7FmH0roaMM</span>
-    <span class="doccomment">/// pJZzoGW2pE9QdbqjL3rdlWTi/60xRX9eZ42nNxYnbc+RK03SBd46c3UBha6Y9iQX</span>
-    <span class="doccomment">/// 562yWilDnB5WCX2tBoSN39bEhJvuZDzMwOuGw68Q96Hdz82Iz1xVBnRhH+uNStjR</span>
-    <span class="doccomment">/// VnAssSHVxPSpwWrm3sHlhjBHWPnNIaOKIKl1lbL+qWfVQCj/6a5DquC+vYAeYR6L</span>
-    <span class="doccomment">/// 3mA0z0ECgYEA5YkNYcILSXyE0hZ8eA/t58h8eWvYI5iqt3nT4fznCoYJJ74Vukeg</span>
-    <span class="doccomment">/// 6BTlq/CsanwT1lDtvDKrOaJbA7DPTES/bqT0HoeIdOvAw9w/AZI5DAqYp61i6RMK</span>
-    <span class="doccomment">/// xfAQL/Ik5MDFN8gEMLLXRVMe/aR27f6JFZpShJOK/KCzHqikKfYVJ+UCgYEAzI2F</span>
-    <span class="doccomment">/// ZlTyittWSyUSl5UKyfSnFOx2+6vNy+lu5DeMJu8Wh9rqBk388Bxq98CfkCseWESN</span>
-    <span class="doccomment">/// pTCGdYltz9DvVNBdBLwSMdLuYJAI6U+Zd70MWyuNdHFPyWVHUNqMUBvbUtj2w74q</span>
-    <span class="doccomment">/// Hzu0GI0OrRjdX6C63S17PggmT/N2R9X7P4STxbECgYA+AZAD4I98Ao8+0aQ+Ks9x</span>
-    <span class="doccomment">/// 1c8KXf+9XfiAKAD9A3zGcv72JXtpHwBwsXR5xkJNYcdaFfKi7G0k3J8JmDHnwIqW</span>
-    <span class="doccomment">/// MSlhNeu+6hDg2BaNLhsLDbG/Wi9mFybJ4df9m8Qrp4efUgEPxsAwkgvFKTCXijMu</span>
-    <span class="doccomment">/// CspP1iutoxvAJH50d22voQKBgDIsSFtIXNGYaTs3Va8enK3at5zXP3wNsQXiNRP/</span>
-    <span class="doccomment">/// V/44yNL77EktmewfXFF2yuym1uOZtRCerWxpEClYO0wXa6l8pA3aiiPfUIBByQfo</span>
-    <span class="doccomment">/// s/4s2Z6FKKfikrKPWLlRi+NvWl+65kQQ9eTLvJzSq4IIP61+uWsGvrb/pbSLFPyI</span>
-    <span class="doccomment">/// fWKRAoGBALFCStBXvdMptjq4APUzAdJ0vytZzXkOZHxgmc+R0fQn22OiW0huW6iX</span>
-    <span class="doccomment">/// JcaBbL6ZSBIMA3AdaIjtvNRiomueHqh0GspTgOeCE2585TSFnw6vEOJ8RlR4A0Mw</span>
-    <span class="doccomment">/// I45fbR4l+3D/30WMfZlM6bzZbwPXEnr2s1mirmuQpjumY9wLhK25</span>
-    <span class="doccomment">/// -----END RSA PRIVATE KEY-----&quot;;</span>
-    <span class="doccomment">/// let signing_key = DkimSigningKey::new(key, DkimSigningAlgorithm::Rsa).unwrap();</span>
-    <span class="doccomment">/// message.sign(&amp;DkimConfig::default_config(</span>
-    <span class="doccomment">///     &quot;dkimtest&quot;.to_string(),</span>
-    <span class="doccomment">///     &quot;example.org&quot;.to_string(),</span>
-    <span class="doccomment">///     signing_key,</span>
-    <span class="doccomment">/// ));</span>
-    <span class="doccomment">/// println!(</span>
-    <span class="doccomment">///     &quot;message: {}&quot;,</span>
-    <span class="doccomment">///     std::str::from_utf8(&amp;message.formatted()).unwrap()</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;dkim&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dkim_config</span>: <span class="kw-2">&amp;</span><span class="ident">DkimConfig</span>) {
-        <span class="ident">dkim_sign</span>(<span class="self">self</span>, <span class="ident">dkim_config</span>);
+    <span class="doccomment">/// Sign the message using Dkim
+    ///
+    /// Example:
+    /// ```rust
+    /// use lettre::{
+    ///     message::dkim::{DkimConfig, DkimSigningAlgorithm, DkimSigningKey},
+    ///     Message,
+    /// };
+    ///
+    /// let mut message = Message::builder()
+    ///     .from(&quot;Alice &lt;alice@example.org&gt;&quot;.parse().unwrap())
+    ///     .reply_to(&quot;Bob &lt;bob@example.org&gt;&quot;.parse().unwrap())
+    ///     .to(&quot;Carla &lt;carla@example.net&gt;&quot;.parse().unwrap())
+    ///     .subject(&quot;Hello&quot;)
+    ///     .body(&quot;Hi there, it&#39;s a test email, with utf-8 chars ë!\n\n\n&quot;.to_string())
+    ///     .unwrap();
+    /// let key = &quot;-----BEGIN RSA PRIVATE KEY-----
+    /// MIIEowIBAAKCAQEAt2gawjoybf0mAz0mSX0cq1ah5F9cPazZdCwLnFBhRufxaZB8
+    /// NLTdc9xfPIOK8l/xGrN7Nd63J4cTATqZukumczkA46O8YKHwa53pNT6NYwCNtDUL
+    /// eBu+7xUW18GmDzkIFkxGO2R5kkTeWPlKvKpEiicIMfl0OmyW/fI3AbtM7e/gmqQ4
+    /// kEYIO0mTjPT+jTgWE4JIi5KUTHudUBtfMKcSFyM2HkUOExl1c9+A4epjRFQwEXMA
+    /// hM5GrqZoOdUm4fIpvGpLIGIxFgHPpZYbyq6yJZzH3+5aKyCHrsHawPuPiCD45zsU
+    /// re31zCE6b6k1sDiiBR4CaRHnbL7hxFp0aNLOVQIDAQABAoIBAGMK3gBrKxaIcUGo
+    /// gQeIf7XrJ6vK72YC9L8uleqI4a9Hy++E7f4MedZ6eBeWta8jrnEL4Yp6xg+beuDc
+    /// A24+Mhng+6Dyp+TLLqj+8pQlPnbrMprRVms7GIXFrrs+wO1RkBNyhy7FmH0roaMM
+    /// pJZzoGW2pE9QdbqjL3rdlWTi/60xRX9eZ42nNxYnbc+RK03SBd46c3UBha6Y9iQX
+    /// 562yWilDnB5WCX2tBoSN39bEhJvuZDzMwOuGw68Q96Hdz82Iz1xVBnRhH+uNStjR
+    /// VnAssSHVxPSpwWrm3sHlhjBHWPnNIaOKIKl1lbL+qWfVQCj/6a5DquC+vYAeYR6L
+    /// 3mA0z0ECgYEA5YkNYcILSXyE0hZ8eA/t58h8eWvYI5iqt3nT4fznCoYJJ74Vukeg
+    /// 6BTlq/CsanwT1lDtvDKrOaJbA7DPTES/bqT0HoeIdOvAw9w/AZI5DAqYp61i6RMK
+    /// xfAQL/Ik5MDFN8gEMLLXRVMe/aR27f6JFZpShJOK/KCzHqikKfYVJ+UCgYEAzI2F
+    /// ZlTyittWSyUSl5UKyfSnFOx2+6vNy+lu5DeMJu8Wh9rqBk388Bxq98CfkCseWESN
+    /// pTCGdYltz9DvVNBdBLwSMdLuYJAI6U+Zd70MWyuNdHFPyWVHUNqMUBvbUtj2w74q
+    /// Hzu0GI0OrRjdX6C63S17PggmT/N2R9X7P4STxbECgYA+AZAD4I98Ao8+0aQ+Ks9x
+    /// 1c8KXf+9XfiAKAD9A3zGcv72JXtpHwBwsXR5xkJNYcdaFfKi7G0k3J8JmDHnwIqW
+    /// MSlhNeu+6hDg2BaNLhsLDbG/Wi9mFybJ4df9m8Qrp4efUgEPxsAwkgvFKTCXijMu
+    /// CspP1iutoxvAJH50d22voQKBgDIsSFtIXNGYaTs3Va8enK3at5zXP3wNsQXiNRP/
+    /// V/44yNL77EktmewfXFF2yuym1uOZtRCerWxpEClYO0wXa6l8pA3aiiPfUIBByQfo
+    /// s/4s2Z6FKKfikrKPWLlRi+NvWl+65kQQ9eTLvJzSq4IIP61+uWsGvrb/pbSLFPyI
+    /// fWKRAoGBALFCStBXvdMptjq4APUzAdJ0vytZzXkOZHxgmc+R0fQn22OiW0huW6iX
+    /// JcaBbL6ZSBIMA3AdaIjtvNRiomueHqh0GspTgOeCE2585TSFnw6vEOJ8RlR4A0Mw
+    /// I45fbR4l+3D/30WMfZlM6bzZbwPXEnr2s1mirmuQpjumY9wLhK25
+    /// -----END RSA PRIVATE KEY-----&quot;;
+    /// let signing_key = DkimSigningKey::new(key, DkimSigningAlgorithm::Rsa).unwrap();
+    /// message.sign(&amp;DkimConfig::default_config(
+    ///     &quot;dkimtest&quot;.to_string(),
+    ///     &quot;example.org&quot;.to_string(),
+    ///     signing_key,
+    /// ));
+    /// println!(
+    ///     &quot;message: {}&quot;,
+    ///     std::str::from_utf8(&amp;message.formatted()).unwrap()
+    /// );
+    /// ```
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;dkim&quot;</span>)]
+    </span><span class="kw">pub fn </span>sign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dkim_config: <span class="kw-2">&amp;</span>DkimConfig) {
+        dkim_sign(<span class="self">self</span>, dkim_config);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">EmailFormat</span> <span class="kw">for</span> <span class="ident">Message</span> {
-    <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="macro">write!</span>(<span class="ident">out</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">headers</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
+<span class="kw">impl </span>EmailFormat <span class="kw">for </span>Message {
+    <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        <span class="macro">write!</span>(out, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.headers)
+            .expect(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
 
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">body</span> {
-            <span class="ident">MessageBody::Mime</span>(<span class="ident">p</span>) =&gt; <span class="ident">p</span>.<span class="ident">format</span>(<span class="ident">out</span>),
-            <span class="ident">MessageBody::Raw</span>(<span class="ident">r</span>) =&gt; {
-                <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
-                <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="ident">r</span>)
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.body {
+            MessageBody::Mime(p) =&gt; p.format(out),
+            MessageBody::Raw(r) =&gt; {
+                out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+                out.extend_from_slice(r)
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MessageBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">MessageBuilder::new</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>MessageBuilder {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        MessageBuilder::new()
     }
 }
 
-<span class="doccomment">/// Create a random message id.</span>
-<span class="doccomment">/// (Not cryptographically random)</span>
-<span class="kw">fn</span> <span class="ident">make_message_id</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">iter::repeat_with</span>(<span class="ident">fastrand::alphanumeric</span>).<span class="ident">take</span>(<span class="number">36</span>).<span class="ident">collect</span>()
+<span class="doccomment">/// Create a random message id.
+/// (Not cryptographically random)
+</span><span class="kw">fn </span>make_message_id() -&gt; String {
+    iter::repeat_with(fastrand::alphanumeric).take(<span class="number">36</span>).collect()
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">Duration</span>, <span class="ident">SystemTime</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>std::time::{Duration, SystemTime};
 
-    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+    <span class="kw">use </span>pretty_assertions::assert_eq;
 
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">header</span>, <span class="ident">mailbox::Mailbox</span>, <span class="ident">make_message_id</span>, <span class="ident">Message</span>, <span class="ident">MultiPart</span>, <span class="ident">SinglePart</span>};
+    <span class="kw">use super</span>::{header, mailbox::Mailbox, make_message_id, Message, MultiPart, SinglePart};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">email_missing_originator</span>() {
-        <span class="macro">assert!</span>(<span class="ident">Message::builder</span>()
-            .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Happy new year!&quot;</span>))
-            .<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>email_missing_originator() {
+        <span class="macro">assert!</span>(Message::builder()
+            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .is_err());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">email_miminal_message</span>() {
-        <span class="macro">assert!</span>(<span class="ident">Message::builder</span>()
-            .<span class="ident">from</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">to</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Happy new year!&quot;</span>))
-            .<span class="ident">is_ok</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>email_miminal_message() {
+        <span class="macro">assert!</span>(Message::builder()
+            .from(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.parse().unwrap())
+            .to(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.parse().unwrap())
+            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .is_ok());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">email_missing_sender</span>() {
-        <span class="macro">assert!</span>(<span class="ident">Message::builder</span>()
-            .<span class="ident">from</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">from</span>(<span class="string">&quot;AnyBody &lt;anybody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Happy new year!&quot;</span>))
-            .<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>email_missing_sender() {
+        <span class="macro">assert!</span>(Message::builder()
+            .from(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.parse().unwrap())
+            .from(<span class="string">&quot;AnyBody &lt;anybody@domain.tld&gt;&quot;</span>.parse().unwrap())
+            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .is_err());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">email_message_no_bcc</span>() {
-        <span class="comment">// Tue, 15 Nov 1994 08:12:31 GMT</span>
-        <span class="kw">let</span> <span class="ident">date</span> <span class="op">=</span> <span class="ident">SystemTime::UNIX_EPOCH</span> <span class="op">+</span> <span class="ident">Duration::from_secs</span>(<span class="number">784887151</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>email_message_no_bcc() {
+        <span class="comment">// Tue, 15 Nov 1994 08:12:31 GMT
+        </span><span class="kw">let </span>date = SystemTime::UNIX_EPOCH + Duration::from_secs(<span class="number">784887151</span>);
 
-        <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
-            .<span class="ident">date</span>(<span class="ident">date</span>)
-            .<span class="ident">bcc</span>(<span class="string">&quot;hidden@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">header</span>(<span class="ident">header::From</span>(
-                <span class="macro">vec!</span>[<span class="ident">Mailbox::new</span>(
-                    <span class="prelude-val">Some</span>(<span class="string">&quot;Каи&quot;</span>.<span class="ident">into</span>()),
-                    <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+        <span class="kw">let </span>email = Message::builder()
+            .date(date)
+            .bcc(<span class="string">&quot;hidden@example.com&quot;</span>.parse().unwrap())
+            .header(header::From(
+                <span class="macro">vec!</span>[Mailbox::new(
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;Каи&quot;</span>.into()),
+                    <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap(),
                 )]
-                .<span class="ident">into</span>(),
+                .into(),
             ))
-            .<span class="ident">header</span>(<span class="ident">header::To</span>(
-                <span class="macro">vec!</span>[<span class="string">&quot;Pony O.P. &lt;pony@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()].<span class="ident">into</span>(),
+            .header(header::To(
+                <span class="macro">vec!</span>[<span class="string">&quot;Pony O.P. &lt;pony@domain.tld&gt;&quot;</span>.parse().unwrap()].into(),
             ))
-            .<span class="ident">header</span>(<span class="ident">header::Subject::from</span>(<span class="ident">String::from</span>(<span class="string">&quot;яңа ел белән!&quot;</span>)))
-            .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Happy new year!&quot;</span>))
-            .<span class="ident">unwrap</span>();
+            .header(header::Subject::from(String::from(<span class="string">&quot;яңа ел белән!&quot;</span>)))
+            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from_utf8</span>(<span class="ident">email</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+            String::from_utf8(email.formatted()).unwrap(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Date: Tue, 15 Nov 1994 08:12:31 +0000\r\n&quot;</span>,
                 <span class="string">&quot;From: =?utf-8?b?0JrQsNC4?= &lt;kayo@example.com&gt;\r\n&quot;</span>,
@@ -1458,36 +1458,36 @@
                 <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvQ==?=!\r\n&quot;</span>,
                 <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Happy new year!&quot;</span>
-            )
+                <span class="string">&quot;Happy new year!&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">email_message_keep_bcc</span>() {
-        <span class="comment">// Tue, 15 Nov 1994 08:12:31 GMT</span>
-        <span class="kw">let</span> <span class="ident">date</span> <span class="op">=</span> <span class="ident">SystemTime::UNIX_EPOCH</span> <span class="op">+</span> <span class="ident">Duration::from_secs</span>(<span class="number">784887151</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>email_message_keep_bcc() {
+        <span class="comment">// Tue, 15 Nov 1994 08:12:31 GMT
+        </span><span class="kw">let </span>date = SystemTime::UNIX_EPOCH + Duration::from_secs(<span class="number">784887151</span>);
 
-        <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
-            .<span class="ident">date</span>(<span class="ident">date</span>)
-            .<span class="ident">bcc</span>(<span class="string">&quot;hidden@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">keep_bcc</span>()
-            .<span class="ident">header</span>(<span class="ident">header::From</span>(
-                <span class="macro">vec!</span>[<span class="ident">Mailbox::new</span>(
-                    <span class="prelude-val">Some</span>(<span class="string">&quot;Каи&quot;</span>.<span class="ident">into</span>()),
-                    <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+        <span class="kw">let </span>email = Message::builder()
+            .date(date)
+            .bcc(<span class="string">&quot;hidden@example.com&quot;</span>.parse().unwrap())
+            .keep_bcc()
+            .header(header::From(
+                <span class="macro">vec!</span>[Mailbox::new(
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;Каи&quot;</span>.into()),
+                    <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap(),
                 )]
-                .<span class="ident">into</span>(),
+                .into(),
             ))
-            .<span class="ident">header</span>(<span class="ident">header::To</span>(
-                <span class="macro">vec!</span>[<span class="string">&quot;Pony O.P. &lt;pony@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()].<span class="ident">into</span>(),
+            .header(header::To(
+                <span class="macro">vec!</span>[<span class="string">&quot;Pony O.P. &lt;pony@domain.tld&gt;&quot;</span>.parse().unwrap()].into(),
             ))
-            .<span class="ident">header</span>(<span class="ident">header::Subject::from</span>(<span class="ident">String::from</span>(<span class="string">&quot;яңа ел белән!&quot;</span>)))
-            .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Happy new year!&quot;</span>))
-            .<span class="ident">unwrap</span>();
+            .header(header::Subject::from(String::from(<span class="string">&quot;яңа ел белән!&quot;</span>)))
+            .body(String::from(<span class="string">&quot;Happy new year!&quot;</span>))
+            .unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from_utf8</span>(<span class="ident">email</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+            String::from_utf8(email.formatted()).unwrap(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Date: Tue, 15 Nov 1994 08:12:31 +0000\r\n&quot;</span>,
                 <span class="string">&quot;Bcc: hidden@example.com\r\n&quot;</span>,
@@ -1496,69 +1496,69 @@
                 <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvQ==?=!\r\n&quot;</span>,
                 <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Happy new year!&quot;</span>
-            )
+                <span class="string">&quot;Happy new year!&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">email_with_png</span>() {
-        <span class="comment">// Tue, 15 Nov 1994 08:12:31 GMT</span>
-        <span class="kw">let</span> <span class="ident">date</span> <span class="op">=</span> <span class="ident">SystemTime::UNIX_EPOCH</span> <span class="op">+</span> <span class="ident">Duration::from_secs</span>(<span class="number">784887151</span>);
-        <span class="kw">let</span> <span class="ident">img</span> <span class="op">=</span> <span class="ident">std::fs::read</span>(<span class="string">&quot;./docs/lettre.png&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
-            .<span class="ident">date</span>(<span class="ident">date</span>)
-            .<span class="ident">from</span>(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">reply_to</span>(<span class="string">&quot;Yuin &lt;yuin@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">to</span>(<span class="string">&quot;Hei &lt;hei@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">subject</span>(<span class="string">&quot;Happy new year&quot;</span>)
-            .<span class="ident">multipart</span>(
-                <span class="ident">MultiPart::related</span>()
-                    .<span class="ident">singlepart</span>(
-                        <span class="ident">SinglePart::builder</span>()
-                            .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_HTML</span>)
-                            .<span class="ident">body</span>(<span class="ident">String::from</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>email_with_png() {
+        <span class="comment">// Tue, 15 Nov 1994 08:12:31 GMT
+        </span><span class="kw">let </span>date = SystemTime::UNIX_EPOCH + Duration::from_secs(<span class="number">784887151</span>);
+        <span class="kw">let </span>img = std::fs::read(<span class="string">&quot;./docs/lettre.png&quot;</span>).unwrap();
+        <span class="kw">let </span>m = Message::builder()
+            .date(date)
+            .from(<span class="string">&quot;NoBody &lt;nobody@domain.tld&gt;&quot;</span>.parse().unwrap())
+            .reply_to(<span class="string">&quot;Yuin &lt;yuin@domain.tld&gt;&quot;</span>.parse().unwrap())
+            .to(<span class="string">&quot;Hei &lt;hei@domain.tld&gt;&quot;</span>.parse().unwrap())
+            .subject(<span class="string">&quot;Happy new year&quot;</span>)
+            .multipart(
+                MultiPart::related()
+                    .singlepart(
+                        SinglePart::builder()
+                            .header(header::ContentType::TEXT_HTML)
+                            .body(String::from(
                                 <span class="string">&quot;&lt;p&gt;&lt;b&gt;Hello&lt;/b&gt;, &lt;i&gt;world&lt;/i&gt;! &lt;img src=cid:123&gt;&lt;/p&gt;&quot;</span>,
                             )),
                     )
-                    .<span class="ident">singlepart</span>(
-                        <span class="ident">SinglePart::builder</span>()
-                            .<span class="ident">header</span>(<span class="ident">header::ContentType::parse</span>(<span class="string">&quot;image/png&quot;</span>).<span class="ident">unwrap</span>())
-                            .<span class="ident">header</span>(<span class="ident">header::ContentDisposition::inline</span>())
-                            .<span class="ident">header</span>(<span class="ident">header::ContentId::from</span>(<span class="ident">String::from</span>(<span class="string">&quot;&lt;123&gt;&quot;</span>)))
-                            .<span class="ident">body</span>(<span class="ident">img</span>),
+                    .singlepart(
+                        SinglePart::builder()
+                            .header(header::ContentType::parse(<span class="string">&quot;image/png&quot;</span>).unwrap())
+                            .header(header::ContentDisposition::inline())
+                            .header(header::ContentId::from(String::from(<span class="string">&quot;&lt;123&gt;&quot;</span>)))
+                            .body(img),
                     ),
             )
-            .<span class="ident">unwrap</span>();
+            .unwrap();
 
-        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">m</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">file_expected</span> <span class="op">=</span> <span class="ident">std::fs::read</span>(<span class="string">&quot;./testdata/email_with_png.eml&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">file_expected</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>output = String::from_utf8(m.formatted()).unwrap();
+        <span class="kw">let </span>file_expected = std::fs::read(<span class="string">&quot;./testdata/email_with_png.eml&quot;</span>).unwrap();
+        <span class="kw">let </span>expected = String::from_utf8(file_expected).unwrap();
 
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">line</span>) <span class="kw">in</span> <span class="ident">output</span>.<span class="ident">lines</span>().<span class="ident">zip</span>(<span class="ident">expected</span>.<span class="ident">lines</span>()).<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">7</span> <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">9</span> <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">14</span> <span class="op">|</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">233</span> {
+        <span class="kw">for </span>(i, line) <span class="kw">in </span>output.lines().zip(expected.lines()).enumerate() {
+            <span class="kw">if </span>i == <span class="number">7 </span>|| i == <span class="number">9 </span>|| i == <span class="number">14 </span>|| i == <span class="number">233 </span>{
                 <span class="kw">continue</span>;
             }
 
-            <span class="macro">assert_eq!</span>(<span class="ident">line</span>.<span class="number">0</span>, <span class="ident">line</span>.<span class="number">1</span>)
+            <span class="macro">assert_eq!</span>(line.<span class="number">0</span>, line.<span class="number">1</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_make_message_id</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">std::collections::HashSet::with_capacity</span>(<span class="number">10</span>);
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">1000</span> {
-            <span class="ident">ids</span>.<span class="ident">insert</span>(<span class="ident">make_message_id</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_make_message_id() {
+        <span class="kw">let </span><span class="kw-2">mut </span>ids = std::collections::HashSet::with_capacity(<span class="number">10</span>);
+        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">1000 </span>{
+            ids.insert(make_message_id());
         }
 
-        <span class="comment">// Ensure there are no duplicates</span>
-        <span class="macro">assert_eq!</span>(<span class="number">1000</span>, <span class="ident">ids</span>.<span class="ident">len</span>());
+        <span class="comment">// Ensure there are no duplicates
+        </span><span class="macro">assert_eq!</span>(<span class="number">1000</span>, ids.len());
 
-        <span class="comment">// Ensure correct length</span>
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">ids</span> {
-            <span class="macro">assert_eq!</span>(<span class="number">36</span>, <span class="ident">id</span>.<span class="ident">len</span>());
+        <span class="comment">// Ensure correct length
+        </span><span class="kw">for </span>id <span class="kw">in </span>ids {
+            <span class="macro">assert_eq!</span>(<span class="number">36</span>, id.len());
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

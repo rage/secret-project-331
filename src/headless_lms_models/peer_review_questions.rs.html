@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/peer_review_questions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>peer_review_questions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/peer_review_questions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>peer_review_questions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -300,64 +300,64 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Postgres</span>, <span class="ident">QueryBuilder</span>, <span class="ident">Row</span>};
+<span class="kw">use </span>sqlx::{Postgres, QueryBuilder, Row};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Type</span>)]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;peer_review_question_type&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PeerReviewQuestionType</span> {
-    <span class="ident">Essay</span>,
-    <span class="ident">Scale</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[sqlx(type_name = <span class="string">&quot;peer_review_question_type&quot;</span>, rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub enum </span>PeerReviewQuestionType {
+    Essay,
+    Scale,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CmsPeerReviewQuestion</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_config_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">question</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType</span>,
-    <span class="kw">pub</span> <span class="ident">answer_required</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CmsPeerReviewQuestion {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>peer_review_config_id: Uuid,
+    <span class="kw">pub </span>order_number: i32,
+    <span class="kw">pub </span>question: String,
+    <span class="kw">pub </span>question_type: PeerReviewQuestionType,
+    <span class="kw">pub </span>answer_required: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CmsPeerReviewQuestion</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">prq</span>: <span class="ident">PeerReviewQuestion</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">id</span>: <span class="ident">prq</span>.<span class="ident">id</span>,
-            <span class="ident">peer_review_config_id</span>: <span class="ident">prq</span>.<span class="ident">peer_review_config_id</span>,
-            <span class="ident">order_number</span>: <span class="ident">prq</span>.<span class="ident">order_number</span>,
-            <span class="ident">question</span>: <span class="ident">prq</span>.<span class="ident">question</span>,
-            <span class="ident">question_type</span>: <span class="ident">prq</span>.<span class="ident">question_type</span>,
-            <span class="ident">answer_required</span>: <span class="ident">prq</span>.<span class="ident">answer_required</span>,
+<span class="kw">impl </span>From&lt;PeerReviewQuestion&gt; <span class="kw">for </span>CmsPeerReviewQuestion {
+    <span class="kw">fn </span>from(prq: PeerReviewQuestion) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            id: prq.id,
+            peer_review_config_id: prq.peer_review_config_id,
+            order_number: prq.order_number,
+            question: prq.question,
+            question_type: prq.question_type,
+            answer_required: prq.answer_required,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PeerReviewQuestion</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_config_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">question</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType</span>,
-    <span class="kw">pub</span> <span class="ident">answer_required</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>PeerReviewQuestion {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>peer_review_config_id: Uuid,
+    <span class="kw">pub </span>order_number: i32,
+    <span class="kw">pub </span>question: String,
+    <span class="kw">pub </span>question_type: PeerReviewQuestionType,
+    <span class="kw">pub </span>answer_required: bool,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">new_peer_review_question</span>: <span class="kw-2">&amp;</span><span class="ident">CmsPeerReviewQuestion</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    new_peer_review_question: <span class="kw-2">&amp;</span>CmsPeerReviewQuestion,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO peer_review_questions (
     id,
@@ -369,20 +369,20 @@ INSERT INTO peer_review_questions (
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">new_peer_review_question</span>.<span class="ident">peer_review_config_id</span>,
-        <span class="ident">new_peer_review_question</span>.<span class="ident">order_number</span>,
-        <span class="ident">new_peer_review_question</span>.<span class="ident">question</span>,
-        <span class="ident">new_peer_review_question</span>.<span class="ident">question_type</span> <span class="kw">as</span> <span class="ident">PeerReviewQuestionType</span>,
+        pkey_policy.into_uuid(),
+        new_peer_review_question.peer_review_config_id,
+        new_peer_review_question.order_number,
+        new_peer_review_question.question,
+        new_peer_review_question.question_type <span class="kw">as </span>PeerReviewQuestionType,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQuestion</span>,
+<span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;PeerReviewQuestion&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQuestion,
         <span class="string">r#&quot;
 SELECT id,
   created_at,
@@ -397,19 +397,19 @@ FROM peer_review_questions
 WHERE id = $1
   AND deleted_at IS NULL;
         &quot;#</span>,
-        <span class="ident">id</span>,
+        id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_peer_review_configs_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQuestion</span>,
+<span class="kw">pub async fn </span>get_by_peer_review_configs_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewQuestion&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQuestion,
         <span class="string">r#&quot;
 SELECT id,
     created_at,
@@ -424,19 +424,19 @@ FROM peer_review_questions
 WHERE peer_review_config_id = $1
   AND deleted_at IS NULL;
         &quot;#</span>,
-        <span class="ident">peer_review_id</span>,
+        peer_review_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_by_peer_review_config_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_config_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewQuestion</span>,
+<span class="kw">pub async fn </span>get_all_by_peer_review_config_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_config_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewQuestion&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PeerReviewQuestion,
         <span class="string">r#&quot;
 SELECT id,
     created_at,
@@ -451,31 +451,31 @@ FROM peer_review_questions
 WHERE peer_review_config_id = $1
     AND deleted_at IS NULL;
         &quot;#</span>,
-        <span class="ident">peer_review_config_id</span>
+        peer_review_config_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_by_peer_review_config_id_as_map</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_config_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">get_all_by_peer_review_config_id</span>(<span class="ident">conn</span>, <span class="ident">peer_review_config_id</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">id</span>, <span class="ident">x</span>))
-        .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+<span class="kw">pub async fn </span>get_all_by_peer_review_config_id_as_map(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_config_id: Uuid,
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, PeerReviewQuestion&gt;&gt; {
+    <span class="kw">let </span>res = get_all_by_peer_review_config_id(conn, peer_review_config_id)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.into_iter()
+        .map(|x| (x.id, x))
+        .collect();
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_page_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPeerReviewQuestion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CmsPeerReviewQuestion</span>,
+<span class="kw">pub async fn </span>get_by_page_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    page_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;CmsPeerReviewQuestion&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CmsPeerReviewQuestion,
         <span class="string">r#&quot;
 SELECT prq.id as id,
   prq.peer_review_config_id as peer_review_config_id,
@@ -493,19 +493,19 @@ where p.id = $1
   AND pr.deleted_at IS NULL
   AND prq.deleted_at IS NULL;
   &quot;#</span>,
-        <span class="ident">page_id</span>
+        page_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_peer_review_questions_by_peer_review_config_ids</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_config_ids</span>: <span class="kw-2">&amp;</span>[<span class="ident">Uuid</span>],
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>delete_peer_review_questions_by_peer_review_config_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_config_ids: <span class="kw-2">&amp;</span>[Uuid],
+) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE peer_review_questions
 SET deleted_at = now()
@@ -513,22 +513,22 @@ WHERE peer_review_config_id = ANY ($1)
 AND deleted_at IS NULL
 RETURNING id;
     &quot;</span>,
-        <span class="ident">peer_review_config_ids</span>
+        peer_review_config_ids
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">into_iter</span>()
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">id</span>)
-    .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    .fetch_all(conn)
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.into_iter()
+    .map(|x| x.id)
+    .collect();
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_default_cms_peer_review_questions</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_config_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPeerReviewQuestion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CmsPeerReviewQuestion</span>,
+<span class="kw">pub async fn </span>get_course_default_cms_peer_review_questions(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_config_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;CmsPeerReviewQuestion&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CmsPeerReviewQuestion,
         <span class="string">r#&quot;
 SELECT id,
   peer_review_config_id,
@@ -540,28 +540,28 @@ FROM peer_review_questions
 where peer_review_config_id = $1
   AND deleted_at IS NULL;
     &quot;#</span>,
-        <span class="ident">peer_review_config_id</span>
+        peer_review_config_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_multiple_peer_review_questions</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review_questions</span>: <span class="kw-2">&amp;</span>[<span class="ident">CmsPeerReviewQuestion</span>],
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPeerReviewQuestion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sql</span>:<span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">sqlx::QueryBuilder::new</span>(<span class="string">&quot;INSERT INTO peer_review_questions (peer_review_config_id, order_number, question_type, question, answer_required) &quot;</span>);
+<span class="kw">pub async fn </span>upsert_multiple_peer_review_questions(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    peer_review_questions: <span class="kw-2">&amp;</span>[CmsPeerReviewQuestion],
+) -&gt; ModelResult&lt;Vec&lt;CmsPeerReviewQuestion&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>sql:QueryBuilder&lt;Postgres&gt; = sqlx::QueryBuilder::new(<span class="string">&quot;INSERT INTO peer_review_questions (peer_review_config_id, order_number, question_type, question, answer_required) &quot;</span>);
 
-    <span class="ident">sql</span>.<span class="ident">push_values</span>(<span class="ident">peer_review_questions</span>, <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">x</span>, <span class="ident">prq</span><span class="op">|</span> {
-        <span class="ident">x</span>.<span class="ident">push_bind</span>(<span class="ident">prq</span>.<span class="ident">peer_review_config_id</span>)
-            .<span class="ident">push_bind</span>(<span class="ident">prq</span>.<span class="ident">order_number</span>)
-            .<span class="ident">push_bind</span>(<span class="ident">prq</span>.<span class="ident">question_type</span>)
-            .<span class="ident">push_bind</span>(<span class="ident">prq</span>.<span class="ident">question</span>.<span class="ident">as_str</span>())
-            .<span class="ident">push_bind</span>(<span class="ident">prq</span>.<span class="ident">answer_required</span>);
+    sql.push_values(peer_review_questions, |<span class="kw-2">mut </span>x, prq| {
+        x.push_bind(prq.peer_review_config_id)
+            .push_bind(prq.order_number)
+            .push_bind(prq.question_type)
+            .push_bind(prq.question.as_str())
+            .push_bind(prq.answer_required);
     });
-    <span class="ident">sql</span>.<span class="ident">push</span>(
+    sql.push(
         <span class="string">r#&quot; ON CONFLICT (id) DO
 UPDATE
 SET peer_review_config_id = excluded.peer_review_config_id,
@@ -573,16 +573,16 @@ RETURNING id;
 &quot;#</span>,
     );
 
-    <span class="kw">let</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">sql</span>
-        .<span class="ident">build</span>()
-        .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">get</span>(<span class="number">0</span>))
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="kw">let </span>ids = sql
+        .build()
+        .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.iter()
+        .map(|x| x.get(<span class="number">0</span>))
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CmsPeerReviewQuestion</span>,
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        CmsPeerReviewQuestion,
         <span class="string">r#&quot;
 SELECT id,
   peer_review_config_id,
@@ -596,11 +596,11 @@ WHERE id IN (
   )
   AND deleted_at IS NULL;
     &quot;#</span>,
-        <span class="kw-2">&amp;</span><span class="ident">ids</span>
+        <span class="kw-2">&amp;</span>ids
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

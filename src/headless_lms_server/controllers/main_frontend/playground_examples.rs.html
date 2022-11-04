@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/playground_examples.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>playground_examples.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/playground_examples.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>playground_examples.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -86,79 +86,79 @@
 <span id="86">86</span>
 <span id="87">87</span>
 <span id="88">88</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">models::playground_examples</span>::{<span class="ident">PlaygroundExample</span>, <span class="ident">PlaygroundExampleData</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>models::playground_examples::{PlaygroundExample, PlaygroundExampleData};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">domain::authorization::skip_authorize</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
+<span class="kw">use crate</span>::{domain::authorization::skip_authorize, prelude::<span class="kw-2">*</span>};
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_playground_examples</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::playground_examples::get_all_playground_examples</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_playground_examples(
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;PlaygroundExample&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = models::playground_examples::get_all_playground_examples(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_playground_example</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PlaygroundExampleData</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">new_example</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span>
-        <span class="ident">models::playground_examples::insert_playground_example</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">new_example</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>insert_playground_example(
+    pool: web::Data&lt;PgPool&gt;,
+    payload: web::Json&lt;PlaygroundExampleData&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;PlaygroundExample&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>new_example = payload.<span class="number">0</span>;
+    <span class="kw">let </span>res =
+        models::playground_examples::insert_playground_example(<span class="kw-2">&amp;mut </span>conn, new_example).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::PlaygroundExample</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::PlaygroundExample).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
 PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground example.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_playground_example</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">example</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>update_playground_example(
+    pool: web::Data&lt;PgPool&gt;,
+    payload: web::Json&lt;PlaygroundExample&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;PlaygroundExample&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>example = payload.<span class="number">0</span>;
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::playground_examples::update_playground_example</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">example</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = models::playground_examples::update_playground_example(<span class="kw-2">&amp;mut </span>conn, example).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::PlaygroundExample</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::PlaygroundExample).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground example if exists.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_playground_example</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">playground_example_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PlaygroundExample</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">example_id</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">playground_example_id</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::playground_examples::delete_playground_example</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">example_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>delete_playground_example(
+    pool: web::Data&lt;PgPool&gt;,
+    playground_example_id: web::Path&lt;Uuid&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;PlaygroundExample&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>example_id = <span class="kw-2">*</span>playground_example_id;
+    <span class="kw">let </span>res = models::playground_examples::delete_playground_example(<span class="kw-2">&amp;mut </span>conn, example_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::PlaygroundExample</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::PlaygroundExample).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
@@ -167,12 +167,12 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_playground_examples</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">insert_playground_example</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_playground_example</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{id}&quot;</span>, <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">delete_playground_example</span>));
+*/
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;&quot;</span>, web::get().to(get_playground_examples))
+        .route(<span class="string">&quot;&quot;</span>, web::post().to(insert_playground_example))
+        .route(<span class="string">&quot;&quot;</span>, web::put().to(update_playground_example))
+        .route(<span class="string">&quot;/{id}&quot;</span>, web::delete().to(delete_playground_example));
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/sync/mutex.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mutex.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/sync/mutex.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mutex.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -503,510 +503,510 @@
 <span id="503">503</span>
 <span id="504">504</span>
 <span id="505">505</span>
-</pre><pre class="rust"><code><span class="doccomment">//! An asynchronously awaitable mutex for synchronization between concurrently</span>
-<span class="doccomment">//! executing futures.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! An asynchronously awaitable mutex for synchronization between concurrently
+//! executing futures.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">intrusive_double_linked_list</span>::{<span class="ident">LinkedList</span>, <span class="ident">ListNode</span>},
-    <span class="ident">utils::update_waker_ref</span>,
-    <span class="ident">NoopLock</span>,
+</span><span class="kw">use crate</span>::{
+    intrusive_double_linked_list::{LinkedList, ListNode},
+    utils::update_waker_ref,
+    NoopLock,
 };
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">cell::UnsafeCell</span>,
-    <span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>},
-    <span class="ident">pin::Pin</span>,
+<span class="kw">use </span>core::{
+    cell::UnsafeCell,
+    ops::{Deref, DerefMut},
+    pin::Pin,
 };
-<span class="kw">use</span> <span class="ident">futures_core</span>::{
-    <span class="ident">future</span>::{<span class="ident">FusedFuture</span>, <span class="ident">Future</span>},
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>},
+<span class="kw">use </span>futures_core::{
+    future::{FusedFuture, Future},
+    task::{Context, Poll, Waker},
 };
-<span class="kw">use</span> <span class="ident">lock_api</span>::{<span class="ident">Mutex</span> <span class="kw">as</span> <span class="ident">LockApiMutex</span>, <span class="ident">RawMutex</span>};
+<span class="kw">use </span>lock_api::{Mutex <span class="kw">as </span>LockApiMutex, RawMutex};
 
-<span class="doccomment">/// Tracks how the future had interacted with the mutex</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">PollState</span> {
-    <span class="doccomment">/// The task has never interacted with the mutex.</span>
-    <span class="ident">New</span>,
-    <span class="doccomment">/// The task was added to the wait queue at the mutex.</span>
-    <span class="ident">Waiting</span>,
-    <span class="doccomment">/// The task had previously waited on the mutex, but was notified</span>
-    <span class="doccomment">/// that the mutex was released in the meantime.</span>
-    <span class="ident">Notified</span>,
-    <span class="doccomment">/// The task had been polled to completion.</span>
-    <span class="ident">Done</span>,
+<span class="doccomment">/// Tracks how the future had interacted with the mutex
+</span><span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">enum </span>PollState {
+    <span class="doccomment">/// The task has never interacted with the mutex.
+    </span>New,
+    <span class="doccomment">/// The task was added to the wait queue at the mutex.
+    </span>Waiting,
+    <span class="doccomment">/// The task had previously waited on the mutex, but was notified
+    /// that the mutex was released in the meantime.
+    </span>Notified,
+    <span class="doccomment">/// The task had been polled to completion.
+    </span>Done,
 }
 
-<span class="doccomment">/// Tracks the MutexLockFuture waiting state.</span>
-<span class="doccomment">/// Access to this struct is synchronized through the mutex in the Event.</span>
-<span class="kw">struct</span> <span class="ident">WaitQueueEntry</span> {
-    <span class="doccomment">/// The task handle of the waiting task</span>
-    <span class="ident">task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Current polling state</span>
-    <span class="ident">state</span>: <span class="ident">PollState</span>,
+<span class="doccomment">/// Tracks the MutexLockFuture waiting state.
+/// Access to this struct is synchronized through the mutex in the Event.
+</span><span class="kw">struct </span>WaitQueueEntry {
+    <span class="doccomment">/// The task handle of the waiting task
+    </span>task: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
+    <span class="doccomment">/// Current polling state
+    </span>state: PollState,
 }
 
-<span class="kw">impl</span> <span class="ident">WaitQueueEntry</span> {
-    <span class="doccomment">/// Creates a new WaitQueueEntry</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">WaitQueueEntry</span> {
-        <span class="ident">WaitQueueEntry</span> {
-            <span class="ident">task</span>: <span class="prelude-val">None</span>,
-            <span class="ident">state</span>: <span class="ident">PollState::New</span>,
+<span class="kw">impl </span>WaitQueueEntry {
+    <span class="doccomment">/// Creates a new WaitQueueEntry
+    </span><span class="kw">fn </span>new() -&gt; WaitQueueEntry {
+        WaitQueueEntry {
+            task: <span class="prelude-val">None</span>,
+            state: PollState::New,
         }
     }
 }
 
-<span class="doccomment">/// Internal state of the `Mutex`</span>
-<span class="kw">struct</span> <span class="ident">MutexState</span> {
-    <span class="ident">is_fair</span>: <span class="ident">bool</span>,
-    <span class="ident">is_locked</span>: <span class="ident">bool</span>,
-    <span class="ident">waiters</span>: <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Internal state of the `Mutex`
+</span><span class="kw">struct </span>MutexState {
+    is_fair: bool,
+    is_locked: bool,
+    waiters: LinkedList&lt;WaitQueueEntry&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">MutexState</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_fair</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">MutexState</span> {
-            <span class="ident">is_fair</span>,
-            <span class="ident">is_locked</span>: <span class="bool-val">false</span>,
-            <span class="ident">waiters</span>: <span class="ident">LinkedList::new</span>(),
+<span class="kw">impl </span>MutexState {
+    <span class="kw">fn </span>new(is_fair: bool) -&gt; <span class="self">Self </span>{
+        MutexState {
+            is_fair,
+            is_locked: <span class="bool-val">false</span>,
+            waiters: LinkedList::new(),
         }
     }
 
-    <span class="doccomment">/// Returns the `Waker` associated with the up the last waiter</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the Mutex is not fair, removes the associated wait node also from</span>
-    <span class="doccomment">/// the wait queue</span>
-    <span class="kw">fn</span> <span class="ident">return_last_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">last_waiter</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_fair</span> {
-            <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">peek_last</span>()
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">remove_last</span>()
+    <span class="doccomment">/// Returns the `Waker` associated with the up the last waiter
+    ///
+    /// If the Mutex is not fair, removes the associated wait node also from
+    /// the wait queue
+    </span><span class="kw">fn </span>return_last_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Waker&gt; {
+        <span class="kw">let </span>last_waiter = <span class="kw">if </span><span class="self">self</span>.is_fair {
+            <span class="self">self</span>.waiters.peek_last()
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.waiters.remove_last()
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last_waiter</span>) <span class="op">=</span> <span class="ident">last_waiter</span> {
-            <span class="comment">// Notify the waiter that it can try to lock the mutex again.</span>
-            <span class="comment">// The notification gets tracked inside the waiter.</span>
-            <span class="comment">// If the waiter aborts it&#39;s wait (drops the future), another task</span>
-            <span class="comment">// must be woken.</span>
-            <span class="ident">last_waiter</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Notified</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(last_waiter) = last_waiter {
+            <span class="comment">// Notify the waiter that it can try to lock the mutex again.
+            // The notification gets tracked inside the waiter.
+            // If the waiter aborts it&#39;s wait (drops the future), another task
+            // must be woken.
+            </span>last_waiter.state = PollState::Notified;
 
-            <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">last_waiter</span>.<span class="ident">task</span>;
-            <span class="kw">return</span> <span class="ident">task</span>.<span class="ident">take</span>();
+            <span class="kw">let </span>task = <span class="kw-2">&amp;mut </span>last_waiter.task;
+            <span class="kw">return </span>task.take();
         }
 
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">fn </span>is_locked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_locked
     }
 
-    <span class="kw">fn</span> <span class="ident">is_locked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">is_locked</span>
+    <span class="doccomment">/// Unlocks the mutex
+    ///
+    /// This is expected to be only called from the current holder of the mutex.
+    /// The method returns the `Waker` which is associated with the task that
+    /// needs to get woken due to the unlock.
+    </span><span class="kw">fn </span>unlock(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Waker&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_locked {
+            <span class="self">self</span>.is_locked = <span class="bool-val">false</span>;
+            <span class="comment">// TODO: Does this require a memory barrier for the actual data,
+            // or is this covered by unlocking the mutex which protects the data?
+            // Wakeup the last waiter
+            </span><span class="self">self</span>.return_last_waiter()
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="doccomment">/// Unlocks the mutex</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is expected to be only called from the current holder of the mutex.</span>
-    <span class="doccomment">/// The method returns the `Waker` which is associated with the task that</span>
-    <span class="doccomment">/// needs to get woken due to the unlock.</span>
-    <span class="kw">fn</span> <span class="ident">unlock</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_locked</span> {
-            <span class="self">self</span>.<span class="ident">is_locked</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="comment">// TODO: Does this require a memory barrier for the actual data,</span>
-            <span class="comment">// or is this covered by unlocking the mutex which protects the data?</span>
-            <span class="comment">// Wakeup the last waiter</span>
-            <span class="self">self</span>.<span class="ident">return_last_waiter</span>()
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+    <span class="doccomment">/// Tries to lock the mutex synchronously.
+    ///
+    /// Returns true if the lock obtained and false otherwise.
+    </span><span class="kw">fn </span>try_lock_sync(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="comment">// The lock can only be obtained synchronously if
+        // - it is not locked
+        // - the Semaphore is either not fair, or there are no waiters
+        // - required_permits == 0
+        </span><span class="kw">if </span>!<span class="self">self</span>.is_locked &amp;&amp; (!<span class="self">self</span>.is_fair || <span class="self">self</span>.waiters.is_empty()) {
+            <span class="self">self</span>.is_locked = <span class="bool-val">true</span>;
+            <span class="bool-val">true
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     }
 
-    <span class="doccomment">/// Tries to lock the mutex synchronously.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns true if the lock obtained and false otherwise.</span>
-    <span class="kw">fn</span> <span class="ident">try_lock_sync</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// The lock can only be obtained synchronously if</span>
-        <span class="comment">// - it is not locked</span>
-        <span class="comment">// - the Semaphore is either not fair, or there are no waiters</span>
-        <span class="comment">// - required_permits == 0</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_locked</span> <span class="op">&amp;&amp;</span> (<span class="op">!</span><span class="self">self</span>.<span class="ident">is_fair</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">is_empty</span>()) {
-            <span class="self">self</span>.<span class="ident">is_locked</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
-    }
-
-    <span class="doccomment">/// Tries to acquire the Mutex from a WaitQueueEntry.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If it isn&#39;t available, the WaitQueueEntry gets added to the wait</span>
-    <span class="doccomment">/// queue at the Mutex, and will be signalled once ready.</span>
-    <span class="doccomment">/// This function is only safe as long as the `wait_node`s address is guaranteed</span>
-    <span class="doccomment">/// to be stable until it gets removed from the queue.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">try_lock</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
-            <span class="ident">PollState::New</span> =&gt; {
-                <span class="comment">// The fast path - the Mutex isn&#39;t locked by anyone else.</span>
-                <span class="comment">// If the mutex is fair, noone must be in the wait list before us.</span>
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">try_lock_sync</span>() {
-                    <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
-                    <span class="ident">Poll::Ready</span>(())
-                } <span class="kw">else</span> {
-                    <span class="comment">// Add the task to the wait queue</span>
-                    <span class="ident">wait_node</span>.<span class="ident">task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
-                    <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Waiting</span>;
-                    <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">add_front</span>(<span class="ident">wait_node</span>);
-                    <span class="ident">Poll::Pending</span>
+    <span class="doccomment">/// Tries to acquire the Mutex from a WaitQueueEntry.
+    ///
+    /// If it isn&#39;t available, the WaitQueueEntry gets added to the wait
+    /// queue at the Mutex, and will be signalled once ready.
+    /// This function is only safe as long as the `wait_node`s address is guaranteed
+    /// to be stable until it gets removed from the queue.
+    </span><span class="kw">unsafe fn </span>try_lock(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;WaitQueueEntry&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;()&gt; {
+        <span class="kw">match </span>wait_node.state {
+            PollState::New =&gt; {
+                <span class="comment">// The fast path - the Mutex isn&#39;t locked by anyone else.
+                // If the mutex is fair, noone must be in the wait list before us.
+                </span><span class="kw">if </span><span class="self">self</span>.try_lock_sync() {
+                    wait_node.state = PollState::Done;
+                    Poll::Ready(())
+                } <span class="kw">else </span>{
+                    <span class="comment">// Add the task to the wait queue
+                    </span>wait_node.task = <span class="prelude-val">Some</span>(cx.waker().clone());
+                    wait_node.state = PollState::Waiting;
+                    <span class="self">self</span>.waiters.add_front(wait_node);
+                    Poll::Pending
                 }
             }
-            <span class="ident">PollState::Waiting</span> =&gt; {
-                <span class="comment">// The MutexLockFuture is already in the queue.</span>
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_fair</span> {
-                    <span class="comment">// The task needs to wait until it gets notified in order to</span>
-                    <span class="comment">// maintain the ordering. However the caller might have</span>
-                    <span class="comment">// passed a different `Waker`. In this case we need to update it.</span>
-                    <span class="ident">update_waker_ref</span>(<span class="kw-2">&amp;mut</span> <span class="ident">wait_node</span>.<span class="ident">task</span>, <span class="ident">cx</span>);
-                    <span class="ident">Poll::Pending</span>
-                } <span class="kw">else</span> {
-                    <span class="comment">// For throughput improvement purposes, grab the lock immediately</span>
-                    <span class="comment">// if it&#39;s available.</span>
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_locked</span> {
-                        <span class="self">self</span>.<span class="ident">is_locked</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
-                        <span class="comment">// Since this waiter has been registered before, it must</span>
-                        <span class="comment">// get removed from the waiter list.</span>
-                        <span class="comment">// Safety: Due to the state, we know that the node must be part</span>
-                        <span class="comment">// of the waiter list</span>
-                        <span class="self">self</span>.<span class="ident">force_remove_waiter</span>(<span class="ident">wait_node</span>);
-                        <span class="ident">Poll::Ready</span>(())
-                    } <span class="kw">else</span> {
-                        <span class="comment">// The caller might have passed a different `Waker`.</span>
-                        <span class="comment">// In this case we need to update it.</span>
-                        <span class="ident">update_waker_ref</span>(<span class="kw-2">&amp;mut</span> <span class="ident">wait_node</span>.<span class="ident">task</span>, <span class="ident">cx</span>);
-                        <span class="ident">Poll::Pending</span>
+            PollState::Waiting =&gt; {
+                <span class="comment">// The MutexLockFuture is already in the queue.
+                </span><span class="kw">if </span><span class="self">self</span>.is_fair {
+                    <span class="comment">// The task needs to wait until it gets notified in order to
+                    // maintain the ordering. However the caller might have
+                    // passed a different `Waker`. In this case we need to update it.
+                    </span>update_waker_ref(<span class="kw-2">&amp;mut </span>wait_node.task, cx);
+                    Poll::Pending
+                } <span class="kw">else </span>{
+                    <span class="comment">// For throughput improvement purposes, grab the lock immediately
+                    // if it&#39;s available.
+                    </span><span class="kw">if </span>!<span class="self">self</span>.is_locked {
+                        <span class="self">self</span>.is_locked = <span class="bool-val">true</span>;
+                        wait_node.state = PollState::Done;
+                        <span class="comment">// Since this waiter has been registered before, it must
+                        // get removed from the waiter list.
+                        // Safety: Due to the state, we know that the node must be part
+                        // of the waiter list
+                        </span><span class="self">self</span>.force_remove_waiter(wait_node);
+                        Poll::Ready(())
+                    } <span class="kw">else </span>{
+                        <span class="comment">// The caller might have passed a different `Waker`.
+                        // In this case we need to update it.
+                        </span>update_waker_ref(<span class="kw-2">&amp;mut </span>wait_node.task, cx);
+                        Poll::Pending
                     }
                 }
             }
-            <span class="ident">PollState::Notified</span> =&gt; {
-                <span class="comment">// We had been woken by the mutex, since the mutex is available again.</span>
-                <span class="comment">// The mutex thereby removed us from the waiters list.</span>
-                <span class="comment">// Just try to lock again. If the mutex isn&#39;t available,</span>
-                <span class="comment">// we need to add it to the wait queue again.</span>
-                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_locked</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_fair</span> {
-                        <span class="comment">// In a fair Mutex, the WaitQueueEntry is kept in the</span>
-                        <span class="comment">// linked list and must be removed here</span>
-                        <span class="comment">// Safety: Due to the state, we know that the node must be part</span>
-                        <span class="comment">// of the waiter list</span>
-                        <span class="self">self</span>.<span class="ident">force_remove_waiter</span>(<span class="ident">wait_node</span>);
+            PollState::Notified =&gt; {
+                <span class="comment">// We had been woken by the mutex, since the mutex is available again.
+                // The mutex thereby removed us from the waiters list.
+                // Just try to lock again. If the mutex isn&#39;t available,
+                // we need to add it to the wait queue again.
+                </span><span class="kw">if </span>!<span class="self">self</span>.is_locked {
+                    <span class="kw">if </span><span class="self">self</span>.is_fair {
+                        <span class="comment">// In a fair Mutex, the WaitQueueEntry is kept in the
+                        // linked list and must be removed here
+                        // Safety: Due to the state, we know that the node must be part
+                        // of the waiter list
+                        </span><span class="self">self</span>.force_remove_waiter(wait_node);
                     }
-                    <span class="self">self</span>.<span class="ident">is_locked</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
-                    <span class="ident">Poll::Ready</span>(())
-                } <span class="kw">else</span> {
-                    <span class="comment">// Fair mutexes should always be able to acquire the lock</span>
-                    <span class="comment">// after they had been notified</span>
-                    <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">is_fair</span>);
-                    <span class="comment">// Add to queue</span>
-                    <span class="ident">wait_node</span>.<span class="ident">task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
-                    <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Waiting</span>;
-                    <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">add_front</span>(<span class="ident">wait_node</span>);
-                    <span class="ident">Poll::Pending</span>
+                    <span class="self">self</span>.is_locked = <span class="bool-val">true</span>;
+                    wait_node.state = PollState::Done;
+                    Poll::Ready(())
+                } <span class="kw">else </span>{
+                    <span class="comment">// Fair mutexes should always be able to acquire the lock
+                    // after they had been notified
+                    </span><span class="macro">debug_assert!</span>(!<span class="self">self</span>.is_fair);
+                    <span class="comment">// Add to queue
+                    </span>wait_node.task = <span class="prelude-val">Some</span>(cx.waker().clone());
+                    wait_node.state = PollState::Waiting;
+                    <span class="self">self</span>.waiters.add_front(wait_node);
+                    Poll::Pending
                 }
             }
-            <span class="ident">PollState::Done</span> =&gt; {
-                <span class="comment">// The future had been polled to completion before</span>
-                <span class="macro">panic!</span>(<span class="string">&quot;polled Mutex after completion&quot;</span>);
+            PollState::Done =&gt; {
+                <span class="comment">// The future had been polled to completion before
+                </span><span class="macro">panic!</span>(<span class="string">&quot;polled Mutex after completion&quot;</span>);
             }
         }
     }
 
-    <span class="doccomment">/// Tries to remove a waiter from the wait queue, and panics if the</span>
-    <span class="doccomment">/// waiter is no longer valid.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">force_remove_waiter</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Tries to remove a waiter from the wait queue, and panics if the
+    /// waiter is no longer valid.
+    </span><span class="kw">unsafe fn </span>force_remove_waiter(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;WaitQueueEntry&gt;,
     ) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">remove</span>(<span class="ident">wait_node</span>) {
-            <span class="comment">// Panic if the address isn&#39;t found. This can only happen if the contract was</span>
-            <span class="comment">// violated, e.g. the WaitQueueEntry got moved after the initial poll.</span>
-            <span class="macro">panic!</span>(<span class="string">&quot;Future could not be removed from wait queue&quot;</span>);
+        <span class="kw">if </span>!<span class="self">self</span>.waiters.remove(wait_node) {
+            <span class="comment">// Panic if the address isn&#39;t found. This can only happen if the contract was
+            // violated, e.g. the WaitQueueEntry got moved after the initial poll.
+            </span><span class="macro">panic!</span>(<span class="string">&quot;Future could not be removed from wait queue&quot;</span>);
         }
     }
 
-    <span class="doccomment">/// Removes the waiter from the list.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only safe as long as the reference that is passed here</span>
-    <span class="doccomment">/// equals the reference/address under which the waiter was added.</span>
-    <span class="doccomment">/// The waiter must not have been moved in between.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns the `Waker` of another task which might get ready to run due to</span>
-    <span class="doccomment">/// this.</span>
-    <span class="kw">fn</span> <span class="ident">remove_waiter</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span> {
-        <span class="comment">// MutexLockFuture only needs to get removed if it had been added to</span>
-        <span class="comment">// the wait queue of the Mutex. This has happened in the PollState::Waiting case.</span>
-        <span class="comment">// If the current waiter was notified, another waiter must get notified now.</span>
-        <span class="kw">match</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
-            <span class="ident">PollState::Notified</span> =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_fair</span> {
-                    <span class="comment">// In a fair Mutex, the WaitQueueEntry is kept in the</span>
-                    <span class="comment">// linked list and must be removed here</span>
-                    <span class="comment">// Safety: Due to the state, we know that the node must be part</span>
-                    <span class="comment">// of the waiter list</span>
-                    <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">force_remove_waiter</span>(<span class="ident">wait_node</span>) };
+    <span class="doccomment">/// Removes the waiter from the list.
+    ///
+    /// This function is only safe as long as the reference that is passed here
+    /// equals the reference/address under which the waiter was added.
+    /// The waiter must not have been moved in between.
+    ///
+    /// Returns the `Waker` of another task which might get ready to run due to
+    /// this.
+    </span><span class="kw">fn </span>remove_waiter(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;WaitQueueEntry&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Waker&gt; {
+        <span class="comment">// MutexLockFuture only needs to get removed if it had been added to
+        // the wait queue of the Mutex. This has happened in the PollState::Waiting case.
+        // If the current waiter was notified, another waiter must get notified now.
+        </span><span class="kw">match </span>wait_node.state {
+            PollState::Notified =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.is_fair {
+                    <span class="comment">// In a fair Mutex, the WaitQueueEntry is kept in the
+                    // linked list and must be removed here
+                    // Safety: Due to the state, we know that the node must be part
+                    // of the waiter list
+                    </span><span class="kw">unsafe </span>{ <span class="self">self</span>.force_remove_waiter(wait_node) };
                 }
-                <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
-                <span class="comment">// Since the task was notified but did not lock the Mutex,</span>
-                <span class="comment">// another task gets the chance to run.</span>
-                <span class="self">self</span>.<span class="ident">return_last_waiter</span>()
+                wait_node.state = PollState::Done;
+                <span class="comment">// Since the task was notified but did not lock the Mutex,
+                // another task gets the chance to run.
+                </span><span class="self">self</span>.return_last_waiter()
             }
-            <span class="ident">PollState::Waiting</span> =&gt; {
-                <span class="comment">// Remove the WaitQueueEntry from the linked list</span>
-                <span class="comment">// Safety: Due to the state, we know that the node must be part</span>
-                <span class="comment">// of the waiter list</span>
-                <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">force_remove_waiter</span>(<span class="ident">wait_node</span>) };
-                <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
-                <span class="prelude-val">None</span>
+            PollState::Waiting =&gt; {
+                <span class="comment">// Remove the WaitQueueEntry from the linked list
+                // Safety: Due to the state, we know that the node must be part
+                // of the waiter list
+                </span><span class="kw">unsafe </span>{ <span class="self">self</span>.force_remove_waiter(wait_node) };
+                wait_node.state = PollState::Done;
+                <span class="prelude-val">None
+            </span>}
+            PollState::New | PollState::Done =&gt; <span class="prelude-val">None</span>,
+        }
+    }
+}
+
+<span class="doccomment">/// An RAII guard returned by the `lock` and `try_lock` methods.
+/// When this structure is dropped (falls out of scope), the lock will be
+/// unlocked.
+</span><span class="kw">pub struct </span>GenericMutexGuard&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T: <span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// The Mutex which is associated with this Guard
+    </span>mutex: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>GenericMutex&lt;MutexType, T&gt;,
+}
+
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T: core::fmt::Debug&gt; core::fmt::Debug
+    <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt;
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">&quot;GenericMutexGuard&quot;</span>).finish()
+    }
+}
+
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; Drop <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// Release the mutex
+        </span><span class="kw">let </span>waker = { <span class="self">self</span>.mutex.state.lock().unlock() };
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(waker) = waker {
+            waker.wake();
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; Deref <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt; {
+    <span class="kw">type </span>Target = T;
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.mutex.value.get() }
+    }
+}
+
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; DerefMut <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt; {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
+        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.mutex.value.get() }
+    }
+}
+
+<span class="comment">// Safety: GenericMutexGuard may only be used across threads if the underlying
+// type is Sync.
+</span><span class="kw">unsafe impl</span>&lt;MutexType: RawMutex, T: Sync&gt; Sync
+    <span class="kw">for </span>GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt;
+{
+}
+
+<span class="doccomment">/// A future which resolves when the target mutex has been successfully acquired.
+</span><span class="attribute">#[must_use = <span class="string">&quot;futures do nothing unless polled&quot;</span>]
+</span><span class="kw">pub struct </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T: <span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// The Mutex which should get locked trough this Future
+    </span>mutex: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>GenericMutex&lt;MutexType, T&gt;&gt;,
+    <span class="doccomment">/// Node for waiting at the mutex
+    </span>wait_node: ListNode&lt;WaitQueueEntry&gt;,
+}
+
+<span class="comment">// Safety: Futures can be sent between threads as long as the underlying
+// mutex is thread-safe (Sync), which allows to poll/register/unregister from
+// a different thread.
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex + Sync, T: <span class="lifetime">&#39;a</span>&gt; Send
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+{
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T: core::fmt::Debug&gt; core::fmt::Debug
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">&quot;GenericMutexLockFuture&quot;</span>).finish()
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T&gt; Future
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+{
+    <span class="kw">type </span>Output = GenericMutexGuard&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;;
+
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="comment">// Safety: The next operations are safe, because Pin promises us that
+        // the address of the wait queue entry inside GenericMutexLockFuture is stable,
+        // and we don&#39;t move any fields inside the future until it gets dropped.
+        </span><span class="kw">let </span>mut_self: <span class="kw-2">&amp;mut </span>GenericMutexLockFuture&lt;MutexType, T&gt; =
+            <span class="kw">unsafe </span>{ Pin::get_unchecked_mut(<span class="self">self</span>) };
+
+        <span class="kw">let </span>mutex = mut_self
+            .mutex
+            .expect(<span class="string">&quot;polled GenericMutexLockFuture after completion&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>mutex_state = mutex.state.lock();
+
+        <span class="kw">let </span>poll_res =
+            <span class="kw">unsafe </span>{ mutex_state.try_lock(<span class="kw-2">&amp;mut </span>mut_self.wait_node, cx) };
+
+        <span class="kw">match </span>poll_res {
+            Poll::Pending =&gt; Poll::Pending,
+            Poll::Ready(()) =&gt; {
+                <span class="comment">// The mutex was acquired
+                </span>mut_self.mutex = <span class="prelude-val">None</span>;
+                Poll::Ready(GenericMutexGuard::&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; { mutex })
             }
-            <span class="ident">PollState::New</span> <span class="op">|</span> <span class="ident">PollState::Done</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="doccomment">/// An RAII guard returned by the `lock` and `try_lock` methods.</span>
-<span class="doccomment">/// When this structure is dropped (falls out of scope), the lock will be</span>
-<span class="doccomment">/// unlocked.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The Mutex which is associated with this Guard</span>
-    <span class="ident">mutex</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span>: <span class="ident">core::fmt::Debug</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
-    <span class="kw">for</span> <span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T&gt; FusedFuture
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericMutexGuard&quot;</span>).<span class="ident">finish</span>()
+    <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.mutex.is_none()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// Release the mutex</span>
-        <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> { <span class="self">self</span>.<span class="ident">mutex</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">unlock</span>() };
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="ident">waker</span> {
-            <span class="ident">waker</span>.<span class="ident">wake</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex, T&gt; Drop
+    <span class="kw">for </span>GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+{
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// If this GenericMutexLockFuture has been polled and it was added to the
+        // wait queue at the mutex, it must be removed before dropping.
+        // Otherwise the mutex would access invalid memory.
+        </span><span class="kw">let </span>waker = <span class="kw">if let </span><span class="prelude-val">Some</span>(mutex) = <span class="self">self</span>.mutex {
+            <span class="kw">let </span><span class="kw-2">mut </span>mutex_state = mutex.state.lock();
+            mutex_state.remove_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(waker) = waker {
+            waker.wake();
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">mutex</span>.<span class="ident">value</span>.<span class="ident">get</span>() }
+<span class="doccomment">/// A futures-aware mutex.
+</span><span class="kw">pub struct </span>GenericMutex&lt;MutexType: RawMutex, T&gt; {
+    value: UnsafeCell&lt;T&gt;,
+    state: LockApiMutex&lt;MutexType, MutexState&gt;,
+}
+
+<span class="comment">// It is safe to send mutexes between threads, as long as they are not used and
+// thereby borrowed
+</span><span class="kw">unsafe impl</span>&lt;T: Send, MutexType: RawMutex + Send&gt; Send
+    <span class="kw">for </span>GenericMutex&lt;MutexType, T&gt;
+{
+}
+<span class="comment">// The mutex is thread-safe as long as the utilized mutex is thread-safe
+</span><span class="kw">unsafe impl</span>&lt;T: Send, MutexType: RawMutex + Sync&gt; Sync
+    <span class="kw">for </span>GenericMutex&lt;MutexType, T&gt;
+{
+}
+
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T: core::fmt::Debug&gt; core::fmt::Debug
+    <span class="kw">for </span>GenericMutex&lt;MutexType, T&gt;
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">&quot;Mutex&quot;</span>)
+            .field(<span class="string">&quot;is_locked&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.is_locked())
+            .finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">mutex</span>.<span class="ident">value</span>.<span class="ident">get</span>() }
-    }
-}
-
-<span class="comment">// Safety: GenericMutexGuard may only be used across threads if the underlying</span>
-<span class="comment">// type is Sync.</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span>: <span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Sync</span>
-    <span class="kw">for</span> <span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-{
-}
-
-<span class="doccomment">/// A future which resolves when the target mutex has been successfully acquired.</span>
-<span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The Mutex which should get locked trough this Future</span>
-    <span class="ident">mutex</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Node for waiting at the mutex</span>
-    <span class="ident">wait_node</span>: <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
-}
-
-<span class="comment">// Safety: Futures can be sent between threads as long as the underlying</span>
-<span class="comment">// mutex is thread-safe (Sync), which allows to poll/register/unregister from</span>
-<span class="comment">// a different thread.</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Sync</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Send</span>
-    <span class="kw">for</span> <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-{
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span>: <span class="ident">core::fmt::Debug</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
-    <span class="kw">for</span> <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-{
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericMutexLockFuture&quot;</span>).<span class="ident">finish</span>()
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Future</span>
-    <span class="kw">for</span> <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-{
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
-        <span class="comment">// the address of the wait queue entry inside GenericMutexLockFuture is stable,</span>
-        <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-        <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
-
-        <span class="kw">let</span> <span class="ident">mutex</span> <span class="op">=</span> <span class="ident">mut_self</span>
-            .<span class="ident">mutex</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;polled GenericMutexLockFuture after completion&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mutex_state</span> <span class="op">=</span> <span class="ident">mutex</span>.<span class="ident">state</span>.<span class="ident">lock</span>();
-
-        <span class="kw">let</span> <span class="ident">poll_res</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">mutex_state</span>.<span class="ident">try_lock</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>) };
-
-        <span class="kw">match</span> <span class="ident">poll_res</span> {
-            <span class="ident">Poll::Pending</span> =&gt; <span class="ident">Poll::Pending</span>,
-            <span class="ident">Poll::Ready</span>(()) =&gt; {
-                <span class="comment">// The mutex was acquired</span>
-                <span class="ident">mut_self</span>.<span class="ident">mutex</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="ident">Poll::Ready</span>(<span class="ident">GenericMutexGuard</span>::<span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> { <span class="ident">mutex</span> })
-            }
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span>
-    <span class="kw">for</span> <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-{
-    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">mutex</span>.<span class="ident">is_none</span>()
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span>
-    <span class="kw">for</span> <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-{
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// If this GenericMutexLockFuture has been polled and it was added to the</span>
-        <span class="comment">// wait queue at the mutex, it must be removed before dropping.</span>
-        <span class="comment">// Otherwise the mutex would access invalid memory.</span>
-        <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mutex</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">mutex</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mutex_state</span> <span class="op">=</span> <span class="ident">mutex</span>.<span class="ident">state</span>.<span class="ident">lock</span>();
-            <span class="ident">mutex_state</span>.<span class="ident">remove_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="ident">waker</span> {
-            <span class="ident">waker</span>.<span class="ident">wake</span>();
-        }
-    }
-}
-
-<span class="doccomment">/// A futures-aware mutex.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">value</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">state</span>: <span class="ident">LockApiMutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">MutexState</span><span class="op">&gt;</span>,
-}
-
-<span class="comment">// It is safe to send mutexes between threads, as long as they are not used and</span>
-<span class="comment">// thereby borrowed</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span>
-    <span class="kw">for</span> <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-{
-}
-<span class="comment">// The mutex is thread-safe as long as the utilized mutex is thread-safe</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Sync</span>
-    <span class="kw">for</span> <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-{
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span>: <span class="ident">core::fmt::Debug</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
-    <span class="kw">for</span> <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-{
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Mutex&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;is_locked&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">is_locked</span>())
-            .<span class="ident">finish</span>()
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new futures-aware mutex.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `is_fair` defines whether the `Mutex` should behave be fair regarding the</span>
-    <span class="doccomment">/// order of waiters. A fair `Mutex` will only allow the first waiter which</span>
-    <span class="doccomment">/// tried to lock but failed to lock the `Mutex` once it&#39;s available again.</span>
-    <span class="doccomment">/// Other waiters must wait until either this locking attempt completes, and</span>
-    <span class="doccomment">/// the `Mutex` gets unlocked again, or until the `MutexLockFuture` which</span>
-    <span class="doccomment">/// tried to gain the lock is dropped.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">is_fair</span>: <span class="ident">bool</span>) -&gt; <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">GenericMutex</span>::<span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="ident">value</span>: <span class="ident">UnsafeCell::new</span>(<span class="ident">value</span>),
-            <span class="ident">state</span>: <span class="ident">LockApiMutex::new</span>(<span class="ident">MutexState::new</span>(<span class="ident">is_fair</span>)),
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; GenericMutex&lt;MutexType, T&gt; {
+    <span class="doccomment">/// Creates a new futures-aware mutex.
+    ///
+    /// `is_fair` defines whether the `Mutex` should behave be fair regarding the
+    /// order of waiters. A fair `Mutex` will only allow the first waiter which
+    /// tried to lock but failed to lock the `Mutex` once it&#39;s available again.
+    /// Other waiters must wait until either this locking attempt completes, and
+    /// the `Mutex` gets unlocked again, or until the `MutexLockFuture` which
+    /// tried to gain the lock is dropped.
+    </span><span class="kw">pub fn </span>new(value: T, is_fair: bool) -&gt; GenericMutex&lt;MutexType, T&gt; {
+        GenericMutex::&lt;MutexType, T&gt; {
+            value: UnsafeCell::new(value),
+            state: LockApiMutex::new(MutexState::new(is_fair)),
         }
     }
 
-    <span class="doccomment">/// Acquire the mutex asynchronously.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method returns a future that will resolve once the mutex has been</span>
-    <span class="doccomment">/// successfully acquired.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">GenericMutexLockFuture</span>::<span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="ident">mutex</span>: <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>),
-            <span class="ident">wait_node</span>: <span class="ident">ListNode::new</span>(<span class="ident">WaitQueueEntry::new</span>()),
+    <span class="doccomment">/// Acquire the mutex asynchronously.
+    ///
+    /// This method returns a future that will resolve once the mutex has been
+    /// successfully acquired.
+    </span><span class="kw">pub fn </span>lock(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GenericMutexLockFuture&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt; {
+        GenericMutexLockFuture::&lt;MutexType, T&gt; {
+            mutex: <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>),
+            wait_node: ListNode::new(WaitQueueEntry::new()),
         }
     }
 
-    <span class="doccomment">/// Tries to acquire the mutex</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If acquiring the mutex is successful, a [`GenericMutexGuard`]</span>
-    <span class="doccomment">/// will be returned, which allows to access the contained data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise `None` will be returned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_lock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">try_lock_sync</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">GenericMutexGuard</span> { <span class="ident">mutex</span>: <span class="self">self</span> })
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+    <span class="doccomment">/// Tries to acquire the mutex
+    ///
+    /// If acquiring the mutex is successful, a [`GenericMutexGuard`]
+    /// will be returned, which allows to access the contained data.
+    ///
+    /// Otherwise `None` will be returned.
+    </span><span class="kw">pub fn </span>try_lock(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;GenericMutexGuard&lt;<span class="lifetime">&#39;_</span>, MutexType, T&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.state.lock().try_lock_sync() {
+            <span class="prelude-val">Some</span>(GenericMutexGuard { mutex: <span class="self">self </span>})
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="doccomment">/// Returns whether the mutex is locked.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_locked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">is_locked</span>()
+    <span class="doccomment">/// Returns whether the mutex is locked.
+    </span><span class="kw">pub fn </span>is_locked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.state.lock().is_locked()
     }
 }
 
-<span class="comment">// Export a non thread-safe version using NoopLock</span>
+<span class="comment">// Export a non thread-safe version using NoopLock
 
-<span class="doccomment">/// A [`GenericMutex`] which is not thread-safe.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LocalMutex</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">NoopLock</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-<span class="doccomment">/// A [`GenericMutexGuard`] for [`LocalMutex`].</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LocalMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">NoopLock</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-<span class="doccomment">/// A [`GenericMutexLockFuture`] for [`LocalMutex`].</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LocalMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">NoopLock</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+</span><span class="doccomment">/// A [`GenericMutex`] which is not thread-safe.
+</span><span class="kw">pub type </span>LocalMutex&lt;T&gt; = GenericMutex&lt;NoopLock, T&gt;;
+<span class="doccomment">/// A [`GenericMutexGuard`] for [`LocalMutex`].
+</span><span class="kw">pub type </span>LocalMutexGuard&lt;<span class="lifetime">&#39;a</span>, T&gt; = GenericMutexGuard&lt;<span class="lifetime">&#39;a</span>, NoopLock, T&gt;;
+<span class="doccomment">/// A [`GenericMutexLockFuture`] for [`LocalMutex`].
+</span><span class="kw">pub type </span>LocalMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, T&gt; = GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, NoopLock, T&gt;;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">if_std</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">mod </span>if_std {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="comment">// Export a thread-safe version using parking_lot::RawMutex</span>
+    <span class="comment">// Export a thread-safe version using parking_lot::RawMutex
 
-    <span class="doccomment">/// A [`GenericMutex`] backed by [`parking_lot`].</span>
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">GenericMutex</span><span class="op">&lt;</span><span class="ident">parking_lot::RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// A [`GenericMutexGuard`] for [`Mutex`].</span>
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">MutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">GenericMutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">parking_lot::RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// A [`GenericMutexLockFuture`] for [`Mutex`].</span>
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">MutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">GenericMutexLockFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">parking_lot::RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+    </span><span class="doccomment">/// A [`GenericMutex`] backed by [`parking_lot`].
+    </span><span class="kw">pub type </span>Mutex&lt;T&gt; = GenericMutex&lt;parking_lot::RawMutex, T&gt;;
+    <span class="doccomment">/// A [`GenericMutexGuard`] for [`Mutex`].
+    </span><span class="kw">pub type </span>MutexGuard&lt;<span class="lifetime">&#39;a</span>, T&gt; =
+        GenericMutexGuard&lt;<span class="lifetime">&#39;a</span>, parking_lot::RawMutex, T&gt;;
+    <span class="doccomment">/// A [`GenericMutexLockFuture`] for [`Mutex`].
+    </span><span class="kw">pub type </span>MutexLockFuture&lt;<span class="lifetime">&#39;a</span>, T&gt; =
+        GenericMutexLockFuture&lt;<span class="lifetime">&#39;a</span>, parking_lot::RawMutex, T&gt;;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_std</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::if_std::<span class="kw-2">*</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

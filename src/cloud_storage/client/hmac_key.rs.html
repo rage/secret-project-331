@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/client/hmac_key.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hmac_key.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/client/hmac_key.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hmac_key.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -234,241 +234,241 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error::GoogleResponse</span>,
-    <span class="ident">hmac_key</span>::{<span class="ident">HmacKey</span>, <span class="ident">HmacMeta</span>, <span class="ident">HmacState</span>},
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    error::GoogleResponse,
+    hmac_key::{HmacKey, HmacMeta, HmacState},
 };
 
-<span class="doccomment">/// Operations on [`HmacKey`](HmacKey)s.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HmacKeyClient</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident"><span class="kw">super</span>::Client</span>);
+<span class="doccomment">/// Operations on [`HmacKey`](HmacKey)s.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>HmacKeyClient&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">super</span>::Client);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">HmacKeyClient</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new HMAC key for the specified service account.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have `storage.hmacKeys.create` permission for the project in</span>
-    <span class="doccomment">/// which the key will be created.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::HmacKey;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let hmac_key = client.hmac_key().create().await?;</span>
-    <span class="doccomment">/// # use cloud_storage::hmac_key::HmacState;</span>
-    <span class="doccomment">/// # client.hmac_key().update(&amp;hmac_key.metadata.access_id, HmacState::Inactive).await?;</span>
-    <span class="doccomment">/// # client.hmac_key().delete(&amp;hmac_key.metadata.access_id).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">HmacKey</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">reqwest::header::CONTENT_LENGTH</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; HmacKeyClient&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Creates a new HMAC key for the specified service account.
+    ///
+    /// The authenticated user must have `storage.hmacKeys.create` permission for the project in
+    /// which the key will be created.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::hmac_key::HmacKey;
+    ///
+    /// let client = Client::default();
+    /// let hmac_key = client.hmac_key().create().await?;
+    /// # use cloud_storage::hmac_key::HmacState;
+    /// # client.hmac_key().update(&amp;hmac_key.metadata.access_id, HmacState::Inactive).await?;
+    /// # client.hmac_key().delete(&amp;hmac_key.metadata.access_id).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>create(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;HmacKey&gt; {
+        <span class="kw">use </span>reqwest::header::CONTENT_LENGTH;
 
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident"><span class="kw">crate</span>::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>
+            <span class="kw">crate</span>::BASE_URL,
+            <span class="kw">crate</span>::SERVICE_ACCOUNT.project_id
         );
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> [(<span class="string">&quot;serviceAccountEmail&quot;</span>, <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::SERVICE_ACCOUNT</span>.<span class="ident">client_email</span>)];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="number">0</span>.<span class="ident">into</span>());
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">HmacKey</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="ident">headers</span>)
-            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+        <span class="kw">let </span>query = [(<span class="string">&quot;serviceAccountEmail&quot;</span>, <span class="kw-2">&amp;</span><span class="kw">crate</span>::SERVICE_ACCOUNT.client_email)];
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = <span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>;
+        headers.insert(CONTENT_LENGTH, <span class="number">0</span>.into());
+        <span class="kw">let </span>result: GoogleResponse&lt;HmacKey&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .post(<span class="kw-2">&amp;</span>url)
+            .headers(headers)
+            .query(<span class="kw-2">&amp;</span>query)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Retrieves a list of HMAC keys matching the criteria. Since the HmacKey is secret, this does</span>
-    <span class="doccomment">/// not return a `HmacKey`, but a `HmacMeta`. This is a redacted version of a `HmacKey`, but</span>
-    <span class="doccomment">/// with the secret data omitted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have `storage.hmacKeys.list` permission for the project in which</span>
-    <span class="doccomment">/// the key exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::HmacKey;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let all_hmac_keys = client.hmac_key().list().await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="doccomment">/// Retrieves a list of HMAC keys matching the criteria. Since the HmacKey is secret, this does
+    /// not return a `HmacKey`, but a `HmacMeta`. This is a redacted version of a `HmacKey`, but
+    /// with the secret data omitted.
+    ///
+    /// The authenticated user must have `storage.hmacKeys.list` permission for the project in which
+    /// the key exists.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::hmac_key::HmacKey;
+    ///
+    /// let client = Client::default();
+    /// let all_hmac_keys = client.hmac_key().list().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;HmacMeta&gt;&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident"><span class="kw">crate</span>::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>
+            <span class="kw">crate</span>::BASE_URL,
+            <span class="kw">crate</span>::SERVICE_ACCOUNT.project_id
         );
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">text</span>()
+        <span class="kw">let </span>response = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .get(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.text()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::hmac_key::ListResponse</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">response</span>);
+        <span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;GoogleResponse&lt;<span class="kw">crate</span>::hmac_key::ListResponse&gt;, <span class="kw">_</span>&gt; =
+            serde_json::from_str(<span class="kw-2">&amp;</span>response);
 
-        <span class="comment">// This function rquires more complicated error handling because when there is only one</span>
-        <span class="comment">// entry, Google will return the response `{ &quot;kind&quot;: &quot;storage#hmacKeysMetadata&quot; }` instead</span>
-        <span class="comment">// of a list with one element. This breaks the parser.</span>
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">parsed</span>) =&gt; <span class="kw">match</span> <span class="ident">parsed</span> {
-                <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">items</span>),
-                <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="comment">// This function rquires more complicated error handling because when there is only one
+        // entry, Google will return the response `{ &quot;kind&quot;: &quot;storage#hmacKeysMetadata&quot; }` instead
+        // of a list with one element. This breaks the parser.
+        </span><span class="kw">match </span>result {
+            <span class="prelude-val">Ok</span>(parsed) =&gt; <span class="kw">match </span>parsed {
+                GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s.items),
+                GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
             },
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[]),
         }
     }
 
-    <span class="doccomment">/// Retrieves an HMAC key&#39;s metadata. Since the HmacKey is secret, this does not return a</span>
-    <span class="doccomment">/// `HmacKey`, but a `HmacMeta`. This is a redacted version of a `HmacKey`, but with the secret</span>
-    <span class="doccomment">/// data omitted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have `storage.hmacKeys.get` permission for the project in which</span>
-    <span class="doccomment">/// the key exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::HmacKey;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let key = client.hmac_key().read(&quot;some identifier&quot;).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="doccomment">/// Retrieves an HMAC key&#39;s metadata. Since the HmacKey is secret, this does not return a
+    /// `HmacKey`, but a `HmacMeta`. This is a redacted version of a `HmacKey`, but with the secret
+    /// data omitted.
+    ///
+    /// The authenticated user must have `storage.hmacKeys.get` permission for the project in which
+    /// the key exists.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::hmac_key::HmacKey;
+    ///
+    /// let client = Client::default();
+    /// let key = client.hmac_key().read(&quot;some identifier&quot;).await?;
+    /// # Ok(())
+    /// # }
+    </span><span class="kw">pub async fn </span>read(<span class="kw-2">&amp;</span><span class="self">self</span>, access_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;HmacMeta&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys/{}&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident"><span class="kw">crate</span>::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>,
-            <span class="ident">access_id</span>
+            <span class="kw">crate</span>::BASE_URL,
+            <span class="kw">crate</span>::SERVICE_ACCOUNT.project_id,
+            access_id
         );
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+        <span class="kw">let </span>result: GoogleResponse&lt;HmacMeta&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .get(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Updates the state of an HMAC key. See the HMAC Key resource descriptor for valid states.</span>
-    <span class="doccomment">/// Since the HmacKey is secret, this does not return a `HmacKey`, but a `HmacMeta`. This is a</span>
-    <span class="doccomment">/// redacted version of a `HmacKey`, but with the secret data omitted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have `storage.hmacKeys.update` permission for the project in</span>
-    <span class="doccomment">/// which the key exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::{HmacKey, HmacState};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let key = client.hmac_key().update(&quot;your key&quot;, HmacState::Active).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">state</span>: <span class="ident">HmacState</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="doccomment">/// Updates the state of an HMAC key. See the HMAC Key resource descriptor for valid states.
+    /// Since the HmacKey is secret, this does not return a `HmacKey`, but a `HmacMeta`. This is a
+    /// redacted version of a `HmacKey`, but with the secret data omitted.
+    ///
+    /// The authenticated user must have `storage.hmacKeys.update` permission for the project in
+    /// which the key exists.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::hmac_key::{HmacKey, HmacState};
+    ///
+    /// let client = Client::default();
+    /// let key = client.hmac_key().update(&quot;your key&quot;, HmacState::Active).await?;
+    /// # Ok(())
+    /// # }
+    </span><span class="kw">pub async fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>, access_id: <span class="kw-2">&amp;</span>str, state: HmacState) -&gt; <span class="kw">crate</span>::Result&lt;HmacMeta&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys/{}&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident"><span class="kw">crate</span>::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>,
-            <span class="ident">access_id</span>
+            <span class="kw">crate</span>::BASE_URL,
+            <span class="kw">crate</span>::SERVICE_ACCOUNT.project_id,
+            access_id
         );
-        <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::hmac_key::UpdateMeta</span> { <span class="ident">state</span> })<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::hmac_key::UpdateMeta</span> { <span class="ident">state</span> })
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+        serde_json::to_string(<span class="kw-2">&amp;</span><span class="kw">crate</span>::hmac_key::UpdateMeta { state })<span class="question-mark">?</span>;
+        <span class="kw">let </span>result: GoogleResponse&lt;HmacMeta&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .put(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .json(<span class="kw-2">&amp;</span><span class="kw">crate</span>::hmac_key::UpdateMeta { state })
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Deletes an HMAC key. Note that a key must be set to `Inactive` first.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have storage.hmacKeys.delete permission for the project in which</span>
-    <span class="doccomment">/// the key exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::{HmacKey, HmacState};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let key = client.hmac_key().update(&quot;your key&quot;, HmacState::Inactive).await?; // this is required.</span>
-    <span class="doccomment">/// client.hmac_key().delete(&amp;key.access_id).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="doccomment">/// Deletes an HMAC key. Note that a key must be set to `Inactive` first.
+    ///
+    /// The authenticated user must have storage.hmacKeys.delete permission for the project in which
+    /// the key exists.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::hmac_key::{HmacKey, HmacState};
+    ///
+    /// let client = Client::default();
+    /// let key = client.hmac_key().update(&quot;your key&quot;, HmacState::Inactive).await?; // this is required.
+    /// client.hmac_key().delete(&amp;key.access_id).await?;
+    /// # Ok(())
+    /// # }
+    </span><span class="kw">pub async fn </span>delete(<span class="kw-2">&amp;</span><span class="self">self</span>, access_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/projects/{}/hmacKeys/{}&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident"><span class="kw">crate</span>::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>,
-            <span class="ident">access_id</span>
+            <span class="kw">crate</span>::BASE_URL,
+            <span class="kw">crate</span>::SERVICE_ACCOUNT.project_id,
+            access_id
         );
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
+        <span class="kw">let </span>response = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .delete(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">response</span>.<span class="ident">status</span>().<span class="ident">is_success</span>() {
+        <span class="kw">if </span>response.status().is_success() {
             <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::Google</span>(<span class="ident">response</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Google(response.json().<span class="kw">await</span><span class="question-mark">?</span>))
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

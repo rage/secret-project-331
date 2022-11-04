@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_service/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -324,329 +324,329 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
-</pre><pre class="rust"><code><span class="doccomment">//! See [`Service`] docs for information on this crate&#39;s foundational trait.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! See [`Service`] docs for information on this crate&#39;s foundational trait.
 
-<span class="attribute">#![<span class="ident">no_std</span>]</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">rust_2018_idioms</span>, <span class="ident">nonstandard_style</span>)]</span>
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">future_incompatible</span>, <span class="ident">missing_docs</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://actix.rs/img/logo.png&quot;</span>)]</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://actix.rs/favicon.ico&quot;</span>)]</span>
+</span><span class="attribute">#![no_std]
+#![deny(rust_2018_idioms, nonstandard_style)]
+#![warn(future_incompatible, missing_docs)]
+#![allow(clippy::type_complexity)]
+#![doc(html_logo_url = <span class="string">&quot;https://actix.rs/img/logo.png&quot;</span>)]
+#![doc(html_favicon_url = <span class="string">&quot;https://actix.rs/favicon.ico&quot;</span>)]
 
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
+</span><span class="kw">extern crate </span>alloc;
 
-<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">boxed::Box</span>, <span class="ident">rc::Rc</span>, <span class="ident">sync::Arc</span>};
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">cell::RefCell</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">task</span>::{<span class="self">self</span>, <span class="ident">Context</span>, <span class="ident">Poll</span>},
+<span class="kw">use </span>alloc::{boxed::Box, rc::Rc, sync::Arc};
+<span class="kw">use </span>core::{
+    cell::RefCell,
+    future::Future,
+    task::{<span class="self">self</span>, Context, Poll},
 };
 
-<span class="kw">mod</span> <span class="ident">and_then</span>;
-<span class="kw">mod</span> <span class="ident">apply</span>;
-<span class="kw">mod</span> <span class="ident">apply_cfg</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">boxed</span>;
-<span class="kw">mod</span> <span class="ident">ext</span>;
-<span class="kw">mod</span> <span class="ident">fn_service</span>;
-<span class="kw">mod</span> <span class="ident">macros</span>;
-<span class="kw">mod</span> <span class="ident">map</span>;
-<span class="kw">mod</span> <span class="ident">map_config</span>;
-<span class="kw">mod</span> <span class="ident">map_err</span>;
-<span class="kw">mod</span> <span class="ident">map_init_err</span>;
-<span class="kw">mod</span> <span class="ident">pipeline</span>;
-<span class="kw">mod</span> <span class="ident">ready</span>;
-<span class="kw">mod</span> <span class="ident">then</span>;
-<span class="kw">mod</span> <span class="ident">transform</span>;
-<span class="kw">mod</span> <span class="ident">transform_err</span>;
+<span class="kw">mod </span>and_then;
+<span class="kw">mod </span>apply;
+<span class="kw">mod </span>apply_cfg;
+<span class="kw">pub mod </span>boxed;
+<span class="kw">mod </span>ext;
+<span class="kw">mod </span>fn_service;
+<span class="kw">mod </span>macros;
+<span class="kw">mod </span>map;
+<span class="kw">mod </span>map_config;
+<span class="kw">mod </span>map_err;
+<span class="kw">mod </span>map_init_err;
+<span class="kw">mod </span>pipeline;
+<span class="kw">mod </span>ready;
+<span class="kw">mod </span>then;
+<span class="kw">mod </span>transform;
+<span class="kw">mod </span>transform_err;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::apply</span>::{<span class="ident">apply_fn</span>, <span class="ident">apply_fn_factory</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::apply_cfg</span>::{<span class="ident">apply_cfg</span>, <span class="ident">apply_cfg_factory</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ext</span>::{<span class="ident">ServiceExt</span>, <span class="ident">ServiceFactoryExt</span>, <span class="ident">TransformExt</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::fn_service</span>::{<span class="ident">fn_factory</span>, <span class="ident">fn_factory_with_config</span>, <span class="ident">fn_service</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::map_config</span>::{<span class="ident">map_config</span>, <span class="ident">unit_config</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::transform</span>::{<span class="ident">apply</span>, <span class="ident">ApplyTransform</span>, <span class="ident">Transform</span>};
+<span class="kw">pub use </span><span class="self">self</span>::apply::{apply_fn, apply_fn_factory};
+<span class="kw">pub use </span><span class="self">self</span>::apply_cfg::{apply_cfg, apply_cfg_factory};
+<span class="kw">pub use </span><span class="self">self</span>::ext::{ServiceExt, ServiceFactoryExt, TransformExt};
+<span class="kw">pub use </span><span class="self">self</span>::fn_service::{fn_factory, fn_factory_with_config, fn_service};
+<span class="kw">pub use </span><span class="self">self</span>::map_config::{map_config, unit_config};
+<span class="kw">pub use </span><span class="self">self</span>::transform::{apply, ApplyTransform, Transform};
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::ready</span>::{<span class="ident">err</span>, <span class="ident">ok</span>, <span class="ident">ready</span>, <span class="ident">Ready</span>};
+<span class="attribute">#[allow(unused_imports)]
+</span><span class="kw">use </span><span class="self">self</span>::ready::{err, ok, ready, Ready};
 
-<span class="doccomment">/// An asynchronous operation from `Request` to a `Response`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The `Service` trait models a request/response interaction, receiving requests and returning</span>
-<span class="doccomment">/// replies. You can think about a service as a function with one argument that returns some result</span>
-<span class="doccomment">/// asynchronously. Conceptually, the operation looks like this:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// async fn(Request) -&gt; Result&lt;Response, Err&gt;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The `Service` trait just generalizes this form. Requests are defined as a generic type parameter</span>
-<span class="doccomment">/// and responses and other details are defined as associated types on the trait impl. Notice that</span>
-<span class="doccomment">/// this design means that services can receive many request types and converge them to a single</span>
-<span class="doccomment">/// response type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Services can also have mutable state that influence computation by using a `Cell`, `RefCell`</span>
-<span class="doccomment">/// or `Mutex`. Services intentionally do not take `&amp;mut self` to reduce overhead in the</span>
-<span class="doccomment">/// common cases.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `Service` provides a symmetric and uniform API; the same abstractions can be used to represent</span>
-<span class="doccomment">/// both clients and servers. Services describe only _transformation_ operations which encourage</span>
-<span class="doccomment">/// simple API surfaces. This leads to simpler design of each service, improves test-ability and</span>
-<span class="doccomment">/// makes composition easier.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// struct MyService;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// impl Service&lt;u8&gt; for MyService {</span>
-<span class="doccomment">///      type Response = u64;</span>
-<span class="doccomment">///      type Error = MyError;</span>
-<span class="doccomment">///      type Future = Pin&lt;Box&lt;dyn Future&lt;Output = Result&lt;Self::Response, Self::Error&gt;&gt;&gt;&gt;;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///      fn poll_ready(&amp;self, cx: &amp;mut Context&lt;&#39;_&gt;) -&gt; Poll&lt;Result&lt;(), Self::Error&gt;&gt; { ... }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///      fn call(&amp;self, req: u8) -&gt; Self::Future { ... }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Sometimes it is not necessary to implement the Service trait. For example, the above service</span>
-<span class="doccomment">/// could be rewritten as a simple function and passed to [`fn_service`](fn_service()).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// async fn my_service(req: u8) -&gt; Result&lt;u64, MyError&gt;;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let svc = fn_service(my_service)</span>
-<span class="doccomment">/// svc.call(123)</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Responses given by the service.</span>
-    <span class="kw">type</span> <span class="ident">Response</span>;
+<span class="doccomment">/// An asynchronous operation from `Request` to a `Response`.
+///
+/// The `Service` trait models a request/response interaction, receiving requests and returning
+/// replies. You can think about a service as a function with one argument that returns some result
+/// asynchronously. Conceptually, the operation looks like this:
+///
+/// ```ignore
+/// async fn(Request) -&gt; Result&lt;Response, Err&gt;
+/// ```
+///
+/// The `Service` trait just generalizes this form. Requests are defined as a generic type parameter
+/// and responses and other details are defined as associated types on the trait impl. Notice that
+/// this design means that services can receive many request types and converge them to a single
+/// response type.
+///
+/// Services can also have mutable state that influence computation by using a `Cell`, `RefCell`
+/// or `Mutex`. Services intentionally do not take `&amp;mut self` to reduce overhead in the
+/// common cases.
+///
+/// `Service` provides a symmetric and uniform API; the same abstractions can be used to represent
+/// both clients and servers. Services describe only _transformation_ operations which encourage
+/// simple API surfaces. This leads to simpler design of each service, improves test-ability and
+/// makes composition easier.
+///
+/// ```ignore
+/// struct MyService;
+///
+/// impl Service&lt;u8&gt; for MyService {
+///      type Response = u64;
+///      type Error = MyError;
+///      type Future = Pin&lt;Box&lt;dyn Future&lt;Output = Result&lt;Self::Response, Self::Error&gt;&gt;&gt;&gt;;
+///
+///      fn poll_ready(&amp;self, cx: &amp;mut Context&lt;&#39;_&gt;) -&gt; Poll&lt;Result&lt;(), Self::Error&gt;&gt; { ... }
+///
+///      fn call(&amp;self, req: u8) -&gt; Self::Future { ... }
+/// }
+/// ```
+///
+/// Sometimes it is not necessary to implement the Service trait. For example, the above service
+/// could be rewritten as a simple function and passed to [`fn_service`](fn_service()).
+///
+/// ```ignore
+/// async fn my_service(req: u8) -&gt; Result&lt;u64, MyError&gt;;
+///
+/// let svc = fn_service(my_service)
+/// svc.call(123)
+/// ```
+</span><span class="kw">pub trait </span>Service&lt;Req&gt; {
+    <span class="doccomment">/// Responses given by the service.
+    </span><span class="kw">type </span>Response;
 
-    <span class="doccomment">/// Errors produced by the service when polling readiness or executing call.</span>
-    <span class="kw">type</span> <span class="ident">Error</span>;
+    <span class="doccomment">/// Errors produced by the service when polling readiness or executing call.
+    </span><span class="kw">type </span>Error;
 
-    <span class="doccomment">/// The future response value.</span>
-    <span class="kw">type</span> <span class="ident">Future</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Response</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The future response value.
+    </span><span class="kw">type </span>Future: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Response, <span class="self">Self</span>::Error&gt;&gt;;
 
-    <span class="doccomment">/// Returns `Ready` when the service is able to process requests.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the service is at capacity, then `Pending` is returned and the task is notified when the</span>
-    <span class="doccomment">/// service becomes ready again. This function is expected to be called while on a task.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a best effort implementation. False positives are permitted. It is permitted for</span>
-    <span class="doccomment">/// the service to return `Ready` from a `poll_ready` call and the next invocation of `call`</span>
-    <span class="doccomment">/// results in an error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Notes</span>
-    <span class="doccomment">/// 1. `poll_ready` might be called on a different task to `call`.</span>
-    <span class="doccomment">/// 1. In cases of chained services, `.poll_ready()` is called for all services at once.</span>
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Returns `Ready` when the service is able to process requests.
+    ///
+    /// If the service is at capacity, then `Pending` is returned and the task is notified when the
+    /// service becomes ready again. This function is expected to be called while on a task.
+    ///
+    /// This is a best effort implementation. False positives are permitted. It is permitted for
+    /// the service to return `Ready` from a `poll_ready` call and the next invocation of `call`
+    /// results in an error.
+    ///
+    /// # Notes
+    /// 1. `poll_ready` might be called on a different task to `call`.
+    /// 1. In cases of chained services, `.poll_ready()` is called for all services at once.
+    </span><span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>task::Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt;;
 
-    <span class="doccomment">/// Process the request and return the response asynchronously.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is expected to be callable off-task. As such, implementations of `call` should</span>
-    <span class="doccomment">/// take care to not call `poll_ready`. If the service is at capacity and the request is unable</span>
-    <span class="doccomment">/// to be handled, the returned `Future` should resolve to an error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Invoking `call` without first invoking `poll_ready` is permitted. Implementations must be</span>
-    <span class="doccomment">/// resilient to this fact.</span>
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span>;
+    <span class="doccomment">/// Process the request and return the response asynchronously.
+    ///
+    /// This function is expected to be callable off-task. As such, implementations of `call` should
+    /// take care to not call `poll_ready`. If the service is at capacity and the request is unable
+    /// to be handled, the returned `Future` should resolve to an error.
+    ///
+    /// Invoking `call` without first invoking `poll_ready` is permitted. Implementations must be
+    /// resilient to this fact.
+    </span><span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: Req) -&gt; <span class="self">Self</span>::Future;
 }
 
-<span class="doccomment">/// Factory for creating `Service`s.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is useful for cases where new `Service`s must be produced. One case is a TCP</span>
-<span class="doccomment">/// server listener: a listener accepts new connections, constructs a new `Service` for each using</span>
-<span class="doccomment">/// the `ServiceFactory` trait, and uses the new `Service` to process inbound requests on that new</span>
-<span class="doccomment">/// connection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `Config` is a service factory configuration type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Simple factories may be able to use [`fn_factory`] or [`fn_factory_with_config`] to</span>
-<span class="doccomment">/// reduce boilerplate.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Responses given by the created services.</span>
-    <span class="kw">type</span> <span class="ident">Response</span>;
+<span class="doccomment">/// Factory for creating `Service`s.
+///
+/// This is useful for cases where new `Service`s must be produced. One case is a TCP
+/// server listener: a listener accepts new connections, constructs a new `Service` for each using
+/// the `ServiceFactory` trait, and uses the new `Service` to process inbound requests on that new
+/// connection.
+///
+/// `Config` is a service factory configuration type.
+///
+/// Simple factories may be able to use [`fn_factory`] or [`fn_factory_with_config`] to
+/// reduce boilerplate.
+</span><span class="kw">pub trait </span>ServiceFactory&lt;Req&gt; {
+    <span class="doccomment">/// Responses given by the created services.
+    </span><span class="kw">type </span>Response;
 
-    <span class="doccomment">/// Errors produced by the created services.</span>
-    <span class="kw">type</span> <span class="ident">Error</span>;
+    <span class="doccomment">/// Errors produced by the created services.
+    </span><span class="kw">type </span>Error;
 
-    <span class="doccomment">/// Service factory configuration.</span>
-    <span class="kw">type</span> <span class="ident">Config</span>;
+    <span class="doccomment">/// Service factory configuration.
+    </span><span class="kw">type </span>Config;
 
-    <span class="doccomment">/// The kind of `Service` created by this factory.</span>
-    <span class="kw">type</span> <span class="ident">Service</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The kind of `Service` created by this factory.
+    </span><span class="kw">type </span>Service: Service&lt;Req, Response = <span class="self">Self</span>::Response, Error = <span class="self">Self</span>::Error&gt;;
 
-    <span class="doccomment">/// Errors potentially raised while building a service.</span>
-    <span class="kw">type</span> <span class="ident">InitError</span>;
+    <span class="doccomment">/// Errors potentially raised while building a service.
+    </span><span class="kw">type </span>InitError;
 
-    <span class="doccomment">/// The future of the `Service` instance.g</span>
-    <span class="kw">type</span> <span class="ident">Future</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Service</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The future of the `Service` instance.g
+    </span><span class="kw">type </span>Future: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Service, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="doccomment">/// Create and return a new service asynchronously.</span>
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident"><span class="self">Self</span>::Config</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span>;
+    <span class="doccomment">/// Create and return a new service asynchronously.
+    </span><span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, cfg: <span class="self">Self</span>::Config) -&gt; <span class="self">Self</span>::Future;
 }
 
-<span class="comment">// TODO: remove implement on mut reference.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">S</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>,
+<span class="comment">// TODO: remove implement on mut reference.
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S, Req&gt; Service&lt;Req&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>S
+<span class="kw">where
+    </span>S: Service&lt;Req&gt; + <span class="lifetime">&#39;a</span>,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
+    <span class="kw">type </span>Response = S::Response;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>Future = S::Future;
 
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_ready</span>(<span class="ident">ctx</span>)
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+        (<span class="kw-2">**</span><span class="self">self</span>).poll_ready(ctx)
     }
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">request</span>: <span class="ident">Req</span>) -&gt; <span class="ident">S::Future</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">call</span>(<span class="ident">request</span>)
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">S</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>,
-{
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
-
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_ready</span>(<span class="ident">ctx</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">request</span>: <span class="ident">Req</span>) -&gt; <span class="ident">S::Future</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">call</span>(<span class="ident">request</span>)
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, request: Req) -&gt; S::Future {
+        (<span class="kw-2">**</span><span class="self">self</span>).call(request)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S, Req&gt; Service&lt;Req&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>S
+<span class="kw">where
+    </span>S: Service&lt;Req&gt; + <span class="lifetime">&#39;a</span>,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
+    <span class="kw">type </span>Response = S::Response;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>Future = S::Future;
 
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">S::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_ready</span>(<span class="ident">ctx</span>)
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+        (<span class="kw-2">**</span><span class="self">self</span>).poll_ready(ctx)
     }
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">request</span>: <span class="ident">Req</span>) -&gt; <span class="ident">S::Future</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">call</span>(<span class="ident">request</span>)
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
-{
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
-
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_ready</span>(<span class="ident">ctx</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">request</span>: <span class="ident">Req</span>) -&gt; <span class="ident">S::Future</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">call</span>(<span class="ident">request</span>)
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, request: Req) -&gt; S::Future {
+        (<span class="kw-2">**</span><span class="self">self</span>).call(request)
     }
 }
 
-<span class="doccomment">/// This impl is deprecated since v2 because the `Service` trait now receives shared reference.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, Req&gt; Service&lt;Req&gt; <span class="kw">for </span>Box&lt;S&gt;
+<span class="kw">where
+    </span>S: Service&lt;Req&gt; + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
+    <span class="kw">type </span>Response = S::Response;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>Future = S::Future;
 
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">borrow</span>().<span class="ident">poll_ready</span>(<span class="ident">ctx</span>)
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), S::Error&gt;&gt; {
+        (<span class="kw-2">**</span><span class="self">self</span>).poll_ready(ctx)
     }
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">request</span>: <span class="ident">Req</span>) -&gt; <span class="ident">S::Future</span> {
-        <span class="self">self</span>.<span class="ident">borrow</span>().<span class="ident">call</span>(<span class="ident">request</span>)
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-{
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">S::Config</span>;
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">S::Service</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
-
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">S::Config</span>) -&gt; <span class="ident">S::Future</span> {
-        <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">new_service</span>(<span class="ident">cfg</span>)
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, request: Req) -&gt; S::Future {
+        (<span class="kw-2">**</span><span class="self">self</span>).call(request)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, Req&gt; Service&lt;Req&gt; <span class="kw">for </span>Rc&lt;S&gt;
+<span class="kw">where
+    </span>S: Service&lt;Req&gt; + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">S::Config</span>;
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">S::Service</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
+    <span class="kw">type </span>Response = S::Response;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>Future = S::Future;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">S::Config</span>) -&gt; <span class="ident">S::Future</span> {
-        <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">new_service</span>(<span class="ident">cfg</span>)
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+        (<span class="kw-2">**</span><span class="self">self</span>).poll_ready(ctx)
+    }
+
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, request: Req) -&gt; S::Future {
+        (<span class="kw-2">**</span><span class="self">self</span>).call(request)
     }
 }
 
-<span class="doccomment">/// Trait for types that can be converted to a `Service`</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="doccomment">/// This impl is deprecated since v2 because the `Service` trait now receives shared reference.
+</span><span class="kw">impl</span>&lt;S, Req&gt; Service&lt;Req&gt; <span class="kw">for </span>RefCell&lt;S&gt;
+<span class="kw">where
+    </span>S: Service&lt;Req&gt;,
 {
-    <span class="doccomment">/// Convert to a `Service`</span>
-    <span class="kw">fn</span> <span class="ident">into_service</span>(<span class="self">self</span>) -&gt; <span class="ident">S</span>;
-}
+    <span class="kw">type </span>Response = S::Response;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>Future = S::Future;
 
-<span class="doccomment">/// Trait for types that can be converted to a `ServiceFactory`</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-{
-    <span class="doccomment">/// Convert `Self` to a `ServiceFactory`</span>
-    <span class="kw">fn</span> <span class="ident">into_factory</span>(<span class="self">self</span>) -&gt; <span class="ident">SF</span>;
-}
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+        <span class="self">self</span>.borrow().poll_ready(ctx)
+    }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">S</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-{
-    <span class="kw">fn</span> <span class="ident">into_service</span>(<span class="self">self</span>) -&gt; <span class="ident">S</span> {
-        <span class="self">self</span>
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, request: Req) -&gt; S::Future {
+        <span class="self">self</span>.borrow().call(request)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SF</span>
-<span class="kw">where</span>
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, Req&gt; ServiceFactory&lt;Req&gt; <span class="kw">for </span>Rc&lt;S&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Req&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">into_factory</span>(<span class="self">self</span>) -&gt; <span class="ident">SF</span> {
-        <span class="self">self</span>
+    <span class="kw">type </span>Response = S::Response;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>Config = S::Config;
+    <span class="kw">type </span>Service = S::Service;
+    <span class="kw">type </span>InitError = S::InitError;
+    <span class="kw">type </span>Future = S::Future;
+
+    <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, cfg: S::Config) -&gt; S::Future {
+        <span class="self">self</span>.as_ref().new_service(cfg)
     }
 }
 
-<span class="doccomment">/// Convert object of type `U` to a service `S`</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_service</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">tp</span>: <span class="ident">I</span>) -&gt; <span class="ident">S</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, Req&gt; ServiceFactory&lt;Req&gt; <span class="kw">for </span>Arc&lt;S&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Req&gt;,
 {
-    <span class="ident">tp</span>.<span class="ident">into_service</span>()
+    <span class="kw">type </span>Response = S::Response;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>Config = S::Config;
+    <span class="kw">type </span>Service = S::Service;
+    <span class="kw">type </span>InitError = S::InitError;
+    <span class="kw">type </span>Future = S::Future;
+
+    <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, cfg: S::Config) -&gt; S::Future {
+        <span class="self">self</span>.as_ref().new_service(cfg)
+    }
+}
+
+<span class="doccomment">/// Trait for types that can be converted to a `Service`
+</span><span class="kw">pub trait </span>IntoService&lt;S, Req&gt;
+<span class="kw">where
+    </span>S: Service&lt;Req&gt;,
+{
+    <span class="doccomment">/// Convert to a `Service`
+    </span><span class="kw">fn </span>into_service(<span class="self">self</span>) -&gt; S;
+}
+
+<span class="doccomment">/// Trait for types that can be converted to a `ServiceFactory`
+</span><span class="kw">pub trait </span>IntoServiceFactory&lt;SF, Req&gt;
+<span class="kw">where
+    </span>SF: ServiceFactory&lt;Req&gt;,
+{
+    <span class="doccomment">/// Convert `Self` to a `ServiceFactory`
+    </span><span class="kw">fn </span>into_factory(<span class="self">self</span>) -&gt; SF;
+}
+
+<span class="kw">impl</span>&lt;S, Req&gt; IntoService&lt;S, Req&gt; <span class="kw">for </span>S
+<span class="kw">where
+    </span>S: Service&lt;Req&gt;,
+{
+    <span class="kw">fn </span>into_service(<span class="self">self</span>) -&gt; S {
+        <span class="self">self
+    </span>}
+}
+
+<span class="kw">impl</span>&lt;SF, Req&gt; IntoServiceFactory&lt;SF, Req&gt; <span class="kw">for </span>SF
+<span class="kw">where
+    </span>SF: ServiceFactory&lt;Req&gt;,
+{
+    <span class="kw">fn </span>into_factory(<span class="self">self</span>) -&gt; SF {
+        <span class="self">self
+    </span>}
+}
+
+<span class="doccomment">/// Convert object of type `U` to a service `S`
+</span><span class="kw">pub fn </span>into_service&lt;I, S, Req&gt;(tp: I) -&gt; S
+<span class="kw">where
+    </span>I: IntoService&lt;S, Req&gt;,
+    S: Service&lt;Req&gt;,
+{
+    tp.into_service()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

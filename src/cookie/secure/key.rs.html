@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cookie-0.16.1/src/secure/key.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>key.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cookie/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cookie-0.16.1/src/secure/key.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>key.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cookie/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -299,306 +299,306 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::convert::TryFrom;
 
-<span class="kw">const</span> <span class="ident">SIGNING_KEY_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32</span>;
-<span class="kw">const</span> <span class="ident">ENCRYPTION_KEY_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32</span>;
-<span class="kw">const</span> <span class="ident">COMBINED_KEY_LENGTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">SIGNING_KEY_LEN</span> <span class="op">+</span> <span class="ident">ENCRYPTION_KEY_LEN</span>;
+<span class="kw">const </span>SIGNING_KEY_LEN: usize = <span class="number">32</span>;
+<span class="kw">const </span>ENCRYPTION_KEY_LEN: usize = <span class="number">32</span>;
+<span class="kw">const </span>COMBINED_KEY_LENGTH: usize = SIGNING_KEY_LEN + ENCRYPTION_KEY_LEN;
 
-<span class="comment">// Statically ensure the numbers above are in-sync.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;signed&quot;</span>)]</span>
-<span class="macro">const_assert!</span>(<span class="ident"><span class="kw">crate</span>::secure::signed::KEY_LEN</span> <span class="op">==</span> <span class="ident">SIGNING_KEY_LEN</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;private&quot;</span>)]</span>
-<span class="macro">const_assert!</span>(<span class="ident"><span class="kw">crate</span>::secure::private::KEY_LEN</span> <span class="op">==</span> <span class="ident">ENCRYPTION_KEY_LEN</span>);
+<span class="comment">// Statically ensure the numbers above are in-sync.
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;signed&quot;</span>)]
+</span><span class="macro">const_assert!</span>(<span class="kw">crate</span>::secure::signed::KEY_LEN == SIGNING_KEY_LEN);
+<span class="attribute">#[cfg(feature = <span class="string">&quot;private&quot;</span>)]
+</span><span class="macro">const_assert!</span>(<span class="kw">crate</span>::secure::private::KEY_LEN == ENCRYPTION_KEY_LEN);
 
-<span class="doccomment">/// A cryptographic master key for use with `Signed` and/or `Private` jars.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This structure encapsulates secure, cryptographic keys for use with both</span>
-<span class="doccomment">/// [`PrivateJar`](crate::PrivateJar) and [`SignedJar`](crate::SignedJar). A</span>
-<span class="doccomment">/// single instance of a `Key` can be used for both a `PrivateJar` and a</span>
-<span class="doccomment">/// `SignedJar` simultaneously with no notable security implications.</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">nightly</span>, <span class="ident">doc</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;private&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;signed&quot;</span>))))]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Key</span>([<span class="ident">u8</span>; <span class="ident">COMBINED_KEY_LENGTH</span> <span class="comment">/* SIGNING | ENCRYPTION */</span>]);
+<span class="doccomment">/// A cryptographic master key for use with `Signed` and/or `Private` jars.
+///
+/// This structure encapsulates secure, cryptographic keys for use with both
+/// [`PrivateJar`](crate::PrivateJar) and [`SignedJar`](crate::SignedJar). A
+/// single instance of a `Key` can be used for both a `PrivateJar` and a
+/// `SignedJar` simultaneously with no notable security implications.
+</span><span class="attribute">#[cfg_attr(all(nightly, doc), doc(cfg(any(feature = <span class="string">&quot;private&quot;</span>, feature = <span class="string">&quot;signed&quot;</span>))))]
+#[derive(Clone)]
+</span><span class="kw">pub struct </span>Key([u8; COMBINED_KEY_LENGTH <span class="comment">/* SIGNING | ENCRYPTION */</span>]);
 
-<span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">use</span> <span class="ident">subtle::ConstantTimeEq</span>;
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>Key {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">use </span>subtle::ConstantTimeEq;
 
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">ct_eq</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="number">0</span>).<span class="ident">into</span>()
+        <span class="self">self</span>.<span class="number">0</span>.ct_eq(<span class="kw-2">&amp;</span>other.<span class="number">0</span>).into()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Key</span> {
-    <span class="comment">// An empty key structure, to be filled.</span>
-    <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">zero</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Key</span>([<span class="number">0</span>; <span class="ident">COMBINED_KEY_LENGTH</span>])
+<span class="kw">impl </span>Key {
+    <span class="comment">// An empty key structure, to be filled.
+    </span><span class="kw">const fn </span>zero() -&gt; <span class="self">Self </span>{
+        Key([<span class="number">0</span>; COMBINED_KEY_LENGTH])
     }
 
-    <span class="doccomment">/// Creates a new `Key` from a 512-bit cryptographically random string.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The supplied key must be at least 512-bits (64 bytes). For security, the</span>
-    <span class="doccomment">/// master key _must_ be cryptographically random.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if `key` is less than 64 bytes in length.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For a non-panicking version, use [`Key::try_from()`] or generate a key with</span>
-    <span class="doccomment">/// [`Key::generate()`] or [`Key::try_generate()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Key;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # /*</span>
-    <span class="doccomment">/// let key = { /* a cryptographically random key &gt;= 64 bytes */ };</span>
-    <span class="doccomment">/// # */</span>
-    <span class="doccomment">/// # let key: &amp;Vec&lt;u8&gt; = &amp;(0..64).collect();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::from(key);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Key</span> {
-        <span class="ident">Key::try_from</span>(<span class="ident">key</span>).<span class="ident">unwrap</span>()
+    <span class="doccomment">/// Creates a new `Key` from a 512-bit cryptographically random string.
+    ///
+    /// The supplied key must be at least 512-bits (64 bytes). For security, the
+    /// master key _must_ be cryptographically random.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `key` is less than 64 bytes in length.
+    ///
+    /// For a non-panicking version, use [`Key::try_from()`] or generate a key with
+    /// [`Key::generate()`] or [`Key::try_generate()`].
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Key;
+    ///
+    /// # /*
+    /// let key = { /* a cryptographically random key &gt;= 64 bytes */ };
+    /// # */
+    /// # let key: &amp;Vec&lt;u8&gt; = &amp;(0..64).collect();
+    ///
+    /// let key = Key::from(key);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>from(key: <span class="kw-2">&amp;</span>[u8]) -&gt; Key {
+        Key::try_from(key).unwrap()
     }
 
-    <span class="doccomment">/// Derives new signing/encryption keys from a master key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The master key must be at least 256-bits (32 bytes). For security, the</span>
-    <span class="doccomment">/// master key _must_ be cryptographically random. The keys are derived</span>
-    <span class="doccomment">/// deterministically from the master key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if `key` is less than 32 bytes in length.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Key;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # /*</span>
-    <span class="doccomment">/// let master_key = { /* a cryptographically random key &gt;= 32 bytes */ };</span>
-    <span class="doccomment">/// # */</span>
-    <span class="doccomment">/// # let master_key: &amp;Vec&lt;u8&gt; = &amp;(0..32).collect();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::derive_from(master_key);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;key-expansion&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">nightly</span>, <span class="ident">doc</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;key-expansion&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_from</span>(<span class="ident">master_key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="ident">master_key</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">32</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;bad master key length: expected &gt;= 32 bytes, found {}&quot;</span>, <span class="ident">master_key</span>.<span class="ident">len</span>());
+    <span class="doccomment">/// Derives new signing/encryption keys from a master key.
+    ///
+    /// The master key must be at least 256-bits (32 bytes). For security, the
+    /// master key _must_ be cryptographically random. The keys are derived
+    /// deterministically from the master key.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `key` is less than 32 bytes in length.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Key;
+    ///
+    /// # /*
+    /// let master_key = { /* a cryptographically random key &gt;= 32 bytes */ };
+    /// # */
+    /// # let master_key: &amp;Vec&lt;u8&gt; = &amp;(0..32).collect();
+    ///
+    /// let key = Key::derive_from(master_key);
+    /// ```
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;key-expansion&quot;</span>)]
+    #[cfg_attr(all(nightly, doc), doc(cfg(feature = <span class="string">&quot;key-expansion&quot;</span>)))]
+    </span><span class="kw">pub fn </span>derive_from(master_key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="kw">if </span>master_key.len() &lt; <span class="number">32 </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;bad master key length: expected &gt;= 32 bytes, found {}&quot;</span>, master_key.len());
         }
 
-        <span class="comment">// Expand the master key into two HKDF generated keys.</span>
-        <span class="kw">const</span> <span class="ident">KEYS_INFO</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;COOKIE;SIGNED:HMAC-SHA256;PRIVATE:AEAD-AES-256-GCM&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">both_keys</span> <span class="op">=</span> [<span class="number">0</span>; <span class="ident">COMBINED_KEY_LENGTH</span>];
-        <span class="kw">let</span> <span class="ident">hk</span> <span class="op">=</span> <span class="ident">hkdf::Hkdf</span>::<span class="op">&lt;</span><span class="ident">sha2::Sha256</span><span class="op">&gt;</span><span class="ident">::from_prk</span>(<span class="ident">master_key</span>).<span class="ident">expect</span>(<span class="string">&quot;key length prechecked&quot;</span>);
-        <span class="ident">hk</span>.<span class="ident">expand</span>(<span class="ident">KEYS_INFO</span>, <span class="kw-2">&amp;mut</span> <span class="ident">both_keys</span>).<span class="ident">expect</span>(<span class="string">&quot;expand into keys&quot;</span>);
-        <span class="ident">Key::from</span>(<span class="kw-2">&amp;</span><span class="ident">both_keys</span>)
+        <span class="comment">// Expand the master key into two HKDF generated keys.
+        </span><span class="kw">const </span>KEYS_INFO: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;COOKIE;SIGNED:HMAC-SHA256;PRIVATE:AEAD-AES-256-GCM&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>both_keys = [<span class="number">0</span>; COMBINED_KEY_LENGTH];
+        <span class="kw">let </span>hk = hkdf::Hkdf::&lt;sha2::Sha256&gt;::from_prk(master_key).expect(<span class="string">&quot;key length prechecked&quot;</span>);
+        hk.expand(KEYS_INFO, <span class="kw-2">&amp;mut </span>both_keys).expect(<span class="string">&quot;expand into keys&quot;</span>);
+        Key::from(<span class="kw-2">&amp;</span>both_keys)
     }
 
-    <span class="doccomment">/// Generates signing/encryption keys from a secure, random source. Keys are</span>
-    <span class="doccomment">/// generated nondeterministically.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if randomness cannot be retrieved from the operating system. See</span>
-    <span class="doccomment">/// [`Key::try_generate()`] for a non-panicking version.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Key;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::generate();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate</span>() -&gt; <span class="ident">Key</span> {
-        <span class="ident"><span class="self">Self</span>::try_generate</span>().<span class="ident">expect</span>(<span class="string">&quot;failed to generate `Key` from randomness&quot;</span>)
+    <span class="doccomment">/// Generates signing/encryption keys from a secure, random source. Keys are
+    /// generated nondeterministically.
+    ///
+    /// # Panics
+    ///
+    /// Panics if randomness cannot be retrieved from the operating system. See
+    /// [`Key::try_generate()`] for a non-panicking version.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Key;
+    ///
+    /// let key = Key::generate();
+    /// ```
+    </span><span class="kw">pub fn </span>generate() -&gt; Key {
+        <span class="self">Self</span>::try_generate().expect(<span class="string">&quot;failed to generate `Key` from randomness&quot;</span>)
     }
 
-    <span class="doccomment">/// Attempts to generate signing/encryption keys from a secure, random</span>
-    <span class="doccomment">/// source. Keys are generated nondeterministically. If randomness cannot be</span>
-    <span class="doccomment">/// retrieved from the underlying operating system, returns `None`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Key;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::try_generate();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_generate</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::secure::rand::RngCore</span>;
+    <span class="doccomment">/// Attempts to generate signing/encryption keys from a secure, random
+    /// source. Keys are generated nondeterministically. If randomness cannot be
+    /// retrieved from the underlying operating system, returns `None`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Key;
+    ///
+    /// let key = Key::try_generate();
+    /// ```
+    </span><span class="kw">pub fn </span>try_generate() -&gt; <span class="prelude-ty">Option</span>&lt;Key&gt; {
+        <span class="kw">use </span><span class="kw">crate</span>::secure::rand::RngCore;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::secure::rand::thread_rng</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::zero</span>();
-        <span class="ident">rng</span>.<span class="ident">try_fill_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">key</span>.<span class="number">0</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">key</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="kw">crate</span>::secure::rand::thread_rng();
+        <span class="kw">let </span><span class="kw-2">mut </span>key = Key::zero();
+        rng.try_fill_bytes(<span class="kw-2">&amp;mut </span>key.<span class="number">0</span>).ok()<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(key)
     }
 
-    <span class="doccomment">/// Returns the raw bytes of a key suitable for signing cookies. Guaranteed</span>
-    <span class="doccomment">/// to be at least 32 bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Key;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::generate();</span>
-    <span class="doccomment">/// let signing_key = key.signing();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signing</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..<span class="ident">SIGNING_KEY_LEN</span>]
+    <span class="doccomment">/// Returns the raw bytes of a key suitable for signing cookies. Guaranteed
+    /// to be at least 32 bytes.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Key;
+    ///
+    /// let key = Key::generate();
+    /// let signing_key = key.signing();
+    /// ```
+    </span><span class="kw">pub fn </span>signing(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..SIGNING_KEY_LEN]
     }
 
-    <span class="doccomment">/// Returns the raw bytes of a key suitable for encrypting cookies.</span>
-    <span class="doccomment">/// Guaranteed to be at least 32 bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Key;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::generate();</span>
-    <span class="doccomment">/// let encryption_key = key.encryption();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encryption</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="ident">SIGNING_KEY_LEN</span>..]
+    <span class="doccomment">/// Returns the raw bytes of a key suitable for encrypting cookies.
+    /// Guaranteed to be at least 32 bytes.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Key;
+    ///
+    /// let key = Key::generate();
+    /// let encryption_key = key.encryption();
+    /// ```
+    </span><span class="kw">pub fn </span>encryption(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[SIGNING_KEY_LEN..]
     }
 
-    <span class="doccomment">/// Returns the raw bytes of the master key. Guaranteed to be at least 64</span>
-    <span class="doccomment">/// bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Key;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::generate();</span>
-    <span class="doccomment">/// let master_key = key.master();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">master</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="doccomment">/// Returns the raw bytes of the master key. Guaranteed to be at least 64
+    /// bytes.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Key;
+    ///
+    /// let key = Key::generate();
+    /// let master_key = key.master();
+    /// ```
+    </span><span class="kw">pub fn </span>master(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="doccomment">/// An error indicating an issue with generating or constructing a key.</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">nightly</span>, <span class="ident">doc</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;private&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;signed&quot;</span>))))]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">KeyError</span> {
-    <span class="doccomment">/// Too few bytes (`.0`) were provided to generate a key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`Key::from()`] for minimum requirements.</span>
-    <span class="ident">TooShort</span>(<span class="ident">usize</span>),
+<span class="doccomment">/// An error indicating an issue with generating or constructing a key.
+</span><span class="attribute">#[cfg_attr(all(nightly, doc), doc(cfg(any(feature = <span class="string">&quot;private&quot;</span>, feature = <span class="string">&quot;signed&quot;</span>))))]
+#[derive(Debug)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>KeyError {
+    <span class="doccomment">/// Too few bytes (`.0`) were provided to generate a key.
+    ///
+    /// See [`Key::from()`] for minimum requirements.
+    </span>TooShort(usize),
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">KeyError</span> { }
+<span class="kw">impl </span>std::error::Error <span class="kw">for </span>KeyError { }
 
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">KeyError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">KeyError::TooShort</span>(<span class="ident">n</span>) =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;key material is too short: expected &gt;= {} bytes, got {} bytes&quot;</span>,
-                       <span class="ident">COMBINED_KEY_LENGTH</span>, <span class="ident">n</span>)
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>KeyError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            KeyError::TooShort(n) =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;key material is too short: expected &gt;= {} bytes, got {} bytes&quot;</span>,
+                       COMBINED_KEY_LENGTH, n)
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">KeyError</span>;
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>[u8]&gt; <span class="kw">for </span>Key {
+    <span class="kw">type </span>Error = KeyError;
 
-    <span class="doccomment">/// A fallible version of [`Key::from()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Succeeds when [`Key::from()`] succeds and returns an error where</span>
-    <span class="doccomment">/// [`Key::from()`] panics, namely, if `key` is too short.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use std::convert::TryFrom;</span>
-    <span class="doccomment">/// use cookie::Key;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # /*</span>
-    <span class="doccomment">/// let key = { /* a cryptographically random key &gt;= 64 bytes */ };</span>
-    <span class="doccomment">/// # */</span>
-    <span class="doccomment">/// # let key: &amp;Vec&lt;u8&gt; = &amp;(0..64).collect();</span>
-    <span class="doccomment">/// # let key: &amp;[u8] = &amp;key[..];</span>
-    <span class="doccomment">/// assert!(Key::try_from(key).is_ok());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // A key that&#39;s far too short to use.</span>
-    <span class="doccomment">/// let key = &amp;[1, 2, 3, 4][..];</span>
-    <span class="doccomment">/// assert!(Key::try_from(key).is_err());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">COMBINED_KEY_LENGTH</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">KeyError::TooShort</span>(<span class="ident">key</span>.<span class="ident">len</span>()))
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Key::zero</span>();
-            <span class="ident">output</span>.<span class="number">0</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>[..<span class="ident">COMBINED_KEY_LENGTH</span>]);
-            <span class="prelude-val">Ok</span>(<span class="ident">output</span>)
+    <span class="doccomment">/// A fallible version of [`Key::from()`].
+    ///
+    /// Succeeds when [`Key::from()`] succeds and returns an error where
+    /// [`Key::from()`] panics, namely, if `key` is too short.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use std::convert::TryFrom;
+    /// use cookie::Key;
+    ///
+    /// # /*
+    /// let key = { /* a cryptographically random key &gt;= 64 bytes */ };
+    /// # */
+    /// # let key: &amp;Vec&lt;u8&gt; = &amp;(0..64).collect();
+    /// # let key: &amp;[u8] = &amp;key[..];
+    /// assert!(Key::try_from(key).is_ok());
+    ///
+    /// // A key that&#39;s far too short to use.
+    /// let key = &amp;[1, 2, 3, 4][..];
+    /// assert!(Key::try_from(key).is_err());
+    /// ```
+    </span><span class="kw">fn </span>try_from(key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">if </span>key.len() &lt; COMBINED_KEY_LENGTH {
+            <span class="prelude-val">Err</span>(KeyError::TooShort(key.len()))
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>output = Key::zero();
+            output.<span class="number">0</span>.copy_from_slice(<span class="kw-2">&amp;</span>key[..COMBINED_KEY_LENGTH]);
+            <span class="prelude-val">Ok</span>(output)
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Key</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span><span class="kw">super</span>::Key;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_works</span>() {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::from</span>(<span class="kw-2">&amp;</span>(<span class="number">0</span>..<span class="number">64</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>from_works() {
+        <span class="kw">let </span>key = Key::from(<span class="kw-2">&amp;</span>(<span class="number">0</span>..<span class="number">64</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;());
 
-        <span class="kw">let</span> <span class="ident">signing</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">32</span>).<span class="ident">collect</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">key</span>.<span class="ident">signing</span>(), <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">signing</span>);
+        <span class="kw">let </span>signing: Vec&lt;u8&gt; = (<span class="number">0</span>..<span class="number">32</span>).collect();
+        <span class="macro">assert_eq!</span>(key.signing(), <span class="kw-2">&amp;*</span>signing);
 
-        <span class="kw">let</span> <span class="ident">encryption</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">32</span>..<span class="number">64</span>).<span class="ident">collect</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">key</span>.<span class="ident">encryption</span>(), <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">encryption</span>);
+        <span class="kw">let </span>encryption: Vec&lt;u8&gt; = (<span class="number">32</span>..<span class="number">64</span>).collect();
+        <span class="macro">assert_eq!</span>(key.encryption(), <span class="kw-2">&amp;*</span>encryption);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_works</span>() {
-        <span class="kw">use</span> <span class="ident">core::convert::TryInto</span>;
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">64</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">key_res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Key</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">data</span>[<span class="number">0</span>..<span class="number">63</span>].<span class="ident">try_into</span>();
-        <span class="macro">assert!</span>(<span class="ident">key_res</span>.<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_works() {
+        <span class="kw">use </span>core::convert::TryInto;
+        <span class="kw">let </span>data = (<span class="number">0</span>..<span class="number">64</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>key_res: <span class="prelude-ty">Result</span>&lt;Key, <span class="kw">_</span>&gt; = data[<span class="number">0</span>..<span class="number">63</span>].try_into();
+        <span class="macro">assert!</span>(key_res.is_err());
 
-        <span class="kw">let</span> <span class="ident">key_res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Key</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_slice</span>().<span class="ident">try_into</span>();
-        <span class="macro">assert!</span>(<span class="ident">key_res</span>.<span class="ident">is_ok</span>());
+        <span class="kw">let </span>key_res: <span class="prelude-ty">Result</span>&lt;Key, <span class="kw">_</span>&gt; = data.as_slice().try_into();
+        <span class="macro">assert!</span>(key_res.is_ok());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;key-expansion&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">deterministic_derive</span>() {
-        <span class="kw">let</span> <span class="ident">master_key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">32</span>).<span class="ident">collect</span>();
+    <span class="attribute">#[test]
+    #[cfg(feature = <span class="string">&quot;key-expansion&quot;</span>)]
+    </span><span class="kw">fn </span>deterministic_derive() {
+        <span class="kw">let </span>master_key: Vec&lt;u8&gt; = (<span class="number">0</span>..<span class="number">32</span>).collect();
 
-        <span class="kw">let</span> <span class="ident">key_a</span> <span class="op">=</span> <span class="ident">Key::derive_from</span>(<span class="kw-2">&amp;</span><span class="ident">master_key</span>);
-        <span class="kw">let</span> <span class="ident">key_b</span> <span class="op">=</span> <span class="ident">Key::derive_from</span>(<span class="kw-2">&amp;</span><span class="ident">master_key</span>);
+        <span class="kw">let </span>key_a = Key::derive_from(<span class="kw-2">&amp;</span>master_key);
+        <span class="kw">let </span>key_b = Key::derive_from(<span class="kw-2">&amp;</span>master_key);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">key_a</span>.<span class="ident">signing</span>(), <span class="ident">key_b</span>.<span class="ident">signing</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">key_a</span>.<span class="ident">encryption</span>(), <span class="ident">key_b</span>.<span class="ident">encryption</span>());
-        <span class="macro">assert_ne!</span>(<span class="ident">key_a</span>.<span class="ident">encryption</span>(), <span class="ident">key_a</span>.<span class="ident">signing</span>());
+        <span class="macro">assert_eq!</span>(key_a.signing(), key_b.signing());
+        <span class="macro">assert_eq!</span>(key_a.encryption(), key_b.encryption());
+        <span class="macro">assert_ne!</span>(key_a.encryption(), key_a.signing());
 
-        <span class="kw">let</span> <span class="ident">master_key_2</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">32</span>..<span class="number">64</span>).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">key_2</span> <span class="op">=</span> <span class="ident">Key::derive_from</span>(<span class="kw-2">&amp;</span><span class="ident">master_key_2</span>);
+        <span class="kw">let </span>master_key_2: Vec&lt;u8&gt; = (<span class="number">32</span>..<span class="number">64</span>).collect();
+        <span class="kw">let </span>key_2 = Key::derive_from(<span class="kw-2">&amp;</span>master_key_2);
 
-        <span class="macro">assert_ne!</span>(<span class="ident">key_2</span>.<span class="ident">signing</span>(), <span class="ident">key_a</span>.<span class="ident">signing</span>());
-        <span class="macro">assert_ne!</span>(<span class="ident">key_2</span>.<span class="ident">encryption</span>(), <span class="ident">key_a</span>.<span class="ident">encryption</span>());
+        <span class="macro">assert_ne!</span>(key_2.signing(), key_a.signing());
+        <span class="macro">assert_ne!</span>(key_2.encryption(), key_a.encryption());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">non_deterministic_generate</span>() {
-        <span class="kw">let</span> <span class="ident">key_a</span> <span class="op">=</span> <span class="ident">Key::generate</span>();
-        <span class="kw">let</span> <span class="ident">key_b</span> <span class="op">=</span> <span class="ident">Key::generate</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>non_deterministic_generate() {
+        <span class="kw">let </span>key_a = Key::generate();
+        <span class="kw">let </span>key_b = Key::generate();
 
-        <span class="macro">assert_ne!</span>(<span class="ident">key_a</span>.<span class="ident">signing</span>(), <span class="ident">key_b</span>.<span class="ident">signing</span>());
-        <span class="macro">assert_ne!</span>(<span class="ident">key_a</span>.<span class="ident">encryption</span>(), <span class="ident">key_b</span>.<span class="ident">encryption</span>());
+        <span class="macro">assert_ne!</span>(key_a.signing(), key_b.signing());
+        <span class="macro">assert_ne!</span>(key_a.encryption(), key_b.encryption());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cookie" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cookie" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ghash-0.5.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ghash/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ghash/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ghash-0.5.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ghash/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ghash/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ghash/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -135,140 +135,140 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-</pre><pre class="rust"><code><span class="doccomment">//! **GHASH**: universal hash over GF(2^128) used by AES-GCM for message</span>
-<span class="doccomment">//! authentication (i.e. GMAC).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Implementation Notes</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The implementation of GHASH found in this crate internally uses the</span>
-<span class="doccomment">//! [`polyval`] crate, which provides a similar universal hash function used by</span>
-<span class="doccomment">//! AES-GCM-SIV (RFC 8452).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! By implementing GHASH in terms of POLYVAL, the two universal hash functions</span>
-<span class="doccomment">//! can share a common core, meaning any optimization work (e.g. CPU-specific</span>
-<span class="doccomment">//! SIMD implementations) which happens upstream in the `polyval` crate</span>
-<span class="doccomment">//! benefits GHASH as well.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! From RFC 8452 Appendix A:</span>
-<span class="doccomment">//! &lt;https://tools.ietf.org/html/rfc8452#appendix-A&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! &gt; GHASH and POLYVAL both operate in GF(2^128), although with different</span>
-<span class="doccomment">//! &gt; irreducible polynomials: POLYVAL works modulo x^128 + x^127 + x^126 +</span>
-<span class="doccomment">//! &gt; x^121 + 1 and GHASH works modulo x^128 + x^7 + x^2 + x + 1.  Note</span>
-<span class="doccomment">//! &gt; that these irreducible polynomials are the &quot;reverse&quot; of each other.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`polyval`]: https://github.com/RustCrypto/universal-hashes/tree/master/polyval</span>
+</pre><pre class="rust"><code><span class="doccomment">//! **GHASH**: universal hash over GF(2^128) used by AES-GCM for message
+//! authentication (i.e. GMAC).
+//!
+//! ## Implementation Notes
+//!
+//! The implementation of GHASH found in this crate internally uses the
+//! [`polyval`] crate, which provides a similar universal hash function used by
+//! AES-GCM-SIV (RFC 8452).
+//!
+//! By implementing GHASH in terms of POLYVAL, the two universal hash functions
+//! can share a common core, meaning any optimization work (e.g. CPU-specific
+//! SIMD implementations) which happens upstream in the `polyval` crate
+//! benefits GHASH as well.
+//!
+//! From RFC 8452 Appendix A:
+//! &lt;https://tools.ietf.org/html/rfc8452#appendix-A&gt;
+//!
+//! &gt; GHASH and POLYVAL both operate in GF(2^128), although with different
+//! &gt; irreducible polynomials: POLYVAL works modulo x^128 + x^127 + x^126 +
+//! &gt; x^121 + 1 and GHASH works modulo x^128 + x^7 + x^2 + x + 1.  Note
+//! &gt; that these irreducible polynomials are the &quot;reverse&quot; of each other.
+//!
+//! [`polyval`]: https://github.com/RustCrypto/universal-hashes/tree/master/polyval
 
-<span class="attribute">#![<span class="ident">no_std</span>]</span>
-<span class="attribute">#![<span class="ident">doc</span>(
-    <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg&quot;</span>,
-    <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">rust_2018_idioms</span>)]</span>
+</span><span class="attribute">#![no_std]
+#![doc(
+    html_logo_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg&quot;</span>,
+    html_favicon_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg&quot;
+</span>)]
+#![warn(missing_docs, rust_2018_idioms)]
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">polyval::universal_hash</span>;
+</span><span class="kw">pub use </span>polyval::universal_hash;
 
-<span class="kw">use</span> <span class="ident">polyval::Polyval</span>;
-<span class="kw">use</span> <span class="ident">universal_hash</span>::{
-    <span class="ident">consts::U16</span>,
-    <span class="ident">crypto_common</span>::{<span class="ident">BlockSizeUser</span>, <span class="ident">KeySizeUser</span>, <span class="ident">ParBlocksSizeUser</span>},
-    <span class="ident">KeyInit</span>, <span class="ident">UhfBackend</span>, <span class="ident">UhfClosure</span>, <span class="ident">UniversalHash</span>,
+<span class="kw">use </span>polyval::Polyval;
+<span class="kw">use </span>universal_hash::{
+    consts::U16,
+    crypto_common::{BlockSizeUser, KeySizeUser, ParBlocksSizeUser},
+    KeyInit, UhfBackend, UhfClosure, UniversalHash,
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">zeroize::Zeroize</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">use </span>zeroize::Zeroize;
 
-<span class="doccomment">/// GHASH keys (16-bytes)</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Key</span> <span class="op">=</span> <span class="ident">universal_hash::Key</span><span class="op">&lt;</span><span class="ident">GHash</span><span class="op">&gt;</span>;
+<span class="doccomment">/// GHASH keys (16-bytes)
+</span><span class="kw">pub type </span>Key = universal_hash::Key&lt;GHash&gt;;
 
-<span class="doccomment">/// GHASH blocks (16-bytes)</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Block</span> <span class="op">=</span> <span class="ident">universal_hash::Block</span><span class="op">&lt;</span><span class="ident">GHash</span><span class="op">&gt;</span>;
+<span class="doccomment">/// GHASH blocks (16-bytes)
+</span><span class="kw">pub type </span>Block = universal_hash::Block&lt;GHash&gt;;
 
-<span class="doccomment">/// GHASH tags (16-bytes)</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Tag</span> <span class="op">=</span> <span class="ident">universal_hash::Block</span><span class="op">&lt;</span><span class="ident">GHash</span><span class="op">&gt;</span>;
+<span class="doccomment">/// GHASH tags (16-bytes)
+</span><span class="kw">pub type </span>Tag = universal_hash::Block&lt;GHash&gt;;
 
-<span class="doccomment">/// **GHASH**: universal hash over GF(2^128) used by AES-GCM.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// GHASH is a universal hash function used for message authentication in</span>
-<span class="doccomment">/// the AES-GCM authenticated encryption cipher.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GHash</span>(<span class="ident">Polyval</span>);
+<span class="doccomment">/// **GHASH**: universal hash over GF(2^128) used by AES-GCM.
+///
+/// GHASH is a universal hash function used for message authentication in
+/// the AES-GCM authenticated encryption cipher.
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>GHash(Polyval);
 
-<span class="kw">impl</span> <span class="ident">KeySizeUser</span> <span class="kw">for</span> <span class="ident">GHash</span> {
-    <span class="kw">type</span> <span class="ident">KeySize</span> <span class="op">=</span> <span class="ident">U16</span>;
+<span class="kw">impl </span>KeySizeUser <span class="kw">for </span>GHash {
+    <span class="kw">type </span>KeySize = U16;
 }
 
-<span class="kw">impl</span> <span class="ident">KeyInit</span> <span class="kw">for</span> <span class="ident">GHash</span> {
-    <span class="doccomment">/// Initialize GHASH with the given `H` field element</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">h</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">h</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">h</span>;
-        <span class="ident">h</span>.<span class="ident">reverse</span>();
+<span class="kw">impl </span>KeyInit <span class="kw">for </span>GHash {
+    <span class="doccomment">/// Initialize GHASH with the given `H` field element
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>new(h: <span class="kw-2">&amp;</span>Key) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>h = <span class="kw-2">*</span>h;
+        h.reverse();
 
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_mut</span>)]</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">h_polyval</span> <span class="op">=</span> <span class="ident">polyval::mulx</span>(<span class="kw-2">&amp;</span><span class="ident">h</span>);
+        <span class="attribute">#[allow(unused_mut)]
+        </span><span class="kw">let </span><span class="kw-2">mut </span>h_polyval = polyval::mulx(<span class="kw-2">&amp;</span>h);
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-        <span class="ident">h</span>.<span class="ident">zeroize</span>();
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+        </span>h.zeroize();
 
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::let_and_return</span>)]</span>
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">GHash</span>(<span class="ident">Polyval::new</span>(<span class="kw-2">&amp;</span><span class="ident">h_polyval</span>));
+        <span class="attribute">#[allow(clippy::let_and_return)]
+        </span><span class="kw">let </span>result = GHash(Polyval::new(<span class="kw-2">&amp;</span>h_polyval));
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-        <span class="ident">h_polyval</span>.<span class="ident">zeroize</span>();
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+        </span>h_polyval.zeroize();
 
-        <span class="ident">result</span>
+        result
     }
 }
 
-<span class="kw">struct</span> <span class="ident">GHashBackend</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">B</span>: <span class="ident">UhfBackend</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">B</span>);
+<span class="kw">struct </span>GHashBackend&lt;<span class="lifetime">&#39;b</span>, B: UhfBackend&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>B);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">B</span>: <span class="ident">UhfBackend</span><span class="op">&gt;</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">GHashBackend</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">B::BlockSize</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, B: UhfBackend&gt; BlockSizeUser <span class="kw">for </span>GHashBackend&lt;<span class="lifetime">&#39;b</span>, B&gt; {
+    <span class="kw">type </span>BlockSize = B::BlockSize;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">B</span>: <span class="ident">UhfBackend</span><span class="op">&gt;</span> <span class="ident">ParBlocksSizeUser</span> <span class="kw">for</span> <span class="ident">GHashBackend</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">ParBlocksSize</span> <span class="op">=</span> <span class="ident">B::ParBlocksSize</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, B: UhfBackend&gt; ParBlocksSizeUser <span class="kw">for </span>GHashBackend&lt;<span class="lifetime">&#39;b</span>, B&gt; {
+    <span class="kw">type </span>ParBlocksSize = B::ParBlocksSize;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">B</span>: <span class="ident">UhfBackend</span><span class="op">&gt;</span> <span class="ident">UhfBackend</span> <span class="kw">for</span> <span class="ident">GHashBackend</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">proc_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">universal_hash::Block</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">clone</span>();
-        <span class="ident">x</span>.<span class="ident">reverse</span>();
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">proc_block</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;b</span>, B: UhfBackend&gt; UhfBackend <span class="kw">for </span>GHashBackend&lt;<span class="lifetime">&#39;b</span>, B&gt; {
+    <span class="kw">fn </span>proc_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x: <span class="kw-2">&amp;</span>universal_hash::Block&lt;B&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>x = x.clone();
+        x.reverse();
+        <span class="self">self</span>.<span class="number">0</span>.proc_block(<span class="kw-2">&amp;</span>x);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">GHash</span> {
-    <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span>;
+<span class="kw">impl </span>BlockSizeUser <span class="kw">for </span>GHash {
+    <span class="kw">type </span>BlockSize = U16;
 }
 
-<span class="kw">impl</span> <span class="ident">UniversalHash</span> <span class="kw">for</span> <span class="ident">GHash</span> {
-    <span class="kw">fn</span> <span class="ident">update_with_backend</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">UhfClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>) {
-        <span class="kw">struct</span> <span class="ident">GHashClosure</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">UhfClosure</span><span class="op">&gt;</span>(<span class="ident">C</span>);
+<span class="kw">impl </span>UniversalHash <span class="kw">for </span>GHash {
+    <span class="kw">fn </span>update_with_backend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: <span class="kw">impl </span>UhfClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;) {
+        <span class="kw">struct </span>GHashClosure&lt;C: UhfClosure&gt;(C);
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">UhfClosure</span><span class="op">&gt;</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">GHashClosure</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> {
-            <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">C::BlockSize</span>;
+        <span class="kw">impl</span>&lt;C: UhfClosure&gt; BlockSizeUser <span class="kw">for </span>GHashClosure&lt;C&gt; {
+            <span class="kw">type </span>BlockSize = C::BlockSize;
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">UhfClosure</span><span class="op">&gt;</span> <span class="ident">UhfClosure</span> <span class="kw">for</span> <span class="ident">GHashClosure</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">call</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">UhfBackend</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">backend</span>: <span class="kw-2">&amp;mut</span> <span class="ident">B</span>) {
-                <span class="self">self</span>.<span class="number">0</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="ident">GHashBackend</span>(<span class="ident">backend</span>));
+        <span class="kw">impl</span>&lt;C: UhfClosure&gt; UhfClosure <span class="kw">for </span>GHashClosure&lt;C&gt; {
+            <span class="kw">fn </span>call&lt;B: UhfBackend&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;&gt;(<span class="self">self</span>, backend: <span class="kw-2">&amp;mut </span>B) {
+                <span class="self">self</span>.<span class="number">0</span>.call(<span class="kw-2">&amp;mut </span>GHashBackend(backend));
             }
         }
 
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">update_with_backend</span>(<span class="ident">GHashClosure</span>(<span class="ident">f</span>));
+        <span class="self">self</span>.<span class="number">0</span>.update_with_backend(GHashClosure(f));
     }
 
-    <span class="doccomment">/// Get GHASH output</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="self">self</span>) -&gt; <span class="ident">Tag</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">finalize</span>();
-        <span class="ident">output</span>.<span class="ident">reverse</span>();
-        <span class="ident">output</span>
+    <span class="doccomment">/// Get GHASH output
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; Tag {
+        <span class="kw">let </span><span class="kw-2">mut </span>output = <span class="self">self</span>.<span class="number">0</span>.finalize();
+        output.reverse();
+        output
     }
 }
 
-<span class="macro">opaque_debug::implement!</span>(<span class="ident">GHash</span>);
+<span class="macro">opaque_debug::implement!</span>(GHash);
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ghash" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ghash" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

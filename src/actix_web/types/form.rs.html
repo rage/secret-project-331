@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/types/form.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>form.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/types/form.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>form.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -562,567 +562,567 @@
 <span id="560">560</span>
 <span id="561">561</span>
 <span id="562">562</span>
-</pre><pre class="rust"><code><span class="doccomment">//! For URL encoded form helper documentation, see [`Form`].</span>
+</pre><pre class="rust"><code><span class="doccomment">//! For URL encoded form helper documentation, see [`Form`].
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">borrow::Cow</span>,
-    <span class="ident">fmt</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">ops</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">rc::Rc</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>std::{
+    borrow::Cow,
+    fmt,
+    future::Future,
+    ops,
+    pin::Pin,
+    rc::Rc,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
-<span class="kw">use</span> <span class="ident">bytes::BytesMut</span>;
-<span class="kw">use</span> <span class="ident">encoding_rs</span>::{<span class="ident">Encoding</span>, <span class="ident">UTF_8</span>};
-<span class="kw">use</span> <span class="ident">futures_core</span>::{<span class="ident">future::LocalBoxFuture</span>, <span class="ident">ready</span>};
-<span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">FutureExt</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">StreamExt</span> <span class="kw">as</span> <span class="kw">_</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">de::DeserializeOwned</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>actix_http::Payload;
+<span class="kw">use </span>bytes::BytesMut;
+<span class="kw">use </span>encoding_rs::{Encoding, UTF_8};
+<span class="kw">use </span>futures_core::{future::LocalBoxFuture, ready};
+<span class="kw">use </span>futures_util::{FutureExt <span class="kw">as _</span>, StreamExt <span class="kw">as _</span>};
+<span class="kw">use </span>serde::{de::DeserializeOwned, Serialize};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__compress&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::dev::Decompress</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body::EitherBody</span>, <span class="ident">error::UrlencodedError</span>, <span class="ident">extract::FromRequest</span>,
-    <span class="ident">http::header::CONTENT_LENGTH</span>, <span class="ident">web</span>, <span class="ident">Error</span>, <span class="ident">HttpMessage</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>,
-    <span class="ident">Responder</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::dev::Decompress;
+<span class="kw">use crate</span>::{
+    body::EitherBody, error::UrlencodedError, extract::FromRequest,
+    http::header::CONTENT_LENGTH, web, Error, HttpMessage, HttpRequest, HttpResponse,
+    Responder,
 };
 
-<span class="doccomment">/// URL encoded payload extractor and responder.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `Form` has two uses: URL encoded responses, and extracting typed data from URL request payloads.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Extractor</span>
-<span class="doccomment">/// To extract typed data from a request body, the inner type `T` must implement the</span>
-<span class="doccomment">/// [`DeserializeOwned`] trait.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Use [`FormConfig`] to configure extraction options.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{post, web};</span>
-<span class="doccomment">/// use serde::Deserialize;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Deserialize)]</span>
-<span class="doccomment">/// struct Info {</span>
-<span class="doccomment">///     name: String,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // This handler is only called if:</span>
-<span class="doccomment">/// // - request headers declare the content type as `application/x-www-form-urlencoded`</span>
-<span class="doccomment">/// // - request payload is deserialized into a `Info` struct from the URL encoded format</span>
-<span class="doccomment">/// #[post(&quot;/&quot;)]</span>
-<span class="doccomment">/// async fn index(form: web::Form&lt;Info&gt;) -&gt; String {</span>
-<span class="doccomment">///     format!(&quot;Welcome {}!&quot;, form.name)</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Responder</span>
-<span class="doccomment">/// The `Form` type also allows you to create URL encoded responses:</span>
-<span class="doccomment">/// simply return a value of type Form&lt;T&gt; where T is the type to be URL encoded.</span>
-<span class="doccomment">/// The type  must implement [`serde::Serialize`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Responses use</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{get, web};</span>
-<span class="doccomment">/// use serde::Serialize;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Serialize)]</span>
-<span class="doccomment">/// struct SomeForm {</span>
-<span class="doccomment">///     name: String,</span>
-<span class="doccomment">///     age: u8</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Response will have:</span>
-<span class="doccomment">/// // - status: 200 OK</span>
-<span class="doccomment">/// // - header: `Content-Type: application/x-www-form-urlencoded`</span>
-<span class="doccomment">/// // - body: `name=actix&amp;age=123`</span>
-<span class="doccomment">/// #[get(&quot;/&quot;)]</span>
-<span class="doccomment">/// async fn index() -&gt; web::Form&lt;SomeForm&gt; {</span>
-<span class="doccomment">///     web::Form(SomeForm {</span>
-<span class="doccomment">///         name: &quot;actix&quot;.into(),</span>
-<span class="doccomment">///         age: 123</span>
-<span class="doccomment">///     })</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// URL encoded forms consist of unordered `key=value` pairs, therefore they cannot be decoded into</span>
-<span class="doccomment">/// any type which depends upon data ordering (eg. tuples). Trying to do so will result in a panic.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Form</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">T</span>);
+<span class="doccomment">/// URL encoded payload extractor and responder.
+///
+/// `Form` has two uses: URL encoded responses, and extracting typed data from URL request payloads.
+///
+/// # Extractor
+/// To extract typed data from a request body, the inner type `T` must implement the
+/// [`DeserializeOwned`] trait.
+///
+/// Use [`FormConfig`] to configure extraction options.
+///
+/// ```
+/// use actix_web::{post, web};
+/// use serde::Deserialize;
+///
+/// #[derive(Deserialize)]
+/// struct Info {
+///     name: String,
+/// }
+///
+/// // This handler is only called if:
+/// // - request headers declare the content type as `application/x-www-form-urlencoded`
+/// // - request payload is deserialized into a `Info` struct from the URL encoded format
+/// #[post(&quot;/&quot;)]
+/// async fn index(form: web::Form&lt;Info&gt;) -&gt; String {
+///     format!(&quot;Welcome {}!&quot;, form.name)
+/// }
+/// ```
+///
+/// # Responder
+/// The `Form` type also allows you to create URL encoded responses:
+/// simply return a value of type Form&lt;T&gt; where T is the type to be URL encoded.
+/// The type  must implement [`serde::Serialize`].
+///
+/// Responses use
+///
+/// ```
+/// use actix_web::{get, web};
+/// use serde::Serialize;
+///
+/// #[derive(Serialize)]
+/// struct SomeForm {
+///     name: String,
+///     age: u8
+/// }
+///
+/// // Response will have:
+/// // - status: 200 OK
+/// // - header: `Content-Type: application/x-www-form-urlencoded`
+/// // - body: `name=actix&amp;age=123`
+/// #[get(&quot;/&quot;)]
+/// async fn index() -&gt; web::Form&lt;SomeForm&gt; {
+///     web::Form(SomeForm {
+///         name: &quot;actix&quot;.into(),
+///         age: 123
+///     })
+/// }
+/// ```
+///
+/// # Panics
+/// URL encoded forms consist of unordered `key=value` pairs, therefore they cannot be decoded into
+/// any type which depends upon data ordering (eg. tuples). Trying to do so will result in a panic.
+</span><span class="attribute">#[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
+</span><span class="kw">pub struct </span>Form&lt;T&gt;(<span class="kw">pub </span>T);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Form</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Unwrap into inner `T` value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">T</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
+<span class="kw">impl</span>&lt;T&gt; Form&lt;T&gt; {
+    <span class="doccomment">/// Unwrap into inner `T` value.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; T {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops::Deref</span> <span class="kw">for</span> <span class="ident">Form</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
+<span class="kw">impl</span>&lt;T&gt; ops::Deref <span class="kw">for </span>Form&lt;T&gt; {
+    <span class="kw">type </span>Target = T;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops::DerefMut</span> <span class="kw">for</span> <span class="ident">Form</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>
-    }
+<span class="kw">impl</span>&lt;T&gt; ops::DerefMut <span class="kw">for </span>Form&lt;T&gt; {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">Form</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Serialize</span>,
+<span class="kw">impl</span>&lt;T&gt; Serialize <span class="kw">for </span>Form&lt;T&gt;
+<span class="kw">where
+    </span>T: Serialize,
 {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">serde::Serializer</span>,
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: serde::Serializer,
     {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
+        <span class="self">self</span>.<span class="number">0</span>.serialize(serializer)
     }
 }
 
-<span class="doccomment">/// See [here](#extractor) for example of usage as an extractor.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">Form</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">DeserializeOwned</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="doccomment">/// See [here](#extractor) for example of usage as an extractor.
+</span><span class="kw">impl</span>&lt;T&gt; FromRequest <span class="kw">for </span>Form&lt;T&gt;
+<span class="kw">where
+    </span>T: DeserializeOwned + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">FormExtractFut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Future = FormExtractFut&lt;T&gt;;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">FormConfig</span> { <span class="ident">limit</span>, <span class="ident">err_handler</span> } <span class="op">=</span> <span class="ident">FormConfig::from_req</span>(<span class="ident">req</span>).<span class="ident">clone</span>();
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, payload: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>FormConfig { limit, err_handler } = FormConfig::from_req(req).clone();
 
-        <span class="ident">FormExtractFut</span> {
-            <span class="ident">fut</span>: <span class="ident">UrlEncoded::new</span>(<span class="ident">req</span>, <span class="ident">payload</span>).<span class="ident">limit</span>(<span class="ident">limit</span>),
-            <span class="ident">req</span>: <span class="ident">req</span>.<span class="ident">clone</span>(),
-            <span class="ident">err_handler</span>,
+        FormExtractFut {
+            fut: UrlEncoded::new(req, payload).limit(limit),
+            req: req.clone(),
+            err_handler,
         }
     }
 }
 
-<span class="kw">type</span> <span class="ident">FormErrHandler</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">UrlencodedError</span>, <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">type </span>FormErrHandler = <span class="prelude-ty">Option</span>&lt;Rc&lt;<span class="kw">dyn </span>Fn(UrlencodedError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error&gt;&gt;;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FormExtractFut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">fut</span>: <span class="ident">UrlEncoded</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">err_handler</span>: <span class="ident">FormErrHandler</span>,
-    <span class="ident">req</span>: <span class="ident">HttpRequest</span>,
+<span class="kw">pub struct </span>FormExtractFut&lt;T&gt; {
+    fut: UrlEncoded&lt;T&gt;,
+    err_handler: FormErrHandler,
+    req: HttpRequest,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">FormExtractFut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">DeserializeOwned</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T&gt; Future <span class="kw">for </span>FormExtractFut&lt;T&gt;
+<span class="kw">where
+    </span>T: DeserializeOwned + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Form</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Form&lt;T&gt;, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_mut</span>();
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">this</span>.<span class="ident">fut</span>).<span class="ident">poll</span>(<span class="ident">cx</span>));
+        <span class="kw">let </span>res = <span class="macro">ready!</span>(Pin::new(<span class="kw-2">&amp;mut </span>this.fut).poll(cx));
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">res</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">this</span>.<span class="ident">err_handler</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">err_handler</span>) =&gt; <span class="prelude-val">Err</span>((<span class="ident">err_handler</span>)(<span class="ident">err</span>, <span class="kw-2">&amp;</span><span class="ident">this</span>.<span class="ident">req</span>)),
-                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+        <span class="kw">let </span>res = <span class="kw">match </span>res {
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">match </span><span class="kw-2">&amp;</span>this.err_handler {
+                <span class="prelude-val">Some</span>(err_handler) =&gt; <span class="prelude-val">Err</span>((err_handler)(err, <span class="kw-2">&amp;</span>this.req)),
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(err.into()),
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">item</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Form</span>(<span class="ident">item</span>)),
+            <span class="prelude-val">Ok</span>(item) =&gt; <span class="prelude-val">Ok</span>(Form(item)),
         };
 
-        <span class="ident">Poll::Ready</span>(<span class="ident">res</span>)
+        Poll::Ready(res)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Display</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Form</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
+<span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>Form&lt;T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="self">self</span>.<span class="number">0</span>.fmt(f)
     }
 }
 
-<span class="doccomment">/// See [here](#responder) for example of usage as a handler return type.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="ident">Form</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
+<span class="doccomment">/// See [here](#responder) for example of usage as a handler return type.
+</span><span class="kw">impl</span>&lt;T: Serialize&gt; Responder <span class="kw">for </span>Form&lt;T&gt; {
+    <span class="kw">type </span>Body = EitherBody&lt;String&gt;;
 
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">serde_urlencoded::to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">body</span>) =&gt; <span class="kw">match</span> <span class="ident">HttpResponse::Ok</span>()
-                .<span class="ident">content_type</span>(<span class="ident">mime::APPLICATION_WWW_FORM_URLENCODED</span>)
-                .<span class="ident">message_body</span>(<span class="ident">body</span>)
+    <span class="kw">fn </span>respond_to(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        <span class="kw">match </span>serde_urlencoded::to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) {
+            <span class="prelude-val">Ok</span>(body) =&gt; <span class="kw">match </span>HttpResponse::Ok()
+                .content_type(mime::APPLICATION_WWW_FORM_URLENCODED)
+                .message_body(body)
             {
-                <span class="prelude-val">Ok</span>(<span class="ident">res</span>) =&gt; <span class="ident">res</span>.<span class="ident">map_into_left_body</span>(),
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">HttpResponse::from_error</span>(<span class="ident">err</span>).<span class="ident">map_into_right_body</span>(),
+                <span class="prelude-val">Ok</span>(res) =&gt; res.map_into_left_body(),
+                <span class="prelude-val">Err</span>(err) =&gt; HttpResponse::from_error(err).map_into_right_body(),
             },
 
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="ident">HttpResponse::from_error</span>(<span class="ident">UrlencodedError::Serialize</span>(<span class="ident">err</span>)).<span class="ident">map_into_right_body</span>()
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                HttpResponse::from_error(UrlencodedError::Serialize(err)).map_into_right_body()
             }
         }
     }
 }
 
-<span class="doccomment">/// [`Form`] extractor configuration.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{post, web, App, FromRequest, Result};</span>
-<span class="doccomment">/// use serde::Deserialize;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Deserialize)]</span>
-<span class="doccomment">/// struct Info {</span>
-<span class="doccomment">///     username: String,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Custom `FormConfig` is applied to App.</span>
-<span class="doccomment">/// // Max payload size for URL encoded forms is set to 4kB.</span>
-<span class="doccomment">/// #[post(&quot;/&quot;)]</span>
-<span class="doccomment">/// async fn index(form: web::Form&lt;Info&gt;) -&gt; Result&lt;String&gt; {</span>
-<span class="doccomment">///     Ok(format!(&quot;Welcome {}!&quot;, form.username))</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// App::new()</span>
-<span class="doccomment">///     .app_data(web::FormConfig::default().limit(4096))</span>
-<span class="doccomment">///     .service(index);</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FormConfig</span> {
-    <span class="ident">limit</span>: <span class="ident">usize</span>,
-    <span class="ident">err_handler</span>: <span class="ident">FormErrHandler</span>,
+<span class="doccomment">/// [`Form`] extractor configuration.
+///
+/// ```
+/// use actix_web::{post, web, App, FromRequest, Result};
+/// use serde::Deserialize;
+///
+/// #[derive(Deserialize)]
+/// struct Info {
+///     username: String,
+/// }
+///
+/// // Custom `FormConfig` is applied to App.
+/// // Max payload size for URL encoded forms is set to 4kB.
+/// #[post(&quot;/&quot;)]
+/// async fn index(form: web::Form&lt;Info&gt;) -&gt; Result&lt;String&gt; {
+///     Ok(format!(&quot;Welcome {}!&quot;, form.username))
+/// }
+///
+/// App::new()
+///     .app_data(web::FormConfig::default().limit(4096))
+///     .service(index);
+/// ```
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>FormConfig {
+    limit: usize,
+    err_handler: FormErrHandler,
 }
 
-<span class="kw">impl</span> <span class="ident">FormConfig</span> {
-    <span class="doccomment">/// Set maximum accepted payload size. By default this limit is 16kB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="ident">limit</span>;
-        <span class="self">self</span>
-    }
+<span class="kw">impl </span>FormConfig {
+    <span class="doccomment">/// Set maximum accepted payload size. By default this limit is 16kB.
+    </span><span class="kw">pub fn </span>limit(<span class="kw-2">mut </span><span class="self">self</span>, limit: usize) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.limit = limit;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set custom error handler</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_handler</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">UrlencodedError</span>, <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Set custom error handler
+    </span><span class="kw">pub fn </span>error_handler&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(UrlencodedError, <span class="kw-2">&amp;</span>HttpRequest) -&gt; Error + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">err_handler</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">f</span>));
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.err_handler = <span class="prelude-val">Some</span>(Rc::new(f));
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Extract payload config from app data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Checks both `T` and `Data&lt;T&gt;`, in that order, and falls back to the default payload config.</span>
-    <span class="kw">fn</span> <span class="ident">from_req</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span> {
-        <span class="ident">req</span>.<span class="ident">app_data</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>()
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">app_data</span>::<span class="op">&lt;</span><span class="ident">web::Data</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">as_ref</span>()))
-            .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">DEFAULT_CONFIG</span>)
+    <span class="doccomment">/// Extract payload config from app data.
+    ///
+    /// Checks both `T` and `Data&lt;T&gt;`, in that order, and falls back to the default payload config.
+    </span><span class="kw">fn </span>from_req(req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
+        req.app_data::&lt;<span class="self">Self</span>&gt;()
+            .or_else(|| req.app_data::&lt;web::Data&lt;<span class="self">Self</span>&gt;&gt;().map(|d| d.as_ref()))
+            .unwrap_or(<span class="kw-2">&amp;</span>DEFAULT_CONFIG)
     }
 }
 
-<span class="doccomment">/// Allow shared refs used as default.</span>
-<span class="kw">const</span> <span class="ident">DEFAULT_CONFIG</span>: <span class="ident">FormConfig</span> <span class="op">=</span> <span class="ident">FormConfig</span> {
-    <span class="ident">limit</span>: <span class="number">16_384</span>, <span class="comment">// 2^14 bytes (~16kB)</span>
-    <span class="ident">err_handler</span>: <span class="prelude-val">None</span>,
+<span class="doccomment">/// Allow shared refs used as default.
+</span><span class="kw">const </span>DEFAULT_CONFIG: FormConfig = FormConfig {
+    limit: <span class="number">16_384</span>, <span class="comment">// 2^14 bytes (~16kB)
+    </span>err_handler: <span class="prelude-val">None</span>,
 };
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">FormConfig</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">DEFAULT_CONFIG</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>FormConfig {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        DEFAULT_CONFIG
     }
 }
 
-<span class="doccomment">/// Future that resolves to some `T` when parsed from a URL encoded payload.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Form can be deserialized from any type `T` that implements [`serde::Deserialize`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns error if:</span>
-<span class="doccomment">/// - content type is not `application/x-www-form-urlencoded`</span>
-<span class="doccomment">/// - content length is greater than [limit](UrlEncoded::limit())</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UrlEncoded</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__compress&quot;</span>)]</span>
-    <span class="ident">stream</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Decompress</span><span class="op">&lt;</span><span class="ident">Payload</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__compress&quot;</span>))]</span>
-    <span class="ident">stream</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Payload</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Future that resolves to some `T` when parsed from a URL encoded payload.
+///
+/// Form can be deserialized from any type `T` that implements [`serde::Deserialize`].
+///
+/// Returns error if:
+/// - content type is not `application/x-www-form-urlencoded`
+/// - content length is greater than [limit](UrlEncoded::limit())
+</span><span class="kw">pub struct </span>UrlEncoded&lt;T&gt; {
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+    </span>stream: <span class="prelude-ty">Option</span>&lt;Decompress&lt;Payload&gt;&gt;,
+    <span class="attribute">#[cfg(not(feature = <span class="string">&quot;__compress&quot;</span>))]
+    </span>stream: <span class="prelude-ty">Option</span>&lt;Payload&gt;,
 
-    <span class="ident">limit</span>: <span class="ident">usize</span>,
-    <span class="ident">length</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">encoding</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>,
-    <span class="ident">err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UrlencodedError</span><span class="op">&gt;</span>,
-    <span class="ident">fut</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">UrlencodedError</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    limit: usize,
+    length: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    encoding: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Encoding,
+    err: <span class="prelude-ty">Option</span>&lt;UrlencodedError&gt;,
+    fut: <span class="prelude-ty">Option</span>&lt;LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;T, UrlencodedError&gt;&gt;&gt;,
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::borrow_interior_mutable_const</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">UrlEncoded</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Create a new future to decode a URL encoded request payload.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// check content type</span>
-        <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">content_type</span>().<span class="ident">to_lowercase</span>() <span class="op">!</span><span class="op">=</span> <span class="string">&quot;application/x-www-form-urlencoded&quot;</span> {
-            <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::err</span>(<span class="ident">UrlencodedError::ContentType</span>);
+<span class="attribute">#[allow(clippy::borrow_interior_mutable_const)]
+</span><span class="kw">impl</span>&lt;T&gt; UrlEncoded&lt;T&gt; {
+    <span class="doccomment">/// Create a new future to decode a URL encoded request payload.
+    </span><span class="kw">pub fn </span>new(req: <span class="kw-2">&amp;</span>HttpRequest, payload: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self </span>{
+        <span class="comment">// check content type
+        </span><span class="kw">if </span>req.content_type().to_lowercase() != <span class="string">&quot;application/x-www-form-urlencoded&quot; </span>{
+            <span class="kw">return </span><span class="self">Self</span>::err(UrlencodedError::ContentType);
         }
-        <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">encoding</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">enc</span>) =&gt; <span class="ident">enc</span>,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::err</span>(<span class="ident">UrlencodedError::ContentType</span>),
+        <span class="kw">let </span>encoding = <span class="kw">match </span>req.encoding() {
+            <span class="prelude-val">Ok</span>(enc) =&gt; enc,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="self">Self</span>::err(UrlencodedError::ContentType),
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">CONTENT_LENGTH</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">l</span>.<span class="ident">to_str</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() {
-                    <span class="ident">len</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>)
-                } <span class="kw">else</span> {
-                    <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::err</span>(<span class="ident">UrlencodedError::UnknownLength</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>len = <span class="prelude-val">None</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(l) = req.headers().get(<span class="kw-2">&amp;</span>CONTENT_LENGTH) {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = l.to_str() {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(l) = s.parse::&lt;usize&gt;() {
+                    len = <span class="prelude-val">Some</span>(l)
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span><span class="self">Self</span>::err(UrlencodedError::UnknownLength);
                 }
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::err</span>(<span class="ident">UrlencodedError::UnknownLength</span>);
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="self">Self</span>::err(UrlencodedError::UnknownLength);
             }
         };
 
-        <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> {
-            <span class="macro">cfg_if::cfg_if!</span> {
-                <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__compress&quot;</span>)]</span> {
-                    <span class="ident">Decompress::from_headers</span>(<span class="ident">payload</span>.<span class="ident">take</span>(), <span class="ident">req</span>.<span class="ident">headers</span>())
-                } <span class="kw">else</span> {
-                    <span class="ident">payload</span>.<span class="ident">take</span>()
+        <span class="kw">let </span>payload = {
+            <span class="macro">cfg_if::cfg_if! </span>{
+                <span class="kw">if </span><span class="attribute">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)] </span>{
+                    Decompress::from_headers(payload.take(), req.headers())
+                } <span class="kw">else </span>{
+                    payload.take()
                 }
             }
         };
 
-        <span class="ident">UrlEncoded</span> {
-            <span class="ident">encoding</span>,
-            <span class="ident">stream</span>: <span class="prelude-val">Some</span>(<span class="ident">payload</span>),
-            <span class="ident">limit</span>: <span class="number">32_768</span>,
-            <span class="ident">length</span>: <span class="ident">len</span>,
-            <span class="ident">fut</span>: <span class="prelude-val">None</span>,
-            <span class="ident">err</span>: <span class="prelude-val">None</span>,
+        UrlEncoded {
+            encoding,
+            stream: <span class="prelude-val">Some</span>(payload),
+            limit: <span class="number">32_768</span>,
+            length: len,
+            fut: <span class="prelude-val">None</span>,
+            err: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">err</span>(<span class="ident">err</span>: <span class="ident">UrlencodedError</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">UrlEncoded</span> {
-            <span class="ident">stream</span>: <span class="prelude-val">None</span>,
-            <span class="ident">limit</span>: <span class="number">32_768</span>,
-            <span class="ident">fut</span>: <span class="prelude-val">None</span>,
-            <span class="ident">err</span>: <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-            <span class="ident">length</span>: <span class="prelude-val">None</span>,
-            <span class="ident">encoding</span>: <span class="ident">UTF_8</span>,
+    <span class="kw">fn </span>err(err: UrlencodedError) -&gt; <span class="self">Self </span>{
+        UrlEncoded {
+            stream: <span class="prelude-val">None</span>,
+            limit: <span class="number">32_768</span>,
+            fut: <span class="prelude-val">None</span>,
+            err: <span class="prelude-val">Some</span>(err),
+            length: <span class="prelude-val">None</span>,
+            encoding: UTF_8,
         }
     }
 
-    <span class="doccomment">/// Set maximum accepted payload size. The default limit is 256kB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="ident">limit</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set maximum accepted payload size. The default limit is 256kB.
+    </span><span class="kw">pub fn </span>limit(<span class="kw-2">mut </span><span class="self">self</span>, limit: usize) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.limit = limit;
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">UrlEncoded</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">DeserializeOwned</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T&gt; Future <span class="kw">for </span>UrlEncoded&lt;T&gt;
+<span class="kw">where
+    </span>T: DeserializeOwned + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">UrlencodedError</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;T, UrlencodedError&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">fut</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">fut</span> {
-            <span class="kw">return</span> <span class="ident">Pin::new</span>(<span class="ident">fut</span>).<span class="ident">poll</span>(<span class="ident">cx</span>);
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>fut) = <span class="self">self</span>.fut {
+            <span class="kw">return </span>Pin::new(fut).poll(cx);
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">err</span>.<span class="ident">take</span>() {
-            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = <span class="self">self</span>.err.take() {
+            <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(err));
         }
 
-        <span class="comment">// payload size</span>
-        <span class="kw">let</span> <span class="ident">limit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">limit</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">length</span>.<span class="ident">take</span>() {
-            <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span> <span class="ident">limit</span> {
-                <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">UrlencodedError::Overflow</span> { <span class="ident">size</span>: <span class="ident">len</span>, <span class="ident">limit</span> }));
+        <span class="comment">// payload size
+        </span><span class="kw">let </span>limit = <span class="self">self</span>.limit;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(len) = <span class="self">self</span>.length.take() {
+            <span class="kw">if </span>len &gt; limit {
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(UrlencodedError::Overflow { size: len, limit }));
             }
         }
 
-        <span class="comment">// future</span>
-        <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+        <span class="comment">// future
+        </span><span class="kw">let </span>encoding = <span class="self">self</span>.encoding;
+        <span class="kw">let </span><span class="kw-2">mut </span>stream = <span class="self">self</span>.stream.take().unwrap();
 
-        <span class="self">self</span>.<span class="ident">fut</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
-            <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">BytesMut::with_capacity</span>(<span class="number">8192</span>);
+        <span class="self">self</span>.fut = <span class="prelude-val">Some</span>(
+            <span class="kw">async move </span>{
+                <span class="kw">let </span><span class="kw-2">mut </span>body = BytesMut::with_capacity(<span class="number">8192</span>);
 
-                <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item</span>) <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">next</span>().<span class="kw">await</span> {
-                    <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">item</span><span class="question-mark">?</span>;
+                <span class="kw">while let </span><span class="prelude-val">Some</span>(item) = stream.next().<span class="kw">await </span>{
+                    <span class="kw">let </span>chunk = item<span class="question-mark">?</span>;
 
-                    <span class="kw">if</span> (<span class="ident">body</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">chunk</span>.<span class="ident">len</span>()) <span class="op">&gt;</span> <span class="ident">limit</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UrlencodedError::Overflow</span> {
-                            <span class="ident">size</span>: <span class="ident">body</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">chunk</span>.<span class="ident">len</span>(),
-                            <span class="ident">limit</span>,
+                    <span class="kw">if </span>(body.len() + chunk.len()) &gt; limit {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(UrlencodedError::Overflow {
+                            size: body.len() + chunk.len(),
+                            limit,
                         });
-                    } <span class="kw">else</span> {
-                        <span class="ident">body</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">chunk</span>);
+                    } <span class="kw">else </span>{
+                        body.extend_from_slice(<span class="kw-2">&amp;</span>chunk);
                     }
                 }
 
-                <span class="kw">if</span> <span class="ident">encoding</span> <span class="op">==</span> <span class="ident">UTF_8</span> {
-                    <span class="ident">serde_urlencoded::from_bytes</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>).<span class="ident">map_err</span>(<span class="ident">UrlencodedError::Parse</span>)
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">encoding</span>
-                        .<span class="ident">decode_without_bom_handling_and_without_replacement</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)
-                        .<span class="ident">map</span>(<span class="ident">Cow::into_owned</span>)
-                        .<span class="ident">ok_or</span>(<span class="ident">UrlencodedError::Encoding</span>)<span class="question-mark">?</span>;
+                <span class="kw">if </span>encoding == UTF_8 {
+                    serde_urlencoded::from_bytes::&lt;T&gt;(<span class="kw-2">&amp;</span>body).map_err(UrlencodedError::Parse)
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>body = encoding
+                        .decode_without_bom_handling_and_without_replacement(<span class="kw-2">&amp;</span>body)
+                        .map(Cow::into_owned)
+                        .ok_or(UrlencodedError::Encoding)<span class="question-mark">?</span>;
 
-                    <span class="ident">serde_urlencoded::from_str</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>).<span class="ident">map_err</span>(<span class="ident">UrlencodedError::Parse</span>)
+                    serde_urlencoded::from_str::&lt;T&gt;(<span class="kw-2">&amp;</span>body).map_err(UrlencodedError::Parse)
                 }
             }
-            .<span class="ident">boxed_local</span>(),
+            .boxed_local(),
         );
 
-        <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
+        <span class="self">self</span>.poll(cx)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-    <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>bytes::Bytes;
+    <span class="kw">use </span>serde::{Deserialize, Serialize};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test::TestRequest</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">http</span>::{
-            <span class="ident">header</span>::{<span class="ident">HeaderValue</span>, <span class="ident">CONTENT_LENGTH</span>, <span class="ident">CONTENT_TYPE</span>},
-            <span class="ident">StatusCode</span>,
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test::TestRequest;
+    <span class="kw">use crate</span>::{
+        http::{
+            header::{HeaderValue, CONTENT_LENGTH, CONTENT_TYPE},
+            StatusCode,
         },
-        <span class="ident">test::assert_body_eq</span>,
+        test::assert_body_eq,
     };
 
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-    <span class="kw">struct</span> <span class="ident">Info</span> {
-        <span class="ident">hello</span>: <span class="ident">String</span>,
-        <span class="ident">counter</span>: <span class="ident">i64</span>,
+    <span class="attribute">#[derive(Deserialize, Serialize, Debug, PartialEq)]
+    </span><span class="kw">struct </span>Info {
+        hello: String,
+        counter: i64,
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_form</span>() {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_LENGTH</span>, <span class="number">11</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;hello=world&amp;counter=123&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_form() {
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((CONTENT_LENGTH, <span class="number">11</span>))
+            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&amp;counter=123&quot;</span>))
+            .to_http_parts();
 
-        <span class="kw">let</span> <span class="ident">Form</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">Form</span>::<span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="ident">::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>Form(s) = Form::&lt;Info&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">s</span>,
-            <span class="ident">Info</span> {
-                <span class="ident">hello</span>: <span class="string">&quot;world&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">counter</span>: <span class="number">123</span>
-            }
+            s,
+            Info {
+                hello: <span class="string">&quot;world&quot;</span>.into(),
+                counter: <span class="number">123
+            </span>}
         );
     }
 
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="ident">err</span>: <span class="ident">UrlencodedError</span>, <span class="ident">other</span>: <span class="ident">UrlencodedError</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">UrlencodedError::Overflow</span> { .. } =&gt; {
-                <span class="macro">matches!</span>(<span class="ident">other</span>, <span class="ident">UrlencodedError::Overflow</span> { .. })
+    <span class="kw">fn </span>eq(err: UrlencodedError, other: UrlencodedError) -&gt; bool {
+        <span class="kw">match </span>err {
+            UrlencodedError::Overflow { .. } =&gt; {
+                <span class="macro">matches!</span>(other, UrlencodedError::Overflow { .. })
             }
-            <span class="ident">UrlencodedError::UnknownLength</span> =&gt; <span class="macro">matches!</span>(<span class="ident">other</span>, <span class="ident">UrlencodedError::UnknownLength</span>),
-            <span class="ident">UrlencodedError::ContentType</span> =&gt; <span class="macro">matches!</span>(<span class="ident">other</span>, <span class="ident">UrlencodedError::ContentType</span>),
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+            UrlencodedError::UnknownLength =&gt; <span class="macro">matches!</span>(other, UrlencodedError::UnknownLength),
+            UrlencodedError::ContentType =&gt; <span class="macro">matches!</span>(other, UrlencodedError::ContentType),
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_urlencoded_error</span>() {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;xxxx&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">UrlEncoded</span>::<span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="ident">eq</span>(<span class="ident">info</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>(), <span class="ident">UrlencodedError::UnknownLength</span>));
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_urlencoded_error() {
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((CONTENT_LENGTH, <span class="string">&quot;xxxx&quot;</span>))
+            .to_http_parts();
+        <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
+        <span class="macro">assert!</span>(eq(info.err().unwrap(), UrlencodedError::UnknownLength));
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;1000000&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">UrlEncoded</span>::<span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="ident">eq</span>(
-            <span class="ident">info</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">UrlencodedError::Overflow</span> { <span class="ident">size</span>: <span class="number">0</span>, <span class="ident">limit</span>: <span class="number">0</span> }
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((CONTENT_LENGTH, <span class="string">&quot;1000000&quot;</span>))
+            .to_http_parts();
+        <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
+        <span class="macro">assert!</span>(eq(
+            info.err().unwrap(),
+            UrlencodedError::Overflow { size: <span class="number">0</span>, limit: <span class="number">0 </span>}
         ));
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;text/plain&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_LENGTH</span>, <span class="number">10</span>))
-            .<span class="ident">to_http_parts</span>();
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">UrlEncoded</span>::<span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="ident">eq</span>(<span class="ident">info</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>(), <span class="ident">UrlencodedError::ContentType</span>));
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((CONTENT_TYPE, <span class="string">&quot;text/plain&quot;</span>))
+            .insert_header((CONTENT_LENGTH, <span class="number">10</span>))
+            .to_http_parts();
+        <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
+        <span class="macro">assert!</span>(eq(info.err().unwrap(), UrlencodedError::ContentType));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_urlencoded</span>() {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_LENGTH</span>, <span class="number">11</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;hello=world&amp;counter=123&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_urlencoded() {
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((CONTENT_LENGTH, <span class="number">11</span>))
+            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&amp;counter=123&quot;</span>))
+            .to_http_parts();
 
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">UrlEncoded</span>::<span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">info</span>,
-            <span class="ident">Info</span> {
-                <span class="ident">hello</span>: <span class="string">&quot;world&quot;</span>.<span class="ident">to_owned</span>(),
-                <span class="ident">counter</span>: <span class="number">123</span>
-            }
+            info,
+            Info {
+                hello: <span class="string">&quot;world&quot;</span>.to_owned(),
+                counter: <span class="number">123
+            </span>}
         );
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">CONTENT_TYPE</span>,
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((
+                CONTENT_TYPE,
                 <span class="string">&quot;application/x-www-form-urlencoded; charset=utf-8&quot;</span>,
             ))
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_LENGTH</span>, <span class="number">11</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;hello=world&amp;counter=123&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
+            .insert_header((CONTENT_LENGTH, <span class="number">11</span>))
+            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&amp;counter=123&quot;</span>))
+            .to_http_parts();
 
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">UrlEncoded</span>::<span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>info = UrlEncoded::&lt;Info&gt;::new(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">info</span>,
-            <span class="ident">Info</span> {
-                <span class="ident">hello</span>: <span class="string">&quot;world&quot;</span>.<span class="ident">to_owned</span>(),
-                <span class="ident">counter</span>: <span class="number">123</span>
-            }
+            info,
+            Info {
+                hello: <span class="string">&quot;world&quot;</span>.to_owned(),
+                counter: <span class="number">123
+            </span>}
         );
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_responder</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_responder() {
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
 
-        <span class="kw">let</span> <span class="ident">form</span> <span class="op">=</span> <span class="ident">Form</span>(<span class="ident">Info</span> {
-            <span class="ident">hello</span>: <span class="string">&quot;world&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">counter</span>: <span class="number">123</span>,
+        <span class="kw">let </span>form = Form(Info {
+            hello: <span class="string">&quot;world&quot;</span>.to_string(),
+            counter: <span class="number">123</span>,
         });
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">form</span>.<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>res = form.respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>)
         );
-        <span class="macro">assert_body_eq!</span>(<span class="ident">res</span>, <span class="string">b&quot;hello=world&amp;counter=123&quot;</span>);
+        <span class="macro">assert_body_eq!</span>(res, <span class="string">b&quot;hello=world&amp;counter=123&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_with_config_in_data_wrapper</span>() {
-        <span class="kw">let</span> <span class="ident">ctype</span> <span class="op">=</span> <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_with_config_in_data_wrapper() {
+        <span class="kw">let </span>ctype = HeaderValue::from_static(<span class="string">&quot;application/x-www-form-urlencoded&quot;</span>);
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_TYPE</span>, <span class="ident">ctype</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_LENGTH</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;20&quot;</span>)))
-            .<span class="ident">set_payload</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;hello=test&amp;counter=4&quot;</span>))
-            .<span class="ident">app_data</span>(<span class="ident">web::Data::new</span>(<span class="ident">FormConfig::default</span>().<span class="ident">limit</span>(<span class="number">10</span>)))
-            .<span class="ident">to_http_parts</span>();
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((CONTENT_TYPE, ctype))
+            .insert_header((CONTENT_LENGTH, HeaderValue::from_static(<span class="string">&quot;20&quot;</span>)))
+            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=test&amp;counter=4&quot;</span>))
+            .app_data(web::Data::new(FormConfig::default().limit(<span class="number">10</span>)))
+            .to_http_parts();
 
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Form</span>::<span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="ident">::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="ident">s</span>.<span class="ident">is_err</span>());
+        <span class="kw">let </span>s = Form::&lt;Info&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl).<span class="kw">await</span>;
+        <span class="macro">assert!</span>(s.is_err());
 
-        <span class="kw">let</span> <span class="ident">err_str</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">err</span>().<span class="ident">unwrap</span>().<span class="ident">to_string</span>();
-        <span class="macro">assert!</span>(<span class="ident">err_str</span>.<span class="ident">starts_with</span>(<span class="string">&quot;URL encoded payload is larger&quot;</span>));
+        <span class="kw">let </span>err_str = s.err().unwrap().to_string();
+        <span class="macro">assert!</span>(err_str.starts_with(<span class="string">&quot;URL encoded payload is larger&quot;</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

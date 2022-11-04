@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/column.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>column.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/column.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>column.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -42,49 +42,49 @@
 <span id="42">42</span>
 <span id="43">43</span>
 <span id="44">44</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::column::Column</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ext::ustr::UStr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgTypeInfo</span>, <span class="ident">Postgres</span>};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::column::Column;
+<span class="kw">use </span><span class="kw">crate</span>::ext::ustr::UStr;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{PgTypeInfo, Postgres};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgColumn</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ordinal</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name</span>: <span class="ident">UStr</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">type_info</span>: <span class="ident">PgTypeInfo</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>, <span class="ident">serde</span>(<span class="ident">skip</span>))]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">relation_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>, <span class="ident">serde</span>(<span class="ident">skip</span>))]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">relation_attribute_no</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;offline&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub struct </span>PgColumn {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) ordinal: usize,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) name: UStr,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) type_info: PgTypeInfo,
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;offline&quot;</span>, serde(skip))]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) relation_id: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;offline&quot;</span>, serde(skip))]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) relation_attribute_no: <span class="prelude-ty">Option</span>&lt;i16&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::column::private_column::Sealed</span> <span class="kw">for</span> <span class="ident">PgColumn</span> {}
+<span class="kw">impl </span><span class="kw">crate</span>::column::private_column::Sealed <span class="kw">for </span>PgColumn {}
 
-<span class="kw">impl</span> <span class="ident">Column</span> <span class="kw">for</span> <span class="ident">PgColumn</span> {
-    <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="ident">Postgres</span>;
+<span class="kw">impl </span>Column <span class="kw">for </span>PgColumn {
+    <span class="kw">type </span>Database = Postgres;
 
-    <span class="kw">fn</span> <span class="ident">ordinal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">ordinal</span>
+    <span class="kw">fn </span>ordinal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.ordinal
     }
 
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">name</span>
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;*</span><span class="self">self</span>.name
     }
 
-    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_info</span>
+    <span class="kw">fn </span>type_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PgTypeInfo {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.type_info
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">PgColumn</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::any::AnyColumn</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">column</span>: <span class="ident">PgColumn</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="kw">crate</span>::any::AnyColumn</span> {
-            <span class="ident">type_info</span>: <span class="ident">column</span>.<span class="ident">type_info</span>.<span class="ident">clone</span>().<span class="ident">into</span>(),
-            <span class="ident">kind</span>: <span class="ident"><span class="kw">crate</span>::any::column::AnyColumnKind::Postgres</span>(<span class="ident">column</span>),
+<span class="attribute">#[cfg(feature = <span class="string">&quot;any&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;PgColumn&gt; <span class="kw">for </span><span class="kw">crate</span>::any::AnyColumn {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(column: PgColumn) -&gt; <span class="self">Self </span>{
+        <span class="kw">crate</span>::any::AnyColumn {
+            type_info: column.type_info.clone().into(),
+            kind: <span class="kw">crate</span>::any::column::AnyColumnKind::Postgres(column),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

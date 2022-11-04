@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_exercise_task_states.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user_exercise_task_states.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_exercise_task_states.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user_exercise_task_states.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -631,30 +631,30 @@
 <span id="631">631</span>
 <span id="632">632</span>
 <span id="633">633</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
-    <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
+    exercises::{ActivityProgress, GradingProgress},
+    prelude::<span class="kw-2">*</span>,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseTaskState</span> {
-    <span class="kw">pub</span> <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">user_exercise_slide_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
+<span class="attribute">#[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>UserExerciseTaskState {
+    <span class="kw">pub </span>exercise_task_id: Uuid,
+    <span class="kw">pub </span>user_exercise_slide_state_id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>grading_progress: GradingProgress,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_exercise_slide_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_task_id: Uuid,
+    user_exercise_slide_state_id: Uuid,
+    grading_progress: GradingProgress,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO user_exercise_task_states (
@@ -664,41 +664,41 @@ INSERT INTO user_exercise_task_states (
   )
 VALUES ($1, $2, $3)
         &quot;</span>,
-        <span class="ident">exercise_task_id</span>,
-        <span class="ident">user_exercise_slide_state_id</span>,
-        <span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
+        exercise_task_id,
+        user_exercise_slide_state_id,
+        grading_progress <span class="kw">as </span>GradingProgress,
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Upserts user score from task grading results. The score can always increase</span>
-<span class="doccomment">/// or decrease, since they represent only a part of the whole user submission.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_with_grading</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_slide_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_task_grading</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGrading</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseTaskState</span><span class="op">&gt;</span> {
-    <span class="ident">upsert_with_grading_status</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">exercise_task_grading</span>.<span class="ident">exercise_task_id</span>,
-        <span class="ident">user_exercise_slide_state_id</span>,
-        <span class="ident">exercise_task_grading</span>.<span class="ident">score_given</span>,
-        <span class="ident">exercise_task_grading</span>.<span class="ident">grading_progress</span>,
+<span class="doccomment">/// Upserts user score from task grading results. The score can always increase
+/// or decrease, since they represent only a part of the whole user submission.
+</span><span class="kw">pub async fn </span>upsert_with_grading(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_slide_state_id: Uuid,
+    exercise_task_grading: <span class="kw-2">&amp;</span>ExerciseTaskGrading,
+) -&gt; ModelResult&lt;UserExerciseTaskState&gt; {
+    upsert_with_grading_status(
+        conn,
+        exercise_task_grading.exercise_task_id,
+        user_exercise_slide_state_id,
+        exercise_task_grading.score_given,
+        exercise_task_grading.grading_progress,
     )
-    .<span class="kw">await</span>
-}
+    .<span class="kw">await
+</span>}
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upsert_with_grading_status</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_exercise_slide_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseTaskState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseTaskState</span>,
+<span class="kw">async fn </span>upsert_with_grading_status(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_task_id: Uuid,
+    user_exercise_slide_state_id: Uuid,
+    score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    grading_progress: GradingProgress,
+) -&gt; ModelResult&lt;UserExerciseTaskState&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseTaskState,
         <span class="string">r#&quot;
 INSERT INTO user_exercise_task_states (
     exercise_task_id,
@@ -719,23 +719,23 @@ RETURNING exercise_task_id,
   score_given,
   grading_progress as &quot;grading_progress: _&quot;
     &quot;#</span>,
-        <span class="ident">exercise_task_id</span>,
-        <span class="ident">user_exercise_slide_state_id</span>,
-        <span class="ident">score_given</span>,
-        <span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
+        exercise_task_id,
+        user_exercise_slide_state_id,
+        score_given,
+        grading_progress <span class="kw">as </span>GradingProgress,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseTaskState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseTaskState</span>,
+<span class="kw">pub async fn </span>get(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_task_id: Uuid,
+    user_exercise_state_id: Uuid,
+) -&gt; ModelResult&lt;UserExerciseTaskState&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseTaskState,
         <span class="string">r#&quot;
 SELECT exercise_task_id,
   user_exercise_slide_state_id,
@@ -749,19 +749,19 @@ WHERE exercise_task_id = $1
   AND user_exercise_slide_state_id = $2
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">exercise_task_id</span>,
-        <span class="ident">user_exercise_state_id</span>,
+        exercise_task_id,
+        user_exercise_state_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_grading_summary_by_user_exercise_slide_state_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_slide_state_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>, <span class="ident">GradingProgress</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_grading_summary_by_user_exercise_slide_state_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_slide_state_id: Uuid,
+) -&gt; ModelResult&lt;(<span class="prelude-ty">Option</span>&lt;f32&gt;, GradingProgress)&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT score_given,
   grading_progress AS &quot;grading_progress: GradingProgress&quot;
@@ -769,27 +769,27 @@ FROM user_exercise_task_states
 WHERE user_exercise_slide_state_id = $1
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">user_exercise_slide_state_id</span>
+        user_exercise_slide_state_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">total_score_given</span> <span class="op">=</span> <span class="ident">res</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">score_given</span>)
-        .<span class="ident">reduce</span>(<span class="op">|</span><span class="ident">acc</span>, <span class="ident">next</span><span class="op">|</span> <span class="ident">acc</span> <span class="op">+</span> <span class="ident">next</span>);
-    <span class="kw">let</span> <span class="ident">least_significant_grading_progress</span> <span class="op">=</span> <span class="ident">res</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">grading_progress</span>)
-        .<span class="ident">min</span>()
-        .<span class="ident">unwrap_or</span>(<span class="ident">GradingProgress::NotReady</span>);
-    <span class="prelude-val">Ok</span>((<span class="ident">total_score_given</span>, <span class="ident">least_significant_grading_progress</span>))
+    <span class="kw">let </span>total_score_given = res
+        .iter()
+        .filter_map(|x| x.score_given)
+        .reduce(|acc, next| acc + next);
+    <span class="kw">let </span>least_significant_grading_progress = res
+        .iter()
+        .map(|x| x.grading_progress)
+        .min()
+        .unwrap_or(GradingProgress::NotReady);
+    <span class="prelude-val">Ok</span>((total_score_given, least_significant_grading_progress))
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_exercise_slide_state_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>delete(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_task_id: Uuid,
+    user_exercise_slide_state_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE user_exercise_task_states
@@ -798,10 +798,10 @@ WHERE exercise_task_id = $1
   AND user_exercise_slide_state_id = $2
   AND deleted_at IS NULL
     &quot;</span>,
-        <span class="ident">exercise_task_id</span>,
-        <span class="ident">user_exercise_slide_state_id</span>,
+        exercise_task_id,
+        user_exercise_slide_state_id,
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
@@ -812,17 +812,17 @@ Returns a new state for the activity progress.
 In the future this function will be extended to support peer reviews. When
 there&#39;s a peer review associated with the exercise, the activity is not complete
 before the user has given the peer reviews that they&#39;re required to give.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">figure_out_new_activity_progress</span>(
-    <span class="ident">current_activity_progress</span>: <span class="ident">ActivityProgress</span>,
-) -&gt; <span class="ident">ActivityProgress</span> {
-    <span class="kw">if</span> <span class="ident">current_activity_progress</span> <span class="op">==</span> <span class="ident">ActivityProgress::Completed</span> {
-        <span class="kw">return</span> <span class="ident">ActivityProgress::Completed</span>;
+*/
+</span><span class="kw">pub fn </span>figure_out_new_activity_progress(
+    current_activity_progress: ActivityProgress,
+) -&gt; ActivityProgress {
+    <span class="kw">if </span>current_activity_progress == ActivityProgress::Completed {
+        <span class="kw">return </span>ActivityProgress::Completed;
     }
 
-    <span class="comment">// The case where activity is not completed when the user needs to give peer</span>
-    <span class="comment">// reviews</span>
-    <span class="ident">ActivityProgress::Completed</span>
+    <span class="comment">// The case where activity is not completed when the user needs to give peer
+    // reviews
+    </span>ActivityProgress::Completed
 }
 
 <span class="doccomment">/**
@@ -836,433 +836,433 @@ submission won&#39;t take the user&#39;s progress away.
 In the future this function will be extended to support peer reviews. When
 there&#39;s a peer review associated with the exercise, it is part of the overall
 grading progress.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">figure_out_new_grading_progress</span>(
-    <span class="ident">current_grading_progress</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GradingProgress</span><span class="op">&gt;</span>,
-    <span class="ident">grading_grading_progress</span>: <span class="ident">GradingProgress</span>,
-) -&gt; <span class="ident">GradingProgress</span> {
-    <span class="kw">match</span> <span class="ident">current_grading_progress</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">GradingProgress::FullyGraded</span>) =&gt; <span class="ident">GradingProgress::FullyGraded</span>,
-        <span class="kw">_</span> =&gt; <span class="ident">grading_grading_progress</span>,
+*/
+</span><span class="kw">pub fn </span>figure_out_new_grading_progress(
+    current_grading_progress: <span class="prelude-ty">Option</span>&lt;GradingProgress&gt;,
+    grading_grading_progress: GradingProgress,
+) -&gt; GradingProgress {
+    <span class="kw">match </span>current_grading_progress {
+        <span class="prelude-val">Some</span>(GradingProgress::FullyGraded) =&gt; GradingProgress::FullyGraded,
+        <span class="kw">_ </span>=&gt; grading_grading_progress,
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">figure_out_new_score_given</span>(
-    <span class="ident">current_score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="ident">grading_score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="ident">user_points_update_strategy</span>: <span class="ident">UserPointsUpdateStrategy</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">current_score_given</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current_score_given</span>) <span class="op">=</span> <span class="ident">current_score_given</span> {
-        <span class="ident">current_score_given</span>
-    } <span class="kw">else</span> {
+<span class="kw">pub fn </span>figure_out_new_score_given(
+    current_score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    grading_score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {
+    <span class="kw">let </span>current_score_given = <span class="kw">if let </span><span class="prelude-val">Some</span>(current_score_given) = current_score_given {
+        current_score_given
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(
             <span class="string">&quot;Current state has no score, using score from grading ({:?})&quot;</span>,
-            <span class="ident">grading_score_given</span>
+            grading_score_given
         );
-        <span class="kw">return</span> <span class="ident">grading_score_given</span>;
+        <span class="kw">return </span>grading_score_given;
     };
-    <span class="kw">let</span> <span class="ident">grading_score_given</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">grading_score_given</span>) <span class="op">=</span> <span class="ident">grading_score_given</span> {
-        <span class="ident">grading_score_given</span>
-    } <span class="kw">else</span> {
+    <span class="kw">let </span>grading_score_given = <span class="kw">if let </span><span class="prelude-val">Some</span>(grading_score_given) = grading_score_given {
+        grading_score_given
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(
             <span class="string">&quot;Grading has no score, using score from current state ({:?})&quot;</span>,
-            <span class="ident">current_score_given</span>
+            current_score_given
         );
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">current_score_given</span>);
+        <span class="kw">return </span><span class="prelude-val">Some</span>(current_score_given);
     };
 
-    <span class="kw">let</span> <span class="ident">new_score</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">user_points_update_strategy</span> {
-        <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span> =&gt; {
-            <span class="kw">if</span> <span class="ident">current_score_given</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">grading_score_given</span> {
+    <span class="kw">let </span>new_score = <span class="kw">match </span>user_points_update_strategy {
+        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints =&gt; {
+            <span class="kw">if </span>current_score_given &gt;= grading_score_given {
                 <span class="macro">info!</span>(
                     <span class="string">&quot;Not updating score ({:?} &gt;= {:?})&quot;</span>,
-                    <span class="ident">current_score_given</span>, <span class="ident">grading_score_given</span>
+                    current_score_given, grading_score_given
                 );
-                <span class="ident">current_score_given</span>
-            } <span class="kw">else</span> {
+                current_score_given
+            } <span class="kw">else </span>{
                 <span class="macro">info!</span>(
                     <span class="string">&quot;Updating score from {:?} to {:?}&quot;</span>,
-                    <span class="ident">current_score_given</span>, <span class="ident">grading_score_given</span>
+                    current_score_given, grading_score_given
                 );
-                <span class="ident">grading_score_given</span>
+                grading_score_given
             }
         }
-        <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span> =&gt; {
+        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints =&gt; {
             <span class="macro">info!</span>(
                 <span class="string">&quot;Updating score from {:?} to {:?}&quot;</span>,
-                <span class="ident">current_score_given</span>, <span class="ident">grading_score_given</span>
+                current_score_given, grading_score_given
             );
-            <span class="ident">grading_score_given</span>
+            grading_score_given
         }
     };
-    <span class="prelude-val">Some</span>(<span class="ident">new_score</span>)
+    <span class="prelude-val">Some</span>(new_score)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test_helper::<span class="kw-2">*</span>;
 
-    <span class="kw">mod</span> <span class="ident">get_grading_summary_by_user_exercise_slide_state_id</span> {
-        <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_approx_eq</span>;
-        <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
+    <span class="kw">mod </span>get_grading_summary_by_user_exercise_slide_state_id {
+        <span class="kw">use </span>headless_lms_utils::numbers::f32_approx_eq;
+        <span class="kw">use </span>serde_json::Value;
 
-        <span class="kw">use</span> <span class="kw">crate</span>::{
-            <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">NewChapter</span>},
-            <span class="ident">exercise_slides</span>,
-            <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">NewExerciseTask</span>},
-            <span class="ident">exercises</span>,
-            <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">NewCoursePage</span>},
-            <span class="ident">user_exercise_slide_states</span>, <span class="ident">user_exercise_states</span>,
+        <span class="kw">use crate</span>::{
+            chapters::{<span class="self">self</span>, NewChapter},
+            exercise_slides,
+            exercise_tasks::{<span class="self">self</span>, NewExerciseTask},
+            exercises,
+            pages::{<span class="self">self</span>, NewCoursePage},
+            user_exercise_slide_states, user_exercise_states,
         };
 
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">initial_values</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>);
-            <span class="kw">let</span> (<span class="ident">user_exercise_slide_state_id</span>, <span class="ident">task_1</span>, <span class="ident">task_2</span>, <span class="ident">task_3</span>) <span class="op">=</span>
-                <span class="ident">create_test_data</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-            <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">task_1</span>,
-                <span class="ident">user_exercise_slide_state_id</span>,
-                <span class="ident">GradingProgress::NotReady</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>initial_values() {
+            <span class="macro">insert_data!</span>(:tx);
+            <span class="kw">let </span>(user_exercise_slide_state_id, task_1, task_2, task_3) =
+                create_test_data(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>.unwrap();
+            insert(
+                tx.as_mut(),
+                task_1,
+                user_exercise_slide_state_id,
+                GradingProgress::NotReady,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">task_2</span>,
-                <span class="ident">user_exercise_slide_state_id</span>,
-                <span class="ident">GradingProgress::NotReady</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            insert(
+                tx.as_mut(),
+                task_2,
+                user_exercise_slide_state_id,
+                GradingProgress::NotReady,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">task_3</span>,
-                <span class="ident">user_exercise_slide_state_id</span>,
-                <span class="ident">GradingProgress::NotReady</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            insert(
+                tx.as_mut(),
+                task_3,
+                user_exercise_slide_state_id,
+                GradingProgress::NotReady,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+            .<span class="kw">await
+            </span>.unwrap();
 
-            <span class="kw">let</span> (<span class="ident">score_given</span>, <span class="ident">grading_progress</span>) <span class="op">=</span>
-                <span class="ident">get_grading_summary_by_user_exercise_slide_state_id</span>(
-                    <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                    <span class="ident">user_exercise_slide_state_id</span>,
+            <span class="kw">let </span>(score_given, grading_progress) =
+                get_grading_summary_by_user_exercise_slide_state_id(
+                    tx.as_mut(),
+                    user_exercise_slide_state_id,
                 )
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">score_given</span>, <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">grading_progress</span>, <span class="ident">GradingProgress::NotReady</span>);
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert_eq!</span>(score_given, <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(grading_progress, GradingProgress::NotReady);
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">single_task</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>);
-            <span class="kw">let</span> (<span class="ident">user_exercise_slide_state_id</span>, <span class="ident">task_1</span>, <span class="ident">task_2</span>, <span class="ident">task_3</span>) <span class="op">=</span>
-                <span class="ident">create_test_data</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-            <span class="ident">upsert_with_grading_status</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">task_1</span>,
-                <span class="ident">user_exercise_slide_state_id</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>single_task() {
+            <span class="macro">insert_data!</span>(:tx);
+            <span class="kw">let </span>(user_exercise_slide_state_id, task_1, task_2, task_3) =
+                create_test_data(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>.unwrap();
+            upsert_with_grading_status(
+                tx.as_mut(),
+                task_1,
+                user_exercise_slide_state_id,
                 <span class="prelude-val">None</span>,
-                <span class="ident">GradingProgress::NotReady</span>,
+                GradingProgress::NotReady,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">upsert_with_grading_status</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">task_2</span>,
-                <span class="ident">user_exercise_slide_state_id</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            upsert_with_grading_status(
+                tx.as_mut(),
+                task_2,
+                user_exercise_slide_state_id,
                 <span class="prelude-val">None</span>,
-                <span class="ident">GradingProgress::NotReady</span>,
+                GradingProgress::NotReady,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">upsert_with_grading_status</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">task_3</span>,
-                <span class="ident">user_exercise_slide_state_id</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            upsert_with_grading_status(
+                tx.as_mut(),
+                task_3,
+                user_exercise_slide_state_id,
                 <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                <span class="ident">GradingProgress::FullyGraded</span>,
+                GradingProgress::FullyGraded,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+            .<span class="kw">await
+            </span>.unwrap();
 
-            <span class="kw">let</span> (<span class="ident">score_given</span>, <span class="ident">grading_progress</span>) <span class="op">=</span>
-                <span class="ident">get_grading_summary_by_user_exercise_slide_state_id</span>(
-                    <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                    <span class="ident">user_exercise_slide_state_id</span>,
+            <span class="kw">let </span>(score_given, grading_progress) =
+                get_grading_summary_by_user_exercise_slide_state_id(
+                    tx.as_mut(),
+                    user_exercise_slide_state_id,
                 )
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="ident">score_given</span>.<span class="ident">unwrap</span>(), <span class="number">1.0</span>));
-            <span class="macro">assert_eq!</span>(<span class="ident">grading_progress</span>, <span class="ident">GradingProgress::NotReady</span>);
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert!</span>(f32_approx_eq(score_given.unwrap(), <span class="number">1.0</span>));
+            <span class="macro">assert_eq!</span>(grading_progress, GradingProgress::NotReady);
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">all_tasks</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>);
-            <span class="kw">let</span> (<span class="ident">user_exercise_slide_state_id</span>, <span class="ident">task_1</span>, <span class="ident">task_2</span>, <span class="ident">task_3</span>) <span class="op">=</span>
-                <span class="ident">create_test_data</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-            <span class="ident">upsert_with_grading_status</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">task_1</span>,
-                <span class="ident">user_exercise_slide_state_id</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>all_tasks() {
+            <span class="macro">insert_data!</span>(:tx);
+            <span class="kw">let </span>(user_exercise_slide_state_id, task_1, task_2, task_3) =
+                create_test_data(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>.unwrap();
+            upsert_with_grading_status(
+                tx.as_mut(),
+                task_1,
+                user_exercise_slide_state_id,
                 <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                <span class="ident">GradingProgress::FullyGraded</span>,
+                GradingProgress::FullyGraded,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">upsert_with_grading_status</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">task_2</span>,
-                <span class="ident">user_exercise_slide_state_id</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            upsert_with_grading_status(
+                tx.as_mut(),
+                task_2,
+                user_exercise_slide_state_id,
                 <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                <span class="ident">GradingProgress::FullyGraded</span>,
+                GradingProgress::FullyGraded,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">upsert_with_grading_status</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">task_3</span>,
-                <span class="ident">user_exercise_slide_state_id</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            upsert_with_grading_status(
+                tx.as_mut(),
+                task_3,
+                user_exercise_slide_state_id,
                 <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                <span class="ident">GradingProgress::FullyGraded</span>,
+                GradingProgress::FullyGraded,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+            .<span class="kw">await
+            </span>.unwrap();
 
-            <span class="kw">let</span> (<span class="ident">score_given</span>, <span class="ident">grading_progress</span>) <span class="op">=</span>
-                <span class="ident">get_grading_summary_by_user_exercise_slide_state_id</span>(
-                    <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                    <span class="ident">user_exercise_slide_state_id</span>,
+            <span class="kw">let </span>(score_given, grading_progress) =
+                get_grading_summary_by_user_exercise_slide_state_id(
+                    tx.as_mut(),
+                    user_exercise_slide_state_id,
                 )
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="ident">score_given</span>.<span class="ident">unwrap</span>(), <span class="number">3.0</span>));
-            <span class="macro">assert_eq!</span>(<span class="ident">grading_progress</span>, <span class="ident">GradingProgress::FullyGraded</span>);
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert!</span>(f32_approx_eq(score_given.unwrap(), <span class="number">3.0</span>));
+            <span class="macro">assert_eq!</span>(grading_progress, GradingProgress::FullyGraded);
         }
 
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_test_data</span>(<span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Tx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>, <span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span> {
-            <span class="macro">insert_data!</span>(<span class="ident">tx</span>: <span class="ident">tx</span>; :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>);
-            <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="kw-2">&amp;</span><span class="ident">NewChapter</span> {
-                    <span class="ident">name</span>: <span class="string">&quot;chapter&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">color</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;#065853&quot;</span>.<span class="ident">to_string</span>()),
-                    <span class="ident">course_id</span>: <span class="ident">course</span>,
-                    <span class="ident">chapter_number</span>: <span class="number">1</span>,
-                    <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_module</span>.<span class="ident">id</span>),
+        <span class="kw">async fn </span>create_test_data(tx: <span class="kw-2">&amp;mut </span>Tx&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; ModelResult&lt;(Uuid, Uuid, Uuid, Uuid)&gt; {
+            <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, :instance, :course_module);
+            <span class="kw">let </span>chapter_id = chapters::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                <span class="kw-2">&amp;</span>NewChapter {
+                    name: <span class="string">&quot;chapter&quot;</span>.to_string(),
+                    color: <span class="prelude-val">Some</span>(<span class="string">&quot;#065853&quot;</span>.to_string()),
+                    course_id: course,
+                    chapter_number: <span class="number">1</span>,
+                    front_page_id: <span class="prelude-val">None</span>,
+                    opens_at: <span class="prelude-val">None</span>,
+                    deadline: <span class="prelude-val">None</span>,
+                    course_module_id: <span class="prelude-val">Some</span>(course_module.id),
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> (<span class="ident">page_id</span>, <span class="ident">_history</span>) <span class="op">=</span> <span class="ident">pages::insert_course_page</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">NewCoursePage::new</span>(<span class="ident">course</span>, <span class="number">1</span>, <span class="string">&quot;/test&quot;</span>, <span class="string">&quot;test&quot;</span>),
-                <span class="ident">user</span>,
+            <span class="kw">let </span>(page_id, _history) = pages::insert_course_page(
+                tx.as_mut(),
+                <span class="kw-2">&amp;</span>NewCoursePage::new(course, <span class="number">1</span>, <span class="string">&quot;/test&quot;</span>, <span class="string">&quot;test&quot;</span>),
+                user,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">exercise_id</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">course</span>,
+            <span class="kw">let </span>exercise_id = exercises::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course,
                 <span class="string">&quot;course&quot;</span>,
-                <span class="ident">page_id</span>,
-                <span class="ident">chapter_id</span>,
+                page_id,
+                chapter_id,
                 <span class="number">1</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">slide_id</span> <span class="op">=</span>
-                <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">exercise_id</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">task_1</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">NewExerciseTask</span> {
-                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide_id</span>,
-                    <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
-                    <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                    <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                    <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                    <span class="ident">order_number</span>: <span class="number">1</span>,
+            <span class="kw">let </span>slide_id =
+                exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, exercise_id, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>task_1 = exercise_tasks::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewExerciseTask {
+                    exercise_slide_id: slide_id,
+                    exercise_type: <span class="string">&quot;test-exercise&quot;</span>.to_string(),
+                    assignment: <span class="macro">vec!</span>[],
+                    public_spec: <span class="prelude-val">Some</span>(Value::Null),
+                    private_spec: <span class="prelude-val">Some</span>(Value::Null),
+                    model_solution_spec: <span class="prelude-val">Some</span>(Value::Null),
+                    order_number: <span class="number">1</span>,
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">task_2</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">NewExerciseTask</span> {
-                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide_id</span>,
-                    <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
-                    <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                    <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                    <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                    <span class="ident">order_number</span>: <span class="number">2</span>,
+            <span class="kw">let </span>task_2 = exercise_tasks::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewExerciseTask {
+                    exercise_slide_id: slide_id,
+                    exercise_type: <span class="string">&quot;test-exercise&quot;</span>.to_string(),
+                    assignment: <span class="macro">vec!</span>[],
+                    public_spec: <span class="prelude-val">Some</span>(Value::Null),
+                    private_spec: <span class="prelude-val">Some</span>(Value::Null),
+                    model_solution_spec: <span class="prelude-val">Some</span>(Value::Null),
+                    order_number: <span class="number">2</span>,
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">task_3</span> <span class="op">=</span> <span class="ident">exercise_tasks::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">NewExerciseTask</span> {
-                    <span class="ident">exercise_slide_id</span>: <span class="ident">slide_id</span>,
-                    <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">assignment</span>: <span class="macro">vec!</span>[],
-                    <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                    <span class="ident">private_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                    <span class="ident">model_solution_spec</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::Null</span>),
-                    <span class="ident">order_number</span>: <span class="number">3</span>,
+            <span class="kw">let </span>task_3 = exercise_tasks::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewExerciseTask {
+                    exercise_slide_id: slide_id,
+                    exercise_type: <span class="string">&quot;test-exercise&quot;</span>.to_string(),
+                    assignment: <span class="macro">vec!</span>[],
+                    public_spec: <span class="prelude-val">Some</span>(Value::Null),
+                    private_spec: <span class="prelude-val">Some</span>(Value::Null),
+                    model_solution_spec: <span class="prelude-val">Some</span>(Value::Null),
+                    order_number: <span class="number">3</span>,
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">user</span>,
-                <span class="ident">exercise_id</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+            <span class="kw">let </span>user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise_id,
+                <span class="prelude-val">Some</span>(instance.id),
                 <span class="prelude-val">None</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">user_exercise_states::upsert_selected_exercise_slide_id</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">user</span>,
-                <span class="ident">exercise_id</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+            user_exercise_states::upsert_selected_exercise_slide_id(
+                tx.as_mut(),
+                user,
+                exercise_id,
+                <span class="prelude-val">Some</span>(instance.id),
                 <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">slide_id</span>),
+                <span class="prelude-val">Some</span>(slide_id),
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">user_exercise_slide_state_id</span> <span class="op">=</span> <span class="ident">user_exercise_slide_states::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state</span>.<span class="ident">id</span>,
-                <span class="ident">slide_id</span>,
+            <span class="kw">let </span>user_exercise_slide_state_id = user_exercise_slide_states::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state.id,
+                slide_id,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>((<span class="ident">user_exercise_slide_state_id</span>, <span class="ident">task_1</span>, <span class="ident">task_2</span>, <span class="ident">task_3</span>))
+            <span class="prelude-val">Ok</span>((user_exercise_slide_state_id, task_1, task_2, task_3))
         }
     }
 
-    <span class="kw">mod</span> <span class="ident">figure_out_new_activity_progress</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">mod </span>figure_out_new_activity_progress {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">it_works</span>() {
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>it_works() {
             <span class="macro">assert_eq!</span>(
-                <span class="ident">figure_out_new_activity_progress</span>(<span class="ident">ActivityProgress::Initialized</span>),
-                <span class="ident">ActivityProgress::Completed</span>
+                figure_out_new_activity_progress(ActivityProgress::Initialized),
+                ActivityProgress::Completed
             );
         }
     }
 
-    <span class="kw">mod</span> <span class="ident">figure_out_new_grading_progress</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">mod </span>figure_out_new_grading_progress {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="kw">const</span> <span class="ident">ALL_GRADING_PROGRESSES</span>: [<span class="ident">GradingProgress</span>; <span class="number">5</span>] <span class="op">=</span> [
-            <span class="ident">GradingProgress::FullyGraded</span>,
-            <span class="ident">GradingProgress::Pending</span>,
-            <span class="ident">GradingProgress::PendingManual</span>,
-            <span class="ident">GradingProgress::Failed</span>,
-            <span class="ident">GradingProgress::NotReady</span>,
+        <span class="kw">const </span>ALL_GRADING_PROGRESSES: [GradingProgress; <span class="number">5</span>] = [
+            GradingProgress::FullyGraded,
+            GradingProgress::Pending,
+            GradingProgress::PendingManual,
+            GradingProgress::Failed,
+            GradingProgress::NotReady,
         ];
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">current_fully_graded_progress_always_retains</span>() {
-            <span class="kw">let</span> <span class="ident">current_grading_progress</span> <span class="op">=</span> <span class="ident">GradingProgress::FullyGraded</span>;
-            <span class="kw">for</span> <span class="ident">grading_grading_progress</span> <span class="kw">in</span> <span class="ident">ALL_GRADING_PROGRESSES</span> {
-                <span class="kw">let</span> <span class="ident">new_grading_progress</span> <span class="op">=</span> <span class="ident">figure_out_new_grading_progress</span>(
-                    <span class="prelude-val">Some</span>(<span class="ident">current_grading_progress</span>),
-                    <span class="ident">grading_grading_progress</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>current_fully_graded_progress_always_retains() {
+            <span class="kw">let </span>current_grading_progress = GradingProgress::FullyGraded;
+            <span class="kw">for </span>grading_grading_progress <span class="kw">in </span>ALL_GRADING_PROGRESSES {
+                <span class="kw">let </span>new_grading_progress = figure_out_new_grading_progress(
+                    <span class="prelude-val">Some</span>(current_grading_progress),
+                    grading_grading_progress,
                 );
-                <span class="macro">assert_eq!</span>(<span class="ident">new_grading_progress</span>, <span class="ident">current_grading_progress</span>);
+                <span class="macro">assert_eq!</span>(new_grading_progress, current_grading_progress);
             }
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">uses_value_from_grading_if_not_completed</span>() {
-            <span class="kw">for</span> <span class="ident">grading_grading_progress</span> <span class="kw">in</span> <span class="ident">ALL_GRADING_PROGRESSES</span> {
-                <span class="kw">let</span> <span class="ident">current_grading_progresses</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>uses_value_from_grading_if_not_completed() {
+            <span class="kw">for </span>grading_grading_progress <span class="kw">in </span>ALL_GRADING_PROGRESSES {
+                <span class="kw">let </span>current_grading_progresses = <span class="macro">vec!</span>[
                     <span class="prelude-val">None</span>,
-                    <span class="prelude-val">Some</span>(<span class="ident">GradingProgress::Pending</span>),
-                    <span class="prelude-val">Some</span>(<span class="ident">GradingProgress::PendingManual</span>),
-                    <span class="prelude-val">Some</span>(<span class="ident">GradingProgress::Failed</span>),
-                    <span class="prelude-val">Some</span>(<span class="ident">GradingProgress::NotReady</span>),
+                    <span class="prelude-val">Some</span>(GradingProgress::Pending),
+                    <span class="prelude-val">Some</span>(GradingProgress::PendingManual),
+                    <span class="prelude-val">Some</span>(GradingProgress::Failed),
+                    <span class="prelude-val">Some</span>(GradingProgress::NotReady),
                 ];
-                <span class="kw">for</span> <span class="ident">current_grading_progress</span> <span class="kw">in</span> <span class="ident">current_grading_progresses</span> {
-                    <span class="kw">let</span> <span class="ident">new_grading_progress</span> <span class="op">=</span> <span class="ident">figure_out_new_grading_progress</span>(
-                        <span class="ident">current_grading_progress</span>,
-                        <span class="ident">grading_grading_progress</span>,
+                <span class="kw">for </span>current_grading_progress <span class="kw">in </span>current_grading_progresses {
+                    <span class="kw">let </span>new_grading_progress = figure_out_new_grading_progress(
+                        current_grading_progress,
+                        grading_grading_progress,
                     );
-                    <span class="macro">assert_eq!</span>(<span class="ident">new_grading_progress</span>, <span class="ident">grading_grading_progress</span>);
+                    <span class="macro">assert_eq!</span>(new_grading_progress, grading_grading_progress);
                 }
             }
         }
     }
 
-    <span class="kw">mod</span> <span class="ident">figure_out_new_score_given</span> {
-        <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers</span>::{<span class="ident">f32_approx_eq</span>, <span class="ident">f32_max</span>};
+    <span class="kw">mod </span>figure_out_new_score_given {
+        <span class="kw">use </span>headless_lms_utils::numbers::{f32_approx_eq, f32_max};
 
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">strategy_can_add_points_and_can_remove_points_works</span>() {
-            <span class="kw">let</span> <span class="ident">test_cases</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="number">1.1</span>, <span class="number">1.1</span>), (<span class="number">1.1</span>, <span class="number">20.9</span>), (<span class="number">20.9</span>, <span class="number">1.1</span>)];
-            <span class="kw">for</span> (<span class="ident">current</span>, <span class="ident">new</span>) <span class="kw">in</span> <span class="ident">test_cases</span> {
-                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">figure_out_new_score_given</span>(
-                    <span class="prelude-val">Some</span>(<span class="ident">current</span>),
-                    <span class="prelude-val">Some</span>(<span class="ident">new</span>),
-                    <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>strategy_can_add_points_and_can_remove_points_works() {
+            <span class="kw">let </span>test_cases = <span class="macro">vec!</span>[(<span class="number">1.1</span>, <span class="number">1.1</span>), (<span class="number">1.1</span>, <span class="number">20.9</span>), (<span class="number">20.9</span>, <span class="number">1.1</span>)];
+            <span class="kw">for </span>(current, new) <span class="kw">in </span>test_cases {
+                <span class="kw">let </span>result = figure_out_new_score_given(
+                    <span class="prelude-val">Some</span>(current),
+                    <span class="prelude-val">Some</span>(new),
+                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
                 )
-                .<span class="ident">unwrap</span>();
-                <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="ident">result</span>, <span class="ident">new</span>));
+                .unwrap();
+                <span class="macro">assert!</span>(f32_approx_eq(result, new));
             }
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">strategy_can_add_points_but_cannot_remove_points_works</span>() {
-            <span class="kw">let</span> <span class="ident">test_cases</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="number">1.1</span>, <span class="number">1.1</span>), (<span class="number">1.1</span>, <span class="number">20.9</span>), (<span class="number">20.9</span>, <span class="number">1.1</span>)];
-            <span class="kw">for</span> (<span class="ident">current</span>, <span class="ident">new</span>) <span class="kw">in</span> <span class="ident">test_cases</span> {
-                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">figure_out_new_score_given</span>(
-                    <span class="prelude-val">Some</span>(<span class="ident">current</span>),
-                    <span class="prelude-val">Some</span>(<span class="ident">new</span>),
-                    <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>strategy_can_add_points_but_cannot_remove_points_works() {
+            <span class="kw">let </span>test_cases = <span class="macro">vec!</span>[(<span class="number">1.1</span>, <span class="number">1.1</span>), (<span class="number">1.1</span>, <span class="number">20.9</span>), (<span class="number">20.9</span>, <span class="number">1.1</span>)];
+            <span class="kw">for </span>(current, new) <span class="kw">in </span>test_cases {
+                <span class="kw">let </span>result = figure_out_new_score_given(
+                    <span class="prelude-val">Some</span>(current),
+                    <span class="prelude-val">Some</span>(new),
+                    UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
                 )
-                .<span class="ident">unwrap</span>();
-                <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="ident">result</span>, <span class="ident">f32_max</span>(<span class="ident">current</span>, <span class="ident">new</span>)))
+                .unwrap();
+                <span class="macro">assert!</span>(f32_approx_eq(result, f32_max(current, new)))
             }
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">it_handles_nones</span>() {
-            <span class="kw">let</span> <span class="ident">user_points_update_strategies</span> <span class="op">=</span> <span class="macro">vec!</span>[
-                <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span>,
-                <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>it_handles_nones() {
+            <span class="kw">let </span>user_points_update_strategies = <span class="macro">vec!</span>[
+                UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+                UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
             ];
-            <span class="kw">for</span> <span class="ident">update_strategy</span> <span class="kw">in</span> <span class="ident">user_points_update_strategies</span> {
+            <span class="kw">for </span>update_strategy <span class="kw">in </span>user_points_update_strategies {
                 <span class="macro">assert_eq!</span>(
-                    <span class="ident">figure_out_new_score_given</span>(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="ident">update_strategy</span>),
-                    <span class="prelude-val">None</span>
-                );
-                <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(
-                    <span class="ident">figure_out_new_score_given</span>(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">1.1</span>), <span class="ident">update_strategy</span>).<span class="ident">unwrap</span>(),
-                    <span class="number">1.1</span>
-                ));
-                <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(
-                    <span class="ident">figure_out_new_score_given</span>(<span class="prelude-val">Some</span>(<span class="number">1.1</span>), <span class="prelude-val">None</span>, <span class="ident">update_strategy</span>).<span class="ident">unwrap</span>(),
-                    <span class="number">1.1</span>
-                ));
+                    figure_out_new_score_given(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, update_strategy),
+                    <span class="prelude-val">None
+                </span>);
+                <span class="macro">assert!</span>(f32_approx_eq(
+                    figure_out_new_score_given(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">1.1</span>), update_strategy).unwrap(),
+                    <span class="number">1.1
+                </span>));
+                <span class="macro">assert!</span>(f32_approx_eq(
+                    figure_out_new_score_given(<span class="prelude-val">Some</span>(<span class="number">1.1</span>), <span class="prelude-val">None</span>, update_strategy).unwrap(),
+                    <span class="number">1.1
+                </span>));
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

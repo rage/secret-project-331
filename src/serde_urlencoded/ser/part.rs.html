@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_urlencoded-0.7.1/src/ser/part.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>part.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../serde_urlencoded/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../serde_urlencoded/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../serde_urlencoded/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_urlencoded-0.7.1/src/ser/part.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>part.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../serde_urlencoded/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../serde_urlencoded/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../serde_urlencoded/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -234,241 +234,241 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ser::Error</span>;
-<span class="kw">use</span> <span class="ident">serde::ser</span>;
-<span class="kw">use</span> <span class="ident">std::str</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::ser::Error;
+<span class="kw">use </span>serde::ser;
+<span class="kw">use </span>std::str;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PartSerializer</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">sink</span>: <span class="ident">S</span>,
+<span class="kw">pub struct </span>PartSerializer&lt;S&gt; {
+    sink: S,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Sink</span><span class="op">&gt;</span> <span class="ident">PartSerializer</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sink</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">PartSerializer</span> { <span class="ident">sink</span> }
+<span class="kw">impl</span>&lt;S: Sink&gt; PartSerializer&lt;S&gt; {
+    <span class="kw">pub fn </span>new(sink: S) -&gt; <span class="self">Self </span>{
+        PartSerializer { sink }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sink</span>: <span class="ident">Sized</span> {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span>;
+<span class="kw">pub trait </span>Sink: Sized {
+    <span class="kw">type </span><span class="prelude-val">Ok</span>;
 
-    <span class="kw">fn</span> <span class="ident">serialize_static_str</span>(
+    <span class="kw">fn </span>serialize_static_str(
         <span class="self">self</span>,
-        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+        value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">serialize_str</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">serialize_string</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">serialize_none</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>serialize_str(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, Error&gt;;
+    <span class="kw">fn </span>serialize_string(<span class="self">self</span>, value: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, Error&gt;;
+    <span class="kw">fn </span>serialize_none(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">serialize_some</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>serialize_some&lt;T: <span class="question-mark">?</span>Sized + ser::Serialize&gt;(
         <span class="self">self</span>,
-        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+        value: <span class="kw-2">&amp;</span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">unsupported</span>(<span class="self">self</span>) -&gt; <span class="ident">Error</span>;
+    <span class="kw">fn </span>unsupported(<span class="self">self</span>) -&gt; Error;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Sink</span><span class="op">&gt;</span> <span class="ident">ser::Serializer</span> <span class="kw">for</span> <span class="ident">PartSerializer</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">SerializeSeq</span> <span class="op">=</span> <span class="ident">ser::Impossible</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeTuple</span> <span class="op">=</span> <span class="ident">ser::Impossible</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeTupleStruct</span> <span class="op">=</span> <span class="ident">ser::Impossible</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeTupleVariant</span> <span class="op">=</span> <span class="ident">ser::Impossible</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeMap</span> <span class="op">=</span> <span class="ident">ser::Impossible</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeStruct</span> <span class="op">=</span> <span class="ident">ser::Impossible</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeStructVariant</span> <span class="op">=</span> <span class="ident">ser::Impossible</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;S: Sink&gt; ser::Serializer <span class="kw">for </span>PartSerializer&lt;S&gt; {
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>SerializeSeq = ser::Impossible&lt;S::Ok, Error&gt;;
+    <span class="kw">type </span>SerializeTuple = ser::Impossible&lt;S::Ok, Error&gt;;
+    <span class="kw">type </span>SerializeTupleStruct = ser::Impossible&lt;S::Ok, Error&gt;;
+    <span class="kw">type </span>SerializeTupleVariant = ser::Impossible&lt;S::Ok, Error&gt;;
+    <span class="kw">type </span>SerializeMap = ser::Impossible&lt;S::Ok, Error&gt;;
+    <span class="kw">type </span>SerializeStruct = ser::Impossible&lt;S::Ok, Error&gt;;
+    <span class="kw">type </span>SerializeStructVariant = ser::Impossible&lt;S::Ok, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">serialize_bool</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">sink</span>
-            .<span class="ident">serialize_static_str</span>(<span class="kw">if</span> <span class="ident">v</span> { <span class="string">&quot;true&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;false&quot;</span> })
+    <span class="kw">fn </span>serialize_bool(<span class="self">self</span>, v: bool) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.sink
+            .serialize_static_str(<span class="kw">if </span>v { <span class="string">&quot;true&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;false&quot; </span>})
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i8</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_i8(<span class="self">self</span>, v: i8) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i16</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_i16(<span class="self">self</span>, v: i16) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i32</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_i32(<span class="self">self</span>, v: i32) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_i64(<span class="self">self</span>, v: i64) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u8</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_u8(<span class="self">self</span>, v: u8) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u16</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_u16(<span class="self">self</span>, v: u16) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u32</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_u32(<span class="self">self</span>, v: u32) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_u64(<span class="self">self</span>, v: u64) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u128</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u128</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_u128(<span class="self">self</span>, v: u128) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i128</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i128</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_integer</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_i128(<span class="self">self</span>, v: i128) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_integer(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_f32</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">f32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_floating</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_f32(<span class="self">self</span>, v: f32) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_floating(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_f64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">f64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">serialize_floating</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_f64(<span class="self">self</span>, v: f64) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.serialize_floating(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_char</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">char</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">serialize_string</span>(<span class="ident">v</span>.<span class="ident">to_string</span>())
+    <span class="kw">fn </span>serialize_char(<span class="self">self</span>, v: char) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.sink.serialize_string(v.to_string())
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_str</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">serialize_str</span>(<span class="ident">value</span>)
+    <span class="kw">fn </span>serialize_str(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.sink.serialize_str(value)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_bytes</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">str::from_utf8</span>(<span class="ident">value</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">value</span>) =&gt; <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">serialize_str</span>(<span class="ident">value</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::Utf8</span>(<span class="ident">err</span>)),
+    <span class="kw">fn </span>serialize_bytes(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="kw">match </span>str::from_utf8(value) {
+            <span class="prelude-val">Ok</span>(value) =&gt; <span class="self">self</span>.sink.serialize_str(value),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(Error::Utf8(err)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_unit</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">unsupported</span>())
+    <span class="kw">fn </span>serialize_unit(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.sink.unsupported())
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_unit_struct</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">serialize_static_str</span>(<span class="ident">name</span>)
+    <span class="kw">fn </span>serialize_unit_struct(<span class="self">self</span>, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.sink.serialize_static_str(name)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_unit_variant</span>(
+    <span class="kw">fn </span>serialize_unit_variant(
         <span class="self">self</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">_variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">serialize_static_str</span>(<span class="ident">variant</span>)
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant_index: u32,
+        variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.sink.serialize_static_str(variant)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_newtype_struct</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>serialize_newtype_struct&lt;T: <span class="question-mark">?</span>Sized + ser::Serialize&gt;(
         <span class="self">self</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">value</span>.<span class="ident">serialize</span>(<span class="self">self</span>)
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        value: <span class="kw-2">&amp;</span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        value.serialize(<span class="self">self</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_newtype_variant</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>serialize_newtype_variant&lt;T: <span class="question-mark">?</span>Sized + ser::Serialize&gt;(
         <span class="self">self</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">_variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">_variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">_value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">unsupported</span>())
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant_index: u32,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _value: <span class="kw-2">&amp;</span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.sink.unsupported())
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_none</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">serialize_none</span>()
+    <span class="kw">fn </span>serialize_none(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.sink.serialize_none()
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_some</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>serialize_some&lt;T: <span class="question-mark">?</span>Sized + ser::Serialize&gt;(
         <span class="self">self</span>,
-        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">serialize_some</span>(<span class="ident">value</span>)
+        value: <span class="kw-2">&amp;</span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt; {
+        <span class="self">self</span>.sink.serialize_some(value)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_seq</span>(
+    <span class="kw">fn </span>serialize_seq(
         <span class="self">self</span>,
-        <span class="ident">_len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeSeq</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">unsupported</span>())
+        _len: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeSeq, Error&gt; {
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.sink.unsupported())
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple</span>(
+    <span class="kw">fn </span>serialize_tuple(
         <span class="self">self</span>,
-        <span class="ident">_len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeTuple</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">unsupported</span>())
+        _len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTuple, Error&gt; {
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.sink.unsupported())
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_struct</span>(
+    <span class="kw">fn </span>serialize_tuple_struct(
         <span class="self">self</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">_len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeTuple</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">unsupported</span>())
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTuple, Error&gt; {
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.sink.unsupported())
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_variant</span>(
+    <span class="kw">fn </span>serialize_tuple_variant(
         <span class="self">self</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">_variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">_variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">_len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeTupleVariant</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">unsupported</span>())
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant_index: u32,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleVariant, Error&gt; {
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.sink.unsupported())
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_map</span>(
+    <span class="kw">fn </span>serialize_map(
         <span class="self">self</span>,
-        <span class="ident">_len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeMap</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">unsupported</span>())
+        _len: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeMap, Error&gt; {
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.sink.unsupported())
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_struct</span>(
+    <span class="kw">fn </span>serialize_struct(
         <span class="self">self</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">_len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeStruct</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">unsupported</span>())
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStruct, Error&gt; {
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.sink.unsupported())
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_struct_variant</span>(
+    <span class="kw">fn </span>serialize_struct_variant(
         <span class="self">self</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">_variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">_variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">_len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeStructVariant</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">unsupported</span>())
+        _name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _variant_index: u32,
+        _variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        _len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStructVariant, Error&gt; {
+        <span class="prelude-val">Err</span>(<span class="self">self</span>.sink.unsupported())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Sink</span><span class="op">&gt;</span> <span class="ident">PartSerializer</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">serialize_integer</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">itoa::Integer</span>,
+<span class="kw">impl</span>&lt;S: Sink&gt; PartSerializer&lt;S&gt; {
+    <span class="kw">fn </span>serialize_integer&lt;I&gt;(<span class="self">self</span>, value: I) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt;
+    <span class="kw">where
+        </span>I: itoa::Integer,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">itoa::Buffer::new</span>();
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">format</span>(<span class="ident">value</span>);
-        <span class="ident">ser::Serializer::serialize_str</span>(<span class="self">self</span>, <span class="ident">part</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = itoa::Buffer::new();
+        <span class="kw">let </span>part = buf.format(value);
+        ser::Serializer::serialize_str(<span class="self">self</span>, part)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_floating</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">ryu::Float</span>,
+    <span class="kw">fn </span>serialize_floating&lt;F&gt;(<span class="self">self</span>, value: F) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&gt;
+    <span class="kw">where
+        </span>F: ryu::Float,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">ryu::Buffer::new</span>();
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">format</span>(<span class="ident">value</span>);
-        <span class="ident">ser::Serializer::serialize_str</span>(<span class="self">self</span>, <span class="ident">part</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = ryu::Buffer::new();
+        <span class="kw">let </span>part = buf.format(value);
+        ser::Serializer::serialize_str(<span class="self">self</span>, part)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="serde_urlencoded" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="serde_urlencoded" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

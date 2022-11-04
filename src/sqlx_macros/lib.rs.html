@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -117,124 +117,124 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)),
-    <span class="ident">allow</span>(<span class="ident">dead_code</span>, <span class="ident">unused_macros</span>, <span class="ident">unused_imports</span>)
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">any</span>(<span class="ident">sqlx_macros_unstable</span>, <span class="ident">procmacro2_semver_exempt</span>),
-    <span class="ident">feature</span>(<span class="ident">track_path</span>, <span class="ident">proc_macro_tracked_env</span>)
-)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(
+    not(any(feature = <span class="string">&quot;postgres&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;offline&quot;</span>)),
+    allow(dead_code, unused_macros, unused_imports)
+)]
+#![cfg_attr(
+    any(sqlx_macros_unstable, procmacro2_semver_exempt),
+    feature(track_path, proc_macro_tracked_env)
+)]
+</span><span class="kw">extern crate </span>proc_macro;
 
-<span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
+<span class="kw">use </span>proc_macro::TokenStream;
 
-<span class="kw">use</span> <span class="ident">quote::quote</span>;
+<span class="kw">use </span>quote::quote;
 
-<span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span>;
+<span class="kw">type </span>Error = Box&lt;<span class="kw">dyn </span>std::error::Error&gt;;
 
-<span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="kw">type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, Error&gt;;
 
-<span class="kw">mod</span> <span class="ident">common</span>;
-<span class="kw">mod</span> <span class="ident">database</span>;
-<span class="kw">mod</span> <span class="ident">derives</span>;
-<span class="kw">mod</span> <span class="ident">query</span>;
+<span class="kw">mod </span>common;
+<span class="kw">mod </span>database;
+<span class="kw">mod </span>derives;
+<span class="kw">mod </span>query;
 
-<span class="comment">// The compiler gives misleading help messages about `#[cfg(test)]` when this is just named `test`.</span>
-<span class="kw">mod</span> <span class="ident">test_attr</span>;
+<span class="comment">// The compiler gives misleading help messages about `#[cfg(test)]` when this is just named `test`.
+</span><span class="kw">mod </span>test_attr;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">migrate</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+</span><span class="kw">mod </span>migrate;
 
-<span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_query</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">query::QueryMacroInput</span>);
+<span class="attribute">#[proc_macro]
+</span><span class="kw">pub fn </span>expand_query(input: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span>input = <span class="macro">syn::parse_macro_input!</span>(input <span class="kw">as </span>query::QueryMacroInput);
 
-    <span class="kw">match</span> <span class="ident">query::expand_input</span>(<span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parse_err</span>) <span class="op">=</span> <span class="ident">e</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span>() {
-                <span class="ident">parse_err</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>()
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">to_string</span>();
-                <span class="macro">quote!</span>(<span class="macro">::std::compile_error!</span>(#<span class="ident">msg</span>)).<span class="ident">into</span>()
+    <span class="kw">match </span>query::expand_input(input) {
+        <span class="prelude-val">Ok</span>(ts) =&gt; ts.into(),
+        <span class="prelude-val">Err</span>(e) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(parse_err) = e.downcast_ref::&lt;syn::Error&gt;() {
+                parse_err.to_compile_error().into()
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>msg = e.to_string();
+                <span class="macro">quote!</span>(<span class="macro">::std::compile_error!</span>(#msg)).into()
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">Encode</span>, <span class="ident">attributes</span>(<span class="ident">sqlx</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_encode</span>(<span class="ident">tokenstream</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">tokenstream</span> <span class="kw">as</span> <span class="ident">syn::DeriveInput</span>);
-    <span class="kw">match</span> <span class="ident">derives::expand_derive_encode</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
+<span class="attribute">#[proc_macro_derive(Encode, attributes(sqlx))]
+</span><span class="kw">pub fn </span>derive_encode(tokenstream: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span>input = <span class="macro">syn::parse_macro_input!</span>(tokenstream <span class="kw">as </span>syn::DeriveInput);
+    <span class="kw">match </span>derives::expand_derive_encode(<span class="kw-2">&amp;</span>input) {
+        <span class="prelude-val">Ok</span>(ts) =&gt; ts.into(),
+        <span class="prelude-val">Err</span>(e) =&gt; e.to_compile_error().into(),
     }
 }
 
-<span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">Decode</span>, <span class="ident">attributes</span>(<span class="ident">sqlx</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_decode</span>(<span class="ident">tokenstream</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">tokenstream</span> <span class="kw">as</span> <span class="ident">syn::DeriveInput</span>);
-    <span class="kw">match</span> <span class="ident">derives::expand_derive_decode</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
+<span class="attribute">#[proc_macro_derive(Decode, attributes(sqlx))]
+</span><span class="kw">pub fn </span>derive_decode(tokenstream: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span>input = <span class="macro">syn::parse_macro_input!</span>(tokenstream <span class="kw">as </span>syn::DeriveInput);
+    <span class="kw">match </span>derives::expand_derive_decode(<span class="kw-2">&amp;</span>input) {
+        <span class="prelude-val">Ok</span>(ts) =&gt; ts.into(),
+        <span class="prelude-val">Err</span>(e) =&gt; e.to_compile_error().into(),
     }
 }
 
-<span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">Type</span>, <span class="ident">attributes</span>(<span class="ident">sqlx</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_type</span>(<span class="ident">tokenstream</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">tokenstream</span> <span class="kw">as</span> <span class="ident">syn::DeriveInput</span>);
-    <span class="kw">match</span> <span class="ident">derives::expand_derive_type_encode_decode</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
+<span class="attribute">#[proc_macro_derive(Type, attributes(sqlx))]
+</span><span class="kw">pub fn </span>derive_type(tokenstream: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span>input = <span class="macro">syn::parse_macro_input!</span>(tokenstream <span class="kw">as </span>syn::DeriveInput);
+    <span class="kw">match </span>derives::expand_derive_type_encode_decode(<span class="kw-2">&amp;</span>input) {
+        <span class="prelude-val">Ok</span>(ts) =&gt; ts.into(),
+        <span class="prelude-val">Err</span>(e) =&gt; e.to_compile_error().into(),
     }
 }
 
-<span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">FromRow</span>, <span class="ident">attributes</span>(<span class="ident">sqlx</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">derive_from_row</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">syn::DeriveInput</span>);
+<span class="attribute">#[proc_macro_derive(FromRow, attributes(sqlx))]
+</span><span class="kw">pub fn </span>derive_from_row(input: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span>input = <span class="macro">syn::parse_macro_input!</span>(input <span class="kw">as </span>syn::DeriveInput);
 
-    <span class="kw">match</span> <span class="ident">derives::expand_derive_from_row</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="ident">e</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
+    <span class="kw">match </span>derives::expand_derive_from_row(<span class="kw-2">&amp;</span>input) {
+        <span class="prelude-val">Ok</span>(ts) =&gt; ts.into(),
+        <span class="prelude-val">Err</span>(e) =&gt; e.to_compile_error().into(),
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">proc_macro</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">migrate</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">use</span> <span class="ident">syn::LitStr</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+#[proc_macro]
+</span><span class="kw">pub fn </span>migrate(input: TokenStream) -&gt; TokenStream {
+    <span class="kw">use </span>syn::LitStr;
 
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">LitStr</span>);
-    <span class="kw">match</span> <span class="ident">migrate::expand_migrator_from_lit_dir</span>(<span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parse_err</span>) <span class="op">=</span> <span class="ident">e</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span>() {
-                <span class="ident">parse_err</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>()
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">to_string</span>();
-                <span class="macro">quote!</span>(<span class="macro">::std::compile_error!</span>(#<span class="ident">msg</span>)).<span class="ident">into</span>()
+    <span class="kw">let </span>input = <span class="macro">syn::parse_macro_input!</span>(input <span class="kw">as </span>LitStr);
+    <span class="kw">match </span>migrate::expand_migrator_from_lit_dir(input) {
+        <span class="prelude-val">Ok</span>(ts) =&gt; ts.into(),
+        <span class="prelude-val">Err</span>(e) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(parse_err) = e.downcast_ref::&lt;syn::Error&gt;() {
+                parse_err.to_compile_error().into()
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>msg = e.to_string();
+                <span class="macro">quote!</span>(<span class="macro">::std::compile_error!</span>(#msg)).into()
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test</span>(<span class="ident">args</span>: <span class="ident">TokenStream</span>, <span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">args</span> <span class="kw">as</span> <span class="ident">syn::AttributeArgs</span>);
-    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">syn::ItemFn</span>);
+<span class="attribute">#[proc_macro_attribute]
+</span><span class="kw">pub fn </span>test(args: TokenStream, input: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span>args = <span class="macro">syn::parse_macro_input!</span>(args <span class="kw">as </span>syn::AttributeArgs);
+    <span class="kw">let </span>input = <span class="macro">syn::parse_macro_input!</span>(input <span class="kw">as </span>syn::ItemFn);
 
-    <span class="kw">match</span> <span class="ident">test_attr::expand</span>(<span class="ident">args</span>, <span class="ident">input</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; <span class="ident">ts</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parse_err</span>) <span class="op">=</span> <span class="ident">e</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span>() {
-                <span class="ident">parse_err</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>()
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">to_string</span>();
-                <span class="macro">quote!</span>(<span class="macro">::std::compile_error!</span>(#<span class="ident">msg</span>)).<span class="ident">into</span>()
+    <span class="kw">match </span>test_attr::expand(args, input) {
+        <span class="prelude-val">Ok</span>(ts) =&gt; ts.into(),
+        <span class="prelude-val">Err</span>(e) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(parse_err) = e.downcast_ref::&lt;syn::Error&gt;() {
+                parse_err.to_compile_error().into()
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>msg = e.to_string();
+                <span class="macro">quote!</span>(<span class="macro">::std::compile_error!</span>(#msg)).into()
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

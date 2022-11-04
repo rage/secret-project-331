@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/language-tags-0.3.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../language_tags/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../language_tags/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../language_tags/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/language-tags-0.3.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../language_tags/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../language_tags/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../language_tags/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1117,1124 +1117,1124 @@
 <span id="1117">1117</span>
 <span id="1118">1118</span>
 <span id="1119">1119</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">deny</span>(
-    <span class="ident">future_incompatible</span>,
-    <span class="ident">nonstandard_style</span>,
-    <span class="ident">rust_2018_idioms</span>,
-    <span class="ident">missing_docs</span>,
-    <span class="ident">trivial_casts</span>,
-    <span class="ident">trivial_numeric_casts</span>,
-    <span class="ident">unused_qualifications</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">deny</span>(<span class="ident">warnings</span>))]</span>
+</pre><pre class="rust"><code><span class="attribute">#![deny(
+    future_incompatible,
+    nonstandard_style,
+    rust_2018_idioms,
+    missing_docs,
+    trivial_casts,
+    trivial_numeric_casts,
+    unused_qualifications
+)]
+#![cfg_attr(test, deny(warnings))]
 
-<span class="doccomment">//! Language tags can be used identify human languages, scripts e.g. Latin script, countries and</span>
-<span class="doccomment">//! other regions.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Language tags are defined in [BCP47](http://tools.ietf.org/html/bcp47), an introduction is</span>
-<span class="doccomment">//! [&quot;Language tags in HTML and XML&quot;](http://www.w3.org/International/articles/language-tags/) by</span>
-<span class="doccomment">//! the W3C. They are commonly used in HTML and HTTP `Content-Language` and `Accept-Language`</span>
-<span class="doccomment">//! header fields.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This package currently supports parsing (fully conformant parser), validation, canonicalization,</span>
-<span class="doccomment">//! formatting and comparing language tags.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Examples</span>
-<span class="doccomment">//! Create a simple language tag representing the French language as spoken</span>
-<span class="doccomment">//! in Belgium and print it:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use language_tags::LanguageTag;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let langtag = LanguageTag::parse(&quot;fr-BE&quot;).unwrap();</span>
-<span class="doccomment">//! assert_eq!(langtag.to_string(), &quot;fr-BE&quot;);</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Parse a tag representing a special type of English specified by private agreement:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use language_tags::LanguageTag;</span>
-<span class="doccomment">//! use std::iter::FromIterator;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let langtag: LanguageTag = &quot;en-x-twain&quot;.parse().unwrap();</span>
-<span class="doccomment">//! assert_eq!(langtag.primary_language(), &quot;en&quot;);</span>
-<span class="doccomment">//! assert_eq!(Vec::from_iter(langtag.private_use_subtags()), vec![&quot;twain&quot;]);</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! You can check for equality, but more often you should test if two tags match.</span>
-<span class="doccomment">//! In this example we check if the resource in German language is suitable for</span>
-<span class="doccomment">//! a user from Austria. While people speaking Austrian German normally understand</span>
-<span class="doccomment">//! standard German the opposite is not always true. So the resource can be presented</span>
-<span class="doccomment">//! to the user but if the resource was in `de-AT` and a user asked for a representation</span>
-<span class="doccomment">//! in `de` the request should be rejected.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use language_tags::LanguageTag;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let mut langtag_server = LanguageTag::parse(&quot;de-AT&quot;).unwrap();</span>
-<span class="doccomment">//! let mut langtag_user = LanguageTag::parse(&quot;de&quot;).unwrap();</span>
-<span class="doccomment">//! assert!(langtag_user.matches(&amp;langtag_server));</span>
-<span class="doccomment">//! ```</span>
+</span><span class="doccomment">//! Language tags can be used identify human languages, scripts e.g. Latin script, countries and
+//! other regions.
+//!
+//! Language tags are defined in [BCP47](http://tools.ietf.org/html/bcp47), an introduction is
+//! [&quot;Language tags in HTML and XML&quot;](http://www.w3.org/International/articles/language-tags/) by
+//! the W3C. They are commonly used in HTML and HTTP `Content-Language` and `Accept-Language`
+//! header fields.
+//!
+//! This package currently supports parsing (fully conformant parser), validation, canonicalization,
+//! formatting and comparing language tags.
+//!
+//! # Examples
+//! Create a simple language tag representing the French language as spoken
+//! in Belgium and print it:
+//!
+//! ```rust
+//! use language_tags::LanguageTag;
+//!
+//! let langtag = LanguageTag::parse(&quot;fr-BE&quot;).unwrap();
+//! assert_eq!(langtag.to_string(), &quot;fr-BE&quot;);
+//! ```
+//!
+//! Parse a tag representing a special type of English specified by private agreement:
+//!
+//! ```rust
+//! use language_tags::LanguageTag;
+//! use std::iter::FromIterator;
+//!
+//! let langtag: LanguageTag = &quot;en-x-twain&quot;.parse().unwrap();
+//! assert_eq!(langtag.primary_language(), &quot;en&quot;);
+//! assert_eq!(Vec::from_iter(langtag.private_use_subtags()), vec![&quot;twain&quot;]);
+//! ```
+//!
+//! You can check for equality, but more often you should test if two tags match.
+//! In this example we check if the resource in German language is suitable for
+//! a user from Austria. While people speaking Austrian German normally understand
+//! standard German the opposite is not always true. So the resource can be presented
+//! to the user but if the resource was in `de-AT` and a user asked for a representation
+//! in `de` the request should be rejected.
+//!
+//!
+//! ```rust
+//! use language_tags::LanguageTag;
+//!
+//! let mut langtag_server = LanguageTag::parse(&quot;de-AT&quot;).unwrap();
+//! let mut langtag_user = LanguageTag::parse(&quot;de&quot;).unwrap();
+//! assert!(langtag_user.matches(&amp;langtag_server));
+//! ```
 
-<span class="kw">mod</span> <span class="ident">iana_registry</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">serde</span>;
+</span><span class="kw">mod </span>iana_registry;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">mod </span>serde;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::iana_registry</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">std::error::Error</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::iter::once</span>;
-<span class="kw">use</span> <span class="ident">std::ops::Deref</span>;
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
-<span class="kw">use</span> <span class="ident">std::str::Split</span>;
+<span class="kw">use </span><span class="kw">crate</span>::iana_registry::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::error::Error;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::iter::once;
+<span class="kw">use </span>std::ops::Deref;
+<span class="kw">use </span>std::str::FromStr;
+<span class="kw">use </span>std::str::Split;
 
-<span class="doccomment">/// A language tag as described in [RFC 5646](https://tools.ietf.org/html/rfc5646).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Language tags are used to help identify languages, whether spoken,</span>
-<span class="doccomment">/// written, signed, or otherwise signaled, for the purpose of</span>
-<span class="doccomment">/// communication.  This includes constructed and artificial languages</span>
-<span class="doccomment">/// but excludes languages not intended primarily for human</span>
-<span class="doccomment">/// communication, such as programming languages.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LanguageTag</span> {
-    <span class="doccomment">/// Syntax described in [RFC 5646 2.1](https://tools.ietf.org/html/rfc5646#section-2.1)</span>
-    <span class="ident">serialization</span>: <span class="ident">String</span>,
-    <span class="ident">language_end</span>: <span class="ident">usize</span>,
-    <span class="ident">extlang_end</span>: <span class="ident">usize</span>,
-    <span class="ident">script_end</span>: <span class="ident">usize</span>,
-    <span class="ident">region_end</span>: <span class="ident">usize</span>,
-    <span class="ident">variant_end</span>: <span class="ident">usize</span>,
-    <span class="ident">extension_end</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// A language tag as described in [RFC 5646](https://tools.ietf.org/html/rfc5646).
+///
+/// Language tags are used to help identify languages, whether spoken,
+/// written, signed, or otherwise signaled, for the purpose of
+/// communication.  This includes constructed and artificial languages
+/// but excludes languages not intended primarily for human
+/// communication, such as programming languages.
+</span><span class="attribute">#[derive(Eq, PartialEq, Debug, Clone, Hash)]
+</span><span class="kw">pub struct </span>LanguageTag {
+    <span class="doccomment">/// Syntax described in [RFC 5646 2.1](https://tools.ietf.org/html/rfc5646#section-2.1)
+    </span>serialization: String,
+    language_end: usize,
+    extlang_end: usize,
+    script_end: usize,
+    region_end: usize,
+    variant_end: usize,
+    extension_end: usize,
 }
 
-<span class="kw">impl</span> <span class="ident">LanguageTag</span> {
-    <span class="doccomment">/// Return the serialization of this language tag.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is fast since that serialization is already stored in the `LanguageTag` struct.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>
+<span class="kw">impl </span>LanguageTag {
+    <span class="doccomment">/// Return the serialization of this language tag.
+    ///
+    /// This is fast since that serialization is already stored in the `LanguageTag` struct.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.serialization
     }
 
-    <span class="doccomment">/// Return the serialization of this language tag.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This consumes the `LanguageTag` and takes ownership of the `String` stored in it.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_string</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">serialization</span>
+    <span class="doccomment">/// Return the serialization of this language tag.
+    ///
+    /// This consumes the `LanguageTag` and takes ownership of the `String` stored in it.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>into_string(<span class="self">self</span>) -&gt; String {
+        <span class="self">self</span>.serialization
     }
 
-    <span class="doccomment">/// Return the [primary language subtag](https://tools.ietf.org/html/rfc5646#section-2.2.1).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.primary_language(), &quot;zh&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">primary_language</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>[..<span class="self">self</span>.<span class="ident">language_end</span>]
+    <span class="doccomment">/// Return the [primary language subtag](https://tools.ietf.org/html/rfc5646#section-2.2.1).
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();
+    /// assert_eq!(language_tag.primary_language(), &quot;zh&quot;);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>primary_language(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.serialization[..<span class="self">self</span>.language_end]
     }
 
-    <span class="doccomment">/// Return the [extended language subtags](https://tools.ietf.org/html/rfc5646#section-2.2.2).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Valid language tags have at most one extended language.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.extended_language(), Some(&quot;cmn&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extended_language</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">language_end</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">extlang_end</span> {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>[<span class="self">self</span>.<span class="ident">language_end</span> <span class="op">+</span> <span class="number">1</span>..<span class="self">self</span>.<span class="ident">extlang_end</span>])
+    <span class="doccomment">/// Return the [extended language subtags](https://tools.ietf.org/html/rfc5646#section-2.2.2).
+    ///
+    /// Valid language tags have at most one extended language.
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();
+    /// assert_eq!(language_tag.extended_language(), Some(&quot;cmn&quot;));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>extended_language(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="kw">if </span><span class="self">self</span>.language_end == <span class="self">self</span>.extlang_end {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.serialization[<span class="self">self</span>.language_end + <span class="number">1</span>..<span class="self">self</span>.extlang_end])
         }
     }
 
-    <span class="doccomment">/// Iterate on the [extended language subtags](https://tools.ietf.org/html/rfc5646#section-2.2.2).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Valid language tags have at most one extended language.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.extended_language_subtags().collect::&lt;Vec&lt;_&gt;&gt;(), vec![&quot;cmn&quot;]);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extended_language_subtags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">extended_language</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>).<span class="ident">split_terminator</span>(<span class="string">&#39;-&#39;</span>)
+    <span class="doccomment">/// Iterate on the [extended language subtags](https://tools.ietf.org/html/rfc5646#section-2.2.2).
+    ///
+    /// Valid language tags have at most one extended language.
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();
+    /// assert_eq!(language_tag.extended_language_subtags().collect::&lt;Vec&lt;_&gt;&gt;(), vec![&quot;cmn&quot;]);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>extended_language_subtags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.extended_language().unwrap_or(<span class="string">&quot;&quot;</span>).split_terminator(<span class="string">&#39;-&#39;</span>)
     }
 
-    <span class="doccomment">/// Return the [primary language subtag](https://tools.ietf.org/html/rfc5646#section-2.2.1)</span>
-    <span class="doccomment">/// and its [extended language subtags](https://tools.ietf.org/html/rfc5646#section-2.2.2).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.full_language(), &quot;zh-cmn&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">full_language</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>[..<span class="self">self</span>.<span class="ident">extlang_end</span>]
+    <span class="doccomment">/// Return the [primary language subtag](https://tools.ietf.org/html/rfc5646#section-2.2.1)
+    /// and its [extended language subtags](https://tools.ietf.org/html/rfc5646#section-2.2.2).
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();
+    /// assert_eq!(language_tag.full_language(), &quot;zh-cmn&quot;);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>full_language(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.serialization[..<span class="self">self</span>.extlang_end]
     }
 
-    <span class="doccomment">/// Return the [script subtag](https://tools.ietf.org/html/rfc5646#section-2.2.3).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.script(), Some(&quot;Hans&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">script</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">extlang_end</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">script_end</span> {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>[<span class="self">self</span>.<span class="ident">extlang_end</span> <span class="op">+</span> <span class="number">1</span>..<span class="self">self</span>.<span class="ident">script_end</span>])
+    <span class="doccomment">/// Return the [script subtag](https://tools.ietf.org/html/rfc5646#section-2.2.3).
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();
+    /// assert_eq!(language_tag.script(), Some(&quot;Hans&quot;));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>script(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="kw">if </span><span class="self">self</span>.extlang_end == <span class="self">self</span>.script_end {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.serialization[<span class="self">self</span>.extlang_end + <span class="number">1</span>..<span class="self">self</span>.script_end])
         }
     }
 
-    <span class="doccomment">/// Return the [region subtag](https://tools.ietf.org/html/rfc5646#section-2.2.4).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.region(), Some(&quot;CN&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">region</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">script_end</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">region_end</span> {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>[<span class="self">self</span>.<span class="ident">script_end</span> <span class="op">+</span> <span class="number">1</span>..<span class="self">self</span>.<span class="ident">region_end</span>])
+    <span class="doccomment">/// Return the [region subtag](https://tools.ietf.org/html/rfc5646#section-2.2.4).
+    ///
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;zh-cmn-Hans-CN&quot;).unwrap();
+    /// assert_eq!(language_tag.region(), Some(&quot;CN&quot;));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>region(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="kw">if </span><span class="self">self</span>.script_end == <span class="self">self</span>.region_end {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.serialization[<span class="self">self</span>.script_end + <span class="number">1</span>..<span class="self">self</span>.region_end])
         }
     }
 
-    <span class="doccomment">/// Return the [variant subtags](https://tools.ietf.org/html/rfc5646#section-2.2.5).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;zh-Latn-TW-pinyin&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.variant(), Some(&quot;pinyin&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">region_end</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">variant_end</span> {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>[<span class="self">self</span>.<span class="ident">region_end</span> <span class="op">+</span> <span class="number">1</span>..<span class="self">self</span>.<span class="ident">variant_end</span>])
+    <span class="doccomment">/// Return the [variant subtags](https://tools.ietf.org/html/rfc5646#section-2.2.5).
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;zh-Latn-TW-pinyin&quot;).unwrap();
+    /// assert_eq!(language_tag.variant(), Some(&quot;pinyin&quot;));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>variant(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="kw">if </span><span class="self">self</span>.region_end == <span class="self">self</span>.variant_end {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.serialization[<span class="self">self</span>.region_end + <span class="number">1</span>..<span class="self">self</span>.variant_end])
         }
     }
 
-    <span class="doccomment">/// Iterate on the [variant subtags](https://tools.ietf.org/html/rfc5646#section-2.2.5).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;zh-Latn-TW-pinyin&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.variant_subtags().collect::&lt;Vec&lt;_&gt;&gt;(), vec![&quot;pinyin&quot;]);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant_subtags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">variant</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>).<span class="ident">split_terminator</span>(<span class="string">&#39;-&#39;</span>)
+    <span class="doccomment">/// Iterate on the [variant subtags](https://tools.ietf.org/html/rfc5646#section-2.2.5).
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;zh-Latn-TW-pinyin&quot;).unwrap();
+    /// assert_eq!(language_tag.variant_subtags().collect::&lt;Vec&lt;_&gt;&gt;(), vec![&quot;pinyin&quot;]);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>variant_subtags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.variant().unwrap_or(<span class="string">&quot;&quot;</span>).split_terminator(<span class="string">&#39;-&#39;</span>)
     }
 
-    <span class="doccomment">/// Return the [extension subtags](https://tools.ietf.org/html/rfc5646#section-2.2.6).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;de-DE-u-co-phonebk&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.extension(), Some(&quot;u-co-phonebk&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extension</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">variant_end</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">extension_end</span> {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>[<span class="self">self</span>.<span class="ident">variant_end</span> <span class="op">+</span> <span class="number">1</span>..<span class="self">self</span>.<span class="ident">extension_end</span>])
+    <span class="doccomment">/// Return the [extension subtags](https://tools.ietf.org/html/rfc5646#section-2.2.6).
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;de-DE-u-co-phonebk&quot;).unwrap();
+    /// assert_eq!(language_tag.extension(), Some(&quot;u-co-phonebk&quot;));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>extension(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="kw">if </span><span class="self">self</span>.variant_end == <span class="self">self</span>.extension_end {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.serialization[<span class="self">self</span>.variant_end + <span class="number">1</span>..<span class="self">self</span>.extension_end])
         }
     }
 
-    <span class="doccomment">/// Iterate on the [extension subtags](https://tools.ietf.org/html/rfc5646#section-2.2.6).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;de-DE-u-co-phonebk&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.extension_subtags().collect::&lt;Vec&lt;_&gt;&gt;(), vec![(&#39;u&#39;, &quot;co-phonebk&quot;)]);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extension_subtags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">char</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>)<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">extension</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">parts</span>) =&gt; <span class="ident">ExtensionsIterator::new</span>(<span class="ident">parts</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">ExtensionsIterator::new</span>(<span class="string">&quot;&quot;</span>),
+    <span class="doccomment">/// Iterate on the [extension subtags](https://tools.ietf.org/html/rfc5646#section-2.2.6).
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;de-DE-u-co-phonebk&quot;).unwrap();
+    /// assert_eq!(language_tag.extension_subtags().collect::&lt;Vec&lt;_&gt;&gt;(), vec![(&#39;u&#39;, &quot;co-phonebk&quot;)]);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>extension_subtags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (char, <span class="kw-2">&amp;</span>str)&gt; {
+        <span class="kw">match </span><span class="self">self</span>.extension() {
+            <span class="prelude-val">Some</span>(parts) =&gt; ExtensionsIterator::new(parts),
+            <span class="prelude-val">None </span>=&gt; ExtensionsIterator::new(<span class="string">&quot;&quot;</span>),
         }
     }
 
-    <span class="doccomment">/// Return the [private use subtags](https://tools.ietf.org/html/rfc5646#section-2.2.7).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;de-x-foo-bar&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.private_use(), Some(&quot;x-foo-bar&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">private_use</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">serialization</span>.<span class="ident">starts_with</span>(<span class="string">&quot;x-&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">extension_end</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">serialization</span>.<span class="ident">len</span>() {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>[<span class="self">self</span>.<span class="ident">extension_end</span> <span class="op">+</span> <span class="number">1</span>..])
+    <span class="doccomment">/// Return the [private use subtags](https://tools.ietf.org/html/rfc5646#section-2.2.7).
+    ///
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;de-x-foo-bar&quot;).unwrap();
+    /// assert_eq!(language_tag.private_use(), Some(&quot;x-foo-bar&quot;));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>private_use(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="kw">if </span><span class="self">self</span>.serialization.starts_with(<span class="string">&quot;x-&quot;</span>) {
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.serialization)
+        } <span class="kw">else if </span><span class="self">self</span>.extension_end == <span class="self">self</span>.serialization.len() {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.serialization[<span class="self">self</span>.extension_end + <span class="number">1</span>..])
         }
     }
 
-    <span class="doccomment">/// Iterate on the [private use subtags](https://tools.ietf.org/html/rfc5646#section-2.2.7).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;de-x-foo-bar&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.private_use_subtags().collect::&lt;Vec&lt;_&gt;&gt;(), vec![&quot;foo&quot;, &quot;bar&quot;]);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">private_use_subtags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">private_use</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">part</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">part</span>[<span class="number">2</span>..])
-            .<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>)
-            .<span class="ident">split_terminator</span>(<span class="string">&#39;-&#39;</span>)
+    <span class="doccomment">/// Iterate on the [private use subtags](https://tools.ietf.org/html/rfc5646#section-2.2.7).
+    ///
+    /// ```
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;de-x-foo-bar&quot;).unwrap();
+    /// assert_eq!(language_tag.private_use_subtags().collect::&lt;Vec&lt;_&gt;&gt;(), vec![&quot;foo&quot;, &quot;bar&quot;]);
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>private_use_subtags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.private_use()
+            .map(|part| <span class="kw-2">&amp;</span>part[<span class="number">2</span>..])
+            .unwrap_or(<span class="string">&quot;&quot;</span>)
+            .split_terminator(<span class="string">&#39;-&#39;</span>)
     }
 
-    <span class="doccomment">/// Create a `LanguageTag` from its serialization.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This parser accepts the language tags that are &quot;well-formed&quot; according to</span>
-    <span class="doccomment">/// [RFC 5646](https://tools.ietf.org/html/rfc5646#section-2.2.9).</span>
-    <span class="doccomment">/// Full validation could be done with the `validate` method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let language_tag = LanguageTag::parse(&quot;en-us&quot;).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(language_tag.into_string(), &quot;en-US&quot;)</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the language tag is not &quot;well-formed&quot; a `ParseError` variant will be returned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
-        <span class="comment">//grandfathered tags</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tag</span>) <span class="op">=</span> <span class="ident">GRANDFATHEREDS</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">record</span><span class="op">|</span> <span class="ident">record</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="ident">input</span>))
+    <span class="doccomment">/// Create a `LanguageTag` from its serialization.
+    ///
+    /// This parser accepts the language tags that are &quot;well-formed&quot; according to
+    /// [RFC 5646](https://tools.ietf.org/html/rfc5646#section-2.2.9).
+    /// Full validation could be done with the `validate` method.
+    ///
+    /// ```rust
+    /// use language_tags::LanguageTag;
+    ///
+    /// let language_tag = LanguageTag::parse(&quot;en-us&quot;).unwrap();
+    /// assert_eq!(language_tag.into_string(), &quot;en-US&quot;)
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// If the language tag is not &quot;well-formed&quot; a `ParseError` variant will be returned.
+    </span><span class="kw">pub fn </span>parse(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
+        <span class="comment">//grandfathered tags
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(tag) = GRANDFATHEREDS
+            .iter()
+            .find(|record| record.eq_ignore_ascii_case(input))
         {
-            <span class="comment">// grandfathered tag</span>
-            <span class="prelude-val">Ok</span>(<span class="ident">tag_from_primary_language</span>(<span class="kw-2">*</span><span class="ident">tag</span>))
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">starts_with</span>(<span class="string">&quot;x-&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">starts_with</span>(<span class="string">&quot;X-&quot;</span>) {
-            <span class="comment">// private use</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">is_alphanumeric_or_dash</span>(<span class="ident">input</span>) {
-                <span class="prelude-val">Err</span>(<span class="ident">ParseError::ForbiddenChar</span>)
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">ParseError::EmptyPrivateUse</span>)
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">tag_from_primary_language</span>(<span class="ident">input</span>.<span class="ident">to_ascii_lowercase</span>()))
+            <span class="comment">// grandfathered tag
+            </span><span class="prelude-val">Ok</span>(tag_from_primary_language(<span class="kw-2">*</span>tag))
+        } <span class="kw">else if </span>input.starts_with(<span class="string">&quot;x-&quot;</span>) || input.starts_with(<span class="string">&quot;X-&quot;</span>) {
+            <span class="comment">// private use
+            </span><span class="kw">if </span>!is_alphanumeric_or_dash(input) {
+                <span class="prelude-val">Err</span>(ParseError::ForbiddenChar)
+            } <span class="kw">else if </span>input.len() == <span class="number">2 </span>{
+                <span class="prelude-val">Err</span>(ParseError::EmptyPrivateUse)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Ok</span>(tag_from_primary_language(input.to_ascii_lowercase()))
             }
-        } <span class="kw">else</span> {
-            <span class="ident">parse_language_tag</span>(<span class="ident">input</span>)
+        } <span class="kw">else </span>{
+            parse_language_tag(input)
         }
     }
 
-    <span class="doccomment">/// Check if the language tag is &quot;valid&quot; according to</span>
-    <span class="doccomment">/// [RFC 5646](https://tools.ietf.org/html/rfc5646#section-2.2.9).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It applies the following steps:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * grandfathereds and private use tags are valid</span>
-    <span class="doccomment">/// * There should be no more than one extended language subtag</span>
-    <span class="doccomment">///   (c.f. [errata 5457](https://www.rfc-editor.org/errata/eid5457)).</span>
-    <span class="doccomment">/// * Primary language, extended language, script, region and variants should appear</span>
-    <span class="doccomment">///   in the IANA Language Subtag Registry.</span>
-    <span class="doccomment">/// * Extended language and variants should have a correct prefix as set</span>
-    <span class="doccomment">///   in the IANA Language Subtag Registry.</span>
-    <span class="doccomment">/// * There should be no duplicate variant and singleton (extension) subtags.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the language tag is not &quot;valid&quot; a `ValidationError` variant will be returned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ValidationError</span><span class="op">&gt;</span> {
-        <span class="comment">// The tag is well-formed.</span>
-        <span class="comment">// always ok</span>
+    <span class="doccomment">/// Check if the language tag is &quot;valid&quot; according to
+    /// [RFC 5646](https://tools.ietf.org/html/rfc5646#section-2.2.9).
+    ///
+    /// It applies the following steps:
+    ///
+    /// * grandfathereds and private use tags are valid
+    /// * There should be no more than one extended language subtag
+    ///   (c.f. [errata 5457](https://www.rfc-editor.org/errata/eid5457)).
+    /// * Primary language, extended language, script, region and variants should appear
+    ///   in the IANA Language Subtag Registry.
+    /// * Extended language and variants should have a correct prefix as set
+    ///   in the IANA Language Subtag Registry.
+    /// * There should be no duplicate variant and singleton (extension) subtags.
+    ///
+    ///
+    /// # Errors
+    ///
+    /// If the language tag is not &quot;valid&quot; a `ValidationError` variant will be returned.
+    </span><span class="kw">pub fn </span>validate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ValidationError&gt; {
+        <span class="comment">// The tag is well-formed.
+        // always ok
 
-        <span class="comment">// Private tag</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">serialization</span>.<span class="ident">starts_with</span>(<span class="string">&quot;x-&quot;</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        // Private tag
+        </span><span class="kw">if </span><span class="self">self</span>.serialization.starts_with(<span class="string">&quot;x-&quot;</span>) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="comment">// The tag is in the list of grandfathered tags</span>
-        <span class="kw">if</span> <span class="ident">is_in_str_slice_set</span>(<span class="kw-2">&amp;</span><span class="ident">GRANDFATHEREDS</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        <span class="comment">// The tag is in the list of grandfathered tags
+        </span><span class="kw">if </span>is_in_str_slice_set(<span class="kw-2">&amp;</span>GRANDFATHEREDS, <span class="kw-2">&amp;</span><span class="self">self</span>.serialization) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="comment">// There is no more than one extended language subtag.</span>
-        <span class="comment">// From [errata 5457](https://www.rfc-editor.org/errata/eid5457).</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">extended_language</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">extended_language</span>() {
-            <span class="kw">if</span> <span class="ident">extended_language</span>.<span class="ident">contains</span>(<span class="string">&#39;-&#39;</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::MultipleExtendedLanguageSubtags</span>);
+        <span class="comment">// There is no more than one extended language subtag.
+        // From [errata 5457](https://www.rfc-editor.org/errata/eid5457).
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(extended_language) = <span class="self">self</span>.extended_language() {
+            <span class="kw">if </span>extended_language.contains(<span class="string">&#39;-&#39;</span>) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::MultipleExtendedLanguageSubtags);
             }
         }
 
-        <span class="comment">// all of its primary language, extended language, script, region, and variant</span>
-        <span class="comment">// subtags appear in the IANA Language Subtag Registry as of the</span>
-        <span class="comment">// particular registry date.</span>
-        <span class="kw">let</span> <span class="ident">primary_language</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary_language</span>();
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">between</span>(<span class="ident">primary_language</span>, <span class="string">&quot;qaa&quot;</span>, <span class="string">&quot;qtz&quot;</span>)
-            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_in_from_str_slice_set</span>(<span class="kw-2">&amp;</span><span class="ident">LANGUAGES</span>, <span class="ident">primary_language</span>)
+        <span class="comment">// all of its primary language, extended language, script, region, and variant
+        // subtags appear in the IANA Language Subtag Registry as of the
+        // particular registry date.
+        </span><span class="kw">let </span>primary_language = <span class="self">self</span>.primary_language();
+        <span class="kw">if </span>!between(primary_language, <span class="string">&quot;qaa&quot;</span>, <span class="string">&quot;qtz&quot;</span>)
+            &amp;&amp; !is_in_from_str_slice_set(<span class="kw-2">&amp;</span>LANGUAGES, primary_language)
         {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::PrimaryLanguageNotInRegistry</span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::PrimaryLanguageNotInRegistry);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">extended_language</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">extended_language</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">extended_language_prefix</span>) <span class="op">=</span>
-                <span class="ident">find_in_from_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">EXTLANGS</span>, <span class="ident">extended_language</span>)
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(extended_language) = <span class="self">self</span>.extended_language() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(extended_language_prefix) =
+                find_in_from_str_slice_map(<span class="kw-2">&amp;</span>EXTLANGS, extended_language)
             {
-                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">serialization</span>.<span class="ident">starts_with</span>(<span class="ident">extended_language_prefix</span>) {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::WrongExtendedLanguagePrefix</span>);
+                <span class="kw">if </span>!<span class="self">self</span>.serialization.starts_with(extended_language_prefix) {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::WrongExtendedLanguagePrefix);
                 }
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::ExtendedLanguageNotInRegistry</span>);
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::ExtendedLanguageNotInRegistry);
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">script</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">script</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">between</span>(<span class="ident">script</span>, <span class="string">&quot;Qaaa&quot;</span>, <span class="string">&quot;Qabx&quot;</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_in_from_str_slice_set</span>(<span class="kw-2">&amp;</span><span class="ident">SCRIPTS</span>, <span class="ident">script</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::ScriptNotInRegistry</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(script) = <span class="self">self</span>.script() {
+            <span class="kw">if </span>!between(script, <span class="string">&quot;Qaaa&quot;</span>, <span class="string">&quot;Qabx&quot;</span>) &amp;&amp; !is_in_from_str_slice_set(<span class="kw-2">&amp;</span>SCRIPTS, script) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::ScriptNotInRegistry);
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">region</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">region</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">between</span>(<span class="ident">region</span>, <span class="string">&quot;QM&quot;</span>, <span class="string">&quot;QZ&quot;</span>)
-                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">between</span>(<span class="ident">region</span>, <span class="string">&quot;XA&quot;</span>, <span class="string">&quot;XZ&quot;</span>)
-                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_in_from_str_slice_set</span>(<span class="kw-2">&amp;</span><span class="ident">REGIONS</span>, <span class="ident">region</span>)
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(region) = <span class="self">self</span>.region() {
+            <span class="kw">if </span>!between(region, <span class="string">&quot;QM&quot;</span>, <span class="string">&quot;QZ&quot;</span>)
+                &amp;&amp; !between(region, <span class="string">&quot;XA&quot;</span>, <span class="string">&quot;XZ&quot;</span>)
+                &amp;&amp; !is_in_from_str_slice_set(<span class="kw-2">&amp;</span>REGIONS, region)
             {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::RegionNotInRegistry</span>);
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::RegionNotInRegistry);
             }
         }
-        <span class="kw">for</span> <span class="ident">variant</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">variant_subtags</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">variant_prefixes</span>) <span class="op">=</span> <span class="ident">find_in_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">VARIANTS</span>, <span class="ident">variant</span>) {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">variant_prefixes</span>
-                    .<span class="ident">split</span>(<span class="string">&#39; &#39;</span>)
-                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">prefix</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">serialization</span>.<span class="ident">starts_with</span>(<span class="ident">prefix</span>))
+        <span class="kw">for </span>variant <span class="kw">in </span><span class="self">self</span>.variant_subtags() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(variant_prefixes) = find_in_str_slice_map(<span class="kw-2">&amp;</span>VARIANTS, variant) {
+                <span class="kw">if </span>!variant_prefixes
+                    .split(<span class="string">&#39; &#39;</span>)
+                    .any(|prefix| <span class="self">self</span>.serialization.starts_with(prefix))
                 {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::WrongVariantPrefix</span>);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::WrongVariantPrefix);
                 }
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::VariantNotInRegistry</span>);
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::VariantNotInRegistry);
             }
         }
 
-        <span class="comment">// There are no duplicate variant subtags.</span>
-        <span class="kw">let</span> <span class="ident">with_duplicate_variant</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">variant_subtags</span>().<span class="ident">enumerate</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">id1</span>, <span class="ident">variant1</span>)<span class="op">|</span> {
-            <span class="self">self</span>.<span class="ident">variant_subtags</span>()
-                .<span class="ident">enumerate</span>()
-                .<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">id2</span>, <span class="ident">variant2</span>)<span class="op">|</span> <span class="ident">id1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id2</span> <span class="op">&amp;&amp;</span> <span class="ident">variant1</span> <span class="op">==</span> <span class="ident">variant2</span>)
+        <span class="comment">// There are no duplicate variant subtags.
+        </span><span class="kw">let </span>with_duplicate_variant = <span class="self">self</span>.variant_subtags().enumerate().any(|(id1, variant1)| {
+            <span class="self">self</span>.variant_subtags()
+                .enumerate()
+                .any(|(id2, variant2)| id1 != id2 &amp;&amp; variant1 == variant2)
         });
-        <span class="kw">if</span> <span class="ident">with_duplicate_variant</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::DuplicateVariant</span>);
+        <span class="kw">if </span>with_duplicate_variant {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::DuplicateVariant);
         }
 
-        <span class="comment">// There are no duplicate singleton (extension) subtags.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">extension</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">extension</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_extensions</span> <span class="op">=</span> <span class="ident">AlphanumericLowerCharSet::new</span>();
-            <span class="kw">let</span> <span class="ident">with_duplicate_extension</span> <span class="op">=</span> <span class="ident">extension</span>.<span class="ident">split</span>(<span class="string">&#39;-&#39;</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">subtag</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-                    <span class="kw">let</span> <span class="ident">extension</span> <span class="op">=</span> <span class="ident">subtag</span>.<span class="ident">chars</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">if</span> <span class="ident">seen_extensions</span>.<span class="ident">contains</span>(<span class="ident">extension</span>) {
-                        <span class="bool-val">true</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">seen_extensions</span>.<span class="ident">insert</span>(<span class="ident">extension</span>);
-                        <span class="bool-val">false</span>
-                    }
-                } <span class="kw">else</span> {
-                    <span class="bool-val">false</span>
-                }
+        <span class="comment">// There are no duplicate singleton (extension) subtags.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(extension) = <span class="self">self</span>.extension() {
+            <span class="kw">let </span><span class="kw-2">mut </span>seen_extensions = AlphanumericLowerCharSet::new();
+            <span class="kw">let </span>with_duplicate_extension = extension.split(<span class="string">&#39;-&#39;</span>).any(|subtag| {
+                <span class="kw">if </span>subtag.len() == <span class="number">1 </span>{
+                    <span class="kw">let </span>extension = subtag.chars().next().unwrap();
+                    <span class="kw">if </span>seen_extensions.contains(extension) {
+                        <span class="bool-val">true
+                    </span>} <span class="kw">else </span>{
+                        seen_extensions.insert(extension);
+                        <span class="bool-val">false
+                    </span>}
+                } <span class="kw">else </span>{
+                    <span class="bool-val">false
+                </span>}
             });
-            <span class="kw">if</span> <span class="ident">with_duplicate_extension</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::DuplicateExtension</span>);
+            <span class="kw">if </span>with_duplicate_extension {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::DuplicateExtension);
             }
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Check if the language tag is valid according to</span>
-    <span class="doccomment">/// [RFC 5646](https://tools.ietf.org/html/rfc5646#section-2.2.9).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_valid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">validate</span>().<span class="ident">is_ok</span>()
+    <span class="doccomment">/// Check if the language tag is valid according to
+    /// [RFC 5646](https://tools.ietf.org/html/rfc5646#section-2.2.9).
+    </span><span class="kw">pub fn </span>is_valid(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.validate().is_ok()
     }
 
-    <span class="doccomment">/// Returns the canonical version of the language tag following</span>
-    <span class="doccomment">/// [RFC 5646 4.5](https://tools.ietf.org/html/rfc5646#section-4.5).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It currently applies the following steps:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Grandfathered tags are replaced with the canonical version if possible.</span>
-    <span class="doccomment">/// * Redundant tags are replaced with the canonical version if possible.</span>
-    <span class="doccomment">/// * Extension languages are promoted to primary language.</span>
-    <span class="doccomment">/// * Deprecated languages, scripts, regions and variants are replaced with modern equivalents.</span>
-    <span class="doccomment">/// * Suppress-Script is applied to remove default script for a language (e.g. &quot;en-Latn&quot; is canonicalized as &quot;en&quot;).</span>
-    <span class="doccomment">/// * Variants are deduplicated</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If there is not a unique way to canonicalize the language tag</span>
-    <span class="doccomment">/// a `ValidationError` variant will be returned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canonicalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LanguageTag</span>, <span class="ident">ValidationError</span><span class="op">&gt;</span> {
-        <span class="comment">//We could not do anything for private use</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">serialization</span>.<span class="ident">starts_with</span>(<span class="string">&quot;x-&quot;</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">clone</span>());
+    <span class="doccomment">/// Returns the canonical version of the language tag following
+    /// [RFC 5646 4.5](https://tools.ietf.org/html/rfc5646#section-4.5).
+    ///
+    /// It currently applies the following steps:
+    ///
+    /// * Grandfathered tags are replaced with the canonical version if possible.
+    /// * Redundant tags are replaced with the canonical version if possible.
+    /// * Extension languages are promoted to primary language.
+    /// * Deprecated languages, scripts, regions and variants are replaced with modern equivalents.
+    /// * Suppress-Script is applied to remove default script for a language (e.g. &quot;en-Latn&quot; is canonicalized as &quot;en&quot;).
+    /// * Variants are deduplicated
+    ///
+    ///
+    /// # Errors
+    ///
+    /// If there is not a unique way to canonicalize the language tag
+    /// a `ValidationError` variant will be returned.
+    </span><span class="kw">pub fn </span>canonicalize(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;LanguageTag, ValidationError&gt; {
+        <span class="comment">//We could not do anything for private use
+        </span><span class="kw">if </span><span class="self">self</span>.serialization.starts_with(<span class="string">&quot;x-&quot;</span>) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.clone());
         }
 
-        <span class="comment">// 2 Redundant or grandfathered tags are replaced by their &#39;Preferred-Value&#39;, if there is one.</span>
-        <span class="kw">if</span> <span class="ident">is_in_str_slice_set</span>(<span class="kw-2">&amp;</span><span class="ident">GRANDFATHEREDS</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">preferred_value</span>) <span class="op">=</span>
-                    <span class="ident">find_in_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">GRANDFATHEREDS_PREFERRED_VALUE</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>)
+        <span class="comment">// 2 Redundant or grandfathered tags are replaced by their &#39;Preferred-Value&#39;, if there is one.
+        </span><span class="kw">if </span>is_in_str_slice_set(<span class="kw-2">&amp;</span>GRANDFATHEREDS, <span class="kw-2">&amp;</span><span class="self">self</span>.serialization) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(preferred_value) =
+                    find_in_str_slice_map(<span class="kw-2">&amp;</span>GRANDFATHEREDS_PREFERRED_VALUE, <span class="kw-2">&amp;</span><span class="self">self</span>.serialization)
                 {
-                    <span class="ident"><span class="self">Self</span>::parse</span>(<span class="ident">preferred_value</span>).<span class="ident">unwrap</span>()
-                } <span class="kw">else</span> {
-                    <span class="self">self</span>.<span class="ident">clone</span>()
+                    <span class="self">Self</span>::parse(preferred_value).unwrap()
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.clone()
                 },
             );
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">preferred_value</span>) <span class="op">=</span>
-            <span class="ident">find_in_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">REDUNDANTS_PREFERRED_VALUE</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">serialization</span>)
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(preferred_value) =
+            find_in_str_slice_map(<span class="kw-2">&amp;</span>REDUNDANTS_PREFERRED_VALUE, <span class="kw-2">&amp;</span><span class="self">self</span>.serialization)
         {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::parse</span>(<span class="ident">preferred_value</span>).<span class="ident">unwrap</span>());
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">Self</span>::parse(preferred_value).unwrap());
         }
-        <span class="comment">//TODO: what if a redundant has a some extensions/private use?</span>
+        <span class="comment">//TODO: what if a redundant has a some extensions/private use?
 
-        <span class="comment">// 3.  Subtags are replaced by their &#39;Preferred-Value&#39;, if there is one.</span>
-        <span class="comment">// Primary language</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">primary_language</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary_language</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">preferred_value</span>) <span class="op">=</span>
-            <span class="ident">find_in_from_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">LANGUAGES_PREFERRED_VALUE</span>, <span class="ident">primary_language</span>)
+        // 3.  Subtags are replaced by their &#39;Preferred-Value&#39;, if there is one.
+        // Primary language
+        </span><span class="kw">let </span><span class="kw-2">mut </span>primary_language = <span class="self">self</span>.primary_language();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(preferred_value) =
+            find_in_from_str_slice_map(<span class="kw-2">&amp;</span>LANGUAGES_PREFERRED_VALUE, primary_language)
         {
-            <span class="ident">primary_language</span> <span class="op">=</span> <span class="ident">preferred_value</span>;
+            primary_language = preferred_value;
         }
 
-        <span class="comment">// Extended language</span>
-        <span class="comment">// For extlangs, the original primary language subtag is also replaced if there is a primary language subtag in the &#39;Preferred-Value&#39;.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extended_language</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">extlang</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">extended_language</span>() {
-            <span class="comment">// We fail if there is more than one (no single possible canonicalization)</span>
-            <span class="kw">if</span> <span class="ident">extlang</span>.<span class="ident">contains</span>(<span class="string">&#39;-&#39;</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ValidationError::MultipleExtendedLanguageSubtags</span>);
+        <span class="comment">// Extended language
+        // For extlangs, the original primary language subtag is also replaced if there is a primary language subtag in the &#39;Preferred-Value&#39;.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>extended_language = <span class="prelude-val">None</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(extlang) = <span class="self">self</span>.extended_language() {
+            <span class="comment">// We fail if there is more than one (no single possible canonicalization)
+            </span><span class="kw">if </span>extlang.contains(<span class="string">&#39;-&#39;</span>) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ValidationError::MultipleExtendedLanguageSubtags);
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">preferred_value</span>) <span class="op">=</span>
-                <span class="ident">find_in_from_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">EXTLANGS_PREFERRED_VALUE</span>, <span class="ident">extlang</span>)
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(preferred_value) =
+                find_in_from_str_slice_map(<span class="kw-2">&amp;</span>EXTLANGS_PREFERRED_VALUE, extlang)
             {
-                <span class="ident">primary_language</span> <span class="op">=</span> <span class="ident">preferred_value</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">extended_language</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">extlang</span>);
+                primary_language = preferred_value;
+            } <span class="kw">else </span>{
+                extended_language = <span class="prelude-val">Some</span>(extlang);
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">serialization</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="self">self</span>.<span class="ident">serialization</span>.<span class="ident">len</span>());
-        <span class="ident">serialization</span>.<span class="ident">push_str</span>(<span class="ident">primary_language</span>);
-        <span class="kw">let</span> <span class="ident">language_end</span> <span class="op">=</span> <span class="ident">serialization</span>.<span class="ident">len</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">extended_language</span>) <span class="op">=</span> <span class="ident">extended_language</span> {
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">push_str</span>(<span class="ident">extended_language</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>serialization = String::with_capacity(<span class="self">self</span>.serialization.len());
+        serialization.push_str(primary_language);
+        <span class="kw">let </span>language_end = serialization.len();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(extended_language) = extended_language {
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.push_str(extended_language);
         }
-        <span class="kw">let</span> <span class="ident">extlang_end</span> <span class="op">=</span> <span class="ident">serialization</span>.<span class="ident">len</span>();
+        <span class="kw">let </span>extlang_end = serialization.len();
 
-        <span class="comment">// Script</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">script</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">script</span>() {
-            <span class="kw">let</span> <span class="ident">script</span> <span class="op">=</span>
-                <span class="ident">find_in_from_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">SCRIPTS_PREFERRED_VALUE</span>, <span class="ident">script</span>).<span class="ident">unwrap_or</span>(<span class="ident">script</span>);
+        <span class="comment">// Script
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(script) = <span class="self">self</span>.script() {
+            <span class="kw">let </span>script =
+                find_in_from_str_slice_map(<span class="kw-2">&amp;</span>SCRIPTS_PREFERRED_VALUE, script).unwrap_or(script);
 
-            <span class="comment">// Suppress-Script</span>
-            <span class="kw">let</span> <span class="ident">match_suppress_script</span> <span class="op">=</span>
-                <span class="ident">find_in_from_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">LANGUAGES_SUPPRESS_SCRIPT</span>, <span class="ident">primary_language</span>)
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">suppress_script</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">suppress_script</span> <span class="op">==</span> <span class="ident">script</span>)
-                    .<span class="ident">is_some</span>();
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">match_suppress_script</span> {
-                <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-                <span class="ident">serialization</span>.<span class="ident">push_str</span>(<span class="ident">script</span>);
+            <span class="comment">// Suppress-Script
+            </span><span class="kw">let </span>match_suppress_script =
+                find_in_from_str_slice_map(<span class="kw-2">&amp;</span>LANGUAGES_SUPPRESS_SCRIPT, primary_language)
+                    .filter(|suppress_script| <span class="kw-2">*</span>suppress_script == script)
+                    .is_some();
+            <span class="kw">if </span>!match_suppress_script {
+                serialization.push(<span class="string">&#39;-&#39;</span>);
+                serialization.push_str(script);
             }
         }
-        <span class="kw">let</span> <span class="ident">script_end</span> <span class="op">=</span> <span class="ident">serialization</span>.<span class="ident">len</span>();
+        <span class="kw">let </span>script_end = serialization.len();
 
-        <span class="comment">// Region</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">region</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">region</span>() {
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">push_str</span>(
-                <span class="ident">find_in_from_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">REGIONS_PREFERRED_VALUE</span>, <span class="ident">region</span>).<span class="ident">unwrap_or</span>(<span class="ident">region</span>),
+        <span class="comment">// Region
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(region) = <span class="self">self</span>.region() {
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.push_str(
+                find_in_from_str_slice_map(<span class="kw-2">&amp;</span>REGIONS_PREFERRED_VALUE, region).unwrap_or(region),
             );
         }
-        <span class="kw">let</span> <span class="ident">region_end</span> <span class="op">=</span> <span class="ident">serialization</span>.<span class="ident">len</span>();
+        <span class="kw">let </span>region_end = serialization.len();
 
-        <span class="comment">// Variant</span>
-        <span class="kw">for</span> <span class="ident">variant</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">variant_subtags</span>() {
-            <span class="kw">let</span> <span class="ident">variant</span> <span class="op">=</span>
-                <span class="kw-2">*</span><span class="ident">find_in_str_slice_map</span>(<span class="kw-2">&amp;</span><span class="ident">VARIANTS_PREFERRED_VALUE</span>, <span class="ident">variant</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">variant</span>);
-            <span class="kw">let</span> <span class="ident">variant_already_exists</span> <span class="op">=</span> <span class="ident">serialization</span>.<span class="ident">split</span>(<span class="string">&#39;-&#39;</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">subtag</span><span class="op">|</span> <span class="ident">subtag</span> <span class="op">==</span> <span class="ident">variant</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">variant_already_exists</span> {
-                <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-                <span class="ident">serialization</span>.<span class="ident">push_str</span>(<span class="ident">variant</span>);
+        <span class="comment">// Variant
+        </span><span class="kw">for </span>variant <span class="kw">in </span><span class="self">self</span>.variant_subtags() {
+            <span class="kw">let </span>variant =
+                <span class="kw-2">*</span>find_in_str_slice_map(<span class="kw-2">&amp;</span>VARIANTS_PREFERRED_VALUE, variant).unwrap_or(<span class="kw-2">&amp;</span>variant);
+            <span class="kw">let </span>variant_already_exists = serialization.split(<span class="string">&#39;-&#39;</span>).any(|subtag| subtag == variant);
+            <span class="kw">if </span>!variant_already_exists {
+                serialization.push(<span class="string">&#39;-&#39;</span>);
+                serialization.push_str(variant);
             }
         }
-        <span class="kw">let</span> <span class="ident">variant_end</span> <span class="op">=</span> <span class="ident">serialization</span>.<span class="ident">len</span>();
+        <span class="kw">let </span>variant_end = serialization.len();
 
-        <span class="comment">//Extension</span>
-        <span class="comment">// 1.  Extension sequences are ordered into case-insensitive ASCII order by singleton subtags</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">extension</span>().<span class="ident">is_some</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extensions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">extension_subtags</span>().<span class="ident">collect</span>();
-            <span class="ident">extensions</span>.<span class="ident">sort_unstable</span>();
-            <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">extensions</span> {
-                <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-                <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="ident">k</span>);
-                <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-                <span class="ident">serialization</span>.<span class="ident">push_str</span>(<span class="ident">v</span>);
+        <span class="comment">//Extension
+        // 1.  Extension sequences are ordered into case-insensitive ASCII order by singleton subtags
+        </span><span class="kw">if </span><span class="self">self</span>.extension().is_some() {
+            <span class="kw">let </span><span class="kw-2">mut </span>extensions: Vec&lt;<span class="kw">_</span>&gt; = <span class="self">self</span>.extension_subtags().collect();
+            extensions.sort_unstable();
+            <span class="kw">for </span>(k, v) <span class="kw">in </span>extensions {
+                serialization.push(<span class="string">&#39;-&#39;</span>);
+                serialization.push(k);
+                serialization.push(<span class="string">&#39;-&#39;</span>);
+                serialization.push_str(v);
             }
         }
-        <span class="kw">let</span> <span class="ident">extension_end</span> <span class="op">=</span> <span class="ident">serialization</span>.<span class="ident">len</span>();
+        <span class="kw">let </span>extension_end = serialization.len();
 
-        <span class="comment">//Private use</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">private_use</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">private_use</span>() {
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">push_str</span>(<span class="ident">private_use</span>);
+        <span class="comment">//Private use
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(private_use) = <span class="self">self</span>.private_use() {
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.push_str(private_use);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">LanguageTag</span> {
-            <span class="ident">serialization</span>,
-            <span class="ident">language_end</span>,
-            <span class="ident">extlang_end</span>,
-            <span class="ident">script_end</span>,
-            <span class="ident">region_end</span>,
-            <span class="ident">variant_end</span>,
-            <span class="ident">extension_end</span>,
+        <span class="prelude-val">Ok</span>(LanguageTag {
+            serialization,
+            language_end,
+            extlang_end,
+            script_end,
+            region_end,
+            variant_end,
+            extension_end,
         })
     }
 
-    <span class="doccomment">/// Matches language tags. The first language acts as a language range, the second one is used</span>
-    <span class="doccomment">/// as a normal language tag. None fields in the language range are ignored. If the language</span>
-    <span class="doccomment">/// tag has more extlangs than the range these extlangs are ignored. Matches are</span>
-    <span class="doccomment">/// case-insensitive.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For example the range `en-GB` matches only `en-GB` and `en-Arab-GB` but not `en`.</span>
-    <span class="doccomment">/// The range `en` matches all language tags starting with `en` including `en`, `en-GB`,</span>
-    <span class="doccomment">/// `en-Arab` and `en-Arab-GB`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// If the language range has extensions or private use tags.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use language_tags::LanguageTag;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let range_italian = LanguageTag::parse(&quot;it&quot;).unwrap();</span>
-    <span class="doccomment">/// let tag_german = LanguageTag::parse(&quot;de&quot;).unwrap();</span>
-    <span class="doccomment">/// let tag_italian_switzerland = LanguageTag::parse(&quot;it-CH&quot;).unwrap();</span>
-    <span class="doccomment">/// assert!(!range_italian.matches(&amp;tag_german));</span>
-    <span class="doccomment">/// assert!(range_italian.matches(&amp;tag_italian_switzerland));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let range_spanish_brazil = LanguageTag::parse(&quot;es-BR&quot;).unwrap();</span>
-    <span class="doccomment">/// let tag_spanish = LanguageTag::parse(&quot;es&quot;).unwrap();</span>
-    <span class="doccomment">/// assert!(!range_spanish_brazil.matches(&amp;tag_spanish));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">LanguageTag</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">fn</span> <span class="ident">matches_option</span>(<span class="ident">a</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">b</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-            <span class="kw">match</span> (<span class="ident">a</span>, <span class="ident">b</span>) {
-                (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) =&gt; <span class="ident">a</span> <span class="op">==</span> <span class="ident">b</span>,
+    <span class="doccomment">/// Matches language tags. The first language acts as a language range, the second one is used
+    /// as a normal language tag. None fields in the language range are ignored. If the language
+    /// tag has more extlangs than the range these extlangs are ignored. Matches are
+    /// case-insensitive.
+    ///
+    /// For example the range `en-GB` matches only `en-GB` and `en-Arab-GB` but not `en`.
+    /// The range `en` matches all language tags starting with `en` including `en`, `en-GB`,
+    /// `en-Arab` and `en-Arab-GB`.
+    ///
+    /// # Panics
+    /// If the language range has extensions or private use tags.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use language_tags::LanguageTag;
+    ///
+    /// let range_italian = LanguageTag::parse(&quot;it&quot;).unwrap();
+    /// let tag_german = LanguageTag::parse(&quot;de&quot;).unwrap();
+    /// let tag_italian_switzerland = LanguageTag::parse(&quot;it-CH&quot;).unwrap();
+    /// assert!(!range_italian.matches(&amp;tag_german));
+    /// assert!(range_italian.matches(&amp;tag_italian_switzerland));
+    ///
+    /// let range_spanish_brazil = LanguageTag::parse(&quot;es-BR&quot;).unwrap();
+    /// let tag_spanish = LanguageTag::parse(&quot;es&quot;).unwrap();
+    /// assert!(!range_spanish_brazil.matches(&amp;tag_spanish));
+    /// ```
+    </span><span class="kw">pub fn </span>matches(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>LanguageTag) -&gt; bool {
+        <span class="kw">fn </span>matches_option(a: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, b: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; bool {
+            <span class="kw">match </span>(a, b) {
+                (<span class="prelude-val">Some</span>(a), <span class="prelude-val">Some</span>(b)) =&gt; a == b,
                 (<span class="prelude-val">None</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
                 (<span class="kw">_</span>, <span class="prelude-val">None</span>) =&gt; <span class="bool-val">false</span>,
             }
         }
-        <span class="kw">fn</span> <span class="ident">matches_iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-            <span class="ident">a</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
-            <span class="ident">b</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">bool</span> {
-            <span class="ident">a</span>.<span class="ident">zip</span>(<span class="ident">b</span>).<span class="ident">all</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="ident">y</span>)<span class="op">|</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">y</span>)
+        <span class="kw">fn </span>matches_iter&lt;<span class="lifetime">&#39;a</span>&gt;(
+            a: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+            b: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+        ) -&gt; bool {
+            a.zip(b).all(|(x, y)| x == y)
         }
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">is_language_range</span>());
-        <span class="self">self</span>.<span class="ident">full_language</span>() <span class="op">==</span> <span class="ident">other</span>.<span class="ident">full_language</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">matches_option</span>(<span class="self">self</span>.<span class="ident">script</span>(), <span class="ident">other</span>.<span class="ident">script</span>())
-            <span class="op">&amp;&amp;</span> <span class="ident">matches_option</span>(<span class="self">self</span>.<span class="ident">region</span>(), <span class="ident">other</span>.<span class="ident">region</span>())
-            <span class="op">&amp;&amp;</span> <span class="ident">matches_iter</span>(<span class="self">self</span>.<span class="ident">variant_subtags</span>(), <span class="ident">other</span>.<span class="ident">variant_subtags</span>())
+        <span class="macro">assert!</span>(<span class="self">self</span>.is_language_range());
+        <span class="self">self</span>.full_language() == other.full_language()
+            &amp;&amp; matches_option(<span class="self">self</span>.script(), other.script())
+            &amp;&amp; matches_option(<span class="self">self</span>.region(), other.region())
+            &amp;&amp; matches_iter(<span class="self">self</span>.variant_subtags(), other.variant_subtags())
     }
 
-    <span class="doccomment">/// Checks if it is a language range, meaning that there are no extension and privateuse tags.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_language_range</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">extension</span>().<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">private_use</span>().<span class="ident">is_none</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">LanguageTag</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ParseError</span>;
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::parse</span>(<span class="ident">input</span>)
+    <span class="doccomment">/// Checks if it is a language range, meaning that there are no extension and privateuse tags.
+    </span><span class="kw">pub fn </span>is_language_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.extension().is_none() &amp;&amp; <span class="self">self</span>.private_use().is_none()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">LanguageTag</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="self">self</span>.<span class="ident">as_str</span>())
+<span class="kw">impl </span>FromStr <span class="kw">for </span>LanguageTag {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= ParseError;
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from_str(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
+        <span class="self">Self</span>::parse(input)
     }
 }
 
-<span class="doccomment">/// Builds a tag from its primary language</span>
-<span class="kw">fn</span> <span class="ident">tag_from_primary_language</span>(<span class="ident">tag</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">LanguageTag</span> {
-    <span class="kw">let</span> <span class="ident">serialization</span> <span class="op">=</span> <span class="ident">tag</span>.<span class="ident">into</span>();
-    <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">serialization</span>.<span class="ident">len</span>();
-    <span class="ident">LanguageTag</span> {
-        <span class="ident">serialization</span>,
-        <span class="ident">language_end</span>: <span class="ident">end</span>,
-        <span class="ident">extlang_end</span>: <span class="ident">end</span>,
-        <span class="ident">script_end</span>: <span class="ident">end</span>,
-        <span class="ident">region_end</span>: <span class="ident">end</span>,
-        <span class="ident">variant_end</span>: <span class="ident">end</span>,
-        <span class="ident">extension_end</span>: <span class="ident">end</span>,
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>LanguageTag {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="self">self</span>.as_str())
     }
 }
 
-<span class="doccomment">/// Handles normal tags.</span>
-<span class="kw">fn</span> <span class="ident">parse_language_tag</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LanguageTag</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-    <span class="kw">enum</span> <span class="ident">State</span> {
-        <span class="ident">Start</span>,
-        <span class="ident">AfterLanguage</span>,
-        <span class="ident">AfterExtLang</span>,
-        <span class="ident">AfterScript</span>,
-        <span class="ident">AfterRegion</span>,
-        <span class="ident">InExtension</span> { <span class="ident">expected</span>: <span class="ident">bool</span> },
-        <span class="ident">InPrivateUse</span> { <span class="ident">expected</span>: <span class="ident">bool</span> },
+<span class="doccomment">/// Builds a tag from its primary language
+</span><span class="kw">fn </span>tag_from_primary_language(tag: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; LanguageTag {
+    <span class="kw">let </span>serialization = tag.into();
+    <span class="kw">let </span>end = serialization.len();
+    LanguageTag {
+        serialization,
+        language_end: end,
+        extlang_end: end,
+        script_end: end,
+        region_end: end,
+        variant_end: end,
+        extension_end: end,
+    }
+}
+
+<span class="doccomment">/// Handles normal tags.
+</span><span class="kw">fn </span>parse_language_tag(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;LanguageTag, ParseError&gt; {
+    <span class="attribute">#[derive(PartialEq, Eq)]
+    </span><span class="kw">enum </span>State {
+        Start,
+        AfterLanguage,
+        AfterExtLang,
+        AfterScript,
+        AfterRegion,
+        InExtension { expected: bool },
+        InPrivateUse { expected: bool },
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">serialization</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="ident">input</span>.<span class="ident">len</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>serialization = String::with_capacity(input.len());
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Start</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">language_end</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extlang_end</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">script_end</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">region_end</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">variant_end</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extension_end</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extlangs_count</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> (<span class="ident">subtag</span>, <span class="ident">end</span>) <span class="kw">in</span> <span class="ident">SubTagIterator::new</span>(<span class="ident">input</span>) {
-        <span class="kw">if</span> <span class="ident">subtag</span>.<span class="ident">is_empty</span>() {
-            <span class="comment">// All subtags have a maximum length of eight characters.</span>
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::EmptySubtag</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>state = State::Start;
+    <span class="kw">let </span><span class="kw-2">mut </span>language_end = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>extlang_end = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>script_end = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>region_end = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>variant_end = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>extension_end = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>extlangs_count = <span class="number">0</span>;
+    <span class="kw">for </span>(subtag, end) <span class="kw">in </span>SubTagIterator::new(input) {
+        <span class="kw">if </span>subtag.is_empty() {
+            <span class="comment">// All subtags have a maximum length of eight characters.
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::EmptySubtag);
         }
-        <span class="kw">if</span> <span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">8</span> {
-            <span class="comment">// All subtags have a maximum length of eight characters.</span>
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::SubtagTooLong</span>);
+        <span class="kw">if </span>subtag.len() &gt; <span class="number">8 </span>{
+            <span class="comment">// All subtags have a maximum length of eight characters.
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::SubtagTooLong);
         }
-        <span class="kw">if</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::Start</span> {
-            <span class="comment">// Primary language</span>
-            <span class="kw">if</span> <span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">is_alphabetic</span>(<span class="ident">subtag</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::InvalidLanguage</span>);
+        <span class="kw">if </span>state == State::Start {
+            <span class="comment">// Primary language
+            </span><span class="kw">if </span>subtag.len() &lt; <span class="number">2 </span>|| !is_alphabetic(subtag) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidLanguage);
             }
-            <span class="ident">language_end</span> <span class="op">=</span> <span class="ident">end</span>;
-            <span class="ident">serialization</span>.<span class="ident">extend</span>(<span class="ident">to_lowercase</span>(<span class="ident">subtag</span>));
-            <span class="kw">if</span> <span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">4</span> {
-                <span class="comment">// extlangs are only allowed for short language tags</span>
-                <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::AfterLanguage</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::AfterExtLang</span>;
+            language_end = end;
+            serialization.extend(to_lowercase(subtag));
+            <span class="kw">if </span>subtag.len() &lt; <span class="number">4 </span>{
+                <span class="comment">// extlangs are only allowed for short language tags
+                </span>state = State::AfterLanguage;
+            } <span class="kw">else </span>{
+                state = State::AfterExtLang;
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">State::InPrivateUse</span> { .. } <span class="op">=</span> <span class="ident">state</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">is_alphanumeric</span>(<span class="ident">subtag</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::InvalidSubtag</span>);
+        } <span class="kw">else if let </span>State::InPrivateUse { .. } = state {
+            <span class="kw">if </span>!is_alphanumeric(subtag) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidSubtag);
             }
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">extend</span>(<span class="ident">to_lowercase</span>(<span class="ident">subtag</span>));
-            <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::InPrivateUse</span> { <span class="ident">expected</span>: <span class="bool-val">false</span> };
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">subtag</span> <span class="op">==</span> <span class="string">&quot;x&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">subtag</span> <span class="op">==</span> <span class="string">&quot;X&quot;</span> {
-            <span class="comment">// We make sure extension is found</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">State::InExtension</span> { <span class="ident">expected</span>: <span class="bool-val">true</span> } <span class="op">=</span> <span class="ident">state</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::EmptyExtension</span>);
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.extend(to_lowercase(subtag));
+            state = State::InPrivateUse { expected: <span class="bool-val">false </span>};
+        } <span class="kw">else if </span>subtag == <span class="string">&quot;x&quot; </span>|| subtag == <span class="string">&quot;X&quot; </span>{
+            <span class="comment">// We make sure extension is found
+            </span><span class="kw">if let </span>State::InExtension { expected: <span class="bool-val">true </span>} = state {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::EmptyExtension);
             }
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;x&#39;</span>);
-            <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::InPrivateUse</span> { <span class="ident">expected</span>: <span class="bool-val">true</span> };
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">is_alphanumeric</span>(<span class="ident">subtag</span>) {
-            <span class="comment">// We make sure extension is found</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">State::InExtension</span> { <span class="ident">expected</span>: <span class="bool-val">true</span> } <span class="op">=</span> <span class="ident">state</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::EmptyExtension</span>);
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.push(<span class="string">&#39;x&#39;</span>);
+            state = State::InPrivateUse { expected: <span class="bool-val">true </span>};
+        } <span class="kw">else if </span>subtag.len() == <span class="number">1 </span>&amp;&amp; is_alphanumeric(subtag) {
+            <span class="comment">// We make sure extension is found
+            </span><span class="kw">if let </span>State::InExtension { expected: <span class="bool-val">true </span>} = state {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::EmptyExtension);
             }
-            <span class="kw">let</span> <span class="ident">extension_tag</span> <span class="op">=</span> <span class="ident">subtag</span>.<span class="ident">chars</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">to_ascii_lowercase</span>();
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="ident">extension_tag</span>);
-            <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::InExtension</span> { <span class="ident">expected</span>: <span class="bool-val">true</span> };
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">State::InExtension</span> { .. } <span class="op">=</span> <span class="ident">state</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">is_alphanumeric</span>(<span class="ident">subtag</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::InvalidSubtag</span>);
+            <span class="kw">let </span>extension_tag = subtag.chars().next().unwrap().to_ascii_lowercase();
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.push(extension_tag);
+            state = State::InExtension { expected: <span class="bool-val">true </span>};
+        } <span class="kw">else if let </span>State::InExtension { .. } = state {
+            <span class="kw">if </span>!is_alphanumeric(subtag) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidSubtag);
             }
-            <span class="ident">extension_end</span> <span class="op">=</span> <span class="ident">end</span>;
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">extend</span>(<span class="ident">to_lowercase</span>(<span class="ident">subtag</span>));
-            <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::InExtension</span> { <span class="ident">expected</span>: <span class="bool-val">false</span> };
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterLanguage</span> <span class="op">&amp;&amp;</span> <span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">3</span> <span class="op">&amp;&amp;</span> <span class="ident">is_alphabetic</span>(<span class="ident">subtag</span>) {
-            <span class="ident">extlangs_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="kw">if</span> <span class="ident">extlangs_count</span> <span class="op">&gt;</span> <span class="number">3</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::TooManyExtlangs</span>);
+            extension_end = end;
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.extend(to_lowercase(subtag));
+            state = State::InExtension { expected: <span class="bool-val">false </span>};
+        } <span class="kw">else if </span>state == State::AfterLanguage &amp;&amp; subtag.len() == <span class="number">3 </span>&amp;&amp; is_alphabetic(subtag) {
+            extlangs_count += <span class="number">1</span>;
+            <span class="kw">if </span>extlangs_count &gt; <span class="number">3 </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::TooManyExtlangs);
             }
-            <span class="comment">// valid extlangs</span>
-            <span class="ident">extlang_end</span> <span class="op">=</span> <span class="ident">end</span>;
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">extend</span>(<span class="ident">to_lowercase</span>(<span class="ident">subtag</span>));
-        } <span class="kw">else</span> <span class="kw">if</span> (<span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterLanguage</span> <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterExtLang</span>)
-            <span class="op">&amp;&amp;</span> <span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">4</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">is_alphabetic</span>(<span class="ident">subtag</span>)
+            <span class="comment">// valid extlangs
+            </span>extlang_end = end;
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.extend(to_lowercase(subtag));
+        } <span class="kw">else if </span>(state == State::AfterLanguage || state == State::AfterExtLang)
+            &amp;&amp; subtag.len() == <span class="number">4
+            </span>&amp;&amp; is_alphabetic(subtag)
         {
-            <span class="comment">// Script</span>
-            <span class="ident">script_end</span> <span class="op">=</span> <span class="ident">end</span>;
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">extend</span>(<span class="ident">to_uppercase_first</span>(<span class="ident">subtag</span>));
-            <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::AfterScript</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> (<span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterLanguage</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterExtLang</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterScript</span>)
-            <span class="op">&amp;&amp;</span> (<span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> <span class="op">&amp;&amp;</span> <span class="ident">is_alphabetic</span>(<span class="ident">subtag</span>)
-                <span class="op">|</span><span class="op">|</span> <span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">3</span> <span class="op">&amp;&amp;</span> <span class="ident">is_numeric</span>(<span class="ident">subtag</span>))
+            <span class="comment">// Script
+            </span>script_end = end;
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.extend(to_uppercase_first(subtag));
+            state = State::AfterScript;
+        } <span class="kw">else if </span>(state == State::AfterLanguage
+            || state == State::AfterExtLang
+            || state == State::AfterScript)
+            &amp;&amp; (subtag.len() == <span class="number">2 </span>&amp;&amp; is_alphabetic(subtag)
+                || subtag.len() == <span class="number">3 </span>&amp;&amp; is_numeric(subtag))
         {
-            <span class="comment">// Region</span>
-            <span class="ident">region_end</span> <span class="op">=</span> <span class="ident">end</span>;
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">extend</span>(<span class="ident">to_uppercase</span>(<span class="ident">subtag</span>));
-            <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::AfterRegion</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> (<span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterLanguage</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterExtLang</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterScript</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">state</span> <span class="op">==</span> <span class="ident">State::AfterRegion</span>)
-            <span class="op">&amp;&amp;</span> <span class="ident">is_alphanumeric</span>(<span class="ident">subtag</span>)
-            <span class="op">&amp;&amp;</span> (<span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">5</span> <span class="op">&amp;&amp;</span> <span class="ident">is_alphabetic</span>(<span class="kw-2">&amp;</span><span class="ident">subtag</span>[<span class="number">0</span>..<span class="number">1</span>])
-                <span class="op">|</span><span class="op">|</span> <span class="ident">subtag</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">4</span> <span class="op">&amp;&amp;</span> <span class="ident">is_numeric</span>(<span class="kw-2">&amp;</span><span class="ident">subtag</span>[<span class="number">0</span>..<span class="number">1</span>]))
+            <span class="comment">// Region
+            </span>region_end = end;
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.extend(to_uppercase(subtag));
+            state = State::AfterRegion;
+        } <span class="kw">else if </span>(state == State::AfterLanguage
+            || state == State::AfterExtLang
+            || state == State::AfterScript
+            || state == State::AfterRegion)
+            &amp;&amp; is_alphanumeric(subtag)
+            &amp;&amp; (subtag.len() &gt;= <span class="number">5 </span>&amp;&amp; is_alphabetic(<span class="kw-2">&amp;</span>subtag[<span class="number">0</span>..<span class="number">1</span>])
+                || subtag.len() &gt;= <span class="number">4 </span>&amp;&amp; is_numeric(<span class="kw-2">&amp;</span>subtag[<span class="number">0</span>..<span class="number">1</span>]))
         {
-            <span class="comment">// Variant</span>
-            <span class="ident">variant_end</span> <span class="op">=</span> <span class="ident">end</span>;
-            <span class="ident">serialization</span>.<span class="ident">push</span>(<span class="string">&#39;-&#39;</span>);
-            <span class="ident">serialization</span>.<span class="ident">extend</span>(<span class="ident">to_lowercase</span>(<span class="ident">subtag</span>));
-            <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::AfterRegion</span>;
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::InvalidSubtag</span>);
+            <span class="comment">// Variant
+            </span>variant_end = end;
+            serialization.push(<span class="string">&#39;-&#39;</span>);
+            serialization.extend(to_lowercase(subtag));
+            state = State::AfterRegion;
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::InvalidSubtag);
         }
     }
 
-    <span class="comment">//We make sure we are in a correct final state</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">State::InExtension</span> { <span class="ident">expected</span>: <span class="bool-val">true</span> } <span class="op">=</span> <span class="ident">state</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::EmptyExtension</span>);
+    <span class="comment">//We make sure we are in a correct final state
+    </span><span class="kw">if let </span>State::InExtension { expected: <span class="bool-val">true </span>} = state {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::EmptyExtension);
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">State::InPrivateUse</span> { <span class="ident">expected</span>: <span class="bool-val">true</span> } <span class="op">=</span> <span class="ident">state</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::EmptyPrivateUse</span>);
-    }
-
-    <span class="comment">//We make sure we have not skipped anyone</span>
-    <span class="kw">if</span> <span class="ident">extlang_end</span> <span class="op">&lt;</span> <span class="ident">language_end</span> {
-        <span class="ident">extlang_end</span> <span class="op">=</span> <span class="ident">language_end</span>;
-    }
-    <span class="kw">if</span> <span class="ident">script_end</span> <span class="op">&lt;</span> <span class="ident">extlang_end</span> {
-        <span class="ident">script_end</span> <span class="op">=</span> <span class="ident">extlang_end</span>;
-    }
-    <span class="kw">if</span> <span class="ident">region_end</span> <span class="op">&lt;</span> <span class="ident">script_end</span> {
-        <span class="ident">region_end</span> <span class="op">=</span> <span class="ident">script_end</span>;
-    }
-    <span class="kw">if</span> <span class="ident">variant_end</span> <span class="op">&lt;</span> <span class="ident">region_end</span> {
-        <span class="ident">variant_end</span> <span class="op">=</span> <span class="ident">region_end</span>;
-    }
-    <span class="kw">if</span> <span class="ident">extension_end</span> <span class="op">&lt;</span> <span class="ident">variant_end</span> {
-        <span class="ident">extension_end</span> <span class="op">=</span> <span class="ident">variant_end</span>;
+    <span class="kw">if let </span>State::InPrivateUse { expected: <span class="bool-val">true </span>} = state {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::EmptyPrivateUse);
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">LanguageTag</span> {
-        <span class="ident">serialization</span>,
-        <span class="ident">language_end</span>,
-        <span class="ident">extlang_end</span>,
-        <span class="ident">script_end</span>,
-        <span class="ident">region_end</span>,
-        <span class="ident">variant_end</span>,
-        <span class="ident">extension_end</span>,
+    <span class="comment">//We make sure we have not skipped anyone
+    </span><span class="kw">if </span>extlang_end &lt; language_end {
+        extlang_end = language_end;
+    }
+    <span class="kw">if </span>script_end &lt; extlang_end {
+        script_end = extlang_end;
+    }
+    <span class="kw">if </span>region_end &lt; script_end {
+        region_end = script_end;
+    }
+    <span class="kw">if </span>variant_end &lt; region_end {
+        variant_end = region_end;
+    }
+    <span class="kw">if </span>extension_end &lt; variant_end {
+        extension_end = variant_end;
+    }
+
+    <span class="prelude-val">Ok</span>(LanguageTag {
+        serialization,
+        language_end,
+        extlang_end,
+        script_end,
+        region_end,
+        variant_end,
+        extension_end,
     })
 }
 
-<span class="kw">struct</span> <span class="ident">ExtensionsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+<span class="kw">struct </span>ExtensionsIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ExtensionsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">input</span> }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ExtensionsIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>new(input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ input }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">ExtensionsIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="ident">char</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>ExtensionsIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = (char, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str);
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">char</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parts_iterator</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">split_terminator</span>(<span class="string">&#39;-&#39;</span>);
-        <span class="kw">let</span> <span class="ident">singleton</span> <span class="op">=</span> <span class="ident">parts_iterator</span>.<span class="ident">next</span>()<span class="question-mark">?</span>.<span class="ident">chars</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content_size</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">2</span>;
-        <span class="kw">for</span> <span class="ident">part</span> <span class="kw">in</span> <span class="ident">parts_iterator</span> {
-            <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-                <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>[<span class="number">2</span>..<span class="ident">content_size</span> <span class="op">-</span> <span class="number">1</span>];
-                <span class="self">self</span>.<span class="ident">input</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>[<span class="ident">content_size</span>..];
-                <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">singleton</span>, <span class="ident">content</span>));
-            } <span class="kw">else</span> {
-                <span class="ident">content_size</span> <span class="op">+</span><span class="op">=</span> <span class="ident">part</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(char, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>parts_iterator = <span class="self">self</span>.input.split_terminator(<span class="string">&#39;-&#39;</span>);
+        <span class="kw">let </span>singleton = parts_iterator.next()<span class="question-mark">?</span>.chars().next().unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>content_size: usize = <span class="number">2</span>;
+        <span class="kw">for </span>part <span class="kw">in </span>parts_iterator {
+            <span class="kw">if </span>part.len() == <span class="number">1 </span>{
+                <span class="kw">let </span>content = <span class="kw-2">&amp;</span><span class="self">self</span>.input[<span class="number">2</span>..content_size - <span class="number">1</span>];
+                <span class="self">self</span>.input = <span class="kw-2">&amp;</span><span class="self">self</span>.input[content_size..];
+                <span class="kw">return </span><span class="prelude-val">Some</span>((singleton, content));
+            } <span class="kw">else </span>{
+                content_size += part.len() + <span class="number">1</span>;
             }
         }
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">get</span>(<span class="number">2</span>..).<span class="ident">map</span>(<span class="op">|</span><span class="ident">content</span><span class="op">|</span> (<span class="ident">singleton</span>, <span class="ident">content</span>));
-        <span class="self">self</span>.<span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>;
-        <span class="ident">result</span>
+        <span class="kw">let </span>result = <span class="self">self</span>.input.get(<span class="number">2</span>..).map(|content| (singleton, content));
+        <span class="self">self</span>.input = <span class="string">&quot;&quot;</span>;
+        result
     }
 }
 
-<span class="kw">struct</span> <span class="ident">SubTagIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">split</span>: <span class="ident">Split</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">char</span><span class="op">&gt;</span>,
-    <span class="ident">position</span>: <span class="ident">usize</span>,
+<span class="kw">struct </span>SubTagIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    split: Split&lt;<span class="lifetime">&#39;a</span>, char&gt;,
+    position: usize,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">SubTagIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">split</span>: <span class="ident">input</span>.<span class="ident">split</span>(<span class="string">&#39;-&#39;</span>),
-            <span class="ident">position</span>: <span class="number">0</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SubTagIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>new(input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            split: input.split(<span class="string">&#39;-&#39;</span>),
+            position: <span class="number">0</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">SubTagIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">usize</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>SubTagIterator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, usize);
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">tag</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">split</span>.<span class="ident">next</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">tag_end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">position</span> <span class="op">+</span> <span class="ident">tag</span>.<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">position</span> <span class="op">=</span> <span class="ident">tag_end</span> <span class="op">+</span> <span class="number">1</span>;
-        <span class="prelude-val">Some</span>((<span class="ident">tag</span>, <span class="ident">tag_end</span>))
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, usize)&gt; {
+        <span class="kw">let </span>tag = <span class="self">self</span>.split.next()<span class="question-mark">?</span>;
+        <span class="kw">let </span>tag_end = <span class="self">self</span>.position + tag.len();
+        <span class="self">self</span>.position = tag_end + <span class="number">1</span>;
+        <span class="prelude-val">Some</span>((tag, tag_end))
     }
 }
 
-<span class="kw">struct</span> <span class="ident">AlphanumericLowerCharSet</span> {
-    <span class="ident">alphabetic_set</span>: [<span class="ident">bool</span>; <span class="number">26</span>],
-    <span class="ident">numeric_set</span>: [<span class="ident">bool</span>; <span class="number">10</span>],
+<span class="kw">struct </span>AlphanumericLowerCharSet {
+    alphabetic_set: [bool; <span class="number">26</span>],
+    numeric_set: [bool; <span class="number">10</span>],
 }
 
-<span class="kw">impl</span> <span class="ident">AlphanumericLowerCharSet</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">alphabetic_set</span>: [<span class="bool-val">false</span>; <span class="number">26</span>],
-            <span class="ident">numeric_set</span>: [<span class="bool-val">false</span>; <span class="number">10</span>],
+<span class="kw">impl </span>AlphanumericLowerCharSet {
+    <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            alphabetic_set: [<span class="bool-val">false</span>; <span class="number">26</span>],
+            numeric_set: [<span class="bool-val">false</span>; <span class="number">10</span>],
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_ascii_digit</span>() {
-            <span class="self">self</span>.<span class="ident">numeric_set</span>[<span class="ident">char_sub</span>(<span class="ident">c</span>, <span class="string">&#39;0&#39;</span>)]
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_ascii_lowercase</span>() {
-            <span class="self">self</span>.<span class="ident">alphabetic_set</span>[<span class="ident">char_sub</span>(<span class="ident">c</span>, <span class="string">&#39;a&#39;</span>)]
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_ascii_uppercase</span>() {
-            <span class="self">self</span>.<span class="ident">alphabetic_set</span>[<span class="ident">char_sub</span>(<span class="ident">c</span>, <span class="string">&#39;A&#39;</span>)]
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+    <span class="kw">fn </span>contains(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) -&gt; bool {
+        <span class="kw">if </span>c.is_ascii_digit() {
+            <span class="self">self</span>.numeric_set[char_sub(c, <span class="string">&#39;0&#39;</span>)]
+        } <span class="kw">else if </span>c.is_ascii_lowercase() {
+            <span class="self">self</span>.alphabetic_set[char_sub(c, <span class="string">&#39;a&#39;</span>)]
+        } <span class="kw">else if </span>c.is_ascii_uppercase() {
+            <span class="self">self</span>.alphabetic_set[char_sub(c, <span class="string">&#39;A&#39;</span>)]
+        } <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     }
 
-    <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">c</span>: <span class="ident">char</span>) {
-        <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_ascii_digit</span>() {
-            <span class="self">self</span>.<span class="ident">numeric_set</span>[<span class="ident">char_sub</span>(<span class="ident">c</span>, <span class="string">&#39;0&#39;</span>)] <span class="op">=</span> <span class="bool-val">true</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_ascii_lowercase</span>() {
-            <span class="self">self</span>.<span class="ident">alphabetic_set</span>[<span class="ident">char_sub</span>(<span class="ident">c</span>, <span class="string">&#39;a&#39;</span>)] <span class="op">=</span> <span class="bool-val">true</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_ascii_uppercase</span>() {
-            <span class="self">self</span>.<span class="ident">alphabetic_set</span>[<span class="ident">char_sub</span>(<span class="ident">c</span>, <span class="string">&#39;A&#39;</span>)] <span class="op">=</span> <span class="bool-val">true</span>
-        }
+    <span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) {
+        <span class="kw">if </span>c.is_ascii_digit() {
+            <span class="self">self</span>.numeric_set[char_sub(c, <span class="string">&#39;0&#39;</span>)] = <span class="bool-val">true
+        </span>} <span class="kw">else if </span>c.is_ascii_lowercase() {
+            <span class="self">self</span>.alphabetic_set[char_sub(c, <span class="string">&#39;a&#39;</span>)] = <span class="bool-val">true
+        </span>} <span class="kw">else if </span>c.is_ascii_uppercase() {
+            <span class="self">self</span>.alphabetic_set[char_sub(c, <span class="string">&#39;A&#39;</span>)] = <span class="bool-val">true
+        </span>}
     }
 }
 
-<span class="kw">fn</span> <span class="ident">char_sub</span>(<span class="ident">c1</span>: <span class="ident">char</span>, <span class="ident">c2</span>: <span class="ident">char</span>) -&gt; <span class="ident">usize</span> {
-    (<span class="ident">c1</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">-</span> (<span class="ident">c2</span> <span class="kw">as</span> <span class="ident">usize</span>)
+<span class="kw">fn </span>char_sub(c1: char, c2: char) -&gt; usize {
+    (c1 <span class="kw">as </span>usize) - (c2 <span class="kw">as </span>usize)
 }
 
-<span class="kw">fn</span> <span class="ident">is_alphabetic</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_ascii_alphabetic</span>())
+<span class="kw">fn </span>is_alphabetic(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    s.chars().all(|x| x.is_ascii_alphabetic())
 }
 
-<span class="kw">fn</span> <span class="ident">is_numeric</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_ascii_digit</span>())
+<span class="kw">fn </span>is_numeric(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    s.chars().all(|x| x.is_ascii_digit())
 }
 
-<span class="kw">fn</span> <span class="ident">is_alphanumeric</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_ascii_alphanumeric</span>())
+<span class="kw">fn </span>is_alphanumeric(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    s.chars().all(|x| x.is_ascii_alphanumeric())
 }
 
-<span class="kw">fn</span> <span class="ident">is_alphanumeric_or_dash</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_ascii_alphanumeric</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span>)
+<span class="kw">fn </span>is_alphanumeric_or_dash(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    s.chars().all(|x| x.is_ascii_alphanumeric() || x == <span class="string">&#39;-&#39;</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">to_uppercase</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">char</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
-    <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">to_ascii_uppercase</span>())
+<span class="kw">fn </span>to_uppercase(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str) -&gt; <span class="kw">impl </span>Iterator&lt;Item = char&gt; + <span class="lifetime">&#39;_ </span>{
+    s.chars().map(|c| c.to_ascii_uppercase())
 }
 
-<span class="comment">// Beware: panics if s.len() == 0 (should never happen in our code)</span>
-<span class="kw">fn</span> <span class="ident">to_uppercase_first</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">char</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chars</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">chars</span>();
-    <span class="ident">once</span>(<span class="ident">chars</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">to_ascii_uppercase</span>()).<span class="ident">chain</span>(<span class="ident">chars</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">to_ascii_lowercase</span>()))
+<span class="comment">// Beware: panics if s.len() == 0 (should never happen in our code)
+</span><span class="kw">fn </span>to_uppercase_first(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str) -&gt; <span class="kw">impl </span>Iterator&lt;Item = char&gt; + <span class="lifetime">&#39;_ </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>chars = s.chars();
+    once(chars.next().unwrap().to_ascii_uppercase()).chain(chars.map(|c| c.to_ascii_lowercase()))
 }
 
-<span class="kw">fn</span> <span class="ident">to_lowercase</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">str</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">char</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
-    <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">to_ascii_lowercase</span>())
+<span class="kw">fn </span>to_lowercase(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>str) -&gt; <span class="kw">impl </span>Iterator&lt;Item = char&gt; + <span class="lifetime">&#39;_ </span>{
+    s.chars().map(|c| c.to_ascii_lowercase())
 }
 
-<span class="doccomment">/// Errors returned by `LanguageTag` parsing</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ParseError</span> {
-    <span class="doccomment">/// If an extension subtag is present, it must not be empty.</span>
-    <span class="ident">EmptyExtension</span>,
-    <span class="doccomment">/// If the `x` subtag is present, it must not be empty.</span>
-    <span class="ident">EmptyPrivateUse</span>,
-    <span class="doccomment">/// The langtag contains a char that is not A-Z, a-z, 0-9 or the dash.</span>
-    <span class="ident">ForbiddenChar</span>,
-    <span class="doccomment">/// A subtag fails to parse, it does not match any other subtags.</span>
-    <span class="ident">InvalidSubtag</span>,
-    <span class="doccomment">/// The given language subtag is invalid.</span>
-    <span class="ident">InvalidLanguage</span>,
-    <span class="doccomment">/// A subtag may be eight characters in length at maximum.</span>
-    <span class="ident">SubtagTooLong</span>,
-    <span class="doccomment">/// A subtag should not be empty.</span>
-    <span class="ident">EmptySubtag</span>,
-    <span class="doccomment">/// At maximum three extlangs are allowed, but zero to one extlangs are preferred.</span>
-    <span class="ident">TooManyExtlangs</span>,
+<span class="doccomment">/// Errors returned by `LanguageTag` parsing
+</span><span class="attribute">#[derive(Clone, Debug, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>ParseError {
+    <span class="doccomment">/// If an extension subtag is present, it must not be empty.
+    </span>EmptyExtension,
+    <span class="doccomment">/// If the `x` subtag is present, it must not be empty.
+    </span>EmptyPrivateUse,
+    <span class="doccomment">/// The langtag contains a char that is not A-Z, a-z, 0-9 or the dash.
+    </span>ForbiddenChar,
+    <span class="doccomment">/// A subtag fails to parse, it does not match any other subtags.
+    </span>InvalidSubtag,
+    <span class="doccomment">/// The given language subtag is invalid.
+    </span>InvalidLanguage,
+    <span class="doccomment">/// A subtag may be eight characters in length at maximum.
+    </span>SubtagTooLong,
+    <span class="doccomment">/// A subtag should not be empty.
+    </span>EmptySubtag,
+    <span class="doccomment">/// At maximum three extlangs are allowed, but zero to one extlangs are preferred.
+    </span>TooManyExtlangs,
 }
 
-<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">ParseError</span> {}
+<span class="kw">impl </span>Error <span class="kw">for </span>ParseError {}
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ParseError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::EmptyExtension</span> =&gt; <span class="string">&quot;if an extension subtag is present, it must not be empty&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::EmptyPrivateUse</span> =&gt; <span class="string">&quot;if the `x` subtag is present, it must not be empty&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::ForbiddenChar</span> =&gt; <span class="string">&quot;the langtag contains a char not allowed&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::InvalidSubtag</span> =&gt; <span class="string">&quot;a subtag fails to parse, it does not match any other subtags&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::InvalidLanguage</span> =&gt; <span class="string">&quot;the given language subtag is invalid&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::SubtagTooLong</span> =&gt; <span class="string">&quot;a subtag may be eight characters in length at maximum&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::EmptySubtag</span> =&gt; <span class="string">&quot;a subtag should not be empty&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::TooManyExtlangs</span> =&gt; <span class="string">&quot;at maximum three extlangs are allowed&quot;</span>,
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>ParseError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::EmptyExtension =&gt; <span class="string">&quot;if an extension subtag is present, it must not be empty&quot;</span>,
+            <span class="self">Self</span>::EmptyPrivateUse =&gt; <span class="string">&quot;if the `x` subtag is present, it must not be empty&quot;</span>,
+            <span class="self">Self</span>::ForbiddenChar =&gt; <span class="string">&quot;the langtag contains a char not allowed&quot;</span>,
+            <span class="self">Self</span>::InvalidSubtag =&gt; <span class="string">&quot;a subtag fails to parse, it does not match any other subtags&quot;</span>,
+            <span class="self">Self</span>::InvalidLanguage =&gt; <span class="string">&quot;the given language subtag is invalid&quot;</span>,
+            <span class="self">Self</span>::SubtagTooLong =&gt; <span class="string">&quot;a subtag may be eight characters in length at maximum&quot;</span>,
+            <span class="self">Self</span>::EmptySubtag =&gt; <span class="string">&quot;a subtag should not be empty&quot;</span>,
+            <span class="self">Self</span>::TooManyExtlangs =&gt; <span class="string">&quot;at maximum three extlangs are allowed&quot;</span>,
         })
     }
 }
 
-<span class="doccomment">/// Errors returned by the `LanguageTag` validation</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ValidationError</span> {
-    <span class="doccomment">/// The same variant subtag is only allowed once in a tag.</span>
-    <span class="ident">DuplicateVariant</span>,
-    <span class="doccomment">/// The same extension subtag is only allowed once in a tag before the private use part.</span>
-    <span class="ident">DuplicateExtension</span>,
-    <span class="doccomment">/// only one extended language subtag is allowed</span>
-    <span class="ident">MultipleExtendedLanguageSubtags</span>,
-    <span class="doccomment">/// The primary language is not in the IANA Language Subtag Registry</span>
-    <span class="ident">PrimaryLanguageNotInRegistry</span>,
-    <span class="doccomment">/// The extended language is not in the IANA Language Subtag Registry</span>
-    <span class="ident">ExtendedLanguageNotInRegistry</span>,
-    <span class="doccomment">/// The script is not in the IANA Language Subtag Registry</span>
-    <span class="ident">ScriptNotInRegistry</span>,
-    <span class="doccomment">/// The region is not in the IANA Language Subtag Registry</span>
-    <span class="ident">RegionNotInRegistry</span>,
-    <span class="doccomment">/// A variant is not in the IANA Language Subtag Registry</span>
-    <span class="ident">VariantNotInRegistry</span>,
-    <span class="doccomment">/// The primary language is not the expected extended language prefix from the IANA Language Subtag Registry</span>
-    <span class="ident">WrongExtendedLanguagePrefix</span>,
-    <span class="doccomment">/// The language tag has not one of the expected variant prefix from the IANA Language Subtag Registry</span>
-    <span class="ident">WrongVariantPrefix</span>,
+<span class="doccomment">/// Errors returned by the `LanguageTag` validation
+</span><span class="attribute">#[derive(Clone, Debug, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>ValidationError {
+    <span class="doccomment">/// The same variant subtag is only allowed once in a tag.
+    </span>DuplicateVariant,
+    <span class="doccomment">/// The same extension subtag is only allowed once in a tag before the private use part.
+    </span>DuplicateExtension,
+    <span class="doccomment">/// only one extended language subtag is allowed
+    </span>MultipleExtendedLanguageSubtags,
+    <span class="doccomment">/// The primary language is not in the IANA Language Subtag Registry
+    </span>PrimaryLanguageNotInRegistry,
+    <span class="doccomment">/// The extended language is not in the IANA Language Subtag Registry
+    </span>ExtendedLanguageNotInRegistry,
+    <span class="doccomment">/// The script is not in the IANA Language Subtag Registry
+    </span>ScriptNotInRegistry,
+    <span class="doccomment">/// The region is not in the IANA Language Subtag Registry
+    </span>RegionNotInRegistry,
+    <span class="doccomment">/// A variant is not in the IANA Language Subtag Registry
+    </span>VariantNotInRegistry,
+    <span class="doccomment">/// The primary language is not the expected extended language prefix from the IANA Language Subtag Registry
+    </span>WrongExtendedLanguagePrefix,
+    <span class="doccomment">/// The language tag has not one of the expected variant prefix from the IANA Language Subtag Registry
+    </span>WrongVariantPrefix,
 }
 
-<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">ValidationError</span> {}
+<span class="kw">impl </span>Error <span class="kw">for </span>ValidationError {}
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ValidationError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::DuplicateVariant</span> =&gt; {
-                <span class="string">&quot;the same variant subtag is only allowed once in a tag&quot;</span>
-            }
-            <span class="ident"><span class="self">Self</span>::DuplicateExtension</span> =&gt; {
-                <span class="string">&quot;the same extension subtag is only allowed once in a tag&quot;</span>
-            }
-            <span class="ident"><span class="self">Self</span>::MultipleExtendedLanguageSubtags</span> =&gt; {
-                <span class="string">&quot;only one extended language subtag is allowed&quot;</span>
-            }
-            <span class="ident"><span class="self">Self</span>::PrimaryLanguageNotInRegistry</span> =&gt; {
-                <span class="string">&quot;the primary language is not in the IANA Language Subtag Registry&quot;</span>
-            }
-            <span class="ident"><span class="self">Self</span>::ExtendedLanguageNotInRegistry</span> =&gt; {
-                <span class="string">&quot;the extended language is not in the IANA Language Subtag Registry&quot;</span>
-            }
-            <span class="ident"><span class="self">Self</span>::ScriptNotInRegistry</span> =&gt; {
-                <span class="string">&quot;the script is not in the IANA Language Subtag Registry&quot;</span>
-            }
-            <span class="ident"><span class="self">Self</span>::RegionNotInRegistry</span> =&gt; {
-                <span class="string">&quot;the region is not in the IANA Language Subtag Registry&quot;</span>
-            }
-            <span class="ident"><span class="self">Self</span>::VariantNotInRegistry</span> =&gt; {
-                <span class="string">&quot;a variant is not in the IANA Language Subtag Registry&quot;</span>
-            }
-            <span class="ident"><span class="self">Self</span>::WrongExtendedLanguagePrefix</span> =&gt; {
-                <span class="string">&quot;the primary language is not the expected extended language prefix from the IANA Language Subtag Registry&quot;</span>
-            }
-            <span class="ident"><span class="self">Self</span>::WrongVariantPrefix</span> =&gt; {
-                <span class="string">&quot;the language tag has not one of the expected variant prefix from the IANA Language Subtag Registry&quot;</span>
-            }
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>ValidationError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::DuplicateVariant =&gt; {
+                <span class="string">&quot;the same variant subtag is only allowed once in a tag&quot;
+            </span>}
+            <span class="self">Self</span>::DuplicateExtension =&gt; {
+                <span class="string">&quot;the same extension subtag is only allowed once in a tag&quot;
+            </span>}
+            <span class="self">Self</span>::MultipleExtendedLanguageSubtags =&gt; {
+                <span class="string">&quot;only one extended language subtag is allowed&quot;
+            </span>}
+            <span class="self">Self</span>::PrimaryLanguageNotInRegistry =&gt; {
+                <span class="string">&quot;the primary language is not in the IANA Language Subtag Registry&quot;
+            </span>}
+            <span class="self">Self</span>::ExtendedLanguageNotInRegistry =&gt; {
+                <span class="string">&quot;the extended language is not in the IANA Language Subtag Registry&quot;
+            </span>}
+            <span class="self">Self</span>::ScriptNotInRegistry =&gt; {
+                <span class="string">&quot;the script is not in the IANA Language Subtag Registry&quot;
+            </span>}
+            <span class="self">Self</span>::RegionNotInRegistry =&gt; {
+                <span class="string">&quot;the region is not in the IANA Language Subtag Registry&quot;
+            </span>}
+            <span class="self">Self</span>::VariantNotInRegistry =&gt; {
+                <span class="string">&quot;a variant is not in the IANA Language Subtag Registry&quot;
+            </span>}
+            <span class="self">Self</span>::WrongExtendedLanguagePrefix =&gt; {
+                <span class="string">&quot;the primary language is not the expected extended language prefix from the IANA Language Subtag Registry&quot;
+            </span>}
+            <span class="self">Self</span>::WrongVariantPrefix =&gt; {
+                <span class="string">&quot;the language tag has not one of the expected variant prefix from the IANA Language Subtag Registry&quot;
+            </span>}
         })
     }
 }
 
-<span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">start</span>: <span class="ident">T</span>, <span class="ident">end</span>: <span class="ident">T</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">start</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">value</span> <span class="op">&amp;&amp;</span> <span class="ident">value</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">end</span>
+<span class="kw">fn </span>between&lt;T: Ord&gt;(value: T, start: T, end: T) -&gt; bool {
+    start &lt;= value &amp;&amp; value &lt;= end
 }
 
-<span class="kw">fn</span> <span class="ident">is_in_str_slice_set</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>], <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">slice</span>.<span class="ident">binary_search</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>).<span class="ident">is_ok</span>()
+<span class="kw">fn </span>is_in_str_slice_set(slice: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str], value: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    slice.binary_search(<span class="kw-2">&amp;</span>value).is_ok()
 }
 
-<span class="kw">fn</span> <span class="ident">is_in_from_str_slice_set</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">FromStr</span><span class="op">&gt;</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>], <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">match</span> <span class="ident">T::from_str</span>(<span class="ident">value</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">key</span>) =&gt; <span class="ident">slice</span>.<span class="ident">binary_search</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>).<span class="ident">is_ok</span>(),
+<span class="kw">fn </span>is_in_from_str_slice_set&lt;T: Copy + Ord + FromStr&gt;(slice: <span class="kw-2">&amp;</span>[T], value: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    <span class="kw">match </span>T::from_str(value) {
+        <span class="prelude-val">Ok</span>(key) =&gt; slice.binary_search(<span class="kw-2">&amp;</span>key).is_ok(),
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
     }
 }
 
-<span class="kw">fn</span> <span class="ident">find_in_str_slice_map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">V</span>)], <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">position</span>) <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">binary_search_by_key</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="number">0</span>) {
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">slice</span>[<span class="ident">position</span>].<span class="number">1</span>)
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    }
+<span class="kw">fn </span>find_in_str_slice_map&lt;<span class="lifetime">&#39;a</span>, V&gt;(slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, V)], value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>V&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(position) = slice.binary_search_by_key(<span class="kw-2">&amp;</span>value, |t| t.<span class="number">0</span>) {
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>slice[position].<span class="number">1</span>)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="kw">fn</span> <span class="ident">find_in_from_str_slice_map</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">FromStr</span>, <span class="ident">V</span>: <span class="ident">Deref</span><span class="op">&lt;</span><span class="ident">Target</span> <span class="op">=</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-    <span class="ident">slice</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [(<span class="ident">K</span>, <span class="ident">V</span>)],
-    <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">position</span>) <span class="op">=</span> <span class="ident">slice</span>.<span class="ident">binary_search_by_key</span>(<span class="kw-2">&amp;</span><span class="ident">K::from_str</span>(<span class="ident">value</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="number">0</span>) {
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">slice</span>[<span class="ident">position</span>].<span class="number">1</span>)
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    }
+<span class="kw">fn </span>find_in_from_str_slice_map&lt;<span class="lifetime">&#39;a</span>, K: Copy + Ord + FromStr, V: Deref&lt;Target = str&gt;&gt;(
+    slice: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[(K, V)],
+    value: <span class="kw-2">&amp;</span>str,
+) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(position) = slice.binary_search_by_key(<span class="kw-2">&amp;</span>K::from_str(value).ok()<span class="question-mark">?</span>, |t| t.<span class="number">0</span>) {
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;*</span>slice[position].<span class="number">1</span>)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="language_tags" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="language_tags" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

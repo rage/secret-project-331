@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercises.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercises.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -715,87 +715,87 @@
 <span id="715">715</span>
 <span id="716">716</span>
 <span id="717">717</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">course_instances</span>, <span class="ident">exams</span>,
-    <span class="ident">exercise_slide_submissions</span>::{
-        <span class="ident">get_exercise_slide_submission_counts_for_exercise_user</span>, <span class="ident">ExerciseSlideSubmission</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    course_instances, exams,
+    exercise_slide_submissions::{
+        get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
     },
-    <span class="ident">exercise_slides</span>::{<span class="self">self</span>, <span class="ident">CourseMaterialExerciseSlide</span>},
-    <span class="ident">exercise_tasks</span>,
-    <span class="ident">peer_review_configs::CourseMaterialPeerReviewConfig</span>,
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">user_course_settings</span>,
-    <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">CourseInstanceOrExamId</span>, <span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseState</span>},
-    <span class="ident">CourseOrExamId</span>,
+    exercise_slides::{<span class="self">self</span>, CourseMaterialExerciseSlide},
+    exercise_tasks,
+    peer_review_configs::CourseMaterialPeerReviewConfig,
+    prelude::<span class="kw-2">*</span>,
+    user_course_settings,
+    user_exercise_states::{<span class="self">self</span>, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
+    CourseOrExamId,
 };
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span class="kw">use </span>std::collections::HashMap;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Exercise</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">score_maximum</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">max_tries_per_slide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">limit_number_of_tries</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">needs_peer_review</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">use_course_default_peer_review_config</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>Exercise {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>course_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>page_id: Uuid,
+    <span class="kw">pub </span>chapter_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>deadline: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>score_maximum: i32,
+    <span class="kw">pub </span>order_number: i32,
+    <span class="kw">pub </span>copied_from: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>max_tries_per_slide: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>limit_number_of_tries: bool,
+    <span class="kw">pub </span>needs_peer_review: bool,
+    <span class="kw">pub </span>use_course_default_peer_review_config: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">Exercise</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">course_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::Generic</span>,
-                <span class="string">&quot;Exercise is not related to a course.&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">impl </span>Exercise {
+    <span class="kw">pub fn </span>get_course_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ModelResult&lt;Uuid&gt; {
+        <span class="self">self</span>.course_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                <span class="string">&quot;Exercise is not related to a course.&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )
         })
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialExercise</span> {
-    <span class="kw">pub</span> <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
-    <span class="kw">pub</span> <span class="ident">can_post_submission</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">current_exercise_slide</span>: <span class="ident">CourseMaterialExerciseSlide</span>,
-    <span class="doccomment">/// None for logged out users.</span>
-    <span class="kw">pub</span> <span class="ident">exercise_status</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseStatus</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">ts</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;Record&lt;string, number&gt;&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="ident">exercise_slide_submission_counts</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_config</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewConfig</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">previous_exercise_slide_submission</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmission</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseMaterialExercise {
+    <span class="kw">pub </span>exercise: Exercise,
+    <span class="kw">pub </span>can_post_submission: bool,
+    <span class="kw">pub </span>current_exercise_slide: CourseMaterialExerciseSlide,
+    <span class="doccomment">/// None for logged out users.
+    </span><span class="kw">pub </span>exercise_status: <span class="prelude-ty">Option</span>&lt;ExerciseStatus&gt;,
+    <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, ts(<span class="kw">type </span>= <span class="string">&quot;Record&lt;string, number&gt;&quot;</span>))]
+    </span><span class="kw">pub </span>exercise_slide_submission_counts: HashMap&lt;Uuid, i64&gt;,
+    <span class="kw">pub </span>peer_review_config: <span class="prelude-ty">Option</span>&lt;CourseMaterialPeerReviewConfig&gt;,
+    <span class="kw">pub </span>previous_exercise_slide_submission: <span class="prelude-ty">Option</span>&lt;ExerciseSlideSubmission&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">CourseMaterialExercise</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_grading_information</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">exercise_status</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="self">self</span>.<span class="ident">current_exercise_slide</span>
-            .<span class="ident">exercise_tasks</span>
-            .<span class="ident">iter_mut</span>()
-            .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">task</span><span class="op">|</span> {
-                <span class="ident">task</span>.<span class="ident">model_solution_spec</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="ident">task</span>.<span class="ident">previous_submission_grading</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+<span class="kw">impl </span>CourseMaterialExercise {
+    <span class="kw">pub fn </span>clear_grading_information(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.exercise_status = <span class="prelude-val">None</span>;
+        <span class="self">self</span>.current_exercise_slide
+            .exercise_tasks
+            .iter_mut()
+            .for_each(|task| {
+                task.model_solution_spec = <span class="prelude-val">None</span>;
+                task.previous_submission_grading = <span class="prelude-val">None</span>;
             });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_model_solution_specs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">current_exercise_slide</span>
-            .<span class="ident">exercise_tasks</span>
-            .<span class="ident">iter_mut</span>()
-            .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">task</span><span class="op">|</span> {
-                <span class="ident">task</span>.<span class="ident">model_solution_spec</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>clear_model_solution_specs(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.current_exercise_slide
+            .exercise_tasks
+            .iter_mut()
+            .for_each(|task| {
+                task.model_solution_spec = <span class="prelude-val">None</span>;
             });
     }
 }
@@ -804,26 +804,26 @@
 Indicates what is the user&#39;s completion status for a exercise.
 
 As close as possible to LTI&#39;s activity progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress&gt;.
-*/</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">sqlx::Type</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;activity_progress&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ActivityProgress</span> {
-    <span class="doccomment">/// The user has not started the activity, or the activity has been reset for that student.</span>
-    <span class="ident">Initialized</span>,
-    <span class="doccomment">/// The activity associated with the exercise has been started by the user to which the result relates.</span>
-    <span class="ident">Started</span>,
-    <span class="doccomment">/// The activity is being drafted and is available for comment.</span>
-    <span class="ident">InProgress</span>,
-    <span class="doccomment">/// The activity has been submitted at least once by the user but the user is still able make further submissions.</span>
-    <span class="ident">Submitted</span>,
-    <span class="doccomment">/// The user has completed the activity associated with the exercise.</span>
-    <span class="ident">Completed</span>,
+*/
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">&quot;activity_progress&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+</span><span class="kw">pub enum </span>ActivityProgress {
+    <span class="doccomment">/// The user has not started the activity, or the activity has been reset for that student.
+    </span>Initialized,
+    <span class="doccomment">/// The activity associated with the exercise has been started by the user to which the result relates.
+    </span>Started,
+    <span class="doccomment">/// The activity is being drafted and is available for comment.
+    </span>InProgress,
+    <span class="doccomment">/// The activity has been submitted at least once by the user but the user is still able make further submissions.
+    </span>Submitted,
+    <span class="doccomment">/// The user has completed the activity associated with the exercise.
+    </span>Completed,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ActivityProgress</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ActivityProgress::Initialized</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>ActivityProgress {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        ActivityProgress::Initialized
     }
 }
 
@@ -832,51 +832,51 @@ As close as possible to LTI&#39;s activity progress for compatibility: &lt;https
 Tells what&#39;s the status of the grading progress for a user and exercise.
 
 As close as possible LTI&#39;s grading progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress&gt;
-*/</span>
-<span class="attribute">#[<span class="ident">derive</span>(
-    <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Ord</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">sqlx::Type</span>,
-)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;grading_progress&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GradingProgress</span> {
-    <span class="doccomment">/// The grading could not complete.</span>
-    <span class="ident">Failed</span>,
-    <span class="doccomment">/// There is no grading process occurring; for example, the student has not yet made any submission.</span>
-    <span class="ident">NotReady</span>,
-    <span class="doccomment">/// Final Grade is pending, and it does require human intervention; if a Score value is present, it indicates the current value is partial and may be updated during the manual grading.</span>
-    <span class="ident">PendingManual</span>,
-    <span class="doccomment">/// Final Grade is pending, but does not require manual intervention; if a Score value is present, it indicates the current value is partial and may be updated.</span>
-    <span class="ident">Pending</span>,
-    <span class="doccomment">/// The grading process is completed; the score value, if any, represents the current Final Grade;</span>
-    <span class="ident">FullyGraded</span>,
+*/
+</span><span class="attribute">#[derive(
+    Clone, Copy, Debug, Deserialize, Eq, Serialize, Ord, PartialEq, PartialOrd, sqlx::Type,
+)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">&quot;grading_progress&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+</span><span class="kw">pub enum </span>GradingProgress {
+    <span class="doccomment">/// The grading could not complete.
+    </span>Failed,
+    <span class="doccomment">/// There is no grading process occurring; for example, the student has not yet made any submission.
+    </span>NotReady,
+    <span class="doccomment">/// Final Grade is pending, and it does require human intervention; if a Score value is present, it indicates the current value is partial and may be updated during the manual grading.
+    </span>PendingManual,
+    <span class="doccomment">/// Final Grade is pending, but does not require manual intervention; if a Score value is present, it indicates the current value is partial and may be updated.
+    </span>Pending,
+    <span class="doccomment">/// The grading process is completed; the score value, if any, represents the current Final Grade;
+    </span>FullyGraded,
 }
 
-<span class="kw">impl</span> <span class="ident">GradingProgress</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_complete</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span> <span class="op">==</span> <span class="ident"><span class="self">Self</span>::FullyGraded</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="ident"><span class="self">Self</span>::Failed</span>
+<span class="kw">impl </span>GradingProgress {
+    <span class="kw">pub fn </span>is_complete(<span class="self">self</span>) -&gt; bool {
+        <span class="self">self </span>== <span class="self">Self</span>::FullyGraded || <span class="self">self </span>== <span class="self">Self</span>::Failed
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseStatus</span> {
-    <span class="comment">// None when grading has not completed yet. Max score can be found from the associated exercise.</span>
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
-    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-    <span class="kw">pub</span> <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExerciseStatus {
+    <span class="comment">// None when grading has not completed yet. Max score can be found from the associated exercise.
+    </span><span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>activity_progress: ActivityProgress,
+    <span class="kw">pub </span>grading_progress: GradingProgress,
+    <span class="kw">pub </span>reviewing_stage: ReviewingStage,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">order_number</span>: <span class="ident">i32</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    course_id: Uuid,
+    name: <span class="kw-2">&amp;</span>str,
+    page_id: Uuid,
+    chapter_id: Uuid,
+    order_number: i32,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exercises (
     id,
@@ -889,65 +889,65 @@ INSERT INTO exercises (
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">course_id</span>,
-        <span class="ident">name</span>,
-        <span class="ident">page_id</span>,
-        <span class="ident">chapter_id</span>,
-        <span class="ident">order_number</span>
+        pkey_policy.into_uuid(),
+        course_id,
+        name,
+        page_id,
+        chapter_id,
+        order_number
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Exercise</span>,
+<span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;Exercise&gt; {
+    <span class="kw">let </span>exercise = <span class="macro">sqlx::query_as!</span>(
+        Exercise,
         <span class="string">&quot;
 SELECT *
 FROM exercises
 WHERE id = $1
 &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">exercise</span>)
+    <span class="prelude-val">Ok</span>(exercise)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(<span class="ident">Exercise</span>, <span class="string">&quot;SELECT * FROM exercises WHERE id = $1;&quot;</span>, <span class="ident">id</span>)
-        .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+<span class="kw">pub async fn </span>get_exercise_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;Exercise&gt; {
+    <span class="kw">let </span>exercise = <span class="macro">sqlx::query_as!</span>(Exercise, <span class="string">&quot;SELECT * FROM exercises WHERE id = $1;&quot;</span>, id)
+        .fetch_one(conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">exercise</span>)
+    <span class="prelude-val">Ok</span>(exercise)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercises_by_course_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Exercise</span>,
+<span class="kw">pub async fn </span>get_exercises_by_course_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
+    <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
+        Exercise,
         <span class="string">r#&quot;
 SELECT *
 FROM exercises
 WHERE course_id = $1
   AND deleted_at IS NULL
 &quot;#</span>,
-        <span class="ident">course_id</span>
+        course_id
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">exercises</span>)
+    <span class="prelude-val">Ok</span>(exercises)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercises_by_course_instance_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Exercise</span>,
+<span class="kw">pub async fn </span>get_exercises_by_course_instance_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
+    <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
+        Exercise,
         <span class="string">r#&quot;
 SELECT *
 FROM exercises
@@ -959,478 +959,478 @@ WHERE course_id = (
   AND deleted_at IS NULL
 ORDER BY order_number ASC
 &quot;#</span>,
-        <span class="ident">course_id</span>
+        course_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">exercises</span>)
+    <span class="prelude-val">Ok</span>(exercises)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercises_by_chapter_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Exercise</span>,
+<span class="kw">pub async fn </span>get_exercises_by_chapter_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    chapter_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
+    <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
+        Exercise,
         <span class="string">r#&quot;
 SELECT *
 FROM exercises
 WHERE chapter_id = $1
   AND deleted_at IS NULL
 &quot;#</span>,
-        <span class="ident">chapter_id</span>
+        chapter_id
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">exercises</span>)
+    <span class="prelude-val">Ok</span>(exercises)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercises_by_page_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Exercise</span>,
+<span class="kw">pub async fn </span>get_exercises_by_page_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    page_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
+    <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
+        Exercise,
         <span class="string">r#&quot;
 SELECT *
   FROM exercises
 WHERE page_id = $1
   AND deleted_at IS NULL;
 &quot;#</span>,
-        <span class="ident">page_id</span>,
+        page_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">exercises</span>)
+    <span class="prelude-val">Ok</span>(exercises)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercises_by_exam_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exam_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Exercise</span>,
+<span class="kw">pub async fn </span>get_exercises_by_exam_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exam_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;Exercise&gt;&gt; {
+    <span class="kw">let </span>exercises = <span class="macro">sqlx::query_as!</span>(
+        Exercise,
         <span class="string">r#&quot;
 SELECT *
 FROM exercises
 WHERE exam_id = $1
   AND deleted_at IS NULL
 &quot;#</span>,
-        <span class="ident">exam_id</span>,
+        exam_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">exercises</span>)
+    <span class="prelude-val">Ok</span>(exercises)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_or_exam_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseOrExamId</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_course_or_exam_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+) -&gt; ModelResult&lt;CourseOrExamId&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT course_id,
   exam_id
 FROM exercises
 WHERE id = $1
 &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">CourseOrExamId::from</span>(<span class="ident">res</span>.<span class="ident">course_id</span>, <span class="ident">res</span>.<span class="ident">exam_id</span>)
+    CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_material_exercise</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseMaterialExercise</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">current_exercise_slide</span>, <span class="ident">instance_or_exam_id</span>) <span class="op">=</span>
-        <span class="ident">get_or_select_exercise_slide</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>get_course_material_exercise(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    exercise_id: Uuid,
+) -&gt; ModelResult&lt;CourseMaterialExercise&gt; {
+    <span class="kw">let </span>exercise = get_by_id(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>(current_exercise_slide, instance_or_exam_id) =
+        get_or_select_exercise_slide(<span class="kw-2">&amp;mut *</span>conn, user_id, <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info!</span>(
         <span class="string">&quot;Current exercise slide id: {:#?}&quot;</span>,
-        <span class="ident">current_exercise_slide</span>.<span class="ident">id</span>
+        current_exercise_slide.id
     );
 
-    <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">user_id</span>, <span class="ident">instance_or_exam_id</span>) {
-        (<span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="prelude-val">Some</span>(<span class="ident">course_instance_or_exam_id</span>)) =&gt; {
-            <span class="ident">user_exercise_states::get_user_exercise_state_if_exists</span>(
-                <span class="ident">conn</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">exercise</span>.<span class="ident">id</span>,
-                <span class="ident">course_instance_or_exam_id</span>,
+    <span class="kw">let </span>user_exercise_state = <span class="kw">match </span>(user_id, instance_or_exam_id) {
+        (<span class="prelude-val">Some</span>(user_id), <span class="prelude-val">Some</span>(course_instance_or_exam_id)) =&gt; {
+            user_exercise_states::get_user_exercise_state_if_exists(
+                conn,
+                user_id,
+                exercise.id,
+                course_instance_or_exam_id,
             )
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        }
-        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     };
 
-    <span class="kw">let</span> <span class="ident">can_post_submission</span> <span class="op">=</span>
-        <span class="ident">determine_can_post_submission</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>, <span class="kw-2">&amp;</span><span class="ident">user_exercise_state</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>can_post_submission =
+        determine_can_post_submission(<span class="kw-2">&amp;mut *</span>conn, user_id, <span class="kw-2">&amp;</span>exercise, <span class="kw-2">&amp;</span>user_exercise_state).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">previous_exercise_slide_submission</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">user_id</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) =&gt; {
-            <span class="ident"><span class="kw">crate</span>::exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission</span>(
-                <span class="ident">conn</span>,
-                <span class="ident">current_exercise_slide</span>.<span class="ident">id</span>,
-                <span class="ident">user_id</span>,
+    <span class="kw">let </span>previous_exercise_slide_submission = <span class="kw">match </span>user_id {
+        <span class="prelude-val">Some</span>(user_id) =&gt; {
+            <span class="kw">crate</span>::exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission(
+                conn,
+                current_exercise_slide.id,
+                user_id,
             )
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        }
-        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     };
 
-    <span class="kw">let</span> <span class="ident">exercise_status</span> <span class="op">=</span> <span class="ident">user_exercise_state</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">user_exercise_state</span><span class="op">|</span> <span class="ident">ExerciseStatus</span> {
-        <span class="ident">score_given</span>: <span class="ident">user_exercise_state</span>.<span class="ident">score_given</span>,
-        <span class="ident">activity_progress</span>: <span class="ident">user_exercise_state</span>.<span class="ident">activity_progress</span>,
-        <span class="ident">grading_progress</span>: <span class="ident">user_exercise_state</span>.<span class="ident">grading_progress</span>,
-        <span class="ident">reviewing_stage</span>: <span class="ident">user_exercise_state</span>.<span class="ident">reviewing_stage</span>,
+    <span class="kw">let </span>exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
+        score_given: user_exercise_state.score_given,
+        activity_progress: user_exercise_state.activity_progress,
+        grading_progress: user_exercise_state.grading_progress,
+        reviewing_stage: user_exercise_state.reviewing_stage,
     });
 
-    <span class="kw">let</span> <span class="ident">exercise_slide_submission_counts</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) <span class="op">=</span> <span class="ident">user_id</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cioreid</span>) <span class="op">=</span> <span class="ident">instance_or_exam_id</span> {
-            <span class="ident">get_exercise_slide_submission_counts_for_exercise_user</span>(
-                <span class="ident">conn</span>,
-                <span class="ident">exercise_id</span>,
-                <span class="ident">cioreid</span>,
-                <span class="ident">user_id</span>,
+    <span class="kw">let </span>exercise_slide_submission_counts = <span class="kw">if let </span><span class="prelude-val">Some</span>(user_id) = user_id {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(cioreid) = instance_or_exam_id {
+            get_exercise_slide_submission_counts_for_exercise_user(
+                conn,
+                exercise_id,
+                cioreid,
+                user_id,
             )
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        } <span class="kw">else</span> {
-            <span class="ident">HashMap::new</span>()
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>} <span class="kw">else </span>{
+            HashMap::new()
         }
-    } <span class="kw">else</span> {
-        <span class="ident">HashMap::new</span>()
+    } <span class="kw">else </span>{
+        HashMap::new()
     };
 
-    <span class="kw">let</span> <span class="ident">peer_review_config</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">exercise</span>.<span class="ident">needs_peer_review</span>, <span class="ident">exercise</span>.<span class="ident">course_id</span>) {
-        (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="ident">course_id</span>)) =&gt; {
-            <span class="kw">let</span> <span class="ident">prc</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::peer_review_configs::get_by_exercise_or_course_id</span>(
-                <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>, <span class="ident">course_id</span>,
+    <span class="kw">let </span>peer_review_config = <span class="kw">match </span>(exercise.needs_peer_review, exercise.course_id) {
+        (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(course_id)) =&gt; {
+            <span class="kw">let </span>prc = <span class="kw">crate</span>::peer_review_configs::get_by_exercise_or_course_id(
+                conn, <span class="kw-2">&amp;</span>exercise, course_id,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">optional</span>()<span class="question-mark">?</span>;
-            <span class="ident">prc</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">prc</span><span class="op">|</span> <span class="ident">CourseMaterialPeerReviewConfig</span> {
-                <span class="ident">id</span>: <span class="ident">prc</span>.<span class="ident">id</span>,
-                <span class="ident">course_id</span>: <span class="ident">prc</span>.<span class="ident">course_id</span>,
-                <span class="ident">exercise_id</span>: <span class="ident">prc</span>.<span class="ident">exercise_id</span>,
-                <span class="ident">peer_reviews_to_give</span>: <span class="ident">prc</span>.<span class="ident">peer_reviews_to_give</span>,
-                <span class="ident">peer_reviews_to_receive</span>: <span class="ident">prc</span>.<span class="ident">peer_reviews_to_receive</span>,
+            .<span class="kw">await
+            </span>.optional()<span class="question-mark">?</span>;
+            prc.map(|prc| CourseMaterialPeerReviewConfig {
+                id: prc.id,
+                course_id: prc.course_id,
+                exercise_id: prc.exercise_id,
+                peer_reviews_to_give: prc.peer_reviews_to_give,
+                peer_reviews_to_receive: prc.peer_reviews_to_receive,
             })
         }
-        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     };
 
-    <span class="prelude-val">Ok</span>(<span class="ident">CourseMaterialExercise</span> {
-        <span class="ident">exercise</span>,
-        <span class="ident">can_post_submission</span>,
-        <span class="ident">current_exercise_slide</span>,
-        <span class="ident">exercise_status</span>,
-        <span class="ident">exercise_slide_submission_counts</span>,
-        <span class="ident">peer_review_config</span>,
-        <span class="ident">previous_exercise_slide_submission</span>,
+    <span class="prelude-val">Ok</span>(CourseMaterialExercise {
+        exercise,
+        can_post_submission,
+        current_exercise_slide,
+        exercise_status,
+        exercise_slide_submission_counts,
+        peer_review_config,
+        previous_exercise_slide_submission,
     })
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">determine_can_post_submission</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">ModelError</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_exercise_state</span>) <span class="op">=</span> <span class="ident">user_exercise_state</span> {
-        <span class="comment">// Once the user has started peer review or self review, they cannot no longer answer the exercise because they have already seen a model solution in the review instructions and they have seen submissions from other users.</span>
-        <span class="kw">if</span> <span class="ident">user_exercise_state</span>.<span class="ident">reviewing_stage</span> <span class="op">!</span><span class="op">=</span> <span class="ident">ReviewingStage::NotStarted</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+<span class="kw">async fn </span>determine_can_post_submission(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    exercise: <span class="kw-2">&amp;</span>Exercise,
+    user_exercise_state: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;UserExerciseState&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;bool, ModelError&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(user_exercise_state) = user_exercise_state {
+        <span class="comment">// Once the user has started peer review or self review, they cannot no longer answer the exercise because they have already seen a model solution in the review instructions and they have seen submissions from other users.
+        </span><span class="kw">if </span>user_exercise_state.reviewing_stage != ReviewingStage::NotStarted {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
         }
     }
 
-    <span class="kw">let</span> <span class="ident">can_post_submission</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_id</span>) <span class="op">=</span> <span class="ident">user_id</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span> {
-            <span class="ident">exams::verify_exam_submission_can_be_made</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">true</span>
-        }
-    } <span class="kw">else</span> {
-        <span class="bool-val">false</span>
-    };
-    <span class="prelude-val">Ok</span>(<span class="ident">can_post_submission</span>)
+    <span class="kw">let </span>can_post_submission = <span class="kw">if let </span><span class="prelude-val">Some</span>(user_id) = user_id {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(exam_id) = exercise.exam_id {
+            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).<span class="kw">await</span><span class="question-mark">?
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">true
+        </span>}
+    } <span class="kw">else </span>{
+        <span class="bool-val">false
+    </span>};
+    <span class="prelude-val">Ok</span>(can_post_submission)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_select_exercise_slide</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">CourseMaterialExerciseSlide</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseInstanceOrExamId</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-    <span class="kw">match</span> (<span class="ident">user_id</span>, <span class="ident">exercise</span>.<span class="ident">course_id</span>, <span class="ident">exercise</span>.<span class="ident">exam_id</span>) {
+<span class="kw">pub async fn </span>get_or_select_exercise_slide(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    exercise: <span class="kw-2">&amp;</span>Exercise,
+) -&gt; ModelResult&lt;(CourseMaterialExerciseSlide, <span class="prelude-ty">Option</span>&lt;CourseInstanceOrExamId&gt;)&gt; {
+    <span class="kw">match </span>(user_id, exercise.course_id, exercise.exam_id) {
         (<span class="prelude-val">None</span>, ..) =&gt; {
-            <span class="comment">// No signed in user. Show random exercise without model solution.</span>
-            <span class="kw">let</span> <span class="ident">random_slide</span> <span class="op">=</span>
-                <span class="ident">exercise_slides::get_random_exercise_slide_for_exercise</span>(<span class="ident">conn</span>, <span class="ident">exercise</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">random_slide_tasks</span> <span class="op">=</span>
-                <span class="ident">exercise_tasks::get_course_material_exercise_tasks</span>(<span class="ident">conn</span>, <span class="ident">random_slide</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>)
+            <span class="comment">// No signed in user. Show random exercise without model solution.
+            </span><span class="kw">let </span>random_slide =
+                exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>random_slide_tasks =
+                exercise_tasks::get_course_material_exercise_tasks(conn, random_slide.id, <span class="prelude-val">None</span>)
                     .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>((
-                <span class="ident">CourseMaterialExerciseSlide</span> {
-                    <span class="ident">id</span>: <span class="ident">random_slide</span>.<span class="ident">id</span>,
-                    <span class="ident">exercise_tasks</span>: <span class="ident">random_slide_tasks</span>,
+                CourseMaterialExerciseSlide {
+                    id: random_slide.id,
+                    exercise_tasks: random_slide_tasks,
                 },
                 <span class="prelude-val">None</span>,
             ))
         }
-        (<span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="prelude-val">Some</span>(<span class="ident">course_id</span>), <span class="prelude-val">None</span>) =&gt; {
-            <span class="comment">// signed in, course exercise</span>
-            <span class="kw">let</span> <span class="ident">user_course_settings</span> <span class="op">=</span> <span class="ident">user_course_settings::get_user_course_settings_by_course_id</span>(
-                <span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>,
+        (<span class="prelude-val">Some</span>(user_id), <span class="prelude-val">Some</span>(course_id), <span class="prelude-val">None</span>) =&gt; {
+            <span class="comment">// signed in, course exercise
+            </span><span class="kw">let </span>user_course_settings = user_course_settings::get_user_course_settings_by_course_id(
+                conn, user_id, course_id,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">match</span> <span class="ident">user_course_settings</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">settings</span>) <span class="kw">if</span> <span class="ident">settings</span>.<span class="ident">current_course_id</span> <span class="op">==</span> <span class="ident">course_id</span> =&gt; {
-                    <span class="comment">// User is enrolled on an instance of the given course.</span>
-                    <span class="kw">let</span> <span class="ident">tasks</span> <span class="op">=</span>
-                        <span class="ident">exercise_tasks::get_or_select_user_exercise_tasks_for_course_instance_or_exam</span>(
-                            <span class="ident">conn</span>,
-                            <span class="ident">user_id</span>,
-                            <span class="ident">exercise</span>.<span class="ident">id</span>,
-                            <span class="prelude-val">Some</span>(<span class="ident">settings</span>.<span class="ident">current_course_instance_id</span>),
+            <span class="kw">match </span>user_course_settings {
+                <span class="prelude-val">Some</span>(settings) <span class="kw">if </span>settings.current_course_id == course_id =&gt; {
+                    <span class="comment">// User is enrolled on an instance of the given course.
+                    </span><span class="kw">let </span>tasks =
+                        exercise_tasks::get_or_select_user_exercise_tasks_for_course_instance_or_exam(
+                            conn,
+                            user_id,
+                            exercise.id,
+                            <span class="prelude-val">Some</span>(settings.current_course_instance_id),
                             <span class="prelude-val">None</span>,
                         )
                         .<span class="kw">await</span><span class="question-mark">?</span>;
                     <span class="prelude-val">Ok</span>((
-                        <span class="ident">tasks</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">CourseInstanceOrExamId::Instance</span>(
-                            <span class="ident">settings</span>.<span class="ident">current_course_instance_id</span>,
+                        tasks,
+                        <span class="prelude-val">Some</span>(CourseInstanceOrExamId::Instance(
+                            settings.current_course_instance_id,
                         )),
                     ))
                 }
                 <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="comment">// User is enrolled on a different language version of the course. Show exercise</span>
-                    <span class="comment">// slide based on their latest enrollment or a random one.</span>
-                    <span class="kw">let</span> <span class="ident">latest_instance</span> <span class="op">=</span>
-                        <span class="ident">course_instances::course_instance_by_users_latest_enrollment</span>(
-                            <span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>,
+                    <span class="comment">// User is enrolled on a different language version of the course. Show exercise
+                    // slide based on their latest enrollment or a random one.
+                    </span><span class="kw">let </span>latest_instance =
+                        course_instances::course_instance_by_users_latest_enrollment(
+                            conn, user_id, course_id,
                         )
                         .<span class="kw">await</span><span class="question-mark">?</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">instance</span>) <span class="op">=</span> <span class="ident">latest_instance</span> {
-                        <span class="kw">let</span> <span class="ident">exercise_tasks</span> <span class="op">=</span>
-                            <span class="ident">exercise_tasks::get_existing_users_exercise_slide_for_course_instance</span>(
-                                <span class="ident">conn</span>,
-                                <span class="ident">user_id</span>,
-                                <span class="ident">exercise</span>.<span class="ident">id</span>,
-                                <span class="ident">instance</span>.<span class="ident">id</span>,
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(instance) = latest_instance {
+                        <span class="kw">let </span>exercise_tasks =
+                            exercise_tasks::get_existing_users_exercise_slide_for_course_instance(
+                                conn,
+                                user_id,
+                                exercise.id,
+                                instance.id,
                             )
                             .<span class="kw">await</span><span class="question-mark">?</span>;
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exercise_tasks</span>) <span class="op">=</span> <span class="ident">exercise_tasks</span> {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(exercise_tasks) = exercise_tasks {
                             <span class="prelude-val">Ok</span>((
-                                <span class="ident">exercise_tasks</span>,
-                                <span class="prelude-val">Some</span>(<span class="ident">CourseInstanceOrExamId::Instance</span>(<span class="ident">instance</span>.<span class="ident">id</span>)),
+                                exercise_tasks,
+                                <span class="prelude-val">Some</span>(CourseInstanceOrExamId::Instance(instance.id)),
                             ))
-                        } <span class="kw">else</span> {
-                            <span class="comment">// no exercise task has been chosen for the user</span>
-                            <span class="kw">let</span> <span class="ident">random_slide</span> <span class="op">=</span>
-                                <span class="ident">exercise_slides::get_random_exercise_slide_for_exercise</span>(
-                                    <span class="ident">conn</span>,
-                                    <span class="ident">exercise</span>.<span class="ident">id</span>,
+                        } <span class="kw">else </span>{
+                            <span class="comment">// no exercise task has been chosen for the user
+                            </span><span class="kw">let </span>random_slide =
+                                exercise_slides::get_random_exercise_slide_for_exercise(
+                                    conn,
+                                    exercise.id,
                                 )
                                 .<span class="kw">await</span><span class="question-mark">?</span>;
-                            <span class="kw">let</span> <span class="ident">random_tasks</span> <span class="op">=</span> <span class="ident">exercise_tasks::get_course_material_exercise_tasks</span>(
-                                <span class="ident">conn</span>,
-                                <span class="ident">random_slide</span>.<span class="ident">id</span>,
-                                <span class="prelude-val">Some</span>(<span class="ident">user_id</span>),
+                            <span class="kw">let </span>random_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                                conn,
+                                random_slide.id,
+                                <span class="prelude-val">Some</span>(user_id),
                             )
                             .<span class="kw">await</span><span class="question-mark">?</span>;
 
                             <span class="prelude-val">Ok</span>((
-                                <span class="ident">CourseMaterialExerciseSlide</span> {
-                                    <span class="ident">id</span>: <span class="ident">random_slide</span>.<span class="ident">id</span>,
-                                    <span class="ident">exercise_tasks</span>: <span class="ident">random_tasks</span>,
+                                CourseMaterialExerciseSlide {
+                                    id: random_slide.id,
+                                    exercise_tasks: random_tasks,
                                 },
                                 <span class="prelude-val">None</span>,
                             ))
                         }
-                    } <span class="kw">else</span> {
-                        <span class="comment">// user has enrolled on a different course language version and haven&#39;t enrolled</span>
-                        <span class="comment">// on this one. The idea is that they can look around the material but not submit</span>
-                        <span class="comment">// without changing the language version, so show a random exercise.</span>
-                        <span class="kw">let</span> <span class="ident">random_slide</span> <span class="op">=</span> <span class="ident">exercise_slides::get_random_exercise_slide_for_exercise</span>(
-                            <span class="ident">conn</span>,
-                            <span class="ident">exercise</span>.<span class="ident">id</span>,
+                    } <span class="kw">else </span>{
+                        <span class="comment">// user has enrolled on a different course language version and haven&#39;t enrolled
+                        // on this one. The idea is that they can look around the material but not submit
+                        // without changing the language version, so show a random exercise.
+                        </span><span class="kw">let </span>random_slide = exercise_slides::get_random_exercise_slide_for_exercise(
+                            conn,
+                            exercise.id,
                         )
                         .<span class="kw">await</span><span class="question-mark">?</span>;
-                        <span class="kw">let</span> <span class="ident">random_tasks</span> <span class="op">=</span> <span class="ident">exercise_tasks::get_course_material_exercise_tasks</span>(
-                            <span class="ident">conn</span>,
-                            <span class="ident">random_slide</span>.<span class="ident">id</span>,
-                            <span class="prelude-val">Some</span>(<span class="ident">user_id</span>),
+                        <span class="kw">let </span>random_tasks = exercise_tasks::get_course_material_exercise_tasks(
+                            conn,
+                            random_slide.id,
+                            <span class="prelude-val">Some</span>(user_id),
                         )
                         .<span class="kw">await</span><span class="question-mark">?</span>;
 
                         <span class="prelude-val">Ok</span>((
-                            <span class="ident">CourseMaterialExerciseSlide</span> {
-                                <span class="ident">id</span>: <span class="ident">random_slide</span>.<span class="ident">id</span>,
-                                <span class="ident">exercise_tasks</span>: <span class="ident">random_tasks</span>,
+                            CourseMaterialExerciseSlide {
+                                id: random_slide.id,
+                                exercise_tasks: random_tasks,
                             },
                             <span class="prelude-val">None</span>,
                         ))
                     }
                 }
-                <span class="prelude-val">None</span> =&gt; {
-                    <span class="comment">// User is not enrolled on any course version. This is not a valid scenario because</span>
-                    <span class="comment">// tasks are based on a specific instance.</span>
-                    <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-                        <span class="ident">ModelErrorType::PreconditionFailed</span>,
-                        <span class="string">&quot;User must be enrolled to the course&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="comment">// User is not enrolled on any course version. This is not a valid scenario because
+                    // tasks are based on a specific instance.
+                    </span><span class="prelude-val">Err</span>(ModelError::new(
+                        ModelErrorType::PreconditionFailed,
+                        <span class="string">&quot;User must be enrolled to the course&quot;</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     ))
                 }
             }
         }
-        (<span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>)) =&gt; {
+        (<span class="prelude-val">Some</span>(user_id), <span class="kw">_</span>, <span class="prelude-val">Some</span>(exam_id)) =&gt; {
             <span class="macro">info!</span>(<span class="string">&quot;selecting exam task&quot;</span>);
-            <span class="comment">// signed in, exam exercise</span>
-            <span class="kw">let</span> <span class="ident">tasks</span> <span class="op">=</span>
-                <span class="ident">exercise_tasks::get_or_select_user_exercise_tasks_for_course_instance_or_exam</span>(
-                    <span class="ident">conn</span>,
-                    <span class="ident">user_id</span>,
-                    <span class="ident">exercise</span>.<span class="ident">id</span>,
+            <span class="comment">// signed in, exam exercise
+            </span><span class="kw">let </span>tasks =
+                exercise_tasks::get_or_select_user_exercise_tasks_for_course_instance_or_exam(
+                    conn,
+                    user_id,
+                    exercise.id,
                     <span class="prelude-val">None</span>,
-                    <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>),
+                    <span class="prelude-val">Some</span>(exam_id),
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="macro">info!</span>(<span class="string">&quot;selecting exam task {:#?}&quot;</span>, <span class="ident">tasks</span>);
-            <span class="prelude-val">Ok</span>((<span class="ident">tasks</span>, <span class="prelude-val">Some</span>(<span class="ident">CourseInstanceOrExamId::Exam</span>(<span class="ident">exam_id</span>))))
+            <span class="macro">info!</span>(<span class="string">&quot;selecting exam task {:#?}&quot;</span>, tasks);
+            <span class="prelude-val">Ok</span>((tasks, <span class="prelude-val">Some</span>(CourseInstanceOrExamId::Exam(exam_id))))
         }
-        (<span class="prelude-val">Some</span>(<span class="kw">_</span>), ..) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::Generic</span>,
-            <span class="string">&quot;The selected exercise is not attached to any course or exam&quot;</span>.<span class="ident">to_string</span>(),
+        (<span class="prelude-val">Some</span>(<span class="kw">_</span>), ..) =&gt; <span class="prelude-val">Err</span>(ModelError::new(
+            ModelErrorType::Generic,
+            <span class="string">&quot;The selected exercise is not attached to any course or exam&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         )),
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_exercises_by_page_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">deleted_ids</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>delete_exercises_by_page_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    page_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
+    <span class="kw">let </span>deleted_ids = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE exercises
 SET deleted_at = now()
 WHERE page_id = $1
 RETURNING id;
         &quot;</span>,
-        <span class="ident">page_id</span>
+        page_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">into_iter</span>()
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">id</span>)
-    .<span class="ident">collect</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">deleted_ids</span>)
+    .fetch_all(conn)
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.into_iter()
+    .map(|x| x.id)
+    .collect();
+    <span class="prelude-val">Ok</span>(deleted_ids)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">course_instance_enrollments</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
-        <span class="ident">exercise_service_info</span>::{<span class="self">self</span>, <span class="ident">PathInfo</span>},
-        <span class="ident">exercise_services</span>::{<span class="self">self</span>, <span class="ident">ExerciseServiceNewOrUpdate</span>},
-        <span class="ident">test_helper::Conn</span>,
-        <span class="ident">test_helper</span>::<span class="kw-2">*</span>,
-        <span class="ident">user_exercise_states</span>,
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{
+        course_instance_enrollments::{<span class="self">self</span>, NewCourseInstanceEnrollment},
+        exercise_service_info::{<span class="self">self</span>, PathInfo},
+        exercise_services::{<span class="self">self</span>, ExerciseServiceNewOrUpdate},
+        test_helper::Conn,
+        test_helper::<span class="kw-2">*</span>,
+        user_exercise_states,
     };
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">selects_course_material_exercise_for_enrolled_student</span>() {
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>selects_course_material_exercise_for_enrolled_student() {
         <span class="macro">insert_data!</span>(
-            :<span class="ident">tx</span>,
-            <span class="ident">user</span>: <span class="ident">user_id</span>,
-            <span class="ident">org</span>: <span class="ident">organization_id</span>,
-            <span class="ident">course</span>: <span class="ident">course_id</span>,
-            <span class="ident">instance</span>: <span class="ident">course_instance</span>,
-            :<span class="ident">course_module</span>,
-            <span class="ident">chapter</span>: <span class="ident">chapter_id</span>,
-            <span class="ident">page</span>: <span class="ident">page_id</span>,
-            <span class="ident">exercise</span>: <span class="ident">exercise_id</span>,
-            <span class="ident">slide</span>: <span class="ident">exercise_slide_id</span>,
-            <span class="ident">task</span>: <span class="ident">exercise_task_id</span>
+            :tx,
+            user: user_id,
+            org: organization_id,
+            course: course_id,
+            instance: course_instance,
+            :course_module,
+            chapter: chapter_id,
+            page: page_id,
+            exercise: exercise_id,
+            slide: exercise_slide_id,
+            task: exercise_task_id
         );
-        <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span> <span class="ident">exercise_services::insert_exercise_service</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">ExerciseServiceNewOrUpdate</span> {
-                <span class="ident">name</span>: <span class="string">&quot;text-exercise&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">slug</span>: <span class="ident">TEST_HELPER_EXERCISE_SERVICE_NAME</span>.<span class="ident">to_string</span>(),
-                <span class="ident">public_url</span>: <span class="string">&quot;https://example.com&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">internal_url</span>: <span class="prelude-val">None</span>,
-                <span class="ident">max_reprocessing_submissions_at_once</span>: <span class="number">1</span>,
+        <span class="kw">let </span>exercise_service = exercise_services::insert_exercise_service(
+            tx.as_mut(),
+            <span class="kw-2">&amp;</span>ExerciseServiceNewOrUpdate {
+                name: <span class="string">&quot;text-exercise&quot;</span>.to_string(),
+                slug: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),
+                public_url: <span class="string">&quot;https://example.com&quot;</span>.to_string(),
+                internal_url: <span class="prelude-val">None</span>,
+                max_reprocessing_submissions_at_once: <span class="number">1</span>,
             },
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">_exercise_service_info</span> <span class="op">=</span> <span class="ident">exercise_service_info::insert</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">PathInfo</span> {
-                <span class="ident">exercise_service_id</span>: <span class="ident">exercise_service</span>.<span class="ident">id</span>,
-                <span class="ident">user_interface_iframe_path</span>: <span class="string">&quot;/iframe&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">grade_endpoint_path</span>: <span class="string">&quot;/grade&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">public_spec_endpoint_path</span>: <span class="string">&quot;/public-spec&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">model_solution_spec_endpoint_path</span>: <span class="string">&quot;test-only-empty-path&quot;</span>.<span class="ident">to_string</span>(),
+        .<span class="kw">await
+        </span>.unwrap();
+        <span class="kw">let </span>_exercise_service_info = exercise_service_info::insert(
+            tx.as_mut(),
+            <span class="kw-2">&amp;</span>PathInfo {
+                exercise_service_id: exercise_service.id,
+                user_interface_iframe_path: <span class="string">&quot;/iframe&quot;</span>.to_string(),
+                grade_endpoint_path: <span class="string">&quot;/grade&quot;</span>.to_string(),
+                public_spec_endpoint_path: <span class="string">&quot;/public-spec&quot;</span>.to_string(),
+                model_solution_spec_endpoint_path: <span class="string">&quot;test-only-empty-path&quot;</span>.to_string(),
             },
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="ident">course_instance_enrollments::insert_enrollment_and_set_as_current</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">NewCourseInstanceEnrollment</span> {
-                <span class="ident">course_id</span>,
-                <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
-                <span class="ident">user_id</span>,
+        .<span class="kw">await
+        </span>.unwrap();
+        course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id,
+                course_instance_id: course_instance.id,
+                user_id,
             },
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
+        .<span class="kw">await
+        </span>.unwrap();
 
-        <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_user_exercise_state_if_exists</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user_id</span>,
-            <span class="ident">exercise_id</span>,
-            <span class="ident">CourseInstanceOrExamId::Instance</span>(<span class="ident">course_instance</span>.<span class="ident">id</span>),
+        <span class="kw">let </span>user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+            tx.as_mut(),
+            user_id,
+            exercise_id,
+            CourseInstanceOrExamId::Instance(course_instance.id),
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">user_exercise_state</span>.<span class="ident">is_none</span>());
+        .<span class="kw">await
+        </span>.unwrap();
+        <span class="macro">assert!</span>(user_exercise_state.is_none());
 
-        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">get_course_material_exercise</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">exercise_id</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let </span>exercise = get_course_material_exercise(tx.as_mut(), <span class="prelude-val">Some</span>(user_id), exercise_id)
+            .<span class="kw">await
+            </span>.unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">exercise</span>
-                .<span class="ident">current_exercise_slide</span>
-                .<span class="ident">exercise_tasks</span>
-                .<span class="ident">get</span>(<span class="number">0</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">id</span>,
-            <span class="ident">exercise_task_id</span>
+            exercise
+                .current_exercise_slide
+                .exercise_tasks
+                .get(<span class="number">0</span>)
+                .unwrap()
+                .id,
+            exercise_task_id
         );
 
-        <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_user_exercise_state_if_exists</span>(
-            <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-            <span class="ident">user_id</span>,
-            <span class="ident">exercise_id</span>,
-            <span class="ident">CourseInstanceOrExamId::Instance</span>(<span class="ident">course_instance</span>.<span class="ident">id</span>),
+        <span class="kw">let </span>user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+            tx.as_mut(),
+            user_id,
+            exercise_id,
+            CourseInstanceOrExamId::Instance(course_instance.id),
         )
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>();
+        .<span class="kw">await
+        </span>.unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">user_exercise_state</span>
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">selected_exercise_slide_id</span>
-                .<span class="ident">unwrap</span>(),
-            <span class="ident">exercise_slide_id</span>
+            user_exercise_state
+                .unwrap()
+                .selected_exercise_slide_id
+                .unwrap(),
+            exercise_slide_id
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/header/content_disposition.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>content_disposition.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/header/content_disposition.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>content_disposition.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -125,130 +125,130 @@
 <span id="123">123</span>
 <span id="124">124</span>
 <span id="125">125</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Write;
 
-<span class="kw">use</span> <span class="ident">email_encoding::headers::EmailWriter</span>;
+<span class="kw">use </span>email_encoding::headers::EmailWriter;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Header</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::BoxError</span>;
+<span class="kw">use super</span>::{Header, HeaderName, HeaderValue};
+<span class="kw">use </span><span class="kw">crate</span>::BoxError;
 
-<span class="doccomment">/// `Content-Disposition` of an attachment</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Defined in [RFC2183](https://tools.ietf.org/html/rfc2183)</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContentDisposition</span>(<span class="ident">HeaderValue</span>);
+<span class="doccomment">/// `Content-Disposition` of an attachment
+///
+/// Defined in [RFC2183](https://tools.ietf.org/html/rfc2183)
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>ContentDisposition(HeaderValue);
 
-<span class="kw">impl</span> <span class="ident">ContentDisposition</span> {
-    <span class="doccomment">/// An attachment which should be displayed inline into the message</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inline</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">HeaderValue::dangerous_new_pre_encoded</span>(
-            <span class="ident"><span class="self">Self</span>::name</span>(),
-            <span class="string">&quot;inline&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="string">&quot;inline&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">impl </span>ContentDisposition {
+    <span class="doccomment">/// An attachment which should be displayed inline into the message
+    </span><span class="kw">pub fn </span>inline() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(HeaderValue::dangerous_new_pre_encoded(
+            <span class="self">Self</span>::name(),
+            <span class="string">&quot;inline&quot;</span>.to_string(),
+            <span class="string">&quot;inline&quot;</span>.to_string(),
         ))
     }
 
-    <span class="doccomment">/// An attachment which should be displayed inline into the message, but that also</span>
-    <span class="doccomment">/// species the filename in case it were to be downloaded</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inline_with_name</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::with_name</span>(<span class="string">&quot;inline&quot;</span>, <span class="ident">file_name</span>)
+    <span class="doccomment">/// An attachment which should be displayed inline into the message, but that also
+    /// species the filename in case it were to be downloaded
+    </span><span class="kw">pub fn </span>inline_with_name(file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::with_name(<span class="string">&quot;inline&quot;</span>, file_name)
     }
 
-    <span class="doccomment">/// An attachment which is separate from the body of the message, and can be downloaded separately</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attachment</span>(<span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::with_name</span>(<span class="string">&quot;attachment&quot;</span>, <span class="ident">file_name</span>)
+    <span class="doccomment">/// An attachment which is separate from the body of the message, and can be downloaded separately
+    </span><span class="kw">pub fn </span>attachment(file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::with_name(<span class="string">&quot;attachment&quot;</span>, file_name)
     }
 
-    <span class="kw">fn</span> <span class="ident">with_name</span>(<span class="ident">kind</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">raw_value</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}; filename=\&quot;{}\&quot;&quot;</span>, <span class="ident">kind</span>, <span class="ident">file_name</span>);
+    <span class="kw">fn </span>with_name(kind: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>raw_value = <span class="macro">format!</span>(<span class="string">&quot;{}; filename=\&quot;{}\&quot;&quot;</span>, kind, file_name);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded_value</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="string">&quot;Content-Disposition: &quot;</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">encoded_value</span>, <span class="ident">line_len</span>, <span class="bool-val">false</span>);
-        <span class="ident">w</span>.<span class="ident">write_str</span>(<span class="ident">kind</span>).<span class="ident">expect</span>(<span class="string">&quot;writing `kind` returned an error&quot;</span>);
-        <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;;&#39;</span>).<span class="ident">expect</span>(<span class="string">&quot;writing `;` returned an error&quot;</span>);
-        <span class="ident">w</span>.<span class="ident">space</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>encoded_value = String::new();
+        <span class="kw">let </span>line_len = <span class="string">&quot;Content-Disposition: &quot;</span>.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>encoded_value, line_len, <span class="bool-val">false</span>);
+        w.write_str(kind).expect(<span class="string">&quot;writing `kind` returned an error&quot;</span>);
+        w.write_char(<span class="string">&#39;;&#39;</span>).expect(<span class="string">&quot;writing `;` returned an error&quot;</span>);
+        w.space();
 
-        <span class="ident">email_encoding::headers::rfc2231::encode</span>(<span class="string">&quot;filename&quot;</span>, <span class="ident">file_name</span>, <span class="kw-2">&amp;mut</span> <span class="ident">w</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;some Write implementation returned an error&quot;</span>);
+        email_encoding::headers::rfc2231::encode(<span class="string">&quot;filename&quot;</span>, file_name, <span class="kw-2">&amp;mut </span>w)
+            .expect(<span class="string">&quot;some Write implementation returned an error&quot;</span>);
 
-        <span class="self">Self</span>(<span class="ident">HeaderValue::dangerous_new_pre_encoded</span>(
-            <span class="ident"><span class="self">Self</span>::name</span>(),
-            <span class="ident">raw_value</span>,
-            <span class="ident">encoded_value</span>,
+        <span class="self">Self</span>(HeaderValue::dangerous_new_pre_encoded(
+            <span class="self">Self</span>::name(),
+            raw_value,
+            encoded_value,
         ))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Header</span> <span class="kw">for</span> <span class="ident">ContentDisposition</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span> {
-        <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Content-Disposition&quot;</span>)
+<span class="kw">impl </span>Header <span class="kw">for </span>ContentDisposition {
+    <span class="kw">fn </span>name() -&gt; HeaderName {
+        HeaderName::new_from_ascii_str(<span class="string">&quot;Content-Disposition&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxError</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> (<span class="ident">s</span>.<span class="ident">split_once</span>(<span class="string">&#39;;&#39;</span>), <span class="ident">s</span>) {
-            (<span class="kw">_</span>, <span class="string">&quot;inline&quot;</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::inline</span>()),
-            (<span class="prelude-val">Some</span>((<span class="ident">kind</span> @ (<span class="string">&quot;inline&quot;</span> <span class="op">|</span> <span class="string">&quot;attachment&quot;</span>), <span class="ident">file_name</span>)), <span class="kw">_</span>) =&gt; <span class="ident">file_name</span>
-                .<span class="ident">split_once</span>(<span class="string">&quot; filename=\&quot;&quot;</span>)
-                .<span class="ident">and_then</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">file_name</span>)<span class="op">|</span> <span class="ident">file_name</span>.<span class="ident">strip_suffix</span>(<span class="string">&#39;&quot;&#39;</span>))
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">file_name</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::with_name</span>(<span class="ident">kind</span>, <span class="ident">file_name</span>))
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;Unsupported ContentDisposition value&quot;</span>.<span class="ident">into</span>()),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Unsupported ContentDisposition value&quot;</span>.<span class="ident">into</span>()),
+    <span class="kw">fn </span>parse(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxError&gt; {
+        <span class="kw">match </span>(s.split_once(<span class="string">&#39;;&#39;</span>), s) {
+            (<span class="kw">_</span>, <span class="string">&quot;inline&quot;</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::inline()),
+            (<span class="prelude-val">Some</span>((kind @ (<span class="string">&quot;inline&quot; </span>| <span class="string">&quot;attachment&quot;</span>), file_name)), <span class="kw">_</span>) =&gt; file_name
+                .split_once(<span class="string">&quot; filename=\&quot;&quot;</span>)
+                .and_then(|(<span class="kw">_</span>, file_name)| file_name.strip_suffix(<span class="string">&#39;&quot;&#39;</span>))
+                .map(|file_name| <span class="self">Self</span>::with_name(kind, file_name))
+                .ok_or_else(|| <span class="string">&quot;Unsupported ContentDisposition value&quot;</span>.into()),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;Unsupported ContentDisposition value&quot;</span>.into()),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">display</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HeaderValue</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>()
+    <span class="kw">fn </span>display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HeaderValue {
+        <span class="self">self</span>.<span class="number">0</span>.clone()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>pretty_assertions::assert_eq;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ContentDisposition</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message::header</span>::{<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">Headers</span>};
+    <span class="kw">use </span><span class="kw">super</span>::ContentDisposition;
+    <span class="kw">use </span><span class="kw">crate</span>::message::header::{HeaderName, HeaderValue, Headers};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_content_disposition</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>format_content_disposition() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
 
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">ContentDisposition::inline</span>());
+        headers.set(ContentDisposition::inline());
 
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">headers</span>), <span class="string">&quot;Content-Disposition: inline\r\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, headers), <span class="string">&quot;Content-Disposition: inline\r\n&quot;</span>);
 
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">ContentDisposition::attachment</span>(<span class="string">&quot;something.txt&quot;</span>));
+        headers.set(ContentDisposition::attachment(<span class="string">&quot;something.txt&quot;</span>));
 
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">headers</span>),
-            <span class="string">&quot;Content-Disposition: attachment; filename=\&quot;something.txt\&quot;\r\n&quot;</span>
-        );
+            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, headers),
+            <span class="string">&quot;Content-Disposition: attachment; filename=\&quot;something.txt\&quot;\r\n&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_content_disposition</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_content_disposition() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
 
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Content-Disposition&quot;</span>),
-            <span class="string">&quot;inline&quot;</span>.<span class="ident">to_string</span>(),
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;Content-Disposition&quot;</span>),
+            <span class="string">&quot;inline&quot;</span>.to_string(),
         ));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">ContentDisposition</span><span class="op">&gt;</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">ContentDisposition::inline</span>())
+            headers.get::&lt;ContentDisposition&gt;(),
+            <span class="prelude-val">Some</span>(ContentDisposition::inline())
         );
 
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;Content-Disposition&quot;</span>),
-            <span class="string">&quot;attachment; filename=\&quot;something.txt\&quot;&quot;</span>.<span class="ident">to_string</span>(),
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;Content-Disposition&quot;</span>),
+            <span class="string">&quot;attachment; filename=\&quot;something.txt\&quot;&quot;</span>.to_string(),
         ));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">ContentDisposition</span><span class="op">&gt;</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">ContentDisposition::attachment</span>(<span class="string">&quot;something.txt&quot;</span>))
+            headers.get::&lt;ContentDisposition&gt;(),
+            <span class="prelude-val">Some</span>(ContentDisposition::attachment(<span class="string">&quot;something.txt&quot;</span>))
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

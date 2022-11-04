@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -1048,1053 +1048,1053 @@
 <span id="1046">1046</span>
 <span id="1047">1047</span>
 <span id="1048">1048</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A multi-value [`HeaderMap`] and its iterators.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A multi-value [`HeaderMap`] and its iterators.
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">collections::hash_map</span>, <span class="ident">iter</span>, <span class="ident">ops</span>};
+</span><span class="kw">use </span>std::{borrow::Cow, collections::hash_map, iter, ops};
 
-<span class="kw">use</span> <span class="ident">ahash::AHashMap</span>;
-<span class="kw">use</span> <span class="ident">http::header</span>::{<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>};
-<span class="kw">use</span> <span class="ident">smallvec</span>::{<span class="ident">smallvec</span>, <span class="ident">SmallVec</span>};
+<span class="kw">use </span>ahash::AHashMap;
+<span class="kw">use </span>http::header::{HeaderName, HeaderValue};
+<span class="kw">use </span>smallvec::{smallvec, SmallVec};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::AsHeaderName</span>;
+<span class="kw">use </span><span class="kw">super</span>::AsHeaderName;
 
-<span class="doccomment">/// A multi-map of HTTP headers.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `HeaderMap` is a &quot;multi-map&quot; of [`HeaderName`] to one or more [`HeaderValue`]s.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut map = HeaderMap::new();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// map.insert(header::CONTENT_TYPE, HeaderValue::from_static(&quot;text/plain&quot;));</span>
-<span class="doccomment">/// map.insert(header::ORIGIN, HeaderValue::from_static(&quot;example.com&quot;));</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert!(map.contains_key(header::CONTENT_TYPE));</span>
-<span class="doccomment">/// assert!(map.contains_key(header::ORIGIN));</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut removed = map.remove(header::ORIGIN);</span>
-<span class="doccomment">/// assert_eq!(removed.next().unwrap(), &quot;example.com&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert!(!map.contains_key(header::ORIGIN));</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HeaderMap</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">inner</span>: <span class="ident">AHashMap</span><span class="op">&lt;</span><span class="ident">HeaderName</span>, <span class="ident">Value</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A multi-map of HTTP headers.
+///
+/// `HeaderMap` is a &quot;multi-map&quot; of [`HeaderName`] to one or more [`HeaderValue`]s.
+///
+/// # Examples
+/// ```
+/// use actix_http::header::{self, HeaderMap, HeaderValue};
+///
+/// let mut map = HeaderMap::new();
+///
+/// map.insert(header::CONTENT_TYPE, HeaderValue::from_static(&quot;text/plain&quot;));
+/// map.insert(header::ORIGIN, HeaderValue::from_static(&quot;example.com&quot;));
+///
+/// assert!(map.contains_key(header::CONTENT_TYPE));
+/// assert!(map.contains_key(header::ORIGIN));
+///
+/// let mut removed = map.remove(header::ORIGIN);
+/// assert_eq!(removed.next().unwrap(), &quot;example.com&quot;);
+///
+/// assert!(!map.contains_key(header::ORIGIN));
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone, Default)]
+</span><span class="kw">pub struct </span>HeaderMap {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) inner: AHashMap&lt;HeaderName, Value&gt;,
 }
 
-<span class="doccomment">/// A bespoke non-empty list for HeaderMap values.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Value</span> {
-    <span class="ident">inner</span>: <span class="ident">SmallVec</span><span class="op">&lt;</span>[<span class="ident">HeaderValue</span>; <span class="number">4</span>]<span class="op">&gt;</span>,
+<span class="doccomment">/// A bespoke non-empty list for HeaderMap values.
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Value {
+    inner: SmallVec&lt;[HeaderValue; <span class="number">4</span>]&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Value</span> {
-    <span class="kw">fn</span> <span class="ident">one</span>(<span class="ident">val</span>: <span class="ident">HeaderValue</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">inner</span>: <span class="macro">smallvec!</span>[<span class="ident">val</span>],
+<span class="kw">impl </span>Value {
+    <span class="kw">fn </span>one(val: HeaderValue) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner: <span class="macro">smallvec!</span>[val],
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">first</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderValue</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>[<span class="number">0</span>]
+    <span class="kw">fn </span>first(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderValue {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.inner[<span class="number">0</span>]
     }
 
-    <span class="kw">fn</span> <span class="ident">first_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderValue</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>[<span class="number">0</span>]
+    <span class="kw">fn </span>first_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>HeaderValue {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner[<span class="number">0</span>]
     }
 
-    <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_val</span>: <span class="ident">HeaderValue</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">push</span>(<span class="ident">new_val</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::Deref</span> <span class="kw">for</span> <span class="ident">Value</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">SmallVec</span><span class="op">&lt;</span>[<span class="ident">HeaderValue</span>; <span class="number">4</span>]<span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>
+    <span class="kw">fn </span>append(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_val: HeaderValue) {
+        <span class="self">self</span>.inner.push(new_val)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">HeaderMap</span> {
-    <span class="doccomment">/// Create an empty `HeaderMap`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The map will be created without any capacity; this function will not allocate.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::HeaderMap;</span>
-    <span class="doccomment">/// let map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(map.is_empty());</span>
-    <span class="doccomment">/// assert_eq!(0, map.capacity());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">HeaderMap::default</span>()
+<span class="kw">impl </span>ops::Deref <span class="kw">for </span>Value {
+    <span class="kw">type </span>Target = SmallVec&lt;[HeaderValue; <span class="number">4</span>]&gt;;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.inner
+    }
+}
+
+<span class="kw">impl </span>HeaderMap {
+    <span class="doccomment">/// Create an empty `HeaderMap`.
+    ///
+    /// The map will be created without any capacity; this function will not allocate.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::HeaderMap;
+    /// let map = HeaderMap::new();
+    ///
+    /// assert!(map.is_empty());
+    /// assert_eq!(0, map.capacity());
+    /// ```
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        HeaderMap::default()
     }
 
-    <span class="doccomment">/// Create an empty `HeaderMap` with the specified capacity.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The map will be able to hold at least `capacity` elements without needing to reallocate.</span>
-    <span class="doccomment">/// If `capacity` is 0, the map will be created without allocating.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::HeaderMap;</span>
-    <span class="doccomment">/// let map = HeaderMap::with_capacity(16);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(map.is_empty());</span>
-    <span class="doccomment">/// assert!(map.capacity() &gt;= 16);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">capacity</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">HeaderMap</span> {
-            <span class="ident">inner</span>: <span class="ident">AHashMap::with_capacity</span>(<span class="ident">capacity</span>),
+    <span class="doccomment">/// Create an empty `HeaderMap` with the specified capacity.
+    ///
+    /// The map will be able to hold at least `capacity` elements without needing to reallocate.
+    /// If `capacity` is 0, the map will be created without allocating.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::HeaderMap;
+    /// let map = HeaderMap::with_capacity(16);
+    ///
+    /// assert!(map.is_empty());
+    /// assert!(map.capacity() &gt;= 16);
+    /// ```
+    </span><span class="kw">pub fn </span>with_capacity(capacity: usize) -&gt; <span class="self">Self </span>{
+        HeaderMap {
+            inner: AHashMap::with_capacity(capacity),
         }
     }
 
-    <span class="doccomment">/// Create new `HeaderMap` from a `http::HeaderMap`-like drain.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_drain</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">drain</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderName</span><span class="op">&gt;</span>, <span class="ident">HeaderValue</span>)<span class="op">&gt;</span>,
+    <span class="doccomment">/// Create new `HeaderMap` from a `http::HeaderMap`-like drain.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_drain&lt;I&gt;(<span class="kw-2">mut </span>drain: I) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>I: Iterator&lt;Item = (<span class="prelude-ty">Option</span>&lt;HeaderName&gt;, HeaderValue)&gt;,
     {
-        <span class="kw">let</span> (<span class="ident">first_name</span>, <span class="ident">first_value</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">drain</span>.<span class="ident">next</span>() {
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">HeaderMap::new</span>(),
-            <span class="prelude-val">Some</span>((<span class="ident">name</span>, <span class="ident">val</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">expect</span>(<span class="string">&quot;drained first item had no name&quot;</span>);
-                (<span class="ident">name</span>, <span class="ident">val</span>)
+        <span class="kw">let </span>(first_name, first_value) = <span class="kw">match </span>drain.next() {
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>HeaderMap::new(),
+            <span class="prelude-val">Some</span>((name, val)) =&gt; {
+                <span class="kw">let </span>name = name.expect(<span class="string">&quot;drained first item had no name&quot;</span>);
+                (name, val)
             }
         };
 
-        <span class="kw">let</span> (<span class="ident">lb</span>, <span class="ident">ub</span>) <span class="op">=</span> <span class="ident">drain</span>.<span class="ident">size_hint</span>();
-        <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">ub</span>.<span class="ident">unwrap_or</span>(<span class="ident">lb</span>);
+        <span class="kw">let </span>(lb, ub) = drain.size_hint();
+        <span class="kw">let </span>capacity = ub.unwrap_or(lb);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::with_capacity</span>(<span class="ident">capacity</span>);
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">first_name</span>.<span class="ident">clone</span>(), <span class="ident">first_value</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>map = HeaderMap::with_capacity(capacity);
+        map.append(first_name.clone(), first_value);
 
-        <span class="kw">let</span> (<span class="ident">map</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">drain</span>.<span class="ident">fold</span>((<span class="ident">map</span>, <span class="ident">first_name</span>), <span class="op">|</span>(<span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">prev_name</span>), (<span class="ident">name</span>, <span class="ident">value</span>)<span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">unwrap_or</span>(<span class="ident">prev_name</span>);
-            <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">value</span>);
-            (<span class="ident">map</span>, <span class="ident">name</span>)
+        <span class="kw">let </span>(map, <span class="kw">_</span>) = drain.fold((map, first_name), |(<span class="kw-2">mut </span>map, prev_name), (name, value)| {
+            <span class="kw">let </span>name = name.unwrap_or(prev_name);
+            map.append(name.clone(), value);
+            (map, name)
         });
 
-        <span class="ident">map</span>
+        map
     }
 
-    <span class="doccomment">/// Returns the number of values stored in the map.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also: [`len_keys`](Self::len_keys).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 0);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));</span>
-    <span class="doccomment">/// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 2);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 3);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">fold</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">acc</span>, (<span class="kw">_</span>, <span class="ident">values</span>)<span class="op">|</span> <span class="ident">acc</span> <span class="op">+</span> <span class="ident">values</span>.<span class="ident">len</span>())
+    <span class="doccomment">/// Returns the number of values stored in the map.
+    ///
+    /// See also: [`len_keys`](Self::len_keys).
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    /// assert_eq!(map.len(), 0);
+    ///
+    /// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));
+    /// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    /// assert_eq!(map.len(), 2);
+    ///
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));
+    /// assert_eq!(map.len(), 3);
+    /// ```
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.inner
+            .iter()
+            .fold(<span class="number">0</span>, |acc, (<span class="kw">_</span>, values)| acc + values.len())
     }
 
-    <span class="doccomment">/// Returns the number of _keys_ stored in the map.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The number of values stored will be at least this number. See also: [`Self::len`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">/// assert_eq!(map.len_keys(), 0);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));</span>
-    <span class="doccomment">/// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.len_keys(), 2);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.len_keys(), 2);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len_keys</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">len</span>()
+    <span class="doccomment">/// Returns the number of _keys_ stored in the map.
+    ///
+    /// The number of values stored will be at least this number. See also: [`Self::len`].
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    /// assert_eq!(map.len_keys(), 0);
+    ///
+    /// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));
+    /// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    /// assert_eq!(map.len_keys(), 2);
+    ///
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));
+    /// assert_eq!(map.len_keys(), 2);
+    /// ```
+    </span><span class="kw">pub fn </span>len_keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.inner.len()
     }
 
-    <span class="doccomment">/// Returns true if the map contains no elements.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">/// assert!(map.is_empty());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));</span>
-    <span class="doccomment">/// assert!(!map.is_empty());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span>
+    <span class="doccomment">/// Returns true if the map contains no elements.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    /// assert!(map.is_empty());
+    ///
+    /// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));
+    /// assert!(!map.is_empty());
+    /// ```
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.inner.len() == <span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Clears the map, removing all name-value pairs.
+    ///
+    /// Keeps the allocated memory for reuse.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));
+    /// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    /// assert_eq!(map.len(), 2);
+    ///
+    /// map.clear();
+    /// assert!(map.is_empty());
+    /// ```
+    </span><span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.inner.clear();
     }
 
-    <span class="doccomment">/// Clears the map, removing all name-value pairs.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Keeps the allocated memory for reuse.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));</span>
-    <span class="doccomment">/// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 2);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.clear();</span>
-    <span class="doccomment">/// assert!(map.is_empty());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clear</span>();
-    }
-
-    <span class="kw">fn</span> <span class="ident">get_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw">impl</span> <span class="ident">AsHeaderName</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Value</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">key</span>.<span class="ident">try_as_name</span>(<span class="ident"><span class="kw">super</span>::as_name::Seal</span>).<span class="ident">ok</span>()<span class="question-mark">?</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">name</span>) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get</span>(<span class="ident">name</span>),
-            <span class="ident">Cow::Owned</span>(<span class="ident">name</span>) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>),
+    <span class="kw">fn </span>get_value(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw">impl </span>AsHeaderName) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Value&gt; {
+        <span class="kw">match </span>key.try_as_name(<span class="kw">super</span>::as_name::Seal).ok()<span class="question-mark">? </span>{
+            Cow::Borrowed(name) =&gt; <span class="self">self</span>.inner.get(name),
+            Cow::Owned(name) =&gt; <span class="self">self</span>.inner.get(<span class="kw-2">&amp;</span>name),
         }
     }
 
-    <span class="doccomment">/// Returns a reference to the _first_ value associated with a header name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if there is no value associated with the key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Even when multiple values are associated with the key, the &quot;first&quot; one is returned but is</span>
-    <span class="doccomment">/// not guaranteed to be chosen with any particular order; though, the returned item will be</span>
-    <span class="doccomment">/// consistent for each call to `get` if the map has not changed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also: [`get_all`](Self::get_all).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let cookie = map.get(header::SET_COOKIE).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(cookie, &quot;one=1&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.get(header::SET_COOKIE).unwrap(), &quot;one=1&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(map.get(header::SET_COOKIE), map.get(&quot;set-cookie&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.get(header::SET_COOKIE), map.get(&quot;Set-Cookie&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(map.get(header::HOST).is_none());</span>
-    <span class="doccomment">/// assert!(map.get(&quot;INVALID HEADER NAME&quot;).is_none());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw">impl</span> <span class="ident">AsHeaderName</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_value</span>(<span class="ident">key</span>).<span class="ident">map</span>(<span class="ident">Value::first</span>)
+    <span class="doccomment">/// Returns a reference to the _first_ value associated with a header name.
+    ///
+    /// Returns `None` if there is no value associated with the key.
+    ///
+    /// Even when multiple values are associated with the key, the &quot;first&quot; one is returned but is
+    /// not guaranteed to be chosen with any particular order; though, the returned item will be
+    /// consistent for each call to `get` if the map has not changed.
+    ///
+    /// See also: [`get_all`](Self::get_all).
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    ///
+    /// let cookie = map.get(header::SET_COOKIE).unwrap();
+    /// assert_eq!(cookie, &quot;one=1&quot;);
+    ///
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));
+    /// assert_eq!(map.get(header::SET_COOKIE).unwrap(), &quot;one=1&quot;);
+    ///
+    /// assert_eq!(map.get(header::SET_COOKIE), map.get(&quot;set-cookie&quot;));
+    /// assert_eq!(map.get(header::SET_COOKIE), map.get(&quot;Set-Cookie&quot;));
+    ///
+    /// assert!(map.get(header::HOST).is_none());
+    /// assert!(map.get(&quot;INVALID HEADER NAME&quot;).is_none());
+    /// ```
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw">impl </span>AsHeaderName) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>HeaderValue&gt; {
+        <span class="self">self</span>.get_value(key).map(Value::first)
     }
 
-    <span class="doccomment">/// Returns a mutable reference to the _first_ value associated a header name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if there is no value associated with the key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Even when multiple values are associated with the key, the &quot;first&quot; one is returned but is</span>
-    <span class="doccomment">/// not guaranteed to be chosen with any particular order; though, the returned item will be</span>
-    <span class="doccomment">/// consistent for each call to `get_mut` if the map has not changed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See also: [`get_all`](Self::get_all).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut cookie = map.get_mut(header::SET_COOKIE).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(cookie, &quot;one=1&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// *cookie = HeaderValue::from_static(&quot;three=3&quot;);</span>
-    <span class="doccomment">/// assert_eq!(map.get(header::SET_COOKIE).unwrap(), &quot;three=3&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(map.get(header::HOST).is_none());</span>
-    <span class="doccomment">/// assert!(map.get(&quot;INVALID HEADER NAME&quot;).is_none());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw">impl</span> <span class="ident">AsHeaderName</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">HeaderValue</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">key</span>.<span class="ident">try_as_name</span>(<span class="ident"><span class="kw">super</span>::as_name::Seal</span>).<span class="ident">ok</span>()<span class="question-mark">?</span> {
-            <span class="ident">Cow::Borrowed</span>(<span class="ident">name</span>) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get_mut</span>(<span class="ident">name</span>).<span class="ident">map</span>(<span class="ident">Value::first_mut</span>),
-            <span class="ident">Cow::Owned</span>(<span class="ident">name</span>) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>).<span class="ident">map</span>(<span class="ident">Value::first_mut</span>),
+    <span class="doccomment">/// Returns a mutable reference to the _first_ value associated a header name.
+    ///
+    /// Returns `None` if there is no value associated with the key.
+    ///
+    /// Even when multiple values are associated with the key, the &quot;first&quot; one is returned but is
+    /// not guaranteed to be chosen with any particular order; though, the returned item will be
+    /// consistent for each call to `get_mut` if the map has not changed.
+    ///
+    /// See also: [`get_all`](Self::get_all).
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    ///
+    /// let mut cookie = map.get_mut(header::SET_COOKIE).unwrap();
+    /// assert_eq!(cookie, &quot;one=1&quot;);
+    ///
+    /// *cookie = HeaderValue::from_static(&quot;three=3&quot;);
+    /// assert_eq!(map.get(header::SET_COOKIE).unwrap(), &quot;three=3&quot;);
+    ///
+    /// assert!(map.get(header::HOST).is_none());
+    /// assert!(map.get(&quot;INVALID HEADER NAME&quot;).is_none());
+    /// ```
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw">impl </span>AsHeaderName) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>HeaderValue&gt; {
+        <span class="kw">match </span>key.try_as_name(<span class="kw">super</span>::as_name::Seal).ok()<span class="question-mark">? </span>{
+            Cow::Borrowed(name) =&gt; <span class="self">self</span>.inner.get_mut(name).map(Value::first_mut),
+            Cow::Owned(name) =&gt; <span class="self">self</span>.inner.get_mut(<span class="kw-2">&amp;</span>name).map(Value::first_mut),
         }
     }
 
-    <span class="doccomment">/// Returns an iterator over all values associated with a header name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned iterator does not incur any allocations and will yield no items if there are no</span>
-    <span class="doccomment">/// values associated with the key. Iteration order is guaranteed to be the same as</span>
-    <span class="doccomment">/// insertion order.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut none_iter = map.get_all(header::ORIGIN);</span>
-    <span class="doccomment">/// assert!(none_iter.next().is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut set_cookies_iter = map.get_all(header::SET_COOKIE);</span>
-    <span class="doccomment">/// assert_eq!(set_cookies_iter.next().unwrap(), &quot;one=1&quot;);</span>
-    <span class="doccomment">/// assert_eq!(set_cookies_iter.next().unwrap(), &quot;two=2&quot;);</span>
-    <span class="doccomment">/// assert!(set_cookies_iter.next().is_none());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_all</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw">impl</span> <span class="ident">AsHeaderName</span>) -&gt; <span class="ident">std::slice::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">HeaderValue</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_value</span>(<span class="ident">key</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">iter</span>(),
-            <span class="prelude-val">None</span> =&gt; (<span class="kw-2">&amp;</span>[]).<span class="ident">iter</span>(),
+    <span class="doccomment">/// Returns an iterator over all values associated with a header name.
+    ///
+    /// The returned iterator does not incur any allocations and will yield no items if there are no
+    /// values associated with the key. Iteration order is guaranteed to be the same as
+    /// insertion order.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// let mut none_iter = map.get_all(header::ORIGIN);
+    /// assert!(none_iter.next().is_none());
+    ///
+    /// map.insert(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));
+    ///
+    /// let mut set_cookies_iter = map.get_all(header::SET_COOKIE);
+    /// assert_eq!(set_cookies_iter.next().unwrap(), &quot;one=1&quot;);
+    /// assert_eq!(set_cookies_iter.next().unwrap(), &quot;two=2&quot;);
+    /// assert!(set_cookies_iter.next().is_none());
+    /// ```
+    </span><span class="kw">pub fn </span>get_all(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw">impl </span>AsHeaderName) -&gt; std::slice::Iter&lt;<span class="lifetime">&#39;_</span>, HeaderValue&gt; {
+        <span class="kw">match </span><span class="self">self</span>.get_value(key) {
+            <span class="prelude-val">Some</span>(value) =&gt; value.iter(),
+            <span class="prelude-val">None </span>=&gt; (<span class="kw-2">&amp;</span>[]).iter(),
         }
     }
 
-    <span class="comment">// TODO: get_all_mut ?</span>
+    <span class="comment">// TODO: get_all_mut ?
 
-    <span class="doccomment">/// Returns `true` if the map contains a value for the specified key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Invalid header names will simply return false.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">/// assert!(!map.contains_key(header::ACCEPT));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));</span>
-    <span class="doccomment">/// assert!(map.contains_key(header::ACCEPT));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw">impl</span> <span class="ident">AsHeaderName</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="ident">key</span>.<span class="ident">try_as_name</span>(<span class="ident"><span class="kw">super</span>::as_name::Seal</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">Cow::Borrowed</span>(<span class="ident">name</span>)) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">contains_key</span>(<span class="ident">name</span>),
-            <span class="prelude-val">Ok</span>(<span class="ident">Cow::Owned</span>(<span class="ident">name</span>)) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>),
+    </span><span class="doccomment">/// Returns `true` if the map contains a value for the specified key.
+    ///
+    /// Invalid header names will simply return false.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    /// assert!(!map.contains_key(header::ACCEPT));
+    ///
+    /// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));
+    /// assert!(map.contains_key(header::ACCEPT));
+    /// ```
+    </span><span class="kw">pub fn </span>contains_key(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw">impl </span>AsHeaderName) -&gt; bool {
+        <span class="kw">match </span>key.try_as_name(<span class="kw">super</span>::as_name::Seal) {
+            <span class="prelude-val">Ok</span>(Cow::Borrowed(name)) =&gt; <span class="self">self</span>.inner.contains_key(name),
+            <span class="prelude-val">Ok</span>(Cow::Owned(name)) =&gt; <span class="self">self</span>.inner.contains_key(<span class="kw-2">&amp;</span>name),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="doccomment">/// Inserts (overrides) a name-value pair in the map.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the map already contained this key, the new value is associated with the key and all</span>
-    <span class="doccomment">/// previous values are removed and returned as a `Removed` iterator. The key is not updated;</span>
-    <span class="doccomment">/// this matters for types that can be `==` without being identical.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));</span>
-    <span class="doccomment">/// assert!(map.contains_key(header::ACCEPT));</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 1);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut removed = map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/csv&quot;));</span>
-    <span class="doccomment">/// assert_eq!(removed.next().unwrap(), &quot;text/plain&quot;);</span>
-    <span class="doccomment">/// assert!(removed.next().is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 1);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A convenience method is provided on the returned iterator to check if the insertion replaced</span>
-    <span class="doccomment">/// any values.</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let removed = map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));</span>
-    <span class="doccomment">/// assert!(removed.is_empty());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let removed = map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/html&quot;));</span>
-    <span class="doccomment">/// assert!(!removed.is_empty());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">HeaderName</span>, <span class="ident">val</span>: <span class="ident">HeaderValue</span>) -&gt; <span class="ident">Removed</span> {
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">Value::one</span>(<span class="ident">val</span>));
-        <span class="ident">Removed::new</span>(<span class="ident">value</span>)
+    <span class="doccomment">/// Inserts (overrides) a name-value pair in the map.
+    ///
+    /// If the map already contained this key, the new value is associated with the key and all
+    /// previous values are removed and returned as a `Removed` iterator. The key is not updated;
+    /// this matters for types that can be `==` without being identical.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));
+    /// assert!(map.contains_key(header::ACCEPT));
+    /// assert_eq!(map.len(), 1);
+    ///
+    /// let mut removed = map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/csv&quot;));
+    /// assert_eq!(removed.next().unwrap(), &quot;text/plain&quot;);
+    /// assert!(removed.next().is_none());
+    ///
+    /// assert_eq!(map.len(), 1);
+    /// ```
+    ///
+    /// A convenience method is provided on the returned iterator to check if the insertion replaced
+    /// any values.
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// let removed = map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/plain&quot;));
+    /// assert!(removed.is_empty());
+    ///
+    /// let removed = map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/html&quot;));
+    /// assert!(!removed.is_empty());
+    /// ```
+    </span><span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: HeaderName, val: HeaderValue) -&gt; Removed {
+        <span class="kw">let </span>value = <span class="self">self</span>.inner.insert(key, Value::one(val));
+        Removed::new(value)
     }
 
-    <span class="doccomment">/// Appends a name-value pair to the map.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the map already contained this key, the new value is added to the list of values</span>
-    <span class="doccomment">/// currently associated with the key. The key is not updated; this matters for types that can</span>
-    <span class="doccomment">/// be `==` without being identical.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::HOST, HeaderValue::from_static(&quot;example.com&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 1);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::ACCEPT, HeaderValue::from_static(&quot;text/csv&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 2);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::ACCEPT, HeaderValue::from_static(&quot;text/html&quot;));</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 3);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">HeaderName</span>, <span class="ident">value</span>: <span class="ident">HeaderValue</span>) {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">entry</span>(<span class="ident">key</span>) {
-            <span class="ident">hash_map::Entry::Occupied</span>(<span class="kw-2">mut</span> <span class="ident">entry</span>) =&gt; {
-                <span class="ident">entry</span>.<span class="ident">get_mut</span>().<span class="ident">append</span>(<span class="ident">value</span>);
+    <span class="doccomment">/// Appends a name-value pair to the map.
+    ///
+    /// If the map already contained this key, the new value is added to the list of values
+    /// currently associated with the key. The key is not updated; this matters for types that can
+    /// be `==` without being identical.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// map.append(header::HOST, HeaderValue::from_static(&quot;example.com&quot;));
+    /// assert_eq!(map.len(), 1);
+    ///
+    /// map.append(header::ACCEPT, HeaderValue::from_static(&quot;text/csv&quot;));
+    /// assert_eq!(map.len(), 2);
+    ///
+    /// map.append(header::ACCEPT, HeaderValue::from_static(&quot;text/html&quot;));
+    /// assert_eq!(map.len(), 3);
+    /// ```
+    </span><span class="kw">pub fn </span>append(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: HeaderName, value: HeaderValue) {
+        <span class="kw">match </span><span class="self">self</span>.inner.entry(key) {
+            hash_map::Entry::Occupied(<span class="kw-2">mut </span>entry) =&gt; {
+                entry.get_mut().append(value);
             }
-            <span class="ident">hash_map::Entry::Vacant</span>(<span class="ident">entry</span>) =&gt; {
-                <span class="ident">entry</span>.<span class="ident">insert</span>(<span class="ident">Value::one</span>(<span class="ident">value</span>));
+            hash_map::Entry::Vacant(entry) =&gt; {
+                entry.insert(Value::one(value));
             }
         };
     }
 
-    <span class="doccomment">/// Removes all headers for a particular header name from the map.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Providing an invalid header names (as a string argument) will have no effect and return</span>
-    <span class="doccomment">/// without error.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=2&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(map.len(), 2);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut removed = map.remove(header::SET_COOKIE);</span>
-    <span class="doccomment">/// assert_eq!(removed.next().unwrap(), &quot;one=1&quot;);</span>
-    <span class="doccomment">/// assert_eq!(removed.next().unwrap(), &quot;one=2&quot;);</span>
-    <span class="doccomment">/// assert!(removed.next().is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(map.is_empty());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A convenience method is provided on the returned iterator to check if the `remove` call</span>
-    <span class="doccomment">/// actually removed any values.</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let removed = map.remove(&quot;accept&quot;);</span>
-    <span class="doccomment">/// assert!(removed.is_empty());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/html&quot;));</span>
-    <span class="doccomment">/// let removed = map.remove(&quot;accept&quot;);</span>
-    <span class="doccomment">/// assert!(!removed.is_empty());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw">impl</span> <span class="ident">AsHeaderName</span>) -&gt; <span class="ident">Removed</span> {
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">key</span>.<span class="ident">try_as_name</span>(<span class="ident"><span class="kw">super</span>::as_name::Seal</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">Cow::Borrowed</span>(<span class="ident">name</span>)) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">remove</span>(<span class="ident">name</span>),
-            <span class="prelude-val">Ok</span>(<span class="ident">Cow::Owned</span>(<span class="ident">name</span>)) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>),
+    <span class="doccomment">/// Removes all headers for a particular header name from the map.
+    ///
+    /// Providing an invalid header names (as a string argument) will have no effect and return
+    /// without error.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=2&quot;));
+    ///
+    /// assert_eq!(map.len(), 2);
+    ///
+    /// let mut removed = map.remove(header::SET_COOKIE);
+    /// assert_eq!(removed.next().unwrap(), &quot;one=1&quot;);
+    /// assert_eq!(removed.next().unwrap(), &quot;one=2&quot;);
+    /// assert!(removed.next().is_none());
+    ///
+    /// assert!(map.is_empty());
+    /// ```
+    ///
+    /// A convenience method is provided on the returned iterator to check if the `remove` call
+    /// actually removed any values.
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// let removed = map.remove(&quot;accept&quot;);
+    /// assert!(removed.is_empty());
+    ///
+    /// map.insert(header::ACCEPT, HeaderValue::from_static(&quot;text/html&quot;));
+    /// let removed = map.remove(&quot;accept&quot;);
+    /// assert!(!removed.is_empty());
+    /// ```
+    </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw">impl </span>AsHeaderName) -&gt; Removed {
+        <span class="kw">let </span>value = <span class="kw">match </span>key.try_as_name(<span class="kw">super</span>::as_name::Seal) {
+            <span class="prelude-val">Ok</span>(Cow::Borrowed(name)) =&gt; <span class="self">self</span>.inner.remove(name),
+            <span class="prelude-val">Ok</span>(Cow::Owned(name)) =&gt; <span class="self">self</span>.inner.remove(<span class="kw-2">&amp;</span>name),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         };
 
-        <span class="ident">Removed::new</span>(<span class="ident">value</span>)
+        Removed::new(value)
     }
 
-    <span class="doccomment">/// Returns the number of single-value headers the map can hold without needing to reallocate.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Since this is a multi-value map, the actual capacity is much larger when considering</span>
-    <span class="doccomment">/// each header name can be associated with an arbitrary number of values. The effect is that</span>
-    <span class="doccomment">/// the size of `len` may be greater than `capacity` since it counts all the values.</span>
-    <span class="doccomment">/// Conversely, [`len_keys`](Self::len_keys) will never be larger than capacity.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::HeaderMap;</span>
-    <span class="doccomment">/// let map = HeaderMap::with_capacity(16);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(map.is_empty());</span>
-    <span class="doccomment">/// assert!(map.capacity() &gt;= 16);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">capacity</span>()
+    <span class="doccomment">/// Returns the number of single-value headers the map can hold without needing to reallocate.
+    ///
+    /// Since this is a multi-value map, the actual capacity is much larger when considering
+    /// each header name can be associated with an arbitrary number of values. The effect is that
+    /// the size of `len` may be greater than `capacity` since it counts all the values.
+    /// Conversely, [`len_keys`](Self::len_keys) will never be larger than capacity.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::HeaderMap;
+    /// let map = HeaderMap::with_capacity(16);
+    ///
+    /// assert!(map.is_empty());
+    /// assert!(map.capacity() &gt;= 16);
+    /// ```
+    </span><span class="kw">pub fn </span>capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.inner.capacity()
     }
 
-    <span class="doccomment">/// Reserves capacity for at least `additional` more headers to be inserted in the map.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The header map may reserve more space to avoid frequent reallocations. Additional capacity</span>
-    <span class="doccomment">/// only considers single-value headers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if the new allocation size overflows usize.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::HeaderMap;</span>
-    <span class="doccomment">/// let mut map = HeaderMap::with_capacity(2);</span>
-    <span class="doccomment">/// assert!(map.capacity() &gt;= 2);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.reserve(100);</span>
-    <span class="doccomment">/// assert!(map.capacity() &gt;= 102);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(map.is_empty());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reserve</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">additional</span>: <span class="ident">usize</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">reserve</span>(<span class="ident">additional</span>)
+    <span class="doccomment">/// Reserves capacity for at least `additional` more headers to be inserted in the map.
+    ///
+    /// The header map may reserve more space to avoid frequent reallocations. Additional capacity
+    /// only considers single-value headers.
+    ///
+    /// # Panics
+    /// Panics if the new allocation size overflows usize.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::HeaderMap;
+    /// let mut map = HeaderMap::with_capacity(2);
+    /// assert!(map.capacity() &gt;= 2);
+    ///
+    /// map.reserve(100);
+    /// assert!(map.capacity() &gt;= 102);
+    ///
+    /// assert!(map.is_empty());
+    /// ```
+    </span><span class="kw">pub fn </span>reserve(<span class="kw-2">&amp;mut </span><span class="self">self</span>, additional: usize) {
+        <span class="self">self</span>.inner.reserve(additional)
     }
 
-    <span class="doccomment">/// An iterator over all name-value pairs.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Names will be yielded for each associated value. So, if a key has 3 associated values, it</span>
-    <span class="doccomment">/// will be yielded 3 times. The iteration order should be considered arbitrary.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = map.iter();</span>
-    <span class="doccomment">/// assert!(iter.next().is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::HOST, HeaderValue::from_static(&quot;duck.com&quot;));</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = map.iter();</span>
-    <span class="doccomment">/// assert!(iter.next().is_some());</span>
-    <span class="doccomment">/// assert!(iter.next().is_some());</span>
-    <span class="doccomment">/// assert!(iter.next().is_some());</span>
-    <span class="doccomment">/// assert!(iter.next().is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let pairs = map.iter().collect::&lt;Vec&lt;_&gt;&gt;();</span>
-    <span class="doccomment">/// assert!(pairs.contains(&amp;(&amp;header::HOST, &amp;HeaderValue::from_static(&quot;duck.com&quot;))));</span>
-    <span class="doccomment">/// assert!(pairs.contains(&amp;(&amp;header::SET_COOKIE, &amp;HeaderValue::from_static(&quot;one=1&quot;))));</span>
-    <span class="doccomment">/// assert!(pairs.contains(&amp;(&amp;header::SET_COOKIE, &amp;HeaderValue::from_static(&quot;two=2&quot;))));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">Iter::new</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">iter</span>())
+    <span class="doccomment">/// An iterator over all name-value pairs.
+    ///
+    /// Names will be yielded for each associated value. So, if a key has 3 associated values, it
+    /// will be yielded 3 times. The iteration order should be considered arbitrary.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// let mut iter = map.iter();
+    /// assert!(iter.next().is_none());
+    ///
+    /// map.append(header::HOST, HeaderValue::from_static(&quot;duck.com&quot;));
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));
+    ///
+    /// let mut iter = map.iter();
+    /// assert!(iter.next().is_some());
+    /// assert!(iter.next().is_some());
+    /// assert!(iter.next().is_some());
+    /// assert!(iter.next().is_none());
+    ///
+    /// let pairs = map.iter().collect::&lt;Vec&lt;_&gt;&gt;();
+    /// assert!(pairs.contains(&amp;(&amp;header::HOST, &amp;HeaderValue::from_static(&quot;duck.com&quot;))));
+    /// assert!(pairs.contains(&amp;(&amp;header::SET_COOKIE, &amp;HeaderValue::from_static(&quot;one=1&quot;))));
+    /// assert!(pairs.contains(&amp;(&amp;header::SET_COOKIE, &amp;HeaderValue::from_static(&quot;two=2&quot;))));
+    /// ```
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Iter&lt;<span class="lifetime">&#39;_</span>&gt; {
+        Iter::new(<span class="self">self</span>.inner.iter())
     }
 
-    <span class="doccomment">/// An iterator over all contained header names.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Each name will only be yielded once even if it has multiple associated values. The iteration</span>
-    <span class="doccomment">/// order should be considered arbitrary.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = map.keys();</span>
-    <span class="doccomment">/// assert!(iter.next().is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::HOST, HeaderValue::from_static(&quot;duck.com&quot;));</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let keys = map.keys().cloned().collect::&lt;Vec&lt;_&gt;&gt;();</span>
-    <span class="doccomment">/// assert_eq!(keys.len(), 2);</span>
-    <span class="doccomment">/// assert!(keys.contains(&amp;header::HOST));</span>
-    <span class="doccomment">/// assert!(keys.contains(&amp;header::SET_COOKIE));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keys</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Keys</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">Keys</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">keys</span>())
+    <span class="doccomment">/// An iterator over all contained header names.
+    ///
+    /// Each name will only be yielded once even if it has multiple associated values. The iteration
+    /// order should be considered arbitrary.
+    ///
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// let mut iter = map.keys();
+    /// assert!(iter.next().is_none());
+    ///
+    /// map.append(header::HOST, HeaderValue::from_static(&quot;duck.com&quot;));
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));
+    ///
+    /// let keys = map.keys().cloned().collect::&lt;Vec&lt;_&gt;&gt;();
+    /// assert_eq!(keys.len(), 2);
+    /// assert!(keys.contains(&amp;header::HOST));
+    /// assert!(keys.contains(&amp;header::SET_COOKIE));
+    /// ```
+    </span><span class="kw">pub fn </span>keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Keys&lt;<span class="lifetime">&#39;_</span>&gt; {
+        Keys(<span class="self">self</span>.inner.keys())
     }
 
-    <span class="doccomment">/// Clears the map, returning all name-value sets as an iterator.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Header names will only be yielded for the first value in each set. All items that are</span>
-    <span class="doccomment">/// yielded without a name and after an item with a name are associated with that same name.</span>
-    <span class="doccomment">/// The first item will always contain a name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Keeps the allocated memory for reuse.</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::header::{self, HeaderMap, HeaderValue};</span>
-    <span class="doccomment">/// let mut map = HeaderMap::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = map.drain();</span>
-    <span class="doccomment">/// assert!(iter.next().is_none());</span>
-    <span class="doccomment">/// drop(iter);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));</span>
-    <span class="doccomment">/// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = map.drain();</span>
-    <span class="doccomment">/// assert_eq!(iter.next().unwrap(), (Some(header::SET_COOKIE), HeaderValue::from_static(&quot;one=1&quot;)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next().unwrap(), (None, HeaderValue::from_static(&quot;two=2&quot;)));</span>
-    <span class="doccomment">/// drop(iter);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(map.is_empty());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">drain</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">Drain::new</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">drain</span>())
-    }
-}
-
-<span class="doccomment">/// Note that this implementation will clone a [HeaderName] for each value. Consider using</span>
-<span class="doccomment">/// [`drain`](Self::drain) to control header name cloning.</span>
-<span class="kw">impl</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="ident">HeaderMap</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>);
-    <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">IntoIter</span>;
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::IntoIter</span> {
-        <span class="ident">IntoIter::new</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">into_iter</span>())
+    <span class="doccomment">/// Clears the map, returning all name-value sets as an iterator.
+    ///
+    /// Header names will only be yielded for the first value in each set. All items that are
+    /// yielded without a name and after an item with a name are associated with that same name.
+    /// The first item will always contain a name.
+    ///
+    /// Keeps the allocated memory for reuse.
+    /// # Examples
+    /// ```
+    /// # use actix_http::header::{self, HeaderMap, HeaderValue};
+    /// let mut map = HeaderMap::new();
+    ///
+    /// let mut iter = map.drain();
+    /// assert!(iter.next().is_none());
+    /// drop(iter);
+    ///
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;one=1&quot;));
+    /// map.append(header::SET_COOKIE, HeaderValue::from_static(&quot;two=2&quot;));
+    ///
+    /// let mut iter = map.drain();
+    /// assert_eq!(iter.next().unwrap(), (Some(header::SET_COOKIE), HeaderValue::from_static(&quot;one=1&quot;)));
+    /// assert_eq!(iter.next().unwrap(), (None, HeaderValue::from_static(&quot;two=2&quot;)));
+    /// drop(iter);
+    ///
+    /// assert!(map.is_empty());
+    /// ```
+    </span><span class="kw">pub fn </span>drain(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Drain&lt;<span class="lifetime">&#39;_</span>&gt; {
+        Drain::new(<span class="self">self</span>.inner.drain())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HeaderMap</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HeaderName</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HeaderValue</span>);
-    <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Note that this implementation will clone a [HeaderName] for each value. Consider using
+/// [`drain`](Self::drain) to control header name cloning.
+</span><span class="kw">impl </span>IntoIterator <span class="kw">for </span>HeaderMap {
+    <span class="kw">type </span>Item = (HeaderName, HeaderValue);
+    <span class="kw">type </span>IntoIter = IntoIter;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::IntoIter</span> {
-        <span class="ident">Iter::new</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">iter</span>())
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        IntoIter::new(<span class="self">self</span>.inner.into_iter())
     }
 }
 
-<span class="doccomment">/// Convert `http::HeaderMap` to our `HeaderMap`.</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">http::HeaderMap</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HeaderMap</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">http::HeaderMap</span>) -&gt; <span class="ident">HeaderMap</span> {
-        <span class="ident">HeaderMap::from_drain</span>(<span class="ident">map</span>.<span class="ident">drain</span>())
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HeaderMap {
+    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HeaderName, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HeaderValue);
+    <span class="kw">type </span>IntoIter = Iter&lt;<span class="lifetime">&#39;a</span>&gt;;
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        Iter::new(<span class="self">self</span>.inner.iter())
     }
 }
 
-<span class="doccomment">/// Iterator over removed, owned values with the same associated name.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returned from methods that remove or replace items. See [`HeaderMap::insert`]</span>
-<span class="doccomment">/// and [`HeaderMap::remove`].</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Removed</span> {
-    <span class="ident">inner</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">smallvec::IntoIter</span><span class="op">&lt;</span>[<span class="ident">HeaderValue</span>; <span class="number">4</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Convert `http::HeaderMap` to our `HeaderMap`.
+</span><span class="kw">impl </span>From&lt;http::HeaderMap&gt; <span class="kw">for </span>HeaderMap {
+    <span class="kw">fn </span>from(<span class="kw-2">mut </span>map: http::HeaderMap) -&gt; HeaderMap {
+        HeaderMap::from_drain(map.drain())
+    }
 }
 
-<span class="kw">impl</span> <span class="ident">Removed</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">inner</span>.<span class="ident">into_iter</span>());
-        <span class="self">Self</span> { <span class="ident">inner</span> }
+<span class="doccomment">/// Iterator over removed, owned values with the same associated name.
+///
+/// Returned from methods that remove or replace items. See [`HeaderMap::insert`]
+/// and [`HeaderMap::remove`].
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Removed {
+    inner: <span class="prelude-ty">Option</span>&lt;smallvec::IntoIter&lt;[HeaderValue; <span class="number">4</span>]&gt;&gt;,
+}
+
+<span class="kw">impl </span>Removed {
+    <span class="kw">fn </span>new(value: <span class="prelude-ty">Option</span>&lt;Value&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>inner = value.map(|value| value.inner.into_iter());
+        <span class="self">Self </span>{ inner }
     }
 
-    <span class="doccomment">/// Returns true if iterator contains no elements, without consuming it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If called immediately after [`HeaderMap::insert`] or [`HeaderMap::remove`], it will indicate</span>
-    <span class="doccomment">/// whether any items were actually replaced or removed, respectively.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="comment">// size hint lower bound of smallvec is the correct length</span>
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">iter</span>) =&gt; <span class="ident">iter</span>.<span class="ident">size_hint</span>().<span class="number">0</span> <span class="op">==</span> <span class="number">0</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="bool-val">true</span>,
+    <span class="doccomment">/// Returns true if iterator contains no elements, without consuming it.
+    ///
+    /// If called immediately after [`HeaderMap::insert`] or [`HeaderMap::remove`], it will indicate
+    /// whether any items were actually replaced or removed, respectively.
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.inner {
+            <span class="comment">// size hint lower bound of smallvec is the correct length
+            </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>iter) =&gt; iter.size_hint().<span class="number">0 </span>== <span class="number">0</span>,
+            <span class="prelude-val">None </span>=&gt; <span class="bool-val">true</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Removed</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">HeaderValue</span>;
+<span class="kw">impl </span>Iterator <span class="kw">for </span>Removed {
+    <span class="kw">type </span>Item = HeaderValue;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">as_mut</span>()<span class="question-mark">?</span>.<span class="ident">next</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="self">self</span>.inner.as_mut()<span class="question-mark">?</span>.next()
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">iter</span>) =&gt; <span class="ident">iter</span>.<span class="ident">size_hint</span>(),
-            <span class="prelude-val">None</span> =&gt; (<span class="number">0</span>, <span class="prelude-val">None</span>),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="kw">match </span><span class="self">self</span>.inner {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>iter) =&gt; iter.size_hint(),
+            <span class="prelude-val">None </span>=&gt; (<span class="number">0</span>, <span class="prelude-val">None</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">Removed</span> {}
+<span class="kw">impl </span>ExactSizeIterator <span class="kw">for </span>Removed {}
 
-<span class="kw">impl</span> <span class="ident">iter::FusedIterator</span> <span class="kw">for</span> <span class="ident">Removed</span> {}
+<span class="kw">impl </span>iter::FusedIterator <span class="kw">for </span>Removed {}
 
-<span class="doccomment">/// Iterator over all names in the map.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Keys</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">hash_map::Keys</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HeaderName</span>, <span class="ident">Value</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Iterator over all names in the map.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Keys&lt;<span class="lifetime">&#39;a</span>&gt;(hash_map::Keys&lt;<span class="lifetime">&#39;a</span>, HeaderName, Value&gt;);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Keys</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HeaderName</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HeaderName;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">next</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.next()
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">size_hint</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="self">self</span>.<span class="number">0</span>.size_hint()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">Keys</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {}
+<span class="kw">impl </span>ExactSizeIterator <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;_</span>&gt; {}
 
-<span class="kw">impl</span> <span class="ident">iter::FusedIterator</span> <span class="kw">for</span> <span class="ident">Keys</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {}
+<span class="kw">impl </span>iter::FusedIterator <span class="kw">for </span>Keys&lt;<span class="lifetime">&#39;_</span>&gt; {}
 
-<span class="doccomment">/// Iterator over borrowed name-value pairs.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">hash_map::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HeaderName</span>, <span class="ident">Value</span><span class="op">&gt;</span>,
-    <span class="ident">multi_inner</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HeaderName</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SmallVec</span><span class="op">&lt;</span>[<span class="ident">HeaderValue</span>; <span class="number">4</span>]<span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="ident">multi_idx</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// Iterator over borrowed name-value pairs.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Iter&lt;<span class="lifetime">&#39;a</span>&gt; {
+    inner: hash_map::Iter&lt;<span class="lifetime">&#39;a</span>, HeaderName, Value&gt;,
+    multi_inner: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HeaderName, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SmallVec&lt;[HeaderValue; <span class="number">4</span>]&gt;)&gt;,
+    multi_idx: usize,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">iter</span>: <span class="ident">hash_map::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HeaderName</span>, <span class="ident">Value</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">inner</span>: <span class="ident">iter</span>,
-            <span class="ident">multi_idx</span>: <span class="number">0</span>,
-            <span class="ident">multi_inner</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iter&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>new(iter: hash_map::Iter&lt;<span class="lifetime">&#39;a</span>, HeaderName, Value&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner: iter,
+            multi_idx: <span class="number">0</span>,
+            multi_inner: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HeaderName</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HeaderValue</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HeaderName, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HeaderValue);
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="comment">// handle in-progress multi value lists first</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">name</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">vals</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">multi_inner</span> {
-            <span class="kw">match</span> <span class="ident">vals</span>.<span class="ident">get</span>(<span class="self">self</span>.<span class="ident">multi_idx</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">val</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">multi_idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">name</span>, <span class="ident">val</span>));
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="comment">// handle in-progress multi value lists first
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((name, <span class="kw-2">ref mut </span>vals)) = <span class="self">self</span>.multi_inner {
+            <span class="kw">match </span>vals.get(<span class="self">self</span>.multi_idx) {
+                <span class="prelude-val">Some</span>(val) =&gt; {
+                    <span class="self">self</span>.multi_idx += <span class="number">1</span>;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>((name, val));
                 }
-                <span class="prelude-val">None</span> =&gt; {
-                    <span class="comment">// no more items in value list; reset state</span>
-                    <span class="self">self</span>.<span class="ident">multi_idx</span> <span class="op">=</span> <span class="number">0</span>;
-                    <span class="self">self</span>.<span class="ident">multi_inner</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                }
-            }
-        }
-
-        <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">value</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">next</span>()<span class="question-mark">?</span>;
-
-        <span class="comment">// set up new inner iter and recurse into it</span>
-        <span class="self">self</span>.<span class="ident">multi_inner</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">inner</span>));
-        <span class="self">self</span>.<span class="ident">next</span>()
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="comment">// take inner lower bound</span>
-        <span class="comment">// make no attempt at an upper bound</span>
-        (<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">size_hint</span>().<span class="number">0</span>, <span class="prelude-val">None</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {}
-
-<span class="kw">impl</span> <span class="ident">iter::FusedIterator</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {}
-
-<span class="doccomment">/// Iterator over drained name-value pairs.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Iterator items are `(Option&lt;HeaderName&gt;, HeaderValue)` to avoid cloning.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">hash_map::Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HeaderName</span>, <span class="ident">Value</span><span class="op">&gt;</span>,
-    <span class="ident">multi_inner</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderName</span><span class="op">&gt;</span>, <span class="ident">SmallVec</span><span class="op">&lt;</span>[<span class="ident">HeaderValue</span>; <span class="number">4</span>]<span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="ident">multi_idx</span>: <span class="ident">usize</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">iter</span>: <span class="ident">hash_map::Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HeaderName</span>, <span class="ident">Value</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">inner</span>: <span class="ident">iter</span>,
-            <span class="ident">multi_inner</span>: <span class="prelude-val">None</span>,
-            <span class="ident">multi_idx</span>: <span class="number">0</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderName</span><span class="op">&gt;</span>, <span class="ident">HeaderValue</span>);
-
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="comment">// handle in-progress multi value iterators first</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">name</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">vals</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">multi_inner</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">vals</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// OPTIMIZE: array removals</span>
-                <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">name</span>.<span class="ident">take</span>(), <span class="ident">vals</span>.<span class="ident">remove</span>(<span class="number">0</span>)));
-            } <span class="kw">else</span> {
-                <span class="comment">// no more items in value iterator; reset state</span>
-                <span class="self">self</span>.<span class="ident">multi_inner</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="self">self</span>.<span class="ident">multi_idx</span> <span class="op">=</span> <span class="number">0</span>;
-            }
-        }
-
-        <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">value</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">next</span>()<span class="question-mark">?</span>;
-
-        <span class="comment">// set up new inner iter and recurse into it</span>
-        <span class="self">self</span>.<span class="ident">multi_inner</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="prelude-val">Some</span>(<span class="ident">name</span>), <span class="ident">value</span>.<span class="ident">inner</span>));
-        <span class="self">self</span>.<span class="ident">next</span>()
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="comment">// take inner lower bound</span>
-        <span class="comment">// make no attempt at an upper bound</span>
-        (<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">size_hint</span>().<span class="number">0</span>, <span class="prelude-val">None</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {}
-
-<span class="kw">impl</span> <span class="ident">iter::FusedIterator</span> <span class="kw">for</span> <span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {}
-
-<span class="doccomment">/// Iterator over owned name-value pairs.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Implementation necessarily clones header names for each value.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntoIter</span> {
-    <span class="ident">inner</span>: <span class="ident">hash_map::IntoIter</span><span class="op">&lt;</span><span class="ident">HeaderName</span>, <span class="ident">Value</span><span class="op">&gt;</span>,
-    <span class="ident">multi_inner</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">HeaderName</span>, <span class="ident">smallvec::IntoIter</span><span class="op">&lt;</span>[<span class="ident">HeaderValue</span>; <span class="number">4</span>]<span class="op">&gt;</span>)<span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">IntoIter</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="ident">hash_map::IntoIter</span><span class="op">&lt;</span><span class="ident">HeaderName</span>, <span class="ident">Value</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">inner</span>,
-            <span class="ident">multi_inner</span>: <span class="prelude-val">None</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IntoIter</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>);
-
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="comment">// handle in-progress multi value iterators first</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="ident">name</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">vals</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">multi_inner</span> {
-            <span class="kw">match</span> <span class="ident">vals</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">val</span>) =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">val</span>));
-                }
-                <span class="prelude-val">None</span> =&gt; {
-                    <span class="comment">// no more items in value iterator; reset state</span>
-                    <span class="self">self</span>.<span class="ident">multi_inner</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="comment">// no more items in value list; reset state
+                    </span><span class="self">self</span>.multi_idx = <span class="number">0</span>;
+                    <span class="self">self</span>.multi_inner = <span class="prelude-val">None</span>;
                 }
             }
         }
 
-        <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">value</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">next</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>(name, value) = <span class="self">self</span>.inner.next()<span class="question-mark">?</span>;
 
-        <span class="comment">// set up new inner iter and recurse into it</span>
-        <span class="self">self</span>.<span class="ident">multi_inner</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">name</span>, <span class="ident">value</span>.<span class="ident">inner</span>.<span class="ident">into_iter</span>()));
-        <span class="self">self</span>.<span class="ident">next</span>()
+        <span class="comment">// set up new inner iter and recurse into it
+        </span><span class="self">self</span>.multi_inner = <span class="prelude-val">Some</span>((name, <span class="kw-2">&amp;</span>value.inner));
+        <span class="self">self</span>.next()
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="comment">// take inner lower bound</span>
-        <span class="comment">// make no attempt at an upper bound</span>
-        (<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">size_hint</span>().<span class="number">0</span>, <span class="prelude-val">None</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="comment">// take inner lower bound
+        // make no attempt at an upper bound
+        </span>(<span class="self">self</span>.inner.size_hint().<span class="number">0</span>, <span class="prelude-val">None</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">IntoIter</span> {}
+<span class="kw">impl </span>ExactSizeIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;_</span>&gt; {}
 
-<span class="kw">impl</span> <span class="ident">iter::FusedIterator</span> <span class="kw">for</span> <span class="ident">IntoIter</span> {}
+<span class="kw">impl </span>iter::FusedIterator <span class="kw">for </span>Iter&lt;<span class="lifetime">&#39;_</span>&gt; {}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std::iter::FusedIterator</span>;
+<span class="doccomment">/// Iterator over drained name-value pairs.
+///
+/// Iterator items are `(Option&lt;HeaderName&gt;, HeaderValue)` to avoid cloning.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Drain&lt;<span class="lifetime">&#39;a</span>&gt; {
+    inner: hash_map::Drain&lt;<span class="lifetime">&#39;a</span>, HeaderName, Value&gt;,
+    multi_inner: <span class="prelude-ty">Option</span>&lt;(<span class="prelude-ty">Option</span>&lt;HeaderName&gt;, SmallVec&lt;[HeaderValue; <span class="number">4</span>]&gt;)&gt;,
+    multi_idx: usize,
+}
 
-    <span class="kw">use</span> <span class="ident">http::header</span>;
-    <span class="kw">use</span> <span class="ident">static_assertions::assert_impl_all</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Drain&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>new(iter: hash_map::Drain&lt;<span class="lifetime">&#39;a</span>, HeaderName, Value&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner: iter,
+            multi_inner: <span class="prelude-val">None</span>,
+            multi_idx: <span class="number">0</span>,
+        }
+    }
+}
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = (<span class="prelude-ty">Option</span>&lt;HeaderName&gt;, HeaderValue);
 
-    <span class="macro">assert_impl_all!</span>(<span class="ident">HeaderMap</span>: <span class="ident">IntoIterator</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">Keys</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>: <span class="ident">Iterator</span>, <span class="ident">ExactSizeIterator</span>, <span class="ident">FusedIterator</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">std::slice::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">HeaderValue</span><span class="op">&gt;</span>: <span class="ident">Iterator</span>, <span class="ident">ExactSizeIterator</span>, <span class="ident">FusedIterator</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">Removed</span>: <span class="ident">Iterator</span>, <span class="ident">ExactSizeIterator</span>, <span class="ident">FusedIterator</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>: <span class="ident">Iterator</span>, <span class="ident">ExactSizeIterator</span>, <span class="ident">FusedIterator</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">IntoIter</span>: <span class="ident">Iterator</span>, <span class="ident">ExactSizeIterator</span>, <span class="ident">FusedIterator</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">Drain</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>: <span class="ident">Iterator</span>, <span class="ident">ExactSizeIterator</span>, <span class="ident">FusedIterator</span>);
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="comment">// handle in-progress multi value iterators first
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw-2">ref mut </span>name, <span class="kw-2">ref mut </span>vals)) = <span class="self">self</span>.multi_inner {
+            <span class="kw">if </span>!vals.is_empty() {
+                <span class="comment">// OPTIMIZE: array removals
+                </span><span class="kw">return </span><span class="prelude-val">Some</span>((name.take(), vals.remove(<span class="number">0</span>)));
+            } <span class="kw">else </span>{
+                <span class="comment">// no more items in value iterator; reset state
+                </span><span class="self">self</span>.multi_inner = <span class="prelude-val">None</span>;
+                <span class="self">self</span>.multi_idx = <span class="number">0</span>;
+            }
+        }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">create</span>() {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">len</span>(), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">capacity</span>(), <span class="number">0</span>);
+        <span class="kw">let </span>(name, value) = <span class="self">self</span>.inner.next()<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::with_capacity</span>(<span class="number">16</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">len</span>(), <span class="number">0</span>);
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">capacity</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">16</span>);
+        <span class="comment">// set up new inner iter and recurse into it
+        </span><span class="self">self</span>.multi_inner = <span class="prelude-val">Some</span>((<span class="prelude-val">Some</span>(name), value.inner));
+        <span class="self">self</span>.next()
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">insert</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="comment">// take inner lower bound
+        // make no attempt at an upper bound
+        </span>(<span class="self">self</span>.inner.size_hint().<span class="number">0</span>, <span class="prelude-val">None</span>)
+    }
+}
 
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">header::LOCATION</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;/test&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+<span class="kw">impl </span>ExactSizeIterator <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;_</span>&gt; {}
+
+<span class="kw">impl </span>iter::FusedIterator <span class="kw">for </span>Drain&lt;<span class="lifetime">&#39;_</span>&gt; {}
+
+<span class="doccomment">/// Iterator over owned name-value pairs.
+///
+/// Implementation necessarily clones header names for each value.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>IntoIter {
+    inner: hash_map::IntoIter&lt;HeaderName, Value&gt;,
+    multi_inner: <span class="prelude-ty">Option</span>&lt;(HeaderName, smallvec::IntoIter&lt;[HeaderValue; <span class="number">4</span>]&gt;)&gt;,
+}
+
+<span class="kw">impl </span>IntoIter {
+    <span class="kw">fn </span>new(inner: hash_map::IntoIter&lt;HeaderName, Value&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner,
+            multi_inner: <span class="prelude-val">None</span>,
+        }
+    }
+}
+
+<span class="kw">impl </span>Iterator <span class="kw">for </span>IntoIter {
+    <span class="kw">type </span>Item = (HeaderName, HeaderValue);
+
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="comment">// handle in-progress multi value iterators first
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw-2">ref </span>name, <span class="kw-2">ref mut </span>vals)) = <span class="self">self</span>.multi_inner {
+            <span class="kw">match </span>vals.next() {
+                <span class="prelude-val">Some</span>(val) =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>((name.clone(), val));
+                }
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="comment">// no more items in value iterator; reset state
+                    </span><span class="self">self</span>.multi_inner = <span class="prelude-val">None</span>;
+                }
+            }
+        }
+
+        <span class="kw">let </span>(name, value) = <span class="self">self</span>.inner.next()<span class="question-mark">?</span>;
+
+        <span class="comment">// set up new inner iter and recurse into it
+        </span><span class="self">self</span>.multi_inner = <span class="prelude-val">Some</span>((name, value.inner.into_iter()));
+        <span class="self">self</span>.next()
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">contains</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="ident">header::LOCATION</span>));
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="comment">// take inner lower bound
+        // make no attempt at an upper bound
+        </span>(<span class="self">self</span>.inner.size_hint().<span class="number">0</span>, <span class="prelude-val">None</span>)
+    }
+}
 
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">header::LOCATION</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;/test&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="ident">header::LOCATION</span>));
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;Location&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;Location&quot;</span>.<span class="ident">to_owned</span>()));
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;location&quot;</span>));
+<span class="kw">impl </span>ExactSizeIterator <span class="kw">for </span>IntoIter {}
+
+<span class="kw">impl </span>iter::FusedIterator <span class="kw">for </span>IntoIter {}
+
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::iter::FusedIterator;
+
+    <span class="kw">use </span>http::header;
+    <span class="kw">use </span>static_assertions::assert_impl_all;
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="macro">assert_impl_all!</span>(HeaderMap: IntoIterator);
+    <span class="macro">assert_impl_all!</span>(Keys&lt;<span class="lifetime">&#39;_</span>&gt;: Iterator, ExactSizeIterator, FusedIterator);
+    <span class="macro">assert_impl_all!</span>(std::slice::Iter&lt;<span class="lifetime">&#39;_</span>, HeaderValue&gt;: Iterator, ExactSizeIterator, FusedIterator);
+    <span class="macro">assert_impl_all!</span>(Removed: Iterator, ExactSizeIterator, FusedIterator);
+    <span class="macro">assert_impl_all!</span>(Iter&lt;<span class="lifetime">&#39;_</span>&gt;: Iterator, ExactSizeIterator, FusedIterator);
+    <span class="macro">assert_impl_all!</span>(IntoIter: Iterator, ExactSizeIterator, FusedIterator);
+    <span class="macro">assert_impl_all!</span>(Drain&lt;<span class="lifetime">&#39;_</span>&gt;: Iterator, ExactSizeIterator, FusedIterator);
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>create() {
+        <span class="kw">let </span>map = HeaderMap::new();
+        <span class="macro">assert_eq!</span>(map.len(), <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(map.capacity(), <span class="number">0</span>);
+
+        <span class="kw">let </span>map = HeaderMap::with_capacity(<span class="number">16</span>);
+        <span class="macro">assert_eq!</span>(map.len(), <span class="number">0</span>);
+        <span class="macro">assert!</span>(map.capacity() &gt;= <span class="number">16</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">entries_iter</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>insert() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = HeaderMap::new();
 
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::HOST</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;duck.com&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;one=1&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;two=2&quot;</span>));
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">iter</span>();
-        <span class="macro">assert!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
-
-        <span class="kw">let</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="macro">assert!</span>(<span class="ident">pairs</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">header::HOST</span>, <span class="kw-2">&amp;</span><span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;duck.com&quot;</span>))));
-        <span class="macro">assert!</span>(<span class="ident">pairs</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">header::COOKIE</span>, <span class="kw-2">&amp;</span><span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;one=1&quot;</span>))));
-        <span class="macro">assert!</span>(<span class="ident">pairs</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">header::COOKIE</span>, <span class="kw-2">&amp;</span><span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;two=2&quot;</span>))));
+        map.insert(header::LOCATION, HeaderValue::from_static(<span class="string">&quot;/test&quot;</span>));
+        <span class="macro">assert_eq!</span>(map.len(), <span class="number">1</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">drain_iter</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>contains() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = HeaderMap::new();
+        <span class="macro">assert!</span>(!map.contains_key(header::LOCATION));
 
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;one=1&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;two=2&quot;</span>));
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">drain</span>();
-
-        <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">val</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">name</span>, <span class="prelude-val">Some</span>(<span class="ident">header::COOKIE</span>));
-        <span class="ident">vals</span>.<span class="ident">push</span>(<span class="ident">val</span>);
-
-        <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">val</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">name</span>.<span class="ident">is_none</span>());
-        <span class="ident">vals</span>.<span class="ident">push</span>(<span class="ident">val</span>);
-
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;one=1&quot;</span>)));
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;two=2&quot;</span>)));
-
-        <span class="macro">assert!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
-        <span class="ident">drop</span>(<span class="ident">iter</span>);
-
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">is_empty</span>());
+        map.insert(header::LOCATION, HeaderValue::from_static(<span class="string">&quot;/test&quot;</span>));
+        <span class="macro">assert!</span>(map.contains_key(header::LOCATION));
+        <span class="macro">assert!</span>(map.contains_key(<span class="string">&quot;Location&quot;</span>));
+        <span class="macro">assert!</span>(map.contains_key(<span class="string">&quot;Location&quot;</span>.to_owned()));
+        <span class="macro">assert!</span>(map.contains_key(<span class="string">&quot;location&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">entries_into_iter</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>entries_iter() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = HeaderMap::new();
 
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::HOST</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;duck.com&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;one=1&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;two=2&quot;</span>));
+        map.append(header::HOST, HeaderValue::from_static(<span class="string">&quot;duck.com&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;one=1&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;two=2&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">into_iter</span>();
-        <span class="macro">assert!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = map.iter();
+        <span class="macro">assert!</span>(iter.next().is_some());
+        <span class="macro">assert!</span>(iter.next().is_some());
+        <span class="macro">assert!</span>(iter.next().is_some());
+        <span class="macro">assert!</span>(iter.next().is_none());
+
+        <span class="kw">let </span>pairs = map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="macro">assert!</span>(pairs.contains(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>header::HOST, <span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;duck.com&quot;</span>))));
+        <span class="macro">assert!</span>(pairs.contains(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>header::COOKIE, <span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;one=1&quot;</span>))));
+        <span class="macro">assert!</span>(pairs.contains(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>header::COOKIE, <span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;two=2&quot;</span>))));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">iter_and_into_iter_same_order</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>drain_iter() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = HeaderMap::new();
 
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::HOST</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;duck.com&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;one=1&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;two=2&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;one=1&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;two=2&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">iter</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">into_iter</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>vals = <span class="macro">vec!</span>[];
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = map.drain();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">owned_pair</span>), <span class="ident">into_iter</span>.<span class="ident">next</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">owned_pair</span>), <span class="ident">into_iter</span>.<span class="ident">next</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">owned_pair</span>), <span class="ident">into_iter</span>.<span class="ident">next</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="ident">owned_pair</span>), <span class="ident">into_iter</span>.<span class="ident">next</span>());
+        <span class="kw">let </span>(name, val) = iter.next().unwrap();
+        <span class="macro">assert_eq!</span>(name, <span class="prelude-val">Some</span>(header::COOKIE));
+        vals.push(val);
+
+        <span class="kw">let </span>(name, val) = iter.next().unwrap();
+        <span class="macro">assert!</span>(name.is_none());
+        vals.push(val);
+
+        <span class="macro">assert!</span>(vals.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;one=1&quot;</span>)));
+        <span class="macro">assert!</span>(vals.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;two=2&quot;</span>)));
+
+        <span class="macro">assert!</span>(iter.next().is_none());
+        drop(iter);
+
+        <span class="macro">assert!</span>(map.is_empty());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">get_all_and_remove_same_order</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>entries_into_iter() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = HeaderMap::new();
 
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;one=1&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;two=2&quot;</span>));
+        map.append(header::HOST, HeaderValue::from_static(<span class="string">&quot;duck.com&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;one=1&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;two=2&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_all</span>(<span class="ident">header::COOKIE</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">removed</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">clone</span>().<span class="ident">remove</span>(<span class="ident">header::COOKIE</span>);
-
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>(), <span class="ident">removed</span>.<span class="ident">next</span>().<span class="ident">as_ref</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>(), <span class="ident">removed</span>.<span class="ident">next</span>().<span class="ident">as_ref</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>(), <span class="ident">removed</span>.<span class="ident">next</span>().<span class="ident">as_ref</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = map.into_iter();
+        <span class="macro">assert!</span>(iter.next().is_some());
+        <span class="macro">assert!</span>(iter.next().is_some());
+        <span class="macro">assert!</span>(iter.next().is_some());
+        <span class="macro">assert!</span>(iter.next().is_none());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">get_all_iteration_order_matches_insertion_order</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>iter_and_into_iter_same_order() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = HeaderMap::new();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_all</span>(<span class="ident">header::COOKIE</span>);
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
+        map.append(header::HOST, HeaderValue::from_static(<span class="string">&quot;duck.com&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;one=1&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;two=2&quot;</span>));
 
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;1&quot;</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_all</span>(<span class="ident">header::COOKIE</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;1&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = map.iter();
+        <span class="kw">let </span><span class="kw-2">mut </span>into_iter = map.clone().into_iter();
 
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;2&quot;</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_all</span>(<span class="ident">header::COOKIE</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;1&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;2&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
-
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;3&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;4&quot;</span>));
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;5&quot;</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_all</span>(<span class="ident">header::COOKIE</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;1&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;2&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;3&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;4&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;5&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
-
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;6&quot;</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_all</span>(<span class="ident">header::COOKIE</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;6&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
-
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;7&quot;</span>));
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;8&quot;</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_all</span>(<span class="ident">header::COOKIE</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;8&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
-
-        <span class="ident">map</span>.<span class="ident">append</span>(<span class="ident">header::COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;9&quot;</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_all</span>(<span class="ident">header::COOKIE</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;8&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>(), <span class="string">b&quot;9&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
-
-        <span class="comment">// check for fused-ness</span>
-        <span class="macro">assert!</span>(<span class="ident">vals</span>.<span class="ident">next</span>().<span class="ident">is_none</span>());
+        <span class="macro">assert_eq!</span>(iter.next().map(owned_pair), into_iter.next());
+        <span class="macro">assert_eq!</span>(iter.next().map(owned_pair), into_iter.next());
+        <span class="macro">assert_eq!</span>(iter.next().map(owned_pair), into_iter.next());
+        <span class="macro">assert_eq!</span>(iter.next().map(owned_pair), into_iter.next());
     }
 
-    <span class="kw">fn</span> <span class="ident">owned_pair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        (<span class="ident">name</span>, <span class="ident">val</span>): (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HeaderName</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">HeaderValue</span>),
-    ) -&gt; (<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>) {
-        (<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">val</span>.<span class="ident">clone</span>())
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>get_all_and_remove_same_order() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = HeaderMap::new();
+
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;one=1&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;two=2&quot;</span>));
+
+        <span class="kw">let </span><span class="kw-2">mut </span>vals = map.get_all(header::COOKIE);
+        <span class="kw">let </span><span class="kw-2">mut </span>removed = map.clone().remove(header::COOKIE);
+
+        <span class="macro">assert_eq!</span>(vals.next(), removed.next().as_ref());
+        <span class="macro">assert_eq!</span>(vals.next(), removed.next().as_ref());
+        <span class="macro">assert_eq!</span>(vals.next(), removed.next().as_ref());
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>get_all_iteration_order_matches_insertion_order() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = HeaderMap::new();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>vals = map.get_all(header::COOKIE);
+        <span class="macro">assert!</span>(vals.next().is_none());
+
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;1&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>vals = map.get_all(header::COOKIE);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;1&quot;</span>);
+        <span class="macro">assert!</span>(vals.next().is_none());
+
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;2&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>vals = map.get_all(header::COOKIE);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;1&quot;</span>);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;2&quot;</span>);
+        <span class="macro">assert!</span>(vals.next().is_none());
+
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;3&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;4&quot;</span>));
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;5&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>vals = map.get_all(header::COOKIE);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;1&quot;</span>);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;2&quot;</span>);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;3&quot;</span>);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;4&quot;</span>);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;5&quot;</span>);
+        <span class="macro">assert!</span>(vals.next().is_none());
+
+        <span class="kw">let _ </span>= map.insert(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;6&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>vals = map.get_all(header::COOKIE);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;6&quot;</span>);
+        <span class="macro">assert!</span>(vals.next().is_none());
+
+        <span class="kw">let _ </span>= map.insert(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;7&quot;</span>));
+        <span class="kw">let _ </span>= map.insert(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;8&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>vals = map.get_all(header::COOKIE);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;8&quot;</span>);
+        <span class="macro">assert!</span>(vals.next().is_none());
+
+        map.append(header::COOKIE, HeaderValue::from_static(<span class="string">&quot;9&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>vals = map.get_all(header::COOKIE);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;8&quot;</span>);
+        <span class="macro">assert_eq!</span>(vals.next().unwrap().as_bytes(), <span class="string">b&quot;9&quot;</span>);
+        <span class="macro">assert!</span>(vals.next().is_none());
+
+        <span class="comment">// check for fused-ness
+        </span><span class="macro">assert!</span>(vals.next().is_none());
+    }
+
+    <span class="kw">fn </span>owned_pair&lt;<span class="lifetime">&#39;a</span>&gt;(
+        (name, val): (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HeaderName, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>HeaderValue),
+    ) -&gt; (HeaderName, HeaderValue) {
+        (name.clone(), val.clone())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/listenfd-1.0.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../listenfd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../listenfd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../listenfd/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/listenfd-1.0.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../listenfd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../listenfd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../listenfd/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -61,68 +61,68 @@
 <span id="61">61</span>
 <span id="62">62</span>
 <span id="63">63</span>
-</pre><pre class="rust"><code><span class="doccomment">//! listenfd is a crate that provides support for working with externally</span>
-<span class="doccomment">//! managed and passed file descriptors.  This lets you work with systems</span>
-<span class="doccomment">//! that support socket activation or similar.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Currently this supports a slightly modified systemd protocl on unix and</span>
-<span class="doccomment">//! a custom protocol on Windows.  If you want to use this for development</span>
-<span class="doccomment">//! you can use the [systemfd](https://github.com/mitsuhiko/systemfd)</span>
-<span class="doccomment">//! utility which implements both those protocols.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The systemd extension is that if the `LISTEN_PID` variable is not set or</span>
-<span class="doccomment">//! empty, the check for the pid is removed.  This is useful when binaries</span>
-<span class="doccomment">//! are proxied in between like cargo-watch.  For the windows protocol</span>
-<span class="doccomment">//! have a look at the systemfd documentation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Example</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This example shows how to use this crate with an `actix-web` server:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! # use std::io;</span>
-<span class="doccomment">//! # struct Server;</span>
-<span class="doccomment">//! # impl Server {</span>
-<span class="doccomment">//! #   fn listen&lt;X&gt;(self, _: X) -&gt; Self { self }</span>
-<span class="doccomment">//! #   fn bind&lt;X&gt;(self, _: X) -&gt; io::Result&lt;Self&gt; { Ok(self) }</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! # fn make_a_server() -&gt; Server { Server };</span>
-<span class="doccomment">//! # fn test() -&gt; io::Result&lt;()&gt; {</span>
-<span class="doccomment">//! use listenfd::ListenFd;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let mut listenfd = ListenFd::from_env();</span>
-<span class="doccomment">//! let mut server = make_a_server();</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // if we are given a tcp listener on listen fd 0, we use that one</span>
-<span class="doccomment">//! server = if let Some(listener) = listenfd.take_tcp_listener(0)? {</span>
-<span class="doccomment">//!     server.listen(listener)</span>
-<span class="doccomment">//! // otherwise fall back to local listening</span>
-<span class="doccomment">//! } else {</span>
-<span class="doccomment">//!     server.bind(&quot;127.0.0.1:3000&quot;)?</span>
-<span class="doccomment">//! };</span>
-<span class="doccomment">//! # Ok(()) }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! You can then use this with cargo watch and systemfd:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```plain</span>
-<span class="doccomment">//! $ cargo install systemfd cargo-watch</span>
-<span class="doccomment">//! systemfd --no-pid -s 3000 -- cargo watch -x run</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Now systemfd will open the socket and keep it open.  cargo watch will</span>
-<span class="doccomment">//! recompile the code on demand and the server will pick up the socket</span>
-<span class="doccomment">//! that systemfd opened.  No more connection resets.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The `--no-pid` flag is necessary to ensure that the `LISTEN_PID` environment</span>
-<span class="doccomment">//! variable is not set or the socket passing will be prevented by the pid check.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! listenfd is a crate that provides support for working with externally
+//! managed and passed file descriptors.  This lets you work with systems
+//! that support socket activation or similar.
+//!
+//! Currently this supports a slightly modified systemd protocl on unix and
+//! a custom protocol on Windows.  If you want to use this for development
+//! you can use the [systemfd](https://github.com/mitsuhiko/systemfd)
+//! utility which implements both those protocols.
+//!
+//! The systemd extension is that if the `LISTEN_PID` variable is not set or
+//! empty, the check for the pid is removed.  This is useful when binaries
+//! are proxied in between like cargo-watch.  For the windows protocol
+//! have a look at the systemfd documentation.
+//!
+//! ## Example
+//!
+//! This example shows how to use this crate with an `actix-web` server:
+//!
+//! ```rust
+//! # use std::io;
+//! # struct Server;
+//! # impl Server {
+//! #   fn listen&lt;X&gt;(self, _: X) -&gt; Self { self }
+//! #   fn bind&lt;X&gt;(self, _: X) -&gt; io::Result&lt;Self&gt; { Ok(self) }
+//! # }
+//! # fn make_a_server() -&gt; Server { Server };
+//! # fn test() -&gt; io::Result&lt;()&gt; {
+//! use listenfd::ListenFd;
+//!
+//! let mut listenfd = ListenFd::from_env();
+//! let mut server = make_a_server();
+//!
+//! // if we are given a tcp listener on listen fd 0, we use that one
+//! server = if let Some(listener) = listenfd.take_tcp_listener(0)? {
+//!     server.listen(listener)
+//! // otherwise fall back to local listening
+//! } else {
+//!     server.bind(&quot;127.0.0.1:3000&quot;)?
+//! };
+//! # Ok(()) }
+//! ```
+//!
+//! You can then use this with cargo watch and systemfd:
+//!
+//! ```plain
+//! $ cargo install systemfd cargo-watch
+//! systemfd --no-pid -s 3000 -- cargo watch -x run
+//! ```
+//!
+//! Now systemfd will open the socket and keep it open.  cargo watch will
+//! recompile the code on demand and the server will pick up the socket
+//! that systemfd opened.  No more connection resets.
+//!
+//! The `--no-pid` flag is necessary to ensure that the `LISTEN_PID` environment
+//! variable is not set or the socket passing will be prevented by the pid check.
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
-<span class="kw">mod</span> <span class="ident">unix</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
-<span class="kw">mod</span> <span class="ident">windows</span>;
+</span><span class="attribute">#[cfg(not(windows))]
+</span><span class="kw">mod </span>unix;
+<span class="attribute">#[cfg(windows)]
+</span><span class="kw">mod </span>windows;
 
-<span class="kw">mod</span> <span class="ident">manager</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">manager</span>::<span class="kw-2">*</span>;
+<span class="kw">mod </span>manager;
+<span class="kw">pub use </span>manager::<span class="kw-2">*</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="listenfd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="listenfd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

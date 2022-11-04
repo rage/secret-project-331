@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/query_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>query_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/query_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>query_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -636,643 +636,643 @@
 <span id="636">636</span>
 <span id="637">637</span>
 <span id="638">638</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Runtime query-builder API.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Runtime query-builder API.
 
-<span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+</span><span class="kw">use </span>std::fmt::Display;
+<span class="kw">use </span>std::fmt::Write;
+<span class="kw">use </span>std::marker::PhantomData;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::arguments::Arguments</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database</span>::{<span class="ident">Database</span>, <span class="ident">HasArguments</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encode::Encode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::from_row::FromRow</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query::Query</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_as::QueryAs</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Either</span>;
+<span class="kw">use </span><span class="kw">crate</span>::arguments::Arguments;
+<span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasArguments};
+<span class="kw">use </span><span class="kw">crate</span>::encode::Encode;
+<span class="kw">use </span><span class="kw">crate</span>::from_row::FromRow;
+<span class="kw">use </span><span class="kw">crate</span>::query::Query;
+<span class="kw">use </span><span class="kw">crate</span>::query_as::QueryAs;
+<span class="kw">use </span><span class="kw">crate</span>::types::Type;
+<span class="kw">use </span><span class="kw">crate</span>::Either;
 
-<span class="doccomment">/// A builder type for constructing queries at runtime.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See [`.push_values()`][Self::push_values] for an example of building a bulk `INSERT` statement.</span>
-<span class="doccomment">/// Note, however, that with Postgres you can get much better performance by using arrays</span>
-<span class="doccomment">/// and `UNNEST()`. [See our FAQ] for details.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [See our FAQ]: https://github.com/launchbadge/sqlx/blob/master/FAQ.md#how-can-i-bind-an-array-to-a-values-clause-how-can-i-do-bulk-inserts</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span>, <span class="ident">DB</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">Database</span>,
+<span class="doccomment">/// A builder type for constructing queries at runtime.
+///
+/// See [`.push_values()`][Self::push_values] for an example of building a bulk `INSERT` statement.
+/// Note, however, that with Postgres you can get much better performance by using arrays
+/// and `UNNEST()`. [See our FAQ] for details.
+///
+/// [See our FAQ]: https://github.com/launchbadge/sqlx/blob/master/FAQ.md#how-can-i-bind-an-array-to-a-values-clause-how-can-i-do-bulk-inserts
+</span><span class="kw">pub struct </span>QueryBuilder&lt;<span class="lifetime">&#39;args</span>, DB&gt;
+<span class="kw">where
+    </span>DB: Database,
 {
-    <span class="ident">query</span>: <span class="ident">String</span>,
-    <span class="ident">init_len</span>: <span class="ident">usize</span>,
-    <span class="ident">arguments</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span>,
+    query: String,
+    init_len: usize,
+    arguments: <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;args</span>&gt;&gt;::Arguments&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span>, <span class="ident">DB</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">Database</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;args</span>, DB: Database&gt; QueryBuilder&lt;<span class="lifetime">&#39;args</span>, DB&gt;
+<span class="kw">where
+    </span>DB: Database,
 {
-    <span class="comment">// `init` is provided because a query will almost always start with a constant fragment</span>
-    <span class="comment">// such as `INSERT INTO ...` or `SELECT ...`, etc.</span>
-    <span class="doccomment">/// Start building a query with an initial SQL fragment, which may be an empty string.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">init</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span>: <span class="ident">Default</span>,
+    <span class="comment">// `init` is provided because a query will almost always start with a constant fragment
+    // such as `INSERT INTO ...` or `SELECT ...`, etc.
+    </span><span class="doccomment">/// Start building a query with an initial SQL fragment, which may be an empty string.
+    </span><span class="kw">pub fn </span>new(init: <span class="kw">impl </span>Into&lt;String&gt;) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;args</span>&gt;&gt;::Arguments: Default,
     {
-        <span class="kw">let</span> <span class="ident">init</span> <span class="op">=</span> <span class="ident">init</span>.<span class="ident">into</span>();
+        <span class="kw">let </span>init = init.into();
 
-        <span class="ident">QueryBuilder</span> {
-            <span class="ident">init_len</span>: <span class="ident">init</span>.<span class="ident">len</span>(),
-            <span class="ident">query</span>: <span class="ident">init</span>,
-            <span class="ident">arguments</span>: <span class="prelude-val">Some</span>(<span class="ident">Default::default</span>()),
+        QueryBuilder {
+            init_len: init.len(),
+            query: init,
+            arguments: <span class="prelude-val">Some</span>(Default::default()),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sanity_check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>sanity_check(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="macro">assert!</span>(
-            <span class="self">self</span>.<span class="ident">arguments</span>.<span class="ident">is_some</span>(),
-            <span class="string">&quot;QueryBuilder must be reset before reuse after `.build()`&quot;</span>
-        );
+            <span class="self">self</span>.arguments.is_some(),
+            <span class="string">&quot;QueryBuilder must be reset before reuse after `.build()`&quot;
+        </span>);
     }
 
-    <span class="doccomment">/// Append a SQL fragment to the query.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// May be a string or anything that implements `Display`.</span>
-    <span class="doccomment">/// You can also use `format_args!()` here to push a formatted string without an intermediate</span>
-    <span class="doccomment">/// allocation.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Warning: Beware SQL Injection Vulnerabilities and Untrusted Input!</span>
-    <span class="doccomment">/// You should *not* use this to insert input directly into the query from an untrusted user as</span>
-    <span class="doccomment">/// this can be used by an attacker to extract sensitive data or take over your database.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Security breaches due to SQL injection can cost your organization a lot of money from</span>
-    <span class="doccomment">/// damage control and lost clients, betray the trust of your users in your system, and are just</span>
-    <span class="doccomment">/// plain embarrassing. If you are unfamiliar with the threat that SQL injection imposes, you</span>
-    <span class="doccomment">/// should take some time to learn more about it before proceeding:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * [SQL Injection on OWASP.org](https://owasp.org/www-community/attacks/SQL_Injection)</span>
-    <span class="doccomment">/// * [SQL Injection on Wikipedia](https://en.wikipedia.org/wiki/SQL_injection)</span>
-    <span class="doccomment">///     * See &quot;Examples&quot; for notable instances of security breaches due to SQL injection.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method does *not* perform sanitization. Instead, you should use</span>
-    <span class="doccomment">/// [`.push_bind()`][Self::push_bind] which inserts a placeholder into the query and then</span>
-    <span class="doccomment">/// sends the possibly untrustworthy value separately (called a &quot;bind argument&quot;) so that it</span>
-    <span class="doccomment">/// cannot be misinterpreted by the database server.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that you should still at least have some sort of sanity checks on the values you&#39;re</span>
-    <span class="doccomment">/// sending as that&#39;s just good practice and prevent other types of attacks against your system,</span>
-    <span class="doccomment">/// e.g. check that strings aren&#39;t too long, numbers are within expected ranges, etc.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw">impl</span> <span class="ident">Display</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">sanity_check</span>();
+    <span class="doccomment">/// Append a SQL fragment to the query.
+    ///
+    /// May be a string or anything that implements `Display`.
+    /// You can also use `format_args!()` here to push a formatted string without an intermediate
+    /// allocation.
+    ///
+    /// ### Warning: Beware SQL Injection Vulnerabilities and Untrusted Input!
+    /// You should *not* use this to insert input directly into the query from an untrusted user as
+    /// this can be used by an attacker to extract sensitive data or take over your database.
+    ///
+    /// Security breaches due to SQL injection can cost your organization a lot of money from
+    /// damage control and lost clients, betray the trust of your users in your system, and are just
+    /// plain embarrassing. If you are unfamiliar with the threat that SQL injection imposes, you
+    /// should take some time to learn more about it before proceeding:
+    ///
+    /// * [SQL Injection on OWASP.org](https://owasp.org/www-community/attacks/SQL_Injection)
+    /// * [SQL Injection on Wikipedia](https://en.wikipedia.org/wiki/SQL_injection)
+    ///     * See &quot;Examples&quot; for notable instances of security breaches due to SQL injection.
+    ///
+    /// This method does *not* perform sanitization. Instead, you should use
+    /// [`.push_bind()`][Self::push_bind] which inserts a placeholder into the query and then
+    /// sends the possibly untrustworthy value separately (called a &quot;bind argument&quot;) so that it
+    /// cannot be misinterpreted by the database server.
+    ///
+    /// Note that you should still at least have some sort of sanity checks on the values you&#39;re
+    /// sending as that&#39;s just good practice and prevent other types of attacks against your system,
+    /// e.g. check that strings aren&#39;t too long, numbers are within expected ranges, etc.
+    </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sql: <span class="kw">impl </span>Display) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="self">self</span>.sanity_check();
 
-        <span class="macro">write!</span>(<span class="self">self</span>.<span class="ident">query</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">sql</span>).<span class="ident">expect</span>(<span class="string">&quot;error formatting `sql`&quot;</span>);
+        <span class="macro">write!</span>(<span class="self">self</span>.query, <span class="string">&quot;{}&quot;</span>, sql).expect(<span class="string">&quot;error formatting `sql`&quot;</span>);
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Push a bind argument placeholder (`?` or `$N` for Postgres) and bind a value to it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Note: Database-specific Limits</span>
-    <span class="doccomment">/// Note that every database has a practical limit on the number of bind parameters</span>
-    <span class="doccomment">/// you can add to a single query. This varies by database.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// While you should consult the manual of your specific database version and/or current</span>
-    <span class="doccomment">/// configuration for the exact value as it may be different than listed here,</span>
-    <span class="doccomment">/// the defaults for supported databases as of writing are as follows:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Postgres and MySQL: 65535</span>
-    <span class="doccomment">///     * You may find sources that state that Postgres has a limit of 32767,</span>
-    <span class="doccomment">///       but that is a misinterpretation of the specification by the JDBC driver implementation</span>
-    <span class="doccomment">///       as discussed in [this Github issue][postgres-limit-issue]. Postgres itself</span>
-    <span class="doccomment">///       asserts that the number of parameters is in the range `[0, 65535)`.</span>
-    <span class="doccomment">/// * SQLite: 32766 (configurable by [`SQLITE_LIMIT_VARIABLE_NUMBER`])</span>
-    <span class="doccomment">///     * SQLite prior to 3.32.0: 999</span>
-    <span class="doccomment">/// * MSSQL: 2100</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Exceeding these limits may panic (as a sanity check) or trigger a database error at runtime</span>
-    <span class="doccomment">/// depending on the implementation.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`SQLITE_LIMIT_VARIABLE_NUMBER`]: https://www.sqlite.org/limits.html#max_variable_number</span>
-    <span class="doccomment">/// [postgres-limit-issue]: https://github.com/launchbadge/sqlx/issues/671#issuecomment-687043510</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_bind</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="lifetime">&#39;args</span> <span class="op">+</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Push a bind argument placeholder (`?` or `$N` for Postgres) and bind a value to it.
+    ///
+    /// ### Note: Database-specific Limits
+    /// Note that every database has a practical limit on the number of bind parameters
+    /// you can add to a single query. This varies by database.
+    ///
+    /// While you should consult the manual of your specific database version and/or current
+    /// configuration for the exact value as it may be different than listed here,
+    /// the defaults for supported databases as of writing are as follows:
+    ///
+    /// * Postgres and MySQL: 65535
+    ///     * You may find sources that state that Postgres has a limit of 32767,
+    ///       but that is a misinterpretation of the specification by the JDBC driver implementation
+    ///       as discussed in [this Github issue][postgres-limit-issue]. Postgres itself
+    ///       asserts that the number of parameters is in the range `[0, 65535)`.
+    /// * SQLite: 32766 (configurable by [`SQLITE_LIMIT_VARIABLE_NUMBER`])
+    ///     * SQLite prior to 3.32.0: 999
+    /// * MSSQL: 2100
+    ///
+    /// Exceeding these limits may panic (as a sanity check) or trigger a database error at runtime
+    /// depending on the implementation.
+    ///
+    /// [`SQLITE_LIMIT_VARIABLE_NUMBER`]: https://www.sqlite.org/limits.html#max_variable_number
+    /// [postgres-limit-issue]: https://github.com/launchbadge/sqlx/issues/671#issuecomment-687043510
+    </span><span class="kw">pub fn </span>push_bind&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span>T: <span class="lifetime">&#39;args </span>+ Encode&lt;<span class="lifetime">&#39;args</span>, DB&gt; + Send + Type&lt;DB&gt;,
     {
-        <span class="self">self</span>.<span class="ident">sanity_check</span>();
+        <span class="self">self</span>.sanity_check();
 
-        <span class="kw">let</span> <span class="ident">arguments</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">arguments</span>
-            .<span class="ident">as_mut</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;BUG: Arguments taken already&quot;</span>);
-        <span class="ident">arguments</span>.<span class="ident">add</span>(<span class="ident">value</span>);
+        <span class="kw">let </span>arguments = <span class="self">self
+            </span>.arguments
+            .as_mut()
+            .expect(<span class="string">&quot;BUG: Arguments taken already&quot;</span>);
+        arguments.add(value);
 
-        <span class="ident">arguments</span>
-            .<span class="ident">format_placeholder</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">query</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;error in format_placeholder&quot;</span>);
+        arguments
+            .format_placeholder(<span class="kw-2">&amp;mut </span><span class="self">self</span>.query)
+            .expect(<span class="string">&quot;error in format_placeholder&quot;</span>);
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Start a list separated by `separator`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned type exposes identical [`.push()`][Separated::push] and</span>
-    <span class="doccomment">/// [`.push_bind()`][Separated::push_bind] methods which push `separator` to the query</span>
-    <span class="doccomment">/// before their normal behavior. [`.push_unseparated()`][Separated::push_unseparated] and [`.push_bind_unseparated()`][Separated::push_bind_unseparated] are also</span>
-    <span class="doccomment">/// provided to push a SQL fragment without the separator.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # #[cfg(feature = &quot;mysql&quot;)] {</span>
-    <span class="doccomment">/// use sqlx::{Execute, MySql, QueryBuilder};</span>
-    <span class="doccomment">/// let foods = vec![&quot;pizza&quot;.to_string(), &quot;chips&quot;.to_string()];</span>
-    <span class="doccomment">/// let mut query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(</span>
-    <span class="doccomment">///     &quot;SELECT * from food where name in (&quot;</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// // One element vector is handled correctly but an empty vector</span>
-    <span class="doccomment">/// // would cause a sql syntax error</span>
-    <span class="doccomment">/// let mut separated = query_builder.separated(&quot;, &quot;);</span>
-    <span class="doccomment">/// for value_type in foods.iter() {</span>
-    <span class="doccomment">///   separated.push_bind(value_type);</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// separated.push_unseparated(&quot;) &quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut query = query_builder.build();</span>
-    <span class="doccomment">/// let sql = query.sql();</span>
-    <span class="doccomment">/// assert!(sql.ends_with(&quot;in (?, ?) &quot;));</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// Start a list separated by `separator`.
+    ///
+    /// The returned type exposes identical [`.push()`][Separated::push] and
+    /// [`.push_bind()`][Separated::push_bind] methods which push `separator` to the query
+    /// before their normal behavior. [`.push_unseparated()`][Separated::push_unseparated] and [`.push_bind_unseparated()`][Separated::push_bind_unseparated] are also
+    /// provided to push a SQL fragment without the separator.
+    ///
+    /// ```rust
+    /// # #[cfg(feature = &quot;mysql&quot;)] {
+    /// use sqlx::{Execute, MySql, QueryBuilder};
+    /// let foods = vec![&quot;pizza&quot;.to_string(), &quot;chips&quot;.to_string()];
+    /// let mut query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(
+    ///     &quot;SELECT * from food where name in (&quot;
+    /// );
+    /// // One element vector is handled correctly but an empty vector
+    /// // would cause a sql syntax error
+    /// let mut separated = query_builder.separated(&quot;, &quot;);
+    /// for value_type in foods.iter() {
+    ///   separated.push_bind(value_type);
+    /// }
+    /// separated.push_unseparated(&quot;) &quot;);
+    ///
+    /// let mut query = query_builder.build();
+    /// let sql = query.sql();
+    /// assert!(sql.ends_with(&quot;in (?, ?) &quot;));
+    /// # }
+    /// ```
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">separated</span><span class="op">&lt;</span><span class="lifetime">&#39;qb</span>, <span class="ident">Sep</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;qb</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">separator</span>: <span class="ident">Sep</span>) -&gt; <span class="ident">Separated</span><span class="op">&lt;</span><span class="lifetime">&#39;qb</span>, <span class="lifetime">&#39;args</span>, <span class="ident">DB</span>, <span class="ident">Sep</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;args</span>: <span class="lifetime">&#39;qb</span>,
-        <span class="ident">Sep</span>: <span class="ident">Display</span>,
+    </span><span class="kw">pub fn </span>separated&lt;<span class="lifetime">&#39;qb</span>, Sep&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;qb </span><span class="kw-2">mut </span><span class="self">self</span>, separator: Sep) -&gt; Separated&lt;<span class="lifetime">&#39;qb</span>, <span class="lifetime">&#39;args</span>, DB, Sep&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;args</span>: <span class="lifetime">&#39;qb</span>,
+        Sep: Display,
     {
-        <span class="self">self</span>.<span class="ident">sanity_check</span>();
+        <span class="self">self</span>.sanity_check();
 
-        <span class="ident">Separated</span> {
-            <span class="ident">query_builder</span>: <span class="self">self</span>,
-            <span class="ident">separator</span>,
-            <span class="ident">push_separator</span>: <span class="bool-val">false</span>,
+        Separated {
+            query_builder: <span class="self">self</span>,
+            separator,
+            push_separator: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="comment">// Most of the `QueryBuilder` API is purposefully very low-level but this was a commonly</span>
-    <span class="comment">// requested use-case so it made sense to support.</span>
-    <span class="doccomment">/// Push a `VALUES` clause where each item in `tuples` represents a tuple/row in the clause.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This can be used to construct a bulk `INSERT` statement, although keep in mind that all</span>
-    <span class="doccomment">/// databases have some practical limit on the number of bind arguments in a single query.</span>
-    <span class="doccomment">/// See [`.push_bind()`][Self::push_bind] for details.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To be safe, you can do `tuples.into_iter().take(N)` where `N` is the limit for your database</span>
-    <span class="doccomment">/// divided by the number of fields in each tuple; since integer division always rounds down,</span>
-    <span class="doccomment">/// this will ensure that you don&#39;t exceed the limit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Notes</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `tuples` is empty, this will likely produce a syntactically invalid query as `VALUES`</span>
-    <span class="doccomment">/// generally expects to be followed by at least 1 tuple.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `tuples` can have many different lengths, you may want to call</span>
-    <span class="doccomment">/// [`.persistent(false)`][Query::persistent] after [`.build()`][Self::build] to avoid</span>
-    <span class="doccomment">/// filling up the connection&#39;s prepared statement cache.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Because the `Arguments` API has a lifetime that must live longer than `Self`, you cannot</span>
-    <span class="doccomment">/// bind by-reference from an iterator unless that iterator yields references that live</span>
-    <span class="doccomment">/// longer than `Self`, even if the specific `Arguments` implementation doesn&#39;t actually</span>
-    <span class="doccomment">/// borrow the values (like `MySqlArguments` and `PgArguments` immediately encode the arguments</span>
-    <span class="doccomment">/// and don&#39;t borrow them past the `.add()` call).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// So basically, if you want to bind by-reference you need an iterator that yields references,</span>
-    <span class="doccomment">/// e.g. if you have values in a `Vec` you can do `.iter()` instead of `.into_iter()`. The</span>
-    <span class="doccomment">/// example below uses an iterator that creates values on the fly</span>
-    <span class="doccomment">/// and so cannot bind by-reference.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Example (MySQL)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # #[cfg(feature = &quot;mysql&quot;)]</span>
-    <span class="doccomment">/// # {</span>
-    <span class="doccomment">/// use sqlx::{Execute, MySql, QueryBuilder};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// struct User {</span>
-    <span class="doccomment">///     id: i32,</span>
-    <span class="doccomment">///     username: String,</span>
-    <span class="doccomment">///     email: String,</span>
-    <span class="doccomment">///     password: String,</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // The number of parameters in MySQL must fit in a `u16`.</span>
-    <span class="doccomment">/// const BIND_LIMIT: usize = 65535;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // This would normally produce values forever!</span>
-    <span class="doccomment">/// let users = (0..).map(|i| User {</span>
-    <span class="doccomment">///     id: i,</span>
-    <span class="doccomment">///     username: format!(&quot;test_user_{}&quot;, i),</span>
-    <span class="doccomment">///     email: format!(&quot;test-user-{}@example.com&quot;, i),</span>
-    <span class="doccomment">///     password: format!(&quot;Test!User@Password#{}&quot;, i),</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(</span>
-    <span class="doccomment">///     // Note the trailing space; most calls to `QueryBuilder` don&#39;t automatically insert</span>
-    <span class="doccomment">///     // spaces as that might interfere with identifiers or quoted strings where exact</span>
-    <span class="doccomment">///     // values may matter.</span>
-    <span class="doccomment">///     &quot;INSERT INTO users(id, username, email, password) &quot;</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Note that `.into_iter()` wasn&#39;t needed here since `users` is already an iterator.</span>
-    <span class="doccomment">/// query_builder.push_values(users.take(BIND_LIMIT / 4), |mut b, user| {</span>
-    <span class="doccomment">///     // If you wanted to bind these by-reference instead of by-value,</span>
-    <span class="doccomment">///     // you&#39;d need an iterator that yields references that live as long as `query_builder`,</span>
-    <span class="doccomment">///     // e.g. collect it to a `Vec` first.</span>
-    <span class="doccomment">///     b.push_bind(user.id)</span>
-    <span class="doccomment">///         .push_bind(user.username)</span>
-    <span class="doccomment">///         .push_bind(user.email)</span>
-    <span class="doccomment">///         .push_bind(user.password);</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut query = query_builder.build();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // You can then call `query.execute()`, `.fetch_one()`, `.fetch_all()`, etc.</span>
-    <span class="doccomment">/// // For the sake of demonstration though, we&#39;re just going to assert the contents</span>
-    <span class="doccomment">/// // of the query.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // These are methods of the `Execute` trait, not normally meant to be called in user code.</span>
-    <span class="doccomment">/// let sql = query.sql();</span>
-    <span class="doccomment">/// let arguments = query.take_arguments().unwrap();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(sql.starts_with(</span>
-    <span class="doccomment">///     &quot;INSERT INTO users(id, username, email, password) VALUES (?, ?, ?, ?), (?, ?, ?, ?)&quot;</span>
-    <span class="doccomment">/// ));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(sql.ends_with(&quot;(?, ?, ?, ?)&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Not a normally exposed function, only used for this doctest.</span>
-    <span class="doccomment">/// // 65535 / 4 = 16383 (rounded down)</span>
-    <span class="doccomment">/// // 16383 * 4 = 65532</span>
-    <span class="doccomment">/// assert_eq!(arguments.len(), 65532);</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_values</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tuples</span>: <span class="ident">I</span>, <span class="kw-2">mut</span> <span class="ident">push_tuple</span>: <span class="ident">F</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span>,
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">Separated</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;args</span>, <span class="ident">DB</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">I::Item</span>),
+    <span class="comment">// Most of the `QueryBuilder` API is purposefully very low-level but this was a commonly
+    // requested use-case so it made sense to support.
+    </span><span class="doccomment">/// Push a `VALUES` clause where each item in `tuples` represents a tuple/row in the clause.
+    ///
+    /// This can be used to construct a bulk `INSERT` statement, although keep in mind that all
+    /// databases have some practical limit on the number of bind arguments in a single query.
+    /// See [`.push_bind()`][Self::push_bind] for details.
+    ///
+    /// To be safe, you can do `tuples.into_iter().take(N)` where `N` is the limit for your database
+    /// divided by the number of fields in each tuple; since integer division always rounds down,
+    /// this will ensure that you don&#39;t exceed the limit.
+    ///
+    /// ### Notes
+    ///
+    /// If `tuples` is empty, this will likely produce a syntactically invalid query as `VALUES`
+    /// generally expects to be followed by at least 1 tuple.
+    ///
+    /// If `tuples` can have many different lengths, you may want to call
+    /// [`.persistent(false)`][Query::persistent] after [`.build()`][Self::build] to avoid
+    /// filling up the connection&#39;s prepared statement cache.
+    ///
+    /// Because the `Arguments` API has a lifetime that must live longer than `Self`, you cannot
+    /// bind by-reference from an iterator unless that iterator yields references that live
+    /// longer than `Self`, even if the specific `Arguments` implementation doesn&#39;t actually
+    /// borrow the values (like `MySqlArguments` and `PgArguments` immediately encode the arguments
+    /// and don&#39;t borrow them past the `.add()` call).
+    ///
+    /// So basically, if you want to bind by-reference you need an iterator that yields references,
+    /// e.g. if you have values in a `Vec` you can do `.iter()` instead of `.into_iter()`. The
+    /// example below uses an iterator that creates values on the fly
+    /// and so cannot bind by-reference.
+    ///
+    /// ### Example (MySQL)
+    ///
+    /// ```rust
+    /// # #[cfg(feature = &quot;mysql&quot;)]
+    /// # {
+    /// use sqlx::{Execute, MySql, QueryBuilder};
+    ///
+    /// struct User {
+    ///     id: i32,
+    ///     username: String,
+    ///     email: String,
+    ///     password: String,
+    /// }
+    ///
+    /// // The number of parameters in MySQL must fit in a `u16`.
+    /// const BIND_LIMIT: usize = 65535;
+    ///
+    /// // This would normally produce values forever!
+    /// let users = (0..).map(|i| User {
+    ///     id: i,
+    ///     username: format!(&quot;test_user_{}&quot;, i),
+    ///     email: format!(&quot;test-user-{}@example.com&quot;, i),
+    ///     password: format!(&quot;Test!User@Password#{}&quot;, i),
+    /// });
+    ///
+    /// let mut query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(
+    ///     // Note the trailing space; most calls to `QueryBuilder` don&#39;t automatically insert
+    ///     // spaces as that might interfere with identifiers or quoted strings where exact
+    ///     // values may matter.
+    ///     &quot;INSERT INTO users(id, username, email, password) &quot;
+    /// );
+    ///
+    /// // Note that `.into_iter()` wasn&#39;t needed here since `users` is already an iterator.
+    /// query_builder.push_values(users.take(BIND_LIMIT / 4), |mut b, user| {
+    ///     // If you wanted to bind these by-reference instead of by-value,
+    ///     // you&#39;d need an iterator that yields references that live as long as `query_builder`,
+    ///     // e.g. collect it to a `Vec` first.
+    ///     b.push_bind(user.id)
+    ///         .push_bind(user.username)
+    ///         .push_bind(user.email)
+    ///         .push_bind(user.password);
+    /// });
+    ///
+    /// let mut query = query_builder.build();
+    ///
+    /// // You can then call `query.execute()`, `.fetch_one()`, `.fetch_all()`, etc.
+    /// // For the sake of demonstration though, we&#39;re just going to assert the contents
+    /// // of the query.
+    ///
+    /// // These are methods of the `Execute` trait, not normally meant to be called in user code.
+    /// let sql = query.sql();
+    /// let arguments = query.take_arguments().unwrap();
+    ///
+    /// assert!(sql.starts_with(
+    ///     &quot;INSERT INTO users(id, username, email, password) VALUES (?, ?, ?, ?), (?, ?, ?, ?)&quot;
+    /// ));
+    ///
+    /// assert!(sql.ends_with(&quot;(?, ?, ?, ?)&quot;));
+    ///
+    /// // Not a normally exposed function, only used for this doctest.
+    /// // 65535 / 4 = 16383 (rounded down)
+    /// // 16383 * 4 = 65532
+    /// assert_eq!(arguments.len(), 65532);
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>push_values&lt;I, F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tuples: I, <span class="kw-2">mut </span>push_tuple: F) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span>I: IntoIterator,
+        F: FnMut(Separated&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;args</span>, DB, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;, I::Item),
     {
-        <span class="self">self</span>.<span class="ident">sanity_check</span>();
+        <span class="self">self</span>.sanity_check();
 
-        <span class="self">self</span>.<span class="ident">push</span>(<span class="string">&quot;VALUES &quot;</span>);
+        <span class="self">self</span>.push(<span class="string">&quot;VALUES &quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">separated</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">separated</span>(<span class="string">&quot;, &quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>separated = <span class="self">self</span>.separated(<span class="string">&quot;, &quot;</span>);
 
-        <span class="kw">for</span> <span class="ident">tuple</span> <span class="kw">in</span> <span class="ident">tuples</span> {
-            <span class="ident">separated</span>.<span class="ident">push</span>(<span class="string">&quot;(&quot;</span>);
+        <span class="kw">for </span>tuple <span class="kw">in </span>tuples {
+            separated.push(<span class="string">&quot;(&quot;</span>);
 
-            <span class="comment">// use a `Separated` with a separate (hah) internal state</span>
-            <span class="ident">push_tuple</span>(<span class="ident">separated</span>.<span class="ident">query_builder</span>.<span class="ident">separated</span>(<span class="string">&quot;, &quot;</span>), <span class="ident">tuple</span>);
+            <span class="comment">// use a `Separated` with a separate (hah) internal state
+            </span>push_tuple(separated.query_builder.separated(<span class="string">&quot;, &quot;</span>), tuple);
 
-            <span class="ident">separated</span>.<span class="ident">push_unseparated</span>(<span class="string">&quot;)&quot;</span>);
+            separated.push_unseparated(<span class="string">&quot;)&quot;</span>);
         }
 
-        <span class="ident">separated</span>.<span class="ident">query_builder</span>
+        separated.query_builder
     }
 
-    <span class="doccomment">/// Creates `((a, b), (..)` statements, from `tuples`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This can be used to construct a bulk `SELECT` statement like this:</span>
-    <span class="doccomment">/// ```sql</span>
-    <span class="doccomment">/// SELECT * FROM users WHERE (id, username) IN ((1, &quot;test_user_1&quot;), (2, &quot;test_user_2&quot;))</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Although keep in mind that all</span>
-    <span class="doccomment">/// databases have some practical limit on the number of bind arguments in a single query.</span>
-    <span class="doccomment">/// See [`.push_bind()`][Self::push_bind] for details.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To be safe, you can do `tuples.into_iter().take(N)` where `N` is the limit for your database</span>
-    <span class="doccomment">/// divided by the number of fields in each tuple; since integer division always rounds down,</span>
-    <span class="doccomment">/// this will ensure that you don&#39;t exceed the limit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Notes</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `tuples` is empty, this will likely produce a syntactically invalid query</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Example (MySQL)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # #[cfg(feature = &quot;mysql&quot;)]</span>
-    <span class="doccomment">/// # {</span>
-    <span class="doccomment">/// use sqlx::{Execute, MySql, QueryBuilder};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// struct User {</span>
-    <span class="doccomment">///     id: i32,</span>
-    <span class="doccomment">///     username: String,</span>
-    <span class="doccomment">///     email: String,</span>
-    <span class="doccomment">///     password: String,</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // The number of parameters in MySQL must fit in a `u16`.</span>
-    <span class="doccomment">/// const BIND_LIMIT: usize = 65535;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // This would normally produce values forever!</span>
-    <span class="doccomment">/// let users = (0..).map(|i| User {</span>
-    <span class="doccomment">///     id: i,</span>
-    <span class="doccomment">///     username: format!(&quot;test_user_{}&quot;, i),</span>
-    <span class="doccomment">///     email: format!(&quot;test-user-{}@example.com&quot;, i),</span>
-    <span class="doccomment">///     password: format!(&quot;Test!User@Password#{}&quot;, i),</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(</span>
-    <span class="doccomment">///     // Note the trailing space; most calls to `QueryBuilder` don&#39;t automatically insert</span>
-    <span class="doccomment">///     // spaces as that might interfere with identifiers or quoted strings where exact</span>
-    <span class="doccomment">///     // values may matter.</span>
-    <span class="doccomment">///     &quot;SELECT * FROM users WHERE (id, username, email, password) in&quot;</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Note that `.into_iter()` wasn&#39;t needed here since `users` is already an iterator.</span>
-    <span class="doccomment">/// query_builder.push_tuples(users.take(BIND_LIMIT / 4), |mut b, user| {</span>
-    <span class="doccomment">///     // If you wanted to bind these by-reference instead of by-value,</span>
-    <span class="doccomment">///     // you&#39;d need an iterator that yields references that live as long as `query_builder`,</span>
-    <span class="doccomment">///     // e.g. collect it to a `Vec` first.</span>
-    <span class="doccomment">///     b.push_bind(user.id)</span>
-    <span class="doccomment">///         .push_bind(user.username)</span>
-    <span class="doccomment">///         .push_bind(user.email)</span>
-    <span class="doccomment">///         .push_bind(user.password);</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut query = query_builder.build();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // You can then call `query.execute()`, `.fetch_one()`, `.fetch_all()`, etc.</span>
-    <span class="doccomment">/// // For the sake of demonstration though, we&#39;re just going to assert the contents</span>
-    <span class="doccomment">/// // of the query.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // These are methods of the `Execute` trait, not normally meant to be called in user code.</span>
-    <span class="doccomment">/// let sql = query.sql();</span>
-    <span class="doccomment">/// let arguments = query.take_arguments().unwrap();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(sql.starts_with(</span>
-    <span class="doccomment">///     &quot;SELECT * FROM users WHERE (id, username, email, password) in ((?, ?, ?, ?), (?, ?, ?, ?), &quot;</span>
-    <span class="doccomment">/// ));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(sql.ends_with(&quot;(?, ?, ?, ?)) &quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Not a normally exposed function, only used for this doctest.</span>
-    <span class="doccomment">/// // 65535 / 4 = 16383 (rounded down)</span>
-    <span class="doccomment">/// // 16383 * 4 = 65532</span>
-    <span class="doccomment">/// assert_eq!(arguments.len(), 65532);</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_tuples</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tuples</span>: <span class="ident">I</span>, <span class="kw-2">mut</span> <span class="ident">push_tuple</span>: <span class="ident">F</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span>,
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">Separated</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;args</span>, <span class="ident">DB</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">I::Item</span>),
+    <span class="doccomment">/// Creates `((a, b), (..)` statements, from `tuples`.
+    ///
+    /// This can be used to construct a bulk `SELECT` statement like this:
+    /// ```sql
+    /// SELECT * FROM users WHERE (id, username) IN ((1, &quot;test_user_1&quot;), (2, &quot;test_user_2&quot;))
+    /// ```
+    ///
+    /// Although keep in mind that all
+    /// databases have some practical limit on the number of bind arguments in a single query.
+    /// See [`.push_bind()`][Self::push_bind] for details.
+    ///
+    /// To be safe, you can do `tuples.into_iter().take(N)` where `N` is the limit for your database
+    /// divided by the number of fields in each tuple; since integer division always rounds down,
+    /// this will ensure that you don&#39;t exceed the limit.
+    ///
+    /// ### Notes
+    ///
+    /// If `tuples` is empty, this will likely produce a syntactically invalid query
+    ///
+    /// ### Example (MySQL)
+    ///
+    /// ```rust
+    /// # #[cfg(feature = &quot;mysql&quot;)]
+    /// # {
+    /// use sqlx::{Execute, MySql, QueryBuilder};
+    ///
+    /// struct User {
+    ///     id: i32,
+    ///     username: String,
+    ///     email: String,
+    ///     password: String,
+    /// }
+    ///
+    /// // The number of parameters in MySQL must fit in a `u16`.
+    /// const BIND_LIMIT: usize = 65535;
+    ///
+    /// // This would normally produce values forever!
+    /// let users = (0..).map(|i| User {
+    ///     id: i,
+    ///     username: format!(&quot;test_user_{}&quot;, i),
+    ///     email: format!(&quot;test-user-{}@example.com&quot;, i),
+    ///     password: format!(&quot;Test!User@Password#{}&quot;, i),
+    /// });
+    ///
+    /// let mut query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(
+    ///     // Note the trailing space; most calls to `QueryBuilder` don&#39;t automatically insert
+    ///     // spaces as that might interfere with identifiers or quoted strings where exact
+    ///     // values may matter.
+    ///     &quot;SELECT * FROM users WHERE (id, username, email, password) in&quot;
+    /// );
+    ///
+    /// // Note that `.into_iter()` wasn&#39;t needed here since `users` is already an iterator.
+    /// query_builder.push_tuples(users.take(BIND_LIMIT / 4), |mut b, user| {
+    ///     // If you wanted to bind these by-reference instead of by-value,
+    ///     // you&#39;d need an iterator that yields references that live as long as `query_builder`,
+    ///     // e.g. collect it to a `Vec` first.
+    ///     b.push_bind(user.id)
+    ///         .push_bind(user.username)
+    ///         .push_bind(user.email)
+    ///         .push_bind(user.password);
+    /// });
+    ///
+    /// let mut query = query_builder.build();
+    ///
+    /// // You can then call `query.execute()`, `.fetch_one()`, `.fetch_all()`, etc.
+    /// // For the sake of demonstration though, we&#39;re just going to assert the contents
+    /// // of the query.
+    ///
+    /// // These are methods of the `Execute` trait, not normally meant to be called in user code.
+    /// let sql = query.sql();
+    /// let arguments = query.take_arguments().unwrap();
+    ///
+    /// assert!(sql.starts_with(
+    ///     &quot;SELECT * FROM users WHERE (id, username, email, password) in ((?, ?, ?, ?), (?, ?, ?, ?), &quot;
+    /// ));
+    ///
+    /// assert!(sql.ends_with(&quot;(?, ?, ?, ?)) &quot;));
+    ///
+    /// // Not a normally exposed function, only used for this doctest.
+    /// // 65535 / 4 = 16383 (rounded down)
+    /// // 16383 * 4 = 65532
+    /// assert_eq!(arguments.len(), 65532);
+    /// }
+    /// ```
+    </span><span class="kw">pub fn </span>push_tuples&lt;I, F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tuples: I, <span class="kw-2">mut </span>push_tuple: F) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span>I: IntoIterator,
+        F: FnMut(Separated&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;args</span>, DB, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;, I::Item),
     {
-        <span class="self">self</span>.<span class="ident">sanity_check</span>();
+        <span class="self">self</span>.sanity_check();
 
-        <span class="self">self</span>.<span class="ident">push</span>(<span class="string">&quot; (&quot;</span>);
+        <span class="self">self</span>.push(<span class="string">&quot; (&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">separated</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">separated</span>(<span class="string">&quot;, &quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>separated = <span class="self">self</span>.separated(<span class="string">&quot;, &quot;</span>);
 
-        <span class="kw">for</span> <span class="ident">tuple</span> <span class="kw">in</span> <span class="ident">tuples</span> {
-            <span class="ident">separated</span>.<span class="ident">push</span>(<span class="string">&quot;(&quot;</span>);
+        <span class="kw">for </span>tuple <span class="kw">in </span>tuples {
+            separated.push(<span class="string">&quot;(&quot;</span>);
 
-            <span class="ident">push_tuple</span>(<span class="ident">separated</span>.<span class="ident">query_builder</span>.<span class="ident">separated</span>(<span class="string">&quot;, &quot;</span>), <span class="ident">tuple</span>);
+            push_tuple(separated.query_builder.separated(<span class="string">&quot;, &quot;</span>), tuple);
 
-            <span class="ident">separated</span>.<span class="ident">push_unseparated</span>(<span class="string">&quot;)&quot;</span>);
+            separated.push_unseparated(<span class="string">&quot;)&quot;</span>);
         }
-        <span class="ident">separated</span>.<span class="ident">push_unseparated</span>(<span class="string">&quot;) &quot;</span>);
+        separated.push_unseparated(<span class="string">&quot;) &quot;</span>);
 
-        <span class="ident">separated</span>.<span class="ident">query_builder</span>
+        separated.query_builder
     }
 
-    <span class="doccomment">/// Produce an executable query from this builder.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Note: Query is not Checked</span>
-    <span class="doccomment">/// It is your responsibility to ensure that you produce a syntactically correct query here,</span>
-    <span class="doccomment">/// this API has no way to check it for you.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Note: Reuse</span>
-    <span class="doccomment">/// You can reuse this builder afterwards to amortize the allocation overhead of the query</span>
-    <span class="doccomment">/// string, however you must call [`.reset()`][Self::reset] first, which returns `Self`</span>
-    <span class="doccomment">/// to the state it was in immediately after [`new()`][Self::new].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Calling any other method but `.reset()` after `.build()` will panic for sanity reasons.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">DB</span>, <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">sanity_check</span>();
+    <span class="doccomment">/// Produce an executable query from this builder.
+    ///
+    /// ### Note: Query is not Checked
+    /// It is your responsibility to ensure that you produce a syntactically correct query here,
+    /// this API has no way to check it for you.
+    ///
+    /// ### Note: Reuse
+    /// You can reuse this builder afterwards to amortize the allocation overhead of the query
+    /// string, however you must call [`.reset()`][Self::reset] first, which returns `Self`
+    /// to the state it was in immediately after [`new()`][Self::new].
+    ///
+    /// Calling any other method but `.reset()` after `.build()` will panic for sanity reasons.
+    </span><span class="kw">pub fn </span>build(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Query&lt;<span class="lifetime">&#39;_</span>, DB, &lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;args</span>&gt;&gt;::Arguments&gt; {
+        <span class="self">self</span>.sanity_check();
 
-        <span class="ident">Query</span> {
-            <span class="ident">statement</span>: <span class="ident">Either::Left</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">query</span>),
-            <span class="ident">arguments</span>: <span class="self">self</span>.<span class="ident">arguments</span>.<span class="ident">take</span>(),
-            <span class="ident">database</span>: <span class="ident">PhantomData</span>,
-            <span class="ident">persistent</span>: <span class="bool-val">true</span>,
-        }
-    }
-
-    <span class="doccomment">/// Produce an executable query from this builder.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Note: Query is not Checked</span>
-    <span class="doccomment">/// It is your responsibility to ensure that you produce a syntactically correct query here,</span>
-    <span class="doccomment">/// this API has no way to check it for you.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Note: Reuse</span>
-    <span class="doccomment">/// You can reuse this builder afterwards to amortize the allocation overhead of the query</span>
-    <span class="doccomment">/// string, however you must call [`.reset()`][Self::reset] first, which returns `Self`</span>
-    <span class="doccomment">/// to the state it was in immediately after [`new()`][Self::new].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Calling any other method but `.reset()` after `.build()` will panic for sanity reasons.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_query_as</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">T</span>: <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB::Row</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="kw-2">mut</span> <span class="self">self</span>,
-    ) -&gt; <span class="ident">QueryAs</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>, <span class="ident">T</span>, <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span> {
-        <span class="ident">QueryAs</span> {
-            <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">build</span>(),
-            <span class="ident">output</span>: <span class="ident">PhantomData</span>,
+        Query {
+            statement: Either::Left(<span class="kw-2">&amp;</span><span class="self">self</span>.query),
+            arguments: <span class="self">self</span>.arguments.take(),
+            database: PhantomData,
+            persistent: <span class="bool-val">true</span>,
         }
     }
 
-    <span class="doccomment">/// Reset this `QueryBuilder` back to its initial state.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The query is truncated to the initial fragment provided to [`new()`][Self::new] and</span>
-    <span class="doccomment">/// the bind arguments are reset.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">query</span>.<span class="ident">truncate</span>(<span class="self">self</span>.<span class="ident">init_len</span>);
-        <span class="self">self</span>.<span class="ident">arguments</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Default::default</span>());
-
-        <span class="self">self</span>
+    <span class="doccomment">/// Produce an executable query from this builder.
+    ///
+    /// ### Note: Query is not Checked
+    /// It is your responsibility to ensure that you produce a syntactically correct query here,
+    /// this API has no way to check it for you.
+    ///
+    /// ### Note: Reuse
+    /// You can reuse this builder afterwards to amortize the allocation overhead of the query
+    /// string, however you must call [`.reset()`][Self::reset] first, which returns `Self`
+    /// to the state it was in immediately after [`new()`][Self::new].
+    ///
+    /// Calling any other method but `.reset()` after `.build()` will panic for sanity reasons.
+    </span><span class="kw">pub fn </span>build_query_as&lt;<span class="lifetime">&#39;q</span>, T: FromRow&lt;<span class="lifetime">&#39;q</span>, DB::Row&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span><span class="kw-2">mut </span><span class="self">self</span>,
+    ) -&gt; QueryAs&lt;<span class="lifetime">&#39;q</span>, DB, T, &lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;args</span>&gt;&gt;::Arguments&gt; {
+        QueryAs {
+            inner: <span class="self">self</span>.build(),
+            output: PhantomData,
+        }
     }
 
-    <span class="doccomment">/// Get the current build SQL; **note**: may not be syntactically correct.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">query</span>
+    <span class="doccomment">/// Reset this `QueryBuilder` back to its initial state.
+    ///
+    /// The query is truncated to the initial fragment provided to [`new()`][Self::new] and
+    /// the bind arguments are reset.
+    </span><span class="kw">pub fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="self">self</span>.query.truncate(<span class="self">self</span>.init_len);
+        <span class="self">self</span>.arguments = <span class="prelude-val">Some</span>(Default::default());
+
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Get the current build SQL; **note**: may not be syntactically correct.
+    </span><span class="kw">pub fn </span>sql(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.query
     }
 
-    <span class="doccomment">/// Deconstruct this `QueryBuilder`, returning the built SQL. May not be syntactically correct.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_sql</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">query</span>
+    <span class="doccomment">/// Deconstruct this `QueryBuilder`, returning the built SQL. May not be syntactically correct.
+    </span><span class="kw">pub fn </span>into_sql(<span class="self">self</span>) -&gt; String {
+        <span class="self">self</span>.query
     }
 }
 
-<span class="doccomment">/// A wrapper around `QueryBuilder` for creating comma(or other token)-separated lists.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See [`QueryBuilder::separated()`] for details.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">explicit_outlives_requirements</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Separated</span><span class="op">&lt;</span><span class="lifetime">&#39;qb</span>, <span class="lifetime">&#39;args</span>: <span class="lifetime">&#39;qb</span>, <span class="ident">DB</span>, <span class="ident">Sep</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">Database</span>,
+<span class="doccomment">/// A wrapper around `QueryBuilder` for creating comma(or other token)-separated lists.
+///
+/// See [`QueryBuilder::separated()`] for details.
+</span><span class="attribute">#[allow(explicit_outlives_requirements)]
+</span><span class="kw">pub struct </span>Separated&lt;<span class="lifetime">&#39;qb</span>, <span class="lifetime">&#39;args</span>: <span class="lifetime">&#39;qb</span>, DB, Sep&gt;
+<span class="kw">where
+    </span>DB: Database,
 {
-    <span class="ident">query_builder</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;qb</span> <span class="kw-2">mut</span> <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span>, <span class="ident">DB</span><span class="op">&gt;</span>,
-    <span class="ident">separator</span>: <span class="ident">Sep</span>,
-    <span class="ident">push_separator</span>: <span class="ident">bool</span>,
+    query_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;qb </span><span class="kw-2">mut </span>QueryBuilder&lt;<span class="lifetime">&#39;args</span>, DB&gt;,
+    separator: Sep,
+    push_separator: bool,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;qb</span>, <span class="lifetime">&#39;args</span>: <span class="lifetime">&#39;qb</span>, <span class="ident">DB</span>, <span class="ident">Sep</span><span class="op">&gt;</span> <span class="ident">Separated</span><span class="op">&lt;</span><span class="lifetime">&#39;qb</span>, <span class="lifetime">&#39;args</span>, <span class="ident">DB</span>, <span class="ident">Sep</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">Database</span>,
-    <span class="ident">Sep</span>: <span class="ident">Display</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;qb</span>, <span class="lifetime">&#39;args</span>: <span class="lifetime">&#39;qb</span>, DB, Sep&gt; Separated&lt;<span class="lifetime">&#39;qb</span>, <span class="lifetime">&#39;args</span>, DB, Sep&gt;
+<span class="kw">where
+    </span>DB: Database,
+    Sep: Display,
 {
-    <span class="doccomment">/// Push the separator if applicable, and then the given SQL fragment.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`QueryBuilder::push()`] for details.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw">impl</span> <span class="ident">Display</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">push_separator</span> {
-            <span class="self">self</span>.<span class="ident">query_builder</span>
-                .<span class="ident">push</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.<span class="ident">separator</span>, <span class="ident">sql</span>));
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">query_builder</span>.<span class="ident">push</span>(<span class="ident">sql</span>);
-            <span class="self">self</span>.<span class="ident">push_separator</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="doccomment">/// Push the separator if applicable, and then the given SQL fragment.
+    ///
+    /// See [`QueryBuilder::push()`] for details.
+    </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sql: <span class="kw">impl </span>Display) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="kw">if </span><span class="self">self</span>.push_separator {
+            <span class="self">self</span>.query_builder
+                .push(<span class="macro">format_args!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.separator, sql));
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.query_builder.push(sql);
+            <span class="self">self</span>.push_separator = <span class="bool-val">true</span>;
         }
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Push a SQL fragment without a separator.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Simply calls [`QueryBuilder::push()`] directly.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_unseparated</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw">impl</span> <span class="ident">Display</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">query_builder</span>.<span class="ident">push</span>(<span class="ident">sql</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Push a SQL fragment without a separator.
+    ///
+    /// Simply calls [`QueryBuilder::push()`] directly.
+    </span><span class="kw">pub fn </span>push_unseparated(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sql: <span class="kw">impl </span>Display) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="self">self</span>.query_builder.push(sql);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Push the separator if applicable, then append a bind argument.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`QueryBuilder::push_bind()`] for details.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_bind</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="lifetime">&#39;args</span> <span class="op">+</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Push the separator if applicable, then append a bind argument.
+    ///
+    /// See [`QueryBuilder::push_bind()`] for details.
+    </span><span class="kw">pub fn </span>push_bind&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span>T: <span class="lifetime">&#39;args </span>+ Encode&lt;<span class="lifetime">&#39;args</span>, DB&gt; + Send + Type&lt;DB&gt;,
     {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">push_separator</span> {
-            <span class="self">self</span>.<span class="ident">query_builder</span>.<span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">separator</span>);
+        <span class="kw">if </span><span class="self">self</span>.push_separator {
+            <span class="self">self</span>.query_builder.push(<span class="kw-2">&amp;</span><span class="self">self</span>.separator);
         }
 
-        <span class="self">self</span>.<span class="ident">query_builder</span>.<span class="ident">push_bind</span>(<span class="ident">value</span>);
-        <span class="self">self</span>.<span class="ident">push_separator</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>.query_builder.push_bind(value);
+        <span class="self">self</span>.push_separator = <span class="bool-val">true</span>;
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Push a bind argument placeholder (`?` or `$N` for Postgres) and bind a value to it</span>
-    <span class="doccomment">/// without a separator.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Simply calls [`QueryBuilder::push_bind()`] directly.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_bind_unseparated</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="lifetime">&#39;args</span> <span class="op">+</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Push a bind argument placeholder (`?` or `$N` for Postgres) and bind a value to it
+    /// without a separator.
+    ///
+    /// Simply calls [`QueryBuilder::push_bind()`] directly.
+    </span><span class="kw">pub fn </span>push_bind_unseparated&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span>T: <span class="lifetime">&#39;args </span>+ Encode&lt;<span class="lifetime">&#39;args</span>, DB&gt; + Send + Type&lt;DB&gt;,
     {
-        <span class="self">self</span>.<span class="ident">query_builder</span>.<span class="ident">push_bind</span>(<span class="ident">value</span>);
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.query_builder.push_bind(value);
+        <span class="self">self
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::Postgres</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span><span class="kw">crate</span>::postgres::Postgres;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_new</span>() {
-        <span class="kw">let</span> <span class="ident">qb</span>: <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">QueryBuilder::new</span>(<span class="string">&quot;SELECT * FROM users&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">qb</span>.<span class="ident">query</span>, <span class="string">&quot;SELECT * FROM users&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_new() {
+        <span class="kw">let </span>qb: QueryBuilder&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; = QueryBuilder::new(<span class="string">&quot;SELECT * FROM users&quot;</span>);
+        <span class="macro">assert_eq!</span>(qb.query, <span class="string">&quot;SELECT * FROM users&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_push</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qb</span>: <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">QueryBuilder::new</span>(<span class="string">&quot;SELECT * FROM users&quot;</span>);
-        <span class="kw">let</span> <span class="ident">second_line</span> <span class="op">=</span> <span class="string">&quot; WHERE last_name LIKE &#39;[A-N]%;&quot;</span>;
-        <span class="ident">qb</span>.<span class="ident">push</span>(<span class="ident">second_line</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_push() {
+        <span class="kw">let </span><span class="kw-2">mut </span>qb: QueryBuilder&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; = QueryBuilder::new(<span class="string">&quot;SELECT * FROM users&quot;</span>);
+        <span class="kw">let </span>second_line = <span class="string">&quot; WHERE last_name LIKE &#39;[A-N]%;&quot;</span>;
+        qb.push(second_line);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">qb</span>.<span class="ident">query</span>,
-            <span class="string">&quot;SELECT * FROM users WHERE last_name LIKE &#39;[A-N]%;&quot;</span>.<span class="ident">to_string</span>(),
+            qb.query,
+            <span class="string">&quot;SELECT * FROM users WHERE last_name LIKE &#39;[A-N]%;&quot;</span>.to_string(),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_push_panics_when_no_arguments</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qb</span>: <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">QueryBuilder::new</span>(<span class="string">&quot;SELECT * FROM users;&quot;</span>);
-        <span class="ident">qb</span>.<span class="ident">arguments</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>test_push_panics_when_no_arguments() {
+        <span class="kw">let </span><span class="kw-2">mut </span>qb: QueryBuilder&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; = QueryBuilder::new(<span class="string">&quot;SELECT * FROM users;&quot;</span>);
+        qb.arguments = <span class="prelude-val">None</span>;
 
-        <span class="ident">qb</span>.<span class="ident">push</span>(<span class="string">&quot;SELECT * FROM users;&quot;</span>);
+        qb.push(<span class="string">&quot;SELECT * FROM users;&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_push_bind</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qb</span>: <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="ident">QueryBuilder::new</span>(<span class="string">&quot;SELECT * FROM users WHERE id = &quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_push_bind() {
+        <span class="kw">let </span><span class="kw-2">mut </span>qb: QueryBuilder&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; =
+            QueryBuilder::new(<span class="string">&quot;SELECT * FROM users WHERE id = &quot;</span>);
 
-        <span class="ident">qb</span>.<span class="ident">push_bind</span>(<span class="number">42i32</span>)
-            .<span class="ident">push</span>(<span class="string">&quot; OR membership_level = &quot;</span>)
-            .<span class="ident">push_bind</span>(<span class="number">3i32</span>);
+        qb.push_bind(<span class="number">42i32</span>)
+            .push(<span class="string">&quot; OR membership_level = &quot;</span>)
+            .push_bind(<span class="number">3i32</span>);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">qb</span>.<span class="ident">query</span>,
-            <span class="string">&quot;SELECT * FROM users WHERE id = $1 OR membership_level = $2&quot;</span>
-        );
+            qb.query,
+            <span class="string">&quot;SELECT * FROM users WHERE id = $1 OR membership_level = $2&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_build</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qb</span>: <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">QueryBuilder::new</span>(<span class="string">&quot;SELECT * FROM users&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_build() {
+        <span class="kw">let </span><span class="kw-2">mut </span>qb: QueryBuilder&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; = QueryBuilder::new(<span class="string">&quot;SELECT * FROM users&quot;</span>);
 
-        <span class="ident">qb</span>.<span class="ident">push</span>(<span class="string">&quot; WHERE id = &quot;</span>).<span class="ident">push_bind</span>(<span class="number">42i32</span>);
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">qb</span>.<span class="ident">build</span>();
+        qb.push(<span class="string">&quot; WHERE id = &quot;</span>).push_bind(<span class="number">42i32</span>);
+        <span class="kw">let </span>query = qb.build();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">query</span>.<span class="ident">statement</span>.<span class="ident">unwrap_left</span>(),
-            <span class="string">&quot;SELECT * FROM users WHERE id = $1&quot;</span>
-        );
-        <span class="macro">assert_eq!</span>(<span class="ident">query</span>.<span class="ident">persistent</span>, <span class="bool-val">true</span>);
+            query.statement.unwrap_left(),
+            <span class="string">&quot;SELECT * FROM users WHERE id = $1&quot;
+        </span>);
+        <span class="macro">assert_eq!</span>(query.persistent, <span class="bool-val">true</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_reset</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qb</span>: <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">QueryBuilder::new</span>(<span class="string">&quot;&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_reset() {
+        <span class="kw">let </span><span class="kw-2">mut </span>qb: QueryBuilder&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; = QueryBuilder::new(<span class="string">&quot;&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">_query</span> <span class="op">=</span> <span class="ident">qb</span>
-            .<span class="ident">push</span>(<span class="string">&quot;SELECT * FROM users WHERE id = &quot;</span>)
-            .<span class="ident">push_bind</span>(<span class="number">42i32</span>)
-            .<span class="ident">build</span>();
+        <span class="kw">let </span>_query = qb
+            .push(<span class="string">&quot;SELECT * FROM users WHERE id = &quot;</span>)
+            .push_bind(<span class="number">42i32</span>)
+            .build();
 
-        <span class="ident">qb</span>.<span class="ident">reset</span>();
+        qb.reset();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">qb</span>.<span class="ident">query</span>, <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(qb.query, <span class="string">&quot;&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_query_builder_reuse</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qb</span>: <span class="ident">QueryBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">QueryBuilder::new</span>(<span class="string">&quot;&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_query_builder_reuse() {
+        <span class="kw">let </span><span class="kw-2">mut </span>qb: QueryBuilder&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; = QueryBuilder::new(<span class="string">&quot;&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">_query</span> <span class="op">=</span> <span class="ident">qb</span>
-            .<span class="ident">push</span>(<span class="string">&quot;SELECT * FROM users WHERE id = &quot;</span>)
-            .<span class="ident">push_bind</span>(<span class="number">42i32</span>)
-            .<span class="ident">build</span>();
+        <span class="kw">let </span>_query = qb
+            .push(<span class="string">&quot;SELECT * FROM users WHERE id = &quot;</span>)
+            .push_bind(<span class="number">42i32</span>)
+            .build();
 
-        <span class="ident">qb</span>.<span class="ident">reset</span>();
+        qb.reset();
 
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">qb</span>.<span class="ident">push</span>(<span class="string">&quot;SELECT * FROM users WHERE id = 99&quot;</span>).<span class="ident">build</span>();
+        <span class="kw">let </span>query = qb.push(<span class="string">&quot;SELECT * FROM users WHERE id = 99&quot;</span>).build();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">query</span>.<span class="ident">statement</span>.<span class="ident">unwrap_left</span>(),
-            <span class="string">&quot;SELECT * FROM users WHERE id = 99&quot;</span>
-        );
+            query.statement.unwrap_left(),
+            <span class="string">&quot;SELECT * FROM users WHERE id = 99&quot;
+        </span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

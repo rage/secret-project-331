@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/transform.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transform.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/transform.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transform.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_service/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -270,275 +270,275 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">rc::Rc</span>, <span class="ident">sync::Arc</span>};
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>alloc::{rc::Rc, sync::Arc};
+<span class="kw">use </span>core::{
+    future::Future,
+    marker::PhantomData,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IntoServiceFactory</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>};
+<span class="kw">use crate</span>::{IntoServiceFactory, Service, ServiceFactory};
 
-<span class="doccomment">/// Apply a [`Transform`] to a [`Service`].</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">I</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">t</span>: <span class="ident">T</span>, <span class="ident">factory</span>: <span class="ident">I</span>) -&gt; <span class="ident">ApplyTransform</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S::Service</span>, <span class="ident">Req</span>, <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Apply a [`Transform`] to a [`Service`].
+</span><span class="kw">pub fn </span>apply&lt;T, S, I, Req&gt;(t: T, factory: I) -&gt; ApplyTransform&lt;T, S, Req&gt;
+<span class="kw">where
+    </span>I: IntoServiceFactory&lt;S, Req&gt;,
+    S: ServiceFactory&lt;Req&gt;,
+    T: Transform&lt;S::Service, Req, InitError = S::InitError&gt;,
 {
-    <span class="ident">ApplyTransform::new</span>(<span class="ident">t</span>, <span class="ident">factory</span>.<span class="ident">into_factory</span>())
+    ApplyTransform::new(t, factory.into_factory())
 }
 
-<span class="doccomment">/// Defines the interface of a service factory that wraps inner service during construction.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Transformers wrap an inner service and runs during inbound and/or outbound processing in the</span>
-<span class="doccomment">/// service lifecycle. It may modify request and/or response.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For example, a timeout service wrapper:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// pub struct Timeout&lt;S&gt; {</span>
-<span class="doccomment">///     service: S,</span>
-<span class="doccomment">///     timeout: Duration,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// impl&lt;S: Service&lt;Req&gt;, Req&gt; Service&lt;Req&gt; for Timeout&lt;S&gt; {</span>
-<span class="doccomment">///     type Response = S::Response;</span>
-<span class="doccomment">///     type Error = TimeoutError&lt;S::Error&gt;;</span>
-<span class="doccomment">///     type Future = TimeoutServiceResponse&lt;S&gt;;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     actix_service::forward_ready!(service);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     fn call(&amp;self, req: Req) -&gt; Self::Future {</span>
-<span class="doccomment">///         TimeoutServiceResponse {</span>
-<span class="doccomment">///             fut: self.service.call(req),</span>
-<span class="doccomment">///             sleep: Sleep::new(clock::now() + self.timeout),</span>
-<span class="doccomment">///         }</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This wrapper service is decoupled from the underlying service implementation and could be</span>
-<span class="doccomment">/// applied to any service.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The `Transform` trait defines the interface of a service wrapper. `Transform` is often</span>
-<span class="doccomment">/// implemented for middleware, defining how to construct a middleware Service. A Service that is</span>
-<span class="doccomment">/// constructed by the factory takes the Service that follows it during execution as a parameter,</span>
-<span class="doccomment">/// assuming ownership of the next Service.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A transform for the `Timeout` middleware could look like this:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// pub struct TimeoutTransform {</span>
-<span class="doccomment">///     timeout: Duration,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// impl&lt;S: Service&lt;Req&gt;, Req&gt; Transform&lt;S, Req&gt; for TimeoutTransform {</span>
-<span class="doccomment">///     type Response = S::Response;</span>
-<span class="doccomment">///     type Error = TimeoutError&lt;S::Error&gt;;</span>
-<span class="doccomment">///     type InitError = S::Error;</span>
-<span class="doccomment">///     type Transform = Timeout&lt;S&gt;;</span>
-<span class="doccomment">///     type Future = Ready&lt;Result&lt;Self::Transform, Self::InitError&gt;&gt;;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     fn new_transform(&amp;self, service: S) -&gt; Self::Future {</span>
-<span class="doccomment">///         ready(Ok(Timeout {</span>
-<span class="doccomment">///             service,</span>
-<span class="doccomment">///             timeout: self.timeout,</span>
-<span class="doccomment">///         }))</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Responses produced by the service.</span>
-    <span class="kw">type</span> <span class="ident">Response</span>;
+<span class="doccomment">/// Defines the interface of a service factory that wraps inner service during construction.
+///
+/// Transformers wrap an inner service and runs during inbound and/or outbound processing in the
+/// service lifecycle. It may modify request and/or response.
+///
+/// For example, a timeout service wrapper:
+///
+/// ```ignore
+/// pub struct Timeout&lt;S&gt; {
+///     service: S,
+///     timeout: Duration,
+/// }
+///
+/// impl&lt;S: Service&lt;Req&gt;, Req&gt; Service&lt;Req&gt; for Timeout&lt;S&gt; {
+///     type Response = S::Response;
+///     type Error = TimeoutError&lt;S::Error&gt;;
+///     type Future = TimeoutServiceResponse&lt;S&gt;;
+///
+///     actix_service::forward_ready!(service);
+///
+///     fn call(&amp;self, req: Req) -&gt; Self::Future {
+///         TimeoutServiceResponse {
+///             fut: self.service.call(req),
+///             sleep: Sleep::new(clock::now() + self.timeout),
+///         }
+///     }
+/// }
+/// ```
+///
+/// This wrapper service is decoupled from the underlying service implementation and could be
+/// applied to any service.
+///
+/// The `Transform` trait defines the interface of a service wrapper. `Transform` is often
+/// implemented for middleware, defining how to construct a middleware Service. A Service that is
+/// constructed by the factory takes the Service that follows it during execution as a parameter,
+/// assuming ownership of the next Service.
+///
+/// A transform for the `Timeout` middleware could look like this:
+///
+/// ```ignore
+/// pub struct TimeoutTransform {
+///     timeout: Duration,
+/// }
+///
+/// impl&lt;S: Service&lt;Req&gt;, Req&gt; Transform&lt;S, Req&gt; for TimeoutTransform {
+///     type Response = S::Response;
+///     type Error = TimeoutError&lt;S::Error&gt;;
+///     type InitError = S::Error;
+///     type Transform = Timeout&lt;S&gt;;
+///     type Future = Ready&lt;Result&lt;Self::Transform, Self::InitError&gt;&gt;;
+///
+///     fn new_transform(&amp;self, service: S) -&gt; Self::Future {
+///         ready(Ok(Timeout {
+///             service,
+///             timeout: self.timeout,
+///         }))
+///     }
+/// }
+/// ```
+</span><span class="kw">pub trait </span>Transform&lt;S, Req&gt; {
+    <span class="doccomment">/// Responses produced by the service.
+    </span><span class="kw">type </span>Response;
 
-    <span class="doccomment">/// Errors produced by the service.</span>
-    <span class="kw">type</span> <span class="ident">Error</span>;
+    <span class="doccomment">/// Errors produced by the service.
+    </span><span class="kw">type </span>Error;
 
-    <span class="doccomment">/// The `TransformService` value created by this factory</span>
-    <span class="kw">type</span> <span class="ident">Transform</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The `TransformService` value created by this factory
+    </span><span class="kw">type </span>Transform: Service&lt;Req, Response = <span class="self">Self</span>::Response, Error = <span class="self">Self</span>::Error&gt;;
 
-    <span class="doccomment">/// Errors produced while building a transform service.</span>
-    <span class="kw">type</span> <span class="ident">InitError</span>;
+    <span class="doccomment">/// Errors produced while building a transform service.
+    </span><span class="kw">type </span>InitError;
 
-    <span class="doccomment">/// The future response value.</span>
-    <span class="kw">type</span> <span class="ident">Future</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Transform</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The future response value.
+    </span><span class="kw">type </span>Future: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Transform, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="doccomment">/// Creates and returns a new Transform component, asynchronously</span>
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span>;
+    <span class="doccomment">/// Creates and returns a new Transform component, asynchronously
+    </span><span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; <span class="self">Self</span>::Future;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, S, Req&gt; Transform&lt;S, Req&gt; <span class="kw">for </span>Rc&lt;T&gt;
+<span class="kw">where
+    </span>T: Transform&lt;S, Req&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">T::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">T::Error</span>;
-    <span class="kw">type</span> <span class="ident">Transform</span> <span class="op">=</span> <span class="ident">T::Transform</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">T::InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">T::Future</span>;
+    <span class="kw">type </span>Response = T::Response;
+    <span class="kw">type </span>Error = T::Error;
+    <span class="kw">type </span>Transform = T::Transform;
+    <span class="kw">type </span>InitError = T::InitError;
+    <span class="kw">type </span>Future = T::Future;
 
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident">T::Future</span> {
-        <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">new_transform</span>(<span class="ident">service</span>)
+    <span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; T::Future {
+        <span class="self">self</span>.as_ref().new_transform(service)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, S, Req&gt; Transform&lt;S, Req&gt; <span class="kw">for </span>Arc&lt;T&gt;
+<span class="kw">where
+    </span>T: Transform&lt;S, Req&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">T::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">T::Error</span>;
-    <span class="kw">type</span> <span class="ident">Transform</span> <span class="op">=</span> <span class="ident">T::Transform</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">T::InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">T::Future</span>;
+    <span class="kw">type </span>Response = T::Response;
+    <span class="kw">type </span>Error = T::Error;
+    <span class="kw">type </span>Transform = T::Transform;
+    <span class="kw">type </span>InitError = T::InitError;
+    <span class="kw">type </span>Future = T::Future;
 
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident">T::Future</span> {
-        <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">new_transform</span>(<span class="ident">service</span>)
+    <span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; T::Future {
+        <span class="self">self</span>.as_ref().new_transform(service)
     }
 }
 
-<span class="doccomment">/// Apply a [`Transform`] to a [`Service`].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ApplyTransform</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">Rc</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">S</span>)<span class="op">&gt;</span>, <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Apply a [`Transform`] to a [`Service`].
+</span><span class="kw">pub struct </span>ApplyTransform&lt;T, S, Req&gt;(Rc&lt;(T, S)&gt;, PhantomData&lt;Req&gt;);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">ApplyTransform</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S::Service</span>, <span class="ident">Req</span>, <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, S, Req&gt; ApplyTransform&lt;T, S, Req&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Req&gt;,
+    T: Transform&lt;S::Service, Req, InitError = S::InitError&gt;,
 {
-    <span class="doccomment">/// Create new `ApplyTransform` new service instance</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">t</span>: <span class="ident">T</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Rc::new</span>((<span class="ident">t</span>, <span class="ident">service</span>)), <span class="ident">PhantomData</span>)
+    <span class="doccomment">/// Create new `ApplyTransform` new service instance
+    </span><span class="kw">fn </span>new(t: T, service: S) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Rc::new((t, service)), PhantomData)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">ApplyTransform</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">ApplyTransform</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>(), <span class="ident">PhantomData</span>)
+<span class="kw">impl</span>&lt;T, S, Req&gt; Clone <span class="kw">for </span>ApplyTransform&lt;T, S, Req&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        ApplyTransform(<span class="self">self</span>.<span class="number">0</span>.clone(), PhantomData)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ApplyTransform</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S::Service</span>, <span class="ident">Req</span>, <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, S, Req&gt; ServiceFactory&lt;Req&gt; <span class="kw">for </span>ApplyTransform&lt;T, S, Req&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Req&gt;,
+    T: Transform&lt;S::Service, Req, InitError = S::InitError&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">T::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">T::Error</span>;
+    <span class="kw">type </span>Response = T::Response;
+    <span class="kw">type </span>Error = T::Error;
 
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">S::Config</span>;
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">T::Transform</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">T::InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">ApplyTransformFuture</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Config = S::Config;
+    <span class="kw">type </span>Service = T::Transform;
+    <span class="kw">type </span>InitError = T::InitError;
+    <span class="kw">type </span>Future = ApplyTransformFuture&lt;T, S, Req&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">S::Config</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident">ApplyTransformFuture</span> {
-            <span class="ident">store</span>: <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>(),
-            <span class="ident">state</span>: <span class="ident">ApplyTransformFutureState::A</span> {
-                <span class="ident">fut</span>: <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ref</span>().<span class="number">1</span>.<span class="ident">new_service</span>(<span class="ident">cfg</span>),
+    <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, cfg: S::Config) -&gt; <span class="self">Self</span>::Future {
+        ApplyTransformFuture {
+            store: <span class="self">self</span>.<span class="number">0</span>.clone(),
+            state: ApplyTransformFutureState::A {
+                fut: <span class="self">self</span>.<span class="number">0</span>.as_ref().<span class="number">1</span>.new_service(cfg),
             },
         }
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ApplyTransformFuture</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-        <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S::Service</span>, <span class="ident">Req</span>, <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span><span class="op">&gt;</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>ApplyTransformFuture&lt;T, S, Req&gt;
+    <span class="kw">where
+        </span>S: ServiceFactory&lt;Req&gt;,
+        T: Transform&lt;S::Service, Req, InitError = S::InitError&gt;,
     {
-        <span class="ident">store</span>: <span class="ident">Rc</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">S</span>)<span class="op">&gt;</span>,
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">state</span>: <span class="ident">ApplyTransformFutureState</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
+        store: Rc&lt;(T, S)&gt;,
+        <span class="attribute">#[pin]
+        </span>state: ApplyTransformFutureState&lt;T, S, Req&gt;,
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">ApplyTransformFutureStateProj</span>]</span>
-    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ApplyTransformFutureState</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-        <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S::Service</span>, <span class="ident">Req</span>, <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span><span class="op">&gt;</span>,
+<span class="macro">pin_project! </span>{
+    <span class="attribute">#[project = ApplyTransformFutureStateProj]
+    </span><span class="kw">pub enum </span>ApplyTransformFutureState&lt;T, S, Req&gt;
+    <span class="kw">where
+        </span>S: ServiceFactory&lt;Req&gt;,
+        T: Transform&lt;S::Service, Req, InitError = S::InitError&gt;,
     {
-        <span class="ident">A</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">fut</span>: <span class="ident">S::Future</span> },
-        <span class="ident">B</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">fut</span>: <span class="ident">T::Future</span> },
+        A { <span class="attribute">#[pin] </span>fut: S::Future },
+        B { <span class="attribute">#[pin] </span>fut: T::Future },
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ApplyTransformFuture</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S::Service</span>, <span class="ident">Req</span>, <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, S, Req&gt; Future <span class="kw">for </span>ApplyTransformFuture&lt;T, S, Req&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Req&gt;,
+    T: Transform&lt;S::Service, Req, InitError = S::InitError&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Transform</span>, <span class="ident">T::InitError</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;T::Transform, T::InitError&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.as_mut().project();
 
-        <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>() {
-            <span class="ident">ApplyTransformFutureStateProj::A</span> { <span class="ident">fut</span> } =&gt; {
-                <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">store</span>.<span class="number">0</span>.<span class="ident">new_transform</span>(<span class="ident">srv</span>);
-                <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">ApplyTransformFutureState::B</span> { <span class="ident">fut</span> });
-                <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
+        <span class="kw">match </span>this.state.as_mut().project() {
+            ApplyTransformFutureStateProj::A { fut } =&gt; {
+                <span class="kw">let </span>srv = <span class="macro">ready!</span>(fut.poll(cx))<span class="question-mark">?</span>;
+                <span class="kw">let </span>fut = this.store.<span class="number">0</span>.new_transform(srv);
+                this.state.set(ApplyTransformFutureState::B { fut });
+                <span class="self">self</span>.poll(cx)
             }
-            <span class="ident">ApplyTransformFutureStateProj::B</span> { <span class="ident">fut</span> } =&gt; <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>),
+            ApplyTransformFutureStateProj::B { fut } =&gt; fut.poll(cx),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">core::time::Duration</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>core::time::Duration;
 
-    <span class="kw">use</span> <span class="ident">actix_utils::future</span>::{<span class="ident">ready</span>, <span class="ident">Ready</span>};
+    <span class="kw">use </span>actix_utils::future::{ready, Ready};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Service</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::Service;
 
-    <span class="comment">// pseudo-doctest for Transform trait</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimeoutTransform</span> {
-        <span class="ident">timeout</span>: <span class="ident">Duration</span>,
+    <span class="comment">// pseudo-doctest for Transform trait
+    </span><span class="kw">pub struct </span>TimeoutTransform {
+        timeout: Duration,
     }
 
-    <span class="comment">// pseudo-doctest for Transform trait</span>
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TimeoutTransform</span> {
-        <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-        <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-        <span class="kw">type</span> <span class="ident">Transform</span> <span class="op">=</span> <span class="ident">Timeout</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>;
-        <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Transform</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="comment">// pseudo-doctest for Transform trait
+    </span><span class="kw">impl</span>&lt;S: Service&lt;Req&gt;, Req&gt; Transform&lt;S, Req&gt; <span class="kw">for </span>TimeoutTransform {
+        <span class="kw">type </span>Response = S::Response;
+        <span class="kw">type </span>Error = S::Error;
+        <span class="kw">type </span>InitError = S::Error;
+        <span class="kw">type </span>Transform = Timeout&lt;S&gt;;
+        <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Transform, <span class="self">Self</span>::InitError&gt;&gt;;
 
-        <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-            <span class="ident">ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">Timeout</span> {
-                <span class="ident">service</span>,
-                <span class="ident">_timeout</span>: <span class="self">self</span>.<span class="ident">timeout</span>,
+        <span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; <span class="self">Self</span>::Future {
+            ready(<span class="prelude-val">Ok</span>(Timeout {
+                service,
+                _timeout: <span class="self">self</span>.timeout,
             }))
         }
     }
 
-    <span class="comment">// pseudo-doctest for Transform trait</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Timeout</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="ident">service</span>: <span class="ident">S</span>,
-        <span class="ident">_timeout</span>: <span class="ident">Duration</span>,
+    <span class="comment">// pseudo-doctest for Transform trait
+    </span><span class="kw">pub struct </span>Timeout&lt;S&gt; {
+        service: S,
+        _timeout: Duration,
     }
 
-    <span class="comment">// pseudo-doctest for Transform trait</span>
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Timeout</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-        <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
+    <span class="comment">// pseudo-doctest for Transform trait
+    </span><span class="kw">impl</span>&lt;S: Service&lt;Req&gt;, Req&gt; Service&lt;Req&gt; <span class="kw">for </span>Timeout&lt;S&gt; {
+        <span class="kw">type </span>Response = S::Response;
+        <span class="kw">type </span>Error = S::Error;
+        <span class="kw">type </span>Future = S::Future;
 
-        <span class="macro">crate::forward_ready!</span>(<span class="ident">service</span>);
+        <span class="macro">crate::forward_ready!</span>(service);
 
-        <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-            <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>)
+        <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: Req) -&gt; <span class="self">Self</span>::Future {
+            <span class="self">self</span>.service.call(req)
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

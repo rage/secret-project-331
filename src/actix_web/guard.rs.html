@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/guard.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>guard.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/guard.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>guard.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -689,694 +689,694 @@
 <span id="687">687</span>
 <span id="688">688</span>
 <span id="689">689</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Route guards.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Guards are used during routing to help select a matching service or handler using some aspect of</span>
-<span class="doccomment">//! the request; though guards should not be used for path matching since it is a built-in function</span>
-<span class="doccomment">//! of the Actix Web router.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Guards can be used on [`Scope`]s, [`Resource`]s, [`Route`]s, and other custom services.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Fundamentally, a guard is a predicate function that receives a reference to a request context</span>
-<span class="doccomment">//! object and returns a boolean; true if the request _should_ be handled by the guarded service</span>
-<span class="doccomment">//! or handler. This interface is defined by the [`Guard`] trait.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Commonly-used guards are provided in this module as well as a way of creating a guard from a</span>
-<span class="doccomment">//! closure ([`fn_guard`]). The [`Not`], [`Any`], and [`All`] guards are noteworthy, as they can be</span>
-<span class="doccomment">//! used to compose other guards in a more flexible and semantic way than calling `.guard(...)` on</span>
-<span class="doccomment">//! services multiple times (which might have different combining behavior than you want).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! There are shortcuts for routes with method guards in the [`web`](crate::web) module:</span>
-<span class="doccomment">//! [`web::get()`](crate::web::get), [`web::post()`](crate::web::post), etc. The routes created by</span>
-<span class="doccomment">//! the following calls are equivalent:</span>
-<span class="doccomment">//! - `web::get()` (recommended form)</span>
-<span class="doccomment">//! - `web::route().guard(guard::Get())`</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Guards can not modify anything about the request. However, it is possible to store extra</span>
-<span class="doccomment">//! attributes in the request-local data container obtained with [`GuardContext::req_data_mut`].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Guards can prevent resource definitions from overlapping which, when only considering paths,</span>
-<span class="doccomment">//! would result in inaccessible routes. See the [`Host`] guard for an example of virtual hosting.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Examples</span>
-<span class="doccomment">//! In the following code, the `/guarded` resource has one defined route whose handler will only be</span>
-<span class="doccomment">//! called if the request method is `POST` and there is a request header with name and value equal</span>
-<span class="doccomment">//! to `x-guarded` and `secret`, respectively.</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use actix_web::{web, http::Method, guard, HttpResponse};</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! web::resource(&quot;/guarded&quot;).route(</span>
-<span class="doccomment">//!     web::route()</span>
-<span class="doccomment">//!         .guard(guard::Any(guard::Get()).or(guard::Post()))</span>
-<span class="doccomment">//!         .guard(guard::Header(&quot;x-guarded&quot;, &quot;secret&quot;))</span>
-<span class="doccomment">//!         .to(|| HttpResponse::Ok())</span>
-<span class="doccomment">//! );</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`Scope`]: crate::Scope::guard()</span>
-<span class="doccomment">//! [`Resource`]: crate::Resource::guard()</span>
-<span class="doccomment">//! [`Route`]: crate::Route::guard()</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Route guards.
+//!
+//! Guards are used during routing to help select a matching service or handler using some aspect of
+//! the request; though guards should not be used for path matching since it is a built-in function
+//! of the Actix Web router.
+//!
+//! Guards can be used on [`Scope`]s, [`Resource`]s, [`Route`]s, and other custom services.
+//!
+//! Fundamentally, a guard is a predicate function that receives a reference to a request context
+//! object and returns a boolean; true if the request _should_ be handled by the guarded service
+//! or handler. This interface is defined by the [`Guard`] trait.
+//!
+//! Commonly-used guards are provided in this module as well as a way of creating a guard from a
+//! closure ([`fn_guard`]). The [`Not`], [`Any`], and [`All`] guards are noteworthy, as they can be
+//! used to compose other guards in a more flexible and semantic way than calling `.guard(...)` on
+//! services multiple times (which might have different combining behavior than you want).
+//!
+//! There are shortcuts for routes with method guards in the [`web`](crate::web) module:
+//! [`web::get()`](crate::web::get), [`web::post()`](crate::web::post), etc. The routes created by
+//! the following calls are equivalent:
+//! - `web::get()` (recommended form)
+//! - `web::route().guard(guard::Get())`
+//!
+//! Guards can not modify anything about the request. However, it is possible to store extra
+//! attributes in the request-local data container obtained with [`GuardContext::req_data_mut`].
+//!
+//! Guards can prevent resource definitions from overlapping which, when only considering paths,
+//! would result in inaccessible routes. See the [`Host`] guard for an example of virtual hosting.
+//!
+//! # Examples
+//! In the following code, the `/guarded` resource has one defined route whose handler will only be
+//! called if the request method is `POST` and there is a request header with name and value equal
+//! to `x-guarded` and `secret`, respectively.
+//! ```
+//! use actix_web::{web, http::Method, guard, HttpResponse};
+//!
+//! web::resource(&quot;/guarded&quot;).route(
+//!     web::route()
+//!         .guard(guard::Any(guard::Get()).or(guard::Post()))
+//!         .guard(guard::Header(&quot;x-guarded&quot;, &quot;secret&quot;))
+//!         .to(|| HttpResponse::Ok())
+//! );
+//! ```
+//!
+//! [`Scope`]: crate::Scope::guard()
+//! [`Resource`]: crate::Resource::guard()
+//! [`Route`]: crate::Route::guard()
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cell</span>::{<span class="ident">Ref</span>, <span class="ident">RefMut</span>},
-    <span class="ident">convert::TryFrom</span>,
-    <span class="ident">rc::Rc</span>,
+</span><span class="kw">use </span>std::{
+    cell::{Ref, RefMut},
+    convert::TryFrom,
+    rc::Rc,
 };
 
-<span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">header</span>, <span class="ident">uri::Uri</span>, <span class="ident">Extensions</span>, <span class="ident">Method</span> <span class="kw">as</span> <span class="ident">HttpMethod</span>, <span class="ident">RequestHead</span>};
+<span class="kw">use </span>actix_http::{header, uri::Uri, Extensions, Method <span class="kw">as </span>HttpMethod, RequestHead};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">http::header::Header</span>, <span class="ident">service::ServiceRequest</span>, <span class="ident">HttpMessage</span> <span class="kw">as</span> <span class="kw">_</span>};
+<span class="kw">use crate</span>::{http::header::Header, service::ServiceRequest, HttpMessage <span class="kw">as _</span>};
 
-<span class="doccomment">/// Provides access to request parts that are useful during routing.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ServiceRequest</span>,
+<span class="doccomment">/// Provides access to request parts that are useful during routing.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>GuardContext&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ServiceRequest,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns reference to the request head.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">RequestHead</span> {
-        <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">head</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; GuardContext&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Returns reference to the request head.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>head(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>RequestHead {
+        <span class="self">self</span>.req.head()
     }
 
-    <span class="doccomment">/// Returns reference to the request-local data/extensions container.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">req_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">extensions</span>()
+    <span class="doccomment">/// Returns reference to the request-local data/extensions container.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>req_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;a</span>, Extensions&gt; {
+        <span class="self">self</span>.req.extensions()
     }
 
-    <span class="doccomment">/// Returns mutable reference to the request-local data/extensions container.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">req_data_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">extensions_mut</span>()
+    <span class="doccomment">/// Returns mutable reference to the request-local data/extensions container.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>req_data_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;a</span>, Extensions&gt; {
+        <span class="self">self</span>.req.extensions_mut()
     }
 
-    <span class="doccomment">/// Extracts a typed header from the request.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if parsing `H` fails.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::{guard::fn_guard, http::header};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let image_accept_guard = fn_guard(|ctx| {</span>
-    <span class="doccomment">///     match ctx.header::&lt;header::Accept&gt;() {</span>
-    <span class="doccomment">///         Some(hdr) =&gt; hdr.preference() == &quot;image/*&quot;,</span>
-    <span class="doccomment">///         None =&gt; false,</span>
-    <span class="doccomment">///     }</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span> {
-        <span class="ident">H::parse</span>(<span class="self">self</span>.<span class="ident">req</span>).<span class="ident">ok</span>()
-    }
-}
-
-<span class="doccomment">/// Interface for routing guards.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See [module level documentation](self) for more.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Guard</span> {
-    <span class="doccomment">/// Returns true if predicate condition is met for a given request.</span>
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span>;
-}
-
-<span class="kw">impl</span> <span class="ident">Guard</span> <span class="kw">for</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">check</span>(<span class="ident">ctx</span>)
+    <span class="doccomment">/// Extracts a typed header from the request.
+    ///
+    /// Returns `None` if parsing `H` fails.
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::{guard::fn_guard, http::header};
+    ///
+    /// let image_accept_guard = fn_guard(|ctx| {
+    ///     match ctx.header::&lt;header::Accept&gt;() {
+    ///         Some(hdr) =&gt; hdr.preference() == &quot;image/*&quot;,
+    ///         None =&gt; false,
+    ///     }
+    /// });
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>header&lt;H: Header&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;H&gt; {
+        H::parse(<span class="self">self</span>.req).ok()
     }
 }
 
-<span class="doccomment">/// Creates a guard using the given function.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{guard, web, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// web::route()</span>
-<span class="doccomment">///     .guard(guard::fn_guard(|ctx| {</span>
-<span class="doccomment">///         ctx.head().headers().contains_key(&quot;content-type&quot;)</span>
-<span class="doccomment">///     }))</span>
-<span class="doccomment">///     .to(|| HttpResponse::Ok());</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fn_guard</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="kw">impl</span> <span class="ident">Guard</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span>,
+<span class="doccomment">/// Interface for routing guards.
+///
+/// See [module level documentation](self) for more.
+</span><span class="kw">pub trait </span>Guard {
+    <span class="doccomment">/// Returns true if predicate condition is met for a given request.
+    </span><span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool;
+}
+
+<span class="kw">impl </span>Guard <span class="kw">for </span>Rc&lt;<span class="kw">dyn </span>Guard&gt; {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        (<span class="kw-2">**</span><span class="self">self</span>).check(ctx)
+    }
+}
+
+<span class="doccomment">/// Creates a guard using the given function.
+///
+/// # Examples
+/// ```
+/// use actix_web::{guard, web, HttpResponse};
+///
+/// web::route()
+///     .guard(guard::fn_guard(|ctx| {
+///         ctx.head().headers().contains_key(&quot;content-type&quot;)
+///     }))
+///     .to(|| HttpResponse::Ok());
+/// ```
+</span><span class="kw">pub fn </span>fn_guard&lt;F&gt;(f: F) -&gt; <span class="kw">impl </span>Guard
+<span class="kw">where
+    </span>F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
 {
-    <span class="ident">FnGuard</span>(<span class="ident">f</span>)
+    FnGuard(f)
 }
 
-<span class="kw">struct</span> <span class="ident">FnGuard</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>(<span class="ident">F</span>);
+<span class="kw">struct </span>FnGuard&lt;F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool&gt;(F);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">Guard</span> <span class="kw">for</span> <span class="ident">FnGuard</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span>,
+<span class="kw">impl</span>&lt;F&gt; Guard <span class="kw">for </span>FnGuard&lt;F&gt;
+<span class="kw">where
+    </span>F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
 {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        (<span class="self">self</span>.<span class="number">0</span>)(<span class="ident">ctx</span>)
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        (<span class="self">self</span>.<span class="number">0</span>)(ctx)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">Guard</span> <span class="kw">for</span> <span class="ident">F</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span>,
+<span class="kw">impl</span>&lt;F&gt; Guard <span class="kw">for </span>F
+<span class="kw">where
+    </span>F: Fn(<span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool,
 {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        (<span class="self">self</span>)(<span class="ident">ctx</span>)
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        (<span class="self">self</span>)(ctx)
     }
 }
 
-<span class="doccomment">/// Creates a guard that matches if any added guards match.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// The handler below will be called for either request method `GET` or `POST`.</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, guard, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// web::route()</span>
-<span class="doccomment">///     .guard(</span>
-<span class="doccomment">///         guard::Any(guard::Get())</span>
-<span class="doccomment">///             .or(guard::Post()))</span>
-<span class="doccomment">///     .to(|| HttpResponse::Ok());</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Any</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Guard</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">guard</span>: <span class="ident">F</span>) -&gt; <span class="ident">AnyGuard</span> {
-    <span class="ident">AnyGuard</span> {
-        <span class="ident">guards</span>: <span class="macro">vec!</span>[<span class="ident">Box::new</span>(<span class="ident">guard</span>)],
+<span class="doccomment">/// Creates a guard that matches if any added guards match.
+///
+/// # Examples
+/// The handler below will be called for either request method `GET` or `POST`.
+/// ```
+/// use actix_web::{web, guard, HttpResponse};
+///
+/// web::route()
+///     .guard(
+///         guard::Any(guard::Get())
+///             .or(guard::Post()))
+///     .to(|| HttpResponse::Ok());
+/// ```
+</span><span class="attribute">#[allow(non_snake_case)]
+</span><span class="kw">pub fn </span>Any&lt;F: Guard + <span class="lifetime">&#39;static</span>&gt;(guard: F) -&gt; AnyGuard {
+    AnyGuard {
+        guards: <span class="macro">vec!</span>[Box::new(guard)],
     }
 }
 
-<span class="doccomment">/// A collection of guards that match if the disjunction of their `check` outcomes is true.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// That is, only one contained guard needs to match in order for the aggregate guard to match.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Construct an `AnyGuard` using [`Any`].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AnyGuard</span> {
-    <span class="ident">guards</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A collection of guards that match if the disjunction of their `check` outcomes is true.
+///
+/// That is, only one contained guard needs to match in order for the aggregate guard to match.
+///
+/// Construct an `AnyGuard` using [`Any`].
+</span><span class="kw">pub struct </span>AnyGuard {
+    guards: Vec&lt;Box&lt;<span class="kw">dyn </span>Guard&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">AnyGuard</span> {
-    <span class="doccomment">/// Adds new guard to the collection of guards to check.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">or</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Guard</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">guard</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">guards</span>.<span class="ident">push</span>(<span class="ident">Box::new</span>(<span class="ident">guard</span>));
-        <span class="self">self</span>
-    }
+<span class="kw">impl </span>AnyGuard {
+    <span class="doccomment">/// Adds new guard to the collection of guards to check.
+    </span><span class="kw">pub fn </span>or&lt;F: Guard + <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: F) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.guards.push(Box::new(guard));
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">Guard</span> <span class="kw">for</span> <span class="ident">AnyGuard</span> {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">for</span> <span class="ident">guard</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">guards</span> {
-            <span class="kw">if</span> <span class="ident">guard</span>.<span class="ident">check</span>(<span class="ident">ctx</span>) {
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+<span class="kw">impl </span>Guard <span class="kw">for </span>AnyGuard {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        <span class="kw">for </span>guard <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.guards {
+            <span class="kw">if </span>guard.check(ctx) {
+                <span class="kw">return </span><span class="bool-val">true</span>;
             }
         }
 
-        <span class="bool-val">false</span>
+        <span class="bool-val">false
+    </span>}
+}
+
+<span class="doccomment">/// Creates a guard that matches if all added guards match.
+///
+/// # Examples
+/// The handler below will only be called if the request method is `GET` **and** the specified
+/// header name and value match exactly.
+/// ```
+/// use actix_web::{guard, web, HttpResponse};
+///
+/// web::route()
+///     .guard(
+///         guard::All(guard::Get())
+///             .and(guard::Header(&quot;accept&quot;, &quot;text/plain&quot;))
+///     )
+///     .to(|| HttpResponse::Ok());
+/// ```
+</span><span class="attribute">#[allow(non_snake_case)]
+</span><span class="kw">pub fn </span>All&lt;F: Guard + <span class="lifetime">&#39;static</span>&gt;(guard: F) -&gt; AllGuard {
+    AllGuard {
+        guards: <span class="macro">vec!</span>[Box::new(guard)],
     }
 }
 
-<span class="doccomment">/// Creates a guard that matches if all added guards match.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// The handler below will only be called if the request method is `GET` **and** the specified</span>
-<span class="doccomment">/// header name and value match exactly.</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{guard, web, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// web::route()</span>
-<span class="doccomment">///     .guard(</span>
-<span class="doccomment">///         guard::All(guard::Get())</span>
-<span class="doccomment">///             .and(guard::Header(&quot;accept&quot;, &quot;text/plain&quot;))</span>
-<span class="doccomment">///     )</span>
-<span class="doccomment">///     .to(|| HttpResponse::Ok());</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">All</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Guard</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">guard</span>: <span class="ident">F</span>) -&gt; <span class="ident">AllGuard</span> {
-    <span class="ident">AllGuard</span> {
-        <span class="ident">guards</span>: <span class="macro">vec!</span>[<span class="ident">Box::new</span>(<span class="ident">guard</span>)],
-    }
+<span class="doccomment">/// A collection of guards that match if the conjunction of their `check` outcomes is true.
+///
+/// That is, **all** contained guard needs to match in order for the aggregate guard to match.
+///
+/// Construct an `AllGuard` using [`All`].
+</span><span class="kw">pub struct </span>AllGuard {
+    guards: Vec&lt;Box&lt;<span class="kw">dyn </span>Guard&gt;&gt;,
 }
 
-<span class="doccomment">/// A collection of guards that match if the conjunction of their `check` outcomes is true.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// That is, **all** contained guard needs to match in order for the aggregate guard to match.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Construct an `AllGuard` using [`All`].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AllGuard</span> {
-    <span class="ident">guards</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Guard</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>AllGuard {
+    <span class="doccomment">/// Adds new guard to the collection of guards to check.
+    </span><span class="kw">pub fn </span>and&lt;F: Guard + <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">mut </span><span class="self">self</span>, guard: F) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.guards.push(Box::new(guard));
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">AllGuard</span> {
-    <span class="doccomment">/// Adds new guard to the collection of guards to check.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Guard</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">guard</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">guards</span>.<span class="ident">push</span>(<span class="ident">Box::new</span>(<span class="ident">guard</span>));
-        <span class="self">self</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Guard</span> <span class="kw">for</span> <span class="ident">AllGuard</span> {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">for</span> <span class="ident">guard</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">guards</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">guard</span>.<span class="ident">check</span>(<span class="ident">ctx</span>) {
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+<span class="kw">impl </span>Guard <span class="kw">for </span>AllGuard {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        <span class="kw">for </span>guard <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.guards {
+            <span class="kw">if </span>!guard.check(ctx) {
+                <span class="kw">return </span><span class="bool-val">false</span>;
             }
         }
-        <span class="bool-val">true</span>
+        <span class="bool-val">true
+    </span>}
+}
+
+<span class="doccomment">/// Wraps a guard and inverts the outcome of its `Guard` implementation.
+///
+/// # Examples
+/// The handler below will be called for any request method apart from `GET`.
+/// ```
+/// use actix_web::{guard, web, HttpResponse};
+///
+/// web::route()
+///     .guard(guard::Not(guard::Get()))
+///     .to(|| HttpResponse::Ok());
+/// ```
+</span><span class="kw">pub struct </span>Not&lt;G&gt;(<span class="kw">pub </span>G);
+
+<span class="kw">impl</span>&lt;G: Guard&gt; Guard <span class="kw">for </span>Not&lt;G&gt; {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        !<span class="self">self</span>.<span class="number">0</span>.check(ctx)
     }
 }
 
-<span class="doccomment">/// Wraps a guard and inverts the outcome of its `Guard` implementation.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// The handler below will be called for any request method apart from `GET`.</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{guard, web, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// web::route()</span>
-<span class="doccomment">///     .guard(guard::Not(guard::Get()))</span>
-<span class="doccomment">///     .to(|| HttpResponse::Ok());</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Not</span><span class="op">&lt;</span><span class="ident">G</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">G</span>);
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Guard</span><span class="op">&gt;</span> <span class="ident">Guard</span> <span class="kw">for</span> <span class="ident">Not</span><span class="op">&lt;</span><span class="ident">G</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">check</span>(<span class="ident">ctx</span>)
-    }
+<span class="doccomment">/// Creates a guard that matches a specified HTTP method.
+</span><span class="attribute">#[allow(non_snake_case)]
+</span><span class="kw">pub fn </span>Method(method: HttpMethod) -&gt; <span class="kw">impl </span>Guard {
+    MethodGuard(method)
 }
 
-<span class="doccomment">/// Creates a guard that matches a specified HTTP method.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Method</span>(<span class="ident">method</span>: <span class="ident">HttpMethod</span>) -&gt; <span class="kw">impl</span> <span class="ident">Guard</span> {
-    <span class="ident">MethodGuard</span>(<span class="ident">method</span>)
+<span class="doccomment">/// HTTP method guard.
+</span><span class="kw">struct </span>MethodGuard(HttpMethod);
+
+<span class="kw">impl </span>Guard <span class="kw">for </span>MethodGuard {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        ctx.head().method == <span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="doccomment">/// HTTP method guard.</span>
-<span class="kw">struct</span> <span class="ident">MethodGuard</span>(<span class="ident">HttpMethod</span>);
-
-<span class="kw">impl</span> <span class="ident">Guard</span> <span class="kw">for</span> <span class="ident">MethodGuard</span> {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">ctx</span>.<span class="ident">head</span>().<span class="ident">method</span> <span class="op">==</span> <span class="self">self</span>.<span class="number">0</span>
-    }
-}
-
-<span class="macro">macro_rules!</span> <span class="ident">method_guard</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_fn</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_const</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;Creates a guard that matches the `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_const</span>), <span class="string">&quot;` request method.&quot;</span>)]</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// # Examples</span>
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;The route in this example will only respond to `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_const</span>), <span class="string">&quot;` requests.&quot;</span>)]</span>
-        <span class="doccomment">/// ```</span>
-        <span class="doccomment">/// use actix_web::{guard, web, HttpResponse};</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// web::route()</span>
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;    .guard(guard::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_fn</span>), <span class="string">&quot;())&quot;</span>)]</span>
-        <span class="doccomment">///     .to(|| HttpResponse::Ok());</span>
-        <span class="doccomment">/// ```</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_fn</span>() -&gt; <span class="kw">impl</span> <span class="ident">Guard</span> {
-            <span class="ident">MethodGuard</span>(<span class="ident">HttpMethod</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_const</span>)
+<span class="macro">macro_rules! </span>method_guard {
+    (<span class="macro-nonterminal">$method_fn</span>:ident, <span class="macro-nonterminal">$method_const</span>:ident) =&gt; {
+        <span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;Creates a guard that matches the `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_const</span>), <span class="string">&quot;` request method.&quot;</span>)]
+        </span><span class="doccomment">///
+        /// # Examples
+        </span><span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;The route in this example will only respond to `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_const</span>), <span class="string">&quot;` requests.&quot;</span>)]
+        </span><span class="doccomment">/// ```
+        /// use actix_web::{guard, web, HttpResponse};
+        ///
+        /// web::route()
+        </span><span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;    .guard(guard::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method_fn</span>), <span class="string">&quot;())&quot;</span>)]
+        </span><span class="doccomment">///     .to(|| HttpResponse::Ok());
+        /// ```
+        </span><span class="attribute">#[allow(non_snake_case)]
+        </span><span class="kw">pub fn </span><span class="macro-nonterminal">$method_fn</span>() -&gt; <span class="kw">impl </span>Guard {
+            MethodGuard(HttpMethod::<span class="macro-nonterminal">$method_const</span>)
         }
     };
 }
 
-<span class="macro">method_guard!</span>(<span class="ident">Get</span>, <span class="ident">GET</span>);
-<span class="macro">method_guard!</span>(<span class="ident">Post</span>, <span class="ident">POST</span>);
-<span class="macro">method_guard!</span>(<span class="ident">Put</span>, <span class="ident">PUT</span>);
-<span class="macro">method_guard!</span>(<span class="ident">Delete</span>, <span class="ident">DELETE</span>);
-<span class="macro">method_guard!</span>(<span class="ident">Head</span>, <span class="ident">HEAD</span>);
-<span class="macro">method_guard!</span>(<span class="ident">Options</span>, <span class="ident">OPTIONS</span>);
-<span class="macro">method_guard!</span>(<span class="ident">Connect</span>, <span class="ident">CONNECT</span>);
-<span class="macro">method_guard!</span>(<span class="ident">Patch</span>, <span class="ident">PATCH</span>);
-<span class="macro">method_guard!</span>(<span class="ident">Trace</span>, <span class="ident">TRACE</span>);
+<span class="macro">method_guard!</span>(Get, GET);
+<span class="macro">method_guard!</span>(Post, POST);
+<span class="macro">method_guard!</span>(Put, PUT);
+<span class="macro">method_guard!</span>(Delete, DELETE);
+<span class="macro">method_guard!</span>(Head, HEAD);
+<span class="macro">method_guard!</span>(Options, OPTIONS);
+<span class="macro">method_guard!</span>(Connect, CONNECT);
+<span class="macro">method_guard!</span>(Patch, PATCH);
+<span class="macro">method_guard!</span>(Trace, TRACE);
 
-<span class="doccomment">/// Creates a guard that matches if request contains given header name and value.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// The handler below will be called when the request contains an `x-guarded` header with value</span>
-<span class="doccomment">/// equal to `secret`.</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{guard, web, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// web::route()</span>
-<span class="doccomment">///     .guard(guard::Header(&quot;x-guarded&quot;, &quot;secret&quot;))</span>
-<span class="doccomment">///     .to(|| HttpResponse::Ok());</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Header</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="kw">impl</span> <span class="ident">Guard</span> {
-    <span class="ident">HeaderGuard</span>(
-        <span class="ident">header::HeaderName::try_from</span>(<span class="ident">name</span>).<span class="ident">unwrap</span>(),
-        <span class="ident">header::HeaderValue::from_static</span>(<span class="ident">value</span>),
+<span class="doccomment">/// Creates a guard that matches if request contains given header name and value.
+///
+/// # Examples
+/// The handler below will be called when the request contains an `x-guarded` header with value
+/// equal to `secret`.
+/// ```
+/// use actix_web::{guard, web, HttpResponse};
+///
+/// web::route()
+///     .guard(guard::Header(&quot;x-guarded&quot;, &quot;secret&quot;))
+///     .to(|| HttpResponse::Ok());
+/// ```
+</span><span class="attribute">#[allow(non_snake_case)]
+</span><span class="kw">pub fn </span>Header(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="kw">impl </span>Guard {
+    HeaderGuard(
+        header::HeaderName::try_from(name).unwrap(),
+        header::HeaderValue::from_static(value),
     )
 }
 
-<span class="kw">struct</span> <span class="ident">HeaderGuard</span>(<span class="ident">header::HeaderName</span>, <span class="ident">header::HeaderValue</span>);
+<span class="kw">struct </span>HeaderGuard(header::HeaderName, header::HeaderValue);
 
-<span class="kw">impl</span> <span class="ident">Guard</span> <span class="kw">for</span> <span class="ident">HeaderGuard</span> {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">head</span>().<span class="ident">headers</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) {
-            <span class="kw">return</span> <span class="ident">val</span> <span class="op">==</span> <span class="self">self</span>.<span class="number">1</span>;
+<span class="kw">impl </span>Guard <span class="kw">for </span>HeaderGuard {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = ctx.head().headers.get(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) {
+            <span class="kw">return </span>val == <span class="self">self</span>.<span class="number">1</span>;
         }
 
-        <span class="bool-val">false</span>
+        <span class="bool-val">false
+    </span>}
+}
+
+<span class="doccomment">/// Creates a guard that matches requests targetting a specific host.
+///
+/// # Matching Host
+/// This guard will:
+/// - match against the `Host` header, if present;
+/// - fall-back to matching against the request target&#39;s host, if present;
+/// - return false if host cannot be determined;
+///
+/// # Matching Scheme
+/// Optionally, this guard can match against the host&#39;s scheme. Set the scheme for matching using
+/// `Host(host).scheme(protocol)`. If the request&#39;s scheme cannot be determined, it will not prevent
+/// the guard from matching successfully.
+///
+/// # Examples
+/// The [module-level documentation](self) has an example of virtual hosting using `Host` guards.
+///
+/// The example below additionally guards on the host URI&#39;s scheme. This could allow routing to
+/// different handlers for `http:` vs `https:` visitors; to redirect, for example.
+/// ```
+/// use actix_web::{web, guard::Host, HttpResponse};
+///
+/// web::scope(&quot;/admin&quot;)
+///     .guard(Host(&quot;admin.rust-lang.org&quot;).scheme(&quot;https&quot;))
+///     .default_service(web::to(|| async {
+///         HttpResponse::Ok().body(&quot;admin connection is secure&quot;)
+///     }));
+/// ```
+///
+/// The `Host` guard can be used to set up some form of [virtual hosting] within a single app.
+/// Overlapping scope prefixes are usually discouraged, but when combined with non-overlapping guard
+/// definitions they become safe to use in this way. Without these host guards, only routes under
+/// the first-to-be-defined scope would be accessible. You can test this locally using `127.0.0.1`
+/// and `localhost` as the `Host` guards.
+/// ```
+/// use actix_web::{web, http::Method, guard, App, HttpResponse};
+///
+/// App::new()
+///     .service(
+///         web::scope(&quot;&quot;)
+///             .guard(guard::Host(&quot;www.rust-lang.org&quot;))
+///             .default_service(web::to(|| async {
+///                 HttpResponse::Ok().body(&quot;marketing site&quot;)
+///             })),
+///     )
+///     .service(
+///         web::scope(&quot;&quot;)
+///             .guard(guard::Host(&quot;play.rust-lang.org&quot;))
+///             .default_service(web::to(|| async {
+///                 HttpResponse::Ok().body(&quot;playground frontend&quot;)
+///             })),
+///     );
+/// ```
+///
+/// [virtual hosting]: https://en.wikipedia.org/wiki/Virtual_hosting
+</span><span class="attribute">#[allow(non_snake_case)]
+</span><span class="kw">pub fn </span>Host(host: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; HostGuard {
+    HostGuard {
+        host: host.as_ref().to_string(),
+        scheme: <span class="prelude-val">None</span>,
     }
 }
 
-<span class="doccomment">/// Creates a guard that matches requests targetting a specific host.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Matching Host</span>
-<span class="doccomment">/// This guard will:</span>
-<span class="doccomment">/// - match against the `Host` header, if present;</span>
-<span class="doccomment">/// - fall-back to matching against the request target&#39;s host, if present;</span>
-<span class="doccomment">/// - return false if host cannot be determined;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Matching Scheme</span>
-<span class="doccomment">/// Optionally, this guard can match against the host&#39;s scheme. Set the scheme for matching using</span>
-<span class="doccomment">/// `Host(host).scheme(protocol)`. If the request&#39;s scheme cannot be determined, it will not prevent</span>
-<span class="doccomment">/// the guard from matching successfully.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// The [module-level documentation](self) has an example of virtual hosting using `Host` guards.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The example below additionally guards on the host URI&#39;s scheme. This could allow routing to</span>
-<span class="doccomment">/// different handlers for `http:` vs `https:` visitors; to redirect, for example.</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, guard::Host, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// web::scope(&quot;/admin&quot;)</span>
-<span class="doccomment">///     .guard(Host(&quot;admin.rust-lang.org&quot;).scheme(&quot;https&quot;))</span>
-<span class="doccomment">///     .default_service(web::to(|| async {</span>
-<span class="doccomment">///         HttpResponse::Ok().body(&quot;admin connection is secure&quot;)</span>
-<span class="doccomment">///     }));</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The `Host` guard can be used to set up some form of [virtual hosting] within a single app.</span>
-<span class="doccomment">/// Overlapping scope prefixes are usually discouraged, but when combined with non-overlapping guard</span>
-<span class="doccomment">/// definitions they become safe to use in this way. Without these host guards, only routes under</span>
-<span class="doccomment">/// the first-to-be-defined scope would be accessible. You can test this locally using `127.0.0.1`</span>
-<span class="doccomment">/// and `localhost` as the `Host` guards.</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, http::Method, guard, App, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// App::new()</span>
-<span class="doccomment">///     .service(</span>
-<span class="doccomment">///         web::scope(&quot;&quot;)</span>
-<span class="doccomment">///             .guard(guard::Host(&quot;www.rust-lang.org&quot;))</span>
-<span class="doccomment">///             .default_service(web::to(|| async {</span>
-<span class="doccomment">///                 HttpResponse::Ok().body(&quot;marketing site&quot;)</span>
-<span class="doccomment">///             })),</span>
-<span class="doccomment">///     )</span>
-<span class="doccomment">///     .service(</span>
-<span class="doccomment">///         web::scope(&quot;&quot;)</span>
-<span class="doccomment">///             .guard(guard::Host(&quot;play.rust-lang.org&quot;))</span>
-<span class="doccomment">///             .default_service(web::to(|| async {</span>
-<span class="doccomment">///                 HttpResponse::Ok().body(&quot;playground frontend&quot;)</span>
-<span class="doccomment">///             })),</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [virtual hosting]: https://en.wikipedia.org/wiki/Virtual_hosting</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Host</span>(<span class="ident">host</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">HostGuard</span> {
-    <span class="ident">HostGuard</span> {
-        <span class="ident">host</span>: <span class="ident">host</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(),
-        <span class="ident">scheme</span>: <span class="prelude-val">None</span>,
-    }
+<span class="kw">fn </span>get_host_uri(req: <span class="kw-2">&amp;</span>RequestHead) -&gt; <span class="prelude-ty">Option</span>&lt;Uri&gt; {
+    req.headers
+        .get(header::HOST)
+        .and_then(|host_value| host_value.to_str().ok())
+        .or_else(|| req.uri.host())
+        .and_then(|host| host.parse().ok())
 }
 
-<span class="kw">fn</span> <span class="ident">get_host_uri</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span> {
-    <span class="ident">req</span>.<span class="ident">headers</span>
-        .<span class="ident">get</span>(<span class="ident">header::HOST</span>)
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">host_value</span><span class="op">|</span> <span class="ident">host_value</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>())
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">uri</span>.<span class="ident">host</span>())
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">host</span><span class="op">|</span> <span class="ident">host</span>.<span class="ident">parse</span>().<span class="ident">ok</span>())
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub struct </span>HostGuard {
+    host: String,
+    scheme: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HostGuard</span> {
-    <span class="ident">host</span>: <span class="ident">String</span>,
-    <span class="ident">scheme</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>HostGuard {
+    <span class="doccomment">/// Set request scheme to match
+    </span><span class="kw">pub fn </span>scheme&lt;H: AsRef&lt;str&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, scheme: H) -&gt; HostGuard {
+        <span class="self">self</span>.scheme = <span class="prelude-val">Some</span>(scheme.as_ref().to_string());
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">HostGuard</span> {
-    <span class="doccomment">/// Set request scheme to match</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scheme</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scheme</span>: <span class="ident">H</span>) -&gt; <span class="ident">HostGuard</span> {
-        <span class="self">self</span>.<span class="ident">scheme</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">scheme</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>());
-        <span class="self">self</span>
-    }
-}
+<span class="kw">impl </span>Guard <span class="kw">for </span>HostGuard {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>GuardContext&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; bool {
+        <span class="comment">// parse host URI from header or request target
+        </span><span class="kw">let </span>req_host_uri = <span class="kw">match </span>get_host_uri(ctx.head()) {
+            <span class="prelude-val">Some</span>(uri) =&gt; uri,
 
-<span class="kw">impl</span> <span class="ident">Guard</span> <span class="kw">for</span> <span class="ident">HostGuard</span> {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">GuardContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// parse host URI from header or request target</span>
-        <span class="kw">let</span> <span class="ident">req_host_uri</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">get_host_uri</span>(<span class="ident">ctx</span>.<span class="ident">head</span>()) {
-            <span class="prelude-val">Some</span>(<span class="ident">uri</span>) =&gt; <span class="ident">uri</span>,
-
-            <span class="comment">// no match if host cannot be determined</span>
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+            <span class="comment">// no match if host cannot be determined
+            </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
         };
 
-        <span class="kw">match</span> <span class="ident">req_host_uri</span>.<span class="ident">host</span>() {
-            <span class="comment">// fall through to scheme checks</span>
-            <span class="prelude-val">Some</span>(<span class="ident">uri_host</span>) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">host</span> <span class="op">==</span> <span class="ident">uri_host</span> =&gt; {}
+        <span class="kw">match </span>req_host_uri.host() {
+            <span class="comment">// fall through to scheme checks
+            </span><span class="prelude-val">Some</span>(uri_host) <span class="kw">if </span><span class="self">self</span>.host == uri_host =&gt; {}
 
-            <span class="comment">// Either:</span>
-            <span class="comment">// - request&#39;s host does not match guard&#39;s host;</span>
-            <span class="comment">// - It was possible that the parsed URI from request target did not contain a host.</span>
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+            <span class="comment">// Either:
+            // - request&#39;s host does not match guard&#39;s host;
+            // - It was possible that the parsed URI from request target did not contain a host.
+            </span><span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">scheme</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">scheme</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">req_host_uri_scheme</span>) <span class="op">=</span> <span class="ident">req_host_uri</span>.<span class="ident">scheme_str</span>() {
-                <span class="kw">return</span> <span class="ident">scheme</span> <span class="op">==</span> <span class="ident">req_host_uri_scheme</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>scheme) = <span class="self">self</span>.scheme {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>req_host_uri_scheme) = req_host_uri.scheme_str() {
+                <span class="kw">return </span>scheme == req_host_uri_scheme;
             }
 
-            <span class="comment">// TODO: is this the correct behavior?</span>
-            <span class="comment">// falls through if scheme cannot be determined</span>
-        }
+            <span class="comment">// TODO: is this the correct behavior?
+            // falls through if scheme cannot be determined
+        </span>}
 
-        <span class="comment">// all conditions passed</span>
-        <span class="bool-val">true</span>
-    }
+        <span class="comment">// all conditions passed
+        </span><span class="bool-val">true
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">header</span>, <span class="ident">Method</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_http::{header, Method};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test::TestRequest</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test::TestRequest;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">header_match</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::TRANSFER_ENCODING</span>, <span class="string">&quot;chunked&quot;</span>))
-            .<span class="ident">to_srv_request</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>header_match() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::TRANSFER_ENCODING, <span class="string">&quot;chunked&quot;</span>))
+            .to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">hdr</span> <span class="op">=</span> <span class="ident">Header</span>(<span class="string">&quot;transfer-encoding&quot;</span>, <span class="string">&quot;chunked&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">hdr</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>hdr = Header(<span class="string">&quot;transfer-encoding&quot;</span>, <span class="string">&quot;chunked&quot;</span>);
+        <span class="macro">assert!</span>(hdr.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">hdr</span> <span class="op">=</span> <span class="ident">Header</span>(<span class="string">&quot;transfer-encoding&quot;</span>, <span class="string">&quot;other&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">hdr</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>hdr = Header(<span class="string">&quot;transfer-encoding&quot;</span>, <span class="string">&quot;other&quot;</span>);
+        <span class="macro">assert!</span>(!hdr.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">hdr</span> <span class="op">=</span> <span class="ident">Header</span>(<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;chunked&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">hdr</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>hdr = Header(<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;chunked&quot;</span>);
+        <span class="macro">assert!</span>(!hdr.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">hdr</span> <span class="op">=</span> <span class="ident">Header</span>(<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;other&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">hdr</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>hdr = Header(<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;other&quot;</span>);
+        <span class="macro">assert!</span>(!hdr.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">host_from_header</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::HOST</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>host_from_header() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::HOST,
+                header::HeaderValue::from_static(<span class="string">&quot;www.rust-lang.org&quot;</span>),
             ))
-            .<span class="ident">to_srv_request</span>();
+            .to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;www.rust-lang.org&quot;</span>);
+        <span class="macro">assert!</span>(host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>).<span class="ident">scheme</span>(<span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;www.rust-lang.org&quot;</span>).scheme(<span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert!</span>(host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;blog.rust-lang.org&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;blog.rust-lang.org&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;blog.rust-lang.org&quot;</span>).<span class="ident">scheme</span>(<span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;blog.rust-lang.org&quot;</span>).scheme(<span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;crates.io&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;crates.io&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;localhost&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;localhost&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">host_without_header</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>)
-            .<span class="ident">to_srv_request</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>host_without_header() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .uri(<span class="string">&quot;www.rust-lang.org&quot;</span>)
+            .to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;www.rust-lang.org&quot;</span>);
+        <span class="macro">assert!</span>(host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>).<span class="ident">scheme</span>(<span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;www.rust-lang.org&quot;</span>).scheme(<span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert!</span>(host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;blog.rust-lang.org&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;blog.rust-lang.org&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;blog.rust-lang.org&quot;</span>).<span class="ident">scheme</span>(<span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;blog.rust-lang.org&quot;</span>).scheme(<span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;crates.io&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;crates.io&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;localhost&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;localhost&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">host_scheme</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::HOST</span>,
-                <span class="ident">header::HeaderValue::from_static</span>(<span class="string">&quot;https://www.rust-lang.org&quot;</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>host_scheme() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::HOST,
+                header::HeaderValue::from_static(<span class="string">&quot;https://www.rust-lang.org&quot;</span>),
             ))
-            .<span class="ident">to_srv_request</span>();
+            .to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>).<span class="ident">scheme</span>(<span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;www.rust-lang.org&quot;</span>).scheme(<span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert!</span>(host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;www.rust-lang.org&quot;</span>);
+        <span class="macro">assert!</span>(host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;www.rust-lang.org&quot;</span>).<span class="ident">scheme</span>(<span class="string">&quot;http&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;www.rust-lang.org&quot;</span>).scheme(<span class="string">&quot;http&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;blog.rust-lang.org&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;blog.rust-lang.org&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;blog.rust-lang.org&quot;</span>).<span class="ident">scheme</span>(<span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;blog.rust-lang.org&quot;</span>).scheme(<span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;crates.io&quot;</span>).<span class="ident">scheme</span>(<span class="string">&quot;https&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;crates.io&quot;</span>).scheme(<span class="string">&quot;https&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Host</span>(<span class="string">&quot;localhost&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">host</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>host = Host(<span class="string">&quot;localhost&quot;</span>);
+        <span class="macro">assert!</span>(!host.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">method_guards</span>() {
-        <span class="kw">let</span> <span class="ident">get_req</span> <span class="op">=</span> <span class="ident">TestRequest::get</span>().<span class="ident">to_srv_request</span>();
-        <span class="kw">let</span> <span class="ident">post_req</span> <span class="op">=</span> <span class="ident">TestRequest::post</span>().<span class="ident">to_srv_request</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>method_guards() {
+        <span class="kw">let </span>get_req = TestRequest::get().to_srv_request();
+        <span class="kw">let </span>post_req = TestRequest::post().to_srv_request();
 
-        <span class="macro">assert!</span>(<span class="ident">Get</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">get_req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Get</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">post_req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="macro">assert!</span>(Get().check(<span class="kw-2">&amp;</span>get_req.guard_ctx()));
+        <span class="macro">assert!</span>(!Get().check(<span class="kw-2">&amp;</span>post_req.guard_ctx()));
 
-        <span class="macro">assert!</span>(<span class="ident">Post</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">post_req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Post</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">get_req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="macro">assert!</span>(Post().check(<span class="kw-2">&amp;</span>post_req.guard_ctx()));
+        <span class="macro">assert!</span>(!Post().check(<span class="kw-2">&amp;</span>get_req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::put</span>().<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="ident">Put</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Put</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">get_req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::put().to_srv_request();
+        <span class="macro">assert!</span>(Put().check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(!Put().check(<span class="kw-2">&amp;</span>get_req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::patch</span>().<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="ident">Patch</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Patch</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">get_req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::patch().to_srv_request();
+        <span class="macro">assert!</span>(Patch().check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(!Patch().check(<span class="kw-2">&amp;</span>get_req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">TestRequest::delete</span>().<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="ident">Delete</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Delete</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">get_req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>r = TestRequest::delete().to_srv_request();
+        <span class="macro">assert!</span>(Delete().check(<span class="kw-2">&amp;</span>r.guard_ctx()));
+        <span class="macro">assert!</span>(!Delete().check(<span class="kw-2">&amp;</span>get_req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">method</span>(<span class="ident">Method::HEAD</span>).<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="ident">Head</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Head</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">get_req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::default().method(Method::HEAD).to_srv_request();
+        <span class="macro">assert!</span>(Head().check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(!Head().check(<span class="kw-2">&amp;</span>get_req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">method</span>(<span class="ident">Method::OPTIONS</span>)
-            .<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="ident">Options</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Options</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">get_req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::default()
+            .method(Method::OPTIONS)
+            .to_srv_request();
+        <span class="macro">assert!</span>(Options().check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(!Options().check(<span class="kw-2">&amp;</span>get_req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">method</span>(<span class="ident">Method::CONNECT</span>)
-            .<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="ident">Connect</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Connect</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">get_req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::default()
+            .method(Method::CONNECT)
+            .to_srv_request();
+        <span class="macro">assert!</span>(Connect().check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(!Connect().check(<span class="kw-2">&amp;</span>get_req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">method</span>(<span class="ident">Method::TRACE</span>)
-            .<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="ident">Trace</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Trace</span>().<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">get_req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::default()
+            .method(Method::TRACE)
+            .to_srv_request();
+        <span class="macro">assert!</span>(Trace().check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(!Trace().check(<span class="kw-2">&amp;</span>get_req.guard_ctx()));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">aggregate_any</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">method</span>(<span class="ident">Method::TRACE</span>)
-            .<span class="ident">to_srv_request</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>aggregate_any() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .method(Method::TRACE)
+            .to_srv_request();
 
-        <span class="macro">assert!</span>(<span class="ident">Any</span>(<span class="ident">Trace</span>()).<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="ident">Any</span>(<span class="ident">Trace</span>()).<span class="ident">or</span>(<span class="ident">Get</span>()).<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Any</span>(<span class="ident">Get</span>()).<span class="ident">or</span>(<span class="ident">Get</span>()).<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="macro">assert!</span>(Any(Trace()).check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(Any(Trace()).or(Get()).check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(!Any(Get()).or(Get()).check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">aggregate_all</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">method</span>(<span class="ident">Method::TRACE</span>)
-            .<span class="ident">to_srv_request</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>aggregate_all() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .method(Method::TRACE)
+            .to_srv_request();
 
-        <span class="macro">assert!</span>(<span class="ident">All</span>(<span class="ident">Trace</span>()).<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="ident">All</span>(<span class="ident">Trace</span>()).<span class="ident">and</span>(<span class="ident">Trace</span>()).<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">All</span>(<span class="ident">Trace</span>()).<span class="ident">and</span>(<span class="ident">Get</span>()).<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="macro">assert!</span>(All(Trace()).check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(All(Trace()).and(Trace()).check(<span class="kw-2">&amp;</span>req.guard_ctx()));
+        <span class="macro">assert!</span>(!All(Trace()).and(Get()).check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">nested_not</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>nested_not() {
+        <span class="kw">let </span>req = TestRequest::default().to_srv_request();
 
-        <span class="kw">let</span> <span class="ident">get</span> <span class="op">=</span> <span class="ident">Get</span>();
-        <span class="macro">assert!</span>(<span class="ident">get</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>get = Get();
+        <span class="macro">assert!</span>(get.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">not_get</span> <span class="op">=</span> <span class="ident">Not</span>(<span class="ident">get</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">not_get</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>not_get = Not(get);
+        <span class="macro">assert!</span>(!not_get.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">not_not_get</span> <span class="op">=</span> <span class="ident">Not</span>(<span class="ident">not_get</span>);
-        <span class="macro">assert!</span>(<span class="ident">not_not_get</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>not_not_get = Not(not_get);
+        <span class="macro">assert!</span>(not_not_get.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">function_guard</span>() {
-        <span class="kw">let</span> <span class="ident">domain</span> <span class="op">=</span> <span class="string">&quot;rust-lang.org&quot;</span>.<span class="ident">to_owned</span>();
-        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">head</span>().<span class="ident">uri</span>.<span class="ident">host</span>().<span class="ident">unwrap</span>().<span class="ident">ends_with</span>(<span class="kw-2">&amp;</span><span class="ident">domain</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>function_guard() {
+        <span class="kw">let </span>domain = <span class="string">&quot;rust-lang.org&quot;</span>.to_owned();
+        <span class="kw">let </span>guard = fn_guard(|ctx| ctx.head().uri.host().unwrap().ends_with(<span class="kw-2">&amp;</span>domain));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;blog.rust-lang.org&quot;</span>)
-            .<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="ident">guard</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::default()
+            .uri(<span class="string">&quot;blog.rust-lang.org&quot;</span>)
+            .to_srv_request();
+        <span class="macro">assert!</span>(guard.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">uri</span>(<span class="string">&quot;crates.io&quot;</span>).<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">guard</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::default().uri(<span class="string">&quot;crates.io&quot;</span>).to_srv_request();
+        <span class="macro">assert!</span>(!guard.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mega_nesting</span>() {
-        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="ident">fn_guard</span>(<span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="ident">All</span>(<span class="ident">Not</span>(<span class="ident">Any</span>(<span class="ident">Not</span>(<span class="ident">Trace</span>())))).<span class="ident">check</span>(<span class="ident">ctx</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>mega_nesting() {
+        <span class="kw">let </span>guard = fn_guard(|ctx| All(Not(Any(Not(Trace())))).check(ctx));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">guard</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::default().to_srv_request();
+        <span class="macro">assert!</span>(!guard.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">method</span>(<span class="ident">Method::TRACE</span>)
-            .<span class="ident">to_srv_request</span>();
-        <span class="macro">assert!</span>(<span class="ident">guard</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">guard_ctx</span>()));
+        <span class="kw">let </span>req = TestRequest::default()
+            .method(Method::TRACE)
+            .to_srv_request();
+        <span class="macro">assert!</span>(guard.check(<span class="kw-2">&amp;</span>req.guard_ctx()));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

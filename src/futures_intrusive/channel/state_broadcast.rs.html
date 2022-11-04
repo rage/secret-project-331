@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/channel/state_broadcast.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>state_broadcast.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/channel/state_broadcast.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>state_broadcast.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -811,818 +811,818 @@
 <span id="811">811</span>
 <span id="812">812</span>
 <span id="813">813</span>
-</pre><pre class="rust"><code><span class="doccomment">//! An asynchronously awaitable state broadcasting channel</span>
+</pre><pre class="rust"><code><span class="doccomment">//! An asynchronously awaitable state broadcasting channel
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ChannelSendError</span>, <span class="ident">CloseStatus</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">intrusive_double_linked_list</span>::{<span class="ident">LinkedList</span>, <span class="ident">ListNode</span>},
-    <span class="ident">utils::update_waker_ref</span>,
-    <span class="ident">NoopLock</span>,
+</span><span class="kw">use super</span>::{ChannelSendError, CloseStatus};
+<span class="kw">use crate</span>::{
+    intrusive_double_linked_list::{LinkedList, ListNode},
+    utils::update_waker_ref,
+    NoopLock,
 };
-<span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">core::pin::Pin</span>;
-<span class="kw">use</span> <span class="ident">futures_core</span>::{
-    <span class="ident">future</span>::{<span class="ident">FusedFuture</span>, <span class="ident">Future</span>},
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>},
+<span class="kw">use </span>core::marker::PhantomData;
+<span class="kw">use </span>core::pin::Pin;
+<span class="kw">use </span>futures_core::{
+    future::{FusedFuture, Future},
+    task::{Context, Poll, Waker},
 };
-<span class="kw">use</span> <span class="ident">lock_api</span>::{<span class="ident">Mutex</span>, <span class="ident">RawMutex</span>};
+<span class="kw">use </span>lock_api::{Mutex, RawMutex};
 
-<span class="doccomment">/// An ID, which allows to differentiate states received from a Channel.</span>
-<span class="doccomment">/// Elements with a bigger state ID (`id &gt; otherId`) have been published more</span>
-<span class="doccomment">/// recently into the Channel.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Ord</span>, <span class="ident">PartialOrd</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StateId</span>(<span class="ident">u64</span>);
+<span class="doccomment">/// An ID, which allows to differentiate states received from a Channel.
+/// Elements with a bigger state ID (`id &gt; otherId`) have been published more
+/// recently into the Channel.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Ord, PartialOrd)]
+</span><span class="kw">pub struct </span>StateId(u64);
 
-<span class="kw">impl</span> <span class="ident">StateId</span> {
-    <span class="doccomment">/// Returns the initial StateId, which is guaranteed to return the</span>
-    <span class="doccomment">/// oldest buffered value available.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">StateId</span>(<span class="number">0</span>)
+<span class="kw">impl </span>StateId {
+    <span class="doccomment">/// Returns the initial StateId, which is guaranteed to return the
+    /// oldest buffered value available.
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        StateId(<span class="number">0</span>)
     }
 }
 
-<span class="doccomment">/// Tracks how the future had interacted with the channel</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RecvPollState</span> {
-    <span class="doccomment">/// The task is not registered at the wait queue at the channel</span>
-    <span class="ident">Unregistered</span>,
-    <span class="doccomment">/// The task was added to the wait queue at the channel.</span>
-    <span class="ident">Registered</span>,
+<span class="doccomment">/// Tracks how the future had interacted with the channel
+</span><span class="attribute">#[derive(PartialEq, Debug)]
+</span><span class="kw">pub enum </span>RecvPollState {
+    <span class="doccomment">/// The task is not registered at the wait queue at the channel
+    </span>Unregistered,
+    <span class="doccomment">/// The task was added to the wait queue at the channel.
+    </span>Registered,
 }
 
-<span class="doccomment">/// Tracks the channel futures waiting state.</span>
-<span class="doccomment">/// Access to this struct is synchronized through the channel.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RecvWaitQueueEntry</span> {
-    <span class="doccomment">/// The task handle of the waiting task</span>
-    <span class="ident">task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Current polling state</span>
-    <span class="ident">state</span>: <span class="ident">RecvPollState</span>,
-    <span class="doccomment">/// The minimum state ID we are waiting for</span>
-    <span class="ident">state_id</span>: <span class="ident">StateId</span>,
+<span class="doccomment">/// Tracks the channel futures waiting state.
+/// Access to this struct is synchronized through the channel.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>RecvWaitQueueEntry {
+    <span class="doccomment">/// The task handle of the waiting task
+    </span>task: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
+    <span class="doccomment">/// Current polling state
+    </span>state: RecvPollState,
+    <span class="doccomment">/// The minimum state ID we are waiting for
+    </span>state_id: StateId,
 }
 
-<span class="kw">impl</span> <span class="ident">RecvWaitQueueEntry</span> {
-    <span class="doccomment">/// Creates a new RecvWaitQueueEntry</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">state_id</span>: <span class="ident">StateId</span>) -&gt; <span class="ident">RecvWaitQueueEntry</span> {
-        <span class="ident">RecvWaitQueueEntry</span> {
-            <span class="ident">task</span>: <span class="prelude-val">None</span>,
-            <span class="ident">state_id</span>,
-            <span class="ident">state</span>: <span class="ident">RecvPollState::Unregistered</span>,
+<span class="kw">impl </span>RecvWaitQueueEntry {
+    <span class="doccomment">/// Creates a new RecvWaitQueueEntry
+    </span><span class="kw">pub fn </span>new(state_id: StateId) -&gt; RecvWaitQueueEntry {
+        RecvWaitQueueEntry {
+            task: <span class="prelude-val">None</span>,
+            state_id,
+            state: RecvPollState::Unregistered,
         }
     }
 }
 
-<span class="doccomment">/// Adapter trait that allows Futures to generically interact with Channel</span>
-<span class="doccomment">/// implementations via dynamic dispatch.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ChannelReceiveAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">receive_or_register</span>(
+<span class="doccomment">/// Adapter trait that allows Futures to generically interact with Channel
+/// implementations via dynamic dispatch.
+</span><span class="kw">pub trait </span>ChannelReceiveAccess&lt;T&gt; {
+    <span class="kw">unsafe fn </span>receive_or_register(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span><span class="op">&gt;</span>;
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;(StateId, T)&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">remove_receive_waiter</span>(
+    <span class="kw">fn </span>remove_receive_waiter(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;,
     );
 }
 
-<span class="doccomment">/// A Future that is returned by the `receive` function on a state broadcast channel.</span>
-<span class="doccomment">/// The future gets resolved with `Some((state_id, state))` when a value could be</span>
-<span class="doccomment">/// received from the channel.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `state` represents the new state which had been retrieved from the channel.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `state_id` is the [`StateId`] which can be passed as a parameter to</span>
-<span class="doccomment">/// `receive()` in order to fetch the next state from the channel.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the channels gets closed and no items are still enqueued inside the</span>
-<span class="doccomment">/// channel, the future will resolve to `None`.</span>
-<span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Clone</span>,
+<span class="doccomment">/// A Future that is returned by the `receive` function on a state broadcast channel.
+/// The future gets resolved with `Some((state_id, state))` when a value could be
+/// received from the channel.
+///
+/// `state` represents the new state which had been retrieved from the channel.
+///
+/// `state_id` is the [`StateId`] which can be passed as a parameter to
+/// `receive()` in order to fetch the next state from the channel.
+///
+/// If the channels gets closed and no items are still enqueued inside the
+/// channel, the future will resolve to `None`.
+</span><span class="attribute">#[must_use = <span class="string">&quot;futures do nothing unless polled&quot;</span>]
+</span><span class="kw">pub struct </span>StateReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
+<span class="kw">where
+    </span>T: Clone,
 {
-    <span class="doccomment">/// The channel that is associated with this StateReceiveFuture</span>
-    <span class="ident">channel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">ChannelReceiveAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Node for waiting on the channel</span>
-    <span class="ident">wait_node</span>: <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Marker for mutex type</span>
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The channel that is associated with this StateReceiveFuture
+    </span>channel: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>ChannelReceiveAccess&lt;T&gt;&gt;,
+    <span class="doccomment">/// Node for waiting on the channel
+    </span>wait_node: ListNode&lt;RecvWaitQueueEntry&gt;,
+    <span class="doccomment">/// Marker for mutex type
+    </span>_phantom: PhantomData&lt;MutexType&gt;,
 }
 
-<span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying</span>
-<span class="comment">// channel is thread-safe (Sync), which allows to poll/register/unregister from</span>
-<span class="comment">// a different thread.</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">Sync</span>, <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span>
-    <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying
+// channel is thread-safe (Sync), which allows to poll/register/unregister from
+// a different thread.
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: Sync, T: Clone + Send&gt; Send
+    <span class="kw">for </span>StateReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
 {
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
-    <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T: Clone&gt; core::fmt::Debug
+    <span class="kw">for </span>StateReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;StateReceiveFuture&quot;</span>).<span class="ident">finish</span>()
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">&quot;StateReceiveFuture&quot;</span>).finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T: Clone&gt; Future <span class="kw">for </span>StateReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="kw">type </span>Output = <span class="prelude-ty">Option</span>&lt;(StateId, T)&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(
-        <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.</span>
-        <span class="comment">// However this didn&#39;t seem to work for some borrow checker reasons</span>
+    <span class="kw">fn </span>poll(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;(StateId, T)&gt;&gt; {
+        <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.
+        // However this didn&#39;t seem to work for some borrow checker reasons
 
-        <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
-        <span class="comment">// the address of the wait queue entry inside StateReceiveFuture is stable,</span>
-        <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-        <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
+        // Safety: The next operations are safe, because Pin promises us that
+        // the address of the wait queue entry inside StateReceiveFuture is stable,
+        // and we don&#39;t move any fields inside the future until it gets dropped.
+        </span><span class="kw">let </span>mut_self: <span class="kw-2">&amp;mut </span>StateReceiveFuture&lt;MutexType, T&gt; =
+            <span class="kw">unsafe </span>{ Pin::get_unchecked_mut(<span class="self">self</span>) };
 
-        <span class="kw">let</span> <span class="ident">channel</span> <span class="op">=</span> <span class="ident">mut_self</span>
-            .<span class="ident">channel</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;polled StateReceiveFuture after completion&quot;</span>);
+        <span class="kw">let </span>channel = mut_self
+            .channel
+            .expect(<span class="string">&quot;polled StateReceiveFuture after completion&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">poll_res</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">channel</span>.<span class="ident">receive_or_register</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>) };
+        <span class="kw">let </span>poll_res =
+            <span class="kw">unsafe </span>{ channel.receive_or_register(<span class="kw-2">&amp;mut </span>mut_self.wait_node, cx) };
 
-        <span class="kw">if</span> <span class="ident">poll_res</span>.<span class="ident">is_ready</span>() {
-            <span class="comment">// A value was available</span>
-            <span class="ident">mut_self</span>.<span class="ident">channel</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">if </span>poll_res.is_ready() {
+            <span class="comment">// A value was available
+            </span>mut_self.channel = <span class="prelude-val">None</span>;
         }
 
-        <span class="ident">poll_res</span>
+        poll_res
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span>
-    <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T: Clone&gt; FusedFuture
+    <span class="kw">for </span>StateReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
 {
-    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">is_none</span>()
+    <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.channel.is_none()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// If this StateReceiveFuture has been polled and it was added to the</span>
-        <span class="comment">// wait queue at the channel, it must be removed before dropping.</span>
-        <span class="comment">// Otherwise the channel would access invalid memory.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">channel</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">channel</span> {
-            <span class="ident">channel</span>.<span class="ident">remove_receive_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T: Clone&gt; Drop <span class="kw">for </span>StateReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// If this StateReceiveFuture has been polled and it was added to the
+        // wait queue at the channel, it must be removed before dropping.
+        // Otherwise the channel would access invalid memory.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(channel) = <span class="self">self</span>.channel {
+            channel.remove_receive_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node);
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">wake_waiters</span>(<span class="ident">waiters</span>: <span class="kw-2">&amp;mut</span> <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>) {
-    <span class="comment">// Remove all waiters from the waiting list in reverse order and wake them.</span>
-    <span class="comment">// We reverse the waiter list, so that the oldest waker (which is</span>
-    <span class="comment">// at the end of the list), gets woken first and has the best</span>
-    <span class="comment">// chance to grab the channel value.</span>
-    <span class="ident">waiters</span>.<span class="ident">reverse_drain</span>(<span class="op">|</span><span class="ident">waiter</span><span class="op">|</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">handle</span>) <span class="op">=</span> <span class="ident">waiter</span>.<span class="ident">task</span>.<span class="ident">take</span>() {
-            <span class="ident">handle</span>.<span class="ident">wake</span>();
+<span class="kw">fn </span>wake_waiters(waiters: <span class="kw-2">&amp;mut </span>LinkedList&lt;RecvWaitQueueEntry&gt;) {
+    <span class="comment">// Remove all waiters from the waiting list in reverse order and wake them.
+    // We reverse the waiter list, so that the oldest waker (which is
+    // at the end of the list), gets woken first and has the best
+    // chance to grab the channel value.
+    </span>waiters.reverse_drain(|waiter| {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(handle) = waiter.task.take() {
+            handle.wake();
         }
-        <span class="ident">waiter</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">RecvPollState::Unregistered</span>;
+        waiter.state = RecvPollState::Unregistered;
     });
 }
 
-<span class="doccomment">/// Internal state of the state broadcast channel</span>
-<span class="kw">struct</span> <span class="ident">ChannelState</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Whether the channel was actively closed</span>
-    <span class="ident">is_closed</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// The ID of the next state.</span>
-    <span class="ident">state_id</span>: <span class="ident">StateId</span>,
-    <span class="doccomment">/// The value which is stored inside the channel</span>
-    <span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The list of waiters, which are waiting for the channel to get fulfilled</span>
-    <span class="ident">waiters</span>: <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Internal state of the state broadcast channel
+</span><span class="kw">struct </span>ChannelState&lt;T&gt; {
+    <span class="doccomment">/// Whether the channel was actively closed
+    </span>is_closed: bool,
+    <span class="doccomment">/// The ID of the next state.
+    </span>state_id: StateId,
+    <span class="doccomment">/// The value which is stored inside the channel
+    </span>value: <span class="prelude-ty">Option</span>&lt;T&gt;,
+    <span class="doccomment">/// The list of waiters, which are waiting for the channel to get fulfilled
+    </span>waiters: LinkedList&lt;RecvWaitQueueEntry&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ChannelState</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Clone</span>,
+<span class="kw">impl</span>&lt;T&gt; ChannelState&lt;T&gt;
+<span class="kw">where
+    </span>T: Clone,
 {
-    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">ChannelState</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">ChannelState</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="ident">is_closed</span>: <span class="bool-val">false</span>,
-            <span class="ident">state_id</span>: <span class="ident">StateId</span>(<span class="number">0</span>),
-            <span class="ident">value</span>: <span class="prelude-val">None</span>,
-            <span class="ident">waiters</span>: <span class="ident">LinkedList::new</span>(),
+    <span class="kw">fn </span>new() -&gt; ChannelState&lt;T&gt; {
+        ChannelState::&lt;T&gt; {
+            is_closed: <span class="bool-val">false</span>,
+            state_id: StateId(<span class="number">0</span>),
+            value: <span class="prelude-val">None</span>,
+            waiters: LinkedList::new(),
         }
     }
 
-    <span class="doccomment">/// Writes a single value to the channel.</span>
-    <span class="doccomment">/// If the maximum amount of values had been written, the new value will be rejected.</span>
-    <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ChannelSendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">state_id</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">core::u64::MAX</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ChannelSendError</span>(<span class="ident">value</span>));
+    <span class="doccomment">/// Writes a single value to the channel.
+    /// If the maximum amount of values had been written, the new value will be rejected.
+    </span><span class="kw">fn </span>send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T) -&gt; <span class="prelude-ty">Result</span>&lt;(), ChannelSendError&lt;T&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_closed || <span class="self">self</span>.state_id.<span class="number">0 </span>== core::u64::MAX {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ChannelSendError(value));
         }
 
-        <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
-        <span class="self">self</span>.<span class="ident">state_id</span>.<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="self">self</span>.value = <span class="prelude-val">Some</span>(value);
+        <span class="self">self</span>.state_id.<span class="number">0 </span>+= <span class="number">1</span>;
 
-        <span class="comment">// Wakeup all waiters</span>
-        <span class="ident">wake_waiters</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">waiters</span>);
+        <span class="comment">// Wakeup all waiters
+        </span>wake_waiters(<span class="kw-2">&amp;mut </span><span class="self">self</span>.waiters);
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">CloseStatus</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span> {
-            <span class="kw">return</span> <span class="ident">CloseStatus::AlreadyClosed</span>;
+    <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; CloseStatus {
+        <span class="kw">if </span><span class="self">self</span>.is_closed {
+            <span class="kw">return </span>CloseStatus::AlreadyClosed;
         }
-        <span class="self">self</span>.<span class="ident">is_closed</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>.is_closed = <span class="bool-val">true</span>;
 
-        <span class="comment">// Wakeup all waiters</span>
-        <span class="ident">wake_waiters</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">waiters</span>);
+        <span class="comment">// Wakeup all waiters
+        </span>wake_waiters(<span class="kw-2">&amp;mut </span><span class="self">self</span>.waiters);
 
-        <span class="ident">CloseStatus::NewlyClosed</span>
+        CloseStatus::NewlyClosed
     }
 
-    <span class="kw">fn</span> <span class="ident">try_receive</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">state_id</span>: <span class="ident">StateId</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">state_id</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">state_id</span> {
-            <span class="prelude-val">Some</span>((<span class="self">self</span>.<span class="ident">state_id</span>, <span class="ident">val</span>.<span class="ident">clone</span>()))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+    <span class="kw">fn </span>try_receive(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state_id: StateId) -&gt; <span class="prelude-ty">Option</span>&lt;(StateId, T)&gt; {
+        <span class="kw">let </span>val = <span class="self">self</span>.value.as_ref()<span class="question-mark">?</span>;
+        <span class="kw">if </span>state_id &lt; <span class="self">self</span>.state_id {
+            <span class="prelude-val">Some</span>((<span class="self">self</span>.state_id, val.clone()))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="doccomment">/// Tries to read the value from the channel.</span>
-    <span class="doccomment">/// If the value isn&#39;t available yet, the StateReceiveFuture gets added to the</span>
-    <span class="doccomment">/// wait queue at the channel, and will be signalled once ready.</span>
-    <span class="doccomment">/// This function is only safe as long as the `wait_node`s address is guaranteed</span>
-    <span class="doccomment">/// to be stable until it gets removed from the queue.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">receive_or_register</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
-            <span class="ident">RecvPollState::Unregistered</span> =&gt; {
-                <span class="comment">// The caller must wait for a value if either there is no value</span>
-                <span class="comment">// available yet, or if the value isn&#39;t newer than what the</span>
-                <span class="comment">// caller requested.</span>
-                <span class="kw">let</span> <span class="ident">val_to_deliver</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span> {
-                    <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">v</span>) <span class="kw">if</span> <span class="ident">wait_node</span>.<span class="ident">state_id</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">state_id</span> =&gt; {
-                        <span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">clone</span>())
+    <span class="doccomment">/// Tries to read the value from the channel.
+    /// If the value isn&#39;t available yet, the StateReceiveFuture gets added to the
+    /// wait queue at the channel, and will be signalled once ready.
+    /// This function is only safe as long as the `wait_node`s address is guaranteed
+    /// to be stable until it gets removed from the queue.
+    </span><span class="kw">unsafe fn </span>receive_or_register(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;(StateId, T)&gt;&gt; {
+        <span class="kw">match </span>wait_node.state {
+            RecvPollState::Unregistered =&gt; {
+                <span class="comment">// The caller must wait for a value if either there is no value
+                // available yet, or if the value isn&#39;t newer than what the
+                // caller requested.
+                </span><span class="kw">let </span>val_to_deliver = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.value {
+                    <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>v) <span class="kw">if </span>wait_node.state_id &lt; <span class="self">self</span>.state_id =&gt; {
+                        <span class="prelude-val">Some</span>(v.clone())
                     }
-                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) | <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
                 };
 
-                <span class="kw">match</span> <span class="ident">val_to_deliver</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; {
-                        <span class="comment">// A value that satisfies the caller is available.</span>
-                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>((<span class="self">self</span>.<span class="ident">state_id</span>, <span class="ident">v</span>)))
+                <span class="kw">match </span>val_to_deliver {
+                    <span class="prelude-val">Some</span>(v) =&gt; {
+                        <span class="comment">// A value that satisfies the caller is available.
+                        </span>Poll::Ready(<span class="prelude-val">Some</span>((<span class="self">self</span>.state_id, v)))
                     }
-                    <span class="prelude-val">None</span> =&gt; {
-                        <span class="comment">// Check if something was written into the channel before</span>
-                        <span class="comment">// or the channel was closed.</span>
-                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span> {
-                            <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-                        } <span class="kw">else</span> {
-                            <span class="comment">// Added the task to the wait queue</span>
-                            <span class="ident">wait_node</span>.<span class="ident">task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
-                            <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">RecvPollState::Registered</span>;
-                            <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">add_front</span>(<span class="ident">wait_node</span>);
-                            <span class="ident">Poll::Pending</span>
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="comment">// Check if something was written into the channel before
+                        // or the channel was closed.
+                        </span><span class="kw">if </span><span class="self">self</span>.is_closed {
+                            Poll::Ready(<span class="prelude-val">None</span>)
+                        } <span class="kw">else </span>{
+                            <span class="comment">// Added the task to the wait queue
+                            </span>wait_node.task = <span class="prelude-val">Some</span>(cx.waker().clone());
+                            wait_node.state = RecvPollState::Registered;
+                            <span class="self">self</span>.waiters.add_front(wait_node);
+                            Poll::Pending
                         }
                     }
                 }
             }
-            <span class="ident">RecvPollState::Registered</span> =&gt; {
-                <span class="comment">// Since the channel wakes up all waiters and moves their states</span>
-                <span class="comment">// to unregistered there can&#39;t be any value in the channel in this state.</span>
-                <span class="comment">// However the caller might have passed a different `Waker`.</span>
-                <span class="comment">// In this case we need to update it.</span>
-                <span class="ident">update_waker_ref</span>(<span class="kw-2">&amp;mut</span> <span class="ident">wait_node</span>.<span class="ident">task</span>, <span class="ident">cx</span>);
-                <span class="ident">Poll::Pending</span>
+            RecvPollState::Registered =&gt; {
+                <span class="comment">// Since the channel wakes up all waiters and moves their states
+                // to unregistered there can&#39;t be any value in the channel in this state.
+                // However the caller might have passed a different `Waker`.
+                // In this case we need to update it.
+                </span>update_waker_ref(<span class="kw-2">&amp;mut </span>wait_node.task, cx);
+                Poll::Pending
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">remove_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>) {
-        <span class="comment">// StateReceiveFuture only needs to get removed if it had been added to</span>
-        <span class="comment">// the wait queue of the channel. This has happened in the RecvPollState::Waiting case.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">RecvPollState::Registered</span> <span class="op">=</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
-            <span class="comment">// Safety: Due to the state, we know that the node must be part</span>
-            <span class="comment">// of the waiter list</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">remove</span>(<span class="ident">wait_node</span>) } {
-                <span class="comment">// Panic if the address isn&#39;t found. This can only happen if the contract was</span>
-                <span class="comment">// violated, e.g. the RecvWaitQueueEntry got moved after the initial poll.</span>
-                <span class="macro">panic!</span>(<span class="string">&quot;Future could not be removed from wait queue&quot;</span>);
+    <span class="kw">fn </span>remove_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;) {
+        <span class="comment">// StateReceiveFuture only needs to get removed if it had been added to
+        // the wait queue of the channel. This has happened in the RecvPollState::Waiting case.
+        </span><span class="kw">if let </span>RecvPollState::Registered = wait_node.state {
+            <span class="comment">// Safety: Due to the state, we know that the node must be part
+            // of the waiter list
+            </span><span class="kw">if </span>!<span class="kw">unsafe </span>{ <span class="self">self</span>.waiters.remove(wait_node) } {
+                <span class="comment">// Panic if the address isn&#39;t found. This can only happen if the contract was
+                // violated, e.g. the RecvWaitQueueEntry got moved after the initial poll.
+                </span><span class="macro">panic!</span>(<span class="string">&quot;Future could not be removed from wait queue&quot;</span>);
             }
-            <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">RecvPollState::Unregistered</span>;
+            wait_node.state = RecvPollState::Unregistered;
         }
     }
 }
 
-<span class="doccomment">/// A channel which can be used to synchronize the state between a sender an</span>
-<span class="doccomment">/// arbitrary number of receivers.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The sender can publish its state.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The receivers can wait for state updates by announcing the most recent state</span>
-<span class="doccomment">/// that is already known to them.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">ChannelState</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A channel which can be used to synchronize the state between a sender an
+/// arbitrary number of receivers.
+///
+/// The sender can publish its state.
+///
+/// The receivers can wait for state updates by announcing the most recent state
+/// that is already known to them.
+</span><span class="kw">pub struct </span>GenericStateBroadcastChannel&lt;MutexType: RawMutex, T&gt; {
+    inner: Mutex&lt;MutexType, ChannelState&lt;T&gt;&gt;,
 }
 
-<span class="comment">// The channel can be sent to other threads as long as it&#39;s not borrowed and the</span>
-<span class="comment">// value in it can be sent to other threads.</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Send</span>, <span class="ident">T</span>: <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span>
-    <span class="kw">for</span> <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="comment">// The channel can be sent to other threads as long as it&#39;s not borrowed and the
+// value in it can be sent to other threads.
+</span><span class="kw">unsafe impl</span>&lt;MutexType: RawMutex + Send, T: Send&gt; Send
+    <span class="kw">for </span>GenericStateBroadcastChannel&lt;MutexType, T&gt;
 {
 }
-<span class="comment">// The channel is thread-safe as long as a thread-safe mutex is used</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Sync</span>, <span class="ident">T</span>: <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Sync</span>
-    <span class="kw">for</span> <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="comment">// The channel is thread-safe as long as a thread-safe mutex is used
+</span><span class="kw">unsafe impl</span>&lt;MutexType: RawMutex + Sync, T: Send&gt; Sync
+    <span class="kw">for </span>GenericStateBroadcastChannel&lt;MutexType, T&gt;
 {
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
-    <span class="kw">for</span> <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; core::fmt::Debug
+    <span class="kw">for </span>GenericStateBroadcastChannel&lt;MutexType, T&gt;
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericStateBroadcastChannel&quot;</span>).<span class="ident">finish</span>()
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">&quot;GenericStateBroadcastChannel&quot;</span>).finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Clone</span>,
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T&gt; GenericStateBroadcastChannel&lt;MutexType, T&gt;
+<span class="kw">where
+    </span>T: Clone,
 {
-    <span class="doccomment">/// Creates a new State Broadcast Channel in the given state</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Clone</span>,
+    <span class="doccomment">/// Creates a new State Broadcast Channel in the given state
+    </span><span class="kw">pub fn </span>new() -&gt; GenericStateBroadcastChannel&lt;MutexType, T&gt;
+    <span class="kw">where
+        </span>T: Clone,
     {
-        <span class="ident">GenericStateBroadcastChannel</span> {
-            <span class="ident">inner</span>: <span class="ident">Mutex::new</span>(<span class="ident">ChannelState::new</span>()),
+        GenericStateBroadcastChannel {
+            inner: Mutex::new(ChannelState::new()),
         }
     }
 
-    <span class="doccomment">/// Writes a single value to the channel.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This will notify waiters about the availability of the value.</span>
-    <span class="doccomment">/// If the maximum amount of values had been written to the channel,</span>
-    <span class="doccomment">/// or if the channel is closed, the new value will be rejected and</span>
-    <span class="doccomment">/// returned inside the error variant.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ChannelSendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">send</span>(<span class="ident">value</span>)
+    <span class="doccomment">/// Writes a single value to the channel.
+    ///
+    /// This will notify waiters about the availability of the value.
+    /// If the maximum amount of values had been written to the channel,
+    /// or if the channel is closed, the new value will be rejected and
+    /// returned inside the error variant.
+    </span><span class="kw">pub fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, value: T) -&gt; <span class="prelude-ty">Result</span>&lt;(), ChannelSendError&lt;T&gt;&gt; {
+        <span class="self">self</span>.inner.lock().send(value)
     }
 
-    <span class="doccomment">/// Closes the channel.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This will notify waiters about closure, by fulfilling pending `Future`s</span>
-    <span class="doccomment">/// with `None`.</span>
-    <span class="doccomment">/// `send(value)` attempts which follow this call will fail with a</span>
-    <span class="doccomment">/// [`ChannelSendError`].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CloseStatus</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">close</span>()
+    <span class="doccomment">/// Closes the channel.
+    ///
+    /// This will notify waiters about closure, by fulfilling pending `Future`s
+    /// with `None`.
+    /// `send(value)` attempts which follow this call will fail with a
+    /// [`ChannelSendError`].
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CloseStatus {
+        <span class="self">self</span>.inner.lock().close()
     }
 
-    <span class="doccomment">/// Returns a future that gets fulfilled when a value is written to the channel</span>
-    <span class="doccomment">/// or the channel is closed.</span>
-    <span class="doccomment">/// `state_id` specifies the minimum state ID that should be retrieved</span>
-    <span class="doccomment">/// by the `receive` operation.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned [`StateReceiveFuture`] will get fulfilled with the</span>
-    <span class="doccomment">/// retrieved value as well as the [`StateId`] which is required to retrieve</span>
-    <span class="doccomment">/// the following state.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">receive</span>(
+    <span class="doccomment">/// Returns a future that gets fulfilled when a value is written to the channel
+    /// or the channel is closed.
+    /// `state_id` specifies the minimum state ID that should be retrieved
+    /// by the `receive` operation.
+    ///
+    /// The returned [`StateReceiveFuture`] will get fulfilled with the
+    /// retrieved value as well as the [`StateId`] which is required to retrieve
+    /// the following state.
+    </span><span class="kw">pub fn </span>receive(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">state_id</span>: <span class="ident">StateId</span>,
-    ) -&gt; <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">StateReceiveFuture</span> {
-            <span class="ident">channel</span>: <span class="prelude-val">Some</span>(<span class="self">self</span>),
-            <span class="ident">wait_node</span>: <span class="ident">ListNode::new</span>(<span class="ident">RecvWaitQueueEntry::new</span>(<span class="ident">state_id</span>)),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        state_id: StateId,
+    ) -&gt; StateReceiveFuture&lt;MutexType, T&gt; {
+        StateReceiveFuture {
+            channel: <span class="prelude-val">Some</span>(<span class="self">self</span>),
+            wait_node: ListNode::new(RecvWaitQueueEntry::new(state_id)),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Attempt to retrieve a value whose `StateId` is greater than the one provided.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if no value is found in the channel, or if the current `StateId`</span>
-    <span class="doccomment">/// of the value is less or equal to the one provided.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_receive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state_id</span>: <span class="ident">StateId</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">try_receive</span>(<span class="ident">state_id</span>)
+    <span class="doccomment">/// Attempt to retrieve a value whose `StateId` is greater than the one provided.
+    ///
+    /// Returns `None` if no value is found in the channel, or if the current `StateId`
+    /// of the value is less or equal to the one provided.
+    </span><span class="kw">pub fn </span>try_receive(<span class="kw-2">&amp;</span><span class="self">self</span>, state_id: StateId) -&gt; <span class="prelude-ty">Option</span>&lt;(StateId, T)&gt; {
+        <span class="self">self</span>.inner.lock().try_receive(state_id)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span>, <span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">ChannelReceiveAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;MutexType: RawMutex, T: Clone&gt; ChannelReceiveAccess&lt;T&gt;
+    <span class="kw">for </span>GenericStateBroadcastChannel&lt;MutexType, T&gt;
 {
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">receive_or_register</span>(
+    <span class="kw">unsafe fn </span>receive_or_register(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">receive_or_register</span>(<span class="ident">wait_node</span>, <span class="ident">cx</span>)
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;(StateId, T)&gt;&gt; {
+        <span class="self">self</span>.inner.lock().receive_or_register(wait_node, cx)
     }
 
-    <span class="kw">fn</span> <span class="ident">remove_receive_waiter</span>(
+    <span class="kw">fn </span>remove_receive_waiter(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;,
     ) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">remove_waiter</span>(<span class="ident">wait_node</span>)
+        <span class="self">self</span>.inner.lock().remove_waiter(wait_node)
     }
 }
 
-<span class="comment">// Export a non thread-safe version using NoopLock</span>
+<span class="comment">// Export a non thread-safe version using NoopLock
 
-<span class="doccomment">/// A [`GenericStateBroadcastChannel`] which is not thread-safe.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LocalStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">NoopLock</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+</span><span class="doccomment">/// A [`GenericStateBroadcastChannel`] which is not thread-safe.
+</span><span class="kw">pub type </span>LocalStateBroadcastChannel&lt;T&gt; =
+    GenericStateBroadcastChannel&lt;NoopLock, T&gt;;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">if_std</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">mod </span>if_std {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="comment">// Export a thread-safe version using parking_lot::RawMutex</span>
+    <span class="comment">// Export a thread-safe version using parking_lot::RawMutex
 
-    <span class="doccomment">/// A [`GenericStateBroadcastChannel`] implementation backed by [`parking_lot`].</span>
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">StateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">parking_lot::RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+    </span><span class="doccomment">/// A [`GenericStateBroadcastChannel`] implementation backed by [`parking_lot`].
+    </span><span class="kw">pub type </span>StateBroadcastChannel&lt;T&gt; =
+        GenericStateBroadcastChannel&lt;parking_lot::RawMutex, T&gt;;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_std</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::if_std::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">if_alloc</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">mod </span>if_alloc {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">shared</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-        <span class="kw">use</span> <span class="ident">core::sync::atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
+    <span class="kw">pub mod </span>shared {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use </span>core::sync::atomic::{AtomicUsize, Ordering};
 
-        <span class="kw">struct</span> <span class="ident">GenericStateBroadcastChannelSharedState</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="kw">struct </span>GenericStateBroadcastChannelSharedState&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone + <span class="lifetime">&#39;static</span>,
         {
-            <span class="doccomment">/// The amount of [`GenericSender`] instances which reference this state.</span>
-            <span class="ident">senders</span>: <span class="ident">AtomicUsize</span>,
-            <span class="doccomment">/// The amount of [`GenericReceiver`] instances which reference this state.</span>
-            <span class="ident">receivers</span>: <span class="ident">AtomicUsize</span>,
-            <span class="doccomment">/// The channel on which is acted.</span>
-            <span class="ident">channel</span>: <span class="ident">GenericStateBroadcastChannel</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>,
+            <span class="doccomment">/// The amount of [`GenericSender`] instances which reference this state.
+            </span>senders: AtomicUsize,
+            <span class="doccomment">/// The amount of [`GenericReceiver`] instances which reference this state.
+            </span>receivers: AtomicUsize,
+            <span class="doccomment">/// The channel on which is acted.
+            </span>channel: GenericStateBroadcastChannel&lt;MutexType, T&gt;,
         }
 
-        <span class="comment">// Implement ChannelReceiveAccess trait for SharedChannelState, so that it can</span>
-        <span class="comment">// be used for dynamic dispatch in futures.</span>
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ChannelReceiveAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-            <span class="kw">for</span> <span class="ident">GenericStateBroadcastChannelSharedState</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="comment">// Implement ChannelReceiveAccess trait for SharedChannelState, so that it can
+        // be used for dynamic dispatch in futures.
+        </span><span class="kw">impl</span>&lt;MutexType, T&gt; ChannelReceiveAccess&lt;T&gt;
+            <span class="kw">for </span>GenericStateBroadcastChannelSharedState&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone + <span class="lifetime">&#39;static</span>,
         {
-            <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">receive_or_register</span>(
+            <span class="kw">unsafe fn </span>receive_or_register(
                 <span class="kw-2">&amp;</span><span class="self">self</span>,
-                <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
-                <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-            ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">receive_or_register</span>(<span class="ident">wait_node</span>, <span class="ident">cx</span>)
+                wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;,
+                cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+            ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;(StateId, T)&gt;&gt; {
+                <span class="self">self</span>.channel.receive_or_register(wait_node, cx)
             }
 
-            <span class="kw">fn</span> <span class="ident">remove_receive_waiter</span>(
+            <span class="kw">fn </span>remove_receive_waiter(
                 <span class="kw-2">&amp;</span><span class="self">self</span>,
-                <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
+                wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;,
             ) {
-                <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">remove_receive_waiter</span>(<span class="ident">wait_node</span>)
+                <span class="self">self</span>.channel.remove_receive_waiter(wait_node)
             }
         }
 
-        <span class="doccomment">/// A Future that is returned by the `receive` function on a state broadcast channel.</span>
-        <span class="doccomment">/// The future gets resolved with `Some((state_id, state))` when a value could be</span>
-        <span class="doccomment">/// received from the channel.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// `state` represents the new state which had been retrieved from the channel.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// `state_id` is the [`StateId`] which can be passed as a parameter to</span>
-        <span class="doccomment">/// `receive()` in order to fetch the next state from the channel.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// If the channels gets closed and no items are still enqueued inside the</span>
-        <span class="doccomment">/// channel, the future will resolve to `None`.</span>
-        <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="doccomment">/// The Channel that is associated with this StateReceiveFuture</span>
-            <span class="ident">channel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">alloc::sync::Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ChannelReceiveAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-            <span class="doccomment">/// Node for waiting on the channel</span>
-            <span class="ident">wait_node</span>: <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
-            <span class="doccomment">/// Marker for mutex type</span>
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// A Future that is returned by the `receive` function on a state broadcast channel.
+        /// The future gets resolved with `Some((state_id, state))` when a value could be
+        /// received from the channel.
+        ///
+        /// `state` represents the new state which had been retrieved from the channel.
+        ///
+        /// `state_id` is the [`StateId`] which can be passed as a parameter to
+        /// `receive()` in order to fetch the next state from the channel.
+        ///
+        /// If the channels gets closed and no items are still enqueued inside the
+        /// channel, the future will resolve to `None`.
+        </span><span class="attribute">#[must_use = <span class="string">&quot;futures do nothing unless polled&quot;</span>]
+        </span><span class="kw">pub struct </span>StateReceiveFuture&lt;MutexType, T&gt; {
+            <span class="doccomment">/// The Channel that is associated with this StateReceiveFuture
+            </span>channel: <span class="prelude-ty">Option</span>&lt;alloc::sync::Arc&lt;<span class="kw">dyn </span>ChannelReceiveAccess&lt;T&gt;&gt;&gt;,
+            <span class="doccomment">/// Node for waiting on the channel
+            </span>wait_node: ListNode&lt;RecvWaitQueueEntry&gt;,
+            <span class="doccomment">/// Marker for mutex type
+            </span>_phantom: PhantomData&lt;MutexType&gt;,
         }
 
-        <span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying</span>
-        <span class="comment">// channel is thread-safe (Sync), which allows to poll/register/unregister from</span>
-        <span class="comment">// a different thread.</span>
-        <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">Sync</span>, <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span>
-            <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+        <span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying
+        // channel is thread-safe (Sync), which allows to poll/register/unregister from
+        // a different thread.
+        </span><span class="kw">unsafe impl</span>&lt;MutexType: Sync, T: Clone + Send&gt; Send
+            <span class="kw">for </span>StateReceiveFuture&lt;MutexType, T&gt;
         {
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-                <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;StateReceiveFuture&quot;</span>).<span class="ident">finish</span>()
+        <span class="kw">impl</span>&lt;MutexType, T&gt; core::fmt::Debug <span class="kw">for </span>StateReceiveFuture&lt;MutexType, T&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+                f.debug_struct(<span class="string">&quot;StateReceiveFuture&quot;</span>).finish()
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span>;
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Future <span class="kw">for </span>StateReceiveFuture&lt;MutexType, T&gt; {
+            <span class="kw">type </span>Output = <span class="prelude-ty">Option</span>&lt;(StateId, T)&gt;;
 
-            <span class="kw">fn</span> <span class="ident">poll</span>(
-                <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-                <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-            ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-                <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.</span>
-                <span class="comment">// However this didn&#39;t seem to work for some borrow checker reasons</span>
+            <span class="kw">fn </span>poll(
+                <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+                cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+            ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;(StateId, T)&gt;&gt; {
+                <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.
+                // However this didn&#39;t seem to work for some borrow checker reasons
 
-                <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
-                <span class="comment">// the address of the wait queue entry inside StateReceiveFuture is stable,</span>
-                <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-                <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-                    <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
+                // Safety: The next operations are safe, because Pin promises us that
+                // the address of the wait queue entry inside StateReceiveFuture is stable,
+                // and we don&#39;t move any fields inside the future until it gets dropped.
+                </span><span class="kw">let </span>mut_self: <span class="kw-2">&amp;mut </span>StateReceiveFuture&lt;MutexType, T&gt; =
+                    <span class="kw">unsafe </span>{ Pin::get_unchecked_mut(<span class="self">self</span>) };
 
-                <span class="kw">let</span> <span class="ident">channel</span> <span class="op">=</span> <span class="ident">mut_self</span>
-                    .<span class="ident">channel</span>
-                    .<span class="ident">take</span>()
-                    .<span class="ident">expect</span>(<span class="string">&quot;polled StateReceiveFuture after completion&quot;</span>);
+                <span class="kw">let </span>channel = mut_self
+                    .channel
+                    .take()
+                    .expect(<span class="string">&quot;polled StateReceiveFuture after completion&quot;</span>);
 
-                <span class="kw">let</span> <span class="ident">poll_res</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-                    <span class="ident">channel</span>.<span class="ident">receive_or_register</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>)
+                <span class="kw">let </span>poll_res = <span class="kw">unsafe </span>{
+                    channel.receive_or_register(<span class="kw-2">&amp;mut </span>mut_self.wait_node, cx)
                 };
 
-                <span class="kw">if</span> <span class="ident">poll_res</span>.<span class="ident">is_ready</span>() {
-                    <span class="comment">// A value was available</span>
-                    <span class="ident">mut_self</span>.<span class="ident">channel</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                } <span class="kw">else</span> {
-                    <span class="ident">mut_self</span>.<span class="ident">channel</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">channel</span>)
+                <span class="kw">if </span>poll_res.is_ready() {
+                    <span class="comment">// A value was available
+                    </span>mut_self.channel = <span class="prelude-val">None</span>;
+                } <span class="kw">else </span>{
+                    mut_self.channel = <span class="prelude-val">Some</span>(channel)
                 }
 
-                <span class="ident">poll_res</span>
+                poll_res
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span> <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-                <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">is_none</span>()
+        <span class="kw">impl</span>&lt;MutexType, T&gt; FusedFuture <span class="kw">for </span>StateReceiveFuture&lt;MutexType, T&gt; {
+            <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+                <span class="self">self</span>.channel.is_none()
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-                <span class="comment">// If this StateReceiveFuture has been polled and it was added to the</span>
-                <span class="comment">// wait queue at the channel, it must be removed before dropping.</span>
-                <span class="comment">// Otherwise the channel would access invalid memory.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">channel</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">channel</span> {
-                    <span class="ident">channel</span>.<span class="ident">remove_receive_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Drop <span class="kw">for </span>StateReceiveFuture&lt;MutexType, T&gt; {
+            <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                <span class="comment">// If this StateReceiveFuture has been polled and it was added to the
+                // wait queue at the channel, it must be removed before dropping.
+                // Otherwise the channel would access invalid memory.
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(channel) = <span class="kw-2">&amp;</span><span class="self">self</span>.channel {
+                    channel.remove_receive_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node);
                 }
             }
         }
 
-        <span class="doccomment">/// The sending side of a channel which can be used to exchange values</span>
-        <span class="doccomment">/// between concurrent tasks.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Values can be sent into the channel through `send`.</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericStateSender</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="doccomment">/// The sending side of a channel which can be used to exchange values
+        /// between concurrent tasks.
+        ///
+        /// Values can be sent into the channel through `send`.
+        </span><span class="kw">pub struct </span>GenericStateSender&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone + <span class="lifetime">&#39;static</span>,
         {
-            <span class="ident">inner</span>: <span class="ident">alloc::sync::Arc</span><span class="op">&lt;</span>
-                <span class="ident">GenericStateBroadcastChannelSharedState</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-            <span class="op">&gt;</span>,
+            inner: alloc::sync::Arc&lt;
+                GenericStateBroadcastChannelSharedState&lt;MutexType, T&gt;,
+            &gt;,
         }
 
-        <span class="doccomment">/// The receiving side of a channel which can be used to exchange values</span>
-        <span class="doccomment">/// between concurrent tasks.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Tasks can receive values from the channel through the `receive` method.</span>
-        <span class="doccomment">/// The returned Future will get resolved when a value is sent into the channel.</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericStateReceiver</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="doccomment">/// The receiving side of a channel which can be used to exchange values
+        /// between concurrent tasks.
+        ///
+        /// Tasks can receive values from the channel through the `receive` method.
+        /// The returned Future will get resolved when a value is sent into the channel.
+        </span><span class="kw">pub struct </span>GenericStateReceiver&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone + <span class="lifetime">&#39;static</span>,
         {
-            <span class="ident">inner</span>: <span class="ident">alloc::sync::Arc</span><span class="op">&lt;</span>
-                <span class="ident">GenericStateBroadcastChannelSharedState</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-            <span class="op">&gt;</span>,
+            inner: alloc::sync::Arc&lt;
+                GenericStateBroadcastChannelSharedState&lt;MutexType, T&gt;,
+            &gt;,
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">GenericStateSender</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span>,
+        <span class="kw">impl</span>&lt;MutexType, T&gt; core::fmt::Debug <span class="kw">for </span>GenericStateSender&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone,
         {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-                <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;StateSender&quot;</span>).<span class="ident">finish</span>()
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+                f.debug_struct(<span class="string">&quot;StateSender&quot;</span>).finish()
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">GenericStateReceiver</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span>,
+        <span class="kw">impl</span>&lt;MutexType, T&gt; core::fmt::Debug <span class="kw">for </span>GenericStateReceiver&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone,
         {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-                <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;StateReceiver&quot;</span>).<span class="ident">finish</span>()
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+                f.debug_struct(<span class="string">&quot;StateReceiver&quot;</span>).finish()
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">GenericStateSender</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span>,
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Clone <span class="kw">for </span>GenericStateSender&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone,
         {
-            <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-                <span class="kw">let</span> <span class="ident">old_size</span> <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">senders</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::Relaxed</span>);
-                <span class="kw">if</span> <span class="ident">old_size</span> <span class="op">&gt;</span> (<span class="ident">core::isize::MAX</span>) <span class="kw">as</span> <span class="ident">usize</span> {
+            <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>old_size =
+                    <span class="self">self</span>.inner.senders.fetch_add(<span class="number">1</span>, Ordering::Relaxed);
+                <span class="kw">if </span>old_size &gt; (core::isize::MAX) <span class="kw">as </span>usize {
                     <span class="macro">panic!</span>(<span class="string">&quot;Reached maximum refcount&quot;</span>);
                 }
-                <span class="ident">GenericStateSender</span> {
-                    <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>(),
+                GenericStateSender {
+                    inner: <span class="self">self</span>.inner.clone(),
                 }
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">GenericStateSender</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span>,
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Drop <span class="kw">for </span>GenericStateSender&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone,
         {
-            <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">senders</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering::Release</span>) <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                <span class="kw">if </span><span class="self">self</span>.inner.senders.fetch_sub(<span class="number">1</span>, Ordering::Release) != <span class="number">1 </span>{
                     <span class="kw">return</span>;
                 }
-                <span class="ident">core::sync::atomic::fence</span>(<span class="ident">Ordering::Acquire</span>);
-                <span class="comment">// Close the channel, before last sender gets destroyed</span>
-                <span class="comment">// TODO: We could potentially avoid this, if no receiver is left</span>
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">channel</span>.<span class="ident">close</span>();
+                core::sync::atomic::fence(Ordering::Acquire);
+                <span class="comment">// Close the channel, before last sender gets destroyed
+                // TODO: We could potentially avoid this, if no receiver is left
+                </span><span class="self">self</span>.inner.channel.close();
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">GenericStateReceiver</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span>,
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Clone <span class="kw">for </span>GenericStateReceiver&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone,
         {
-            <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-                <span class="kw">let</span> <span class="ident">old_size</span> <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">receivers</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::Relaxed</span>);
-                <span class="kw">if</span> <span class="ident">old_size</span> <span class="op">&gt;</span> (<span class="ident">core::isize::MAX</span>) <span class="kw">as</span> <span class="ident">usize</span> {
+            <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>old_size =
+                    <span class="self">self</span>.inner.receivers.fetch_add(<span class="number">1</span>, Ordering::Relaxed);
+                <span class="kw">if </span>old_size &gt; (core::isize::MAX) <span class="kw">as </span>usize {
                     <span class="macro">panic!</span>(<span class="string">&quot;Reached maximum refcount&quot;</span>);
                 }
-                <span class="ident">GenericStateReceiver</span> {
-                    <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>(),
+                GenericStateReceiver {
+                    inner: <span class="self">self</span>.inner.clone(),
                 }
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">GenericStateReceiver</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span>,
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Drop <span class="kw">for </span>GenericStateReceiver&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone,
         {
-            <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">receivers</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering::Release</span>) <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                <span class="kw">if </span><span class="self">self</span>.inner.receivers.fetch_sub(<span class="number">1</span>, Ordering::Release) != <span class="number">1 </span>{
                     <span class="kw">return</span>;
                 }
-                <span class="ident">core::sync::atomic::fence</span>(<span class="ident">Ordering::Acquire</span>);
-                <span class="comment">// Close the channel, before last receiver gets destroyed</span>
-                <span class="comment">// TODO: We could potentially avoid this, if no sender is left</span>
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">channel</span>.<span class="ident">close</span>();
+                core::sync::atomic::fence(Ordering::Acquire);
+                <span class="comment">// Close the channel, before last receiver gets destroyed
+                // TODO: We could potentially avoid this, if no sender is left
+                </span><span class="self">self</span>.inner.channel.close();
             }
         }
 
-        <span class="doccomment">/// Creates a new state broadcast channel which can be used to exchange values</span>
-        <span class="doccomment">/// of type `T` between concurrent tasks.</span>
-        <span class="doccomment">/// The ends of the Channel are represented through</span>
-        <span class="doccomment">/// the returned Sender and Receiver.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// As soon es either the senders or receivers is closed, the channel</span>
-        <span class="doccomment">/// itself will be closed.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generic_state_broadcast_channel</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>() -&gt; (
-            <span class="ident">GenericStateSender</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-            <span class="ident">GenericStateReceiver</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// Creates a new state broadcast channel which can be used to exchange values
+        /// of type `T` between concurrent tasks.
+        /// The ends of the Channel are represented through
+        /// the returned Sender and Receiver.
+        ///
+        /// As soon es either the senders or receivers is closed, the channel
+        /// itself will be closed.
+        </span><span class="kw">pub fn </span>generic_state_broadcast_channel&lt;MutexType, T&gt;() -&gt; (
+            GenericStateSender&lt;MutexType, T&gt;,
+            GenericStateReceiver&lt;MutexType, T&gt;,
         )
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Send</span>,
+        <span class="kw">where
+            </span>MutexType: RawMutex,
+            T: Clone + Send,
         {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">alloc::sync::Arc::new</span>(
-                <span class="ident">GenericStateBroadcastChannelSharedState</span> {
-                    <span class="ident">channel</span>: <span class="ident">GenericStateBroadcastChannel::new</span>(),
-                    <span class="ident">senders</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">1</span>),
-                    <span class="ident">receivers</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">1</span>),
+            <span class="kw">let </span>inner = alloc::sync::Arc::new(
+                GenericStateBroadcastChannelSharedState {
+                    channel: GenericStateBroadcastChannel::new(),
+                    senders: AtomicUsize::new(<span class="number">1</span>),
+                    receivers: AtomicUsize::new(<span class="number">1</span>),
                 },
             );
 
-            <span class="kw">let</span> <span class="ident">sender</span> <span class="op">=</span> <span class="ident">GenericStateSender</span> {
-                <span class="ident">inner</span>: <span class="ident">inner</span>.<span class="ident">clone</span>(),
+            <span class="kw">let </span>sender = GenericStateSender {
+                inner: inner.clone(),
             };
-            <span class="kw">let</span> <span class="ident">receiver</span> <span class="op">=</span> <span class="ident">GenericStateReceiver</span> { <span class="ident">inner</span> };
+            <span class="kw">let </span>receiver = GenericStateReceiver { inner };
 
-            (<span class="ident">sender</span>, <span class="ident">receiver</span>)
+            (sender, receiver)
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">GenericStateSender</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span>,
+        <span class="kw">impl</span>&lt;MutexType, T&gt; GenericStateSender&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex + <span class="lifetime">&#39;static</span>,
+            T: Clone,
         {
-            <span class="doccomment">/// Writes a single value to the channel.</span>
-            <span class="doccomment">///</span>
-            <span class="doccomment">/// This will notify waiters about the availability of the value.</span>
-            <span class="doccomment">/// If a value had been written to the channel before, or if the</span>
-            <span class="doccomment">/// channel is closed, the new value will be rejected and</span>
-            <span class="doccomment">/// returned inside the error variant.</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ChannelSendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">channel</span>.<span class="ident">send</span>(<span class="ident">value</span>)
+            <span class="doccomment">/// Writes a single value to the channel.
+            ///
+            /// This will notify waiters about the availability of the value.
+            /// If a value had been written to the channel before, or if the
+            /// channel is closed, the new value will be rejected and
+            /// returned inside the error variant.
+            </span><span class="kw">pub fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, value: T) -&gt; <span class="prelude-ty">Result</span>&lt;(), ChannelSendError&lt;T&gt;&gt; {
+                <span class="self">self</span>.inner.channel.send(value)
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">GenericStateReceiver</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-            <span class="ident">T</span>: <span class="ident">Clone</span>,
+        <span class="kw">impl</span>&lt;MutexType, T&gt; GenericStateReceiver&lt;MutexType, T&gt;
+        <span class="kw">where
+            </span>MutexType: RawMutex + <span class="lifetime">&#39;static</span>,
+            T: Clone,
         {
-            <span class="doccomment">/// Returns a future that gets fulfilled when a value is written to the channel</span>
-            <span class="doccomment">/// or the channel is closed.</span>
-            <span class="doccomment">/// `state_id` specifies the minimum state ID that should be retrieved</span>
-            <span class="doccomment">/// by the `receive` operation.</span>
-            <span class="doccomment">///</span>
-            <span class="doccomment">/// The returned [`StateReceiveFuture`] will get fulfilled with the</span>
-            <span class="doccomment">/// retrieved value as well as the [`StateId`] which is required to retrieve</span>
-            <span class="doccomment">/// the following state</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">receive</span>(
+            <span class="doccomment">/// Returns a future that gets fulfilled when a value is written to the channel
+            /// or the channel is closed.
+            /// `state_id` specifies the minimum state ID that should be retrieved
+            /// by the `receive` operation.
+            ///
+            /// The returned [`StateReceiveFuture`] will get fulfilled with the
+            /// retrieved value as well as the [`StateId`] which is required to retrieve
+            /// the following state
+            </span><span class="kw">pub fn </span>receive(
                 <span class="kw-2">&amp;</span><span class="self">self</span>,
-                <span class="ident">state_id</span>: <span class="ident">StateId</span>,
-            ) -&gt; <span class="ident">StateReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-                <span class="ident">StateReceiveFuture</span> {
-                    <span class="ident">channel</span>: <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>()),
-                    <span class="ident">wait_node</span>: <span class="ident">ListNode::new</span>(<span class="ident">RecvWaitQueueEntry::new</span>(<span class="ident">state_id</span>)),
-                    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+                state_id: StateId,
+            ) -&gt; StateReceiveFuture&lt;MutexType, T&gt; {
+                StateReceiveFuture {
+                    channel: <span class="prelude-val">Some</span>(<span class="self">self</span>.inner.clone()),
+                    wait_node: ListNode::new(RecvWaitQueueEntry::new(state_id)),
+                    _phantom: PhantomData,
                 }
             }
 
-            <span class="doccomment">/// Attempt to retrieve a value whose `StateId` is greater than the one provided.</span>
-            <span class="doccomment">///</span>
-            <span class="doccomment">/// Returns `None` if no value is found in the channel, or if the current `StateId`</span>
-            <span class="doccomment">/// of the value is less or equal to the one provided.</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_receive</span>(
+            <span class="doccomment">/// Attempt to retrieve a value whose `StateId` is greater than the one provided.
+            ///
+            /// Returns `None` if no value is found in the channel, or if the current `StateId`
+            /// of the value is less or equal to the one provided.
+            </span><span class="kw">pub fn </span>try_receive(
                 <span class="kw-2">&amp;</span><span class="self">self</span>,
-                <span class="ident">state_id</span>: <span class="ident">StateId</span>,
-            ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">StateId</span>, <span class="ident">T</span>)<span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">channel</span>.<span class="ident">try_receive</span>(<span class="ident">state_id</span>)
+                state_id: StateId,
+            ) -&gt; <span class="prelude-ty">Option</span>&lt;(StateId, T)&gt; {
+                <span class="self">self</span>.inner.channel.try_receive(state_id)
             }
         }
 
-        <span class="comment">// Export parking_lot based shared channels in std mode</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-        <span class="kw">mod</span> <span class="ident">if_std</span> {
-            <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="comment">// Export parking_lot based shared channels in std mode
+        </span><span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+        </span><span class="kw">mod </span>if_std {
+            <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-            <span class="doccomment">/// A [`GenericStateSender`] implementation backed by [`parking_lot`].</span>
-            <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">StateSender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">GenericStateSender</span><span class="op">&lt;</span><span class="ident">parking_lot::RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span>;
-            <span class="doccomment">/// A [`GenericStateReceiver`] implementation backed by [`parking_lot`].</span>
-            <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">StateReceiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">GenericStateReceiver</span><span class="op">&lt;</span><span class="ident">parking_lot::RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+            <span class="doccomment">/// A [`GenericStateSender`] implementation backed by [`parking_lot`].
+            </span><span class="kw">pub type </span>StateSender&lt;T&gt; =
+                GenericStateSender&lt;parking_lot::RawMutex, T&gt;;
+            <span class="doccomment">/// A [`GenericStateReceiver`] implementation backed by [`parking_lot`].
+            </span><span class="kw">pub type </span>StateReceiver&lt;T&gt; =
+                GenericStateReceiver&lt;parking_lot::RawMutex, T&gt;;
 
-            <span class="doccomment">/// Creates a new state broadcast channel.</span>
-            <span class="doccomment">///</span>
-            <span class="doccomment">/// Refer to [`generic_state_broadcast_channel`] for details.</span>
-            <span class="doccomment">///</span>
-            <span class="doccomment">/// Example for creating a channel to transmit an integer value:</span>
-            <span class="doccomment">///</span>
-            <span class="doccomment">/// ```</span>
-            <span class="doccomment">/// # use futures_intrusive::channel::shared::state_broadcast_channel;</span>
-            <span class="doccomment">/// let (sender, receiver) = state_broadcast_channel::&lt;i32&gt;();</span>
-            <span class="doccomment">/// ```</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">state_broadcast_channel</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-            ) -&gt; (<span class="ident">StateSender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">StateReceiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
-            <span class="kw">where</span>
-                <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Send</span>,
+            <span class="doccomment">/// Creates a new state broadcast channel.
+            ///
+            /// Refer to [`generic_state_broadcast_channel`] for details.
+            ///
+            /// Example for creating a channel to transmit an integer value:
+            ///
+            /// ```
+            /// # use futures_intrusive::channel::shared::state_broadcast_channel;
+            /// let (sender, receiver) = state_broadcast_channel::&lt;i32&gt;();
+            /// ```
+            </span><span class="kw">pub fn </span>state_broadcast_channel&lt;T&gt;(
+            ) -&gt; (StateSender&lt;T&gt;, StateReceiver&lt;T&gt;)
+            <span class="kw">where
+                </span>T: Clone + Send,
             {
-                <span class="ident">generic_state_broadcast_channel</span>::<span class="op">&lt;</span><span class="ident">parking_lot::RawMutex</span>, <span class="ident">T</span><span class="op">&gt;</span>()
+                generic_state_broadcast_channel::&lt;parking_lot::RawMutex, T&gt;()
             }
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_std</span>::<span class="kw-2">*</span>;
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+        </span><span class="kw">pub use </span><span class="self">self</span>::if_std::<span class="kw-2">*</span>;
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_alloc</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::if_alloc::<span class="kw-2">*</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

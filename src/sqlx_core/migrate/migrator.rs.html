@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/migrate/migrator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>migrator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/migrate/migrator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>migrator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -229,236 +229,236 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::acquire::Acquire</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::migrate</span>::{<span class="ident">AppliedMigration</span>, <span class="ident">Migrate</span>, <span class="ident">MigrateError</span>, <span class="ident">Migration</span>, <span class="ident">MigrationSource</span>};
-<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
-<span class="kw">use</span> <span class="ident">std::ops::Deref</span>;
-<span class="kw">use</span> <span class="ident">std::slice</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::acquire::Acquire;
+<span class="kw">use </span><span class="kw">crate</span>::migrate::{AppliedMigration, Migrate, MigrateError, Migration, MigrationSource};
+<span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::collections::{HashMap, HashSet};
+<span class="kw">use </span>std::ops::Deref;
+<span class="kw">use </span>std::slice;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Migrator</span> {
-    <span class="kw">pub</span> <span class="ident">migrations</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, [<span class="ident">Migration</span>]<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">ignore_missing</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">locking</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Migrator {
+    <span class="kw">pub </span>migrations: Cow&lt;<span class="lifetime">&#39;static</span>, [Migration]&gt;,
+    <span class="kw">pub </span>ignore_missing: bool,
+    <span class="kw">pub </span>locking: bool,
 }
 
-<span class="kw">fn</span> <span class="ident">validate_applied_migrations</span>(
-    <span class="ident">applied_migrations</span>: <span class="kw-2">&amp;</span>[<span class="ident">AppliedMigration</span>],
-    <span class="ident">migrator</span>: <span class="kw-2">&amp;</span><span class="ident">Migrator</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MigrateError</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">migrator</span>.<span class="ident">ignore_missing</span> {
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+<span class="kw">fn </span>validate_applied_migrations(
+    applied_migrations: <span class="kw-2">&amp;</span>[AppliedMigration],
+    migrator: <span class="kw-2">&amp;</span>Migrator,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), MigrateError&gt; {
+    <span class="kw">if </span>migrator.ignore_missing {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
 
-    <span class="kw">let</span> <span class="ident">migrations</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">migrator</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">version</span>).<span class="ident">collect</span>();
+    <span class="kw">let </span>migrations: HashSet&lt;<span class="kw">_</span>&gt; = migrator.iter().map(|m| m.version).collect();
 
-    <span class="kw">for</span> <span class="ident">applied_migration</span> <span class="kw">in</span> <span class="ident">applied_migrations</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">migrations</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">applied_migration</span>.<span class="ident">version</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">MigrateError::VersionMissing</span>(<span class="ident">applied_migration</span>.<span class="ident">version</span>));
+    <span class="kw">for </span>applied_migration <span class="kw">in </span>applied_migrations {
+        <span class="kw">if </span>!migrations.contains(<span class="kw-2">&amp;</span>applied_migration.version) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(MigrateError::VersionMissing(applied_migration.version));
         }
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">impl</span> <span class="ident">Migrator</span> {
-    <span class="doccomment">/// Creates a new instance with the given source.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// # use sqlx_core::migrate::MigrateError;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), MigrateError&gt; {</span>
-    <span class="doccomment">/// # sqlx_rt::block_on(async move {</span>
-    <span class="doccomment">/// # use sqlx_core::migrate::Migrator;</span>
-    <span class="doccomment">/// use std::path::Path;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Read migrations from a local folder: ./migrations</span>
-    <span class="doccomment">/// let m = Migrator::new(Path::new(&quot;./migrations&quot;)).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # })</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// See [MigrationSource] for details on structure of the `./migrations` directory.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">source</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">MigrateError</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">MigrationSource</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>Migrator {
+    <span class="doccomment">/// Creates a new instance with the given source.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # use sqlx_core::migrate::MigrateError;
+    /// # fn main() -&gt; Result&lt;(), MigrateError&gt; {
+    /// # sqlx_rt::block_on(async move {
+    /// # use sqlx_core::migrate::Migrator;
+    /// use std::path::Path;
+    ///
+    /// // Read migrations from a local folder: ./migrations
+    /// let m = Migrator::new(Path::new(&quot;./migrations&quot;)).await?;
+    /// # Ok(())
+    /// # })
+    /// # }
+    /// ```
+    /// See [MigrationSource] for details on structure of the `./migrations` directory.
+    </span><span class="kw">pub async fn </span>new&lt;<span class="lifetime">&#39;s</span>, S&gt;(source: S) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, MigrateError&gt;
+    <span class="kw">where
+        </span>S: MigrationSource&lt;<span class="lifetime">&#39;s</span>&gt;,
     {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">migrations</span>: <span class="ident">Cow::Owned</span>(<span class="ident">source</span>.<span class="ident">resolve</span>().<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="ident">MigrateError::Source</span>)<span class="question-mark">?</span>),
-            <span class="ident">ignore_missing</span>: <span class="bool-val">false</span>,
-            <span class="ident">locking</span>: <span class="bool-val">true</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            migrations: Cow::Owned(source.resolve().<span class="kw">await</span>.map_err(MigrateError::Source)<span class="question-mark">?</span>),
+            ignore_missing: <span class="bool-val">false</span>,
+            locking: <span class="bool-val">true</span>,
         })
     }
 
-    <span class="doccomment">/// Specify whether applied migrations that are missing from the resolved migrations should be ignored.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_ignore_missing</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ignore_missing</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">ignore_missing</span> <span class="op">=</span> <span class="ident">ignore_missing</span>;
-        <span class="self">self</span>
+    <span class="doccomment">/// Specify whether applied migrations that are missing from the resolved migrations should be ignored.
+    </span><span class="kw">pub fn </span>set_ignore_missing(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ignore_missing: bool) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
+        <span class="self">self</span>.ignore_missing = ignore_missing;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Specify whether or not to lock database during migration. Defaults to `true`.
+    ///
+    /// ### Warning
+    /// Disabling locking can lead to errors or data loss if multiple clients attempt to apply migrations simultaneously
+    /// without some sort of mutual exclusion.
+    ///
+    /// This should only be used if the database does not support locking, e.g. CockroachDB which talks the Postgres
+    /// protocol but does not support advisory locks used by SQLx&#39;s migrations support for Postgres.
+    </span><span class="kw">pub fn </span>set_locking(<span class="kw-2">&amp;mut </span><span class="self">self</span>, locking: bool) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
+        <span class="self">self</span>.locking = locking;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Get an iterator over all known migrations.
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; slice::Iter&lt;<span class="lifetime">&#39;_</span>, Migration&gt; {
+        <span class="self">self</span>.migrations.iter()
     }
 
-    <span class="doccomment">/// Specify whether or not to lock database during migration. Defaults to `true`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Warning</span>
-    <span class="doccomment">/// Disabling locking can lead to errors or data loss if multiple clients attempt to apply migrations simultaneously</span>
-    <span class="doccomment">/// without some sort of mutual exclusion.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This should only be used if the database does not support locking, e.g. CockroachDB which talks the Postgres</span>
-    <span class="doccomment">/// protocol but does not support advisory locks used by SQLx&#39;s migrations support for Postgres.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_locking</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">locking</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">locking</span> <span class="op">=</span> <span class="ident">locking</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Get an iterator over all known migrations.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">slice::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Migration</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">migrations</span>.<span class="ident">iter</span>()
-    }
-
-    <span class="doccomment">/// Run any pending migrations against the database; and, validate previously applied migrations</span>
-    <span class="doccomment">/// against the current migration source to detect accidental changes in previously-applied migrations.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// # use sqlx_core::migrate::MigrateError;</span>
-    <span class="doccomment">/// # #[cfg(feature = &quot;sqlite&quot;)]</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), MigrateError&gt; {</span>
-    <span class="doccomment">/// #     sqlx_rt::block_on(async move {</span>
-    <span class="doccomment">/// # use sqlx_core::migrate::Migrator;</span>
-    <span class="doccomment">/// let m = Migrator::new(std::path::Path::new(&quot;./migrations&quot;)).await?;</span>
-    <span class="doccomment">/// let pool = sqlx_core::sqlite::SqlitePoolOptions::new().connect(&quot;sqlite::memory:&quot;).await?;</span>
-    <span class="doccomment">/// m.run(&amp;pool).await</span>
-    <span class="doccomment">/// #     })</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">migrator</span>: <span class="ident">A</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MigrateError</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">Acquire</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">A::Connection</span> <span class="kw">as</span> <span class="ident">Deref</span><span class="op">&gt;</span><span class="ident">::Target</span>: <span class="ident">Migrate</span>,
+    <span class="doccomment">/// Run any pending migrations against the database; and, validate previously applied migrations
+    /// against the current migration source to detect accidental changes in previously-applied migrations.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # use sqlx_core::migrate::MigrateError;
+    /// # #[cfg(feature = &quot;sqlite&quot;)]
+    /// # fn main() -&gt; Result&lt;(), MigrateError&gt; {
+    /// #     sqlx_rt::block_on(async move {
+    /// # use sqlx_core::migrate::Migrator;
+    /// let m = Migrator::new(std::path::Path::new(&quot;./migrations&quot;)).await?;
+    /// let pool = sqlx_core::sqlite::SqlitePoolOptions::new().connect(&quot;sqlite::memory:&quot;).await?;
+    /// m.run(&amp;pool).await
+    /// #     })
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>run&lt;<span class="lifetime">&#39;a</span>, A&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, migrator: A) -&gt; <span class="prelude-ty">Result</span>&lt;(), MigrateError&gt;
+    <span class="kw">where
+        </span>A: Acquire&lt;<span class="lifetime">&#39;a</span>&gt;,
+        &lt;A::Connection <span class="kw">as </span>Deref&gt;::Target: Migrate,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">migrator</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">run_direct</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span>
-    }
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = migrator.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="self">self</span>.run_direct(<span class="kw-2">&amp;mut *</span>conn).<span class="kw">await
+    </span>}
 
-    <span class="comment">// Getting around the annoying &quot;implementation of `Acquire` is not general enough&quot; error</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run_direct</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">C</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MigrateError</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">Migrate</span>,
+    <span class="comment">// Getting around the annoying &quot;implementation of `Acquire` is not general enough&quot; error
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub async fn </span>run_direct&lt;C&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, conn: <span class="kw-2">&amp;mut </span>C) -&gt; <span class="prelude-ty">Result</span>&lt;(), MigrateError&gt;
+    <span class="kw">where
+        </span>C: Migrate,
     {
-        <span class="comment">// lock the database for exclusive access by the migrator</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">locking</span> {
-            <span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// lock the database for exclusive access by the migrator
+        </span><span class="kw">if </span><span class="self">self</span>.locking {
+            conn.lock().<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        <span class="comment">// creates [_migrations] table only if needed</span>
-        <span class="comment">// eventually this will likely migrate previous versions of the table</span>
-        <span class="ident">conn</span>.<span class="ident">ensure_migrations_table</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// creates [_migrations] table only if needed
+        // eventually this will likely migrate previous versions of the table
+        </span>conn.ensure_migrations_table().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">dirty_version</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">version</span>) <span class="op">=</span> <span class="ident">version</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">MigrateError::Dirty</span>(<span class="ident">version</span>));
+        <span class="kw">let </span>version = conn.dirty_version().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(version) = version {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(MigrateError::Dirty(version));
         }
 
-        <span class="kw">let</span> <span class="ident">applied_migrations</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">list_applied_migrations</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">validate_applied_migrations</span>(<span class="kw-2">&amp;</span><span class="ident">applied_migrations</span>, <span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>applied_migrations = conn.list_applied_migrations().<span class="kw">await</span><span class="question-mark">?</span>;
+        validate_applied_migrations(<span class="kw-2">&amp;</span>applied_migrations, <span class="self">self</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">applied_migrations</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">applied_migrations</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> (<span class="ident">m</span>.<span class="ident">version</span>, <span class="ident">m</span>))
-            .<span class="ident">collect</span>();
+        <span class="kw">let </span>applied_migrations: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = applied_migrations
+            .into_iter()
+            .map(|m| (m.version, m))
+            .collect();
 
-        <span class="kw">for</span> <span class="ident">migration</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>() {
-            <span class="kw">if</span> <span class="ident">migration</span>.<span class="ident">migration_type</span>.<span class="ident">is_down_migration</span>() {
+        <span class="kw">for </span>migration <span class="kw">in </span><span class="self">self</span>.iter() {
+            <span class="kw">if </span>migration.migration_type.is_down_migration() {
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">match</span> <span class="ident">applied_migrations</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">migration</span>.<span class="ident">version</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">applied_migration</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">migration</span>.<span class="ident">checksum</span> <span class="op">!</span><span class="op">=</span> <span class="ident">applied_migration</span>.<span class="ident">checksum</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">MigrateError::VersionMismatch</span>(<span class="ident">migration</span>.<span class="ident">version</span>));
+            <span class="kw">match </span>applied_migrations.get(<span class="kw-2">&amp;</span>migration.version) {
+                <span class="prelude-val">Some</span>(applied_migration) =&gt; {
+                    <span class="kw">if </span>migration.checksum != applied_migration.checksum {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(MigrateError::VersionMismatch(migration.version));
                     }
                 }
-                <span class="prelude-val">None</span> =&gt; {
-                    <span class="ident">conn</span>.<span class="ident">apply</span>(<span class="ident">migration</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="prelude-val">None </span>=&gt; {
+                    conn.apply(migration).<span class="kw">await</span><span class="question-mark">?</span>;
                 }
             }
         }
 
-        <span class="comment">// unlock the migrator to allow other migrators to run</span>
-        <span class="comment">// but do nothing as we already migrated</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">locking</span> {
-            <span class="ident">conn</span>.<span class="ident">unlock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// unlock the migrator to allow other migrators to run
+        // but do nothing as we already migrated
+        </span><span class="kw">if </span><span class="self">self</span>.locking {
+            conn.unlock().<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Run down migrations against the database until a specific version.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// # use sqlx_core::migrate::MigrateError;</span>
-    <span class="doccomment">/// # #[cfg(feature = &quot;sqlite&quot;)]</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), MigrateError&gt; {</span>
-    <span class="doccomment">/// #     sqlx_rt::block_on(async move {</span>
-    <span class="doccomment">/// # use sqlx_core::migrate::Migrator;</span>
-    <span class="doccomment">/// let m = Migrator::new(std::path::Path::new(&quot;./migrations&quot;)).await?;</span>
-    <span class="doccomment">/// let pool = sqlx_core::sqlite::SqlitePoolOptions::new().connect(&quot;sqlite::memory:&quot;).await?;</span>
-    <span class="doccomment">/// m.undo(&amp;pool, 4).await</span>
-    <span class="doccomment">/// #     })</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">undo</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">migrator</span>: <span class="ident">A</span>, <span class="ident">target</span>: <span class="ident">i64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MigrateError</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">Acquire</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">A::Connection</span> <span class="kw">as</span> <span class="ident">Deref</span><span class="op">&gt;</span><span class="ident">::Target</span>: <span class="ident">Migrate</span>,
+    <span class="doccomment">/// Run down migrations against the database until a specific version.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # use sqlx_core::migrate::MigrateError;
+    /// # #[cfg(feature = &quot;sqlite&quot;)]
+    /// # fn main() -&gt; Result&lt;(), MigrateError&gt; {
+    /// #     sqlx_rt::block_on(async move {
+    /// # use sqlx_core::migrate::Migrator;
+    /// let m = Migrator::new(std::path::Path::new(&quot;./migrations&quot;)).await?;
+    /// let pool = sqlx_core::sqlite::SqlitePoolOptions::new().connect(&quot;sqlite::memory:&quot;).await?;
+    /// m.undo(&amp;pool, 4).await
+    /// #     })
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>undo&lt;<span class="lifetime">&#39;a</span>, A&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, migrator: A, target: i64) -&gt; <span class="prelude-ty">Result</span>&lt;(), MigrateError&gt;
+    <span class="kw">where
+        </span>A: Acquire&lt;<span class="lifetime">&#39;a</span>&gt;,
+        &lt;A::Connection <span class="kw">as </span>Deref&gt;::Target: Migrate,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">migrator</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = migrator.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// lock the database for exclusive access by the migrator</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">locking</span> {
-            <span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// lock the database for exclusive access by the migrator
+        </span><span class="kw">if </span><span class="self">self</span>.locking {
+            conn.lock().<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        <span class="comment">// creates [_migrations] table only if needed</span>
-        <span class="comment">// eventually this will likely migrate previous versions of the table</span>
-        <span class="ident">conn</span>.<span class="ident">ensure_migrations_table</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// creates [_migrations] table only if needed
+        // eventually this will likely migrate previous versions of the table
+        </span>conn.ensure_migrations_table().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">dirty_version</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">version</span>) <span class="op">=</span> <span class="ident">version</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">MigrateError::Dirty</span>(<span class="ident">version</span>));
+        <span class="kw">let </span>version = conn.dirty_version().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(version) = version {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(MigrateError::Dirty(version));
         }
 
-        <span class="kw">let</span> <span class="ident">applied_migrations</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">list_applied_migrations</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">validate_applied_migrations</span>(<span class="kw-2">&amp;</span><span class="ident">applied_migrations</span>, <span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>applied_migrations = conn.list_applied_migrations().<span class="kw">await</span><span class="question-mark">?</span>;
+        validate_applied_migrations(<span class="kw-2">&amp;</span>applied_migrations, <span class="self">self</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">applied_migrations</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">applied_migrations</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> (<span class="ident">m</span>.<span class="ident">version</span>, <span class="ident">m</span>))
-            .<span class="ident">collect</span>();
+        <span class="kw">let </span>applied_migrations: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = applied_migrations
+            .into_iter()
+            .map(|m| (m.version, m))
+            .collect();
 
-        <span class="kw">for</span> <span class="ident">migration</span> <span class="kw">in</span> <span class="self">self</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">rev</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">migration_type</span>.<span class="ident">is_down_migration</span>())
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">applied_migrations</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">version</span>))
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">version</span> <span class="op">&gt;</span> <span class="ident">target</span>)
+        <span class="kw">for </span>migration <span class="kw">in </span><span class="self">self
+            </span>.iter()
+            .rev()
+            .filter(|m| m.migration_type.is_down_migration())
+            .filter(|m| applied_migrations.contains_key(<span class="kw-2">&amp;</span>m.version))
+            .filter(|m| m.version &gt; target)
         {
-            <span class="ident">conn</span>.<span class="ident">revert</span>(<span class="ident">migration</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            conn.revert(migration).<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        <span class="comment">// unlock the migrator to allow other migrators to run</span>
-        <span class="comment">// but do nothing as we already migrated</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">locking</span> {
-            <span class="ident">conn</span>.<span class="ident">unlock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// unlock the migrator to allow other migrators to run
+        // but do nothing as we already migrated
+        </span><span class="kw">if </span><span class="self">self</span>.locking {
+            conn.unlock().<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

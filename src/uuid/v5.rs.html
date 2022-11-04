@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-1.2.1/src/v5.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>v5.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../uuid/index.html"><div class="logo-container"><img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../uuid/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-1.2.1/src/v5.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>v5.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../uuid/index.html"><div class="logo-container"><img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../uuid/index.html"><div class="logo-container">
                     <img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../uuid/index.html">
                         <img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -162,167 +162,167 @@
 <span id="160">160</span>
 <span id="161">161</span>
 <span id="162">162</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Uuid</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::Uuid;
 
-<span class="kw">impl</span> <span class="ident">Uuid</span> {
-    <span class="doccomment">/// Creates a UUID using a name from a namespace, based on the SHA-1 hash.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A number of namespaces are available as constants in this crate:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * [`NAMESPACE_DNS`]</span>
-    <span class="doccomment">/// * [`NAMESPACE_OID`]</span>
-    <span class="doccomment">/// * [`NAMESPACE_URL`]</span>
-    <span class="doccomment">/// * [`NAMESPACE_X500`]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that usage of this method requires the `v5` feature of this crate</span>
-    <span class="doccomment">/// to be enabled.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Generating a SHA1 DNS UUID for `rust-lang.org`:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use uuid::{Uuid, Version};</span>
-    <span class="doccomment">/// let uuid = Uuid::new_v5(&amp;Uuid::NAMESPACE_DNS, b&quot;rust-lang.org&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(Some(Version::Sha1), uuid.get_version());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # References</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * [Version 3 and 5 UUIDs in RFC4122](https://www.rfc-editor.org/rfc/rfc4122#section-4.3)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`NAMESPACE_DNS`]: struct.Uuid.html#associatedconst.NAMESPACE_DNS</span>
-    <span class="doccomment">/// [`NAMESPACE_OID`]: struct.Uuid.html#associatedconst.NAMESPACE_OID</span>
-    <span class="doccomment">/// [`NAMESPACE_URL`]: struct.Uuid.html#associatedconst.NAMESPACE_URL</span>
-    <span class="doccomment">/// [`NAMESPACE_X500`]: struct.Uuid.html#associatedconst.NAMESPACE_X500</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_v5</span>(<span class="ident">namespace</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Uuid</span> {
-        <span class="ident"><span class="kw">crate</span>::Builder::from_sha1_bytes</span>(<span class="ident"><span class="kw">crate</span>::sha1::hash</span>(<span class="ident">namespace</span>.<span class="ident">as_bytes</span>(), <span class="ident">name</span>)).<span class="ident">into_uuid</span>()
+<span class="kw">impl </span>Uuid {
+    <span class="doccomment">/// Creates a UUID using a name from a namespace, based on the SHA-1 hash.
+    ///
+    /// A number of namespaces are available as constants in this crate:
+    ///
+    /// * [`NAMESPACE_DNS`]
+    /// * [`NAMESPACE_OID`]
+    /// * [`NAMESPACE_URL`]
+    /// * [`NAMESPACE_X500`]
+    ///
+    /// Note that usage of this method requires the `v5` feature of this crate
+    /// to be enabled.
+    ///
+    /// # Examples
+    ///
+    /// Generating a SHA1 DNS UUID for `rust-lang.org`:
+    ///
+    /// ```
+    /// # use uuid::{Uuid, Version};
+    /// let uuid = Uuid::new_v5(&amp;Uuid::NAMESPACE_DNS, b&quot;rust-lang.org&quot;);
+    ///
+    /// assert_eq!(Some(Version::Sha1), uuid.get_version());
+    /// ```
+    ///
+    /// # References
+    ///
+    /// * [Version 3 and 5 UUIDs in RFC4122](https://www.rfc-editor.org/rfc/rfc4122#section-4.3)
+    ///
+    /// [`NAMESPACE_DNS`]: struct.Uuid.html#associatedconst.NAMESPACE_DNS
+    /// [`NAMESPACE_OID`]: struct.Uuid.html#associatedconst.NAMESPACE_OID
+    /// [`NAMESPACE_URL`]: struct.Uuid.html#associatedconst.NAMESPACE_URL
+    /// [`NAMESPACE_X500`]: struct.Uuid.html#associatedconst.NAMESPACE_X500
+    </span><span class="kw">pub fn </span>new_v5(namespace: <span class="kw-2">&amp;</span>Uuid, name: <span class="kw-2">&amp;</span>[u8]) -&gt; Uuid {
+        <span class="kw">crate</span>::Builder::from_sha1_bytes(<span class="kw">crate</span>::sha1::hash(namespace.as_bytes(), name)).into_uuid()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-    <span class="kw">use</span> <span class="ident">wasm_bindgen_test</span>::<span class="kw-2">*</span>;
+    <span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    </span><span class="kw">use </span>wasm_bindgen_test::<span class="kw-2">*</span>;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">std::string::ToString</span>, <span class="ident">Variant</span>, <span class="ident">Version</span>};
+    <span class="kw">use crate</span>::{std::string::ToString, Variant, Version};
 
-    <span class="kw">static</span> <span class="ident">FIXTURE</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Uuid</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>)] <span class="op">=</span> <span class="kw-2">&amp;</span>[
+    <span class="kw">static </span>FIXTURE: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Uuid, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)] = <span class="kw-2">&amp;</span>[
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_DNS</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS,
             <span class="string">&quot;example.org&quot;</span>,
             <span class="string">&quot;aad03681-8b63-5304-89e0-8ca8f49461b5&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_DNS</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS,
             <span class="string">&quot;rust-lang.org&quot;</span>,
             <span class="string">&quot;c66bbb60-d62e-5f17-a399-3a0bd237c503&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_DNS</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS,
             <span class="string">&quot;42&quot;</span>,
             <span class="string">&quot;7c411b5e-9d3f-50b5-9c28-62096e41c4ed&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_DNS</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS,
             <span class="string">&quot;lorem ipsum&quot;</span>,
             <span class="string">&quot;97886a05-8a68-5743-ad55-56ab2d61cf7b&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_URL</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_URL,
             <span class="string">&quot;example.org&quot;</span>,
             <span class="string">&quot;54a35416-963c-5dd6-a1e2-5ab7bb5bafc7&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_URL</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_URL,
             <span class="string">&quot;rust-lang.org&quot;</span>,
             <span class="string">&quot;c48d927f-4122-5413-968c-598b1780e749&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_URL</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_URL,
             <span class="string">&quot;42&quot;</span>,
             <span class="string">&quot;5c2b23de-4bad-58ee-a4b3-f22f3b9cfd7d&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_URL</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_URL,
             <span class="string">&quot;lorem ipsum&quot;</span>,
             <span class="string">&quot;15c67689-4b85-5253-86b4-49fbb138569f&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_OID</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_OID,
             <span class="string">&quot;example.org&quot;</span>,
             <span class="string">&quot;34784df9-b065-5094-92c7-00bb3da97a30&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_OID</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_OID,
             <span class="string">&quot;rust-lang.org&quot;</span>,
             <span class="string">&quot;8ef61ecb-977a-5844-ab0f-c25ef9b8d5d6&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_OID</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_OID,
             <span class="string">&quot;42&quot;</span>,
             <span class="string">&quot;ba293c61-ad33-57b9-9671-f3319f57d789&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_OID</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_OID,
             <span class="string">&quot;lorem ipsum&quot;</span>,
             <span class="string">&quot;6485290d-f79e-5380-9e64-cb4312c7b4a6&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_X500</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_X500,
             <span class="string">&quot;example.org&quot;</span>,
             <span class="string">&quot;e3635e86-f82b-5bbc-a54a-da97923e5c76&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_X500</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_X500,
             <span class="string">&quot;rust-lang.org&quot;</span>,
             <span class="string">&quot;26c9c3e9-49b7-56da-8b9f-a0fb916a71a3&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_X500</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_X500,
             <span class="string">&quot;42&quot;</span>,
             <span class="string">&quot;e4b88014-47c6-5fe0-a195-13710e5f6e27&quot;</span>,
         ),
         (
-            <span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_X500</span>,
+            <span class="kw-2">&amp;</span>Uuid::NAMESPACE_X500,
             <span class="string">&quot;lorem ipsum&quot;</span>,
             <span class="string">&quot;b11f79a5-1e6d-57ce-a4b5-ba8531ea03d0&quot;</span>,
         ),
     ];
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">wasm_bindgen_test</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">test_get_version</span>() {
-        <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">Uuid::NAMESPACE_DNS</span>, <span class="string">&quot;rust-lang.org&quot;</span>.<span class="ident">as_bytes</span>());
+    <span class="attribute">#[test]
+    #[cfg_attr(target_arch = <span class="string">&quot;wasm32&quot;</span>, wasm_bindgen_test)]
+    </span><span class="kw">fn </span>test_get_version() {
+        <span class="kw">let </span>uuid = Uuid::new_v5(<span class="kw-2">&amp;</span>Uuid::NAMESPACE_DNS, <span class="string">&quot;rust-lang.org&quot;</span>.as_bytes());
 
-        <span class="macro">assert_eq!</span>(<span class="ident">uuid</span>.<span class="ident">get_version</span>(), <span class="prelude-val">Some</span>(<span class="ident">Version::Sha1</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">uuid</span>.<span class="ident">get_version_num</span>(), <span class="number">5</span>);
+        <span class="macro">assert_eq!</span>(uuid.get_version(), <span class="prelude-val">Some</span>(Version::Sha1));
+        <span class="macro">assert_eq!</span>(uuid.get_version_num(), <span class="number">5</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">wasm_bindgen_test</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">test_hyphenated</span>() {
-        <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">ns</span>, <span class="kw-2">ref</span> <span class="ident">name</span>, <span class="kw-2">ref</span> <span class="ident">expected</span>) <span class="kw">in</span> <span class="ident">FIXTURE</span> {
-            <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">*</span><span class="ident">ns</span>, <span class="ident">name</span>.<span class="ident">as_bytes</span>());
+    <span class="attribute">#[test]
+    #[cfg_attr(target_arch = <span class="string">&quot;wasm32&quot;</span>, wasm_bindgen_test)]
+    </span><span class="kw">fn </span>test_hyphenated() {
+        <span class="kw">for </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>ns, <span class="kw-2">ref </span>name, <span class="kw-2">ref </span>expected) <span class="kw">in </span>FIXTURE {
+            <span class="kw">let </span>uuid = Uuid::new_v5(<span class="kw-2">*</span>ns, name.as_bytes());
 
-            <span class="macro">assert_eq!</span>(<span class="ident">uuid</span>.<span class="ident">hyphenated</span>().<span class="ident">to_string</span>(), <span class="kw-2">*</span><span class="ident">expected</span>)
+            <span class="macro">assert_eq!</span>(uuid.hyphenated().to_string(), <span class="kw-2">*</span>expected)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">wasm_bindgen_test</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">test_new</span>() {
-        <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">ns</span>, <span class="kw-2">ref</span> <span class="ident">name</span>, <span class="kw-2">ref</span> <span class="ident">u</span>) <span class="kw">in</span> <span class="ident">FIXTURE</span> {
-            <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">*</span><span class="ident">ns</span>, <span class="ident">name</span>.<span class="ident">as_bytes</span>());
+    <span class="attribute">#[test]
+    #[cfg_attr(target_arch = <span class="string">&quot;wasm32&quot;</span>, wasm_bindgen_test)]
+    </span><span class="kw">fn </span>test_new() {
+        <span class="kw">for </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>ns, <span class="kw-2">ref </span>name, <span class="kw-2">ref </span>u) <span class="kw">in </span>FIXTURE {
+            <span class="kw">let </span>uuid = Uuid::new_v5(<span class="kw-2">*</span>ns, name.as_bytes());
 
-            <span class="macro">assert_eq!</span>(<span class="ident">uuid</span>.<span class="ident">get_version</span>(), <span class="prelude-val">Some</span>(<span class="ident">Version::Sha1</span>));
-            <span class="macro">assert_eq!</span>(<span class="ident">uuid</span>.<span class="ident">get_variant</span>(), <span class="ident">Variant::RFC4122</span>);
-            <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(<span class="ident">uuid</span>), <span class="ident">u</span>.<span class="ident">parse</span>());
+            <span class="macro">assert_eq!</span>(uuid.get_version(), <span class="prelude-val">Some</span>(Version::Sha1));
+            <span class="macro">assert_eq!</span>(uuid.get_variant(), Variant::RFC4122);
+            <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(uuid), u.parse());
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="uuid" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="uuid" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

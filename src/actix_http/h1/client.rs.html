@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h1/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h1/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -239,244 +239,244 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">io</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{fmt, io};
 
-<span class="kw">use</span> <span class="ident">actix_codec</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>};
-<span class="kw">use</span> <span class="ident">bitflags::bitflags</span>;
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
-<span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">Method</span>, <span class="ident">Version</span>};
+<span class="kw">use </span>actix_codec::{Decoder, Encoder};
+<span class="kw">use </span>bitflags::bitflags;
+<span class="kw">use </span>bytes::{Bytes, BytesMut};
+<span class="kw">use </span>http::{Method, Version};
 
-<span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">decoder</span>::{<span class="self">self</span>, <span class="ident">PayloadDecoder</span>, <span class="ident">PayloadItem</span>, <span class="ident">PayloadType</span>},
-    <span class="ident">encoder</span>, <span class="ident">reserve_readbuf</span>, <span class="ident">Message</span>, <span class="ident">MessageType</span>,
+<span class="kw">use super</span>::{
+    decoder::{<span class="self">self</span>, PayloadDecoder, PayloadItem, PayloadType},
+    encoder, reserve_readbuf, Message, MessageType,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body::BodySize</span>,
-    <span class="ident">error</span>::{<span class="ident">ParseError</span>, <span class="ident">PayloadError</span>},
-    <span class="ident">ConnectionType</span>, <span class="ident">RequestHeadType</span>, <span class="ident">ResponseHead</span>, <span class="ident">ServiceConfig</span>,
+<span class="kw">use crate</span>::{
+    body::BodySize,
+    error::{ParseError, PayloadError},
+    ConnectionType, RequestHeadType, ResponseHead, ServiceConfig,
 };
 
-<span class="macro">bitflags!</span> {
-    <span class="kw">struct</span> <span class="ident">Flags</span>: <span class="ident">u8</span> {
-        <span class="kw">const</span> <span class="ident">HEAD</span>               <span class="op">=</span> <span class="number">0b0000_0001</span>;
-        <span class="kw">const</span> <span class="ident">KEEP_ALIVE_ENABLED</span> <span class="op">=</span> <span class="number">0b0000_1000</span>;
-        <span class="kw">const</span> <span class="ident">STREAM</span>             <span class="op">=</span> <span class="number">0b0001_0000</span>;
+<span class="macro">bitflags! </span>{
+    <span class="kw">struct </span>Flags: u8 {
+        <span class="kw">const </span>HEAD               = <span class="number">0b0000_0001</span>;
+        <span class="kw">const </span>KEEP_ALIVE_ENABLED = <span class="number">0b0000_1000</span>;
+        <span class="kw">const </span>STREAM             = <span class="number">0b0001_0000</span>;
     }
 }
 
-<span class="doccomment">/// HTTP/1 Codec</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ClientCodec</span> {
-    <span class="ident">inner</span>: <span class="ident">ClientCodecInner</span>,
+<span class="doccomment">/// HTTP/1 Codec
+</span><span class="kw">pub struct </span>ClientCodec {
+    inner: ClientCodecInner,
 }
 
-<span class="doccomment">/// HTTP/1 Payload Codec</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ClientPayloadCodec</span> {
-    <span class="ident">inner</span>: <span class="ident">ClientCodecInner</span>,
+<span class="doccomment">/// HTTP/1 Payload Codec
+</span><span class="kw">pub struct </span>ClientPayloadCodec {
+    inner: ClientCodecInner,
 }
 
-<span class="kw">struct</span> <span class="ident">ClientCodecInner</span> {
-    <span class="ident">config</span>: <span class="ident">ServiceConfig</span>,
-    <span class="ident">decoder</span>: <span class="ident">decoder::MessageDecoder</span><span class="op">&lt;</span><span class="ident">ResponseHead</span><span class="op">&gt;</span>,
-    <span class="ident">payload</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PayloadDecoder</span><span class="op">&gt;</span>,
-    <span class="ident">version</span>: <span class="ident">Version</span>,
-    <span class="ident">conn_type</span>: <span class="ident">ConnectionType</span>,
+<span class="kw">struct </span>ClientCodecInner {
+    config: ServiceConfig,
+    decoder: decoder::MessageDecoder&lt;ResponseHead&gt;,
+    payload: <span class="prelude-ty">Option</span>&lt;PayloadDecoder&gt;,
+    version: Version,
+    conn_type: ConnectionType,
 
-    <span class="comment">// encoder part</span>
-    <span class="ident">flags</span>: <span class="ident">Flags</span>,
-    <span class="ident">encoder</span>: <span class="ident">encoder::MessageEncoder</span><span class="op">&lt;</span><span class="ident">RequestHeadType</span><span class="op">&gt;</span>,
+    <span class="comment">// encoder part
+    </span>flags: Flags,
+    encoder: encoder::MessageEncoder&lt;RequestHeadType&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ClientCodec</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ClientCodec::new</span>(<span class="ident">ServiceConfig::default</span>())
+<span class="kw">impl </span>Default <span class="kw">for </span>ClientCodec {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        ClientCodec::new(ServiceConfig::default())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">ClientCodec</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;h1::ClientCodec&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;flags&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">flags</span>)
-            .<span class="ident">finish_non_exhaustive</span>()
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ClientCodec {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;h1::ClientCodec&quot;</span>)
+            .field(<span class="string">&quot;flags&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.inner.flags)
+            .finish_non_exhaustive()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ClientCodec</span> {
-    <span class="doccomment">/// Create HTTP/1 codec.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `keepalive_enabled` how response `connection` header get generated.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">config</span>: <span class="ident">ServiceConfig</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">keep_alive</span>().<span class="ident">enabled</span>() {
-            <span class="ident">Flags::KEEP_ALIVE_ENABLED</span>
-        } <span class="kw">else</span> {
-            <span class="ident">Flags::empty</span>()
+<span class="kw">impl </span>ClientCodec {
+    <span class="doccomment">/// Create HTTP/1 codec.
+    ///
+    /// `keepalive_enabled` how response `connection` header get generated.
+    </span><span class="kw">pub fn </span>new(config: ServiceConfig) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>flags = <span class="kw">if </span>config.keep_alive().enabled() {
+            Flags::KEEP_ALIVE_ENABLED
+        } <span class="kw">else </span>{
+            Flags::empty()
         };
 
-        <span class="ident">ClientCodec</span> {
-            <span class="ident">inner</span>: <span class="ident">ClientCodecInner</span> {
-                <span class="ident">config</span>,
-                <span class="ident">decoder</span>: <span class="ident">decoder::MessageDecoder::default</span>(),
-                <span class="ident">payload</span>: <span class="prelude-val">None</span>,
-                <span class="ident">version</span>: <span class="ident">Version::HTTP_11</span>,
-                <span class="ident">conn_type</span>: <span class="ident">ConnectionType::Close</span>,
+        ClientCodec {
+            inner: ClientCodecInner {
+                config,
+                decoder: decoder::MessageDecoder::default(),
+                payload: <span class="prelude-val">None</span>,
+                version: Version::HTTP_11,
+                conn_type: ConnectionType::Close,
 
-                <span class="ident">flags</span>,
-                <span class="ident">encoder</span>: <span class="ident">encoder::MessageEncoder::default</span>(),
+                flags,
+                encoder: encoder::MessageEncoder::default(),
             },
         }
     }
 
-    <span class="doccomment">/// Check if request is upgrade</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">conn_type</span> <span class="op">==</span> <span class="ident">ConnectionType::Upgrade</span>
+    <span class="doccomment">/// Check if request is upgrade
+    </span><span class="kw">pub fn </span>upgrade(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.inner.conn_type == ConnectionType::Upgrade
     }
 
-    <span class="doccomment">/// Check if last response is keep-alive</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">conn_type</span> <span class="op">==</span> <span class="ident">ConnectionType::KeepAlive</span>
+    <span class="doccomment">/// Check if last response is keep-alive
+    </span><span class="kw">pub fn </span>keep_alive(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.inner.conn_type == ConnectionType::KeepAlive
     }
 
-    <span class="doccomment">/// Check last request&#39;s message type</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">MessageType</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::STREAM</span>) {
-            <span class="ident">MessageType::Stream</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">payload</span>.<span class="ident">is_none</span>() {
-            <span class="ident">MessageType::None</span>
-        } <span class="kw">else</span> {
-            <span class="ident">MessageType::Payload</span>
+    <span class="doccomment">/// Check last request&#39;s message type
+    </span><span class="kw">pub fn </span>message_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MessageType {
+        <span class="kw">if </span><span class="self">self</span>.inner.flags.contains(Flags::STREAM) {
+            MessageType::Stream
+        } <span class="kw">else if </span><span class="self">self</span>.inner.payload.is_none() {
+            MessageType::None
+        } <span class="kw">else </span>{
+            MessageType::Payload
         }
     }
 
-    <span class="doccomment">/// Convert message codec to a payload codec</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_payload_codec</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientPayloadCodec</span> {
-        <span class="ident">ClientPayloadCodec</span> { <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">inner</span> }
+    <span class="doccomment">/// Convert message codec to a payload codec
+    </span><span class="kw">pub fn </span>into_payload_codec(<span class="self">self</span>) -&gt; ClientPayloadCodec {
+        ClientPayloadCodec { inner: <span class="self">self</span>.inner }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ClientPayloadCodec</span> {
-    <span class="doccomment">/// Check if last response is keep-alive</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">conn_type</span> <span class="op">==</span> <span class="ident">ConnectionType::KeepAlive</span>
+<span class="kw">impl </span>ClientPayloadCodec {
+    <span class="doccomment">/// Check if last response is keep-alive
+    </span><span class="kw">pub fn </span>keep_alive(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.inner.conn_type == ConnectionType::KeepAlive
     }
 
-    <span class="doccomment">/// Transform payload codec to a message codec</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_message_codec</span>(<span class="self">self</span>) -&gt; <span class="ident">ClientCodec</span> {
-        <span class="ident">ClientCodec</span> { <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">inner</span> }
+    <span class="doccomment">/// Transform payload codec to a message codec
+    </span><span class="kw">pub fn </span>into_message_codec(<span class="self">self</span>) -&gt; ClientCodec {
+        ClientCodec { inner: <span class="self">self</span>.inner }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Decoder</span> <span class="kw">for</span> <span class="ident">ClientCodec</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">ResponseHead</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ParseError</span>;
+<span class="kw">impl </span>Decoder <span class="kw">for </span>ClientCodec {
+    <span class="kw">type </span>Item = ResponseHead;
+    <span class="kw">type </span>Error = ParseError;
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, src: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;, <span class="self">Self</span>::Error&gt; {
         <span class="macro">debug_assert!</span>(
-            <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">payload</span>.<span class="ident">is_none</span>(),
-            <span class="string">&quot;Payload decoder should not be set&quot;</span>
-        );
+            <span class="self">self</span>.inner.payload.is_none(),
+            <span class="string">&quot;Payload decoder should not be set&quot;
+        </span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="ident">payload</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">decoder</span>.<span class="ident">decode</span>(<span class="ident">src</span>)<span class="question-mark">?</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">conn_type</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">conn_type</span>() {
-                <span class="comment">// do not use peer&#39;s keep-alive</span>
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">conn_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">conn_type</span> <span class="op">==</span> <span class="ident">ConnectionType::KeepAlive</span> {
-                    <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">conn_type</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">conn_type</span>
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((req, payload)) = <span class="self">self</span>.inner.decoder.decode(src)<span class="question-mark">? </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(conn_type) = req.conn_type() {
+                <span class="comment">// do not use peer&#39;s keep-alive
+                </span><span class="self">self</span>.inner.conn_type = <span class="kw">if </span>conn_type == ConnectionType::KeepAlive {
+                    <span class="self">self</span>.inner.conn_type
+                } <span class="kw">else </span>{
+                    conn_type
                 };
             }
 
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::HEAD</span>) {
-                <span class="kw">match</span> <span class="ident">payload</span> {
-                    <span class="ident">PayloadType::None</span> =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">payload</span> <span class="op">=</span> <span class="prelude-val">None</span>,
-                    <span class="ident">PayloadType::Payload</span>(<span class="ident">pl</span>) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">payload</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>),
-                    <span class="ident">PayloadType::Stream</span>(<span class="ident">pl</span>) =&gt; {
-                        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">payload</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>);
-                        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::STREAM</span>);
+            <span class="kw">if </span>!<span class="self">self</span>.inner.flags.contains(Flags::HEAD) {
+                <span class="kw">match </span>payload {
+                    PayloadType::None =&gt; <span class="self">self</span>.inner.payload = <span class="prelude-val">None</span>,
+                    PayloadType::Payload(pl) =&gt; <span class="self">self</span>.inner.payload = <span class="prelude-val">Some</span>(pl),
+                    PayloadType::Stream(pl) =&gt; {
+                        <span class="self">self</span>.inner.payload = <span class="prelude-val">Some</span>(pl);
+                        <span class="self">self</span>.inner.flags.insert(Flags::STREAM);
                     }
                 }
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">payload</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.inner.payload = <span class="prelude-val">None</span>;
             }
-            <span class="ident">reserve_readbuf</span>(<span class="ident">src</span>);
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">req</span>))
-        } <span class="kw">else</span> {
+            reserve_readbuf(src);
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(req))
+        } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Decoder</span> <span class="kw">for</span> <span class="ident">ClientPayloadCodec</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">PayloadError</span>;
+<span class="kw">impl </span>Decoder <span class="kw">for </span>ClientPayloadCodec {
+    <span class="kw">type </span>Item = <span class="prelude-ty">Option</span>&lt;Bytes&gt;;
+    <span class="kw">type </span>Error = PayloadError;
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, src: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;, <span class="self">Self</span>::Error&gt; {
         <span class="macro">debug_assert!</span>(
-            <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">payload</span>.<span class="ident">is_some</span>(),
-            <span class="string">&quot;Payload decoder is not specified&quot;</span>
-        );
+            <span class="self">self</span>.inner.payload.is_some(),
+            <span class="string">&quot;Payload decoder is not specified&quot;
+        </span>);
 
-        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">payload</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">decode</span>(<span class="ident">src</span>)<span class="question-mark">?</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">PayloadItem::Chunk</span>(<span class="ident">chunk</span>)) =&gt; {
-                <span class="ident">reserve_readbuf</span>(<span class="ident">src</span>);
-                <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="ident">chunk</span>))
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.inner.payload.as_mut().unwrap().decode(src)<span class="question-mark">? </span>{
+            <span class="prelude-val">Some</span>(PayloadItem::Chunk(chunk)) =&gt; {
+                reserve_readbuf(src);
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(chunk))
             }
-            <span class="prelude-val">Some</span>(<span class="ident">PayloadItem::Eof</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">payload</span>.<span class="ident">take</span>();
+            <span class="prelude-val">Some</span>(PayloadItem::Eof) =&gt; {
+                <span class="self">self</span>.inner.payload.take();
                 <span class="prelude-val">Some</span>(<span class="prelude-val">None</span>)
             }
-            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">Message</span><span class="op">&lt;</span>(<span class="ident">RequestHeadType</span>, <span class="ident">BodySize</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ClientCodec</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">io::Error</span>;
+<span class="kw">impl </span>Encoder&lt;Message&lt;(RequestHeadType, BodySize)&gt;&gt; <span class="kw">for </span>ClientCodec {
+    <span class="kw">type </span>Error = io::Error;
 
-    <span class="kw">fn</span> <span class="ident">encode</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">item</span>: <span class="ident">Message</span><span class="op">&lt;</span>(<span class="ident">RequestHeadType</span>, <span class="ident">BodySize</span>)<span class="op">&gt;</span>,
-        <span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">item</span> {
-            <span class="ident">Message::Item</span>((<span class="kw-2">mut</span> <span class="ident">head</span>, <span class="ident">length</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>;
-                <span class="ident">inner</span>.<span class="ident">version</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">as_ref</span>().<span class="ident">version</span>;
-                <span class="ident">inner</span>
-                    .<span class="ident">flags</span>
-                    .<span class="ident">set</span>(<span class="ident">Flags::HEAD</span>, <span class="ident">head</span>.<span class="ident">as_ref</span>().<span class="ident">method</span> <span class="op">==</span> <span class="ident">Method::HEAD</span>);
+    <span class="kw">fn </span>encode(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        item: Message&lt;(RequestHeadType, BodySize)&gt;,
+        dst: <span class="kw-2">&amp;mut </span>BytesMut,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span>item {
+            Message::Item((<span class="kw-2">mut </span>head, length)) =&gt; {
+                <span class="kw">let </span>inner = <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner;
+                inner.version = head.as_ref().version;
+                inner
+                    .flags
+                    .set(Flags::HEAD, head.as_ref().method == Method::HEAD);
 
-                <span class="comment">// connection status</span>
-                <span class="ident">inner</span>.<span class="ident">conn_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">head</span>.<span class="ident">as_ref</span>().<span class="ident">connection_type</span>() {
-                    <span class="ident">ConnectionType::KeepAlive</span> =&gt; {
-                        <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::KEEP_ALIVE_ENABLED</span>) {
-                            <span class="ident">ConnectionType::KeepAlive</span>
-                        } <span class="kw">else</span> {
-                            <span class="ident">ConnectionType::Close</span>
+                <span class="comment">// connection status
+                </span>inner.conn_type = <span class="kw">match </span>head.as_ref().connection_type() {
+                    ConnectionType::KeepAlive =&gt; {
+                        <span class="kw">if </span>inner.flags.contains(Flags::KEEP_ALIVE_ENABLED) {
+                            ConnectionType::KeepAlive
+                        } <span class="kw">else </span>{
+                            ConnectionType::Close
                         }
                     }
-                    <span class="ident">ConnectionType::Upgrade</span> =&gt; <span class="ident">ConnectionType::Upgrade</span>,
-                    <span class="ident">ConnectionType::Close</span> =&gt; <span class="ident">ConnectionType::Close</span>,
+                    ConnectionType::Upgrade =&gt; ConnectionType::Upgrade,
+                    ConnectionType::Close =&gt; ConnectionType::Close,
                 };
 
-                <span class="ident">inner</span>.<span class="ident">encoder</span>.<span class="ident">encode</span>(
-                    <span class="ident">dst</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="ident">head</span>,
+                inner.encoder.encode(
+                    dst,
+                    <span class="kw-2">&amp;mut </span>head,
                     <span class="bool-val">false</span>,
                     <span class="bool-val">false</span>,
-                    <span class="ident">inner</span>.<span class="ident">version</span>,
-                    <span class="ident">length</span>,
-                    <span class="ident">inner</span>.<span class="ident">conn_type</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">inner</span>.<span class="ident">config</span>,
+                    inner.version,
+                    length,
+                    inner.conn_type,
+                    <span class="kw-2">&amp;</span>inner.config,
                 )<span class="question-mark">?</span>;
             }
-            <span class="ident">Message::Chunk</span>(<span class="prelude-val">Some</span>(<span class="ident">bytes</span>)) =&gt; {
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">encoder</span>.<span class="ident">encode_chunk</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>(), <span class="ident">dst</span>)<span class="question-mark">?</span>;
+            Message::Chunk(<span class="prelude-val">Some</span>(bytes)) =&gt; {
+                <span class="self">self</span>.inner.encoder.encode_chunk(bytes.as_ref(), dst)<span class="question-mark">?</span>;
             }
-            <span class="ident">Message::Chunk</span>(<span class="prelude-val">None</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">encoder</span>.<span class="ident">encode_eof</span>(<span class="ident">dst</span>)<span class="question-mark">?</span>;
+            Message::Chunk(<span class="prelude-val">None</span>) =&gt; {
+                <span class="self">self</span>.inner.encoder.encode_eof(dst)<span class="question-mark">?</span>;
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

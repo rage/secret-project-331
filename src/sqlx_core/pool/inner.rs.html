@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/pool/inner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/pool/inner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -573,477 +573,477 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::connection</span>::{<span class="ident">Floating</span>, <span class="ident">Idle</span>, <span class="ident">Live</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::ConnectOptions</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Connection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::Database</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool</span>::{<span class="ident">deadline_as_timeout</span>, <span class="ident">CloseEvent</span>, <span class="ident">Pool</span>, <span class="ident">PoolOptions</span>};
-<span class="kw">use</span> <span class="ident">crossbeam_queue::ArrayQueue</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::connection::{Floating, Idle, Live};
+<span class="kw">use </span><span class="kw">crate</span>::connection::ConnectOptions;
+<span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::database::Database;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::pool::{deadline_as_timeout, CloseEvent, Pool, PoolOptions};
+<span class="kw">use </span>crossbeam_queue::ArrayQueue;
 
-<span class="kw">use</span> <span class="ident">futures_intrusive::sync</span>::{<span class="ident">Semaphore</span>, <span class="ident">SemaphoreReleaser</span>};
+<span class="kw">use </span>futures_intrusive::sync::{Semaphore, SemaphoreReleaser};
 
-<span class="kw">use</span> <span class="ident">std::cmp</span>;
-<span class="kw">use</span> <span class="ident">std::future::Future</span>;
-<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">AtomicU32</span>, <span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-<span class="kw">use</span> <span class="ident">std::task::Poll</span>;
+<span class="kw">use </span>std::cmp;
+<span class="kw">use </span>std::future::Future;
+<span class="kw">use </span>std::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
+<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::task::Poll;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool::options::PoolConnectionMetadata</span>;
-<span class="kw">use</span> <span class="ident">futures_util::future</span>::{<span class="self">self</span>};
-<span class="kw">use</span> <span class="ident">futures_util::FutureExt</span>;
-<span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
+<span class="kw">use </span><span class="kw">crate</span>::pool::options::PoolConnectionMetadata;
+<span class="kw">use </span>futures_util::future::{<span class="self">self</span>};
+<span class="kw">use </span>futures_util::FutureExt;
+<span class="kw">use </span>std::time::{Duration, Instant};
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">PoolInner</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">connect_options</span>: <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">idle_conns</span>: <span class="ident">ArrayQueue</span><span class="op">&lt;</span><span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">semaphore</span>: <span class="ident">Semaphore</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">size</span>: <span class="ident">AtomicU32</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">num_idle</span>: <span class="ident">AtomicUsize</span>,
-    <span class="ident">is_closed</span>: <span class="ident">AtomicBool</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">on_closed</span>: <span class="ident">event_listener::Event</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">options</span>: <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>PoolInner&lt;DB: Database&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) connect_options: &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options,
+    <span class="kw">pub</span>(<span class="kw">super</span>) idle_conns: ArrayQueue&lt;Idle&lt;DB&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) semaphore: Semaphore,
+    <span class="kw">pub</span>(<span class="kw">super</span>) size: AtomicU32,
+    <span class="kw">pub</span>(<span class="kw">super</span>) num_idle: AtomicUsize,
+    is_closed: AtomicBool,
+    <span class="kw">pub</span>(<span class="kw">super</span>) on_closed: event_listener::Event,
+    <span class="kw">pub</span>(<span class="kw">super</span>) options: PoolOptions&lt;DB&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">PoolInner</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new_arc</span>(
-        <span class="ident">options</span>: <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-        <span class="ident">connect_options</span>: <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>,
-    ) -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">max_connections</span> <span class="kw">as</span> <span class="ident">usize</span>;
+<span class="kw">impl</span>&lt;DB: Database&gt; PoolInner&lt;DB&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new_arc(
+        options: PoolOptions&lt;DB&gt;,
+        connect_options: &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options,
+    ) -&gt; Arc&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>capacity = options.max_connections <span class="kw">as </span>usize;
 
-        <span class="kw">let</span> <span class="ident">semaphore_capacity</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">parent_pool</span> {
-            <span class="macro">assert!</span>(<span class="ident">options</span>.<span class="ident">max_connections</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">parent</span>.<span class="ident">options</span>().<span class="ident">max_connections</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">options</span>.<span class="ident">fair</span>, <span class="ident">parent</span>.<span class="ident">options</span>().<span class="ident">fair</span>);
-            <span class="comment">// The child pool must steal permits from the parent</span>
-            <span class="number">0</span>
-        } <span class="kw">else</span> {
-            <span class="ident">capacity</span>
+        <span class="kw">let </span>semaphore_capacity = <span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="kw-2">&amp;</span>options.parent_pool {
+            <span class="macro">assert!</span>(options.max_connections &lt;= parent.options().max_connections);
+            <span class="macro">assert_eq!</span>(options.fair, parent.options().fair);
+            <span class="comment">// The child pool must steal permits from the parent
+            </span><span class="number">0
+        </span>} <span class="kw">else </span>{
+            capacity
         };
 
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">connect_options</span>,
-            <span class="ident">idle_conns</span>: <span class="ident">ArrayQueue::new</span>(<span class="ident">capacity</span>),
-            <span class="ident">semaphore</span>: <span class="ident">Semaphore::new</span>(<span class="ident">options</span>.<span class="ident">fair</span>, <span class="ident">semaphore_capacity</span>),
-            <span class="ident">size</span>: <span class="ident">AtomicU32::new</span>(<span class="number">0</span>),
-            <span class="ident">num_idle</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>),
-            <span class="ident">is_closed</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>),
-            <span class="ident">on_closed</span>: <span class="ident">event_listener::Event::new</span>(),
-            <span class="ident">options</span>,
+        <span class="kw">let </span>pool = <span class="self">Self </span>{
+            connect_options,
+            idle_conns: ArrayQueue::new(capacity),
+            semaphore: Semaphore::new(options.fair, semaphore_capacity),
+            size: AtomicU32::new(<span class="number">0</span>),
+            num_idle: AtomicUsize::new(<span class="number">0</span>),
+            is_closed: AtomicBool::new(<span class="bool-val">false</span>),
+            on_closed: event_listener::Event::new(),
+            options,
         };
 
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">pool</span>);
+        <span class="kw">let </span>pool = Arc::new(pool);
 
-        <span class="ident">spawn_maintenance_tasks</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>);
+        spawn_maintenance_tasks(<span class="kw-2">&amp;</span>pool);
 
-        <span class="ident">pool</span>
+        pool
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">size</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>)
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.size.load(Ordering::Acquire)
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">num_idle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="comment">// We don&#39;t use `self.idle_conns.len()` as it waits for the internal</span>
-        <span class="comment">// head and tail pointers to stop changing for a moment before calculating the length,</span>
-        <span class="comment">// which may take a long time at high levels of churn.</span>
-        <span class="comment">//</span>
-        <span class="comment">// By maintaining our own atomic count, we avoid that issue entirely.</span>
-        <span class="self">self</span>.<span class="ident">num_idle</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>)
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>num_idle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="comment">// We don&#39;t use `self.idle_conns.len()` as it waits for the internal
+        // head and tail pointers to stop changing for a moment before calculating the length,
+        // which may take a long time at high levels of churn.
+        //
+        // By maintaining our own atomic count, we avoid that issue entirely.
+        </span><span class="self">self</span>.num_idle.load(Ordering::Acquire)
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_closed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">is_closed</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>)
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_closed.load(Ordering::Acquire)
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">close</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> ()<span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
-        <span class="self">self</span>.<span class="ident">is_closed</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::Release</span>);
-        <span class="self">self</span>.<span class="ident">on_closed</span>.<span class="ident">notify</span>(<span class="ident">usize::MAX</span>);
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>close&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="kw">impl </span>Future&lt;Output = ()&gt; + <span class="lifetime">&#39;a </span>{
+        <span class="self">self</span>.is_closed.store(<span class="bool-val">true</span>, Ordering::Release);
+        <span class="self">self</span>.on_closed.notify(usize::MAX);
 
-        <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">for</span> <span class="ident">permits</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">max_connections</span> <span class="kw">as</span> <span class="ident">usize</span> {
-                <span class="comment">// Close any currently idle connections in the pool.</span>
-                <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idle</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">idle_conns</span>.<span class="ident">pop</span>() {
-                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">idle</span>.<span class="ident">live</span>.<span class="ident">float</span>((<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">clone</span>()).<span class="ident">close</span>().<span class="kw">await</span>;
+        <span class="kw">async move </span>{
+            <span class="kw">for </span>permits <span class="kw">in </span><span class="number">1</span>..=<span class="self">self</span>.options.max_connections <span class="kw">as </span>usize {
+                <span class="comment">// Close any currently idle connections in the pool.
+                </span><span class="kw">while let </span><span class="prelude-val">Some</span>(idle) = <span class="self">self</span>.idle_conns.pop() {
+                    <span class="kw">let _ </span>= idle.live.float((<span class="kw-2">*</span><span class="self">self</span>).clone()).close().<span class="kw">await</span>;
                 }
 
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">size</span>() <span class="op">==</span> <span class="number">0</span> {
+                <span class="kw">if </span><span class="self">self</span>.size() == <span class="number">0 </span>{
                     <span class="kw">break</span>;
                 }
 
-                <span class="comment">// Wait for all permits to be released.</span>
-                <span class="kw">let</span> <span class="ident">_permits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">acquire</span>(<span class="ident">permits</span>).<span class="kw">await</span>;
+                <span class="comment">// Wait for all permits to be released.
+                </span><span class="kw">let </span>_permits = <span class="self">self</span>.semaphore.acquire(permits).<span class="kw">await</span>;
             }
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">close_event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CloseEvent</span> {
-        <span class="ident">CloseEvent</span> {
-            <span class="ident">listener</span>: (<span class="op">!</span><span class="self">self</span>.<span class="ident">is_closed</span>()).<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">on_closed</span>.<span class="ident">listen</span>()),
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>close_event(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CloseEvent {
+        CloseEvent {
+            listener: (!<span class="self">self</span>.is_closed()).then(|| <span class="self">self</span>.on_closed.listen()),
         }
     }
 
-    <span class="doccomment">/// Attempt to pull a permit from `self.semaphore` or steal one from the parent.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If we steal a permit from the parent but *don&#39;t* open a connection,</span>
-    <span class="doccomment">/// it should be returned to the parent.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">acquire_permit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">parent</span>()
-            <span class="comment">// If we&#39;re already at the max size, we shouldn&#39;t try to steal from the parent.</span>
-            <span class="comment">// This is just going to cause unnecessary churn in `acquire()`.</span>
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">size</span>() <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">max_connections</span>);
+    <span class="doccomment">/// Attempt to pull a permit from `self.semaphore` or steal one from the parent.
+    ///
+    /// If we steal a permit from the parent but *don&#39;t* open a connection,
+    /// it should be returned to the parent.
+    </span><span class="kw">async fn </span>acquire_permit&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;SemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;, Error&gt; {
+        <span class="kw">let </span>parent = <span class="self">self
+            </span>.parent()
+            <span class="comment">// If we&#39;re already at the max size, we shouldn&#39;t try to steal from the parent.
+            // This is just going to cause unnecessary churn in `acquire()`.
+            </span>.filter(|<span class="kw">_</span>| <span class="self">self</span>.size() &lt; <span class="self">self</span>.options.max_connections);
 
-        <span class="kw">let</span> <span class="ident">acquire_self</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">acquire</span>(<span class="number">1</span>).<span class="ident">fuse</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">close_event</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">close_event</span>();
+        <span class="kw">let </span>acquire_self = <span class="self">self</span>.semaphore.acquire(<span class="number">1</span>).fuse();
+        <span class="kw">let </span><span class="kw-2">mut </span>close_event = <span class="self">self</span>.close_event();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="ident">parent</span> {
-            <span class="kw">let</span> <span class="ident">acquire_parent</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="number">0</span>.<span class="ident">semaphore</span>.<span class="ident">acquire</span>(<span class="number">1</span>);
-            <span class="kw">let</span> <span class="ident">parent_close_event</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="number">0</span>.<span class="ident">close_event</span>();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = parent {
+            <span class="kw">let </span>acquire_parent = parent.<span class="number">0</span>.semaphore.acquire(<span class="number">1</span>);
+            <span class="kw">let </span>parent_close_event = parent.<span class="number">0</span>.close_event();
 
             <span class="macro">futures_util::pin_mut!</span>(
-                <span class="ident">acquire_parent</span>,
-                <span class="ident">acquire_self</span>,
-                <span class="ident">close_event</span>,
-                <span class="ident">parent_close_event</span>
+                acquire_parent,
+                acquire_self,
+                close_event,
+                parent_close_event
             );
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">poll_parent</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>poll_parent = <span class="bool-val">false</span>;
 
-            <span class="ident">future::poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="ident">close_event</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">is_ready</span>() {
-                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::PoolClosed</span>));
+            future::poll_fn(|cx| {
+                <span class="kw">if </span>close_event.as_mut().poll(cx).is_ready() {
+                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(Error::PoolClosed));
                 }
 
-                <span class="kw">if</span> <span class="ident">parent_close_event</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">is_ready</span>() {
-                    <span class="comment">// Propagate the parent&#39;s close event to the child.</span>
-                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">close</span>();
-                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::PoolClosed</span>));
+                <span class="kw">if </span>parent_close_event.as_mut().poll(cx).is_ready() {
+                    <span class="comment">// Propagate the parent&#39;s close event to the child.
+                    </span><span class="kw">let _ </span>= <span class="self">self</span>.close();
+                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(Error::PoolClosed));
                 }
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Poll::Ready</span>(<span class="ident">permit</span>) <span class="op">=</span> <span class="ident">acquire_self</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>) {
-                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">permit</span>));
+                <span class="kw">if let </span>Poll::Ready(permit) = acquire_self.as_mut().poll(cx) {
+                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(permit));
                 }
 
-                <span class="comment">// Don&#39;t try the parent right away.</span>
-                <span class="kw">if</span> <span class="ident">poll_parent</span> {
-                    <span class="ident">acquire_parent</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map</span>(<span class="prelude-val">Ok</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">poll_parent</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">wake_by_ref</span>();
-                    <span class="ident">Poll::Pending</span>
+                <span class="comment">// Don&#39;t try the parent right away.
+                </span><span class="kw">if </span>poll_parent {
+                    acquire_parent.as_mut().poll(cx).map(<span class="prelude-val">Ok</span>)
+                } <span class="kw">else </span>{
+                    poll_parent = <span class="bool-val">true</span>;
+                    cx.waker().wake_by_ref();
+                    Poll::Pending
                 }
             })
-            .<span class="kw">await</span>
-        } <span class="kw">else</span> {
-            <span class="ident">close_event</span>.<span class="ident">do_until</span>(<span class="ident">acquire_self</span>).<span class="kw">await</span>
+            .<span class="kw">await
+        </span>} <span class="kw">else </span>{
+            close_event.do_until(acquire_self).<span class="kw">await
+        </span>}
+    }
+
+    <span class="kw">fn </span>parent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Pool&lt;DB&gt;&gt; {
+        <span class="self">self</span>.options.parent_pool.as_ref()
+    }
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>try_acquire(<span class="self">self</span>: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Floating&lt;DB, Idle&lt;DB&gt;&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_closed() {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+
+        <span class="kw">let </span>permit = <span class="self">self</span>.semaphore.try_acquire(<span class="number">1</span>)<span class="question-mark">?</span>;
+
+        <span class="self">self</span>.pop_idle(permit).ok()
+    }
+
+    <span class="kw">fn </span>pop_idle&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arc&lt;<span class="self">Self</span>&gt;,
+        permit: SemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Floating&lt;DB, Idle&lt;DB&gt;&gt;, SemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(idle) = <span class="self">self</span>.idle_conns.pop() {
+            <span class="self">self</span>.num_idle.fetch_sub(<span class="number">1</span>, Ordering::AcqRel);
+            <span class="prelude-val">Ok</span>(Floating::from_idle(idle, (<span class="kw-2">*</span><span class="self">self</span>).clone(), permit))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(permit)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">parent_pool</span>.<span class="ident">as_ref</span>()
-    }
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>release(<span class="kw-2">&amp;</span><span class="self">self</span>, floating: Floating&lt;DB, Live&lt;DB&gt;&gt;) {
+        <span class="comment">// `options.after_release` is invoked by `PoolConnection::release_to_pool()`.
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_acquire</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
-        }
+        </span><span class="kw">let </span>Floating { inner: idle, guard } = floating.into_idle();
 
-        <span class="kw">let</span> <span class="ident">permit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">try_acquire</span>(<span class="number">1</span>)<span class="question-mark">?</span>;
-
-        <span class="self">self</span>.<span class="ident">pop_idle</span>(<span class="ident">permit</span>).<span class="ident">ok</span>()
-    }
-
-    <span class="kw">fn</span> <span class="ident">pop_idle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">permit</span>: <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idle</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">idle_conns</span>.<span class="ident">pop</span>() {
-            <span class="self">self</span>.<span class="ident">num_idle</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering::AcqRel</span>);
-            <span class="prelude-val">Ok</span>(<span class="ident">Floating::from_idle</span>(<span class="ident">idle</span>, (<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">clone</span>(), <span class="ident">permit</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">permit</span>)
-        }
-    }
-
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">release</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">floating</span>: <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="comment">// `options.after_release` is invoked by `PoolConnection::release_to_pool()`.</span>
-
-        <span class="kw">let</span> <span class="ident">Floating</span> { <span class="ident">inner</span>: <span class="ident">idle</span>, <span class="ident">guard</span> } <span class="op">=</span> <span class="ident">floating</span>.<span class="ident">into_idle</span>();
-
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">idle_conns</span>.<span class="ident">push</span>(<span class="ident">idle</span>).<span class="ident">is_ok</span>() {
+        <span class="kw">if </span>!<span class="self">self</span>.idle_conns.push(idle).is_ok() {
             <span class="macro">panic!</span>(<span class="string">&quot;BUG: connection queue overflow in release()&quot;</span>);
         }
 
-        <span class="comment">// NOTE: we need to make sure we drop the permit *after* we push to the idle queue</span>
-        <span class="comment">// don&#39;t decrease the size</span>
-        <span class="ident">guard</span>.<span class="ident">release_permit</span>();
+        <span class="comment">// NOTE: we need to make sure we drop the permit *after* we push to the idle queue
+        // don&#39;t decrease the size
+        </span>guard.release_permit();
 
-        <span class="self">self</span>.<span class="ident">num_idle</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::AcqRel</span>);
+        <span class="self">self</span>.num_idle.fetch_add(<span class="number">1</span>, Ordering::AcqRel);
     }
 
-    <span class="doccomment">/// Try to atomically increment the pool size for a new connection.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">try_increment_size</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">permit</span>: <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>
-            .<span class="ident">size</span>
-            .<span class="ident">fetch_update</span>(<span class="ident">Ordering::AcqRel</span>, <span class="ident">Ordering::Acquire</span>, <span class="op">|</span><span class="ident">size</span><span class="op">|</span> {
-                <span class="ident">size</span>.<span class="ident">checked_add</span>(<span class="number">1</span>)
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">size</span><span class="op">|</span> <span class="ident">size</span> <span class="op">&lt;</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">max_connections</span>)
+    <span class="doccomment">/// Try to atomically increment the pool size for a new connection.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>try_increment_size&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arc&lt;<span class="self">Self</span>&gt;,
+        permit: SemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;DecrementSizeGuard&lt;DB&gt;, SemaphoreReleaser&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">match </span><span class="self">self
+            </span>.size
+            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |size| {
+                size.checked_add(<span class="number">1</span>)
+                    .filter(|size| size &lt;= <span class="kw-2">&amp;</span><span class="self">self</span>.options.max_connections)
             }) {
-            <span class="comment">// we successfully incremented the size</span>
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DecrementSizeGuard::from_permit</span>((<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">clone</span>(), <span class="ident">permit</span>)),
-            <span class="comment">// the pool is at max capacity</span>
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">permit</span>),
+            <span class="comment">// we successfully incremented the size
+            </span><span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(DecrementSizeGuard::from_permit((<span class="kw-2">*</span><span class="self">self</span>).clone(), permit)),
+            <span class="comment">// the pool is at max capacity
+            </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(permit),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">acquire</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PoolClosed</span>);
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>acquire(<span class="self">self</span>: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Floating&lt;DB, Live&lt;DB&gt;&gt;, Error&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_closed() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::PoolClosed);
         }
 
-        <span class="kw">let</span> <span class="ident">deadline</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">acquire_timeout</span>;
+        <span class="kw">let </span>deadline = Instant::now() + <span class="self">self</span>.options.acquire_timeout;
 
-        <span class="ident">sqlx_rt::timeout</span>(
-            <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">acquire_timeout</span>,
-            <span class="kw">async</span> {
-                <span class="kw">loop</span> {
-                    <span class="comment">// Handles the close-event internally</span>
-                    <span class="kw">let</span> <span class="ident">permit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">acquire_permit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        sqlx_rt::timeout(
+            <span class="self">self</span>.options.acquire_timeout,
+            <span class="kw">async </span>{
+                <span class="kw">loop </span>{
+                    <span class="comment">// Handles the close-event internally
+                    </span><span class="kw">let </span>permit = <span class="self">self</span>.acquire_permit().<span class="kw">await</span><span class="question-mark">?</span>;
 
 
-                    <span class="comment">// First attempt to pop a connection from the idle queue.</span>
-                    <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop_idle</span>(<span class="ident">permit</span>) {
+                    <span class="comment">// First attempt to pop a connection from the idle queue.
+                    </span><span class="kw">let </span>guard = <span class="kw">match </span><span class="self">self</span>.pop_idle(permit) {
 
-                        <span class="comment">// Then, check that we can use it...</span>
-                        <span class="prelude-val">Ok</span>(<span class="ident">conn</span>) =&gt; <span class="kw">match</span> <span class="ident">check_idle_conn</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>).<span class="kw">await</span> {
+                        <span class="comment">// Then, check that we can use it...
+                        </span><span class="prelude-val">Ok</span>(conn) =&gt; <span class="kw">match </span>check_idle_conn(conn, <span class="kw-2">&amp;</span><span class="self">self</span>.options).<span class="kw">await </span>{
 
-                            <span class="comment">// All good!</span>
-                            <span class="prelude-val">Ok</span>(<span class="ident">live</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">live</span>),
+                            <span class="comment">// All good!
+                            </span><span class="prelude-val">Ok</span>(live) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(live),
 
-                            <span class="comment">// if the connection isn&#39;t usable for one reason or another,</span>
-                            <span class="comment">// we get the `DecrementSizeGuard` back to open a new one</span>
-                            <span class="prelude-val">Err</span>(<span class="ident">guard</span>) =&gt; <span class="ident">guard</span>,
+                            <span class="comment">// if the connection isn&#39;t usable for one reason or another,
+                            // we get the `DecrementSizeGuard` back to open a new one
+                            </span><span class="prelude-val">Err</span>(guard) =&gt; guard,
                         },
-                        <span class="prelude-val">Err</span>(<span class="ident">permit</span>) =&gt; <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">guard</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">try_increment_size</span>(<span class="ident">permit</span>) {
-                            <span class="comment">// we can open a new connection</span>
-                            <span class="ident">guard</span>
-                        } <span class="kw">else</span> {
-                            <span class="comment">// This can happen for a child pool that&#39;s at its connection limit.</span>
-                            <span class="macro">log::debug!</span>(<span class="string">&quot;woke but was unable to acquire idle connection or open new one; retrying&quot;</span>);
-                            <span class="comment">// If so, we&#39;re likely in the current-thread runtime if it&#39;s Tokio</span>
-                            <span class="comment">// and so we should yield to let any spawned release_to_pool() tasks</span>
-                            <span class="comment">// execute.</span>
-                            <span class="ident">sqlx_rt::yield_now</span>().<span class="kw">await</span>;
+                        <span class="prelude-val">Err</span>(permit) =&gt; <span class="kw">if let </span><span class="prelude-val">Ok</span>(guard) = <span class="self">self</span>.try_increment_size(permit) {
+                            <span class="comment">// we can open a new connection
+                            </span>guard
+                        } <span class="kw">else </span>{
+                            <span class="comment">// This can happen for a child pool that&#39;s at its connection limit.
+                            </span><span class="macro">log::debug!</span>(<span class="string">&quot;woke but was unable to acquire idle connection or open new one; retrying&quot;</span>);
+                            <span class="comment">// If so, we&#39;re likely in the current-thread runtime if it&#39;s Tokio
+                            // and so we should yield to let any spawned release_to_pool() tasks
+                            // execute.
+                            </span>sqlx_rt::yield_now().<span class="kw">await</span>;
                             <span class="kw">continue</span>;
                         }
                     };
 
-                    <span class="comment">// Attempt to connect...</span>
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">connect</span>(<span class="ident">deadline</span>, <span class="ident">guard</span>).<span class="kw">await</span>;
+                    <span class="comment">// Attempt to connect...
+                    </span><span class="kw">return </span><span class="self">self</span>.connect(deadline, guard).<span class="kw">await</span>;
                 }
             }
         )
-            .<span class="kw">await</span>
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::PoolTimedOut</span>)<span class="question-mark">?</span>
-    }
+            .<span class="kw">await
+            </span>.map_err(|<span class="kw">_</span>| Error::PoolTimedOut)<span class="question-mark">?
+    </span>}
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(
-        <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">deadline</span>: <span class="ident">Instant</span>,
-        <span class="ident">guard</span>: <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_closed</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PoolClosed</span>);
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>connect(
+        <span class="self">self</span>: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;,
+        deadline: Instant,
+        guard: DecrementSizeGuard&lt;DB&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Floating&lt;DB, Live&lt;DB&gt;&gt;, Error&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_closed() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::PoolClosed);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backoff</span> <span class="op">=</span> <span class="ident">Duration::from_millis</span>(<span class="number">10</span>);
-        <span class="kw">let</span> <span class="ident">max_backoff</span> <span class="op">=</span> <span class="ident">deadline_as_timeout</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="ident">deadline</span>)<span class="question-mark">?</span> <span class="op">/</span> <span class="number">5</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>backoff = Duration::from_millis(<span class="number">10</span>);
+        <span class="kw">let </span>max_backoff = deadline_as_timeout::&lt;DB&gt;(deadline)<span class="question-mark">? </span>/ <span class="number">5</span>;
 
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="ident">deadline_as_timeout</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="ident">deadline</span>)<span class="question-mark">?</span>;
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>timeout = deadline_as_timeout::&lt;DB&gt;(deadline)<span class="question-mark">?</span>;
 
-            <span class="comment">// result here is `Result&lt;Result&lt;C, Error&gt;, TimeoutError&gt;`</span>
-            <span class="comment">// if this block does not return, sleep for the backoff timeout and try again</span>
-            <span class="kw">match</span> <span class="ident">sqlx_rt::timeout</span>(<span class="ident">timeout</span>, <span class="self">self</span>.<span class="ident">connect_options</span>.<span class="ident">connect</span>()).<span class="kw">await</span> {
-                <span class="comment">// successfully established connection</span>
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">raw</span>)) =&gt; {
-                    <span class="comment">// See comment on `PoolOptions::after_connect`</span>
-                    <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span> <span class="ident">PoolConnectionMetadata</span> {
-                        <span class="ident">age</span>: <span class="ident">Duration::ZERO</span>,
-                        <span class="ident">idle_for</span>: <span class="ident">Duration::ZERO</span>,
+            <span class="comment">// result here is `Result&lt;Result&lt;C, Error&gt;, TimeoutError&gt;`
+            // if this block does not return, sleep for the backoff timeout and try again
+            </span><span class="kw">match </span>sqlx_rt::timeout(timeout, <span class="self">self</span>.connect_options.connect()).<span class="kw">await </span>{
+                <span class="comment">// successfully established connection
+                </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>raw)) =&gt; {
+                    <span class="comment">// See comment on `PoolOptions::after_connect`
+                    </span><span class="kw">let </span>meta = PoolConnectionMetadata {
+                        age: Duration::ZERO,
+                        idle_for: Duration::ZERO,
                     };
 
-                    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">callback</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">after_connect</span> {
-                        <span class="ident">callback</span>(<span class="kw-2">&amp;mut</span> <span class="ident">raw</span>, <span class="ident">meta</span>).<span class="kw">await</span>
-                    } <span class="kw">else</span> {
+                    <span class="kw">let </span>res = <span class="kw">if let </span><span class="prelude-val">Some</span>(callback) = <span class="kw-2">&amp;</span><span class="self">self</span>.options.after_connect {
+                        callback(<span class="kw-2">&amp;mut </span>raw, meta).<span class="kw">await
+                    </span>} <span class="kw">else </span>{
                         <span class="prelude-val">Ok</span>(())
                     };
 
-                    <span class="kw">match</span> <span class="ident">res</span> {
-                        <span class="prelude-val">Ok</span>(()) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Floating::new_live</span>(<span class="ident">raw</span>, <span class="ident">guard</span>)),
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                            <span class="macro">log::error!</span>(<span class="string">&quot;error returned from after_connect: {:?}&quot;</span>, <span class="ident">e</span>);
-                            <span class="comment">// The connection is broken, don&#39;t try to close nicely.</span>
-                            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">close_hard</span>().<span class="kw">await</span>;
+                    <span class="kw">match </span>res {
+                        <span class="prelude-val">Ok</span>(()) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(Floating::new_live(raw, guard)),
+                        <span class="prelude-val">Err</span>(e) =&gt; {
+                            <span class="macro">log::error!</span>(<span class="string">&quot;error returned from after_connect: {:?}&quot;</span>, e);
+                            <span class="comment">// The connection is broken, don&#39;t try to close nicely.
+                            </span><span class="kw">let _ </span>= raw.close_hard().<span class="kw">await</span>;
 
-                            <span class="comment">// Fall through to the backoff.</span>
-                        }
+                            <span class="comment">// Fall through to the backoff.
+                        </span>}
                     }
                 }
 
-                <span class="comment">// an IO error while connecting is assumed to be the system starting up</span>
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::Io</span>(<span class="ident">e</span>))) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">std::io::ErrorKind::ConnectionRefused</span> =&gt; (),
+                <span class="comment">// an IO error while connecting is assumed to be the system starting up
+                </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(Error::Io(e))) <span class="kw">if </span>e.kind() == std::io::ErrorKind::ConnectionRefused =&gt; (),
 
-                <span class="comment">// We got a transient database error, retry.</span>
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">Error::Database</span>(<span class="ident">error</span>))) <span class="kw">if</span> <span class="ident">error</span>.<span class="ident">is_transient_in_connect_phase</span>() =&gt; (),
+                <span class="comment">// We got a transient database error, retry.
+                </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(Error::Database(error))) <span class="kw">if </span>error.is_transient_in_connect_phase() =&gt; (),
 
-                <span class="comment">// Any other error while connection should immediately</span>
-                <span class="comment">// terminate and bubble the error up</span>
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+                <span class="comment">// Any other error while connection should immediately
+                // terminate and bubble the error up
+                </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(e)) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
 
-                <span class="comment">// timed out</span>
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PoolTimedOut</span>),
+                <span class="comment">// timed out
+                </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::PoolTimedOut),
             }
 
-            <span class="comment">// If the connection is refused, wait in exponentially</span>
-            <span class="comment">// increasing steps for the server to come up,</span>
-            <span class="comment">// capped by a factor of the remaining time until the deadline</span>
-            <span class="ident">sqlx_rt::sleep</span>(<span class="ident">backoff</span>).<span class="kw">await</span>;
-            <span class="ident">backoff</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">backoff</span> <span class="op">*</span> <span class="number">2</span>, <span class="ident">max_backoff</span>);
+            <span class="comment">// If the connection is refused, wait in exponentially
+            // increasing steps for the server to come up,
+            // capped by a factor of the remaining time until the deadline
+            </span>sqlx_rt::sleep(backoff).<span class="kw">await</span>;
+            backoff = cmp::min(backoff * <span class="number">2</span>, max_backoff);
         }
     }
 
-    <span class="doccomment">/// Try to maintain `min_connections`, returning any errors (including `PoolTimedOut`).</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_min_connections</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">deadline</span>: <span class="ident">Instant</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="macro">macro_rules!</span> <span class="ident">unwrap_or_return</span> {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">expr</span>) =&gt; {
-                <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>,
-                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+    <span class="doccomment">/// Try to maintain `min_connections`, returning any errors (including `PoolTimedOut`).
+    </span><span class="kw">pub async fn </span>try_min_connections(<span class="self">self</span>: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;, deadline: Instant) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="macro">macro_rules! </span>unwrap_or_return {
+            (<span class="macro-nonterminal">$expr</span>:expr) =&gt; {
+                <span class="kw">match </span><span class="macro-nonterminal">$expr </span>{
+                    <span class="prelude-val">Some</span>(val) =&gt; val,
+                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
                 }
             };
         }
 
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">size</span>() <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">min_connections</span> {
-            <span class="comment">// Don&#39;t wait for a semaphore permit.</span>
-            <span class="comment">//</span>
-            <span class="comment">// If no extra permits are available then we shouldn&#39;t be trying to spin up</span>
-            <span class="comment">// connections anyway.</span>
-            <span class="kw">let</span> <span class="ident">permit</span> <span class="op">=</span> <span class="macro">unwrap_or_return!</span>(<span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">try_acquire</span>(<span class="number">1</span>));
+        <span class="kw">while </span><span class="self">self</span>.size() &lt; <span class="self">self</span>.options.min_connections {
+            <span class="comment">// Don&#39;t wait for a semaphore permit.
+            //
+            // If no extra permits are available then we shouldn&#39;t be trying to spin up
+            // connections anyway.
+            </span><span class="kw">let </span>permit = <span class="macro">unwrap_or_return!</span>(<span class="self">self</span>.semaphore.try_acquire(<span class="number">1</span>));
 
-            <span class="comment">// We must always obey `max_connections`.</span>
-            <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="macro">unwrap_or_return!</span>(<span class="self">self</span>.<span class="ident">try_increment_size</span>(<span class="ident">permit</span>).<span class="ident">ok</span>());
+            <span class="comment">// We must always obey `max_connections`.
+            </span><span class="kw">let </span>guard = <span class="macro">unwrap_or_return!</span>(<span class="self">self</span>.try_increment_size(permit).ok());
 
-            <span class="comment">// We skip `after_release` since the connection was never provided to user code</span>
-            <span class="comment">// besides `after_connect`, if they set it.</span>
-            <span class="self">self</span>.<span class="ident">release</span>(<span class="self">self</span>.<span class="ident">connect</span>(<span class="ident">deadline</span>, <span class="ident">guard</span>).<span class="kw">await</span><span class="question-mark">?</span>);
+            <span class="comment">// We skip `after_release` since the connection was never provided to user code
+            // besides `after_connect`, if they set it.
+            </span><span class="self">self</span>.release(<span class="self">self</span>.connect(deadline, guard).<span class="kw">await</span><span class="question-mark">?</span>);
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Attempt to maintain `min_connections`, logging if unable.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">min_connections_maintenance</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">deadline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Instant</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">deadline</span> <span class="op">=</span> <span class="ident">deadline</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="comment">// Arbitrary default deadline if the caller doesn&#39;t care.</span>
-            <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">Duration::from_secs</span>(<span class="number">300</span>)
+    <span class="doccomment">/// Attempt to maintain `min_connections`, logging if unable.
+    </span><span class="kw">pub async fn </span>min_connections_maintenance(<span class="self">self</span>: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;, deadline: <span class="prelude-ty">Option</span>&lt;Instant&gt;) {
+        <span class="kw">let </span>deadline = deadline.unwrap_or_else(|| {
+            <span class="comment">// Arbitrary default deadline if the caller doesn&#39;t care.
+            </span>Instant::now() + Duration::from_secs(<span class="number">300</span>)
         });
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">try_min_connections</span>(<span class="ident">deadline</span>).<span class="kw">await</span> {
+        <span class="kw">match </span><span class="self">self</span>.try_min_connections(deadline).<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(()) =&gt; (),
-            <span class="prelude-val">Err</span>(<span class="ident">Error::PoolClosed</span>) =&gt; (),
-            <span class="prelude-val">Err</span>(<span class="ident">Error::PoolTimedOut</span>) =&gt; {
+            <span class="prelude-val">Err</span>(Error::PoolClosed) =&gt; (),
+            <span class="prelude-val">Err</span>(Error::PoolTimedOut) =&gt; {
                 <span class="macro">log::debug!</span>(<span class="string">&quot;unable to complete `min_connections` maintenance before deadline&quot;</span>)
             }
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="macro">log::debug!</span>(<span class="string">&quot;error while maintaining min_connections: {:?}&quot;</span>, <span class="ident">e</span>),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">log::debug!</span>(<span class="string">&quot;error while maintaining min_connections: {:?}&quot;</span>, e),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">PoolInner</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">options</span>.<span class="ident">parent_pool</span> {
-            <span class="comment">// Release the stolen permits.</span>
-            <span class="ident">parent</span>.<span class="number">0</span>.<span class="ident">semaphore</span>.<span class="ident">release</span>(<span class="self">self</span>.<span class="ident">semaphore</span>.<span class="ident">permits</span>());
+<span class="kw">impl</span>&lt;DB: Database&gt; Drop <span class="kw">for </span>PoolInner&lt;DB&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="kw-2">&amp;</span><span class="self">self</span>.options.parent_pool {
+            <span class="comment">// Release the stolen permits.
+            </span>parent.<span class="number">0</span>.semaphore.release(<span class="self">self</span>.semaphore.permits());
         }
     }
 }
 
-<span class="doccomment">/// Returns `true` if the connection has exceeded `options.max_lifetime` if set, `false` otherwise.</span>
-<span class="kw">fn</span> <span class="ident">is_beyond_max_lifetime</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">live</span>: <span class="kw-2">&amp;</span><span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">options</span>
-        .<span class="ident">max_lifetime</span>
-        .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">max</span><span class="op">|</span> <span class="ident">live</span>.<span class="ident">created_at</span>.<span class="ident">elapsed</span>() <span class="op">&gt;</span> <span class="ident">max</span>)
+<span class="doccomment">/// Returns `true` if the connection has exceeded `options.max_lifetime` if set, `false` otherwise.
+</span><span class="kw">fn </span>is_beyond_max_lifetime&lt;DB: Database&gt;(live: <span class="kw-2">&amp;</span>Live&lt;DB&gt;, options: <span class="kw-2">&amp;</span>PoolOptions&lt;DB&gt;) -&gt; bool {
+    options
+        .max_lifetime
+        .map_or(<span class="bool-val">false</span>, |max| live.created_at.elapsed() &gt; max)
 }
 
-<span class="doccomment">/// Returns `true` if the connection has exceeded `options.idle_timeout` if set, `false` otherwise.</span>
-<span class="kw">fn</span> <span class="ident">is_beyond_idle_timeout</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">idle</span>: <span class="kw-2">&amp;</span><span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">options</span>
-        .<span class="ident">idle_timeout</span>
-        .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">timeout</span><span class="op">|</span> <span class="ident">idle</span>.<span class="ident">idle_since</span>.<span class="ident">elapsed</span>() <span class="op">&gt;</span> <span class="ident">timeout</span>)
+<span class="doccomment">/// Returns `true` if the connection has exceeded `options.idle_timeout` if set, `false` otherwise.
+</span><span class="kw">fn </span>is_beyond_idle_timeout&lt;DB: Database&gt;(idle: <span class="kw-2">&amp;</span>Idle&lt;DB&gt;, options: <span class="kw-2">&amp;</span>PoolOptions&lt;DB&gt;) -&gt; bool {
+    options
+        .idle_timeout
+        .map_or(<span class="bool-val">false</span>, |timeout| idle.idle_since.elapsed() &gt; timeout)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_idle_conn</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(
-    <span class="kw-2">mut</span> <span class="ident">conn</span>: <span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Idle</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Floating</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Live</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="comment">// If the connection we pulled has expired, close the connection and</span>
-    <span class="comment">// immediately create a new connection</span>
-    <span class="kw">if</span> <span class="ident">is_beyond_max_lifetime</span>(<span class="kw-2">&amp;</span><span class="ident">conn</span>, <span class="ident">options</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">conn</span>.<span class="ident">close</span>().<span class="kw">await</span>);
+<span class="kw">async fn </span>check_idle_conn&lt;DB: Database&gt;(
+    <span class="kw-2">mut </span>conn: Floating&lt;DB, Idle&lt;DB&gt;&gt;,
+    options: <span class="kw-2">&amp;</span>PoolOptions&lt;DB&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Floating&lt;DB, Live&lt;DB&gt;&gt;, DecrementSizeGuard&lt;DB&gt;&gt; {
+    <span class="comment">// If the connection we pulled has expired, close the connection and
+    // immediately create a new connection
+    </span><span class="kw">if </span>is_beyond_max_lifetime(<span class="kw-2">&amp;</span>conn, options) {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(conn.close().<span class="kw">await</span>);
     }
 
-    <span class="kw">if</span> <span class="ident">options</span>.<span class="ident">test_before_acquire</span> {
-        <span class="comment">// Check that the connection is still live</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">ping</span>().<span class="kw">await</span> {
-            <span class="comment">// an error here means the other end has hung up or we lost connectivity</span>
-            <span class="comment">// either way we&#39;re fine to just discard the connection</span>
-            <span class="comment">// the error itself here isn&#39;t necessarily unexpected so WARN is too strong</span>
-            <span class="macro">log::info!</span>(<span class="string">&quot;ping on idle connection returned error: {}&quot;</span>, <span class="ident">e</span>);
-            <span class="comment">// connection is broken so don&#39;t try to close nicely</span>
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">conn</span>.<span class="ident">close_hard</span>().<span class="kw">await</span>);
+    <span class="kw">if </span>options.test_before_acquire {
+        <span class="comment">// Check that the connection is still live
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = conn.ping().<span class="kw">await </span>{
+            <span class="comment">// an error here means the other end has hung up or we lost connectivity
+            // either way we&#39;re fine to just discard the connection
+            // the error itself here isn&#39;t necessarily unexpected so WARN is too strong
+            </span><span class="macro">log::info!</span>(<span class="string">&quot;ping on idle connection returned error: {}&quot;</span>, e);
+            <span class="comment">// connection is broken so don&#39;t try to close nicely
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(conn.close_hard().<span class="kw">await</span>);
         }
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">test</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">before_acquire</span> {
-        <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">metadata</span>();
-        <span class="kw">match</span> <span class="ident">test</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>.<span class="ident">live</span>.<span class="ident">raw</span>, <span class="ident">meta</span>).<span class="kw">await</span> {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(test) = <span class="kw-2">&amp;</span>options.before_acquire {
+        <span class="kw">let </span>meta = conn.metadata();
+        <span class="kw">match </span>test(<span class="kw-2">&amp;mut </span>conn.live.raw, meta).<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) =&gt; {
-                <span class="comment">// connection was rejected by user-defined hook, close nicely</span>
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">conn</span>.<span class="ident">close</span>().<span class="kw">await</span>);
+                <span class="comment">// connection was rejected by user-defined hook, close nicely
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(conn.close().<span class="kw">await</span>);
             }
 
-            <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; {
-                <span class="macro">log::warn!</span>(<span class="string">&quot;error from `before_acquire`: {}&quot;</span>, <span class="ident">error</span>);
-                <span class="comment">// connection is broken so don&#39;t try to close nicely</span>
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">conn</span>.<span class="ident">close_hard</span>().<span class="kw">await</span>);
+            <span class="prelude-val">Err</span>(error) =&gt; {
+                <span class="macro">log::warn!</span>(<span class="string">&quot;error from `before_acquire`: {}&quot;</span>, error);
+                <span class="comment">// connection is broken so don&#39;t try to close nicely
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(conn.close_hard().<span class="kw">await</span>);
             }
 
             <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) =&gt; {}
         }
     }
 
-    <span class="comment">// No need to re-connect; connection is alive or we don&#39;t care</span>
-    <span class="prelude-val">Ok</span>(<span class="ident">conn</span>.<span class="ident">into_live</span>())
+    <span class="comment">// No need to re-connect; connection is alive or we don&#39;t care
+    </span><span class="prelude-val">Ok</span>(conn.into_live())
 }
 
-<span class="kw">fn</span> <span class="ident">spawn_maintenance_tasks</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PoolInner</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>);
+<span class="kw">fn </span>spawn_maintenance_tasks&lt;DB: Database&gt;(pool: <span class="kw-2">&amp;</span>Arc&lt;PoolInner&lt;DB&gt;&gt;) {
+    <span class="kw">let </span>pool = Arc::clone(<span class="kw-2">&amp;</span>pool);
 
-    <span class="kw">let</span> <span class="ident">period</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">max_lifetime</span>, <span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">idle_timeout</span>) {
-        (<span class="prelude-val">Some</span>(<span class="ident">it</span>), <span class="prelude-val">None</span>) <span class="op">|</span> (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">it</span>)) =&gt; <span class="ident">it</span>,
+    <span class="kw">let </span>period = <span class="kw">match </span>(pool.options.max_lifetime, pool.options.idle_timeout) {
+        (<span class="prelude-val">Some</span>(it), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(it)) =&gt; it,
 
-        (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) =&gt; <span class="ident">cmp::min</span>(<span class="ident">a</span>, <span class="ident">b</span>),
+        (<span class="prelude-val">Some</span>(a), <span class="prelude-val">Some</span>(b)) =&gt; cmp::min(a, b),
 
         (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
-            <span class="kw">if</span> <span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">min_connections</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                <span class="ident">sqlx_rt::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident">pool</span>.<span class="ident">min_connections_maintenance</span>(<span class="prelude-val">None</span>).<span class="kw">await</span>;
+            <span class="kw">if </span>pool.options.min_connections &gt; <span class="number">0 </span>{
+                sqlx_rt::spawn(<span class="kw">async move </span>{
+                    pool.min_connections_maintenance(<span class="prelude-val">None</span>).<span class="kw">await</span>;
                 });
             }
 
@@ -1051,26 +1051,26 @@
         }
     };
 
-    <span class="ident">sqlx_rt::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-        <span class="comment">// Immediately cancel this task if the pool is closed.</span>
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">pool</span>
-            .<span class="ident">close_event</span>()
-            .<span class="ident">do_until</span>(<span class="kw">async</span> {
-                <span class="kw">while</span> <span class="op">!</span><span class="ident">pool</span>.<span class="ident">is_closed</span>() {
-                    <span class="kw">let</span> <span class="ident">next_run</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">period</span>;
+    sqlx_rt::spawn(<span class="kw">async move </span>{
+        <span class="comment">// Immediately cancel this task if the pool is closed.
+        </span><span class="kw">let _ </span>= pool
+            .close_event()
+            .do_until(<span class="kw">async </span>{
+                <span class="kw">while </span>!pool.is_closed() {
+                    <span class="kw">let </span>next_run = Instant::now() + period;
 
-                    <span class="ident">pool</span>.<span class="ident">min_connections_maintenance</span>(<span class="prelude-val">Some</span>(<span class="ident">next_run</span>)).<span class="kw">await</span>;
+                    pool.min_connections_maintenance(<span class="prelude-val">Some</span>(next_run)).<span class="kw">await</span>;
 
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">duration</span>) <span class="op">=</span> <span class="ident">next_run</span>.<span class="ident">checked_duration_since</span>(<span class="ident">Instant::now</span>()) {
-                        <span class="comment">// `async-std` doesn&#39;t have a `sleep_until()`</span>
-                        <span class="ident">sqlx_rt::sleep</span>(<span class="ident">duration</span>).<span class="kw">await</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">sqlx_rt::yield_now</span>().<span class="kw">await</span>;
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(duration) = next_run.checked_duration_since(Instant::now()) {
+                        <span class="comment">// `async-std` doesn&#39;t have a `sleep_until()`
+                        </span>sqlx_rt::sleep(duration).<span class="kw">await</span>;
+                    } <span class="kw">else </span>{
+                        sqlx_rt::yield_now().<span class="kw">await</span>;
                     }
 
-                    <span class="comment">// Don&#39;t run the reaper right away.</span>
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">pool</span>.<span class="ident">idle_conns</span>.<span class="ident">is_empty</span>() {
-                        <span class="ident">do_reap</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span>;
+                    <span class="comment">// Don&#39;t run the reaper right away.
+                    </span><span class="kw">if </span>!pool.idle_conns.is_empty() {
+                        do_reap(<span class="kw-2">&amp;</span>pool).<span class="kw">await</span>;
                     }
                 }
             })
@@ -1078,75 +1078,75 @@
     });
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">do_reap</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PoolInner</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-    <span class="comment">// reap at most the current size minus the minimum idle</span>
-    <span class="kw">let</span> <span class="ident">max_reaped</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">size</span>().<span class="ident">saturating_sub</span>(<span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">min_connections</span>);
+<span class="kw">async fn </span>do_reap&lt;DB: Database&gt;(pool: <span class="kw-2">&amp;</span>Arc&lt;PoolInner&lt;DB&gt;&gt;) {
+    <span class="comment">// reap at most the current size minus the minimum idle
+    </span><span class="kw">let </span>max_reaped = pool.size().saturating_sub(pool.options.min_connections);
 
-    <span class="comment">// collect connections to reap</span>
-    <span class="kw">let</span> (<span class="ident">reap</span>, <span class="ident">keep</span>) <span class="op">=</span> (<span class="number">0</span>..<span class="ident">max_reaped</span>)
-        <span class="comment">// only connections waiting in the queue</span>
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">pool</span>.<span class="ident">try_acquire</span>())
-        .<span class="ident">partition</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="ident">conn</span><span class="op">|</span> {
-            <span class="ident">is_beyond_idle_timeout</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>.<span class="ident">options</span>)
-                <span class="op">|</span><span class="op">|</span> <span class="ident">is_beyond_max_lifetime</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">pool</span>.<span class="ident">options</span>)
+    <span class="comment">// collect connections to reap
+    </span><span class="kw">let </span>(reap, keep) = (<span class="number">0</span>..max_reaped)
+        <span class="comment">// only connections waiting in the queue
+        </span>.filter_map(|<span class="kw">_</span>| pool.try_acquire())
+        .partition::&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;(|conn| {
+            is_beyond_idle_timeout(conn, <span class="kw-2">&amp;</span>pool.options)
+                || is_beyond_max_lifetime(conn, <span class="kw-2">&amp;</span>pool.options)
         });
 
-    <span class="kw">for</span> <span class="ident">conn</span> <span class="kw">in</span> <span class="ident">keep</span> {
-        <span class="comment">// return valid connections to the pool first</span>
-        <span class="ident">pool</span>.<span class="ident">release</span>(<span class="ident">conn</span>.<span class="ident">into_live</span>());
+    <span class="kw">for </span>conn <span class="kw">in </span>keep {
+        <span class="comment">// return valid connections to the pool first
+        </span>pool.release(conn.into_live());
     }
 
-    <span class="kw">for</span> <span class="ident">conn</span> <span class="kw">in</span> <span class="ident">reap</span> {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">close</span>().<span class="kw">await</span>;
+    <span class="kw">for </span>conn <span class="kw">in </span>reap {
+        <span class="kw">let _ </span>= conn.close().<span class="kw">await</span>;
     }
 }
 
-<span class="doccomment">/// RAII guard returned by `Pool::try_increment_size()` and others.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Will decrement the pool size if dropped, to avoid semantically &quot;leaking&quot; connections</span>
-<span class="doccomment">/// (where the pool thinks it has more connections than it does).</span>
-<span class="kw">pub</span>(<span class="kw">in</span> <span class="ident"><span class="kw">crate</span>::pool</span>) <span class="kw">struct</span> <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">pool</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PoolInner</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">cancelled</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// RAII guard returned by `Pool::try_increment_size()` and others.
+///
+/// Will decrement the pool size if dropped, to avoid semantically &quot;leaking&quot; connections
+/// (where the pool thinks it has more connections than it does).
+</span><span class="kw">pub</span>(<span class="kw">in </span><span class="kw">crate</span>::pool) <span class="kw">struct </span>DecrementSizeGuard&lt;DB: Database&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) pool: Arc&lt;PoolInner&lt;DB&gt;&gt;,
+    cancelled: bool,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Create a new guard that will release a semaphore permit on-drop.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_permit</span>(<span class="ident">pool</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PoolInner</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">pool</span>,
-            <span class="ident">cancelled</span>: <span class="bool-val">false</span>,
+<span class="kw">impl</span>&lt;DB: Database&gt; DecrementSizeGuard&lt;DB&gt; {
+    <span class="doccomment">/// Create a new guard that will release a semaphore permit on-drop.
+    </span><span class="kw">pub fn </span>new_permit(pool: Arc&lt;PoolInner&lt;DB&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            pool,
+            cancelled: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_permit</span>(<span class="ident">pool</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PoolInner</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">permit</span>: <span class="ident">SemaphoreReleaser</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// here we effectively take ownership of the permit</span>
-        <span class="ident">permit</span>.<span class="ident">disarm</span>();
-        <span class="ident"><span class="self">Self</span>::new_permit</span>(<span class="ident">pool</span>)
+    <span class="kw">pub fn </span>from_permit(pool: Arc&lt;PoolInner&lt;DB&gt;&gt;, <span class="kw-2">mut </span>permit: SemaphoreReleaser&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="comment">// here we effectively take ownership of the permit
+        </span>permit.disarm();
+        <span class="self">Self</span>::new_permit(pool)
     }
 
-    <span class="doccomment">/// Release the semaphore permit without decreasing the pool size.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the permit was stolen from the pool&#39;s parent, it will be returned to the child&#39;s semaphore.</span>
-    <span class="kw">fn</span> <span class="ident">release_permit</span>(<span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">semaphore</span>.<span class="ident">release</span>(<span class="number">1</span>);
-        <span class="self">self</span>.<span class="ident">cancel</span>();
+    <span class="doccomment">/// Release the semaphore permit without decreasing the pool size.
+    ///
+    /// If the permit was stolen from the pool&#39;s parent, it will be returned to the child&#39;s semaphore.
+    </span><span class="kw">fn </span>release_permit(<span class="self">self</span>) {
+        <span class="self">self</span>.pool.semaphore.release(<span class="number">1</span>);
+        <span class="self">self</span>.cancel();
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel</span>(<span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">cancelled</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">pub fn </span>cancel(<span class="kw-2">mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.cancelled = <span class="bool-val">true</span>;
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">DecrementSizeGuard</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">cancelled</span> {
-            <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">size</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering::AcqRel</span>);
+<span class="kw">impl</span>&lt;DB: Database&gt; Drop <span class="kw">for </span>DecrementSizeGuard&lt;DB&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span>!<span class="self">self</span>.cancelled {
+            <span class="self">self</span>.pool.size.fetch_sub(<span class="number">1</span>, Ordering::AcqRel);
 
-            <span class="comment">// and here we release the permit we got on construction</span>
-            <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">semaphore</span>.<span class="ident">release</span>(<span class="number">1</span>);
+            <span class="comment">// and here we release the permit we got on construction
+            </span><span class="self">self</span>.pool.semaphore.release(<span class="number">1</span>);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/establish.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>establish.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/establish.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>establish.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -152,159 +152,159 @@
 <span id="152">152</span>
 <span id="153">153</span>
 <span id="154">154</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::HashMap;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::StatementCache</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io::Decode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::connection</span>::{<span class="ident">sasl</span>, <span class="ident">stream::PgStream</span>, <span class="ident">tls</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::message</span>::{
-    <span class="ident">Authentication</span>, <span class="ident">BackendKeyData</span>, <span class="ident">MessageFormat</span>, <span class="ident">Password</span>, <span class="ident">ReadyForQuery</span>, <span class="ident">Startup</span>,
+<span class="kw">use </span><span class="kw">crate</span>::common::StatementCache;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::io::Decode;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::connection::{sasl, stream::PgStream, tls};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::message::{
+    Authentication, BackendKeyData, MessageFormat, Password, ReadyForQuery, Startup,
 };
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::Oid</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgConnectOptions</span>, <span class="ident">PgConnection</span>};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::types::Oid;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{PgConnectOptions, PgConnection};
 
-<span class="comment">// https://www.postgresql.org/docs/current/protocol-flow.html#id-1.10.5.7.3</span>
-<span class="comment">// https://www.postgresql.org/docs/current/protocol-flow.html#id-1.10.5.7.11</span>
+<span class="comment">// https://www.postgresql.org/docs/current/protocol-flow.html#id-1.10.5.7.3
+// https://www.postgresql.org/docs/current/protocol-flow.html#id-1.10.5.7.11
 
-<span class="kw">impl</span> <span class="ident">PgConnection</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">establish</span>(<span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PgConnectOptions</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">PgStream::connect</span>(<span class="ident">options</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+</span><span class="kw">impl </span>PgConnection {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>establish(options: <span class="kw-2">&amp;</span>PgConnectOptions) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>stream = PgStream::connect(options).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// Upgrade to TLS if we were asked to and the server supports it</span>
-        <span class="ident">tls::maybe_upgrade</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stream</span>, <span class="ident">options</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// Upgrade to TLS if we were asked to and the server supports it
+        </span>tls::maybe_upgrade(<span class="kw-2">&amp;mut </span>stream, options).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// To begin a session, a frontend opens a connection to the server</span>
-        <span class="comment">// and sends a startup message.</span>
+        <span class="comment">// To begin a session, a frontend opens a connection to the server
+        // and sends a startup message.
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// Sets the display format for date and time values,</span>
-            <span class="comment">// as well as the rules for interpreting ambiguous date input values.</span>
-            (<span class="string">&quot;DateStyle&quot;</span>, <span class="string">&quot;ISO, MDY&quot;</span>),
-            <span class="comment">// Sets the client-side encoding (character set).</span>
-            <span class="comment">// &lt;https://www.postgresql.org/docs/devel/multibyte.html#MULTIBYTE-CHARSET-SUPPORTED&gt;</span>
-            (<span class="string">&quot;client_encoding&quot;</span>, <span class="string">&quot;UTF8&quot;</span>),
-            <span class="comment">// Sets the time zone for displaying and interpreting time stamps.</span>
-            (<span class="string">&quot;TimeZone&quot;</span>, <span class="string">&quot;UTC&quot;</span>),
+        </span><span class="kw">let </span><span class="kw-2">mut </span>params = <span class="macro">vec!</span>[
+            <span class="comment">// Sets the display format for date and time values,
+            // as well as the rules for interpreting ambiguous date input values.
+            </span>(<span class="string">&quot;DateStyle&quot;</span>, <span class="string">&quot;ISO, MDY&quot;</span>),
+            <span class="comment">// Sets the client-side encoding (character set).
+            // &lt;https://www.postgresql.org/docs/devel/multibyte.html#MULTIBYTE-CHARSET-SUPPORTED&gt;
+            </span>(<span class="string">&quot;client_encoding&quot;</span>, <span class="string">&quot;UTF8&quot;</span>),
+            <span class="comment">// Sets the time zone for displaying and interpreting time stamps.
+            </span>(<span class="string">&quot;TimeZone&quot;</span>, <span class="string">&quot;UTC&quot;</span>),
         ];
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">extra_float_digits</span>) <span class="op">=</span> <span class="ident">options</span>.<span class="ident">extra_float_digits</span> {
-            <span class="ident">params</span>.<span class="ident">push</span>((<span class="string">&quot;extra_float_digits&quot;</span>, <span class="ident">extra_float_digits</span>));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>extra_float_digits) = options.extra_float_digits {
+            params.push((<span class="string">&quot;extra_float_digits&quot;</span>, extra_float_digits));
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">application_name</span>) <span class="op">=</span> <span class="ident">options</span>.<span class="ident">application_name</span> {
-            <span class="ident">params</span>.<span class="ident">push</span>((<span class="string">&quot;application_name&quot;</span>, <span class="ident">application_name</span>));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>application_name) = options.application_name {
+            params.push((<span class="string">&quot;application_name&quot;</span>, application_name));
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">options</span>) <span class="op">=</span> <span class="ident">options</span>.<span class="ident">options</span> {
-            <span class="ident">params</span>.<span class="ident">push</span>((<span class="string">&quot;options&quot;</span>, <span class="ident">options</span>));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>options) = options.options {
+            params.push((<span class="string">&quot;options&quot;</span>, options));
         }
 
-        <span class="ident">stream</span>
-            .<span class="ident">send</span>(<span class="ident">Startup</span> {
-                <span class="ident">username</span>: <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">username</span>),
-                <span class="ident">database</span>: <span class="ident">options</span>.<span class="ident">database</span>.<span class="ident">as_deref</span>(),
-                <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">params</span>,
+        stream
+            .send(Startup {
+                username: <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>options.username),
+                database: options.database.as_deref(),
+                params: <span class="kw-2">&amp;</span>params,
             })
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// The server then uses this information and the contents of</span>
-        <span class="comment">// its configuration files (such as pg_hba.conf) to determine whether the connection is</span>
-        <span class="comment">// provisionally acceptable, and what additional</span>
-        <span class="comment">// authentication is required (if any).</span>
+        <span class="comment">// The server then uses this information and the contents of
+        // its configuration files (such as pg_hba.conf) to determine whether the connection is
+        // provisionally acceptable, and what additional
+        // authentication is required (if any).
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">process_id</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">secret_key</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="ident">transaction_status</span>;
+        </span><span class="kw">let </span><span class="kw-2">mut </span>process_id = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>secret_key = <span class="number">0</span>;
+        <span class="kw">let </span>transaction_status;
 
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">recv</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">format</span> {
-                <span class="ident">MessageFormat::Authentication</span> =&gt; <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span> {
-                    <span class="ident">Authentication::Ok</span> =&gt; {
-                        <span class="comment">// the authentication exchange is successfully completed</span>
-                        <span class="comment">// do nothing; no more information is required to continue</span>
-                    }
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>message = stream.recv().<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">match </span>message.format {
+                MessageFormat::Authentication =&gt; <span class="kw">match </span>message.decode()<span class="question-mark">? </span>{
+                    Authentication::Ok =&gt; {
+                        <span class="comment">// the authentication exchange is successfully completed
+                        // do nothing; no more information is required to continue
+                    </span>}
 
-                    <span class="ident">Authentication::CleartextPassword</span> =&gt; {
-                        <span class="comment">// The frontend must now send a [PasswordMessage] containing the</span>
-                        <span class="comment">// password in clear-text form.</span>
+                    Authentication::CleartextPassword =&gt; {
+                        <span class="comment">// The frontend must now send a [PasswordMessage] containing the
+                        // password in clear-text form.
 
-                        <span class="ident">stream</span>
-                            .<span class="ident">send</span>(<span class="ident">Password::Cleartext</span>(
-                                <span class="ident">options</span>.<span class="ident">password</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or_default</span>(),
+                        </span>stream
+                            .send(Password::Cleartext(
+                                options.password.as_deref().unwrap_or_default(),
                             ))
                             .<span class="kw">await</span><span class="question-mark">?</span>;
                     }
 
-                    <span class="ident">Authentication::Md5Password</span>(<span class="ident">body</span>) =&gt; {
-                        <span class="comment">// The frontend must now send a [PasswordMessage] containing the</span>
-                        <span class="comment">// password (with user name) encrypted via MD5, then encrypted again</span>
-                        <span class="comment">// using the 4-byte random salt specified in the</span>
-                        <span class="comment">// [AuthenticationMD5Password] message.</span>
+                    Authentication::Md5Password(body) =&gt; {
+                        <span class="comment">// The frontend must now send a [PasswordMessage] containing the
+                        // password (with user name) encrypted via MD5, then encrypted again
+                        // using the 4-byte random salt specified in the
+                        // [AuthenticationMD5Password] message.
 
-                        <span class="ident">stream</span>
-                            .<span class="ident">send</span>(<span class="ident">Password::Md5</span> {
-                                <span class="ident">username</span>: <span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">username</span>,
-                                <span class="ident">password</span>: <span class="ident">options</span>.<span class="ident">password</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or_default</span>(),
-                                <span class="ident">salt</span>: <span class="ident">body</span>.<span class="ident">salt</span>,
+                        </span>stream
+                            .send(Password::Md5 {
+                                username: <span class="kw-2">&amp;</span>options.username,
+                                password: options.password.as_deref().unwrap_or_default(),
+                                salt: body.salt,
                             })
                             .<span class="kw">await</span><span class="question-mark">?</span>;
                     }
 
-                    <span class="ident">Authentication::Sasl</span>(<span class="ident">body</span>) =&gt; {
-                        <span class="ident">sasl::authenticate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stream</span>, <span class="ident">options</span>, <span class="ident">body</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                    Authentication::Sasl(body) =&gt; {
+                        sasl::authenticate(<span class="kw-2">&amp;mut </span>stream, options, body).<span class="kw">await</span><span class="question-mark">?</span>;
                     }
 
-                    <span class="ident">method</span> =&gt; {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
+                    method =&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
                             <span class="string">&quot;unsupported authentication method: {:?}&quot;</span>,
-                            <span class="ident">method</span>
+                            method
                         ));
                     }
                 },
 
-                <span class="ident">MessageFormat::BackendKeyData</span> =&gt; {
-                    <span class="comment">// provides secret-key data that the frontend must save if it wants to be</span>
-                    <span class="comment">// able to issue cancel requests later</span>
+                MessageFormat::BackendKeyData =&gt; {
+                    <span class="comment">// provides secret-key data that the frontend must save if it wants to be
+                    // able to issue cancel requests later
 
-                    <span class="kw">let</span> <span class="ident">data</span>: <span class="ident">BackendKeyData</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
+                    </span><span class="kw">let </span>data: BackendKeyData = message.decode()<span class="question-mark">?</span>;
 
-                    <span class="ident">process_id</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">process_id</span>;
-                    <span class="ident">secret_key</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">secret_key</span>;
+                    process_id = data.process_id;
+                    secret_key = data.secret_key;
                 }
 
-                <span class="ident">MessageFormat::ReadyForQuery</span> =&gt; {
-                    <span class="comment">// start-up is completed. The frontend can now issue commands</span>
-                    <span class="ident">transaction_status</span> <span class="op">=</span>
-                        <span class="ident">ReadyForQuery::decode</span>(<span class="ident">message</span>.<span class="ident">contents</span>)<span class="question-mark">?</span>.<span class="ident">transaction_status</span>;
+                MessageFormat::ReadyForQuery =&gt; {
+                    <span class="comment">// start-up is completed. The frontend can now issue commands
+                    </span>transaction_status =
+                        ReadyForQuery::decode(message.contents)<span class="question-mark">?</span>.transaction_status;
 
                     <span class="kw">break</span>;
                 }
 
-                <span class="kw">_</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
+                <span class="kw">_ </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
                         <span class="string">&quot;establish: unexpected message: {:?}&quot;</span>,
-                        <span class="ident">message</span>.<span class="ident">format</span>
+                        message.format
                     ))
                 }
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">PgConnection</span> {
-            <span class="ident">stream</span>,
-            <span class="ident">process_id</span>,
-            <span class="ident">secret_key</span>,
-            <span class="ident">transaction_status</span>,
-            <span class="ident">transaction_depth</span>: <span class="number">0</span>,
-            <span class="ident">pending_ready_for_query_count</span>: <span class="number">0</span>,
-            <span class="ident">next_statement_id</span>: <span class="ident">Oid</span>(<span class="number">1</span>),
-            <span class="ident">cache_statement</span>: <span class="ident">StatementCache::new</span>(<span class="ident">options</span>.<span class="ident">statement_cache_capacity</span>),
-            <span class="ident">cache_type_oid</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">cache_type_info</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">log_settings</span>: <span class="ident">options</span>.<span class="ident">log_settings</span>.<span class="ident">clone</span>(),
+        <span class="prelude-val">Ok</span>(PgConnection {
+            stream,
+            process_id,
+            secret_key,
+            transaction_status,
+            transaction_depth: <span class="number">0</span>,
+            pending_ready_for_query_count: <span class="number">0</span>,
+            next_statement_id: Oid(<span class="number">1</span>),
+            cache_statement: StatementCache::new(options.statement_cache_capacity),
+            cache_type_oid: HashMap::new(),
+            cache_type_info: HashMap::new(),
+            log_settings: options.log_settings.clone(),
         })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

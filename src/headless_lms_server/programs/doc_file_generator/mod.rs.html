@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/doc_file_generator/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/doc_file_generator/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1495,918 +1495,918 @@ Note that since this method doesn&#39;t use the example! macro, leaving out fiel
 or the ex() function which is just a shortcut for Example::example().
 
 This method is mainly useful for external/std types. For example, we cannot write Uuid as a struct literal because it has private fields, or bool because it&#39;s a primitive type.
-*/</span>
+*/
 
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
+</span><span class="attribute">#![allow(clippy::redundant_clone)]
+#![allow(unused_imports)]
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">example</span>;
+</span><span class="kw">pub mod </span>example;
 
-<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">example::Example</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
-    <span class="ident">course_background_question_answers::CourseBackgroundQuestionAnswer</span>,
-    <span class="ident">course_background_questions</span>::{
-        <span class="ident">CourseBackgroundQuestion</span>, <span class="ident">CourseBackgroundQuestionType</span>, <span class="ident">CourseBackgroundQuestionsAndAnswers</span>,
+<span class="kw">use </span>chrono::{TimeZone, Utc};
+<span class="kw">use </span>example::Example;
+<span class="kw">use </span>headless_lms_models::{
+    course_background_question_answers::CourseBackgroundQuestionAnswer,
+    course_background_questions::{
+        CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers,
     },
-    <span class="ident">course_module_completions::CourseModuleCompletionWithRegistrationInfo</span>,
-    <span class="ident">exercise_task_submissions::PeerReviewsRecieved</span>,
-    <span class="ident">peer_review_configs::CourseMaterialPeerReviewConfig</span>,
-    <span class="ident">peer_review_question_submissions::PeerReviewQuestionSubmission</span>,
+    course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+    exercise_task_submissions::PeerReviewsRecieved,
+    peer_review_configs::CourseMaterialPeerReviewConfig,
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
 };
-<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
-<span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">json</span>, <span class="ident">ser::PrettyFormatter</span>, <span class="ident">Serializer</span>, <span class="ident">Value</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use </span>serde::Serialize;
+<span class="kw">use </span>serde_json::{json, ser::PrettyFormatter, Serializer, Value};
+<span class="kw">use </span>std::{collections::HashMap, fs};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+</span><span class="kw">use </span>ts_rs::TS;
+<span class="kw">use </span>uuid::Uuid;
 
-<span class="comment">// Helper function to avoid typing out Example::example()</span>
-<span class="kw">fn</span> <span class="ident">ex</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Example</span><span class="op">&gt;</span>() -&gt; <span class="ident">T</span> {
-    <span class="ident">Example::example</span>()
+<span class="comment">// Helper function to avoid typing out Example::example()
+</span><span class="kw">fn </span>ex&lt;T: Example&gt;() -&gt; T {
+    Example::example()
 }
 
-<span class="comment">// Writes doc files. See the module documentation for more info.</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">doc</span> {
-    (<span class="ident">T</span>, <span class="ident">Opt</span>, <span class="ident">Vec</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">T</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">Opt</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">Vec</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+<span class="comment">// Writes doc files. See the module documentation for more info.
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>doc {
+    (T, Opt, Vec, $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner T, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner Opt, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner Vec, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
     };
-    (<span class="ident">Opt</span>, <span class="ident">Vec</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">Opt</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">Vec</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    (Opt, Vec, $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner Opt, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner Vec, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
     };
-    (<span class="ident">T</span>, <span class="ident">Opt</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">T</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">Opt</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    (T, Opt, $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner T, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner Opt, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
     };
-    (<span class="ident">T</span>, <span class="ident">Vec</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">T</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">Vec</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    (T, Vec, $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner T, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner Vec, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
     };
-    (<span class="ident">T</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">T</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    (T, $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner T, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
     };
-    (<span class="ident">Opt</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">Opt</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    (Opt, $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner Opt, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
     };
-    (<span class="ident">Vec</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
-        <span class="macro">doc!</span>(@<span class="ident">inner</span> <span class="ident">Vec</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    (Vec, $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">::doc_macro::example!</span>($(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
+        <span class="macro">doc!</span>(@inner Vec, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
     };
-    <span class="comment">// enum literal</span>
-    (@<span class="ident">inner</span> <span class="ident">T</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span> :: $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">doc!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>, <span class="ident">Example::example</span>());
+    <span class="comment">// enum literal
+    </span>(@inner T, <span class="macro-nonterminal">$i</span>:ident :: $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">doc!</span>(<span class="macro-nonterminal">$i</span>, Example::example());
     };
-    (@<span class="ident">inner</span> <span class="ident">Opt</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span> :: $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">doc!</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span><span class="op">&gt;</span>, <span class="ident">Example::example</span>());
+    (@inner Opt, <span class="macro-nonterminal">$i</span>:ident :: $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">doc!</span>(<span class="prelude-ty">Option</span>&lt;<span class="macro-nonterminal">$i</span>&gt;, Example::example());
     };
-    (@<span class="ident">inner</span> <span class="ident">Vec</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span> :: $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">doc!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span><span class="op">&gt;</span>, <span class="ident">Example::example</span>());
+    (@inner Vec, <span class="macro-nonterminal">$i</span>:ident :: $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">doc!</span>(Vec&lt;<span class="macro-nonterminal">$i</span>&gt;, Example::example());
     };
-    <span class="comment">// struct literal</span>
-    (@<span class="ident">inner</span> <span class="ident">T</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">doc!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>, <span class="ident">Example::example</span>());
+    <span class="comment">// struct literal
+    </span>(@inner T, <span class="macro-nonterminal">$i</span>:ident $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">doc!</span>(<span class="macro-nonterminal">$i</span>, Example::example());
     };
-    (@<span class="ident">inner</span> <span class="ident">Opt</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">doc!</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span><span class="op">&gt;</span>, <span class="ident">Example::example</span>());
+    (@inner Opt, <span class="macro-nonterminal">$i</span>:ident $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">doc!</span>(<span class="prelude-ty">Option</span>&lt;<span class="macro-nonterminal">$i</span>&gt;, Example::example());
     };
-    (@<span class="ident">inner</span> <span class="ident">Vec</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">doc!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span><span class="op">&gt;</span>, <span class="ident">Example::example</span>());
+    (@inner Vec, <span class="macro-nonterminal">$i</span>:ident $(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">doc!</span>(Vec&lt;<span class="macro-nonterminal">$i</span>&gt;, Example::example());
     };
-    <span class="comment">// writes the actual docs</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) =&gt; {{
-        <span class="kw">let</span> <span class="ident">expr</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>;
+    <span class="comment">// writes the actual docs
+    </span>(<span class="macro-nonterminal">$t</span>:ty, <span class="macro-nonterminal">$e</span>:expr) =&gt; {{
+        <span class="kw">let </span>expr: <span class="macro-nonterminal">$t </span>= <span class="macro-nonterminal">$e</span>;
 
-        <span class="kw">let</span> <span class="ident">json_path</span> <span class="op">=</span> <span class="macro">concat!</span>(
+        <span class="kw">let </span>json_path = <span class="macro">concat!</span>(
             <span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>),
             <span class="string">&quot;/generated-docs/&quot;</span>,
-            <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>),
-            <span class="string">&quot;.json&quot;</span>
-        );
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::programs::doc_file_generator::write_json</span>(<span class="ident">json_path</span>, <span class="ident">expr</span>);
+            <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>),
+            <span class="string">&quot;.json&quot;
+        </span>);
+        <span class="macro-nonterminal">$crate::programs::doc_file_generator::write_json</span>(json_path, expr);
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
-        {
-            <span class="kw">let</span> <span class="ident">ts_path</span> <span class="op">=</span> <span class="macro">concat!</span>(
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+        </span>{
+            <span class="kw">let </span>ts_path = <span class="macro">concat!</span>(
                 <span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>),
                 <span class="string">&quot;/generated-docs/&quot;</span>,
-                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>),
-                <span class="string">&quot;.ts&quot;</span>
-            );
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>),
+                <span class="string">&quot;.ts&quot;
+            </span>);
 
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::programs::doc_file_generator::write_ts</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span>(<span class="ident">ts_path</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>));
+            <span class="macro-nonterminal">$crate::programs::doc_file_generator::write_ts</span>::&lt;<span class="macro-nonterminal">$t</span>&gt;(ts_path, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>));
         }
     }};
-    <span class="comment">// shortcut for doc!(T, ...)</span>
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro">doc!</span>(<span class="ident">T</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    <span class="comment">// shortcut for doc!(T, ...)
+    </span>($(<span class="macro-nonterminal">$t</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro">doc!</span>(T, $(<span class="macro-nonterminal">$t</span>)<span class="kw-2">*</span>);
     };
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// clear previous results</span>
-    <span class="ident">fs::read_dir</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/generated-docs/&quot;</span>))
-        .<span class="ident">unwrap</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">file</span><span class="op">|</span> {
-            <span class="ident">file</span>.<span class="ident">ok</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> {
-                <span class="ident">f</span>.<span class="ident">file_name</span>()
-                    .<span class="ident">to_str</span>()
-                    .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.json&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.ts&quot;</span>))
+<span class="kw">pub async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
+    <span class="comment">// clear previous results
+    </span>fs::read_dir(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/generated-docs/&quot;</span>))
+        .unwrap()
+        .filter_map(|file| {
+            file.ok().filter(|f| {
+                f.file_name()
+                    .to_str()
+                    .map_or(<span class="bool-val">false</span>, |n| n.ends_with(<span class="string">&quot;.json&quot;</span>) || n.ends_with(<span class="string">&quot;.ts&quot;</span>))
             })
         })
-        .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">fs::remove_file</span>(<span class="ident">f</span>.<span class="ident">path</span>()).<span class="ident">unwrap</span>());
+        .for_each(|f| fs::remove_file(f.path()).unwrap());
 
-    <span class="comment">// write docs</span>
-    <span class="ident">controllers</span>();
-    <span class="ident">models</span>();
-    <span class="ident">utils</span>();
+    <span class="comment">// write docs
+    </span>controllers();
+    models();
+    utils();
 
-    <span class="macro">doc!</span>((), <span class="ident">ex</span>());
-    <span class="macro">doc!</span>(<span class="ident">i64</span>, <span class="number">123</span>);
-    <span class="macro">doc!</span>(<span class="ident">bool</span>, <span class="ident">ex</span>());
+    <span class="macro">doc!</span>((), ex());
+    <span class="macro">doc!</span>(i64, <span class="number">123</span>);
+    <span class="macro">doc!</span>(bool, ex());
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
+        Vec&lt;bool&gt;,
         <span class="macro">vec!</span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>]
     );
-    <span class="macro">doc!</span>(<span class="ident">String</span>, <span class="ident">ex</span>());
-    <span class="macro">doc!</span>(<span class="ident">Uuid</span>, <span class="ident">ex</span>());
-    <span class="macro">doc!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>, <span class="ident">ex</span>());
+    <span class="macro">doc!</span>(String, ex());
+    <span class="macro">doc!</span>(Uuid, ex());
+    <span class="macro">doc!</span>(Vec&lt;Uuid&gt;, ex());
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="ident">T</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">std::fs::File::create</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">formatter</span> <span class="op">=</span> <span class="ident">PrettyFormatter::with_indent</span>(<span class="string">b&quot;    &quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">serializer</span> <span class="op">=</span> <span class="ident">Serializer::with_formatter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">file</span>, <span class="ident">formatter</span>);
-    <span class="ident">serde::Serialize::serialize</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>, <span class="kw-2">&amp;mut</span> <span class="ident">serializer</span>).<span class="ident">unwrap</span>();
+<span class="kw">pub fn </span>write_json&lt;T: Serialize&gt;(path: <span class="kw-2">&amp;</span>str, value: T) {
+    <span class="kw">let </span><span class="kw-2">mut </span>file = std::fs::File::create(path).unwrap();
+    <span class="kw">let </span>formatter = PrettyFormatter::with_indent(<span class="string">b&quot;    &quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>serializer = Serializer::with_formatter(<span class="kw-2">&amp;mut </span>file, formatter);
+    serde::Serialize::serialize(<span class="kw-2">&amp;</span>value, <span class="kw-2">&amp;mut </span>serializer).unwrap();
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_ts</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TS</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;type {} = {}&quot;</span>, <span class="ident">type_name</span>, <span class="ident">T::inline</span>());
-    <span class="ident">std::fs::write</span>(<span class="ident">path</span>, <span class="ident">contents</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+</span><span class="kw">pub fn </span>write_ts&lt;T: TS&gt;(path: <span class="kw-2">&amp;</span>str, type_name: <span class="kw-2">&amp;</span>str) {
+    <span class="kw">let </span>contents = <span class="macro">format!</span>(<span class="string">&quot;type {} = {}&quot;</span>, type_name, T::inline());
+    std::fs::write(path, contents).unwrap();
 }
 
-<span class="kw">fn</span> <span class="ident">controllers</span>() {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{
-        <span class="ident">auth::UserInfo</span>,
-        <span class="ident">course_material</span>::{
-            <span class="ident">courses</span>::{<span class="ident">ChaptersWithStatus</span>, <span class="ident">CourseMaterialCourseModule</span>},
-            <span class="ident">exams</span>::{<span class="ident">ExamData</span>, <span class="ident">ExamEnrollmentData</span>},
+<span class="kw">fn </span>controllers() {
+    <span class="kw">use </span><span class="kw">crate</span>::controllers::{
+        auth::UserInfo,
+        course_material::{
+            courses::{ChaptersWithStatus, CourseMaterialCourseModule},
+            exams::{ExamData, ExamEnrollmentData},
         },
-        <span class="ident">main_frontend::exercises</span>::{
-            <span class="ident">AnswerRequiringAttentionWithTasks</span>, <span class="ident">AnswersRequiringAttention</span>, <span class="ident">ExerciseSubmissions</span>,
+        main_frontend::exercises::{
+            AnswerRequiringAttentionWithTasks, AnswersRequiringAttention, ExerciseSubmissions,
         },
-        <span class="ident">UploadResult</span>,
+        UploadResult,
     };
 
-    <span class="macro">example!</span>(<span class="ident">CourseMaterialCourseModule</span> {
-        <span class="ident">chapters</span>,
-        <span class="ident">id</span>,
-        <span class="ident">is_default</span>: <span class="bool-val">true</span>,
-        <span class="ident">name</span>: <span class="prelude-val">None</span>,
-        <span class="ident">order_number</span>: <span class="number">0</span>
-    });
-    <span class="macro">example!</span>(<span class="ident">AnswerRequiringAttentionWithTasks</span> {
-        <span class="ident">id</span>,
-        <span class="ident">user_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;7115806b-07c4-4079-8444-6dd248d3b9e7&quot;</span>).<span class="ident">unwrap</span>(),
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-        <span class="ident">data_json</span>: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span> {{<span class="string">&quot;choice&quot;</span>: <span class="string">&quot;a&quot;</span>}}),
-        <span class="ident">grading_progress</span>,
-        <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
-        <span class="ident">submission_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;e2560477-0680-4573-abec-646440e294da&quot;</span>).<span class="ident">unwrap</span>(),
-        <span class="ident">exercise_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;7f57619a-ad00-4116-958d-5d597437e6fb&quot;</span>).<span class="ident">unwrap</span>(),
-        <span class="ident">tasks</span>,
+    <span class="macro">example!</span>(CourseMaterialCourseModule {
+        chapters,
+        id,
+        is_default: <span class="bool-val">true</span>,
+        name: <span class="prelude-val">None</span>,
+        order_number: <span class="number">0
+    </span>});
+    <span class="macro">example!</span>(AnswerRequiringAttentionWithTasks {
+        id,
+        user_id: Uuid::parse_str(<span class="string">&quot;7115806b-07c4-4079-8444-6dd248d3b9e7&quot;</span>).unwrap(),
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        data_json: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json! </span>{{<span class="string">&quot;choice&quot;</span>: <span class="string">&quot;a&quot;</span>}}),
+        grading_progress,
+        score_given: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
+        submission_id: Uuid::parse_str(<span class="string">&quot;e2560477-0680-4573-abec-646440e294da&quot;</span>).unwrap(),
+        exercise_id: Uuid::parse_str(<span class="string">&quot;7f57619a-ad00-4116-958d-5d597437e6fb&quot;</span>).unwrap(),
+        tasks,
     });
 
-    <span class="macro">doc!</span>(<span class="ident">UploadResult</span> {
-        <span class="ident">url</span>: <span class="string">&quot;http://project-331.local/api/v0/files/courses/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png&quot;</span>.<span class="ident">to_string</span>()
+    <span class="macro">doc!</span>(UploadResult {
+        url: <span class="string">&quot;http://project-331.local/api/v0/files/courses/1b89e57e-8b57-42f2-9fed-c7a6736e3eec/courses/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/images/iHZMHdvsazy43ZtP0Ea01sy8AOpUiZ.png&quot;</span>.to_string()
     });
-    <span class="macro">doc!</span>(<span class="ident">ExamData</span> {
-        <span class="ident">id</span>,
-        <span class="ident">name</span>: <span class="string">&quot;Course exam&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">instructions</span>: <span class="macro">serde_json::json!</span>([]),
-        <span class="ident">starts_at</span>,
-        <span class="ident">ends_at</span>,
-        <span class="ident">ended</span>: <span class="bool-val">false</span>,
-        <span class="ident">time_minutes</span>: <span class="number">120</span>,
-        <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::NotEnrolled</span>
+    <span class="macro">doc!</span>(ExamData {
+        id,
+        name: <span class="string">&quot;Course exam&quot;</span>.to_string(),
+        instructions: <span class="macro">serde_json::json!</span>([]),
+        starts_at,
+        ends_at,
+        ended: <span class="bool-val">false</span>,
+        time_minutes: <span class="number">120</span>,
+        enrollment_data: ExamEnrollmentData::NotEnrolled
     });
-    <span class="macro">doc!</span>(<span class="ident">ExerciseSubmissions</span> {
-        <span class="ident">data</span>,
-        <span class="ident">total_pages</span>: <span class="number">1</span>
-    });
-    <span class="macro">doc!</span>(<span class="ident">ChaptersWithStatus</span> {
-        <span class="ident">is_previewable</span>: <span class="bool-val">false</span>,
-        <span class="ident">modules</span>,
+    <span class="macro">doc!</span>(ExerciseSubmissions {
+        data,
+        total_pages: <span class="number">1
+    </span>});
+    <span class="macro">doc!</span>(ChaptersWithStatus {
+        is_previewable: <span class="bool-val">false</span>,
+        modules,
     });
     <span class="macro">doc!</span>(
-        <span class="ident">Opt</span>,
-        <span class="ident">UserInfo</span> {
-            <span class="ident">user_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a&quot;</span>).<span class="ident">unwrap</span>()
+        Opt,
+        UserInfo {
+            user_id: Uuid::parse_str(<span class="string">&quot;cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a&quot;</span>).unwrap()
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">AnswersRequiringAttention</span> {
-        <span class="ident">exercise_max_points</span>: <span class="number">1</span>,
-        <span class="ident">data</span>,
-        <span class="ident">total_pages</span>: <span class="number">10</span>,
+    <span class="macro">doc!</span>(AnswersRequiringAttention {
+        exercise_max_points: <span class="number">1</span>,
+        data,
+        total_pages: <span class="number">10</span>,
     });
 }
 
-<span class="kw">fn</span> <span class="ident">models</span>() {
-    <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
-        <span class="ident">chapters</span>::{
-            <span class="ident">Chapter</span>, <span class="ident">ChapterStatus</span>, <span class="ident">ChapterWithStatus</span>, <span class="ident">DatabaseChapter</span>,
-            <span class="ident">UserCourseInstanceChapterProgress</span>,
+<span class="kw">fn </span>models() {
+    <span class="kw">use </span>headless_lms_models::{
+        chapters::{
+            Chapter, ChapterStatus, ChapterWithStatus, DatabaseChapter,
+            UserCourseInstanceChapterProgress,
         },
-        <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,
-        <span class="ident">course_instances</span>::{<span class="ident">ChapterScore</span>, <span class="ident">CourseInstance</span>, <span class="ident">Points</span>},
-        <span class="ident">course_module_completions</span>::{<span class="ident">StudyRegistryCompletion</span>, <span class="ident">StudyRegistryGrade</span>},
-        <span class="ident">course_modules::CourseModule</span>,
-        <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
-        <span class="ident">email_templates::EmailTemplate</span>,
-        <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>, <span class="ident">ExamInstructions</span>, <span class="ident">OrgExam</span>},
-        <span class="ident">exercise_repositories</span>::{<span class="ident">ExerciseRepository</span>, <span class="ident">ExerciseRepositoryStatus</span>},
-        <span class="ident">exercise_services</span>::{<span class="ident">ExerciseService</span>, <span class="ident">ExerciseServiceIframeRenderingInfo</span>},
-        <span class="ident">exercise_slide_submissions</span>::{
-            <span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span>, <span class="ident">ExerciseSlideSubmission</span>,
-            <span class="ident">ExerciseSlideSubmissionCount</span>, <span class="ident">ExerciseSlideSubmissionCountByExercise</span>,
-            <span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span>, <span class="ident">ExerciseSlideSubmissionInfo</span>,
+        course_instance_enrollments::CourseInstanceEnrollment,
+        course_instances::{ChapterScore, CourseInstance, Points},
+        course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
+        course_modules::CourseModule,
+        courses::{Course, CourseCount, CourseStructure},
+        email_templates::EmailTemplate,
+        exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
+        exercise_repositories::{ExerciseRepository, ExerciseRepositoryStatus},
+        exercise_services::{ExerciseService, ExerciseServiceIframeRenderingInfo},
+        exercise_slide_submissions::{
+            ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmission,
+            ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
+            ExerciseSlideSubmissionCountByWeekAndHour, ExerciseSlideSubmissionInfo,
         },
-        <span class="ident">exercise_slides::CourseMaterialExerciseSlide</span>,
-        <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
-        <span class="ident">exercise_task_submissions::ExerciseTaskSubmission</span>,
-        <span class="ident">exercise_tasks::CourseMaterialExerciseTask</span>,
-        <span class="ident">exercises</span>::{
-            <span class="ident">ActivityProgress</span>, <span class="ident">CourseMaterialExercise</span>, <span class="ident">Exercise</span>, <span class="ident">ExerciseStatus</span>, <span class="ident">GradingProgress</span>,
+        exercise_slides::CourseMaterialExerciseSlide,
+        exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
+        exercise_task_submissions::ExerciseTaskSubmission,
+        exercise_tasks::CourseMaterialExerciseTask,
+        exercises::{
+            ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
         },
-        <span class="ident">feedback</span>::{<span class="ident">Feedback</span>, <span class="ident">FeedbackBlock</span>, <span class="ident">FeedbackCount</span>},
-        <span class="ident">glossary::Term</span>,
-        <span class="ident">library</span>::{
-            <span class="ident">grading</span>::{<span class="ident">StudentExerciseSlideSubmissionResult</span>, <span class="ident">StudentExerciseTaskSubmissionResult</span>},
-            <span class="ident">peer_reviewing</span>::{
-                <span class="ident">CourseMaterialPeerReviewData</span>, <span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span>,
-                <span class="ident">CourseMaterialPeerReviewQuestionAnswer</span>, <span class="ident">CourseMaterialPeerReviewSubmission</span>,
+        feedback::{Feedback, FeedbackBlock, FeedbackCount},
+        glossary::Term,
+        library::{
+            grading::{StudentExerciseSlideSubmissionResult, StudentExerciseTaskSubmissionResult},
+            peer_reviewing::{
+                CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
+                CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
             },
-            <span class="ident">progressing</span>::{
-                <span class="ident">CompletionRegistrationLink</span>, <span class="ident">CourseInstanceCompletionSummary</span>,
-                <span class="ident">UserCompletionInformation</span>, <span class="ident">UserCourseModuleCompletion</span>, <span class="ident">UserModuleCompletionStatus</span>,
-                <span class="ident">UserWithModuleCompletions</span>,
+            progressing::{
+                CompletionRegistrationLink, CourseInstanceCompletionSummary,
+                UserCompletionInformation, UserCourseModuleCompletion, UserModuleCompletionStatus,
+                UserWithModuleCompletions,
             },
         },
-        <span class="ident">material_references</span>::{<span class="ident">MaterialReference</span>, <span class="ident">NewMaterialReference</span>},
-        <span class="ident">organizations::Organization</span>,
-        <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
-        <span class="ident">pages</span>::{
-            <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">ContentManagementPage</span>,
-            <span class="ident">CoursePageWithUserData</span>, <span class="ident">IsChapterFrontPage</span>, <span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>,
-            <span class="ident">PageInfo</span>, <span class="ident">PageNavigationInformation</span>, <span class="ident">PageRoutingData</span>, <span class="ident">PageSearchResult</span>,
-            <span class="ident">PageWithExercises</span>,
+        material_references::{MaterialReference, NewMaterialReference},
+        organizations::Organization,
+        page_history::{HistoryChangeReason, PageHistory},
+        pages::{
+            CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
+            CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation,
+            PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult,
+            PageWithExercises,
         },
-        <span class="ident">peer_review_configs</span>::{
-            <span class="ident">CmsPeerReviewConfig</span>, <span class="ident">CmsPeerReviewConfiguration</span>, <span class="ident">PeerReviewAcceptingStrategy</span>,
-            <span class="ident">PeerReviewConfig</span>,
+        peer_review_configs::{
+            CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
+            PeerReviewConfig,
         },
-        <span class="ident">peer_review_questions</span>::{
-            <span class="ident">CmsPeerReviewQuestion</span>, <span class="ident">PeerReviewQuestion</span>, <span class="ident">PeerReviewQuestionType</span>,
+        peer_review_questions::{
+            CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType,
         },
-        <span class="ident">pending_roles::PendingRole</span>,
-        <span class="ident">playground_examples::PlaygroundExample</span>,
-        <span class="ident">proposed_block_edits</span>::{<span class="ident">BlockProposal</span>, <span class="ident">ProposalStatus</span>},
-        <span class="ident">proposed_page_edits</span>::{<span class="ident">PageProposal</span>, <span class="ident">ProposalCount</span>},
-        <span class="ident">regradings</span>::{<span class="ident">Regrading</span>, <span class="ident">RegradingInfo</span>, <span class="ident">RegradingSubmissionInfo</span>},
-        <span class="ident">repository_exercises::RepositoryExercise</span>,
-        <span class="ident">roles</span>::{<span class="ident">RoleUser</span>, <span class="ident">UserRole</span>},
-        <span class="ident">user_course_settings::UserCourseSettings</span>,
-        <span class="ident">user_exercise_states</span>::{
-            <span class="ident">ReviewingStage</span>, <span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>,
-            <span class="ident">UserExerciseState</span>,
+        pending_roles::PendingRole,
+        playground_examples::PlaygroundExample,
+        proposed_block_edits::{BlockProposal, ProposalStatus},
+        proposed_page_edits::{PageProposal, ProposalCount},
+        regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
+        repository_exercises::RepositoryExercise,
+        roles::{RoleUser, UserRole},
+        user_course_settings::UserCourseSettings,
+        user_exercise_states::{
+            ReviewingStage, UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
+            UserExerciseState,
         },
-        <span class="ident">users::User</span>,
+        users::User,
     };
 
-    <span class="macro">example!</span>(<span class="ident">ExerciseSlideSubmission</span> {
-        <span class="ident">id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">user_id</span>,
-        <span class="ident">exercise_slide_id</span>,
-        <span class="ident">user_points_update_strategy</span>: <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span>,
+    <span class="macro">example!</span>(ExerciseSlideSubmission {
+        id,
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        course_id,
+        course_instance_id,
+        exam_id: <span class="prelude-val">None</span>,
+        exercise_id,
+        user_id,
+        exercise_slide_id,
+        user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
     });
-    <span class="macro">example!</span>(<span class="ident">ExerciseTaskSubmission</span> {
-        <span class="ident">id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-        <span class="ident">exercise_slide_submission_id</span>,
-        <span class="ident">exercise_task_id</span>,
-        <span class="ident">exercise_slide_id</span>,
-        <span class="ident">data_json</span>: <span class="prelude-val">Some</span>(<span class="macro">json!</span>({<span class="string">&quot;choice&quot;</span>: <span class="string">&quot;a&quot;</span>})),
-        <span class="ident">exercise_task_grading_id</span>,
-        <span class="ident">metadata</span>: <span class="prelude-val">None</span>,
+    <span class="macro">example!</span>(ExerciseTaskSubmission {
+        id,
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        exercise_slide_submission_id,
+        exercise_task_id,
+        exercise_slide_id,
+        data_json: <span class="prelude-val">Some</span>(<span class="macro">json!</span>({<span class="string">&quot;choice&quot;</span>: <span class="string">&quot;a&quot;</span>})),
+        exercise_task_grading_id,
+        metadata: <span class="prelude-val">None</span>,
     });
-    <span class="macro">example!</span>(<span class="ident">GradingProgress::PendingManual</span>);
-    <span class="macro">example!</span>(<span class="ident">ExerciseTaskGrading</span> {
-        <span class="ident">id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">exercise_task_submission_id</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">exercise_task_id</span>,
-        <span class="ident">grading_priority</span>: <span class="number">1</span>,
-        <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">80.0</span>),
-        <span class="ident">grading_progress</span>,
-        <span class="ident">unscaled_score_given</span>: <span class="prelude-val">Some</span>(<span class="number">80.0</span>),
-        <span class="ident">unscaled_score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">100</span>),
-        <span class="ident">grading_started_at</span>,
-        <span class="ident">grading_completed_at</span>,
-        <span class="ident">feedback_json</span>: <span class="prelude-val">None</span>,
-        <span class="ident">feedback_text</span>: <span class="prelude-val">None</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
+    <span class="macro">example!</span>(GradingProgress::PendingManual);
+    <span class="macro">example!</span>(ExerciseTaskGrading {
+        id,
+        created_at,
+        updated_at,
+        exercise_task_submission_id,
+        course_id,
+        exam_id: <span class="prelude-val">None</span>,
+        exercise_id,
+        exercise_task_id,
+        grading_priority: <span class="number">1</span>,
+        score_given: <span class="prelude-val">Some</span>(<span class="number">80.0</span>),
+        grading_progress,
+        unscaled_score_given: <span class="prelude-val">Some</span>(<span class="number">80.0</span>),
+        unscaled_score_maximum: <span class="prelude-val">Some</span>(<span class="number">100</span>),
+        grading_started_at,
+        grading_completed_at,
+        feedback_json: <span class="prelude-val">None</span>,
+        feedback_text: <span class="prelude-val">None</span>,
+        deleted_at: <span class="prelude-val">None</span>,
     });
-    <span class="macro">example!</span>(<span class="ident">CourseMaterialExerciseTask</span> {
-        <span class="ident">id</span>,
-        <span class="ident">exercise_service_slug</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">exercise_slide_id</span>,
-        <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/example-exercise/exercise&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span> {{<span class="string">&quot;name&quot;</span>:<span class="string">&quot;core/paragraph&quot;</span>,<span class="string">&quot;isValid&quot;</span>:<span class="bool-val">true</span>,<span class="string">&quot;clientId&quot;</span>:<span class="string">&quot;187a0aea-c088-4354-a1ea-f0cab082c065&quot;</span>,<span class="string">&quot;attributes&quot;</span>:{<span class="string">&quot;content&quot;</span>:<span class="string">&quot;Answer this question.&quot;</span>,<span class="string">&quot;dropCap&quot;</span>:<span class="bool-val">false</span>},<span class="string">&quot;innerBlocks&quot;</span>:[]}},
-        <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(
-            <span class="macro">serde_json::json!</span> {[{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;7ab2591c-b0f3-4543-9548-a113849b0f94&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;a&quot;</span>},{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;a833d1df-f27b-4fbf-b516-883a62c09d88&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;b&quot;</span>},{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;03d4b3d4-88af-4125-88b7-4ee052fd876f&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;c&quot;</span>}]},
+    <span class="macro">example!</span>(CourseMaterialExerciseTask {
+        id,
+        exercise_service_slug: <span class="string">&quot;example-exercise&quot;</span>.to_string(),
+        exercise_slide_id,
+        exercise_iframe_url: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/example-exercise/exercise&quot;</span>.to_string()),
+        assignment: <span class="macro">serde_json::json! </span>{{<span class="string">&quot;name&quot;</span>:<span class="string">&quot;core/paragraph&quot;</span>,<span class="string">&quot;isValid&quot;</span>:<span class="bool-val">true</span>,<span class="string">&quot;clientId&quot;</span>:<span class="string">&quot;187a0aea-c088-4354-a1ea-f0cab082c065&quot;</span>,<span class="string">&quot;attributes&quot;</span>:{<span class="string">&quot;content&quot;</span>:<span class="string">&quot;Answer this question.&quot;</span>,<span class="string">&quot;dropCap&quot;</span>:<span class="bool-val">false</span>},<span class="string">&quot;innerBlocks&quot;</span>:[]}},
+        public_spec: <span class="prelude-val">Some</span>(
+            <span class="macro">serde_json::json! </span>{[{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;7ab2591c-b0f3-4543-9548-a113849b0f94&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;a&quot;</span>},{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;a833d1df-f27b-4fbf-b516-883a62c09d88&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;b&quot;</span>},{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;03d4b3d4-88af-4125-88b7-4ee052fd876f&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;c&quot;</span>}]},
         ),
-        <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
-        <span class="ident">previous_submission</span>,
-        <span class="ident">previous_submission_grading</span>,
-        <span class="ident">order_number</span>: <span class="number">0</span>,
-        <span class="ident">pseudonumous_user_id</span>: <span class="prelude-val">Some</span>(
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;934ac548-f7de-479a-b4f8-af9c0c6c22dc&quot;</span>).<span class="ident">unwrap</span>(),
+        model_solution_spec: <span class="prelude-val">None</span>,
+        previous_submission,
+        previous_submission_grading,
+        order_number: <span class="number">0</span>,
+        pseudonumous_user_id: <span class="prelude-val">Some</span>(
+            Uuid::parse_str(<span class="string">&quot;934ac548-f7de-479a-b4f8-af9c0c6c22dc&quot;</span>).unwrap(),
         ),
     });
-    <span class="macro">example!</span>(<span class="ident">CmsPageExercise</span> {
-        <span class="ident">id</span>,
-        <span class="ident">name</span>: <span class="string">&quot;exercise&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">order_number</span>: <span class="number">123</span>,
-        <span class="ident">score_maximum</span>: <span class="number">1</span>,
-        <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">Some</span>(<span class="number">17</span>),
-        <span class="ident">limit_number_of_tries</span>: <span class="bool-val">true</span>,
-        <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-        <span class="ident">needs_peer_review</span>: <span class="bool-val">true</span>,
-        <span class="ident">use_course_default_peer_review_config</span>: <span class="bool-val">true</span>,
-        <span class="ident">peer_review_config</span>: <span class="prelude-val">None</span>,
-        <span class="ident">peer_review_questions</span>: <span class="prelude-val">None</span>
+    <span class="macro">example!</span>(CmsPageExercise {
+        id,
+        name: <span class="string">&quot;exercise&quot;</span>.to_string(),
+        order_number: <span class="number">123</span>,
+        score_maximum: <span class="number">1</span>,
+        max_tries_per_slide: <span class="prelude-val">Some</span>(<span class="number">17</span>),
+        limit_number_of_tries: <span class="bool-val">true</span>,
+        deadline: <span class="prelude-val">None</span>,
+        needs_peer_review: <span class="bool-val">true</span>,
+        use_course_default_peer_review_config: <span class="bool-val">true</span>,
+        peer_review_config: <span class="prelude-val">None</span>,
+        peer_review_questions: <span class="prelude-val">None
+    </span>});
+    <span class="macro">example!</span>(CmsPageExerciseSlide {
+        id,
+        exercise_id,
+        order_number: <span class="number">123</span>,
     });
-    <span class="macro">example!</span>(<span class="ident">CmsPageExerciseSlide</span> {
-        <span class="ident">id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">order_number</span>: <span class="number">123</span>,
+    <span class="macro">example!</span>(CmsPageExerciseTask {
+        id,
+        exercise_slide_id,
+        assignment: <span class="macro">serde_json::json!</span>({<span class="string">&quot;options&quot;</span>: [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]}),
+        exercise_type: <span class="string">&quot;quizzes&quot;</span>.to_string(),
+        private_spec: <span class="prelude-val">None</span>,
+        order_number: <span class="number">1</span>,
     });
-    <span class="macro">example!</span>(<span class="ident">CmsPageExerciseTask</span> {
-        <span class="ident">id</span>,
-        <span class="ident">exercise_slide_id</span>,
-        <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;options&quot;</span>: [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]}),
-        <span class="ident">exercise_type</span>: <span class="string">&quot;quizzes&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">private_spec</span>: <span class="prelude-val">None</span>,
-        <span class="ident">order_number</span>: <span class="number">1</span>,
+    <span class="macro">example!</span>(CmsPeerReviewConfig {
+        id,
+        accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+        accepting_threshold: <span class="number">0.5</span>,
+        course_id,
+        exercise_id: <span class="prelude-val">None</span>,
+        peer_reviews_to_give: <span class="number">2</span>,
+        peer_reviews_to_receive: <span class="number">1</span>,
     });
-    <span class="macro">example!</span>(<span class="ident">CmsPeerReviewConfig</span> {
-        <span class="ident">id</span>,
-        <span class="ident">accepting_strategy</span>: <span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage</span>,
-        <span class="ident">accepting_threshold</span>: <span class="number">0.5</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">exercise_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">peer_reviews_to_give</span>: <span class="number">2</span>,
-        <span class="ident">peer_reviews_to_receive</span>: <span class="number">1</span>,
+    <span class="macro">example!</span>(CmsPeerReviewQuestion {
+        id,
+        answer_required: <span class="bool-val">true</span>,
+        order_number: <span class="number">1</span>,
+        peer_review_config_id,
+        question: <span class="string">&quot;what?&quot;</span>.to_string(),
+        question_type: PeerReviewQuestionType::Essay
     });
-    <span class="macro">example!</span>(<span class="ident">CmsPeerReviewQuestion</span> {
-        <span class="ident">id</span>,
-        <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
-        <span class="ident">order_number</span>: <span class="number">1</span>,
-        <span class="ident">peer_review_config_id</span>,
-        <span class="ident">question</span>: <span class="string">&quot;what?&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Essay</span>
+    <span class="macro">example!</span>(CourseMaterialExerciseSlide { id, exercise_tasks });
+    <span class="macro">example!</span>(ExerciseStatus {
+        score_given: <span class="prelude-val">None</span>,
+        activity_progress: ActivityProgress::InProgress,
+        grading_progress: GradingProgress::NotReady,
+        reviewing_stage: headless_lms_models::user_exercise_states::ReviewingStage::NotStarted
     });
-    <span class="macro">example!</span>(<span class="ident">CourseMaterialExerciseSlide</span> { <span class="ident">id</span>, <span class="ident">exercise_tasks</span> });
-    <span class="macro">example!</span>(<span class="ident">ExerciseStatus</span> {
-        <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
-        <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::InProgress</span>,
-        <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::NotReady</span>,
-        <span class="ident">reviewing_stage</span>: <span class="ident">headless_lms_models::user_exercise_states::ReviewingStage::NotStarted</span>
+    <span class="macro">example!</span>(CourseMaterialPeerReviewQuestionAnswer {
+        peer_review_question_id,
+        text_data: <span class="prelude-val">Some</span>(<span class="string">&quot;I think that the answer was well written.&quot;</span>.to_string()),
+        number_data: <span class="prelude-val">None</span>,
     });
-    <span class="macro">example!</span>(<span class="ident">CourseMaterialPeerReviewQuestionAnswer</span> {
-        <span class="ident">peer_review_question_id</span>,
-        <span class="ident">text_data</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;I think that the answer was well written.&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">number_data</span>: <span class="prelude-val">None</span>,
+    <span class="macro">example!</span>(ChapterScore {
+        chapter,
+        score_given: <span class="number">1.0</span>,
+        score_total: <span class="number">2
+    </span>});
+    <span class="macro">example!</span>(DatabaseChapter {
+        id,
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        name: <span class="string">&quot;The Basics&quot;</span>.to_string(),
+        color: <span class="prelude-val">None</span>,
+        course_id,
+        chapter_image_path: <span class="prelude-val">None</span>,
+        chapter_number: <span class="number">1</span>,
+        front_page_id: <span class="prelude-val">None</span>,
+        opens_at,
+        deadline,
+        copied_from: <span class="prelude-val">None</span>,
+        course_module_id,
     });
-    <span class="macro">example!</span>(<span class="ident">ChapterScore</span> {
-        <span class="ident">chapter</span>,
-        <span class="ident">score_given</span>: <span class="number">1.0</span>,
-        <span class="ident">score_total</span>: <span class="number">2</span>
+    <span class="macro">example!</span>(CourseModule {
+        id,
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        name: <span class="prelude-val">None</span>,
+        course_id,
+        order_number: <span class="number">0</span>,
+        copied_from: <span class="prelude-val">None</span>,
+        uh_course_code: <span class="prelude-val">None</span>,
+        automatic_completion: <span class="bool-val">false</span>,
+        automatic_completion_number_of_exercises_attempted_treshold: <span class="prelude-val">None</span>,
+        automatic_completion_number_of_points_treshold: <span class="prelude-val">None</span>,
+        ects_credits: <span class="prelude-val">None</span>,
+        completion_registration_link_override: <span class="prelude-val">None</span>,
     });
-    <span class="macro">example!</span>(<span class="ident">DatabaseChapter</span> {
-        <span class="ident">id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-        <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">color</span>: <span class="prelude-val">None</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">chapter_image_path</span>: <span class="prelude-val">None</span>,
-        <span class="ident">chapter_number</span>: <span class="number">1</span>,
-        <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">opens_at</span>,
-        <span class="ident">deadline</span>,
-        <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-        <span class="ident">course_module_id</span>,
+    <span class="macro">example!</span>(UserCourseModuleCompletion {
+        course_module_id,
+        grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+        passed: <span class="bool-val">true</span>,
     });
-    <span class="macro">example!</span>(<span class="ident">CourseModule</span> {
-        <span class="ident">id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-        <span class="ident">name</span>: <span class="prelude-val">None</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">order_number</span>: <span class="number">0</span>,
-        <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-        <span class="ident">uh_course_code</span>: <span class="prelude-val">None</span>,
-        <span class="ident">automatic_completion</span>: <span class="bool-val">false</span>,
-        <span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span>: <span class="prelude-val">None</span>,
-        <span class="ident">automatic_completion_number_of_points_treshold</span>: <span class="prelude-val">None</span>,
-        <span class="ident">ects_credits</span>: <span class="prelude-val">None</span>,
-        <span class="ident">completion_registration_link_override</span>: <span class="prelude-val">None</span>,
+    <span class="macro">example!</span>(UserWithModuleCompletions {
+        completed_modules,
+        email: <span class="string">&quot;student@example.com&quot;</span>.to_string(),
+        first_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Student&quot;</span>.to_string()),
+        last_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Student&quot;</span>.to_string()),
+        user_id,
     });
-    <span class="macro">example!</span>(<span class="ident">UserCourseModuleCompletion</span> {
-        <span class="ident">course_module_id</span>,
-        <span class="ident">grade</span>: <span class="prelude-val">Some</span>(<span class="number">4</span>),
-        <span class="ident">passed</span>: <span class="bool-val">true</span>,
+    <span class="macro">example!</span>(FeedbackBlock {
+        id,
+        text: <span class="prelude-val">None</span>,
+        order_number: <span class="prelude-val">Some</span>(<span class="number">0</span>)
     });
-    <span class="macro">example!</span>(<span class="ident">UserWithModuleCompletions</span> {
-        <span class="ident">completed_modules</span>,
-        <span class="ident">email</span>: <span class="string">&quot;student@example.com&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">first_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Student&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">last_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Student&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">user_id</span>,
+    <span class="macro">example!</span>(BlockProposal {
+        id,
+        block_id,
+        original_text: <span class="string">&quot;Hello,, world!&quot;</span>.to_string(),
+        current_text: <span class="string">&quot;Hello,, world!&quot;</span>.to_string(),
+        changed_text: <span class="string">&quot;Hello, world!&quot;</span>.to_string(),
+        status: ProposalStatus::Accepted,
+        accept_preview: <span class="prelude-val">Some</span>(<span class="string">&quot;Hello, world!!&quot;</span>.to_string())
     });
-    <span class="macro">example!</span>(<span class="ident">FeedbackBlock</span> {
-        <span class="ident">id</span>,
-        <span class="ident">text</span>: <span class="prelude-val">None</span>,
-        <span class="ident">order_number</span>: <span class="prelude-val">Some</span>(<span class="number">0</span>)
-    });
-    <span class="macro">example!</span>(<span class="ident">BlockProposal</span> {
-        <span class="ident">id</span>,
-        <span class="ident">block_id</span>,
-        <span class="ident">original_text</span>: <span class="string">&quot;Hello,, world!&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">current_text</span>: <span class="string">&quot;Hello,, world!&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">changed_text</span>: <span class="string">&quot;Hello, world!&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">status</span>: <span class="ident">ProposalStatus::Accepted</span>,
-        <span class="ident">accept_preview</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Hello, world!!&quot;</span>.<span class="ident">to_string</span>())
-    });
-    <span class="macro">example!</span>(<span class="ident">ChapterWithStatus</span> {
-    <span class="ident">id</span>,
-    <span class="ident">created_at</span>,
-    <span class="ident">updated_at</span>,
-      <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
-      <span class="ident">color</span>: <span class="prelude-val">None</span>,
-      <span class="ident">course_id</span>,
-    <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-      <span class="ident">chapter_number</span>: <span class="number">1</span>,
-      <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
-      <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
-      <span class="ident">status</span>: <span class="ident">ChapterStatus::Open</span>,
-      <span class="ident">chapter_image_url</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg&quot;</span>.<span class="ident">to_string</span>()),
-  <span class="ident">course_module_id</span>,
+    <span class="macro">example!</span>(ChapterWithStatus {
+    id,
+    created_at,
+    updated_at,
+      name: <span class="string">&quot;The Basics&quot;</span>.to_string(),
+      color: <span class="prelude-val">None</span>,
+      course_id,
+    deleted_at: <span class="prelude-val">None</span>,
+      chapter_number: <span class="number">1</span>,
+      front_page_id: <span class="prelude-val">None</span>,
+      opens_at: <span class="prelude-val">None</span>,
+      status: ChapterStatus::Open,
+      chapter_image_url: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/api/v0/files/course/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/images/ydy8IxX1dGMd9T2b27u7FL5VmH5X9U.jpg&quot;</span>.to_string()),
+  course_module_id,
   });
-    <span class="macro">example!</span>(<span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span> {
-        <span class="ident">course_material_exercise_tasks</span>,
-        <span class="ident">exercise_slide_submission_id</span>,
+    <span class="macro">example!</span>(CourseMaterialPeerReviewDataAnswerToReview {
+        course_material_exercise_tasks,
+        exercise_slide_submission_id,
     });
-    <span class="macro">example!</span>(<span class="ident">RegradingSubmissionInfo</span> {
-        <span class="ident">exercise_task_submission_id</span>,
-        <span class="ident">grading_before_regrading</span>,
-        <span class="ident">grading_after_regrading</span>
+    <span class="macro">example!</span>(RegradingSubmissionInfo {
+        exercise_task_submission_id,
+        grading_before_regrading,
+        grading_after_regrading
     });
-    <span class="macro">example!</span>(<span class="ident">CourseMaterialPeerReviewConfig</span> {
-        <span class="ident">course_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">id</span>,
-        <span class="ident">peer_reviews_to_give</span>: <span class="number">3</span>,
-        <span class="ident">peer_reviews_to_receive</span>: <span class="number">2</span>
-    });
-    <span class="macro">example!</span>(<span class="ident">PeerReviewQuestionSubmission</span> {
-        <span class="ident">id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">deleted_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">peer_review_question_id</span>,
-        <span class="ident">peer_review_submission_id</span>,
-        <span class="ident">text_data</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;I think that the answer was well written.&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">number_data</span>: <span class="prelude-val">None</span>,
+    <span class="macro">example!</span>(CourseMaterialPeerReviewConfig {
+        course_id,
+        exercise_id,
+        id,
+        peer_reviews_to_give: <span class="number">3</span>,
+        peer_reviews_to_receive: <span class="number">2
+    </span>});
+    <span class="macro">example!</span>(PeerReviewQuestionSubmission {
+        id,
+        created_at,
+        deleted_at,
+        updated_at,
+        peer_review_question_id,
+        peer_review_submission_id,
+        text_data: <span class="prelude-val">Some</span>(<span class="string">&quot;I think that the answer was well written.&quot;</span>.to_string()),
+        number_data: <span class="prelude-val">None</span>,
     });
 
     <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">EmailTemplate</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">content</span>: <span class="prelude-val">Some</span>(<span class="ident">Value::String</span>(<span class="string">&quot;content&quot;</span>.<span class="ident">to_string</span>())),
-            <span class="ident">name</span>: <span class="string">&quot;name&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">subject</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;subject&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">exercise_completions_threshold</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
-            <span class="ident">points_threshold</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
-            <span class="ident">course_instance_id</span>,
+        T,
+        Vec,
+        EmailTemplate {
+            id,
+            created_at,
+            updated_at,
+            deleted_at: <span class="prelude-val">None</span>,
+            content: <span class="prelude-val">Some</span>(Value::String(<span class="string">&quot;content&quot;</span>.to_string())),
+            name: <span class="string">&quot;name&quot;</span>.to_string(),
+            subject: <span class="prelude-val">Some</span>(<span class="string">&quot;subject&quot;</span>.to_string()),
+            exercise_completions_threshold: <span class="prelude-val">Some</span>(<span class="number">123</span>),
+            points_threshold: <span class="prelude-val">Some</span>(<span class="number">123</span>),
+            course_instance_id,
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">ContentManagementPage</span> {
-        <span class="ident">page</span>,
-        <span class="ident">exercises</span>,
-        <span class="ident">exercise_slides</span>,
-        <span class="ident">exercise_tasks</span>,
-        <span class="ident">peer_review_configs</span>,
-        <span class="ident">peer_review_questions</span>,
-        <span class="ident">organization_id</span>
+    <span class="macro">doc!</span>(ContentManagementPage {
+        page,
+        exercises,
+        exercise_slides,
+        exercise_tasks,
+        peer_review_configs,
+        peer_review_questions,
+        organization_id
     });
-    <span class="macro">doc!</span>(<span class="ident">PeerReviewConfig</span> {
-        <span class="ident">id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">peer_reviews_to_give</span>: <span class="number">3</span>,
-        <span class="ident">peer_reviews_to_receive</span>: <span class="number">2</span>,
-        <span class="ident">accepting_threshold</span>: <span class="number">3.0</span>,
-        <span class="ident">accepting_strategy</span>: <span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage</span>,
-    });
-    <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">PeerReviewQuestion</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">peer_review_config_id</span>,
-            <span class="ident">order_number</span>: <span class="number">0</span>,
-            <span class="ident">question</span>: <span class="string">&quot;Was the answer well thought out?&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Essay</span>,
-            <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
-        }
-    );
-    <span class="macro">doc!</span>(<span class="ident">Vec</span>, <span class="ident">PageWithExercises</span> { <span class="ident">page</span>, <span class="ident">exercises</span> });
-    <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">UserCourseInstanceProgress</span> {
-            <span class="ident">course_module_id</span>,
-            <span class="ident">course_module_name</span>: <span class="string">&quot;Module&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">course_module_order_number</span>: <span class="number">0</span>,
-            <span class="ident">score_given</span>: <span class="number">3.0</span>,
-            <span class="ident">score_required</span>: <span class="prelude-val">Some</span>(<span class="number">7</span>),
-            <span class="ident">score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>),
-            <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">66</span>),
-            <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">13</span>),
-            <span class="ident">attempted_exercises_required</span>: <span class="prelude-val">Some</span>(<span class="number">40</span>),
-        }
-    );
-    <span class="macro">doc!</span>(<span class="ident">UserCourseInstanceChapterProgress</span> {
-        <span class="ident">score_given</span>: <span class="number">1.0</span>,
-        <span class="ident">score_maximum</span>: <span class="number">4</span>,
-        <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">4</span>),
-        <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">2</span>)
+    <span class="macro">doc!</span>(PeerReviewConfig {
+        id,
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        course_id,
+        exercise_id,
+        peer_reviews_to_give: <span class="number">3</span>,
+        peer_reviews_to_receive: <span class="number">2</span>,
+        accepting_threshold: <span class="number">3.0</span>,
+        accepting_strategy: PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
     });
     <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">UserCourseInstanceChapterExerciseProgress</span> {
-            <span class="ident">exercise_id</span>,
-            <span class="ident">score_given</span>: <span class="number">1.0</span>
+        T,
+        Vec,
+        PeerReviewQuestion {
+            id,
+            created_at,
+            updated_at,
+            deleted_at: <span class="prelude-val">None</span>,
+            peer_review_config_id,
+            order_number: <span class="number">0</span>,
+            question: <span class="string">&quot;Was the answer well thought out?&quot;</span>.to_string(),
+            question_type: PeerReviewQuestionType::Essay,
+            answer_required: <span class="bool-val">true</span>,
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">CourseInstanceEnrollment</span> {
-        <span class="ident">user_id</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">course_instance_id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>
+    <span class="macro">doc!</span>(Vec, PageWithExercises { page, exercises });
+    <span class="macro">doc!</span>(
+        T,
+        Vec,
+        UserCourseInstanceProgress {
+            course_module_id,
+            course_module_name: <span class="string">&quot;Module&quot;</span>.to_string(),
+            course_module_order_number: <span class="number">0</span>,
+            score_given: <span class="number">3.0</span>,
+            score_required: <span class="prelude-val">Some</span>(<span class="number">7</span>),
+            score_maximum: <span class="prelude-val">Some</span>(<span class="number">10</span>),
+            total_exercises: <span class="prelude-val">Some</span>(<span class="number">66</span>),
+            attempted_exercises: <span class="prelude-val">Some</span>(<span class="number">13</span>),
+            attempted_exercises_required: <span class="prelude-val">Some</span>(<span class="number">40</span>),
+        }
+    );
+    <span class="macro">doc!</span>(UserCourseInstanceChapterProgress {
+        score_given: <span class="number">1.0</span>,
+        score_maximum: <span class="number">4</span>,
+        total_exercises: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+        attempted_exercises: <span class="prelude-val">Some</span>(<span class="number">2</span>)
     });
     <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">Course</span> {
-            <span class="ident">id</span>,
-            <span class="ident">slug</span>: <span class="string">&quot;introduction-to-cs&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">name</span>: <span class="string">&quot;Introduction to Computer Science&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">organization_id</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-            <span class="ident">content_search_language</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;simple&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">course_language_group_id</span>,
-            <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">is_draft</span>: <span class="bool-val">true</span>,
-            <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
-            <span class="ident">base_module_completion_requires_n_submodule_completions</span>: <span class="number">0</span>,
+        T,
+        Vec,
+        UserCourseInstanceChapterExerciseProgress {
+            exercise_id,
+            score_given: <span class="number">1.0
+        </span>}
+    );
+    <span class="macro">doc!</span>(CourseInstanceEnrollment {
+        user_id,
+        course_id,
+        course_instance_id,
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None
+    </span>});
+    <span class="macro">doc!</span>(
+        T,
+        Vec,
+        Course {
+            id,
+            slug: <span class="string">&quot;introduction-to-cs&quot;</span>.to_string(),
+            created_at,
+            updated_at,
+            name: <span class="string">&quot;Introduction to Computer Science&quot;</span>.to_string(),
+            organization_id,
+            deleted_at: <span class="prelude-val">None</span>,
+            language_code: <span class="string">&quot;en-US&quot;</span>.to_string(),
+            copied_from: <span class="prelude-val">None</span>,
+            content_search_language: <span class="prelude-val">Some</span>(<span class="string">&quot;simple&quot;</span>.to_string()),
+            course_language_group_id,
+            description: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.to_string()),
+            is_draft: <span class="bool-val">true</span>,
+            is_test_mode: <span class="bool-val">false</span>,
+            base_module_completion_requires_n_submodule_completions: <span class="number">0</span>,
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">CoursePageWithUserData</span> {
-        <span class="ident">page</span>,
-        <span class="ident">instance</span>,
-        <span class="ident">settings</span>,
-        <span class="ident">was_redirected</span>: <span class="bool-val">false</span>,
-        <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>
-    });
+    <span class="macro">doc!</span>(CoursePageWithUserData {
+        page,
+        instance,
+        settings,
+        was_redirected: <span class="bool-val">false</span>,
+        is_test_mode: <span class="bool-val">false
+    </span>});
     <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Opt</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">CourseInstance</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">course_id</span>,
-            <span class="ident">starts_at</span>,
-            <span class="ident">ends_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Instance&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Description&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;Example Teacher&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;example@email.com&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">support_email</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;example@email.com&quot;</span>.<span class="ident">to_string</span>()),
+        T,
+        Opt,
+        Vec,
+        CourseInstance {
+            id,
+            created_at,
+            updated_at,
+            deleted_at: <span class="prelude-val">None</span>,
+            course_id,
+            starts_at,
+            ends_at: <span class="prelude-val">None</span>,
+            name: <span class="prelude-val">Some</span>(<span class="string">&quot;Instance&quot;</span>.to_string()),
+            description: <span class="prelude-val">Some</span>(<span class="string">&quot;Description&quot;</span>.to_string()),
+            teacher_in_charge_name: <span class="string">&quot;Example Teacher&quot;</span>.to_string(),
+            teacher_in_charge_email: <span class="string">&quot;example@email.com&quot;</span>.to_string(),
+            support_email: <span class="prelude-val">Some</span>(<span class="string">&quot;example@email.com&quot;</span>.to_string()),
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Opt</span>,
-        <span class="ident">UserCourseSettings</span> {
-            <span class="ident">user_id</span>,
-            <span class="ident">course_language_group_id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">current_course_id</span>,
-            <span class="ident">current_course_instance_id</span>,
+        Opt,
+        UserCourseSettings {
+            user_id,
+            course_language_group_id,
+            created_at,
+            updated_at,
+            deleted_at: <span class="prelude-val">None</span>,
+            current_course_id,
+            current_course_instance_id,
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageSearchResult</span><span class="op">&gt;</span>,
+        Vec&lt;PageSearchResult&gt;,
         <span class="macro">vec!</span>[
-            <span class="ident">PageSearchResult</span> {
-                <span class="ident">id</span>: <span class="ident">ex</span>(),
-                <span class="ident">title_headline</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Introduction to everything&quot;</span>.<span class="ident">to_string</span>()),
-                <span class="ident">rank</span>: <span class="prelude-val">Some</span>(<span class="number">0.6079271</span>),
-                <span class="ident">content_headline</span>: <span class="prelude-val">None</span>,
-                <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1&quot;</span>.<span class="ident">to_string</span>()
+            PageSearchResult {
+                id: ex(),
+                title_headline: <span class="prelude-val">Some</span>(<span class="string">&quot;Introduction to everything&quot;</span>.to_string()),
+                rank: <span class="prelude-val">Some</span>(<span class="number">0.6079271</span>),
+                content_headline: <span class="prelude-val">None</span>,
+                url_path: <span class="string">&quot;/chapter-1&quot;</span>.to_string()
             },
-            <span class="ident">PageSearchResult</span> {
-                <span class="ident">id</span>: <span class="ident">ex</span>(),
-                <span class="ident">title_headline</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;In the second chapter...&quot;</span>.<span class="ident">to_string</span>()),
-                <span class="ident">rank</span>: <span class="prelude-val">Some</span>(<span class="number">0.24317084</span>),
-                <span class="ident">content_headline</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;&lt;b&gt;Everything&lt;/b&gt; is a big topic&quot;</span>.<span class="ident">to_string</span>()),
-                <span class="ident">url_path</span>: <span class="string">&quot;/chapter-2&quot;</span>.<span class="ident">to_string</span>()
+            PageSearchResult {
+                id: ex(),
+                title_headline: <span class="prelude-val">Some</span>(<span class="string">&quot;In the second chapter...&quot;</span>.to_string()),
+                rank: <span class="prelude-val">Some</span>(<span class="number">0.24317084</span>),
+                content_headline: <span class="prelude-val">Some</span>(<span class="string">&quot;&lt;b&gt;Everything&lt;/b&gt; is a big topic&quot;</span>.to_string()),
+                url_path: <span class="string">&quot;/chapter-2&quot;</span>.to_string()
             }
         ]
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Opt</span>,
-        <span class="ident">ExamEnrollment</span> {
-            <span class="ident">user_id</span>,
-            <span class="ident">exam_id</span>,
-            <span class="ident">started_at</span>
+        Opt,
+        ExamEnrollment {
+            user_id,
+            exam_id,
+            started_at
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">CourseMaterialExercise</span> {
-        <span class="ident">exercise</span>,
-        <span class="ident">can_post_submission</span>: <span class="bool-val">true</span>,
-        <span class="ident">current_exercise_slide</span>,
-        <span class="ident">exercise_status</span>,
-        <span class="ident">exercise_slide_submission_counts</span>: <span class="ident">HashMap::from</span>([
+    <span class="macro">doc!</span>(CourseMaterialExercise {
+        exercise,
+        can_post_submission: <span class="bool-val">true</span>,
+        current_exercise_slide,
+        exercise_status,
+        exercise_slide_submission_counts: HashMap::from([
             (
-                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;2794a98e-d594-40cf-949e-7cc011755a58&quot;</span>).<span class="ident">unwrap</span>(),
-                <span class="number">2_i64</span>
-            ),
+                Uuid::parse_str(<span class="string">&quot;2794a98e-d594-40cf-949e-7cc011755a58&quot;</span>).unwrap(),
+                <span class="number">2_i64
+            </span>),
             (
-                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;7dea54af-3d38-4f7c-8969-ecb17b55ec02&quot;</span>).<span class="ident">unwrap</span>(),
-                <span class="number">4_i64</span>
-            )
+                Uuid::parse_str(<span class="string">&quot;7dea54af-3d38-4f7c-8969-ecb17b55ec02&quot;</span>).unwrap(),
+                <span class="number">4_i64
+            </span>)
         ]),
-        <span class="ident">peer_review_config</span>,
-        <span class="ident">previous_exercise_slide_submission</span>
+        peer_review_config,
+        previous_exercise_slide_submission
     });
-    <span class="macro">doc!</span>(<span class="ident">CourseMaterialPeerReviewSubmission</span> {
-        <span class="ident">exercise_slide_submission_id</span>,
-        <span class="ident">peer_review_config_id</span>,
-        <span class="ident">peer_review_question_answers</span>,
-    });
-    <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">StudentExerciseTaskSubmissionResult</span> {
-            <span class="ident">submission</span>,
-            <span class="ident">grading</span>,
-            <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
-        }
-    );
-    <span class="macro">doc!</span>(<span class="ident">StudentExerciseSlideSubmissionResult</span> {
-        <span class="ident">exercise_task_submission_results</span>,
-        <span class="ident">exercise_status</span>,
-    });
-    <span class="macro">doc!</span>(<span class="ident">Chapter</span> {
-        <span class="ident">id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-        <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">color</span>: <span class="prelude-val">None</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">chapter_image_url</span>: <span class="prelude-val">None</span>,
-        <span class="ident">chapter_number</span>: <span class="number">1</span>,
-        <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">opens_at</span>,
-        <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-        <span class="ident">deadline</span>,
-        <span class="ident">course_module_id</span>,
-    });
-    <span class="macro">doc!</span>(<span class="ident">Points</span> {
-        <span class="ident">chapter_points</span>,
-        <span class="ident">user_chapter_points</span>: <span class="ident">HashMap::new</span>(),
-        <span class="ident">users</span>
-    });
-    <span class="macro">doc!</span>(<span class="ident">CourseInstanceCompletionSummary</span> {
-        <span class="ident">course_modules</span>,
-        <span class="ident">users_with_course_module_completions</span>
-    });
-    <span class="macro">doc!</span>(<span class="ident">CourseStructure</span> {
-        <span class="ident">chapters</span>,
-        <span class="ident">course</span>,
-        <span class="ident">pages</span>,
-        <span class="ident">modules</span>: <span class="macro">vec!</span>[],
+    <span class="macro">doc!</span>(CourseMaterialPeerReviewSubmission {
+        exercise_slide_submission_id,
+        peer_review_config_id,
+        peer_review_question_answers,
     });
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">Exercise</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">name</span>: <span class="string">&quot;Hello Exercise&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">course_id</span>,
-            <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">page_id</span>,
-            <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">score_maximum</span>: <span class="number">1</span>,
-            <span class="ident">order_number</span>: <span class="number">123</span>,
-            <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-            <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">Some</span>(<span class="number">17</span>),
-            <span class="ident">limit_number_of_tries</span>: <span class="bool-val">true</span>,
-            <span class="ident">needs_peer_review</span>,
-            <span class="ident">use_course_default_peer_review_config</span>,
+        T,
+        Vec,
+        StudentExerciseTaskSubmissionResult {
+            submission,
+            grading,
+            model_solution_spec: <span class="prelude-val">None</span>,
         }
     );
-    <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">ExerciseSlideSubmissionCount</span> {
-            <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
-            <span class="ident">date</span>
-        }
-    );
-    <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span> {
-            <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
-            <span class="ident">hour</span>: <span class="prelude-val">Some</span>(<span class="number">2</span>),
-            <span class="ident">isodow</span>: <span class="prelude-val">Some</span>(<span class="number">2</span>)
-        }
-    );
-    <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">ExerciseSlideSubmissionCountByExercise</span> {
-            <span class="ident">exercise_id</span>,
-            <span class="ident">exercise_name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
-        }
-    );
-    <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">Feedback</span> {
-            <span class="ident">id</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">course_id</span>,
-            <span class="ident">feedback_given</span>: <span class="string">&quot;Unclear&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">selected_text</span>: <span class="prelude-val">None</span>,
-            <span class="ident">marked_as_read</span>: <span class="bool-val">false</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">blocks</span>,
-            <span class="ident">page_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;bba0eda6-882b-4a0f-ad91-b02de1de4770&quot;</span>).<span class="ident">unwrap</span>()),
-            <span class="ident">page_title</span>: <span class="string">&quot;The title of the page&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">page_url_path</span>: <span class="string">&quot;/path-to-page&quot;</span>.<span class="ident">to_string</span>()
-        }
-    );
-    <span class="macro">doc!</span>(<span class="ident">FeedbackCount</span> { <span class="ident">read</span>: <span class="number">1</span>, <span class="ident">unread</span>: <span class="number">2</span> });
-    <span class="macro">doc!</span>(<span class="ident">Exam</span> {
-        <span class="ident">id</span>,
-        <span class="ident">name</span>: <span class="string">&quot;Course exam&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">instructions</span>: <span class="macro">serde_json::json!</span>([]),
-        <span class="ident">page_id</span>,
-        <span class="ident">courses</span>,
-        <span class="ident">starts_at</span>,
-        <span class="ident">ends_at</span>,
-        <span class="ident">time_minutes</span>: <span class="number">120</span>
+    <span class="macro">doc!</span>(StudentExerciseSlideSubmissionResult {
+        exercise_task_submission_results,
+        exercise_status,
+    });
+    <span class="macro">doc!</span>(Chapter {
+        id,
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        name: <span class="string">&quot;The Basics&quot;</span>.to_string(),
+        color: <span class="prelude-val">None</span>,
+        course_id,
+        chapter_image_url: <span class="prelude-val">None</span>,
+        chapter_number: <span class="number">1</span>,
+        front_page_id: <span class="prelude-val">None</span>,
+        opens_at,
+        copied_from: <span class="prelude-val">None</span>,
+        deadline,
+        course_module_id,
+    });
+    <span class="macro">doc!</span>(Points {
+        chapter_points,
+        user_chapter_points: HashMap::new(),
+        users
+    });
+    <span class="macro">doc!</span>(CourseInstanceCompletionSummary {
+        course_modules,
+        users_with_course_module_completions
+    });
+    <span class="macro">doc!</span>(CourseStructure {
+        chapters,
+        course,
+        pages,
+        modules: <span class="macro">vec!</span>[],
     });
     <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">ExerciseService</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">name</span>: <span class="string">&quot;Quizzes&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">slug</span>: <span class="string">&quot;quizzes&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">public_url</span>: <span class="string">&quot;http://example.com&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">internal_url</span>: <span class="prelude-val">None</span>,
-            <span class="ident">max_reprocessing_submissions_at_once</span>: <span class="number">4</span>,
+        Vec,
+        Exercise {
+            id,
+            created_at,
+            updated_at,
+            name: <span class="string">&quot;Hello Exercise&quot;</span>.to_string(),
+            course_id,
+            exam_id: <span class="prelude-val">None</span>,
+            page_id,
+            chapter_id: <span class="prelude-val">None</span>,
+            deadline: <span class="prelude-val">None</span>,
+            deleted_at: <span class="prelude-val">None</span>,
+            score_maximum: <span class="number">1</span>,
+            order_number: <span class="number">123</span>,
+            copied_from: <span class="prelude-val">None</span>,
+            max_tries_per_slide: <span class="prelude-val">Some</span>(<span class="number">17</span>),
+            limit_number_of_tries: <span class="bool-val">true</span>,
+            needs_peer_review,
+            use_course_default_peer_review_config,
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">Organization</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">slug</span>: <span class="string">&quot;hy-cs&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">name</span>: <span class="string">&quot;University of Helsinki&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">description</span>: <span class="prelude-val">None</span>,
-            <span class="ident">organization_image_url</span>: <span class="prelude-val">None</span>,
+        Vec,
+        ExerciseSlideSubmissionCount {
+            count: <span class="prelude-val">Some</span>(<span class="number">123</span>),
+            date
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">CourseExam</span> {
-            <span class="ident">id</span>,
-            <span class="ident">course_id</span>,
-            <span class="ident">course_name</span>: <span class="string">&quot;Example course&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">name</span>: <span class="string">&quot;Course exam&quot;</span>.<span class="ident">to_string</span>()
+        Vec,
+        ExerciseSlideSubmissionCountByWeekAndHour {
+            count: <span class="prelude-val">Some</span>(<span class="number">123</span>),
+            hour: <span class="prelude-val">Some</span>(<span class="number">2</span>),
+            isodow: <span class="prelude-val">Some</span>(<span class="number">2</span>)
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">OrgExam</span> {
-            <span class="ident">id</span>,
-            <span class="ident">organization_id</span>,
-            <span class="ident">name</span>: <span class="string">&quot;Org exam&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">instructions</span>: <span class="ident">Page::example</span>().<span class="ident">content</span>,
-            <span class="ident">time_minutes</span>: <span class="number">120</span>,
-            <span class="ident">starts_at</span>,
-            <span class="ident">ends_at</span>
+        Vec,
+        ExerciseSlideSubmissionCountByExercise {
+            exercise_id,
+            exercise_name: <span class="string">&quot;Best exercise&quot;</span>.to_string(),
+            count: <span class="prelude-val">Some</span>(<span class="number">123</span>),
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Opt</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">Page</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">course_id</span>,
-            <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">chapter_id</span>,
-            <span class="ident">url_path</span>: <span class="string">&quot;/part-1/hello-world&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="string">&quot;Hello world!&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
+        Vec,
+        Feedback {
+            id,
+            user_id,
+            course_id,
+            feedback_given: <span class="string">&quot;Unclear&quot;</span>.to_string(),
+            selected_text: <span class="prelude-val">None</span>,
+            marked_as_read: <span class="bool-val">false</span>,
+            created_at,
+            blocks,
+            page_id: <span class="prelude-val">Some</span>(Uuid::parse_str(<span class="string">&quot;bba0eda6-882b-4a0f-ad91-b02de1de4770&quot;</span>).unwrap()),
+            page_title: <span class="string">&quot;The title of the page&quot;</span>.to_string(),
+            page_url_path: <span class="string">&quot;/path-to-page&quot;</span>.to_string()
+        }
+    );
+    <span class="macro">doc!</span>(FeedbackCount { read: <span class="number">1</span>, unread: <span class="number">2 </span>});
+    <span class="macro">doc!</span>(Exam {
+        id,
+        name: <span class="string">&quot;Course exam&quot;</span>.to_string(),
+        instructions: <span class="macro">serde_json::json!</span>([]),
+        page_id,
+        courses,
+        starts_at,
+        ends_at,
+        time_minutes: <span class="number">120
+    </span>});
+    <span class="macro">doc!</span>(
+        T,
+        Vec,
+        ExerciseService {
+            id,
+            created_at,
+            updated_at,
+            deleted_at: <span class="prelude-val">None</span>,
+            name: <span class="string">&quot;Quizzes&quot;</span>.to_string(),
+            slug: <span class="string">&quot;quizzes&quot;</span>.to_string(),
+            public_url: <span class="string">&quot;http://example.com&quot;</span>.to_string(),
+            internal_url: <span class="prelude-val">None</span>,
+            max_reprocessing_submissions_at_once: <span class="number">4</span>,
+        }
+    );
+    <span class="macro">doc!</span>(
+        T,
+        Vec,
+        Organization {
+            id,
+            created_at,
+            updated_at,
+            deleted_at: <span class="prelude-val">None</span>,
+            slug: <span class="string">&quot;hy-cs&quot;</span>.to_string(),
+            name: <span class="string">&quot;University of Helsinki&quot;</span>.to_string(),
+            description: <span class="prelude-val">None</span>,
+            organization_image_url: <span class="prelude-val">None</span>,
+        }
+    );
+    <span class="macro">doc!</span>(
+        Vec,
+        CourseExam {
+            id,
+            course_id,
+            course_name: <span class="string">&quot;Example course&quot;</span>.to_string(),
+            name: <span class="string">&quot;Course exam&quot;</span>.to_string()
+        }
+    );
+    <span class="macro">doc!</span>(
+        Vec,
+        OrgExam {
+            id,
+            organization_id,
+            name: <span class="string">&quot;Org exam&quot;</span>.to_string(),
+            instructions: Page::example().content,
+            time_minutes: <span class="number">120</span>,
+            starts_at,
+            ends_at
+        }
+    );
+    <span class="macro">doc!</span>(
+        T,
+        Opt,
+        Vec,
+        Page {
+            id,
+            created_at,
+            updated_at,
+            deleted_at: <span class="prelude-val">None</span>,
+            course_id,
+            exam_id: <span class="prelude-val">None</span>,
+            chapter_id,
+            url_path: <span class="string">&quot;/part-1/hello-world&quot;</span>.to_string(),
+            title: <span class="string">&quot;Hello world!&quot;</span>.to_string(),
+            content: <span class="macro">serde_json::json!</span>([
               {
                 <span class="string">&quot;name&quot;</span>: <span class="string">&quot;moocfi/pages-in-part&quot;</span>,
                 <span class="string">&quot;isValid&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;clientId&quot;</span>: <span class="string">&quot;c68f55ae-65c4-4e9b-aded-0b52e36e344a&quot;</span>,
                 <span class="string">&quot;attributes&quot;</span>: {
-                  <span class="string">&quot;hidden&quot;</span>: <span class="bool-val">false</span>
-                },
+                  <span class="string">&quot;hidden&quot;</span>: <span class="bool-val">false
+                </span>},
                 <span class="string">&quot;innerBlocks&quot;</span>: []
               },
               {
@@ -2414,373 +2414,373 @@ This method is mainly useful for external/std types. For example, we cannot writ
                 <span class="string">&quot;isValid&quot;</span>: <span class="bool-val">true</span>,
                 <span class="string">&quot;clientId&quot;</span>: <span class="string">&quot;415ecc4c-a5c6-410e-a43f-c14b8ee910ea&quot;</span>,
                 <span class="string">&quot;attributes&quot;</span>: {
-                  <span class="string">&quot;hidden&quot;</span>: <span class="bool-val">false</span>
-                },
+                  <span class="string">&quot;hidden&quot;</span>: <span class="bool-val">false
+                </span>},
                 <span class="string">&quot;innerBlocks&quot;</span>: []
               }
             ]),
-            <span class="ident">order_number</span>: <span class="number">123</span>,
-            <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-            <span class="ident">hidden</span>: <span class="bool-val">false</span>,
+            order_number: <span class="number">123</span>,
+            copied_from: <span class="prelude-val">None</span>,
+            hidden: <span class="bool-val">false</span>,
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">PageHistory</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">title</span>: <span class="string">&quot;Page title&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">content</span>: <span class="macro">serde_json::json!</span> {{}},
-            <span class="ident">history_change_reason</span>: <span class="ident">HistoryChangeReason::PageSaved</span>,
-            <span class="ident">restored_from_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">author_user_id</span>,
+        Vec,
+        PageHistory {
+            id,
+            created_at,
+            title: <span class="string">&quot;Page title&quot;</span>.to_string(),
+            content: <span class="macro">serde_json::json! </span>{{}},
+            history_change_reason: HistoryChangeReason::PageSaved,
+            restored_from_id: <span class="prelude-val">None</span>,
+            author_user_id,
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">PlaygroundExample</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">name</span>: <span class="string">&quot;Example&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url</span>: <span class="string">&quot;http://example.com&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">width</span>: <span class="number">123</span>,
-            <span class="ident">data</span>: <span class="macro">serde_json::json!</span> {{}},
+        T,
+        Vec,
+        PlaygroundExample {
+            id,
+            created_at,
+            updated_at,
+            deleted_at: <span class="prelude-val">None</span>,
+            name: <span class="string">&quot;Example&quot;</span>.to_string(),
+            url: <span class="string">&quot;http://example.com&quot;</span>.to_string(),
+            width: <span class="number">123</span>,
+            data: <span class="macro">serde_json::json! </span>{{}},
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">PageProposal</span> {
-            <span class="ident">id</span>,
-            <span class="ident">page_id</span>,
-            <span class="ident">user_id</span>,
-            <span class="ident">pending</span>: <span class="bool-val">false</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">block_proposals</span>,
-            <span class="ident">page_title</span>: <span class="string">&quot;Page title&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">page_url_path</span>: <span class="string">&quot;/path/to/page&quot;</span>.<span class="ident">to_string</span>()
+        Vec,
+        PageProposal {
+            id,
+            page_id,
+            user_id,
+            pending: <span class="bool-val">false</span>,
+            created_at,
+            block_proposals,
+            page_title: <span class="string">&quot;Page title&quot;</span>.to_string(),
+            page_url_path: <span class="string">&quot;/path/to/page&quot;</span>.to_string()
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">ProposalCount</span> {
-        <span class="ident">pending</span>: <span class="number">2</span>,
-        <span class="ident">handled</span>: <span class="number">2</span>
+    <span class="macro">doc!</span>(ProposalCount {
+        pending: <span class="number">2</span>,
+        handled: <span class="number">2
+    </span>});
+    <span class="macro">doc!</span>(User {
+        id,
+        first_name: <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>.to_string()),
+        last_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.to_string()),
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        upstream_id: <span class="prelude-val">None</span>,
+        email: <span class="string">&quot;email@example.com&quot;</span>.to_string(),
     });
-    <span class="macro">doc!</span>(<span class="ident">User</span> {
-        <span class="ident">id</span>,
-        <span class="ident">first_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">last_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-        <span class="ident">upstream_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">email</span>: <span class="string">&quot;email@example.com&quot;</span>.<span class="ident">to_string</span>(),
-    });
-    <span class="macro">doc!</span>(<span class="ident">CourseCount</span> { <span class="ident">count</span>: <span class="number">1234</span> });
+    <span class="macro">doc!</span>(CourseCount { count: <span class="number">1234 </span>});
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">Term</span> {
-            <span class="ident">id</span>,
-            <span class="ident">term</span>: <span class="string">&quot;Term&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">definition</span>: <span class="string">&quot;Definition&quot;</span>.<span class="ident">to_string</span>()
+        Vec,
+        Term {
+            id,
+            term: <span class="string">&quot;Term&quot;</span>.to_string(),
+            definition: <span class="string">&quot;Definition&quot;</span>.to_string()
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">PageChapterAndCourseInformation</span> {
-        <span class="ident">chapter_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Chapter 1&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">chapter_number</span>: <span class="prelude-val">Some</span>(<span class="number">1</span>),
-        <span class="ident">course_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Introduction to everything&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">course_slug</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;introduction-to-everything&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">chapter_front_page_id</span>: <span class="prelude-val">Some</span>(
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;</span>).<span class="ident">unwrap</span>()
+    <span class="macro">doc!</span>(PageChapterAndCourseInformation {
+        chapter_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Chapter 1&quot;</span>.to_string()),
+        chapter_number: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+        course_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Introduction to everything&quot;</span>.to_string()),
+        course_slug: <span class="prelude-val">Some</span>(<span class="string">&quot;introduction-to-everything&quot;</span>.to_string()),
+        chapter_front_page_id: <span class="prelude-val">Some</span>(
+            Uuid::parse_str(<span class="string">&quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;</span>).unwrap()
         ),
-        <span class="ident">chapter_front_page_url_path</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;/chapter-1&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">organization_slug</span>: <span class="string">&quot;uh-cs&quot;</span>.<span class="ident">to_string</span>()
+        chapter_front_page_url_path: <span class="prelude-val">Some</span>(<span class="string">&quot;/chapter-1&quot;</span>.to_string()),
+        organization_slug: <span class="string">&quot;uh-cs&quot;</span>.to_string()
     });
-    <span class="macro">doc!</span>(<span class="ident">ExamInstructions</span> {
-        <span class="ident">id</span>,
-        <span class="ident">instructions</span>: <span class="ident">Page::example</span>().<span class="ident">content</span>
+    <span class="macro">doc!</span>(ExamInstructions {
+        id,
+        instructions: Page::example().content
     });
-    <span class="macro">doc!</span>(<span class="ident">PageInfo</span> {
-        <span class="ident">page_id</span>,
-        <span class="ident">page_title</span>: <span class="string">&quot;The basics&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">course_id</span>,
-        <span class="ident">course_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Introduction to everything&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">course_slug</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;introduction-to-everything&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">organization_slug</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;uh-cs&quot;</span>.<span class="ident">to_string</span>())
+    <span class="macro">doc!</span>(PageInfo {
+        page_id,
+        page_title: <span class="string">&quot;The basics&quot;</span>.to_string(),
+        course_id,
+        course_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Introduction to everything&quot;</span>.to_string()),
+        course_slug: <span class="prelude-val">Some</span>(<span class="string">&quot;introduction-to-everything&quot;</span>.to_string()),
+        organization_slug: <span class="prelude-val">Some</span>(<span class="string">&quot;uh-cs&quot;</span>.to_string())
     });
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">MaterialReference</span> {
-            <span class="ident">id</span>,
-            <span class="ident">course_id</span>,
-            <span class="ident">citation_key</span>: <span class="string">&quot;NeuralNetworks2022&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">reference</span>: <span class="string">&quot;bibtex reference&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>
-        }
+        Vec,
+        MaterialReference {
+            id,
+            course_id,
+            citation_key: <span class="string">&quot;NeuralNetworks2022&quot;</span>.to_string(),
+            reference: <span class="string">&quot;bibtex reference&quot;</span>.to_string(),
+            created_at,
+            updated_at,
+            deleted_at: <span class="prelude-val">None
+        </span>}
     );
-    <span class="macro">doc!</span>(<span class="ident">NewMaterialReference</span> {
-        <span class="ident">citation_key</span>: <span class="string">&quot;NeuralNetworks2022&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">reference</span>: <span class="string">&quot;bibtex reference&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="macro">doc!</span>(NewMaterialReference {
+        citation_key: <span class="string">&quot;NeuralNetworks2022&quot;</span>.to_string(),
+        reference: <span class="string">&quot;bibtex reference&quot;</span>.to_string(),
     });
-    <span class="macro">doc!</span>(<span class="ident">ExerciseSlideSubmissionInfo</span> {
-        <span class="ident">tasks</span>,
-        <span class="ident">exercise</span>,
-        <span class="ident">exercise_slide_submission</span>,
+    <span class="macro">doc!</span>(ExerciseSlideSubmissionInfo {
+        tasks,
+        exercise,
+        exercise_slide_submission,
     });
-    <span class="macro">doc!</span>(<span class="ident">IsChapterFrontPage</span> {
-        <span class="ident">is_chapter_front_page</span>: <span class="bool-val">true</span>
-    });
-    <span class="macro">doc!</span>(<span class="ident">CourseMaterialPeerReviewData</span> {
-        <span class="ident">peer_review_config</span>,
-        <span class="ident">peer_review_questions</span>,
-        <span class="ident">num_peer_reviews_given</span>: <span class="number">2</span>,
-        <span class="ident">answer_to_review</span>,
+    <span class="macro">doc!</span>(IsChapterFrontPage {
+        is_chapter_front_page: <span class="bool-val">true
+    </span>});
+    <span class="macro">doc!</span>(CourseMaterialPeerReviewData {
+        peer_review_config,
+        peer_review_questions,
+        num_peer_reviews_given: <span class="number">2</span>,
+        answer_to_review,
     });
     <span class="macro">doc!</span>(
-        <span class="ident">T</span>,
-        <span class="ident">Vec</span>,
-        <span class="ident">StudyRegistryCompletion</span> {
-            <span class="ident">completion_date</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            <span class="ident">completion_language</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-val">None</span>,
-            <span class="ident">email</span>: <span class="string">&quot;student@example.com&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">grade</span>: <span class="ident">StudyRegistryGrade::new</span>(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)),
-            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;633852ce-c82a-4d60-8ab5-28745163f6f9&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">user_id</span>,
-            <span class="ident">tier</span>: <span class="prelude-val">None</span>
-        }
+        T,
+        Vec,
+        StudyRegistryCompletion {
+            completion_date: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            completion_language: <span class="string">&quot;en-US&quot;</span>.to_string(),
+            completion_registration_attempt_date: <span class="prelude-val">None</span>,
+            email: <span class="string">&quot;student@example.com&quot;</span>.to_string(),
+            grade: StudyRegistryGrade::new(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)),
+            id: Uuid::parse_str(<span class="string">&quot;633852ce-c82a-4d60-8ab5-28745163f6f9&quot;</span>).unwrap(),
+            user_id,
+            tier: <span class="prelude-val">None
+        </span>}
     );
-    <span class="macro">doc!</span>(<span class="ident">UserCompletionInformation</span> {
-        <span class="ident">course_module_completion_id</span>,
-        <span class="ident">course_name</span>: <span class="string">&quot;Course&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">email</span>: <span class="string">&quot;student@example.com&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">uh_course_code</span>: <span class="string">&quot;ABC123&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">ects_credits</span>: <span class="prelude-val">Some</span>(<span class="number">5</span>),
+    <span class="macro">doc!</span>(UserCompletionInformation {
+        course_module_completion_id,
+        course_name: <span class="string">&quot;Course&quot;</span>.to_string(),
+        email: <span class="string">&quot;student@example.com&quot;</span>.to_string(),
+        uh_course_code: <span class="string">&quot;ABC123&quot;</span>.to_string(),
+        ects_credits: <span class="prelude-val">Some</span>(<span class="number">5</span>),
     });
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserModuleCompletionStatus</span><span class="op">&gt;</span>,
+        Vec&lt;UserModuleCompletionStatus&gt;,
         <span class="macro">vec!</span>[
-            <span class="ident">UserModuleCompletionStatus</span> {
-                <span class="ident">completed</span>: <span class="bool-val">false</span>,
-                <span class="ident">default</span>: <span class="bool-val">true</span>,
-                <span class="ident">module_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;299eba99-9aa2-4023-bd64-bd4b5d7578ba&quot;</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">name</span>: <span class="string">&quot;Course&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">order_number</span>: <span class="number">0</span>,
-                <span class="ident">prerequisite_modules_completed</span>: <span class="bool-val">false</span>,
+            UserModuleCompletionStatus {
+                completed: <span class="bool-val">false</span>,
+                default: <span class="bool-val">true</span>,
+                module_id: Uuid::parse_str(<span class="string">&quot;299eba99-9aa2-4023-bd64-bd4b5d7578ba&quot;</span>).unwrap(),
+                name: <span class="string">&quot;Course&quot;</span>.to_string(),
+                order_number: <span class="number">0</span>,
+                prerequisite_modules_completed: <span class="bool-val">false</span>,
             },
-            <span class="ident">UserModuleCompletionStatus</span> {
-                <span class="ident">completed</span>: <span class="bool-val">true</span>,
-                <span class="ident">default</span>: <span class="bool-val">false</span>,
-                <span class="ident">module_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c6c89368-c05d-498f-a2e3-10d7c327752c&quot;</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">name</span>: <span class="string">&quot;Module&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">order_number</span>: <span class="number">1</span>,
-                <span class="ident">prerequisite_modules_completed</span>: <span class="bool-val">false</span>,
+            UserModuleCompletionStatus {
+                completed: <span class="bool-val">true</span>,
+                default: <span class="bool-val">false</span>,
+                module_id: Uuid::parse_str(<span class="string">&quot;c6c89368-c05d-498f-a2e3-10d7c327752c&quot;</span>).unwrap(),
+                name: <span class="string">&quot;Module&quot;</span>.to_string(),
+                order_number: <span class="number">1</span>,
+                prerequisite_modules_completed: <span class="bool-val">false</span>,
             }
         ]
     );
-    <span class="macro">doc!</span>(<span class="ident">CompletionRegistrationLink</span> {
-        <span class="ident">url</span>: <span class="string">&quot;https://www.example.com&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="macro">doc!</span>(CompletionRegistrationLink {
+        url: <span class="string">&quot;https://www.example.com&quot;</span>.to_string(),
     });
-    <span class="macro">doc!</span>(<span class="ident">PageNavigationInformation</span> {
-        <span class="ident">chapter_front_page</span>: <span class="prelude-val">Some</span>(<span class="ident">PageRoutingData</span> {
-            <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="string">&quot;Chapter 1&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">page_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;634d1116-4a00-4f97-988d-e2fd523ac43a&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">chapter_number</span>: <span class="number">1</span>,
-            <span class="ident">chapter_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;22552232-c1b6-4067-9aae-e09221b63e8f&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">chapter_opens_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">chapter_front_page_id</span>: <span class="prelude-val">Some</span>(
-                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f8726e97-5ebe-4698-9163-7d6e2568ec7e&quot;</span>).<span class="ident">unwrap</span>()
+    <span class="macro">doc!</span>(PageNavigationInformation {
+        chapter_front_page: <span class="prelude-val">Some</span>(PageRoutingData {
+            url_path: <span class="string">&quot;/chapter-1&quot;</span>.to_string(),
+            title: <span class="string">&quot;Chapter 1&quot;</span>.to_string(),
+            page_id: Uuid::parse_str(<span class="string">&quot;634d1116-4a00-4f97-988d-e2fd523ac43a&quot;</span>).unwrap(),
+            chapter_number: <span class="number">1</span>,
+            chapter_id: Uuid::parse_str(<span class="string">&quot;22552232-c1b6-4067-9aae-e09221b63e8f&quot;</span>).unwrap(),
+            chapter_opens_at: <span class="prelude-val">None</span>,
+            chapter_front_page_id: <span class="prelude-val">Some</span>(
+                Uuid::parse_str(<span class="string">&quot;f8726e97-5ebe-4698-9163-7d6e2568ec7e&quot;</span>).unwrap()
             ),
         }),
-        <span class="ident">next_page</span>: <span class="prelude-val">Some</span>(<span class="ident">PageRoutingData</span> {
-            <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-3&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="string">&quot;Page 3&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">page_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;634d1116-4a00-4f97-988d-e2fd523ac43a&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">chapter_number</span>: <span class="number">1</span>,
-            <span class="ident">chapter_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;22552232-c1b6-4067-9aae-e09221b63e8f&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">chapter_opens_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">chapter_front_page_id</span>: <span class="prelude-val">Some</span>(
-                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f8726e97-5ebe-4698-9163-7d6e2568ec7e&quot;</span>).<span class="ident">unwrap</span>()
+        next_page: <span class="prelude-val">Some</span>(PageRoutingData {
+            url_path: <span class="string">&quot;/chapter-1/page-3&quot;</span>.to_string(),
+            title: <span class="string">&quot;Page 3&quot;</span>.to_string(),
+            page_id: Uuid::parse_str(<span class="string">&quot;634d1116-4a00-4f97-988d-e2fd523ac43a&quot;</span>).unwrap(),
+            chapter_number: <span class="number">1</span>,
+            chapter_id: Uuid::parse_str(<span class="string">&quot;22552232-c1b6-4067-9aae-e09221b63e8f&quot;</span>).unwrap(),
+            chapter_opens_at: <span class="prelude-val">None</span>,
+            chapter_front_page_id: <span class="prelude-val">Some</span>(
+                Uuid::parse_str(<span class="string">&quot;f8726e97-5ebe-4698-9163-7d6e2568ec7e&quot;</span>).unwrap()
             ),
         }),
-        <span class="ident">previous_page</span>: <span class="prelude-val">Some</span>(<span class="ident">PageRoutingData</span> {
-            <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-1&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="string">&quot;Page 1&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">page_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;25d1932b-ad97-4461-8280-412fe8b75ca2&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">chapter_number</span>: <span class="number">1</span>,
-            <span class="ident">chapter_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;22552232-c1b6-4067-9aae-e09221b63e8f&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">chapter_opens_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">chapter_front_page_id</span>: <span class="prelude-val">Some</span>(
-                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f8726e97-5ebe-4698-9163-7d6e2568ec7e&quot;</span>).<span class="ident">unwrap</span>()
+        previous_page: <span class="prelude-val">Some</span>(PageRoutingData {
+            url_path: <span class="string">&quot;/chapter-1/page-1&quot;</span>.to_string(),
+            title: <span class="string">&quot;Page 1&quot;</span>.to_string(),
+            page_id: Uuid::parse_str(<span class="string">&quot;25d1932b-ad97-4461-8280-412fe8b75ca2&quot;</span>).unwrap(),
+            chapter_number: <span class="number">1</span>,
+            chapter_id: Uuid::parse_str(<span class="string">&quot;22552232-c1b6-4067-9aae-e09221b63e8f&quot;</span>).unwrap(),
+            chapter_opens_at: <span class="prelude-val">None</span>,
+            chapter_front_page_id: <span class="prelude-val">Some</span>(
+                Uuid::parse_str(<span class="string">&quot;f8726e97-5ebe-4698-9163-7d6e2568ec7e&quot;</span>).unwrap()
             ),
         }),
     });
-    <span class="macro">doc!</span>(<span class="ident">UserExerciseState</span> {
-        <span class="ident">id</span>,
-        <span class="ident">user_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;e9386872-d5f4-4120-a8df-6024c0f9714a&quot;</span>).<span class="ident">unwrap</span>(),
-        <span class="ident">exercise_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;2d798a55-8786-411b-8061-8352c4be2143&quot;</span>).<span class="ident">unwrap</span>(),
-        <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;7490d7a3-86df-4bfa-8991-751dd1d5128c&quot;</span>).<span class="ident">unwrap</span>()),
-        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">updated_at</span>,
-        <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-        <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-        <span class="ident">grading_progress</span>,
-        <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::Completed</span>,
-        <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::ReviewedAndLocked</span>,
-        <span class="ident">selected_exercise_slide_id</span>: <span class="prelude-val">Some</span>(
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;b1355811-b233-45f1-87cc-038c9dea927d&quot;</span>).<span class="ident">unwrap</span>()
+    <span class="macro">doc!</span>(UserExerciseState {
+        id,
+        user_id: Uuid::parse_str(<span class="string">&quot;e9386872-d5f4-4120-a8df-6024c0f9714a&quot;</span>).unwrap(),
+        exercise_id: Uuid::parse_str(<span class="string">&quot;2d798a55-8786-411b-8061-8352c4be2143&quot;</span>).unwrap(),
+        course_instance_id: <span class="prelude-val">Some</span>(Uuid::parse_str(<span class="string">&quot;7490d7a3-86df-4bfa-8991-751dd1d5128c&quot;</span>).unwrap()),
+        exam_id: <span class="prelude-val">None</span>,
+        created_at,
+        updated_at,
+        deleted_at: <span class="prelude-val">None</span>,
+        score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+        grading_progress,
+        activity_progress: ActivityProgress::Completed,
+        reviewing_stage: ReviewingStage::ReviewedAndLocked,
+        selected_exercise_slide_id: <span class="prelude-val">Some</span>(
+            Uuid::parse_str(<span class="string">&quot;b1355811-b233-45f1-87cc-038c9dea927d&quot;</span>).unwrap()
         ),
     });
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span><span class="op">&gt;</span>,
+        Vec&lt;ExerciseAnswersInCourseRequiringAttentionCount&gt;,
         <span class="macro">vec!</span>[
-            <span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span> {
-                <span class="ident">id</span>: <span class="ident">ex</span>(),
-                <span class="ident">name</span>: <span class="string">&quot;Exercise 1&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">page_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;cdffbf4f-00dc-4538-b382-5c9acdf7f7af&quot;</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;05d2518b-aa07-44ee-a6c4-bab0b0ecf4c8&quot;</span>).<span class="ident">unwrap</span>()),
-                <span class="ident">order_number</span>: <span class="number">1</span>,
-                <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">5</span>)
+            ExerciseAnswersInCourseRequiringAttentionCount {
+                id: ex(),
+                name: <span class="string">&quot;Exercise 1&quot;</span>.to_string(),
+                page_id: Uuid::parse_str(<span class="string">&quot;cdffbf4f-00dc-4538-b382-5c9acdf7f7af&quot;</span>).unwrap(),
+                chapter_id: <span class="prelude-val">Some</span>(Uuid::parse_str(<span class="string">&quot;05d2518b-aa07-44ee-a6c4-bab0b0ecf4c8&quot;</span>).unwrap()),
+                order_number: <span class="number">1</span>,
+                count: <span class="prelude-val">Some</span>(<span class="number">5</span>)
             },
-            <span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span> {
-                <span class="ident">id</span>: <span class="ident">ex</span>(),
-                <span class="ident">name</span>: <span class="string">&quot;Exercise 2&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">page_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;b4d13b83-6366-4daf-b9b1-eb6b8792df0c&quot;</span>).<span class="ident">unwrap</span>()),
-                <span class="ident">order_number</span>: <span class="number">2</span>,
-                <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>)
+            ExerciseAnswersInCourseRequiringAttentionCount {
+                id: ex(),
+                name: <span class="string">&quot;Exercise 2&quot;</span>.to_string(),
+                page_id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
+                chapter_id: <span class="prelude-val">Some</span>(Uuid::parse_str(<span class="string">&quot;b4d13b83-6366-4daf-b9b1-eb6b8792df0c&quot;</span>).unwrap()),
+                order_number: <span class="number">2</span>,
+                count: <span class="prelude-val">Some</span>(<span class="number">10</span>)
             }
         ]
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">ExerciseServiceIframeRenderingInfo</span> {
-            <span class="ident">id</span>,
-            <span class="ident">name</span>: <span class="string">&quot;Example exercise&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">slug</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">public_iframe_url</span>: <span class="string">&quot;https://example.com/iframe&quot;</span>.<span class="ident">to_string</span>()
+        Vec,
+        ExerciseServiceIframeRenderingInfo {
+            id,
+            name: <span class="string">&quot;Example exercise&quot;</span>.to_string(),
+            slug: <span class="string">&quot;example-exercise&quot;</span>.to_string(),
+            public_iframe_url: <span class="string">&quot;https://example.com/iframe&quot;</span>.to_string()
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">CmsPeerReviewConfiguration</span> {
-        <span class="ident">peer_review_config</span>,
-        <span class="ident">peer_review_questions</span>,
+    <span class="macro">doc!</span>(CmsPeerReviewConfiguration {
+        peer_review_config,
+        peer_review_questions,
     });
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">ExerciseRepository</span> {
-            <span class="ident">id</span>,
-            <span class="ident">url</span>: <span class="string">&quot;https://github.com/testmycode/tmc-testcourse&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">course_id</span>,
-            <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">status</span>: <span class="ident">ExerciseRepositoryStatus::Success</span>,
-            <span class="ident">error_message</span>: <span class="prelude-val">None</span>,
+        Vec,
+        ExerciseRepository {
+            id,
+            url: <span class="string">&quot;https://github.com/testmycode/tmc-testcourse&quot;</span>.to_string(),
+            course_id,
+            exam_id: <span class="prelude-val">None</span>,
+            status: ExerciseRepositoryStatus::Success,
+            error_message: <span class="prelude-val">None</span>,
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">RepositoryExercise</span> {
-            <span class="ident">id</span>,
-            <span class="ident">repository_id</span>,
-            <span class="ident">part</span>: <span class="string">&quot;part01&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">name</span>: <span class="string">&quot;exercise01&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">repository_url</span>: <span class="string">&quot;https://github.com/testmycode/tmc-testcourse&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">checksum</span>: <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
-            <span class="ident">download_url</span>: <span class="string">&quot;direct-download-link&quot;</span>.<span class="ident">to_string</span>(),
+        Vec,
+        RepositoryExercise {
+            id,
+            repository_id,
+            part: <span class="string">&quot;part01&quot;</span>.to_string(),
+            name: <span class="string">&quot;exercise01&quot;</span>.to_string(),
+            repository_url: <span class="string">&quot;https://github.com/testmycode/tmc-testcourse&quot;</span>.to_string(),
+            checksum: <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
+            download_url: <span class="string">&quot;direct-download-link&quot;</span>.to_string(),
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">Regrading</span> {
-            <span class="ident">id</span>,
-            <span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>,
-            <span class="ident">regrading_started_at</span>,
-            <span class="ident">regrading_completed_at</span>,
-            <span class="ident">total_grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
-            <span class="ident">user_points_update_strategy</span>: <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span>,
-            <span class="ident">user_id</span>
+        Vec,
+        Regrading {
+            id,
+            created_at,
+            updated_at,
+            regrading_started_at,
+            regrading_completed_at,
+            total_grading_progress: GradingProgress::FullyGraded,
+            user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+            user_id
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">RegradingInfo</span> {
-        <span class="ident">regrading</span>,
-        <span class="ident">submission_infos</span>,
+    <span class="macro">doc!</span>(RegradingInfo {
+        regrading,
+        submission_infos,
     });
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">RoleUser</span> {
-            <span class="ident">id</span>,
-            <span class="ident">first_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">last_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">email</span>: <span class="string">&quot;example@example.com&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">role</span>: <span class="ident">UserRole::MaterialViewer</span>
+        Vec,
+        RoleUser {
+            id,
+            first_name: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.to_string()),
+            last_name: <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>.to_string()),
+            email: <span class="string">&quot;example@example.com&quot;</span>.to_string(),
+            role: UserRole::MaterialViewer
         }
     );
     <span class="macro">doc!</span>(
-        <span class="ident">Vec</span>,
-        <span class="ident">PendingRole</span> {
-            <span class="ident">id</span>,
-            <span class="ident">user_email</span>: <span class="string">&quot;example@example.com&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">role</span>: <span class="ident">UserRole::MaterialViewer</span>,
-            <span class="ident">expires_at</span>,
+        Vec,
+        PendingRole {
+            id,
+            user_email: <span class="string">&quot;example@example.com&quot;</span>.to_string(),
+            role: UserRole::MaterialViewer,
+            expires_at,
         }
     );
-    <span class="macro">doc!</span>(<span class="ident">CourseModuleCompletionWithRegistrationInfo</span> {
-        <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-val">None</span>,
-        <span class="ident">course_module_id</span>,
-        <span class="ident">created_at</span>,
-        <span class="ident">grade</span>: <span class="prelude-val">Some</span>(<span class="number">4</span>),
-        <span class="ident">passed</span>: <span class="bool-val">true</span>,
-        <span class="ident">prerequisite_modules_completed</span>: <span class="bool-val">true</span>,
-        <span class="ident">registered</span>: <span class="bool-val">false</span>,
-        <span class="ident">user_id</span>,
+    <span class="macro">doc!</span>(CourseModuleCompletionWithRegistrationInfo {
+        completion_registration_attempt_date: <span class="prelude-val">None</span>,
+        course_module_id,
+        created_at,
+        grade: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+        passed: <span class="bool-val">true</span>,
+        prerequisite_modules_completed: <span class="bool-val">true</span>,
+        registered: <span class="bool-val">false</span>,
+        user_id,
     });
-    <span class="macro">doc!</span>(<span class="ident">PeerReviewsRecieved</span> {
-        <span class="ident">peer_review_question_submissions</span>,
-        <span class="ident">peer_review_questions</span>
+    <span class="macro">doc!</span>(PeerReviewsRecieved {
+        peer_review_question_submissions,
+        peer_review_questions
     });
-    <span class="macro">doc!</span>(<span class="ident">CourseBackgroundQuestionsAndAnswers</span> {
-        <span class="ident">background_questions</span>: <span class="macro">vec!</span>[<span class="ident">CourseBackgroundQuestion</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>()),
-            <span class="ident">course_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">question_text</span>: <span class="string">&quot;I am currently studying for a bachelor&#39;s or master&#39;s degree at some Finnish university or higher education institute&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">question_type</span>: <span class="ident">CourseBackgroundQuestionType::Checkbox</span>
+    <span class="macro">doc!</span>(CourseBackgroundQuestionsAndAnswers {
+        background_questions: <span class="macro">vec!</span>[CourseBackgroundQuestion {
+            id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
+            created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            deleted_at: <span class="prelude-val">None</span>,
+            course_instance_id: <span class="prelude-val">Some</span>(Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap()),
+            course_id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
+            question_text: <span class="string">&quot;I am currently studying for a bachelor&#39;s or master&#39;s degree at some Finnish university or higher education institute&quot;</span>.to_string(),
+            question_type: CourseBackgroundQuestionType::Checkbox
         }],
-        <span class="ident">answers</span>: <span class="macro">vec!</span>[<span class="ident">CourseBackgroundQuestionAnswer</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">user_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">answer_value</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;yes&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">course_background_question_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>)
-                .<span class="ident">unwrap</span>()
+        answers: <span class="macro">vec!</span>[CourseBackgroundQuestionAnswer {
+            id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
+            created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            deleted_at: <span class="prelude-val">None</span>,
+            user_id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).unwrap(),
+            answer_value: <span class="prelude-val">Some</span>(<span class="string">&quot;yes&quot;</span>.to_string()),
+            course_background_question_id: Uuid::parse_str(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>)
+                .unwrap()
         }],
     });
 }
 
-<span class="kw">fn</span> <span class="ident">utils</span>() {
-    <span class="kw">use</span> <span class="ident">headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse</span>;
+<span class="kw">fn </span>utils() {
+    <span class="kw">use </span>headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse;
 
     <span class="macro">doc!</span>(
-        <span class="ident">OEmbedResponse</span> {
-            <span class="ident">author_name</span>: <span class="string">&quot;Mooc.fi&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">author_url</span>: <span class="string">&quot;http://project-331.local&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">html</span>: <span class="string">&quot;&lt;iframe src=&#39;http://project-331.local/oembed&#39; style=&#39;width: 99%;&#39; height=&#39;500&#39; title=&#39;OEmbed iFrame&#39;&gt;&lt;/iframe&gt;&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">provider_name</span>: <span class="string">&quot;project&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">provider_url</span>: <span class="string">&quot;http://project-331.local&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="string">&quot;OEmbed&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">version</span>: <span class="string">&quot;1.0&quot;</span>.<span class="ident">to_string</span>(),
+        OEmbedResponse {
+            author_name: <span class="string">&quot;Mooc.fi&quot;</span>.to_string(),
+            author_url: <span class="string">&quot;http://project-331.local&quot;</span>.to_string(),
+            html: <span class="string">&quot;&lt;iframe src=&#39;http://project-331.local/oembed&#39; style=&#39;width: 99%;&#39; height=&#39;500&#39; title=&#39;OEmbed iFrame&#39;&gt;&lt;/iframe&gt;&quot;</span>.to_string(),
+            provider_name: <span class="string">&quot;project&quot;</span>.to_string(),
+            provider_url: <span class="string">&quot;http://project-331.local&quot;</span>.to_string(),
+            title: <span class="string">&quot;OEmbed&quot;</span>.to_string(),
+            version: <span class="string">&quot;1.0&quot;</span>.to_string(),
         }
     );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

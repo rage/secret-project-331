@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/channel/channel_future.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>channel_future.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/channel/channel_future.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>channel_future.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -517,524 +517,524 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ChannelSendError</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::intrusive_double_linked_list::ListNode</span>;
-<span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">core::pin::Pin</span>;
-<span class="kw">use</span> <span class="ident">futures_core::future</span>::{<span class="ident">FusedFuture</span>, <span class="ident">Future</span>};
-<span class="kw">use</span> <span class="ident">futures_core::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::ChannelSendError;
+<span class="kw">use </span><span class="kw">crate</span>::intrusive_double_linked_list::ListNode;
+<span class="kw">use </span>core::marker::PhantomData;
+<span class="kw">use </span>core::pin::Pin;
+<span class="kw">use </span>futures_core::future::{FusedFuture, Future};
+<span class="kw">use </span>futures_core::task::{Context, Poll, Waker};
 
-<span class="doccomment">/// Conveys additional information regarding the status of a channel</span>
-<span class="doccomment">/// following a `close` operation.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CloseStatus</span> {
-    <span class="doccomment">/// The channel has just been closed by the operation.</span>
-    <span class="ident">NewlyClosed</span>,
+<span class="doccomment">/// Conveys additional information regarding the status of a channel
+/// following a `close` operation.
+</span><span class="attribute">#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+</span><span class="kw">pub enum </span>CloseStatus {
+    <span class="doccomment">/// The channel has just been closed by the operation.
+    </span>NewlyClosed,
 
-    <span class="doccomment">/// The channel was already closed prior to the operation.</span>
-    <span class="ident">AlreadyClosed</span>,
+    <span class="doccomment">/// The channel was already closed prior to the operation.
+    </span>AlreadyClosed,
 }
 
-<span class="kw">impl</span> <span class="ident">CloseStatus</span> {
-    <span class="doccomment">/// Returns whether the value is the `NewlyClosed` variant.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_newly_closed</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::NewlyClosed</span> =&gt; <span class="bool-val">true</span>,
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+<span class="kw">impl </span>CloseStatus {
+    <span class="doccomment">/// Returns whether the value is the `NewlyClosed` variant.
+    </span><span class="kw">pub fn </span>is_newly_closed(<span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::NewlyClosed =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="doccomment">/// Returns whether the value is the `AlreadyClosed` variant.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_already_closed</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::AlreadyClosed</span> =&gt; <span class="bool-val">true</span>,
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
-        }
-    }
-}
-
-<span class="doccomment">/// Tracks how the future had interacted with the channel</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RecvPollState</span> {
-    <span class="doccomment">/// The task is not registered at the wait queue at the channel</span>
-    <span class="ident">Unregistered</span>,
-    <span class="doccomment">/// The task was added to the wait queue at the channel.</span>
-    <span class="ident">Registered</span>,
-    <span class="doccomment">/// The task was notified that a value is available or can be sent,</span>
-    <span class="doccomment">/// but hasn&#39;t interacted with the channel since then</span>
-    <span class="ident">Notified</span>,
-}
-
-<span class="doccomment">/// Tracks the channel futures waiting state.</span>
-<span class="doccomment">/// Access to this struct is synchronized through the channel.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RecvWaitQueueEntry</span> {
-    <span class="doccomment">/// The task handle of the waiting task</span>
-    <span class="kw">pub</span> <span class="ident">task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Current polling state</span>
-    <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">RecvPollState</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">RecvWaitQueueEntry</span> {
-    <span class="doccomment">/// Creates a new RecvWaitQueueEntry</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">RecvWaitQueueEntry</span> {
-        <span class="ident">RecvWaitQueueEntry</span> {
-            <span class="ident">task</span>: <span class="prelude-val">None</span>,
-            <span class="ident">state</span>: <span class="ident">RecvPollState::Unregistered</span>,
+    <span class="doccomment">/// Returns whether the value is the `AlreadyClosed` variant.
+    </span><span class="kw">pub fn </span>is_already_closed(<span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::AlreadyClosed =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
-<span class="doccomment">/// Tracks how the future had interacted with the channel</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SendPollState</span> {
-    <span class="doccomment">/// The task is not registered at the wait queue at the channel</span>
-    <span class="ident">Unregistered</span>,
-    <span class="doccomment">/// The task was added to the wait queue at the channel.</span>
-    <span class="ident">Registered</span>,
-    <span class="doccomment">/// The value has been transmitted to the other task</span>
-    <span class="ident">SendComplete</span>,
+<span class="doccomment">/// Tracks how the future had interacted with the channel
+</span><span class="attribute">#[derive(PartialEq, Debug)]
+</span><span class="kw">pub enum </span>RecvPollState {
+    <span class="doccomment">/// The task is not registered at the wait queue at the channel
+    </span>Unregistered,
+    <span class="doccomment">/// The task was added to the wait queue at the channel.
+    </span>Registered,
+    <span class="doccomment">/// The task was notified that a value is available or can be sent,
+    /// but hasn&#39;t interacted with the channel since then
+    </span>Notified,
 }
 
-<span class="doccomment">/// Tracks the channel futures waiting state.</span>
-<span class="doccomment">/// Access to this struct is synchronized through the channel.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SendWaitQueueEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The task handle of the waiting task</span>
-    <span class="kw">pub</span> <span class="ident">task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Current polling state</span>
-    <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">SendPollState</span>,
-    <span class="doccomment">/// The value to send</span>
-    <span class="kw">pub</span> <span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Tracks the channel futures waiting state.
+/// Access to this struct is synchronized through the channel.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>RecvWaitQueueEntry {
+    <span class="doccomment">/// The task handle of the waiting task
+    </span><span class="kw">pub </span>task: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
+    <span class="doccomment">/// Current polling state
+    </span><span class="kw">pub </span>state: RecvPollState,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">SendWaitQueueEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(
+<span class="kw">impl </span>RecvWaitQueueEntry {
+    <span class="doccomment">/// Creates a new RecvWaitQueueEntry
+    </span><span class="kw">pub fn </span>new() -&gt; RecvWaitQueueEntry {
+        RecvWaitQueueEntry {
+            task: <span class="prelude-val">None</span>,
+            state: RecvPollState::Unregistered,
+        }
+    }
+}
+
+<span class="doccomment">/// Tracks how the future had interacted with the channel
+</span><span class="attribute">#[derive(PartialEq, Debug)]
+</span><span class="kw">pub enum </span>SendPollState {
+    <span class="doccomment">/// The task is not registered at the wait queue at the channel
+    </span>Unregistered,
+    <span class="doccomment">/// The task was added to the wait queue at the channel.
+    </span>Registered,
+    <span class="doccomment">/// The value has been transmitted to the other task
+    </span>SendComplete,
+}
+
+<span class="doccomment">/// Tracks the channel futures waiting state.
+/// Access to this struct is synchronized through the channel.
+</span><span class="kw">pub struct </span>SendWaitQueueEntry&lt;T&gt; {
+    <span class="doccomment">/// The task handle of the waiting task
+    </span><span class="kw">pub </span>task: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
+    <span class="doccomment">/// Current polling state
+    </span><span class="kw">pub </span>state: SendPollState,
+    <span class="doccomment">/// The value to send
+    </span><span class="kw">pub </span>value: <span class="prelude-ty">Option</span>&lt;T&gt;,
+}
+
+<span class="kw">impl</span>&lt;T&gt; core::fmt::Debug <span class="kw">for </span>SendWaitQueueEntry&lt;T&gt; {
+    <span class="kw">fn </span>fmt(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">core::result::Result</span><span class="op">&lt;</span>(), <span class="ident">core::fmt::Error</span><span class="op">&gt;</span> {
-        <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;SendWaitQueueEntry&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;task&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">task</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;state&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>)
-            .<span class="ident">finish</span>()
+        fmt: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; core::result::Result&lt;(), core::fmt::Error&gt; {
+        fmt.debug_struct(<span class="string">&quot;SendWaitQueueEntry&quot;</span>)
+            .field(<span class="string">&quot;task&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.task)
+            .field(<span class="string">&quot;state&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.state)
+            .finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SendWaitQueueEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new SendWaitQueueEntry</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="ident">SendWaitQueueEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">SendWaitQueueEntry</span> {
-            <span class="ident">task</span>: <span class="prelude-val">None</span>,
-            <span class="ident">state</span>: <span class="ident">SendPollState::Unregistered</span>,
-            <span class="ident">value</span>: <span class="prelude-val">Some</span>(<span class="ident">value</span>),
+<span class="kw">impl</span>&lt;T&gt; SendWaitQueueEntry&lt;T&gt; {
+    <span class="doccomment">/// Creates a new SendWaitQueueEntry
+    </span><span class="kw">pub fn </span>new(value: T) -&gt; SendWaitQueueEntry&lt;T&gt; {
+        SendWaitQueueEntry {
+            task: <span class="prelude-val">None</span>,
+            state: SendPollState::Unregistered,
+            value: <span class="prelude-val">Some</span>(value),
         }
     }
 }
 
-<span class="doccomment">/// Adapter trait that allows Futures to generically interact with Channel</span>
-<span class="doccomment">/// implementations via dynamic dispatch.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ChannelSendAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">send_or_register</span>(
+<span class="doccomment">/// Adapter trait that allows Futures to generically interact with Channel
+/// implementations via dynamic dispatch.
+</span><span class="kw">pub trait </span>ChannelSendAccess&lt;T&gt; {
+    <span class="kw">unsafe fn </span>send_or_register(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">SendWaitQueueEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; (<span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;SendWaitQueueEntry&lt;T&gt;&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; (Poll&lt;()&gt;, <span class="prelude-ty">Option</span>&lt;T&gt;);
 
-    <span class="kw">fn</span> <span class="ident">remove_send_waiter</span>(
+    <span class="kw">fn </span>remove_send_waiter(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">SendWaitQueueEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;SendWaitQueueEntry&lt;T&gt;&gt;,
     );
 }
 
-<span class="doccomment">/// Adapter trait that allows Futures to generically interact with Channel</span>
-<span class="doccomment">/// implementations via dynamic dispatch.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ChannelReceiveAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">receive_or_register</span>(
+<span class="doccomment">/// Adapter trait that allows Futures to generically interact with Channel
+/// implementations via dynamic dispatch.
+</span><span class="kw">pub trait </span>ChannelReceiveAccess&lt;T&gt; {
+    <span class="kw">unsafe fn </span>receive_or_register(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">remove_receive_waiter</span>(
+    <span class="kw">fn </span>remove_receive_waiter(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;RecvWaitQueueEntry&gt;,
     );
 }
 
-<span class="doccomment">/// A Future that is returned by the `receive` function on a channel.</span>
-<span class="doccomment">/// The future gets resolved with `Some(value)` when a value could be</span>
-<span class="doccomment">/// received from the channel.</span>
-<span class="doccomment">/// If the channels gets closed and no items are still enqueued inside the</span>
-<span class="doccomment">/// channel, the future will resolve to `None`.</span>
-<span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The channel that is associated with this ChannelReceiveFuture</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">channel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">ChannelReceiveAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Node for waiting on the channel</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">wait_node</span>: <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Marker for mutex type</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A Future that is returned by the `receive` function on a channel.
+/// The future gets resolved with `Some(value)` when a value could be
+/// received from the channel.
+/// If the channels gets closed and no items are still enqueued inside the
+/// channel, the future will resolve to `None`.
+</span><span class="attribute">#[must_use = <span class="string">&quot;futures do nothing unless polled&quot;</span>]
+</span><span class="kw">pub struct </span>ChannelReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="doccomment">/// The channel that is associated with this ChannelReceiveFuture
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) channel: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>ChannelReceiveAccess&lt;T&gt;&gt;,
+    <span class="doccomment">/// Node for waiting on the channel
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) wait_node: ListNode&lt;RecvWaitQueueEntry&gt;,
+    <span class="doccomment">/// Marker for mutex type
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) _phantom: PhantomData&lt;MutexType&gt;,
 }
 
-<span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying</span>
-<span class="comment">// channel is thread-safe (Sync), which allows to poll/register/unregister from</span>
-<span class="comment">// a different thread.</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">Sync</span>, <span class="ident">T</span>: <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span>
-    <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying
+// channel is thread-safe (Sync), which allows to poll/register/unregister from
+// a different thread.
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: Sync, T: Send&gt; Send
+    <span class="kw">for </span>ChannelReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
 {
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
-    <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; core::fmt::Debug
+    <span class="kw">for </span>ChannelReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;ChannelReceiveFuture&quot;</span>).<span class="ident">finish</span>()
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">&quot;ChannelReceiveFuture&quot;</span>).finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; Future <span class="kw">for </span>ChannelReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="kw">type </span>Output = <span class="prelude-ty">Option</span>&lt;T&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.</span>
-        <span class="comment">// However this didn&#39;t seem to work for some borrow checker reasons</span>
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt; {
+        <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.
+        // However this didn&#39;t seem to work for some borrow checker reasons
 
-        <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
-        <span class="comment">// the address of the wait queue entry inside ChannelReceiveFuture is stable,</span>
-        <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-        <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
+        // Safety: The next operations are safe, because Pin promises us that
+        // the address of the wait queue entry inside ChannelReceiveFuture is stable,
+        // and we don&#39;t move any fields inside the future until it gets dropped.
+        </span><span class="kw">let </span>mut_self: <span class="kw-2">&amp;mut </span>ChannelReceiveFuture&lt;MutexType, T&gt; =
+            <span class="kw">unsafe </span>{ Pin::get_unchecked_mut(<span class="self">self</span>) };
 
-        <span class="kw">let</span> <span class="ident">channel</span> <span class="op">=</span> <span class="ident">mut_self</span>
-            .<span class="ident">channel</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;polled ChannelReceiveFuture after completion&quot;</span>);
+        <span class="kw">let </span>channel = mut_self
+            .channel
+            .expect(<span class="string">&quot;polled ChannelReceiveFuture after completion&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">poll_res</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">channel</span>.<span class="ident">receive_or_register</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>) };
+        <span class="kw">let </span>poll_res =
+            <span class="kw">unsafe </span>{ channel.receive_or_register(<span class="kw-2">&amp;mut </span>mut_self.wait_node, cx) };
 
-        <span class="kw">if</span> <span class="ident">poll_res</span>.<span class="ident">is_ready</span>() {
-            <span class="comment">// A value was available</span>
-            <span class="ident">mut_self</span>.<span class="ident">channel</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">if </span>poll_res.is_ready() {
+            <span class="comment">// A value was available
+            </span>mut_self.channel = <span class="prelude-val">None</span>;
         }
 
-        <span class="ident">poll_res</span>
+        poll_res
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span> <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">is_none</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; FusedFuture <span class="kw">for </span>ChannelReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.channel.is_none()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// If this ChannelReceiveFuture has been polled and it was added to the</span>
-        <span class="comment">// wait queue at the channel, it must be removed before dropping.</span>
-        <span class="comment">// Otherwise the channel would access invalid memory.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">channel</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">channel</span> {
-            <span class="ident">channel</span>.<span class="ident">remove_receive_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; Drop <span class="kw">for </span>ChannelReceiveFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// If this ChannelReceiveFuture has been polled and it was added to the
+        // wait queue at the channel, it must be removed before dropping.
+        // Otherwise the channel would access invalid memory.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(channel) = <span class="self">self</span>.channel {
+            channel.remove_receive_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node);
         }
     }
 }
 
-<span class="doccomment">/// A Future that is returned by the `send` function on a channel.</span>
-<span class="doccomment">/// The future gets resolved with `None` when a value could be</span>
-<span class="doccomment">/// written to the channel.</span>
-<span class="doccomment">/// If the channel gets closed the send operation will fail, and the</span>
-<span class="doccomment">/// Future will resolve to `ChannelSendError(T)` and return the item to send.</span>
-<span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The Channel that is associated with this ChannelSendFuture</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">channel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">ChannelSendAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Node for waiting on the channel</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">wait_node</span>: <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">SendWaitQueueEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Marker for mutex type</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A Future that is returned by the `send` function on a channel.
+/// The future gets resolved with `None` when a value could be
+/// written to the channel.
+/// If the channel gets closed the send operation will fail, and the
+/// Future will resolve to `ChannelSendError(T)` and return the item to send.
+</span><span class="attribute">#[must_use = <span class="string">&quot;futures do nothing unless polled&quot;</span>]
+</span><span class="kw">pub struct </span>ChannelSendFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="doccomment">/// The Channel that is associated with this ChannelSendFuture
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) channel: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">dyn </span>ChannelSendAccess&lt;T&gt;&gt;,
+    <span class="doccomment">/// Node for waiting on the channel
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) wait_node: ListNode&lt;SendWaitQueueEntry&lt;T&gt;&gt;,
+    <span class="doccomment">/// Marker for mutex type
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) _phantom: PhantomData&lt;MutexType&gt;,
 }
 
-<span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying</span>
-<span class="comment">// channel is thread-safe (Sync), which allows to poll/register/unregister from</span>
-<span class="comment">// a different thread.</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">Sync</span>, <span class="ident">T</span>: <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span>
-    <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying
+// channel is thread-safe (Sync), which allows to poll/register/unregister from
+// a different thread.
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: Sync, T: Send&gt; Send
+    <span class="kw">for </span>ChannelSendFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
 {
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
-    <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; core::fmt::Debug
+    <span class="kw">for </span>ChannelSendFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt;
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;ChannelSendFuture&quot;</span>).<span class="ident">finish</span>()
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">&quot;ChannelSendFuture&quot;</span>).finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Tries to cancel the ongoing send operation</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">channel</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">take</span>();
-        <span class="kw">match</span> <span class="ident">channel</span> {
-            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">channel</span>) =&gt; {
-                <span class="ident">channel</span>.<span class="ident">remove_send_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
-                <span class="self">self</span>.<span class="ident">wait_node</span>.<span class="ident">value</span>.<span class="ident">take</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; ChannelSendFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="doccomment">/// Tries to cancel the ongoing send operation
+    </span><span class="kw">pub fn </span>cancel(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+        <span class="kw">let </span>channel = <span class="self">self</span>.channel.take();
+        <span class="kw">match </span>channel {
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>(channel) =&gt; {
+                channel.remove_send_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node);
+                <span class="self">self</span>.wait_node.value.take()
             }
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ChannelSendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; Future <span class="kw">for </span>ChannelSendFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(), ChannelSendError&lt;T&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(
-        <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ChannelSendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.</span>
-        <span class="comment">// However this didn&#39;t seem to work for some borrow checker reasons</span>
+    <span class="kw">fn </span>poll(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), ChannelSendError&lt;T&gt;&gt;&gt; {
+        <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.
+        // However this didn&#39;t seem to work for some borrow checker reasons
 
-        <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
-        <span class="comment">// the address of the wait queue entry inside ChannelSendFuture is stable,</span>
-        <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-        <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
+        // Safety: The next operations are safe, because Pin promises us that
+        // the address of the wait queue entry inside ChannelSendFuture is stable,
+        // and we don&#39;t move any fields inside the future until it gets dropped.
+        </span><span class="kw">let </span>mut_self: <span class="kw-2">&amp;mut </span>ChannelSendFuture&lt;MutexType, T&gt; =
+            <span class="kw">unsafe </span>{ Pin::get_unchecked_mut(<span class="self">self</span>) };
 
-        <span class="kw">let</span> <span class="ident">channel</span> <span class="op">=</span> <span class="ident">mut_self</span>
-            .<span class="ident">channel</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;polled ChannelSendFuture after completion&quot;</span>);
+        <span class="kw">let </span>channel = mut_self
+            .channel
+            .expect(<span class="string">&quot;polled ChannelSendFuture after completion&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">send_res</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">channel</span>.<span class="ident">send_or_register</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>) };
+        <span class="kw">let </span>send_res =
+            <span class="kw">unsafe </span>{ channel.send_or_register(<span class="kw-2">&amp;mut </span>mut_self.wait_node, cx) };
 
-        <span class="kw">match</span> <span class="ident">send_res</span>.<span class="number">0</span> {
-            <span class="ident">Poll::Ready</span>(()) =&gt; {
-                <span class="comment">// Value has been transmitted or channel was closed</span>
-                <span class="ident">mut_self</span>.<span class="ident">channel</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="kw">match</span> <span class="ident">send_res</span>.<span class="number">1</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; {
-                        <span class="comment">// Channel must have been closed</span>
-                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">ChannelSendError</span>(<span class="ident">v</span>)))
+        <span class="kw">match </span>send_res.<span class="number">0 </span>{
+            Poll::Ready(()) =&gt; {
+                <span class="comment">// Value has been transmitted or channel was closed
+                </span>mut_self.channel = <span class="prelude-val">None</span>;
+                <span class="kw">match </span>send_res.<span class="number">1 </span>{
+                    <span class="prelude-val">Some</span>(v) =&gt; {
+                        <span class="comment">// Channel must have been closed
+                        </span>Poll::Ready(<span class="prelude-val">Err</span>(ChannelSendError(v)))
                     }
-                    <span class="prelude-val">None</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())),
+                    <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">Ok</span>(())),
                 }
             }
-            <span class="ident">Poll::Pending</span> =&gt; <span class="ident">Poll::Pending</span>,
+            Poll::Pending =&gt; Poll::Pending,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span> <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">is_none</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; FusedFuture <span class="kw">for </span>ChannelSendFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.channel.is_none()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// If this ChannelSendFuture has been polled and it was added to the</span>
-        <span class="comment">// wait queue at the channel, it must be removed before dropping.</span>
-        <span class="comment">// Otherwise the channel would access invalid memory.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">channel</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">channel</span> {
-            <span class="ident">channel</span>.<span class="ident">remove_send_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; Drop <span class="kw">for </span>ChannelSendFuture&lt;<span class="lifetime">&#39;a</span>, MutexType, T&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// If this ChannelSendFuture has been polled and it was added to the
+        // wait queue at the channel, it must be removed before dropping.
+        // Otherwise the channel would access invalid memory.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(channel) = <span class="self">self</span>.channel {
+            channel.remove_send_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node);
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">if_alloc</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">mod </span>if_alloc {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">shared</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">pub mod </span>shared {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="doccomment">/// A Future that is returned by the `receive` function on a channel.</span>
-        <span class="doccomment">/// The future gets resolved with `Some(value)` when a value could be</span>
-        <span class="doccomment">/// received from the channel.</span>
-        <span class="doccomment">/// If the channels gets closed and no items are still enqueued inside the</span>
-        <span class="doccomment">/// channel, the future will resolve to `None`.</span>
-        <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="doccomment">/// The Channel that is associated with this ChannelReceiveFuture</span>
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">channel</span>:
-                <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">alloc::sync::Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ChannelReceiveAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-            <span class="doccomment">/// Node for waiting on the channel</span>
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">wait_node</span>: <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">RecvWaitQueueEntry</span><span class="op">&gt;</span>,
-            <span class="doccomment">/// Marker for mutex type</span>
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// A Future that is returned by the `receive` function on a channel.
+        /// The future gets resolved with `Some(value)` when a value could be
+        /// received from the channel.
+        /// If the channels gets closed and no items are still enqueued inside the
+        /// channel, the future will resolve to `None`.
+        </span><span class="attribute">#[must_use = <span class="string">&quot;futures do nothing unless polled&quot;</span>]
+        </span><span class="kw">pub struct </span>ChannelReceiveFuture&lt;MutexType, T&gt; {
+            <span class="doccomment">/// The Channel that is associated with this ChannelReceiveFuture
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) channel:
+                <span class="prelude-ty">Option</span>&lt;alloc::sync::Arc&lt;<span class="kw">dyn </span>ChannelReceiveAccess&lt;T&gt;&gt;&gt;,
+            <span class="doccomment">/// Node for waiting on the channel
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) wait_node: ListNode&lt;RecvWaitQueueEntry&gt;,
+            <span class="doccomment">/// Marker for mutex type
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) _phantom: PhantomData&lt;MutexType&gt;,
         }
 
-        <span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying</span>
-        <span class="comment">// channel is thread-safe (Sync), which allows to poll/register/unregister from</span>
-        <span class="comment">// a different thread.</span>
-        <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">Sync</span>, <span class="ident">T</span>: <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span>
-            <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span>
+        <span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying
+        // channel is thread-safe (Sync), which allows to poll/register/unregister from
+        // a different thread.
+        </span><span class="kw">unsafe impl</span>&lt;MutexType: Sync, T: Send&gt; Send
+            <span class="kw">for </span>ChannelReceiveFuture&lt;MutexType, T&gt;
         {
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-                <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;ChannelReceiveFuture&quot;</span>).<span class="ident">finish</span>()
+        <span class="kw">impl</span>&lt;MutexType, T&gt; core::fmt::Debug <span class="kw">for </span>ChannelReceiveFuture&lt;MutexType, T&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+                f.debug_struct(<span class="string">&quot;ChannelReceiveFuture&quot;</span>).finish()
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Future <span class="kw">for </span>ChannelReceiveFuture&lt;MutexType, T&gt; {
+            <span class="kw">type </span>Output = <span class="prelude-ty">Option</span>&lt;T&gt;;
 
-            <span class="kw">fn</span> <span class="ident">poll</span>(
-                <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-                <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-            ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-                <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.</span>
-                <span class="comment">// However this didn&#39;t seem to work for some borrow checker reasons</span>
+            <span class="kw">fn </span>poll(
+                <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+                cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+            ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt; {
+                <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.
+                // However this didn&#39;t seem to work for some borrow checker reasons
 
-                <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
-                <span class="comment">// the address of the wait queue entry inside ChannelReceiveFuture is stable,</span>
-                <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-                <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-                    <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
+                // Safety: The next operations are safe, because Pin promises us that
+                // the address of the wait queue entry inside ChannelReceiveFuture is stable,
+                // and we don&#39;t move any fields inside the future until it gets dropped.
+                </span><span class="kw">let </span>mut_self: <span class="kw-2">&amp;mut </span>ChannelReceiveFuture&lt;MutexType, T&gt; =
+                    <span class="kw">unsafe </span>{ Pin::get_unchecked_mut(<span class="self">self</span>) };
 
-                <span class="kw">let</span> <span class="ident">channel</span> <span class="op">=</span> <span class="ident">mut_self</span>
-                    .<span class="ident">channel</span>
-                    .<span class="ident">take</span>()
-                    .<span class="ident">expect</span>(<span class="string">&quot;polled ChannelReceiveFuture after completion&quot;</span>);
+                <span class="kw">let </span>channel = mut_self
+                    .channel
+                    .take()
+                    .expect(<span class="string">&quot;polled ChannelReceiveFuture after completion&quot;</span>);
 
-                <span class="kw">let</span> <span class="ident">poll_res</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-                    <span class="ident">channel</span>.<span class="ident">receive_or_register</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>)
+                <span class="kw">let </span>poll_res = <span class="kw">unsafe </span>{
+                    channel.receive_or_register(<span class="kw-2">&amp;mut </span>mut_self.wait_node, cx)
                 };
 
-                <span class="kw">if</span> <span class="ident">poll_res</span>.<span class="ident">is_ready</span>() {
-                    <span class="comment">// A value was available</span>
-                    <span class="ident">mut_self</span>.<span class="ident">channel</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                } <span class="kw">else</span> {
-                    <span class="ident">mut_self</span>.<span class="ident">channel</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">channel</span>)
+                <span class="kw">if </span>poll_res.is_ready() {
+                    <span class="comment">// A value was available
+                    </span>mut_self.channel = <span class="prelude-val">None</span>;
+                } <span class="kw">else </span>{
+                    mut_self.channel = <span class="prelude-val">Some</span>(channel)
                 }
 
-                <span class="ident">poll_res</span>
+                poll_res
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span> <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-                <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">is_none</span>()
+        <span class="kw">impl</span>&lt;MutexType, T&gt; FusedFuture <span class="kw">for </span>ChannelReceiveFuture&lt;MutexType, T&gt; {
+            <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+                <span class="self">self</span>.channel.is_none()
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">ChannelReceiveFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-                <span class="comment">// If this ChannelReceiveFuture has been polled and it was added to the</span>
-                <span class="comment">// wait queue at the channel, it must be removed before dropping.</span>
-                <span class="comment">// Otherwise the channel would access invalid memory.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">channel</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">channel</span> {
-                    <span class="ident">channel</span>.<span class="ident">remove_receive_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Drop <span class="kw">for </span>ChannelReceiveFuture&lt;MutexType, T&gt; {
+            <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                <span class="comment">// If this ChannelReceiveFuture has been polled and it was added to the
+                // wait queue at the channel, it must be removed before dropping.
+                // Otherwise the channel would access invalid memory.
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(channel) = <span class="kw-2">&amp;</span><span class="self">self</span>.channel {
+                    channel.remove_receive_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node);
                 }
             }
         }
 
-        <span class="doccomment">/// A Future that is returned by the `send` function on a channel.</span>
-        <span class="doccomment">/// The future gets resolved with `None` when a value could be</span>
-        <span class="doccomment">/// written to the channel.</span>
-        <span class="doccomment">/// If the channel gets closed the send operation will fail, and the</span>
-        <span class="doccomment">/// Future will resolve to `ChannelSendError(T)` and return the item</span>
-        <span class="doccomment">/// to send.</span>
-        <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="doccomment">/// The LocalChannel that is associated with this ChannelSendFuture</span>
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">channel</span>:
-                <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">alloc::sync::Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">ChannelSendAccess</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-            <span class="doccomment">/// Node for waiting on the channel</span>
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">wait_node</span>: <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">SendWaitQueueEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-            <span class="doccomment">/// Marker for mutex type</span>
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// A Future that is returned by the `send` function on a channel.
+        /// The future gets resolved with `None` when a value could be
+        /// written to the channel.
+        /// If the channel gets closed the send operation will fail, and the
+        /// Future will resolve to `ChannelSendError(T)` and return the item
+        /// to send.
+        </span><span class="attribute">#[must_use = <span class="string">&quot;futures do nothing unless polled&quot;</span>]
+        </span><span class="kw">pub struct </span>ChannelSendFuture&lt;MutexType, T&gt; {
+            <span class="doccomment">/// The LocalChannel that is associated with this ChannelSendFuture
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) channel:
+                <span class="prelude-ty">Option</span>&lt;alloc::sync::Arc&lt;<span class="kw">dyn </span>ChannelSendAccess&lt;T&gt;&gt;&gt;,
+            <span class="doccomment">/// Node for waiting on the channel
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) wait_node: ListNode&lt;SendWaitQueueEntry&lt;T&gt;&gt;,
+            <span class="doccomment">/// Marker for mutex type
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) _phantom: PhantomData&lt;MutexType&gt;,
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="doccomment">/// Tries to cancel the ongoing send operation</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">channel</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">take</span>();
-                <span class="kw">match</span> <span class="ident">channel</span> {
-                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
-                    <span class="prelude-val">Some</span>(<span class="ident">channel</span>) =&gt; {
-                        <span class="ident">channel</span>.<span class="ident">remove_send_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
-                        <span class="self">self</span>.<span class="ident">wait_node</span>.<span class="ident">value</span>.<span class="ident">take</span>()
+        <span class="kw">impl</span>&lt;MutexType, T&gt; ChannelSendFuture&lt;MutexType, T&gt; {
+            <span class="doccomment">/// Tries to cancel the ongoing send operation
+            </span><span class="kw">pub fn </span>cancel(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+                <span class="kw">let </span>channel = <span class="self">self</span>.channel.take();
+                <span class="kw">match </span>channel {
+                    <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+                    <span class="prelude-val">Some</span>(channel) =&gt; {
+                        channel.remove_send_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node);
+                        <span class="self">self</span>.wait_node.value.take()
                     }
                 }
             }
         }
 
-        <span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying</span>
-        <span class="comment">// channel is thread-safe (Sync), which allows to poll/register/unregister from</span>
-        <span class="comment">// a different thread.</span>
-        <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">Sync</span>, <span class="ident">T</span>: <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
+        <span class="comment">// Safety: Channel futures can be sent between threads as long as the underlying
+        // channel is thread-safe (Sync), which allows to poll/register/unregister from
+        // a different thread.
+        </span><span class="kw">unsafe impl</span>&lt;MutexType: Sync, T: Send&gt; Send <span class="kw">for </span>ChannelSendFuture&lt;MutexType, T&gt; {}
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-                <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;ChannelSendFuture&quot;</span>).<span class="ident">finish</span>()
+        <span class="kw">impl</span>&lt;MutexType, T&gt; core::fmt::Debug <span class="kw">for </span>ChannelSendFuture&lt;MutexType, T&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+                f.debug_struct(<span class="string">&quot;ChannelSendFuture&quot;</span>).finish()
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ChannelSendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Future <span class="kw">for </span>ChannelSendFuture&lt;MutexType, T&gt; {
+            <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(), ChannelSendError&lt;T&gt;&gt;;
 
-            <span class="kw">fn</span> <span class="ident">poll</span>(
-                <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-                <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-            ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ChannelSendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-                <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.</span>
-                <span class="comment">// However this didn&#39;t seem to work for some borrow checker reasons</span>
+            <span class="kw">fn </span>poll(
+                <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+                cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+            ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), ChannelSendError&lt;T&gt;&gt;&gt; {
+                <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.
+                // However this didn&#39;t seem to work for some borrow checker reasons
 
-                <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
-                <span class="comment">// the address of the wait queue entry inside ChannelSendFuture is stable,</span>
-                <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-                <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-                    <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
+                // Safety: The next operations are safe, because Pin promises us that
+                // the address of the wait queue entry inside ChannelSendFuture is stable,
+                // and we don&#39;t move any fields inside the future until it gets dropped.
+                </span><span class="kw">let </span>mut_self: <span class="kw-2">&amp;mut </span>ChannelSendFuture&lt;MutexType, T&gt; =
+                    <span class="kw">unsafe </span>{ Pin::get_unchecked_mut(<span class="self">self</span>) };
 
-                <span class="kw">let</span> <span class="ident">channel</span> <span class="op">=</span> <span class="ident">mut_self</span>
-                    .<span class="ident">channel</span>
-                    .<span class="ident">take</span>()
-                    .<span class="ident">expect</span>(<span class="string">&quot;polled ChannelSendFuture after completion&quot;</span>);
+                <span class="kw">let </span>channel = mut_self
+                    .channel
+                    .take()
+                    .expect(<span class="string">&quot;polled ChannelSendFuture after completion&quot;</span>);
 
-                <span class="kw">let</span> <span class="ident">send_res</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-                    <span class="ident">channel</span>.<span class="ident">send_or_register</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>)
+                <span class="kw">let </span>send_res = <span class="kw">unsafe </span>{
+                    channel.send_or_register(<span class="kw-2">&amp;mut </span>mut_self.wait_node, cx)
                 };
 
-                <span class="kw">match</span> <span class="ident">send_res</span>.<span class="number">0</span> {
-                    <span class="ident">Poll::Ready</span>(()) =&gt; {
-                        <span class="comment">// Value has been transmitted or channel was closed</span>
-                        <span class="kw">match</span> <span class="ident">send_res</span>.<span class="number">1</span> {
-                            <span class="prelude-val">Some</span>(<span class="ident">v</span>) =&gt; {
-                                <span class="comment">// Channel must have been closed</span>
-                                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">ChannelSendError</span>(<span class="ident">v</span>)))
+                <span class="kw">match </span>send_res.<span class="number">0 </span>{
+                    Poll::Ready(()) =&gt; {
+                        <span class="comment">// Value has been transmitted or channel was closed
+                        </span><span class="kw">match </span>send_res.<span class="number">1 </span>{
+                            <span class="prelude-val">Some</span>(v) =&gt; {
+                                <span class="comment">// Channel must have been closed
+                                </span>Poll::Ready(<span class="prelude-val">Err</span>(ChannelSendError(v)))
                             }
-                            <span class="prelude-val">None</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())),
+                            <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">Ok</span>(())),
                         }
                     }
-                    <span class="ident">Poll::Pending</span> =&gt; {
-                        <span class="ident">mut_self</span>.<span class="ident">channel</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">channel</span>);
-                        <span class="ident">Poll::Pending</span>
+                    Poll::Pending =&gt; {
+                        mut_self.channel = <span class="prelude-val">Some</span>(channel);
+                        Poll::Pending
                     }
                 }
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span> <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-                <span class="self">self</span>.<span class="ident">channel</span>.<span class="ident">is_none</span>()
+        <span class="kw">impl</span>&lt;MutexType, T&gt; FusedFuture <span class="kw">for </span>ChannelSendFuture&lt;MutexType, T&gt; {
+            <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+                <span class="self">self</span>.channel.is_none()
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">ChannelSendFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-                <span class="comment">// If this ChannelSendFuture has been polled and it was added to the</span>
-                <span class="comment">// wait queue at the channel, it must be removed before dropping.</span>
-                <span class="comment">// Otherwise the channel would access invalid memory.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">channel</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">channel</span> {
-                    <span class="ident">channel</span>.<span class="ident">remove_send_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
+        <span class="kw">impl</span>&lt;MutexType, T&gt; Drop <span class="kw">for </span>ChannelSendFuture&lt;MutexType, T&gt; {
+            <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                <span class="comment">// If this ChannelSendFuture has been polled and it was added to the
+                // wait queue at the channel, it must be removed before dropping.
+                // Otherwise the channel would access invalid memory.
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(channel) = <span class="kw-2">&amp;</span><span class="self">self</span>.channel {
+                    channel.remove_send_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node);
                 }
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_alloc</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::if_alloc::<span class="kw-2">*</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

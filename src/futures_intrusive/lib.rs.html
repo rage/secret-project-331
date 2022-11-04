@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../futures_intrusive/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../futures_intrusive/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -233,240 +233,240 @@
 <span id="233">233</span>
 <span id="234">234</span>
 <span id="235">235</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Synchronization primitives and utilities based on intrusive collections.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This crate provides a variety of `Futures`-based and `async/await` compatible</span>
-<span class="doccomment">//! types that are based on the idea of intrusive collections:</span>
-<span class="doccomment">//! - Channels in a variety of flavors:</span>
-<span class="doccomment">//!   - Oneshot</span>
-<span class="doccomment">//!   - Multi-Producer Multi-Consumer (MPMC)</span>
-<span class="doccomment">//!   - State Broadcast</span>
-<span class="doccomment">//! - Synchronization Primitives:</span>
-<span class="doccomment">//!   - Manual Reset Event</span>
-<span class="doccomment">//!   - Mutex</span>
-<span class="doccomment">//!   - Semaphore</span>
-<span class="doccomment">//! - A timer</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Intrusive collections?</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! In an intrusive collection, the elements that want to get stored inside the</span>
-<span class="doccomment">//! collection provide the means to store themselves inside the collection.</span>
-<span class="doccomment">//! E.g. in an intrusive linked list, each element that gets stored inside the</span>
-<span class="doccomment">//! list contains a pointer field that points to the next list element. E.g.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! // The element which is intended to be stored inside an intrusive container</span>
-<span class="doccomment">//! struct ListElement {</span>
-<span class="doccomment">//!    data: u32,</span>
-<span class="doccomment">//!    next: *mut ListElement,</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // The intrusive container</span>
-<span class="doccomment">//! struct List {</span>
-<span class="doccomment">//!     head: *mut ListElement,</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The advantage here is that the intrusive collection (here: the list) requires</span>
-<span class="doccomment">//! only a fixed amount of memory. In this case it only needs a pointer to the</span>
-<span class="doccomment">//! first element.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The list container itself has a fixed size of a single pointer independent</span>
-<span class="doccomment">//! of the number of stored elements.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Intrusive lists are often used in low-level code like in operating system</span>
-<span class="doccomment">//! kernels.  E.g. they can be used for storing elements that represent threads</span>
-<span class="doccomment">//! that are blocked and waiting on queue.  In that case the stored elements can</span>
-<span class="doccomment">//! be on the call stack of the caller of each blocked thread, since the</span>
-<span class="doccomment">//! call stack won&#39;t change as long as the thread is blocked.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Application in Futures</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This library brings this idea into the world of Rusts `Future`s. Due to the</span>
-<span class="doccomment">//! addition of `Pin`ning, the address of a certain `Future` is not allowed to</span>
-<span class="doccomment">//! change between the first call to `poll()` and when the `Future` is dropped.</span>
-<span class="doccomment">//! This means the data inside the `Future` itself can be inserted into an</span>
-<span class="doccomment">//! intrusive container. If the the call to `Future::poll()` is not immedately</span>
-<span class="doccomment">//! ready, some parts of the `Future` itself are registered in the type which</span>
-<span class="doccomment">//! yielded the `Future`. Each `Future` can store a `Waker`. When the original</span>
-<span class="doccomment">//! type becomes ready, it can iterate through the list of registered `Future`s,</span>
-<span class="doccomment">//! wakeup associated tasks, and potentially remove them from its queue.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The result is that the future-yielding type is not required to copy an</span>
-<span class="doccomment">//! arbitrary number of `Waker` objects into itself, and thereby does not require</span>
-<span class="doccomment">//! dynamic memory for this task.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! When a `Future` gets destructed/dropped, it must make sure to remove itself</span>
-<span class="doccomment">//! from any collections that refer to it to avoid invalid memory accesses.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This library implements common synchronization primitives for the usage in</span>
-<span class="doccomment">//! asychronous code based on this concept.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The implementation requires the usage of a fair chunk of `unsafe`</span>
-<span class="doccomment">//! annotations. However the provided user-level API is intended to be fully safe.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Features of this library</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The following types are currently implemented:</span>
-<span class="doccomment">//! - Channels (oneshot and multi-producer-multi-consumer)</span>
-<span class="doccomment">//! - Synchronization primitives (async mutexes and events)</span>
-<span class="doccomment">//! - Timers</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Design goals for the library</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - Provide implementations of common synchronization primitives in a platform</span>
-<span class="doccomment">//!   independent fashion.</span>
-<span class="doccomment">//! - Support `no-std` environments. As many types as possible are also provided</span>
-<span class="doccomment">//!   for `no-std` environments. The library should boost the ability to use</span>
-<span class="doccomment">//!   async Rust code in environments like:</span>
-<span class="doccomment">//!   - Microcontrollers (RTOS and bare-metal)</span>
-<span class="doccomment">//!   - Kernels</span>
-<span class="doccomment">//!   - Drivers</span>
-<span class="doccomment">//! - Avoid dynamic memory allocations at runtime.  After objects from this</span>
-<span class="doccomment">//!   library have been created, they should not require allocation of any</span>
-<span class="doccomment">//!   further memory at runtime.  E.g. they should not need to allocate memory</span>
-<span class="doccomment">//!   for each call to an asynchronous function or each time a new task accesses</span>
-<span class="doccomment">//!   the same object in parallel.</span>
-<span class="doccomment">//! - Offer familiar APIs.</span>
-<span class="doccomment">//!   The library tries to mimic the APIs of existing Rust libraries like the</span>
-<span class="doccomment">//!   standard library and `futures-rs` as closely as possible.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Non goals</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - Provide IO primitives (like sockets), or platform specific implementations.</span>
-<span class="doccomment">//! - Reach the highest possible performance in terms of throughput and latency.</span>
-<span class="doccomment">//!   While code in this library is optimized for performance, portability</span>
-<span class="doccomment">//!   and deterministic memory usage are more important goals.</span>
-<span class="doccomment">//! - Provide future wrappers for platform-specific APIs.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Local, Non-local and shared flavors</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The library provides types in a variety of flavors:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - A local flavor (e.g. [`channel::LocalChannel`])</span>
-<span class="doccomment">//! - A non-local flavor (e.g. [`channel::Channel`])</span>
-<span class="doccomment">//! - A shared flavor (e.g. [`channel::shared::Sender`])</span>
-<span class="doccomment">//! - A generic flavor (e.g. [`channel::GenericChannel`] and</span>
-<span class="doccomment">//!   [`channel::shared::GenericSender`])</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The difference between these types lie in their thread-safety. The non-local</span>
-<span class="doccomment">//! flavors of types can be accessed from multiple threads (and thereby also</span>
-<span class="doccomment">//! futures tasks) concurrently. This means they implement the `Sync` trait in</span>
-<span class="doccomment">//! addition to the `Send` trait.</span>
-<span class="doccomment">//! The local flavors only implement the `Send` trait.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Local flavor</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The local flavors will require no internal synchronization (e.g. internal</span>
-<span class="doccomment">//! Mutexes) and can therefore be provided for all platforms (including `no-std`).</span>
-<span class="doccomment">//! Due the lack of required synchronization, they are also very fast.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! It might seem counter-intuitive to provide synchronization primitives that</span>
-<span class="doccomment">//! only work within a single task. However there are a variety of applications</span>
-<span class="doccomment">//! where these can be used to coordinate sub-tasks (futures that are polled on</span>
-<span class="doccomment">//! a single task concurrently).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The following example demonstrates this use-case:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # use futures::join;</span>
-<span class="doccomment">//! # use futures_intrusive::sync::LocalManualResetEvent;</span>
-<span class="doccomment">//! async fn async_fn() {</span>
-<span class="doccomment">//!     let event = LocalManualResetEvent::new(false);</span>
-<span class="doccomment">//!     let task_a = async {</span>
-<span class="doccomment">//!         // Wait for the event</span>
-<span class="doccomment">//!         event.wait().await;</span>
-<span class="doccomment">//!         // Do something with the knowledge that task_b reached a certain state</span>
-<span class="doccomment">//!     };</span>
-<span class="doccomment">//!     let task_b = async {</span>
-<span class="doccomment">//!         // Some complex asynchronous workflow here</span>
-<span class="doccomment">//!         // ...</span>
-<span class="doccomment">//!         // Signal task_a</span>
-<span class="doccomment">//!         event.set();</span>
-<span class="doccomment">//!     };</span>
-<span class="doccomment">//!     join!(task_a, task_b);</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Non-local flavor</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The non-local flavors can be used between arbitrary tasks and threads.  They</span>
-<span class="doccomment">//! use internal synchronization for this in form of an embedded `Mutex` of</span>
-<span class="doccomment">//! [`parking_lot::Mutex`] type.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The non-local flavors are only available in `alloc` environments.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Shared flavor</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! For some types a shared flavor is provided. Non-local flavors of types are</span>
-<span class="doccomment">//! `Sync`, but they still can only be shared by reference between various tasks.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Synchronization primitives and utilities based on intrusive collections.
+//!
+//! This crate provides a variety of `Futures`-based and `async/await` compatible
+//! types that are based on the idea of intrusive collections:
+//! - Channels in a variety of flavors:
+//!   - Oneshot
+//!   - Multi-Producer Multi-Consumer (MPMC)
+//!   - State Broadcast
+//! - Synchronization Primitives:
+//!   - Manual Reset Event
+//!   - Mutex
+//!   - Semaphore
+//! - A timer
+//!
+//! ## Intrusive collections?
+//!
+//! In an intrusive collection, the elements that want to get stored inside the
+//! collection provide the means to store themselves inside the collection.
+//! E.g. in an intrusive linked list, each element that gets stored inside the
+//! list contains a pointer field that points to the next list element. E.g.
+//!
+//! ```
+//! // The element which is intended to be stored inside an intrusive container
+//! struct ListElement {
+//!    data: u32,
+//!    next: *mut ListElement,
+//! }
+//!
+//! // The intrusive container
+//! struct List {
+//!     head: *mut ListElement,
+//! }
+//! ```
+//!
+//! The advantage here is that the intrusive collection (here: the list) requires
+//! only a fixed amount of memory. In this case it only needs a pointer to the
+//! first element.
+//!
+//! The list container itself has a fixed size of a single pointer independent
+//! of the number of stored elements.
+//!
+//! Intrusive lists are often used in low-level code like in operating system
+//! kernels.  E.g. they can be used for storing elements that represent threads
+//! that are blocked and waiting on queue.  In that case the stored elements can
+//! be on the call stack of the caller of each blocked thread, since the
+//! call stack won&#39;t change as long as the thread is blocked.
+//!
+//! ### Application in Futures
+//!
+//! This library brings this idea into the world of Rusts `Future`s. Due to the
+//! addition of `Pin`ning, the address of a certain `Future` is not allowed to
+//! change between the first call to `poll()` and when the `Future` is dropped.
+//! This means the data inside the `Future` itself can be inserted into an
+//! intrusive container. If the the call to `Future::poll()` is not immedately
+//! ready, some parts of the `Future` itself are registered in the type which
+//! yielded the `Future`. Each `Future` can store a `Waker`. When the original
+//! type becomes ready, it can iterate through the list of registered `Future`s,
+//! wakeup associated tasks, and potentially remove them from its queue.
+//!
+//! The result is that the future-yielding type is not required to copy an
+//! arbitrary number of `Waker` objects into itself, and thereby does not require
+//! dynamic memory for this task.
+//!
+//! When a `Future` gets destructed/dropped, it must make sure to remove itself
+//! from any collections that refer to it to avoid invalid memory accesses.
+//!
+//! This library implements common synchronization primitives for the usage in
+//! asychronous code based on this concept.
+//!
+//! The implementation requires the usage of a fair chunk of `unsafe`
+//! annotations. However the provided user-level API is intended to be fully safe.
+//!
+//! ## Features of this library
+//!
+//! The following types are currently implemented:
+//! - Channels (oneshot and multi-producer-multi-consumer)
+//! - Synchronization primitives (async mutexes and events)
+//! - Timers
+//!
+//! ## Design goals for the library
+//!
+//! - Provide implementations of common synchronization primitives in a platform
+//!   independent fashion.
+//! - Support `no-std` environments. As many types as possible are also provided
+//!   for `no-std` environments. The library should boost the ability to use
+//!   async Rust code in environments like:
+//!   - Microcontrollers (RTOS and bare-metal)
+//!   - Kernels
+//!   - Drivers
+//! - Avoid dynamic memory allocations at runtime.  After objects from this
+//!   library have been created, they should not require allocation of any
+//!   further memory at runtime.  E.g. they should not need to allocate memory
+//!   for each call to an asynchronous function or each time a new task accesses
+//!   the same object in parallel.
+//! - Offer familiar APIs.
+//!   The library tries to mimic the APIs of existing Rust libraries like the
+//!   standard library and `futures-rs` as closely as possible.
+//!
+//! ## Non goals
+//!
+//! - Provide IO primitives (like sockets), or platform specific implementations.
+//! - Reach the highest possible performance in terms of throughput and latency.
+//!   While code in this library is optimized for performance, portability
+//!   and deterministic memory usage are more important goals.
+//! - Provide future wrappers for platform-specific APIs.
+//!
+//! ## Local, Non-local and shared flavors
+//!
+//! The library provides types in a variety of flavors:
+//!
+//! - A local flavor (e.g. [`channel::LocalChannel`])
+//! - A non-local flavor (e.g. [`channel::Channel`])
+//! - A shared flavor (e.g. [`channel::shared::Sender`])
+//! - A generic flavor (e.g. [`channel::GenericChannel`] and
+//!   [`channel::shared::GenericSender`])
+//!
+//! The difference between these types lie in their thread-safety. The non-local
+//! flavors of types can be accessed from multiple threads (and thereby also
+//! futures tasks) concurrently. This means they implement the `Sync` trait in
+//! addition to the `Send` trait.
+//! The local flavors only implement the `Send` trait.
+//!
+//! ### Local flavor
+//!
+//! The local flavors will require no internal synchronization (e.g. internal
+//! Mutexes) and can therefore be provided for all platforms (including `no-std`).
+//! Due the lack of required synchronization, they are also very fast.
+//!
+//! It might seem counter-intuitive to provide synchronization primitives that
+//! only work within a single task. However there are a variety of applications
+//! where these can be used to coordinate sub-tasks (futures that are polled on
+//! a single task concurrently).
+//!
+//! The following example demonstrates this use-case:
+//!
+//! ```
+//! # use futures::join;
+//! # use futures_intrusive::sync::LocalManualResetEvent;
+//! async fn async_fn() {
+//!     let event = LocalManualResetEvent::new(false);
+//!     let task_a = async {
+//!         // Wait for the event
+//!         event.wait().await;
+//!         // Do something with the knowledge that task_b reached a certain state
+//!     };
+//!     let task_b = async {
+//!         // Some complex asynchronous workflow here
+//!         // ...
+//!         // Signal task_a
+//!         event.set();
+//!     };
+//!     join!(task_a, task_b);
+//! }
+//! ```
+//!
+//! ### Non-local flavor
+//!
+//! The non-local flavors can be used between arbitrary tasks and threads.  They
+//! use internal synchronization for this in form of an embedded `Mutex` of
+//! [`parking_lot::Mutex`] type.
+//!
+//! The non-local flavors are only available in `alloc` environments.
+//!
+//! ### Shared flavor
+//!
+//! For some types a shared flavor is provided. Non-local flavors of types are
+//! `Sync`, but they still can only be shared by reference between various tasks.
 
-<span class="doccomment">//! Shared flavors are also `Sync`, but the types additionally implement the</span>
-<span class="doccomment">//! `Clone` trait, which allows duplicating the object, and passing ownership of</span>
-<span class="doccomment">//! it to a different task. These types allow avoiding references (and thereby</span>
-<span class="doccomment">//! lifetimes) in some scenarios, which makes them more convenient to use.  The</span>
-<span class="doccomment">//! types also return `Future`s which do not have an associated lifetime.  This</span>
-<span class="doccomment">//! allows using those types as implementations of traits without the need for</span>
-<span class="doccomment">//! generic associated types (GATs).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Due to the requirement of atomic reference counting, these types are</span>
-<span class="doccomment">//! currently only available for `alloc` environments.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Generic flavor</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The generic flavors of provided types are parameterized around a</span>
-<span class="doccomment">//! [`lock_api::RawMutex`] type. These form the base for the non-local and shared</span>
-<span class="doccomment">//! flavors which simply parameterize the generic flavor in either a</span>
-<span class="doccomment">//! non-thread-safe or thread-safe fashion.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Users can directly use the generic flavors to adapt the provided thread-safe</span>
-<span class="doccomment">//! types for use in `no-std` environments.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! E.g. by providing a custom [`lock_api::RawMutex`]</span>
-<span class="doccomment">//! implementation, the following platforms can be supported:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - For RTOS platforms, RTOS-specific mutexes can be wrapped.</span>
-<span class="doccomment">//! - For kernel development, spinlock based mutexes can be created.</span>
-<span class="doccomment">//! - For embedded development, mutexes which just disable interrupts can be</span>
-<span class="doccomment">//!   utilized.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Relation to types in other libraries</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Other libraries (e.g. `futures-rs` and `tokio`) provide many primitives that</span>
-<span class="doccomment">//! are comparable feature-wise to the types in this library.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The most important differences are:</span>
-<span class="doccomment">//! - This library has a bigger focus on `no-std` environments, and does not</span>
-<span class="doccomment">//!   only try to provide an implementation for `alloc` or `std`.</span>
-<span class="doccomment">//! - The types in this library do not require dynamic memory allocation for</span>
-<span class="doccomment">//!   waking up an arbitrary number of tasks waiting on a particular</span>
-<span class="doccomment">//!   `Future`. Other libraries typically require heap-allocated nodes of</span>
-<span class="doccomment">//!   growing vectors for handling a varying number of tasks.</span>
-<span class="doccomment">//! - The `Future`s produced by this library are all `!Unpin`, which might make</span>
-<span class="doccomment">//!   them less ergonomic to use.</span>
-<span class="doccomment">//!</span>
+//! Shared flavors are also `Sync`, but the types additionally implement the
+//! `Clone` trait, which allows duplicating the object, and passing ownership of
+//! it to a different task. These types allow avoiding references (and thereby
+//! lifetimes) in some scenarios, which makes them more convenient to use.  The
+//! types also return `Future`s which do not have an associated lifetime.  This
+//! allows using those types as implementations of traits without the need for
+//! generic associated types (GATs).
+//!
+//! Due to the requirement of atomic reference counting, these types are
+//! currently only available for `alloc` environments.
+//!
+//! ### Generic flavor
+//!
+//! The generic flavors of provided types are parameterized around a
+//! [`lock_api::RawMutex`] type. These form the base for the non-local and shared
+//! flavors which simply parameterize the generic flavor in either a
+//! non-thread-safe or thread-safe fashion.
+//!
+//! Users can directly use the generic flavors to adapt the provided thread-safe
+//! types for use in `no-std` environments.
+//!
+//! E.g. by providing a custom [`lock_api::RawMutex`]
+//! implementation, the following platforms can be supported:
+//!
+//! - For RTOS platforms, RTOS-specific mutexes can be wrapped.
+//! - For kernel development, spinlock based mutexes can be created.
+//! - For embedded development, mutexes which just disable interrupts can be
+//!   utilized.
+//!
+//!
+//! ## Relation to types in other libraries
+//!
+//! Other libraries (e.g. `futures-rs` and `tokio`) provide many primitives that
+//! are comparable feature-wise to the types in this library.
+//!
+//! The most important differences are:
+//! - This library has a bigger focus on `no-std` environments, and does not
+//!   only try to provide an implementation for `alloc` or `std`.
+//! - The types in this library do not require dynamic memory allocation for
+//!   waking up an arbitrary number of tasks waiting on a particular
+//!   `Future`. Other libraries typically require heap-allocated nodes of
+//!   growing vectors for handling a varying number of tasks.
+//! - The `Future`s produced by this library are all `!Unpin`, which might make
+//!   them less ergonomic to use.
+//!
 
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">missing_debug_implementations</span>)]</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">bare_trait_objects</span>)]</span>
+</span><span class="attribute">#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
+#![warn(missing_docs, missing_debug_implementations)]
+#![deny(bare_trait_objects)]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
+#[cfg(feature = <span class="string">&quot;alloc&quot;</span>)]
+</span><span class="kw">extern crate </span>alloc;
 
-<span class="kw">mod</span> <span class="ident">noop_lock</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">noop_lock::NoopLock</span>;
+<span class="kw">mod </span>noop_lock;
+<span class="kw">pub use </span>noop_lock::NoopLock;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">buffer</span>;
+<span class="kw">pub mod </span>buffer;
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">mod</span> <span class="ident">intrusive_double_linked_list</span>;
-<span class="kw">mod</span> <span class="ident">intrusive_pairing_heap</span>;
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">mod </span>intrusive_double_linked_list;
+<span class="kw">mod </span>intrusive_pairing_heap;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">channel</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">sync</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">timer</span>;
+<span class="kw">pub mod </span>channel;
+<span class="kw">pub mod </span>sync;
+<span class="kw">pub mod </span>timer;
 
-<span class="kw">mod</span> <span class="ident">utils</span>;
+<span class="kw">mod </span>utils;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/shared/charset.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>charset.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/shared/charset.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>charset.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -155,160 +155,160 @@
 <span id="153">153</span>
 <span id="154">154</span>
 <span id="155">155</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">str</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{fmt, str};
 
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::Charset</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="self">self</span>::Charset::<span class="kw-2">*</span>;
 
-<span class="doccomment">/// A MIME character set.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The string representation is normalized to upper case.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See &lt;http://www.iana.org/assignments/character-sets/character-sets.xhtml&gt;.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Charset</span> {
-    <span class="doccomment">/// US ASCII</span>
-    <span class="ident">Us_Ascii</span>,
-    <span class="doccomment">/// ISO-8859-1</span>
-    <span class="ident">Iso_8859_1</span>,
-    <span class="doccomment">/// ISO-8859-2</span>
-    <span class="ident">Iso_8859_2</span>,
-    <span class="doccomment">/// ISO-8859-3</span>
-    <span class="ident">Iso_8859_3</span>,
-    <span class="doccomment">/// ISO-8859-4</span>
-    <span class="ident">Iso_8859_4</span>,
-    <span class="doccomment">/// ISO-8859-5</span>
-    <span class="ident">Iso_8859_5</span>,
-    <span class="doccomment">/// ISO-8859-6</span>
-    <span class="ident">Iso_8859_6</span>,
-    <span class="doccomment">/// ISO-8859-7</span>
-    <span class="ident">Iso_8859_7</span>,
-    <span class="doccomment">/// ISO-8859-8</span>
-    <span class="ident">Iso_8859_8</span>,
-    <span class="doccomment">/// ISO-8859-9</span>
-    <span class="ident">Iso_8859_9</span>,
-    <span class="doccomment">/// ISO-8859-10</span>
-    <span class="ident">Iso_8859_10</span>,
-    <span class="doccomment">/// Shift_JIS</span>
-    <span class="ident">Shift_Jis</span>,
-    <span class="doccomment">/// EUC-JP</span>
-    <span class="ident">Euc_Jp</span>,
-    <span class="doccomment">/// ISO-2022-KR</span>
-    <span class="ident">Iso_2022_Kr</span>,
-    <span class="doccomment">/// EUC-KR</span>
-    <span class="ident">Euc_Kr</span>,
-    <span class="doccomment">/// ISO-2022-JP</span>
-    <span class="ident">Iso_2022_Jp</span>,
-    <span class="doccomment">/// ISO-2022-JP-2</span>
-    <span class="ident">Iso_2022_Jp_2</span>,
-    <span class="doccomment">/// ISO-8859-6-E</span>
-    <span class="ident">Iso_8859_6_E</span>,
-    <span class="doccomment">/// ISO-8859-6-I</span>
-    <span class="ident">Iso_8859_6_I</span>,
-    <span class="doccomment">/// ISO-8859-8-E</span>
-    <span class="ident">Iso_8859_8_E</span>,
-    <span class="doccomment">/// ISO-8859-8-I</span>
-    <span class="ident">Iso_8859_8_I</span>,
-    <span class="doccomment">/// GB2312</span>
-    <span class="ident">Gb2312</span>,
-    <span class="doccomment">/// Big5</span>
-    <span class="ident">Big5</span>,
-    <span class="doccomment">/// KOI8-R</span>
-    <span class="ident">Koi8_R</span>,
-    <span class="doccomment">/// An arbitrary charset specified as a string</span>
-    <span class="ident">Ext</span>(<span class="ident">String</span>),
+<span class="doccomment">/// A MIME character set.
+///
+/// The string representation is normalized to upper case.
+///
+/// See &lt;http://www.iana.org/assignments/character-sets/character-sets.xhtml&gt;.
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(non_camel_case_types)]
+</span><span class="kw">pub enum </span>Charset {
+    <span class="doccomment">/// US ASCII
+    </span>Us_Ascii,
+    <span class="doccomment">/// ISO-8859-1
+    </span>Iso_8859_1,
+    <span class="doccomment">/// ISO-8859-2
+    </span>Iso_8859_2,
+    <span class="doccomment">/// ISO-8859-3
+    </span>Iso_8859_3,
+    <span class="doccomment">/// ISO-8859-4
+    </span>Iso_8859_4,
+    <span class="doccomment">/// ISO-8859-5
+    </span>Iso_8859_5,
+    <span class="doccomment">/// ISO-8859-6
+    </span>Iso_8859_6,
+    <span class="doccomment">/// ISO-8859-7
+    </span>Iso_8859_7,
+    <span class="doccomment">/// ISO-8859-8
+    </span>Iso_8859_8,
+    <span class="doccomment">/// ISO-8859-9
+    </span>Iso_8859_9,
+    <span class="doccomment">/// ISO-8859-10
+    </span>Iso_8859_10,
+    <span class="doccomment">/// Shift_JIS
+    </span>Shift_Jis,
+    <span class="doccomment">/// EUC-JP
+    </span>Euc_Jp,
+    <span class="doccomment">/// ISO-2022-KR
+    </span>Iso_2022_Kr,
+    <span class="doccomment">/// EUC-KR
+    </span>Euc_Kr,
+    <span class="doccomment">/// ISO-2022-JP
+    </span>Iso_2022_Jp,
+    <span class="doccomment">/// ISO-2022-JP-2
+    </span>Iso_2022_Jp_2,
+    <span class="doccomment">/// ISO-8859-6-E
+    </span>Iso_8859_6_E,
+    <span class="doccomment">/// ISO-8859-6-I
+    </span>Iso_8859_6_I,
+    <span class="doccomment">/// ISO-8859-8-E
+    </span>Iso_8859_8_E,
+    <span class="doccomment">/// ISO-8859-8-I
+    </span>Iso_8859_8_I,
+    <span class="doccomment">/// GB2312
+    </span>Gb2312,
+    <span class="doccomment">/// Big5
+    </span>Big5,
+    <span class="doccomment">/// KOI8-R
+    </span>Koi8_R,
+    <span class="doccomment">/// An arbitrary charset specified as a string
+    </span>Ext(String),
 }
 
-<span class="kw">impl</span> <span class="ident">Charset</span> {
-    <span class="kw">fn</span> <span class="ident">label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Us_Ascii</span> =&gt; <span class="string">&quot;US-ASCII&quot;</span>,
-            <span class="ident">Iso_8859_1</span> =&gt; <span class="string">&quot;ISO-8859-1&quot;</span>,
-            <span class="ident">Iso_8859_2</span> =&gt; <span class="string">&quot;ISO-8859-2&quot;</span>,
-            <span class="ident">Iso_8859_3</span> =&gt; <span class="string">&quot;ISO-8859-3&quot;</span>,
-            <span class="ident">Iso_8859_4</span> =&gt; <span class="string">&quot;ISO-8859-4&quot;</span>,
-            <span class="ident">Iso_8859_5</span> =&gt; <span class="string">&quot;ISO-8859-5&quot;</span>,
-            <span class="ident">Iso_8859_6</span> =&gt; <span class="string">&quot;ISO-8859-6&quot;</span>,
-            <span class="ident">Iso_8859_7</span> =&gt; <span class="string">&quot;ISO-8859-7&quot;</span>,
-            <span class="ident">Iso_8859_8</span> =&gt; <span class="string">&quot;ISO-8859-8&quot;</span>,
-            <span class="ident">Iso_8859_9</span> =&gt; <span class="string">&quot;ISO-8859-9&quot;</span>,
-            <span class="ident">Iso_8859_10</span> =&gt; <span class="string">&quot;ISO-8859-10&quot;</span>,
-            <span class="ident">Shift_Jis</span> =&gt; <span class="string">&quot;Shift-JIS&quot;</span>,
-            <span class="ident">Euc_Jp</span> =&gt; <span class="string">&quot;EUC-JP&quot;</span>,
-            <span class="ident">Iso_2022_Kr</span> =&gt; <span class="string">&quot;ISO-2022-KR&quot;</span>,
-            <span class="ident">Euc_Kr</span> =&gt; <span class="string">&quot;EUC-KR&quot;</span>,
-            <span class="ident">Iso_2022_Jp</span> =&gt; <span class="string">&quot;ISO-2022-JP&quot;</span>,
-            <span class="ident">Iso_2022_Jp_2</span> =&gt; <span class="string">&quot;ISO-2022-JP-2&quot;</span>,
-            <span class="ident">Iso_8859_6_E</span> =&gt; <span class="string">&quot;ISO-8859-6-E&quot;</span>,
-            <span class="ident">Iso_8859_6_I</span> =&gt; <span class="string">&quot;ISO-8859-6-I&quot;</span>,
-            <span class="ident">Iso_8859_8_E</span> =&gt; <span class="string">&quot;ISO-8859-8-E&quot;</span>,
-            <span class="ident">Iso_8859_8_I</span> =&gt; <span class="string">&quot;ISO-8859-8-I&quot;</span>,
-            <span class="ident">Gb2312</span> =&gt; <span class="string">&quot;GB2312&quot;</span>,
-            <span class="ident">Big5</span> =&gt; <span class="string">&quot;Big5&quot;</span>,
-            <span class="ident">Koi8_R</span> =&gt; <span class="string">&quot;KOI8-R&quot;</span>,
-            <span class="ident">Ext</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>,
+<span class="kw">impl </span>Charset {
+    <span class="kw">fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            Us_Ascii =&gt; <span class="string">&quot;US-ASCII&quot;</span>,
+            Iso_8859_1 =&gt; <span class="string">&quot;ISO-8859-1&quot;</span>,
+            Iso_8859_2 =&gt; <span class="string">&quot;ISO-8859-2&quot;</span>,
+            Iso_8859_3 =&gt; <span class="string">&quot;ISO-8859-3&quot;</span>,
+            Iso_8859_4 =&gt; <span class="string">&quot;ISO-8859-4&quot;</span>,
+            Iso_8859_5 =&gt; <span class="string">&quot;ISO-8859-5&quot;</span>,
+            Iso_8859_6 =&gt; <span class="string">&quot;ISO-8859-6&quot;</span>,
+            Iso_8859_7 =&gt; <span class="string">&quot;ISO-8859-7&quot;</span>,
+            Iso_8859_8 =&gt; <span class="string">&quot;ISO-8859-8&quot;</span>,
+            Iso_8859_9 =&gt; <span class="string">&quot;ISO-8859-9&quot;</span>,
+            Iso_8859_10 =&gt; <span class="string">&quot;ISO-8859-10&quot;</span>,
+            Shift_Jis =&gt; <span class="string">&quot;Shift-JIS&quot;</span>,
+            Euc_Jp =&gt; <span class="string">&quot;EUC-JP&quot;</span>,
+            Iso_2022_Kr =&gt; <span class="string">&quot;ISO-2022-KR&quot;</span>,
+            Euc_Kr =&gt; <span class="string">&quot;EUC-KR&quot;</span>,
+            Iso_2022_Jp =&gt; <span class="string">&quot;ISO-2022-JP&quot;</span>,
+            Iso_2022_Jp_2 =&gt; <span class="string">&quot;ISO-2022-JP-2&quot;</span>,
+            Iso_8859_6_E =&gt; <span class="string">&quot;ISO-8859-6-E&quot;</span>,
+            Iso_8859_6_I =&gt; <span class="string">&quot;ISO-8859-6-I&quot;</span>,
+            Iso_8859_8_E =&gt; <span class="string">&quot;ISO-8859-8-E&quot;</span>,
+            Iso_8859_8_I =&gt; <span class="string">&quot;ISO-8859-8-I&quot;</span>,
+            Gb2312 =&gt; <span class="string">&quot;GB2312&quot;</span>,
+            Big5 =&gt; <span class="string">&quot;Big5&quot;</span>,
+            Koi8_R =&gt; <span class="string">&quot;KOI8-R&quot;</span>,
+            Ext(<span class="kw-2">ref </span>s) =&gt; s,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Charset</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="self">self</span>.<span class="ident">label</span>())
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Charset {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="self">self</span>.label())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">str::FromStr</span> <span class="kw">for</span> <span class="ident">Charset</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
+<span class="kw">impl </span>str::FromStr <span class="kw">for </span>Charset {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= <span class="kw">crate</span>::Error;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Charset</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">s</span>.<span class="ident">to_ascii_uppercase</span>().<span class="ident">as_ref</span>() {
-            <span class="string">&quot;US-ASCII&quot;</span> =&gt; <span class="ident">Us_Ascii</span>,
-            <span class="string">&quot;ISO-8859-1&quot;</span> =&gt; <span class="ident">Iso_8859_1</span>,
-            <span class="string">&quot;ISO-8859-2&quot;</span> =&gt; <span class="ident">Iso_8859_2</span>,
-            <span class="string">&quot;ISO-8859-3&quot;</span> =&gt; <span class="ident">Iso_8859_3</span>,
-            <span class="string">&quot;ISO-8859-4&quot;</span> =&gt; <span class="ident">Iso_8859_4</span>,
-            <span class="string">&quot;ISO-8859-5&quot;</span> =&gt; <span class="ident">Iso_8859_5</span>,
-            <span class="string">&quot;ISO-8859-6&quot;</span> =&gt; <span class="ident">Iso_8859_6</span>,
-            <span class="string">&quot;ISO-8859-7&quot;</span> =&gt; <span class="ident">Iso_8859_7</span>,
-            <span class="string">&quot;ISO-8859-8&quot;</span> =&gt; <span class="ident">Iso_8859_8</span>,
-            <span class="string">&quot;ISO-8859-9&quot;</span> =&gt; <span class="ident">Iso_8859_9</span>,
-            <span class="string">&quot;ISO-8859-10&quot;</span> =&gt; <span class="ident">Iso_8859_10</span>,
-            <span class="string">&quot;SHIFT-JIS&quot;</span> =&gt; <span class="ident">Shift_Jis</span>,
-            <span class="string">&quot;EUC-JP&quot;</span> =&gt; <span class="ident">Euc_Jp</span>,
-            <span class="string">&quot;ISO-2022-KR&quot;</span> =&gt; <span class="ident">Iso_2022_Kr</span>,
-            <span class="string">&quot;EUC-KR&quot;</span> =&gt; <span class="ident">Euc_Kr</span>,
-            <span class="string">&quot;ISO-2022-JP&quot;</span> =&gt; <span class="ident">Iso_2022_Jp</span>,
-            <span class="string">&quot;ISO-2022-JP-2&quot;</span> =&gt; <span class="ident">Iso_2022_Jp_2</span>,
-            <span class="string">&quot;ISO-8859-6-E&quot;</span> =&gt; <span class="ident">Iso_8859_6_E</span>,
-            <span class="string">&quot;ISO-8859-6-I&quot;</span> =&gt; <span class="ident">Iso_8859_6_I</span>,
-            <span class="string">&quot;ISO-8859-8-E&quot;</span> =&gt; <span class="ident">Iso_8859_8_E</span>,
-            <span class="string">&quot;ISO-8859-8-I&quot;</span> =&gt; <span class="ident">Iso_8859_8_I</span>,
-            <span class="string">&quot;GB2312&quot;</span> =&gt; <span class="ident">Gb2312</span>,
-            <span class="string">&quot;BIG5&quot;</span> =&gt; <span class="ident">Big5</span>,
-            <span class="string">&quot;KOI8-R&quot;</span> =&gt; <span class="ident">Koi8_R</span>,
-            <span class="ident">s</span> =&gt; <span class="ident">Ext</span>(<span class="ident">s</span>.<span class="ident">to_owned</span>()),
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Charset, <span class="kw">crate</span>::Error&gt; {
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span>s.to_ascii_uppercase().as_ref() {
+            <span class="string">&quot;US-ASCII&quot; </span>=&gt; Us_Ascii,
+            <span class="string">&quot;ISO-8859-1&quot; </span>=&gt; Iso_8859_1,
+            <span class="string">&quot;ISO-8859-2&quot; </span>=&gt; Iso_8859_2,
+            <span class="string">&quot;ISO-8859-3&quot; </span>=&gt; Iso_8859_3,
+            <span class="string">&quot;ISO-8859-4&quot; </span>=&gt; Iso_8859_4,
+            <span class="string">&quot;ISO-8859-5&quot; </span>=&gt; Iso_8859_5,
+            <span class="string">&quot;ISO-8859-6&quot; </span>=&gt; Iso_8859_6,
+            <span class="string">&quot;ISO-8859-7&quot; </span>=&gt; Iso_8859_7,
+            <span class="string">&quot;ISO-8859-8&quot; </span>=&gt; Iso_8859_8,
+            <span class="string">&quot;ISO-8859-9&quot; </span>=&gt; Iso_8859_9,
+            <span class="string">&quot;ISO-8859-10&quot; </span>=&gt; Iso_8859_10,
+            <span class="string">&quot;SHIFT-JIS&quot; </span>=&gt; Shift_Jis,
+            <span class="string">&quot;EUC-JP&quot; </span>=&gt; Euc_Jp,
+            <span class="string">&quot;ISO-2022-KR&quot; </span>=&gt; Iso_2022_Kr,
+            <span class="string">&quot;EUC-KR&quot; </span>=&gt; Euc_Kr,
+            <span class="string">&quot;ISO-2022-JP&quot; </span>=&gt; Iso_2022_Jp,
+            <span class="string">&quot;ISO-2022-JP-2&quot; </span>=&gt; Iso_2022_Jp_2,
+            <span class="string">&quot;ISO-8859-6-E&quot; </span>=&gt; Iso_8859_6_E,
+            <span class="string">&quot;ISO-8859-6-I&quot; </span>=&gt; Iso_8859_6_I,
+            <span class="string">&quot;ISO-8859-8-E&quot; </span>=&gt; Iso_8859_8_E,
+            <span class="string">&quot;ISO-8859-8-I&quot; </span>=&gt; Iso_8859_8_I,
+            <span class="string">&quot;GB2312&quot; </span>=&gt; Gb2312,
+            <span class="string">&quot;BIG5&quot; </span>=&gt; Big5,
+            <span class="string">&quot;KOI8-R&quot; </span>=&gt; Koi8_R,
+            s =&gt; Ext(s.to_owned()),
         })
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">Us_Ascii</span>, <span class="string">&quot;us-ascii&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">Us_Ascii</span>, <span class="string">&quot;US-Ascii&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">Us_Ascii</span>, <span class="string">&quot;US-ASCII&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">Shift_Jis</span>, <span class="string">&quot;Shift-JIS&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">Ext</span>(<span class="string">&quot;ABCD&quot;</span>.<span class="ident">to_owned</span>()), <span class="string">&quot;abcd&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse() {
+        <span class="macro">assert_eq!</span>(Us_Ascii, <span class="string">&quot;us-ascii&quot;</span>.parse().unwrap());
+        <span class="macro">assert_eq!</span>(Us_Ascii, <span class="string">&quot;US-Ascii&quot;</span>.parse().unwrap());
+        <span class="macro">assert_eq!</span>(Us_Ascii, <span class="string">&quot;US-ASCII&quot;</span>.parse().unwrap());
+        <span class="macro">assert_eq!</span>(Shift_Jis, <span class="string">&quot;Shift-JIS&quot;</span>.parse().unwrap());
+        <span class="macro">assert_eq!</span>(Ext(<span class="string">&quot;ABCD&quot;</span>.to_owned()), <span class="string">&quot;abcd&quot;</span>.parse().unwrap());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_display</span>() {
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;US-ASCII&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Us_Ascii</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;ABCD&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Ext</span>(<span class="string">&quot;ABCD&quot;</span>.<span class="ident">to_owned</span>())));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_display() {
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;US-ASCII&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Us_Ascii));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;ABCD&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Ext(<span class="string">&quot;ABCD&quot;</span>.to_owned())));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

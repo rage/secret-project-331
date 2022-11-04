@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/start_server.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>start_server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/start_server.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>start_server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -141,125 +141,125 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">sync::Arc</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{env, sync::Arc};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">setup_tracing</span>, <span class="ident">OAuthClient</span>};
-<span class="kw">use</span> <span class="ident">actix_session</span>::{
-    <span class="ident">config</span>::{<span class="ident">CookieContentSecurity</span>, <span class="ident">PersistentSession</span>, <span class="ident">SessionLifecycle</span>, <span class="ident">TtlExtensionPolicy</span>},
-    <span class="ident">storage::CookieSessionStore</span>,
-    <span class="ident">SessionMiddleware</span>,
+<span class="kw">use crate</span>::{setup_tracing, OAuthClient};
+<span class="kw">use </span>actix_session::{
+    config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
+    storage::CookieSessionStore,
+    SessionMiddleware,
 };
-<span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">cookie</span>::{<span class="ident">Key</span>, <span class="ident">SameSite</span>},
-    <span class="ident">middleware::Logger</span>,
-    <span class="ident">web::Data</span>,
-    <span class="ident">App</span>, <span class="ident">HttpServer</span>,
+<span class="kw">use </span>actix_web::{
+    cookie::{Key, SameSite},
+    middleware::Logger,
+    web::Data,
+    App, HttpServer,
 };
-<span class="kw">use</span> <span class="ident">dotenv::dotenv</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
-    <span class="ident">file_store</span>::{
-        <span class="ident">google_cloud_file_store::GoogleCloudFileStore</span>, <span class="ident">local_file_store::LocalFileStore</span>, <span class="ident">FileStore</span>,
+<span class="kw">use </span>dotenv::dotenv;
+<span class="kw">use </span>headless_lms_utils::{
+    file_store::{
+        google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
     },
-    <span class="ident">ApplicationConfiguration</span>,
+    ApplicationConfiguration,
 };
-<span class="kw">use</span> <span class="ident">listenfd::ListenFd</span>;
-<span class="kw">use</span> <span class="ident">oauth2</span>::{<span class="ident">basic::BasicClient</span>, <span class="ident">AuthUrl</span>, <span class="ident">ClientId</span>, <span class="ident">ClientSecret</span>, <span class="ident">TokenUrl</span>};
-<span class="kw">use</span> <span class="ident">sqlx::postgres::PgPoolOptions</span>;
-<span class="kw">use</span> <span class="ident">url::Url</span>;
+<span class="kw">use </span>listenfd::ListenFd;
+<span class="kw">use </span>oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
+<span class="kw">use </span>sqlx::postgres::PgPoolOptions;
+<span class="kw">use </span>url::Url;
 
-<span class="doccomment">/// The entrypoint to the server.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="ident">dotenv</span>().<span class="ident">ok</span>();
-    <span class="ident">setup_tracing</span>()<span class="question-mark">?</span>;
+<span class="doccomment">/// The entrypoint to the server.
+</span><span class="kw">pub async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
+    dotenv().ok();
+    setup_tracing()<span class="question-mark">?</span>;
 
-    <span class="comment">// read environment variables</span>
-    <span class="kw">let</span> <span class="ident">database_url</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;DATABASE_URL&quot;</span>)
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;postgres://localhost/headless_lms_dev&quot;</span>.<span class="ident">to_string</span>());
-    <span class="kw">let</span> <span class="ident">oauth_application_id</span> <span class="op">=</span>
-        <span class="ident">env::var</span>(<span class="string">&quot;OAUTH_APPLICATION_ID&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;OAUTH_APPLICATION_ID must be defined&quot;</span>);
-    <span class="kw">let</span> <span class="ident">oauth_secret</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;OAUTH_SECRET&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;OAUTH_SECRET must be defined&quot;</span>);
-    <span class="kw">let</span> <span class="ident">private_cookie_key</span> <span class="op">=</span>
-        <span class="ident">env::var</span>(<span class="string">&quot;PRIVATE_COOKIE_KEY&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;PRIVATE_COOKIE_KEY must be defined&quot;</span>);
-    <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;BASE_URL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;BASE_URL must be defined&quot;</span>);
-    <span class="kw">let</span> <span class="ident">test_mode</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;TEST_MODE&quot;</span>).<span class="ident">is_ok</span>();
-    <span class="kw">let</span> <span class="ident">allow_no_https_for_development</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;ALLOW_NO_HTTPS_FOR_DEVELOPMENT&quot;</span>).<span class="ident">is_ok</span>();
-    <span class="kw">if</span> <span class="ident">test_mode</span> {
+    <span class="comment">// read environment variables
+    </span><span class="kw">let </span>database_url = env::var(<span class="string">&quot;DATABASE_URL&quot;</span>)
+        .unwrap_or_else(|<span class="kw">_</span>| <span class="string">&quot;postgres://localhost/headless_lms_dev&quot;</span>.to_string());
+    <span class="kw">let </span>oauth_application_id =
+        env::var(<span class="string">&quot;OAUTH_APPLICATION_ID&quot;</span>).expect(<span class="string">&quot;OAUTH_APPLICATION_ID must be defined&quot;</span>);
+    <span class="kw">let </span>oauth_secret = env::var(<span class="string">&quot;OAUTH_SECRET&quot;</span>).expect(<span class="string">&quot;OAUTH_SECRET must be defined&quot;</span>);
+    <span class="kw">let </span>private_cookie_key =
+        env::var(<span class="string">&quot;PRIVATE_COOKIE_KEY&quot;</span>).expect(<span class="string">&quot;PRIVATE_COOKIE_KEY must be defined&quot;</span>);
+    <span class="kw">let </span>base_url = env::var(<span class="string">&quot;BASE_URL&quot;</span>).expect(<span class="string">&quot;BASE_URL must be defined&quot;</span>);
+    <span class="kw">let </span>test_mode = env::var(<span class="string">&quot;TEST_MODE&quot;</span>).is_ok();
+    <span class="kw">let </span>allow_no_https_for_development = env::var(<span class="string">&quot;ALLOW_NO_HTTPS_FOR_DEVELOPMENT&quot;</span>).is_ok();
+    <span class="kw">if </span>test_mode {
         <span class="macro">info!</span>(<span class="string">&quot;***********************************&quot;</span>);
         <span class="macro">info!</span>(<span class="string">&quot;*  Starting backend in test mode  *&quot;</span>);
         <span class="macro">info!</span>(<span class="string">&quot;***********************************&quot;</span>);
     }
-    <span class="kw">let</span> <span class="ident">development_uuid_login</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;DEVELOPMENT_UUID_LOGIN&quot;</span>).<span class="ident">is_ok</span>();
+    <span class="kw">let </span>development_uuid_login = env::var(<span class="string">&quot;DEVELOPMENT_UUID_LOGIN&quot;</span>).is_ok();
 
-    <span class="comment">// this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">listenfd</span> <span class="op">=</span> <span class="ident">ListenFd::from_env</span>();
+    <span class="comment">// this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
+    </span><span class="kw">let </span><span class="kw-2">mut </span>listenfd = ListenFd::from_env();
 
-    <span class="kw">let</span> <span class="ident">db_pool</span> <span class="op">=</span> <span class="ident">PgPoolOptions::new</span>()
-        .<span class="ident">max_connections</span>(<span class="number">15</span>)
-        .<span class="ident">min_connections</span>(<span class="number">5</span>)
-        .<span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="ident">database_url</span>)
+    <span class="kw">let </span>db_pool = PgPoolOptions::new()
+        .max_connections(<span class="number">15</span>)
+        .min_connections(<span class="number">5</span>)
+        .connect(<span class="kw-2">&amp;</span>database_url)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">auth_url</span>: <span class="ident">Url</span> <span class="op">=</span> <span class="string">&quot;https://tmc.mooc.fi/oauth/token&quot;</span>
-        .<span class="ident">parse</span>()
-        .<span class="ident">expect</span>(<span class="string">&quot;known to work&quot;</span>);
+    <span class="kw">let </span>auth_url: Url = <span class="string">&quot;https://tmc.mooc.fi/oauth/token&quot;
+        </span>.parse()
+        .expect(<span class="string">&quot;known to work&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">oauth_client</span>: <span class="ident">OAuthClient</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">BasicClient::new</span>(
-        <span class="ident">ClientId::new</span>(<span class="ident">oauth_application_id</span>),
-        <span class="prelude-val">Some</span>(<span class="ident">ClientSecret::new</span>(<span class="ident">oauth_secret</span>)),
-        <span class="ident">AuthUrl::from_url</span>(<span class="ident">auth_url</span>.<span class="ident">clone</span>()),
-        <span class="prelude-val">Some</span>(<span class="ident">TokenUrl::from_url</span>(<span class="ident">auth_url</span>)),
+    <span class="kw">let </span>oauth_client: OAuthClient = Arc::new(BasicClient::new(
+        ClientId::new(oauth_application_id),
+        <span class="prelude-val">Some</span>(ClientSecret::new(oauth_secret)),
+        AuthUrl::from_url(auth_url.clone()),
+        <span class="prelude-val">Some</span>(TokenUrl::from_url(auth_url)),
     ));
 
-    <span class="kw">let</span> <span class="ident">db_clone</span> <span class="op">=</span> <span class="ident">db_pool</span>.<span class="ident">clone</span>();
+    <span class="kw">let </span>db_clone = db_pool.clone();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">HttpServer::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">app_conf</span> <span class="op">=</span> <span class="ident">ApplicationConfiguration</span> {
-            <span class="ident">base_url</span>: <span class="ident">base_url</span>.<span class="ident">clone</span>(),
-            <span class="ident">test_mode</span>,
-            <span class="ident">development_uuid_login</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>server = HttpServer::new(<span class="kw">move </span>|| {
+        <span class="kw">let </span>app_conf = ApplicationConfiguration {
+            base_url: base_url.clone(),
+            test_mode,
+            development_uuid_login,
         };
-        <span class="kw">let</span> <span class="ident">file_store</span> <span class="op">=</span> <span class="ident">setup_file_store</span>();
+        <span class="kw">let </span>file_store = setup_file_store();
 
-        <span class="ident">App::new</span>()
-            .<span class="ident">configure</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">config</span><span class="op">|</span> <span class="ident"><span class="kw">crate</span>::configure</span>(<span class="ident">config</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))
-            .<span class="ident">wrap</span>(
-                <span class="ident">SessionMiddleware::builder</span>(
-                    <span class="ident">CookieSessionStore::default</span>(),
-                    <span class="ident">Key::from</span>(<span class="ident">private_cookie_key</span>.<span class="ident">as_bytes</span>()),
+        App::new()
+            .configure(<span class="kw">move </span>|config| <span class="kw">crate</span>::configure(config, file_store, app_conf))
+            .wrap(
+                SessionMiddleware::builder(
+                    CookieSessionStore::default(),
+                    Key::from(private_cookie_key.as_bytes()),
                 )
-                .<span class="ident">cookie_name</span>(<span class="string">&quot;session&quot;</span>.<span class="ident">to_string</span>())
-                .<span class="ident">cookie_secure</span>(<span class="op">!</span><span class="ident">allow_no_https_for_development</span>)
-                .<span class="ident">cookie_same_site</span>(<span class="ident">SameSite::Strict</span>) <span class="comment">// Default api can only be accessed from the main website. Public api will be less strict on this.</span>
-                .<span class="ident">cookie_http_only</span>(<span class="bool-val">true</span>) <span class="comment">// Cookie is inaccessible from javascript for security</span>
-                .<span class="ident">cookie_path</span>(<span class="string">&quot;/api&quot;</span>.<span class="ident">to_string</span>()) <span class="comment">// browser won&#39;t send the cookie unless this path exists in the request url</span>
-                .<span class="ident">cookie_content_security</span>(<span class="ident">CookieContentSecurity::Private</span>)
-                .<span class="ident">session_lifecycle</span>(<span class="ident">SessionLifecycle::PersistentSession</span>(
-                    <span class="ident">PersistentSession::default</span>()
-                        .<span class="ident">session_ttl</span>(<span class="ident">actix_web::cookie::time::Duration::days</span>(<span class="number">100</span>))
-                        .<span class="ident">session_ttl_extension_policy</span>(<span class="ident">TtlExtensionPolicy::OnEveryRequest</span>),
+                .cookie_name(<span class="string">&quot;session&quot;</span>.to_string())
+                .cookie_secure(!allow_no_https_for_development)
+                .cookie_same_site(SameSite::Strict) <span class="comment">// Default api can only be accessed from the main website. Public api will be less strict on this.
+                </span>.cookie_http_only(<span class="bool-val">true</span>) <span class="comment">// Cookie is inaccessible from javascript for security
+                </span>.cookie_path(<span class="string">&quot;/api&quot;</span>.to_string()) <span class="comment">// browser won&#39;t send the cookie unless this path exists in the request url
+                </span>.cookie_content_security(CookieContentSecurity::Private)
+                .session_lifecycle(SessionLifecycle::PersistentSession(
+                    PersistentSession::default()
+                        .session_ttl(actix_web::cookie::time::Duration::days(<span class="number">100</span>))
+                        .session_ttl_extension_policy(TtlExtensionPolicy::OnEveryRequest),
                 ))
-                .<span class="ident">build</span>(),
+                .build(),
             )
-            .<span class="ident">wrap</span>(<span class="ident">Logger::new</span>(
+            .wrap(Logger::new(
                 <span class="string">&quot;Completed %r %s %b bytes - %D ms, request_id=%{request-id}o&quot;</span>,
             ))
-            .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">db_clone</span>.<span class="ident">clone</span>())) <span class="comment">// pass app_databData::new(ase pool to application so we can access it inside handlers</span>
-            .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">oauth_client</span>.<span class="ident">clone</span>()))
+            .app_data(Data::new(db_clone.clone())) <span class="comment">// pass app_databData::new(ase pool to application so we can access it inside handlers
+            </span>.app_data(Data::new(oauth_client.clone()))
     });
 
-    <span class="ident">server</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">listenfd</span>.<span class="ident">take_tcp_listener</span>(<span class="number">0</span>)<span class="question-mark">?</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">listener</span>) =&gt; <span class="ident">server</span>.<span class="ident">listen</span>(<span class="ident">listener</span>)<span class="question-mark">?</span>,
-        <span class="prelude-val">None</span> =&gt; {
-            <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;HOST&quot;</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;0.0.0.0&quot;</span>.<span class="ident">to_string</span>());
-            <span class="kw">let</span> <span class="ident">port</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;PORT&quot;</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;3001&quot;</span>.<span class="ident">to_string</span>());
-            <span class="kw">let</span> <span class="ident">bind_address</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">host</span>, <span class="ident">port</span>);
-            <span class="macro">info!</span>(<span class="string">&quot;Binding to address: {}&quot;</span>, <span class="ident">bind_address</span>);
-            <span class="ident">server</span>.<span class="ident">bind</span>(<span class="ident">bind_address</span>)<span class="question-mark">?</span>
-        }
+    server = <span class="kw">match </span>listenfd.take_tcp_listener(<span class="number">0</span>)<span class="question-mark">? </span>{
+        <span class="prelude-val">Some</span>(listener) =&gt; server.listen(listener)<span class="question-mark">?</span>,
+        <span class="prelude-val">None </span>=&gt; {
+            <span class="kw">let </span>host = env::var(<span class="string">&quot;HOST&quot;</span>).unwrap_or_else(|<span class="kw">_</span>| <span class="string">&quot;0.0.0.0&quot;</span>.to_string());
+            <span class="kw">let </span>port = env::var(<span class="string">&quot;PORT&quot;</span>).unwrap_or_else(|<span class="kw">_</span>| <span class="string">&quot;3001&quot;</span>.to_string());
+            <span class="kw">let </span>bind_address = <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, host, port);
+            <span class="macro">info!</span>(<span class="string">&quot;Binding to address: {}&quot;</span>, bind_address);
+            server.bind(bind_address)<span class="question-mark">?
+        </span>}
     };
 
     <span class="macro">info!</span>(<span class="string">&quot;Starting server.&quot;</span>);
-    <span class="ident">server</span>.<span class="ident">run</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    server.run().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
@@ -267,22 +267,22 @@
 <span class="doccomment">/**
 Setups file store so that it can be passed to actix web as data.
 Using Arc here so that this can be accessed from all the different worker threads.
-*/</span>
-<span class="kw">fn</span> <span class="ident">setup_file_store</span>() -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">env::var</span>(<span class="string">&quot;FILE_STORE_USE_GOOGLE_CLOUD_STORAGE&quot;</span>).<span class="ident">is_ok</span>() {
+*/
+</span><span class="kw">fn </span>setup_file_store() -&gt; Arc&lt;<span class="kw">dyn </span>FileStore&gt; {
+    <span class="kw">if </span>env::var(<span class="string">&quot;FILE_STORE_USE_GOOGLE_CLOUD_STORAGE&quot;</span>).is_ok() {
         <span class="macro">info!</span>(<span class="string">&quot;Using Google Cloud Storage as the file store&quot;</span>);
-        <span class="kw">let</span> <span class="ident">bucket_name</span> <span class="op">=</span> <span class="ident">env::var</span>(<span class="string">&quot;GOOGLE_CLOUD_STORAGE_BUCKET_NAME&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.&quot;</span>);
-        <span class="ident">Arc::new</span>(<span class="ident">GoogleCloudFileStore::new</span>(<span class="ident">bucket_name</span>).<span class="ident">expect</span>(<span class="string">&quot;Failed to initialize file store&quot;</span>))
-    } <span class="kw">else</span> {
+        <span class="kw">let </span>bucket_name = env::var(<span class="string">&quot;GOOGLE_CLOUD_STORAGE_BUCKET_NAME&quot;</span>).expect(<span class="string">&quot;env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.&quot;</span>);
+        Arc::new(GoogleCloudFileStore::new(bucket_name).expect(<span class="string">&quot;Failed to initialize file store&quot;</span>))
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Using local file storage as the file store&quot;</span>);
-        <span class="ident">Arc::new</span>(
-            <span class="ident">LocalFileStore::new</span>(
-                <span class="string">&quot;uploads&quot;</span>.<span class="ident">into</span>(),
-                <span class="string">&quot;http://project-331.local/api/v0/files/uploads/&quot;</span>.<span class="ident">into</span>(),
+        Arc::new(
+            LocalFileStore::new(
+                <span class="string">&quot;uploads&quot;</span>.into(),
+                <span class="string">&quot;http://project-331.local/api/v0/files/uploads/&quot;</span>.into(),
             )
-            .<span class="ident">expect</span>(<span class="string">&quot;Failed to initialize file store&quot;</span>),
+            .expect(<span class="string">&quot;Failed to initialize file store&quot;</span>),
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

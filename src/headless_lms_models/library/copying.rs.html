@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/copying.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>copying.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/copying.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>copying.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -899,44 +899,44 @@
 <span id="899">899</span>
 <span id="900">900</span>
 <span id="901">901</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">serde_json::Value</span>;
-<span class="kw">use</span> <span class="ident">sqlx::Postgres</span>;
-<span class="kw">use</span> <span class="ident">sqlx::Transaction</span>;
+<span class="kw">use </span>serde_json::Value;
+<span class="kw">use </span>sqlx::Postgres;
+<span class="kw">use </span>sqlx::Transaction;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::course_instances</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::course_instances::NewCourseInstance</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::course_language_groups</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::courses::Course</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::courses::NewCourse</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exams</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exams::Exam</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::exams::NewExam</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::course_instances;
+<span class="kw">use </span><span class="kw">crate</span>::course_instances::NewCourseInstance;
+<span class="kw">use </span><span class="kw">crate</span>::course_language_groups;
+<span class="kw">use </span><span class="kw">crate</span>::courses::get_course;
+<span class="kw">use </span><span class="kw">crate</span>::courses::Course;
+<span class="kw">use </span><span class="kw">crate</span>::courses::NewCourse;
+<span class="kw">use </span><span class="kw">crate</span>::exams;
+<span class="kw">use </span><span class="kw">crate</span>::exams::Exam;
+<span class="kw">use </span><span class="kw">crate</span>::exams::NewExam;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ModelResult</span>;
+<span class="kw">use </span><span class="kw">crate</span>::ModelResult;
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copy_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">new_course</span>: <span class="kw-2">&amp;</span><span class="ident">NewCourse</span>,
-    <span class="ident">same_language_group</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">parent_course</span> <span class="op">=</span> <span class="ident">get_course</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>copy_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+    new_course: <span class="kw-2">&amp;</span>NewCourse,
+    same_language_group: bool,
+) -&gt; ModelResult&lt;Course&gt; {
+    <span class="kw">let </span>parent_course = get_course(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">same_language_group</span> {
-        <span class="ident">parent_course</span>.<span class="ident">course_language_group_id</span>
-    } <span class="kw">else</span> {
-        <span class="ident">course_language_groups::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">PKeyPolicy::Generate</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    };
+    <span class="kw">let </span>course_language_group_id = <span class="kw">if </span>same_language_group {
+        parent_course.course_language_group_id
+    } <span class="kw">else </span>{
+        course_language_groups::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate).<span class="kw">await</span><span class="question-mark">?
+    </span>};
 
-    <span class="comment">// Create new course.</span>
-    <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+    <span class="comment">// Create new course.
+    </span><span class="kw">let </span>copied_course = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">&quot;
 INSERT INTO courses (
     name,
@@ -965,51 +965,51 @@ RETURNING id,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions
     &quot;</span>,
-        <span class="ident">new_course</span>.<span class="ident">name</span>,
-        <span class="ident">new_course</span>.<span class="ident">organization_id</span>,
-        <span class="ident">new_course</span>.<span class="ident">slug</span>,
-        <span class="ident">parent_course</span>.<span class="ident">content_search_language</span> <span class="kw">as</span> <span class="kw">_</span>,
-        <span class="ident">new_course</span>.<span class="ident">language_code</span>,
-        <span class="ident">parent_course</span>.<span class="ident">id</span>,
-        <span class="ident">course_language_group_id</span>,
-        <span class="ident">parent_course</span>.<span class="ident">base_module_completion_requires_n_submodule_completions</span>,
+        new_course.name,
+        new_course.organization_id,
+        new_course.slug,
+        parent_course.content_search_language <span class="kw">as _</span>,
+        new_course.language_code,
+        parent_course.id,
+        course_language_group_id,
+        parent_course.base_module_completion_requires_n_submodule_completions,
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">copy_course_modules</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    copy_course_modules(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">copy_course_chapters</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    copy_course_chapters(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Copy course pages. At this point, exercise ids in content will point to old course&#39;s exercises.</span>
-    <span class="kw">let</span> <span class="ident">contents_iter</span> <span class="op">=</span>
-        <span class="ident">copy_course_pages_and_return_contents</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Copy course pages. At this point, exercise ids in content will point to old course&#39;s exercises.
+    </span><span class="kw">let </span>contents_iter =
+        copy_course_pages_and_return_contents(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">set_chapter_front_pages</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    set_chapter_front_pages(<span class="kw-2">&amp;mut </span>tx, copied_course.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Copy course exercises</span>
-    <span class="kw">let</span> <span class="ident">old_to_new_exercise_ids</span> <span class="op">=</span>
-        <span class="ident">map_old_exr_ids_to_new_exr_ids_for_courses</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Copy course exercises
+    </span><span class="kw">let </span>old_to_new_exercise_ids =
+        map_old_exr_ids_to_new_exr_ids_for_courses(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Replace exercise ids in page contents.</span>
-    <span class="kw">for</span> (<span class="ident">page_id</span>, <span class="ident">content</span>) <span class="kw">in</span> <span class="ident">contents_iter</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::Array</span>(<span class="kw-2">mut</span> <span class="ident">blocks</span>) <span class="op">=</span> <span class="ident">content</span> {
-            <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span>.<span class="ident">iter_mut</span>() {
-                <span class="kw">if</span> <span class="ident">block</span>[<span class="string">&quot;name&quot;</span>] <span class="op">!</span><span class="op">=</span> <span class="ident">Value::String</span>(<span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>()) {
+    <span class="comment">// Replace exercise ids in page contents.
+    </span><span class="kw">for </span>(page_id, content) <span class="kw">in </span>contents_iter {
+        <span class="kw">if let </span>Value::Array(<span class="kw-2">mut </span>blocks) = content {
+            <span class="kw">for </span>block <span class="kw">in </span>blocks.iter_mut() {
+                <span class="kw">if </span>block[<span class="string">&quot;name&quot;</span>] != Value::String(<span class="string">&quot;moocfi/exercise&quot;</span>.to_string()) {
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::String</span>(<span class="ident">old_id</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">block</span>[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] {
-                    <span class="kw">let</span> <span class="ident">new_id</span> <span class="op">=</span> <span class="ident">old_to_new_exercise_ids</span>
-                        .<span class="ident">get</span>(<span class="ident">old_id</span>)
-                        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                            <span class="ident">ModelError::new</span>(
-                                <span class="ident">ModelErrorType::Generic</span>,
-                                <span class="string">&quot;Invalid exercise id in content.&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="kw">if let </span>Value::String(old_id) = <span class="kw-2">&amp;</span>block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] {
+                    <span class="kw">let </span>new_id = old_to_new_exercise_ids
+                        .get(old_id)
+                        .ok_or_else(|| {
+                            ModelError::new(
+                                ModelErrorType::Generic,
+                                <span class="string">&quot;Invalid exercise id in content.&quot;</span>.to_string(),
                                 <span class="prelude-val">None</span>,
                             )
-                        })<span class="question-mark">?</span>
-                        .<span class="ident">to_string</span>();
-                    <span class="ident">block</span>[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] <span class="op">=</span> <span class="ident">Value::String</span>(<span class="ident">new_id</span>);
+                        })<span class="question-mark">?
+                        </span>.to_string();
+                    block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] = Value::String(new_id);
                 }
             }
             <span class="macro">sqlx::query!</span>(
@@ -1018,56 +1018,56 @@ UPDATE pages
 SET content = $1
 WHERE id = $2;
                 &quot;</span>,
-                <span class="ident">Value::Array</span>(<span class="ident">blocks</span>),
-                <span class="ident">page_id</span>,
+                Value::Array(blocks),
+                page_id,
             )
-            .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+            .execute(<span class="kw-2">&amp;mut </span>tx)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
     }
 
-    <span class="ident">copy_exercise_slides</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    copy_exercise_slides(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">copy_exercise_tasks</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// Create default instance for copied course.</span>
-    <span class="ident">course_instances::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
-        <span class="ident">NewCourseInstance</span> {
-            <span class="ident">course_id</span>: <span class="ident">copied_course</span>.<span class="ident">id</span>,
-            <span class="ident">name</span>: <span class="prelude-val">None</span>,
-            <span class="ident">description</span>: <span class="prelude-val">None</span>,
-            <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
-            <span class="ident">teacher_in_charge_name</span>: <span class="kw-2">&amp;</span><span class="ident">new_course</span>.<span class="ident">teacher_in_charge_name</span>,
-            <span class="ident">teacher_in_charge_email</span>: <span class="kw-2">&amp;</span><span class="ident">new_course</span>.<span class="ident">teacher_in_charge_email</span>,
-            <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
-            <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+    copy_exercise_tasks(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Create default instance for copied course.
+    </span>course_instances::insert(
+        <span class="kw-2">&amp;mut </span>tx,
+        PKeyPolicy::Generate,
+        NewCourseInstance {
+            course_id: copied_course.id,
+            name: <span class="prelude-val">None</span>,
+            description: <span class="prelude-val">None</span>,
+            support_email: <span class="prelude-val">None</span>,
+            teacher_in_charge_name: <span class="kw-2">&amp;</span>new_course.teacher_in_charge_name,
+            teacher_in_charge_email: <span class="kw-2">&amp;</span>new_course.teacher_in_charge_email,
+            opening_time: <span class="prelude-val">None</span>,
+            closing_time: <span class="prelude-val">None</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">copied_course</span>)
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(copied_course)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copy_exam</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">parent_exam_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
-    <span class="ident">new_exam</span>: <span class="kw-2">&amp;</span><span class="ident">NewExam</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Exam</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">parent_exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">parent_exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>copy_exam(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    parent_exam_id: <span class="kw-2">&amp;</span>Uuid,
+    new_exam: <span class="kw-2">&amp;</span>NewExam,
+) -&gt; ModelResult&lt;Exam&gt; {
+    <span class="kw">let </span>parent_exam = exams::get(conn, <span class="kw-2">*</span>parent_exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">parent_exam_org_and_lang</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">let </span>parent_exam_org_and_lang = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;SELECT language, organization_id FROM exams WHERE id = $1&quot;</span>,
-        <span class="ident">parent_exam</span>.<span class="ident">id</span>
+        parent_exam.id
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// create new exam</span>
-    <span class="kw">let</span> <span class="ident">copied_exam</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="comment">// create new exam
+    </span><span class="kw">let </span>copied_exam = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
     INSERT INTO exams(
         name,
@@ -1081,43 +1081,43 @@ WHERE id = $2;
     VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
         &quot;</span>,
-        <span class="ident">new_exam</span>.<span class="ident">name</span>,
-        <span class="ident">parent_exam_org_and_lang</span>.<span class="ident">organization_id</span>,
-        <span class="ident">parent_exam</span>.<span class="ident">instructions</span>,
-        <span class="ident">new_exam</span>.<span class="ident">starts_at</span>,
-        <span class="ident">new_exam</span>.<span class="ident">ends_at</span>,
-        <span class="ident">parent_exam_org_and_lang</span>.<span class="ident">language</span>,
-        <span class="ident">new_exam</span>.<span class="ident">time_minutes</span>
+        new_exam.name,
+        parent_exam_org_and_lang.organization_id,
+        parent_exam.instructions,
+        new_exam.starts_at,
+        new_exam.ends_at,
+        parent_exam_org_and_lang.language,
+        new_exam.time_minutes
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">contents_iter</span> <span class="op">=</span>
-        <span class="ident">copy_exam_pages_and_return_contents</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_exam</span>.<span class="ident">id</span>, <span class="ident">parent_exam</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>contents_iter =
+        copy_exam_pages_and_return_contents(<span class="kw-2">&amp;mut </span>tx, copied_exam.id, parent_exam.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Copy exam exercises</span>
-    <span class="kw">let</span> <span class="ident">old_to_new_exercise_ids</span> <span class="op">=</span>
-        <span class="ident">map_old_exr_ids_to_new_exr_ids_for_exams</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_exam</span>.<span class="ident">id</span>, <span class="ident">parent_exam</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Copy exam exercises
+    </span><span class="kw">let </span>old_to_new_exercise_ids =
+        map_old_exr_ids_to_new_exr_ids_for_exams(<span class="kw-2">&amp;mut </span>tx, copied_exam.id, parent_exam.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Replace exercise ids in page contents.</span>
-    <span class="kw">for</span> (<span class="ident">page_id</span>, <span class="ident">content</span>) <span class="kw">in</span> <span class="ident">contents_iter</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::Array</span>(<span class="kw-2">mut</span> <span class="ident">blocks</span>) <span class="op">=</span> <span class="ident">content</span> {
-            <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span>.<span class="ident">iter_mut</span>() {
-                <span class="kw">if</span> <span class="ident">block</span>[<span class="string">&quot;name&quot;</span>] <span class="op">!</span><span class="op">=</span> <span class="ident">Value::String</span>(<span class="string">&quot;moocfi/exercise&quot;</span>.<span class="ident">to_string</span>()) {
+    <span class="comment">// Replace exercise ids in page contents.
+    </span><span class="kw">for </span>(page_id, content) <span class="kw">in </span>contents_iter {
+        <span class="kw">if let </span>Value::Array(<span class="kw-2">mut </span>blocks) = content {
+            <span class="kw">for </span>block <span class="kw">in </span>blocks.iter_mut() {
+                <span class="kw">if </span>block[<span class="string">&quot;name&quot;</span>] != Value::String(<span class="string">&quot;moocfi/exercise&quot;</span>.to_string()) {
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::String</span>(<span class="ident">old_id</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">block</span>[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] {
-                    <span class="kw">let</span> <span class="ident">new_id</span> <span class="op">=</span> <span class="ident">old_to_new_exercise_ids</span>
-                        .<span class="ident">get</span>(<span class="ident">old_id</span>)
-                        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                            <span class="ident">ModelError::new</span>(
-                                <span class="ident">ModelErrorType::Generic</span>,
-                                <span class="string">&quot;Invalid exercise id in content.&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="kw">if let </span>Value::String(old_id) = <span class="kw-2">&amp;</span>block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] {
+                    <span class="kw">let </span>new_id = old_to_new_exercise_ids
+                        .get(old_id)
+                        .ok_or_else(|| {
+                            ModelError::new(
+                                ModelErrorType::Generic,
+                                <span class="string">&quot;Invalid exercise id in content.&quot;</span>.to_string(),
                                 <span class="prelude-val">None</span>,
                             )
-                        })<span class="question-mark">?</span>
-                        .<span class="ident">to_string</span>();
-                    <span class="ident">block</span>[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] <span class="op">=</span> <span class="ident">Value::String</span>(<span class="ident">new_id</span>);
+                        })<span class="question-mark">?
+                        </span>.to_string();
+                    block[<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>] = Value::String(new_id);
                 }
             }
             <span class="macro">sqlx::query!</span>(
@@ -1126,46 +1126,46 @@ UPDATE pages
 SET content = $1
 WHERE id = $2;
                 &quot;</span>,
-                <span class="ident">Value::Array</span>(<span class="ident">blocks</span>),
-                <span class="ident">page_id</span>,
+                Value::Array(blocks),
+                page_id,
             )
-            .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+            .execute(<span class="kw-2">&amp;mut </span>tx)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
     }
 
-    <span class="ident">copy_exercise_slides</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_exam</span>.<span class="ident">id</span>, <span class="ident">parent_exam</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    copy_exercise_slides(<span class="kw-2">&amp;mut </span>tx, copied_exam.id, parent_exam.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">copy_exercise_tasks</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">copied_exam</span>.<span class="ident">id</span>, <span class="ident">parent_exam</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    copy_exercise_tasks(<span class="kw-2">&amp;mut </span>tx, copied_exam.id, parent_exam.id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">get_page_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">let </span>get_page_id = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;SELECT id AS page_id FROM pages WHERE exam_id = $1;&quot;</span>,
-        <span class="ident">copied_exam</span>.<span class="ident">id</span>
+        copied_exam.id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">Exam</span> {
-        <span class="ident">courses</span>: <span class="macro">vec!</span>[], <span class="comment">// no related courses on newly copied exam</span>
-        <span class="ident">ends_at</span>: <span class="ident">copied_exam</span>.<span class="ident">ends_at</span>,
-        <span class="ident">starts_at</span>: <span class="ident">copied_exam</span>.<span class="ident">starts_at</span>,
-        <span class="ident">id</span>: <span class="ident">copied_exam</span>.<span class="ident">id</span>,
-        <span class="ident">instructions</span>: <span class="ident">copied_exam</span>.<span class="ident">instructions</span>,
-        <span class="ident">name</span>: <span class="ident">copied_exam</span>.<span class="ident">name</span>,
-        <span class="ident">time_minutes</span>: <span class="ident">copied_exam</span>.<span class="ident">time_minutes</span>,
-        <span class="ident">page_id</span>: <span class="ident">get_page_id</span>.<span class="ident">page_id</span>,
+    <span class="prelude-val">Ok</span>(Exam {
+        courses: <span class="macro">vec!</span>[], <span class="comment">// no related courses on newly copied exam
+        </span>ends_at: copied_exam.ends_at,
+        starts_at: copied_exam.starts_at,
+        id: copied_exam.id,
+        instructions: copied_exam.instructions,
+        name: copied_exam.name,
+        time_minutes: copied_exam.time_minutes,
+        page_id: get_page_id.page_id,
     })
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copy_course_pages_and_return_contents</span>(
-    <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
-    <span class="ident">namespace_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">parent_course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Value</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="comment">// Copy course pages. At this point, exercise ids in content will point to old course&#39;s exercises.</span>
-    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">async fn </span>copy_course_pages_and_return_contents(
+    tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
+    namespace_id: Uuid,
+    parent_course_id: Uuid,
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, Value&gt;&gt; {
+    <span class="comment">// Copy course pages. At this point, exercise ids in content will point to old course&#39;s exercises.
+    </span><span class="kw">let </span>contents = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
     INSERT INTO pages (
         id,
@@ -1193,24 +1193,24 @@ WHERE id = $2;
     RETURNING id,
       content;
         &quot;</span>,
-        <span class="ident">namespace_id</span>,
-        <span class="ident">parent_course_id</span>
+        namespace_id,
+        parent_course_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">tx</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">into_iter</span>()
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">record</span><span class="op">|</span> (<span class="ident">record</span>.<span class="ident">id</span>, <span class="ident">record</span>.<span class="ident">content</span>))
-    .<span class="ident">collect</span>();
+    .fetch_all(tx)
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.into_iter()
+    .map(|record| (record.id, record.content))
+    .collect();
 
-    <span class="prelude-val">Ok</span>(<span class="ident">contents</span>)
+    <span class="prelude-val">Ok</span>(contents)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copy_exam_pages_and_return_contents</span>(
-    <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
-    <span class="ident">namespace_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">parent_exam_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Value</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">async fn </span>copy_exam_pages_and_return_contents(
+    tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
+    namespace_id: Uuid,
+    parent_exam_id: Uuid,
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, Value&gt;&gt; {
+    <span class="kw">let </span>contents = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
     INSERT INTO pages (
         id,
@@ -1238,43 +1238,43 @@ WHERE id = $2;
     RETURNING id,
       content;
         &quot;</span>,
-        <span class="ident">namespace_id</span>,
-        <span class="ident">parent_exam_id</span>
+        namespace_id,
+        parent_exam_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">tx</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">into_iter</span>()
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">record</span><span class="op">|</span> (<span class="ident">record</span>.<span class="ident">id</span>, <span class="ident">record</span>.<span class="ident">content</span>))
-    .<span class="ident">collect</span>();
+    .fetch_all(tx)
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.into_iter()
+    .map(|record| (record.id, record.content))
+    .collect();
 
-    <span class="prelude-val">Ok</span>(<span class="ident">contents</span>)
+    <span class="prelude-val">Ok</span>(contents)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_chapter_front_pages</span>(
-    <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
-    <span class="ident">namespace_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// Update front_page_id of chapters now that new pages exist.</span>
-    <span class="macro">sqlx::query!</span>(
+<span class="kw">async fn </span>set_chapter_front_pages(
+    tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
+    namespace_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="comment">// Update front_page_id of chapters now that new pages exist.
+    </span><span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
     UPDATE chapters
     SET front_page_id = uuid_generate_v5(course_id, front_page_id::text)
     WHERE course_id = $1
         AND front_page_id IS NOT NULL;
             &quot;</span>,
-        <span class="ident">namespace_id</span>,
+        namespace_id,
     )
-    .<span class="ident">execute</span>(<span class="ident">tx</span>)
+    .execute(tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copy_course_modules</span>(
-    <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
-    <span class="ident">new_course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">old_course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">async fn </span>copy_course_modules(
+    tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO course_modules (
@@ -1293,19 +1293,19 @@ FROM course_modules
 WHERE course_id = $2
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">new_course_id</span>,
-        <span class="ident">old_course_id</span>,
+        new_course_id,
+        old_course_id,
     )
-    .<span class="ident">execute</span>(<span class="ident">tx</span>)
+    .execute(tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copy_course_chapters</span>(
-    <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
-    <span class="ident">namespace_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">parent_course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">async fn </span>copy_course_chapters(
+    tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
+    namespace_id: Uuid,
+    parent_course_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO chapters (
@@ -1332,21 +1332,21 @@ FROM chapters
 WHERE (course_id = $2)
 AND deleted_at IS NULL;
     &quot;</span>,
-        <span class="ident">namespace_id</span>,
-        <span class="ident">parent_course_id</span>
+        namespace_id,
+        parent_course_id
     )
-    .<span class="ident">execute</span>(<span class="ident">tx</span>)
+    .execute(tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">map_old_exr_ids_to_new_exr_ids_for_courses</span>(
-    <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
-    <span class="ident">namespace_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">parent_course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">old_to_new_exercise_ids</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">async fn </span>map_old_exr_ids_to_new_exr_ids_for_courses(
+    tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
+    namespace_id: Uuid,
+    parent_course_id: Uuid,
+) -&gt; ModelResult&lt;HashMap&lt;String, String&gt;&gt; {
+    <span class="kw">let </span>old_to_new_exercise_ids = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
         INSERT INTO exercises (
             id,
@@ -1374,38 +1374,38 @@ AND deleted_at IS NULL;
         RETURNING id,
           copied_from;
             &quot;</span>,
-        <span class="ident">namespace_id</span>,
-        <span class="ident">parent_course_id</span>
+        namespace_id,
+        parent_course_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">tx</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">into_iter</span>()
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">record</span><span class="op">|</span> {
+    .fetch_all(tx)
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.into_iter()
+    .map(|record| {
         <span class="prelude-val">Ok</span>((
-            <span class="ident">record</span>
-                .<span class="ident">copied_from</span>
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">ModelError::new</span>(
-                        <span class="ident">ModelErrorType::Generic</span>,
-                        <span class="string">&quot;Query failed to return valid data.&quot;</span>.<span class="ident">to_string</span>(),
+            record
+                .copied_from
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        <span class="string">&quot;Query failed to return valid data.&quot;</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
-                })<span class="question-mark">?</span>
-                .<span class="ident">to_string</span>(),
-            <span class="ident">record</span>.<span class="ident">id</span>.<span class="ident">to_string</span>(),
+                })<span class="question-mark">?
+                </span>.to_string(),
+            record.id.to_string(),
         ))
     })
-    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+    .collect::&lt;ModelResult&lt;HashMap&lt;String, String&gt;&gt;&gt;()<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">old_to_new_exercise_ids</span>)
+    <span class="prelude-val">Ok</span>(old_to_new_exercise_ids)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">map_old_exr_ids_to_new_exr_ids_for_exams</span>(
-    <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
-    <span class="ident">namespace_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">parent_exam_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">old_to_new_exercise_ids</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">async fn </span>map_old_exr_ids_to_new_exr_ids_for_exams(
+    tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
+    namespace_id: Uuid,
+    parent_exam_id: Uuid,
+) -&gt; ModelResult&lt;HashMap&lt;String, String&gt;&gt; {
+    <span class="kw">let </span>old_to_new_exercise_ids = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
         INSERT INTO exercises (
             id,
@@ -1433,39 +1433,39 @@ AND deleted_at IS NULL;
         RETURNING id,
           copied_from;
             &quot;</span>,
-        <span class="ident">namespace_id</span>,
-        <span class="ident">parent_exam_id</span>
+        namespace_id,
+        parent_exam_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">tx</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">into_iter</span>()
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">record</span><span class="op">|</span> {
+    .fetch_all(tx)
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.into_iter()
+    .map(|record| {
         <span class="prelude-val">Ok</span>((
-            <span class="ident">record</span>
-                .<span class="ident">copied_from</span>
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">ModelError::new</span>(
-                        <span class="ident">ModelErrorType::Generic</span>,
-                        <span class="string">&quot;Query failed to return valid data.&quot;</span>.<span class="ident">to_string</span>(),
+            record
+                .copied_from
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        <span class="string">&quot;Query failed to return valid data.&quot;</span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
-                })<span class="question-mark">?</span>
-                .<span class="ident">to_string</span>(),
-            <span class="ident">record</span>.<span class="ident">id</span>.<span class="ident">to_string</span>(),
+                })<span class="question-mark">?
+                </span>.to_string(),
+            record.id.to_string(),
         ))
     })
-    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+    .collect::&lt;ModelResult&lt;HashMap&lt;String, String&gt;&gt;&gt;()<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">old_to_new_exercise_ids</span>)
+    <span class="prelude-val">Ok</span>(old_to_new_exercise_ids)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copy_exercise_slides</span>(
-    <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
-    <span class="ident">namespace_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">parent_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// Copy exercise slides</span>
-    <span class="macro">sqlx::query!</span>(
+<span class="kw">async fn </span>copy_exercise_slides(
+    tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
+    namespace_id: Uuid,
+    parent_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="comment">// Copy exercise slides
+    </span><span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
     INSERT INTO exercise_slides (
         id, exercise_id, order_number
@@ -1477,22 +1477,22 @@ AND deleted_at IS NULL;
     WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2 OR exam_id = $2 AND deleted_at IS NULL)
     AND deleted_at IS NULL;
             &quot;</span>,
-        <span class="ident">namespace_id</span>,
-        <span class="ident">parent_id</span>
+        namespace_id,
+        parent_id
     )
-    .<span class="ident">execute</span>(<span class="ident">tx</span>)
+    .execute(tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copy_exercise_tasks</span>(
-    <span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span>,
-    <span class="ident">namespace_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">parent_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// Copy exercise tasks</span>
-    <span class="macro">sqlx::query!</span>(
+<span class="kw">async fn </span>copy_exercise_tasks(
+    tx: <span class="kw-2">&amp;mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, Postgres&gt;,
+    namespace_id: Uuid,
+    parent_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="comment">// Copy exercise tasks
+    </span><span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exercise_tasks (
     id,
@@ -1525,280 +1525,280 @@ WHERE exercise_slide_id IN (
   )
 AND deleted_at IS NULL;
     &quot;</span>,
-        <span class="ident">namespace_id</span>,
-        <span class="ident">parent_id</span>,
+        namespace_id,
+        parent_id,
     )
-    .<span class="ident">execute</span>(<span class="ident">tx</span>)
+    .execute(tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">mod</span> <span class="ident">course_copying</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-        <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exercise_tasks::ExerciseTask</span>, <span class="ident">pages::Page</span>, <span class="ident">test_helper</span>::<span class="kw-2">*</span>};
+    <span class="kw">mod </span>course_copying {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use crate</span>::{exercise_tasks::ExerciseTask, pages::Page, test_helper::<span class="kw-2">*</span>};
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copies_course_as_different_course_language_group</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>);
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">false</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_course</span>.<span class="ident">name</span>, <span class="string">&quot;Copied course&quot;</span>.<span class="ident">to_string</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_course</span>.<span class="ident">copied_from</span>, <span class="prelude-val">Some</span>(<span class="ident">course</span>.<span class="ident">id</span>));
-            <span class="macro">assert_ne!</span>(<span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>);
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>copies_course_as_different_course_language_group() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course);
+            <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org);
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">false</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert_eq!</span>(copied_course.name, <span class="string">&quot;Copied course&quot;</span>.to_string());
+            <span class="macro">assert_eq!</span>(copied_course.copied_from, <span class="prelude-val">Some</span>(course.id));
+            <span class="macro">assert_ne!</span>(course.id, copied_course.id);
             <span class="macro">assert_ne!</span>(
-                <span class="ident">course</span>.<span class="ident">course_language_group_id</span>,
-                <span class="ident">copied_course</span>.<span class="ident">course_language_group_id</span>
+                course.course_language_group_id,
+                copied_course.course_language_group_id
             );
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copies_course_as_same_course_language_group</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>);
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">true</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_course</span>.<span class="ident">name</span>, <span class="string">&quot;Copied course&quot;</span>.<span class="ident">to_string</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_course</span>.<span class="ident">copied_from</span>, <span class="prelude-val">Some</span>(<span class="ident">course</span>.<span class="ident">id</span>));
-            <span class="macro">assert_ne!</span>(<span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">copied_course</span>.<span class="ident">id</span>);
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>copies_course_as_same_course_language_group() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course);
+            <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org);
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert_eq!</span>(copied_course.name, <span class="string">&quot;Copied course&quot;</span>.to_string());
+            <span class="macro">assert_eq!</span>(copied_course.copied_from, <span class="prelude-val">Some</span>(course.id));
+            <span class="macro">assert_ne!</span>(course.id, copied_course.id);
             <span class="macro">assert_eq!</span>(
-                <span class="ident">course</span>.<span class="ident">course_language_group_id</span>,
-                <span class="ident">copied_course</span>.<span class="ident">course_language_group_id</span>
+                course.course_language_group_id,
+                copied_course.course_language_group_id
             );
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copies_course_instances</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>);
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">true</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_instances</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::course_instances::get_course_instances_for_course</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">copied_course</span>.<span class="ident">id</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>copies_course_instances() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course, instance: _instance);
+            <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org);
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>copied_instances = <span class="kw">crate</span>::course_instances::get_course_instances_for_course(
+                tx.as_mut(),
+                copied_course.id,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_instances</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-            <span class="comment">// Instances are missing the copied_from record.</span>
-        }
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="macro">assert_eq!</span>(copied_instances.len(), <span class="number">1</span>);
+            <span class="comment">// Instances are missing the copied_from record.
+        </span>}
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copies_course_modules</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>);
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">true</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>copies_course_modules() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course);
+            <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org);
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+                .<span class="kw">await
+                </span>.unwrap();
 
-            <span class="kw">let</span> <span class="ident">original_modules</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::course_modules::get_by_course_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_modules</span> <span class="op">=</span>
-                <span class="ident"><span class="kw">crate</span>::course_modules::get_by_course_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">copied_course</span>.<span class="ident">id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">unwrap</span>();
+            <span class="kw">let </span>original_modules = <span class="kw">crate</span>::course_modules::get_by_course_id(tx.as_mut(), course.id)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>copied_modules =
+                <span class="kw">crate</span>::course_modules::get_by_course_id(tx.as_mut(), copied_course.id)
+                    .<span class="kw">await
+                    </span>.unwrap();
             <span class="macro">assert_eq!</span>(
-                <span class="ident">original_modules</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
-                <span class="ident">copied_modules</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>().<span class="ident">copied_from</span>.<span class="ident">unwrap</span>(),
+                original_modules.first().unwrap().id,
+                copied_modules.first().unwrap().copied_from.unwrap(),
             )
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copies_course_chapters</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, <span class="ident">course_module</span>: <span class="ident">_course_module</span>, :<span class="ident">chapter</span>);
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">true</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_chapters</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::chapters::course_chapters</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">copied_course</span>.<span class="ident">id</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_chapters</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_chapters</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">copied_from</span>, <span class="prelude-val">Some</span>(<span class="ident">chapter</span>));
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>copies_course_chapters() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter);
+            <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org);
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>copied_chapters = <span class="kw">crate</span>::chapters::course_chapters(tx.as_mut(), copied_course.id)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert_eq!</span>(copied_chapters.len(), <span class="number">1</span>);
+            <span class="macro">assert_eq!</span>(copied_chapters.get(<span class="number">0</span>).unwrap().copied_from, <span class="prelude-val">Some</span>(chapter));
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">updates_chapter_front_pages</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, <span class="ident">course_module</span>: <span class="ident">_course_module</span>, <span class="ident">chapter</span>: <span class="ident">_chapter</span>);
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">true</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_chapters</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::chapters::course_chapters</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">copied_course</span>.<span class="ident">id</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_chapter</span> <span class="op">=</span> <span class="ident">copied_chapters</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_chapter_front_page</span> <span class="op">=</span>
-                <span class="ident"><span class="kw">crate</span>::pages::get_page</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">copied_chapter</span>.<span class="ident">front_page_id</span>.<span class="ident">unwrap</span>())
-                    .<span class="kw">await</span>
-                    .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_chapter_front_page</span>.<span class="ident">course_id</span>, <span class="prelude-val">Some</span>(<span class="ident">copied_course</span>.<span class="ident">id</span>));
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>updates_chapter_front_pages() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, chapter: _chapter);
+            <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org);
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>copied_chapters = <span class="kw">crate</span>::chapters::course_chapters(tx.as_mut(), copied_course.id)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>copied_chapter = copied_chapters.get(<span class="number">0</span>).unwrap();
+            <span class="kw">let </span>copied_chapter_front_page =
+                <span class="kw">crate</span>::pages::get_page(tx.as_mut(), copied_chapter.front_page_id.unwrap())
+                    .<span class="kw">await
+                    </span>.unwrap();
+            <span class="macro">assert_eq!</span>(copied_chapter_front_page.course_id, <span class="prelude-val">Some</span>(copied_course.id));
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copies_course_pages</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, <span class="ident">course_module</span>: <span class="ident">_course_module</span>, :<span class="ident">chapter</span>, <span class="ident">page</span>: <span class="ident">_page</span>);
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">true</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">original_pages_by_id</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident"><span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility</span>(
-                    <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                    <span class="ident">course</span>.<span class="ident">id</span>,
-                    <span class="ident"><span class="kw">crate</span>::pages::PageVisibility::Any</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>copies_course_pages() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, page: _page);
+            <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org);
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span><span class="kw-2">mut </span>original_pages_by_id: HashMap&lt;Uuid, Page&gt; =
+                <span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility(
+                    tx.as_mut(),
+                    course.id,
+                    <span class="kw">crate</span>::pages::PageVisibility::Any,
                 )
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">page</span><span class="op">|</span> (<span class="ident">page</span>.<span class="ident">id</span>, <span class="ident">page</span>))
-                .<span class="ident">collect</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">original_pages_by_id</span>.<span class="ident">len</span>(), <span class="number">3</span>);
-            <span class="kw">let</span> <span class="ident">copied_pages</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">copied_course</span>.<span class="ident">id</span>,
-                <span class="ident"><span class="kw">crate</span>::pages::PageVisibility::Any</span>,
+                .<span class="kw">await
+                </span>.unwrap()
+                .into_iter()
+                .map(|page| (page.id, page))
+                .collect();
+            <span class="macro">assert_eq!</span>(original_pages_by_id.len(), <span class="number">3</span>);
+            <span class="kw">let </span>copied_pages = <span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility(
+                tx.as_mut(),
+                copied_course.id,
+                <span class="kw">crate</span>::pages::PageVisibility::Any,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="comment">// Creating a course and a chapter both lead to an additional page being created.</span>
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_pages</span>.<span class="ident">len</span>(), <span class="number">3</span>);
-            <span class="ident">copied_pages</span>.<span class="ident">into_iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">copied_page</span><span class="op">|</span> {
-                <span class="macro">assert!</span>(<span class="ident">original_pages_by_id</span>
-                    .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">copied_page</span>.<span class="ident">copied_from</span>.<span class="ident">unwrap</span>())
-                    .<span class="ident">is_some</span>());
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="comment">// Creating a course and a chapter both lead to an additional page being created.
+            </span><span class="macro">assert_eq!</span>(copied_pages.len(), <span class="number">3</span>);
+            copied_pages.into_iter().for_each(|copied_page| {
+                <span class="macro">assert!</span>(original_pages_by_id
+                    .remove(<span class="kw-2">&amp;</span>copied_page.copied_from.unwrap())
+                    .is_some());
             });
-            <span class="macro">assert!</span>(<span class="ident">original_pages_by_id</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(original_pages_by_id.is_empty());
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">updates_exercise_id_in_content</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, <span class="ident">course_module</span>: <span class="ident">_course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>);
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="ident"><span class="kw">crate</span>::pages::update_page_content</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">page</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>updates_exercise_id_in_content() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, :page, :exercise);
+            <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">crate</span>::pages::update_page_content(
+                tx.as_mut(),
+                page,
                 <span class="kw-2">&amp;</span><span class="macro">serde_json::json!</span>([{
                     <span class="string">&quot;name&quot;</span>: <span class="string">&quot;moocfi/exercise&quot;</span>,
                     <span class="string">&quot;isValid&quot;</span>: <span class="bool-val">true</span>,
                     <span class="string">&quot;clientId&quot;</span>: <span class="string">&quot;b2ecb473-38cc-4df1-84f7-06709cc63e95&quot;</span>,
                     <span class="string">&quot;attributes&quot;</span>: {
-                        <span class="string">&quot;id&quot;</span>: <span class="ident">exercise</span>,
-                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Exercise&quot;</span>
-                    },
+                        <span class="string">&quot;id&quot;</span>: exercise,
+                        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Exercise&quot;
+                    </span>},
                     <span class="string">&quot;innerBlocks&quot;</span>: []
                 }]),
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">true</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_pages</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">copied_course</span>.<span class="ident">id</span>,
-                <span class="ident"><span class="kw">crate</span>::pages::PageVisibility::Any</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org);
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>copied_pages = <span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility(
+                tx.as_mut(),
+                copied_course.id,
+                <span class="kw">crate</span>::pages::PageVisibility::Any,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_page</span> <span class="op">=</span> <span class="ident">copied_pages</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">find</span>(<span class="op">|</span><span class="ident">copied_page</span><span class="op">|</span> <span class="ident">copied_page</span>.<span class="ident">copied_from</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">page</span>))
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_exercise_id_in_content</span> <span class="op">=</span>
-                <span class="ident">Uuid::parse_str</span>(<span class="ident">copied_page</span>.<span class="ident">content</span>[<span class="number">0</span>][<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>].<span class="ident">as_str</span>().<span class="ident">unwrap</span>())
-                    .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_exercise</span> <span class="op">=</span>
-                <span class="ident"><span class="kw">crate</span>::exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">copied_exercise_id_in_content</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_exercise</span>.<span class="ident">course_id</span>.<span class="ident">unwrap</span>(), <span class="ident">copied_course</span>.<span class="ident">id</span>);
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>copied_page = copied_pages
+                .into_iter()
+                .find(|copied_page| copied_page.copied_from == <span class="prelude-val">Some</span>(page))
+                .unwrap();
+            <span class="kw">let </span>copied_exercise_id_in_content =
+                Uuid::parse_str(copied_page.content[<span class="number">0</span>][<span class="string">&quot;attributes&quot;</span>][<span class="string">&quot;id&quot;</span>].as_str().unwrap())
+                    .unwrap();
+            <span class="kw">let </span>copied_exercise =
+                <span class="kw">crate</span>::exercises::get_by_id(tx.as_mut(), copied_exercise_id_in_content)
+                    .<span class="kw">await
+                    </span>.unwrap();
+            <span class="macro">assert_eq!</span>(copied_exercise.course_id.unwrap(), copied_course.id);
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copies_exercises_tasks_and_slides</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, <span class="ident">course_module</span>: <span class="ident">_course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>, :<span class="ident">task</span>);
-            <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::courses::get_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">true</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_exercises</span> <span class="op">=</span>
-                <span class="ident"><span class="kw">crate</span>::exercises::get_exercises_by_course_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">copied_course</span>.<span class="ident">id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_exercises</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-            <span class="kw">let</span> <span class="ident">copied_exercise</span> <span class="op">=</span> <span class="ident">copied_exercises</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_exercise</span>.<span class="ident">copied_from</span>, <span class="prelude-val">Some</span>(<span class="ident">exercise</span>));
-            <span class="kw">let</span> <span class="ident">copied_slides</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exercise_slides::get_exercise_slides_by_exercise_id</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">copied_exercise</span>.<span class="ident">id</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>copies_exercises_tasks_and_slides() {
+            <span class="macro">insert_data!</span>(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, :page, :exercise, :slide, :task);
+            <span class="kw">let </span>course = <span class="kw">crate</span>::courses::get_course(tx.as_mut(), course)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org);
+            <span class="kw">let </span>copied_course = copy_course(tx.as_mut(), course.id, <span class="kw-2">&amp;</span>new_course, <span class="bool-val">true</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>copied_exercises =
+                <span class="kw">crate</span>::exercises::get_exercises_by_course_id(tx.as_mut(), copied_course.id)
+                    .<span class="kw">await
+                    </span>.unwrap();
+            <span class="macro">assert_eq!</span>(copied_exercises.len(), <span class="number">1</span>);
+            <span class="kw">let </span>copied_exercise = copied_exercises.first().unwrap();
+            <span class="macro">assert_eq!</span>(copied_exercise.copied_from, <span class="prelude-val">Some</span>(exercise));
+            <span class="kw">let </span>copied_slides = <span class="kw">crate</span>::exercise_slides::get_exercise_slides_by_exercise_id(
+                tx.as_mut(),
+                copied_exercise.id,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_slides</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-            <span class="kw">let</span> <span class="ident">copied_slide</span> <span class="op">=</span> <span class="ident">copied_slides</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
-            <span class="comment">// Exercise slides don&#39;t have copied_from field</span>
-            <span class="kw">let</span> <span class="ident">copied_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseTask</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident"><span class="kw">crate</span>::exercise_tasks::get_exercise_tasks_by_exercise_slide_id</span>(
-                    <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                    <span class="kw-2">&amp;</span><span class="ident">copied_slide</span>.<span class="ident">id</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="macro">assert_eq!</span>(copied_slides.len(), <span class="number">1</span>);
+            <span class="kw">let </span>copied_slide = copied_slides.first().unwrap();
+            <span class="comment">// Exercise slides don&#39;t have copied_from field
+            </span><span class="kw">let </span>copied_tasks: Vec&lt;ExerciseTask&gt; =
+                <span class="kw">crate</span>::exercise_tasks::get_exercise_tasks_by_exercise_slide_id(
+                    tx.as_mut(),
+                    <span class="kw-2">&amp;</span>copied_slide.id,
                 )
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_tasks</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-            <span class="kw">let</span> <span class="ident">copied_task</span> <span class="op">=</span> <span class="ident">copied_tasks</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">copied_task</span>.<span class="ident">copied_from</span>, <span class="prelude-val">Some</span>(<span class="ident">task</span>))
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert_eq!</span>(copied_tasks.len(), <span class="number">1</span>);
+            <span class="kw">let </span>copied_task = copied_tasks.first().unwrap();
+            <span class="macro">assert_eq!</span>(copied_task.copied_from, <span class="prelude-val">Some</span>(task))
         }
 
-        <span class="kw">fn</span> <span class="ident">create_new_course</span>(<span class="ident">organization_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">NewCourse</span> {
-            <span class="ident">NewCourse</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Copied course&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">slug</span>: <span class="string">&quot;copied-course&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">organization_id</span>,
-                <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;Teacher&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">description</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
-                <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
+        <span class="kw">fn </span>create_new_course(organization_id: Uuid) -&gt; NewCourse {
+            NewCourse {
+                name: <span class="string">&quot;Copied course&quot;</span>.to_string(),
+                slug: <span class="string">&quot;copied-course&quot;</span>.to_string(),
+                organization_id,
+                language_code: <span class="string">&quot;en-US&quot;</span>.to_string(),
+                teacher_in_charge_name: <span class="string">&quot;Teacher&quot;</span>.to_string(),
+                teacher_in_charge_email: <span class="string">&quot;teacher@example.com&quot;</span>.to_string(),
+                description: <span class="string">&quot;&quot;</span>.to_string(),
+                is_draft: <span class="bool-val">false</span>,
+                is_test_mode: <span class="bool-val">false</span>,
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -191,196 +191,196 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Error and result type for SMTP clients</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Error and result type for SMTP clients
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>, <span class="ident">fmt</span>};
+</span><span class="kw">use </span>std::{error::Error <span class="kw">as </span>StdError, fmt};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">transport::smtp::response</span>::{<span class="ident">Code</span>, <span class="ident">Severity</span>},
-    <span class="ident">BoxError</span>,
+<span class="kw">use crate</span>::{
+    transport::smtp::response::{Code, Severity},
+    BoxError,
 };
 
-<span class="comment">// Inspired by https://github.com/seanmonstar/reqwest/blob/a8566383168c0ef06c21f38cbc9213af6ff6db31/src/error.rs</span>
+<span class="comment">// Inspired by https://github.com/seanmonstar/reqwest/blob/a8566383168c0ef06c21f38cbc9213af6ff6db31/src/error.rs
 
-<span class="doccomment">/// The Errors that may occur when sending an email over SMTP</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Error</span> {
-    <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span>,
+</span><span class="doccomment">/// The Errors that may occur when sending an email over SMTP
+</span><span class="kw">pub struct </span>Error {
+    inner: Box&lt;Inner&gt;,
 }
 
-<span class="kw">struct</span> <span class="ident">Inner</span> {
-    <span class="ident">kind</span>: <span class="ident">Kind</span>,
-    <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoxError</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>Inner {
+    kind: Kind,
+    source: <span class="prelude-ty">Option</span>&lt;BoxError&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Error</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">kind</span>: <span class="ident">Kind</span>, <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>) -&gt; <span class="ident">Error</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">BoxError</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>Error {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new&lt;E&gt;(kind: Kind, source: <span class="prelude-ty">Option</span>&lt;E&gt;) -&gt; Error
+    <span class="kw">where
+        </span>E: Into&lt;BoxError&gt;,
     {
-        <span class="ident">Error</span> {
-            <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">Inner</span> {
-                <span class="ident">kind</span>,
-                <span class="ident">source</span>: <span class="ident">source</span>.<span class="ident">map</span>(<span class="ident">Into::into</span>),
+        Error {
+            inner: Box::new(Inner {
+                kind,
+                source: source.map(Into::into),
             }),
         }
     }
 
-    <span class="doccomment">/// Returns true if the error is from response</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_response</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">kind</span>, <span class="ident">Kind::Response</span>)
+    <span class="doccomment">/// Returns true if the error is from response
+    </span><span class="kw">pub fn </span>is_response(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.inner.kind, Kind::Response)
     }
 
-    <span class="doccomment">/// Returns true if the error is from client</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_client</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">kind</span>, <span class="ident">Kind::Client</span>)
+    <span class="doccomment">/// Returns true if the error is from client
+    </span><span class="kw">pub fn </span>is_client(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.inner.kind, Kind::Client)
     }
 
-    <span class="doccomment">/// Returns true if the error is a transient SMTP error</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_transient</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">kind</span>, <span class="ident">Kind::Transient</span>(<span class="kw">_</span>))
+    <span class="doccomment">/// Returns true if the error is a transient SMTP error
+    </span><span class="kw">pub fn </span>is_transient(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.inner.kind, Kind::Transient(<span class="kw">_</span>))
     }
 
-    <span class="doccomment">/// Returns true if the error is a permanent SMTP error</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_permanent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">kind</span>, <span class="ident">Kind::Permanent</span>(<span class="kw">_</span>))
+    <span class="doccomment">/// Returns true if the error is a permanent SMTP error
+    </span><span class="kw">pub fn </span>is_permanent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.inner.kind, Kind::Permanent(<span class="kw">_</span>))
     }
 
-    <span class="doccomment">/// Returns true if the error is caused by a timeout</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">source</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">source</span>();
+    <span class="doccomment">/// Returns true if the error is caused by a timeout
+    </span><span class="kw">pub fn </span>is_timeout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">let </span><span class="kw-2">mut </span>source = <span class="self">self</span>.source();
 
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">source</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">io_err</span>) <span class="op">=</span> <span class="ident">err</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span>() {
-                <span class="kw">return</span> <span class="ident">io_err</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">std::io::ErrorKind::TimedOut</span>;
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(err) = source {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(io_err) = err.downcast_ref::&lt;std::io::Error&gt;() {
+                <span class="kw">return </span>io_err.kind() == std::io::ErrorKind::TimedOut;
             }
 
-            <span class="ident">source</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">source</span>();
+            source = err.source();
         }
 
-        <span class="bool-val">false</span>
+        <span class="bool-val">false
+    </span>}
+
+    <span class="doccomment">/// Returns true if the error is from TLS
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    </span><span class="kw">pub fn </span>is_tls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.inner.kind, Kind::Tls)
     }
 
-    <span class="doccomment">/// Returns true if the error is from TLS</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_tls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">kind</span>, <span class="ident">Kind::Tls</span>)
-    }
-
-    <span class="doccomment">/// Returns the status code, if the error was generated from a response.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Code</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind::Transient</span>(<span class="ident">code</span>) <span class="op">|</span> <span class="ident">Kind::Permanent</span>(<span class="ident">code</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">code</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Returns the status code, if the error was generated from a response.
+    </span><span class="kw">pub fn </span>status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Code&gt; {
+        <span class="kw">match </span><span class="self">self</span>.inner.kind {
+            Kind::Transient(code) | Kind::Permanent(code) =&gt; <span class="prelude-val">Some</span>(code),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">Kind</span> {
-    <span class="doccomment">/// Transient SMTP error, 4xx reply code</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [RFC 5321, section 4.2.1](https://tools.ietf.org/html/rfc5321#section-4.2.1)</span>
-    <span class="ident">Transient</span>(<span class="ident">Code</span>),
-    <span class="doccomment">/// Permanent SMTP error, 5xx reply code</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [RFC 5321, section 4.2.1](https://tools.ietf.org/html/rfc5321#section-4.2.1)</span>
-    <span class="ident">Permanent</span>(<span class="ident">Code</span>),
-    <span class="doccomment">/// Error parsing a response</span>
-    <span class="ident">Response</span>,
-    <span class="doccomment">/// Internal client error</span>
-    <span class="ident">Client</span>,
-    <span class="doccomment">/// Connection error</span>
-    <span class="ident">Connection</span>,
-    <span class="doccomment">/// Underlying network i/o error</span>
-    <span class="ident">Network</span>,
-    <span class="doccomment">/// TLS error</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(
-        <span class="ident">docsrs</span>,
-        <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)))
-    )]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="ident">Tls</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>Kind {
+    <span class="doccomment">/// Transient SMTP error, 4xx reply code
+    ///
+    /// [RFC 5321, section 4.2.1](https://tools.ietf.org/html/rfc5321#section-4.2.1)
+    </span>Transient(Code),
+    <span class="doccomment">/// Permanent SMTP error, 5xx reply code
+    ///
+    /// [RFC 5321, section 4.2.1](https://tools.ietf.org/html/rfc5321#section-4.2.1)
+    </span>Permanent(Code),
+    <span class="doccomment">/// Error parsing a response
+    </span>Response,
+    <span class="doccomment">/// Internal client error
+    </span>Client,
+    <span class="doccomment">/// Connection error
+    </span>Connection,
+    <span class="doccomment">/// Underlying network i/o error
+    </span>Network,
+    <span class="doccomment">/// TLS error
+    </span><span class="attribute">#[cfg_attr(
+        docsrs,
+        doc(cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>)))
+    )]
+    #[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span>Tls,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;lettre::transport::smtp::Error&quot;</span>);
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Error {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>builder = f.debug_struct(<span class="string">&quot;lettre::transport::smtp::Error&quot;</span>);
 
-        <span class="ident">builder</span>.<span class="ident">field</span>(<span class="string">&quot;kind&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">kind</span>);
+        builder.field(<span class="string">&quot;kind&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.inner.kind);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">source</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">source</span> {
-            <span class="ident">builder</span>.<span class="ident">field</span>(<span class="string">&quot;source&quot;</span>, <span class="ident">source</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>source) = <span class="self">self</span>.inner.source {
+            builder.field(<span class="string">&quot;source&quot;</span>, source);
         }
 
-        <span class="ident">builder</span>.<span class="ident">finish</span>()
+        builder.finish()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind::Response</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;response error&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Kind::Client</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;internal client error&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Kind::Network</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;network error&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Kind::Connection</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;Connection error&quot;</span>)<span class="question-mark">?</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-            <span class="ident">Kind::Tls</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;tls error&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Kind::Transient</span>(<span class="kw-2">ref</span> <span class="ident">code</span>) =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;transient error ({})&quot;</span>, <span class="ident">code</span>)<span class="question-mark">?</span>;
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self</span>.inner.kind {
+            Kind::Response =&gt; f.write_str(<span class="string">&quot;response error&quot;</span>)<span class="question-mark">?</span>,
+            Kind::Client =&gt; f.write_str(<span class="string">&quot;internal client error&quot;</span>)<span class="question-mark">?</span>,
+            Kind::Network =&gt; f.write_str(<span class="string">&quot;network error&quot;</span>)<span class="question-mark">?</span>,
+            Kind::Connection =&gt; f.write_str(<span class="string">&quot;Connection error&quot;</span>)<span class="question-mark">?</span>,
+            <span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            </span>Kind::Tls =&gt; f.write_str(<span class="string">&quot;tls error&quot;</span>)<span class="question-mark">?</span>,
+            Kind::Transient(<span class="kw-2">ref </span>code) =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;transient error ({})&quot;</span>, code)<span class="question-mark">?</span>;
             }
-            <span class="ident">Kind::Permanent</span>(<span class="kw-2">ref</span> <span class="ident">code</span>) =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;permanent error ({})&quot;</span>, <span class="ident">code</span>)<span class="question-mark">?</span>;
+            Kind::Permanent(<span class="kw-2">ref </span>code) =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;permanent error ({})&quot;</span>, code)<span class="question-mark">?</span>;
             }
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">source</span> {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;: {}&quot;</span>, <span class="ident">e</span>)<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>e) = <span class="self">self</span>.inner.source {
+            <span class="macro">write!</span>(f, <span class="string">&quot;: {}&quot;</span>, e)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">r</span>: <span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">e</span>;
-            <span class="ident">r</span>
+<span class="kw">impl </span>StdError <span class="kw">for </span>Error {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>StdError + <span class="lifetime">&#39;static</span>)&gt; {
+        <span class="self">self</span>.inner.source.as_ref().map(|e| {
+            <span class="kw">let </span>r: <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">&#39;static</span>) = <span class="kw-2">&amp;**</span>e;
+            r
         })
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">code</span>(<span class="ident">c</span>: <span class="ident">Code</span>, <span class="ident">s</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">Error</span> {
-    <span class="kw">match</span> <span class="ident">c</span>.<span class="ident">severity</span> {
-        <span class="ident">Severity::TransientNegativeCompletion</span> =&gt; <span class="ident">Error::new</span>(<span class="ident">Kind::Transient</span>(<span class="ident">c</span>), <span class="ident">s</span>),
-        <span class="ident">Severity::PermanentNegativeCompletion</span> =&gt; <span class="ident">Error::new</span>(<span class="ident">Kind::Permanent</span>(<span class="ident">c</span>), <span class="ident">s</span>),
-        <span class="kw">_</span> =&gt; <span class="ident">client</span>(<span class="string">&quot;Unknown error code&quot;</span>),
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>code(c: Code, s: <span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; Error {
+    <span class="kw">match </span>c.severity {
+        Severity::TransientNegativeCompletion =&gt; Error::new(Kind::Transient(c), s),
+        Severity::PermanentNegativeCompletion =&gt; Error::new(Kind::Permanent(c), s),
+        <span class="kw">_ </span>=&gt; client(<span class="string">&quot;Unknown error code&quot;</span>),
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">response</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">BoxError</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">e</span>: <span class="ident">E</span>) -&gt; <span class="ident">Error</span> {
-    <span class="ident">Error::new</span>(<span class="ident">Kind::Response</span>, <span class="prelude-val">Some</span>(<span class="ident">e</span>))
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>response&lt;E: Into&lt;BoxError&gt;&gt;(e: E) -&gt; Error {
+    Error::new(Kind::Response, <span class="prelude-val">Some</span>(e))
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">client</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">BoxError</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">e</span>: <span class="ident">E</span>) -&gt; <span class="ident">Error</span> {
-    <span class="ident">Error::new</span>(<span class="ident">Kind::Client</span>, <span class="prelude-val">Some</span>(<span class="ident">e</span>))
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>client&lt;E: Into&lt;BoxError&gt;&gt;(e: E) -&gt; Error {
+    Error::new(Kind::Client, <span class="prelude-val">Some</span>(e))
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">network</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">BoxError</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">e</span>: <span class="ident">E</span>) -&gt; <span class="ident">Error</span> {
-    <span class="ident">Error::new</span>(<span class="ident">Kind::Network</span>, <span class="prelude-val">Some</span>(<span class="ident">e</span>))
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>network&lt;E: Into&lt;BoxError&gt;&gt;(e: E) -&gt; Error {
+    Error::new(Kind::Network, <span class="prelude-val">Some</span>(e))
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">connection</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">BoxError</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">e</span>: <span class="ident">E</span>) -&gt; <span class="ident">Error</span> {
-    <span class="ident">Error::new</span>(<span class="ident">Kind::Connection</span>, <span class="prelude-val">Some</span>(<span class="ident">e</span>))
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>connection&lt;E: Into&lt;BoxError&gt;&gt;(e: E) -&gt; Error {
+    Error::new(Kind::Connection, <span class="prelude-val">Some</span>(e))
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">tls</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">BoxError</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">e</span>: <span class="ident">E</span>) -&gt; <span class="ident">Error</span> {
-    <span class="ident">Error::new</span>(<span class="ident">Kind::Tls</span>, <span class="prelude-val">Some</span>(<span class="ident">e</span>))
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>tls&lt;E: Into&lt;BoxError&gt;&gt;(e: E) -&gt; Error {
+    Error::new(Kind::Tls, <span class="prelude-val">Some</span>(e))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

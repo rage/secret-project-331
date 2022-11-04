@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/isbot-0.1.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../isbot/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../isbot/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../isbot/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/isbot-0.1.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../isbot/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../isbot/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../isbot/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -337,235 +337,235 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
-</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/BryanMorgan/isbot)&amp;ensp;[![crates-io]](https://crates.io/crates/isbot)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [github]: &lt;https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github&gt;</span>
-<span class="doccomment">//! [crates-io]: &lt;https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust&gt;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Detect bots or crawlers identified by matching a user-agent to a collection of known bot patterns.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! User-agent patterns are maintained as a single regular expression for fast validation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The default list of user-agent patterns balances a large set of known bots</span>
-<span class="doccomment">//! while ensuring real browsers are not falsely identified as bots.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Examples</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use isbot::Bots;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let bots = Bots::default();</span>
-<span class="doccomment">//! assert!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;));</span>
-<span class="doccomment">//! assert!(!bots.is_bot(&quot;Opera/9.60 (Windows NT 6.0; U; en) Presto/2.1.1&quot;));</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! User-agent regular expressions can be added or removed for specific use cases.</span>
-<span class="doccomment">//! For example, you could remove the Chrome Lighthouse bot from the list of known bots:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! let mut bots = isbot::Bots::default();</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // By default Chrome Lighthouse is considered a bot</span>
-<span class="doccomment">//! assert!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;));</span>
-<span class="doccomment">//! // Remove the Chrome Lighthouse regular expression pattern to indicate it is not a bot</span>
-<span class="doccomment">//! bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);</span>
-<span class="doccomment">//! assert!(!bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;));</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Or append a new user-agent to detect a custom bot:</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! let mut bots = isbot::Bots::default();</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Append a new custom bot user-agent regular expression</span>
-<span class="doccomment">//! assert!(!bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));</span>
-<span class="doccomment">//! bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);</span>
-<span class="doccomment">//! assert!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));</span>
-<span class="doccomment">//! ```</span>
+</pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/BryanMorgan/isbot)&amp;ensp;[![crates-io]](https://crates.io/crates/isbot)
+//!
+//! [github]: &lt;https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github&gt;
+//! [crates-io]: &lt;https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust&gt;
+//!
+//! Detect bots or crawlers identified by matching a user-agent to a collection of known bot patterns.
+//!
+//! User-agent patterns are maintained as a single regular expression for fast validation.
+//!
+//! The default list of user-agent patterns balances a large set of known bots
+//! while ensuring real browsers are not falsely identified as bots.
+//!
+//! # Examples
+//!
+//! ```
+//! use isbot::Bots;
+//!
+//! let bots = Bots::default();
+//! assert!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;));
+//! assert!(!bots.is_bot(&quot;Opera/9.60 (Windows NT 6.0; U; en) Presto/2.1.1&quot;));
+//! ```
+//!
+//! User-agent regular expressions can be added or removed for specific use cases.
+//! For example, you could remove the Chrome Lighthouse bot from the list of known bots:
+//!
+//! ```
+//! let mut bots = isbot::Bots::default();
+//!
+//! // By default Chrome Lighthouse is considered a bot
+//! assert!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;));
+//! // Remove the Chrome Lighthouse regular expression pattern to indicate it is not a bot
+//! bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);
+//! assert!(!bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;));
+//! ```
+//!
+//! Or append a new user-agent to detect a custom bot:
+//! ```
+//! let mut bots = isbot::Bots::default();
+//!
+//! // Append a new custom bot user-agent regular expression
+//! assert!(!bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));
+//! bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);
+//! assert!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));
+//! ```
 
-<span class="kw">use</span> <span class="ident">regex::Regex</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashSet</span>, <span class="ident">fmt::Debug</span>};
+</span><span class="kw">use </span>regex::Regex;
+<span class="kw">use </span>std::{collections::HashSet, fmt::Debug};
 
-<span class="doccomment">/// Wrapper struct to maintain bot regular expression patterns</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use isbot::Bots;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let bots = Bots::default();</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Bots</span> {
-    <span class="ident">user_agent_patterns</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">user_agents_regex</span>: <span class="ident">Regex</span>,
+<span class="doccomment">/// Wrapper struct to maintain bot regular expression patterns
+///
+/// # Example
+///
+/// ```
+/// use isbot::Bots;
+///
+/// let bots = Bots::default();
+/// ```
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Bots {
+    user_agent_patterns: HashSet&lt;String&gt;,
+    user_agents_regex: Regex,
 }
 
-<span class="doccomment">/// Load default bot user-agent regular expressions from a local file, unless the feature is disabled</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;include-default-bots&quot;</span>)]</span>
-<span class="kw">const</span> <span class="ident">BOT_PATTERNS</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;bot_regex_patterns.txt&quot;</span>);
+<span class="doccomment">/// Load default bot user-agent regular expressions from a local file, unless the feature is disabled
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;include-default-bots&quot;</span>)]
+</span><span class="kw">const </span>BOT_PATTERNS: <span class="kw-2">&amp;</span>str = <span class="macro">include_str!</span>(<span class="string">&quot;bot_regex_patterns.txt&quot;</span>);
 
-<span class="doccomment">/// Do not load any default user-agent strings into the compiled library if feature is not enabled</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;include-default-bots&quot;</span>))]</span>
-<span class="kw">const</span> <span class="ident">BOT_PATTERNS</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>;
+<span class="doccomment">/// Do not load any default user-agent strings into the compiled library if feature is not enabled
+</span><span class="attribute">#[cfg(not(feature = <span class="string">&quot;include-default-bots&quot;</span>))]
+</span><span class="kw">const </span>BOT_PATTERNS: <span class="kw-2">&amp;</span>str = <span class="string">&quot;&quot;</span>;
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Bots</span> {
-    <span class="doccomment">/// Constructs a new instance with default user-agent patterns.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use isbot::Bots;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let bots = Bots::default();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(bots.is_bot(&quot;Googlebot&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Bots::new</span>(<span class="ident">BOT_PATTERNS</span>)
+<span class="kw">impl </span>Default <span class="kw">for </span>Bots {
+    <span class="doccomment">/// Constructs a new instance with default user-agent patterns.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use isbot::Bots;
+    ///
+    /// let bots = Bots::default();
+    ///
+    /// assert!(bots.is_bot(&quot;Googlebot&quot;));
+    /// ```
+    </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        Bots::new(BOT_PATTERNS)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Bots</span> {
-    <span class="doccomment">/// Constructs a new instance with bot user-agent regular expression entries delimited by a newline</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// All user-agent regular expressions are converted to lowercase.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use isbot::Bots;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let custom_user_agent_patterns = r#&quot;</span>
-    <span class="doccomment">/// ^Googlebot-Image/</span>
-    <span class="doccomment">/// bingpreview/&quot;#;</span>
-    <span class="doccomment">/// let bots = Bots::new(custom_user_agent_patterns);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;));</span>
-    <span class="doccomment">/// assert!(bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;));</span>
-    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Googlebot&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">bot_entries</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">user_agent_patterns</span> <span class="op">=</span> <span class="ident">Bots::parse_lines</span>(<span class="kw-2">&amp;</span><span class="ident">bot_entries</span>.<span class="ident">to_ascii_lowercase</span>());
-        <span class="kw">let</span> <span class="ident">combined_user_agent_regex</span> <span class="op">=</span> <span class="ident">Bots::to_regex</span>(<span class="kw-2">&amp;</span><span class="ident">user_agent_patterns</span>);
-        <span class="ident">Bots</span> {
-            <span class="ident">user_agent_patterns</span>,
-            <span class="ident">user_agents_regex</span>: <span class="ident">combined_user_agent_regex</span>,
+<span class="kw">impl </span>Bots {
+    <span class="doccomment">/// Constructs a new instance with bot user-agent regular expression entries delimited by a newline
+    ///
+    /// All user-agent regular expressions are converted to lowercase.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use isbot::Bots;
+    ///
+    /// let custom_user_agent_patterns = r#&quot;
+    /// ^Googlebot-Image/
+    /// bingpreview/&quot;#;
+    /// let bots = Bots::new(custom_user_agent_patterns);
+    ///
+    /// assert!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;));
+    /// assert!(bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;));
+    /// assert!(!bots.is_bot(&quot;Googlebot&quot;));
+    /// ```
+    </span><span class="kw">pub fn </span>new(bot_entries: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>user_agent_patterns = Bots::parse_lines(<span class="kw-2">&amp;</span>bot_entries.to_ascii_lowercase());
+        <span class="kw">let </span>combined_user_agent_regex = Bots::to_regex(<span class="kw-2">&amp;</span>user_agent_patterns);
+        Bots {
+            user_agent_patterns,
+            user_agents_regex: combined_user_agent_regex,
         }
     }
 
-    <span class="doccomment">/// Returns `true` the user-agent is a known bot.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The user-agent comparison is done using lowercase.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use isbot::Bots;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let bots = Bots::default();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(bots.is_bot(&quot;Googlebot/2.1 (+http://www.google.com/bot.html)&quot;));</span>
-    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Dalvik/2.1.0 (Linux; U; Android 8.0.0; SM-G930F Build/R16NW)&quot;));</span>
-    <span class="doccomment">/// ```    </span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_bot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">user_agent</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">user_agents_regex</span>
-            .<span class="ident">is_match</span>(<span class="kw-2">&amp;</span><span class="ident">user_agent</span>.<span class="ident">to_ascii_lowercase</span>())
+    <span class="doccomment">/// Returns `true` the user-agent is a known bot.
+    ///
+    /// The user-agent comparison is done using lowercase.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use isbot::Bots;
+    ///
+    /// let bots = Bots::default();
+    ///
+    /// assert!(bots.is_bot(&quot;Googlebot/2.1 (+http://www.google.com/bot.html)&quot;));
+    /// assert!(!bots.is_bot(&quot;Dalvik/2.1.0 (Linux; U; Android 8.0.0; SM-G930F Build/R16NW)&quot;));
+    /// ```    
+    </span><span class="kw">pub fn </span>is_bot(<span class="kw-2">&amp;</span><span class="self">self</span>, user_agent: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="self">self</span>.user_agents_regex
+            .is_match(<span class="kw-2">&amp;</span>user_agent.to_ascii_lowercase())
     }
 
-    <span class="doccomment">/// Appends bot user-agent regular expressions patterns.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Duplicates are ignored.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use isbot::Bots;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut bots = Bots::default();</span>
-    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));</span>
-    <span class="doccomment">/// bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);</span>
-    <span class="doccomment">/// assert!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let new_bot_patterns = vec![&quot;GoogleMetaverse&quot;, &quot;^Special/&quot;];</span>
-    <span class="doccomment">/// bots.append(&amp;new_bot_patterns);</span>
-    <span class="doccomment">/// assert!(bots.is_bot(&quot;Mozilla/5.0 (GoogleMetaverse/1.0)&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bots</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) {
-        <span class="kw">for</span> <span class="ident">bot</span> <span class="kw">in</span> <span class="ident">bots</span> {
-            <span class="self">self</span>.<span class="ident">user_agent_patterns</span>.<span class="ident">insert</span>(<span class="ident">bot</span>.<span class="ident">to_ascii_lowercase</span>());
+    <span class="doccomment">/// Appends bot user-agent regular expressions patterns.
+    ///
+    /// Duplicates are ignored.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use isbot::Bots;
+    ///
+    /// let mut bots = Bots::default();
+    /// assert!(!bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));
+    /// bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);
+    /// assert!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));
+    ///
+    /// let new_bot_patterns = vec![&quot;GoogleMetaverse&quot;, &quot;^Special/&quot;];
+    /// bots.append(&amp;new_bot_patterns);
+    /// assert!(bots.is_bot(&quot;Mozilla/5.0 (GoogleMetaverse/1.0)&quot;));
+    /// ```
+    </span><span class="kw">pub fn </span>append(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bots: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) {
+        <span class="kw">for </span>bot <span class="kw">in </span>bots {
+            <span class="self">self</span>.user_agent_patterns.insert(bot.to_ascii_lowercase());
         }
-        <span class="self">self</span>.<span class="ident">update_regex</span>()
+        <span class="self">self</span>.update_regex()
     }
 
-    <span class="doccomment">/// Removes bot user-agent regular expressions.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use isbot::Bots;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut bots = Bots::default();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(bots.is_bot(&quot;Chrome-Lighthouse&quot;));</span>
-    <span class="doccomment">/// bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);</span>
-    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Chrome-Lighthouse&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let bot_patterns_to_remove = vec![&quot;bingpreview/&quot;, &quot;Google Favicon&quot;];</span>
-    <span class="doccomment">/// bots.remove(&amp;bot_patterns_to_remove);</span>
-    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;));</span>
-    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36 Google Favicon&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bots</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) {
-        <span class="kw">for</span> <span class="ident">bot</span> <span class="kw">in</span> <span class="ident">bots</span> {
-            <span class="self">self</span>.<span class="ident">user_agent_patterns</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">bot</span>.<span class="ident">to_ascii_lowercase</span>());
+    <span class="doccomment">/// Removes bot user-agent regular expressions.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use isbot::Bots;
+    ///
+    /// let mut bots = Bots::default();
+    ///
+    ///
+    /// assert!(bots.is_bot(&quot;Chrome-Lighthouse&quot;));
+    /// bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);
+    /// assert!(!bots.is_bot(&quot;Chrome-Lighthouse&quot;));
+    ///
+    /// let bot_patterns_to_remove = vec![&quot;bingpreview/&quot;, &quot;Google Favicon&quot;];
+    /// bots.remove(&amp;bot_patterns_to_remove);
+    /// assert!(!bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;));
+    /// assert!(!bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36 Google Favicon&quot;));
+    /// ```
+    </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bots: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) {
+        <span class="kw">for </span>bot <span class="kw">in </span>bots {
+            <span class="self">self</span>.user_agent_patterns.remove(<span class="kw-2">&amp;</span>bot.to_ascii_lowercase());
         }
-        <span class="self">self</span>.<span class="ident">update_regex</span>()
+        <span class="self">self</span>.update_regex()
     }
 
-    <span class="kw">fn</span> <span class="ident">update_regex</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">user_agents_regex</span> <span class="op">=</span> <span class="ident">Bots::to_regex</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">user_agent_patterns</span>)
+    <span class="kw">fn </span>update_regex(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.user_agents_regex = Bots::to_regex(<span class="kw-2">&amp;</span><span class="self">self</span>.user_agent_patterns)
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_lines</span>(<span class="ident">bot_regex_entries</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="ident">HashSet::from_iter</span>(
-            <span class="ident">bot_regex_entries</span>
-                .<span class="ident">lines</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="op">!</span><span class="ident">l</span>.<span class="ident">trim</span>().<span class="ident">is_empty</span>())
-                .<span class="ident">map</span>(<span class="ident">ToString::to_string</span>),
+    <span class="kw">fn </span>parse_lines(bot_regex_entries: <span class="kw-2">&amp;</span>str) -&gt; HashSet&lt;String&gt; {
+        HashSet::from_iter(
+            bot_regex_entries
+                .lines()
+                .filter(|l| !l.trim().is_empty())
+                .map(ToString::to_string),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">to_regex</span>(<span class="ident">regex_entries</span>: <span class="kw-2">&amp;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">Regex</span> {
-        <span class="kw">let</span> <span class="ident">pattern</span> <span class="op">=</span> <span class="ident">regex_entries</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">cloned</span>()
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-            .<span class="ident">join</span>(<span class="string">&quot;|&quot;</span>);
+    <span class="kw">fn </span>to_regex(regex_entries: <span class="kw-2">&amp;</span>HashSet&lt;String&gt;) -&gt; Regex {
+        <span class="kw">let </span>pattern = regex_entries
+            .iter()
+            .cloned()
+            .collect::&lt;Vec&lt;String&gt;&gt;()
+            .join(<span class="string">&quot;|&quot;</span>);
 
-        <span class="kw">if</span> <span class="ident">pattern</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="ident">Regex::new</span>(<span class="string">&quot;^$&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="kw">if </span>pattern.is_empty() {
+            <span class="kw">return </span>Regex::new(<span class="string">&quot;^$&quot;</span>).unwrap();
         }
 
-        <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="ident">pattern</span>).<span class="ident">unwrap</span>()
+        Regex::new(<span class="kw-2">&amp;</span>pattern).unwrap()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Bots</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">crate</span>::Bots;
 
-    <span class="kw">static</span> <span class="ident">GOOD_BOTS</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">7</span>] <span class="op">=</span> [
+    <span class="kw">static </span>GOOD_BOTS: [<span class="kw-2">&amp;</span>str; <span class="number">7</span>] = [
         <span class="string">&quot;Googlebot&quot;</span>,
         <span class="string">&quot;Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)&quot;</span>,
         <span class="string">&quot;Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)&quot;</span>,
         <span class="string">&quot;Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)&quot;</span>,
         <span class="string">&quot;Mozilla/5.0 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)&quot;</span>,
         <span class="string">&quot;DuckDuckBot/1.0; (+http://duckduckgo.com/duckduckbot.html)&quot;</span>,
-        <span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>
-    ];
+        <span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;
+    </span>];
 
-    <span class="kw">static</span> <span class="ident">NOT_BOTS</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="kw">static </span>NOT_BOTS: [<span class="kw-2">&amp;</span>str; <span class="number">6</span>] = [
         <span class="string">&quot;&quot;</span>,
         <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36&quot;</span>,
         <span class="string">&quot;Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)&quot;</span>,
@@ -574,107 +574,107 @@
         <span class="string">&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36&quot;</span>,
     ];
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">good_bots</span>() {
-        <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="kw">for</span> <span class="ident">bot</span> <span class="kw">in</span> <span class="ident">GOOD_BOTS</span> {
-            <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="ident">bot</span>), <span class="string">&quot;Invalid bot: &#39;{}&#39;&quot;</span>, <span class="ident">bot</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>good_bots() {
+        <span class="kw">let </span>bots = Bots::default();
+        <span class="kw">for </span>bot <span class="kw">in </span>GOOD_BOTS {
+            <span class="macro">assert!</span>(bots.is_bot(bot), <span class="string">&quot;Invalid bot: &#39;{}&#39;&quot;</span>, bot);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_bots</span>() {
-        <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="kw">for</span> <span class="ident">bot</span> <span class="kw">in</span> <span class="ident">NOT_BOTS</span> {
-            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="ident">bot</span>), <span class="string">&quot;Is a bot{}&quot;</span>, <span class="ident">bot</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>not_bots() {
+        <span class="kw">let </span>bots = Bots::default();
+        <span class="kw">for </span>bot <span class="kw">in </span>NOT_BOTS {
+            <span class="macro">assert!</span>(!bots.is_bot(bot), <span class="string">&quot;Is a bot{}&quot;</span>, bot);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">custom_user_agent_patterns</span>() {
-        <span class="kw">let</span> <span class="ident">custom_user_agent_patterns</span> <span class="op">=</span> <span class="string">&quot;\
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>custom_user_agent_patterns() {
+        <span class="kw">let </span>custom_user_agent_patterns = <span class="string">&quot;\
             ^Simplebot\n\
             anything\\s+bot\n\
             Numerical\\d{4}\\.\\d{4}\\.\\d{4}\\.\\d{4}&quot;</span>;
-        <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::new</span>(<span class="ident">custom_user_agent_patterns</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;InvalidBot&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Googlebot&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Simplebot/1.2&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot; Simplebot/1.2&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Anything  Bot&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;AnythingBot&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;numerical1101.2001.3987.4781&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;numerical1.2.3.4&quot;</span>));
+        <span class="kw">let </span>bots = Bots::new(custom_user_agent_patterns);
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;InvalidBot&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Googlebot&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Simplebot/1.2&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot; Simplebot/1.2&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Anything  Bot&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;AnythingBot&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;numerical1101.2001.3987.4781&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;numerical1.2.3.4&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">empty_user_agent_patterns</span>() {
-        <span class="kw">let</span> <span class="ident">empty_user_agent_patterns</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::new</span>(<span class="ident">empty_user_agent_patterns</span>);
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;1&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Googlebot&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>empty_user_agent_patterns() {
+        <span class="kw">let </span>empty_user_agent_patterns = <span class="string">&quot;&quot;</span>;
+        <span class="kw">let </span>bots = Bots::new(empty_user_agent_patterns);
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;1&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Googlebot&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">single_user_agent_patterns</span>() {
-        <span class="kw">let</span> <span class="ident">single_user_agent_patterns</span> <span class="op">=</span> <span class="string">&quot;me&quot;</span>;
-        <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::new</span>(<span class="ident">single_user_agent_patterns</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;M&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Me&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Googlebot&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>single_user_agent_patterns() {
+        <span class="kw">let </span>single_user_agent_patterns = <span class="string">&quot;me&quot;</span>;
+        <span class="kw">let </span>bots = Bots::new(single_user_agent_patterns);
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;M&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Me&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Googlebot&quot;</span>));
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_pattern</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
-        <span class="ident">bots</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span>[<span class="string">r&quot;FancyNewTestB0T\s/\d\.\d&quot;</span>]);
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_multiple_patterns</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Special/1.0&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>));
-
-        <span class="kw">let</span> <span class="ident">new_bot_patterns</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;FancyNewTestB0T&quot;</span>, <span class="string">&quot;^GoogleMetaverse&quot;</span>, <span class="string">&quot;^Special/&quot;</span>];
-        <span class="ident">bots</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="ident">new_bot_patterns</span>);
-
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Special/1.0&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_pattern() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bots = Bots::default();
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
+        bots.append(<span class="kw-2">&amp;</span>[<span class="string">r&quot;FancyNewTestB0T\s/\d\.\d&quot;</span>]);
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">remove_pattern</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
-        <span class="ident">bots</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;Chrome-Lighthouse&quot;</span>]);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Chrome-Lighthouse&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) adbeat.com/policy AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_multiple_patterns() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bots = Bots::default();
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Special/1.0&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>));
+
+        <span class="kw">let </span>new_bot_patterns = <span class="macro">vec!</span>[<span class="string">&quot;FancyNewTestB0T&quot;</span>, <span class="string">&quot;^GoogleMetaverse&quot;</span>, <span class="string">&quot;^Special/&quot;</span>];
+        bots.append(<span class="kw-2">&amp;</span>new_bot_patterns);
+
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Special/1.0&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">remove_multiple_patterns</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>remove_pattern() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bots = Bots::default();
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
+        bots.remove(<span class="kw-2">&amp;</span>[<span class="string">&quot;Chrome-Lighthouse&quot;</span>]);
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Chrome-Lighthouse&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) adbeat.com/policy AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36&quot;</span>));
+    }
 
-        <span class="kw">let</span> <span class="ident">bot_patterns_to_remove</span> <span class="op">=</span>
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>remove_multiple_patterns() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bots = Bots::default();
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>));
+        <span class="macro">assert!</span>(bots.is_bot(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>));
+
+        <span class="kw">let </span>bot_patterns_to_remove =
             <span class="macro">vec!</span>[<span class="string">&quot;datadog agent&quot;</span>, <span class="string">&quot;Chrome-Lighthouse&quot;</span>, <span class="string">&quot;outbrain&quot;</span>, <span class="string">&quot;google-&quot;</span>];
-        <span class="ident">bots</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">bot_patterns_to_remove</span>);
+        bots.remove(<span class="kw-2">&amp;</span>bot_patterns_to_remove);
 
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>));
+        <span class="macro">assert!</span>(!bots.is_bot(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="isbot" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="isbot" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

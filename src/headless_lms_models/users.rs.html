@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/users.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>users.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/users.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>users.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -197,189 +197,189 @@
 <span id="197">197</span>
 <span id="198">198</span>
 <span id="199">199</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils::ApplicationConfiguration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::ApplicationConfiguration;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">User</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">first_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">last_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">upstream_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>User {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>first_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>last_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>upstream_id: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>email: String,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">first_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    <span class="ident">last_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    email: <span class="kw-2">&amp;</span>str,
+    first_name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+    last_name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO users (id, email, first_name, last_name)
 VALUES ($1, $2, $3, $4)
 RETURNING id
 &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">email</span>,
-        <span class="ident">first_name</span>,
-        <span class="ident">last_name</span>
+        pkey_policy.into_uuid(),
+        email,
+        first_name,
+        last_name
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_with_upstream_id_and_moocfi_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">first_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    <span class="ident">last_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-    <span class="ident">upstream_id</span>: <span class="ident">i32</span>,
-    <span class="ident">moocfi_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">User</span>,
+<span class="kw">pub async fn </span>insert_with_upstream_id_and_moocfi_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    email: <span class="kw-2">&amp;</span>str,
+    first_name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+    last_name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+    upstream_id: i32,
+    moocfi_id: Uuid,
+) -&gt; ModelResult&lt;User&gt; {
+    <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
+        User,
         <span class="string">r#&quot;
 INSERT INTO
   users (id, email, first_name, last_name, upstream_id)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
           &quot;#</span>,
-        <span class="ident">moocfi_id</span>,
-        <span class="ident">email</span>,
-        <span class="ident">first_name</span>,
-        <span class="ident">last_name</span>,
-        <span class="ident">upstream_id</span>
+        moocfi_id,
+        email,
+        first_name,
+        last_name,
+        upstream_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">user</span>)
+    <span class="prelude-val">Ok</span>(user)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_email</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">User</span>,
+<span class="kw">pub async fn </span>get_by_email(conn: <span class="kw-2">&amp;mut </span>PgConnection, email: <span class="kw-2">&amp;</span>str) -&gt; ModelResult&lt;User&gt; {
+    <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
+        User,
         <span class="string">&quot;
 SELECT *
 FROM users
 WHERE email = $1
         &quot;</span>,
-        <span class="ident">email</span>
+        email
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">user</span>)
+    <span class="prelude-val">Ok</span>(user)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_get_by_email</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">User</span>,
+<span class="kw">pub async fn </span>try_get_by_email(conn: <span class="kw-2">&amp;mut </span>PgConnection, email: <span class="kw-2">&amp;</span>str) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;User&gt;&gt; {
+    <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
+        User,
         <span class="string">&quot;
 SELECT *
 FROM users
 WHERE email = $1
         &quot;</span>,
-        <span class="ident">email</span>
+        email
     )
-    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .fetch_optional(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">user</span>)
+    <span class="prelude-val">Ok</span>(user)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">User</span>,
+<span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;User&gt; {
+    <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
+        User,
         <span class="string">&quot;
 SELECT *
 FROM users
 WHERE id = $1
         &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">user</span>)
+    <span class="prelude-val">Ok</span>(user)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">find_by_upstream_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">upstream_id</span>: <span class="ident">i32</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">User</span>,
+<span class="kw">pub async fn </span>find_by_upstream_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    upstream_id: i32,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;User&gt;&gt; {
+    <span class="kw">let </span>user = <span class="macro">sqlx::query_as!</span>(
+        User,
         <span class="string">&quot;SELECT * FROM users WHERE upstream_id = $1&quot;</span>,
-        <span class="ident">upstream_id</span>
+        upstream_id
     )
-    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .fetch_optional(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">user</span>)
+    <span class="prelude-val">Ok</span>(user)
 }
 
-<span class="comment">// Only used for testing, not to use in production.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authenticate_test_user</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">password</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">application_configuration</span>: <span class="kw-2">&amp;</span><span class="ident">ApplicationConfiguration</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> {
-    <span class="comment">// Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.</span>
-    <span class="macro">assert!</span>(<span class="ident">application_configuration</span>.<span class="ident">test_mode</span>);
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;admin@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;admin&quot;</span> {
-        <span class="ident"><span class="kw">crate</span>::users::get_by_email</span>(<span class="ident">conn</span>, <span class="string">&quot;admin@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;teacher@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;teacher&quot;</span> {
-        <span class="ident"><span class="kw">crate</span>::users::get_by_email</span>(<span class="ident">conn</span>, <span class="string">&quot;teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;language.teacher@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;language.teacher&quot;</span> {
-        <span class="ident"><span class="kw">crate</span>::users::get_by_email</span>(<span class="ident">conn</span>, <span class="string">&quot;language.teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;user@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;user&quot;</span> {
-        <span class="ident"><span class="kw">crate</span>::users::get_by_email</span>(<span class="ident">conn</span>, <span class="string">&quot;user@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;assistant@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;assistant&quot;</span> {
-        <span class="ident"><span class="kw">crate</span>::users::get_by_email</span>(<span class="ident">conn</span>, <span class="string">&quot;assistant@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">email</span> <span class="op">==</span> <span class="string">&quot;creator@example.com&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">password</span> <span class="op">==</span> <span class="string">&quot;creator&quot;</span> {
-        <span class="ident"><span class="kw">crate</span>::users::get_by_email</span>(<span class="ident">conn</span>, <span class="string">&quot;creator@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::InvalidRequest</span>,
-            <span class="string">&quot;Invalid email or password&quot;</span>.<span class="ident">to_string</span>(),
+<span class="comment">// Only used for testing, not to use in production.
+</span><span class="kw">pub async fn </span>authenticate_test_user(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    email: <span class="kw-2">&amp;</span>str,
+    password: <span class="kw-2">&amp;</span>str,
+    application_configuration: <span class="kw-2">&amp;</span>ApplicationConfiguration,
+) -&gt; ModelResult&lt;User&gt; {
+    <span class="comment">// Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
+    </span><span class="macro">assert!</span>(application_configuration.test_mode);
+    <span class="kw">let </span>user = <span class="kw">if </span>email == <span class="string">&quot;admin@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;admin&quot; </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;admin@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;teacher@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;teacher&quot; </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;language.teacher@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;language.teacher&quot; </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;language.teacher@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;user@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;user&quot; </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;user@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;assistant@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;assistant&quot; </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;assistant@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else if </span>email == <span class="string">&quot;creator@example.com&quot; </span>&amp;&amp; password == <span class="string">&quot;creator&quot; </span>{
+        <span class="kw">crate</span>::users::get_by_email(conn, <span class="string">&quot;creator@example.com&quot;</span>).<span class="kw">await</span><span class="question-mark">?
+    </span>} <span class="kw">else </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            <span class="string">&quot;Invalid email or password&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     };
-    <span class="prelude-val">Ok</span>(<span class="ident">user</span>)
+    <span class="prelude-val">Ok</span>(user)
 }
 
-<span class="doccomment">/// Includes all users who have returned an exercise on a course course instance</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_user_ids_with_user_exercise_states_on_course_instance</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="doccomment">/// Includes all users who have returned an exercise on a course course instance
+</span><span class="kw">pub async fn </span>get_all_user_ids_with_user_exercise_states_on_course_instance(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;Uuid&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT DISTINCT user_id
 FROM user_exercise_states
 WHERE course_instance_id = $1
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">course_instance_id</span>
+        course_instance_id
     )
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">user_id</span>)
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .map(|x| x.user_id)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_users_by_course_instance_enrollment</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">User</span>,
+<span class="kw">pub async fn </span>get_users_by_course_instance_enrollment(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;User&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        User,
         <span class="string">&quot;
 SELECT *
 FROM users
@@ -390,11 +390,11 @@ WHERE id IN (
       AND deleted_at IS NULL
   )
 &quot;</span>,
-        <span class="ident">course_instance_id</span>,
+        course_instance_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

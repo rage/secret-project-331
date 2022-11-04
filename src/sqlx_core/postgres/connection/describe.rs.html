@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/describe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>describe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/describe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>describe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -504,247 +504,247 @@
 <span id="504">504</span>
 <span id="505">505</span>
 <span id="506">506</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ext::ustr::UStr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::message</span>::{<span class="ident">ParameterDescription</span>, <span class="ident">RowDescription</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::statement::PgStatementMetadata</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::type_info</span>::{<span class="ident">PgCustomType</span>, <span class="ident">PgType</span>, <span class="ident">PgTypeKind</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::Oid</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgArguments</span>, <span class="ident">PgColumn</span>, <span class="ident">PgConnection</span>, <span class="ident">PgTypeInfo</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_as::query_as</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_scalar</span>::{<span class="ident">query_scalar</span>, <span class="ident">query_scalar_with</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Json</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HashMap</span>;
-<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::ext::ustr::UStr;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::message::{ParameterDescription, RowDescription};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::statement::PgStatementMetadata;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::type_info::{PgCustomType, PgType, PgTypeKind};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::types::Oid;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{PgArguments, PgColumn, PgConnection, PgTypeInfo};
+<span class="kw">use </span><span class="kw">crate</span>::query_as::query_as;
+<span class="kw">use </span><span class="kw">crate</span>::query_scalar::{query_scalar, query_scalar_with};
+<span class="kw">use </span><span class="kw">crate</span>::types::Json;
+<span class="kw">use </span><span class="kw">crate</span>::HashMap;
+<span class="kw">use </span>futures_core::future::BoxFuture;
+<span class="kw">use </span>std::fmt::Write;
+<span class="kw">use </span>std::sync::Arc;
 
-<span class="doccomment">/// Describes the type of the `pg_type.typtype` column</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See &lt;https://www.postgresql.org/docs/13/catalog-pg-type.html&gt;</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">TypType</span> {
-    <span class="ident">Base</span>,
-    <span class="ident">Composite</span>,
-    <span class="ident">Domain</span>,
-    <span class="ident">Enum</span>,
-    <span class="ident">Pseudo</span>,
-    <span class="ident">Range</span>,
+<span class="doccomment">/// Describes the type of the `pg_type.typtype` column
+///
+/// See &lt;https://www.postgresql.org/docs/13/catalog-pg-type.html&gt;
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+</span><span class="kw">enum </span>TypType {
+    Base,
+    Composite,
+    Domain,
+    Enum,
+    Pseudo,
+    Range,
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TypType</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
+<span class="kw">impl </span>TryFrom&lt;u8&gt; <span class="kw">for </span>TypType {
+    <span class="kw">type </span>Error = ();
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">t</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">t</span> {
-            <span class="string">b&#39;b&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Base</span>,
-            <span class="string">b&#39;c&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Composite</span>,
-            <span class="string">b&#39;d&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Domain</span>,
-            <span class="string">b&#39;e&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Enum</span>,
-            <span class="string">b&#39;p&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Pseudo</span>,
-            <span class="string">b&#39;r&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Range</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(()),
+    <span class="kw">fn </span>try_from(t: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>t = <span class="kw">match </span>t {
+            <span class="string">b&#39;b&#39; </span>=&gt; <span class="self">Self</span>::Base,
+            <span class="string">b&#39;c&#39; </span>=&gt; <span class="self">Self</span>::Composite,
+            <span class="string">b&#39;d&#39; </span>=&gt; <span class="self">Self</span>::Domain,
+            <span class="string">b&#39;e&#39; </span>=&gt; <span class="self">Self</span>::Enum,
+            <span class="string">b&#39;p&#39; </span>=&gt; <span class="self">Self</span>::Pseudo,
+            <span class="string">b&#39;r&#39; </span>=&gt; <span class="self">Self</span>::Range,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(()),
         };
-        <span class="prelude-val">Ok</span>(<span class="ident">t</span>)
+        <span class="prelude-val">Ok</span>(t)
     }
 }
 
-<span class="doccomment">/// Describes the type of the `pg_type.typcategory` column</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See &lt;https://www.postgresql.org/docs/13/catalog-pg-type.html#CATALOG-TYPCATEGORY-TABLE&gt;</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">TypCategory</span> {
-    <span class="ident">Array</span>,
-    <span class="ident">Boolean</span>,
-    <span class="ident">Composite</span>,
-    <span class="ident">DateTime</span>,
-    <span class="ident">Enum</span>,
-    <span class="ident">Geometric</span>,
-    <span class="ident">Network</span>,
-    <span class="ident">Numeric</span>,
-    <span class="ident">Pseudo</span>,
-    <span class="ident">Range</span>,
-    <span class="ident">String</span>,
-    <span class="ident">Timespan</span>,
-    <span class="ident">User</span>,
-    <span class="ident">BitString</span>,
-    <span class="ident">Unknown</span>,
+<span class="doccomment">/// Describes the type of the `pg_type.typcategory` column
+///
+/// See &lt;https://www.postgresql.org/docs/13/catalog-pg-type.html#CATALOG-TYPCATEGORY-TABLE&gt;
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+</span><span class="kw">enum </span>TypCategory {
+    Array,
+    Boolean,
+    Composite,
+    DateTime,
+    Enum,
+    Geometric,
+    Network,
+    Numeric,
+    Pseudo,
+    Range,
+    String,
+    Timespan,
+    User,
+    BitString,
+    Unknown,
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TypCategory</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
+<span class="kw">impl </span>TryFrom&lt;u8&gt; <span class="kw">for </span>TypCategory {
+    <span class="kw">type </span>Error = ();
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">c</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">c</span> {
-            <span class="string">b&#39;A&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Array</span>,
-            <span class="string">b&#39;B&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Boolean</span>,
-            <span class="string">b&#39;C&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Composite</span>,
-            <span class="string">b&#39;D&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::DateTime</span>,
-            <span class="string">b&#39;E&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Enum</span>,
-            <span class="string">b&#39;G&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Geometric</span>,
-            <span class="string">b&#39;I&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Network</span>,
-            <span class="string">b&#39;N&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Numeric</span>,
-            <span class="string">b&#39;P&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Pseudo</span>,
-            <span class="string">b&#39;R&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Range</span>,
-            <span class="string">b&#39;S&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::String</span>,
-            <span class="string">b&#39;T&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Timespan</span>,
-            <span class="string">b&#39;U&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::User</span>,
-            <span class="string">b&#39;V&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::BitString</span>,
-            <span class="string">b&#39;X&#39;</span> =&gt; <span class="ident"><span class="self">Self</span>::Unknown</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(()),
+    <span class="kw">fn </span>try_from(c: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>c = <span class="kw">match </span>c {
+            <span class="string">b&#39;A&#39; </span>=&gt; <span class="self">Self</span>::Array,
+            <span class="string">b&#39;B&#39; </span>=&gt; <span class="self">Self</span>::Boolean,
+            <span class="string">b&#39;C&#39; </span>=&gt; <span class="self">Self</span>::Composite,
+            <span class="string">b&#39;D&#39; </span>=&gt; <span class="self">Self</span>::DateTime,
+            <span class="string">b&#39;E&#39; </span>=&gt; <span class="self">Self</span>::Enum,
+            <span class="string">b&#39;G&#39; </span>=&gt; <span class="self">Self</span>::Geometric,
+            <span class="string">b&#39;I&#39; </span>=&gt; <span class="self">Self</span>::Network,
+            <span class="string">b&#39;N&#39; </span>=&gt; <span class="self">Self</span>::Numeric,
+            <span class="string">b&#39;P&#39; </span>=&gt; <span class="self">Self</span>::Pseudo,
+            <span class="string">b&#39;R&#39; </span>=&gt; <span class="self">Self</span>::Range,
+            <span class="string">b&#39;S&#39; </span>=&gt; <span class="self">Self</span>::String,
+            <span class="string">b&#39;T&#39; </span>=&gt; <span class="self">Self</span>::Timespan,
+            <span class="string">b&#39;U&#39; </span>=&gt; <span class="self">Self</span>::User,
+            <span class="string">b&#39;V&#39; </span>=&gt; <span class="self">Self</span>::BitString,
+            <span class="string">b&#39;X&#39; </span>=&gt; <span class="self">Self</span>::Unknown,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(()),
         };
-        <span class="prelude-val">Ok</span>(<span class="ident">c</span>)
+        <span class="prelude-val">Ok</span>(c)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PgConnection</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_row_description</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">desc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RowDescription</span><span class="op">&gt;</span>,
-        <span class="ident">should_fetch</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgColumn</span><span class="op">&gt;</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">UStr</span>, <span class="ident">usize</span><span class="op">&gt;</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">column_names</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+<span class="kw">impl </span>PgConnection {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>handle_row_description(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        desc: <span class="prelude-ty">Option</span>&lt;RowDescription&gt;,
+        should_fetch: bool,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;PgColumn&gt;, HashMap&lt;UStr, usize&gt;), Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>columns = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>column_names = HashMap::new();
 
-        <span class="kw">let</span> <span class="ident">desc</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">desc</span>) <span class="op">=</span> <span class="ident">desc</span> {
-            <span class="ident">desc</span>
-        } <span class="kw">else</span> {
-            <span class="comment">// no rows</span>
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">columns</span>, <span class="ident">column_names</span>));
+        <span class="kw">let </span>desc = <span class="kw">if let </span><span class="prelude-val">Some</span>(desc) = desc {
+            desc
+        } <span class="kw">else </span>{
+            <span class="comment">// no rows
+            </span><span class="kw">return </span><span class="prelude-val">Ok</span>((columns, column_names));
         };
 
-        <span class="ident">columns</span>.<span class="ident">reserve</span>(<span class="ident">desc</span>.<span class="ident">fields</span>.<span class="ident">len</span>());
-        <span class="ident">column_names</span>.<span class="ident">reserve</span>(<span class="ident">desc</span>.<span class="ident">fields</span>.<span class="ident">len</span>());
+        columns.reserve(desc.fields.len());
+        column_names.reserve(desc.fields.len());
 
-        <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">field</span>) <span class="kw">in</span> <span class="ident">desc</span>.<span class="ident">fields</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">UStr::from</span>(<span class="ident">field</span>.<span class="ident">name</span>);
+        <span class="kw">for </span>(index, field) <span class="kw">in </span>desc.fields.into_iter().enumerate() {
+            <span class="kw">let </span>name = UStr::from(field.name);
 
-            <span class="kw">let</span> <span class="ident">type_info</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">maybe_fetch_type_info_by_oid</span>(<span class="ident">field</span>.<span class="ident">data_type_id</span>, <span class="ident">should_fetch</span>)
+            <span class="kw">let </span>type_info = <span class="self">self
+                </span>.maybe_fetch_type_info_by_oid(field.data_type_id, should_fetch)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="ident">column</span> <span class="op">=</span> <span class="ident">PgColumn</span> {
-                <span class="ident">ordinal</span>: <span class="ident">index</span>,
-                <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">clone</span>(),
-                <span class="ident">type_info</span>,
-                <span class="ident">relation_id</span>: <span class="ident">field</span>.<span class="ident">relation_id</span>,
-                <span class="ident">relation_attribute_no</span>: <span class="ident">field</span>.<span class="ident">relation_attribute_no</span>,
+            <span class="kw">let </span>column = PgColumn {
+                ordinal: index,
+                name: name.clone(),
+                type_info,
+                relation_id: field.relation_id,
+                relation_attribute_no: field.relation_attribute_no,
             };
 
-            <span class="ident">columns</span>.<span class="ident">push</span>(<span class="ident">column</span>);
-            <span class="ident">column_names</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">index</span>);
+            columns.push(column);
+            column_names.insert(name, index);
         }
 
-        <span class="prelude-val">Ok</span>((<span class="ident">columns</span>, <span class="ident">column_names</span>))
+        <span class="prelude-val">Ok</span>((columns, column_names))
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_parameter_description</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">desc</span>: <span class="ident">ParameterDescription</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">desc</span>.<span class="ident">types</span>.<span class="ident">len</span>());
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>handle_parameter_description(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        desc: ParameterDescription,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;PgTypeInfo&gt;, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>params = Vec::with_capacity(desc.types.len());
 
-        <span class="kw">for</span> <span class="ident">ty</span> <span class="kw">in</span> <span class="ident">desc</span>.<span class="ident">types</span> {
-            <span class="ident">params</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">maybe_fetch_type_info_by_oid</span>(<span class="ident">ty</span>, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>);
+        <span class="kw">for </span>ty <span class="kw">in </span>desc.types {
+            params.push(<span class="self">self</span>.maybe_fetch_type_info_by_oid(ty, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">params</span>)
+        <span class="prelude-val">Ok</span>(params)
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">maybe_fetch_type_info_by_oid</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">oid</span>: <span class="ident">Oid</span>,
-        <span class="ident">should_fetch</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="comment">// first we check if this is a built-in type</span>
-        <span class="comment">// in the average application, the vast majority of checks should flow through this</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="ident">PgTypeInfo::try_from_oid</span>(<span class="ident">oid</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">info</span>);
+    <span class="kw">async fn </span>maybe_fetch_type_info_by_oid(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        oid: Oid,
+        should_fetch: bool,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt; {
+        <span class="comment">// first we check if this is a built-in type
+        // in the average application, the vast majority of checks should flow through this
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(info) = PgTypeInfo::try_from_oid(oid) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(info);
         }
 
-        <span class="comment">// next we check a local cache for user-defined type names &lt;-&gt; object id</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_type_info</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">oid</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">info</span>.<span class="ident">clone</span>());
+        <span class="comment">// next we check a local cache for user-defined type names &lt;-&gt; object id
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(info) = <span class="self">self</span>.cache_type_info.get(<span class="kw-2">&amp;</span>oid) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(info.clone());
         }
 
-        <span class="comment">// fallback to asking the database directly for a type name</span>
-        <span class="kw">if</span> <span class="ident">should_fetch</span> {
-            <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fetch_type_by_oid</span>(<span class="ident">oid</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// fallback to asking the database directly for a type name
+        </span><span class="kw">if </span>should_fetch {
+            <span class="kw">let </span>info = <span class="self">self</span>.fetch_type_by_oid(oid).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="comment">// cache the type name &lt;-&gt; oid relationship in a paired hashmap</span>
-            <span class="comment">// so we don&#39;t come down this road again</span>
-            <span class="self">self</span>.<span class="ident">cache_type_info</span>.<span class="ident">insert</span>(<span class="ident">oid</span>, <span class="ident">info</span>.<span class="ident">clone</span>());
-            <span class="self">self</span>.<span class="ident">cache_type_oid</span>
-                .<span class="ident">insert</span>(<span class="ident">info</span>.<span class="number">0</span>.<span class="ident">name</span>().<span class="ident">to_string</span>().<span class="ident">into</span>(), <span class="ident">oid</span>);
+            <span class="comment">// cache the type name &lt;-&gt; oid relationship in a paired hashmap
+            // so we don&#39;t come down this road again
+            </span><span class="self">self</span>.cache_type_info.insert(oid, info.clone());
+            <span class="self">self</span>.cache_type_oid
+                .insert(info.<span class="number">0</span>.name().to_string().into(), oid);
 
-            <span class="prelude-val">Ok</span>(<span class="ident">info</span>)
-        } <span class="kw">else</span> {
-            <span class="comment">// we are not in a place that *can* run a query</span>
-            <span class="comment">// this generally means we are in the middle of another query</span>
-            <span class="comment">// this _should_ only happen for complex types sent through the TEXT protocol</span>
-            <span class="comment">// we&#39;re open to ideas to correct this.. but it&#39;d probably be more efficient to figure</span>
-            <span class="comment">// out a way to &quot;prime&quot; the type cache for connections rather than make this</span>
-            <span class="comment">// fallback work correctly for complex user-defined types for the TEXT protocol</span>
-            <span class="prelude-val">Ok</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::DeclareWithOid</span>(<span class="ident">oid</span>)))
+            <span class="prelude-val">Ok</span>(info)
+        } <span class="kw">else </span>{
+            <span class="comment">// we are not in a place that *can* run a query
+            // this generally means we are in the middle of another query
+            // this _should_ only happen for complex types sent through the TEXT protocol
+            // we&#39;re open to ideas to correct this.. but it&#39;d probably be more efficient to figure
+            // out a way to &quot;prime&quot; the type cache for connections rather than make this
+            // fallback work correctly for complex user-defined types for the TEXT protocol
+            </span><span class="prelude-val">Ok</span>(PgTypeInfo(PgType::DeclareWithOid(oid)))
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">fetch_type_by_oid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">oid</span>: <span class="ident">Oid</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">typ_type</span>, <span class="ident">category</span>, <span class="ident">relation_id</span>, <span class="ident">element</span>, <span class="ident">base_type</span>): (<span class="ident">String</span>, <span class="ident">i8</span>, <span class="ident">i8</span>, <span class="ident">Oid</span>, <span class="ident">Oid</span>, <span class="ident">Oid</span>) <span class="op">=</span> <span class="ident">query_as</span>(
+    <span class="kw">fn </span>fetch_type_by_oid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, oid: Oid) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>(name, typ_type, category, relation_id, element, base_type): (String, i8, i8, Oid, Oid, Oid) = query_as(
                 <span class="string">&quot;SELECT typname, typtype, typcategory, typrelid, typelem, typbasetype FROM pg_catalog.pg_type WHERE oid = $1&quot;</span>,
             )
-            .<span class="ident">bind</span>(<span class="ident">oid</span>)
-            .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>)
+            .bind(oid)
+            .fetch_one(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="ident">typ_type</span> <span class="op">=</span> <span class="ident">TypType::try_from</span>(<span class="ident">typ_type</span> <span class="kw">as</span> <span class="ident">u8</span>);
-            <span class="kw">let</span> <span class="ident">category</span> <span class="op">=</span> <span class="ident">TypCategory::try_from</span>(<span class="ident">category</span> <span class="kw">as</span> <span class="ident">u8</span>);
+            <span class="kw">let </span>typ_type = TypType::try_from(typ_type <span class="kw">as </span>u8);
+            <span class="kw">let </span>category = TypCategory::try_from(category <span class="kw">as </span>u8);
 
-            <span class="kw">match</span> (<span class="ident">typ_type</span>, <span class="ident">category</span>) {
-                (<span class="prelude-val">Ok</span>(<span class="ident">TypType::Domain</span>), <span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">fetch_domain_by_oid</span>(<span class="ident">oid</span>, <span class="ident">base_type</span>, <span class="ident">name</span>).<span class="kw">await</span>,
+            <span class="kw">match </span>(typ_type, category) {
+                (<span class="prelude-val">Ok</span>(TypType::Domain), <span class="kw">_</span>) =&gt; <span class="self">self</span>.fetch_domain_by_oid(oid, base_type, name).<span class="kw">await</span>,
 
-                (<span class="prelude-val">Ok</span>(<span class="ident">TypType::Base</span>), <span class="prelude-val">Ok</span>(<span class="ident">TypCategory::Array</span>)) =&gt; {
-                    <span class="prelude-val">Ok</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Custom</span>(<span class="ident">Arc::new</span>(<span class="ident">PgCustomType</span> {
-                        <span class="ident">kind</span>: <span class="ident">PgTypeKind::Array</span>(
-                            <span class="self">self</span>.<span class="ident">maybe_fetch_type_info_by_oid</span>(<span class="ident">element</span>, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+                (<span class="prelude-val">Ok</span>(TypType::Base), <span class="prelude-val">Ok</span>(TypCategory::Array)) =&gt; {
+                    <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+                        kind: PgTypeKind::Array(
+                            <span class="self">self</span>.maybe_fetch_type_info_by_oid(element, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>,
                         ),
-                        <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">into</span>(),
-                        <span class="ident">oid</span>,
+                        name: name.into(),
+                        oid,
                     }))))
                 }
 
-                (<span class="prelude-val">Ok</span>(<span class="ident">TypType::Pseudo</span>), <span class="prelude-val">Ok</span>(<span class="ident">TypCategory::Pseudo</span>)) =&gt; {
-                    <span class="prelude-val">Ok</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Custom</span>(<span class="ident">Arc::new</span>(<span class="ident">PgCustomType</span> {
-                        <span class="ident">kind</span>: <span class="ident">PgTypeKind::Pseudo</span>,
-                        <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">into</span>(),
-                        <span class="ident">oid</span>,
+                (<span class="prelude-val">Ok</span>(TypType::Pseudo), <span class="prelude-val">Ok</span>(TypCategory::Pseudo)) =&gt; {
+                    <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+                        kind: PgTypeKind::Pseudo,
+                        name: name.into(),
+                        oid,
                     }))))
                 }
 
-                (<span class="prelude-val">Ok</span>(<span class="ident">TypType::Range</span>), <span class="prelude-val">Ok</span>(<span class="ident">TypCategory::Range</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">fetch_range_by_oid</span>(<span class="ident">oid</span>, <span class="ident">name</span>).<span class="kw">await</span>
-                }
+                (<span class="prelude-val">Ok</span>(TypType::Range), <span class="prelude-val">Ok</span>(TypCategory::Range)) =&gt; {
+                    <span class="self">self</span>.fetch_range_by_oid(oid, name).<span class="kw">await
+                </span>}
 
-                (<span class="prelude-val">Ok</span>(<span class="ident">TypType::Enum</span>), <span class="prelude-val">Ok</span>(<span class="ident">TypCategory::Enum</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">fetch_enum_by_oid</span>(<span class="ident">oid</span>, <span class="ident">name</span>).<span class="kw">await</span>
-                }
+                (<span class="prelude-val">Ok</span>(TypType::Enum), <span class="prelude-val">Ok</span>(TypCategory::Enum)) =&gt; {
+                    <span class="self">self</span>.fetch_enum_by_oid(oid, name).<span class="kw">await
+                </span>}
 
-                (<span class="prelude-val">Ok</span>(<span class="ident">TypType::Composite</span>), <span class="prelude-val">Ok</span>(<span class="ident">TypCategory::Composite</span>)) =&gt; {
-                    <span class="self">self</span>.<span class="ident">fetch_composite_by_oid</span>(<span class="ident">oid</span>, <span class="ident">relation_id</span>, <span class="ident">name</span>).<span class="kw">await</span>
-                }
+                (<span class="prelude-val">Ok</span>(TypType::Composite), <span class="prelude-val">Ok</span>(TypCategory::Composite)) =&gt; {
+                    <span class="self">self</span>.fetch_composite_by_oid(oid, relation_id, name).<span class="kw">await
+                </span>}
 
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Custom</span>(<span class="ident">Arc::new</span>(<span class="ident">PgCustomType</span> {
-                    <span class="ident">kind</span>: <span class="ident">PgTypeKind::Simple</span>,
-                    <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">into</span>(),
-                    <span class="ident">oid</span>,
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+                    kind: PgTypeKind::Simple,
+                    name: name.into(),
+                    oid,
                 })))),
             }
         })
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_enum_by_oid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">oid</span>: <span class="ident">Oid</span>, <span class="ident">name</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">variants</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">query_scalar</span>(
+    <span class="kw">async fn </span>fetch_enum_by_oid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, oid: Oid, name: String) -&gt; <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt; {
+        <span class="kw">let </span>variants: Vec&lt;String&gt; = query_scalar(
             <span class="string">r#&quot;
 SELECT enumlabel
 FROM pg_catalog.pg_enum
@@ -752,25 +752,25 @@ WHERE enumtypid = $1
 ORDER BY enumsortorder
             &quot;#</span>,
         )
-        .<span class="ident">bind</span>(<span class="ident">oid</span>)
-        .<span class="ident">fetch_all</span>(<span class="self">self</span>)
+        .bind(oid)
+        .fetch_all(<span class="self">self</span>)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Custom</span>(<span class="ident">Arc::new</span>(<span class="ident">PgCustomType</span> {
-            <span class="ident">oid</span>,
-            <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">into</span>(),
-            <span class="ident">kind</span>: <span class="ident">PgTypeKind::Enum</span>(<span class="ident">Arc::from</span>(<span class="ident">variants</span>)),
+        <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+            oid,
+            name: name.into(),
+            kind: PgTypeKind::Enum(Arc::from(variants)),
         }))))
     }
 
-    <span class="kw">fn</span> <span class="ident">fetch_composite_by_oid</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">oid</span>: <span class="ident">Oid</span>,
-        <span class="ident">relation_id</span>: <span class="ident">Oid</span>,
-        <span class="ident">name</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">raw_fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Oid</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">query_as</span>(
+    <span class="kw">fn </span>fetch_composite_by_oid(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        oid: Oid,
+        relation_id: Oid,
+        name: String,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>raw_fields: Vec&lt;(String, Oid)&gt; = query_as(
                 <span class="string">r#&quot;
 SELECT attname, atttypid
 FROM pg_catalog.pg_attribute
@@ -780,123 +780,123 @@ AND attnum &gt; 0
 ORDER BY attnum
                 &quot;#</span>,
             )
-            .<span class="ident">bind</span>(<span class="ident">relation_id</span>)
-            .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>)
+            .bind(relation_id)
+            .fetch_all(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+            <span class="kw">let </span><span class="kw-2">mut </span>fields = Vec::new();
 
-            <span class="kw">for</span> (<span class="ident">field_name</span>, <span class="ident">field_oid</span>) <span class="kw">in</span> <span class="ident">raw_fields</span>.<span class="ident">into_iter</span>() {
-                <span class="kw">let</span> <span class="ident">field_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">maybe_fetch_type_info_by_oid</span>(<span class="ident">field_oid</span>, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">for </span>(field_name, field_oid) <span class="kw">in </span>raw_fields.into_iter() {
+                <span class="kw">let </span>field_type = <span class="self">self</span>.maybe_fetch_type_info_by_oid(field_oid, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-                <span class="ident">fields</span>.<span class="ident">push</span>((<span class="ident">field_name</span>, <span class="ident">field_type</span>));
+                fields.push((field_name, field_type));
             }
 
-            <span class="prelude-val">Ok</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Custom</span>(<span class="ident">Arc::new</span>(<span class="ident">PgCustomType</span> {
-                <span class="ident">oid</span>,
-                <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">into</span>(),
-                <span class="ident">kind</span>: <span class="ident">PgTypeKind::Composite</span>(<span class="ident">Arc::from</span>(<span class="ident">fields</span>)),
+            <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+                oid,
+                name: name.into(),
+                kind: PgTypeKind::Composite(Arc::from(fields)),
             }))))
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">fetch_domain_by_oid</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">oid</span>: <span class="ident">Oid</span>,
-        <span class="ident">base_type</span>: <span class="ident">Oid</span>,
-        <span class="ident">name</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">base_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">maybe_fetch_type_info_by_oid</span>(<span class="ident">base_type</span>, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">fn </span>fetch_domain_by_oid(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        oid: Oid,
+        base_type: Oid,
+        name: String,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>base_type = <span class="self">self</span>.maybe_fetch_type_info_by_oid(base_type, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Custom</span>(<span class="ident">Arc::new</span>(<span class="ident">PgCustomType</span> {
-                <span class="ident">oid</span>,
-                <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">into</span>(),
-                <span class="ident">kind</span>: <span class="ident">PgTypeKind::Domain</span>(<span class="ident">base_type</span>),
+            <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+                oid,
+                name: name.into(),
+                kind: PgTypeKind::Domain(base_type),
             }))))
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">fetch_range_by_oid</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">oid</span>: <span class="ident">Oid</span>,
-        <span class="ident">name</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">element_oid</span>: <span class="ident">Oid</span> <span class="op">=</span> <span class="ident">query_scalar</span>(
+    <span class="kw">fn </span>fetch_range_by_oid(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        oid: Oid,
+        name: String,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;PgTypeInfo, Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>element_oid: Oid = query_scalar(
                 <span class="string">r#&quot;
 SELECT rngsubtype
 FROM pg_catalog.pg_range
 WHERE rngtypid = $1
                 &quot;#</span>,
             )
-            .<span class="ident">bind</span>(<span class="ident">oid</span>)
-            .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>)
+            .bind(oid)
+            .fetch_one(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="ident">element</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">maybe_fetch_type_info_by_oid</span>(<span class="ident">element_oid</span>, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>element = <span class="self">self</span>.maybe_fetch_type_info_by_oid(element_oid, <span class="bool-val">true</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(<span class="ident">PgTypeInfo</span>(<span class="ident">PgType::Custom</span>(<span class="ident">Arc::new</span>(<span class="ident">PgCustomType</span> {
-                <span class="ident">kind</span>: <span class="ident">PgTypeKind::Range</span>(<span class="ident">element</span>),
-                <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">into</span>(),
-                <span class="ident">oid</span>,
+            <span class="prelude-val">Ok</span>(PgTypeInfo(PgType::Custom(Arc::new(PgCustomType {
+                kind: PgTypeKind::Range(element),
+                name: name.into(),
+                oid,
             }))))
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_type_id_by_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Oid</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">oid</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_type_oid</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">oid</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>fetch_type_id_by_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(oid) = <span class="self">self</span>.cache_type_oid.get(name) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw-2">*</span>oid);
         }
 
-        <span class="comment">// language=SQL</span>
-        <span class="kw">let</span> (<span class="ident">oid</span>,): (<span class="ident">Oid</span>,) <span class="op">=</span> <span class="ident">query_as</span>(
+        <span class="comment">// language=SQL
+        </span><span class="kw">let </span>(oid,): (Oid,) = query_as(
             <span class="string">&quot;
 SELECT oid FROM pg_catalog.pg_type WHERE typname ILIKE $1
                 &quot;</span>,
         )
-        .<span class="ident">bind</span>(<span class="ident">name</span>)
-        .<span class="ident">fetch_optional</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error::TypeNotFound</span> {
-            <span class="ident">type_name</span>: <span class="ident">String::from</span>(<span class="ident">name</span>),
+        .bind(name)
+        .fetch_optional(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.ok_or_else(|| Error::TypeNotFound {
+            type_name: String::from(name),
         })<span class="question-mark">?</span>;
 
-        <span class="self">self</span>.<span class="ident">cache_type_oid</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">to_string</span>().<span class="ident">into</span>(), <span class="ident">oid</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">oid</span>)
+        <span class="self">self</span>.cache_type_oid.insert(name.to_string().into(), oid);
+        <span class="prelude-val">Ok</span>(oid)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_nullable_for_columns</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">stmt_id</span>: <span class="ident">Oid</span>,
-        <span class="ident">meta</span>: <span class="kw-2">&amp;</span><span class="ident">PgStatementMetadata</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">meta</span>.<span class="ident">columns</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[]);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>get_nullable_for_columns(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        stmt_id: Oid,
+        meta: <span class="kw-2">&amp;</span>PgStatementMetadata,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="prelude-ty">Option</span>&lt;bool&gt;&gt;, Error&gt; {
+        <span class="kw">if </span>meta.columns.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[]);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nullable_query</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;SELECT NOT pg_attribute.attnotnull FROM (VALUES &quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">PgArguments::default</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>nullable_query = String::from(<span class="string">&quot;SELECT NOT pg_attribute.attnotnull FROM (VALUES &quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>args = PgArguments::default();
 
-        <span class="kw">for</span> (<span class="ident">i</span>, (<span class="ident">column</span>, <span class="ident">bind</span>)) <span class="kw">in</span> <span class="ident">meta</span>.<span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">zip</span>((<span class="number">1</span>..).<span class="ident">step_by</span>(<span class="number">3</span>)).<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">args</span>.<span class="ident">buffer</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">nullable_query</span> <span class="op">+</span><span class="op">=</span> <span class="string">&quot;, &quot;</span>;
+        <span class="kw">for </span>(i, (column, bind)) <span class="kw">in </span>meta.columns.iter().zip((<span class="number">1</span>..).step_by(<span class="number">3</span>)).enumerate() {
+            <span class="kw">if </span>!args.buffer.is_empty() {
+                nullable_query += <span class="string">&quot;, &quot;</span>;
             }
 
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">write!</span>(
-                <span class="ident">nullable_query</span>,
+            <span class="kw">let _ </span>= <span class="macro">write!</span>(
+                nullable_query,
                 <span class="string">&quot;(${}::int4, ${}::int4, ${}::int2)&quot;</span>,
-                <span class="ident">bind</span>,
-                <span class="ident">bind</span> <span class="op">+</span> <span class="number">1</span>,
-                <span class="ident">bind</span> <span class="op">+</span> <span class="number">2</span>
-            );
+                bind,
+                bind + <span class="number">1</span>,
+                bind + <span class="number">2
+            </span>);
 
-            <span class="ident">args</span>.<span class="ident">add</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">i32</span>);
-            <span class="ident">args</span>.<span class="ident">add</span>(<span class="ident">column</span>.<span class="ident">relation_id</span>);
-            <span class="ident">args</span>.<span class="ident">add</span>(<span class="ident">column</span>.<span class="ident">relation_attribute_no</span>);
+            args.add(i <span class="kw">as </span>i32);
+            args.add(column.relation_id);
+            args.add(column.relation_attribute_no);
         }
 
-        <span class="ident">nullable_query</span>.<span class="ident">push_str</span>(
+        nullable_query.push_str(
             <span class="string">&quot;) as col(idx, table_id, col_idx) \
             LEFT JOIN pg_catalog.pg_attribute \
                 ON table_id IS NOT NULL \
@@ -905,110 +905,110 @@ SELECT oid FROM pg_catalog.pg_type WHERE typname ILIKE $1
             ORDER BY col.idx&quot;</span>,
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nullables</span> <span class="op">=</span> <span class="ident">query_scalar_with</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">nullable_query</span>, <span class="ident">args</span>)
-            .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>nullables = query_scalar_with::&lt;<span class="kw">_</span>, <span class="prelude-ty">Option</span>&lt;bool&gt;, <span class="kw">_</span>&gt;(<span class="kw-2">&amp;</span>nullable_query, args)
+            .fetch_all(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// if it&#39;s cockroachdb skip this step #1248</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">parameter_statuses</span>.<span class="ident">contains_key</span>(<span class="string">&quot;crdb_version&quot;</span>) {
-            <span class="comment">// patch up our null inference with data from EXPLAIN</span>
-            <span class="kw">let</span> <span class="ident">nullable_patch</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">nullables_from_explain</span>(<span class="ident">stmt_id</span>, <span class="ident">meta</span>.<span class="ident">parameters</span>.<span class="ident">len</span>())
+        <span class="comment">// if it&#39;s cockroachdb skip this step #1248
+        </span><span class="kw">if </span>!<span class="self">self</span>.stream.parameter_statuses.contains_key(<span class="string">&quot;crdb_version&quot;</span>) {
+            <span class="comment">// patch up our null inference with data from EXPLAIN
+            </span><span class="kw">let </span>nullable_patch = <span class="self">self
+                </span>.nullables_from_explain(stmt_id, meta.parameters.len())
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">for</span> (<span class="ident">nullable</span>, <span class="ident">patch</span>) <span class="kw">in</span> <span class="ident">nullables</span>.<span class="ident">iter_mut</span>().<span class="ident">zip</span>(<span class="ident">nullable_patch</span>) {
-                <span class="kw-2">*</span><span class="ident">nullable</span> <span class="op">=</span> <span class="ident">patch</span>.<span class="ident">or</span>(<span class="kw-2">*</span><span class="ident">nullable</span>);
+            <span class="kw">for </span>(nullable, patch) <span class="kw">in </span>nullables.iter_mut().zip(nullable_patch) {
+                <span class="kw-2">*</span>nullable = patch.or(<span class="kw-2">*</span>nullable);
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">nullables</span>)
+        <span class="prelude-val">Ok</span>(nullables)
     }
 
-    <span class="doccomment">/// Infer nullability for columns of this statement using EXPLAIN VERBOSE.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This currently only marks columns that are on the inner half of an outer join</span>
-    <span class="doccomment">/// and returns `None` for all others.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">nullables_from_explain</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">stmt_id</span>: <span class="ident">Oid</span>,
-        <span class="ident">params_len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">explain</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="doccomment">/// Infer nullability for columns of this statement using EXPLAIN VERBOSE.
+    ///
+    /// This currently only marks columns that are on the inner half of an outer join
+    /// and returns `None` for all others.
+    </span><span class="kw">async fn </span>nullables_from_explain(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        stmt_id: Oid,
+        params_len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="prelude-ty">Option</span>&lt;bool&gt;&gt;, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>explain = <span class="macro">format!</span>(
             <span class="string">&quot;EXPLAIN (VERBOSE, FORMAT JSON) EXECUTE sqlx_s_{}&quot;</span>,
-            <span class="ident">stmt_id</span>.<span class="number">0</span>
-        );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">comma</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            stmt_id.<span class="number">0
+        </span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>comma = <span class="bool-val">false</span>;
 
-        <span class="kw">if</span> <span class="ident">params_len</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="ident">explain</span> <span class="op">+</span><span class="op">=</span> <span class="string">&quot;(&quot;</span>;
+        <span class="kw">if </span>params_len &gt; <span class="number">0 </span>{
+            explain += <span class="string">&quot;(&quot;</span>;
 
-            <span class="comment">// fill the arguments list with NULL, which should theoretically be valid</span>
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">params_len</span> {
-                <span class="kw">if</span> <span class="ident">comma</span> {
-                    <span class="ident">explain</span> <span class="op">+</span><span class="op">=</span> <span class="string">&quot;, &quot;</span>;
+            <span class="comment">// fill the arguments list with NULL, which should theoretically be valid
+            </span><span class="kw">for _ in </span><span class="number">0</span>..params_len {
+                <span class="kw">if </span>comma {
+                    explain += <span class="string">&quot;, &quot;</span>;
                 }
 
-                <span class="ident">explain</span> <span class="op">+</span><span class="op">=</span> <span class="string">&quot;NULL&quot;</span>;
-                <span class="ident">comma</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                explain += <span class="string">&quot;NULL&quot;</span>;
+                comma = <span class="bool-val">true</span>;
             }
 
-            <span class="ident">explain</span> <span class="op">+</span><span class="op">=</span> <span class="string">&quot;)&quot;</span>;
+            explain += <span class="string">&quot;)&quot;</span>;
         }
 
-        <span class="kw">let</span> (<span class="ident">Json</span>([<span class="ident">explain</span>]),): (<span class="ident">Json</span><span class="op">&lt;</span>[<span class="ident">Explain</span>; <span class="number">1</span>]<span class="op">&gt;</span>,) <span class="op">=</span> <span class="ident">query_as</span>(<span class="kw-2">&amp;</span><span class="ident">explain</span>).<span class="ident">fetch_one</span>(<span class="self">self</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>(Json([explain]),): (Json&lt;[Explain; <span class="number">1</span>]&gt;,) = query_as(<span class="kw-2">&amp;</span>explain).fetch_one(<span class="self">self</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nullables</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>nullables = Vec::new();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">outputs</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">explain</span>.<span class="ident">plan</span>.<span class="ident">output</span> {
-            <span class="ident">nullables</span>.<span class="ident">resize</span>(<span class="ident">outputs</span>.<span class="ident">len</span>(), <span class="prelude-val">None</span>);
-            <span class="ident">visit_plan</span>(<span class="kw-2">&amp;</span><span class="ident">explain</span>.<span class="ident">plan</span>, <span class="ident">outputs</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nullables</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(outputs) = <span class="kw-2">&amp;</span>explain.plan.output {
+            nullables.resize(outputs.len(), <span class="prelude-val">None</span>);
+            visit_plan(<span class="kw-2">&amp;</span>explain.plan, outputs, <span class="kw-2">&amp;mut </span>nullables);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">nullables</span>)
+        <span class="prelude-val">Ok</span>(nullables)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">visit_plan</span>(<span class="ident">plan</span>: <span class="kw-2">&amp;</span><span class="ident">Plan</span>, <span class="ident">outputs</span>: <span class="kw-2">&amp;</span>[<span class="ident">String</span>], <span class="ident">nullables</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">plan_outputs</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">plan</span>.<span class="ident">output</span> {
-        <span class="comment">// all outputs of a Full Join must be marked nullable</span>
-        <span class="comment">// otherwise, all outputs of the inner half of an outer join must be marked nullable</span>
-        <span class="kw">if</span> <span class="ident">plan</span>.<span class="ident">join_type</span>.<span class="ident">as_deref</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Full&quot;</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">plan</span>.<span class="ident">parent_relation</span>.<span class="ident">as_deref</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Inner&quot;</span>)
+<span class="kw">fn </span>visit_plan(plan: <span class="kw-2">&amp;</span>Plan, outputs: <span class="kw-2">&amp;</span>[String], nullables: <span class="kw-2">&amp;mut </span>Vec&lt;<span class="prelude-ty">Option</span>&lt;bool&gt;&gt;) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(plan_outputs) = <span class="kw-2">&amp;</span>plan.output {
+        <span class="comment">// all outputs of a Full Join must be marked nullable
+        // otherwise, all outputs of the inner half of an outer join must be marked nullable
+        </span><span class="kw">if </span>plan.join_type.as_deref() == <span class="prelude-val">Some</span>(<span class="string">&quot;Full&quot;</span>)
+            || plan.parent_relation.as_deref() == <span class="prelude-val">Some</span>(<span class="string">&quot;Inner&quot;</span>)
         {
-            <span class="kw">for</span> <span class="ident">output</span> <span class="kw">in</span> <span class="ident">plan_outputs</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">outputs</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span> <span class="op">==</span> <span class="ident">output</span>) {
-                    <span class="comment">// N.B. this may produce false positives but those don&#39;t cause runtime errors</span>
-                    <span class="ident">nullables</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>);
+            <span class="kw">for </span>output <span class="kw">in </span>plan_outputs {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = outputs.iter().position(|o| o == output) {
+                    <span class="comment">// N.B. this may produce false positives but those don&#39;t cause runtime errors
+                    </span>nullables[i] = <span class="prelude-val">Some</span>(<span class="bool-val">true</span>);
                 }
             }
         }
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">plans</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">plan</span>.<span class="ident">plans</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Left&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Right&quot;</span>) <span class="op">=</span> <span class="ident">plan</span>.<span class="ident">join_type</span>.<span class="ident">as_deref</span>() {
-            <span class="kw">for</span> <span class="ident">plan</span> <span class="kw">in</span> <span class="ident">plans</span> {
-                <span class="ident">visit_plan</span>(<span class="ident">plan</span>, <span class="ident">outputs</span>, <span class="ident">nullables</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(plans) = <span class="kw-2">&amp;</span>plan.plans {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="string">&quot;Left&quot;</span>) | <span class="prelude-val">Some</span>(<span class="string">&quot;Right&quot;</span>) = plan.join_type.as_deref() {
+            <span class="kw">for </span>plan <span class="kw">in </span>plans {
+                visit_plan(plan, outputs, nullables);
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde::Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Explain</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Plan&quot;</span>)]</span>
-    <span class="ident">plan</span>: <span class="ident">Plan</span>,
+<span class="attribute">#[derive(serde::Deserialize)]
+</span><span class="kw">struct </span>Explain {
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Plan&quot;</span>)]
+    </span>plan: Plan,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde::Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Plan</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Join Type&quot;</span>)]</span>
-    <span class="ident">join_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Parent Relationship&quot;</span>)]</span>
-    <span class="ident">parent_relation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Output&quot;</span>)]</span>
-    <span class="ident">output</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Plans&quot;</span>)]</span>
-    <span class="ident">plans</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Plan</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(serde::Deserialize)]
+</span><span class="kw">struct </span>Plan {
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Join Type&quot;</span>)]
+    </span>join_type: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Parent Relationship&quot;</span>)]
+    </span>parent_relation: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Output&quot;</span>)]
+    </span>output: <span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt;,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Plans&quot;</span>)]
+    </span>plans: <span class="prelude-ty">Option</span>&lt;Vec&lt;Plan&gt;&gt;,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

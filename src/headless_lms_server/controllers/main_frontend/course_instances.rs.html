@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/course_instances.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>course_instances.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/course_instances.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>course_instances.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -349,314 +349,314 @@
 <span id="349">349</span>
 <span id="350">350</span>
 <span id="351">351</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">chrono::Utc</span>;
-<span class="kw">use</span> <span class="ident">models</span>::{
-    <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>, <span class="ident">CourseInstanceForm</span>, <span class="ident">Points</span>},
-    <span class="ident">courses</span>,
-    <span class="ident">email_templates</span>::{<span class="ident">EmailTemplate</span>, <span class="ident">EmailTemplateNew</span>},
-    <span class="ident">library</span>::{
+</span><span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>chrono::Utc;
+<span class="kw">use </span>models::{
+    course_instances::{<span class="self">self</span>, CourseInstance, CourseInstanceForm, Points},
+    courses,
+    email_templates::{EmailTemplate, EmailTemplateNew},
+    library::{
         <span class="self">self</span>,
-        <span class="ident">progressing</span>::{
-            <span class="ident">CourseInstanceCompletionSummary</span>, <span class="ident">ManualCompletionPreview</span>,
-            <span class="ident">TeacherManualCompletionRequest</span>,
+        progressing::{
+            CourseInstanceCompletionSummary, ManualCompletionPreview,
+            TeacherManualCompletionRequest,
         },
     },
 };
-<span class="kw">use</span> <span class="ident">tokio_stream::wrappers::UnboundedReceiverStream</span>;
+<span class="kw">use </span>tokio_stream::wrappers::UnboundedReceiverStream;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">domain::csv_export</span>::{<span class="self">self</span>, <span class="ident">make_authorized_streamable</span>, <span class="ident">CSVExportAdapter</span>},
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+<span class="kw">use crate</span>::{
+    domain::csv_export::{<span class="self">self</span>, make_authorized_streamable, CSVExportAdapter},
+    prelude::<span class="kw-2">*</span>,
 };
 
 <span class="doccomment">/**
 GET /course-instances/:id
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_instance</span>(
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">course_instance_id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_course_instance(
+    course_instance_id: web::Path&lt;Uuid&gt;,
+    user: AuthUser,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;CourseInstance&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span>
-        <span class="ident">models::course_instances::get_course_instance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">course_instance</span>))
+    <span class="kw">let </span>course_instance =
+        models::course_instances::get_course_instance(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(course_instance))
 }
 
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_email_template</span>(
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">EmailTemplateNew</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">EmailTemplate</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">course_instance_id</span>),
+<span class="attribute">#[generated_doc]
+#[instrument(skip(payload, pool))]
+</span><span class="kw">async fn </span>post_new_email_template(
+    course_instance_id: web::Path&lt;Uuid&gt;,
+    payload: web::Json&lt;EmailTemplateNew&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;EmailTemplate&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">new_email_template</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">email_template</span> <span class="op">=</span> <span class="ident">models::email_templates::insert_email_template</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">course_instance_id</span>,
-        <span class="ident">new_email_template</span>,
+    <span class="kw">let </span>new_email_template = payload.<span class="number">0</span>;
+    <span class="kw">let </span>email_template = models::email_templates::insert_email_template(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">*</span>course_instance_id,
+        new_email_template,
         <span class="prelude-val">None</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">email_template</span>))
+    token.authorized_ok(web::Json(email_template))
 }
 
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/course-instances/{course_instance_id}/reprocess-completions`
 
 Reprocesses all module completions for the given course instance. Only available to admins.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">user</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_reprocess_module_completions</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::GlobalPermissions</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">models::library::progressing::process_all_course_instance_completions</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">course_instance_id</span>,
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool, user))]
+</span><span class="kw">async fn </span>post_reprocess_module_completions(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    course_instance_id: web::Path&lt;Uuid&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::GlobalPermissions).<span class="kw">await</span><span class="question-mark">?</span>;
+    models::library::progressing::process_all_course_instance_completions(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">*</span>course_instance_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">true</span>))
+    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
 }
 
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_email_templates_by_course_instance_id</span>(
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EmailTemplate</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">course_instance_id</span>),
+<span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_email_templates_by_course_instance_id(
+    course_instance_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;EmailTemplate&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">email_templates</span> <span class="op">=</span>
-        <span class="ident">models::email_templates::get_email_templates</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">email_templates</span>))
+    <span class="kw">let </span>email_templates =
+        models::email_templates::get_email_templates(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(email_templates))
 }
 
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">point_export</span>(
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">course_instance_id</span>),
+<span class="attribute">#[instrument(skip(pool))]
+</span><span class="kw">pub async fn </span>point_export(
+    course_instance_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;HttpResponse&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_instance_id</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">course_instance_id</span>;
-    <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::unbounded_channel</span>::<span class="op">&lt;</span><span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="comment">// spawn handle that writes the csv row by row into the sender</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handle_conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">_handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">csv_export::export_course_instance_points</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">handle_conn</span>,
-            <span class="ident">course_instance_id</span>,
-            <span class="ident">CSVExportAdapter</span> {
-                <span class="ident">sender</span>,
-                <span class="ident">authorization_token</span>: <span class="ident">token</span>,
+    <span class="kw">let </span>course_instance_id = <span class="kw-2">*</span>course_instance_id;
+    <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::unbounded_channel::&lt;ControllerResult&lt;Bytes&gt;&gt;();
+    <span class="comment">// spawn handle that writes the csv row by row into the sender
+    </span><span class="kw">let </span><span class="kw-2">mut </span>handle_conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>_handle = tokio::spawn(<span class="kw">async move </span>{
+        <span class="kw">let </span>res = csv_export::export_course_instance_points(
+            <span class="kw-2">&amp;mut </span>handle_conn,
+            course_instance_id,
+            CSVExportAdapter {
+                sender,
+                authorization_token: token,
             },
         )
         .<span class="kw">await</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">res</span> {
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to export course instance points: {}&quot;</span>, <span class="ident">err</span>);
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = res {
+            <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to export course instance points: {}&quot;</span>, err);
         }
     });
 
-    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span>
-        <span class="ident">course_instances::get_course_instance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">course_instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_instance =
+        course_instances::get_course_instance(<span class="kw-2">&amp;mut </span>conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course = courses::get_course(<span class="kw-2">&amp;mut </span>conn, course_instance.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// return response that streams data from the receiver</span>
+    <span class="comment">// return response that streams data from the receiver
 
-    <span class="kw">return</span> <span class="ident">token</span>.<span class="ident">authorized_ok</span>(
-        <span class="ident">HttpResponse::Ok</span>()
-            .<span class="ident">append_header</span>((
+    </span><span class="kw">return </span>token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header((
                 <span class="string">&quot;Content-Disposition&quot;</span>,
                 <span class="macro">format!</span>(
                     <span class="string">&quot;attachment; filename=\&quot;{} - {} - Point export {}.csv\&quot;&quot;</span>,
-                    <span class="ident">course</span>.<span class="ident">name</span>,
-                    <span class="ident">course_instance</span>.<span class="ident">name</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;unnamed&quot;</span>),
-                    <span class="ident">Utc::today</span>().<span class="ident">format</span>(<span class="string">&quot;%Y-%m-%d&quot;</span>)
+                    course.name,
+                    course_instance.name.as_deref().unwrap_or(<span class="string">&quot;unnamed&quot;</span>),
+                    Utc::today().format(<span class="string">&quot;%Y-%m-%d&quot;</span>)
                 ),
             ))
-            .<span class="ident">streaming</span>(<span class="ident">make_authorized_streamable</span>(<span class="ident">UnboundedReceiverStream::new</span>(
-                <span class="ident">receiver</span>,
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
             ))),
     );
 }
 
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">points</span>(
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pagination</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">Pagination</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Points</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">course_instance_id</span>),
+<span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>points(
+    course_instance_id: web::Path&lt;Uuid&gt;,
+    pagination: web::Query&lt;Pagination&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;Points&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">course_instances::get_points</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>, <span class="kw-2">*</span><span class="ident">pagination</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">points</span>))
+    <span class="kw">let </span>points = course_instances::get_points(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_instance_id, <span class="kw-2">*</span>pagination).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(points))
 }
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">completions</span>(
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CourseInstanceCompletionSummary</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">course_instance_id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>completions(
+    course_instance_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;CourseInstanceCompletionSummary&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span>
-        <span class="ident">course_instances::get_course_instance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">completions</span> <span class="op">=</span>
-        <span class="ident">library::progressing::get_course_instance_completion_summary</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">course_instance</span>)
+    <span class="kw">let </span>course_instance =
+        course_instances::get_course_instance(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>completions =
+        library::progressing::get_course_instance_completion_summary(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>course_instance)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">completions</span>))
+    token.authorized_ok(web::Json(completions))
 }
 
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">payload</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_completions</span>(
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">TeacherManualCompletionRequest</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">course_instance_id</span>),
+*/
+</span><span class="attribute">#[instrument(skip(pool, payload))]
+</span><span class="kw">async fn </span>post_completions(
+    course_instance_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    payload: web::Json&lt;TeacherManualCompletionRequest&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;()&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span>
-        <span class="ident">course_instances::get_course_instance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">library::progressing::add_manual_completions</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">course_instance</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>)
+    <span class="kw">let </span>data = payload.<span class="number">0</span>;
+    <span class="kw">let </span>course_instance =
+        course_instances::get_course_instance(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    library::progressing::add_manual_completions(<span class="kw-2">&amp;mut </span>conn, user.id, <span class="kw-2">&amp;</span>course_instance, <span class="kw-2">&amp;</span>data)
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
+    token.authorized_ok(web::Json(()))
 }
 
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">payload</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">preview_post_completions</span>(
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">TeacherManualCompletionRequest</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ManualCompletionPreview</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">course_instance_id</span>),
+<span class="attribute">#[instrument(skip(pool, payload))]
+</span><span class="kw">async fn </span>preview_post_completions(
+    course_instance_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    payload: web::Json&lt;TeacherManualCompletionRequest&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;ManualCompletionPreview&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident">course_instances::get_course_instance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">preview</span> <span class="op">=</span>
-        <span class="ident">library::progressing::get_manual_completion_result_preview</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">instance</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>)
+    <span class="kw">let </span>data = payload.<span class="number">0</span>;
+    <span class="kw">let </span>instance = course_instances::get_course_instance(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>preview =
+        library::progressing::get_manual_completion_result_preview(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>instance, <span class="kw-2">&amp;</span>data)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">preview</span>))
+    token.authorized_ok(web::Json(preview))
 }
 
 <span class="doccomment">/**
 POST /course-instances/:id/edit
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">edit</span>(
-    <span class="ident">update</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CourseInstanceForm</span><span class="op">&gt;</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">course_instance_id</span>),
+*/
+</span><span class="attribute">#[instrument(skip(pool))]
+</span><span class="kw">pub async fn </span>edit(
+    update: web::Json&lt;CourseInstanceForm&gt;,
+    course_instance_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;HttpResponse&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>course_instance_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">course_instances::edit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>, <span class="ident">update</span>.<span class="ident">into_inner</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>())
+    course_instances::edit(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_instance_id, update.into_inner()).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 <span class="doccomment">/**
 POST /course-instances/:id/delete
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(
-    <span class="ident">id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::CourseInstance</span>(<span class="kw-2">*</span><span class="ident">id</span>),
+*/
+</span><span class="attribute">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>delete(
+    id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;HttpResponse&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(<span class="kw-2">*</span>id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">models::course_instances::delete</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>())
+    models::course_instances::delete(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>id).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 <span class="doccomment">/**
@@ -665,40 +665,40 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{course_instance_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_instance</span>))
-        .<span class="ident">route</span>(
+*/
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;/{course_instance_id}&quot;</span>, web::get().to(get_course_instance))
+        .route(
             <span class="string">&quot;/{course_instance_id}/email-templates&quot;</span>,
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_email_template</span>),
+            web::post().to(post_new_email_template),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{course_instance_id}/email-templates&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_email_templates_by_course_instance_id</span>),
+            web::get().to(get_email_templates_by_course_instance_id),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{course_instance_id}/points/export&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">point_export</span>),
+            web::get().to(point_export),
         )
-        .<span class="ident">route</span>(<span class="string">&quot;/{course_instance_id}/edit&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">edit</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{course_instance_id}/delete&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">delete</span>))
-        .<span class="ident">route</span>(
+        .route(<span class="string">&quot;/{course_instance_id}/edit&quot;</span>, web::post().to(edit))
+        .route(<span class="string">&quot;/{course_instance_id}/delete&quot;</span>, web::post().to(delete))
+        .route(
             <span class="string">&quot;/{course_instance_id}/completions&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">completions</span>),
+            web::get().to(completions),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{course_instance_id}/completions&quot;</span>,
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_completions</span>),
+            web::post().to(post_completions),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{course_instance_id}/completions/preview&quot;</span>,
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">preview_post_completions</span>),
+            web::post().to(preview_post_completions),
         )
-        .<span class="ident">route</span>(<span class="string">&quot;/{course_instance_id}/points&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">points</span>))
-        .<span class="ident">route</span>(
+        .route(<span class="string">&quot;/{course_instance_id}/points&quot;</span>, web::get().to(points))
+        .route(
             <span class="string">&quot;/{course_instance_id}/reprocess-completions&quot;</span>,
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_reprocess_module_completions</span>),
+            web::post().to(post_reprocess_module_completions),
         );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

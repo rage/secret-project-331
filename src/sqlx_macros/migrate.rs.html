@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/migrate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>migrate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/migrate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>migrate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_macros/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -150,157 +150,157 @@
 <span id="150">150</span>
 <span id="151">151</span>
 <span id="152">152</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span>;
-<span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">quote</span>, <span class="ident">ToTokens</span>, <span class="ident">TokenStreamExt</span>};
-<span class="kw">use</span> <span class="ident">sha2</span>::{<span class="ident">Digest</span>, <span class="ident">Sha384</span>};
-<span class="kw">use</span> <span class="ident">sqlx_core::migrate::MigrationType</span>;
-<span class="kw">use</span> <span class="ident">std::fs</span>;
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
-<span class="kw">use</span> <span class="ident">syn::LitStr</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>proc_macro2::TokenStream;
+<span class="kw">use </span>quote::{quote, ToTokens, TokenStreamExt};
+<span class="kw">use </span>sha2::{Digest, Sha384};
+<span class="kw">use </span>sqlx_core::migrate::MigrationType;
+<span class="kw">use </span>std::fs;
+<span class="kw">use </span>std::path::Path;
+<span class="kw">use </span>syn::LitStr;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QuotedMigrationType</span>(<span class="ident">MigrationType</span>);
+<span class="kw">pub struct </span>QuotedMigrationType(MigrationType);
 
-<span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">QuotedMigrationType</span> {
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
-        <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">MigrationType::Simple</span> =&gt; <span class="macro">quote!</span> { <span class="ident">::sqlx::migrate::MigrationType::Simple</span> },
-            <span class="ident">MigrationType::ReversibleUp</span> =&gt; <span class="macro">quote!</span> { <span class="ident">::sqlx::migrate::MigrationType::ReversibleUp</span> },
-            <span class="ident">MigrationType::ReversibleDown</span> =&gt; {
-                <span class="macro">quote!</span> { <span class="ident">::sqlx::migrate::MigrationType::ReversibleDown</span> }
+<span class="kw">impl </span>ToTokens <span class="kw">for </span>QuotedMigrationType {
+    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>TokenStream) {
+        <span class="kw">let </span>ts = <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
+            MigrationType::Simple =&gt; <span class="macro">quote! </span>{ ::sqlx::migrate::MigrationType::Simple },
+            MigrationType::ReversibleUp =&gt; <span class="macro">quote! </span>{ ::sqlx::migrate::MigrationType::ReversibleUp },
+            MigrationType::ReversibleDown =&gt; {
+                <span class="macro">quote! </span>{ ::sqlx::migrate::MigrationType::ReversibleDown }
             }
         };
-        <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="ident">ts</span>.<span class="ident">into_iter</span>());
+        tokens.append_all(ts.into_iter());
     }
 }
 
-<span class="kw">struct</span> <span class="ident">QuotedMigration</span> {
-    <span class="ident">version</span>: <span class="ident">i64</span>,
-    <span class="ident">description</span>: <span class="ident">String</span>,
-    <span class="ident">migration_type</span>: <span class="ident">QuotedMigrationType</span>,
-    <span class="ident">path</span>: <span class="ident">String</span>,
-    <span class="ident">checksum</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>QuotedMigration {
+    version: i64,
+    description: String,
+    migration_type: QuotedMigrationType,
+    path: String,
+    checksum: Vec&lt;u8&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">QuotedMigration</span> {
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
-        <span class="kw">let</span> <span class="ident">QuotedMigration</span> {
-            <span class="ident">version</span>,
-            <span class="ident">description</span>,
-            <span class="ident">migration_type</span>,
-            <span class="ident">path</span>,
-            <span class="ident">checksum</span>,
-        } <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>;
+<span class="kw">impl </span>ToTokens <span class="kw">for </span>QuotedMigration {
+    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>TokenStream) {
+        <span class="kw">let </span>QuotedMigration {
+            version,
+            description,
+            migration_type,
+            path,
+            checksum,
+        } = <span class="kw-2">&amp;</span><span class="self">self</span>;
 
-        <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="macro">quote!</span> {
-            <span class="ident">::sqlx::migrate::Migration</span> {
-                <span class="ident">version</span>: #<span class="ident">version</span>,
-                <span class="ident">description</span>: <span class="ident">::std::borrow::Cow::Borrowed</span>(#<span class="ident">description</span>),
-                <span class="ident">migration_type</span>:  #<span class="ident">migration_type</span>,
-                <span class="comment">// this tells the compiler to watch this path for changes</span>
-                <span class="ident">sql</span>: <span class="ident">::std::borrow::Cow::Borrowed</span>(<span class="macro">include_str!</span>(#<span class="ident">path</span>)),
-                <span class="ident">checksum</span>: <span class="ident">::std::borrow::Cow::Borrowed</span>(<span class="kw-2">&amp;</span>[
-                    #(#<span class="ident">checksum</span>),<span class="op">*</span>
+        <span class="kw">let </span>ts = <span class="macro">quote! </span>{
+            ::sqlx::migrate::Migration {
+                version: #version,
+                description: ::std::borrow::Cow::Borrowed(#description),
+                migration_type:  #migration_type,
+                <span class="comment">// this tells the compiler to watch this path for changes
+                </span>sql: ::std::borrow::Cow::Borrowed(<span class="macro">include_str!</span>(#path)),
+                checksum: ::std::borrow::Cow::Borrowed(<span class="kw-2">&amp;</span>[
+                    #(#checksum),*
                 ]),
             }
         };
 
-        <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="ident">ts</span>.<span class="ident">into_iter</span>());
+        tokens.append_all(ts.into_iter());
     }
 }
 
-<span class="comment">// mostly copied from sqlx-core/src/migrate/source.rs</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">expand_migrator_from_lit_dir</span>(<span class="ident">dir</span>: <span class="ident">LitStr</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="ident">expand_migrator_from_dir</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>.<span class="ident">value</span>(), <span class="ident">dir</span>.<span class="ident">span</span>())
+<span class="comment">// mostly copied from sqlx-core/src/migrate/source.rs
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>expand_migrator_from_lit_dir(dir: LitStr) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
+    expand_migrator_from_dir(<span class="kw-2">&amp;</span>dir.value(), dir.span())
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">expand_migrator_from_dir</span>(
-    <span class="ident">dir</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">err_span</span>: <span class="ident">proc_macro2::Span</span>,
-) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::common::resolve_path</span>(<span class="ident">dir</span>, <span class="ident">err_span</span>)<span class="question-mark">?</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>expand_migrator_from_dir(
+    dir: <span class="kw-2">&amp;</span>str,
+    err_span: proc_macro2::Span,
+) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>path = <span class="kw">crate</span>::common::resolve_path(dir, err_span)<span class="question-mark">?</span>;
 
-    <span class="ident">expand_migrator</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)
+    expand_migrator(<span class="kw-2">&amp;</span>path)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">expand_migrator</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">migrations</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>expand_migrator(path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>migrations = Vec::new();
 
-    <span class="kw">for</span> <span class="ident">entry</span> <span class="kw">in</span> <span class="ident">fs::read_dir</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span> {
-        <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">entry</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">fs::metadata</span>(<span class="ident">entry</span>.<span class="ident">path</span>())<span class="question-mark">?</span>.<span class="ident">is_file</span>() {
-            <span class="comment">// not a file; ignore</span>
-            <span class="kw">continue</span>;
+    <span class="kw">for </span>entry <span class="kw">in </span>fs::read_dir(<span class="kw-2">&amp;</span>path)<span class="question-mark">? </span>{
+        <span class="kw">let </span>entry = entry<span class="question-mark">?</span>;
+        <span class="kw">if </span>!fs::metadata(entry.path())<span class="question-mark">?</span>.is_file() {
+            <span class="comment">// not a file; ignore
+            </span><span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">file_name</span>();
-        <span class="kw">let</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">file_name</span>.<span class="ident">to_string_lossy</span>();
+        <span class="kw">let </span>file_name = entry.file_name();
+        <span class="kw">let </span>file_name = file_name.to_string_lossy();
 
-        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">file_name</span>.<span class="ident">splitn</span>(<span class="number">2</span>, <span class="string">&#39;_&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="kw">let </span>parts = file_name.splitn(<span class="number">2</span>, <span class="string">&#39;_&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">ends_with</span>(<span class="string">&quot;.sql&quot;</span>) {
-            <span class="comment">// not of the format: &lt;VERSION&gt;_&lt;DESCRIPTION&gt;.sql; ignore</span>
-            <span class="kw">continue</span>;
+        <span class="kw">if </span>parts.len() != <span class="number">2 </span>|| !parts[<span class="number">1</span>].ends_with(<span class="string">&quot;.sql&quot;</span>) {
+            <span class="comment">// not of the format: &lt;VERSION&gt;_&lt;DESCRIPTION&gt;.sql; ignore
+            </span><span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">version</span>: <span class="ident">i64</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>version: i64 = parts[<span class="number">0</span>].parse()<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">migration_type</span> <span class="op">=</span> <span class="ident">MigrationType::from_filename</span>(<span class="ident">parts</span>[<span class="number">1</span>]);
-        <span class="comment">// remove the `.sql` and replace `_` with ` `</span>
-        <span class="kw">let</span> <span class="ident">description</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">1</span>]
-            .<span class="ident">trim_end_matches</span>(<span class="ident">migration_type</span>.<span class="ident">suffix</span>())
-            .<span class="ident">replace</span>(<span class="string">&#39;_&#39;</span>, <span class="string">&quot; &quot;</span>)
-            .<span class="ident">to_owned</span>();
+        <span class="kw">let </span>migration_type = MigrationType::from_filename(parts[<span class="number">1</span>]);
+        <span class="comment">// remove the `.sql` and replace `_` with ` `
+        </span><span class="kw">let </span>description = parts[<span class="number">1</span>]
+            .trim_end_matches(migration_type.suffix())
+            .replace(<span class="string">&#39;_&#39;</span>, <span class="string">&quot; &quot;</span>)
+            .to_owned();
 
-        <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="ident">fs::read_to_string</span>(<span class="kw-2">&amp;</span><span class="ident">entry</span>.<span class="ident">path</span>())<span class="question-mark">?</span>;
+        <span class="kw">let </span>sql = fs::read_to_string(<span class="kw-2">&amp;</span>entry.path())<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">checksum</span> <span class="op">=</span> <span class="ident">Vec::from</span>(<span class="ident">Sha384::digest</span>(<span class="ident">sql</span>.<span class="ident">as_bytes</span>()).<span class="ident">as_slice</span>());
+        <span class="kw">let </span>checksum = Vec::from(Sha384::digest(sql.as_bytes()).as_slice());
 
-        <span class="comment">// canonicalize the path so we can pass it to `include_str!()`</span>
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">path</span>().<span class="ident">canonicalize</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>
-            .<span class="ident">to_str</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+        <span class="comment">// canonicalize the path so we can pass it to `include_str!()`
+        </span><span class="kw">let </span>path = entry.path().canonicalize()<span class="question-mark">?</span>;
+        <span class="kw">let </span>path = path
+            .to_str()
+            .ok_or_else(|| {
                 <span class="macro">format!</span>(
                     <span class="string">&quot;migration path cannot be represented as a string: {:?}&quot;</span>,
-                    <span class="ident">path</span>
+                    path
                 )
-            })<span class="question-mark">?</span>
-            .<span class="ident">to_owned</span>();
+            })<span class="question-mark">?
+            </span>.to_owned();
 
-        <span class="ident">migrations</span>.<span class="ident">push</span>(<span class="ident">QuotedMigration</span> {
-            <span class="ident">version</span>,
-            <span class="ident">description</span>,
-            <span class="ident">migration_type</span>: <span class="ident">QuotedMigrationType</span>(<span class="ident">migration_type</span>),
-            <span class="ident">path</span>,
-            <span class="ident">checksum</span>,
+        migrations.push(QuotedMigration {
+            version,
+            description,
+            migration_type: QuotedMigrationType(migration_type),
+            path,
+            checksum,
         })
     }
 
-    <span class="comment">// ensure that we are sorted by `VERSION ASC`</span>
-    <span class="ident">migrations</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">version</span>);
+    <span class="comment">// ensure that we are sorted by `VERSION ASC`
+    </span>migrations.sort_by_key(|m| m.version);
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">sqlx_macros_unstable</span>, <span class="ident">procmacro2_semver_exempt</span>))]</span>
-    {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">canonicalize</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">to_str</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+    <span class="attribute">#[cfg(any(sqlx_macros_unstable, procmacro2_semver_exempt))]
+    </span>{
+        <span class="kw">let </span>path = path.canonicalize()<span class="question-mark">?</span>;
+        <span class="kw">let </span>path = path.to_str().ok_or_else(|| {
             <span class="macro">format!</span>(
                 <span class="string">&quot;migration directory path cannot be represented as a string: {:?}&quot;</span>,
-                <span class="ident">path</span>
+                path
             )
         })<span class="question-mark">?</span>;
 
-        <span class="ident">proc_macro::tracked_path::path</span>(<span class="ident">path</span>);
+        proc_macro::tracked_path::path(path);
     }
 
-    <span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {
-        <span class="ident">::sqlx::migrate::Migrator</span> {
-            <span class="ident">migrations</span>: <span class="ident">::std::borrow::Cow::Borrowed</span>(<span class="kw-2">&amp;</span>[
-                #(#<span class="ident">migrations</span>),<span class="op">*</span>
+    <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
+        ::sqlx::migrate::Migrator {
+            migrations: ::std::borrow::Cow::Borrowed(<span class="kw-2">&amp;</span>[
+                #(#migrations),*
             ]),
-            <span class="ident">ignore_missing</span>: <span class="bool-val">false</span>,
-            <span class="ident">locking</span>: <span class="bool-val">true</span>,
+            ignore_missing: <span class="bool-val">false</span>,
+            locking: <span class="bool-val">true</span>,
         }
     })
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_server/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_server/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -129,72 +129,72 @@ The server that handles the requests.
 
 * [headless_lms_utils]
 * [headless_lms_models]
-*/</span>
+*/
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">controllers</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">domain</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span>;
+</span><span class="kw">pub mod </span>controllers;
+<span class="kw">pub mod </span>domain;
+<span class="kw">pub mod </span>prelude;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">programs</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">test_helper</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ts_binding_generator</span>;
+<span class="kw">pub mod </span>programs;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">pub mod </span>test_helper;
+<span class="attribute">#[cfg(all(test, feature = <span class="string">&quot;ts_rs&quot;</span>))]
+</span><span class="kw">pub mod </span>ts_binding_generator;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tracing</span>;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>tracing;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">doc_macro</span>;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>doc_macro;
 
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+<span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">body::MessageBody</span>, <span class="ident">StatusCode</span>};
-<span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">error::InternalError</span>,
-    <span class="ident">web</span>::{<span class="self">self</span>, <span class="ident">Data</span>, <span class="ident">ServiceConfig</span>},
-    <span class="ident">HttpResponse</span>,
+<span class="kw">use </span>actix_http::{body::MessageBody, StatusCode};
+<span class="kw">use </span>actix_web::{
+    error::InternalError,
+    web::{<span class="self">self</span>, Data, ServiceConfig},
+    HttpResponse,
 };
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">domain::request_span_middleware::RequestSpan</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
-    <span class="ident">file_store::FileStore</span>, <span class="ident">ip_to_country::IpToCountryMapper</span>, <span class="ident">ApplicationConfiguration</span>,
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>domain::request_span_middleware::RequestSpan;
+<span class="kw">use </span>headless_lms_utils::{
+    file_store::FileStore, ip_to_country::IpToCountryMapper, ApplicationConfiguration,
 };
-<span class="kw">use</span> <span class="ident">oauth2::basic::BasicClient</span>;
-<span class="kw">use</span> <span class="ident">tracing_error::ErrorLayer</span>;
-<span class="kw">use</span> <span class="ident">tracing_log::LogTracer</span>;
-<span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">layer::SubscriberExt</span>, <span class="ident">EnvFilter</span>};
+<span class="kw">use </span>oauth2::basic::BasicClient;
+<span class="kw">use </span>tracing_error::ErrorLayer;
+<span class="kw">use </span>tracing_log::LogTracer;
+<span class="kw">use </span>tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OAuthClient</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">BasicClient</span><span class="op">&gt;</span>;
+<span class="kw">pub type </span>OAuthClient = Arc&lt;BasicClient&gt;;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">configure</span>(
-    <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>,
-    <span class="ident">file_store</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">app_conf</span>: <span class="ident">ApplicationConfiguration</span>,
+<span class="kw">pub fn </span>configure(
+    config: <span class="kw-2">&amp;mut </span>ServiceConfig,
+    file_store: Arc&lt;<span class="kw">dyn </span>FileStore&gt;,
+    app_conf: ApplicationConfiguration,
 ) {
-    <span class="kw">let</span> <span class="ident">ip_to_country_mapper</span> <span class="op">=</span>
-        <span class="ident">IpToCountryMapper::new</span>().<span class="ident">expect</span>(<span class="string">&quot;Could not load ip to country mapper&quot;</span>);
-    <span class="kw">let</span> <span class="ident">json_config</span> <span class="op">=</span>
-        <span class="ident">web::JsonConfig::default</span>()
-            .<span class="ident">limit</span>(<span class="number">1048576</span>)
-            .<span class="ident">error_handler</span>(<span class="op">|</span><span class="ident">err</span>, <span class="ident">_req</span><span class="op">|</span> -&gt; <span class="ident">actix_web::Error</span> {
-                <span class="macro">info!</span>(<span class="string">&quot;Bad request: {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
-                <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{{\&quot;title\&quot;: \&quot;Bad Request\&quot;, \&quot;message\&quot;: \&quot;{}\&quot;}}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
-                <span class="comment">// create custom error response</span>
-                <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">HttpResponse::with_body</span>(<span class="ident">StatusCode::BAD_REQUEST</span>, <span class="ident">body</span>.<span class="ident">boxed</span>());
-                <span class="ident">InternalError::from_response</span>(<span class="ident">err</span>, <span class="ident">response</span>).<span class="ident">into</span>()
+    <span class="kw">let </span>ip_to_country_mapper =
+        IpToCountryMapper::new().expect(<span class="string">&quot;Could not load ip to country mapper&quot;</span>);
+    <span class="kw">let </span>json_config =
+        web::JsonConfig::default()
+            .limit(<span class="number">1048576</span>)
+            .error_handler(|err, _req| -&gt; actix_web::Error {
+                <span class="macro">info!</span>(<span class="string">&quot;Bad request: {}&quot;</span>, <span class="kw-2">&amp;</span>err);
+                <span class="kw">let </span>body = <span class="macro">format!</span>(<span class="string">&quot;{{\&quot;title\&quot;: \&quot;Bad Request\&quot;, \&quot;message\&quot;: \&quot;{}\&quot;}}&quot;</span>, <span class="kw-2">&amp;</span>err);
+                <span class="comment">// create custom error response
+                </span><span class="kw">let </span>response = HttpResponse::with_body(StatusCode::BAD_REQUEST, body.boxed());
+                InternalError::from_response(err, response).into()
             });
-    <span class="ident">config</span>
-        .<span class="ident">app_data</span>(<span class="ident">json_config</span>)
-        .<span class="ident">service</span>(
-            <span class="ident">web::scope</span>(<span class="string">&quot;/api/v0&quot;</span>)
-                .<span class="ident">wrap</span>(<span class="ident">RequestSpan</span>)
-                .<span class="ident">configure</span>(<span class="ident">controllers::configure_controllers</span>),
+    config
+        .app_data(json_config)
+        .service(
+            web::scope(<span class="string">&quot;/api/v0&quot;</span>)
+                .wrap(RequestSpan)
+                .configure(controllers::configure_controllers),
         )
-        <span class="comment">// Not using Data::new for file_store to avoid double wrapping it in a arc</span>
-        .<span class="ident">app_data</span>(<span class="ident">Data::from</span>(<span class="ident">file_store</span>))
-        .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">app_conf</span>))
-        .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">ip_to_country_mapper</span>));
+        <span class="comment">// Not using Data::new for file_store to avoid double wrapping it in a arc
+        </span>.app_data(Data::from(file_store))
+        .app_data(Data::new(app_conf))
+        .app_data(Data::new(ip_to_country_mapper));
 }
 
 <span class="doccomment">/**
@@ -205,46 +205,46 @@ settings that have been set with RUST_LOG, for example:
 use std::env;
 env::set_var(&quot;RUST_LOG&quot;, &quot;info,actix_web=info,sqlx=warn&quot;);
 ```
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup_tracing</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">tracing_subscriber::Registry::default</span>()
-        .<span class="ident">with</span>(
-            <span class="ident">tracing_subscriber::fmt::layer</span>()
-                .<span class="ident">event_format</span>(<span class="ident">tracing_subscriber::fmt::format</span>().<span class="ident">compact</span>()),
+*/
+</span><span class="kw">pub fn </span>setup_tracing() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>subscriber = tracing_subscriber::Registry::default()
+        .with(
+            tracing_subscriber::fmt::layer()
+                .event_format(tracing_subscriber::fmt::format().compact()),
         )
-        .<span class="ident">with</span>(<span class="ident">ErrorLayer::default</span>())
-        .<span class="ident">with</span>(<span class="ident">EnvFilter::try_from_default_env</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">EnvFilter::new</span>(<span class="string">&quot;info&quot;</span>)));
-    <span class="ident">tracing::subscriber::set_global_default</span>(<span class="ident">subscriber</span>)<span class="question-mark">?</span>;
-    <span class="ident">LogTracer::init</span>()<span class="question-mark">?</span>;
+        .with(ErrorLayer::default())
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|<span class="kw">_</span>| EnvFilter::new(<span class="string">&quot;info&quot;</span>)));
+    tracing::subscriber::set_global_default(subscriber)<span class="question-mark">?</span>;
+    LogTracer::init()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Includes the type&#39;s JSON example generated by doc-file-generator as a string.</span>
-<span class="doccomment">/// Used with the helper macro from the doc-macro crate: #[generated_doc]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">generated_docs</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span>) =&gt; {
+<span class="doccomment">/// Includes the type&#39;s JSON example generated by doc-file-generator as a string.
+/// Used with the helper macro from the doc-macro crate: #[generated_doc]
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>generated_docs {
+    (<span class="macro-nonterminal">$t</span>: ty) =&gt; {
         <span class="macro">concat!</span>(
             <span class="string">&quot;## Response TypeScript definition\n&quot;</span>,
             <span class="string">&quot;```ts\n&quot;</span>,
             <span class="macro">include_str!</span>(<span class="macro">concat!</span>(
                 <span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>),
                 <span class="string">&quot;/generated-docs/&quot;</span>,
-                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>),
-                <span class="string">&quot;.ts&quot;</span>
-            )),
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>),
+                <span class="string">&quot;.ts&quot;
+            </span>)),
             <span class="string">&quot;\n```\n&quot;</span>,
             <span class="string">&quot;## Example response\n&quot;</span>,
             <span class="string">&quot;```json\n&quot;</span>,
             <span class="macro">include_str!</span>(<span class="macro">concat!</span>(
                 <span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>),
                 <span class="string">&quot;/generated-docs/&quot;</span>,
-                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>),
-                <span class="string">&quot;.json&quot;</span>
-            )),
+                <span class="macro">stringify!</span>(<span class="macro-nonterminal">$t</span>),
+                <span class="string">&quot;.json&quot;
+            </span>)),
             <span class="string">&quot;\n```\n&quot;</span>,
         )
     };
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/signals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/signals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_server/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -108,113 +108,113 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">fmt</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    fmt,
+    future::Future,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">tracing::trace</span>;
+<span class="kw">use </span>tracing::trace;
 
-<span class="doccomment">/// Types of process signals.</span>
-<span class="comment">// #[allow(dead_code)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span> <span class="comment">// variants are never constructed on non-unix</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">SignalKind</span> {
-    <span class="doccomment">/// `SIGINT`</span>
-    <span class="ident">Int</span>,
+<span class="doccomment">/// Types of process signals.
+</span><span class="comment">// #[allow(dead_code)]
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq)]
+#[allow(dead_code)] </span><span class="comment">// variants are never constructed on non-unix
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>SignalKind {
+    <span class="doccomment">/// `SIGINT`
+    </span>Int,
 
-    <span class="doccomment">/// `SIGTERM`</span>
-    <span class="ident">Term</span>,
+    <span class="doccomment">/// `SIGTERM`
+    </span>Term,
 
-    <span class="doccomment">/// `SIGQUIT`</span>
-    <span class="ident">Quit</span>,
+    <span class="doccomment">/// `SIGQUIT`
+    </span>Quit,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">SignalKind</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SignalKind::Int</span> =&gt; <span class="string">&quot;SIGINT&quot;</span>,
-            <span class="ident">SignalKind::Term</span> =&gt; <span class="string">&quot;SIGTERM&quot;</span>,
-            <span class="ident">SignalKind::Quit</span> =&gt; <span class="string">&quot;SIGQUIT&quot;</span>,
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>SignalKind {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.write_str(<span class="kw">match </span><span class="self">self </span>{
+            SignalKind::Int =&gt; <span class="string">&quot;SIGINT&quot;</span>,
+            SignalKind::Term =&gt; <span class="string">&quot;SIGTERM&quot;</span>,
+            SignalKind::Quit =&gt; <span class="string">&quot;SIGQUIT&quot;</span>,
         })
     }
 }
 
-<span class="doccomment">/// Process signal listener.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Signals</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">unix</span>))]</span>
-    <span class="ident">signals</span>: <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Process signal listener.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Signals {
+    <span class="attribute">#[cfg(not(unix))]
+    </span>signals: futures_core::future::BoxFuture&lt;<span class="lifetime">&#39;static</span>, std::io::Result&lt;()&gt;&gt;,
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="ident">signals</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">SignalKind</span>, <span class="ident">actix_rt::signal::unix::Signal</span>)<span class="op">&gt;</span>,
+    <span class="attribute">#[cfg(unix)]
+    </span>signals: Vec&lt;(SignalKind, actix_rt::signal::unix::Signal)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Signals</span> {
-    <span class="doccomment">/// Constructs an OS signal listening future.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
+<span class="kw">impl </span>Signals {
+    <span class="doccomment">/// Constructs an OS signal listening future.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="macro">trace!</span>(<span class="string">&quot;setting up OS signal listener&quot;</span>);
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">unix</span>))]</span>
-        {
-            <span class="ident">Signals</span> {
-                <span class="ident">signals</span>: <span class="ident">Box::pin</span>(<span class="ident">actix_rt::signal::ctrl_c</span>()),
+        <span class="attribute">#[cfg(not(unix))]
+        </span>{
+            Signals {
+                signals: Box::pin(actix_rt::signal::ctrl_c()),
             }
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-        {
-            <span class="kw">use</span> <span class="ident">actix_rt::signal::unix</span>;
+        <span class="attribute">#[cfg(unix)]
+        </span>{
+            <span class="kw">use </span>actix_rt::signal::unix;
 
-            <span class="kw">let</span> <span class="ident">sig_map</span> <span class="op">=</span> [
-                (<span class="ident">unix::SignalKind::interrupt</span>(), <span class="ident">SignalKind::Int</span>),
-                (<span class="ident">unix::SignalKind::terminate</span>(), <span class="ident">SignalKind::Term</span>),
-                (<span class="ident">unix::SignalKind::quit</span>(), <span class="ident">SignalKind::Quit</span>),
+            <span class="kw">let </span>sig_map = [
+                (unix::SignalKind::interrupt(), SignalKind::Int),
+                (unix::SignalKind::terminate(), SignalKind::Term),
+                (unix::SignalKind::quit(), SignalKind::Quit),
             ];
 
-            <span class="kw">let</span> <span class="ident">signals</span> <span class="op">=</span> <span class="ident">sig_map</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">kind</span>, <span class="ident">sig</span>)<span class="op">|</span> {
-                    <span class="ident">unix::signal</span>(<span class="kw-2">*</span><span class="ident">kind</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">tokio_sig</span><span class="op">|</span> (<span class="kw-2">*</span><span class="ident">sig</span>, <span class="ident">tokio_sig</span>))
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+            <span class="kw">let </span>signals = sig_map
+                .iter()
+                .filter_map(|(kind, sig)| {
+                    unix::signal(<span class="kw-2">*</span>kind)
+                        .map(|tokio_sig| (<span class="kw-2">*</span>sig, tokio_sig))
+                        .map_err(|e| {
                             <span class="macro">tracing::error!</span>(
                                 <span class="string">&quot;Can not initialize stream handler for {:?} err: {}&quot;</span>,
-                                <span class="ident">sig</span>,
-                                <span class="ident">e</span>
+                                sig,
+                                e
                             )
                         })
-                        .<span class="ident">ok</span>()
+                        .ok()
                 })
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-            <span class="ident">Signals</span> { <span class="ident">signals</span> }
+            Signals { signals }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">Signals</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">SignalKind</span>;
+<span class="kw">impl </span>Future <span class="kw">for </span>Signals {
+    <span class="kw">type </span>Output = SignalKind;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">unix</span>))]</span>
-        {
-            <span class="self">self</span>.<span class="ident">signals</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">SignalKind::Int</span>)
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="attribute">#[cfg(not(unix))]
+        </span>{
+            <span class="self">self</span>.signals.as_mut().poll(cx).map(|<span class="kw">_</span>| SignalKind::Int)
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-        {
-            <span class="kw">for</span> (<span class="ident">sig</span>, <span class="ident">fut</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">signals</span>.<span class="ident">iter_mut</span>() {
-                <span class="kw">if</span> <span class="ident">Pin::new</span>(<span class="ident">fut</span>).<span class="ident">poll_recv</span>(<span class="ident">cx</span>).<span class="ident">is_ready</span>() {
-                    <span class="macro">trace!</span>(<span class="string">&quot;{} received&quot;</span>, <span class="ident">sig</span>);
-                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="kw-2">*</span><span class="ident">sig</span>);
+        <span class="attribute">#[cfg(unix)]
+        </span>{
+            <span class="kw">for </span>(sig, fut) <span class="kw">in </span><span class="self">self</span>.signals.iter_mut() {
+                <span class="kw">if </span>Pin::new(fut).poll_recv(cx).is_ready() {
+                    <span class="macro">trace!</span>(<span class="string">&quot;{} received&quot;</span>, sig);
+                    <span class="kw">return </span>Poll::Ready(<span class="kw-2">*</span>sig);
                 }
             }
 
-            <span class="ident">Poll::Pending</span>
+            Poll::Pending
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/statement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/statement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -170,177 +170,177 @@
 <span id="170">170</span>
 <span id="171">171</span>
 <span id="172">172</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::arguments::IntoArguments</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::column::ColumnIndex</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database</span>::{<span class="ident">Database</span>, <span class="ident">HasArguments</span>, <span class="ident">HasStatement</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::from_row::FromRow</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query::Query</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_as::QueryAs</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_scalar::QueryScalar</span>;
-<span class="kw">use</span> <span class="ident">either::Either</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::arguments::IntoArguments;
+<span class="kw">use </span><span class="kw">crate</span>::column::ColumnIndex;
+<span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasArguments, HasStatement};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::from_row::FromRow;
+<span class="kw">use </span><span class="kw">crate</span>::query::Query;
+<span class="kw">use </span><span class="kw">crate</span>::query_as::QueryAs;
+<span class="kw">use </span><span class="kw">crate</span>::query_scalar::QueryScalar;
+<span class="kw">use </span>either::Either;
 
-<span class="doccomment">/// An explicitly prepared statement.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Statements are prepared and cached by default, per connection. This type allows you to</span>
-<span class="doccomment">/// look at that cache in-between the statement being prepared and it being executed. This contains</span>
-<span class="doccomment">/// the expected columns to be returned and the expected parameter types (if available).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Statements can be re-used with any connection and on first-use it will be re-prepared and</span>
-<span class="doccomment">/// cached within the connection.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Statement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// An explicitly prepared statement.
+///
+/// Statements are prepared and cached by default, per connection. This type allows you to
+/// look at that cache in-between the statement being prepared and it being executed. This contains
+/// the expected columns to be returned and the expected parameter types (if available).
+///
+/// Statements can be re-used with any connection and on first-use it will be re-prepared and
+/// cached within the connection.
+</span><span class="kw">pub trait </span>Statement&lt;<span class="lifetime">&#39;q</span>&gt;: Send + Sync {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="doccomment">/// Creates an owned statement from this statement reference. This copies</span>
-    <span class="doccomment">/// the original SQL text.</span>
-    <span class="kw">fn</span> <span class="ident">to_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span>;
+    <span class="doccomment">/// Creates an owned statement from this statement reference. This copies
+    /// the original SQL text.
+    </span><span class="kw">fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasStatement&lt;<span class="lifetime">&#39;static</span>&gt;&gt;::Statement;
 
-    <span class="doccomment">/// Get the original SQL text used to create this statement.</span>
-    <span class="kw">fn</span> <span class="ident">sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span>;
+    <span class="doccomment">/// Get the original SQL text used to create this statement.
+    </span><span class="kw">fn </span>sql(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str;
 
-    <span class="doccomment">/// Get the expected parameters for this statement.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The information returned depends on what is available from the driver. SQLite can</span>
-    <span class="doccomment">/// only tell us the number of parameters. PostgreSQL can give us full type information.</span>
-    <span class="kw">fn</span> <span class="ident">parameters</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Either</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::TypeInfo</span>], <span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Get the expected parameters for this statement.
+    ///
+    /// The information returned depends on what is available from the driver. SQLite can
+    /// only tell us the number of parameters. PostgreSQL can give us full type information.
+    </span><span class="kw">fn </span>parameters(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Either&lt;<span class="kw-2">&amp;</span>[&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::TypeInfo], usize&gt;&gt;;
 
-    <span class="doccomment">/// Get the columns expected to be returned by executing this statement.</span>
-    <span class="kw">fn</span> <span class="ident">columns</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Column</span>];
+    <span class="doccomment">/// Get the columns expected to be returned by executing this statement.
+    </span><span class="kw">fn </span>columns(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Column];
 
-    <span class="doccomment">/// Gets the column information at `index`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A string index can be used to access a column by name and a `usize` index</span>
-    <span class="doccomment">/// can be used to access a column by position.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if `index` is out of bounds.</span>
-    <span class="doccomment">/// See [`try_column`](Self::try_column) for a non-panicking version.</span>
-    <span class="kw">fn</span> <span class="ident">column</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Column</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Gets the column information at `index`.
+    ///
+    /// A string index can be used to access a column by name and a `usize` index
+    /// can be used to access a column by position.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `index` is out of bounds.
+    /// See [`try_column`](Self::try_column) for a non-panicking version.
+    </span><span class="kw">fn </span>column&lt;I&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, index: I) -&gt; <span class="kw-2">&amp;</span>&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Column
+    <span class="kw">where
+        </span>I: ColumnIndex&lt;<span class="self">Self</span>&gt;,
     {
-        <span class="self">self</span>.<span class="ident">try_column</span>(<span class="ident">index</span>).<span class="ident">unwrap</span>()
+        <span class="self">self</span>.try_column(index).unwrap()
     }
 
-    <span class="doccomment">/// Gets the column information at `index` or `None` if out of bounds.</span>
-    <span class="kw">fn</span> <span class="ident">try_column</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Column</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Gets the column information at `index` or `None` if out of bounds.
+    </span><span class="kw">fn </span>try_column&lt;I&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, index: I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Column, Error&gt;
+    <span class="kw">where
+        </span>I: ColumnIndex&lt;<span class="self">Self</span>&gt;,
     {
-        <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">columns</span>()[<span class="ident">index</span>.<span class="ident">index</span>(<span class="self">self</span>)<span class="question-mark">?</span>])
+        <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.columns()[index.index(<span class="self">self</span>)<span class="question-mark">?</span>])
     }
 
-    <span class="kw">fn</span> <span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>query(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Query&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>::Database, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;_</span>&gt;&gt;::Arguments&gt;;
 
-    <span class="kw">fn</span> <span class="ident">query_with</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>, <span class="ident">arguments</span>: <span class="ident">A</span>) -&gt; <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="ident">A</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>query_with&lt;<span class="lifetime">&#39;s</span>, A&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>, arguments: A) -&gt; Query&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database, A&gt;
+    <span class="kw">where
+        </span>A: IntoArguments&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database&gt;;
 
-    <span class="kw">fn</span> <span class="ident">query_as</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>query_as&lt;O&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) -&gt; <span class="ident">QueryAs</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="ident">O</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">O</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>;
+    ) -&gt; QueryAs&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>::Database, O, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;_</span>&gt;&gt;::Arguments&gt;
+    <span class="kw">where
+        </span>O: <span class="kw">for</span>&lt;<span class="lifetime">&#39;r</span>&gt; FromRow&lt;<span class="lifetime">&#39;r</span>, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row&gt;;
 
-    <span class="kw">fn</span> <span class="ident">query_as_with</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">O</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>, <span class="ident">arguments</span>: <span class="ident">A</span>) -&gt; <span class="ident">QueryAs</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="ident">O</span>, <span class="ident">A</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">O</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>,
-        <span class="ident">A</span>: <span class="ident">IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>query_as_with&lt;<span class="lifetime">&#39;s</span>, O, A&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>, arguments: A) -&gt; QueryAs&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database, O, A&gt;
+    <span class="kw">where
+        </span>O: <span class="kw">for</span>&lt;<span class="lifetime">&#39;r</span>&gt; FromRow&lt;<span class="lifetime">&#39;r</span>, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row&gt;,
+        A: IntoArguments&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database&gt;;
 
-    <span class="kw">fn</span> <span class="ident">query_scalar</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>query_scalar&lt;O&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-    ) -&gt; <span class="ident">QueryScalar</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="ident">O</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        (<span class="ident">O</span>,): <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>;
+    ) -&gt; QueryScalar&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>::Database, O, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;_</span>&gt;&gt;::Arguments&gt;
+    <span class="kw">where
+        </span>(O,): <span class="kw">for</span>&lt;<span class="lifetime">&#39;r</span>&gt; FromRow&lt;<span class="lifetime">&#39;r</span>, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row&gt;;
 
-    <span class="kw">fn</span> <span class="ident">query_scalar_with</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">O</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>, <span class="ident">arguments</span>: <span class="ident">A</span>) -&gt; <span class="ident">QueryScalar</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="ident">O</span>, <span class="ident">A</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        (<span class="ident">O</span>,): <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>,
-        <span class="ident">A</span>: <span class="ident">IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>query_scalar_with&lt;<span class="lifetime">&#39;s</span>, O, A&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>, arguments: A) -&gt; QueryScalar&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database, O, A&gt;
+    <span class="kw">where
+        </span>(O,): <span class="kw">for</span>&lt;<span class="lifetime">&#39;r</span>&gt; FromRow&lt;<span class="lifetime">&#39;r</span>, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row&gt;,
+        A: IntoArguments&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database&gt;;
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_statement_query</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">A</span>:<span class="ident">ty</span>) =&gt; {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::query::Query</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">A</span><span class="op">&gt;</span> {
-            <span class="ident"><span class="kw">crate</span>::query::query_statement</span>(<span class="self">self</span>)
+<span class="macro">macro_rules! </span>impl_statement_query {
+    (<span class="macro-nonterminal">$A</span>:ty) =&gt; {
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>query(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::query::Query&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>::Database, <span class="macro-nonterminal">$A</span>&gt; {
+            <span class="kw">crate</span>::query::query_statement(<span class="self">self</span>)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">query_with</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>, <span class="ident">arguments</span>: <span class="ident">A</span>) -&gt; <span class="ident"><span class="kw">crate</span>::query::Query</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="ident">A</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">A</span>: <span class="ident"><span class="kw">crate</span>::arguments::IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>query_with&lt;<span class="lifetime">&#39;s</span>, A&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>, arguments: A) -&gt; <span class="kw">crate</span>::query::Query&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database, A&gt;
+        <span class="kw">where
+            </span>A: <span class="kw">crate</span>::arguments::IntoArguments&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database&gt;,
         {
-            <span class="ident"><span class="kw">crate</span>::query::query_statement_with</span>(<span class="self">self</span>, <span class="ident">arguments</span>)
+            <span class="kw">crate</span>::query::query_statement_with(<span class="self">self</span>, arguments)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">query_as</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>query_as&lt;O&gt;(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
-        ) -&gt; <span class="ident"><span class="kw">crate</span>::query_as::QueryAs</span><span class="op">&lt;</span>
+        ) -&gt; <span class="kw">crate</span>::query_as::QueryAs&lt;
             <span class="lifetime">&#39;_</span>,
-            <span class="ident"><span class="self">Self</span>::Database</span>,
-            <span class="ident">O</span>,
-            <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::database::HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span>,
-        <span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">O</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::from_row::FromRow</span><span class="op">&lt;</span>
+            <span class="self">Self</span>::Database,
+            O,
+            &lt;<span class="self">Self</span>::Database <span class="kw">as </span><span class="kw">crate</span>::database::HasArguments&lt;<span class="lifetime">&#39;_</span>&gt;&gt;::Arguments,
+        &gt;
+        <span class="kw">where
+            </span>O: <span class="kw">for</span>&lt;<span class="lifetime">&#39;r</span>&gt; <span class="kw">crate</span>::from_row::FromRow&lt;
                 <span class="lifetime">&#39;r</span>,
-                <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::database::Database</span><span class="op">&gt;</span><span class="ident">::Row</span>,
-            <span class="op">&gt;</span>,
+                &lt;<span class="self">Self</span>::Database <span class="kw">as </span><span class="kw">crate</span>::database::Database&gt;::Row,
+            &gt;,
         {
-            <span class="ident"><span class="kw">crate</span>::query_as::query_statement_as</span>(<span class="self">self</span>)
+            <span class="kw">crate</span>::query_as::query_statement_as(<span class="self">self</span>)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">query_as_with</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">O</span>, <span class="ident">A</span><span class="op">&gt;</span>(
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>,
-            <span class="ident">arguments</span>: <span class="ident">A</span>,
-        ) -&gt; <span class="ident"><span class="kw">crate</span>::query_as::QueryAs</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="ident">O</span>, <span class="ident">A</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            <span class="ident">O</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::from_row::FromRow</span><span class="op">&lt;</span>
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>query_as_with&lt;<span class="lifetime">&#39;s</span>, O, A&gt;(
+            <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>,
+            arguments: A,
+        ) -&gt; <span class="kw">crate</span>::query_as::QueryAs&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database, O, A&gt;
+        <span class="kw">where
+            </span>O: <span class="kw">for</span>&lt;<span class="lifetime">&#39;r</span>&gt; <span class="kw">crate</span>::from_row::FromRow&lt;
                 <span class="lifetime">&#39;r</span>,
-                <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::database::Database</span><span class="op">&gt;</span><span class="ident">::Row</span>,
-            <span class="op">&gt;</span>,
-            <span class="ident">A</span>: <span class="ident"><span class="kw">crate</span>::arguments::IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+                &lt;<span class="self">Self</span>::Database <span class="kw">as </span><span class="kw">crate</span>::database::Database&gt;::Row,
+            &gt;,
+            A: <span class="kw">crate</span>::arguments::IntoArguments&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database&gt;,
         {
-            <span class="ident"><span class="kw">crate</span>::query_as::query_statement_as_with</span>(<span class="self">self</span>, <span class="ident">arguments</span>)
+            <span class="kw">crate</span>::query_as::query_statement_as_with(<span class="self">self</span>, arguments)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">query_scalar</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>query_scalar&lt;O&gt;(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
-        ) -&gt; <span class="ident"><span class="kw">crate</span>::query_scalar::QueryScalar</span><span class="op">&lt;</span>
+        ) -&gt; <span class="kw">crate</span>::query_scalar::QueryScalar&lt;
             <span class="lifetime">&#39;_</span>,
-            <span class="ident"><span class="self">Self</span>::Database</span>,
-            <span class="ident">O</span>,
-            <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::database::HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span>,
-        <span class="op">&gt;</span>
-        <span class="kw">where</span>
-            (<span class="ident">O</span>,): <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::from_row::FromRow</span><span class="op">&lt;</span>
+            <span class="self">Self</span>::Database,
+            O,
+            &lt;<span class="self">Self</span>::Database <span class="kw">as </span><span class="kw">crate</span>::database::HasArguments&lt;<span class="lifetime">&#39;_</span>&gt;&gt;::Arguments,
+        &gt;
+        <span class="kw">where
+            </span>(O,): <span class="kw">for</span>&lt;<span class="lifetime">&#39;r</span>&gt; <span class="kw">crate</span>::from_row::FromRow&lt;
                 <span class="lifetime">&#39;r</span>,
-                <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::database::Database</span><span class="op">&gt;</span><span class="ident">::Row</span>,
-            <span class="op">&gt;</span>,
+                &lt;<span class="self">Self</span>::Database <span class="kw">as </span><span class="kw">crate</span>::database::Database&gt;::Row,
+            &gt;,
         {
-            <span class="ident"><span class="kw">crate</span>::query_scalar::query_statement_scalar</span>(<span class="self">self</span>)
+            <span class="kw">crate</span>::query_scalar::query_statement_scalar(<span class="self">self</span>)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">query_scalar_with</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">O</span>, <span class="ident">A</span><span class="op">&gt;</span>(
-            <span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>,
-            <span class="ident">arguments</span>: <span class="ident">A</span>,
-        ) -&gt; <span class="ident"><span class="kw">crate</span>::query_scalar::QueryScalar</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span>, <span class="ident">O</span>, <span class="ident">A</span><span class="op">&gt;</span>
-        <span class="kw">where</span>
-            (<span class="ident">O</span>,): <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::from_row::FromRow</span><span class="op">&lt;</span>
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>query_scalar_with&lt;<span class="lifetime">&#39;s</span>, O, A&gt;(
+            <span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>,
+            arguments: A,
+        ) -&gt; <span class="kw">crate</span>::query_scalar::QueryScalar&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database, O, A&gt;
+        <span class="kw">where
+            </span>(O,): <span class="kw">for</span>&lt;<span class="lifetime">&#39;r</span>&gt; <span class="kw">crate</span>::from_row::FromRow&lt;
                 <span class="lifetime">&#39;r</span>,
-                <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::database::Database</span><span class="op">&gt;</span><span class="ident">::Row</span>,
-            <span class="op">&gt;</span>,
-            <span class="ident">A</span>: <span class="ident"><span class="kw">crate</span>::arguments::IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+                &lt;<span class="self">Self</span>::Database <span class="kw">as </span><span class="kw">crate</span>::database::Database&gt;::Row,
+            &gt;,
+            A: <span class="kw">crate</span>::arguments::IntoArguments&lt;<span class="lifetime">&#39;s</span>, <span class="self">Self</span>::Database&gt;,
         {
-            <span class="ident"><span class="kw">crate</span>::query_scalar::query_statement_scalar_with</span>(<span class="self">self</span>, <span class="ident">arguments</span>)
+            <span class="kw">crate</span>::query_scalar::query_statement_scalar_with(<span class="self">self</span>, arguments)
         }
     };
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

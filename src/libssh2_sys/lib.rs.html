@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/libssh2-sys-0.2.23/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../libssh2_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../libssh2_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../libssh2_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/libssh2-sys-0.2.23/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../libssh2_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../libssh2_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../libssh2_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -770,777 +770,777 @@
 <span id="770">770</span>
 <span id="771">771</span>
 <span id="772">772</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;http://alexcrichton.com/ssh2-rs&quot;</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_extern_crates</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![doc(html_root_url = <span class="string">&quot;http://alexcrichton.com/ssh2-rs&quot;</span>)]
+#![allow(bad_style)]
+#![allow(unused_extern_crates)]
 
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">libc</span>;
+</span><span class="kw">extern crate </span>libc;
 
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">libz_sys</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">openssl_sys</span>;
+<span class="kw">extern crate </span>libz_sys;
+<span class="attribute">#[cfg(unix)]
+</span><span class="kw">extern crate </span>openssl_sys;
 
-<span class="kw">use</span> <span class="ident">libc::ssize_t</span>;
-<span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>, <span class="ident">c_long</span>, <span class="ident">c_uchar</span>, <span class="ident">c_uint</span>, <span class="ident">c_ulong</span>, <span class="ident">c_void</span>, <span class="ident">size_t</span>};
+<span class="kw">use </span>libc::ssize_t;
+<span class="kw">use </span>libc::{c_char, c_int, c_long, c_uchar, c_uint, c_ulong, c_void, size_t};
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_PROTOCOL_ERROR</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_KEY_EXCHANGE_FAILED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_RESERVED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">4</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_MAC_ERROR</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">5</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_COMPRESSION_ERROR</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">6</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_SERVICE_NOT_AVAILABLE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">7</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">8</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_HOST_KEY_NOT_VERIFIABLE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">9</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_CONNECTION_LOST</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">10</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_BY_APPLICATION</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">11</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_TOO_MANY_CONNECTIONS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">12</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_AUTH_CANCELLED_BY_USER</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">13</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">14</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SSH_DISCONNECT_ILLEGAL_USER_NAME</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">15</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_PROTOCOL_ERROR: c_int = <span class="number">2</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_KEY_EXCHANGE_FAILED: c_int = <span class="number">3</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_RESERVED: c_int = <span class="number">4</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_MAC_ERROR: c_int = <span class="number">5</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_COMPRESSION_ERROR: c_int = <span class="number">6</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_SERVICE_NOT_AVAILABLE: c_int = <span class="number">7</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED: c_int = <span class="number">8</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_HOST_KEY_NOT_VERIFIABLE: c_int = <span class="number">9</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_CONNECTION_LOST: c_int = <span class="number">10</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_BY_APPLICATION: c_int = <span class="number">11</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_TOO_MANY_CONNECTIONS: c_int = <span class="number">12</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_AUTH_CANCELLED_BY_USER: c_int = <span class="number">13</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE: c_int = <span class="number">14</span>;
+<span class="kw">pub const </span>SSH_DISCONNECT_ILLEGAL_USER_NAME: c_int = <span class="number">15</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FLAG_SIGPIPE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FLAG_COMPRESS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_FLAG_SIGPIPE: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_FLAG_COMPRESS: c_int = <span class="number">2</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_TYPE_UNKNOWN</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_TYPE_RSA</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_TYPE_DSS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_TYPE_ECDSA_256</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_TYPE_ECDSA_384</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">4</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_TYPE_ECDSA_521</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">5</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_TYPE_ED25519</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">6</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_TYPE_UNKNOWN: c_int = <span class="number">0</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_TYPE_RSA: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_TYPE_DSS: c_int = <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_TYPE_ECDSA_256: c_int = <span class="number">3</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_TYPE_ECDSA_384: c_int = <span class="number">4</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_TYPE_ECDSA_521: c_int = <span class="number">5</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_TYPE_ED25519: c_int = <span class="number">6</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_KEX</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_HOSTKEY</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_CRYPT_CS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_CRYPT_SC</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_MAC_CS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">4</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_MAC_SC</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">5</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_COMP_CS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">6</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_COMP_SC</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">7</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_LANG_CS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">8</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_METHOD_LANG_SC</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">9</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_KEX: c_int = <span class="number">0</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_HOSTKEY: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_CRYPT_CS: c_int = <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_CRYPT_SC: c_int = <span class="number">3</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_MAC_CS: c_int = <span class="number">4</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_MAC_SC: c_int = <span class="number">5</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_COMP_CS: c_int = <span class="number">6</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_COMP_SC: c_int = <span class="number">7</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_LANG_CS: c_int = <span class="number">8</span>;
+<span class="kw">pub const </span>LIBSSH2_METHOD_LANG_SC: c_int = <span class="number">9</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_CHANNEL_PACKET_DEFAULT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">32768</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_CHANNEL_WINDOW_DEFAULT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">2</span> <span class="op">*</span> <span class="number">1024</span> <span class="op">*</span> <span class="number">1024</span>;
+<span class="kw">pub const </span>LIBSSH2_CHANNEL_PACKET_DEFAULT: c_uint = <span class="number">32768</span>;
+<span class="kw">pub const </span>LIBSSH2_CHANNEL_WINDOW_DEFAULT: c_uint = <span class="number">2 </span>* <span class="number">1024 </span>* <span class="number">1024</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_BANNER_RECV</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_BANNER_SEND</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_INVALID_MAC</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">4</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_KEX_FAILURE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">5</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_ALLOC</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">6</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_SOCKET_SEND</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">7</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">8</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_TIMEOUT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">9</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_HOSTKEY_INIT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">10</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_HOSTKEY_SIGN</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">11</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_DECRYPT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">12</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_SOCKET_DISCONNECT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">13</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_PROTO</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">14</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_PASSWORD_EXPIRED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">15</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_FILE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">16</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_METHOD_NONE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">17</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_AUTHENTICATION_FAILED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">18</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="ident">LIBSSH2_ERROR_AUTHENTICATION_FAILED</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">19</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_CHANNEL_OUTOFORDER</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">20</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_CHANNEL_FAILURE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">21</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">22</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_CHANNEL_UNKNOWN</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">23</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">24</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">25</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_CHANNEL_CLOSED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">26</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_CHANNEL_EOF_SENT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">27</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_SCP_PROTOCOL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">28</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_ZLIB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">29</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_SOCKET_TIMEOUT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">30</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_SFTP_PROTOCOL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">31</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_REQUEST_DENIED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">32</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_METHOD_NOT_SUPPORTED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">33</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_INVAL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">34</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_INVALID_POLL_TYPE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">35</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_PUBLICKEY_PROTOCOL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">36</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_EAGAIN</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">37</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_BUFFER_TOO_SMALL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">38</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_BAD_USE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">39</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_COMPRESS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">40</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_OUT_OF_BOUNDARY</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">41</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_AGENT_PROTOCOL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">42</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_SOCKET_RECV</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">43</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_ENCRYPT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">44</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_BAD_SOCKET</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">45</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_ERROR_KNOWN_HOSTS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">46</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_BANNER_RECV: c_int = -<span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_BANNER_SEND: c_int = -<span class="number">3</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_INVALID_MAC: c_int = -<span class="number">4</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_KEX_FAILURE: c_int = -<span class="number">5</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_ALLOC: c_int = -<span class="number">6</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_SOCKET_SEND: c_int = -<span class="number">7</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE: c_int = -<span class="number">8</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_TIMEOUT: c_int = -<span class="number">9</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_HOSTKEY_INIT: c_int = -<span class="number">10</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_HOSTKEY_SIGN: c_int = -<span class="number">11</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_DECRYPT: c_int = -<span class="number">12</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_SOCKET_DISCONNECT: c_int = -<span class="number">13</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_PROTO: c_int = -<span class="number">14</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_PASSWORD_EXPIRED: c_int = -<span class="number">15</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_FILE: c_int = -<span class="number">16</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_METHOD_NONE: c_int = -<span class="number">17</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_AUTHENTICATION_FAILED: c_int = -<span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED: c_int = LIBSSH2_ERROR_AUTHENTICATION_FAILED;
+<span class="kw">pub const </span>LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED: c_int = -<span class="number">19</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_CHANNEL_OUTOFORDER: c_int = -<span class="number">20</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_CHANNEL_FAILURE: c_int = -<span class="number">21</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED: c_int = -<span class="number">22</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_CHANNEL_UNKNOWN: c_int = -<span class="number">23</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED: c_int = -<span class="number">24</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED: c_int = -<span class="number">25</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_CHANNEL_CLOSED: c_int = -<span class="number">26</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_CHANNEL_EOF_SENT: c_int = -<span class="number">27</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_SCP_PROTOCOL: c_int = -<span class="number">28</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_ZLIB: c_int = -<span class="number">29</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_SOCKET_TIMEOUT: c_int = -<span class="number">30</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_SFTP_PROTOCOL: c_int = -<span class="number">31</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_REQUEST_DENIED: c_int = -<span class="number">32</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_METHOD_NOT_SUPPORTED: c_int = -<span class="number">33</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_INVAL: c_int = -<span class="number">34</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_INVALID_POLL_TYPE: c_int = -<span class="number">35</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_PUBLICKEY_PROTOCOL: c_int = -<span class="number">36</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_EAGAIN: c_int = -<span class="number">37</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_BUFFER_TOO_SMALL: c_int = -<span class="number">38</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_BAD_USE: c_int = -<span class="number">39</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_COMPRESS: c_int = -<span class="number">40</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_OUT_OF_BOUNDARY: c_int = -<span class="number">41</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_AGENT_PROTOCOL: c_int = -<span class="number">42</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_SOCKET_RECV: c_int = -<span class="number">43</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_ENCRYPT: c_int = -<span class="number">44</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_BAD_SOCKET: c_int = -<span class="number">45</span>;
+<span class="kw">pub const </span>LIBSSH2_ERROR_KNOWN_HOSTS: c_int = -<span class="number">46</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_EOF</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_NO_SUCH_FILE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_PERMISSION_DENIED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_FAILURE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">4</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_BAD_MESSAGE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">5</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_NO_CONNECTION</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">6</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_CONNECTION_LOST</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">7</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_OP_UNSUPPORTED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">8</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_INVALID_HANDLE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">9</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_NO_SUCH_PATH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">10</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_FILE_ALREADY_EXISTS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">11</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_WRITE_PROTECT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">12</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_NO_MEDIA</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">13</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">14</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_QUOTA_EXCEEDED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">15</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_UNKNOWN_PRINCIPAL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">16</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_LOCK_CONFLICT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">17</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_DIR_NOT_EMPTY</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">18</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_NOT_A_DIRECTORY</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">19</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_INVALID_FILENAME</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">20</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FX_LINK_LOOP</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">21</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_EOF: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_NO_SUCH_FILE: c_int = <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_PERMISSION_DENIED: c_int = <span class="number">3</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_FAILURE: c_int = <span class="number">4</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_BAD_MESSAGE: c_int = <span class="number">5</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_NO_CONNECTION: c_int = <span class="number">6</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_CONNECTION_LOST: c_int = <span class="number">7</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_OP_UNSUPPORTED: c_int = <span class="number">8</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_INVALID_HANDLE: c_int = <span class="number">9</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_NO_SUCH_PATH: c_int = <span class="number">10</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_FILE_ALREADY_EXISTS: c_int = <span class="number">11</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_WRITE_PROTECT: c_int = <span class="number">12</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_NO_MEDIA: c_int = <span class="number">13</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM: c_int = <span class="number">14</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_QUOTA_EXCEEDED: c_int = <span class="number">15</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_UNKNOWN_PRINCIPAL: c_int = <span class="number">16</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_LOCK_CONFLICT: c_int = <span class="number">17</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_DIR_NOT_EMPTY: c_int = <span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_NOT_A_DIRECTORY: c_int = <span class="number">19</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_INVALID_FILENAME: c_int = <span class="number">20</span>;
+<span class="kw">pub const </span>LIBSSH2_FX_LINK_LOOP: c_int = <span class="number">21</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_HASH_MD5</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_HASH_SHA1</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_HOSTKEY_HASH_SHA256</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_HASH_MD5: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_HASH_SHA1: c_int = <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_HOSTKEY_HASH_SHA256: c_int = <span class="number">3</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_FILE_OPENSSH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_FILE_OPENSSH: c_int = <span class="number">1</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_CHECK_MATCH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_CHECK_MISMATCH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_CHECK_NOTFOUND</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_CHECK_FAILURE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_CHECK_MATCH: c_int = <span class="number">0</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_CHECK_MISMATCH: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_CHECK_NOTFOUND: c_int = <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_CHECK_FAILURE: c_int = <span class="number">3</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_TYPE_PLAIN</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_TYPE_SHA1</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_TYPE_CUSTOM</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEYENC_RAW</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEYENC_BASE64</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEY_RSA1</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEY_SSHRSA</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEY_SSHDSS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEY_ECDSA_256</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">4</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEY_ECDSA_384</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">5</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEY_ECDSA_521</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">6</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEY_ED25519</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">7</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_KNOWNHOST_KEY_UNKNOWN</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">15</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_TYPE_PLAIN: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_TYPE_SHA1: c_int = <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_TYPE_CUSTOM: c_int = <span class="number">3</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEYENC_RAW: c_int = <span class="number">1 </span>&lt;&lt; <span class="number">16</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEYENC_BASE64: c_int = <span class="number">2 </span>&lt;&lt; <span class="number">16</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEY_RSA1: c_int = <span class="number">1 </span>&lt;&lt; <span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEY_SSHRSA: c_int = <span class="number">2 </span>&lt;&lt; <span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEY_SSHDSS: c_int = <span class="number">3 </span>&lt;&lt; <span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEY_ECDSA_256: c_int = <span class="number">4 </span>&lt;&lt; <span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEY_ECDSA_384: c_int = <span class="number">5 </span>&lt;&lt; <span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEY_ECDSA_521: c_int = <span class="number">6 </span>&lt;&lt; <span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEY_ED25519: c_int = <span class="number">7 </span>&lt;&lt; <span class="number">18</span>;
+<span class="kw">pub const </span>LIBSSH2_KNOWNHOST_KEY_UNKNOWN: c_int = <span class="number">15 </span>&lt;&lt; <span class="number">18</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FXF_READ</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000001</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FXF_WRITE</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000002</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FXF_APPEND</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000004</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FXF_CREAT</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000008</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FXF_TRUNC</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000010</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_FXF_EXCL</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000020</span>;
+<span class="kw">pub const </span>LIBSSH2_FXF_READ: c_ulong = <span class="number">0x00000001</span>;
+<span class="kw">pub const </span>LIBSSH2_FXF_WRITE: c_ulong = <span class="number">0x00000002</span>;
+<span class="kw">pub const </span>LIBSSH2_FXF_APPEND: c_ulong = <span class="number">0x00000004</span>;
+<span class="kw">pub const </span>LIBSSH2_FXF_CREAT: c_ulong = <span class="number">0x00000008</span>;
+<span class="kw">pub const </span>LIBSSH2_FXF_TRUNC: c_ulong = <span class="number">0x00000010</span>;
+<span class="kw">pub const </span>LIBSSH2_FXF_EXCL: c_ulong = <span class="number">0x00000020</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_OPENFILE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_OPENDIR</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_OPENFILE: c_int = <span class="number">0</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_OPENDIR: c_int = <span class="number">1</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_ATTR_SIZE</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000001</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_ATTR_UIDGID</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000002</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_ATTR_PERMISSIONS</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000004</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_ATTR_ACMODTIME</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x00000008</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_ATTR_EXTENDED</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x80000000</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_ATTR_SIZE: c_ulong = <span class="number">0x00000001</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_ATTR_UIDGID: c_ulong = <span class="number">0x00000002</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_ATTR_PERMISSIONS: c_ulong = <span class="number">0x00000004</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_ATTR_ACMODTIME: c_ulong = <span class="number">0x00000008</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_ATTR_EXTENDED: c_ulong = <span class="number">0x80000000</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_STAT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_LSTAT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_SETSTAT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_STAT: c_int = <span class="number">0</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_LSTAT: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_SETSTAT: c_int = <span class="number">2</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_SYMLINK</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_READLINK</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_REALPATH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_SYMLINK: c_int = <span class="number">0</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_READLINK: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_REALPATH: c_int = <span class="number">2</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_RENAME_OVERWRITE</span>: <span class="ident">c_long</span> <span class="op">=</span> <span class="number">0x1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_RENAME_ATOMIC</span>: <span class="ident">c_long</span> <span class="op">=</span> <span class="number">0x2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_RENAME_NATIVE</span>: <span class="ident">c_long</span> <span class="op">=</span> <span class="number">0x4</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_RENAME_OVERWRITE: c_long = <span class="number">0x1</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_RENAME_ATOMIC: c_long = <span class="number">0x2</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_RENAME_NATIVE: c_long = <span class="number">0x4</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_INIT_NO_CRYPTO</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x1</span>;
+<span class="kw">pub const </span>LIBSSH2_INIT_NO_CRYPTO: c_int = <span class="number">0x1</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_S_IFMT</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0o170000</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_S_IFIFO</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0o010000</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_S_IFCHR</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0o020000</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_S_IFDIR</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0o040000</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_S_IFBLK</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0o060000</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_S_IFREG</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0o100000</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_S_IFLNK</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0o120000</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SFTP_S_IFSOCK</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0o140000</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_S_IFMT: c_ulong = <span class="number">0o170000</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_S_IFIFO: c_ulong = <span class="number">0o010000</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_S_IFCHR: c_ulong = <span class="number">0o020000</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_S_IFDIR: c_ulong = <span class="number">0o040000</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_S_IFBLK: c_ulong = <span class="number">0o060000</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_S_IFREG: c_ulong = <span class="number">0o100000</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_S_IFLNK: c_ulong = <span class="number">0o120000</span>;
+<span class="kw">pub const </span>LIBSSH2_SFTP_S_IFSOCK: c_ulong = <span class="number">0o140000</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL: c_int = <span class="number">0</span>;
+<span class="kw">pub const </span>LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE: c_int = <span class="number">2</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SESSION_BLOCK_INBOUND</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LIBSSH2_SESSION_BLOCK_OUTBOUND</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub const </span>LIBSSH2_SESSION_BLOCK_INBOUND: c_int = <span class="number">1</span>;
+<span class="kw">pub const </span>LIBSSH2_SESSION_BLOCK_OUTBOUND: c_int = <span class="number">2</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span>  <span class="ident">LIBSSH2_TRACE_TRANS</span> : <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span>  <span class="ident">LIBSSH2_TRACE_KEX</span>   : <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span>  <span class="ident">LIBSSH2_TRACE_AUTH</span>  : <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span>  <span class="ident">LIBSSH2_TRACE_CONN</span>  : <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">4</span>;
-<span class="kw">pub</span> <span class="kw">const</span>  <span class="ident">LIBSSH2_TRACE_SCP</span>   : <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">5</span>;
-<span class="kw">pub</span> <span class="kw">const</span>  <span class="ident">LIBSSH2_TRACE_SFTP</span>  : <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">6</span>;
-<span class="kw">pub</span> <span class="kw">const</span>  <span class="ident">LIBSSH2_TRACE_ERROR</span> : <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">7</span>;
-<span class="kw">pub</span> <span class="kw">const</span>  <span class="ident">LIBSSH2_TRACE_PUBLICKEY</span> : <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">8</span>;
-<span class="kw">pub</span> <span class="kw">const</span>  <span class="ident">LIBSSH2_TRACE_SOCKET</span> : <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="number">9</span>;
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LIBSSH2_SESSION</span> {}
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LIBSSH2_AGENT</span> {}
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LIBSSH2_CHANNEL</span> {}
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LIBSSH2_LISTENER</span> {}
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span> {}
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LIBSSH2_SFTP</span> {}
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span> {}
+<span class="kw">pub const  </span>LIBSSH2_TRACE_TRANS : c_int = <span class="number">1</span>&lt;&lt;<span class="number">1</span>;
+<span class="kw">pub const  </span>LIBSSH2_TRACE_KEX   : c_int = <span class="number">1</span>&lt;&lt;<span class="number">2</span>;
+<span class="kw">pub const  </span>LIBSSH2_TRACE_AUTH  : c_int = <span class="number">1</span>&lt;&lt;<span class="number">3</span>;
+<span class="kw">pub const  </span>LIBSSH2_TRACE_CONN  : c_int = <span class="number">1</span>&lt;&lt;<span class="number">4</span>;
+<span class="kw">pub const  </span>LIBSSH2_TRACE_SCP   : c_int = <span class="number">1</span>&lt;&lt;<span class="number">5</span>;
+<span class="kw">pub const  </span>LIBSSH2_TRACE_SFTP  : c_int = <span class="number">1</span>&lt;&lt;<span class="number">6</span>;
+<span class="kw">pub const  </span>LIBSSH2_TRACE_ERROR : c_int = <span class="number">1</span>&lt;&lt;<span class="number">7</span>;
+<span class="kw">pub const  </span>LIBSSH2_TRACE_PUBLICKEY : c_int = <span class="number">1</span>&lt;&lt;<span class="number">8</span>;
+<span class="kw">pub const  </span>LIBSSH2_TRACE_SOCKET : c_int = <span class="number">1</span>&lt;&lt;<span class="number">9</span>;
+<span class="kw">pub enum </span>LIBSSH2_SESSION {}
+<span class="kw">pub enum </span>LIBSSH2_AGENT {}
+<span class="kw">pub enum </span>LIBSSH2_CHANNEL {}
+<span class="kw">pub enum </span>LIBSSH2_LISTENER {}
+<span class="kw">pub enum </span>LIBSSH2_KNOWNHOSTS {}
+<span class="kw">pub enum </span>LIBSSH2_SFTP {}
+<span class="kw">pub enum </span>LIBSSH2_SFTP_HANDLE {}
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">libssh2_int64_t</span> <span class="op">=</span> <span class="ident">i64</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">libssh2_uint64_t</span> <span class="op">=</span> <span class="ident">u64</span>;
+<span class="kw">pub type </span>libssh2_int64_t = i64;
+<span class="kw">pub type </span>libssh2_uint64_t = u64;
 
-<span class="comment">// libssh2_struct_stat is a typedef for libc::stat on all platforms, however,</span>
-<span class="comment">// Windows has a bunch of legacy around struct stat that makes things more</span>
-<span class="comment">// complicated to validate with systest.</span>
-<span class="comment">// The most reasonable looking solution to this is a newtype that derefs</span>
-<span class="comment">// to libc::stat.</span>
-<span class="comment">// We cannot use `pub struct libssh2_struct_stat(pub libc::stat)` because</span>
-<span class="comment">// that triggers a `no tuple structs in FFI` error.</span>
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">libssh2_struct_stat</span>(<span class="ident">libc::stat</span>);
+<span class="comment">// libssh2_struct_stat is a typedef for libc::stat on all platforms, however,
+// Windows has a bunch of legacy around struct stat that makes things more
+// complicated to validate with systest.
+// The most reasonable looking solution to this is a newtype that derefs
+// to libc::stat.
+// We cannot use `pub struct libssh2_struct_stat(pub libc::stat)` because
+// that triggers a `no tuple structs in FFI` error.
+</span><span class="attribute">#[repr(C)]
+</span><span class="kw">pub struct </span>libssh2_struct_stat(libc::stat);
 
-<span class="kw">impl</span> <span class="ident">std::ops::Deref</span> <span class="kw">for</span> <span class="ident">libssh2_struct_stat</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">libc::stat</span>;
+<span class="kw">impl </span>std::ops::Deref <span class="kw">for </span>libssh2_struct_stat {
+    <span class="kw">type </span>Target = libc::stat;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">libssh2_agent_publickey</span> {
-    <span class="kw">pub</span> <span class="ident">magic</span>: <span class="ident">c_uint</span>,
-    <span class="kw">pub</span> <span class="ident">node</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-    <span class="kw">pub</span> <span class="ident">blob</span>: <span class="kw-2">*mut</span> <span class="ident">c_uchar</span>,
-    <span class="kw">pub</span> <span class="ident">blob_len</span>: <span class="ident">size_t</span>,
-    <span class="kw">pub</span> <span class="ident">comment</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
+<span class="attribute">#[repr(C)]
+</span><span class="kw">pub struct </span>libssh2_agent_publickey {
+    <span class="kw">pub </span>magic: c_uint,
+    <span class="kw">pub </span>node: <span class="kw-2">*mut </span>c_void,
+    <span class="kw">pub </span>blob: <span class="kw-2">*mut </span>c_uchar,
+    <span class="kw">pub </span>blob_len: size_t,
+    <span class="kw">pub </span>comment: <span class="kw-2">*mut </span>c_char,
 }
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">libssh2_knownhost</span> {
-    <span class="kw">pub</span> <span class="ident">magic</span>: <span class="ident">c_uint</span>,
-    <span class="kw">pub</span> <span class="ident">node</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-    <span class="kw">pub</span> <span class="ident">key</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-    <span class="kw">pub</span> <span class="ident">typemask</span>: <span class="ident">c_int</span>,
+<span class="attribute">#[repr(C)]
+</span><span class="kw">pub struct </span>libssh2_knownhost {
+    <span class="kw">pub </span>magic: c_uint,
+    <span class="kw">pub </span>node: <span class="kw-2">*mut </span>c_void,
+    <span class="kw">pub </span>name: <span class="kw-2">*mut </span>c_char,
+    <span class="kw">pub </span>key: <span class="kw-2">*mut </span>c_char,
+    <span class="kw">pub </span>typemask: c_int,
 }
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LIBSSH2_SFTP_ATTRIBUTES</span> {
-    <span class="kw">pub</span> <span class="ident">flags</span>: <span class="ident">c_ulong</span>,
-    <span class="kw">pub</span> <span class="ident">filesize</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">uid</span>: <span class="ident">c_ulong</span>,
-    <span class="kw">pub</span> <span class="ident">gid</span>: <span class="ident">c_ulong</span>,
-    <span class="kw">pub</span> <span class="ident">permissions</span>: <span class="ident">c_ulong</span>,
-    <span class="kw">pub</span> <span class="ident">atime</span>: <span class="ident">c_ulong</span>,
-    <span class="kw">pub</span> <span class="ident">mtime</span>: <span class="ident">c_ulong</span>,
+<span class="attribute">#[repr(C)]
+#[derive(Copy, Clone)]
+</span><span class="kw">pub struct </span>LIBSSH2_SFTP_ATTRIBUTES {
+    <span class="kw">pub </span>flags: c_ulong,
+    <span class="kw">pub </span>filesize: libssh2_uint64_t,
+    <span class="kw">pub </span>uid: c_ulong,
+    <span class="kw">pub </span>gid: c_ulong,
+    <span class="kw">pub </span>permissions: c_ulong,
+    <span class="kw">pub </span>atime: c_ulong,
+    <span class="kw">pub </span>mtime: c_ulong,
 }
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LIBSSH2_SFTP_STATVFS</span> {
-    <span class="kw">pub</span> <span class="ident">f_bsize</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_frsize</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_blocks</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_bfree</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_bavail</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_files</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_ffree</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_favail</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_fsid</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_flag</span>: <span class="ident">libssh2_uint64_t</span>,
-    <span class="kw">pub</span> <span class="ident">f_namemax</span>: <span class="ident">libssh2_uint64_t</span>,
+<span class="attribute">#[repr(C)]
+#[derive(Copy, Clone)]
+</span><span class="kw">pub struct </span>LIBSSH2_SFTP_STATVFS {
+    <span class="kw">pub </span>f_bsize: libssh2_uint64_t,
+    <span class="kw">pub </span>f_frsize: libssh2_uint64_t,
+    <span class="kw">pub </span>f_blocks: libssh2_uint64_t,
+    <span class="kw">pub </span>f_bfree: libssh2_uint64_t,
+    <span class="kw">pub </span>f_bavail: libssh2_uint64_t,
+    <span class="kw">pub </span>f_files: libssh2_uint64_t,
+    <span class="kw">pub </span>f_ffree: libssh2_uint64_t,
+    <span class="kw">pub </span>f_favail: libssh2_uint64_t,
+    <span class="kw">pub </span>f_fsid: libssh2_uint64_t,
+    <span class="kw">pub </span>f_flag: libssh2_uint64_t,
+    <span class="kw">pub </span>f_namemax: libssh2_uint64_t,
 }
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LIBSSH2_ALLOC_FUNC</span> <span class="op">=</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="ident">size_t</span>, <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LIBSSH2_FREE_FUNC</span> <span class="op">=</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>);
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LIBSSH2_REALLOC_FUNC</span> <span class="op">=</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(<span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="ident">size_t</span>, <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LIBSSH2_PASSWD_CHANGEREQ_FUNC</span> <span class="op">=</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
-    <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-    <span class="ident">newpw</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-    <span class="ident">newpw_len</span>: <span class="kw-2">*mut</span> <span class="ident">c_int</span>,
-    <span class="ident">abstrakt</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
+<span class="kw">pub type </span>LIBSSH2_ALLOC_FUNC = <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(size_t, <span class="kw-2">*mut *mut </span>c_void) -&gt; <span class="kw-2">*mut </span>c_void;
+<span class="kw">pub type </span>LIBSSH2_FREE_FUNC = <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut *mut </span>c_void);
+<span class="kw">pub type </span>LIBSSH2_REALLOC_FUNC = <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>c_void, size_t, <span class="kw-2">*mut *mut </span>c_void) -&gt; <span class="kw-2">*mut </span>c_void;
+<span class="kw">pub type </span>LIBSSH2_PASSWD_CHANGEREQ_FUNC = <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+    newpw: <span class="kw-2">*mut *mut </span>c_char,
+    newpw_len: <span class="kw-2">*mut </span>c_int,
+    abstrakt: <span class="kw-2">*mut *mut </span>c_void,
 );
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC</span> <span class="op">=</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span>(
-    <span class="ident">username</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-    <span class="ident">username_len</span>: <span class="ident">c_int</span>,
-    <span class="ident">instruction</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-    <span class="ident">instruction_len</span>: <span class="ident">c_int</span>,
-    <span class="ident">num_prompts</span>: <span class="ident">c_int</span>,
-    <span class="ident">prompts</span>: <span class="kw-2">*const</span> <span class="ident">LIBSSH2_USERAUTH_KBDINT_PROMPT</span>,
-    <span class="ident">responses</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_USERAUTH_KBDINT_RESPONSE</span>,
-    <span class="ident">abstrakt</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
+<span class="kw">pub type </span>LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC = <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn</span>(
+    username: <span class="kw-2">*const </span>c_char,
+    username_len: c_int,
+    instruction: <span class="kw-2">*const </span>c_char,
+    instruction_len: c_int,
+    num_prompts: c_int,
+    prompts: <span class="kw-2">*const </span>LIBSSH2_USERAUTH_KBDINT_PROMPT,
+    responses: <span class="kw-2">*mut </span>LIBSSH2_USERAUTH_KBDINT_RESPONSE,
+    abstrakt: <span class="kw-2">*mut *mut </span>c_void,
 );
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LIBSSH2_USERAUTH_KBDINT_PROMPT</span> {
-    <span class="kw">pub</span> <span class="ident">text</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-    <span class="kw">pub</span> <span class="ident">length</span>: <span class="ident">c_uint</span>,
-    <span class="kw">pub</span> <span class="ident">echo</span>: <span class="ident">c_uchar</span>,
+<span class="attribute">#[repr(C)]
+</span><span class="kw">pub struct </span>LIBSSH2_USERAUTH_KBDINT_PROMPT {
+    <span class="kw">pub </span>text: <span class="kw-2">*mut </span>c_char,
+    <span class="kw">pub </span>length: c_uint,
+    <span class="kw">pub </span>echo: c_uchar,
 }
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LIBSSH2_USERAUTH_KBDINT_RESPONSE</span> {
-    <span class="kw">pub</span> <span class="ident">text</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-    <span class="kw">pub</span> <span class="ident">length</span>: <span class="ident">c_uint</span>,
+<span class="attribute">#[repr(C)]
+</span><span class="kw">pub struct </span>LIBSSH2_USERAUTH_KBDINT_RESPONSE {
+    <span class="kw">pub </span>text: <span class="kw-2">*mut </span>c_char,
+    <span class="kw">pub </span>length: c_uint,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">libssh2_socket_t</span> <span class="op">=</span> <span class="ident">c_int</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">windows</span>, <span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;32&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">libssh2_socket_t</span> <span class="op">=</span> <span class="ident">u32</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">windows</span>, <span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;64&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">libssh2_socket_t</span> <span class="op">=</span> <span class="ident">u64</span>;
+<span class="attribute">#[cfg(unix)]
+</span><span class="kw">pub type </span>libssh2_socket_t = c_int;
+<span class="attribute">#[cfg(all(windows, target_pointer_width = <span class="string">&quot;32&quot;</span>))]
+</span><span class="kw">pub type </span>libssh2_socket_t = u32;
+<span class="attribute">#[cfg(all(windows, target_pointer_width = <span class="string">&quot;64&quot;</span>))]
+</span><span class="kw">pub type </span>libssh2_socket_t = u64;
 
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="comment">// misc</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_init</span>(<span class="ident">flag</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_exit</span>();
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_free</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">ptr</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>);
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_hostkey_hash</span>(<span class="ident">session</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">hash_type</span>: <span class="ident">c_int</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">c_char</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_trace</span>(<span class="ident">session</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">bitmask</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_int</span>;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="comment">// misc
+    </span><span class="kw">pub fn </span>libssh2_init(flag: c_int) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_exit();
+    <span class="kw">pub fn </span>libssh2_free(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION, ptr: <span class="kw-2">*mut </span>c_void);
+    <span class="kw">pub fn </span>libssh2_hostkey_hash(session: <span class="kw-2">*mut </span>LIBSSH2_SESSION, hash_type: c_int) -&gt; <span class="kw-2">*const </span>c_char;
+    <span class="kw">pub fn </span>libssh2_trace(session: <span class="kw-2">*mut </span>LIBSSH2_SESSION, bitmask: c_int) -&gt; c_int;
 
-    <span class="comment">// session</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_init_ex</span>(
-        <span class="ident">alloc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LIBSSH2_ALLOC_FUNC</span><span class="op">&gt;</span>,
-        <span class="ident">free</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LIBSSH2_FREE_FUNC</span><span class="op">&gt;</span>,
-        <span class="ident">realloc</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LIBSSH2_REALLOC_FUNC</span><span class="op">&gt;</span>,
-        <span class="ident">abstrakt</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_abstract</span>(<span class="ident">session</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_free</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_banner_get</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">c_char</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_banner_set</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">banner</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_disconnect_ex</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">reason</span>: <span class="ident">c_int</span>,
-        <span class="ident">description</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">lang</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_flag</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">flag</span>: <span class="ident">c_int</span>, <span class="ident">value</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_get_blocking</span>(<span class="ident">session</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_get_timeout</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="ident">c_long</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_hostkey</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">len</span>: <span class="kw-2">*mut</span> <span class="ident">size_t</span>,
-        <span class="ident">kind</span>: <span class="kw-2">*mut</span> <span class="ident">c_int</span>,
-    ) -&gt; <span class="kw-2">*const</span> <span class="ident">c_char</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_method_pref</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">method_type</span>: <span class="ident">c_int</span>,
-        <span class="ident">prefs</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_methods</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">method_type</span>: <span class="ident">c_int</span>)
-        -&gt; <span class="kw-2">*const</span> <span class="ident">c_char</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_set_blocking</span>(<span class="ident">session</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">blocking</span>: <span class="ident">c_int</span>);
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_set_timeout</span>(<span class="ident">session</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">timeout</span>: <span class="ident">c_long</span>);
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_supported_algs</span>(
-        <span class="ident">session</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">method_type</span>: <span class="ident">c_int</span>,
-        <span class="ident">algs</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_last_errno</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_last_error</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">msg</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">len</span>: <span class="kw-2">*mut</span> <span class="ident">c_int</span>,
-        <span class="ident">want_buf</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_handshake</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">socket</span>: <span class="ident">libssh2_socket_t</span>)
-        -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_keepalive_config</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">want_reply</span>: <span class="ident">c_int</span>,
-        <span class="ident">interval</span>: <span class="ident">c_uint</span>,
+    <span class="comment">// session
+    </span><span class="kw">pub fn </span>libssh2_session_init_ex(
+        alloc: <span class="prelude-ty">Option</span>&lt;LIBSSH2_ALLOC_FUNC&gt;,
+        free: <span class="prelude-ty">Option</span>&lt;LIBSSH2_FREE_FUNC&gt;,
+        realloc: <span class="prelude-ty">Option</span>&lt;LIBSSH2_REALLOC_FUNC&gt;,
+        abstrakt: <span class="kw-2">*mut </span>c_void,
+    ) -&gt; <span class="kw-2">*mut </span>LIBSSH2_SESSION;
+    <span class="kw">pub fn </span>libssh2_session_abstract(session: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; <span class="kw-2">*mut *mut </span>c_void;
+    <span class="kw">pub fn </span>libssh2_session_free(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_banner_get(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; <span class="kw-2">*const </span>c_char;
+    <span class="kw">pub fn </span>libssh2_session_banner_set(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION, banner: <span class="kw-2">*const </span>c_char) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_disconnect_ex(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        reason: c_int,
+        description: <span class="kw-2">*const </span>c_char,
+        lang: <span class="kw-2">*const </span>c_char,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_flag(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION, flag: c_int, value: c_int) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_get_blocking(session: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_get_timeout(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; c_long;
+    <span class="kw">pub fn </span>libssh2_session_hostkey(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        len: <span class="kw-2">*mut </span>size_t,
+        kind: <span class="kw-2">*mut </span>c_int,
+    ) -&gt; <span class="kw-2">*const </span>c_char;
+    <span class="kw">pub fn </span>libssh2_session_method_pref(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        method_type: c_int,
+        prefs: <span class="kw-2">*const </span>c_char,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_methods(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION, method_type: c_int)
+        -&gt; <span class="kw-2">*const </span>c_char;
+    <span class="kw">pub fn </span>libssh2_session_set_blocking(session: <span class="kw-2">*mut </span>LIBSSH2_SESSION, blocking: c_int);
+    <span class="kw">pub fn </span>libssh2_session_set_timeout(session: <span class="kw-2">*mut </span>LIBSSH2_SESSION, timeout: c_long);
+    <span class="kw">pub fn </span>libssh2_session_supported_algs(
+        session: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        method_type: c_int,
+        algs: <span class="kw-2">*mut *mut *const </span>c_char,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_last_errno(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_last_error(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        msg: <span class="kw-2">*mut *mut </span>c_char,
+        len: <span class="kw-2">*mut </span>c_int,
+        want_buf: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_handshake(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION, socket: libssh2_socket_t)
+        -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_keepalive_config(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        want_reply: c_int,
+        interval: c_uint,
     );
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_keepalive_send</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>, <span class="ident">seconds_to_next</span>: <span class="kw-2">*mut</span> <span class="ident">c_int</span>)
-        -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_session_block_directions</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="ident">c_int</span>;
+    <span class="kw">pub fn </span>libssh2_keepalive_send(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION, seconds_to_next: <span class="kw-2">*mut </span>c_int)
+        -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_session_block_directions(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; c_int;
 
-    <span class="comment">// agent</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_agent_init</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_AGENT</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_agent_free</span>(<span class="ident">agent</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_AGENT</span>);
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_agent_connect</span>(<span class="ident">agent</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_AGENT</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_agent_disconnect</span>(<span class="ident">agent</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_AGENT</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_agent_list_identities</span>(<span class="ident">agent</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_AGENT</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_agent_get_identity</span>(
-        <span class="ident">agent</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_AGENT</span>,
-        <span class="ident">store</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">libssh2_agent_publickey</span>,
-        <span class="ident">prev</span>: <span class="kw-2">*mut</span> <span class="ident">libssh2_agent_publickey</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_agent_userauth</span>(
-        <span class="ident">agent</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_AGENT</span>,
-        <span class="ident">username</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">identity</span>: <span class="kw-2">*mut</span> <span class="ident">libssh2_agent_publickey</span>,
-    ) -&gt; <span class="ident">c_int</span>;
+    <span class="comment">// agent
+    </span><span class="kw">pub fn </span>libssh2_agent_init(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; <span class="kw-2">*mut </span>LIBSSH2_AGENT;
+    <span class="kw">pub fn </span>libssh2_agent_free(agent: <span class="kw-2">*mut </span>LIBSSH2_AGENT);
+    <span class="kw">pub fn </span>libssh2_agent_connect(agent: <span class="kw-2">*mut </span>LIBSSH2_AGENT) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_agent_disconnect(agent: <span class="kw-2">*mut </span>LIBSSH2_AGENT) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_agent_list_identities(agent: <span class="kw-2">*mut </span>LIBSSH2_AGENT) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_agent_get_identity(
+        agent: <span class="kw-2">*mut </span>LIBSSH2_AGENT,
+        store: <span class="kw-2">*mut *mut </span>libssh2_agent_publickey,
+        prev: <span class="kw-2">*mut </span>libssh2_agent_publickey,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_agent_userauth(
+        agent: <span class="kw-2">*mut </span>LIBSSH2_AGENT,
+        username: <span class="kw-2">*const </span>c_char,
+        identity: <span class="kw-2">*mut </span>libssh2_agent_publickey,
+    ) -&gt; c_int;
 
-    <span class="comment">// channels</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_free</span>(<span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_close</span>(<span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_wait_closed</span>(<span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_wait_eof</span>(<span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_eof</span>(<span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_process_startup</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">req</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">req_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">msg</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">msg_len</span>: <span class="ident">c_uint</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_flush_ex</span>(<span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>, <span class="ident">streamid</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_write_ex</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">stream_id</span>: <span class="ident">c_int</span>,
-        <span class="ident">buf</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">buflen</span>: <span class="ident">size_t</span>,
-    ) -&gt; <span class="ident">ssize_t</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_get_exit_signal</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">exitsignal</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">exitsignal_len</span>: <span class="kw-2">*mut</span> <span class="ident">size_t</span>,
-        <span class="ident">errmsg</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">errmsg_len</span>: <span class="kw-2">*mut</span> <span class="ident">size_t</span>,
-        <span class="ident">langtag</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">langtag_len</span>: <span class="kw-2">*mut</span> <span class="ident">size_t</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_get_exit_status</span>(<span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_open_ex</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">channel_type</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">channel_type_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">window_size</span>: <span class="ident">c_uint</span>,
-        <span class="ident">packet_size</span>: <span class="ident">c_uint</span>,
-        <span class="ident">message</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">message_len</span>: <span class="ident">c_uint</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_read_ex</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">stream_id</span>: <span class="ident">c_int</span>,
-        <span class="ident">buf</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">buflen</span>: <span class="ident">size_t</span>,
-    ) -&gt; <span class="ident">ssize_t</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_setenv_ex</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">var</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">varlen</span>: <span class="ident">c_uint</span>,
-        <span class="ident">val</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">vallen</span>: <span class="ident">c_uint</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_send_eof</span>(<span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_request_pty_ex</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">term</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">termlen</span>: <span class="ident">c_uint</span>,
-        <span class="ident">modes</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">modeslen</span>: <span class="ident">c_uint</span>,
-        <span class="ident">width</span>: <span class="ident">c_int</span>,
-        <span class="ident">height</span>: <span class="ident">c_int</span>,
-        <span class="ident">width_px</span>: <span class="ident">c_int</span>,
-        <span class="ident">height_px</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_request_pty_size_ex</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">width</span>: <span class="ident">c_int</span>,
-        <span class="ident">height</span>: <span class="ident">c_int</span>,
-        <span class="ident">width_px</span>: <span class="ident">c_int</span>,
-        <span class="ident">height_px</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_window_read_ex</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">read_avail</span>: <span class="kw-2">*mut</span> <span class="ident">c_ulong</span>,
-        <span class="ident">window_size_initial</span>: <span class="kw-2">*mut</span> <span class="ident">c_ulong</span>,
-    ) -&gt; <span class="ident">c_ulong</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_window_write_ex</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">window_size_initial</span>: <span class="kw-2">*mut</span> <span class="ident">c_ulong</span>,
-    ) -&gt; <span class="ident">c_ulong</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_receive_window_adjust2</span>(
-        <span class="ident">chan</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">adjust</span>: <span class="ident">c_ulong</span>,
-        <span class="ident">force</span>: <span class="ident">c_uchar</span>,
-        <span class="ident">window</span>: <span class="kw-2">*mut</span> <span class="ident">c_uint</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_direct_tcpip_ex</span>(
-        <span class="ident">ses</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">host</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">port</span>: <span class="ident">c_int</span>,
-        <span class="ident">shost</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">sport</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_forward_accept</span>(<span class="ident">listener</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_LISTENER</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_forward_cancel</span>(<span class="ident">listener</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_LISTENER</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_forward_listen_ex</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">host</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">port</span>: <span class="ident">c_int</span>,
-        <span class="ident">bound_port</span>: <span class="kw-2">*mut</span> <span class="ident">c_int</span>,
-        <span class="ident">queue_maxsize</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_LISTENER</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_handle_extended_data2</span>(
-        <span class="ident">channel</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>,
-        <span class="ident">mode</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_channel_request_auth_agent</span>(<span class="ident">channel</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>) -&gt; <span class="ident">c_int</span>;
+    <span class="comment">// channels
+    </span><span class="kw">pub fn </span>libssh2_channel_free(chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_close(chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_wait_closed(chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_wait_eof(chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_eof(chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_process_startup(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        req: <span class="kw-2">*const </span>c_char,
+        req_len: c_uint,
+        msg: <span class="kw-2">*const </span>c_char,
+        msg_len: c_uint,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_flush_ex(chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL, streamid: c_int) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_write_ex(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        stream_id: c_int,
+        buf: <span class="kw-2">*const </span>c_char,
+        buflen: size_t,
+    ) -&gt; ssize_t;
+    <span class="kw">pub fn </span>libssh2_channel_get_exit_signal(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        exitsignal: <span class="kw-2">*mut *mut </span>c_char,
+        exitsignal_len: <span class="kw-2">*mut </span>size_t,
+        errmsg: <span class="kw-2">*mut *mut </span>c_char,
+        errmsg_len: <span class="kw-2">*mut </span>size_t,
+        langtag: <span class="kw-2">*mut *mut </span>c_char,
+        langtag_len: <span class="kw-2">*mut </span>size_t,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_get_exit_status(chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_open_ex(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        channel_type: <span class="kw-2">*const </span>c_char,
+        channel_type_len: c_uint,
+        window_size: c_uint,
+        packet_size: c_uint,
+        message: <span class="kw-2">*const </span>c_char,
+        message_len: c_uint,
+    ) -&gt; <span class="kw-2">*mut </span>LIBSSH2_CHANNEL;
+    <span class="kw">pub fn </span>libssh2_channel_read_ex(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        stream_id: c_int,
+        buf: <span class="kw-2">*mut </span>c_char,
+        buflen: size_t,
+    ) -&gt; ssize_t;
+    <span class="kw">pub fn </span>libssh2_channel_setenv_ex(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        var: <span class="kw-2">*const </span>c_char,
+        varlen: c_uint,
+        val: <span class="kw-2">*const </span>c_char,
+        vallen: c_uint,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_send_eof(chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_request_pty_ex(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        term: <span class="kw-2">*const </span>c_char,
+        termlen: c_uint,
+        modes: <span class="kw-2">*const </span>c_char,
+        modeslen: c_uint,
+        width: c_int,
+        height: c_int,
+        width_px: c_int,
+        height_px: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_request_pty_size_ex(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        width: c_int,
+        height: c_int,
+        width_px: c_int,
+        height_px: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_window_read_ex(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        read_avail: <span class="kw-2">*mut </span>c_ulong,
+        window_size_initial: <span class="kw-2">*mut </span>c_ulong,
+    ) -&gt; c_ulong;
+    <span class="kw">pub fn </span>libssh2_channel_window_write_ex(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        window_size_initial: <span class="kw-2">*mut </span>c_ulong,
+    ) -&gt; c_ulong;
+    <span class="kw">pub fn </span>libssh2_channel_receive_window_adjust2(
+        chan: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        adjust: c_ulong,
+        force: c_uchar,
+        window: <span class="kw-2">*mut </span>c_uint,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_direct_tcpip_ex(
+        ses: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        host: <span class="kw-2">*const </span>c_char,
+        port: c_int,
+        shost: <span class="kw-2">*const </span>c_char,
+        sport: c_int,
+    ) -&gt; <span class="kw-2">*mut </span>LIBSSH2_CHANNEL;
+    <span class="kw">pub fn </span>libssh2_channel_forward_accept(listener: <span class="kw-2">*mut </span>LIBSSH2_LISTENER) -&gt; <span class="kw-2">*mut </span>LIBSSH2_CHANNEL;
+    <span class="kw">pub fn </span>libssh2_channel_forward_cancel(listener: <span class="kw-2">*mut </span>LIBSSH2_LISTENER) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_forward_listen_ex(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        host: <span class="kw-2">*const </span>c_char,
+        port: c_int,
+        bound_port: <span class="kw-2">*mut </span>c_int,
+        queue_maxsize: c_int,
+    ) -&gt; <span class="kw-2">*mut </span>LIBSSH2_LISTENER;
+    <span class="kw">pub fn </span>libssh2_channel_handle_extended_data2(
+        channel: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL,
+        mode: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_channel_request_auth_agent(channel: <span class="kw-2">*mut </span>LIBSSH2_CHANNEL) -&gt; c_int;
 
-    <span class="comment">// userauth</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_userauth_authenticated</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_userauth_list</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">username</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">username_len</span>: <span class="ident">c_uint</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">c_char</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_userauth_hostbased_fromfile_ex</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">username</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">username_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">publickey</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">privatekey</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">passphrase</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">hostname</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">hostname_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">local_username</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">local_len</span>: <span class="ident">c_uint</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_userauth_publickey_fromfile_ex</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">username</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">username_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">publickey</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">privatekey</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">passphrase</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_userauth_publickey_frommemory</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">username</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">username_len</span>: <span class="ident">size_t</span>,
-        <span class="ident">publickeydata</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">publickeydata_len</span>: <span class="ident">size_t</span>,
-        <span class="ident">privatekeydata</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">privatekeydata_len</span>: <span class="ident">size_t</span>,
-        <span class="ident">passphrase</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_userauth_password_ex</span>(
-        <span class="ident">session</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">username</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">username_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">password</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">password_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">password_change_cb</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LIBSSH2_PASSWD_CHANGEREQ_FUNC</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_userauth_keyboard_interactive_ex</span>(
-        <span class="ident">session</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">username</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">username_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">callback</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">c_int</span>;
+    <span class="comment">// userauth
+    </span><span class="kw">pub fn </span>libssh2_userauth_authenticated(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_userauth_list(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        username: <span class="kw-2">*const </span>c_char,
+        username_len: c_uint,
+    ) -&gt; <span class="kw-2">*mut </span>c_char;
+    <span class="kw">pub fn </span>libssh2_userauth_hostbased_fromfile_ex(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        username: <span class="kw-2">*const </span>c_char,
+        username_len: c_uint,
+        publickey: <span class="kw-2">*const </span>c_char,
+        privatekey: <span class="kw-2">*const </span>c_char,
+        passphrase: <span class="kw-2">*const </span>c_char,
+        hostname: <span class="kw-2">*const </span>c_char,
+        hostname_len: c_uint,
+        local_username: <span class="kw-2">*const </span>c_char,
+        local_len: c_uint,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_userauth_publickey_fromfile_ex(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        username: <span class="kw-2">*const </span>c_char,
+        username_len: c_uint,
+        publickey: <span class="kw-2">*const </span>c_char,
+        privatekey: <span class="kw-2">*const </span>c_char,
+        passphrase: <span class="kw-2">*const </span>c_char,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_userauth_publickey_frommemory(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        username: <span class="kw-2">*const </span>c_char,
+        username_len: size_t,
+        publickeydata: <span class="kw-2">*const </span>c_char,
+        publickeydata_len: size_t,
+        privatekeydata: <span class="kw-2">*const </span>c_char,
+        privatekeydata_len: size_t,
+        passphrase: <span class="kw-2">*const </span>c_char,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_userauth_password_ex(
+        session: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        username: <span class="kw-2">*const </span>c_char,
+        username_len: c_uint,
+        password: <span class="kw-2">*const </span>c_char,
+        password_len: c_uint,
+        password_change_cb: <span class="prelude-ty">Option</span>&lt;LIBSSH2_PASSWD_CHANGEREQ_FUNC&gt;,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_userauth_keyboard_interactive_ex(
+        session: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        username: <span class="kw-2">*const </span>c_char,
+        username_len: c_uint,
+        callback: <span class="prelude-ty">Option</span>&lt;LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC&gt;,
+    ) -&gt; c_int;
 
-    <span class="comment">// knownhost</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_free</span>(<span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>);
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_addc</span>(
-        <span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>,
-        <span class="ident">host</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">salt</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">key</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">keylen</span>: <span class="ident">size_t</span>,
-        <span class="ident">comment</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">commentlen</span>: <span class="ident">size_t</span>,
-        <span class="ident">typemask</span>: <span class="ident">c_int</span>,
-        <span class="ident">store</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">libssh2_knownhost</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_check</span>(
-        <span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>,
-        <span class="ident">host</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">key</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">keylen</span>: <span class="ident">size_t</span>,
-        <span class="ident">typemask</span>: <span class="ident">c_int</span>,
-        <span class="ident">knownhost</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">libssh2_knownhost</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_checkp</span>(
-        <span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>,
-        <span class="ident">host</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">port</span>: <span class="ident">c_int</span>,
-        <span class="ident">key</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">keylen</span>: <span class="ident">size_t</span>,
-        <span class="ident">typemask</span>: <span class="ident">c_int</span>,
-        <span class="ident">knownhost</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">libssh2_knownhost</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_del</span>(
-        <span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>,
-        <span class="ident">entry</span>: <span class="kw-2">*mut</span> <span class="ident">libssh2_knownhost</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_get</span>(
-        <span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>,
-        <span class="ident">store</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">libssh2_knownhost</span>,
-        <span class="ident">prev</span>: <span class="kw-2">*mut</span> <span class="ident">libssh2_knownhost</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_readfile</span>(
-        <span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>,
-        <span class="ident">filename</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">kind</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_readline</span>(
-        <span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>,
-        <span class="ident">line</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">len</span>: <span class="ident">size_t</span>,
-        <span class="ident">kind</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_writefile</span>(
-        <span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>,
-        <span class="ident">filename</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">kind</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_writeline</span>(
-        <span class="ident">hosts</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>,
-        <span class="ident">known</span>: <span class="kw-2">*mut</span> <span class="ident">libssh2_knownhost</span>,
-        <span class="ident">buffer</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">buflen</span>: <span class="ident">size_t</span>,
-        <span class="ident">outlen</span>: <span class="kw-2">*mut</span> <span class="ident">size_t</span>,
-        <span class="ident">kind</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_knownhost_init</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_KNOWNHOSTS</span>;
+    <span class="comment">// knownhost
+    </span><span class="kw">pub fn </span>libssh2_knownhost_free(hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS);
+    <span class="kw">pub fn </span>libssh2_knownhost_addc(
+        hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS,
+        host: <span class="kw-2">*const </span>c_char,
+        salt: <span class="kw-2">*const </span>c_char,
+        key: <span class="kw-2">*const </span>c_char,
+        keylen: size_t,
+        comment: <span class="kw-2">*const </span>c_char,
+        commentlen: size_t,
+        typemask: c_int,
+        store: <span class="kw-2">*mut *mut </span>libssh2_knownhost,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_knownhost_check(
+        hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS,
+        host: <span class="kw-2">*const </span>c_char,
+        key: <span class="kw-2">*const </span>c_char,
+        keylen: size_t,
+        typemask: c_int,
+        knownhost: <span class="kw-2">*mut *mut </span>libssh2_knownhost,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_knownhost_checkp(
+        hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS,
+        host: <span class="kw-2">*const </span>c_char,
+        port: c_int,
+        key: <span class="kw-2">*const </span>c_char,
+        keylen: size_t,
+        typemask: c_int,
+        knownhost: <span class="kw-2">*mut *mut </span>libssh2_knownhost,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_knownhost_del(
+        hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS,
+        entry: <span class="kw-2">*mut </span>libssh2_knownhost,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_knownhost_get(
+        hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS,
+        store: <span class="kw-2">*mut *mut </span>libssh2_knownhost,
+        prev: <span class="kw-2">*mut </span>libssh2_knownhost,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_knownhost_readfile(
+        hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS,
+        filename: <span class="kw-2">*const </span>c_char,
+        kind: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_knownhost_readline(
+        hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS,
+        line: <span class="kw-2">*const </span>c_char,
+        len: size_t,
+        kind: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_knownhost_writefile(
+        hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS,
+        filename: <span class="kw-2">*const </span>c_char,
+        kind: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_knownhost_writeline(
+        hosts: <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS,
+        known: <span class="kw-2">*mut </span>libssh2_knownhost,
+        buffer: <span class="kw-2">*mut </span>c_char,
+        buflen: size_t,
+        outlen: <span class="kw-2">*mut </span>size_t,
+        kind: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_knownhost_init(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; <span class="kw-2">*mut </span>LIBSSH2_KNOWNHOSTS;
 
-    <span class="comment">// scp</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;dangerously unsafe on windows, use libssh2_scp_recv2 instead&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_scp_recv</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">path</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">sb</span>: <span class="kw-2">*mut</span> <span class="ident">libc::stat</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>;
+    <span class="comment">// scp
+    </span><span class="attribute">#[deprecated(note = <span class="string">&quot;dangerously unsafe on windows, use libssh2_scp_recv2 instead&quot;</span>)]
+    </span><span class="kw">pub fn </span>libssh2_scp_recv(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        path: <span class="kw-2">*const </span>c_char,
+        sb: <span class="kw-2">*mut </span>libc::stat,
+    ) -&gt; <span class="kw-2">*mut </span>LIBSSH2_CHANNEL;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_scp_recv2</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">path</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">sb</span>: <span class="kw-2">*mut</span> <span class="ident">libssh2_struct_stat</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>;
+    <span class="kw">pub fn </span>libssh2_scp_recv2(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        path: <span class="kw-2">*const </span>c_char,
+        sb: <span class="kw-2">*mut </span>libssh2_struct_stat,
+    ) -&gt; <span class="kw-2">*mut </span>LIBSSH2_CHANNEL;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_scp_send64</span>(
-        <span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>,
-        <span class="ident">path</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">mode</span>: <span class="ident">c_int</span>,
-        <span class="ident">size</span>: <span class="ident">libssh2_int64_t</span>,
-        <span class="ident">mtime</span>: <span class="ident">libc::time_t</span>,
-        <span class="ident">atime</span>: <span class="ident">libc::time_t</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_CHANNEL</span>;
+    <span class="kw">pub fn </span>libssh2_scp_send64(
+        sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION,
+        path: <span class="kw-2">*const </span>c_char,
+        mode: c_int,
+        size: libssh2_int64_t,
+        mtime: libc::time_t,
+        atime: libc::time_t,
+    ) -&gt; <span class="kw-2">*mut </span>LIBSSH2_CHANNEL;
 
-    <span class="comment">// sftp</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_init</span>(<span class="ident">sess</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SESSION</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_shutdown</span>(<span class="ident">sftp</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_last_error</span>(<span class="ident">sftp</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>) -&gt; <span class="ident">c_ulong</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_open_ex</span>(
-        <span class="ident">sftp</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>,
-        <span class="ident">filename</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">filename_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">flags</span>: <span class="ident">c_ulong</span>,
-        <span class="ident">mode</span>: <span class="ident">c_long</span>,
-        <span class="ident">open_type</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_close_handle</span>(<span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_mkdir_ex</span>(
-        <span class="ident">sftp</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>,
-        <span class="ident">path</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">path_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">mode</span>: <span class="ident">c_long</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_fsync</span>(<span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_fstat_ex</span>(
-        <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>,
-        <span class="ident">attrs</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_ATTRIBUTES</span>,
-        <span class="ident">setstat</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_fstatvfs</span>(
-        <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>,
-        <span class="ident">attrs</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_STATVFS</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_stat_ex</span>(
-        <span class="ident">sftp</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>,
-        <span class="ident">path</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">path_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">stat_type</span>: <span class="ident">c_int</span>,
-        <span class="ident">attrs</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_ATTRIBUTES</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_read</span>(
-        <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>,
-        <span class="ident">buf</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">len</span>: <span class="ident">size_t</span>,
-    ) -&gt; <span class="ident">ssize_t</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_symlink_ex</span>(
-        <span class="ident">sftp</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>,
-        <span class="ident">path</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">path_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">target</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">target_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">link_type</span>: <span class="ident">c_int</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_rename_ex</span>(
-        <span class="ident">sftp</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">src_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">dst</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">dst_len</span>: <span class="ident">c_uint</span>,
-        <span class="ident">flags</span>: <span class="ident">c_long</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_rmdir_ex</span>(
-        <span class="ident">sftp</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>,
-        <span class="ident">path</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">path_len</span>: <span class="ident">c_uint</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_write</span>(
-        <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>,
-        <span class="ident">buffer</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">len</span>: <span class="ident">size_t</span>,
-    ) -&gt; <span class="ident">ssize_t</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_tell64</span>(<span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>) -&gt; <span class="ident">libssh2_uint64_t</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_seek64</span>(<span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>, <span class="ident">off</span>: <span class="ident">libssh2_uint64_t</span>);
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_readdir_ex</span>(
-        <span class="ident">handle</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_HANDLE</span>,
-        <span class="ident">buffer</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">buffer_len</span>: <span class="ident">size_t</span>,
-        <span class="ident">longentry</span>: <span class="kw-2">*mut</span> <span class="ident">c_char</span>,
-        <span class="ident">longentry_len</span>: <span class="ident">size_t</span>,
-        <span class="ident">attrs</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP_ATTRIBUTES</span>,
-    ) -&gt; <span class="ident">c_int</span>;
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">libssh2_sftp_unlink_ex</span>(
-        <span class="ident">sftp</span>: <span class="kw-2">*mut</span> <span class="ident">LIBSSH2_SFTP</span>,
-        <span class="ident">filename</span>: <span class="kw-2">*const</span> <span class="ident">c_char</span>,
-        <span class="ident">filename_len</span>: <span class="ident">c_uint</span>,
-    ) -&gt; <span class="ident">c_int</span>;
+    <span class="comment">// sftp
+    </span><span class="kw">pub fn </span>libssh2_sftp_init(sess: <span class="kw-2">*mut </span>LIBSSH2_SESSION) -&gt; <span class="kw-2">*mut </span>LIBSSH2_SFTP;
+    <span class="kw">pub fn </span>libssh2_sftp_shutdown(sftp: <span class="kw-2">*mut </span>LIBSSH2_SFTP) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_last_error(sftp: <span class="kw-2">*mut </span>LIBSSH2_SFTP) -&gt; c_ulong;
+    <span class="kw">pub fn </span>libssh2_sftp_open_ex(
+        sftp: <span class="kw-2">*mut </span>LIBSSH2_SFTP,
+        filename: <span class="kw-2">*const </span>c_char,
+        filename_len: c_uint,
+        flags: c_ulong,
+        mode: c_long,
+        open_type: c_int,
+    ) -&gt; <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE;
+    <span class="kw">pub fn </span>libssh2_sftp_close_handle(handle: <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_mkdir_ex(
+        sftp: <span class="kw-2">*mut </span>LIBSSH2_SFTP,
+        path: <span class="kw-2">*const </span>c_char,
+        path_len: c_uint,
+        mode: c_long,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_fsync(handle: <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_fstat_ex(
+        handle: <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE,
+        attrs: <span class="kw-2">*mut </span>LIBSSH2_SFTP_ATTRIBUTES,
+        setstat: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_fstatvfs(
+        handle: <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE,
+        attrs: <span class="kw-2">*mut </span>LIBSSH2_SFTP_STATVFS,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_stat_ex(
+        sftp: <span class="kw-2">*mut </span>LIBSSH2_SFTP,
+        path: <span class="kw-2">*const </span>c_char,
+        path_len: c_uint,
+        stat_type: c_int,
+        attrs: <span class="kw-2">*mut </span>LIBSSH2_SFTP_ATTRIBUTES,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_read(
+        handle: <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE,
+        buf: <span class="kw-2">*mut </span>c_char,
+        len: size_t,
+    ) -&gt; ssize_t;
+    <span class="kw">pub fn </span>libssh2_sftp_symlink_ex(
+        sftp: <span class="kw-2">*mut </span>LIBSSH2_SFTP,
+        path: <span class="kw-2">*const </span>c_char,
+        path_len: c_uint,
+        target: <span class="kw-2">*mut </span>c_char,
+        target_len: c_uint,
+        link_type: c_int,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_rename_ex(
+        sftp: <span class="kw-2">*mut </span>LIBSSH2_SFTP,
+        src: <span class="kw-2">*const </span>c_char,
+        src_len: c_uint,
+        dst: <span class="kw-2">*const </span>c_char,
+        dst_len: c_uint,
+        flags: c_long,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_rmdir_ex(
+        sftp: <span class="kw-2">*mut </span>LIBSSH2_SFTP,
+        path: <span class="kw-2">*const </span>c_char,
+        path_len: c_uint,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_write(
+        handle: <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE,
+        buffer: <span class="kw-2">*const </span>c_char,
+        len: size_t,
+    ) -&gt; ssize_t;
+    <span class="kw">pub fn </span>libssh2_sftp_tell64(handle: <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE) -&gt; libssh2_uint64_t;
+    <span class="kw">pub fn </span>libssh2_sftp_seek64(handle: <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE, off: libssh2_uint64_t);
+    <span class="kw">pub fn </span>libssh2_sftp_readdir_ex(
+        handle: <span class="kw-2">*mut </span>LIBSSH2_SFTP_HANDLE,
+        buffer: <span class="kw-2">*mut </span>c_char,
+        buffer_len: size_t,
+        longentry: <span class="kw-2">*mut </span>c_char,
+        longentry_len: size_t,
+        attrs: <span class="kw-2">*mut </span>LIBSSH2_SFTP_ATTRIBUTES,
+    ) -&gt; c_int;
+    <span class="kw">pub fn </span>libssh2_sftp_unlink_ex(
+        sftp: <span class="kw-2">*mut </span>LIBSSH2_SFTP,
+        filename: <span class="kw-2">*const </span>c_char,
+        filename_len: c_uint,
+    ) -&gt; c_int;
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">smoke</span>() {
-    <span class="kw">unsafe</span> { <span class="ident">libssh2_init</span>(<span class="number">0</span>) };
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>smoke() {
+    <span class="kw">unsafe </span>{ libssh2_init(<span class="number">0</span>) };
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">issue_14344_workaround</span>() {}
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub fn </span>issue_14344_workaround() {}
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init</span>() {
-    <span class="kw">use</span> <span class="ident">std::sync::Once</span>;
+<span class="kw">pub fn </span>init() {
+    <span class="kw">use </span>std::sync::Once;
 
-    <span class="kw">static</span> <span class="ident">INIT</span>: <span class="ident">Once</span> <span class="op">=</span> <span class="ident">Once::new</span>();
-    <span class="ident">INIT</span>.<span class="ident">call_once</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">unsafe</span> {
-        <span class="ident">platform_init</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">libc::atexit</span>(<span class="ident">shutdown</span>), <span class="number">0</span>);
+    <span class="kw">static </span>INIT: Once = Once::new();
+    INIT.call_once(|| <span class="kw">unsafe </span>{
+        platform_init();
+        <span class="macro">assert_eq!</span>(libc::atexit(shutdown), <span class="number">0</span>);
     });
-    <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">shutdown</span>() {
-        <span class="kw">unsafe</span> {
-            <span class="ident">libssh2_exit</span>();
+    <span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>shutdown() {
+        <span class="kw">unsafe </span>{
+            libssh2_exit();
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">platform_init</span>() {
-        <span class="comment">// On Unix we want to funnel through openssl_sys to initialize OpenSSL,</span>
-        <span class="comment">// so be sure to tell libssh2 to not do its own thing as we&#39;ve already</span>
-        <span class="comment">// taken care of it.</span>
-        <span class="ident">openssl_sys::init</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">libssh2_init</span>(<span class="ident">LIBSSH2_INIT_NO_CRYPTO</span>), <span class="number">0</span>);
+    <span class="attribute">#[cfg(unix)]
+    </span><span class="kw">unsafe fn </span>platform_init() {
+        <span class="comment">// On Unix we want to funnel through openssl_sys to initialize OpenSSL,
+        // so be sure to tell libssh2 to not do its own thing as we&#39;ve already
+        // taken care of it.
+        </span>openssl_sys::init();
+        <span class="macro">assert_eq!</span>(libssh2_init(LIBSSH2_INIT_NO_CRYPTO), <span class="number">0</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">platform_init</span>() {
-        <span class="comment">// On Windows we want to be sure to tell libssh2 to initialize</span>
-        <span class="comment">// everything, as we&#39;re not managing crypto elsewhere ourselves. Also to</span>
-        <span class="comment">// fix alexcrichton/git2-rs#202</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">libssh2_init</span>(<span class="number">0</span>), <span class="number">0</span>);
+    <span class="attribute">#[cfg(windows)]
+    </span><span class="kw">unsafe fn </span>platform_init() {
+        <span class="comment">// On Windows we want to be sure to tell libssh2 to initialize
+        // everything, as we&#39;re not managing crypto elsewhere ourselves. Also to
+        // fix alexcrichton/git2-rs#202
+        </span><span class="macro">assert_eq!</span>(libssh2_init(<span class="number">0</span>), <span class="number">0</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="libssh2_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="libssh2_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

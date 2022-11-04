@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/user_exercise_state_updater/state_deriver.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>state_deriver.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/user_exercise_state_updater/state_deriver.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>state_deriver.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -766,773 +766,773 @@
 <span id="766">766</span>
 <span id="767">767</span>
 <span id="768">768</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_to_two_decimals</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::numbers::f32_to_two_decimals;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
-    <span class="ident">library::user_exercise_state_updater::validation::validate_input</span>,
-    <span class="ident">peer_review_configs::PeerReviewAcceptingStrategy</span>,
-    <span class="ident">peer_review_question_submissions::PeerReviewQuestionSubmission</span>,
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">user_exercise_states</span>::{<span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseStateUpdate</span>},
+<span class="kw">use crate</span>::{
+    exercises::{ActivityProgress, GradingProgress},
+    library::user_exercise_state_updater::validation::validate_input,
+    peer_review_configs::PeerReviewAcceptingStrategy,
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    prelude::<span class="kw-2">*</span>,
+    user_exercise_states::{ReviewingStage, UserExerciseStateUpdate},
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::UserExerciseStateUpdateRequiredData</span>;
+<span class="kw">use </span><span class="kw">super</span>::UserExerciseStateUpdateRequiredData;
 
-<span class="doccomment">/// What the peer review thinks the state should be changed to</span>
-<span class="kw">struct</span> <span class="ident">PeerReviewOpinion</span> {
-    <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
+<span class="doccomment">/// What the peer review thinks the state should be changed to
+</span><span class="kw">struct </span>PeerReviewOpinion {
+    score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    reviewing_stage: ReviewingStage,
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">derive_new_user_exercise_state</span>(
-    <span class="ident">input_data</span>: <span class="ident">UserExerciseStateUpdateRequiredData</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseStateUpdate</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>derive_new_user_exercise_state(
+    input_data: UserExerciseStateUpdateRequiredData,
+) -&gt; ModelResult&lt;UserExerciseStateUpdate&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;Deriving new user_exercise_state&quot;</span>);
 
-    <span class="ident">validate_input</span>(<span class="kw-2">&amp;</span><span class="ident">input_data</span>)<span class="question-mark">?</span>;
+    validate_input(<span class="kw-2">&amp;</span>input_data)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">peer_review_opinion</span> <span class="op">=</span> <span class="ident">get_peer_review_opinion</span>(<span class="kw-2">&amp;</span><span class="ident">input_data</span>);
-    <span class="kw">let</span> <span class="ident">new_reviewing_stage</span> <span class="op">=</span> <span class="ident">derive_new_reviewing_stage</span>(<span class="kw-2">&amp;</span><span class="ident">input_data</span>, <span class="kw-2">&amp;</span><span class="ident">peer_review_opinion</span>);
-    <span class="kw">let</span> <span class="ident">reviewing_stage_changed</span> <span class="op">=</span>
-        <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">reviewing_stage</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_reviewing_stage</span>;
+    <span class="kw">let </span>peer_review_opinion = get_peer_review_opinion(<span class="kw-2">&amp;</span>input_data);
+    <span class="kw">let </span>new_reviewing_stage = derive_new_reviewing_stage(<span class="kw-2">&amp;</span>input_data, <span class="kw-2">&amp;</span>peer_review_opinion);
+    <span class="kw">let </span>reviewing_stage_changed =
+        input_data.current_user_exercise_state.reviewing_stage != new_reviewing_stage;
 
-    <span class="kw">if</span> <span class="ident">reviewing_stage_changed</span> {
+    <span class="kw">if </span>reviewing_stage_changed {
         <span class="macro">info!</span>(
             <span class="string">&quot;UserExerciseState {} changed reviewing_stage from {:?} to {:?}&quot;</span>,
-            <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">id</span>,
-            <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>,
-            <span class="ident">new_reviewing_stage</span>
+            input_data.current_user_exercise_state.id,
+            input_data.current_user_exercise_state,
+            new_reviewing_stage
         );
     }
 
-    <span class="kw">let</span> <span class="ident">new_score_given</span> <span class="op">=</span>
-        <span class="ident">derive_new_score_given</span>(<span class="kw-2">&amp;</span><span class="ident">input_data</span>, <span class="kw-2">&amp;</span><span class="ident">new_reviewing_stage</span>, <span class="kw-2">&amp;</span><span class="ident">peer_review_opinion</span>)
-            .<span class="ident">map</span>(<span class="ident">f32_to_two_decimals</span>);
+    <span class="kw">let </span>new_score_given =
+        derive_new_score_given(<span class="kw-2">&amp;</span>input_data, <span class="kw-2">&amp;</span>new_reviewing_stage, <span class="kw-2">&amp;</span>peer_review_opinion)
+            .map(f32_to_two_decimals);
 
-    <span class="kw">if</span> <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">score_given</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_score_given</span> {
+    <span class="kw">if </span>input_data.current_user_exercise_state.score_given != new_score_given {
         <span class="macro">info!</span>(
             <span class="string">&quot;UserExerciseState {} changed score_given from {:?} to {:?}&quot;</span>,
-            <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">id</span>,
-            <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">score_given</span>,
-            <span class="ident">new_score_given</span>
+            input_data.current_user_exercise_state.id,
+            input_data.current_user_exercise_state.score_given,
+            new_score_given
         );
     }
 
-    <span class="kw">let</span> <span class="ident">new_activity_progress</span> <span class="op">=</span> <span class="ident">derive_new_activity_progress</span>(<span class="kw-2">&amp;</span><span class="ident">input_data</span>, <span class="kw-2">&amp;</span><span class="ident">new_reviewing_stage</span>);
+    <span class="kw">let </span>new_activity_progress = derive_new_activity_progress(<span class="kw-2">&amp;</span>input_data, <span class="kw-2">&amp;</span>new_reviewing_stage);
 
-    <span class="kw">if</span> <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">activity_progress</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_activity_progress</span> {
+    <span class="kw">if </span>input_data.current_user_exercise_state.activity_progress != new_activity_progress {
         <span class="macro">info!</span>(
             <span class="string">&quot;UserExerciseState {} changed activity_progress from {:?} to {:?}&quot;</span>,
-            <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">id</span>,
-            <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">activity_progress</span>,
-            <span class="ident">new_activity_progress</span>
+            input_data.current_user_exercise_state.id,
+            input_data.current_user_exercise_state.activity_progress,
+            new_activity_progress
         );
     }
 
-    <span class="kw">let</span> <span class="ident">new_grading_progress</span> <span class="op">=</span> <span class="ident">input_data</span>
-        .<span class="ident">user_exercise_slide_state_grading_summary</span>
-        .<span class="ident">grading_progress</span>;
+    <span class="kw">let </span>new_grading_progress = input_data
+        .user_exercise_slide_state_grading_summary
+        .grading_progress;
 
-    <span class="kw">if</span> <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">grading_progress</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_grading_progress</span> {
+    <span class="kw">if </span>input_data.current_user_exercise_state.grading_progress != new_grading_progress {
         <span class="macro">info!</span>(
             <span class="string">&quot;UserExerciseState {} changed grading_progress from {:?} to {:?}&quot;</span>,
-            <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">id</span>,
-            <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">grading_progress</span>,
-            <span class="ident">new_grading_progress</span>
+            input_data.current_user_exercise_state.id,
+            input_data.current_user_exercise_state.grading_progress,
+            new_grading_progress
         );
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">UserExerciseStateUpdate</span> {
-        <span class="ident">id</span>: <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">id</span>,
-        <span class="ident">score_given</span>: <span class="ident">new_score_given</span>,
-        <span class="ident">activity_progress</span>: <span class="ident">new_activity_progress</span>,
-        <span class="ident">reviewing_stage</span>: <span class="ident">new_reviewing_stage</span>,
-        <span class="ident">grading_progress</span>: <span class="ident">new_grading_progress</span>,
+    <span class="prelude-val">Ok</span>(UserExerciseStateUpdate {
+        id: input_data.current_user_exercise_state.id,
+        score_given: new_score_given,
+        activity_progress: new_activity_progress,
+        reviewing_stage: new_reviewing_stage,
+        grading_progress: new_grading_progress,
     })
 }
 
-<span class="kw">fn</span> <span class="ident">derive_new_activity_progress</span>(
-    <span class="ident">input_data</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseStateUpdateRequiredData</span>,
-    <span class="ident">new_reviewing_stage</span>: <span class="kw-2">&amp;</span><span class="ident">ReviewingStage</span>,
-) -&gt; <span class="ident">ActivityProgress</span> {
-    <span class="kw">let</span> <span class="ident">slide_grading_progress</span> <span class="op">=</span> <span class="ident">input_data</span>
-        .<span class="ident">user_exercise_slide_state_grading_summary</span>
-        .<span class="ident">grading_progress</span>;
-    <span class="comment">// If no peer review or no self review are needed, the activity is completed as soon as the user has submitted the exercise</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">input_data</span>.<span class="ident">exercise</span>.<span class="ident">needs_peer_review</span> {
-        <span class="kw">if</span> <span class="ident">slide_grading_progress</span> <span class="op">==</span> <span class="ident">GradingProgress::NotReady</span> {
-            <span class="comment">// The user has not subitted the exercise</span>
-            <span class="kw">return</span> <span class="ident">ActivityProgress::Initialized</span>;
+<span class="kw">fn </span>derive_new_activity_progress(
+    input_data: <span class="kw-2">&amp;</span>UserExerciseStateUpdateRequiredData,
+    new_reviewing_stage: <span class="kw-2">&amp;</span>ReviewingStage,
+) -&gt; ActivityProgress {
+    <span class="kw">let </span>slide_grading_progress = input_data
+        .user_exercise_slide_state_grading_summary
+        .grading_progress;
+    <span class="comment">// If no peer review or no self review are needed, the activity is completed as soon as the user has submitted the exercise
+    </span><span class="kw">if </span>!input_data.exercise.needs_peer_review {
+        <span class="kw">if </span>slide_grading_progress == GradingProgress::NotReady {
+            <span class="comment">// The user has not subitted the exercise
+            </span><span class="kw">return </span>ActivityProgress::Initialized;
         }
-        <span class="comment">// The user has submitted the exercise</span>
-        <span class="kw">return</span> <span class="ident">ActivityProgress::Completed</span>;
+        <span class="comment">// The user has submitted the exercise
+        </span><span class="kw">return </span>ActivityProgress::Completed;
     };
-    <span class="comment">// The exercise needs peer review the activity is complete once the user has done everything they have to do</span>
-    <span class="kw">if</span> <span class="ident">new_reviewing_stage</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">ReviewingStage::NotStarted</span> {
-        <span class="kw">if</span> <span class="ident">slide_grading_progress</span> <span class="op">==</span> <span class="ident">GradingProgress::NotReady</span> {
-            <span class="comment">// The user has not subitted the exercise</span>
-            <span class="kw">return</span> <span class="ident">ActivityProgress::Initialized</span>;
+    <span class="comment">// The exercise needs peer review the activity is complete once the user has done everything they have to do
+    </span><span class="kw">if </span>new_reviewing_stage == <span class="kw-2">&amp;</span>ReviewingStage::NotStarted {
+        <span class="kw">if </span>slide_grading_progress == GradingProgress::NotReady {
+            <span class="comment">// The user has not subitted the exercise
+            </span><span class="kw">return </span>ActivityProgress::Initialized;
         }
-        <span class="comment">// The user has submitted the exercise</span>
-        <span class="kw">return</span> <span class="ident">ActivityProgress::InProgress</span>;
+        <span class="comment">// The user has submitted the exercise
+        </span><span class="kw">return </span>ActivityProgress::InProgress;
     }
-    <span class="kw">if</span> <span class="ident">new_reviewing_stage</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">ReviewingStage::PeerReview</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">new_reviewing_stage</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">ReviewingStage::SelfReview</span>
+    <span class="kw">if </span>new_reviewing_stage == <span class="kw-2">&amp;</span>ReviewingStage::PeerReview
+        || new_reviewing_stage == <span class="kw-2">&amp;</span>ReviewingStage::SelfReview
     {
-        <span class="comment">// The student still has to give more reviews -- their activity is not complete yet.</span>
-        <span class="kw">return</span> <span class="ident">ActivityProgress::InProgress</span>;
+        <span class="comment">// The student still has to give more reviews -- their activity is not complete yet.
+        </span><span class="kw">return </span>ActivityProgress::InProgress;
     };
 
-    <span class="ident">ActivityProgress::Completed</span>
+    ActivityProgress::Completed
 }
 
-<span class="kw">fn</span> <span class="ident">derive_new_score_given</span>(
-    <span class="ident">input_data</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseStateUpdateRequiredData</span>,
-    <span class="ident">new_reviewing_stage</span>: <span class="kw-2">&amp;</span><span class="ident">ReviewingStage</span>,
-    <span class="ident">peer_review_opinion</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewOpinion</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> {
-    <span class="comment">// Teacher grading decisions always override everything else</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">teacher_grading_decision</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input_data</span>.<span class="ident">latest_teacher_grading_decision</span> {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">teacher_grading_decision</span>.<span class="ident">score_given</span>);
+<span class="kw">fn </span>derive_new_score_given(
+    input_data: <span class="kw-2">&amp;</span>UserExerciseStateUpdateRequiredData,
+    new_reviewing_stage: <span class="kw-2">&amp;</span>ReviewingStage,
+    peer_review_opinion: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;PeerReviewOpinion&gt;,
+) -&gt; <span class="prelude-ty">Option</span>&lt;f32&gt; {
+    <span class="comment">// Teacher grading decisions always override everything else
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(teacher_grading_decision) = <span class="kw-2">&amp;</span>input_data.latest_teacher_grading_decision {
+        <span class="kw">return </span><span class="prelude-val">Some</span>(teacher_grading_decision.score_given);
     };
-    <span class="comment">// We want to give or remove points only when the peer review/self review completes. If the answer receives reviews after this, we won&#39;t take away or we won&#39;t give more points.</span>
-    <span class="comment">// If would be confusing for the student if we afterwards changed the peer review outcome due to an additional review. That&#39;s why we haved the locked state. If the state is and stays locked, the score won&#39;t be changed.</span>
-    <span class="kw">if</span> <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">reviewing_stage</span> <span class="op">==</span> <span class="ident">ReviewingStage::ReviewedAndLocked</span>
-        <span class="op">&amp;&amp;</span> <span class="ident">new_reviewing_stage</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">ReviewingStage::ReviewedAndLocked</span>
-        <span class="op">&amp;&amp;</span> <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">score_given</span>.<span class="ident">is_some</span>()
+    <span class="comment">// We want to give or remove points only when the peer review/self review completes. If the answer receives reviews after this, we won&#39;t take away or we won&#39;t give more points.
+    // If would be confusing for the student if we afterwards changed the peer review outcome due to an additional review. That&#39;s why we haved the locked state. If the state is and stays locked, the score won&#39;t be changed.
+    </span><span class="kw">if </span>input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
+        &amp;&amp; new_reviewing_stage == <span class="kw-2">&amp;</span>ReviewingStage::ReviewedAndLocked
+        &amp;&amp; input_data.current_user_exercise_state.score_given.is_some()
     {
-        <span class="kw">return</span> <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">score_given</span>;
+        <span class="kw">return </span>input_data.current_user_exercise_state.score_given;
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">peer_review_opinion</span>) <span class="op">=</span> <span class="ident">peer_review_opinion</span> {
-        <span class="kw">if</span> <span class="ident">input_data</span>.<span class="ident">exercise</span>.<span class="ident">needs_peer_review</span> {
-            <span class="kw">return</span> <span class="ident">peer_review_opinion</span>.<span class="ident">score_given</span>;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(peer_review_opinion) = peer_review_opinion {
+        <span class="kw">if </span>input_data.exercise.needs_peer_review {
+            <span class="kw">return </span>peer_review_opinion.score_given;
         }
     }
-    <span class="comment">// Peer reviews are not enabled, we&#39;ll just give the points according to the automated grading</span>
-    <span class="comment">// No need to consider the UserPointsUpdateStrategy here because it&#39;s already used when updating the user_exercise_slide_state. The user_exercise_state is just taking its data from there (and other sources).</span>
-    <span class="ident">input_data</span>
-        .<span class="ident">user_exercise_slide_state_grading_summary</span>
-        .<span class="ident">score_given</span>
+    <span class="comment">// Peer reviews are not enabled, we&#39;ll just give the points according to the automated grading
+    // No need to consider the UserPointsUpdateStrategy here because it&#39;s already used when updating the user_exercise_slide_state. The user_exercise_state is just taking its data from there (and other sources).
+    </span>input_data
+        .user_exercise_slide_state_grading_summary
+        .score_given
 }
 
-<span class="kw">fn</span> <span class="ident">derive_new_reviewing_stage</span>(
-    <span class="ident">input_data</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseStateUpdateRequiredData</span>,
-    <span class="ident">peer_review_opinion</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewOpinion</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ReviewingStage</span> {
-    <span class="comment">// Teacher grading decisions always override everything else</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_teacher_grading_decision</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input_data</span>.<span class="ident">latest_teacher_grading_decision</span> {
-        <span class="kw">return</span> <span class="ident">ReviewingStage::ReviewedAndLocked</span>;
+<span class="kw">fn </span>derive_new_reviewing_stage(
+    input_data: <span class="kw-2">&amp;</span>UserExerciseStateUpdateRequiredData,
+    peer_review_opinion: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;PeerReviewOpinion&gt;,
+) -&gt; ReviewingStage {
+    <span class="comment">// Teacher grading decisions always override everything else
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(_teacher_grading_decision) = <span class="kw-2">&amp;</span>input_data.latest_teacher_grading_decision {
+        <span class="kw">return </span>ReviewingStage::ReviewedAndLocked;
     };
-    <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>;
-    <span class="kw">if</span> <span class="ident">input_data</span>.<span class="ident">exercise</span>.<span class="ident">needs_peer_review</span> {
-        <span class="kw">return</span> <span class="ident">peer_review_opinion</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">reviewing_stage</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">reviewing_stage</span>);
-    } <span class="kw">else</span> {
-        <span class="comment">// Valid states for exercises without peer review are `ReviewingStage::NotStarted` or `ReviewingStage::ReviewedAndLocked`.</span>
-        <span class="comment">// If the state is one of those, we&#39;ll keep it but if the state is something not allowed, we&#39;ll reset it to the default.</span>
-        <span class="comment">// Most states need to stay in the ReviewingStage::NotStarted stage</span>
-        <span class="kw">if</span> <span class="ident">user_exercise_state</span>.<span class="ident">reviewing_stage</span> <span class="op">==</span> <span class="ident">ReviewingStage::NotStarted</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">user_exercise_state</span>.<span class="ident">reviewing_stage</span> <span class="op">==</span> <span class="ident">ReviewingStage::ReviewedAndLocked</span>
+    <span class="kw">let </span>user_exercise_state = <span class="kw-2">&amp;</span>input_data.current_user_exercise_state;
+    <span class="kw">if </span>input_data.exercise.needs_peer_review {
+        <span class="kw">return </span>peer_review_opinion
+            .as_ref()
+            .map(|o| o.reviewing_stage)
+            .unwrap_or_else(|| input_data.current_user_exercise_state.reviewing_stage);
+    } <span class="kw">else </span>{
+        <span class="comment">// Valid states for exercises without peer review are `ReviewingStage::NotStarted` or `ReviewingStage::ReviewedAndLocked`.
+        // If the state is one of those, we&#39;ll keep it but if the state is something not allowed, we&#39;ll reset it to the default.
+        // Most states need to stay in the ReviewingStage::NotStarted stage
+        </span><span class="kw">if </span>user_exercise_state.reviewing_stage == ReviewingStage::NotStarted
+            || user_exercise_state.reviewing_stage == ReviewingStage::ReviewedAndLocked
         {
-            <span class="ident">user_exercise_state</span>.<span class="ident">reviewing_stage</span>
-        } <span class="kw">else</span> {
-            <span class="macro">warn!</span>(<span class="ident">reviewing_stage</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">user_exercise_state</span>.<span class="ident">reviewing_stage</span>, <span class="string">&quot;Reviewing stage was in invalid state for an exercise without peer review. Resetting to ReviewingStage::NotStarted.&quot;</span>);
-            <span class="ident">ReviewingStage::NotStarted</span>
+            user_exercise_state.reviewing_stage
+        } <span class="kw">else </span>{
+            <span class="macro">warn!</span>(reviewing_stage = <span class="question-mark">?</span>user_exercise_state.reviewing_stage, <span class="string">&quot;Reviewing stage was in invalid state for an exercise without peer review. Resetting to ReviewingStage::NotStarted.&quot;</span>);
+            ReviewingStage::NotStarted
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">input_data</span>))]</span>
-<span class="kw">fn</span> <span class="ident">get_peer_review_opinion</span>(
-    <span class="ident">input_data</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseStateUpdateRequiredData</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewOpinion</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">input_data</span>.<span class="ident">exercise</span>.<span class="ident">needs_peer_review</span> {
-        <span class="comment">// Peer review is not enabled, no opinion</span>
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="attribute">#[instrument(skip(input_data))]
+</span><span class="kw">fn </span>get_peer_review_opinion(
+    input_data: <span class="kw-2">&amp;</span>UserExerciseStateUpdateRequiredData,
+) -&gt; <span class="prelude-ty">Option</span>&lt;PeerReviewOpinion&gt; {
+    <span class="kw">if </span>!input_data.exercise.needs_peer_review {
+        <span class="comment">// Peer review is not enabled, no opinion
+        </span><span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">score_maximum</span> <span class="op">=</span> <span class="ident">input_data</span>.<span class="ident">exercise</span>.<span class="ident">score_maximum</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input_data</span>.<span class="ident">peer_review_information</span> {
-        <span class="kw">let</span> <span class="ident">given_enough_peer_reviews</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">given_peer_review_submissions</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i32</span>
-            <span class="op">&gt;</span><span class="op">=</span> <span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">peer_reviews_to_give</span>;
-        <span class="comment">// Received enough peer reviews is cached to the queue entry, lets use it here to make sure its value has been kept up-to-date.</span>
-        <span class="kw">let</span> <span class="ident">received_enough_peer_reviews</span> <span class="op">=</span> <span class="ident">info</span>
-            .<span class="ident">peer_review_queue_entry</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">received_enough_peer_reviews</span>)
-            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
+    <span class="kw">let </span>score_maximum = input_data.exercise.score_maximum;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(info) = <span class="kw-2">&amp;</span>input_data.peer_review_information {
+        <span class="kw">let </span>given_enough_peer_reviews = info.given_peer_review_submissions.len() <span class="kw">as </span>i32
+            &gt;= info.peer_review_config.peer_reviews_to_give;
+        <span class="comment">// Received enough peer reviews is cached to the queue entry, lets use it here to make sure its value has been kept up-to-date.
+        </span><span class="kw">let </span>received_enough_peer_reviews = info
+            .peer_review_queue_entry
+            .as_ref()
+            .map(|o| o.received_enough_peer_reviews)
+            .unwrap_or(<span class="bool-val">false</span>);
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">given_enough_peer_reviews</span> {
-            <span class="comment">// Keeps the state in Intialized or PeerReview</span>
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
-                <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
-                <span class="ident">reviewing_stage</span>: <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">reviewing_stage</span>,
+        <span class="kw">if </span>!given_enough_peer_reviews {
+            <span class="comment">// Keeps the state in Intialized or PeerReview
+            </span><span class="kw">return </span><span class="prelude-val">Some</span>(PeerReviewOpinion {
+                score_given: <span class="prelude-val">None</span>,
+                reviewing_stage: input_data.current_user_exercise_state.reviewing_stage,
             });
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">received_enough_peer_reviews</span> {
-            <span class="comment">// Has given enough but has not received enough: the student has to wait until others have reviewed their answer more</span>
+        } <span class="kw">else if </span>!received_enough_peer_reviews {
+            <span class="comment">// Has given enough but has not received enough: the student has to wait until others have reviewed their answer more
 
-            <span class="comment">// Handle the case where the answer is waiting for manual review but is still receiving peer reviews</span>
-            <span class="kw">if</span> <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">reviewing_stage</span>
-                <span class="op">==</span> <span class="ident">ReviewingStage::WaitingForManualGrading</span>
+            // Handle the case where the answer is waiting for manual review but is still receiving peer reviews
+            </span><span class="kw">if </span>input_data.current_user_exercise_state.reviewing_stage
+                == ReviewingStage::WaitingForManualGrading
             {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
-                    <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::WaitingForManualGrading</span>,
+                <span class="kw">return </span><span class="prelude-val">Some</span>(PeerReviewOpinion {
+                    score_given: <span class="prelude-val">None</span>,
+                    reviewing_stage: ReviewingStage::WaitingForManualGrading,
                 });
             }
 
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
-                <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
-                <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::WaitingForPeerReviews</span>,
+            <span class="kw">return </span><span class="prelude-val">Some</span>(PeerReviewOpinion {
+                score_given: <span class="prelude-val">None</span>,
+                reviewing_stage: ReviewingStage::WaitingForPeerReviews,
             });
         }
 
-        <span class="comment">// Users have given and received enough peer reviews, time to consider how we&#39;re doing the grading</span>
-        <span class="kw">match</span> <span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_strategy</span> {
-            <span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">avg</span> <span class="op">=</span> <span class="ident">calculate_average_received_peer_review_score</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">info</span>
-                        .<span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>,
+        <span class="comment">// Users have given and received enough peer reviews, time to consider how we&#39;re doing the grading
+        </span><span class="kw">match </span>info.peer_review_config.accepting_strategy {
+            PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage =&gt; {
+                <span class="kw">let </span>avg = calculate_average_received_peer_review_score(
+                    <span class="kw-2">&amp;</span>info
+                        .latest_exercise_slide_submission_received_peer_review_question_submissions,
                 );
-                <span class="kw">if</span> <span class="ident">avg</span> <span class="op">&lt;</span> <span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_threshold</span> {
-                    <span class="macro">info!</span>(<span class="ident">avg</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">avg</span>, <span class="ident">threshold</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_threshold</span>, <span class="ident">peer_review_accepting_strategy</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_strategy</span>, <span class="string">&quot;Automatically giving zero points because average is below the threshold&quot;</span>);
-                    <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
-                        <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
-                        <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::ReviewedAndLocked</span>,
+                <span class="kw">if </span>avg &lt; info.peer_review_config.accepting_threshold {
+                    <span class="macro">info!</span>(avg = <span class="question-mark">?</span>avg, threshold = <span class="question-mark">?</span>info.peer_review_config.accepting_threshold, peer_review_accepting_strategy = <span class="question-mark">?</span>info.peer_review_config.accepting_strategy, <span class="string">&quot;Automatically giving zero points because average is below the threshold&quot;</span>);
+                    <span class="prelude-val">Some</span>(PeerReviewOpinion {
+                        score_given: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
+                        reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
-                } <span class="kw">else</span> {
-                    <span class="macro">info!</span>(<span class="ident">avg</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">avg</span>, <span class="ident">threshold</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_threshold</span>, <span class="ident">peer_review_accepting_strategy</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_strategy</span>, <span class="string">&quot;Automatically giving the points since the average is above the threshold&quot;</span>);
-                    <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
-                        <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>),
-                        <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::ReviewedAndLocked</span>,
+                } <span class="kw">else </span>{
+                    <span class="macro">info!</span>(avg = <span class="question-mark">?</span>avg, threshold = <span class="question-mark">?</span>info.peer_review_config.accepting_threshold, peer_review_accepting_strategy = <span class="question-mark">?</span>info.peer_review_config.accepting_strategy, <span class="string">&quot;Automatically giving the points since the average is above the threshold&quot;</span>);
+                    <span class="prelude-val">Some</span>(PeerReviewOpinion {
+                        score_given: <span class="prelude-val">Some</span>(score_maximum <span class="kw">as </span>f32),
+                        reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
                 }
             }
-            <span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">avg</span> <span class="op">=</span> <span class="ident">calculate_average_received_peer_review_score</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">info</span>
-                        .<span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>,
+            PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage =&gt; {
+                <span class="kw">let </span>avg = calculate_average_received_peer_review_score(
+                    <span class="kw-2">&amp;</span>info
+                        .latest_exercise_slide_submission_received_peer_review_question_submissions,
                 );
-                <span class="kw">if</span> <span class="ident">avg</span> <span class="op">&lt;</span> <span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_threshold</span> {
-                    <span class="macro">info!</span>(<span class="ident">avg</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">avg</span>, <span class="ident">threshold</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_threshold</span>, <span class="ident">peer_review_accepting_strategy</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_strategy</span>, <span class="string">&quot;Not giving points because average is below the threshold. The answer should be moved to manual review.&quot;</span>);
-                    <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
-                        <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::WaitingForManualGrading</span>,
+                <span class="kw">if </span>avg &lt; info.peer_review_config.accepting_threshold {
+                    <span class="macro">info!</span>(avg = <span class="question-mark">?</span>avg, threshold = <span class="question-mark">?</span>info.peer_review_config.accepting_threshold, peer_review_accepting_strategy = <span class="question-mark">?</span>info.peer_review_config.accepting_strategy, <span class="string">&quot;Not giving points because average is below the threshold. The answer should be moved to manual review.&quot;</span>);
+                    <span class="prelude-val">Some</span>(PeerReviewOpinion {
+                        score_given: <span class="prelude-val">None</span>,
+                        reviewing_stage: ReviewingStage::WaitingForManualGrading,
                     })
-                } <span class="kw">else</span> {
-                    <span class="macro">info!</span>(<span class="ident">avg</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">avg</span>, <span class="ident">threshold</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_threshold</span>, <span class="ident">peer_review_accepting_strategy</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_strategy</span>, <span class="string">&quot;Automatically giving the points since the average is above the threshold&quot;</span>);
-                    <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
-                        <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>),
-                        <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::ReviewedAndLocked</span>,
+                } <span class="kw">else </span>{
+                    <span class="macro">info!</span>(avg = <span class="question-mark">?</span>avg, threshold = <span class="question-mark">?</span>info.peer_review_config.accepting_threshold, peer_review_accepting_strategy = <span class="question-mark">?</span>info.peer_review_config.accepting_strategy, <span class="string">&quot;Automatically giving the points since the average is above the threshold&quot;</span>);
+                    <span class="prelude-val">Some</span>(PeerReviewOpinion {
+                        score_given: <span class="prelude-val">Some</span>(score_maximum <span class="kw">as </span>f32),
+                        reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
                 }
             }
-            <span class="ident">PeerReviewAcceptingStrategy::ManualReviewEverything</span> =&gt; {
-                <span class="macro">info!</span>(<span class="ident">peer_review_accepting_strategy</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">info</span>.<span class="ident">peer_review_config</span>.<span class="ident">accepting_strategy</span>, <span class="string">&quot;Not giving points because the teacher reviews all answers manually&quot;</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
-                    <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::WaitingForManualGrading</span>,
+            PeerReviewAcceptingStrategy::ManualReviewEverything =&gt; {
+                <span class="macro">info!</span>(peer_review_accepting_strategy = <span class="question-mark">?</span>info.peer_review_config.accepting_strategy, <span class="string">&quot;Not giving points because the teacher reviews all answers manually&quot;</span>);
+                <span class="prelude-val">Some</span>(PeerReviewOpinion {
+                    score_given: <span class="prelude-val">None</span>,
+                    reviewing_stage: ReviewingStage::WaitingForManualGrading,
                 })
             }
         }
-    } <span class="kw">else</span> {
-        <span class="comment">// Even though the exercise needs peer review, the peer review has not been configured. The safest thing to do here is to consider peer review as not complete</span>
-        <span class="macro">warn!</span>(<span class="string">&quot;Peer review is enabled in the exercise but no peer_review_config found&quot;</span>);
-        <span class="prelude-val">None</span>
-    }
+    } <span class="kw">else </span>{
+        <span class="comment">// Even though the exercise needs peer review, the peer review has not been configured. The safest thing to do here is to consider peer review as not complete
+        </span><span class="macro">warn!</span>(<span class="string">&quot;Peer review is enabled in the exercise but no peer_review_config found&quot;</span>);
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="kw">fn</span> <span class="ident">calculate_average_received_peer_review_score</span>(
-    <span class="ident">peer_review_question_submissions</span>: <span class="kw-2">&amp;</span>[<span class="ident">PeerReviewQuestionSubmission</span>],
-) -&gt; <span class="ident">f32</span> {
-    <span class="kw">let</span> <span class="ident">answers_considered</span> <span class="op">=</span> <span class="ident">peer_review_question_submissions</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">prqs</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">prqs</span>.<span class="ident">deleted_at</span>.<span class="ident">is_some</span>() {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>calculate_average_received_peer_review_score(
+    peer_review_question_submissions: <span class="kw-2">&amp;</span>[PeerReviewQuestionSubmission],
+) -&gt; f32 {
+    <span class="kw">let </span>answers_considered = peer_review_question_submissions
+        .iter()
+        .filter_map(|prqs| {
+            <span class="kw">if </span>prqs.deleted_at.is_some() {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
-            <span class="ident">prqs</span>.<span class="ident">number_data</span>
+            prqs.number_data
         })
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">if</span> <span class="ident">answers_considered</span>.<span class="ident">is_empty</span>() {
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">if </span>answers_considered.is_empty() {
         <span class="macro">warn!</span>(<span class="string">&quot;No peer review question submissions for this answer with number data. Assuming score is 0.&quot;</span>);
-        <span class="kw">return</span> <span class="number">0.0</span>;
+        <span class="kw">return </span><span class="number">0.0</span>;
     }
-    <span class="ident">answers_considered</span>.<span class="ident">iter</span>().<span class="ident">sum</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>() <span class="op">/</span> <span class="ident">answers_considered</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f32</span>
+    answers_considered.iter().sum::&lt;f32&gt;() / answers_considered.len() <span class="kw">as </span>f32
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">mod</span> <span class="ident">derive_new_user_exercise_state</span> {
-        <span class="kw">use</span> <span class="ident">chrono::TimeZone</span>;
+    <span class="kw">mod </span>derive_new_user_exercise_state {
+        <span class="kw">use </span>chrono::TimeZone;
 
-        <span class="kw">use</span> <span class="kw">crate</span>::{
-            <span class="ident">exercises::Exercise</span>,
-            <span class="ident">library::user_exercise_state_updater::UserExerciseStateUpdateRequiredDataPeerReviewInformation</span>,
-            <span class="ident">peer_review_configs::PeerReviewConfig</span>, <span class="ident">peer_review_queue_entries::PeerReviewQueueEntry</span>,
-            <span class="ident">peer_review_submissions::PeerReviewSubmission</span>,
-            <span class="ident">user_exercise_slide_states::UserExerciseSlideStateGradingSummary</span>,
-            <span class="ident">user_exercise_states::UserExerciseState</span>,
+        <span class="kw">use crate</span>::{
+            exercises::Exercise,
+            library::user_exercise_state_updater::UserExerciseStateUpdateRequiredDataPeerReviewInformation,
+            peer_review_configs::PeerReviewConfig, peer_review_queue_entries::PeerReviewQueueEntry,
+            peer_review_submissions::PeerReviewSubmission,
+            user_exercise_slide_states::UserExerciseSlideStateGradingSummary,
+            user_exercise_states::UserExerciseState,
         };
 
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">updates_state_for_normal_exercise</span>() {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">false</span>, <span class="bool-val">false</span>);
-            <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
-                <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>updates_state_for_normal_exercise() {
+            <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+            <span class="kw">let </span>exercise = create_exercise(CourseOrExamId::Course(id), <span class="bool-val">false</span>, <span class="bool-val">false</span>);
+            <span class="kw">let </span>user_exercise_state = create_user_exercise_state(
+                <span class="kw-2">&amp;</span>exercise,
                 <span class="prelude-val">None</span>,
-                <span class="ident">ActivityProgress::Initialized</span>,
-                <span class="ident">ReviewingStage::NotStarted</span>,
+                ActivityProgress::Initialized,
+                ReviewingStage::NotStarted,
             );
-            <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
-                <span class="ident">derive_new_user_exercise_state</span>(<span class="ident">UserExerciseStateUpdateRequiredData</span> {
-                    <span class="ident">exercise</span>,
-                    <span class="ident">current_user_exercise_state</span>: <span class="ident">user_exercise_state</span>,
-                    <span class="ident">peer_review_information</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">user_exercise_slide_state_grading_summary</span>:
-                        <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                            <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                            <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+            <span class="kw">let </span>new_user_exercise_state =
+                derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                    exercise,
+                    current_user_exercise_state: user_exercise_state,
+                    peer_review_information: <span class="prelude-val">None</span>,
+                    latest_teacher_grading_decision: <span class="prelude-val">None</span>,
+                    user_exercise_slide_state_grading_summary:
+                        UserExerciseSlideStateGradingSummary {
+                            score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                            grading_progress: GradingProgress::FullyGraded,
                         },
                 })
-                .<span class="ident">unwrap</span>();
-            <span class="ident">assert_results</span>(
-                <span class="kw-2">&amp;</span><span class="ident">new_user_exercise_state</span>,
+                .unwrap();
+            assert_results(
+                <span class="kw-2">&amp;</span>new_user_exercise_state,
                 <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                <span class="ident">ActivityProgress::Completed</span>,
-                <span class="comment">// Exercises that don&#39;t have peer review new leave the not started stage</span>
-                <span class="ident">ReviewingStage::NotStarted</span>,
+                ActivityProgress::Completed,
+                <span class="comment">// Exercises that don&#39;t have peer review new leave the not started stage
+                </span>ReviewingStage::NotStarted,
             );
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">doesnt_update_score_for_exercise_that_needs_to_be_peer_reviewed</span>() {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
-            <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
-                <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>doesnt_update_score_for_exercise_that_needs_to_be_peer_reviewed() {
+            <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+            <span class="kw">let </span>exercise = create_exercise(CourseOrExamId::Course(id), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
+            <span class="kw">let </span>user_exercise_state = create_user_exercise_state(
+                <span class="kw-2">&amp;</span>exercise,
                 <span class="prelude-val">None</span>,
-                <span class="ident">ActivityProgress::Initialized</span>,
-                <span class="ident">ReviewingStage::NotStarted</span>,
+                ActivityProgress::Initialized,
+                ReviewingStage::NotStarted,
             );
-            <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
-                <span class="ident">derive_new_user_exercise_state</span>(<span class="ident">UserExerciseStateUpdateRequiredData</span> {
-                    <span class="ident">exercise</span>,
-                    <span class="ident">current_user_exercise_state</span>: <span class="ident">user_exercise_state</span>,
-                    <span class="ident">peer_review_information</span>: <span class="prelude-val">Some</span>(
-                        <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span> {
-                            <span class="ident">given_peer_review_submissions</span>: <span class="ident">Vec::new</span>(), <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>: <span class="ident">Vec::new</span>(), <span class="ident">peer_review_queue_entry</span>: <span class="prelude-val">None</span>,
-                            <span class="ident">peer_review_config</span>: <span class="ident">create_peer_review_config</span>(<span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage</span>)
+            <span class="kw">let </span>new_user_exercise_state =
+                derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                    exercise,
+                    current_user_exercise_state: user_exercise_state,
+                    peer_review_information: <span class="prelude-val">Some</span>(
+                        UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+                            given_peer_review_submissions: Vec::new(), latest_exercise_slide_submission_received_peer_review_question_submissions: Vec::new(), peer_review_queue_entry: <span class="prelude-val">None</span>,
+                            peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage)
                         },
                     ),
-                    <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">user_exercise_slide_state_grading_summary</span>:
-                        <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                            <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                            <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+                    latest_teacher_grading_decision: <span class="prelude-val">None</span>,
+                    user_exercise_slide_state_grading_summary:
+                        UserExerciseSlideStateGradingSummary {
+                            score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                            grading_progress: GradingProgress::FullyGraded,
                         },
                 })
-                .<span class="ident">unwrap</span>();
-            <span class="ident">assert_results</span>(
-                <span class="kw-2">&amp;</span><span class="ident">new_user_exercise_state</span>,
+                .unwrap();
+            assert_results(
+                <span class="kw-2">&amp;</span>new_user_exercise_state,
                 <span class="prelude-val">None</span>,
-                <span class="ident">ActivityProgress::InProgress</span>,
-                <span class="ident">ReviewingStage::NotStarted</span>,
+                ActivityProgress::InProgress,
+                ReviewingStage::NotStarted,
             );
         }
 
-        <span class="kw">mod</span> <span class="ident">automatically_accept_or_reject_by_average</span> {
-            <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">mod </span>automatically_accept_or_reject_by_average {
+            <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-            <span class="attribute">#[<span class="ident">test</span>]</span>
-            <span class="kw">fn</span> <span class="ident">peer_review_automatically_accept_or_reject_by_average_works_gives_full_points</span>() {
-                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
-                <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
+            <span class="attribute">#[test]
+            </span><span class="kw">fn </span>peer_review_automatically_accept_or_reject_by_average_works_gives_full_points() {
+                <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+                <span class="kw">let </span>exercise = create_exercise(CourseOrExamId::Course(id), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
+                <span class="kw">let </span>user_exercise_state = create_user_exercise_state(
+                    <span class="kw-2">&amp;</span>exercise,
                     <span class="prelude-val">None</span>,
-                    <span class="ident">ActivityProgress::Initialized</span>,
-                    <span class="ident">ReviewingStage::NotStarted</span>,
+                    ActivityProgress::Initialized,
+                    ReviewingStage::NotStarted,
                 );
-                <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
-                    <span class="ident">derive_new_user_exercise_state</span>(<span class="ident">UserExerciseStateUpdateRequiredData</span> {
-                        <span class="ident">exercise</span>,
-                        <span class="ident">current_user_exercise_state</span>: <span class="ident">user_exercise_state</span>,
-                        <span class="ident">peer_review_information</span>: <span class="prelude-val">Some</span>(
-                            <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span> {
-                                <span class="ident">given_peer_review_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>()],
-                                <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_question_submission</span>(<span class="number">4.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">3.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">4.0</span>)],
-                                <span class="ident">peer_review_queue_entry</span>: <span class="prelude-val">Some</span>(<span class="ident">create_peer_review_queue_entry</span>()),
-                                <span class="ident">peer_review_config</span>: <span class="ident">create_peer_review_config</span>(<span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage</span>)
+                <span class="kw">let </span>new_user_exercise_state =
+                    derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                        exercise,
+                        current_user_exercise_state: user_exercise_state,
+                        peer_review_information: <span class="prelude-val">Some</span>(
+                            UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+                                given_peer_review_submissions: <span class="macro">vec!</span>[create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                latest_exercise_slide_submission_received_peer_review_question_submissions: <span class="macro">vec!</span>[create_peer_review_question_submission(<span class="number">4.0</span>), create_peer_review_question_submission(<span class="number">3.0</span>), create_peer_review_question_submission(<span class="number">4.0</span>)],
+                                peer_review_queue_entry: <span class="prelude-val">Some</span>(create_peer_review_queue_entry()),
+                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage)
                             },
                         ),
-                        <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">user_exercise_slide_state_grading_summary</span>:
-                            <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                                <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                                <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+                        latest_teacher_grading_decision: <span class="prelude-val">None</span>,
+                        user_exercise_slide_state_grading_summary:
+                            UserExerciseSlideStateGradingSummary {
+                                score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                                grading_progress: GradingProgress::FullyGraded,
                             },
                     })
-                    .<span class="ident">unwrap</span>();
-                <span class="ident">assert_results</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">new_user_exercise_state</span>,
-                    <span class="comment">// The user passed peer review, so they deserve full points from the exercise</span>
-                    <span class="prelude-val">Some</span>(<span class="number">9000.0</span>),
-                    <span class="ident">ActivityProgress::Completed</span>,
-                    <span class="ident">ReviewingStage::ReviewedAndLocked</span>,
+                    .unwrap();
+                assert_results(
+                    <span class="kw-2">&amp;</span>new_user_exercise_state,
+                    <span class="comment">// The user passed peer review, so they deserve full points from the exercise
+                    </span><span class="prelude-val">Some</span>(<span class="number">9000.0</span>),
+                    ActivityProgress::Completed,
+                    ReviewingStage::ReviewedAndLocked,
                 );
             }
 
-            <span class="attribute">#[<span class="ident">test</span>]</span>
-            <span class="kw">fn</span> <span class="ident">peer_review_automatically_accept_or_reject_by_average_works_gives_zero_points</span>() {
-                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
-                <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
+            <span class="attribute">#[test]
+            </span><span class="kw">fn </span>peer_review_automatically_accept_or_reject_by_average_works_gives_zero_points() {
+                <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+                <span class="kw">let </span>exercise = create_exercise(CourseOrExamId::Course(id), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
+                <span class="kw">let </span>user_exercise_state = create_user_exercise_state(
+                    <span class="kw-2">&amp;</span>exercise,
                     <span class="prelude-val">None</span>,
-                    <span class="ident">ActivityProgress::Initialized</span>,
-                    <span class="ident">ReviewingStage::NotStarted</span>,
+                    ActivityProgress::Initialized,
+                    ReviewingStage::NotStarted,
                 );
-                <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
-                    <span class="ident">derive_new_user_exercise_state</span>(<span class="ident">UserExerciseStateUpdateRequiredData</span> {
-                        <span class="ident">exercise</span>,
-                        <span class="ident">current_user_exercise_state</span>: <span class="ident">user_exercise_state</span>,
-                        <span class="ident">peer_review_information</span>: <span class="prelude-val">Some</span>(
-                            <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span> {
-                                <span class="ident">given_peer_review_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>()],
-                                <span class="comment">// Average below 2.1</span>
-                                <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_question_submission</span>(<span class="number">3.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">1.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">1.0</span>)],
-                                <span class="ident">peer_review_queue_entry</span>: <span class="prelude-val">Some</span>(<span class="ident">create_peer_review_queue_entry</span>()),
-                                <span class="ident">peer_review_config</span>: <span class="ident">create_peer_review_config</span>(<span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage</span>)
+                <span class="kw">let </span>new_user_exercise_state =
+                    derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                        exercise,
+                        current_user_exercise_state: user_exercise_state,
+                        peer_review_information: <span class="prelude-val">Some</span>(
+                            UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+                                given_peer_review_submissions: <span class="macro">vec!</span>[create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                <span class="comment">// Average below 2.1
+                                </span>latest_exercise_slide_submission_received_peer_review_question_submissions: <span class="macro">vec!</span>[create_peer_review_question_submission(<span class="number">3.0</span>), create_peer_review_question_submission(<span class="number">1.0</span>), create_peer_review_question_submission(<span class="number">1.0</span>)],
+                                peer_review_queue_entry: <span class="prelude-val">Some</span>(create_peer_review_queue_entry()),
+                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage)
                             },
                         ),
-                        <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">user_exercise_slide_state_grading_summary</span>:
-                            <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                                <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                                <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+                        latest_teacher_grading_decision: <span class="prelude-val">None</span>,
+                        user_exercise_slide_state_grading_summary:
+                            UserExerciseSlideStateGradingSummary {
+                                score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                                grading_progress: GradingProgress::FullyGraded,
                             },
                     })
-                    .<span class="ident">unwrap</span>();
-                <span class="ident">assert_results</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">new_user_exercise_state</span>,
-                    <span class="comment">// The user failed peer review, so they get zero points</span>
-                    <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
-                    <span class="ident">ActivityProgress::Completed</span>,
-                    <span class="ident">ReviewingStage::ReviewedAndLocked</span>,
-                );
-            }
-        }
-
-        <span class="kw">mod</span> <span class="ident">automatically_accept_or_manual_review_by_average</span> {
-            <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-
-            <span class="attribute">#[<span class="ident">test</span>]</span>
-            <span class="kw">fn</span> <span class="ident">peer_review_automatically_accept_or_manual_review_by_average_works_gives_full_points</span>(
-            ) {
-                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
-                <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-                    <span class="prelude-val">None</span>,
-                    <span class="ident">ActivityProgress::Initialized</span>,
-                    <span class="ident">ReviewingStage::NotStarted</span>,
-                );
-                <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
-                    <span class="ident">derive_new_user_exercise_state</span>(<span class="ident">UserExerciseStateUpdateRequiredData</span> {
-                        <span class="ident">exercise</span>,
-                        <span class="ident">current_user_exercise_state</span>: <span class="ident">user_exercise_state</span>,
-                        <span class="ident">peer_review_information</span>: <span class="prelude-val">Some</span>(
-                            <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span> {
-                                <span class="ident">given_peer_review_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>()],
-                                <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_question_submission</span>(<span class="number">4.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">3.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">4.0</span>)],
-                                <span class="ident">peer_review_queue_entry</span>: <span class="prelude-val">Some</span>(<span class="ident">create_peer_review_queue_entry</span>()),
-                                <span class="ident">peer_review_config</span>: <span class="ident">create_peer_review_config</span>(<span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage</span>)
-                            },
-                        ),
-                        <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">user_exercise_slide_state_grading_summary</span>:
-                            <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                                <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                                <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
-                            },
-                    })
-                    .<span class="ident">unwrap</span>();
-                <span class="ident">assert_results</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">new_user_exercise_state</span>,
-                    <span class="comment">// The user passed peer review, so they deserve full points from the exercise</span>
-                    <span class="prelude-val">Some</span>(<span class="number">9000.0</span>),
-                    <span class="ident">ActivityProgress::Completed</span>,
-                    <span class="ident">ReviewingStage::ReviewedAndLocked</span>,
-                );
-            }
-
-            <span class="attribute">#[<span class="ident">test</span>]</span>
-            <span class="kw">fn</span> <span class="ident">peer_review_automatically_accept_or_manual_review_by_average_works_puts_the_answer_to_manual_review</span>(
-            ) {
-                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
-                <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-                    <span class="prelude-val">None</span>,
-                    <span class="ident">ActivityProgress::Initialized</span>,
-                    <span class="ident">ReviewingStage::NotStarted</span>,
-                );
-                <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
-                    <span class="ident">derive_new_user_exercise_state</span>(<span class="ident">UserExerciseStateUpdateRequiredData</span> {
-                        <span class="ident">exercise</span>,
-                        <span class="ident">current_user_exercise_state</span>: <span class="ident">user_exercise_state</span>,
-                        <span class="ident">peer_review_information</span>: <span class="prelude-val">Some</span>(
-                            <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span> {
-                                <span class="ident">given_peer_review_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>()],
-                                <span class="comment">// Average below 2.1</span>
-                                <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_question_submission</span>(<span class="number">3.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">1.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">1.0</span>)],
-                                <span class="ident">peer_review_queue_entry</span>: <span class="prelude-val">Some</span>(<span class="ident">create_peer_review_queue_entry</span>()),
-                                <span class="ident">peer_review_config</span>: <span class="ident">create_peer_review_config</span>(<span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage</span>)
-                            },
-                        ),
-                        <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">user_exercise_slide_state_grading_summary</span>:
-                            <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                                <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                                <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
-                            },
-                    })
-                    .<span class="ident">unwrap</span>();
-                <span class="ident">assert_results</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">new_user_exercise_state</span>,
-                    <span class="comment">// Manual review, we won&#39;t give any points because the points are up to the teacher&#39;s descision in the review</span>
-                    <span class="prelude-val">None</span>,
-                    <span class="ident">ActivityProgress::Completed</span>,
-                    <span class="ident">ReviewingStage::WaitingForManualGrading</span>,
+                    .unwrap();
+                assert_results(
+                    <span class="kw-2">&amp;</span>new_user_exercise_state,
+                    <span class="comment">// The user failed peer review, so they get zero points
+                    </span><span class="prelude-val">Some</span>(<span class="number">0.0</span>),
+                    ActivityProgress::Completed,
+                    ReviewingStage::ReviewedAndLocked,
                 );
             }
         }
 
-        <span class="kw">mod</span> <span class="ident">manual_review_everything</span> {
-            <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">mod </span>automatically_accept_or_manual_review_by_average {
+            <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-            <span class="attribute">#[<span class="ident">test</span>]</span>
-            <span class="kw">fn</span> <span class="ident">peer_review_manual_review_everything_works_does_not_give_full_points_to_passing_answer_and_puts_to_manual_review</span>(
+            <span class="attribute">#[test]
+            </span><span class="kw">fn </span>peer_review_automatically_accept_or_manual_review_by_average_works_gives_full_points(
             ) {
-                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
-                <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
+                <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+                <span class="kw">let </span>exercise = create_exercise(CourseOrExamId::Course(id), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
+                <span class="kw">let </span>user_exercise_state = create_user_exercise_state(
+                    <span class="kw-2">&amp;</span>exercise,
                     <span class="prelude-val">None</span>,
-                    <span class="ident">ActivityProgress::Initialized</span>,
-                    <span class="ident">ReviewingStage::NotStarted</span>,
+                    ActivityProgress::Initialized,
+                    ReviewingStage::NotStarted,
                 );
-                <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
-                    <span class="ident">derive_new_user_exercise_state</span>(<span class="ident">UserExerciseStateUpdateRequiredData</span> {
-                        <span class="ident">exercise</span>,
-                        <span class="ident">current_user_exercise_state</span>: <span class="ident">user_exercise_state</span>,
-                        <span class="ident">peer_review_information</span>: <span class="prelude-val">Some</span>(
-                            <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span> {
-                                <span class="ident">given_peer_review_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>()],
-                                <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_question_submission</span>(<span class="number">4.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">3.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">4.0</span>)],
-                                <span class="ident">peer_review_queue_entry</span>: <span class="prelude-val">Some</span>(<span class="ident">create_peer_review_queue_entry</span>()),
-                                <span class="ident">peer_review_config</span>: <span class="ident">create_peer_review_config</span>(<span class="ident">PeerReviewAcceptingStrategy::ManualReviewEverything</span>)
+                <span class="kw">let </span>new_user_exercise_state =
+                    derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                        exercise,
+                        current_user_exercise_state: user_exercise_state,
+                        peer_review_information: <span class="prelude-val">Some</span>(
+                            UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+                                given_peer_review_submissions: <span class="macro">vec!</span>[create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                latest_exercise_slide_submission_received_peer_review_question_submissions: <span class="macro">vec!</span>[create_peer_review_question_submission(<span class="number">4.0</span>), create_peer_review_question_submission(<span class="number">3.0</span>), create_peer_review_question_submission(<span class="number">4.0</span>)],
+                                peer_review_queue_entry: <span class="prelude-val">Some</span>(create_peer_review_queue_entry()),
+                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage)
                             },
                         ),
-                        <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">user_exercise_slide_state_grading_summary</span>:
-                            <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                                <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                                <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+                        latest_teacher_grading_decision: <span class="prelude-val">None</span>,
+                        user_exercise_slide_state_grading_summary:
+                            UserExerciseSlideStateGradingSummary {
+                                score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                                grading_progress: GradingProgress::FullyGraded,
                             },
                     })
-                    .<span class="ident">unwrap</span>();
-                <span class="ident">assert_results</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">new_user_exercise_state</span>,
-                    <span class="comment">// Score will be given from the manual review</span>
-                    <span class="prelude-val">None</span>,
-                    <span class="ident">ActivityProgress::Completed</span>,
-                    <span class="ident">ReviewingStage::WaitingForManualGrading</span>,
+                    .unwrap();
+                assert_results(
+                    <span class="kw-2">&amp;</span>new_user_exercise_state,
+                    <span class="comment">// The user passed peer review, so they deserve full points from the exercise
+                    </span><span class="prelude-val">Some</span>(<span class="number">9000.0</span>),
+                    ActivityProgress::Completed,
+                    ReviewingStage::ReviewedAndLocked,
                 );
             }
 
-            <span class="attribute">#[<span class="ident">test</span>]</span>
-            <span class="kw">fn</span> <span class="ident">peer_review_manual_review_everything_works_puts_failing_answer_the_answer_to_manual_review</span>(
+            <span class="attribute">#[test]
+            </span><span class="kw">fn </span>peer_review_automatically_accept_or_manual_review_by_average_works_puts_the_answer_to_manual_review(
             ) {
-                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
-                <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
+                <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+                <span class="kw">let </span>exercise = create_exercise(CourseOrExamId::Course(id), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
+                <span class="kw">let </span>user_exercise_state = create_user_exercise_state(
+                    <span class="kw-2">&amp;</span>exercise,
                     <span class="prelude-val">None</span>,
-                    <span class="ident">ActivityProgress::Initialized</span>,
-                    <span class="ident">ReviewingStage::NotStarted</span>,
+                    ActivityProgress::Initialized,
+                    ReviewingStage::NotStarted,
                 );
-                <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
-                    <span class="ident">derive_new_user_exercise_state</span>(<span class="ident">UserExerciseStateUpdateRequiredData</span> {
-                        <span class="ident">exercise</span>,
-                        <span class="ident">current_user_exercise_state</span>: <span class="ident">user_exercise_state</span>,
-                        <span class="ident">peer_review_information</span>: <span class="prelude-val">Some</span>(
-                            <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span> {
-                                <span class="ident">given_peer_review_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>(), <span class="ident">create_peer_review_submission</span>()],
-                                <span class="comment">// Average below 2.1</span>
-                                <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>: <span class="macro">vec!</span>[<span class="ident">create_peer_review_question_submission</span>(<span class="number">3.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">1.0</span>), <span class="ident">create_peer_review_question_submission</span>(<span class="number">1.0</span>)],
-                                <span class="ident">peer_review_queue_entry</span>: <span class="prelude-val">Some</span>(<span class="ident">create_peer_review_queue_entry</span>()),
-                                <span class="ident">peer_review_config</span>: <span class="ident">create_peer_review_config</span>(<span class="ident">PeerReviewAcceptingStrategy::ManualReviewEverything</span>)
+                <span class="kw">let </span>new_user_exercise_state =
+                    derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                        exercise,
+                        current_user_exercise_state: user_exercise_state,
+                        peer_review_information: <span class="prelude-val">Some</span>(
+                            UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+                                given_peer_review_submissions: <span class="macro">vec!</span>[create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                <span class="comment">// Average below 2.1
+                                </span>latest_exercise_slide_submission_received_peer_review_question_submissions: <span class="macro">vec!</span>[create_peer_review_question_submission(<span class="number">3.0</span>), create_peer_review_question_submission(<span class="number">1.0</span>), create_peer_review_question_submission(<span class="number">1.0</span>)],
+                                peer_review_queue_entry: <span class="prelude-val">Some</span>(create_peer_review_queue_entry()),
+                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage)
                             },
                         ),
-                        <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">user_exercise_slide_state_grading_summary</span>:
-                            <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                                <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
-                                <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+                        latest_teacher_grading_decision: <span class="prelude-val">None</span>,
+                        user_exercise_slide_state_grading_summary:
+                            UserExerciseSlideStateGradingSummary {
+                                score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                                grading_progress: GradingProgress::FullyGraded,
                             },
                     })
-                    .<span class="ident">unwrap</span>();
-                <span class="ident">assert_results</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">new_user_exercise_state</span>,
-                    <span class="comment">// Score will be given from the manual review</span>
-                    <span class="prelude-val">None</span>,
-                    <span class="ident">ActivityProgress::Completed</span>,
-                    <span class="ident">ReviewingStage::WaitingForManualGrading</span>,
+                    .unwrap();
+                assert_results(
+                    <span class="kw-2">&amp;</span>new_user_exercise_state,
+                    <span class="comment">// Manual review, we won&#39;t give any points because the points are up to the teacher&#39;s descision in the review
+                    </span><span class="prelude-val">None</span>,
+                    ActivityProgress::Completed,
+                    ReviewingStage::WaitingForManualGrading,
                 );
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">assert_results</span>(
-            <span class="ident">update</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseStateUpdate</span>,
-            <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-            <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
-            <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
+        <span class="kw">mod </span>manual_review_everything {
+            <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+            <span class="attribute">#[test]
+            </span><span class="kw">fn </span>peer_review_manual_review_everything_works_does_not_give_full_points_to_passing_answer_and_puts_to_manual_review(
+            ) {
+                <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+                <span class="kw">let </span>exercise = create_exercise(CourseOrExamId::Course(id), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
+                <span class="kw">let </span>user_exercise_state = create_user_exercise_state(
+                    <span class="kw-2">&amp;</span>exercise,
+                    <span class="prelude-val">None</span>,
+                    ActivityProgress::Initialized,
+                    ReviewingStage::NotStarted,
+                );
+                <span class="kw">let </span>new_user_exercise_state =
+                    derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                        exercise,
+                        current_user_exercise_state: user_exercise_state,
+                        peer_review_information: <span class="prelude-val">Some</span>(
+                            UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+                                given_peer_review_submissions: <span class="macro">vec!</span>[create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                latest_exercise_slide_submission_received_peer_review_question_submissions: <span class="macro">vec!</span>[create_peer_review_question_submission(<span class="number">4.0</span>), create_peer_review_question_submission(<span class="number">3.0</span>), create_peer_review_question_submission(<span class="number">4.0</span>)],
+                                peer_review_queue_entry: <span class="prelude-val">Some</span>(create_peer_review_queue_entry()),
+                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::ManualReviewEverything)
+                            },
+                        ),
+                        latest_teacher_grading_decision: <span class="prelude-val">None</span>,
+                        user_exercise_slide_state_grading_summary:
+                            UserExerciseSlideStateGradingSummary {
+                                score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                                grading_progress: GradingProgress::FullyGraded,
+                            },
+                    })
+                    .unwrap();
+                assert_results(
+                    <span class="kw-2">&amp;</span>new_user_exercise_state,
+                    <span class="comment">// Score will be given from the manual review
+                    </span><span class="prelude-val">None</span>,
+                    ActivityProgress::Completed,
+                    ReviewingStage::WaitingForManualGrading,
+                );
+            }
+
+            <span class="attribute">#[test]
+            </span><span class="kw">fn </span>peer_review_manual_review_everything_works_puts_failing_answer_the_answer_to_manual_review(
+            ) {
+                <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+                <span class="kw">let </span>exercise = create_exercise(CourseOrExamId::Course(id), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
+                <span class="kw">let </span>user_exercise_state = create_user_exercise_state(
+                    <span class="kw-2">&amp;</span>exercise,
+                    <span class="prelude-val">None</span>,
+                    ActivityProgress::Initialized,
+                    ReviewingStage::NotStarted,
+                );
+                <span class="kw">let </span>new_user_exercise_state =
+                    derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                        exercise,
+                        current_user_exercise_state: user_exercise_state,
+                        peer_review_information: <span class="prelude-val">Some</span>(
+                            UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+                                given_peer_review_submissions: <span class="macro">vec!</span>[create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                <span class="comment">// Average below 2.1
+                                </span>latest_exercise_slide_submission_received_peer_review_question_submissions: <span class="macro">vec!</span>[create_peer_review_question_submission(<span class="number">3.0</span>), create_peer_review_question_submission(<span class="number">1.0</span>), create_peer_review_question_submission(<span class="number">1.0</span>)],
+                                peer_review_queue_entry: <span class="prelude-val">Some</span>(create_peer_review_queue_entry()),
+                                peer_review_config: create_peer_review_config(PeerReviewAcceptingStrategy::ManualReviewEverything)
+                            },
+                        ),
+                        latest_teacher_grading_decision: <span class="prelude-val">None</span>,
+                        user_exercise_slide_state_grading_summary:
+                            UserExerciseSlideStateGradingSummary {
+                                score_given: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+                                grading_progress: GradingProgress::FullyGraded,
+                            },
+                    })
+                    .unwrap();
+                assert_results(
+                    <span class="kw-2">&amp;</span>new_user_exercise_state,
+                    <span class="comment">// Score will be given from the manual review
+                    </span><span class="prelude-val">None</span>,
+                    ActivityProgress::Completed,
+                    ReviewingStage::WaitingForManualGrading,
+                );
+            }
+        }
+
+        <span class="kw">fn </span>assert_results(
+            update: <span class="kw-2">&amp;</span>UserExerciseStateUpdate,
+            score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+            activity_progress: ActivityProgress,
+            reviewing_stage: ReviewingStage,
         ) {
-            <span class="macro">assert_eq!</span>(<span class="ident">update</span>.<span class="ident">score_given</span>, <span class="ident">score_given</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">update</span>.<span class="ident">activity_progress</span>, <span class="ident">activity_progress</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">update</span>.<span class="ident">reviewing_stage</span>, <span class="ident">reviewing_stage</span>);
+            <span class="macro">assert_eq!</span>(update.score_given, score_given);
+            <span class="macro">assert_eq!</span>(update.activity_progress, activity_progress);
+            <span class="macro">assert_eq!</span>(update.reviewing_stage, reviewing_stage);
         }
 
-        <span class="kw">fn</span> <span class="ident">create_exercise</span>(
-            <span class="ident">course_or_exam_id</span>: <span class="ident">CourseOrExamId</span>,
-            <span class="ident">needs_peer_review</span>: <span class="ident">bool</span>,
-            <span class="ident">use_course_default_peer_review_config</span>: <span class="ident">bool</span>,
-        ) -&gt; <span class="ident">Exercise</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> (<span class="ident">course_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">course_or_exam_id</span>.<span class="ident">to_course_and_exam_ids</span>();
-            <span class="ident">Exercise</span> {
-                <span class="ident">id</span>,
-                <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">course_id</span>,
-                <span class="ident">exam_id</span>,
-                <span class="ident">page_id</span>: <span class="ident">id</span>,
-                <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
-                <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-                <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">score_maximum</span>: <span class="number">9000</span>,
-                <span class="ident">order_number</span>: <span class="number">0</span>,
-                <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-                <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">None</span>,
-                <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
-                <span class="ident">needs_peer_review</span>,
-                <span class="ident">use_course_default_peer_review_config</span>,
+        <span class="kw">fn </span>create_exercise(
+            course_or_exam_id: CourseOrExamId,
+            needs_peer_review: bool,
+            use_course_default_peer_review_config: bool,
+        ) -&gt; Exercise {
+            <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+            <span class="kw">let </span>(course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
+            Exercise {
+                id,
+                created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                name: <span class="string">&quot;&quot;</span>.to_string(),
+                course_id,
+                exam_id,
+                page_id: id,
+                chapter_id: <span class="prelude-val">None</span>,
+                deadline: <span class="prelude-val">None</span>,
+                deleted_at: <span class="prelude-val">None</span>,
+                score_maximum: <span class="number">9000</span>,
+                order_number: <span class="number">0</span>,
+                copied_from: <span class="prelude-val">None</span>,
+                max_tries_per_slide: <span class="prelude-val">None</span>,
+                limit_number_of_tries: <span class="bool-val">false</span>,
+                needs_peer_review,
+                use_course_default_peer_review_config,
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">create_peer_review_config</span>(
-            <span class="ident">accepting_strategy</span>: <span class="ident">PeerReviewAcceptingStrategy</span>,
-        ) -&gt; <span class="ident">PeerReviewConfig</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="ident">PeerReviewConfig</span> {
-                <span class="ident">id</span>,
-                <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">course_id</span>: <span class="ident">id</span>,
-                <span class="ident">exercise_id</span>: <span class="prelude-val">None</span>,
-                <span class="ident">peer_reviews_to_give</span>: <span class="number">3</span>,
-                <span class="ident">peer_reviews_to_receive</span>: <span class="number">2</span>,
-                <span class="ident">accepting_threshold</span>: <span class="number">2.1</span>,
-                <span class="ident">accepting_strategy</span>,
+        <span class="kw">fn </span>create_peer_review_config(
+            accepting_strategy: PeerReviewAcceptingStrategy,
+        ) -&gt; PeerReviewConfig {
+            <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+            PeerReviewConfig {
+                id,
+                created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                deleted_at: <span class="prelude-val">None</span>,
+                course_id: id,
+                exercise_id: <span class="prelude-val">None</span>,
+                peer_reviews_to_give: <span class="number">3</span>,
+                peer_reviews_to_receive: <span class="number">2</span>,
+                accepting_threshold: <span class="number">2.1</span>,
+                accepting_strategy,
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">create_peer_review_question_submission</span>(
-            <span class="ident">number_data</span>: <span class="ident">f32</span>,
-        ) -&gt; <span class="ident">PeerReviewQuestionSubmission</span> {
-            <span class="ident">PeerReviewQuestionSubmission</span> {
-                <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;bf923ea4-a637-4d97-b78b-6f843d76120a&quot;</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">created_at</span>: <span class="ident">Utc::now</span>(),
-                <span class="ident">updated_at</span>: <span class="ident">Utc::now</span>(),
-                <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">peer_review_question_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;b853bbd7-feee-4447-ab14-c9622e565ea1&quot;</span>)
-                    .<span class="ident">unwrap</span>(),
-                <span class="ident">peer_review_submission_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;be4061b5-b468-4f50-93b0-cf3bf9de9a13&quot;</span>)
-                    .<span class="ident">unwrap</span>(),
-                <span class="ident">text_data</span>: <span class="prelude-val">None</span>,
-                <span class="ident">number_data</span>: <span class="prelude-val">Some</span>(<span class="ident">number_data</span>),
+        <span class="kw">fn </span>create_peer_review_question_submission(
+            number_data: f32,
+        ) -&gt; PeerReviewQuestionSubmission {
+            PeerReviewQuestionSubmission {
+                id: Uuid::parse_str(<span class="string">&quot;bf923ea4-a637-4d97-b78b-6f843d76120a&quot;</span>).unwrap(),
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                deleted_at: <span class="prelude-val">None</span>,
+                peer_review_question_id: Uuid::parse_str(<span class="string">&quot;b853bbd7-feee-4447-ab14-c9622e565ea1&quot;</span>)
+                    .unwrap(),
+                peer_review_submission_id: Uuid::parse_str(<span class="string">&quot;be4061b5-b468-4f50-93b0-cf3bf9de9a13&quot;</span>)
+                    .unwrap(),
+                text_data: <span class="prelude-val">None</span>,
+                number_data: <span class="prelude-val">Some</span>(number_data),
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">create_peer_review_submission</span>() -&gt; <span class="ident">PeerReviewSubmission</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="ident">PeerReviewSubmission</span> {
-                <span class="ident">id</span>,
-                <span class="ident">created_at</span>: <span class="ident">Utc::now</span>(),
-                <span class="ident">updated_at</span>: <span class="ident">Utc::now</span>(),
-                <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">user_id</span>: <span class="ident">id</span>,
-                <span class="ident">exercise_id</span>: <span class="ident">id</span>,
-                <span class="ident">course_instance_id</span>: <span class="ident">id</span>,
-                <span class="ident">peer_review_config_id</span>: <span class="ident">id</span>,
-                <span class="ident">exercise_slide_submission_id</span>: <span class="ident">id</span>,
+        <span class="kw">fn </span>create_peer_review_submission() -&gt; PeerReviewSubmission {
+            <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+            PeerReviewSubmission {
+                id,
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                deleted_at: <span class="prelude-val">None</span>,
+                user_id: id,
+                exercise_id: id,
+                course_instance_id: id,
+                peer_review_config_id: id,
+                exercise_slide_submission_id: id,
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">create_peer_review_queue_entry</span>() -&gt; <span class="ident">PeerReviewQueueEntry</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="ident">PeerReviewQueueEntry</span> {
-                <span class="ident">id</span>,
-                <span class="ident">created_at</span>: <span class="ident">Utc::now</span>(),
-                <span class="ident">updated_at</span>: <span class="ident">Utc::now</span>(),
-                <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">user_id</span>: <span class="ident">id</span>,
-                <span class="ident">exercise_id</span>: <span class="ident">id</span>,
-                <span class="ident">course_instance_id</span>: <span class="ident">id</span>,
-                <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>: <span class="ident">id</span>,
-                <span class="ident">received_enough_peer_reviews</span>: <span class="bool-val">true</span>,
-                <span class="ident">peer_review_priority</span>: <span class="number">100</span>,
-                <span class="ident">removed_from_queue_for_unusual_reason</span>: <span class="bool-val">false</span>,
+        <span class="kw">fn </span>create_peer_review_queue_entry() -&gt; PeerReviewQueueEntry {
+            <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+            PeerReviewQueueEntry {
+                id,
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                deleted_at: <span class="prelude-val">None</span>,
+                user_id: id,
+                exercise_id: id,
+                course_instance_id: id,
+                receiving_peer_reviews_exercise_slide_submission_id: id,
+                received_enough_peer_reviews: <span class="bool-val">true</span>,
+                peer_review_priority: <span class="number">100</span>,
+                removed_from_queue_for_unusual_reason: <span class="bool-val">false</span>,
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">create_user_exercise_state</span>(
-            <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-            <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-            <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
-            <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
-        ) -&gt; <span class="ident">UserExerciseState</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="ident">UserExerciseState</span> {
-                <span class="ident">id</span>,
-                <span class="ident">user_id</span>: <span class="ident">id</span>,
-                <span class="ident">exercise_id</span>: <span class="ident">exercise</span>.<span class="ident">id</span>,
-                <span class="ident">course_instance_id</span>: <span class="ident">exercise</span>.<span class="ident">course_id</span>,
-                <span class="ident">exam_id</span>: <span class="ident">exercise</span>.<span class="ident">exam_id</span>,
-                <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">score_given</span>,
-                <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::NotReady</span>,
-                <span class="ident">activity_progress</span>,
-                <span class="ident">reviewing_stage</span>,
-                <span class="ident">selected_exercise_slide_id</span>: <span class="prelude-val">None</span>,
+        <span class="kw">fn </span>create_user_exercise_state(
+            exercise: <span class="kw-2">&amp;</span>Exercise,
+            score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+            activity_progress: ActivityProgress,
+            reviewing_stage: ReviewingStage,
+        ) -&gt; UserExerciseState {
+            <span class="kw">let </span>id = Uuid::parse_str(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).unwrap();
+            UserExerciseState {
+                id,
+                user_id: id,
+                exercise_id: exercise.id,
+                course_instance_id: exercise.course_id,
+                exam_id: exercise.exam_id,
+                created_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                updated_at: Utc.ymd(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).and_hms(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                deleted_at: <span class="prelude-val">None</span>,
+                score_given,
+                grading_progress: GradingProgress::NotReady,
+                activity_progress,
+                reviewing_stage,
+                selected_exercise_slide_id: <span class="prelude-val">None</span>,
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

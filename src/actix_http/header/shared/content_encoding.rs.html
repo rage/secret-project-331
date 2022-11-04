@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/shared/content_encoding.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>content_encoding.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/shared/content_encoding.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>content_encoding.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -123,128 +123,128 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert::TryFrom</span>, <span class="ident">str::FromStr</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{convert::TryFrom, str::FromStr};
 
-<span class="kw">use</span> <span class="ident">derive_more</span>::{<span class="ident">Display</span>, <span class="ident">Error</span>};
-<span class="kw">use</span> <span class="ident">http::header::InvalidHeaderValue</span>;
+<span class="kw">use </span>derive_more::{Display, Error};
+<span class="kw">use </span>http::header::InvalidHeaderValue;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error::ParseError</span>,
-    <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">from_one_raw_str</span>, <span class="ident">Header</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">TryIntoHeaderValue</span>},
-    <span class="ident">HttpMessage</span>,
+<span class="kw">use crate</span>::{
+    error::ParseError,
+    header::{<span class="self">self</span>, from_one_raw_str, Header, HeaderName, HeaderValue, TryIntoHeaderValue},
+    HttpMessage,
 };
 
-<span class="doccomment">/// Error returned when a content encoding is unknown.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">Error</span>)]</span>
-<span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;unsupported content encoding&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContentEncodingParseError</span>;
+<span class="doccomment">/// Error returned when a content encoding is unknown.
+</span><span class="attribute">#[derive(Debug, Display, Error)]
+#[display(fmt = <span class="string">&quot;unsupported content encoding&quot;</span>)]
+</span><span class="kw">pub struct </span>ContentEncodingParseError;
 
-<span class="doccomment">/// Represents a supported content encoding.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Includes a commonly-used subset of media types appropriate for use as HTTP content encodings.</span>
-<span class="doccomment">/// See [IANA HTTP Content Coding Registry].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [IANA HTTP Content Coding Registry]: https://www.iana.org/assignments/http-parameters/http-parameters.xhtml</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ContentEncoding</span> {
-    <span class="doccomment">/// Indicates the no-op identity encoding.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// I.e., no compression or modification.</span>
-    <span class="ident">Identity</span>,
+<span class="doccomment">/// Represents a supported content encoding.
+///
+/// Includes a commonly-used subset of media types appropriate for use as HTTP content encodings.
+/// See [IANA HTTP Content Coding Registry].
+///
+/// [IANA HTTP Content Coding Registry]: https://www.iana.org/assignments/http-parameters/http-parameters.xhtml
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>ContentEncoding {
+    <span class="doccomment">/// Indicates the no-op identity encoding.
+    ///
+    /// I.e., no compression or modification.
+    </span>Identity,
 
-    <span class="doccomment">/// A format using the Brotli algorithm.</span>
-    <span class="ident">Brotli</span>,
+    <span class="doccomment">/// A format using the Brotli algorithm.
+    </span>Brotli,
 
-    <span class="doccomment">/// A format using the zlib structure with deflate algorithm.</span>
-    <span class="ident">Deflate</span>,
+    <span class="doccomment">/// A format using the zlib structure with deflate algorithm.
+    </span>Deflate,
 
-    <span class="doccomment">/// Gzip algorithm.</span>
-    <span class="ident">Gzip</span>,
+    <span class="doccomment">/// Gzip algorithm.
+    </span>Gzip,
 
-    <span class="doccomment">/// Zstd algorithm.</span>
-    <span class="ident">Zstd</span>,
+    <span class="doccomment">/// Zstd algorithm.
+    </span>Zstd,
 }
 
-<span class="kw">impl</span> <span class="ident">ContentEncoding</span> {
-    <span class="doccomment">/// Convert content encoding to string.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ContentEncoding::Brotli</span> =&gt; <span class="string">&quot;br&quot;</span>,
-            <span class="ident">ContentEncoding::Gzip</span> =&gt; <span class="string">&quot;gzip&quot;</span>,
-            <span class="ident">ContentEncoding::Deflate</span> =&gt; <span class="string">&quot;deflate&quot;</span>,
-            <span class="ident">ContentEncoding::Zstd</span> =&gt; <span class="string">&quot;zstd&quot;</span>,
-            <span class="ident">ContentEncoding::Identity</span> =&gt; <span class="string">&quot;identity&quot;</span>,
+<span class="kw">impl </span>ContentEncoding {
+    <span class="doccomment">/// Convert content encoding to string.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub const fn </span>as_str(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            ContentEncoding::Brotli =&gt; <span class="string">&quot;br&quot;</span>,
+            ContentEncoding::Gzip =&gt; <span class="string">&quot;gzip&quot;</span>,
+            ContentEncoding::Deflate =&gt; <span class="string">&quot;deflate&quot;</span>,
+            ContentEncoding::Zstd =&gt; <span class="string">&quot;zstd&quot;</span>,
+            ContentEncoding::Identity =&gt; <span class="string">&quot;identity&quot;</span>,
         }
     }
 
-    <span class="doccomment">/// Convert content encoding to header value.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">to_header_value</span>(<span class="self">self</span>) -&gt; <span class="ident">HeaderValue</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ContentEncoding::Brotli</span> =&gt; <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;br&quot;</span>),
-            <span class="ident">ContentEncoding::Gzip</span> =&gt; <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;gzip&quot;</span>),
-            <span class="ident">ContentEncoding::Deflate</span> =&gt; <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;deflate&quot;</span>),
-            <span class="ident">ContentEncoding::Zstd</span> =&gt; <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;zstd&quot;</span>),
-            <span class="ident">ContentEncoding::Identity</span> =&gt; <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;identity&quot;</span>),
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Identity</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ContentEncodingParseError</span>;
-
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">enc</span> <span class="op">=</span> <span class="ident">enc</span>.<span class="ident">trim</span>();
-
-        <span class="kw">if</span> <span class="ident">enc</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;br&quot;</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">ContentEncoding::Brotli</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">enc</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;gzip&quot;</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">ContentEncoding::Gzip</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">enc</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;deflate&quot;</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">ContentEncoding::Deflate</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">enc</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;identity&quot;</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">ContentEncoding::Identity</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">enc</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;zstd&quot;</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">ContentEncoding::Zstd</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">ContentEncodingParseError</span>)
+    <span class="doccomment">/// Convert content encoding to header value.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub const fn </span>to_header_value(<span class="self">self</span>) -&gt; HeaderValue {
+        <span class="kw">match </span><span class="self">self </span>{
+            ContentEncoding::Brotli =&gt; HeaderValue::from_static(<span class="string">&quot;br&quot;</span>),
+            ContentEncoding::Gzip =&gt; HeaderValue::from_static(<span class="string">&quot;gzip&quot;</span>),
+            ContentEncoding::Deflate =&gt; HeaderValue::from_static(<span class="string">&quot;deflate&quot;</span>),
+            ContentEncoding::Zstd =&gt; HeaderValue::from_static(<span class="string">&quot;zstd&quot;</span>),
+            ContentEncoding::Identity =&gt; HeaderValue::from_static(<span class="string">&quot;identity&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ContentEncodingParseError</span>;
-
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="ident">val</span>.<span class="ident">parse</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>ContentEncoding {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Identity
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryIntoHeaderValue</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">InvalidHeaderValue</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>ContentEncoding {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= ContentEncodingParseError;
 
-    <span class="kw">fn</span> <span class="ident">try_into_value</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http::HeaderValue</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">HeaderValue::from_static</span>(<span class="self">self</span>.<span class="ident">as_str</span>()))
+    <span class="kw">fn </span>from_str(enc: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">let </span>enc = enc.trim();
+
+        <span class="kw">if </span>enc.eq_ignore_ascii_case(<span class="string">&quot;br&quot;</span>) {
+            <span class="prelude-val">Ok</span>(ContentEncoding::Brotli)
+        } <span class="kw">else if </span>enc.eq_ignore_ascii_case(<span class="string">&quot;gzip&quot;</span>) {
+            <span class="prelude-val">Ok</span>(ContentEncoding::Gzip)
+        } <span class="kw">else if </span>enc.eq_ignore_ascii_case(<span class="string">&quot;deflate&quot;</span>) {
+            <span class="prelude-val">Ok</span>(ContentEncoding::Deflate)
+        } <span class="kw">else if </span>enc.eq_ignore_ascii_case(<span class="string">&quot;identity&quot;</span>) {
+            <span class="prelude-val">Ok</span>(ContentEncoding::Identity)
+        } <span class="kw">else if </span>enc.eq_ignore_ascii_case(<span class="string">&quot;zstd&quot;</span>) {
+            <span class="prelude-val">Ok</span>(ContentEncoding::Zstd)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(ContentEncodingParseError)
+        }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Header</span> <span class="kw">for</span> <span class="ident">ContentEncoding</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span> {
-        <span class="ident">header::CONTENT_ENCODING</span>
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>ContentEncoding {
+    <span class="kw">type </span>Error = ContentEncodingParseError;
+
+    <span class="kw">fn </span>try_from(val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        val.parse()
+    }
+}
+
+<span class="kw">impl </span>TryIntoHeaderValue <span class="kw">for </span>ContentEncoding {
+    <span class="kw">type </span>Error = InvalidHeaderValue;
+
+    <span class="kw">fn </span>try_into_value(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;http::HeaderValue, <span class="self">Self</span>::Error&gt; {
+        <span class="prelude-val">Ok</span>(HeaderValue::from_static(<span class="self">self</span>.as_str()))
+    }
+}
+
+<span class="kw">impl </span>Header <span class="kw">for </span>ContentEncoding {
+    <span class="kw">fn </span>name() -&gt; HeaderName {
+        header::CONTENT_ENCODING
     }
 
-    <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HttpMessage</span><span class="op">&gt;</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
-        <span class="ident">from_one_raw_str</span>(<span class="ident">msg</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident"><span class="self">Self</span>::name</span>()))
+    <span class="kw">fn </span>parse&lt;T: HttpMessage&gt;(msg: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
+        from_one_raw_str(msg.headers().get(<span class="self">Self</span>::name()))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

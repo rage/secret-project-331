@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/codec/gzip/decoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../async_compression/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/codec/gzip/decoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../async_compression/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -168,54 +168,54 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">codec</span>::{
-        <span class="ident">gzip::header</span>::{<span class="self">self</span>, <span class="ident">Header</span>},
-        <span class="ident">Decode</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    codec::{
+        gzip::header::{<span class="self">self</span>, Header},
+        Decode,
     },
-    <span class="ident">util::PartialBuffer</span>,
+    util::PartialBuffer,
 };
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>std::io::{Error, ErrorKind, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use</span> <span class="ident">flate2::Crc</span>;
+<span class="kw">use </span>flate2::Crc;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">enum</span> <span class="ident">State</span> {
-    <span class="ident">Header</span>(<span class="ident">header::Parser</span>),
-    <span class="ident">Decoding</span>,
-    <span class="ident">Footer</span>(<span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="ident">Done</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">enum </span>State {
+    Header(header::Parser),
+    Decoding,
+    Footer(PartialBuffer&lt;Vec&lt;u8&gt;&gt;),
+    Done,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GzipDecoder</span> {
-    <span class="ident">inner</span>: <span class="ident"><span class="kw">crate</span>::codec::FlateDecoder</span>,
-    <span class="ident">crc</span>: <span class="ident">Crc</span>,
-    <span class="ident">state</span>: <span class="ident">State</span>,
-    <span class="ident">header</span>: <span class="ident">Header</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>GzipDecoder {
+    inner: <span class="kw">crate</span>::codec::FlateDecoder,
+    crc: Crc,
+    state: State,
+    header: Header,
 }
 
-<span class="kw">fn</span> <span class="ident">check_footer</span>(<span class="ident">crc</span>: <span class="kw-2">&amp;</span><span class="ident">Crc</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">8</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-            <span class="ident">ErrorKind::InvalidData</span>,
+<span class="kw">fn </span>check_footer(crc: <span class="kw-2">&amp;</span>Crc, input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">if </span>input.len() &lt; <span class="number">8 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+            ErrorKind::InvalidData,
             <span class="string">&quot;Invalid gzip footer length&quot;</span>,
         ));
     }
 
-    <span class="kw">let</span> <span class="ident">crc_sum</span> <span class="op">=</span> <span class="ident">crc</span>.<span class="ident">sum</span>().<span class="ident">to_le_bytes</span>();
-    <span class="kw">let</span> <span class="ident">bytes_read</span> <span class="op">=</span> <span class="ident">crc</span>.<span class="ident">amount</span>().<span class="ident">to_le_bytes</span>();
+    <span class="kw">let </span>crc_sum = crc.sum().to_le_bytes();
+    <span class="kw">let </span>bytes_read = crc.amount().to_le_bytes();
 
-    <span class="kw">if</span> <span class="ident">crc_sum</span> <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>[<span class="number">0</span>..<span class="number">4</span>] {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-            <span class="ident">ErrorKind::InvalidData</span>,
+    <span class="kw">if </span>crc_sum != input[<span class="number">0</span>..<span class="number">4</span>] {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+            ErrorKind::InvalidData,
             <span class="string">&quot;CRC computed does not match&quot;</span>,
         ));
     }
 
-    <span class="kw">if</span> <span class="ident">bytes_read</span> <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>[<span class="number">4</span>..<span class="number">8</span>] {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-            <span class="ident">ErrorKind::InvalidData</span>,
+    <span class="kw">if </span>bytes_read != input[<span class="number">4</span>..<span class="number">8</span>] {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+            ErrorKind::InvalidData,
             <span class="string">&quot;amount of bytes read does not match&quot;</span>,
         ));
     }
@@ -223,120 +223,120 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">impl</span> <span class="ident">GzipDecoder</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">inner</span>: <span class="ident"><span class="kw">crate</span>::codec::FlateDecoder::new</span>(<span class="bool-val">false</span>),
-            <span class="ident">crc</span>: <span class="ident">Crc::new</span>(),
-            <span class="ident">state</span>: <span class="ident">State::Header</span>(<span class="ident">header::Parser::default</span>()),
-            <span class="ident">header</span>: <span class="ident">Header::default</span>(),
+<span class="kw">impl </span>GzipDecoder {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner: <span class="kw">crate</span>::codec::FlateDecoder::new(<span class="bool-val">false</span>),
+            crc: Crc::new(),
+            state: State::Header(header::Parser::default()),
+            header: Header::default(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">process</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="ident">O</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>,
-        <span class="ident">inner</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">state</span> {
-                <span class="ident">State::Header</span>(<span class="ident">parser</span>) =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">header</span>) <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">input</span>(<span class="ident">input</span>)<span class="question-mark">?</span> {
-                        <span class="self">self</span>.<span class="ident">header</span> <span class="op">=</span> <span class="ident">header</span>;
-                        <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Decoding</span>;
+    <span class="kw">fn </span>process&lt;I: AsRef&lt;[u8]&gt;, O: AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;I&gt;,
+        output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;O&gt;,
+        inner: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;mut </span><span class="self">Self</span>, <span class="kw-2">&amp;mut </span>PartialBuffer&lt;I&gt;, <span class="kw-2">&amp;mut </span>PartialBuffer&lt;O&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.state {
+                State::Header(parser) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(header) = parser.input(input)<span class="question-mark">? </span>{
+                        <span class="self">self</span>.header = header;
+                        <span class="self">self</span>.state = State::Decoding;
                     }
                 }
 
-                <span class="ident">State::Decoding</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">prior</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">written</span>().<span class="ident">len</span>();
-                    <span class="kw">let</span> <span class="ident">done</span> <span class="op">=</span> <span class="ident">inner</span>(<span class="self">self</span>, <span class="ident">input</span>, <span class="ident">output</span>)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.<span class="ident">crc</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>.<span class="ident">written</span>()[<span class="ident">prior</span>..]);
-                    <span class="kw">if</span> <span class="ident">done</span> {
-                        <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Footer</span>(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">8</span>].<span class="ident">into</span>())
+                State::Decoding =&gt; {
+                    <span class="kw">let </span>prior = output.written().len();
+                    <span class="kw">let </span>done = inner(<span class="self">self</span>, input, output)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.crc.update(<span class="kw-2">&amp;</span>output.written()[prior..]);
+                    <span class="kw">if </span>done {
+                        <span class="self">self</span>.state = State::Footer(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">8</span>].into())
                     }
                 }
 
-                <span class="ident">State::Footer</span>(<span class="ident">footer</span>) =&gt; {
-                    <span class="ident">footer</span>.<span class="ident">copy_unwritten_from</span>(<span class="ident">input</span>);
+                State::Footer(footer) =&gt; {
+                    footer.copy_unwritten_from(input);
 
-                    <span class="kw">if</span> <span class="ident">footer</span>.<span class="ident">unwritten</span>().<span class="ident">is_empty</span>() {
-                        <span class="ident">check_footer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">crc</span>, <span class="ident">footer</span>.<span class="ident">written</span>())<span class="question-mark">?</span>;
-                        <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Done</span>
+                    <span class="kw">if </span>footer.unwritten().is_empty() {
+                        check_footer(<span class="kw-2">&amp;</span><span class="self">self</span>.crc, footer.written())<span class="question-mark">?</span>;
+                        <span class="self">self</span>.state = State::Done
                     }
                 }
 
-                <span class="ident">State::Done</span> =&gt; {}
+                State::Done =&gt; {}
             };
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">State::Done</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
+            <span class="kw">if let </span>State::Done = <span class="self">self</span>.state {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
             }
 
-            <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">unwritten</span>().<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">unwritten</span>().<span class="ident">is_empty</span>() {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+            <span class="kw">if </span>input.unwritten().is_empty() || output.unwritten().is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Decode</span> <span class="kw">for</span> <span class="ident">GzipDecoder</span> {
-    <span class="kw">fn</span> <span class="ident">reinit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">reinit</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">crc</span> <span class="op">=</span> <span class="ident">Crc::new</span>();
-        <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Header</span>(<span class="ident">header::Parser::default</span>());
-        <span class="self">self</span>.<span class="ident">header</span> <span class="op">=</span> <span class="ident">Header::default</span>();
+<span class="kw">impl </span>Decode <span class="kw">for </span>GzipDecoder {
+    <span class="kw">fn </span>reinit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.inner.reinit()<span class="question-mark">?</span>;
+        <span class="self">self</span>.crc = Crc::new();
+        <span class="self">self</span>.state = State::Header(header::Parser::default());
+        <span class="self">self</span>.header = Header::default();
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">process</span>(<span class="ident">input</span>, <span class="ident">output</span>, <span class="op">|</span><span class="ident">this</span>, <span class="ident">input</span>, <span class="ident">output</span><span class="op">|</span> {
-            <span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">decode</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    <span class="kw">fn </span>decode(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt;&gt;,
+        output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        <span class="self">self</span>.process(input, output, |this, input, output| {
+            this.inner.decode(input, output)
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-                <span class="ident">State::Header</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State::Footer</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State::Done</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
+    <span class="kw">fn </span>flush(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="self">self</span>.state {
+                State::Header(<span class="kw">_</span>) | State::Footer(<span class="kw">_</span>) | State::Done =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>),
 
-                <span class="ident">State::Decoding</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">prior</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">written</span>().<span class="ident">len</span>();
-                    <span class="kw">let</span> <span class="ident">done</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">flush</span>(<span class="ident">output</span>)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.<span class="ident">crc</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>.<span class="ident">written</span>()[<span class="ident">prior</span>..]);
-                    <span class="kw">if</span> <span class="ident">done</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
+                State::Decoding =&gt; {
+                    <span class="kw">let </span>prior = output.written().len();
+                    <span class="kw">let </span>done = <span class="self">self</span>.inner.flush(output)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.crc.update(<span class="kw-2">&amp;</span>output.written()[prior..]);
+                    <span class="kw">if </span>done {
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
                     }
                 }
             };
 
-            <span class="kw">if</span> <span class="ident">output</span>.<span class="ident">unwritten</span>().<span class="ident">is_empty</span>() {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+            <span class="kw">if </span>output.unwritten().is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">finish</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">_output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PartialBuffer</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="comment">// Because of the footer we have to have already flushed all the data out before we get here</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">State::Done</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span> {
+    <span class="kw">fn </span>finish(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        _output: <span class="kw-2">&amp;mut </span>PartialBuffer&lt;<span class="kw">impl </span>AsRef&lt;[u8]&gt; + AsMut&lt;[u8]&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+        <span class="comment">// Because of the footer we have to have already flushed all the data out before we get here
+        </span><span class="kw">if let </span>State::Done = <span class="self">self</span>.state {
             <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                <span class="ident">ErrorKind::UnexpectedEof</span>,
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::new(
+                ErrorKind::UnexpectedEof,
                 <span class="string">&quot;unexpected end of file&quot;</span>,
             ))
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

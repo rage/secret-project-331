@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/bulk/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../zstd/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/bulk/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../zstd/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -54,61 +54,61 @@
 <span id="54">54</span>
 <span id="55">55</span>
 <span id="56">56</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Compress and decompress data in bulk.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! These methods process all the input data at once.</span>
-<span class="doccomment">//! It is therefore best used with relatively small blocks</span>
-<span class="doccomment">//! (like small network packets).</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Compress and decompress data in bulk.
+//!
+//! These methods process all the input data at once.
+//! It is therefore best used with relatively small blocks
+//! (like small network packets).
 
-<span class="kw">mod</span> <span class="ident">compressor</span>;
-<span class="kw">mod</span> <span class="ident">decompressor</span>;
+</span><span class="kw">mod </span>compressor;
+<span class="kw">mod </span>decompressor;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::compressor::Compressor</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::decompressor::Decompressor</span>;
+<span class="kw">pub use </span><span class="self">self</span>::compressor::Compressor;
+<span class="kw">pub use </span><span class="self">self</span>::decompressor::Decompressor;
 
-<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use </span>std::io;
 
-<span class="doccomment">/// Compresses a single block of data to the given destination buffer.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns the number of bytes written, or an error if something happened</span>
-<span class="doccomment">/// (for instance if the destination buffer was too small).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A level of `0` uses zstd&#39;s default (currently `3`).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compress_to_buffer</span>(
-    <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">destination</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-    <span class="ident">level</span>: <span class="ident">i32</span>,
-) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="ident">Compressor::new</span>(<span class="ident">level</span>)<span class="question-mark">?</span>.<span class="ident">compress_to_buffer</span>(<span class="ident">source</span>, <span class="ident">destination</span>)
+<span class="doccomment">/// Compresses a single block of data to the given destination buffer.
+///
+/// Returns the number of bytes written, or an error if something happened
+/// (for instance if the destination buffer was too small).
+///
+/// A level of `0` uses zstd&#39;s default (currently `3`).
+</span><span class="kw">pub fn </span>compress_to_buffer(
+    source: <span class="kw-2">&amp;</span>[u8],
+    destination: <span class="kw-2">&amp;mut </span>[u8],
+    level: i32,
+) -&gt; io::Result&lt;usize&gt; {
+    Compressor::new(level)<span class="question-mark">?</span>.compress_to_buffer(source, destination)
 }
 
-<span class="doccomment">/// Compresses a block of data and returns the compressed result.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A level of `0` uses zstd&#39;s default (currently `3`).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compress</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">level</span>: <span class="ident">i32</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">Compressor::new</span>(<span class="ident">level</span>)<span class="question-mark">?</span>.<span class="ident">compress</span>(<span class="ident">data</span>)
+<span class="doccomment">/// Compresses a block of data and returns the compressed result.
+///
+/// A level of `0` uses zstd&#39;s default (currently `3`).
+</span><span class="kw">pub fn </span>compress(data: <span class="kw-2">&amp;</span>[u8], level: i32) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+    Compressor::new(level)<span class="question-mark">?</span>.compress(data)
 }
 
-<span class="doccomment">/// Deompress a single block of data to the given destination buffer.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns the number of bytes written, or an error if something happened</span>
-<span class="doccomment">/// (for instance if the destination buffer was too small).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decompress_to_buffer</span>(
-    <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    <span class="ident">destination</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="ident">Decompressor::new</span>()<span class="question-mark">?</span>.<span class="ident">decompress_to_buffer</span>(<span class="ident">source</span>, <span class="ident">destination</span>)
+<span class="doccomment">/// Deompress a single block of data to the given destination buffer.
+///
+/// Returns the number of bytes written, or an error if something happened
+/// (for instance if the destination buffer was too small).
+</span><span class="kw">pub fn </span>decompress_to_buffer(
+    source: <span class="kw-2">&amp;</span>[u8],
+    destination: <span class="kw-2">&amp;mut </span>[u8],
+) -&gt; io::Result&lt;usize&gt; {
+    Decompressor::new()<span class="question-mark">?</span>.decompress_to_buffer(source, destination)
 }
 
-<span class="doccomment">/// Decompresses a block of data and returns the decompressed result.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The decompressed data should be less than `capacity` bytes,</span>
-<span class="doccomment">/// or an error will be returned.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decompress</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">capacity</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">Decompressor::new</span>()<span class="question-mark">?</span>.<span class="ident">decompress</span>(<span class="ident">data</span>, <span class="ident">capacity</span>)
+<span class="doccomment">/// Decompresses a block of data and returns the decompressed result.
+///
+/// The decompressed data should be less than `capacity` bytes,
+/// or an error will be returned.
+</span><span class="kw">pub fn </span>decompress(data: <span class="kw-2">&amp;</span>[u8], capacity: usize) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+    Decompressor::new()<span class="question-mark">?</span>.decompress(data, capacity)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

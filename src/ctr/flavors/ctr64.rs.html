@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ctr-0.9.2/src/flavors/ctr64.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ctr64.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ctr/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ctr/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/ctr-0.9.2/src/flavors/ctr64.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ctr64.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ctr/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ctr/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ctr/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -158,163 +158,163 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
-</pre><pre class="rust"><code><span class="doccomment">//! 64-bit counter falvors.</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::CtrFlavor</span>;
-<span class="kw">use</span> <span class="ident">cipher</span>::{
-    <span class="ident">generic_array</span>::{<span class="ident">ArrayLength</span>, <span class="ident">GenericArray</span>},
-    <span class="ident">typenum</span>::{<span class="ident">PartialDiv</span>, <span class="ident">PartialQuot</span>, <span class="ident">Unsigned</span>, <span class="ident">U8</span>},
+</pre><pre class="rust"><code><span class="doccomment">//! 64-bit counter falvors.
+</span><span class="kw">use </span><span class="kw">super</span>::CtrFlavor;
+<span class="kw">use </span>cipher::{
+    generic_array::{ArrayLength, GenericArray},
+    typenum::{PartialDiv, PartialQuot, Unsigned, U8},
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">cipher::zeroize</span>::{<span class="ident">Zeroize</span>, <span class="ident">ZeroizeOnDrop</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">use </span>cipher::zeroize::{Zeroize, ZeroizeOnDrop};
 
-<span class="kw">type</span> <span class="ident">ChunkSize</span> <span class="op">=</span> <span class="ident">U8</span>;
-<span class="kw">type</span> <span class="ident">Chunks</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">PartialQuot</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">ChunkSize</span><span class="op">&gt;</span>;
-<span class="kw">const</span> <span class="ident">CS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">ChunkSize::USIZE</span>;
+<span class="kw">type </span>ChunkSize = U8;
+<span class="kw">type </span>Chunks&lt;B&gt; = PartialQuot&lt;B, ChunkSize&gt;;
+<span class="kw">const </span>CS: usize = ChunkSize::USIZE;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CtrNonce64</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">ctr</span>: <span class="ident">u64</span>,
-    <span class="ident">nonce</span>: <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u64</span>, <span class="ident">N</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>CtrNonce64&lt;N: ArrayLength&lt;u64&gt;&gt; {
+    ctr: u64,
+    nonce: GenericArray&lt;u64, N&gt;,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">CtrNonce64</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">ctr</span>.<span class="ident">zeroize</span>();
-        <span class="self">self</span>.<span class="ident">nonce</span>.<span class="ident">zeroize</span>();
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">impl</span>&lt;N: ArrayLength&lt;u64&gt;&gt; Drop <span class="kw">for </span>CtrNonce64&lt;N&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.ctr.zeroize();
+        <span class="self">self</span>.nonce.zeroize();
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zeroize&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">ZeroizeOnDrop</span> <span class="kw">for</span> <span class="ident">CtrNonce64</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {}
+<span class="attribute">#[cfg(feature = <span class="string">&quot;zeroize&quot;</span>)]
+</span><span class="kw">impl</span>&lt;N: ArrayLength&lt;u64&gt;&gt; ZeroizeOnDrop <span class="kw">for </span>CtrNonce64&lt;N&gt; {}
 
-<span class="doccomment">/// 64-bit big endian counter flavor.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Ctr64BE</span> {}
+<span class="doccomment">/// 64-bit big endian counter flavor.
+</span><span class="kw">pub enum </span>Ctr64BE {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">CtrFlavor</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ctr64BE</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PartialDiv</span><span class="op">&lt;</span><span class="ident">ChunkSize</span><span class="op">&gt;</span>,
-    <span class="ident">Chunks</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;B&gt; CtrFlavor&lt;B&gt; <span class="kw">for </span>Ctr64BE
+<span class="kw">where
+    </span>B: ArrayLength&lt;u8&gt; + PartialDiv&lt;ChunkSize&gt;,
+    Chunks&lt;B&gt;: ArrayLength&lt;u64&gt;,
 {
-    <span class="kw">type</span> <span class="ident">CtrNonce</span> <span class="op">=</span> <span class="ident">CtrNonce64</span><span class="op">&lt;</span><span class="ident">Chunks</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Backend</span> <span class="op">=</span> <span class="ident">u64</span>;
-    <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;64BE&quot;</span>;
+    <span class="kw">type </span>CtrNonce = CtrNonce64&lt;Chunks&lt;B&gt;&gt;;
+    <span class="kw">type </span>Backend = u64;
+    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;64BE&quot;</span>;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">remaining</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        (<span class="ident">core::u64::MAX</span> <span class="op">-</span> <span class="ident">cn</span>.<span class="ident">ctr</span>).<span class="ident">try_into</span>().<span class="ident">ok</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>remaining(cn: <span class="kw-2">&amp;</span><span class="self">Self</span>::CtrNonce) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        (core::u64::MAX - cn.ctr).try_into().ok()
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">current_block</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">GenericArray</span>::<span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">Chunks</span>::<span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="ident">::USIZE</span> {
-            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="ident">Chunks</span>::<span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="ident">::USIZE</span> <span class="op">-</span> <span class="number">1</span> {
-                <span class="ident">cn</span>.<span class="ident">ctr</span>.<span class="ident">wrapping_add</span>(<span class="ident">cn</span>.<span class="ident">nonce</span>[<span class="ident">i</span>]).<span class="ident">to_be_bytes</span>()
-            } <span class="kw">else</span> {
-                <span class="ident">cn</span>.<span class="ident">nonce</span>[<span class="ident">i</span>].<span class="ident">to_ne_bytes</span>()
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>current_block(cn: <span class="kw-2">&amp;</span><span class="self">Self</span>::CtrNonce) -&gt; GenericArray&lt;u8, B&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>block = GenericArray::&lt;u8, B&gt;::default();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..Chunks::&lt;B&gt;::USIZE {
+            <span class="kw">let </span>t = <span class="kw">if </span>i == Chunks::&lt;B&gt;::USIZE - <span class="number">1 </span>{
+                cn.ctr.wrapping_add(cn.nonce[i]).to_be_bytes()
+            } <span class="kw">else </span>{
+                cn.nonce[i].to_ne_bytes()
             };
-            <span class="ident">block</span>[<span class="ident">CS</span> <span class="op">*</span> <span class="ident">i</span>..][..<span class="ident">CS</span>].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>);
+            block[CS * i..][..CS].copy_from_slice(<span class="kw-2">&amp;</span>t);
         }
-        <span class="ident">block</span>
+        block
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">next_block</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::current_block</span>(<span class="ident">cn</span>);
-        <span class="ident">cn</span>.<span class="ident">ctr</span> <span class="op">=</span> <span class="ident">cn</span>.<span class="ident">ctr</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>);
-        <span class="ident">block</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>next_block(cn: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::CtrNonce) -&gt; GenericArray&lt;u8, B&gt; {
+        <span class="kw">let </span>block = <span class="self">Self</span>::current_block(cn);
+        cn.ctr = cn.ctr.wrapping_add(<span class="number">1</span>);
+        block
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_nonce</span>(<span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="self">Self</span>::CtrNonce</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nonce</span> <span class="op">=</span> <span class="ident">GenericArray</span>::<span class="op">&lt;</span><span class="ident">u64</span>, <span class="ident">Chunks</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">Chunks</span>::<span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="ident">::USIZE</span> {
-            <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">block</span>[<span class="ident">CS</span> <span class="op">*</span> <span class="ident">i</span>..][..<span class="ident">CS</span>].<span class="ident">try_into</span>().<span class="ident">unwrap</span>();
-            <span class="ident">nonce</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="ident">Chunks</span>::<span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="ident">::USIZE</span> <span class="op">-</span> <span class="number">1</span> {
-                <span class="ident">u64::from_be_bytes</span>(<span class="ident">chunk</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">u64::from_ne_bytes</span>(<span class="ident">chunk</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from_nonce(block: <span class="kw-2">&amp;</span>GenericArray&lt;u8, B&gt;) -&gt; <span class="self">Self</span>::CtrNonce {
+        <span class="kw">let </span><span class="kw-2">mut </span>nonce = GenericArray::&lt;u64, Chunks&lt;B&gt;&gt;::default();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..Chunks::&lt;B&gt;::USIZE {
+            <span class="kw">let </span>chunk = block[CS * i..][..CS].try_into().unwrap();
+            nonce[i] = <span class="kw">if </span>i == Chunks::&lt;B&gt;::USIZE - <span class="number">1 </span>{
+                u64::from_be_bytes(chunk)
+            } <span class="kw">else </span>{
+                u64::from_ne_bytes(chunk)
             }
         }
-        <span class="kw">let</span> <span class="ident">ctr</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident"><span class="self">Self</span>::CtrNonce</span> { <span class="ident">ctr</span>, <span class="ident">nonce</span> }
+        <span class="kw">let </span>ctr = <span class="number">0</span>;
+        <span class="self">Self</span>::CtrNonce { ctr, nonce }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_backend</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="ident"><span class="self">Self</span>::Backend</span> {
-        <span class="ident">cn</span>.<span class="ident">ctr</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_backend(cn: <span class="kw-2">&amp;</span><span class="self">Self</span>::CtrNonce) -&gt; <span class="self">Self</span>::Backend {
+        cn.ctr
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">set_from_backend</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::CtrNonce</span>, <span class="ident">v</span>: <span class="ident"><span class="self">Self</span>::Backend</span>) {
-        <span class="ident">cn</span>.<span class="ident">ctr</span> <span class="op">=</span> <span class="ident">v</span>;
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>set_from_backend(cn: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::CtrNonce, v: <span class="self">Self</span>::Backend) {
+        cn.ctr = v;
     }
 }
 
-<span class="doccomment">/// 64-bit big endian counter flavor.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Ctr64LE</span> {}
+<span class="doccomment">/// 64-bit big endian counter flavor.
+</span><span class="kw">pub enum </span>Ctr64LE {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">CtrFlavor</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ctr64LE</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PartialDiv</span><span class="op">&lt;</span><span class="ident">ChunkSize</span><span class="op">&gt;</span>,
-    <span class="ident">Chunks</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;B&gt; CtrFlavor&lt;B&gt; <span class="kw">for </span>Ctr64LE
+<span class="kw">where
+    </span>B: ArrayLength&lt;u8&gt; + PartialDiv&lt;ChunkSize&gt;,
+    Chunks&lt;B&gt;: ArrayLength&lt;u64&gt;,
 {
-    <span class="kw">type</span> <span class="ident">CtrNonce</span> <span class="op">=</span> <span class="ident">CtrNonce64</span><span class="op">&lt;</span><span class="ident">Chunks</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Backend</span> <span class="op">=</span> <span class="ident">u64</span>;
-    <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;64LE&quot;</span>;
+    <span class="kw">type </span>CtrNonce = CtrNonce64&lt;Chunks&lt;B&gt;&gt;;
+    <span class="kw">type </span>Backend = u64;
+    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;64LE&quot;</span>;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">remaining</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        (<span class="ident">core::u64::MAX</span> <span class="op">-</span> <span class="ident">cn</span>.<span class="ident">ctr</span>).<span class="ident">try_into</span>().<span class="ident">ok</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>remaining(cn: <span class="kw-2">&amp;</span><span class="self">Self</span>::CtrNonce) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        (core::u64::MAX - cn.ctr).try_into().ok()
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">current_block</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">GenericArray</span>::<span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">Chunks</span>::<span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="ident">::USIZE</span> {
-            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="ident">cn</span>.<span class="ident">ctr</span>.<span class="ident">wrapping_add</span>(<span class="ident">cn</span>.<span class="ident">nonce</span>[<span class="ident">i</span>]).<span class="ident">to_le_bytes</span>()
-            } <span class="kw">else</span> {
-                <span class="ident">cn</span>.<span class="ident">nonce</span>[<span class="ident">i</span>].<span class="ident">to_ne_bytes</span>()
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>current_block(cn: <span class="kw-2">&amp;</span><span class="self">Self</span>::CtrNonce) -&gt; GenericArray&lt;u8, B&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>block = GenericArray::&lt;u8, B&gt;::default();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..Chunks::&lt;B&gt;::USIZE {
+            <span class="kw">let </span>t = <span class="kw">if </span>i == <span class="number">0 </span>{
+                cn.ctr.wrapping_add(cn.nonce[i]).to_le_bytes()
+            } <span class="kw">else </span>{
+                cn.nonce[i].to_ne_bytes()
             };
-            <span class="ident">block</span>[<span class="ident">CS</span> <span class="op">*</span> <span class="ident">i</span>..][..<span class="ident">CS</span>].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>);
+            block[CS * i..][..CS].copy_from_slice(<span class="kw-2">&amp;</span>t);
         }
-        <span class="ident">block</span>
+        block
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">next_block</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::current_block</span>(<span class="ident">cn</span>);
-        <span class="ident">cn</span>.<span class="ident">ctr</span> <span class="op">=</span> <span class="ident">cn</span>.<span class="ident">ctr</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>);
-        <span class="ident">block</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>next_block(cn: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::CtrNonce) -&gt; GenericArray&lt;u8, B&gt; {
+        <span class="kw">let </span>block = <span class="self">Self</span>::current_block(cn);
+        cn.ctr = cn.ctr.wrapping_add(<span class="number">1</span>);
+        block
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_nonce</span>(<span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="self">Self</span>::CtrNonce</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nonce</span> <span class="op">=</span> <span class="ident">GenericArray</span>::<span class="op">&lt;</span><span class="ident">u64</span>, <span class="ident">Chunks</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">Chunks</span>::<span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="ident">::USIZE</span> {
-            <span class="kw">let</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">block</span>[<span class="ident">CS</span> <span class="op">*</span> <span class="ident">i</span>..][..<span class="ident">CS</span>].<span class="ident">try_into</span>().<span class="ident">unwrap</span>();
-            <span class="ident">nonce</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="ident">u64::from_le_bytes</span>(<span class="ident">chunk</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">u64::from_ne_bytes</span>(<span class="ident">chunk</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from_nonce(block: <span class="kw-2">&amp;</span>GenericArray&lt;u8, B&gt;) -&gt; <span class="self">Self</span>::CtrNonce {
+        <span class="kw">let </span><span class="kw-2">mut </span>nonce = GenericArray::&lt;u64, Chunks&lt;B&gt;&gt;::default();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..Chunks::&lt;B&gt;::USIZE {
+            <span class="kw">let </span>chunk = block[CS * i..][..CS].try_into().unwrap();
+            nonce[i] = <span class="kw">if </span>i == <span class="number">0 </span>{
+                u64::from_le_bytes(chunk)
+            } <span class="kw">else </span>{
+                u64::from_ne_bytes(chunk)
             }
         }
-        <span class="kw">let</span> <span class="ident">ctr</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident"><span class="self">Self</span>::CtrNonce</span> { <span class="ident">ctr</span>, <span class="ident">nonce</span> }
+        <span class="kw">let </span>ctr = <span class="number">0</span>;
+        <span class="self">Self</span>::CtrNonce { ctr, nonce }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_backend</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::CtrNonce</span>) -&gt; <span class="ident"><span class="self">Self</span>::Backend</span> {
-        <span class="ident">cn</span>.<span class="ident">ctr</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_backend(cn: <span class="kw-2">&amp;</span><span class="self">Self</span>::CtrNonce) -&gt; <span class="self">Self</span>::Backend {
+        cn.ctr
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">set_from_backend</span>(<span class="ident">cn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::CtrNonce</span>, <span class="ident">v</span>: <span class="ident"><span class="self">Self</span>::Backend</span>) {
-        <span class="ident">cn</span>.<span class="ident">ctr</span> <span class="op">=</span> <span class="ident">v</span>;
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>set_from_backend(cn: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::CtrNonce, v: <span class="self">Self</span>::Backend) {
+        cn.ctr = v;
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ctr" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ctr" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

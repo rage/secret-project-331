@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/accept_language.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>accept_language.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/accept_language.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>accept_language.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -223,228 +223,228 @@
 <span id="221">221</span>
 <span id="222">222</span>
 <span id="223">223</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">language_tags::LanguageTag</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>language_tags::LanguageTag;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">common_header</span>, <span class="ident">Preference</span>, <span class="ident">Quality</span>, <span class="ident">QualityItem</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http::header</span>;
+<span class="kw">use super</span>::{common_header, Preference, Quality, QualityItem};
+<span class="kw">use </span><span class="kw">crate</span>::http::header;
 
-<span class="macro">common_header!</span> {
-    <span class="doccomment">/// `Accept-Language` header, defined</span>
-    <span class="doccomment">/// in [RFC 7231 §5.3.5](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.5)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `Accept-Language` header field can be used by user agents to indicate the set of natural</span>
-    <span class="doccomment">/// languages that are preferred in the response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `Accept-Language` header is defined in</span>
-    <span class="doccomment">/// [RFC 7231 §5.3.5](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.5) using language</span>
-    <span class="doccomment">/// ranges defined in [RFC 4647 §2.1](https://datatracker.ietf.org/doc/html/rfc4647#section-2.1).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # ABNF</span>
-    <span class="doccomment">/// ```plain</span>
-    <span class="doccomment">/// Accept-Language = 1#( language-range [ weight ] )</span>
-    <span class="doccomment">/// language-range  = (1*8ALPHA *(&quot;-&quot; 1*8alphanum)) / &quot;*&quot;</span>
-    <span class="doccomment">/// alphanum        = ALPHA / DIGIT</span>
-    <span class="doccomment">/// weight          = OWS &quot;;&quot; OWS &quot;q=&quot; qvalue</span>
-    <span class="doccomment">/// qvalue          = ( &quot;0&quot; [ &quot;.&quot; 0*3DIGIT ] )</span>
-    <span class="doccomment">///                 / ( &quot;1&quot; [ &quot;.&quot; 0*3(&quot;0&quot;) ] )</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example Values</span>
-    <span class="doccomment">/// - `da, en-gb;q=0.8, en;q=0.7`</span>
-    <span class="doccomment">/// - `en-us;q=1.0, en;q=0.5, fr`</span>
-    <span class="doccomment">/// - `fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::{AcceptLanguage, QualityItem};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// builder.insert_header(</span>
-    <span class="doccomment">///     AcceptLanguage(vec![</span>
-    <span class="doccomment">///         &quot;en-US&quot;.parse().unwrap(),</span>
-    <span class="doccomment">///     ])</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::{AcceptLanguage, QualityItem, q};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// builder.insert_header(</span>
-    <span class="doccomment">///     AcceptLanguage(vec![</span>
-    <span class="doccomment">///         &quot;da&quot;.parse().unwrap(),</span>
-    <span class="doccomment">///         &quot;en-GB;q=0.8&quot;.parse().unwrap(),</span>
-    <span class="doccomment">///         &quot;en;q=0.7&quot;.parse().unwrap(),</span>
-    <span class="doccomment">///     ])</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    (<span class="ident">AcceptLanguage</span>, <span class="ident">header::ACCEPT_LANGUAGE</span>) =&gt; (<span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Preference</span><span class="op">&lt;</span><span class="ident">LanguageTag</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">*</span>
+<span class="macro">common_header! </span>{
+    <span class="doccomment">/// `Accept-Language` header, defined
+    /// in [RFC 7231 §5.3.5](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.5)
+    ///
+    /// The `Accept-Language` header field can be used by user agents to indicate the set of natural
+    /// languages that are preferred in the response.
+    ///
+    /// The `Accept-Language` header is defined in
+    /// [RFC 7231 §5.3.5](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.5) using language
+    /// ranges defined in [RFC 4647 §2.1](https://datatracker.ietf.org/doc/html/rfc4647#section-2.1).
+    ///
+    /// # ABNF
+    /// ```plain
+    /// Accept-Language = 1#( language-range [ weight ] )
+    /// language-range  = (1*8ALPHA *(&quot;-&quot; 1*8alphanum)) / &quot;*&quot;
+    /// alphanum        = ALPHA / DIGIT
+    /// weight          = OWS &quot;;&quot; OWS &quot;q=&quot; qvalue
+    /// qvalue          = ( &quot;0&quot; [ &quot;.&quot; 0*3DIGIT ] )
+    ///                 / ( &quot;1&quot; [ &quot;.&quot; 0*3(&quot;0&quot;) ] )
+    /// ```
+    ///
+    /// # Example Values
+    /// - `da, en-gb;q=0.8, en;q=0.7`
+    /// - `en-us;q=1.0, en;q=0.5, fr`
+    /// - `fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5`
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::HttpResponse;
+    /// use actix_web::http::header::{AcceptLanguage, QualityItem};
+    ///
+    /// let mut builder = HttpResponse::Ok();
+    /// builder.insert_header(
+    ///     AcceptLanguage(vec![
+    ///         &quot;en-US&quot;.parse().unwrap(),
+    ///     ])
+    /// );
+    /// ```
+    ///
+    /// ```
+    /// use actix_web::HttpResponse;
+    /// use actix_web::http::header::{AcceptLanguage, QualityItem, q};
+    ///
+    /// let mut builder = HttpResponse::Ok();
+    /// builder.insert_header(
+    ///     AcceptLanguage(vec![
+    ///         &quot;da&quot;.parse().unwrap(),
+    ///         &quot;en-GB;q=0.8&quot;.parse().unwrap(),
+    ///         &quot;en;q=0.7&quot;.parse().unwrap(),
+    ///     ])
+    /// );
+    /// ```
+    </span>(AcceptLanguage, header::ACCEPT_LANGUAGE) =&gt; (QualityItem&lt;Preference&lt;LanguageTag&gt;&gt;)*
 
-    <span class="ident">test_parse_and_format</span> {
-        <span class="macro">common_header_test!</span>(<span class="ident">no_headers</span>, <span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>; <span class="number">0</span>], <span class="prelude-val">Some</span>(<span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[])));
+    test_parse_and_format {
+        <span class="macro">common_header_test!</span>(no_headers, <span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>; <span class="number">0</span>], <span class="prelude-val">Some</span>(AcceptLanguage(<span class="macro">vec!</span>[])));
 
-        <span class="macro">common_header_test!</span>(<span class="ident">empty_header</span>, <span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>; <span class="number">1</span>], <span class="prelude-val">Some</span>(<span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[])));
+        <span class="macro">common_header_test!</span>(empty_header, <span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>; <span class="number">1</span>], <span class="prelude-val">Some</span>(AcceptLanguage(<span class="macro">vec!</span>[])));
 
         <span class="macro">common_header_test!</span>(
-            <span class="ident">example_from_rfc</span>,
+            example_from_rfc,
             <span class="macro">vec!</span>[<span class="string">b&quot;da, en-gb;q=0.8, en;q=0.7&quot;</span>]
         );
 
 
         <span class="macro">common_header_test!</span>(
-            <span class="ident">not_ordered_by_weight</span>,
+            not_ordered_by_weight,
             <span class="macro">vec!</span>[<span class="string">b&quot;en-US, en; q=0.5, fr&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[
-                <span class="ident">QualityItem::max</span>(<span class="string">&quot;en-US&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-                <span class="ident">QualityItem::new</span>(<span class="string">&quot;en&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.5</span>)),
-                <span class="ident">QualityItem::max</span>(<span class="string">&quot;fr&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
+            <span class="prelude-val">Some</span>(AcceptLanguage(<span class="macro">vec!</span>[
+                QualityItem::max(<span class="string">&quot;en-US&quot;</span>.parse().unwrap()),
+                QualityItem::new(<span class="string">&quot;en&quot;</span>.parse().unwrap(), q(<span class="number">0.5</span>)),
+                QualityItem::max(<span class="string">&quot;fr&quot;</span>.parse().unwrap()),
             ]))
         );
 
         <span class="macro">common_header_test!</span>(
-            <span class="ident">has_wildcard</span>,
+            has_wildcard,
             <span class="macro">vec!</span>[<span class="string">b&quot;fr-CH, fr; q=0.9, en; q=0.8, de; q=0.7, *; q=0.5&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[
-                <span class="ident">QualityItem::max</span>(<span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-                <span class="ident">QualityItem::new</span>(<span class="string">&quot;fr&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.9</span>)),
-                <span class="ident">QualityItem::new</span>(<span class="string">&quot;en&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.8</span>)),
-                <span class="ident">QualityItem::new</span>(<span class="string">&quot;de&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.7</span>)),
-                <span class="ident">QualityItem::new</span>(<span class="string">&quot;*&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.5</span>)),
+            <span class="prelude-val">Some</span>(AcceptLanguage(<span class="macro">vec!</span>[
+                QualityItem::max(<span class="string">&quot;fr-CH&quot;</span>.parse().unwrap()),
+                QualityItem::new(<span class="string">&quot;fr&quot;</span>.parse().unwrap(), q(<span class="number">0.9</span>)),
+                QualityItem::new(<span class="string">&quot;en&quot;</span>.parse().unwrap(), q(<span class="number">0.8</span>)),
+                QualityItem::new(<span class="string">&quot;de&quot;</span>.parse().unwrap(), q(<span class="number">0.7</span>)),
+                QualityItem::new(<span class="string">&quot;*&quot;</span>.parse().unwrap(), q(<span class="number">0.5</span>)),
             ]))
         );
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AcceptLanguage</span> {
-    <span class="doccomment">/// Extracts the most preferable language, accounting for [q-factor weighting].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If no q-factors are provided, the first language is chosen. Note that items without</span>
-    <span class="doccomment">/// q-factors are given the maximum preference value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// As per the spec, returns [`Preference::Any`] if contained list is empty.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Preference</span><span class="op">&lt;</span><span class="ident">LanguageTag</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_item</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_pref</span> <span class="op">=</span> <span class="ident">Quality::ZERO</span>;
+<span class="kw">impl </span>AcceptLanguage {
+    <span class="doccomment">/// Extracts the most preferable language, accounting for [q-factor weighting].
+    ///
+    /// If no q-factors are provided, the first language is chosen. Note that items without
+    /// q-factors are given the maximum preference value.
+    ///
+    /// As per the spec, returns [`Preference::Any`] if contained list is empty.
+    ///
+    /// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
+    </span><span class="kw">pub fn </span>preference(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Preference&lt;LanguageTag&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>max_item = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>max_pref = Quality::ZERO;
 
-        <span class="comment">// uses manual max lookup loop since we want the first occurrence in the case of same</span>
-        <span class="comment">// preference but `Iterator::max_by_key` would give us the last occurrence</span>
+        <span class="comment">// uses manual max lookup loop since we want the first occurrence in the case of same
+        // preference but `Iterator::max_by_key` would give us the last occurrence
 
-        <span class="kw">for</span> <span class="ident">pref</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="comment">// only change if strictly greater</span>
-            <span class="comment">// equal items, even while unsorted, still have higher preference if they appear first</span>
-            <span class="kw">if</span> <span class="ident">pref</span>.<span class="ident">quality</span> <span class="op">&gt;</span> <span class="ident">max_pref</span> {
-                <span class="ident">max_pref</span> <span class="op">=</span> <span class="ident">pref</span>.<span class="ident">quality</span>;
-                <span class="ident">max_item</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pref</span>.<span class="ident">item</span>.<span class="ident">clone</span>());
+        </span><span class="kw">for </span>pref <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="comment">// only change if strictly greater
+            // equal items, even while unsorted, still have higher preference if they appear first
+            </span><span class="kw">if </span>pref.quality &gt; max_pref {
+                max_pref = pref.quality;
+                max_item = <span class="prelude-val">Some</span>(pref.item.clone());
             }
         }
 
-        <span class="ident">max_item</span>.<span class="ident">unwrap_or</span>(<span class="ident">Preference::Any</span>)
+        max_item.unwrap_or(Preference::Any)
     }
 
-    <span class="doccomment">/// Returns a sorted list of languages from highest to lowest precedence, accounting</span>
-    <span class="doccomment">/// for [q-factor weighting].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ranked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Preference</span><span class="op">&lt;</span><span class="ident">LanguageTag</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="macro">vec!</span>[];
+    <span class="doccomment">/// Returns a sorted list of languages from highest to lowest precedence, accounting
+    /// for [q-factor weighting].
+    ///
+    /// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
+    </span><span class="kw">pub fn </span>ranked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;Preference&lt;LanguageTag&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_empty() {
+            <span class="kw">return </span><span class="macro">vec!</span>[];
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>types = <span class="self">self</span>.<span class="number">0</span>.clone();
 
-        <span class="comment">// use stable sort so items with equal q-factor retain listed order</span>
-        <span class="ident">types</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> {
-            <span class="comment">// sort by q-factor descending</span>
-            <span class="ident">b</span>.<span class="ident">quality</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">quality</span>)
+        <span class="comment">// use stable sort so items with equal q-factor retain listed order
+        </span>types.sort_by(|a, b| {
+            <span class="comment">// sort by q-factor descending
+            </span>b.quality.cmp(<span class="kw-2">&amp;</span>a.quality)
         });
 
-        <span class="ident">types</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">qitem</span><span class="op">|</span> <span class="ident">qitem</span>.<span class="ident">item</span>).<span class="ident">collect</span>()
+        types.into_iter().map(|qitem| qitem.item).collect()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http::header</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::http::header::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ranking_precedence</span>() {
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[]);
-        <span class="macro">assert!</span>(<span class="ident">test</span>.<span class="ident">ranked</span>().<span class="ident">is_empty</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ranking_precedence() {
+        <span class="kw">let </span>test = AcceptLanguage(<span class="macro">vec!</span>[]);
+        <span class="macro">assert!</span>(test.ranked().is_empty());
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[<span class="ident">QualityItem::max</span>(<span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())]);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">ranked</span>(), <span class="macro">vec!</span>[<span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()]);
+        <span class="kw">let </span>test = AcceptLanguage(<span class="macro">vec!</span>[QualityItem::max(<span class="string">&quot;fr-CH&quot;</span>.parse().unwrap())]);
+        <span class="macro">assert_eq!</span>(test.ranked(), <span class="macro">vec!</span>[<span class="string">&quot;fr-CH&quot;</span>.parse().unwrap()]);
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;fr&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.900</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">1.0</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;en&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.800</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;*&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.500</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;de&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.700</span>)),
+        <span class="kw">let </span>test = AcceptLanguage(<span class="macro">vec!</span>[
+            QualityItem::new(<span class="string">&quot;fr&quot;</span>.parse().unwrap(), q(<span class="number">0.900</span>)),
+            QualityItem::new(<span class="string">&quot;fr-CH&quot;</span>.parse().unwrap(), q(<span class="number">1.0</span>)),
+            QualityItem::new(<span class="string">&quot;en&quot;</span>.parse().unwrap(), q(<span class="number">0.800</span>)),
+            QualityItem::new(<span class="string">&quot;*&quot;</span>.parse().unwrap(), q(<span class="number">0.500</span>)),
+            QualityItem::new(<span class="string">&quot;de&quot;</span>.parse().unwrap(), q(<span class="number">0.700</span>)),
         ]);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">ranked</span>(),
+            test.ranked(),
             <span class="macro">vec!</span>[
-                <span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="string">&quot;fr&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="string">&quot;en&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="string">&quot;de&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="string">&quot;*&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+                <span class="string">&quot;fr-CH&quot;</span>.parse().unwrap(),
+                <span class="string">&quot;fr&quot;</span>.parse().unwrap(),
+                <span class="string">&quot;en&quot;</span>.parse().unwrap(),
+                <span class="string">&quot;de&quot;</span>.parse().unwrap(),
+                <span class="string">&quot;*&quot;</span>.parse().unwrap(),
             ]
         );
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;fr&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;en&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;*&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;de&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
+        <span class="kw">let </span>test = AcceptLanguage(<span class="macro">vec!</span>[
+            QualityItem::max(<span class="string">&quot;fr&quot;</span>.parse().unwrap()),
+            QualityItem::max(<span class="string">&quot;fr-CH&quot;</span>.parse().unwrap()),
+            QualityItem::max(<span class="string">&quot;en&quot;</span>.parse().unwrap()),
+            QualityItem::max(<span class="string">&quot;*&quot;</span>.parse().unwrap()),
+            QualityItem::max(<span class="string">&quot;de&quot;</span>.parse().unwrap()),
         ]);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">ranked</span>(),
+            test.ranked(),
             <span class="macro">vec!</span>[
-                <span class="string">&quot;fr&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="string">&quot;en&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="string">&quot;*&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="string">&quot;de&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+                <span class="string">&quot;fr&quot;</span>.parse().unwrap(),
+                <span class="string">&quot;fr-CH&quot;</span>.parse().unwrap(),
+                <span class="string">&quot;en&quot;</span>.parse().unwrap(),
+                <span class="string">&quot;*&quot;</span>.parse().unwrap(),
+                <span class="string">&quot;de&quot;</span>.parse().unwrap(),
             ]
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">preference_selection</span>() {
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;fr&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.900</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">1.0</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;en&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.800</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;*&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.500</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;de&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.700</span>)),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>preference_selection() {
+        <span class="kw">let </span>test = AcceptLanguage(<span class="macro">vec!</span>[
+            QualityItem::new(<span class="string">&quot;fr&quot;</span>.parse().unwrap(), q(<span class="number">0.900</span>)),
+            QualityItem::new(<span class="string">&quot;fr-CH&quot;</span>.parse().unwrap(), q(<span class="number">1.0</span>)),
+            QualityItem::new(<span class="string">&quot;en&quot;</span>.parse().unwrap(), q(<span class="number">0.800</span>)),
+            QualityItem::new(<span class="string">&quot;*&quot;</span>.parse().unwrap(), q(<span class="number">0.500</span>)),
+            QualityItem::new(<span class="string">&quot;de&quot;</span>.parse().unwrap(), q(<span class="number">0.700</span>)),
         ]);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">preference</span>(),
-            <span class="ident">Preference::Specific</span>(<span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
+            test.preference(),
+            Preference::Specific(<span class="string">&quot;fr-CH&quot;</span>.parse().unwrap())
         );
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;fr&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;fr-CH&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;en&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;*&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">QualityItem::max</span>(<span class="string">&quot;de&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
+        <span class="kw">let </span>test = AcceptLanguage(<span class="macro">vec!</span>[
+            QualityItem::max(<span class="string">&quot;fr&quot;</span>.parse().unwrap()),
+            QualityItem::max(<span class="string">&quot;fr-CH&quot;</span>.parse().unwrap()),
+            QualityItem::max(<span class="string">&quot;en&quot;</span>.parse().unwrap()),
+            QualityItem::max(<span class="string">&quot;*&quot;</span>.parse().unwrap()),
+            QualityItem::max(<span class="string">&quot;de&quot;</span>.parse().unwrap()),
         ]);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">preference</span>(),
-            <span class="ident">Preference::Specific</span>(<span class="string">&quot;fr&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
+            test.preference(),
+            Preference::Specific(<span class="string">&quot;fr&quot;</span>.parse().unwrap())
         );
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">AcceptLanguage</span>(<span class="macro">vec!</span>[]);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">preference</span>(), <span class="ident">Preference::Any</span>);
+        <span class="kw">let </span>test = AcceptLanguage(<span class="macro">vec!</span>[]);
+        <span class="macro">assert_eq!</span>(test.preference(), Preference::Any);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/column.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>column.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/column.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>column.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -95,71 +95,71 @@
 <span id="95">95</span>
 <span id="96">96</span>
 <span id="97">97</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::Database</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::database::Database;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span>std::fmt::Debug;
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Column</span>: <span class="ident">private_column::Sealed</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">Debug</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="kw">pub trait </span>Column: private_column::Sealed + <span class="lifetime">&#39;static </span>+ Send + Sync + Debug {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="doccomment">/// Gets the column ordinal.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This can be used to unambiguously refer to this column within a row in case more than</span>
-    <span class="doccomment">/// one column have the same name</span>
-    <span class="kw">fn</span> <span class="ident">ordinal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
+    <span class="doccomment">/// Gets the column ordinal.
+    ///
+    /// This can be used to unambiguously refer to this column within a row in case more than
+    /// one column have the same name
+    </span><span class="kw">fn </span>ordinal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
 
-    <span class="doccomment">/// Gets the column name or alias.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The column name is unreliable (and can change between database minor versions) if this</span>
-    <span class="doccomment">/// column is an expression that has not been aliased.</span>
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span>;
+    <span class="doccomment">/// Gets the column name or alias.
+    ///
+    /// The column name is unreliable (and can change between database minor versions) if this
+    /// column is an expression that has not been aliased.
+    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str;
 
-    <span class="doccomment">/// Gets the type information for the column.</span>
-    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::TypeInfo</span>;
+    <span class="doccomment">/// Gets the type information for the column.
+    </span><span class="kw">fn </span>type_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::TypeInfo;
 }
 
-<span class="comment">// Prevent users from implementing the `Row` trait.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">private_column</span> {
-    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
+<span class="comment">// Prevent users from implementing the `Row` trait.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>private_column {
+    <span class="kw">pub trait </span>Sealed {}
 }
 
-<span class="doccomment">/// A type that can be used to index into a [`Row`] or [`Statement`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The [`get`] and [`try_get`] methods of [`Row`] accept any type that implements `ColumnIndex`.</span>
-<span class="doccomment">/// This trait is implemented for strings which are used to look up a column by name, and for</span>
-<span class="doccomment">/// `usize` which is used as a positional index into the row.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait is sealed and cannot be implemented for types outside of SQLx.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`Row`]: crate::row::Row</span>
-<span class="doccomment">/// [`Statement`]: crate::statement::Statement</span>
-<span class="doccomment">/// [`get`]: crate::row::Row::get</span>
-<span class="doccomment">/// [`try_get`]: crate::row::Row::try_get</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>: <span class="ident">private_column_index::Sealed</span> <span class="op">+</span> <span class="ident">Debug</span> {
-    <span class="doccomment">/// Returns a valid positional index into the row or statement, [`ColumnIndexOutOfBounds`], or,</span>
-    <span class="doccomment">/// [`ColumnNotFound`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`ColumnNotFound`]: Error::ColumnNotFound</span>
-    <span class="doccomment">/// [`ColumnIndexOutOfBounds`]: Error::ColumnIndexOutOfBounds</span>
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">container</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A type that can be used to index into a [`Row`] or [`Statement`].
+///
+/// The [`get`] and [`try_get`] methods of [`Row`] accept any type that implements `ColumnIndex`.
+/// This trait is implemented for strings which are used to look up a column by name, and for
+/// `usize` which is used as a positional index into the row.
+///
+/// This trait is sealed and cannot be implemented for types outside of SQLx.
+///
+/// [`Row`]: crate::row::Row
+/// [`Statement`]: crate::statement::Statement
+/// [`get`]: crate::row::Row::get
+/// [`try_get`]: crate::row::Row::try_get
+///
+</span><span class="kw">pub trait </span>ColumnIndex&lt;T: <span class="question-mark">?</span>Sized&gt;: private_column_index::Sealed + Debug {
+    <span class="doccomment">/// Returns a valid positional index into the row or statement, [`ColumnIndexOutOfBounds`], or,
+    /// [`ColumnNotFound`].
+    ///
+    /// [`ColumnNotFound`]: Error::ColumnNotFound
+    /// [`ColumnIndexOutOfBounds`]: Error::ColumnIndexOutOfBounds
+    </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, container: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">I</span>: <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">ColumnIndex</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">I</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">index</span>(<span class="ident">row</span>)
+<span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized, I: ColumnIndex&lt;T&gt; + <span class="question-mark">?</span>Sized&gt; ColumnIndex&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>I {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, row: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
+        (<span class="kw-2">**</span><span class="self">self</span>).index(row)
     }
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_column_index_for_row</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::column::ColumnIndex</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
-            <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident"><span class="kw">crate</span>::error::Error</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::row::Row::len</span>(<span class="ident">row</span>);
+<span class="macro">macro_rules! </span>impl_column_index_for_row {
+    (<span class="macro-nonterminal">$R</span>:ident) =&gt; {
+        <span class="kw">impl </span><span class="kw">crate</span>::column::ColumnIndex&lt;<span class="macro-nonterminal">$R</span>&gt; <span class="kw">for </span>usize {
+            <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, row: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$R</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize, <span class="kw">crate</span>::error::Error&gt; {
+                <span class="kw">let </span>len = <span class="kw">crate</span>::row::Row::len(row);
 
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">len</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::Error::ColumnIndexOutOfBounds</span> { <span class="ident">len</span>, <span class="ident">index</span>: <span class="kw-2">*</span><span class="self">self</span> });
+                <span class="kw">if </span><span class="kw-2">*</span><span class="self">self </span>&gt;= len {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::Error::ColumnIndexOutOfBounds { len, index: <span class="kw-2">*</span><span class="self">self </span>});
                 }
 
                 <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self</span>)
@@ -168,14 +168,14 @@
     };
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_column_index_for_statement</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">S</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::column::ColumnIndex</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">S</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
-            <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">statement</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">S</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident"><span class="kw">crate</span>::error::Error</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::statement::Statement::columns</span>(<span class="ident">statement</span>).<span class="ident">len</span>();
+<span class="macro">macro_rules! </span>impl_column_index_for_statement {
+    (<span class="macro-nonterminal">$S</span>:ident) =&gt; {
+        <span class="kw">impl </span><span class="kw">crate</span>::column::ColumnIndex&lt;<span class="macro-nonterminal">$S</span>&lt;<span class="lifetime">&#39;_</span>&gt;&gt; <span class="kw">for </span>usize {
+            <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, statement: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$S</span>&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, <span class="kw">crate</span>::error::Error&gt; {
+                <span class="kw">let </span>len = <span class="kw">crate</span>::statement::Statement::columns(statement).len();
 
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">len</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::Error::ColumnIndexOutOfBounds</span> { <span class="ident">len</span>, <span class="ident">index</span>: <span class="kw-2">*</span><span class="self">self</span> });
+                <span class="kw">if </span><span class="kw-2">*</span><span class="self">self </span>&gt;= len {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::Error::ColumnIndexOutOfBounds { len, index: <span class="kw-2">*</span><span class="self">self </span>});
                 }
 
                 <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="self">self</span>)
@@ -184,13 +184,13 @@
     };
 }
 
-<span class="comment">// Prevent users from implementing the `ColumnIndex` trait.</span>
-<span class="kw">mod</span> <span class="ident">private_column_index</span> {
-    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
+<span class="comment">// Prevent users from implementing the `ColumnIndex` trait.
+</span><span class="kw">mod </span>private_column_index {
+    <span class="kw">pub trait </span>Sealed {}
 
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">usize</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">str</span> {}
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Sealed</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>usize {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>str {}
+    <span class="kw">impl</span>&lt;T&gt; Sealed <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T <span class="kw">where </span>T: Sealed + <span class="question-mark">?</span>Sized {}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

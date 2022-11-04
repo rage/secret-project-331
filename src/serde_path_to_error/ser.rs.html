@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_path_to_error-0.1.8/src/ser.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../serde_path_to_error/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../serde_path_to_error/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../serde_path_to_error/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_path_to_error-0.1.8/src/ser.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../serde_path_to_error/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../serde_path_to_error/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../serde_path_to_error/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -995,1002 +995,1002 @@
 <span id="995">995</span>
 <span id="996">996</span>
 <span id="997">997</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::wrap::Wrap</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Chain</span>, <span class="ident">Error</span>, <span class="ident">Track</span>};
-<span class="kw">use</span> <span class="ident">serde::ser</span>::{<span class="self">self</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">serde::serde_if_integer128</span>;
-<span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::wrap::Wrap;
+<span class="kw">use crate</span>::{Chain, Error, Track};
+<span class="kw">use </span>serde::ser::{<span class="self">self</span>, Serialize};
+<span class="kw">use </span>serde::serde_if_integer128;
+<span class="kw">use </span>std::cell::Cell;
+<span class="kw">use </span>std::fmt::Display;
 
-<span class="doccomment">/// Entry point for tracking path to Serialize error.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use serde_derive::Serialize;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// use serde::Serialize;</span>
-<span class="doccomment">/// use std::cell::RefCell;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Serialize)]</span>
-<span class="doccomment">/// struct Outer&lt;&#39;a&gt; {</span>
-<span class="doccomment">///     k: Inner&lt;&#39;a&gt;,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Serialize)]</span>
-<span class="doccomment">/// struct Inner&lt;&#39;a&gt; {</span>
-<span class="doccomment">///     refcell: &amp;&#39;a RefCell&lt;String&gt;,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let refcell = RefCell::new(String::new());</span>
-<span class="doccomment">/// let value = Outer {</span>
-<span class="doccomment">///     k: Inner { refcell: &amp;refcell },</span>
-<span class="doccomment">/// };</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // A RefCell cannot be serialized while it is still mutably borrowed.</span>
-<span class="doccomment">/// let _borrowed = refcell.borrow_mut();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Some Serializer.</span>
-<span class="doccomment">/// let mut out = Vec::new();</span>
-<span class="doccomment">/// let jser = &amp;mut serde_json::Serializer::new(&amp;mut out);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let result = serde_path_to_error::serialize(&amp;value, jser);</span>
-<span class="doccomment">/// match result {</span>
-<span class="doccomment">///     Ok(_) =&gt; panic!(&quot;expected failure to serialize RefCell&quot;),</span>
-<span class="doccomment">///     Err(err) =&gt; {</span>
-<span class="doccomment">///         let path = err.path().to_string();</span>
-<span class="doccomment">///         assert_eq!(path, &quot;k.refcell&quot;);</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">Error</span><span class="op">&lt;</span><span class="ident">S::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
-    <span class="ident">S</span>: <span class="ident">ser::Serializer</span>,
+<span class="doccomment">/// Entry point for tracking path to Serialize error.
+///
+/// # Example
+///
+/// ```
+/// # use serde_derive::Serialize;
+/// #
+/// use serde::Serialize;
+/// use std::cell::RefCell;
+///
+/// #[derive(Serialize)]
+/// struct Outer&lt;&#39;a&gt; {
+///     k: Inner&lt;&#39;a&gt;,
+/// }
+///
+/// #[derive(Serialize)]
+/// struct Inner&lt;&#39;a&gt; {
+///     refcell: &amp;&#39;a RefCell&lt;String&gt;,
+/// }
+///
+/// let refcell = RefCell::new(String::new());
+/// let value = Outer {
+///     k: Inner { refcell: &amp;refcell },
+/// };
+///
+/// // A RefCell cannot be serialized while it is still mutably borrowed.
+/// let _borrowed = refcell.borrow_mut();
+///
+/// // Some Serializer.
+/// let mut out = Vec::new();
+/// let jser = &amp;mut serde_json::Serializer::new(&amp;mut out);
+///
+/// let result = serde_path_to_error::serialize(&amp;value, jser);
+/// match result {
+///     Ok(_) =&gt; panic!(&quot;expected failure to serialize RefCell&quot;),
+///     Err(err) =&gt; {
+///         let path = err.path().to_string();
+///         assert_eq!(path, &quot;k.refcell&quot;);
+///     }
+/// }
+/// ```
+</span><span class="kw">pub fn </span>serialize&lt;T, S&gt;(value: <span class="kw-2">&amp;</span>T, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, Error&lt;S::Error&gt;&gt;
+<span class="kw">where
+    </span>T: <span class="question-mark">?</span>Sized + Serialize,
+    S: ser::Serializer,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">track</span> <span class="op">=</span> <span class="ident">Track::new</span>();
-    <span class="kw">match</span> <span class="ident">T::serialize</span>(<span class="ident">value</span>, <span class="ident">Serializer::new</span>(<span class="ident">serializer</span>, <span class="kw-2">&amp;mut</span> <span class="ident">track</span>)) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ok</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ok</span>),
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error</span> {
-            <span class="ident">path</span>: <span class="ident">track</span>.<span class="ident">path</span>(),
-            <span class="ident">original</span>: <span class="ident">err</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>track = Track::new();
+    <span class="kw">match </span>T::serialize(value, Serializer::new(serializer, <span class="kw-2">&amp;mut </span>track)) {
+        <span class="prelude-val">Ok</span>(ok) =&gt; <span class="prelude-val">Ok</span>(ok),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(Error {
+            path: track.path(),
+            original: err,
         }),
     }
 }
 
-<span class="doccomment">/// Serializer adapter that records path to serialization errors.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use serde_derive::Serialize;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// use serde::Serialize;</span>
-<span class="doccomment">/// use std::collections::BTreeMap;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Maps with a non-string key are not valid in JSON.</span>
-<span class="doccomment">/// let mut inner_map = BTreeMap::new();</span>
-<span class="doccomment">/// inner_map.insert(vec![&#39;w&#39;, &#39;a&#39;, &#39;t&#39;], 0);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut outer_map = BTreeMap::new();</span>
-<span class="doccomment">/// outer_map.insert(&quot;k&quot;, inner_map);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Some Serializer.</span>
-<span class="doccomment">/// let mut out = Vec::new();</span>
-<span class="doccomment">/// let jser = &amp;mut serde_json::Serializer::new(&amp;mut out);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut track = serde_path_to_error::Track::new();</span>
-<span class="doccomment">/// let ps = serde_path_to_error::Serializer::new(jser, &amp;mut track);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// match outer_map.serialize(ps) {</span>
-<span class="doccomment">///     Ok(_) =&gt; panic!(&quot;expected failure to serialize non-string key&quot;),</span>
-<span class="doccomment">///     Err(_) =&gt; {</span>
-<span class="doccomment">///         let path = track.path().to_string();</span>
-<span class="doccomment">///         assert_eq!(path, &quot;k&quot;);</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">ser</span>: <span class="ident">S</span>,
-    <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>,
+<span class="doccomment">/// Serializer adapter that records path to serialization errors.
+///
+/// # Example
+///
+/// ```
+/// # use serde_derive::Serialize;
+/// #
+/// use serde::Serialize;
+/// use std::collections::BTreeMap;
+///
+/// // Maps with a non-string key are not valid in JSON.
+/// let mut inner_map = BTreeMap::new();
+/// inner_map.insert(vec![&#39;w&#39;, &#39;a&#39;, &#39;t&#39;], 0);
+///
+/// let mut outer_map = BTreeMap::new();
+/// outer_map.insert(&quot;k&quot;, inner_map);
+///
+/// // Some Serializer.
+/// let mut out = Vec::new();
+/// let jser = &amp;mut serde_json::Serializer::new(&amp;mut out);
+///
+/// let mut track = serde_path_to_error::Track::new();
+/// let ps = serde_path_to_error::Serializer::new(jser, &amp;mut track);
+///
+/// match outer_map.serialize(ps) {
+///     Ok(_) =&gt; panic!(&quot;expected failure to serialize non-string key&quot;),
+///     Err(_) =&gt; {
+///         let path = track.path().to_string();
+///         assert_eq!(path, &quot;k&quot;);
+///     }
+/// }
+/// ```
+</span><span class="kw">pub struct </span>Serializer&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; {
+    ser: S,
+    chain: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Chain&lt;<span class="lifetime">&#39;a</span>&gt;,
+    track: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Track,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ser</span>: <span class="ident">S</span>, <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">Track</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Serializer</span> {
-            <span class="ident">ser</span>,
-            <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="ident">Chain::Root</span>,
-            <span class="ident">track</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; Serializer&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; {
+    <span class="kw">pub fn </span>new(ser: S, track: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>Track) -&gt; <span class="self">Self </span>{
+        Serializer {
+            ser,
+            chain: <span class="kw-2">&amp;</span>Chain::Root,
+            track,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ser::Serializer</span> <span class="kw">for</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ser::Serializer</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; ser::Serializer <span class="kw">for </span>Serializer&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt;
+<span class="kw">where
+    </span>S: ser::Serializer,
 {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">SerializeSeq</span> <span class="op">=</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S::SerializeSeq</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeTuple</span> <span class="op">=</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S::SerializeTuple</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeTupleStruct</span> <span class="op">=</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S::SerializeTupleStruct</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeTupleVariant</span> <span class="op">=</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S::SerializeTupleVariant</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeMap</span> <span class="op">=</span> <span class="ident">WrapMap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S::SerializeMap</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeStruct</span> <span class="op">=</span> <span class="ident">Wrap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S::SerializeStruct</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">SerializeStructVariant</span> <span class="op">=</span> <span class="ident">Wrap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S::SerializeStructVariant</span><span class="op">&gt;</span>;
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>SerializeSeq = WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S::SerializeSeq&gt;;
+    <span class="kw">type </span>SerializeTuple = WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S::SerializeTuple&gt;;
+    <span class="kw">type </span>SerializeTupleStruct = WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S::SerializeTupleStruct&gt;;
+    <span class="kw">type </span>SerializeTupleVariant = WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S::SerializeTupleVariant&gt;;
+    <span class="kw">type </span>SerializeMap = WrapMap&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S::SerializeMap&gt;;
+    <span class="kw">type </span>SerializeStruct = Wrap&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S::SerializeStruct&gt;;
+    <span class="kw">type </span>SerializeStructVariant = Wrap&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S::SerializeStructVariant&gt;;
 
-    <span class="kw">fn</span> <span class="ident">serialize_bool</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_bool</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_bool(<span class="self">self</span>, v: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_bool(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i8</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_i8</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_i8(<span class="self">self</span>, v: i8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_i8(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i16</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_i16</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_i16(<span class="self">self</span>, v: i16) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_i16(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i32</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_i32</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_i32(<span class="self">self</span>, v: i32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_i32(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_i64</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_i64(<span class="self">self</span>, v: i64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_i64(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="macro">serde_if_integer128!</span> {
-        <span class="kw">fn</span> <span class="ident">serialize_i128</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i128</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-            <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-            <span class="self">self</span>.<span class="ident">ser</span>
-                .<span class="ident">serialize_i128</span>(<span class="ident">v</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="macro">serde_if_integer128! </span>{
+        <span class="kw">fn </span>serialize_i128(<span class="self">self</span>, v: i128) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+            <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+            <span class="kw">let </span>track = <span class="self">self</span>.track;
+            <span class="self">self</span>.ser
+                .serialize_i128(v)
+                .map_err(|err| track.trigger(chain, err))
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u8</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_u8</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_u8(<span class="self">self</span>, v: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_u8(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u16</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_u16</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_u16(<span class="self">self</span>, v: u16) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_u16(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u32</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_u32</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_u32(<span class="self">self</span>, v: u32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_u32(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_u64</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_u64(<span class="self">self</span>, v: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_u64(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="macro">serde_if_integer128!</span> {
-        <span class="kw">fn</span> <span class="ident">serialize_u128</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u128</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-            <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-            <span class="self">self</span>.<span class="ident">ser</span>
-                .<span class="ident">serialize_u128</span>(<span class="ident">v</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="macro">serde_if_integer128! </span>{
+        <span class="kw">fn </span>serialize_u128(<span class="self">self</span>, v: u128) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+            <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+            <span class="kw">let </span>track = <span class="self">self</span>.track;
+            <span class="self">self</span>.ser
+                .serialize_u128(v)
+                .map_err(|err| track.trigger(chain, err))
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_f32</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">f32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_f32</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_f32(<span class="self">self</span>, v: f32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_f32(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_f64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">f64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_f64</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_f64(<span class="self">self</span>, v: f64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_f64(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_char</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">char</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_char</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_char(<span class="self">self</span>, v: char) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_char(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_str</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_str</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_str(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_str(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_bytes</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_bytes</span>(<span class="ident">v</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_bytes(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_bytes(v)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_none</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_none</span>()
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_none(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_none()
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_some</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_some&lt;T&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_some</span>(<span class="ident">value</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_some(value)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_unit</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_unit</span>()
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_unit(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_unit()
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_unit_struct</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_unit_struct</span>(<span class="ident">name</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>serialize_unit_struct(<span class="self">self</span>, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_unit_struct(name)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_unit_variant</span>(
+    <span class="kw">fn </span>serialize_unit_variant(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_unit_variant</span>(<span class="ident">name</span>, <span class="ident">variant_index</span>, <span class="ident">variant</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        variant_index: u32,
+        variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_unit_variant(name, variant_index, variant)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_newtype_struct</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>serialize_newtype_struct&lt;T&gt;(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        value: <span class="kw-2">&amp;</span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_newtype_struct</span>(<span class="ident">name</span>, <span class="ident">value</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_newtype_struct(name, value)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_newtype_variant</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>serialize_newtype_variant&lt;T&gt;(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        variant_index: u32,
+        variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        value: <span class="kw-2">&amp;</span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">serialize_newtype_variant</span>(<span class="ident">name</span>, <span class="ident">variant_index</span>, <span class="ident">variant</span>, <span class="ident">value</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .serialize_newtype_variant(name, variant_index, variant, value)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_seq</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeSeq</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">ser</span>.<span class="ident">serialize_seq</span>(<span class="ident">len</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">delegate</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">WrapSeq::new</span>(<span class="ident">delegate</span>, <span class="ident">chain</span>, <span class="ident">track</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>)),
+    <span class="kw">fn </span>serialize_seq(<span class="self">self</span>, len: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeSeq, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="kw">match </span><span class="self">self</span>.ser.serialize_seq(len) {
+            <span class="prelude-val">Ok</span>(delegate) =&gt; <span class="prelude-val">Ok</span>(WrapSeq::new(delegate, chain, track)),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(track.trigger(chain, err)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeTuple</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">ser</span>.<span class="ident">serialize_tuple</span>(<span class="ident">len</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">delegate</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">WrapSeq::new</span>(<span class="ident">delegate</span>, <span class="ident">chain</span>, <span class="ident">track</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>)),
+    <span class="kw">fn </span>serialize_tuple(<span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTuple, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="kw">match </span><span class="self">self</span>.ser.serialize_tuple(len) {
+            <span class="prelude-val">Ok</span>(delegate) =&gt; <span class="prelude-val">Ok</span>(WrapSeq::new(delegate, chain, track)),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(track.trigger(chain, err)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_struct</span>(
+    <span class="kw">fn </span>serialize_tuple_struct(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeTupleStruct</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">ser</span>.<span class="ident">serialize_tuple_struct</span>(<span class="ident">name</span>, <span class="ident">len</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">delegate</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">WrapSeq::new</span>(<span class="ident">delegate</span>, <span class="ident">chain</span>, <span class="ident">track</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>)),
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleStruct, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="kw">match </span><span class="self">self</span>.ser.serialize_tuple_struct(name, len) {
+            <span class="prelude-val">Ok</span>(delegate) =&gt; <span class="prelude-val">Ok</span>(WrapSeq::new(delegate, chain, track)),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(track.trigger(chain, err)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_variant</span>(
+    <span class="kw">fn </span>serialize_tuple_variant(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeTupleVariant</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="kw">match</span> <span class="self">self</span>
-            .<span class="ident">ser</span>
-            .<span class="ident">serialize_tuple_variant</span>(<span class="ident">name</span>, <span class="ident">variant_index</span>, <span class="ident">variant</span>, <span class="ident">len</span>)
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        variant_index: u32,
+        variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleVariant, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="kw">match </span><span class="self">self
+            </span>.ser
+            .serialize_tuple_variant(name, variant_index, variant, len)
         {
-            <span class="prelude-val">Ok</span>(<span class="ident">delegate</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">WrapSeq::new</span>(<span class="ident">delegate</span>, <span class="ident">chain</span>, <span class="ident">track</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>)),
+            <span class="prelude-val">Ok</span>(delegate) =&gt; <span class="prelude-val">Ok</span>(WrapSeq::new(delegate, chain, track)),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(track.trigger(chain, err)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_map</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeMap</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">ser</span>.<span class="ident">serialize_map</span>(<span class="ident">len</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">delegate</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">WrapMap::new</span>(<span class="ident">delegate</span>, <span class="ident">chain</span>, <span class="ident">track</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>)),
+    <span class="kw">fn </span>serialize_map(<span class="self">self</span>, len: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeMap, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="kw">match </span><span class="self">self</span>.ser.serialize_map(len) {
+            <span class="prelude-val">Ok</span>(delegate) =&gt; <span class="prelude-val">Ok</span>(WrapMap::new(delegate, chain, track)),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(track.trigger(chain, err)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_struct</span>(
+    <span class="kw">fn </span>serialize_struct(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeStruct</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">ser</span>.<span class="ident">serialize_struct</span>(<span class="ident">name</span>, <span class="ident">len</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">delegate</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Wrap::new</span>(<span class="ident">delegate</span>, <span class="ident">chain</span>, <span class="ident">track</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>)),
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStruct, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="kw">match </span><span class="self">self</span>.ser.serialize_struct(name, len) {
+            <span class="prelude-val">Ok</span>(delegate) =&gt; <span class="prelude-val">Ok</span>(Wrap::new(delegate, chain, track)),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(track.trigger(chain, err)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_struct_variant</span>(
+    <span class="kw">fn </span>serialize_struct_variant(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeStructVariant</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="kw">match</span> <span class="self">self</span>
-            .<span class="ident">ser</span>
-            .<span class="ident">serialize_struct_variant</span>(<span class="ident">name</span>, <span class="ident">variant_index</span>, <span class="ident">variant</span>, <span class="ident">len</span>)
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        variant_index: u32,
+        variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStructVariant, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="kw">match </span><span class="self">self
+            </span>.ser
+            .serialize_struct_variant(name, variant_index, variant, len)
         {
-            <span class="prelude-val">Ok</span>(<span class="ident">delegate</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Wrap::new</span>(<span class="ident">delegate</span>, <span class="ident">chain</span>, <span class="ident">track</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>)),
+            <span class="prelude-val">Ok</span>(delegate) =&gt; <span class="prelude-val">Ok</span>(Wrap::new(delegate, chain, track)),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(track.trigger(chain, err)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">collect_str</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Display</span>,
+    <span class="kw">fn </span>collect_str&lt;T&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Display,
     {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">ser</span>
-            .<span class="ident">collect_str</span>(<span class="ident">value</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.ser
+            .collect_str(value)
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">is_human_readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">ser</span>.<span class="ident">is_human_readable</span>()
+    <span class="kw">fn </span>is_human_readable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.ser.is_human_readable()
     }
 }
 
-<span class="kw">struct</span> <span class="ident">TrackedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">X</span><span class="op">&gt;</span> {
-    <span class="ident">value</span>: <span class="ident">X</span>,
-    <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>,
+<span class="kw">struct </span>TrackedValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, X&gt; {
+    value: X,
+    chain: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Chain&lt;<span class="lifetime">&#39;a</span>&gt;,
+    track: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Track,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">X</span><span class="op">&gt;</span> <span class="ident">TrackedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">X</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">X</span>, <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">TrackedValue</span> {
-            <span class="ident">value</span>,
-            <span class="ident">chain</span>,
-            <span class="ident">track</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, X&gt; TrackedValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, X&gt; {
+    <span class="kw">fn </span>new(value: X, chain: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Chain&lt;<span class="lifetime">&#39;a</span>&gt;, track: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Track) -&gt; <span class="self">Self </span>{
+        TrackedValue {
+            value,
+            chain,
+            track,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">X</span><span class="op">&gt;</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">TrackedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">X</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">X</span>: <span class="ident">Serialize</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, X&gt; Serialize <span class="kw">for </span>TrackedValue&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, X&gt;
+<span class="kw">where
+    </span>X: Serialize,
 {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">ser::Serializer</span>,
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: ser::Serializer,
     {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">value</span>
-            .<span class="ident">serialize</span>(<span class="ident">Serializer</span> {
-                <span class="ident">ser</span>: <span class="ident">serializer</span>,
-                <span class="ident">chain</span>,
-                <span class="ident">track</span>,
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.value
+            .serialize(Serializer {
+                ser: serializer,
+                chain,
+                track,
             })
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+            .map_err(|err| track.trigger(chain, err))
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">delegate</span>: <span class="ident">S</span>,
-    <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">index</span>: <span class="ident">usize</span>,
-    <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>,
+<span class="kw">pub struct </span>WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; {
+    delegate: S,
+    chain: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Chain&lt;<span class="lifetime">&#39;a</span>&gt;,
+    index: usize,
+    track: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Track,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">delegate</span>: <span class="ident">S</span>, <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">WrapSeq</span> {
-            <span class="ident">delegate</span>,
-            <span class="ident">chain</span>,
-            <span class="ident">index</span>: <span class="number">0</span>,
-            <span class="ident">track</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; {
+    <span class="kw">fn </span>new(delegate: S, chain: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Chain&lt;<span class="lifetime">&#39;a</span>&gt;, track: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Track) -&gt; <span class="self">Self </span>{
+        WrapSeq {
+            delegate,
+            chain,
+            index: <span class="number">0</span>,
+            track,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ser::SerializeSeq</span> <span class="kw">for</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ser::SerializeSeq</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; ser::SerializeSeq <span class="kw">for </span>WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt;
+<span class="kw">where
+    </span>S: ser::SerializeSeq,
 {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = S::Error;
 
-    <span class="kw">fn</span> <span class="ident">serialize_element</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_element&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="ident">Chain::Seq</span> {
-            <span class="ident">parent</span>,
-            <span class="ident">index</span>: <span class="self">self</span>.<span class="ident">index</span>,
+        <span class="kw">let </span>parent = <span class="self">self</span>.chain;
+        <span class="kw">let </span>chain = Chain::Seq {
+            parent,
+            index: <span class="self">self</span>.index,
         };
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_element</span>(<span class="kw-2">&amp;</span><span class="ident">TrackedValue::new</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">chain</span>, <span class="ident">track</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">parent</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.index += <span class="number">1</span>;
+        <span class="self">self</span>.delegate
+            .serialize_element(<span class="kw-2">&amp;</span>TrackedValue::new(value, <span class="kw-2">&amp;</span>chain, track))
+            .map_err(|err| track.trigger(parent, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">end</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">end</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>end(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate.end().map_err(|err| track.trigger(chain, err))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ser::SerializeTuple</span> <span class="kw">for</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ser::SerializeTuple</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; ser::SerializeTuple <span class="kw">for </span>WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt;
+<span class="kw">where
+    </span>S: ser::SerializeTuple,
 {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = S::Error;
 
-    <span class="kw">fn</span> <span class="ident">serialize_element</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_element&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="ident">Chain::Seq</span> {
-            <span class="ident">parent</span>,
-            <span class="ident">index</span>: <span class="self">self</span>.<span class="ident">index</span>,
+        <span class="kw">let </span>parent = <span class="self">self</span>.chain;
+        <span class="kw">let </span>chain = Chain::Seq {
+            parent,
+            index: <span class="self">self</span>.index,
         };
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_element</span>(<span class="kw-2">&amp;</span><span class="ident">TrackedValue::new</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">chain</span>, <span class="ident">track</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">parent</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.index += <span class="number">1</span>;
+        <span class="self">self</span>.delegate
+            .serialize_element(<span class="kw-2">&amp;</span>TrackedValue::new(value, <span class="kw-2">&amp;</span>chain, track))
+            .map_err(|err| track.trigger(parent, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">end</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">end</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>end(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate.end().map_err(|err| track.trigger(chain, err))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ser::SerializeTupleStruct</span> <span class="kw">for</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ser::SerializeTupleStruct</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; ser::SerializeTupleStruct <span class="kw">for </span>WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt;
+<span class="kw">where
+    </span>S: ser::SerializeTupleStruct,
 {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = S::Error;
 
-    <span class="kw">fn</span> <span class="ident">serialize_field</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_field&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="ident">Chain::Seq</span> {
-            <span class="ident">parent</span>,
-            <span class="ident">index</span>: <span class="self">self</span>.<span class="ident">index</span>,
+        <span class="kw">let </span>parent = <span class="self">self</span>.chain;
+        <span class="kw">let </span>chain = Chain::Seq {
+            parent,
+            index: <span class="self">self</span>.index,
         };
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_field</span>(<span class="kw-2">&amp;</span><span class="ident">TrackedValue::new</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">chain</span>, <span class="ident">track</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">parent</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.index += <span class="number">1</span>;
+        <span class="self">self</span>.delegate
+            .serialize_field(<span class="kw-2">&amp;</span>TrackedValue::new(value, <span class="kw-2">&amp;</span>chain, track))
+            .map_err(|err| track.trigger(parent, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">end</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">end</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>end(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate.end().map_err(|err| track.trigger(chain, err))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ser::SerializeTupleVariant</span> <span class="kw">for</span> <span class="ident">WrapSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ser::SerializeTupleVariant</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; ser::SerializeTupleVariant <span class="kw">for </span>WrapSeq&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt;
+<span class="kw">where
+    </span>S: ser::SerializeTupleVariant,
 {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = S::Error;
 
-    <span class="kw">fn</span> <span class="ident">serialize_field</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_field&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="ident">Chain::Seq</span> {
-            <span class="ident">parent</span>,
-            <span class="ident">index</span>: <span class="self">self</span>.<span class="ident">index</span>,
+        <span class="kw">let </span>parent = <span class="self">self</span>.chain;
+        <span class="kw">let </span>chain = Chain::Seq {
+            parent,
+            index: <span class="self">self</span>.index,
         };
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_field</span>(<span class="kw-2">&amp;</span><span class="ident">TrackedValue::new</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">chain</span>, <span class="ident">track</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">parent</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.index += <span class="number">1</span>;
+        <span class="self">self</span>.delegate
+            .serialize_field(<span class="kw-2">&amp;</span>TrackedValue::new(value, <span class="kw-2">&amp;</span>chain, track))
+            .map_err(|err| track.trigger(parent, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">end</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">end</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>end(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate.end().map_err(|err| track.trigger(chain, err))
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WrapMap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">delegate</span>: <span class="ident">S</span>,
-    <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">key</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>,
+<span class="kw">pub struct </span>WrapMap&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; {
+    delegate: S,
+    chain: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Chain&lt;<span class="lifetime">&#39;a</span>&gt;,
+    key: Cell&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt;,
+    track: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Track,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">WrapMap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">delegate</span>: <span class="ident">S</span>, <span class="ident">chain</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">track</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Track</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">WrapMap</span> {
-            <span class="ident">delegate</span>,
-            <span class="ident">chain</span>,
-            <span class="ident">key</span>: <span class="ident">Cell::new</span>(<span class="prelude-val">None</span>),
-            <span class="ident">track</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; WrapMap&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; {
+    <span class="kw">fn </span>new(delegate: S, chain: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Chain&lt;<span class="lifetime">&#39;a</span>&gt;, track: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>Track) -&gt; <span class="self">Self </span>{
+        WrapMap {
+            delegate,
+            chain,
+            key: Cell::new(<span class="prelude-val">None</span>),
+            track,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ser::SerializeMap</span> <span class="kw">for</span> <span class="ident">WrapMap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ser::SerializeMap</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; ser::SerializeMap <span class="kw">for </span>WrapMap&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt;
+<span class="kw">where
+    </span>S: ser::SerializeMap,
 {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = S::Error;
 
-    <span class="kw">fn</span> <span class="ident">serialize_key</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_key&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">key</span>.<span class="ident">set</span>(<span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_key</span>(<span class="kw-2">&amp;</span><span class="ident">CaptureKey::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span>, <span class="ident">key</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.key.set(<span class="prelude-val">None</span>);
+        <span class="self">self</span>.delegate
+            .serialize_key(<span class="kw-2">&amp;</span>CaptureKey::new(<span class="kw-2">&amp;</span><span class="self">self</span>.key, key))
+            .map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_value&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">key</span>.<span class="ident">take</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">key</span>) =&gt; <span class="ident">Chain::Map</span> { <span class="ident">parent</span>, <span class="ident">key</span> },
-            <span class="prelude-val">None</span> =&gt; <span class="ident">Chain::NonStringKey</span> { <span class="ident">parent</span> },
+        <span class="kw">let </span>parent = <span class="self">self</span>.chain;
+        <span class="kw">let </span>chain = <span class="kw">match </span><span class="self">self</span>.key.take() {
+            <span class="prelude-val">Some</span>(key) =&gt; Chain::Map { parent, key },
+            <span class="prelude-val">None </span>=&gt; Chain::NonStringKey { parent },
         };
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_value</span>(<span class="kw-2">&amp;</span><span class="ident">TrackedValue::new</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">chain</span>, <span class="ident">track</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">parent</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate
+            .serialize_value(<span class="kw-2">&amp;</span>TrackedValue::new(value, <span class="kw-2">&amp;</span>chain, track))
+            .map_err(|err| track.trigger(parent, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">end</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">end</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>end(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate.end().map_err(|err| track.trigger(chain, err))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ser::SerializeStruct</span> <span class="kw">for</span> <span class="ident">Wrap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ser::SerializeStruct</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; ser::SerializeStruct <span class="kw">for </span>Wrap&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt;
+<span class="kw">where
+    </span>S: ser::SerializeStruct,
 {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = S::Error;
 
-    <span class="kw">fn</span> <span class="ident">serialize_field</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_field&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="ident">Chain::Struct</span> { <span class="ident">parent</span>, <span class="ident">key</span> };
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_field</span>(<span class="ident">key</span>, <span class="kw-2">&amp;</span><span class="ident">TrackedValue::new</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">chain</span>, <span class="ident">track</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">parent</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>parent = <span class="self">self</span>.chain;
+        <span class="kw">let </span>chain = Chain::Struct { parent, key };
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate
+            .serialize_field(key, <span class="kw-2">&amp;</span>TrackedValue::new(value, <span class="kw-2">&amp;</span>chain, track))
+            .map_err(|err| track.trigger(parent, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">end</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">end</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>end(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate.end().map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">skip_field</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">skip_field</span>(<span class="ident">key</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>skip_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate
+            .skip_field(key)
+            .map_err(|err| track.trigger(chain, err))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ser::SerializeStructVariant</span> <span class="kw">for</span> <span class="ident">Wrap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ser::SerializeStructVariant</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt; ser::SerializeStructVariant <span class="kw">for </span>Wrap&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, S&gt;
+<span class="kw">where
+    </span>S: ser::SerializeStructVariant,
 {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = S::Error;
 
-    <span class="kw">fn</span> <span class="ident">serialize_field</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_field&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="ident">Chain::Struct</span> { <span class="ident">parent</span>, <span class="ident">key</span> };
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_field</span>(<span class="ident">key</span>, <span class="kw-2">&amp;</span><span class="ident">TrackedValue::new</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">chain</span>, <span class="ident">track</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">parent</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>parent = <span class="self">self</span>.chain;
+        <span class="kw">let </span>chain = Chain::Struct { parent, key };
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate
+            .serialize_field(key, <span class="kw-2">&amp;</span>TrackedValue::new(value, <span class="kw-2">&amp;</span>chain, track))
+            .map_err(|err| track.trigger(parent, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">end</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">end</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
+    <span class="kw">fn </span>end(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate.end().map_err(|err| track.trigger(chain, err))
     }
 
-    <span class="kw">fn</span> <span class="ident">skip_field</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chain</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chain</span>;
-        <span class="kw">let</span> <span class="ident">track</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">track</span>;
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">skip_field</span>(<span class="ident">key</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">track</span>.<span class="ident">trigger</span>(<span class="ident">chain</span>, <span class="ident">err</span>))
-    }
-}
-
-<span class="kw">struct</span> <span class="ident">CaptureKey</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">delegate</span>: <span class="ident">T</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">CaptureKey</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">delegate</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">CaptureKey</span> { <span class="ident">out</span>, <span class="ident">delegate</span> }
+    <span class="kw">fn </span>skip_field(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>chain = <span class="self">self</span>.chain;
+        <span class="kw">let </span>track = <span class="self">self</span>.track;
+        <span class="self">self</span>.delegate
+            .skip_field(key)
+            .map_err(|err| track.trigger(chain, err))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">CaptureKey</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Serialize</span>,
+<span class="kw">struct </span>CaptureKey&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    out: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Cell&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt;,
+    delegate: T,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; CaptureKey&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">fn </span>new(out: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Cell&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt;, delegate: T) -&gt; <span class="self">Self </span>{
+        CaptureKey { out, delegate }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Serialize <span class="kw">for </span>CaptureKey&lt;<span class="lifetime">&#39;a</span>, T&gt;
+<span class="kw">where
+    </span>T: Serialize,
 {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">ser::Serializer</span>,
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: ser::Serializer,
     {
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize</span>(<span class="ident">CaptureKey::new</span>(<span class="self">self</span>.<span class="ident">out</span>, <span class="ident">serializer</span>))
+        <span class="self">self</span>.delegate
+            .serialize(CaptureKey::new(<span class="self">self</span>.out, serializer))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ser::Serializer</span> <span class="kw">for</span> <span class="ident">CaptureKey</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ser::Serializer</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, S&gt; ser::Serializer <span class="kw">for </span>CaptureKey&lt;<span class="lifetime">&#39;a</span>, S&gt;
+<span class="kw">where
+    </span>S: ser::Serializer,
 {
-    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">S::Ok</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">SerializeSeq</span> <span class="op">=</span> <span class="ident">S::SerializeSeq</span>;
-    <span class="kw">type</span> <span class="ident">SerializeTuple</span> <span class="op">=</span> <span class="ident">S::SerializeTuple</span>;
-    <span class="kw">type</span> <span class="ident">SerializeTupleStruct</span> <span class="op">=</span> <span class="ident">S::SerializeTupleStruct</span>;
-    <span class="kw">type</span> <span class="ident">SerializeTupleVariant</span> <span class="op">=</span> <span class="ident">S::SerializeTupleVariant</span>;
-    <span class="kw">type</span> <span class="ident">SerializeMap</span> <span class="op">=</span> <span class="ident">S::SerializeMap</span>;
-    <span class="kw">type</span> <span class="ident">SerializeStruct</span> <span class="op">=</span> <span class="ident">S::SerializeStruct</span>;
-    <span class="kw">type</span> <span class="ident">SerializeStructVariant</span> <span class="op">=</span> <span class="ident">S::SerializeStructVariant</span>;
+    <span class="kw">type </span><span class="prelude-val">Ok </span>= S::Ok;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>SerializeSeq = S::SerializeSeq;
+    <span class="kw">type </span>SerializeTuple = S::SerializeTuple;
+    <span class="kw">type </span>SerializeTupleStruct = S::SerializeTupleStruct;
+    <span class="kw">type </span>SerializeTupleVariant = S::SerializeTupleVariant;
+    <span class="kw">type </span>SerializeMap = S::SerializeMap;
+    <span class="kw">type </span>SerializeStruct = S::SerializeStruct;
+    <span class="kw">type </span>SerializeStructVariant = S::SerializeStructVariant;
 
-    <span class="kw">fn</span> <span class="ident">serialize_bool</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_bool</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_bool(<span class="self">self</span>, v: bool) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+        <span class="self">self</span>.delegate.serialize_bool(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i8</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_i8</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_i8(<span class="self">self</span>, v: i8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+        <span class="self">self</span>.delegate.serialize_i8(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i16</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_i16</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_i16(<span class="self">self</span>, v: i16) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+        <span class="self">self</span>.delegate.serialize_i16(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i32</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_i32</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_i32(<span class="self">self</span>, v: i32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+        <span class="self">self</span>.delegate.serialize_i32(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_i64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_i64</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_i64(<span class="self">self</span>, v: i64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+        <span class="self">self</span>.delegate.serialize_i64(v)
     }
 
-    <span class="macro">serde_if_integer128!</span> {
-        <span class="kw">fn</span> <span class="ident">serialize_i128</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i128</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-            <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_i128</span>(<span class="ident">v</span>)
+    <span class="macro">serde_if_integer128! </span>{
+        <span class="kw">fn </span>serialize_i128(<span class="self">self</span>, v: i128) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+            <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+            <span class="self">self</span>.delegate.serialize_i128(v)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u8</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_u8</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_u8(<span class="self">self</span>, v: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+        <span class="self">self</span>.delegate.serialize_u8(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u16</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u16</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_u16</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_u16(<span class="self">self</span>, v: u16) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+        <span class="self">self</span>.delegate.serialize_u16(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u32</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_u32</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_u32(<span class="self">self</span>, v: u32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+        <span class="self">self</span>.delegate.serialize_u32(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_u64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_u64</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_u64(<span class="self">self</span>, v: u64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+        <span class="self">self</span>.delegate.serialize_u64(v)
     }
 
-    <span class="macro">serde_if_integer128!</span> {
-        <span class="kw">fn</span> <span class="ident">serialize_u128</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u128</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>()));
-            <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_u128</span>(<span class="ident">v</span>)
+    <span class="macro">serde_if_integer128! </span>{
+        <span class="kw">fn </span>serialize_u128(<span class="self">self</span>, v: u128) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+            <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_string()));
+            <span class="self">self</span>.delegate.serialize_u128(v)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_f32</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">f32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_f32</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_f32(<span class="self">self</span>, v: f32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_f32(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_f64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">f64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_f64</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_f64(<span class="self">self</span>, v: f64) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_f64(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_char</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">char</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_char</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_char(<span class="self">self</span>, v: char) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_char(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_str</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_owned</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_str</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_str(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(v.to_owned()));
+        <span class="self">self</span>.delegate.serialize_str(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_bytes</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_bytes</span>(<span class="ident">v</span>)
+    <span class="kw">fn </span>serialize_bytes(<span class="self">self</span>, v: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_bytes(v)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_none</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_none</span>()
+    <span class="kw">fn </span>serialize_none(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_none()
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_some</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>serialize_some&lt;T&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_some</span>(<span class="kw-2">&amp;</span><span class="ident">CaptureKey::new</span>(<span class="self">self</span>.<span class="ident">out</span>, <span class="ident">value</span>))
+        <span class="self">self</span>.delegate
+            .serialize_some(<span class="kw-2">&amp;</span>CaptureKey::new(<span class="self">self</span>.out, value))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_unit</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_unit</span>()
+    <span class="kw">fn </span>serialize_unit(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_unit()
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_unit_struct</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_unit_struct</span>(<span class="ident">name</span>)
+    <span class="kw">fn </span>serialize_unit_struct(<span class="self">self</span>, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_unit_struct(name)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_unit_variant</span>(
+    <span class="kw">fn </span>serialize_unit_variant(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">variant</span>.<span class="ident">to_owned</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_unit_variant</span>(<span class="ident">name</span>, <span class="ident">variant_index</span>, <span class="ident">variant</span>)
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        variant_index: u32,
+        variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(variant.to_owned()));
+        <span class="self">self</span>.delegate
+            .serialize_unit_variant(name, variant_index, variant)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_newtype_struct</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>serialize_newtype_struct&lt;T&gt;(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        value: <span class="kw-2">&amp;</span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_newtype_struct</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">CaptureKey::new</span>(<span class="self">self</span>.<span class="ident">out</span>, <span class="ident">value</span>))
+        <span class="self">self</span>.delegate
+            .serialize_newtype_struct(name, <span class="kw-2">&amp;</span>CaptureKey::new(<span class="self">self</span>.out, value))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_newtype_variant</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>serialize_newtype_variant&lt;T&gt;(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        variant_index: u32,
+        variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        value: <span class="kw-2">&amp;</span>T,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Serialize,
     {
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_newtype_variant</span>(<span class="ident">name</span>, <span class="ident">variant_index</span>, <span class="ident">variant</span>, <span class="ident">value</span>)
+        <span class="self">self</span>.delegate
+            .serialize_newtype_variant(name, variant_index, variant, value)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_seq</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeSeq</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_seq</span>(<span class="ident">len</span>)
+    <span class="kw">fn </span>serialize_seq(<span class="self">self</span>, len: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeSeq, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_seq(len)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeTuple</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_tuple</span>(<span class="ident">len</span>)
+    <span class="kw">fn </span>serialize_tuple(<span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTuple, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_tuple(len)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_struct</span>(
+    <span class="kw">fn </span>serialize_tuple_struct(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeTupleStruct</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_tuple_struct</span>(<span class="ident">name</span>, <span class="ident">len</span>)
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleStruct, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_tuple_struct(name, len)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_variant</span>(
+    <span class="kw">fn </span>serialize_tuple_variant(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeTupleVariant</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_tuple_variant</span>(<span class="ident">name</span>, <span class="ident">variant_index</span>, <span class="ident">variant</span>, <span class="ident">len</span>)
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        variant_index: u32,
+        variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeTupleVariant, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate
+            .serialize_tuple_variant(name, variant_index, variant, len)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_map</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeMap</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_map</span>(<span class="ident">len</span>)
+    <span class="kw">fn </span>serialize_map(<span class="self">self</span>, len: <span class="prelude-ty">Option</span>&lt;usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeMap, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_map(len)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_struct</span>(
+    <span class="kw">fn </span>serialize_struct(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeStruct</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">serialize_struct</span>(<span class="ident">name</span>, <span class="ident">len</span>)
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStruct, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate.serialize_struct(name, len)
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_struct_variant</span>(
+    <span class="kw">fn </span>serialize_struct_variant(
         <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">variant_index</span>: <span class="ident">u32</span>,
-        <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::SerializeStructVariant</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>
-            .<span class="ident">serialize_struct_variant</span>(<span class="ident">name</span>, <span class="ident">variant_index</span>, <span class="ident">variant</span>, <span class="ident">len</span>)
+        name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        variant_index: u32,
+        variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::SerializeStructVariant, <span class="self">Self</span>::Error&gt; {
+        <span class="self">self</span>.delegate
+            .serialize_struct_variant(name, variant_index, variant, len)
     }
 
-    <span class="kw">fn</span> <span class="ident">collect_seq</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">iter</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span>,
-        <span class="ident">I::Item</span>: <span class="ident">Serialize</span>,
+    <span class="kw">fn </span>collect_seq&lt;I&gt;(<span class="self">self</span>, iter: I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>I: IntoIterator,
+        I::Item: Serialize,
     {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">collect_seq</span>(<span class="ident">iter</span>)
+        <span class="self">self</span>.delegate.collect_seq(iter)
     }
 
-    <span class="kw">fn</span> <span class="ident">collect_map</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">iter</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">Serialize</span>,
-        <span class="ident">V</span>: <span class="ident">Serialize</span>,
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>,
+    <span class="kw">fn </span>collect_map&lt;K, V, I&gt;(<span class="self">self</span>, iter: I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>K: Serialize,
+        V: Serialize,
+        I: IntoIterator&lt;Item = (K, V)&gt;,
     {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">collect_map</span>(<span class="ident">iter</span>)
+        <span class="self">self</span>.delegate.collect_map(iter)
     }
 
-    <span class="kw">fn</span> <span class="ident">collect_str</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Display</span>,
+    <span class="kw">fn </span>collect_str&lt;T&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>T: <span class="question-mark">?</span>Sized + Display,
     {
-        <span class="self">self</span>.<span class="ident">out</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">to_string</span>()));
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">collect_str</span>(<span class="ident">value</span>)
+        <span class="self">self</span>.out.set(<span class="prelude-val">Some</span>(value.to_string()));
+        <span class="self">self</span>.delegate.collect_str(value)
     }
 
-    <span class="kw">fn</span> <span class="ident">is_human_readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">delegate</span>.<span class="ident">is_human_readable</span>()
+    <span class="kw">fn </span>is_human_readable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.delegate.is_human_readable()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_path_to_error" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_path_to_error" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/derive_more-0.99.17/src/display.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>display.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../derive_more/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/derive_more-0.99.17/src/display.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>display.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../derive_more/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -886,805 +886,805 @@
 <span id="886">886</span>
 <span id="887">887</span>
 <span id="888">888</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt::Display</span>, <span class="ident">str::FromStr</span> <span class="kw">as</span> <span class="kw">_</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{fmt::Display, str::FromStr <span class="kw">as _</span>};
 
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Ident</span>, <span class="ident">Span</span>, <span class="ident">TokenStream</span>};
-<span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">quote</span>, <span class="ident">quote_spanned</span>};
-<span class="kw">use</span> <span class="ident">syn</span>::{
-    <span class="ident">parse::Parser</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">punctuated::Punctuated</span>, <span class="ident">spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Error</span>, <span class="prelude-ty">Result</span>,
+<span class="kw">use </span>proc_macro2::{Ident, Span, TokenStream};
+<span class="kw">use </span>quote::{quote, quote_spanned};
+<span class="kw">use </span>syn::{
+    parse::Parser <span class="kw">as _</span>, punctuated::Punctuated, spanned::Spanned <span class="kw">as _</span>, Error, <span class="prelude-ty">Result</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils</span>;
-<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+<span class="kw">use </span><span class="kw">crate</span>::utils;
+<span class="kw">use </span>utils::{HashMap, HashSet};
 
-<span class="doccomment">/// Provides the hook to expand `#[derive(Display)]` into an implementation of `From`</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">syn::DeriveInput</span>, <span class="ident">trait_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">trait_name</span> <span class="op">=</span> <span class="ident">trait_name</span>.<span class="ident">trim_end_matches</span>(<span class="string">&quot;Custom&quot;</span>);
-    <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="ident">syn::Ident::new</span>(<span class="ident">trait_name</span>, <span class="ident">Span::call_site</span>());
-    <span class="kw">let</span> <span class="ident">trait_path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">quote!</span>(<span class="ident">::core::fmt</span>::#<span class="ident">trait_ident</span>);
-    <span class="kw">let</span> <span class="ident">trait_attr</span> <span class="op">=</span> <span class="ident">trait_name_to_attribute_name</span>(<span class="ident">trait_name</span>);
-    <span class="kw">let</span> <span class="ident">type_params</span> <span class="op">=</span> <span class="ident">input</span>
-        .<span class="ident">generics</span>
-        .<span class="ident">type_params</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">ident</span>.<span class="ident">clone</span>())
-        .<span class="ident">collect</span>();
+<span class="doccomment">/// Provides the hook to expand `#[derive(Display)]` into an implementation of `From`
+</span><span class="kw">pub fn </span>expand(input: <span class="kw-2">&amp;</span>syn::DeriveInput, trait_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream&gt; {
+    <span class="kw">let </span>trait_name = trait_name.trim_end_matches(<span class="string">&quot;Custom&quot;</span>);
+    <span class="kw">let </span>trait_ident = syn::Ident::new(trait_name, Span::call_site());
+    <span class="kw">let </span>trait_path = <span class="kw-2">&amp;</span><span class="macro">quote!</span>(::core::fmt::#trait_ident);
+    <span class="kw">let </span>trait_attr = trait_name_to_attribute_name(trait_name);
+    <span class="kw">let </span>type_params = input
+        .generics
+        .type_params()
+        .map(|t| t.ident.clone())
+        .collect();
 
-    <span class="kw">let</span> <span class="ident">ParseResult</span> {
-        <span class="ident">arms</span>,
-        <span class="ident">bounds</span>,
-        <span class="ident">requires_helper</span>,
-    } <span class="op">=</span> <span class="ident">State</span> {
-        <span class="ident">trait_path</span>,
-        <span class="ident">trait_attr</span>,
-        <span class="ident">input</span>,
-        <span class="ident">type_params</span>,
+    <span class="kw">let </span>ParseResult {
+        arms,
+        bounds,
+        requires_helper,
+    } = State {
+        trait_path,
+        trait_attr,
+        input,
+        type_params,
     }
-    .<span class="ident">get_match_arms_and_extra_bounds</span>()<span class="question-mark">?</span>;
+    .get_match_arms_and_extra_bounds()<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">bounds</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">let</span> <span class="ident">bounds</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">bounds</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">ty</span>, <span class="ident">trait_names</span>)<span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">bounds</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">trait_names</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">bound</span><span class="op">|</span> <span class="macro">quote!</span>(#<span class="ident">bound</span>))
-                    .<span class="ident">collect</span>();
-                <span class="macro">quote!</span>(#<span class="ident">ty</span>: #(#<span class="ident">bounds</span>)<span class="op">+</span><span class="kw-2">*</span>)
+    <span class="kw">let </span>generics = <span class="kw">if </span>!bounds.is_empty() {
+        <span class="kw">let </span>bounds: Vec&lt;<span class="kw">_</span>&gt; = bounds
+            .into_iter()
+            .map(|(ty, trait_names)| {
+                <span class="kw">let </span>bounds: Vec&lt;<span class="kw">_</span>&gt; = trait_names
+                    .into_iter()
+                    .map(|bound| <span class="macro">quote!</span>(#bound))
+                    .collect();
+                <span class="macro">quote!</span>(#ty: #(#bounds)+<span class="kw-2">*</span>)
             })
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">where_clause</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">input</span>.<span class="ident">span</span>()=&gt; <span class="kw">where</span> #(#<span class="ident">bounds</span>),<span class="kw-2">*</span>);
-        <span class="ident">utils::add_extra_where_clauses</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">generics</span>, <span class="ident">where_clause</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">input</span>.<span class="ident">generics</span>.<span class="ident">clone</span>()
+            .collect();
+        <span class="kw">let </span>where_clause = <span class="macro">quote_spanned!</span>(input.span()=&gt; <span class="kw">where </span>#(#bounds),<span class="kw-2">*</span>);
+        utils::add_extra_where_clauses(<span class="kw-2">&amp;</span>input.generics, where_clause)
+    } <span class="kw">else </span>{
+        input.generics.clone()
     };
-    <span class="kw">let</span> (<span class="ident">impl_generics</span>, <span class="ident">ty_generics</span>, <span class="ident">where_clause</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
-    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
+    <span class="kw">let </span>(impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+    <span class="kw">let </span>name = <span class="kw-2">&amp;</span>input.ident;
 
-    <span class="kw">let</span> <span class="ident">helper_struct</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">requires_helper</span> {
-        <span class="ident">display_as_helper_struct</span>()
-    } <span class="kw">else</span> {
-        <span class="ident">TokenStream::new</span>()
+    <span class="kw">let </span>helper_struct = <span class="kw">if </span>requires_helper {
+        display_as_helper_struct()
+    } <span class="kw">else </span>{
+        TokenStream::new()
     };
 
-    <span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {
-        <span class="kw">impl</span> #<span class="ident">impl_generics</span> #<span class="ident">trait_path</span> <span class="kw">for</span> #<span class="ident">name</span> #<span class="ident">ty_generics</span> #<span class="ident">where_clause</span>
+    <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
+        <span class="kw">impl </span>#impl_generics #trait_path <span class="kw">for </span>#name #ty_generics #where_clause
         {
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_derive_more_display_formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::core::fmt::Formatter</span>) -&gt; <span class="ident">::core::fmt::Result</span> {
-                #<span class="ident">helper_struct</span>
+            <span class="attribute">#[allow(unused_variables)]
+            #[inline]
+            </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, _derive_more_display_formatter: <span class="kw-2">&amp;mut </span>::core::fmt::Formatter) -&gt; ::core::fmt::Result {
+                #helper_struct
 
-                <span class="kw">match</span> <span class="self">self</span> {
-                    #<span class="ident">arms</span>
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(()) <span class="comment">// This is needed for empty enums</span>
-                }
+                <span class="kw">match </span><span class="self">self </span>{
+                    #arms
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(()) <span class="comment">// This is needed for empty enums
+                </span>}
             }
         }
     })
 }
 
-<span class="kw">fn</span> <span class="ident">trait_name_to_attribute_name</span>(<span class="ident">trait_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-    <span class="kw">match</span> <span class="ident">trait_name</span> {
-        <span class="string">&quot;Display&quot;</span> =&gt; <span class="string">&quot;display&quot;</span>,
-        <span class="string">&quot;Binary&quot;</span> =&gt; <span class="string">&quot;binary&quot;</span>,
-        <span class="string">&quot;Octal&quot;</span> =&gt; <span class="string">&quot;octal&quot;</span>,
-        <span class="string">&quot;LowerHex&quot;</span> =&gt; <span class="string">&quot;lower_hex&quot;</span>,
-        <span class="string">&quot;UpperHex&quot;</span> =&gt; <span class="string">&quot;upper_hex&quot;</span>,
-        <span class="string">&quot;LowerExp&quot;</span> =&gt; <span class="string">&quot;lower_exp&quot;</span>,
-        <span class="string">&quot;UpperExp&quot;</span> =&gt; <span class="string">&quot;upper_exp&quot;</span>,
-        <span class="string">&quot;Pointer&quot;</span> =&gt; <span class="string">&quot;pointer&quot;</span>,
-        <span class="string">&quot;Debug&quot;</span> =&gt; <span class="string">&quot;debug&quot;</span>,
-        <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(),
+<span class="kw">fn </span>trait_name_to_attribute_name(trait_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">match </span>trait_name {
+        <span class="string">&quot;Display&quot; </span>=&gt; <span class="string">&quot;display&quot;</span>,
+        <span class="string">&quot;Binary&quot; </span>=&gt; <span class="string">&quot;binary&quot;</span>,
+        <span class="string">&quot;Octal&quot; </span>=&gt; <span class="string">&quot;octal&quot;</span>,
+        <span class="string">&quot;LowerHex&quot; </span>=&gt; <span class="string">&quot;lower_hex&quot;</span>,
+        <span class="string">&quot;UpperHex&quot; </span>=&gt; <span class="string">&quot;upper_hex&quot;</span>,
+        <span class="string">&quot;LowerExp&quot; </span>=&gt; <span class="string">&quot;lower_exp&quot;</span>,
+        <span class="string">&quot;UpperExp&quot; </span>=&gt; <span class="string">&quot;upper_exp&quot;</span>,
+        <span class="string">&quot;Pointer&quot; </span>=&gt; <span class="string">&quot;pointer&quot;</span>,
+        <span class="string">&quot;Debug&quot; </span>=&gt; <span class="string">&quot;debug&quot;</span>,
+        <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">attribute_name_to_trait_name</span>(<span class="ident">attribute_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-    <span class="kw">match</span> <span class="ident">attribute_name</span> {
-        <span class="string">&quot;display&quot;</span> =&gt; <span class="string">&quot;Display&quot;</span>,
-        <span class="string">&quot;binary&quot;</span> =&gt; <span class="string">&quot;Binary&quot;</span>,
-        <span class="string">&quot;octal&quot;</span> =&gt; <span class="string">&quot;Octal&quot;</span>,
-        <span class="string">&quot;lower_hex&quot;</span> =&gt; <span class="string">&quot;LowerHex&quot;</span>,
-        <span class="string">&quot;upper_hex&quot;</span> =&gt; <span class="string">&quot;UpperHex&quot;</span>,
-        <span class="string">&quot;lower_exp&quot;</span> =&gt; <span class="string">&quot;LowerExp&quot;</span>,
-        <span class="string">&quot;upper_exp&quot;</span> =&gt; <span class="string">&quot;UpperExp&quot;</span>,
-        <span class="string">&quot;pointer&quot;</span> =&gt; <span class="string">&quot;Pointer&quot;</span>,
-        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">fn </span>attribute_name_to_trait_name(attribute_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">match </span>attribute_name {
+        <span class="string">&quot;display&quot; </span>=&gt; <span class="string">&quot;Display&quot;</span>,
+        <span class="string">&quot;binary&quot; </span>=&gt; <span class="string">&quot;Binary&quot;</span>,
+        <span class="string">&quot;octal&quot; </span>=&gt; <span class="string">&quot;Octal&quot;</span>,
+        <span class="string">&quot;lower_hex&quot; </span>=&gt; <span class="string">&quot;LowerHex&quot;</span>,
+        <span class="string">&quot;upper_hex&quot; </span>=&gt; <span class="string">&quot;UpperHex&quot;</span>,
+        <span class="string">&quot;lower_exp&quot; </span>=&gt; <span class="string">&quot;LowerExp&quot;</span>,
+        <span class="string">&quot;upper_exp&quot; </span>=&gt; <span class="string">&quot;UpperExp&quot;</span>,
+        <span class="string">&quot;pointer&quot; </span>=&gt; <span class="string">&quot;Pointer&quot;</span>,
+        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">trait_name_to_trait_bound</span>(<span class="ident">trait_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">syn::TraitBound</span> {
-    <span class="kw">let</span> <span class="ident">path_segments_iterator</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;core&quot;</span>, <span class="string">&quot;fmt&quot;</span>, <span class="ident">trait_name</span>]
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">segment</span><span class="op">|</span> <span class="ident">syn::PathSegment::from</span>(<span class="ident">Ident::new</span>(<span class="ident">segment</span>, <span class="ident">Span::call_site</span>())));
+<span class="kw">fn </span>trait_name_to_trait_bound(trait_name: <span class="kw-2">&amp;</span>str) -&gt; syn::TraitBound {
+    <span class="kw">let </span>path_segments_iterator = <span class="macro">vec!</span>[<span class="string">&quot;core&quot;</span>, <span class="string">&quot;fmt&quot;</span>, trait_name]
+        .into_iter()
+        .map(|segment| syn::PathSegment::from(Ident::new(segment, Span::call_site())));
 
-    <span class="ident">syn::TraitBound</span> {
-        <span class="ident">lifetimes</span>: <span class="prelude-val">None</span>,
-        <span class="ident">modifier</span>: <span class="ident">syn::TraitBoundModifier::None</span>,
-        <span class="ident">paren_token</span>: <span class="prelude-val">None</span>,
-        <span class="ident">path</span>: <span class="ident">syn::Path</span> {
-            <span class="ident">leading_colon</span>: <span class="prelude-val">Some</span>(<span class="macro">syn::Token!</span>[::](<span class="ident">Span::call_site</span>())),
-            <span class="ident">segments</span>: <span class="ident">path_segments_iterator</span>.<span class="ident">collect</span>(),
+    syn::TraitBound {
+        lifetimes: <span class="prelude-val">None</span>,
+        modifier: syn::TraitBoundModifier::None,
+        paren_token: <span class="prelude-val">None</span>,
+        path: syn::Path {
+            leading_colon: <span class="prelude-val">Some</span>(<span class="macro">syn::Token!</span>[::](Span::call_site())),
+            segments: path_segments_iterator.collect(),
         },
     }
 }
 
-<span class="doccomment">/// Create a helper struct that is required by some `Display` impls.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The struct is necessary in cases where `Display` is derived for an enum</span>
-<span class="doccomment">/// with an outer `#[display(fmt = &quot;...&quot;)]` attribute and if that outer</span>
-<span class="doccomment">/// format-string contains a single placeholder. In that case, we have to</span>
-<span class="doccomment">/// format twice:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - we need to format each variant according to its own, optional</span>
-<span class="doccomment">///   format-string,</span>
-<span class="doccomment">/// - we then need to insert this formatted variant into the outer</span>
-<span class="doccomment">///   format-string.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This helper struct solves this as follows:</span>
-<span class="doccomment">/// - formatting the whole object inserts the helper struct into the outer</span>
-<span class="doccomment">///   format string,</span>
-<span class="doccomment">/// - upon being formatted, the helper struct calls an inner closure to produce</span>
-<span class="doccomment">///   its formatted result,</span>
-<span class="doccomment">/// - the closure in turn uses the inner, optional format-string to produce its</span>
-<span class="doccomment">///   result. If there is no inner format-string, it falls back to plain</span>
-<span class="doccomment">///   `$trait::fmt()`.</span>
-<span class="kw">fn</span> <span class="ident">display_as_helper_struct</span>() -&gt; <span class="ident">TokenStream</span> {
-    <span class="macro">quote!</span> {
-        <span class="kw">struct</span> <span class="ident">_derive_more_DisplayAs</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">F</span>)
-        <span class="kw">where</span>
-            <span class="ident">F</span>: <span class="ident">::core::ops::Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">::core::fmt::Formatter</span>) -&gt; <span class="ident">::core::fmt::Result</span>;
+<span class="doccomment">/// Create a helper struct that is required by some `Display` impls.
+///
+/// The struct is necessary in cases where `Display` is derived for an enum
+/// with an outer `#[display(fmt = &quot;...&quot;)]` attribute and if that outer
+/// format-string contains a single placeholder. In that case, we have to
+/// format twice:
+///
+/// - we need to format each variant according to its own, optional
+///   format-string,
+/// - we then need to insert this formatted variant into the outer
+///   format-string.
+///
+/// This helper struct solves this as follows:
+/// - formatting the whole object inserts the helper struct into the outer
+///   format string,
+/// - upon being formatted, the helper struct calls an inner closure to produce
+///   its formatted result,
+/// - the closure in turn uses the inner, optional format-string to produce its
+///   result. If there is no inner format-string, it falls back to plain
+///   `$trait::fmt()`.
+</span><span class="kw">fn </span>display_as_helper_struct() -&gt; TokenStream {
+    <span class="macro">quote! </span>{
+        <span class="kw">struct </span>_derive_more_DisplayAs&lt;F&gt;(F)
+        <span class="kw">where
+            </span>F: ::core::ops::Fn(<span class="kw-2">&amp;mut </span>::core::fmt::Formatter) -&gt; ::core::fmt::Result;
 
-        <span class="kw">const</span> <span class="ident">_derive_more_DisplayAs_impl</span>: () <span class="op">=</span> {
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">::core::fmt::Display</span> <span class="kw">for</span> <span class="ident">_derive_more_DisplayAs</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">F</span>: <span class="ident">::core::ops::Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">::core::fmt::Formatter</span>) -&gt; <span class="ident">::core::fmt::Result</span>
+        <span class="kw">const </span>_derive_more_DisplayAs_impl: () = {
+            <span class="kw">impl</span>&lt;F&gt; ::core::fmt::Display <span class="kw">for </span>_derive_more_DisplayAs&lt;F&gt;
+            <span class="kw">where
+                </span>F: ::core::ops::Fn(<span class="kw-2">&amp;mut </span>::core::fmt::Formatter) -&gt; ::core::fmt::Result
             {
-                <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::core::fmt::Formatter</span>) -&gt; <span class="ident">::core::fmt::Result</span> {
-                    (<span class="self">self</span>.<span class="number">0</span>)(<span class="ident">f</span>)
+                <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>::core::fmt::Formatter) -&gt; ::core::fmt::Result {
+                    (<span class="self">self</span>.<span class="number">0</span>)(f)
                 }
             }
         };
     }
 }
 
-<span class="doccomment">/// Result type of `State::get_match_arms_and_extra_bounds()`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ParseResult</span> {
-    <span class="doccomment">/// The match arms destructuring `self`.</span>
-    <span class="ident">arms</span>: <span class="ident">TokenStream</span>,
-    <span class="doccomment">/// Any trait bounds that may be required.</span>
-    <span class="ident">bounds</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">syn::Type</span>, <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::TraitBound</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// `true` if the Display impl requires the `DisplayAs` helper struct.</span>
-    <span class="ident">requires_helper</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// Result type of `State::get_match_arms_and_extra_bounds()`.
+</span><span class="attribute">#[derive(Default)]
+</span><span class="kw">struct </span>ParseResult {
+    <span class="doccomment">/// The match arms destructuring `self`.
+    </span>arms: TokenStream,
+    <span class="doccomment">/// Any trait bounds that may be required.
+    </span>bounds: HashMap&lt;syn::Type, HashSet&lt;syn::TraitBound&gt;&gt;,
+    <span class="doccomment">/// `true` if the Display impl requires the `DisplayAs` helper struct.
+    </span>requires_helper: bool,
 }
 
-<span class="kw">struct</span> <span class="ident">State</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> {
-    <span class="ident">trait_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">TokenStream</span>,
-    <span class="ident">trait_attr</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::DeriveInput</span>,
-    <span class="ident">type_params</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>State&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+    trait_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span>TokenStream,
+    trait_attr: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::DeriveInput,
+    type_params: HashSet&lt;Ident&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">get_proper_fmt_syntax</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Display</span> {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; State&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+    <span class="kw">fn </span>get_proper_fmt_syntax(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Display {
         <span class="macro">format!</span>(
             <span class="string">r#&quot;Proper syntax: #[{}(fmt = &quot;My format&quot;, &quot;arg1&quot;, &quot;arg2&quot;)]&quot;#</span>,
-            <span class="self">self</span>.<span class="ident">trait_attr</span>
+            <span class="self">self</span>.trait_attr
         )
     }
-    <span class="kw">fn</span> <span class="ident">get_proper_bound_syntax</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Display</span> {
+    <span class="kw">fn </span>get_proper_bound_syntax(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Display {
         <span class="macro">format!</span>(
             <span class="string">&quot;Proper syntax: #[{}(bound = \&quot;T, U: Trait1 + Trait2, V: Trait3\&quot;)]&quot;</span>,
-            <span class="self">self</span>.<span class="ident">trait_attr</span>
+            <span class="self">self</span>.trait_attr
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">get_matcher</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Fields</span>) -&gt; <span class="ident">TokenStream</span> {
-        <span class="kw">match</span> <span class="ident">fields</span> {
-            <span class="ident">syn::Fields::Unit</span> =&gt; <span class="ident">TokenStream::new</span>(),
-            <span class="ident">syn::Fields::Unnamed</span>(<span class="ident">fields</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">fields</span>: <span class="ident">TokenStream</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">fields</span>.<span class="ident">unnamed</span>.<span class="ident">len</span>())
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;_{}&quot;</span>, <span class="ident">n</span>), <span class="ident">Span::call_site</span>());
-                        <span class="macro">quote!</span>(#<span class="ident">i</span>,)
+    <span class="kw">fn </span>get_matcher(<span class="kw-2">&amp;</span><span class="self">self</span>, fields: <span class="kw-2">&amp;</span>syn::Fields) -&gt; TokenStream {
+        <span class="kw">match </span>fields {
+            syn::Fields::Unit =&gt; TokenStream::new(),
+            syn::Fields::Unnamed(fields) =&gt; {
+                <span class="kw">let </span>fields: TokenStream = (<span class="number">0</span>..fields.unnamed.len())
+                    .map(|n| {
+                        <span class="kw">let </span>i = Ident::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;_{}&quot;</span>, n), Span::call_site());
+                        <span class="macro">quote!</span>(#i,)
                     })
-                    .<span class="ident">collect</span>();
-                <span class="macro">quote!</span>((#<span class="ident">fields</span>))
+                    .collect();
+                <span class="macro">quote!</span>((#fields))
             }
-            <span class="ident">syn::Fields::Named</span>(<span class="ident">fields</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">fields</span>: <span class="ident">TokenStream</span> <span class="op">=</span> <span class="ident">fields</span>
-                    .<span class="ident">named</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
-                        <span class="macro">quote!</span>(#<span class="ident">i</span>,)
+            syn::Fields::Named(fields) =&gt; {
+                <span class="kw">let </span>fields: TokenStream = fields
+                    .named
+                    .iter()
+                    .map(|f| {
+                        <span class="kw">let </span>i = f.ident.as_ref().unwrap();
+                        <span class="macro">quote!</span>(#i,)
                     })
-                    .<span class="ident">collect</span>();
-                <span class="macro">quote!</span>({#<span class="ident">fields</span>})
+                    .collect();
+                <span class="macro">quote!</span>({#fields})
             }
         }
     }
-    <span class="kw">fn</span> <span class="ident">find_meta</span>(
+    <span class="kw">fn </span>find_meta(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">attrs</span>: <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>],
-        <span class="ident">meta_key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::Meta</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">metas</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">meta</span> <span class="kw">in</span> <span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">parse_meta</span>().<span class="ident">ok</span>()) {
-            <span class="kw">let</span> <span class="ident">meta_list</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">meta</span> {
-                <span class="ident">syn::Meta::List</span>(<span class="ident">meta</span>) =&gt; <span class="ident">meta</span>,
-                <span class="kw">_</span> =&gt; <span class="kw">continue</span>,
+        attrs: <span class="kw-2">&amp;</span>[syn::Attribute],
+        meta_key: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;syn::Meta&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>metas = Vec::new();
+        <span class="kw">for </span>meta <span class="kw">in </span>attrs.iter().filter_map(|attr| attr.parse_meta().ok()) {
+            <span class="kw">let </span>meta_list = <span class="kw">match </span><span class="kw-2">&amp;</span>meta {
+                syn::Meta::List(meta) =&gt; meta,
+                <span class="kw">_ </span>=&gt; <span class="kw">continue</span>,
             };
 
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">meta_list</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="self">self</span>.<span class="ident">trait_attr</span>) {
+            <span class="kw">if </span>!meta_list.path.is_ident(<span class="self">self</span>.trait_attr) {
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">Meta</span>, <span class="ident">NestedMeta</span>};
-            <span class="kw">let</span> <span class="ident">meta_nv</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">meta_list</span>.<span class="ident">nested</span>.<span class="ident">first</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">NestedMeta::Meta</span>(<span class="ident">Meta::NameValue</span>(<span class="ident">meta_nv</span>))) =&gt; <span class="ident">meta_nv</span>,
-                <span class="kw">_</span> =&gt; {
-                    <span class="comment">// If the given attribute is not MetaNameValue, it most likely implies that the</span>
-                    <span class="comment">// user is writing an incorrect format. For example:</span>
-                    <span class="comment">// - `#[display()]`</span>
-                    <span class="comment">// - `#[display(&quot;foo&quot;)]`</span>
-                    <span class="comment">// - `#[display(foo)]`</span>
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                        <span class="ident">meta</span>.<span class="ident">span</span>(),
+            <span class="kw">use </span>syn::{Meta, NestedMeta};
+            <span class="kw">let </span>meta_nv = <span class="kw">match </span>meta_list.nested.first() {
+                <span class="prelude-val">Some</span>(NestedMeta::Meta(Meta::NameValue(meta_nv))) =&gt; meta_nv,
+                <span class="kw">_ </span>=&gt; {
+                    <span class="comment">// If the given attribute is not MetaNameValue, it most likely implies that the
+                    // user is writing an incorrect format. For example:
+                    // - `#[display()]`
+                    // - `#[display(&quot;foo&quot;)]`
+                    // - `#[display(foo)]`
+                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                        meta.span(),
                         <span class="macro">format!</span>(
                             <span class="string">r#&quot;The format for this attribute cannot be parsed. Correct format: `#[{}({} = &quot;...&quot;)]`&quot;#</span>,
-                            <span class="self">self</span>.<span class="ident">trait_attr</span>, <span class="ident">meta_key</span>
+                            <span class="self">self</span>.trait_attr, meta_key
                         ),
                     ));
                 }
             };
 
-            <span class="kw">if</span> <span class="ident">meta_nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="ident">meta_key</span>) {
-                <span class="ident">metas</span>.<span class="ident">push</span>(<span class="ident">meta</span>);
+            <span class="kw">if </span>meta_nv.path.is_ident(meta_key) {
+                metas.push(meta);
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">metas</span>.<span class="ident">into_iter</span>();
-        <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_none</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">meta</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">meta</span>.<span class="ident">span</span>(), <span class="string">&quot;Too many attributes specified&quot;</span>))
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = metas.into_iter();
+        <span class="kw">let </span>meta = iter.next();
+        <span class="kw">if </span>iter.next().is_none() {
+            <span class="prelude-val">Ok</span>(meta)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::new(meta.span(), <span class="string">&quot;Too many attributes specified&quot;</span>))
         }
     }
-    <span class="kw">fn</span> <span class="ident">parse_meta_bounds</span>(
+    <span class="kw">fn </span>parse_meta_bounds(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">syn::LitStr</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">syn::Type</span>, <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::TraitBound</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">span</span>();
+        bounds: <span class="kw-2">&amp;</span>syn::LitStr,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;HashMap&lt;syn::Type, HashSet&lt;syn::TraitBound&gt;&gt;&gt; {
+        <span class="kw">let </span>span = bounds.span();
 
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">value</span>();
-        <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">TokenStream::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="ident">syn::GenericParam</span>, <span class="macro">syn::Token!</span>[,]<span class="op">&gt;</span><span class="ident">::parse_terminated</span>;
+        <span class="kw">let </span>input = bounds.value();
+        <span class="kw">let </span>tokens = TokenStream::from_str(<span class="kw-2">&amp;</span>input)<span class="question-mark">?</span>;
+        <span class="kw">let </span>parser = Punctuated::&lt;syn::GenericParam, <span class="macro">syn::Token!</span>[,]&gt;::parse_terminated;
 
-        <span class="kw">let</span> <span class="ident">generic_params</span> <span class="op">=</span> <span class="ident">parser</span>
-            .<span class="ident">parse2</span>(<span class="ident">tokens</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="ident">error</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+        <span class="kw">let </span>generic_params = parser
+            .parse2(tokens)
+            .map_err(|error| Error::new(span, error.to_string()))<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="ident">generic_params</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="string">&quot;No bounds specified&quot;</span>));
+        <span class="kw">if </span>generic_params.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(span, <span class="string">&quot;No bounds specified&quot;</span>));
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">HashMap::default</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>bounds = HashMap::default();
 
-        <span class="kw">for</span> <span class="ident">generic_param</span> <span class="kw">in</span> <span class="ident">generic_params</span> {
-            <span class="kw">let</span> <span class="ident">type_param</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">generic_param</span> {
-                <span class="ident">syn::GenericParam::Type</span>(<span class="ident">type_param</span>) =&gt; <span class="ident">type_param</span>,
-                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="string">&quot;Only trait bounds allowed&quot;</span>)),
+        <span class="kw">for </span>generic_param <span class="kw">in </span>generic_params {
+            <span class="kw">let </span>type_param = <span class="kw">match </span>generic_param {
+                syn::GenericParam::Type(type_param) =&gt; type_param,
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(span, <span class="string">&quot;Only trait bounds allowed&quot;</span>)),
             };
 
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">type_params</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">type_param</span>.<span class="ident">ident</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                    <span class="ident">span</span>,
+            <span class="kw">if </span>!<span class="self">self</span>.type_params.contains(<span class="kw-2">&amp;</span>type_param.ident) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                    span,
                     <span class="string">&quot;Unknown generic type argument specified&quot;</span>,
                 ));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">type_param</span>.<span class="ident">attrs</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="string">&quot;Attributes aren&#39;t allowed&quot;</span>));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">type_param</span>.<span class="ident">eq_token</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">type_param</span>.<span class="ident">default</span>.<span class="ident">is_some</span>() {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="string">&quot;Default type parameters aren&#39;t allowed&quot;</span>));
+            } <span class="kw">else if </span>!type_param.attrs.is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(span, <span class="string">&quot;Attributes aren&#39;t allowed&quot;</span>));
+            } <span class="kw">else if </span>type_param.eq_token.is_some() || type_param.default.is_some() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(span, <span class="string">&quot;Default type parameters aren&#39;t allowed&quot;</span>));
             }
 
-            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">type_param</span>.<span class="ident">ident</span>.<span class="ident">to_string</span>();
+            <span class="kw">let </span>ident = type_param.ident.to_string();
 
-            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">syn::Type::Path</span>(<span class="ident">syn::TypePath</span> {
-                <span class="ident">qself</span>: <span class="prelude-val">None</span>,
-                <span class="ident">path</span>: <span class="ident">type_param</span>.<span class="ident">ident</span>.<span class="ident">into</span>(),
+            <span class="kw">let </span>ty = syn::Type::Path(syn::TypePath {
+                qself: <span class="prelude-val">None</span>,
+                path: type_param.ident.into(),
             });
-            <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">entry</span>(<span class="ident">ty</span>).<span class="ident">or_insert_with</span>(<span class="ident">HashSet::default</span>);
+            <span class="kw">let </span>bounds = bounds.entry(ty).or_insert_with(HashSet::default);
 
-            <span class="kw">for</span> <span class="ident">bound</span> <span class="kw">in</span> <span class="ident">type_param</span>.<span class="ident">bounds</span> {
-                <span class="kw">let</span> <span class="ident">bound</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bound</span> {
-                    <span class="ident">syn::TypeParamBound::Trait</span>(<span class="ident">bound</span>) =&gt; <span class="ident">bound</span>,
-                    <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="string">&quot;Only trait bounds allowed&quot;</span>)),
+            <span class="kw">for </span>bound <span class="kw">in </span>type_param.bounds {
+                <span class="kw">let </span>bound = <span class="kw">match </span>bound {
+                    syn::TypeParamBound::Trait(bound) =&gt; bound,
+                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(span, <span class="string">&quot;Only trait bounds allowed&quot;</span>)),
                 };
 
-                <span class="kw">if</span> <span class="ident">bound</span>.<span class="ident">lifetimes</span>.<span class="ident">is_some</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                        <span class="ident">span</span>,
+                <span class="kw">if </span>bound.lifetimes.is_some() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                        span,
                         <span class="string">&quot;Higher-rank trait bounds aren&#39;t allowed&quot;</span>,
                     ));
                 }
 
-                <span class="ident">bounds</span>.<span class="ident">insert</span>(<span class="ident">bound</span>);
+                bounds.insert(bound);
             }
 
-            <span class="kw">if</span> <span class="ident">bounds</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                    <span class="ident">span</span>,
-                    <span class="macro">format!</span>(<span class="string">&quot;No bounds specified for type parameter {}&quot;</span>, <span class="ident">ident</span>),
+            <span class="kw">if </span>bounds.is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                    span,
+                    <span class="macro">format!</span>(<span class="string">&quot;No bounds specified for type parameter {}&quot;</span>, ident),
                 ));
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">bounds</span>)
+        <span class="prelude-val">Ok</span>(bounds)
     }
-    <span class="kw">fn</span> <span class="ident">parse_meta_fmt</span>(
+    <span class="kw">fn </span>parse_meta_fmt(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">meta</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Meta</span>,
-        <span class="ident">outer_enum</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">TokenStream</span>, <span class="ident">bool</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">meta</span> {
-            <span class="ident">syn::Meta::List</span>(<span class="ident">list</span>) =&gt; <span class="ident">list</span>,
-            <span class="kw">_</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">meta</span>.<span class="ident">span</span>(), <span class="self">self</span>.<span class="ident">get_proper_fmt_syntax</span>()));
+        meta: <span class="kw-2">&amp;</span>syn::Meta,
+        outer_enum: bool,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(TokenStream, bool)&gt; {
+        <span class="kw">let </span>list = <span class="kw">match </span>meta {
+            syn::Meta::List(list) =&gt; list,
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(meta.span(), <span class="self">self</span>.get_proper_fmt_syntax()));
             }
         };
 
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">list</span>.<span class="ident">nested</span>[<span class="number">0</span>] {
-            <span class="ident">syn::NestedMeta::Meta</span>(<span class="ident">syn::Meta::NameValue</span>(<span class="ident">syn::MetaNameValue</span> {
-                <span class="ident">path</span>,
-                <span class="ident">lit</span>: <span class="ident">syn::Lit::Str</span>(<span class="ident">fmt</span>),
+        <span class="kw">match </span><span class="kw-2">&amp;</span>list.nested[<span class="number">0</span>] {
+            syn::NestedMeta::Meta(syn::Meta::NameValue(syn::MetaNameValue {
+                path,
+                lit: syn::Lit::Str(fmt),
                 ..
-            })) =&gt; <span class="kw">match</span> <span class="ident">path</span> {
-                <span class="ident">op</span> <span class="kw">if</span> <span class="ident">op</span>.<span class="ident">segments</span>.<span class="ident">first</span>().<span class="ident">expect</span>(<span class="string">&quot;path shouldn&#39;t be empty&quot;</span>).<span class="ident">ident</span>
-                    <span class="op">==</span> <span class="string">&quot;fmt&quot;</span> =&gt;
+            })) =&gt; <span class="kw">match </span>path {
+                op <span class="kw">if </span>op.segments.first().expect(<span class="string">&quot;path shouldn&#39;t be empty&quot;</span>).ident
+                    == <span class="string">&quot;fmt&quot; </span>=&gt;
                 {
-                    <span class="kw">let</span> <span class="ident">expected_affix_usage</span> <span class="op">=</span> <span class="string">&quot;outer `enum` `fmt` is an affix spec that expects no args and at most 1 placeholder for inner variant display&quot;</span>;
-                    <span class="kw">if</span> <span class="ident">outer_enum</span> {
-                        <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">nested</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>).<span class="ident">count</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                                <span class="ident">list</span>.<span class="ident">nested</span>[<span class="number">1</span>].<span class="ident">span</span>(),
-                                <span class="ident">expected_affix_usage</span>,
+                    <span class="kw">let </span>expected_affix_usage = <span class="string">&quot;outer `enum` `fmt` is an affix spec that expects no args and at most 1 placeholder for inner variant display&quot;</span>;
+                    <span class="kw">if </span>outer_enum {
+                        <span class="kw">if </span>list.nested.iter().skip(<span class="number">1</span>).count() != <span class="number">0 </span>{
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                                list.nested[<span class="number">1</span>].span(),
+                                expected_affix_usage,
                             ));
                         }
-                        <span class="comment">// TODO: Check for a single `Display` group?</span>
-                        <span class="kw">let</span> <span class="ident">fmt_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">list</span>.<span class="ident">nested</span>[<span class="number">0</span>] {
-                            <span class="ident">syn::NestedMeta::Meta</span>(<span class="ident">syn::Meta::NameValue</span>(
-                                <span class="ident">syn::MetaNameValue</span> {
-                                    <span class="ident">path</span>,
-                                    <span class="ident">lit</span>: <span class="ident">syn::Lit::Str</span>(<span class="ident">s</span>),
+                        <span class="comment">// TODO: Check for a single `Display` group?
+                        </span><span class="kw">let </span>fmt_string = <span class="kw">match </span><span class="kw-2">&amp;</span>list.nested[<span class="number">0</span>] {
+                            syn::NestedMeta::Meta(syn::Meta::NameValue(
+                                syn::MetaNameValue {
+                                    path,
+                                    lit: syn::Lit::Str(s),
                                     ..
                                 },
-                            )) <span class="kw">if</span> <span class="ident">path</span>
-                                .<span class="ident">segments</span>
-                                .<span class="ident">first</span>()
-                                .<span class="ident">expect</span>(<span class="string">&quot;path shouldn&#39;t be empty&quot;</span>)
-                                .<span class="ident">ident</span>
-                                <span class="op">==</span> <span class="string">&quot;fmt&quot;</span> =&gt;
+                            )) <span class="kw">if </span>path
+                                .segments
+                                .first()
+                                .expect(<span class="string">&quot;path shouldn&#39;t be empty&quot;</span>)
+                                .ident
+                                == <span class="string">&quot;fmt&quot; </span>=&gt;
                             {
-                                <span class="ident">s</span>.<span class="ident">value</span>()
+                                s.value()
                             }
-                            <span class="comment">// This one has been checked already in get_meta_fmt() method.</span>
-                            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                            <span class="comment">// This one has been checked already in get_meta_fmt() method.
+                            </span><span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                         };
 
-                        <span class="kw">let</span> <span class="ident">num_placeholders</span> <span class="op">=</span>
-                            <span class="ident">Placeholder::parse_fmt_string</span>(<span class="kw-2">&amp;</span><span class="ident">fmt_string</span>).<span class="ident">len</span>();
-                        <span class="kw">if</span> <span class="ident">num_placeholders</span> <span class="op">&gt;</span> <span class="number">1</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                                <span class="ident">list</span>.<span class="ident">nested</span>[<span class="number">1</span>].<span class="ident">span</span>(),
-                                <span class="ident">expected_affix_usage</span>,
+                        <span class="kw">let </span>num_placeholders =
+                            Placeholder::parse_fmt_string(<span class="kw-2">&amp;</span>fmt_string).len();
+                        <span class="kw">if </span>num_placeholders &gt; <span class="number">1 </span>{
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                                list.nested[<span class="number">1</span>].span(),
+                                expected_affix_usage,
                             ));
                         }
-                        <span class="kw">if</span> <span class="ident">num_placeholders</span> <span class="op">==</span> <span class="number">1</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="macro">quote_spanned!</span>(<span class="ident">fmt</span>.<span class="ident">span</span>()=&gt; #<span class="ident">fmt</span>), <span class="bool-val">true</span>));
+                        <span class="kw">if </span>num_placeholders == <span class="number">1 </span>{
+                            <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="macro">quote_spanned!</span>(fmt.span()=&gt; #fmt), <span class="bool-val">true</span>));
                         }
                     }
-                    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">list</span>
-                        .<span class="ident">nested</span>
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">skip</span>(<span class="number">1</span>) <span class="comment">// skip fmt = &quot;...&quot;</span>
-                        .<span class="ident">try_fold</span>(<span class="ident">TokenStream::new</span>(), <span class="op">|</span><span class="ident">args</span>, <span class="ident">arg</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">arg</span> {
-                                <span class="ident">syn::NestedMeta::Lit</span>(<span class="ident">syn::Lit::Str</span>(<span class="ident">s</span>)) =&gt; <span class="ident">s</span>,
-                                <span class="ident">syn::NestedMeta::Meta</span>(<span class="ident">syn::Meta::Path</span>(<span class="ident">i</span>)) =&gt; {
-                                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="macro">quote_spanned!</span>(<span class="ident">list</span>.<span class="ident">span</span>()=&gt; #<span class="ident">args</span> #<span class="ident">i</span>,));
+                    <span class="kw">let </span>args = list
+                        .nested
+                        .iter()
+                        .skip(<span class="number">1</span>) <span class="comment">// skip fmt = &quot;...&quot;
+                        </span>.try_fold(TokenStream::new(), |args, arg| {
+                            <span class="kw">let </span>arg = <span class="kw">match </span>arg {
+                                syn::NestedMeta::Lit(syn::Lit::Str(s)) =&gt; s,
+                                syn::NestedMeta::Meta(syn::Meta::Path(i)) =&gt; {
+                                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">quote_spanned!</span>(list.span()=&gt; #args #i,));
                                 }
-                                <span class="kw">_</span> =&gt; {
-                                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                                        <span class="ident">arg</span>.<span class="ident">span</span>(),
-                                        <span class="self">self</span>.<span class="ident">get_proper_fmt_syntax</span>(),
+                                <span class="kw">_ </span>=&gt; {
+                                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                                        arg.span(),
+                                        <span class="self">self</span>.get_proper_fmt_syntax(),
                                     ))
                                 }
                             };
-                            <span class="kw">let</span> <span class="ident">arg</span>: <span class="ident">TokenStream</span> <span class="op">=</span>
-                                <span class="ident">arg</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">Error::new</span>(<span class="ident">arg</span>.<span class="ident">span</span>(), <span class="ident">e</span>))<span class="question-mark">?</span>;
-                            <span class="prelude-val">Ok</span>(<span class="macro">quote_spanned!</span>(<span class="ident">list</span>.<span class="ident">span</span>()=&gt; #<span class="ident">args</span> #<span class="ident">arg</span>,))
+                            <span class="kw">let </span>arg: TokenStream =
+                                arg.parse().map_err(|e| Error::new(arg.span(), e))<span class="question-mark">?</span>;
+                            <span class="prelude-val">Ok</span>(<span class="macro">quote_spanned!</span>(list.span()=&gt; #args #arg,))
                         })<span class="question-mark">?</span>;
 
                     <span class="prelude-val">Ok</span>((
-                        <span class="macro">quote_spanned!</span>(<span class="ident">meta</span>.<span class="ident">span</span>()=&gt; <span class="macro">write!</span>(<span class="ident">_derive_more_display_formatter</span>, #<span class="ident">fmt</span>, #<span class="ident">args</span>)),
+                        <span class="macro">quote_spanned!</span>(meta.span()=&gt; <span class="macro">write!</span>(_derive_more_display_formatter, #fmt, #args)),
                         <span class="bool-val">false</span>,
                     ))
                 }
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                    <span class="ident">list</span>.<span class="ident">nested</span>[<span class="number">0</span>].<span class="ident">span</span>(),
-                    <span class="self">self</span>.<span class="ident">get_proper_fmt_syntax</span>(),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::new(
+                    list.nested[<span class="number">0</span>].span(),
+                    <span class="self">self</span>.get_proper_fmt_syntax(),
                 )),
             },
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                <span class="ident">list</span>.<span class="ident">nested</span>[<span class="number">0</span>].<span class="ident">span</span>(),
-                <span class="self">self</span>.<span class="ident">get_proper_fmt_syntax</span>(),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::new(
+                list.nested[<span class="number">0</span>].span(),
+                <span class="self">self</span>.get_proper_fmt_syntax(),
             )),
         }
     }
-    <span class="kw">fn</span> <span class="ident">infer_fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Fields</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">fields</span> {
-            <span class="ident">syn::Fields::Unit</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
-                    <span class="ident">_derive_more_display_formatter</span>.<span class="ident">write_str</span>(<span class="macro">stringify!</span>(#<span class="ident">name</span>))
+    <span class="kw">fn </span>infer_fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fields: <span class="kw-2">&amp;</span>syn::Fields, name: <span class="kw-2">&amp;</span>Ident) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream&gt; {
+        <span class="kw">let </span>fields = <span class="kw">match </span>fields {
+            syn::Fields::Unit =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
+                    _derive_more_display_formatter.write_str(<span class="macro">stringify!</span>(#name))
                 ))
             }
-            <span class="ident">syn::Fields::Named</span>(<span class="ident">fields</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">fields</span>.<span class="ident">named</span>,
-            <span class="ident">syn::Fields::Unnamed</span>(<span class="ident">fields</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">fields</span>.<span class="ident">unnamed</span>,
+            syn::Fields::Named(fields) =&gt; <span class="kw-2">&amp;</span>fields.named,
+            syn::Fields::Unnamed(fields) =&gt; <span class="kw-2">&amp;</span>fields.unnamed,
         };
-        <span class="kw">if</span> <span class="ident">fields</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
-                <span class="ident">_derive_more_display_formatter</span>.<span class="ident">write_str</span>(<span class="macro">stringify!</span>(#<span class="ident">name</span>))
+        <span class="kw">if </span>fields.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
+                _derive_more_display_formatter.write_str(<span class="macro">stringify!</span>(#name))
             ));
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">fields</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                <span class="ident">fields</span>.<span class="ident">span</span>(),
+        } <span class="kw">else if </span>fields.len() &gt; <span class="number">1 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(
+                fields.span(),
                 <span class="string">&quot;Cannot automatically infer format for types with more than 1 field&quot;</span>,
             ));
         }
 
-        <span class="kw">let</span> <span class="ident">trait_path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_path</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">fields</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">ident</span> {
-            <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(#<span class="ident">trait_path::fmt</span>(#<span class="ident">ident</span>, <span class="ident">_derive_more_display_formatter</span>)))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(#<span class="ident">trait_path::fmt</span>(<span class="ident">_0</span>, <span class="ident">_derive_more_display_formatter</span>)))
+        <span class="kw">let </span>trait_path = <span class="self">self</span>.trait_path;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(ident) = <span class="kw-2">&amp;</span>fields.iter().next().as_ref().unwrap().ident {
+            <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(#trait_path::fmt(#ident, _derive_more_display_formatter)))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(#trait_path::fmt(_0, _derive_more_display_formatter)))
         }
     }
-    <span class="kw">fn</span> <span class="ident">get_match_arms_and_extra_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParseResult</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">data</span> {
-            <span class="ident">syn::Data::Enum</span>(<span class="ident">e</span>) =&gt; {
-                <span class="kw">match</span> <span class="self">self</span>
-                    .<span class="ident">find_meta</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">attrs</span>, <span class="string">&quot;fmt&quot;</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">parse_meta_fmt</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>, <span class="bool-val">true</span>)).<span class="ident">transpose</span>())<span class="question-mark">?</span>
-                {
-                    <span class="comment">// #[display(fmt = &quot;no placeholder&quot;)] on whole enum.</span>
-                    <span class="prelude-val">Some</span>((<span class="ident">fmt</span>, <span class="bool-val">false</span>)) =&gt; {
-                        <span class="ident">e</span>.<span class="ident">variants</span>.<span class="ident">iter</span>().<span class="ident">try_for_each</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_meta</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">attrs</span>, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">?</span> {
-                                <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(
-                                    <span class="ident">meta</span>.<span class="ident">span</span>(),
+    <span class="kw">fn </span>get_match_arms_and_extra_bounds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ParseResult&gt; {
+        <span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt; = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.input.data {
+            syn::Data::Enum(e) =&gt; {
+                <span class="kw">match </span><span class="self">self
+                    </span>.find_meta(<span class="kw-2">&amp;</span><span class="self">self</span>.input.attrs, <span class="string">&quot;fmt&quot;</span>)
+                    .and_then(|m| m.map(|m| <span class="self">self</span>.parse_meta_fmt(<span class="kw-2">&amp;</span>m, <span class="bool-val">true</span>)).transpose())<span class="question-mark">?
+                </span>{
+                    <span class="comment">// #[display(fmt = &quot;no placeholder&quot;)] on whole enum.
+                    </span><span class="prelude-val">Some</span>((fmt, <span class="bool-val">false</span>)) =&gt; {
+                        e.variants.iter().try_for_each(|v| {
+                            <span class="kw">if let </span><span class="prelude-val">Some</span>(meta) = <span class="self">self</span>.find_meta(<span class="kw-2">&amp;</span>v.attrs, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">? </span>{
+                                <span class="prelude-val">Err</span>(Error::new(
+                                    meta.span(),
                                     <span class="string">&quot;`fmt` cannot be used on variant when the whole enum has a format string without a placeholder, maybe you want to add a placeholder?&quot;</span>,
                                 ))
-                            } <span class="kw">else</span> {
+                            } <span class="kw">else </span>{
                                 <span class="prelude-val">Ok</span>(())
                             }
                         })<span class="question-mark">?</span>;
 
-                        <span class="prelude-val">Ok</span>(<span class="ident">ParseResult</span> {
-                            <span class="ident">arms</span>: <span class="macro">quote_spanned!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">span</span>()=&gt; <span class="kw">_</span> =&gt; #<span class="ident">fmt</span>,),
-                            <span class="ident">bounds</span>: <span class="ident">HashMap::default</span>(),
-                            <span class="ident">requires_helper</span>: <span class="bool-val">false</span>,
+                        <span class="prelude-val">Ok</span>(ParseResult {
+                            arms: <span class="macro">quote_spanned!</span>(<span class="self">self</span>.input.span()=&gt; <span class="kw">_ </span>=&gt; #fmt,),
+                            bounds: HashMap::default(),
+                            requires_helper: <span class="bool-val">false</span>,
                         })
                     }
-                    <span class="comment">// #[display(fmt = &quot;one placeholder: {}&quot;)] on whole enum.</span>
-                    <span class="prelude-val">Some</span>((<span class="ident">outer_fmt</span>, <span class="bool-val">true</span>)) =&gt; {
-                        <span class="kw">let</span> <span class="ident">fmt</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">variants</span>.<span class="ident">iter</span>().<span class="ident">try_fold</span>(<span class="ident">TokenStream::new</span>(), <span class="op">|</span><span class="ident">arms</span>, <span class="ident">v</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">matcher</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_matcher</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">fields</span>);
-                            <span class="kw">let</span> <span class="ident">fmt</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_meta</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">attrs</span>, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">?</span> {
-                                <span class="self">self</span>.<span class="ident">parse_meta_fmt</span>(<span class="kw-2">&amp;</span><span class="ident">meta</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>.<span class="number">0</span>
-                            } <span class="kw">else</span> {
-                                <span class="self">self</span>.<span class="ident">infer_fmt</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">fields</span>, <span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">ident</span>)<span class="question-mark">?</span>
-                            };
-                            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">ident</span>;
-                            <span class="kw">let</span> <span class="ident">v_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">ident</span>;
-                            <span class="prelude-val">Ok</span>(<span class="macro">quote_spanned!</span>(<span class="ident">fmt</span>.<span class="ident">span</span>()=&gt; #<span class="ident">arms</span> #<span class="ident">name</span>::#<span class="ident">v_name</span> #<span class="ident">matcher</span> =&gt; <span class="macro">write!</span>(
-                                <span class="ident">_derive_more_display_formatter</span>,
-                                #<span class="ident">outer_fmt</span>,
-                                <span class="ident">_derive_more_DisplayAs</span>(<span class="op">|</span><span class="ident">_derive_more_display_formatter</span><span class="op">|</span> #<span class="ident">fmt</span>)
+                    <span class="comment">// #[display(fmt = &quot;one placeholder: {}&quot;)] on whole enum.
+                    </span><span class="prelude-val">Some</span>((outer_fmt, <span class="bool-val">true</span>)) =&gt; {
+                        <span class="kw">let </span>fmt: <span class="prelude-ty">Result</span>&lt;TokenStream&gt; = e.variants.iter().try_fold(TokenStream::new(), |arms, v| {
+                            <span class="kw">let </span>matcher = <span class="self">self</span>.get_matcher(<span class="kw-2">&amp;</span>v.fields);
+                            <span class="kw">let </span>fmt = <span class="kw">if let </span><span class="prelude-val">Some</span>(meta) = <span class="self">self</span>.find_meta(<span class="kw-2">&amp;</span>v.attrs, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">? </span>{
+                                <span class="self">self</span>.parse_meta_fmt(<span class="kw-2">&amp;</span>meta, <span class="bool-val">false</span>)<span class="question-mark">?</span>.<span class="number">0
+                            </span>} <span class="kw">else </span>{
+                                <span class="self">self</span>.infer_fmt(<span class="kw-2">&amp;</span>v.fields, <span class="kw-2">&amp;</span>v.ident)<span class="question-mark">?
+                            </span>};
+                            <span class="kw">let </span>name = <span class="kw-2">&amp;</span><span class="self">self</span>.input.ident;
+                            <span class="kw">let </span>v_name = <span class="kw-2">&amp;</span>v.ident;
+                            <span class="prelude-val">Ok</span>(<span class="macro">quote_spanned!</span>(fmt.span()=&gt; #arms #name::#v_name #matcher =&gt; <span class="macro">write!</span>(
+                                _derive_more_display_formatter,
+                                #outer_fmt,
+                                _derive_more_DisplayAs(|_derive_more_display_formatter| #fmt)
                             ),))
                         });
-                        <span class="kw">let</span> <span class="ident">fmt</span> <span class="op">=</span> <span class="ident">fmt</span><span class="question-mark">?</span>;
-                        <span class="prelude-val">Ok</span>(<span class="ident">ParseResult</span> {
-                            <span class="ident">arms</span>: <span class="macro">quote_spanned!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">span</span>()=&gt; #<span class="ident">fmt</span>),
-                            <span class="ident">bounds</span>: <span class="ident">HashMap::default</span>(),
-                            <span class="ident">requires_helper</span>: <span class="bool-val">true</span>,
+                        <span class="kw">let </span>fmt = fmt<span class="question-mark">?</span>;
+                        <span class="prelude-val">Ok</span>(ParseResult {
+                            arms: <span class="macro">quote_spanned!</span>(<span class="self">self</span>.input.span()=&gt; #fmt),
+                            bounds: HashMap::default(),
+                            requires_helper: <span class="bool-val">true</span>,
                         })
                     }
-                    <span class="comment">// No format attribute on whole enum.</span>
-                    <span class="prelude-val">None</span> =&gt; <span class="ident">e</span>.<span class="ident">variants</span>.<span class="ident">iter</span>().<span class="ident">try_fold</span>(<span class="ident">ParseResult::default</span>(), <span class="op">|</span><span class="ident">result</span>, <span class="ident">v</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">ParseResult</span>{ <span class="ident">arms</span>, <span class="kw-2">mut</span> <span class="ident">bounds</span>, <span class="ident">requires_helper</span> } <span class="op">=</span> <span class="ident">result</span>;
-                        <span class="kw">let</span> <span class="ident">matcher</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_matcher</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">fields</span>);
-                        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">ident</span>;
-                        <span class="kw">let</span> <span class="ident">v_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">ident</span>;
-                        <span class="kw">let</span> <span class="ident">fmt</span>: <span class="ident">TokenStream</span>;
-                        <span class="kw">let</span> <span class="ident">these_bounds</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>;
+                    <span class="comment">// No format attribute on whole enum.
+                    </span><span class="prelude-val">None </span>=&gt; e.variants.iter().try_fold(ParseResult::default(), |result, v| {
+                        <span class="kw">let </span>ParseResult{ arms, <span class="kw-2">mut </span>bounds, requires_helper } = result;
+                        <span class="kw">let </span>matcher = <span class="self">self</span>.get_matcher(<span class="kw-2">&amp;</span>v.fields);
+                        <span class="kw">let </span>name = <span class="kw-2">&amp;</span><span class="self">self</span>.input.ident;
+                        <span class="kw">let </span>v_name = <span class="kw-2">&amp;</span>v.ident;
+                        <span class="kw">let </span>fmt: TokenStream;
+                        <span class="kw">let </span>these_bounds: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;;
 
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_meta</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">attrs</span>, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">?</span> {
-                            <span class="ident">fmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_meta_fmt</span>(<span class="kw-2">&amp;</span><span class="ident">meta</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
-                            <span class="ident">these_bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_used_type_params_bounds</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">fields</span>, <span class="kw-2">&amp;</span><span class="ident">meta</span>);
-                        } <span class="kw">else</span> {
-                            <span class="ident">fmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">infer_fmt</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">fields</span>, <span class="ident">v_name</span>)<span class="question-mark">?</span>;
-                            <span class="ident">these_bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">infer_type_params_bounds</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">fields</span>);
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(meta) = <span class="self">self</span>.find_meta(<span class="kw-2">&amp;</span>v.attrs, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">? </span>{
+                            fmt = <span class="self">self</span>.parse_meta_fmt(<span class="kw-2">&amp;</span>meta, <span class="bool-val">false</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
+                            these_bounds = <span class="self">self</span>.get_used_type_params_bounds(<span class="kw-2">&amp;</span>v.fields, <span class="kw-2">&amp;</span>meta);
+                        } <span class="kw">else </span>{
+                            fmt = <span class="self">self</span>.infer_fmt(<span class="kw-2">&amp;</span>v.fields, v_name)<span class="question-mark">?</span>;
+                            these_bounds = <span class="self">self</span>.infer_type_params_bounds(<span class="kw-2">&amp;</span>v.fields);
                         };
-                        <span class="ident">these_bounds</span>.<span class="ident">into_iter</span>().<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">ty</span>, <span class="ident">trait_names</span>)<span class="op">|</span> {
-                            <span class="ident">bounds</span>.<span class="ident">entry</span>(<span class="ident">ty</span>).<span class="ident">or_default</span>().<span class="ident">extend</span>(<span class="ident">trait_names</span>)
+                        these_bounds.into_iter().for_each(|(ty, trait_names)| {
+                            bounds.entry(ty).or_default().extend(trait_names)
                         });
-                        <span class="kw">let</span> <span class="ident">arms</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">span</span>()=&gt; #<span class="ident">arms</span> #<span class="ident">name</span>::#<span class="ident">v_name</span> #<span class="ident">matcher</span> =&gt; #<span class="ident">fmt</span>,);
+                        <span class="kw">let </span>arms = <span class="macro">quote_spanned!</span>(<span class="self">self</span>.input.span()=&gt; #arms #name::#v_name #matcher =&gt; #fmt,);
 
-                        <span class="prelude-val">Ok</span>(<span class="ident">ParseResult</span>{ <span class="ident">arms</span>, <span class="ident">bounds</span>, <span class="ident">requires_helper</span> })
+                        <span class="prelude-val">Ok</span>(ParseResult{ arms, bounds, requires_helper })
                     }),
                 }
             }
-            <span class="ident">syn::Data::Struct</span>(<span class="ident">s</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">matcher</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_matcher</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">fields</span>);
-                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">ident</span>;
-                <span class="kw">let</span> <span class="ident">fmt</span>: <span class="ident">TokenStream</span>;
-                <span class="kw">let</span> <span class="ident">bounds</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>;
+            syn::Data::Struct(s) =&gt; {
+                <span class="kw">let </span>matcher = <span class="self">self</span>.get_matcher(<span class="kw-2">&amp;</span>s.fields);
+                <span class="kw">let </span>name = <span class="kw-2">&amp;</span><span class="self">self</span>.input.ident;
+                <span class="kw">let </span>fmt: TokenStream;
+                <span class="kw">let </span>bounds: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;;
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">meta</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_meta</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">attrs</span>, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">?</span> {
-                    <span class="ident">fmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_meta_fmt</span>(<span class="kw-2">&amp;</span><span class="ident">meta</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
-                    <span class="ident">bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_used_type_params_bounds</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">fields</span>, <span class="kw-2">&amp;</span><span class="ident">meta</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">fmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">infer_fmt</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">fields</span>, <span class="ident">name</span>)<span class="question-mark">?</span>;
-                    <span class="ident">bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">infer_type_params_bounds</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">fields</span>);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(meta) = <span class="self">self</span>.find_meta(<span class="kw-2">&amp;</span><span class="self">self</span>.input.attrs, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">? </span>{
+                    fmt = <span class="self">self</span>.parse_meta_fmt(<span class="kw-2">&amp;</span>meta, <span class="bool-val">false</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
+                    bounds = <span class="self">self</span>.get_used_type_params_bounds(<span class="kw-2">&amp;</span>s.fields, <span class="kw-2">&amp;</span>meta);
+                } <span class="kw">else </span>{
+                    fmt = <span class="self">self</span>.infer_fmt(<span class="kw-2">&amp;</span>s.fields, name)<span class="question-mark">?</span>;
+                    bounds = <span class="self">self</span>.infer_type_params_bounds(<span class="kw-2">&amp;</span>s.fields);
                 }
 
-                <span class="prelude-val">Ok</span>(<span class="ident">ParseResult</span> {
-                    <span class="ident">arms</span>: <span class="macro">quote_spanned!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">span</span>()=&gt; #<span class="ident">name</span> #<span class="ident">matcher</span> =&gt; #<span class="ident">fmt</span>,),
-                    <span class="ident">bounds</span>,
-                    <span class="ident">requires_helper</span>: <span class="bool-val">false</span>,
+                <span class="prelude-val">Ok</span>(ParseResult {
+                    arms: <span class="macro">quote_spanned!</span>(<span class="self">self</span>.input.span()=&gt; #name #matcher =&gt; #fmt,),
+                    bounds,
+                    requires_helper: <span class="bool-val">false</span>,
                 })
             }
-            <span class="ident">syn::Data::Union</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">find_meta</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">attrs</span>, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">?</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                        <span class="ident">Error::new</span>(
-                            <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">span</span>(),
+            syn::Data::Union(<span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>meta =
+                    <span class="self">self</span>.find_meta(<span class="kw-2">&amp;</span><span class="self">self</span>.input.attrs, <span class="string">&quot;fmt&quot;</span>)<span class="question-mark">?</span>.ok_or_else(|| {
+                        Error::new(
+                            <span class="self">self</span>.input.span(),
                             <span class="string">&quot;Cannot automatically infer format for unions&quot;</span>,
                         )
                     })<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">fmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_meta_fmt</span>(<span class="kw-2">&amp;</span><span class="ident">meta</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
+                <span class="kw">let </span>fmt = <span class="self">self</span>.parse_meta_fmt(<span class="kw-2">&amp;</span>meta, <span class="bool-val">false</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
 
-                <span class="prelude-val">Ok</span>(<span class="ident">ParseResult</span> {
-                    <span class="ident">arms</span>: <span class="macro">quote_spanned!</span>(<span class="self">self</span>.<span class="ident">input</span>.<span class="ident">span</span>()=&gt; <span class="kw">_</span> =&gt; #<span class="ident">fmt</span>,),
-                    <span class="ident">bounds</span>: <span class="ident">HashMap::default</span>(),
-                    <span class="ident">requires_helper</span>: <span class="bool-val">false</span>,
+                <span class="prelude-val">Ok</span>(ParseResult {
+                    arms: <span class="macro">quote_spanned!</span>(<span class="self">self</span>.input.span()=&gt; <span class="kw">_ </span>=&gt; #fmt,),
+                    bounds: HashMap::default(),
+                    requires_helper: <span class="bool-val">false</span>,
                 })
             }
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">result</span><span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>result = result<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">find_meta</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>.<span class="ident">attrs</span>, <span class="string">&quot;bound&quot;</span>)<span class="question-mark">?</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">meta</span>) =&gt; <span class="ident">meta</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">result</span>),
+        <span class="kw">let </span>meta = <span class="kw">match </span><span class="self">self</span>.find_meta(<span class="kw-2">&amp;</span><span class="self">self</span>.input.attrs, <span class="string">&quot;bound&quot;</span>)<span class="question-mark">? </span>{
+            <span class="prelude-val">Some</span>(meta) =&gt; meta,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(result),
         };
 
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">meta</span>.<span class="ident">span</span>();
+        <span class="kw">let </span>span = meta.span();
 
-        <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">meta</span> {
-            <span class="ident">syn::Meta::List</span>(<span class="ident">meta</span>) =&gt; <span class="ident">meta</span>.<span class="ident">nested</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="self">self</span>.<span class="ident">get_proper_bound_syntax</span>())),
+        <span class="kw">let </span>meta = <span class="kw">match </span>meta {
+            syn::Meta::List(meta) =&gt; meta.nested,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(span, <span class="self">self</span>.get_proper_bound_syntax())),
         };
 
-        <span class="kw">if</span> <span class="ident">meta</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="self">self</span>.<span class="ident">get_proper_bound_syntax</span>()));
+        <span class="kw">if </span>meta.len() != <span class="number">1 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(span, <span class="self">self</span>.get_proper_bound_syntax()));
         }
 
-        <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">meta</span>[<span class="number">0</span>] {
-            <span class="ident">syn::NestedMeta::Meta</span>(<span class="ident">syn::Meta::NameValue</span>(<span class="ident">meta</span>)) =&gt; <span class="ident">meta</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="self">self</span>.<span class="ident">get_proper_bound_syntax</span>())),
+        <span class="kw">let </span>meta = <span class="kw">match </span><span class="kw-2">&amp;</span>meta[<span class="number">0</span>] {
+            syn::NestedMeta::Meta(syn::Meta::NameValue(meta)) =&gt; meta,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(span, <span class="self">self</span>.get_proper_bound_syntax())),
         };
 
-        <span class="kw">let</span> <span class="ident">extra_bounds</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">meta</span>.<span class="ident">lit</span> {
-            <span class="ident">syn::Lit::Str</span>(<span class="ident">extra_bounds</span>) =&gt; <span class="ident">extra_bounds</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">span</span>, <span class="self">self</span>.<span class="ident">get_proper_bound_syntax</span>())),
+        <span class="kw">let </span>extra_bounds = <span class="kw">match </span><span class="kw-2">&amp;</span>meta.lit {
+            syn::Lit::Str(extra_bounds) =&gt; extra_bounds,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(span, <span class="self">self</span>.get_proper_bound_syntax())),
         };
 
-        <span class="kw">let</span> <span class="ident">extra_bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_meta_bounds</span>(<span class="ident">extra_bounds</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>extra_bounds = <span class="self">self</span>.parse_meta_bounds(extra_bounds)<span class="question-mark">?</span>;
 
-        <span class="ident">extra_bounds</span>.<span class="ident">into_iter</span>().<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">ty</span>, <span class="ident">trait_names</span>)<span class="op">|</span> {
-            <span class="ident">result</span>.<span class="ident">bounds</span>.<span class="ident">entry</span>(<span class="ident">ty</span>).<span class="ident">or_default</span>().<span class="ident">extend</span>(<span class="ident">trait_names</span>)
+        extra_bounds.into_iter().for_each(|(ty, trait_names)| {
+            result.bounds.entry(ty).or_default().extend(trait_names)
         });
 
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+        <span class="prelude-val">Ok</span>(result)
     }
-    <span class="kw">fn</span> <span class="ident">get_used_type_params_bounds</span>(
+    <span class="kw">fn </span>get_used_type_params_bounds(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Fields</span>,
-        <span class="ident">meta</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Meta</span>,
-    ) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">syn::Type</span>, <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::TraitBound</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">type_params</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="ident">HashMap::default</span>();
+        fields: <span class="kw-2">&amp;</span>syn::Fields,
+        meta: <span class="kw-2">&amp;</span>syn::Meta,
+    ) -&gt; HashMap&lt;syn::Type, HashSet&lt;syn::TraitBound&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.type_params.is_empty() {
+            <span class="kw">return </span>HashMap::default();
         }
 
-        <span class="kw">let</span> <span class="ident">fields_type_params</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">syn::Path</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">fields</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">field</span>)<span class="op">|</span> {
-                <span class="ident">utils::get_if_type_parameter_used_in_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_params</span>, <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ty</span><span class="op">|</span> {
+        <span class="kw">let </span>fields_type_params: HashMap&lt;syn::Path, <span class="kw">_</span>&gt; = fields
+            .iter()
+            .enumerate()
+            .filter_map(|(i, field)| {
+                utils::get_if_type_parameter_used_in_type(<span class="kw-2">&amp;</span><span class="self">self</span>.type_params, <span class="kw-2">&amp;</span>field.ty)
+                    .map(|ty| {
                         (
-                            <span class="ident">field</span>
-                                .<span class="ident">ident</span>
-                                .<span class="ident">clone</span>()
-                                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                                    <span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;_{}&quot;</span>, <span class="ident">i</span>), <span class="ident">Span::call_site</span>())
+                            field
+                                .ident
+                                .clone()
+                                .unwrap_or_else(|| {
+                                    Ident::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;_{}&quot;</span>, i), Span::call_site())
                                 })
-                                .<span class="ident">into</span>(),
-                            <span class="ident">ty</span>,
+                                .into(),
+                            ty,
                         )
                     })
             })
-            .<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">fields_type_params</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="ident">HashMap::default</span>();
+            .collect();
+        <span class="kw">if </span>fields_type_params.is_empty() {
+            <span class="kw">return </span>HashMap::default();
         }
 
-        <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">meta</span> {
-            <span class="ident">syn::Meta::List</span>(<span class="ident">list</span>) =&gt; <span class="ident">list</span>,
-            <span class="comment">// This one has been checked already in get_meta_fmt() method.</span>
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        <span class="kw">let </span>list = <span class="kw">match </span>meta {
+            syn::Meta::List(list) =&gt; list,
+            <span class="comment">// This one has been checked already in get_meta_fmt() method.
+            </span><span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="kw">let</span> <span class="ident">fmt_args</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>
-            .<span class="ident">nested</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">skip</span>(<span class="number">1</span>) <span class="comment">// skip fmt = &quot;...&quot;</span>
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">arg</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">arg</span> {
-                <span class="ident">syn::NestedMeta::Lit</span>(<span class="ident">syn::Lit::Str</span>(<span class="kw-2">ref</span> <span class="ident">s</span>)) =&gt; {
-                    <span class="ident">syn::parse_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">value</span>()).<span class="ident">ok</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> (<span class="ident">i</span>, <span class="ident">id</span>))
+        <span class="kw">let </span>fmt_args: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = list
+            .nested
+            .iter()
+            .skip(<span class="number">1</span>) <span class="comment">// skip fmt = &quot;...&quot;
+            </span>.enumerate()
+            .filter_map(|(i, arg)| <span class="kw">match </span>arg {
+                syn::NestedMeta::Lit(syn::Lit::Str(<span class="kw-2">ref </span>s)) =&gt; {
+                    syn::parse_str(<span class="kw-2">&amp;</span>s.value()).ok().map(|id| (i, id))
                 }
-                <span class="ident">syn::NestedMeta::Meta</span>(<span class="ident">syn::Meta::Path</span>(<span class="kw-2">ref</span> <span class="ident">id</span>)) =&gt; <span class="prelude-val">Some</span>((<span class="ident">i</span>, <span class="ident">id</span>.<span class="ident">clone</span>())),
-                <span class="comment">// This one has been checked already in get_meta_fmt() method.</span>
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                syn::NestedMeta::Meta(syn::Meta::Path(<span class="kw-2">ref </span>id)) =&gt; <span class="prelude-val">Some</span>((i, id.clone())),
+                <span class="comment">// This one has been checked already in get_meta_fmt() method.
+                </span><span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             })
-            .<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">fmt_args</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="ident">HashMap::default</span>();
+            .collect();
+        <span class="kw">if </span>fmt_args.is_empty() {
+            <span class="kw">return </span>HashMap::default();
         }
-        <span class="kw">let</span> <span class="ident">fmt_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">list</span>.<span class="ident">nested</span>[<span class="number">0</span>] {
-            <span class="ident">syn::NestedMeta::Meta</span>(<span class="ident">syn::Meta::NameValue</span>(<span class="ident">syn::MetaNameValue</span> {
-                <span class="ident">path</span>,
-                <span class="ident">lit</span>: <span class="ident">syn::Lit::Str</span>(<span class="ident">s</span>),
+        <span class="kw">let </span>fmt_string = <span class="kw">match </span><span class="kw-2">&amp;</span>list.nested[<span class="number">0</span>] {
+            syn::NestedMeta::Meta(syn::Meta::NameValue(syn::MetaNameValue {
+                path,
+                lit: syn::Lit::Str(s),
                 ..
-            })) <span class="kw">if</span> <span class="ident">path</span>
-                .<span class="ident">segments</span>
-                .<span class="ident">first</span>()
-                .<span class="ident">expect</span>(<span class="string">&quot;path shouldn&#39;t be empty&quot;</span>)
-                .<span class="ident">ident</span>
-                <span class="op">==</span> <span class="string">&quot;fmt&quot;</span> =&gt;
+            })) <span class="kw">if </span>path
+                .segments
+                .first()
+                .expect(<span class="string">&quot;path shouldn&#39;t be empty&quot;</span>)
+                .ident
+                == <span class="string">&quot;fmt&quot; </span>=&gt;
             {
-                <span class="ident">s</span>.<span class="ident">value</span>()
+                s.value()
             }
-            <span class="comment">// This one has been checked already in get_meta_fmt() method.</span>
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="comment">// This one has been checked already in get_meta_fmt() method.
+            </span><span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
 
-        <span class="ident">Placeholder::parse_fmt_string</span>(<span class="kw-2">&amp;</span><span class="ident">fmt_string</span>).<span class="ident">into_iter</span>().<span class="ident">fold</span>(
-            <span class="ident">HashMap::default</span>(),
-            <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">bounds</span>, <span class="ident">pl</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">arg</span>) <span class="op">=</span> <span class="ident">fmt_args</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">position</span>) {
-                    <span class="kw">if</span> <span class="ident">fields_type_params</span>.<span class="ident">contains_key</span>(<span class="ident">arg</span>) {
-                        <span class="ident">bounds</span>
-                            .<span class="ident">entry</span>(<span class="ident">fields_type_params</span>[<span class="ident">arg</span>].<span class="ident">clone</span>())
-                            .<span class="ident">or_insert_with</span>(<span class="ident">HashSet::default</span>)
-                            .<span class="ident">insert</span>(<span class="ident">trait_name_to_trait_bound</span>(<span class="ident">pl</span>.<span class="ident">trait_name</span>));
+        Placeholder::parse_fmt_string(<span class="kw-2">&amp;</span>fmt_string).into_iter().fold(
+            HashMap::default(),
+            |<span class="kw-2">mut </span>bounds, pl| {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(arg) = fmt_args.get(<span class="kw-2">&amp;</span>pl.position) {
+                    <span class="kw">if </span>fields_type_params.contains_key(arg) {
+                        bounds
+                            .entry(fields_type_params[arg].clone())
+                            .or_insert_with(HashSet::default)
+                            .insert(trait_name_to_trait_bound(pl.trait_name));
                     }
                 }
-                <span class="ident">bounds</span>
+                bounds
             },
         )
     }
-    <span class="kw">fn</span> <span class="ident">infer_type_params_bounds</span>(
+    <span class="kw">fn </span>infer_type_params_bounds(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Fields</span>,
-    ) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">syn::Type</span>, <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::TraitBound</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">type_params</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="ident">HashMap::default</span>();
+        fields: <span class="kw-2">&amp;</span>syn::Fields,
+    ) -&gt; HashMap&lt;syn::Type, HashSet&lt;syn::TraitBound&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.type_params.is_empty() {
+            <span class="kw">return </span>HashMap::default();
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Fields::Unit</span> <span class="op">=</span> <span class="ident">fields</span> {
-            <span class="kw">return</span> <span class="ident">HashMap::default</span>();
+        <span class="kw">if let </span>syn::Fields::Unit = fields {
+            <span class="kw">return </span>HashMap::default();
         }
-        <span class="comment">// infer_fmt() uses only first field.</span>
-        <span class="ident">fields</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">take</span>(<span class="number">1</span>)
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
-                <span class="ident">utils::get_if_type_parameter_used_in_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_params</span>, <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ty</span><span class="op">|</span> {
+        <span class="comment">// infer_fmt() uses only first field.
+        </span>fields
+            .iter()
+            .take(<span class="number">1</span>)
+            .filter_map(|field| {
+                utils::get_if_type_parameter_used_in_type(<span class="kw-2">&amp;</span><span class="self">self</span>.type_params, <span class="kw-2">&amp;</span>field.ty)
+                    .map(|ty| {
                         (
-                            <span class="ident">ty</span>,
-                            [<span class="ident">trait_name_to_trait_bound</span>(<span class="ident">attribute_name_to_trait_name</span>(
-                                <span class="self">self</span>.<span class="ident">trait_attr</span>,
+                            ty,
+                            [trait_name_to_trait_bound(attribute_name_to_trait_name(
+                                <span class="self">self</span>.trait_attr,
                             ))]
-                            .<span class="ident">iter</span>()
-                            .<span class="ident">cloned</span>()
-                            .<span class="ident">collect</span>(),
+                            .iter()
+                            .cloned()
+                            .collect(),
                         )
                     })
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 }
 
-<span class="doccomment">/// Representation of formatting placeholder.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Placeholder</span> {
-    <span class="doccomment">/// Position of formatting argument to be used for this placeholder.</span>
-    <span class="ident">position</span>: <span class="ident">usize</span>,
-    <span class="doccomment">/// Name of [`std::fmt`] trait to be used for rendering this placeholder.</span>
-    <span class="ident">trait_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+<span class="doccomment">/// Representation of formatting placeholder.
+</span><span class="attribute">#[derive(Debug, PartialEq)]
+</span><span class="kw">struct </span>Placeholder {
+    <span class="doccomment">/// Position of formatting argument to be used for this placeholder.
+    </span>position: usize,
+    <span class="doccomment">/// Name of [`std::fmt`] trait to be used for rendering this placeholder.
+    </span>trait_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
 }
 
-<span class="kw">impl</span> <span class="ident">Placeholder</span> {
-    <span class="doccomment">/// Parses [`Placeholder`]s from a given formatting string.</span>
-    <span class="kw">fn</span> <span class="ident">parse_fmt_string</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Placeholder</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident"><span class="kw">crate</span>::parsing::all_placeholders</span>(<span class="ident">s</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flatten</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">maybe_arg</span>, <span class="ident">maybe_typ</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::parsing::format</span>(<span class="ident">m</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">position</span> <span class="op">=</span> <span class="ident">maybe_arg</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="comment">// Assign &quot;the next argument&quot;.</span>
-                    <span class="comment">// https://doc.rust-lang.org/stable/std/fmt/index.html#positional-parameters</span>
-                    <span class="ident">n</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    <span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>
-                });
-                <span class="kw">let</span> <span class="ident">typ</span> <span class="op">=</span> <span class="ident">maybe_typ</span>.<span class="ident">unwrap_or_default</span>();
-                <span class="kw">let</span> <span class="ident">trait_name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">typ</span> {
-                    <span class="string">&quot;&quot;</span> =&gt; <span class="string">&quot;Display&quot;</span>,
-                    <span class="string">&quot;?&quot;</span> <span class="op">|</span> <span class="string">&quot;x?&quot;</span> <span class="op">|</span> <span class="string">&quot;X?&quot;</span> =&gt; <span class="string">&quot;Debug&quot;</span>,
-                    <span class="string">&quot;o&quot;</span> =&gt; <span class="string">&quot;Octal&quot;</span>,
-                    <span class="string">&quot;x&quot;</span> =&gt; <span class="string">&quot;LowerHex&quot;</span>,
-                    <span class="string">&quot;X&quot;</span> =&gt; <span class="string">&quot;UpperHex&quot;</span>,
-                    <span class="string">&quot;p&quot;</span> =&gt; <span class="string">&quot;Pointer&quot;</span>,
-                    <span class="string">&quot;b&quot;</span> =&gt; <span class="string">&quot;Binary&quot;</span>,
-                    <span class="string">&quot;e&quot;</span> =&gt; <span class="string">&quot;LowerExp&quot;</span>,
-                    <span class="string">&quot;E&quot;</span> =&gt; <span class="string">&quot;UpperExp&quot;</span>,
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">impl </span>Placeholder {
+    <span class="doccomment">/// Parses [`Placeholder`]s from a given formatting string.
+    </span><span class="kw">fn </span>parse_fmt_string(s: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;Placeholder&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
+        <span class="kw">crate</span>::parsing::all_placeholders(s)
+            .into_iter()
+            .flatten()
+            .map(|m| {
+                <span class="kw">let </span>(maybe_arg, maybe_typ) = <span class="kw">crate</span>::parsing::format(m).unwrap();
+                <span class="kw">let </span>position = maybe_arg.unwrap_or_else(|| {
+                    <span class="comment">// Assign &quot;the next argument&quot;.
+                    // https://doc.rust-lang.org/stable/std/fmt/index.html#positional-parameters
+                    </span>n += <span class="number">1</span>;
+                    n - <span class="number">1
+                </span>});
+                <span class="kw">let </span>typ = maybe_typ.unwrap_or_default();
+                <span class="kw">let </span>trait_name = <span class="kw">match </span>typ {
+                    <span class="string">&quot;&quot; </span>=&gt; <span class="string">&quot;Display&quot;</span>,
+                    <span class="string">&quot;?&quot; </span>| <span class="string">&quot;x?&quot; </span>| <span class="string">&quot;X?&quot; </span>=&gt; <span class="string">&quot;Debug&quot;</span>,
+                    <span class="string">&quot;o&quot; </span>=&gt; <span class="string">&quot;Octal&quot;</span>,
+                    <span class="string">&quot;x&quot; </span>=&gt; <span class="string">&quot;LowerHex&quot;</span>,
+                    <span class="string">&quot;X&quot; </span>=&gt; <span class="string">&quot;UpperHex&quot;</span>,
+                    <span class="string">&quot;p&quot; </span>=&gt; <span class="string">&quot;Pointer&quot;</span>,
+                    <span class="string">&quot;b&quot; </span>=&gt; <span class="string">&quot;Binary&quot;</span>,
+                    <span class="string">&quot;e&quot; </span>=&gt; <span class="string">&quot;LowerExp&quot;</span>,
+                    <span class="string">&quot;E&quot; </span>=&gt; <span class="string">&quot;UpperExp&quot;</span>,
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 };
-                <span class="ident">Placeholder</span> {
-                    <span class="ident">position</span>,
-                    <span class="ident">trait_name</span>,
+                Placeholder {
+                    position,
+                    trait_name,
                 }
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">regex_maybe_placeholder_spec</span> {
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>regex_maybe_placeholder_spec {
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parses_placeholders_and_omits_escaped</span>() {
-        <span class="kw">let</span> <span class="ident">fmt_string</span> <span class="op">=</span> <span class="string">&quot;{}, {:?}, {{}}, {{{1:0$}}}&quot;</span>;
-        <span class="kw">let</span> <span class="ident">placeholders</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::parsing::all_placeholders</span>(<span class="kw-2">&amp;</span><span class="ident">fmt_string</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flatten</span>()
-            .<span class="ident">collect</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">placeholders</span>, <span class="macro">vec!</span>[<span class="string">&quot;{}&quot;</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="string">&quot;{1:0$}&quot;</span>]);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parses_placeholders_and_omits_escaped() {
+        <span class="kw">let </span>fmt_string = <span class="string">&quot;{}, {:?}, {{}}, {{{1:0$}}}&quot;</span>;
+        <span class="kw">let </span>placeholders: Vec&lt;<span class="kw">_</span>&gt; = <span class="kw">crate</span>::parsing::all_placeholders(<span class="kw-2">&amp;</span>fmt_string)
+            .into_iter()
+            .flatten()
+            .collect();
+        <span class="macro">assert_eq!</span>(placeholders, <span class="macro">vec!</span>[<span class="string">&quot;{}&quot;</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="string">&quot;{1:0$}&quot;</span>]);
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">regex_placeholder_format_spec</span> {
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>regex_placeholder_format_spec {
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">detects_type</span>() {
-        <span class="kw">for</span> (<span class="ident">p</span>, <span class="ident">expected</span>) <span class="kw">in</span> <span class="macro">vec!</span>[
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>detects_type() {
+        <span class="kw">for </span>(p, expected) <span class="kw">in </span><span class="macro">vec!</span>[
             (<span class="string">&quot;{}&quot;</span>, <span class="string">&quot;&quot;</span>),
             (<span class="string">&quot;{:?}&quot;</span>, <span class="string">&quot;?&quot;</span>),
             (<span class="string">&quot;{:x?}&quot;</span>, <span class="string">&quot;x?&quot;</span>),
@@ -1704,14 +1704,14 @@
             (<span class="string">&quot;{9:&gt;8.*}&quot;</span>, <span class="string">&quot;&quot;</span>),
             (<span class="string">&quot;{2:.1$x}&quot;</span>, <span class="string">&quot;x&quot;</span>),
         ] {
-            <span class="kw">let</span> <span class="ident">typ</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::parsing::format</span>(<span class="ident">p</span>).<span class="ident">unwrap</span>().<span class="number">1</span>.<span class="ident">unwrap_or_default</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">typ</span>, <span class="ident">expected</span>);
+            <span class="kw">let </span>typ = <span class="kw">crate</span>::parsing::format(p).unwrap().<span class="number">1</span>.unwrap_or_default();
+            <span class="macro">assert_eq!</span>(typ, expected);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">detects_arg</span>() {
-        <span class="kw">for</span> (<span class="ident">p</span>, <span class="ident">expected</span>) <span class="kw">in</span> <span class="macro">vec!</span>[
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>detects_arg() {
+        <span class="kw">for </span>(p, expected) <span class="kw">in </span><span class="macro">vec!</span>[
             (<span class="string">&quot;{}&quot;</span>, <span class="string">&quot;&quot;</span>),
             (<span class="string">&quot;{0:?}&quot;</span>, <span class="string">&quot;0&quot;</span>),
             (<span class="string">&quot;{12:x?}&quot;</span>, <span class="string">&quot;12&quot;</span>),
@@ -1726,53 +1726,53 @@
             (<span class="string">&quot;{9:&gt;8.*}&quot;</span>, <span class="string">&quot;9&quot;</span>),
             (<span class="string">&quot;{2:.1$x}&quot;</span>, <span class="string">&quot;2&quot;</span>),
         ] {
-            <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::parsing::format</span>(<span class="ident">p</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="number">0</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">to_string</span>())
-                .<span class="ident">unwrap_or_default</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">arg</span>, <span class="ident">String::from</span>(<span class="ident">expected</span>));
+            <span class="kw">let </span>arg = <span class="kw">crate</span>::parsing::format(p)
+                .unwrap()
+                .<span class="number">0
+                </span>.map(|s| s.to_string())
+                .unwrap_or_default();
+            <span class="macro">assert_eq!</span>(arg, String::from(expected));
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">placeholder_parse_fmt_string_spec</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>placeholder_parse_fmt_string_spec {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">indicates_position_and_trait_name_for_each_fmt_placeholder</span>() {
-        <span class="kw">let</span> <span class="ident">fmt_string</span> <span class="op">=</span> <span class="string">&quot;{},{:?},{{}},{{{1:0$}}}-{2:.1$x}{0:#?}{:width$}&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>indicates_position_and_trait_name_for_each_fmt_placeholder() {
+        <span class="kw">let </span>fmt_string = <span class="string">&quot;{},{:?},{{}},{{{1:0$}}}-{2:.1$x}{0:#?}{:width$}&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Placeholder::parse_fmt_string</span>(<span class="kw-2">&amp;</span><span class="ident">fmt_string</span>),
+            Placeholder::parse_fmt_string(<span class="kw-2">&amp;</span>fmt_string),
             <span class="macro">vec!</span>[
-                <span class="ident">Placeholder</span> {
-                    <span class="ident">position</span>: <span class="number">0</span>,
-                    <span class="ident">trait_name</span>: <span class="string">&quot;Display&quot;</span>,
+                Placeholder {
+                    position: <span class="number">0</span>,
+                    trait_name: <span class="string">&quot;Display&quot;</span>,
                 },
-                <span class="ident">Placeholder</span> {
-                    <span class="ident">position</span>: <span class="number">1</span>,
-                    <span class="ident">trait_name</span>: <span class="string">&quot;Debug&quot;</span>,
+                Placeholder {
+                    position: <span class="number">1</span>,
+                    trait_name: <span class="string">&quot;Debug&quot;</span>,
                 },
-                <span class="ident">Placeholder</span> {
-                    <span class="ident">position</span>: <span class="number">1</span>,
-                    <span class="ident">trait_name</span>: <span class="string">&quot;Display&quot;</span>,
+                Placeholder {
+                    position: <span class="number">1</span>,
+                    trait_name: <span class="string">&quot;Display&quot;</span>,
                 },
-                <span class="ident">Placeholder</span> {
-                    <span class="ident">position</span>: <span class="number">2</span>,
-                    <span class="ident">trait_name</span>: <span class="string">&quot;LowerHex&quot;</span>,
+                Placeholder {
+                    position: <span class="number">2</span>,
+                    trait_name: <span class="string">&quot;LowerHex&quot;</span>,
                 },
-                <span class="ident">Placeholder</span> {
-                    <span class="ident">position</span>: <span class="number">0</span>,
-                    <span class="ident">trait_name</span>: <span class="string">&quot;Debug&quot;</span>,
+                Placeholder {
+                    position: <span class="number">0</span>,
+                    trait_name: <span class="string">&quot;Debug&quot;</span>,
                 },
-                <span class="ident">Placeholder</span> {
-                    <span class="ident">position</span>: <span class="number">2</span>,
-                    <span class="ident">trait_name</span>: <span class="string">&quot;Display&quot;</span>,
+                Placeholder {
+                    position: <span class="number">2</span>,
+                    trait_name: <span class="string">&quot;Display&quot;</span>,
                 },
             ],
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="derive_more" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="derive_more" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/response/customize_responder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>customize_responder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/response/customize_responder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>customize_responder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -241,246 +241,246 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http</span>::{
-    <span class="ident">body::EitherBody</span>, <span class="ident">error::HttpError</span>, <span class="ident">header::HeaderMap</span>, <span class="ident">header::TryIntoHeaderPair</span>,
-    <span class="ident">StatusCode</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>actix_http::{
+    body::EitherBody, error::HttpError, header::HeaderMap, header::TryIntoHeaderPair,
+    StatusCode,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>, <span class="ident">Responder</span>};
+<span class="kw">use crate</span>::{HttpRequest, HttpResponse, Responder};
 
-<span class="doccomment">/// Allows overriding status code and headers for a [`Responder`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Created by calling the [`customize`](Responder::customize) method on a [`Responder`] type.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CustomizeResponder</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">CustomizeResponderInner</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
-    <span class="ident">error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpError</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Allows overriding status code and headers for a [`Responder`].
+///
+/// Created by calling the [`customize`](Responder::customize) method on a [`Responder`] type.
+</span><span class="kw">pub struct </span>CustomizeResponder&lt;R&gt; {
+    inner: CustomizeResponderInner&lt;R&gt;,
+    error: <span class="prelude-ty">Option</span>&lt;HttpError&gt;,
 }
 
-<span class="kw">struct</span> <span class="ident">CustomizeResponderInner</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="ident">responder</span>: <span class="ident">R</span>,
-    <span class="ident">status</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StatusCode</span><span class="op">&gt;</span>,
-    <span class="ident">override_headers</span>: <span class="ident">HeaderMap</span>,
-    <span class="ident">append_headers</span>: <span class="ident">HeaderMap</span>,
+<span class="kw">struct </span>CustomizeResponderInner&lt;R&gt; {
+    responder: R,
+    status: <span class="prelude-ty">Option</span>&lt;StatusCode&gt;,
+    override_headers: HeaderMap,
+    append_headers: HeaderMap,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Responder</span><span class="op">&gt;</span> <span class="ident">CustomizeResponder</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">responder</span>: <span class="ident">R</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">CustomizeResponder</span> {
-            <span class="ident">inner</span>: <span class="ident">CustomizeResponderInner</span> {
-                <span class="ident">responder</span>,
-                <span class="ident">status</span>: <span class="prelude-val">None</span>,
-                <span class="ident">override_headers</span>: <span class="ident">HeaderMap::new</span>(),
-                <span class="ident">append_headers</span>: <span class="ident">HeaderMap::new</span>(),
+<span class="kw">impl</span>&lt;R: Responder&gt; CustomizeResponder&lt;R&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(responder: R) -&gt; <span class="self">Self </span>{
+        CustomizeResponder {
+            inner: CustomizeResponderInner {
+                responder,
+                status: <span class="prelude-val">None</span>,
+                override_headers: HeaderMap::new(),
+                append_headers: HeaderMap::new(),
             },
-            <span class="ident">error</span>: <span class="prelude-val">None</span>,
+            error: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Override a status code for the Responder&#39;s response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::{Responder, http::StatusCode, test::TestRequest};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let responder = &quot;Welcome!&quot;.customize().with_status(StatusCode::ACCEPTED);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let request = TestRequest::default().to_http_request();</span>
-    <span class="doccomment">/// let response = responder.respond_to(&amp;request);</span>
-    <span class="doccomment">/// assert_eq!(response.status(), StatusCode::ACCEPTED);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_status</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>() {
-            <span class="ident">inner</span>.<span class="ident">status</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">status</span>);
+    <span class="doccomment">/// Override a status code for the Responder&#39;s response.
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::{Responder, http::StatusCode, test::TestRequest};
+    ///
+    /// let responder = &quot;Welcome!&quot;.customize().with_status(StatusCode::ACCEPTED);
+    ///
+    /// let request = TestRequest::default().to_http_request();
+    /// let response = responder.respond_to(&amp;request);
+    /// assert_eq!(response.status(), StatusCode::ACCEPTED);
+    /// ```
+    </span><span class="kw">pub fn </span>with_status(<span class="kw-2">mut </span><span class="self">self</span>, status: StatusCode) -&gt; <span class="self">Self </span>{
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = <span class="self">self</span>.inner() {
+            inner.status = <span class="prelude-val">Some</span>(status);
         }
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Insert (override) header in the final response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Overrides other headers with the same name.</span>
-    <span class="doccomment">/// See [`HeaderMap::insert`](crate::http::header::HeaderMap::insert).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Headers added with this method will be inserted before those added</span>
-    <span class="doccomment">/// with [`append_header`](Self::append_header). As such, header(s) can be overridden with more</span>
-    <span class="doccomment">/// than one new header by first calling `insert_header` followed by `append_header`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::{Responder, test::TestRequest};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let responder = &quot;Hello world!&quot;</span>
-    <span class="doccomment">///     .customize()</span>
-    <span class="doccomment">///     .insert_header((&quot;x-version&quot;, &quot;1.2.3&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let request = TestRequest::default().to_http_request();</span>
-    <span class="doccomment">/// let response = responder.respond_to(&amp;request);</span>
-    <span class="doccomment">/// assert_eq!(response.headers().get(&quot;x-version&quot;).unwrap(), &quot;1.2.3&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_header</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="kw">impl</span> <span class="ident">TryIntoHeaderPair</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>() {
-            <span class="kw">match</span> <span class="ident">header</span>.<span class="ident">try_into_pair</span>() {
-                <span class="prelude-val">Ok</span>((<span class="ident">key</span>, <span class="ident">value</span>)) =&gt; {
-                    <span class="ident">inner</span>.<span class="ident">override_headers</span>.<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">value</span>);
+    <span class="doccomment">/// Insert (override) header in the final response.
+    ///
+    /// Overrides other headers with the same name.
+    /// See [`HeaderMap::insert`](crate::http::header::HeaderMap::insert).
+    ///
+    /// Headers added with this method will be inserted before those added
+    /// with [`append_header`](Self::append_header). As such, header(s) can be overridden with more
+    /// than one new header by first calling `insert_header` followed by `append_header`.
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::{Responder, test::TestRequest};
+    ///
+    /// let responder = &quot;Hello world!&quot;
+    ///     .customize()
+    ///     .insert_header((&quot;x-version&quot;, &quot;1.2.3&quot;));
+    ///
+    /// let request = TestRequest::default().to_http_request();
+    /// let response = responder.respond_to(&amp;request);
+    /// assert_eq!(response.headers().get(&quot;x-version&quot;).unwrap(), &quot;1.2.3&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>insert_header(<span class="kw-2">mut </span><span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="self">Self </span>{
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = <span class="self">self</span>.inner() {
+            <span class="kw">match </span>header.try_into_pair() {
+                <span class="prelude-val">Ok</span>((key, value)) =&gt; {
+                    inner.override_headers.insert(key, value);
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="self">self</span>.<span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="self">self</span>.error = <span class="prelude-val">Some</span>(err.into()),
             };
         }
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Append header to the final response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Unlike [`insert_header`](Self::insert_header), this will not override existing headers.</span>
-    <span class="doccomment">/// See [`HeaderMap::append`](crate::http::header::HeaderMap::append).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Headers added here are appended _after_ additions/overrides from `insert_header`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::{Responder, test::TestRequest};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let responder = &quot;Hello world!&quot;</span>
-    <span class="doccomment">///     .customize()</span>
-    <span class="doccomment">///     .append_header((&quot;x-version&quot;, &quot;1.2.3&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let request = TestRequest::default().to_http_request();</span>
-    <span class="doccomment">/// let response = responder.respond_to(&amp;request);</span>
-    <span class="doccomment">/// assert_eq!(response.headers().get(&quot;x-version&quot;).unwrap(), &quot;1.2.3&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_header</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="kw">impl</span> <span class="ident">TryIntoHeaderPair</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>() {
-            <span class="kw">match</span> <span class="ident">header</span>.<span class="ident">try_into_pair</span>() {
-                <span class="prelude-val">Ok</span>((<span class="ident">key</span>, <span class="ident">value</span>)) =&gt; {
-                    <span class="ident">inner</span>.<span class="ident">append_headers</span>.<span class="ident">append</span>(<span class="ident">key</span>, <span class="ident">value</span>);
+    <span class="doccomment">/// Append header to the final response.
+    ///
+    /// Unlike [`insert_header`](Self::insert_header), this will not override existing headers.
+    /// See [`HeaderMap::append`](crate::http::header::HeaderMap::append).
+    ///
+    /// Headers added here are appended _after_ additions/overrides from `insert_header`.
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::{Responder, test::TestRequest};
+    ///
+    /// let responder = &quot;Hello world!&quot;
+    ///     .customize()
+    ///     .append_header((&quot;x-version&quot;, &quot;1.2.3&quot;));
+    ///
+    /// let request = TestRequest::default().to_http_request();
+    /// let response = responder.respond_to(&amp;request);
+    /// assert_eq!(response.headers().get(&quot;x-version&quot;).unwrap(), &quot;1.2.3&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>append_header(<span class="kw-2">mut </span><span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="self">Self </span>{
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(inner) = <span class="self">self</span>.inner() {
+            <span class="kw">match </span>header.try_into_pair() {
+                <span class="prelude-val">Ok</span>((key, value)) =&gt; {
+                    inner.append_headers.append(key, value);
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="self">self</span>.<span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="self">self</span>.error = <span class="prelude-val">Some</span>(err.into()),
             };
         }
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Renamed to `insert_header`.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_header</span>(<span class="self">self</span>, <span class="ident">header</span>: <span class="kw">impl</span> <span class="ident">TryIntoHeaderPair</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="attribute">#[doc(hidden)]
+    #[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `insert_header`.&quot;</span>)]
+    </span><span class="kw">pub fn </span>with_header(<span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
-        <span class="self">self</span>.<span class="ident">insert_header</span>(<span class="ident">header</span>)
+        <span class="self">self</span>.insert_header(header)
     }
 
-    <span class="kw">fn</span> <span class="ident">inner</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">CustomizeResponderInner</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">error</span>.<span class="ident">is_some</span>() {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>)
+    <span class="kw">fn </span>inner(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>CustomizeResponderInner&lt;R&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.error.is_some() {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner)
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="ident">CustomizeResponder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Responder</span>,
+<span class="kw">impl</span>&lt;T&gt; Responder <span class="kw">for </span>CustomizeResponder&lt;T&gt;
+<span class="kw">where
+    </span>T: Responder,
 {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">T::Body</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Body = EitherBody&lt;T::Body&gt;;
 
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">error</span> {
-            <span class="kw">return</span> <span class="ident">HttpResponse::from_error</span>(<span class="ident">err</span>).<span class="ident">map_into_right_body</span>();
+    <span class="kw">fn </span>respond_to(<span class="self">self</span>, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = <span class="self">self</span>.error {
+            <span class="kw">return </span>HttpResponse::from_error(err).map_into_right_body();
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">responder</span>.<span class="ident">respond_to</span>(<span class="ident">req</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>res = <span class="self">self</span>.inner.responder.respond_to(req);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">status</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">status</span> {
-            <span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">status_mut</span>() <span class="op">=</span> <span class="ident">status</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(status) = <span class="self">self</span>.inner.status {
+            <span class="kw-2">*</span>res.status_mut() = status;
         }
 
-        <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">override_headers</span> {
-            <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">k</span>, <span class="ident">v</span>);
+        <span class="kw">for </span>(k, v) <span class="kw">in </span><span class="self">self</span>.inner.override_headers {
+            res.headers_mut().insert(k, v);
         }
 
-        <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">append_headers</span> {
-            <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">append</span>(<span class="ident">k</span>, <span class="ident">v</span>);
+        <span class="kw">for </span>(k, v) <span class="kw">in </span><span class="self">self</span>.inner.append_headers {
+            res.headers_mut().append(k, v);
         }
 
-        <span class="ident">res</span>.<span class="ident">map_into_left_body</span>()
+        res.map_into_left_body()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>bytes::Bytes;
 
-    <span class="kw">use</span> <span class="ident">actix_http::body::to_bytes</span>;
+    <span class="kw">use </span>actix_http::body::to_bytes;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">http</span>::{
-            <span class="ident">header</span>::{<span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>},
-            <span class="ident">StatusCode</span>,
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{
+        http::{
+            header::{HeaderValue, CONTENT_TYPE},
+            StatusCode,
         },
-        <span class="ident">test::TestRequest</span>,
+        test::TestRequest,
     };
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">customize_responder</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>
-            .<span class="ident">to_string</span>()
-            .<span class="ident">customize</span>()
-            .<span class="ident">with_status</span>(<span class="ident">StatusCode::BAD_REQUEST</span>)
-            .<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>customize_responder() {
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
+        <span class="kw">let </span>res = <span class="string">&quot;test&quot;
+            </span>.to_string()
+            .customize()
+            .with_status(StatusCode::BAD_REQUEST)
+            .respond_to(<span class="kw-2">&amp;</span>req);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::BAD_REQUEST);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>
-            .<span class="ident">to_string</span>()
-            .<span class="ident">customize</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;json&quot;</span>))
-            .<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
+        <span class="kw">let </span>res = <span class="string">&quot;test&quot;
+            </span>.to_string()
+            .customize()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;json&quot;</span>))
+            .respond_to(<span class="kw-2">&amp;</span>req);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;json&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;json&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">tuple_responder_with_status_code</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> (<span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>).<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>tuple_responder_with_status_code() {
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
+        <span class="kw">let </span>res = (<span class="string">&quot;test&quot;</span>.to_string(), StatusCode::BAD_REQUEST).respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::BAD_REQUEST);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> (<span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">StatusCode::OK</span>)
-            .<span class="ident">customize</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime::APPLICATION_JSON</span>))
-            .<span class="ident">respond_to</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>req = TestRequest::default().to_http_request();
+        <span class="kw">let </span>res = (<span class="string">&quot;test&quot;</span>.to_string(), StatusCode::OK)
+            .customize()
+            .insert_header((CONTENT_TYPE, mime::APPLICATION_JSON))
+            .respond_to(<span class="kw-2">&amp;</span>req);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/json&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;application/json&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>),
+            to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(),
+            Bytes::from_static(<span class="string">b&quot;test&quot;</span>),
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

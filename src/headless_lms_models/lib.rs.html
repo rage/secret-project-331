@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -258,73 +258,73 @@
 Functions and structs for interacting with the database.
 
 Each submodule corresponds to a database table.
-*/</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">chapters</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_background_question_answers</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_background_questions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_instance_enrollments</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_instances</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_language_groups</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_module_completion_registered_to_study_registries</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_module_completions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">course_modules</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">courses</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">email_deliveries</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">email_templates</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exams</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_repositories</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_service_info</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_services</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_slide_submissions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_slides</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_task_gradings</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_task_regrading_submissions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_task_submissions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_tasks</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercises</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">feedback</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">glossary</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">library</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">material_references</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">open_university_registration_links</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">organizations</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">page_history</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">page_visit_datum</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">page_visit_datum_daily_visit_hashing_keys</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pages</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">peer_review_configs</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">peer_review_question_submissions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">peer_review_questions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">peer_review_queue_entries</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">peer_review_submissions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pending_roles</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">playground_examples</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">proposed_block_edits</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">proposed_page_edits</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">regradings</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">repository_exercises</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">roles</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">study_registry_registrars</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">teacher_grading_decisions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">url_redirections</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">user_course_settings</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">user_exercise_slide_states</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">user_exercise_states</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">user_exercise_task_states</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">users</span>;
+*/
+</span><span class="kw">pub mod </span>chapters;
+<span class="kw">pub mod </span>course_background_question_answers;
+<span class="kw">pub mod </span>course_background_questions;
+<span class="kw">pub mod </span>course_instance_enrollments;
+<span class="kw">pub mod </span>course_instances;
+<span class="kw">pub mod </span>course_language_groups;
+<span class="kw">pub mod </span>course_module_completion_registered_to_study_registries;
+<span class="kw">pub mod </span>course_module_completions;
+<span class="kw">pub mod </span>course_modules;
+<span class="kw">pub mod </span>courses;
+<span class="kw">pub mod </span>email_deliveries;
+<span class="kw">pub mod </span>email_templates;
+<span class="kw">pub mod </span>exams;
+<span class="kw">pub mod </span>exercise_repositories;
+<span class="kw">pub mod </span>exercise_service_info;
+<span class="kw">pub mod </span>exercise_services;
+<span class="kw">pub mod </span>exercise_slide_submissions;
+<span class="kw">pub mod </span>exercise_slides;
+<span class="kw">pub mod </span>exercise_task_gradings;
+<span class="kw">pub mod </span>exercise_task_regrading_submissions;
+<span class="kw">pub mod </span>exercise_task_submissions;
+<span class="kw">pub mod </span>exercise_tasks;
+<span class="kw">pub mod </span>exercises;
+<span class="kw">pub mod </span>feedback;
+<span class="kw">pub mod </span>glossary;
+<span class="kw">pub mod </span>library;
+<span class="kw">pub mod </span>material_references;
+<span class="kw">pub mod </span>open_university_registration_links;
+<span class="kw">pub mod </span>organizations;
+<span class="kw">pub mod </span>page_history;
+<span class="kw">pub mod </span>page_visit_datum;
+<span class="kw">pub mod </span>page_visit_datum_daily_visit_hashing_keys;
+<span class="kw">pub mod </span>pages;
+<span class="kw">pub mod </span>peer_review_configs;
+<span class="kw">pub mod </span>peer_review_question_submissions;
+<span class="kw">pub mod </span>peer_review_questions;
+<span class="kw">pub mod </span>peer_review_queue_entries;
+<span class="kw">pub mod </span>peer_review_submissions;
+<span class="kw">pub mod </span>pending_roles;
+<span class="kw">pub mod </span>playground_examples;
+<span class="kw">pub mod </span>proposed_block_edits;
+<span class="kw">pub mod </span>proposed_page_edits;
+<span class="kw">pub mod </span>regradings;
+<span class="kw">pub mod </span>repository_exercises;
+<span class="kw">pub mod </span>roles;
+<span class="kw">pub mod </span>study_registry_registrars;
+<span class="kw">pub mod </span>teacher_grading_decisions;
+<span class="kw">pub mod </span>url_redirections;
+<span class="kw">pub mod </span>user_course_settings;
+<span class="kw">pub mod </span>user_exercise_slide_states;
+<span class="kw">pub mod </span>user_exercise_states;
+<span class="kw">pub mod </span>user_exercise_task_states;
+<span class="kw">pub mod </span>users;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">test_helper</span>;
+<span class="kw">pub mod </span>error;
+<span class="kw">pub mod </span>prelude;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">pub mod </span>test_helper;
 
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use </span>uuid::Uuid;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::error</span>::{<span class="ident">ModelError</span>, <span class="ident">ModelErrorType</span>, <span class="ident">ModelResult</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">pub use </span><span class="self">self</span>::error::{ModelError, ModelErrorType, ModelResult};
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tracing</span>;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>tracing;
 
 <span class="doccomment">/**
 Helper struct to use with functions that insert data into the database.
@@ -417,98 +417,98 @@ let foobar = FooBar {
 assert!(multiple_inserts(conn, PKeyPolicy::Fixed(foobar)).await.is_ok());
 # }
 ```
-*/</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Ids will be generated based on the associated data. Usually only used in</span>
-    <span class="doccomment">/// local test environments where reproducible database states are desired.</span>
-    <span class="ident">Fixed</span>(<span class="ident">T</span>),
-    <span class="doccomment">/// Ids will be generated on the database level. This should be the default</span>
-    <span class="doccomment">/// behavior.</span>
-    <span class="ident">Generate</span>,
+*/
+</span><span class="kw">pub enum </span>PKeyPolicy&lt;T&gt; {
+    <span class="doccomment">/// Ids will be generated based on the associated data. Usually only used in
+    /// local test environments where reproducible database states are desired.
+    </span>Fixed(T),
+    <span class="doccomment">/// Ids will be generated on the database level. This should be the default
+    /// behavior.
+    </span>Generate,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Gets reference to the fixed data, if there are any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fixed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">t</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">t</span>),
-            <span class="ident">PKeyPolicy::Generate</span> =&gt; <span class="prelude-val">None</span>,
+<span class="kw">impl</span>&lt;T&gt; PKeyPolicy&lt;T&gt; {
+    <span class="doccomment">/// Gets reference to the fixed data, if there are any.
+    </span><span class="kw">pub fn </span>fixed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            PKeyPolicy::Fixed(t) =&gt; <span class="prelude-val">Some</span>(t),
+            PKeyPolicy::Generate =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Maps `PKeyPolicy&lt;T&gt;` to `PKeyPolicy&lt;U&gt;` by applying a function to the contained value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">T</span>) -&gt; <span class="ident">U</span>,
+    <span class="doccomment">/// Maps `PKeyPolicy&lt;T&gt;` to `PKeyPolicy&lt;U&gt;` by applying a function to the contained value.
+    </span><span class="kw">pub fn </span>map&lt;U, F&gt;(<span class="self">self</span>, f: F) -&gt; PKeyPolicy&lt;U&gt;
+    <span class="kw">where
+        </span>F: FnOnce(T) -&gt; U,
     {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">x</span>) =&gt; <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">f</span>(<span class="ident">x</span>)),
-            <span class="ident">PKeyPolicy::Generate</span> =&gt; <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="kw">match </span><span class="self">self </span>{
+            PKeyPolicy::Fixed(x) =&gt; PKeyPolicy::Fixed(f(x)),
+            PKeyPolicy::Generate =&gt; PKeyPolicy::Generate,
         }
     }
 
-    <span class="doccomment">/// Maps a reference of contained data in `Fixed(T)` to `PKeyPolicy&lt;U&gt;` by applying a function</span>
-    <span class="doccomment">/// to the contained value. This is useful whenever a referenced value can be used instead of</span>
-    <span class="doccomment">/// having to consume the original value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_ref</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">U</span>,
+    <span class="doccomment">/// Maps a reference of contained data in `Fixed(T)` to `PKeyPolicy&lt;U&gt;` by applying a function
+    /// to the contained value. This is useful whenever a referenced value can be used instead of
+    /// having to consume the original value.
+    </span><span class="kw">pub fn </span>map_ref&lt;U, F&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, f: F) -&gt; PKeyPolicy&lt;U&gt;
+    <span class="kw">where
+        </span>F: FnOnce(<span class="kw-2">&amp;</span>T) -&gt; U,
     {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">x</span>) =&gt; <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">f</span>(<span class="ident">x</span>)),
-            <span class="ident">PKeyPolicy::Generate</span> =&gt; <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="kw">match </span><span class="self">self </span>{
+            PKeyPolicy::Fixed(x) =&gt; PKeyPolicy::Fixed(f(x)),
+            PKeyPolicy::Generate =&gt; PKeyPolicy::Generate,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Maps into the contained `Uuid` value or generates a new one.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_uuid</span>(<span class="self">self</span>) -&gt; <span class="ident">Uuid</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">uuid</span>) =&gt; <span class="ident">uuid</span>,
-            <span class="ident">PKeyPolicy::Generate</span> =&gt; <span class="ident">Uuid::new_v4</span>(),
+<span class="kw">impl </span>PKeyPolicy&lt;Uuid&gt; {
+    <span class="doccomment">/// Maps into the contained `Uuid` value or generates a new one.
+    </span><span class="kw">pub fn </span>into_uuid(<span class="self">self</span>) -&gt; Uuid {
+        <span class="kw">match </span><span class="self">self </span>{
+            PKeyPolicy::Fixed(uuid) =&gt; uuid,
+            PKeyPolicy::Generate =&gt; Uuid::new_v4(),
         }
     }
 }
 
-<span class="doccomment">/// Many database tables are related to either a course or an exam</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CourseOrExamId</span> {
-    <span class="ident">Course</span>(<span class="ident">Uuid</span>),
-    <span class="ident">Exam</span>(<span class="ident">Uuid</span>),
+<span class="doccomment">/// Many database tables are related to either a course or an exam
+</span><span class="attribute">#[derive(Clone, Copy)]
+</span><span class="kw">pub enum </span>CourseOrExamId {
+    Course(Uuid),
+    Exam(Uuid),
 }
 
-<span class="kw">impl</span> <span class="ident">CourseOrExamId</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">course_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>, <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> (<span class="ident">course_id</span>, <span class="ident">exam_id</span>) {
-            (<span class="prelude-val">Some</span>(<span class="ident">course_id</span>), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Course</span>(<span class="ident">course_id</span>)),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Exam</span>(<span class="ident">exam_id</span>)),
-            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::Generic</span>,
-                <span class="string">&quot;Database row had both a course id and an exam id&quot;</span>.<span class="ident">to_string</span>(),
+<span class="kw">impl </span>CourseOrExamId {
+    <span class="kw">pub fn </span>from(course_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;, exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;) -&gt; ModelResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span>(course_id, exam_id) {
+            (<span class="prelude-val">Some</span>(course_id), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Course(course_id)),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(exam_id)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Exam(exam_id)),
+            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(ModelError::new(
+                ModelErrorType::Generic,
+                <span class="string">&quot;Database row had both a course id and an exam id&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::Generic</span>,
-                <span class="string">&quot;Database row did not have a course id or an exam id&quot;</span>.<span class="ident">to_string</span>(),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(ModelError::new(
+                ModelErrorType::Generic,
+                <span class="string">&quot;Database row did not have a course id or an exam id&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             )),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_course_and_exam_ids</span>(<span class="self">self</span>) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Course</span>(<span class="ident">instance_id</span>) =&gt; (<span class="prelude-val">Some</span>(<span class="ident">instance_id</span>), <span class="prelude-val">None</span>),
-            <span class="ident"><span class="self">Self</span>::Exam</span>(<span class="ident">exam_id</span>) =&gt; (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>)),
+    <span class="kw">pub fn </span>to_course_and_exam_ids(<span class="self">self</span>) -&gt; (<span class="prelude-ty">Option</span>&lt;Uuid&gt;, <span class="prelude-ty">Option</span>&lt;Uuid&gt;) {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Course(instance_id) =&gt; (<span class="prelude-val">Some</span>(instance_id), <span class="prelude-val">None</span>),
+            <span class="self">Self</span>::Exam(exam_id) =&gt; (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(exam_id)),
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exam_id</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">CourseOrExamId::Exam</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">id</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+    <span class="kw">pub fn </span>exam_id(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Uuid&gt; {
+        <span class="kw">if let </span>CourseOrExamId::Exam(id) = <span class="self">self </span>{
+            <span class="prelude-val">Some</span>(id)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

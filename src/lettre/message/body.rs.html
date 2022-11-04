@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -575,324 +575,324 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">mem</span>, <span class="ident">ops::Deref</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{mem, ops::Deref};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message::header::ContentTransferEncoding</span>;
+<span class="kw">use </span><span class="kw">crate</span>::message::header::ContentTransferEncoding;
 
-<span class="doccomment">/// A [`Message`][super::Message] or [`SinglePart`][super::SinglePart] body that has already been encoded.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Body</span> {
-    <span class="ident">buf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>,
+<span class="doccomment">/// A [`Message`][super::Message] or [`SinglePart`][super::SinglePart] body that has already been encoded.
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>Body {
+    buf: Vec&lt;u8&gt;,
+    encoding: ContentTransferEncoding,
 }
 
-<span class="doccomment">/// Either a `Vec&lt;u8&gt;` or a `String`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the content is valid utf-8 a `String` should be passed, as it</span>
-<span class="doccomment">/// makes for a more efficient `Content-Transfer-Encoding` to be chosen.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MaybeString</span> {
-    <span class="doccomment">/// Binary data</span>
-    <span class="ident">Binary</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// UTF-8 string</span>
-    <span class="ident">String</span>(<span class="ident">String</span>),
+<span class="doccomment">/// Either a `Vec&lt;u8&gt;` or a `String`.
+///
+/// If the content is valid utf-8 a `String` should be passed, as it
+/// makes for a more efficient `Content-Transfer-Encoding` to be chosen.
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub enum </span>MaybeString {
+    <span class="doccomment">/// Binary data
+    </span>Binary(Vec&lt;u8&gt;),
+    <span class="doccomment">/// UTF-8 string
+    </span>String(String),
 }
 
-<span class="kw">impl</span> <span class="ident">Body</span> {
-    <span class="doccomment">/// Encode the supplied `buf`, making it ready to be sent as a body.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Takes a `Vec&lt;u8&gt;` or a `String`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Automatically chooses the most efficient encoding between</span>
-    <span class="doccomment">/// `7bit`, `quoted-printable` and `base64`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `String` is passed, line endings are converted to `CRLF`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `buf` is valid utf-8 a `String` should be supplied, as `String`s</span>
-    <span class="doccomment">/// can be encoded as `7bit` or `quoted-printable`, while `Vec&lt;u8&gt;` always</span>
-    <span class="doccomment">/// get encoded as `base64`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">buf</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">MaybeString</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">into</span>();
+<span class="kw">impl </span>Body {
+    <span class="doccomment">/// Encode the supplied `buf`, making it ready to be sent as a body.
+    ///
+    /// Takes a `Vec&lt;u8&gt;` or a `String`.
+    ///
+    /// Automatically chooses the most efficient encoding between
+    /// `7bit`, `quoted-printable` and `base64`.
+    ///
+    /// If `String` is passed, line endings are converted to `CRLF`.
+    ///
+    /// If `buf` is valid utf-8 a `String` should be supplied, as `String`s
+    /// can be encoded as `7bit` or `quoted-printable`, while `Vec&lt;u8&gt;` always
+    /// get encoded as `base64`.
+    </span><span class="kw">pub fn </span>new&lt;B: Into&lt;MaybeString&gt;&gt;(buf: B) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>buf: MaybeString = buf.into();
 
-        <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">encoding</span>(<span class="bool-val">false</span>);
-        <span class="ident">buf</span>.<span class="ident">encode_crlf</span>();
-        <span class="ident"><span class="self">Self</span>::new_impl</span>(<span class="ident">buf</span>.<span class="ident">into</span>(), <span class="ident">encoding</span>)
+        <span class="kw">let </span>encoding = buf.encoding(<span class="bool-val">false</span>);
+        buf.encode_crlf();
+        <span class="self">Self</span>::new_impl(buf.into(), encoding)
     }
 
-    <span class="doccomment">/// Encode the supplied `buf`, using the provided `encoding`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Body::new`] is generally the better option.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `String` is passed, line endings are converted to `CRLF`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an [`Err`] giving back the supplied `buf`, in case the chosen</span>
-    <span class="doccomment">/// encoding would have resulted into `buf` being encoded</span>
-    <span class="doccomment">/// into an invalid body.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_encoding</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">buf</span>: <span class="ident">B</span>,
-        <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">MaybeString</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">into</span>();
+    <span class="doccomment">/// Encode the supplied `buf`, using the provided `encoding`.
+    ///
+    /// [`Body::new`] is generally the better option.
+    ///
+    /// If `String` is passed, line endings are converted to `CRLF`.
+    ///
+    /// Returns an [`Err`] giving back the supplied `buf`, in case the chosen
+    /// encoding would have resulted into `buf` being encoded
+    /// into an invalid body.
+    </span><span class="kw">pub fn </span>new_with_encoding&lt;B: Into&lt;MaybeString&gt;&gt;(
+        buf: B,
+        encoding: ContentTransferEncoding,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf: MaybeString = buf.into();
 
-        <span class="kw">let</span> <span class="ident">best_encoding</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">encoding</span>(<span class="bool-val">true</span>);
-        <span class="kw">let</span> <span class="ident">ok</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">encoding</span>, <span class="ident">best_encoding</span>) {
-            (<span class="ident">ContentTransferEncoding::SevenBit</span>, <span class="ident">ContentTransferEncoding::SevenBit</span>) =&gt; <span class="bool-val">true</span>,
+        <span class="kw">let </span>best_encoding = buf.encoding(<span class="bool-val">true</span>);
+        <span class="kw">let </span>ok = <span class="kw">match </span>(encoding, best_encoding) {
+            (ContentTransferEncoding::SevenBit, ContentTransferEncoding::SevenBit) =&gt; <span class="bool-val">true</span>,
             (
-                <span class="ident">ContentTransferEncoding::EightBit</span>,
-                <span class="ident">ContentTransferEncoding::SevenBit</span> <span class="op">|</span> <span class="ident">ContentTransferEncoding::EightBit</span>,
+                ContentTransferEncoding::EightBit,
+                ContentTransferEncoding::SevenBit | ContentTransferEncoding::EightBit,
             ) =&gt; <span class="bool-val">true</span>,
-            (<span class="ident">ContentTransferEncoding::SevenBit</span> <span class="op">|</span> <span class="ident">ContentTransferEncoding::EightBit</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+            (ContentTransferEncoding::SevenBit | ContentTransferEncoding::EightBit, <span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
             (
-                <span class="ident">ContentTransferEncoding::QuotedPrintable</span>
-                <span class="op">|</span> <span class="ident">ContentTransferEncoding::Base64</span>
-                <span class="op">|</span> <span class="ident">ContentTransferEncoding::Binary</span>,
+                ContentTransferEncoding::QuotedPrintable
+                | ContentTransferEncoding::Base64
+                | ContentTransferEncoding::Binary,
                 <span class="kw">_</span>,
             ) =&gt; <span class="bool-val">true</span>,
         };
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ok</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">buf</span>.<span class="ident">into</span>());
+        <span class="kw">if </span>!ok {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(buf.into());
         }
 
-        <span class="ident">buf</span>.<span class="ident">encode_crlf</span>();
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::new_impl</span>(<span class="ident">buf</span>.<span class="ident">into</span>(), <span class="ident">encoding</span>))
+        buf.encode_crlf();
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new_impl(buf.into(), encoding))
     }
 
-    <span class="doccomment">/// Builds a new `Body` using a pre-encoded buffer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// **Generally not you want.**</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `buf` shouldn&#39;t contain non-ascii characters, lines longer than 1000 characters or nul bytes.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dangerous_pre_encoded</span>(<span class="ident">buf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">buf</span>, <span class="ident">encoding</span> }
+    <span class="doccomment">/// Builds a new `Body` using a pre-encoded buffer.
+    ///
+    /// **Generally not you want.**
+    ///
+    /// `buf` shouldn&#39;t contain non-ascii characters, lines longer than 1000 characters or nul bytes.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>dangerous_pre_encoded(buf: Vec&lt;u8&gt;, encoding: ContentTransferEncoding) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ buf, encoding }
     }
 
-    <span class="doccomment">/// Encodes the supplied `buf` using the provided `encoding`</span>
-    <span class="kw">fn</span> <span class="ident">new_impl</span>(<span class="ident">buf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">encoding</span>: <span class="ident">ContentTransferEncoding</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">encoding</span> {
-            <span class="ident">ContentTransferEncoding::SevenBit</span>
-            <span class="op">|</span> <span class="ident">ContentTransferEncoding::EightBit</span>
-            <span class="op">|</span> <span class="ident">ContentTransferEncoding::Binary</span> =&gt; <span class="self">Self</span> { <span class="ident">buf</span>, <span class="ident">encoding</span> },
-            <span class="ident">ContentTransferEncoding::QuotedPrintable</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">quoted_printable::encode</span>(<span class="ident">buf</span>);
+    <span class="doccomment">/// Encodes the supplied `buf` using the provided `encoding`
+    </span><span class="kw">fn </span>new_impl(buf: Vec&lt;u8&gt;, encoding: ContentTransferEncoding) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>encoding {
+            ContentTransferEncoding::SevenBit
+            | ContentTransferEncoding::EightBit
+            | ContentTransferEncoding::Binary =&gt; <span class="self">Self </span>{ buf, encoding },
+            ContentTransferEncoding::QuotedPrintable =&gt; {
+                <span class="kw">let </span>encoded = quoted_printable::encode(buf);
 
-                <span class="ident"><span class="self">Self</span>::dangerous_pre_encoded</span>(<span class="ident">encoded</span>, <span class="ident">ContentTransferEncoding::QuotedPrintable</span>)
+                <span class="self">Self</span>::dangerous_pre_encoded(encoded, ContentTransferEncoding::QuotedPrintable)
             }
-            <span class="ident">ContentTransferEncoding::Base64</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">email_encoding::body::base64::encoded_len</span>(<span class="ident">buf</span>.<span class="ident">len</span>());
+            ContentTransferEncoding::Base64 =&gt; {
+                <span class="kw">let </span>len = email_encoding::body::base64::encoded_len(buf.len());
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="ident">len</span>);
-                <span class="ident">email_encoding::body::base64::encode</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>)
-                    .<span class="ident">expect</span>(<span class="string">&quot;encode body as base64&quot;</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>out = String::with_capacity(len);
+                email_encoding::body::base64::encode(<span class="kw-2">&amp;</span>buf, <span class="kw-2">&amp;mut </span>out)
+                    .expect(<span class="string">&quot;encode body as base64&quot;</span>);
 
-                <span class="ident"><span class="self">Self</span>::dangerous_pre_encoded</span>(<span class="ident">out</span>.<span class="ident">into_bytes</span>(), <span class="ident">ContentTransferEncoding::Base64</span>)
+                <span class="self">Self</span>::dangerous_pre_encoded(out.into_bytes(), ContentTransferEncoding::Base64)
             }
         }
     }
 
-    <span class="doccomment">/// Returns the length of this `Body` in bytes.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">len</span>()
+    <span class="doccomment">/// Returns the length of this `Body` in bytes.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.buf.len()
     }
 
-    <span class="doccomment">/// Returns `true` if this `Body` has a length of zero, `false` otherwise.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">is_empty</span>()
+    <span class="doccomment">/// Returns `true` if this `Body` has a length of zero, `false` otherwise.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.buf.is_empty()
     }
 
-    <span class="doccomment">/// Returns the `Content-Transfer-Encoding` of this `Body`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ContentTransferEncoding</span> {
-        <span class="self">self</span>.<span class="ident">encoding</span>
+    <span class="doccomment">/// Returns the `Content-Transfer-Encoding` of this `Body`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>encoding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ContentTransferEncoding {
+        <span class="self">self</span>.encoding
     }
 
-    <span class="doccomment">/// Consumes `Body` and returns the inner `Vec&lt;u8&gt;`</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_vec</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">buf</span>
+    <span class="doccomment">/// Consumes `Body` and returns the inner `Vec&lt;u8&gt;`
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>into_vec(<span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+        <span class="self">self</span>.buf
     }
 }
 
-<span class="kw">impl</span> <span class="ident">MaybeString</span> {
-    <span class="doccomment">/// Suggests the best `Content-Transfer-Encoding` to be used for this `MaybeString`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `binary` encoding is never returned</span>
-    <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">supports_utf8</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ContentTransferEncoding</span> {
-        <span class="kw">use</span> <span class="ident">email_encoding::body::Encoding</span>;
+<span class="kw">impl </span>MaybeString {
+    <span class="doccomment">/// Suggests the best `Content-Transfer-Encoding` to be used for this `MaybeString`
+    ///
+    /// The `binary` encoding is never returned
+    </span><span class="kw">fn </span>encoding(<span class="kw-2">&amp;</span><span class="self">self</span>, supports_utf8: bool) -&gt; ContentTransferEncoding {
+        <span class="kw">use </span>email_encoding::body::Encoding;
 
-        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>) =&gt; <span class="ident">Encoding::choose</span>(<span class="ident">s</span>.<span class="ident">as_str</span>(), <span class="ident">supports_utf8</span>),
-            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="ident">b</span>) =&gt; <span class="ident">Encoding::choose</span>(<span class="ident">b</span>.<span class="ident">as_slice</span>(), <span class="ident">supports_utf8</span>),
+        <span class="kw">let </span>output = <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::String(s) =&gt; Encoding::choose(s.as_str(), supports_utf8),
+            <span class="self">Self</span>::Binary(b) =&gt; Encoding::choose(b.as_slice(), supports_utf8),
         };
 
-        <span class="kw">match</span> <span class="ident">output</span> {
-            <span class="ident">Encoding::SevenBit</span> =&gt; <span class="ident">ContentTransferEncoding::SevenBit</span>,
-            <span class="ident">Encoding::EightBit</span> =&gt; <span class="ident">ContentTransferEncoding::EightBit</span>,
-            <span class="ident">Encoding::QuotedPrintable</span> =&gt; <span class="ident">ContentTransferEncoding::QuotedPrintable</span>,
-            <span class="ident">Encoding::Base64</span> =&gt; <span class="ident">ContentTransferEncoding::Base64</span>,
+        <span class="kw">match </span>output {
+            Encoding::SevenBit =&gt; ContentTransferEncoding::SevenBit,
+            Encoding::EightBit =&gt; ContentTransferEncoding::EightBit,
+            Encoding::QuotedPrintable =&gt; ContentTransferEncoding::QuotedPrintable,
+            Encoding::Base64 =&gt; ContentTransferEncoding::Base64,
         }
     }
 
-    <span class="doccomment">/// Encode line endings to CRLF if the variant is `String`</span>
-    <span class="kw">fn</span> <span class="ident">encode_crlf</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">string</span>) =&gt; <span class="ident">in_place_crlf_line_endings</span>(<span class="ident">string</span>),
-            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="kw">_</span>) =&gt; {}
+    <span class="doccomment">/// Encode line endings to CRLF if the variant is `String`
+    </span><span class="kw">fn </span>encode_crlf(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::String(string) =&gt; in_place_crlf_line_endings(string),
+            <span class="self">Self</span>::Binary(<span class="kw">_</span>) =&gt; {}
         }
     }
 }
 
-<span class="doccomment">/// A trait for something that takes an encoded [`Body`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Used by [`MessageBuilder::body`][super::MessageBuilder::body] and</span>
-<span class="doccomment">/// [`SinglePartBuilder::body`][super::SinglePartBuilder::body],</span>
-<span class="doccomment">/// which can either take something that can be encoded into [`Body`]</span>
-<span class="doccomment">/// or a pre-encoded [`Body`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If `encoding` is `None` the best encoding between `7bit`, `quoted-printable`</span>
-<span class="doccomment">/// and `base64` is chosen based on the input body. **Best option.**</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If `encoding` is `Some` the supplied encoding is used.</span>
-<span class="doccomment">/// **NOTE:** if using the specified `encoding` would result into a malformed</span>
-<span class="doccomment">/// body, this will panic!</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoBody</span> {
-    <span class="doccomment">/// Encode as valid body</span>
-    <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>, <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span>;
+<span class="doccomment">/// A trait for something that takes an encoded [`Body`].
+///
+/// Used by [`MessageBuilder::body`][super::MessageBuilder::body] and
+/// [`SinglePartBuilder::body`][super::SinglePartBuilder::body],
+/// which can either take something that can be encoded into [`Body`]
+/// or a pre-encoded [`Body`].
+///
+/// If `encoding` is `None` the best encoding between `7bit`, `quoted-printable`
+/// and `base64` is chosen based on the input body. **Best option.**
+///
+/// If `encoding` is `Some` the supplied encoding is used.
+/// **NOTE:** if using the specified `encoding` would result into a malformed
+/// body, this will panic!
+</span><span class="kw">pub trait </span>IntoBody {
+    <span class="doccomment">/// Encode as valid body
+    </span><span class="kw">fn </span>into_body(<span class="self">self</span>, encoding: <span class="prelude-ty">Option</span>&lt;ContentTransferEncoding&gt;) -&gt; Body;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">IntoBody</span> <span class="kw">for</span> <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T&gt; IntoBody <span class="kw">for </span>T
+<span class="kw">where
+    </span>T: Into&lt;MaybeString&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>, <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span> {
-        <span class="kw">match</span> <span class="ident">encoding</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">encoding</span>) =&gt; <span class="ident">Body::new_with_encoding</span>(<span class="self">self</span>, <span class="ident">encoding</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid encoding&quot;</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">Body::new</span>(<span class="self">self</span>),
+    <span class="kw">fn </span>into_body(<span class="self">self</span>, encoding: <span class="prelude-ty">Option</span>&lt;ContentTransferEncoding&gt;) -&gt; Body {
+        <span class="kw">match </span>encoding {
+            <span class="prelude-val">Some</span>(encoding) =&gt; Body::new_with_encoding(<span class="self">self</span>, encoding).expect(<span class="string">&quot;invalid encoding&quot;</span>),
+            <span class="prelude-val">None </span>=&gt; Body::new(<span class="self">self</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">IntoBody</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>, <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span> {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">encoding</span>;
+<span class="kw">impl </span>IntoBody <span class="kw">for </span>Body {
+    <span class="kw">fn </span>into_body(<span class="self">self</span>, encoding: <span class="prelude-ty">Option</span>&lt;ContentTransferEncoding&gt;) -&gt; Body {
+        <span class="kw">let _ </span>= encoding;
 
-        <span class="self">self</span>
+        <span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>AsRef&lt;[u8]&gt; <span class="kw">for </span>Body {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="self">self</span>.buf.as_ref()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">as_ref</span>()
+<span class="kw">impl </span>From&lt;Vec&lt;u8&gt;&gt; <span class="kw">for </span>MaybeString {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(b: Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Binary(b)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MaybeString</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="ident">b</span>)
+<span class="kw">impl </span>From&lt;String&gt; <span class="kw">for </span>MaybeString {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(s: String) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::String(s)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MaybeString</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">MaybeString</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">MaybeString</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="ident">MaybeString::Binary</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>,
-            <span class="ident">MaybeString::String</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">into</span>(),
+<span class="kw">impl </span>From&lt;MaybeString&gt; <span class="kw">for </span>Vec&lt;u8&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(s: MaybeString) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>s {
+            MaybeString::Binary(b) =&gt; b,
+            MaybeString::String(s) =&gt; s.into(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">MaybeString</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> [<span class="ident">u8</span>];
+<span class="kw">impl </span>Deref <span class="kw">for </span>MaybeString {
+    <span class="kw">type </span>Target = [u8];
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>.<span class="ident">as_ref</span>(),
-            <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">as_ref</span>(),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Binary(b) =&gt; b.as_ref(),
+            <span class="self">Self</span>::String(s) =&gt; s.as_ref(),
         }
     }
 }
 
-<span class="doccomment">/// In place conversion to CRLF line endings</span>
-<span class="kw">fn</span> <span class="ident">in_place_crlf_line_endings</span>(<span class="ident">string</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>) {
-    <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">find_all_lf_char_indices</span>(<span class="ident">string</span>);
+<span class="doccomment">/// In place conversion to CRLF line endings
+</span><span class="kw">fn </span>in_place_crlf_line_endings(string: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">let </span>indices = find_all_lf_char_indices(string);
 
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">indices</span> {
-        <span class="comment">// this relies on `indices` being in reverse order</span>
-        <span class="ident">string</span>.<span class="ident">insert</span>(<span class="ident">i</span>, <span class="string">&#39;\r&#39;</span>);
+    <span class="kw">for </span>i <span class="kw">in </span>indices {
+        <span class="comment">// this relies on `indices` being in reverse order
+        </span>string.insert(i, <span class="string">&#39;\r&#39;</span>);
     }
 }
 
-<span class="doccomment">/// Find indices to all places where `\r` should be inserted</span>
-<span class="doccomment">/// in order to make `s` have CRLF line endings</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The list is reversed, which is more efficient.</span>
-<span class="kw">fn</span> <span class="ident">find_all_lf_char_indices</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="doccomment">/// Find indices to all places where `\r` should be inserted
+/// in order to make `s` have CRLF line endings
+///
+/// The list is reversed, which is more efficient.
+</span><span class="kw">fn </span>find_all_lf_char_indices(s: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;usize&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::new();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_lf</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">s</span>.<span class="ident">char_indices</span>().<span class="ident">rev</span>() {
-        <span class="kw">if</span> <span class="ident">mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">found_lf</span>) <span class="op">&amp;&amp;</span> <span class="ident">c</span> <span class="op">!</span><span class="op">=</span> <span class="string">&#39;\r&#39;</span> {
-            <span class="comment">// the previous character was `\n`, but this isn&#39;t a `\r`</span>
-            <span class="ident">indices</span>.<span class="ident">push</span>(<span class="ident">i</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">len_utf8</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>found_lf = <span class="bool-val">false</span>;
+    <span class="kw">for </span>(i, c) <span class="kw">in </span>s.char_indices().rev() {
+        <span class="kw">if </span>mem::take(<span class="kw-2">&amp;mut </span>found_lf) &amp;&amp; c != <span class="string">&#39;\r&#39; </span>{
+            <span class="comment">// the previous character was `\n`, but this isn&#39;t a `\r`
+            </span>indices.push(i + c.len_utf8());
         }
 
-        <span class="ident">found_lf</span> <span class="op">=</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span>;
+        found_lf = c == <span class="string">&#39;\n&#39;</span>;
     }
 
-    <span class="kw">if</span> <span class="ident">found_lf</span> {
-        <span class="comment">// the first character is `\n`</span>
-        <span class="ident">indices</span>.<span class="ident">push</span>(<span class="number">0</span>);
+    <span class="kw">if </span>found_lf {
+        <span class="comment">// the first character is `\n`
+        </span>indices.push(<span class="number">0</span>);
     }
 
-    <span class="ident">indices</span>
+    indices
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>pretty_assertions::assert_eq;
 
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">in_place_crlf_line_endings</span>, <span class="ident">Body</span>, <span class="ident">ContentTransferEncoding</span>};
+    <span class="kw">use super</span>::{in_place_crlf_line_endings, Body, ContentTransferEncoding};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">seven_bit_detect</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;Hello, world!&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>seven_bit_detect() {
+        <span class="kw">let </span>encoded = Body::new(String::from(<span class="string">&quot;Hello, world!&quot;</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::SevenBit</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>(), <span class="string">b&quot;Hello, world!&quot;</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::SevenBit);
+        <span class="macro">assert_eq!</span>(encoded.as_ref(), <span class="string">b&quot;Hello, world!&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">seven_bit_encode</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;Hello, world!&quot;</span>),
-            <span class="ident">ContentTransferEncoding::SevenBit</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>seven_bit_encode() {
+        <span class="kw">let </span>encoded = Body::new_with_encoding(
+            String::from(<span class="string">&quot;Hello, world!&quot;</span>),
+            ContentTransferEncoding::SevenBit,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::SevenBit</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>(), <span class="string">b&quot;Hello, world!&quot;</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::SevenBit);
+        <span class="macro">assert_eq!</span>(encoded.as_ref(), <span class="string">b&quot;Hello, world!&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">seven_bit_too_long_detect</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="string">&quot;Hello, world!&quot;</span>.<span class="ident">repeat</span>(<span class="number">100</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>seven_bit_too_long_detect() {
+        <span class="kw">let </span>encoded = Body::new(<span class="string">&quot;Hello, world!&quot;</span>.repeat(<span class="number">100</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::QuotedPrintable</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::QuotedPrintable);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
+            encoded.as_ref(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, wor=\r\n&quot;</span>,
                 <span class="string">&quot;ld!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, =\r\n&quot;</span>,
@@ -911,33 +911,33 @@
                 <span class="string">&quot;ld!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, =\r\n&quot;</span>,
                 <span class="string">&quot;world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hell=\r\n&quot;</span>,
                 <span class="string">&quot;o, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!H=\r\n&quot;</span>,
-                <span class="string">&quot;ello, world!Hello, world!&quot;</span>
-            )
-            .<span class="ident">as_bytes</span>()
+                <span class="string">&quot;ello, world!Hello, world!&quot;
+            </span>)
+            .as_bytes()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">seven_bit_too_long_fail</span>() {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="string">&quot;Hello, world!&quot;</span>.<span class="ident">repeat</span>(<span class="number">100</span>),
-            <span class="ident">ContentTransferEncoding::SevenBit</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>seven_bit_too_long_fail() {
+        <span class="kw">let </span>result = Body::new_with_encoding(
+            <span class="string">&quot;Hello, world!&quot;</span>.repeat(<span class="number">100</span>),
+            ContentTransferEncoding::SevenBit,
         );
 
-        <span class="macro">assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(result.is_err());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">seven_bit_too_long_encode_quotedprintable</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="string">&quot;Hello, world!&quot;</span>.<span class="ident">repeat</span>(<span class="number">100</span>),
-            <span class="ident">ContentTransferEncoding::QuotedPrintable</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>seven_bit_too_long_encode_quotedprintable() {
+        <span class="kw">let </span>encoded = Body::new_with_encoding(
+            <span class="string">&quot;Hello, world!&quot;</span>.repeat(<span class="number">100</span>),
+            ContentTransferEncoding::QuotedPrintable,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::QuotedPrintable</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::QuotedPrintable);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
+            encoded.as_ref(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, wor=\r\n&quot;</span>,
                 <span class="string">&quot;ld!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, =\r\n&quot;</span>,
@@ -956,199 +956,199 @@
                 <span class="string">&quot;ld!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, =\r\n&quot;</span>,
                 <span class="string">&quot;world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!Hell=\r\n&quot;</span>,
                 <span class="string">&quot;o, world!Hello, world!Hello, world!Hello, world!Hello, world!Hello, world!H=\r\n&quot;</span>,
-                <span class="string">&quot;ello, world!Hello, world!&quot;</span>
-            )
-            .<span class="ident">as_bytes</span>()
+                <span class="string">&quot;ello, world!Hello, world!&quot;
+            </span>)
+            .as_bytes()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">seven_bit_invalid</span>() {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;Привет, мир!&quot;</span>),
-            <span class="ident">ContentTransferEncoding::SevenBit</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>seven_bit_invalid() {
+        <span class="kw">let </span>result = Body::new_with_encoding(
+            String::from(<span class="string">&quot;Привет, мир!&quot;</span>),
+            ContentTransferEncoding::SevenBit,
         );
 
-        <span class="macro">assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(result.is_err());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">eight_bit_encode</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;Привет, мир!&quot;</span>),
-            <span class="ident">ContentTransferEncoding::EightBit</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>eight_bit_encode() {
+        <span class="kw">let </span>encoded = Body::new_with_encoding(
+            String::from(<span class="string">&quot;Привет, мир!&quot;</span>),
+            ContentTransferEncoding::EightBit,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::EightBit</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>(), <span class="string">&quot;Привет, мир!&quot;</span>.<span class="ident">as_bytes</span>());
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::EightBit);
+        <span class="macro">assert_eq!</span>(encoded.as_ref(), <span class="string">&quot;Привет, мир!&quot;</span>.as_bytes());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">eight_bit_too_long_fail</span>() {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="string">&quot;Привет, мир!&quot;</span>.<span class="ident">repeat</span>(<span class="number">200</span>),
-            <span class="ident">ContentTransferEncoding::EightBit</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>eight_bit_too_long_fail() {
+        <span class="kw">let </span>result = Body::new_with_encoding(
+            <span class="string">&quot;Привет, мир!&quot;</span>.repeat(<span class="number">200</span>),
+            ContentTransferEncoding::EightBit,
         );
 
-        <span class="macro">assert!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(result.is_err());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">quoted_printable_detect</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;Questo messaggio è corto&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>quoted_printable_detect() {
+        <span class="kw">let </span>encoded = Body::new(String::from(<span class="string">&quot;Questo messaggio è corto&quot;</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::QuotedPrintable</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>(), <span class="string">b&quot;Questo messaggio =C3=A8 corto&quot;</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::QuotedPrintable);
+        <span class="macro">assert_eq!</span>(encoded.as_ref(), <span class="string">b&quot;Questo messaggio =C3=A8 corto&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">quoted_printable_encode_ascii</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;Hello, world!&quot;</span>),
-            <span class="ident">ContentTransferEncoding::QuotedPrintable</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>quoted_printable_encode_ascii() {
+        <span class="kw">let </span>encoded = Body::new_with_encoding(
+            String::from(<span class="string">&quot;Hello, world!&quot;</span>),
+            ContentTransferEncoding::QuotedPrintable,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::QuotedPrintable</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>(), <span class="string">b&quot;Hello, world!&quot;</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::QuotedPrintable);
+        <span class="macro">assert_eq!</span>(encoded.as_ref(), <span class="string">b&quot;Hello, world!&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">quoted_printable_encode_utf8</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;Привет, мир!&quot;</span>),
-            <span class="ident">ContentTransferEncoding::QuotedPrintable</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>quoted_printable_encode_utf8() {
+        <span class="kw">let </span>encoded = Body::new_with_encoding(
+            String::from(<span class="string">&quot;Привет, мир!&quot;</span>),
+            ContentTransferEncoding::QuotedPrintable,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::QuotedPrintable</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::QuotedPrintable);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
-            <span class="string">b&quot;=D0=9F=D1=80=D0=B8=D0=B2=D0=B5=D1=82, =D0=BC=D0=B8=D1=80!&quot;</span>.<span class="ident">as_ref</span>()
+            encoded.as_ref(),
+            <span class="string">b&quot;=D0=9F=D1=80=D0=B8=D0=B2=D0=B5=D1=82, =D0=BC=D0=B8=D1=80!&quot;</span>.as_ref()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">quoted_printable_encode_line_wrap</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="ident">String::from</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>quoted_printable_encode_line_wrap() {
+        <span class="kw">let </span>encoded = Body::new(String::from(
             <span class="string">&quot;Se lo standard 📬 fosse stato più semplice avremmo finito molto prima.&quot;</span>,
         ));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::QuotedPrintable</span>);
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">std::str::from_utf8</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>()).<span class="ident">unwrap</span>());
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::QuotedPrintable);
+        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, std::str::from_utf8(encoded.as_ref()).unwrap());
         <span class="macro">assert_eq!</span>(
-            <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
+            encoded.as_ref(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Se lo standard =F0=9F=93=AC fosse stato pi=C3=B9 semplice avremmo finito mo=\r\n&quot;</span>,
-                <span class="string">&quot;lto prima.&quot;</span>
-            )
-            .<span class="ident">as_bytes</span>()
+                <span class="string">&quot;lto prima.&quot;
+            </span>)
+            .as_bytes()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">base64_detect</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">Body::new</span>(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">80</span>]);
-        <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">encoding</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">encoding</span>, <span class="ident">ContentTransferEncoding::Base64</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>base64_detect() {
+        <span class="kw">let </span>input = Body::new(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">80</span>]);
+        <span class="kw">let </span>encoding = input.encoding();
+        <span class="macro">assert_eq!</span>(encoding, ContentTransferEncoding::Base64);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">base64_encode_bytes</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span>
-            <span class="ident">Body::new_with_encoding</span>(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">80</span>], <span class="ident">ContentTransferEncoding::Base64</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>base64_encode_bytes() {
+        <span class="kw">let </span>encoded =
+            Body::new_with_encoding(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">80</span>], ContentTransferEncoding::Base64).unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::Base64</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::Base64);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
+            encoded.as_ref(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n&quot;</span>,
-                <span class="string">&quot;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=&quot;</span>
-            )
-            .<span class="ident">as_bytes</span>()
+                <span class="string">&quot;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=&quot;
+            </span>)
+            .as_bytes()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">base64_encode_bytes_wrapping</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>].<span class="ident">repeat</span>(<span class="number">20</span>),
-            <span class="ident">ContentTransferEncoding::Base64</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>base64_encode_bytes_wrapping() {
+        <span class="kw">let </span>encoded = Body::new_with_encoding(
+            <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>].repeat(<span class="number">20</span>),
+            ContentTransferEncoding::Base64,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::Base64</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::Base64);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
+            encoded.as_ref(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;AAECAwQFBgcICQABAgMEBQYHCAkAAQIDBAUGBwgJAAECAwQFBgcICQABAgMEBQYHCAkAAQIDBAUG\r\n&quot;</span>,
                 <span class="string">&quot;BwgJAAECAwQFBgcICQABAgMEBQYHCAkAAQIDBAUGBwgJAAECAwQFBgcICQABAgMEBQYHCAkAAQID\r\n&quot;</span>,
                 <span class="string">&quot;BAUGBwgJAAECAwQFBgcICQABAgMEBQYHCAkAAQIDBAUGBwgJAAECAwQFBgcICQABAgMEBQYHCAkA\r\n&quot;</span>,
-                <span class="string">&quot;AQIDBAUGBwgJAAECAwQFBgcICQABAgMEBQYHCAk=&quot;</span>
-            )
-            .<span class="ident">as_bytes</span>()
+                <span class="string">&quot;AQIDBAUGBwgJAAECAwQFBgcICQABAgMEBQYHCAk=&quot;
+            </span>)
+            .as_bytes()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">base64_encode_ascii</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">Body::new_with_encoding</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;Hello World!&quot;</span>),
-            <span class="ident">ContentTransferEncoding::Base64</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>base64_encode_ascii() {
+        <span class="kw">let </span>encoded = Body::new_with_encoding(
+            String::from(<span class="string">&quot;Hello World!&quot;</span>),
+            ContentTransferEncoding::Base64,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::Base64</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">as_ref</span>(), <span class="string">b&quot;SGVsbG8gV29ybGQh&quot;</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::Base64);
+        <span class="macro">assert_eq!</span>(encoded.as_ref(), <span class="string">b&quot;SGVsbG8gV29ybGQh&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">base64_encode_ascii_wrapping</span>() {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span>
-            <span class="ident">Body::new_with_encoding</span>(<span class="string">&quot;Hello World!&quot;</span>.<span class="ident">repeat</span>(<span class="number">20</span>), <span class="ident">ContentTransferEncoding::Base64</span>)
-                .<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>base64_encode_ascii_wrapping() {
+        <span class="kw">let </span>encoded =
+            Body::new_with_encoding(<span class="string">&quot;Hello World!&quot;</span>.repeat(<span class="number">20</span>), ContentTransferEncoding::Base64)
+                .unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>.<span class="ident">encoding</span>(), <span class="ident">ContentTransferEncoding::Base64</span>);
+        <span class="macro">assert_eq!</span>(encoded.encoding(), ContentTransferEncoding::Base64);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">encoded</span>.<span class="ident">as_ref</span>(),
+            encoded.as_ref(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;SGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29y\r\n&quot;</span>,
                 <span class="string">&quot;bGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8g\r\n&quot;</span>,
                 <span class="string">&quot;V29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVs\r\n&quot;</span>,
                 <span class="string">&quot;bG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQhSGVsbG8gV29ybGQh\r\n&quot;</span>,
-                <span class="string">&quot;SGVsbG8gV29ybGQh&quot;</span>
-            )
-            .<span class="ident">as_bytes</span>()
+                <span class="string">&quot;SGVsbG8gV29ybGQh&quot;
+            </span>)
+            .as_bytes()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">crlf</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;Send me a ✉️\nwith\nlettre!\n😀&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>crlf() {
+        <span class="kw">let </span><span class="kw-2">mut </span>string = String::from(<span class="string">&quot;Send me a ✉️\nwith\nlettre!\n😀&quot;</span>);
 
-        <span class="ident">in_place_crlf_line_endings</span>(<span class="kw-2">&amp;mut</span> <span class="ident">string</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">string</span>, <span class="string">&quot;Send me a ✉️\r\nwith\r\nlettre!\r\n😀&quot;</span>);
+        in_place_crlf_line_endings(<span class="kw-2">&amp;mut </span>string);
+        <span class="macro">assert_eq!</span>(string, <span class="string">&quot;Send me a ✉️\r\nwith\r\nlettre!\r\n😀&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">harsh_crlf</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;\n\nSend me a ✉️\r\n\nwith\n\nlettre!\n\r\n😀&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>harsh_crlf() {
+        <span class="kw">let </span><span class="kw-2">mut </span>string = String::from(<span class="string">&quot;\n\nSend me a ✉️\r\n\nwith\n\nlettre!\n\r\n😀&quot;</span>);
 
-        <span class="ident">in_place_crlf_line_endings</span>(<span class="kw-2">&amp;mut</span> <span class="ident">string</span>);
+        in_place_crlf_line_endings(<span class="kw-2">&amp;mut </span>string);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">string</span>,
-            <span class="string">&quot;\r\n\r\nSend me a ✉️\r\n\r\nwith\r\n\r\nlettre!\r\n\r\n😀&quot;</span>
-        );
+            string,
+            <span class="string">&quot;\r\n\r\nSend me a ✉️\r\n\r\nwith\r\n\r\nlettre!\r\n\r\n😀&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">crlf_noop</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;\r\nSend me a ✉️\r\nwith\r\nlettre!\r\n😀&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>crlf_noop() {
+        <span class="kw">let </span><span class="kw-2">mut </span>string = String::from(<span class="string">&quot;\r\nSend me a ✉️\r\nwith\r\nlettre!\r\n😀&quot;</span>);
 
-        <span class="ident">in_place_crlf_line_endings</span>(<span class="kw-2">&amp;mut</span> <span class="ident">string</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">string</span>, <span class="string">&quot;\r\nSend me a ✉️\r\nwith\r\nlettre!\r\n😀&quot;</span>);
+        in_place_crlf_line_endings(<span class="kw-2">&amp;mut </span>string);
+        <span class="macro">assert_eq!</span>(string, <span class="string">&quot;\r\nSend me a ✉️\r\nwith\r\nlettre!\r\n😀&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

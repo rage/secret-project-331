@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-rustls-0.23.0/src/stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../hyper_rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../hyper_rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../hyper_rustls/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-rustls-0.23.0/src/stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../hyper_rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../hyper_rustls/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../hyper_rustls/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -97,104 +97,104 @@
 <span id="97">97</span>
 <span id="98">98</span>
 <span id="99">99</span>
-</pre><pre class="rust"><code><span class="comment">// Copied from hyperium/hyper-tls#62e3376/src/stream.rs</span>
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>;
-<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
-<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+</pre><pre class="rust"><code><span class="comment">// Copied from hyperium/hyper-tls#62e3376/src/stream.rs
+</span><span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::io;
+<span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::task::{Context, Poll};
 
-<span class="kw">use</span> <span class="ident">hyper::client::connect</span>::{<span class="ident">Connected</span>, <span class="ident">Connection</span>};
+<span class="kw">use </span>hyper::client::connect::{Connected, Connection};
 
-<span class="kw">use</span> <span class="ident">tokio::io</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">ReadBuf</span>};
-<span class="kw">use</span> <span class="ident">tokio_rustls::client::TlsStream</span>;
+<span class="kw">use </span>tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
+<span class="kw">use </span>tokio_rustls::client::TlsStream;
 
-<span class="doccomment">/// A stream that might be protected with TLS.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MaybeHttpsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// A stream over plain text.</span>
-    <span class="ident">Http</span>(<span class="ident">T</span>),
-    <span class="doccomment">/// A stream protected with TLS.</span>
-    <span class="ident">Https</span>(<span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
+<span class="doccomment">/// A stream that might be protected with TLS.
+</span><span class="kw">pub enum </span>MaybeHttpsStream&lt;T&gt; {
+    <span class="doccomment">/// A stream over plain text.
+    </span>Http(T),
+    <span class="doccomment">/// A stream protected with TLS.
+    </span>Https(TlsStream&lt;T&gt;),
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Connection</span> <span class="op">+</span> <span class="ident">Unpin</span><span class="op">&gt;</span> <span class="ident">Connection</span> <span class="kw">for</span> <span class="ident">MaybeHttpsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">connected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Connected</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">MaybeHttpsStream::Http</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">connected</span>(),
-            <span class="ident">MaybeHttpsStream::Https</span>(<span class="ident">s</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">tcp</span>, <span class="ident">tls</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">get_ref</span>();
-                <span class="kw">if</span> <span class="ident">tls</span>.<span class="ident">alpn_protocol</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">b&quot;h2&quot;</span>) {
-                    <span class="ident">tcp</span>.<span class="ident">connected</span>().<span class="ident">negotiated_h2</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">tcp</span>.<span class="ident">connected</span>()
+<span class="kw">impl</span>&lt;T: AsyncRead + AsyncWrite + Connection + Unpin&gt; Connection <span class="kw">for </span>MaybeHttpsStream&lt;T&gt; {
+    <span class="kw">fn </span>connected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Connected {
+        <span class="kw">match </span><span class="self">self </span>{
+            MaybeHttpsStream::Http(s) =&gt; s.connected(),
+            MaybeHttpsStream::Https(s) =&gt; {
+                <span class="kw">let </span>(tcp, tls) = s.get_ref();
+                <span class="kw">if </span>tls.alpn_protocol() == <span class="prelude-val">Some</span>(<span class="string">b&quot;h2&quot;</span>) {
+                    tcp.connected().negotiated_h2()
+                } <span class="kw">else </span>{
+                    tcp.connected()
                 }
             }
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Debug</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">MaybeHttpsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MaybeHttpsStream::Http</span>(..) =&gt; <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Http(..)&quot;</span>),
-            <span class="ident">MaybeHttpsStream::Https</span>(..) =&gt; <span class="ident">f</span>.<span class="ident">pad</span>(<span class="string">&quot;Https(..)&quot;</span>),
+<span class="kw">impl</span>&lt;T: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>MaybeHttpsStream&lt;T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MaybeHttpsStream::Http(..) =&gt; f.pad(<span class="string">&quot;Http(..)&quot;</span>),
+            MaybeHttpsStream::Https(..) =&gt; f.pad(<span class="string">&quot;Https(..)&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MaybeHttpsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">inner</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">MaybeHttpsStream::Http</span>(<span class="ident">inner</span>)
+<span class="kw">impl</span>&lt;T&gt; From&lt;T&gt; <span class="kw">for </span>MaybeHttpsStream&lt;T&gt; {
+    <span class="kw">fn </span>from(inner: T) -&gt; <span class="self">Self </span>{
+        MaybeHttpsStream::Http(inner)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MaybeHttpsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">inner</span>: <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">MaybeHttpsStream::Https</span>(<span class="ident">inner</span>)
+<span class="kw">impl</span>&lt;T&gt; From&lt;TlsStream&lt;T&gt;&gt; <span class="kw">for </span>MaybeHttpsStream&lt;T&gt; {
+    <span class="kw">fn </span>from(inner: TlsStream&lt;T&gt;) -&gt; <span class="self">Self </span>{
+        MaybeHttpsStream::Https(inner)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span><span class="op">&gt;</span> <span class="ident">AsyncRead</span> <span class="kw">for</span> <span class="ident">MaybeHttpsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll_read</span>(
-        <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ReadBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">Pin::get_mut</span>(<span class="self">self</span>) {
-            <span class="ident">MaybeHttpsStream::Http</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="ident">buf</span>),
-            <span class="ident">MaybeHttpsStream::Https</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="ident">buf</span>),
+<span class="kw">impl</span>&lt;T: AsyncRead + AsyncWrite + Unpin&gt; AsyncRead <span class="kw">for </span>MaybeHttpsStream&lt;T&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>poll_read(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context,
+        buf: <span class="kw-2">&amp;mut </span>ReadBuf&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+        <span class="kw">match </span>Pin::get_mut(<span class="self">self</span>) {
+            MaybeHttpsStream::Http(s) =&gt; Pin::new(s).poll_read(cx, buf),
+            MaybeHttpsStream::Https(s) =&gt; Pin::new(s).poll_read(cx, buf),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">Unpin</span><span class="op">&gt;</span> <span class="ident">AsyncWrite</span> <span class="kw">for</span> <span class="ident">MaybeHttpsStream</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll_write</span>(
-        <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">Pin::get_mut</span>(<span class="self">self</span>) {
-            <span class="ident">MaybeHttpsStream::Http</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="ident">buf</span>),
-            <span class="ident">MaybeHttpsStream::Https</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="ident">buf</span>),
+<span class="kw">impl</span>&lt;T: AsyncWrite + AsyncRead + Unpin&gt; AsyncWrite <span class="kw">for </span>MaybeHttpsStream&lt;T&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>poll_write(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        buf: <span class="kw-2">&amp;</span>[u8],
+    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;usize, io::Error&gt;&gt; {
+        <span class="kw">match </span>Pin::get_mut(<span class="self">self</span>) {
+            MaybeHttpsStream::Http(s) =&gt; Pin::new(s).poll_write(cx, buf),
+            MaybeHttpsStream::Https(s) =&gt; Pin::new(s).poll_write(cx, buf),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">Pin::get_mut</span>(<span class="self">self</span>) {
-            <span class="ident">MaybeHttpsStream::Http</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_flush</span>(<span class="ident">cx</span>),
-            <span class="ident">MaybeHttpsStream::Https</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_flush</span>(<span class="ident">cx</span>),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>poll_flush(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+        <span class="kw">match </span>Pin::get_mut(<span class="self">self</span>) {
+            MaybeHttpsStream::Http(s) =&gt; Pin::new(s).poll_flush(cx),
+            MaybeHttpsStream::Https(s) =&gt; Pin::new(s).poll_flush(cx),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll_shutdown</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">Pin::get_mut</span>(<span class="self">self</span>) {
-            <span class="ident">MaybeHttpsStream::Http</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_shutdown</span>(<span class="ident">cx</span>),
-            <span class="ident">MaybeHttpsStream::Https</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_shutdown</span>(<span class="ident">cx</span>),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>poll_shutdown(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+        <span class="kw">match </span>Pin::get_mut(<span class="self">self</span>) {
+            MaybeHttpsStream::Http(s) =&gt; Pin::new(s).poll_shutdown(cx),
+            MaybeHttpsStream::Https(s) =&gt; Pin::new(s).poll_shutdown(cx),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hyper_rustls" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="hyper_rustls" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

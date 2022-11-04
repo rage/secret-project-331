@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/availability.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>availability.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/availability.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>availability.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_server/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -121,126 +121,126 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::worker::WorkerHandleAccept</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::worker::WorkerHandleAccept;
 
-<span class="doccomment">/// Array of u128 with every bit as marker for a worker handle&#39;s availability.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Availability</span>([<span class="ident">u128</span>; <span class="number">4</span>]);
+<span class="doccomment">/// Array of u128 with every bit as marker for a worker handle&#39;s availability.
+</span><span class="attribute">#[derive(Debug, Default)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Availability([u128; <span class="number">4</span>]);
 
-<span class="kw">impl</span> <span class="ident">Availability</span> {
-    <span class="doccomment">/// Check if any worker handle is available</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">available</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">a</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
+<span class="kw">impl </span>Availability {
+    <span class="doccomment">/// Check if any worker handle is available
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>available(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0</span>.iter().any(|a| <span class="kw-2">*</span>a != <span class="number">0</span>)
     }
 
-    <span class="doccomment">/// Check if worker handle is available by index</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_available</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> (<span class="ident">offset</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::offset</span>(<span class="ident">idx</span>);
+    <span class="doccomment">/// Check if worker handle is available by index
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_available(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; bool {
+        <span class="kw">let </span>(offset, idx) = <span class="self">Self</span>::offset(idx);
 
-        <span class="self">self</span>.<span class="number">0</span>[<span class="ident">offset</span>] <span class="op">&amp;</span> (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">idx</span> <span class="kw">as</span> <span class="ident">u128</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
-    }
+        <span class="self">self</span>.<span class="number">0</span>[offset] &amp; (<span class="number">1 </span>&lt;&lt; idx <span class="kw">as </span>u128) != <span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Set worker handle available state by index.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">set_available</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>, <span class="ident">avail</span>: <span class="ident">bool</span>) {
-        <span class="kw">let</span> (<span class="ident">offset</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::offset</span>(<span class="ident">idx</span>);
+    <span class="doccomment">/// Set worker handle available state by index.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_available(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: usize, avail: bool) {
+        <span class="kw">let </span>(offset, idx) = <span class="self">Self</span>::offset(idx);
 
-        <span class="kw">let</span> <span class="ident">off</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">idx</span> <span class="kw">as</span> <span class="ident">u128</span>;
-        <span class="kw">if</span> <span class="ident">avail</span> {
-            <span class="self">self</span>.<span class="number">0</span>[<span class="ident">offset</span>] <span class="op">|</span><span class="op">=</span> <span class="ident">off</span>;
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="number">0</span>[<span class="ident">offset</span>] <span class="op">&amp;=</span> <span class="op">!</span><span class="ident">off</span>
+        <span class="kw">let </span>off = <span class="number">1 </span>&lt;&lt; idx <span class="kw">as </span>u128;
+        <span class="kw">if </span>avail {
+            <span class="self">self</span>.<span class="number">0</span>[offset] |= off;
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.<span class="number">0</span>[offset] &amp;= !off
         }
     }
 
-    <span class="doccomment">/// Set all worker handle to available state.</span>
-    <span class="doccomment">/// This would result in a re-check on all workers&#39; availability.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">set_available_all</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">handles</span>: <span class="kw-2">&amp;</span>[<span class="ident">WorkerHandleAccept</span>]) {
-        <span class="ident">handles</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">handle</span><span class="op">|</span> {
-            <span class="self">self</span>.<span class="ident">set_available</span>(<span class="ident">handle</span>.<span class="ident">idx</span>(), <span class="bool-val">true</span>);
+    <span class="doccomment">/// Set all worker handle to available state.
+    /// This would result in a re-check on all workers&#39; availability.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_available_all(<span class="kw-2">&amp;mut </span><span class="self">self</span>, handles: <span class="kw-2">&amp;</span>[WorkerHandleAccept]) {
+        handles.iter().for_each(|handle| {
+            <span class="self">self</span>.set_available(handle.idx(), <span class="bool-val">true</span>);
         })
     }
 
-    <span class="doccomment">/// Get offset and adjusted index of given worker handle index.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">offset</span>(<span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">usize</span>) {
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="number">128</span> {
-            (<span class="number">0</span>, <span class="ident">idx</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="number">128</span> <span class="op">*</span> <span class="number">2</span> {
-            (<span class="number">1</span>, <span class="ident">idx</span> <span class="op">-</span> <span class="number">128</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="number">128</span> <span class="op">*</span> <span class="number">3</span> {
-            (<span class="number">2</span>, <span class="ident">idx</span> <span class="op">-</span> <span class="number">128</span> <span class="op">*</span> <span class="number">2</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="number">128</span> <span class="op">*</span> <span class="number">4</span> {
-            (<span class="number">3</span>, <span class="ident">idx</span> <span class="op">-</span> <span class="number">128</span> <span class="op">*</span> <span class="number">3</span>)
-        } <span class="kw">else</span> {
+    <span class="doccomment">/// Get offset and adjusted index of given worker handle index.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>offset(idx: usize) -&gt; (usize, usize) {
+        <span class="kw">if </span>idx &lt; <span class="number">128 </span>{
+            (<span class="number">0</span>, idx)
+        } <span class="kw">else if </span>idx &lt; <span class="number">128 </span>* <span class="number">2 </span>{
+            (<span class="number">1</span>, idx - <span class="number">128</span>)
+        } <span class="kw">else if </span>idx &lt; <span class="number">128 </span>* <span class="number">3 </span>{
+            (<span class="number">2</span>, idx - <span class="number">128 </span>* <span class="number">2</span>)
+        } <span class="kw">else if </span>idx &lt; <span class="number">128 </span>* <span class="number">4 </span>{
+            (<span class="number">3</span>, idx - <span class="number">128 </span>* <span class="number">3</span>)
+        } <span class="kw">else </span>{
             <span class="macro">panic!</span>(<span class="string">&quot;Max WorkerHandle count is 512&quot;</span>)
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">fn</span> <span class="ident">single</span>(<span class="ident">aval</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Availability</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) {
-        <span class="ident">aval</span>.<span class="ident">set_available</span>(<span class="ident">idx</span>, <span class="bool-val">true</span>);
-        <span class="macro">assert!</span>(<span class="ident">aval</span>.<span class="ident">available</span>());
+    <span class="kw">fn </span>single(aval: <span class="kw-2">&amp;mut </span>Availability, idx: usize) {
+        aval.set_available(idx, <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(aval.available());
 
-        <span class="ident">aval</span>.<span class="ident">set_available</span>(<span class="ident">idx</span>, <span class="bool-val">true</span>);
+        aval.set_available(idx, <span class="bool-val">true</span>);
 
-        <span class="ident">aval</span>.<span class="ident">set_available</span>(<span class="ident">idx</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">aval</span>.<span class="ident">available</span>());
+        aval.set_available(idx, <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(!aval.available());
 
-        <span class="ident">aval</span>.<span class="ident">set_available</span>(<span class="ident">idx</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">aval</span>.<span class="ident">available</span>());
+        aval.set_available(idx, <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(!aval.available());
     }
 
-    <span class="kw">fn</span> <span class="ident">multi</span>(<span class="ident">aval</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Availability</span>, <span class="kw-2">mut</span> <span class="ident">idx</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="ident">idx</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">aval</span>.<span class="ident">set_available</span>(<span class="kw-2">*</span><span class="ident">idx</span>, <span class="bool-val">true</span>));
+    <span class="kw">fn </span>multi(aval: <span class="kw-2">&amp;mut </span>Availability, <span class="kw-2">mut </span>idx: Vec&lt;usize&gt;) {
+        idx.iter().for_each(|idx| aval.set_available(<span class="kw-2">*</span>idx, <span class="bool-val">true</span>));
 
-        <span class="macro">assert!</span>(<span class="ident">aval</span>.<span class="ident">available</span>());
+        <span class="macro">assert!</span>(aval.available());
 
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">idx</span>.<span class="ident">pop</span>() {
-            <span class="macro">assert!</span>(<span class="ident">aval</span>.<span class="ident">available</span>());
-            <span class="ident">aval</span>.<span class="ident">set_available</span>(<span class="ident">idx</span>, <span class="bool-val">false</span>);
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(idx) = idx.pop() {
+            <span class="macro">assert!</span>(aval.available());
+            aval.set_available(idx, <span class="bool-val">false</span>);
         }
 
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">aval</span>.<span class="ident">available</span>());
+        <span class="macro">assert!</span>(!aval.available());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">availability</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aval</span> <span class="op">=</span> <span class="ident">Availability::default</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>availability() {
+        <span class="kw">let </span><span class="kw-2">mut </span>aval = Availability::default();
 
-        <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">aval</span>, <span class="number">1</span>);
-        <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">aval</span>, <span class="number">128</span>);
-        <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">aval</span>, <span class="number">256</span>);
-        <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">aval</span>, <span class="number">511</span>);
+        single(<span class="kw-2">&amp;mut </span>aval, <span class="number">1</span>);
+        single(<span class="kw-2">&amp;mut </span>aval, <span class="number">128</span>);
+        single(<span class="kw-2">&amp;mut </span>aval, <span class="number">256</span>);
+        single(<span class="kw-2">&amp;mut </span>aval, <span class="number">511</span>);
 
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">511</span>).<span class="ident">filter</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span> <span class="op">%</span> <span class="number">3</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">i</span> <span class="op">%</span> <span class="number">5</span> <span class="op">==</span> <span class="number">0</span>).<span class="ident">collect</span>();
+        <span class="kw">let </span>idx = (<span class="number">0</span>..<span class="number">511</span>).filter(|i| i % <span class="number">3 </span>== <span class="number">0 </span>&amp;&amp; i % <span class="number">5 </span>== <span class="number">0</span>).collect();
 
-        <span class="ident">multi</span>(<span class="kw-2">&amp;mut</span> <span class="ident">aval</span>, <span class="ident">idx</span>);
+        multi(<span class="kw-2">&amp;mut </span>aval, idx);
 
-        <span class="ident">multi</span>(<span class="kw-2">&amp;mut</span> <span class="ident">aval</span>, (<span class="number">0</span>..<span class="number">511</span>).<span class="ident">collect</span>())
+        multi(<span class="kw-2">&amp;mut </span>aval, (<span class="number">0</span>..<span class="number">511</span>).collect())
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">overflow</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aval</span> <span class="op">=</span> <span class="ident">Availability::default</span>();
-        <span class="ident">single</span>(<span class="kw-2">&amp;mut</span> <span class="ident">aval</span>, <span class="number">512</span>);
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>overflow() {
+        <span class="kw">let </span><span class="kw-2">mut </span>aval = Availability::default();
+        single(<span class="kw-2">&amp;mut </span>aval, <span class="number">512</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">pin_point</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aval</span> <span class="op">=</span> <span class="ident">Availability::default</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>pin_point() {
+        <span class="kw">let </span><span class="kw-2">mut </span>aval = Availability::default();
 
-        <span class="ident">aval</span>.<span class="ident">set_available</span>(<span class="number">438</span>, <span class="bool-val">true</span>);
+        aval.set_available(<span class="number">438</span>, <span class="bool-val">true</span>);
 
-        <span class="ident">aval</span>.<span class="ident">set_available</span>(<span class="number">479</span>, <span class="bool-val">true</span>);
+        aval.set_available(<span class="number">479</span>, <span class="bool-val">true</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">aval</span>.<span class="number">0</span>[<span class="number">3</span>], <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="number">438</span> <span class="op">-</span> <span class="number">384</span>) <span class="op">|</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="number">479</span> <span class="op">-</span> <span class="number">384</span>));
+        <span class="macro">assert_eq!</span>(aval.<span class="number">0</span>[<span class="number">3</span>], <span class="number">1 </span>&lt;&lt; (<span class="number">438 </span>- <span class="number">384</span>) | <span class="number">1 </span>&lt;&lt; (<span class="number">479 </span>- <span class="number">384</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

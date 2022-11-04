@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/command.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>command.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/command.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>command.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -360,280 +360,280 @@
 <span id="360">360</span>
 <span id="361">361</span>
 </pre><pre class="rust"><code>
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::util::Log2FloorNonZero</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::encode::BROTLI_NUM_DISTANCE_SHORT_CODES</span>;
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>,<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrotliDistanceParams</span> {
-    <span class="kw">pub</span> <span class="ident">distance_postfix_bits</span> : <span class="ident">u32</span>,
-    <span class="kw">pub</span> <span class="ident">num_direct_distance_codes</span> : <span class="ident">u32</span>,
-    <span class="kw">pub</span> <span class="ident">alphabet_size</span> : <span class="ident">u32</span>,
-    <span class="kw">pub</span> <span class="ident">max_distance</span> : <span class="ident">usize</span>,
+<span class="kw">use </span><span class="kw">super</span>::util::Log2FloorNonZero;
+<span class="kw">use </span><span class="kw">super</span>::encode::BROTLI_NUM_DISTANCE_SHORT_CODES;
+<span class="attribute">#[derive(Copy,Clone, Debug)]
+</span><span class="kw">pub struct </span>BrotliDistanceParams {
+    <span class="kw">pub </span>distance_postfix_bits : u32,
+    <span class="kw">pub </span>num_direct_distance_codes : u32,
+    <span class="kw">pub </span>alphabet_size : u32,
+    <span class="kw">pub </span>max_distance : usize,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Command</span> {
-  <span class="comment">// stores copy_len in low 25 bits and copy_code - copy_len in high 7 bit</span>
-  <span class="kw">pub</span> <span class="ident">insert_len_</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">copy_len_</span>: <span class="ident">u32</span>,
-  <span class="comment">//stores distance_extra bits</span>
-  <span class="kw">pub</span> <span class="ident">dist_extra_</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">cmd_prefix_</span>: <span class="ident">u16</span>,
-  <span class="comment">// stores distance code in low 10 bits and num extra bits in high 6 bits</span>
-  <span class="kw">pub</span> <span class="ident">dist_prefix_</span>: <span class="ident">u16</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug)]
+</span><span class="kw">pub struct </span>Command {
+  <span class="comment">// stores copy_len in low 25 bits and copy_code - copy_len in high 7 bit
+  </span><span class="kw">pub </span>insert_len_: u32,
+  <span class="kw">pub </span>copy_len_: u32,
+  <span class="comment">//stores distance_extra bits
+  </span><span class="kw">pub </span>dist_extra_: u32,
+  <span class="kw">pub </span>cmd_prefix_: u16,
+  <span class="comment">// stores distance code in low 10 bits and num extra bits in high 6 bits
+  </span><span class="kw">pub </span>dist_prefix_: u16,
 }
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Command</span> {
-  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Command</span> {
-    <span class="ident">Command</span> {
-      <span class="ident">insert_len_</span>: <span class="number">0</span>,
-      <span class="ident">copy_len_</span>: <span class="number">0</span>,
-      <span class="ident">dist_extra_</span>: <span class="number">0</span>,
-      <span class="ident">cmd_prefix_</span>: <span class="number">0</span>,
-      <span class="ident">dist_prefix_</span>: <span class="number">0</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>Command {
+  <span class="kw">fn </span>default() -&gt; Command {
+    Command {
+      insert_len_: <span class="number">0</span>,
+      copy_len_: <span class="number">0</span>,
+      dist_extra_: <span class="number">0</span>,
+      cmd_prefix_: <span class="number">0</span>,
+      dist_prefix_: <span class="number">0</span>,
     }
   }
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandCopyLen</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) -&gt; <span class="ident">u32</span> {
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">copy_len_</span> <span class="op">&amp;</span> <span class="number">0x1ffffffi32</span> <span class="kw">as</span> (<span class="ident">u32</span>)
+<span class="kw">pub fn </span>CommandCopyLen(xself: <span class="kw-2">&amp;</span>Command) -&gt; u32 {
+  (<span class="kw-2">*</span>xself).copy_len_ &amp; <span class="number">0x1ffffffi32 </span><span class="kw">as </span>(u32)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandDistanceContext</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>) -&gt; <span class="ident">u32</span> {
-  <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">u32</span> <span class="op">=</span> ((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">6i32</span>) <span class="kw">as</span> (<span class="ident">u32</span>);
-  <span class="kw">let</span> <span class="ident">c</span>: <span class="ident">u32</span> <span class="op">=</span> ((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">7i32</span>) <span class="kw">as</span> (<span class="ident">u32</span>);
-  <span class="kw">if</span> (<span class="ident">r</span> <span class="op">==</span> <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">==</span> <span class="number">2i32</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">==</span> <span class="number">4i32</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span> <span class="op">==</span> <span class="number">7i32</span> <span class="kw">as</span> (<span class="ident">u32</span>)) <span class="op">&amp;&amp;</span>
-     (<span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">2i32</span> <span class="kw">as</span> (<span class="ident">u32</span>)) {
-    <span class="ident">c</span>
-  } <span class="kw">else</span> {
-    <span class="number">3i32</span> <span class="kw">as</span> (<span class="ident">u32</span>)
+<span class="kw">pub fn </span>CommandDistanceContext(xself: <span class="kw-2">&amp;</span>Command) -&gt; u32 {
+  <span class="kw">let </span>r: u32 = ((<span class="kw-2">*</span>xself).cmd_prefix_ <span class="kw">as </span>(i32) &gt;&gt; <span class="number">6i32</span>) <span class="kw">as </span>(u32);
+  <span class="kw">let </span>c: u32 = ((<span class="kw-2">*</span>xself).cmd_prefix_ <span class="kw">as </span>(i32) &amp; <span class="number">7i32</span>) <span class="kw">as </span>(u32);
+  <span class="kw">if </span>(r == <span class="number">0i32 </span><span class="kw">as </span>(u32) || r == <span class="number">2i32 </span><span class="kw">as </span>(u32) || r == <span class="number">4i32 </span><span class="kw">as </span>(u32) || r == <span class="number">7i32 </span><span class="kw">as </span>(u32)) &amp;&amp;
+     (c &lt;= <span class="number">2i32 </span><span class="kw">as </span>(u32)) {
+    c
+  } <span class="kw">else </span>{
+    <span class="number">3i32 </span><span class="kw">as </span>(u32)
   }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ComputeDistanceCode</span>(<span class="ident">distance</span>: <span class="ident">usize</span>, <span class="ident">max_distance</span>: <span class="ident">usize</span>, <span class="ident">dist_cache</span>: <span class="kw-2">&amp;</span>[<span class="ident">i32</span>]) -&gt; <span class="ident">usize</span> {
-  <span class="kw">if</span> <span class="ident">distance</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">max_distance</span> {
-    <span class="kw">let</span> <span class="ident">distance_plus_3</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">distance</span>.<span class="ident">wrapping_add</span>(<span class="number">3usize</span>);
-    <span class="kw">let</span> <span class="ident">offset0</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">distance_plus_3</span>.<span class="ident">wrapping_sub</span>(<span class="ident">dist_cache</span>[(<span class="number">0usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>));
-    <span class="kw">let</span> <span class="ident">offset1</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">distance_plus_3</span>.<span class="ident">wrapping_sub</span>(<span class="ident">dist_cache</span>[(<span class="number">1usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>));
-    <span class="kw">if</span> <span class="ident">distance</span> <span class="op">==</span> <span class="ident">dist_cache</span>[(<span class="number">0usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
-      <span class="kw">return</span> <span class="number">0usize</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">distance</span> <span class="op">==</span> <span class="ident">dist_cache</span>[(<span class="number">1usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
-      <span class="kw">return</span> <span class="number">1usize</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">offset0</span> <span class="op">&lt;</span> <span class="number">7usize</span> {
-      <span class="kw">return</span> (<span class="number">0x9750468i32</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="number">4usize</span>).<span class="ident">wrapping_mul</span>(<span class="ident">offset0</span>) <span class="op">&amp;</span> <span class="number">0xfi32</span>) <span class="kw">as</span> (<span class="ident">usize</span>);
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">offset1</span> <span class="op">&lt;</span> <span class="number">7usize</span> {
-      <span class="kw">return</span> (<span class="number">0xfdb1acei32</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="number">4usize</span>).<span class="ident">wrapping_mul</span>(<span class="ident">offset1</span>) <span class="op">&amp;</span> <span class="number">0xfi32</span>) <span class="kw">as</span> (<span class="ident">usize</span>);
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">distance</span> <span class="op">==</span> <span class="ident">dist_cache</span>[(<span class="number">2usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
-      <span class="kw">return</span> <span class="number">2usize</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">distance</span> <span class="op">==</span> <span class="ident">dist_cache</span>[(<span class="number">3usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>) {
-      <span class="kw">return</span> <span class="number">3usize</span>;
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>ComputeDistanceCode(distance: usize, max_distance: usize, dist_cache: <span class="kw-2">&amp;</span>[i32]) -&gt; usize {
+  <span class="kw">if </span>distance &lt;= max_distance {
+    <span class="kw">let </span>distance_plus_3: usize = distance.wrapping_add(<span class="number">3usize</span>);
+    <span class="kw">let </span>offset0: usize = distance_plus_3.wrapping_sub(dist_cache[(<span class="number">0usize</span>)] <span class="kw">as </span>(usize));
+    <span class="kw">let </span>offset1: usize = distance_plus_3.wrapping_sub(dist_cache[(<span class="number">1usize</span>)] <span class="kw">as </span>(usize));
+    <span class="kw">if </span>distance == dist_cache[(<span class="number">0usize</span>)] <span class="kw">as </span>(usize) {
+      <span class="kw">return </span><span class="number">0usize</span>;
+    } <span class="kw">else if </span>distance == dist_cache[(<span class="number">1usize</span>)] <span class="kw">as </span>(usize) {
+      <span class="kw">return </span><span class="number">1usize</span>;
+    } <span class="kw">else if </span>offset0 &lt; <span class="number">7usize </span>{
+      <span class="kw">return </span>(<span class="number">0x9750468i32 </span>&gt;&gt; (<span class="number">4usize</span>).wrapping_mul(offset0) &amp; <span class="number">0xfi32</span>) <span class="kw">as </span>(usize);
+    } <span class="kw">else if </span>offset1 &lt; <span class="number">7usize </span>{
+      <span class="kw">return </span>(<span class="number">0xfdb1acei32 </span>&gt;&gt; (<span class="number">4usize</span>).wrapping_mul(offset1) &amp; <span class="number">0xfi32</span>) <span class="kw">as </span>(usize);
+    } <span class="kw">else if </span>distance == dist_cache[(<span class="number">2usize</span>)] <span class="kw">as </span>(usize) {
+      <span class="kw">return </span><span class="number">2usize</span>;
+    } <span class="kw">else if </span>distance == dist_cache[(<span class="number">3usize</span>)] <span class="kw">as </span>(usize) {
+      <span class="kw">return </span><span class="number">3usize</span>;
     }
   }
-  <span class="ident">distance</span>.<span class="ident">wrapping_add</span>(<span class="number">16usize</span>).<span class="ident">wrapping_sub</span>(<span class="number">1usize</span>)
+  distance.wrapping_add(<span class="number">16usize</span>).wrapping_sub(<span class="number">1usize</span>)
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">GetInsertLengthCode</span>(<span class="ident">insertlen</span>: <span class="ident">usize</span>) -&gt; <span class="ident">u16</span> {
-  <span class="kw">if</span> <span class="ident">insertlen</span> <span class="op">&lt;</span> <span class="number">6usize</span> {
-    <span class="ident">insertlen</span> <span class="kw">as</span> (<span class="ident">u16</span>)
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">insertlen</span> <span class="op">&lt;</span> <span class="number">130usize</span> {
-    <span class="kw">let</span> <span class="ident">nbits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">Log2FloorNonZero</span>(<span class="ident">insertlen</span>.<span class="ident">wrapping_sub</span>(<span class="number">2</span>) <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">wrapping_sub</span>(<span class="number">1u32</span>);
-    ((<span class="ident">nbits</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1i32</span>) <span class="kw">as</span> (<span class="ident">usize</span>))
-      .<span class="ident">wrapping_add</span>(<span class="ident">insertlen</span>.<span class="ident">wrapping_sub</span>(<span class="number">2usize</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">nbits</span>)
-      .<span class="ident">wrapping_add</span>(<span class="number">2usize</span>) <span class="kw">as</span> (<span class="ident">u16</span>)
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">insertlen</span> <span class="op">&lt;</span> <span class="number">2114usize</span> {
-    <span class="ident">Log2FloorNonZero</span>(<span class="ident">insertlen</span>.<span class="ident">wrapping_sub</span>(<span class="number">66usize</span>) <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">wrapping_add</span>(<span class="number">10u32</span>) <span class="kw">as</span> (<span class="ident">u16</span>)
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">insertlen</span> <span class="op">&lt;</span> <span class="number">6210usize</span> {
-    <span class="number">21u32</span> <span class="kw">as</span> (<span class="ident">u16</span>)
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">insertlen</span> <span class="op">&lt;</span> <span class="number">22594usize</span> {
-    <span class="number">22u32</span> <span class="kw">as</span> (<span class="ident">u16</span>)
-  } <span class="kw">else</span> {
-    <span class="number">23u32</span> <span class="kw">as</span> (<span class="ident">u16</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>GetInsertLengthCode(insertlen: usize) -&gt; u16 {
+  <span class="kw">if </span>insertlen &lt; <span class="number">6usize </span>{
+    insertlen <span class="kw">as </span>(u16)
+  } <span class="kw">else if </span>insertlen &lt; <span class="number">130usize </span>{
+    <span class="kw">let </span>nbits: u32 = Log2FloorNonZero(insertlen.wrapping_sub(<span class="number">2</span>) <span class="kw">as </span>u64).wrapping_sub(<span class="number">1u32</span>);
+    ((nbits &lt;&lt; <span class="number">1i32</span>) <span class="kw">as </span>(usize))
+      .wrapping_add(insertlen.wrapping_sub(<span class="number">2usize</span>) &gt;&gt; nbits)
+      .wrapping_add(<span class="number">2usize</span>) <span class="kw">as </span>(u16)
+  } <span class="kw">else if </span>insertlen &lt; <span class="number">2114usize </span>{
+    Log2FloorNonZero(insertlen.wrapping_sub(<span class="number">66usize</span>) <span class="kw">as </span>u64).wrapping_add(<span class="number">10u32</span>) <span class="kw">as </span>(u16)
+  } <span class="kw">else if </span>insertlen &lt; <span class="number">6210usize </span>{
+    <span class="number">21u32 </span><span class="kw">as </span>(u16)
+  } <span class="kw">else if </span>insertlen &lt; <span class="number">22594usize </span>{
+    <span class="number">22u32 </span><span class="kw">as </span>(u16)
+  } <span class="kw">else </span>{
+    <span class="number">23u32 </span><span class="kw">as </span>(u16)
   }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">GetCopyLengthCode</span>(<span class="ident">copylen</span>: <span class="ident">usize</span>) -&gt; <span class="ident">u16</span> {
-  <span class="kw">if</span> <span class="ident">copylen</span> <span class="op">&lt;</span> <span class="number">10usize</span> {
-    <span class="ident">copylen</span>.<span class="ident">wrapping_sub</span>(<span class="number">2usize</span>) <span class="kw">as</span> (<span class="ident">u16</span>)
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">copylen</span> <span class="op">&lt;</span> <span class="number">134usize</span> {
-    <span class="kw">let</span> <span class="ident">nbits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">Log2FloorNonZero</span>(<span class="ident">copylen</span>.<span class="ident">wrapping_sub</span>(<span class="number">6usize</span>) <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">wrapping_sub</span>(<span class="number">1u32</span>);
-    ((<span class="ident">nbits</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1i32</span>) <span class="kw">as</span> (<span class="ident">usize</span>))
-      .<span class="ident">wrapping_add</span>(<span class="ident">copylen</span>.<span class="ident">wrapping_sub</span>(<span class="number">6usize</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">nbits</span>)
-      .<span class="ident">wrapping_add</span>(<span class="number">4usize</span>) <span class="kw">as</span> (<span class="ident">u16</span>)
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">copylen</span> <span class="op">&lt;</span> <span class="number">2118usize</span> {
-    <span class="ident">Log2FloorNonZero</span>(<span class="ident">copylen</span>.<span class="ident">wrapping_sub</span>(<span class="number">70usize</span>) <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">wrapping_add</span>(<span class="number">12u32</span>) <span class="kw">as</span> (<span class="ident">u16</span>)
-  } <span class="kw">else</span> {
-    <span class="number">23u32</span> <span class="kw">as</span> (<span class="ident">u16</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>GetCopyLengthCode(copylen: usize) -&gt; u16 {
+  <span class="kw">if </span>copylen &lt; <span class="number">10usize </span>{
+    copylen.wrapping_sub(<span class="number">2usize</span>) <span class="kw">as </span>(u16)
+  } <span class="kw">else if </span>copylen &lt; <span class="number">134usize </span>{
+    <span class="kw">let </span>nbits: u32 = Log2FloorNonZero(copylen.wrapping_sub(<span class="number">6usize</span>) <span class="kw">as </span>u64).wrapping_sub(<span class="number">1u32</span>);
+    ((nbits &lt;&lt; <span class="number">1i32</span>) <span class="kw">as </span>(usize))
+      .wrapping_add(copylen.wrapping_sub(<span class="number">6usize</span>) &gt;&gt; nbits)
+      .wrapping_add(<span class="number">4usize</span>) <span class="kw">as </span>(u16)
+  } <span class="kw">else if </span>copylen &lt; <span class="number">2118usize </span>{
+    Log2FloorNonZero(copylen.wrapping_sub(<span class="number">70usize</span>) <span class="kw">as </span>u64).wrapping_add(<span class="number">12u32</span>) <span class="kw">as </span>(u16)
+  } <span class="kw">else </span>{
+    <span class="number">23u32 </span><span class="kw">as </span>(u16)
   }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CombineLengthCodes</span>(<span class="ident">inscode</span>: <span class="ident">u16</span>, <span class="ident">copycode</span>: <span class="ident">u16</span>, <span class="ident">use_last_distance</span>: <span class="ident">i32</span>) -&gt; <span class="ident">u16</span> {
-  <span class="kw">let</span> <span class="ident">bits64</span>: <span class="ident">u16</span> <span class="op">=</span> (<span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">&amp;</span> <span class="number">0x7u32</span> <span class="op">|</span> (<span class="ident">inscode</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">&amp;</span> <span class="number">0x7u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3i32</span>) <span class="kw">as</span> (<span class="ident">u16</span>);
-  <span class="kw">if</span> <span class="ident">use_last_distance</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> (<span class="ident">inscode</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span> <span class="number">8i32</span>) <span class="op">&amp;&amp;</span> (<span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span> <span class="number">16i32</span>) {
-    <span class="kw">if</span> <span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span> <span class="number">8i32</span> {
-      <span class="ident">bits64</span>
-    } <span class="kw">else</span> {
-      <span class="kw">let</span> <span class="ident">s64</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="number">64i32</span> <span class="kw">as</span> (<span class="ident">u16</span>);
-      (<span class="ident">bits64</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">|</span> <span class="ident">s64</span> <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u16</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>CombineLengthCodes(inscode: u16, copycode: u16, use_last_distance: i32) -&gt; u16 {
+  <span class="kw">let </span>bits64: u16 = (copycode <span class="kw">as </span>(u32) &amp; <span class="number">0x7u32 </span>| (inscode <span class="kw">as </span>(u32) &amp; <span class="number">0x7u32</span>) &lt;&lt; <span class="number">3i32</span>) <span class="kw">as </span>(u16);
+  <span class="kw">if </span>use_last_distance != <span class="number">0 </span>&amp;&amp; (inscode <span class="kw">as </span>(i32) &lt; <span class="number">8i32</span>) &amp;&amp; (copycode <span class="kw">as </span>(i32) &lt; <span class="number">16i32</span>) {
+    <span class="kw">if </span>copycode <span class="kw">as </span>(i32) &lt; <span class="number">8i32 </span>{
+      bits64
+    } <span class="kw">else </span>{
+      <span class="kw">let </span>s64: u16 = <span class="number">64i32 </span><span class="kw">as </span>(u16);
+      (bits64 <span class="kw">as </span>(i32) | s64 <span class="kw">as </span>(i32)) <span class="kw">as </span>(u16)
     }
-  } <span class="kw">else</span> {
-    <span class="kw">let</span> <span class="ident">sub_offset</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">2i32</span> <span class="op">*</span> ((<span class="ident">copycode</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3i32</span>) <span class="op">+</span> <span class="number">3i32</span> <span class="op">*</span> (<span class="ident">inscode</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3i32</span>));
-    <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> (<span class="ident">sub_offset</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5i32</span>) <span class="op">+</span> <span class="number">0x40i32</span> <span class="op">+</span> (<span class="number">0x520d40i32</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">sub_offset</span> <span class="op">&amp;</span> <span class="number">0xc0i32</span>);
-    (<span class="ident">offset</span> <span class="kw">as</span> (<span class="ident">u16</span>) <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">|</span> <span class="ident">bits64</span> <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u16</span>)
+  } <span class="kw">else </span>{
+    <span class="kw">let </span>sub_offset: i32 = <span class="number">2i32 </span>* ((copycode <span class="kw">as </span>(i32) &gt;&gt; <span class="number">3i32</span>) + <span class="number">3i32 </span>* (inscode <span class="kw">as </span>(i32) &gt;&gt; <span class="number">3i32</span>));
+    <span class="kw">let </span>offset = (sub_offset &lt;&lt; <span class="number">5i32</span>) + <span class="number">0x40i32 </span>+ (<span class="number">0x520d40i32 </span>&gt;&gt; sub_offset &amp; <span class="number">0xc0i32</span>);
+    (offset <span class="kw">as </span>(u16) <span class="kw">as </span>(i32) | bits64 <span class="kw">as </span>(i32)) <span class="kw">as </span>(u16)
   }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">GetLengthCode</span>(<span class="ident">insertlen</span>: <span class="ident">usize</span>,
-                     <span class="ident">copylen</span>: <span class="ident">usize</span>,
-                     <span class="ident">use_last_distance</span>: <span class="ident">i32</span>,
-                     <span class="ident">code</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u16</span>) {
-  <span class="kw">let</span> <span class="ident">inscode</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="ident">GetInsertLengthCode</span>(<span class="ident">insertlen</span>);
-  <span class="kw">let</span> <span class="ident">copycode</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="ident">GetCopyLengthCode</span>(<span class="ident">copylen</span>);
-  <span class="kw-2">*</span><span class="ident">code</span> <span class="op">=</span> <span class="ident">CombineLengthCodes</span>(<span class="ident">inscode</span>, <span class="ident">copycode</span>, <span class="ident">use_last_distance</span>);
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>GetLengthCode(insertlen: usize,
+                     copylen: usize,
+                     use_last_distance: i32,
+                     code: <span class="kw-2">&amp;mut </span>u16) {
+  <span class="kw">let </span>inscode: u16 = GetInsertLengthCode(insertlen);
+  <span class="kw">let </span>copycode: u16 = GetCopyLengthCode(copylen);
+  <span class="kw-2">*</span>code = CombineLengthCodes(inscode, copycode, use_last_distance);
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">PrefixEncodeCopyDistance</span>(<span class="ident">distance_code</span>: <span class="ident">usize</span>,
-                                <span class="ident">num_direct_codes</span>: <span class="ident">usize</span>,
-                                <span class="ident">postfix_bits</span>: <span class="ident">u64</span>,
-                                <span class="ident">code</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u16</span>,
-                                <span class="ident">extra_bits</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u32</span>) {
-  <span class="kw">if</span> <span class="ident">distance_code</span> <span class="op">&lt;</span> (<span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">wrapping_add</span>(<span class="ident">num_direct_codes</span>) {
-    <span class="kw-2">*</span><span class="ident">code</span> <span class="op">=</span> <span class="ident">distance_code</span> <span class="kw">as</span> (<span class="ident">u16</span>);
-    <span class="kw-2">*</span><span class="ident">extra_bits</span> <span class="op">=</span> <span class="number">0u32</span>;
-  } <span class="kw">else</span> {
-    <span class="kw">let</span> <span class="ident">dist</span>: <span class="ident">u64</span> <span class="op">=</span> (<span class="number">1u64</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">postfix_bits</span> <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">wrapping_add</span>(<span class="number">2u32</span> <span class="kw">as</span> (<span class="ident">u64</span>)))
-      .<span class="ident">wrapping_add</span>((<span class="ident">distance_code</span> <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">wrapping_sub</span>(<span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">wrapping_sub</span>(<span class="ident">num_direct_codes</span> <span class="kw">as</span> <span class="ident">u64</span>) <span class="kw">as</span> <span class="ident">u64</span>);
-    <span class="kw">let</span> <span class="ident">bucket</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">Log2FloorNonZero</span>(<span class="ident">dist</span>).<span class="ident">wrapping_sub</span>(<span class="number">1u32</span>) <span class="kw">as</span> (<span class="ident">u64</span>);
-    <span class="kw">let</span> <span class="ident">postfix_mask</span>: <span class="ident">u64</span> <span class="op">=</span> (<span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">postfix_bits</span>).<span class="ident">wrapping_sub</span>(<span class="number">1u32</span>) <span class="kw">as</span> (<span class="ident">u64</span>);
-    <span class="kw">let</span> <span class="ident">postfix</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">dist</span> <span class="op">&amp;</span> <span class="ident">postfix_mask</span>;
-    <span class="kw">let</span> <span class="ident">prefix</span>: <span class="ident">u64</span> <span class="op">=</span> (<span class="ident">dist</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">bucket</span>) <span class="op">&amp;</span> <span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">offset</span>: <span class="ident">u64</span> <span class="op">=</span> (<span class="number">2u64</span>).<span class="ident">wrapping_add</span>(<span class="ident">prefix</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">bucket</span>;
-    <span class="kw">let</span> <span class="ident">nbits</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">bucket</span>.<span class="ident">wrapping_sub</span>(<span class="ident">postfix_bits</span>);
-    <span class="kw-2">*</span><span class="ident">code</span> <span class="op">=</span> ((<span class="ident">nbits</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">10</span>) <span class="op">|</span>
-             ((<span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">wrapping_add</span>(<span class="ident">num_direct_codes</span> <span class="kw">as</span> <span class="ident">u64</span>).<span class="ident">wrapping_add</span>(
-                 <span class="number">2u64</span>.<span class="ident">wrapping_mul</span>(<span class="ident">nbits</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span>)).<span class="ident">wrapping_add</span>(<span class="ident">prefix</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">postfix_bits</span>).<span class="ident">wrapping_add</span>(<span class="ident">postfix</span>))) <span class="kw">as</span> <span class="ident">u16</span>;
-      <span class="kw-2">*</span><span class="ident">extra_bits</span> <span class="op">=</span> (<span class="ident">dist</span>.<span class="ident">wrapping_sub</span>(<span class="ident">offset</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">postfix_bits</span>) <span class="kw">as</span> <span class="ident">u32</span>;
+<span class="kw">pub fn </span>PrefixEncodeCopyDistance(distance_code: usize,
+                                num_direct_codes: usize,
+                                postfix_bits: u64,
+                                code: <span class="kw-2">&amp;mut </span>u16,
+                                extra_bits: <span class="kw-2">&amp;mut </span>u32) {
+  <span class="kw">if </span>distance_code &lt; (BROTLI_NUM_DISTANCE_SHORT_CODES <span class="kw">as </span>usize).wrapping_add(num_direct_codes) {
+    <span class="kw-2">*</span>code = distance_code <span class="kw">as </span>(u16);
+    <span class="kw-2">*</span>extra_bits = <span class="number">0u32</span>;
+  } <span class="kw">else </span>{
+    <span class="kw">let </span>dist: u64 = (<span class="number">1u64 </span>&lt;&lt; (postfix_bits <span class="kw">as </span>u64).wrapping_add(<span class="number">2u32 </span><span class="kw">as </span>(u64)))
+      .wrapping_add((distance_code <span class="kw">as </span>u64).wrapping_sub(BROTLI_NUM_DISTANCE_SHORT_CODES <span class="kw">as </span>u64).wrapping_sub(num_direct_codes <span class="kw">as </span>u64) <span class="kw">as </span>u64);
+    <span class="kw">let </span>bucket: u64 = Log2FloorNonZero(dist).wrapping_sub(<span class="number">1u32</span>) <span class="kw">as </span>(u64);
+    <span class="kw">let </span>postfix_mask: u64 = (<span class="number">1u32 </span>&lt;&lt; postfix_bits).wrapping_sub(<span class="number">1u32</span>) <span class="kw">as </span>(u64);
+    <span class="kw">let </span>postfix: u64 = dist &amp; postfix_mask;
+    <span class="kw">let </span>prefix: u64 = (dist &gt;&gt; bucket) &amp; <span class="number">1</span>;
+    <span class="kw">let </span>offset: u64 = (<span class="number">2u64</span>).wrapping_add(prefix) &lt;&lt; bucket;
+    <span class="kw">let </span>nbits: u64 = bucket.wrapping_sub(postfix_bits);
+    <span class="kw-2">*</span>code = ((nbits &lt;&lt; <span class="number">10</span>) |
+             ((BROTLI_NUM_DISTANCE_SHORT_CODES <span class="kw">as </span>u64).wrapping_add(num_direct_codes <span class="kw">as </span>u64).wrapping_add(
+                 <span class="number">2u64</span>.wrapping_mul(nbits.wrapping_sub(<span class="number">1</span>)).wrapping_add(prefix) &lt;&lt; postfix_bits).wrapping_add(postfix))) <span class="kw">as </span>u16;
+      <span class="kw-2">*</span>extra_bits = (dist.wrapping_sub(offset) &gt;&gt; postfix_bits) <span class="kw">as </span>u32;
                <span class="comment">/*(16u64)
       .wrapping_add(num_direct_codes as u64)
       .wrapping_add((2u64).wrapping_mul(nbits.wrapping_sub(1)).wrapping_add(prefix) &lt;&lt;
                     postfix_bits)
-      .wrapping_add(postfix) as (u16);*/</span>
-      <span class="comment">//*extra_bits = (nbits &lt;&lt; 24i32 | dist.wrapping_sub(offset) &gt;&gt; postfix_bits) as (u32);</span>
+      .wrapping_add(postfix) as (u16);*/
+      //*extra_bits = (nbits &lt;&lt; 24i32 | dist.wrapping_sub(offset) &gt;&gt; postfix_bits) as (u32);
+  </span>}
+}
+<span class="kw">pub fn </span>CommandRestoreDistanceCode(xself: <span class="kw-2">&amp;</span>Command, dist:<span class="kw-2">&amp;</span>BrotliDistanceParams) -&gt; u32 {
+  <span class="kw">if </span>((<span class="kw-2">*</span>xself).dist_prefix_ <span class="kw">as </span>(i32) &amp; <span class="number">0x3ff</span>) &lt; BROTLI_NUM_DISTANCE_SHORT_CODES <span class="kw">as </span>i32 + dist.num_direct_distance_codes <span class="kw">as </span>i32 {
+    (<span class="kw-2">*</span>xself).dist_prefix_ <span class="kw">as </span>(u32) &amp; <span class="number">0x3ff
+  </span>} <span class="kw">else </span>{
+      <span class="kw">let </span>dcode = xself.dist_prefix_ <span class="kw">as </span>u32 &amp; <span class="number">0x3ff</span>;
+      <span class="kw">let </span>nbits: u32 = u32::from((<span class="kw-2">*</span>xself).dist_prefix_ &gt;&gt; <span class="number">10</span>);
+      <span class="kw">let </span>extra: u32 = (<span class="kw-2">*</span>xself).dist_extra_;
+      <span class="kw">let </span>postfix_mask = (<span class="number">1u32 </span>&lt;&lt; dist.distance_postfix_bits) - <span class="number">1</span>;
+      <span class="kw">let </span>hcode = dcode.wrapping_sub(dist.num_direct_distance_codes).wrapping_sub(BROTLI_NUM_DISTANCE_SHORT_CODES <span class="kw">as </span>u32) &gt;&gt; dist.distance_postfix_bits;
+      <span class="kw">let </span>lcode = dcode.wrapping_sub(dist.num_direct_distance_codes).wrapping_sub(BROTLI_NUM_DISTANCE_SHORT_CODES <span class="kw">as </span>u32) &amp; postfix_mask;
+      <span class="kw">let </span>offset = (<span class="number">2u32</span>.wrapping_add((hcode &amp; <span class="number">1</span>)) &lt;&lt; nbits).wrapping_sub(<span class="number">4</span>);
+      (offset.wrapping_add(extra) &lt;&lt; dist.distance_postfix_bits).wrapping_add(lcode).wrapping_add(dist.num_direct_distance_codes).wrapping_add(
+          BROTLI_NUM_DISTANCE_SHORT_CODES)
   }
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandRestoreDistanceCode</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>, <span class="ident">dist</span>:<span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>) -&gt; <span class="ident">u32</span> {
-  <span class="kw">if</span> ((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">dist_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">0x3ff</span>) <span class="op">&lt;</span> <span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span> <span class="kw">as</span> <span class="ident">i32</span> {
-    (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">dist_prefix_</span> <span class="kw">as</span> (<span class="ident">u32</span>) <span class="op">&amp;</span> <span class="number">0x3ff</span>
-  } <span class="kw">else</span> {
-      <span class="kw">let</span> <span class="ident">dcode</span> <span class="op">=</span> <span class="ident">xself</span>.<span class="ident">dist_prefix_</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">&amp;</span> <span class="number">0x3ff</span>;
-      <span class="kw">let</span> <span class="ident">nbits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">u32::from</span>((<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">dist_prefix_</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">10</span>);
-      <span class="kw">let</span> <span class="ident">extra</span>: <span class="ident">u32</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">dist_extra_</span>;
-      <span class="kw">let</span> <span class="ident">postfix_mask</span> <span class="op">=</span> (<span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span>) <span class="op">-</span> <span class="number">1</span>;
-      <span class="kw">let</span> <span class="ident">hcode</span> <span class="op">=</span> <span class="ident">dcode</span>.<span class="ident">wrapping_sub</span>(<span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span>).<span class="ident">wrapping_sub</span>(<span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span>;
-      <span class="kw">let</span> <span class="ident">lcode</span> <span class="op">=</span> <span class="ident">dcode</span>.<span class="ident">wrapping_sub</span>(<span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span>).<span class="ident">wrapping_sub</span>(<span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&amp;</span> <span class="ident">postfix_mask</span>;
-      <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> (<span class="number">2u32</span>.<span class="ident">wrapping_add</span>((<span class="ident">hcode</span> <span class="op">&amp;</span> <span class="number">1</span>)) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">nbits</span>).<span class="ident">wrapping_sub</span>(<span class="number">4</span>);
-      (<span class="ident">offset</span>.<span class="ident">wrapping_add</span>(<span class="ident">extra</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span>).<span class="ident">wrapping_add</span>(<span class="ident">lcode</span>).<span class="ident">wrapping_add</span>(<span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span>).<span class="ident">wrapping_add</span>(
-          <span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span>)
-  }
+
+
+
+<span class="comment">// returns which distance code to use ( 0 means none, 1 means last, 2 means penultimate, 3 means the prior to penultimate
+</span><span class="kw">pub fn </span>CommandDistanceIndexAndOffset(cmd: <span class="kw-2">&amp;</span>Command,
+                                     dist: <span class="kw-2">&amp;</span>BrotliDistanceParams) -&gt; (usize, isize) {
+    <span class="kw">let </span>n_postfix = dist.distance_postfix_bits;
+    <span class="kw">let </span>n_direct = dist.num_direct_distance_codes;
+    <span class="kw">let </span>dextra = cmd.dist_extra_;
+    <span class="kw">let </span>dprefix = cmd.dist_prefix_ &amp; <span class="number">0x3ff</span>;
+    <span class="kw">let </span>n_dist_bits = cmd.dist_prefix_ &gt;&gt; <span class="number">10</span>;
+    <span class="kw">if </span>u32::from(dprefix) &lt; BROTLI_NUM_DISTANCE_SHORT_CODES {
+        <span class="kw">let </span>table: [(usize, isize);<span class="number">16</span>]= [(<span class="number">1</span>,<span class="number">0</span>), (<span class="number">2</span>,<span class="number">0</span>),(<span class="number">3</span>,<span class="number">0</span>),(<span class="number">4</span>,<span class="number">0</span>),
+                                        (<span class="number">1</span>,-<span class="number">1</span>), (<span class="number">1</span>, <span class="number">1</span>), (<span class="number">1</span>,-<span class="number">2</span>), (<span class="number">1</span>,<span class="number">2</span>),(<span class="number">1</span>,-<span class="number">3</span>),(<span class="number">1</span>,<span class="number">3</span>),
+                                         (<span class="number">2</span>,-<span class="number">1</span>),(<span class="number">2</span>,<span class="number">1</span>),(<span class="number">2</span>,-<span class="number">2</span>),(<span class="number">2</span>,<span class="number">2</span>),(<span class="number">2</span>,-<span class="number">3</span>),(<span class="number">2</span>,<span class="number">3</span>)];
+        <span class="comment">//eprint!(&quot;AA {:?} {:?} -&gt; {:?}\n&quot;,*cmd, *dist, table[dprefix as usize]);
+        </span><span class="kw">return </span>table[dprefix <span class="kw">as </span>usize];
+    }
+    <span class="kw">if </span>(dprefix <span class="kw">as </span>usize) &lt; BROTLI_NUM_DISTANCE_SHORT_CODES <span class="kw">as </span>usize + n_direct <span class="kw">as </span>usize {
+        <span class="kw">let </span>ret = dprefix <span class="kw">as </span>isize + <span class="number">1 </span>- BROTLI_NUM_DISTANCE_SHORT_CODES <span class="kw">as </span>isize;
+        <span class="comment">//eprint!(&quot;BB {:?} {:?} -&gt; {:?}\n&quot;,*cmd, *dist, ret);
+        </span><span class="kw">return </span>(<span class="number">0</span>, ret);
+    }
+    <span class="kw">let </span>postfix_mask = (<span class="number">1 </span>&lt;&lt; n_postfix) - <span class="number">1</span>;
+    <span class="kw">let </span>dcode = dprefix <span class="kw">as </span>u32 - BROTLI_NUM_DISTANCE_SHORT_CODES <span class="kw">as </span>u32 - n_direct;
+    <span class="kw">let </span>hcode = dcode &gt;&gt; n_postfix;
+    <span class="kw">let </span>lcode = dcode &amp; postfix_mask;
+    <span class="kw">let </span>offset = ((<span class="number">2 </span>+ (hcode &amp; <span class="number">1</span>)) &lt;&lt; n_dist_bits) - <span class="number">4</span>;
+
+    <span class="kw">let </span>ret = (((offset + dextra) &lt;&lt; n_postfix) + lcode + n_direct + <span class="number">1</span>) <span class="kw">as </span>isize;
+    <span class="comment">//assert!(ret != 0);
+    </span>(<span class="number">0</span>, ret)
 }
 
-
-
-<span class="comment">// returns which distance code to use ( 0 means none, 1 means last, 2 means penultimate, 3 means the prior to penultimate</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">CommandDistanceIndexAndOffset</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span>,
-                                     <span class="ident">dist</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">isize</span>) {
-    <span class="kw">let</span> <span class="ident">n_postfix</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span>;
-    <span class="kw">let</span> <span class="ident">n_direct</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span>;
-    <span class="kw">let</span> <span class="ident">dextra</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">dist_extra_</span>;
-    <span class="kw">let</span> <span class="ident">dprefix</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">dist_prefix_</span> <span class="op">&amp;</span> <span class="number">0x3ff</span>;
-    <span class="kw">let</span> <span class="ident">n_dist_bits</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">dist_prefix_</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">10</span>;
-    <span class="kw">if</span> <span class="ident">u32::from</span>(<span class="ident">dprefix</span>) <span class="op">&lt;</span> <span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> {
-        <span class="kw">let</span> <span class="ident">table</span>: [(<span class="ident">usize</span>, <span class="ident">isize</span>);<span class="number">16</span>]<span class="op">=</span> [(<span class="number">1</span>,<span class="number">0</span>), (<span class="number">2</span>,<span class="number">0</span>),(<span class="number">3</span>,<span class="number">0</span>),(<span class="number">4</span>,<span class="number">0</span>),
-                                        (<span class="number">1</span>,<span class="op">-</span><span class="number">1</span>), (<span class="number">1</span>, <span class="number">1</span>), (<span class="number">1</span>,<span class="op">-</span><span class="number">2</span>), (<span class="number">1</span>,<span class="number">2</span>),(<span class="number">1</span>,<span class="op">-</span><span class="number">3</span>),(<span class="number">1</span>,<span class="number">3</span>),
-                                         (<span class="number">2</span>,<span class="op">-</span><span class="number">1</span>),(<span class="number">2</span>,<span class="number">1</span>),(<span class="number">2</span>,<span class="op">-</span><span class="number">2</span>),(<span class="number">2</span>,<span class="number">2</span>),(<span class="number">2</span>,<span class="op">-</span><span class="number">3</span>),(<span class="number">2</span>,<span class="number">3</span>)];
-        <span class="comment">//eprint!(&quot;AA {:?} {:?} -&gt; {:?}\n&quot;,*cmd, *dist, table[dprefix as usize]);</span>
-        <span class="kw">return</span> <span class="ident">table</span>[<span class="ident">dprefix</span> <span class="kw">as</span> <span class="ident">usize</span>];
-    }
-    <span class="kw">if</span> (<span class="ident">dprefix</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&lt;</span> <span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">n_direct</span> <span class="kw">as</span> <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">dprefix</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="number">1</span> <span class="op">-</span> <span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">isize</span>;
-        <span class="comment">//eprint!(&quot;BB {:?} {:?} -&gt; {:?}\n&quot;,*cmd, *dist, ret);</span>
-        <span class="kw">return</span> (<span class="number">0</span>, <span class="ident">ret</span>);
-    }
-    <span class="kw">let</span> <span class="ident">postfix_mask</span> <span class="op">=</span> (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n_postfix</span>) <span class="op">-</span> <span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">dcode</span> <span class="op">=</span> <span class="ident">dprefix</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">-</span> <span class="ident">BROTLI_NUM_DISTANCE_SHORT_CODES</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">-</span> <span class="ident">n_direct</span>;
-    <span class="kw">let</span> <span class="ident">hcode</span> <span class="op">=</span> <span class="ident">dcode</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">n_postfix</span>;
-    <span class="kw">let</span> <span class="ident">lcode</span> <span class="op">=</span> <span class="ident">dcode</span> <span class="op">&amp;</span> <span class="ident">postfix_mask</span>;
-    <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> ((<span class="number">2</span> <span class="op">+</span> (<span class="ident">hcode</span> <span class="op">&amp;</span> <span class="number">1</span>)) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n_dist_bits</span>) <span class="op">-</span> <span class="number">4</span>;
-
-    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> (((<span class="ident">offset</span> <span class="op">+</span> <span class="ident">dextra</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n_postfix</span>) <span class="op">+</span> <span class="ident">lcode</span> <span class="op">+</span> <span class="ident">n_direct</span> <span class="op">+</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">isize</span>;
-    <span class="comment">//assert!(ret != 0);</span>
-    (<span class="number">0</span>, <span class="ident">ret</span>)
-}
-
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="comment">// returns which distance code to use ( 0 means none, 1 means last, 2 means penultimate, 3 means the prior to penultimate</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">helperCommandDistanceIndexAndOffset</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">super</span>::Command</span>,
-                                               <span class="ident">dist</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">super</span>::BrotliDistanceParams</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">isize</span>) {
+<span class="kw">mod </span>test {
+    <span class="comment">// returns which distance code to use ( 0 means none, 1 means last, 2 means penultimate, 3 means the prior to penultimate
+    </span><span class="attribute">#[cfg(test)]
+    </span><span class="kw">pub fn </span>helperCommandDistanceIndexAndOffset(cmd: <span class="kw-2">&amp;</span><span class="kw">super</span>::Command,
+                                               dist: <span class="kw-2">&amp;</span><span class="kw">super</span>::BrotliDistanceParams) -&gt; (usize, isize) {
         
-        <span class="kw">let</span> <span class="ident">n_postfix</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span>;
-        <span class="kw">let</span> <span class="ident">n_direct</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span>;
-        <span class="kw">let</span> <span class="ident">dextra</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">dist_extra_</span>;
-        <span class="kw">let</span> <span class="ident">dist_prefix</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">dist_prefix_</span> <span class="op">&amp;</span> <span class="number">0x3ff</span>;
-        <span class="kw">if</span> <span class="ident">dist_prefix</span> <span class="op">&lt;</span> <span class="number">16</span> {
-            <span class="kw">let</span> <span class="ident">table</span>: [(<span class="ident">usize</span>, <span class="ident">isize</span>);<span class="number">16</span>]<span class="op">=</span> [(<span class="number">1</span>,<span class="number">0</span>), (<span class="number">2</span>,<span class="number">0</span>),(<span class="number">3</span>,<span class="number">0</span>),(<span class="number">4</span>,<span class="number">0</span>),
-                                             (<span class="number">1</span>,<span class="op">-</span><span class="number">1</span>), (<span class="number">1</span>, <span class="number">1</span>), (<span class="number">1</span>,<span class="op">-</span><span class="number">2</span>), (<span class="number">1</span>,<span class="number">2</span>),(<span class="number">1</span>,<span class="op">-</span><span class="number">3</span>),(<span class="number">1</span>,<span class="number">3</span>),
-                                             (<span class="number">2</span>,<span class="op">-</span><span class="number">1</span>),(<span class="number">2</span>,<span class="number">1</span>),(<span class="number">2</span>,<span class="op">-</span><span class="number">2</span>),(<span class="number">2</span>,<span class="number">2</span>),(<span class="number">2</span>,<span class="op">-</span><span class="number">3</span>),(<span class="number">2</span>,<span class="number">3</span>)];
-            <span class="kw">return</span> <span class="ident">table</span>[<span class="ident">cmd</span>.<span class="ident">dist_prefix_</span> <span class="kw">as</span> <span class="ident">usize</span>];
+        <span class="kw">let </span>n_postfix = dist.distance_postfix_bits;
+        <span class="kw">let </span>n_direct = dist.num_direct_distance_codes;
+        <span class="kw">let </span>dextra = cmd.dist_extra_;
+        <span class="kw">let </span>dist_prefix = cmd.dist_prefix_ &amp; <span class="number">0x3ff</span>;
+        <span class="kw">if </span>dist_prefix &lt; <span class="number">16 </span>{
+            <span class="kw">let </span>table: [(usize, isize);<span class="number">16</span>]= [(<span class="number">1</span>,<span class="number">0</span>), (<span class="number">2</span>,<span class="number">0</span>),(<span class="number">3</span>,<span class="number">0</span>),(<span class="number">4</span>,<span class="number">0</span>),
+                                             (<span class="number">1</span>,-<span class="number">1</span>), (<span class="number">1</span>, <span class="number">1</span>), (<span class="number">1</span>,-<span class="number">2</span>), (<span class="number">1</span>,<span class="number">2</span>),(<span class="number">1</span>,-<span class="number">3</span>),(<span class="number">1</span>,<span class="number">3</span>),
+                                             (<span class="number">2</span>,-<span class="number">1</span>),(<span class="number">2</span>,<span class="number">1</span>),(<span class="number">2</span>,-<span class="number">2</span>),(<span class="number">2</span>,<span class="number">2</span>),(<span class="number">2</span>,-<span class="number">3</span>),(<span class="number">2</span>,<span class="number">3</span>)];
+            <span class="kw">return </span>table[cmd.dist_prefix_ <span class="kw">as </span>usize];
     }
-        <span class="kw">if</span> (<span class="ident">dist_prefix</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&lt;</span> <span class="number">16</span> <span class="op">+</span> <span class="ident">n_direct</span> <span class="kw">as</span> <span class="ident">usize</span> {
-            <span class="kw">return</span> (<span class="number">0</span>, <span class="ident">dist_prefix</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="number">1</span> <span class="op">-</span> <span class="number">16</span>);
+        <span class="kw">if </span>(dist_prefix <span class="kw">as </span>usize) &lt; <span class="number">16 </span>+ n_direct <span class="kw">as </span>usize {
+            <span class="kw">return </span>(<span class="number">0</span>, dist_prefix <span class="kw">as </span>isize + <span class="number">1 </span>- <span class="number">16</span>);
         }
-        <span class="kw">let</span> <span class="ident">postfix_mask</span> <span class="op">=</span> (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n_postfix</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">dcode</span> <span class="op">=</span> <span class="ident">dist_prefix</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">-</span> <span class="number">16</span> <span class="op">-</span> <span class="ident">n_direct</span>;
-        <span class="kw">let</span> <span class="ident">n_dist_bits</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> (<span class="ident">dcode</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="ident">n_postfix</span> <span class="op">+</span> <span class="number">1</span>));
+        <span class="kw">let </span>postfix_mask = (<span class="number">1 </span>&lt;&lt; n_postfix) - <span class="number">1</span>;
+        <span class="kw">let </span>dcode = dist_prefix <span class="kw">as </span>u32 - <span class="number">16 </span>- n_direct;
+        <span class="kw">let </span>n_dist_bits = <span class="number">1 </span>+ (dcode &gt;&gt; (n_postfix + <span class="number">1</span>));
         
-        <span class="kw">let</span> <span class="ident">hcode</span> <span class="op">=</span> <span class="ident">dcode</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">n_postfix</span>;
-    <span class="kw">let</span> <span class="ident">lcode</span> <span class="op">=</span> <span class="ident">dcode</span> <span class="op">&amp;</span> <span class="ident">postfix_mask</span>;
-        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> ((<span class="number">2</span> <span class="op">+</span> (<span class="ident">hcode</span> <span class="op">&amp;</span> <span class="number">1</span>)) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n_dist_bits</span>) <span class="op">-</span> <span class="number">4</span>;
-        (<span class="number">0</span>, (((<span class="ident">offset</span> <span class="op">+</span> <span class="ident">dextra</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n_postfix</span>) <span class="op">+</span> <span class="ident">lcode</span> <span class="op">+</span> <span class="ident">n_direct</span> <span class="op">+</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">isize</span>)
+        <span class="kw">let </span>hcode = dcode &gt;&gt; n_postfix;
+    <span class="kw">let </span>lcode = dcode &amp; postfix_mask;
+        <span class="kw">let </span>offset = ((<span class="number">2 </span>+ (hcode &amp; <span class="number">1</span>)) &lt;&lt; n_dist_bits) - <span class="number">4</span>;
+        (<span class="number">0</span>, (((offset + dextra) &lt;&lt; n_postfix) + lcode + n_direct + <span class="number">1</span>) <span class="kw">as </span>isize)
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_command_return_distance_index_offset</span>() {
-        <span class="kw">let</span> <span class="ident">param</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::BrotliDistanceParams</span> {
-            <span class="ident">distance_postfix_bits</span>: <span class="number">2</span>,
-            <span class="ident">num_direct_distance_codes</span>: <span class="number">16</span>,
-            <span class="ident">alphabet_size</span>: <span class="number">224</span>,
-            <span class="ident">max_distance</span>: <span class="number">268435456</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_command_return_distance_index_offset() {
+        <span class="kw">let </span>param = <span class="kw">super</span>::BrotliDistanceParams {
+            distance_postfix_bits: <span class="number">2</span>,
+            num_direct_distance_codes: <span class="number">16</span>,
+            alphabet_size: <span class="number">224</span>,
+            max_distance: <span class="number">268435456</span>,
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::Command::default</span>();
-        <span class="ident">cmd</span>.<span class="ident">insert_len_</span> <span class="op">=</span> <span class="number">63</span>;
-        <span class="ident">cmd</span>.<span class="ident">copy_len_</span> <span class="op">=</span> <span class="number">3</span>;
-        <span class="ident">cmd</span>.<span class="ident">dist_extra_</span> <span class="op">=</span> <span class="number">3</span>;
-        <span class="ident">cmd</span>.<span class="ident">cmd_prefix_</span> <span class="op">=</span> <span class="number">297</span>;
-        <span class="ident">cmd</span>.<span class="ident">dist_prefix_</span><span class="op">=</span> <span class="number">2089</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>cmd = <span class="kw">super</span>::Command::default();
+        cmd.insert_len_ = <span class="number">63</span>;
+        cmd.copy_len_ = <span class="number">3</span>;
+        cmd.dist_extra_ = <span class="number">3</span>;
+        cmd.cmd_prefix_ = <span class="number">297</span>;
+        cmd.dist_prefix_= <span class="number">2089</span>;
         
-        <span class="macro">assert_eq!</span>(<span class="ident"><span class="kw">super</span>::CommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>),
+        <span class="macro">assert_eq!</span>(<span class="kw">super</span>::CommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param),
                    (<span class="number">0</span>,<span class="number">46</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident"><span class="kw">super</span>::CommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>),
-                   <span class="ident">helperCommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>));
-        <span class="ident">cmd</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::Command</span> { <span class="ident">insert_len_</span>: <span class="number">27</span>, <span class="ident">copy_len_</span>: <span class="number">3</span>, <span class="ident">dist_extra_</span>: <span class="number">0</span>, <span class="ident">cmd_prefix_</span>: <span class="number">281</span>, <span class="ident">dist_prefix_</span>: <span class="number">6</span> };
-        <span class="macro">assert_eq!</span>(<span class="ident"><span class="kw">super</span>::CommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>),
-                   (<span class="number">1</span>,<span class="op">-</span><span class="number">2</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident"><span class="kw">super</span>::CommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>),
-                   <span class="ident">helperCommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>));
-        <span class="ident">cmd</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::Command</span> { <span class="ident">insert_len_</span>: <span class="number">1</span>, <span class="ident">copy_len_</span>: <span class="number">3</span>, <span class="ident">dist_extra_</span>: <span class="number">0</span>, <span class="ident">cmd_prefix_</span>: <span class="number">137</span>, <span class="ident">dist_prefix_</span>: <span class="number">27</span> };
-        <span class="macro">assert_eq!</span>(<span class="ident"><span class="kw">super</span>::CommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>),
+        <span class="macro">assert_eq!</span>(<span class="kw">super</span>::CommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param),
+                   helperCommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param));
+        cmd = <span class="kw">super</span>::Command { insert_len_: <span class="number">27</span>, copy_len_: <span class="number">3</span>, dist_extra_: <span class="number">0</span>, cmd_prefix_: <span class="number">281</span>, dist_prefix_: <span class="number">6 </span>};
+        <span class="macro">assert_eq!</span>(<span class="kw">super</span>::CommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param),
+                   (<span class="number">1</span>,-<span class="number">2</span>));
+        <span class="macro">assert_eq!</span>(<span class="kw">super</span>::CommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param),
+                   helperCommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param));
+        cmd = <span class="kw">super</span>::Command { insert_len_: <span class="number">1</span>, copy_len_: <span class="number">3</span>, dist_extra_: <span class="number">0</span>, cmd_prefix_: <span class="number">137</span>, dist_prefix_: <span class="number">27 </span>};
+        <span class="macro">assert_eq!</span>(<span class="kw">super</span>::CommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param),
                    (<span class="number">0</span>,<span class="number">12</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident"><span class="kw">super</span>::CommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>),
-                   <span class="ident">helperCommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>));
-        <span class="ident">cmd</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::Command</span> { <span class="ident">insert_len_</span>: <span class="number">5</span>, <span class="ident">copy_len_</span>: <span class="number">4</span>, <span class="ident">dist_extra_</span>: <span class="number">297</span>, <span class="ident">cmd_prefix_</span>: <span class="number">170</span>, <span class="ident">dist_prefix_</span>: <span class="number">11377</span> };
-        <span class="macro">assert_eq!</span>(<span class="ident"><span class="kw">super</span>::CommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>),
+        <span class="macro">assert_eq!</span>(<span class="kw">super</span>::CommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param),
+                   helperCommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param));
+        cmd = <span class="kw">super</span>::Command { insert_len_: <span class="number">5</span>, copy_len_: <span class="number">4</span>, dist_extra_: <span class="number">297</span>, cmd_prefix_: <span class="number">170</span>, dist_prefix_: <span class="number">11377 </span>};
+        <span class="macro">assert_eq!</span>(<span class="kw">super</span>::CommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param),
                    (<span class="number">0</span>,<span class="number">17574</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident"><span class="kw">super</span>::CommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>),
-                   <span class="ident">helperCommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>));
-        <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::encode::InitInsertCommand</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cmd</span>, <span class="number">24</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident"><span class="kw">super</span>::CommandDistanceIndexAndOffset</span>(<span class="kw-2">&amp;</span><span class="ident">cmd</span>, <span class="kw-2">&amp;</span><span class="ident">param</span>),
+        <span class="macro">assert_eq!</span>(<span class="kw">super</span>::CommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param),
+                   helperCommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param));
+        <span class="kw">super</span>::<span class="kw">super</span>::encode::InitInsertCommand(<span class="kw-2">&amp;mut </span>cmd, <span class="number">24</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw">super</span>::CommandDistanceIndexAndOffset(<span class="kw-2">&amp;</span>cmd, <span class="kw-2">&amp;</span>param),
                    (<span class="number">0</span>,<span class="number">1</span>));
         
     }
@@ -652,73 +652,73 @@
             let exp_dist_code = super::CommandRestoreDistanceCode(&amp;cmd, &amp;param);
             assert_eq!(exp_dist_code as u32, dist_code as u32);
         }
-    }*/</span>
-}
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">RecomputeDistancePrefixes</span>(<span class="ident">cmds</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Command</span>],
-                                 <span class="ident">num_commands</span>: <span class="ident">usize</span>,
-                                 <span class="ident">num_direct_distance_codes</span>: <span class="ident">u32</span>,
-                                 <span class="ident">distance_postfix_bits</span>: <span class="ident">u32</span>,
-                                 <span class="ident">dist</span>:<span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>) {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
-  <span class="kw">if</span> <span class="ident">num_direct_distance_codes</span> <span class="op">==</span> <span class="number">0u32</span> <span class="op">&amp;&amp;</span> (<span class="ident">distance_postfix_bits</span> <span class="op">==</span> <span class="number">0u32</span>) {
+    }*/
+</span>}
+<span class="kw">pub fn </span>RecomputeDistancePrefixes(cmds: <span class="kw-2">&amp;mut </span>[Command],
+                                 num_commands: usize,
+                                 num_direct_distance_codes: u32,
+                                 distance_postfix_bits: u32,
+                                 dist:<span class="kw-2">&amp;</span>BrotliDistanceParams) {
+  <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
+  <span class="kw">if </span>num_direct_distance_codes == <span class="number">0u32 </span>&amp;&amp; (distance_postfix_bits == <span class="number">0u32</span>) {
     <span class="kw">return</span>;
   }
-  <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
-  <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">num_commands</span> {
+  i = <span class="number">0usize</span>;
+  <span class="kw">while </span>i &lt; num_commands {
     {
-      <span class="kw">let</span> <span class="ident">cmd</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Command</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">cmds</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
-      <span class="kw">if</span> <span class="ident">CommandCopyLen</span>(<span class="ident">cmd</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> ((<span class="kw-2">*</span><span class="ident">cmd</span>).<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="number">128i32</span>) {
-        <span class="ident">PrefixEncodeCopyDistance</span>(<span class="ident">CommandRestoreDistanceCode</span>(<span class="ident">cmd</span>, <span class="ident">dist</span>) <span class="kw">as</span> (<span class="ident">usize</span>),
-                                 <span class="ident">num_direct_distance_codes</span> <span class="kw">as</span> (<span class="ident">usize</span>),
-                                 <span class="ident">distance_postfix_bits</span> <span class="kw">as</span> (<span class="ident">u64</span>),
-                                 <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">cmd</span>).<span class="ident">dist_prefix_</span>,
-                                 <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">cmd</span>).<span class="ident">dist_extra_</span>);
+      <span class="kw">let </span>cmd: <span class="kw-2">&amp;mut </span>Command = <span class="kw-2">&amp;mut </span>cmds[(i <span class="kw">as </span>(usize))];
+      <span class="kw">if </span>CommandCopyLen(cmd) != <span class="number">0 </span>&amp;&amp; ((<span class="kw-2">*</span>cmd).cmd_prefix_ <span class="kw">as </span>(i32) &gt;= <span class="number">128i32</span>) {
+        PrefixEncodeCopyDistance(CommandRestoreDistanceCode(cmd, dist) <span class="kw">as </span>(usize),
+                                 num_direct_distance_codes <span class="kw">as </span>(usize),
+                                 distance_postfix_bits <span class="kw">as </span>(u64),
+                                 <span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span>cmd).dist_prefix_,
+                                 <span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span>cmd).dist_extra_);
       }
     }
-    <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
+    i = i.wrapping_add(<span class="number">1 </span><span class="kw">as </span>(usize));
   }
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">InitCommand</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Command</span>,
-                   <span class="ident">dist</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>,
-                   <span class="ident">insertlen</span>: <span class="ident">usize</span>,
-                   <span class="ident">copylen</span>: <span class="ident">usize</span>,
-                   <span class="ident">copylen_code</span>: <span class="ident">usize</span>,
-                   <span class="ident">distance_code</span>: <span class="ident">usize</span>) {
+<span class="kw">pub fn </span>InitCommand(xself: <span class="kw-2">&amp;mut </span>Command,
+                   dist: <span class="kw-2">&amp;</span>BrotliDistanceParams,
+                   insertlen: usize,
+                   copylen: usize,
+                   copylen_code: usize,
+                   distance_code: usize) {
   
-  <span class="ident">xself</span>.<span class="ident">insert_len_</span> <span class="op">=</span> <span class="ident">insertlen</span> <span class="kw">as</span> (<span class="ident">u32</span>);
-  <span class="kw">let</span> <span class="ident">copylen_code_delta</span> <span class="op">=</span> (<span class="ident">copylen_code</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">-</span> <span class="ident">copylen</span> <span class="kw">as</span> <span class="ident">i32</span>) <span class="kw">as</span> <span class="ident">i8</span>;
-  <span class="ident">xself</span>.<span class="ident">copy_len_</span> <span class="op">=</span> (<span class="ident">copylen</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">|</span> (<span class="ident">u32::from</span>(<span class="ident">copylen_code_delta</span> <span class="kw">as</span> <span class="ident">u8</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">25</span>));
-  <span class="ident">PrefixEncodeCopyDistance</span>(<span class="ident">distance_code</span>,
-                           <span class="ident">dist</span>.<span class="ident">num_direct_distance_codes</span> <span class="kw">as</span> <span class="ident">usize</span>,
-                           <span class="ident">u64::from</span>(<span class="ident">dist</span>.<span class="ident">distance_postfix_bits</span>),
-                           <span class="kw-2">&amp;mut</span> <span class="ident">xself</span>.<span class="ident">dist_prefix_</span>,
-                           <span class="kw-2">&amp;mut</span> <span class="ident">xself</span>.<span class="ident">dist_extra_</span>);
-  <span class="ident">GetLengthCode</span>(<span class="ident">insertlen</span>,
-                <span class="ident">copylen_code</span>,
-                <span class="kw">if</span> <span class="op">!</span><span class="op">!</span>((<span class="ident">xself</span>.<span class="ident">dist_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">0x3ff</span>) <span class="op">==</span> <span class="number">0i32</span>) {
-                  <span class="number">1i32</span>
-                } <span class="kw">else</span> {
-                  <span class="number">0i32</span>
-                },
-                <span class="kw-2">&amp;mut</span> <span class="ident">xself</span>.<span class="ident">cmd_prefix_</span>);
+  xself.insert_len_ = insertlen <span class="kw">as </span>(u32);
+  <span class="kw">let </span>copylen_code_delta = (copylen_code <span class="kw">as </span>i32 - copylen <span class="kw">as </span>i32) <span class="kw">as </span>i8;
+  xself.copy_len_ = (copylen <span class="kw">as </span>u32 | (u32::from(copylen_code_delta <span class="kw">as </span>u8) &lt;&lt; <span class="number">25</span>));
+  PrefixEncodeCopyDistance(distance_code,
+                           dist.num_direct_distance_codes <span class="kw">as </span>usize,
+                           u64::from(dist.distance_postfix_bits),
+                           <span class="kw-2">&amp;mut </span>xself.dist_prefix_,
+                           <span class="kw-2">&amp;mut </span>xself.dist_extra_);
+  GetLengthCode(insertlen,
+                copylen_code,
+                <span class="kw">if </span>!!((xself.dist_prefix_ <span class="kw">as </span>(i32) &amp; <span class="number">0x3ff</span>) == <span class="number">0i32</span>) {
+                  <span class="number">1i32
+                </span>} <span class="kw">else </span>{
+                  <span class="number">0i32
+                </span>},
+                <span class="kw-2">&amp;mut </span>xself.cmd_prefix_);
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">NewCommand</span>(<span class="ident">dist</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliDistanceParams</span>,
-                  <span class="ident">insertlen</span>: <span class="ident">usize</span>,
-                  <span class="ident">copylen</span>: <span class="ident">usize</span>,
-                  <span class="ident">copylen_code</span>: <span class="ident">usize</span>,
-                  <span class="ident">distance_code</span>: <span class="ident">usize</span>)
-                  -&gt; <span class="ident">Command</span> {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">xself</span>: <span class="ident">Command</span> <span class="op">=</span> <span class="ident">Command</span> {
-    <span class="ident">insert_len_</span>: <span class="ident">insertlen</span> <span class="kw">as</span> (<span class="ident">u32</span>),
-    <span class="ident">copy_len_</span>: (<span class="ident">copylen</span> <span class="op">|</span> ((<span class="ident">copylen_code</span> <span class="op">^</span> <span class="ident">copylen</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">25</span>)) <span class="kw">as</span> (<span class="ident">u32</span>),
-    <span class="ident">dist_extra_</span>: <span class="number">0</span>,
-    <span class="ident">cmd_prefix_</span>: <span class="number">0</span>,
-    <span class="ident">dist_prefix_</span>: <span class="number">0</span>,
+<span class="kw">pub fn </span>NewCommand(dist: <span class="kw-2">&amp;</span>BrotliDistanceParams,
+                  insertlen: usize,
+                  copylen: usize,
+                  copylen_code: usize,
+                  distance_code: usize)
+                  -&gt; Command {
+  <span class="kw">let </span><span class="kw-2">mut </span>xself: Command = Command {
+    insert_len_: insertlen <span class="kw">as </span>(u32),
+    copy_len_: (copylen | ((copylen_code ^ copylen) &lt;&lt; <span class="number">25</span>)) <span class="kw">as </span>(u32),
+    dist_extra_: <span class="number">0</span>,
+    cmd_prefix_: <span class="number">0</span>,
+    dist_prefix_: <span class="number">0</span>,
   };
-  <span class="ident">InitCommand</span>(<span class="kw-2">&amp;mut</span> <span class="ident">xself</span>, <span class="ident">dist</span>, <span class="ident">insertlen</span>, <span class="ident">copylen</span>, <span class="ident">copylen_code</span>, <span class="ident">distance_code</span>);
-  <span class="ident">xself</span>
+  InitCommand(<span class="kw-2">&amp;mut </span>xself, dist, insertlen, copylen, copylen_code, distance_code);
+  xself
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

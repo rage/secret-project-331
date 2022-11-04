@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/course_material/exercises.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/course_material/exercises.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -411,25 +411,25 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/exercises`.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
-<span class="kw">use</span> <span class="ident">futures::future::OptionFuture</span>;
-<span class="kw">use</span> <span class="ident">models</span>::{
-    <span class="ident">exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user</span>,
-    <span class="ident">exercise_task_submissions::PeerReviewsRecieved</span>,
-    <span class="ident">exercises</span>::{<span class="ident">CourseMaterialExercise</span>, <span class="ident">Exercise</span>},
-    <span class="ident">library</span>::{
-        <span class="ident">grading</span>::{
-            <span class="ident">GradingPolicy</span>, <span class="ident">StudentExerciseSlideSubmission</span>, <span class="ident">StudentExerciseSlideSubmissionResult</span>,
+</span><span class="kw">use </span>futures::future::OptionFuture;
+<span class="kw">use </span>models::{
+    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
+    exercise_task_submissions::PeerReviewsRecieved,
+    exercises::{CourseMaterialExercise, Exercise},
+    library::{
+        grading::{
+            GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
         },
-        <span class="ident">peer_reviewing</span>::{<span class="ident">CourseMaterialPeerReviewData</span>, <span class="ident">CourseMaterialPeerReviewSubmission</span>},
+        peer_reviewing::{CourseMaterialPeerReviewData, CourseMaterialPeerReviewSubmission},
     },
-    <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">CourseInstanceOrExamId</span>, <span class="ident">ExerciseWithUserState</span>},
+    user_exercise_states::{<span class="self">self</span>, CourseInstanceOrExamId, ExerciseWithUserState},
 };
 
-<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Duration</span>, <span class="ident">Utc</span>};
+<span class="kw">use </span>chrono::{Duration, Utc};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">domain::authorization::skip_authorize</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
+<span class="kw">use crate</span>::{domain::authorization::skip_authorize, prelude::<span class="kw-2">*</span>};
 
 <span class="doccomment">/**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
@@ -437,105 +437,105 @@ relevant context so that doing the exercise is possible based on the response.
 
 This endpoint does not expose exercise&#39;s private spec because it would
 expose the correct answers to the user.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CourseMaterialExercise</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_id</span> <span class="op">=</span> <span class="ident">user</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">course_material_exercise</span> <span class="op">=</span>
-        <span class="ident">models::exercises::get_course_material_exercise</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">course_material_exercise</span>.<span class="ident">can_post_submission</span>
-        <span class="op">&amp;&amp;</span> <span class="ident">course_material_exercise</span>.<span class="ident">exercise</span>.<span class="ident">exam_id</span>.<span class="ident">is_some</span>()
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_exercise(
+    pool: web::Data&lt;PgPool&gt;,
+    exercise_id: web::Path&lt;Uuid&gt;,
+    user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;CourseMaterialExercise&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user_id = user.map(|u| u.id);
+    <span class="kw">let </span><span class="kw-2">mut </span>course_material_exercise =
+        models::exercises::get_course_material_exercise(<span class="kw-2">&amp;mut </span>conn, user_id, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>course_material_exercise.can_post_submission
+        &amp;&amp; course_material_exercise.exercise.exam_id.is_some()
     {
-        <span class="comment">// Explicitely clear grading information from ongoing exam submissions.</span>
-        <span class="ident">course_material_exercise</span>.<span class="ident">clear_grading_information</span>();
+        <span class="comment">// Explicitely clear grading information from ongoing exam submissions.
+        </span>course_material_exercise.clear_grading_information();
     }
 
-    <span class="kw">let</span> <span class="ident">score_given</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">status</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">course_material_exercise</span>.<span class="ident">exercise_status</span> {
-        <span class="ident">status</span>.<span class="ident">score_given</span>.<span class="ident">unwrap_or</span>(<span class="number">0.0</span>)
-    } <span class="kw">else</span> {
-        <span class="number">0.0</span>
-    };
+    <span class="kw">let </span>score_given: f32 = <span class="kw">if let </span><span class="prelude-val">Some</span>(status) = <span class="kw-2">&amp;</span>course_material_exercise.exercise_status {
+        status.score_given.unwrap_or(<span class="number">0.0</span>)
+    } <span class="kw">else </span>{
+        <span class="number">0.0
+    </span>};
 
-    <span class="kw">let</span> <span class="ident">submission_count</span> <span class="op">=</span> <span class="ident">course_material_exercise</span>
-        .<span class="ident">exercise_slide_submission_counts</span>
-        .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">course_material_exercise</span>.<span class="ident">current_exercise_slide</span>.<span class="ident">id</span>)
-        .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="number">0</span>);
+    <span class="kw">let </span>submission_count = course_material_exercise
+        .exercise_slide_submission_counts
+        .get(<span class="kw-2">&amp;</span>course_material_exercise.current_exercise_slide.id)
+        .unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>);
 
-    <span class="kw">let</span> <span class="ident">out_of_tries</span> <span class="op">=</span> <span class="ident">course_material_exercise</span>.<span class="ident">exercise</span>.<span class="ident">limit_number_of_tries</span>
-        <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">submission_count</span> <span class="kw">as</span> <span class="ident">i32</span>
-            <span class="op">&gt;</span><span class="op">=</span> <span class="ident">course_material_exercise</span>
-                .<span class="ident">exercise</span>
-                .<span class="ident">max_tries_per_slide</span>
-                .<span class="ident">unwrap_or</span>(<span class="ident">i32::MAX</span>);
+    <span class="kw">let </span>out_of_tries = course_material_exercise.exercise.limit_number_of_tries
+        &amp;&amp; <span class="kw-2">*</span>submission_count <span class="kw">as </span>i32
+            &gt;= course_material_exercise
+                .exercise
+                .max_tries_per_slide
+                .unwrap_or(i32::MAX);
 
-    <span class="comment">// Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.</span>
-    <span class="comment">// TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized</span>
-    <span class="kw">let</span> <span class="ident">has_received_full_points</span> <span class="op">=</span> <span class="ident">score_given</span>
-        <span class="op">&gt;</span><span class="op">=</span> <span class="ident">course_material_exercise</span>.<span class="ident">exercise</span>.<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>
-        <span class="op">|</span><span class="op">|</span> (<span class="ident">score_given</span> <span class="op">-</span> <span class="ident">course_material_exercise</span>.<span class="ident">exercise</span>.<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0001</span>;
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">has_received_full_points</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">out_of_tries</span> {
-        <span class="ident">course_material_exercise</span>.<span class="ident">clear_model_solution_specs</span>();
+    <span class="comment">// Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.
+    // TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized
+    </span><span class="kw">let </span>has_received_full_points = score_given
+        &gt;= course_material_exercise.exercise.score_maximum <span class="kw">as </span>f32
+        || (score_given - course_material_exercise.exercise.score_maximum <span class="kw">as </span>f32).abs() &lt; <span class="number">0.0001</span>;
+    <span class="kw">if </span>!has_received_full_points &amp;&amp; !out_of_tries {
+        course_material_exercise.clear_model_solution_specs();
     }
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">course_material_exercise</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(course_material_exercise))
 }
 
 <span class="doccomment">/**
 GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER
 
 This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_peer_review_for_exercise</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">peer_review_data</span> <span class="op">=</span> <span class="ident">models::peer_review_configs::get_course_material_peer_review_data</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-        <span class="kw-2">*</span><span class="ident">exercise_id</span>,
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_peer_review_for_exercise(
+    pool: web::Data&lt;PgPool&gt;,
+    exercise_id: web::Path&lt;Uuid&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;CourseMaterialPeerReviewData&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>peer_review_data = models::peer_review_configs::get_course_material_peer_review_data(
+        <span class="kw-2">&amp;mut </span>conn,
+        user.id,
+        <span class="kw-2">*</span>exercise_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::View</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Exercise</span>(<span class="kw-2">*</span><span class="ident">exercise_id</span>),
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::View,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Exercise(<span class="kw-2">*</span>exercise_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">peer_review_data</span>))
+    token.authorized_ok(web::Json(peer_review_data))
 }
 
 <span class="doccomment">/**
 GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_peer_reviews_received</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">params</span>: <span class="ident">web::Path</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PeerReviewsRecieved</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">exercise_id</span>, <span class="ident">exercise_slide_submission_id</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">into_inner</span>();
-    <span class="kw">let</span> <span class="ident">peer_review_data</span> <span class="op">=</span> <span class="ident">models::exercise_task_submissions::get_peer_reviews_received</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">exercise_slide_submission_id</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_peer_reviews_received(
+    pool: web::Data&lt;PgPool&gt;,
+    params: web::Path&lt;(Uuid, Uuid)&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;PeerReviewsRecieved&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>(exercise_id, exercise_slide_submission_id) = params.into_inner();
+    <span class="kw">let </span>peer_review_data = models::exercise_task_submissions::get_peer_reviews_received(
+        <span class="kw-2">&amp;mut </span>conn,
+        exercise_id,
+        exercise_slide_submission_id,
+        user.id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">peer_review_data</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(peer_review_data))
 }
 
 <span class="doccomment">/**
@@ -557,93 +557,93 @@ Content-Type: application/json
   ]
 }
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_submission</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">StudentExerciseSlideSubmission</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">StudentExerciseSlideSubmissionResult</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter_option_future</span>: <span class="ident">OptionFuture</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">exercise</span>
-        .<span class="ident">chapter_id</span>
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">models::chapters::get_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">id</span>))
-        .<span class="ident">into</span>();
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>post_submission(
+    pool: web::Data&lt;PgPool&gt;,
+    exercise_id: web::Path&lt;Uuid&gt;,
+    payload: web::Json&lt;StudentExerciseSlideSubmission&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;StudentExerciseSlideSubmissionResult&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter_option_future: OptionFuture&lt;<span class="kw">_</span>&gt; = exercise
+        .chapter_id
+        .map(|id| models::chapters::get_chapter(<span class="kw-2">&amp;mut </span>conn, id))
+        .into();
 
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">chapter_option_future</span>.<span class="kw">await</span>.<span class="ident">transpose</span>()<span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter = chapter_option_future.<span class="kw">await</span>.transpose()<span class="question-mark">?</span>;
 
-    <span class="comment">// Exercise deadlines takes precedence to chapter deadlines</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">deadline</span>) <span class="op">=</span> <span class="ident">exercise</span>
-        .<span class="ident">deadline</span>
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">chapter</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">deadline</span>))
+    <span class="comment">// Exercise deadlines takes precedence to chapter deadlines
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(deadline) = exercise
+        .deadline
+        .or_else(|| chapter.and_then(|c| c.deadline))
     {
-        <span class="kw">if</span> <span class="ident">Utc::now</span>() <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">1</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="ident">deadline</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::BadRequest</span>,
-                <span class="string">&quot;Exercise deadline passed.&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">if </span>Utc::now() + Duration::seconds(<span class="number">1</span>) &gt;= deadline {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                <span class="string">&quot;Exercise deadline passed.&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
     }
 
-    <span class="kw">let</span> (<span class="ident">course_instance_or_exam_id</span>, <span class="ident">last_try</span>) <span class="op">=</span>
-        <span class="ident">resolve_course_instance_or_exam_id_and_verify_that_user_can_submit</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">user</span>.<span class="ident">id</span>,
-            <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-            <span class="ident">payload</span>.<span class="ident">exercise_slide_id</span>,
+    <span class="kw">let </span>(course_instance_or_exam_id, last_try) =
+        resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
+            <span class="kw-2">&amp;mut </span>conn,
+            user.id,
+            <span class="kw-2">&amp;</span>exercise,
+            payload.exercise_slide_id,
         )
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">data</span>;
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.data;
 
-    <span class="comment">// TODO: Should this be an upsert?</span>
-    <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">models::user_exercise_states::get_user_exercise_state_if_exists</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-        <span class="ident">exercise</span>.<span class="ident">id</span>,
-        <span class="ident">course_instance_or_exam_id</span>,
+    <span class="comment">// TODO: Should this be an upsert?
+    </span><span class="kw">let </span>user_exercise_state = models::user_exercise_states::get_user_exercise_state_if_exists(
+        <span class="kw-2">&amp;mut </span>conn,
+        user.id,
+        exercise.id,
+        course_instance_or_exam_id,
     )
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::Unauthorized</span>,
-            <span class="string">&quot;Missing exercise state.&quot;</span>.<span class="ident">to_string</span>(),
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            <span class="string">&quot;Missing exercise state.&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_with_user_state</span> <span class="op">=</span> <span class="ident">ExerciseWithUserState::new</span>(<span class="ident">exercise</span>, <span class="ident">user_exercise_state</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">models::library::grading::grade_user_submission</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">&amp;mut</span> <span class="ident">exercise_with_user_state</span>,
-        <span class="ident">payload</span>.<span class="number">0</span>,
-        <span class="ident">GradingPolicy::Default</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>exercise_with_user_state = ExerciseWithUserState::new(exercise, user_exercise_state)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>result = models::library::grading::grade_user_submission(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">&amp;mut </span>exercise_with_user_state,
+        payload.<span class="number">0</span>,
+        GradingPolicy::Default,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="ident">exercise_with_user_state</span>.<span class="ident">is_exam_exercise</span>() {
-        <span class="comment">// If exam, we don&#39;t want to expose model any grading details.</span>
-        <span class="ident">result</span>.<span class="ident">clear_grading_information</span>();
+    <span class="kw">if </span>exercise_with_user_state.is_exam_exercise() {
+        <span class="comment">// If exam, we don&#39;t want to expose model any grading details.
+        </span>result.clear_grading_information();
     }
 
-    <span class="kw">let</span> <span class="ident">score_given</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exercise_status</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">result</span>.<span class="ident">exercise_status</span> {
-        <span class="ident">exercise_status</span>.<span class="ident">score_given</span>.<span class="ident">unwrap_or</span>(<span class="number">0.0</span>)
-    } <span class="kw">else</span> {
-        <span class="number">0.0</span>
-    };
+    <span class="kw">let </span>score_given = <span class="kw">if let </span><span class="prelude-val">Some</span>(exercise_status) = <span class="kw-2">&amp;</span>result.exercise_status {
+        exercise_status.score_given.unwrap_or(<span class="number">0.0</span>)
+    } <span class="kw">else </span>{
+        <span class="number">0.0
+    </span>};
 
-    <span class="comment">// Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.</span>
-    <span class="comment">// TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized</span>
-    <span class="kw">let</span> <span class="ident">has_received_full_points</span> <span class="op">=</span> <span class="ident">score_given</span>
-        <span class="op">&gt;</span><span class="op">=</span> <span class="ident">exercise_with_user_state</span>.<span class="ident">exercise</span>().<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>
-        <span class="op">|</span><span class="op">|</span> (<span class="ident">score_given</span> <span class="op">-</span> <span class="ident">exercise_with_user_state</span>.<span class="ident">exercise</span>().<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0001</span>;
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">has_received_full_points</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">last_try</span> {
-        <span class="ident">result</span>.<span class="ident">clear_model_solution_specs</span>();
+    <span class="comment">// Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.
+    // TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized
+    </span><span class="kw">let </span>has_received_full_points = score_given
+        &gt;= exercise_with_user_state.exercise().score_maximum <span class="kw">as </span>f32
+        || (score_given - exercise_with_user_state.exercise().score_maximum <span class="kw">as </span>f32).abs() &lt; <span class="number">0.0001</span>;
+    <span class="kw">if </span>!has_received_full_points &amp;&amp; !last_try {
+        result.clear_model_solution_specs();
     }
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">result</span>))
+    token.authorized_ok(web::Json(result))
 }
 
 <span class="doccomment">/**
@@ -652,146 +652,146 @@ Content-Type: application/json
  *
  * This operation is only valid for exercises marked for peer reviews. No further submissions will be
  * accepted after posting to this endpoint.
- */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">start_peer_review</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// Authorization</span>
+ */
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>start_peer_review(
+    pool: web::Data&lt;PgPool&gt;,
+    exercise_id: web::Path&lt;Uuid&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Authorization
 
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span>
-        <span class="ident">user_exercise_states::get_users_current_by_exercise</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">models::library::peer_reviewing::start_peer_review_for_user</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user_exercise_state</span>)
+    </span><span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user_exercise_state =
+        user_exercise_states::get_users_current_by_exercise(<span class="kw-2">&amp;mut </span>conn, user.id, <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;
+    models::library::peer_reviewing::start_peer_review_for_user(<span class="kw-2">&amp;mut </span>conn, user_exercise_state)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::View</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Exercise</span>(<span class="kw-2">*</span><span class="ident">exercise_id</span>),
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::View,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Exercise(<span class="kw-2">*</span>exercise_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">true</span>))
+    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
 }
 
 <span class="doccomment">/**
  * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews - Post a peer review for an
  * exercise submission.
- */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">submit_peer_review</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewSubmission</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">models::exercises::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// Authorization</span>
+ */
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>submit_peer_review(
+    pool: web::Data&lt;PgPool&gt;,
+    exercise_id: web::Path&lt;Uuid&gt;,
+    payload: web::Json&lt;CourseMaterialPeerReviewSubmission&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise = models::exercises::get_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Authorization
 
-    <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span>
-        <span class="ident">user_exercise_states::get_users_current_by_exercise</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">models::library::peer_reviewing::create_peer_review_submission_for_user</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
-        <span class="ident">user_exercise_state</span>,
-        <span class="ident">payload</span>.<span class="number">0</span>,
+    </span><span class="kw">let </span>user_exercise_state =
+        user_exercise_states::get_users_current_by_exercise(<span class="kw-2">&amp;mut </span>conn, user.id, <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;
+    models::library::peer_reviewing::create_peer_review_submission_for_user(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">&amp;</span>exercise,
+        user_exercise_state,
+        payload.<span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::View</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Exercise</span>(<span class="ident">exercise</span>.<span class="ident">id</span>),
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::View,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Exercise(exercise.id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">true</span>))
+    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
 }
 
-<span class="doccomment">/// Submissions for exams are posted from course instances or from exams. Make respective validations</span>
-<span class="doccomment">/// while figuring out which.</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">resolve_course_instance_or_exam_id_and_verify_that_user_can_submit</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">slide_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span>(<span class="ident">CourseInstanceOrExamId</span>, <span class="ident">bool</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_try</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="ident">course_instance_id_or_exam_id</span>: <span class="ident">CourseInstanceOrExamId</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_id</span>) <span class="op">=</span>
-        <span class="ident">exercise</span>.<span class="ident">course_id</span>
+<span class="doccomment">/// Submissions for exams are posted from course instances or from exams. Make respective validations
+/// while figuring out which.
+</span><span class="kw">async fn </span>resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    exercise: <span class="kw-2">&amp;</span>Exercise,
+    slide_id: Uuid,
+) -&gt; ControllerResult&lt;(CourseInstanceOrExamId, bool)&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>last_try = <span class="bool-val">false</span>;
+    <span class="kw">let </span>course_instance_id_or_exam_id: CourseInstanceOrExamId = <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) =
+        exercise.course_id
     {
-        <span class="comment">// If submitting for a course, there should be existing course settings that dictate which</span>
-        <span class="comment">// instance the user is on.</span>
-        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">models::user_course_settings::get_user_course_settings_by_course_id</span>(
-            <span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="ident">course_id</span>,
+        <span class="comment">// If submitting for a course, there should be existing course settings that dictate which
+        // instance the user is on.
+        </span><span class="kw">let </span>settings = models::user_course_settings::get_user_course_settings_by_course_id(
+            conn, user_id, course_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">settings</span>) <span class="op">=</span> <span class="ident">settings</span> {
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">CourseInstanceOrExamId::Instance</span>(
-                <span class="ident">settings</span>.<span class="ident">current_course_instance_id</span>,
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(settings) = settings {
+            <span class="kw">let </span>token = authorize(conn, Act::View, <span class="prelude-val">Some</span>(user_id), Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+            token.authorized_ok(CourseInstanceOrExamId::Instance(
+                settings.current_course_instance_id,
             ))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::Unauthorized</span>,
-                <span class="string">&quot;User is not enrolled on this course.&quot;</span>.<span class="ident">to_string</span>(),
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                <span class="string">&quot;User is not enrolled on this course.&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ))
         }
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span> {
-        <span class="comment">// If submitting for an exam, make sure that user&#39;s time is not up.</span>
-        <span class="kw">if</span> <span class="ident">models::exams::verify_exam_submission_can_be_made</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Exam</span>(<span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">CourseInstanceOrExamId::Exam</span>(<span class="ident">exam_id</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::Unauthorized</span>,
-                <span class="string">&quot;Submissions for this exam are no longer accepted.&quot;</span>.<span class="ident">to_string</span>(),
+    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(exam_id) = exercise.exam_id {
+        <span class="comment">// If submitting for an exam, make sure that user&#39;s time is not up.
+        </span><span class="kw">if </span>models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).<span class="kw">await</span><span class="question-mark">? </span>{
+            <span class="kw">let </span>token = authorize(conn, Act::View, <span class="prelude-val">Some</span>(user_id), Res::Exam(exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+            token.authorized_ok(CourseInstanceOrExamId::Exam(exam_id))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                <span class="string">&quot;Submissions for this exam are no longer accepted.&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ))
         }
-    } <span class="kw">else</span> {
-        <span class="comment">// On database level this scenario is impossible.</span>
-        <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::InternalServerError</span>,
-            <span class="string">&quot;Exam doesn&#39;t belong to either a course nor exam.&quot;</span>.<span class="ident">to_string</span>(),
+    } <span class="kw">else </span>{
+        <span class="comment">// On database level this scenario is impossible.
+        </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            <span class="string">&quot;Exam doesn&#39;t belong to either a course nor exam.&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ))
-    }<span class="question-mark">?</span>
-    .<span class="ident">data</span>;
-    <span class="kw">if</span> <span class="ident">exercise</span>.<span class="ident">limit_number_of_tries</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_tries_per_slide</span>) <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">max_tries_per_slide</span> {
-            <span class="comment">// check if the user has attempts remaining</span>
-            <span class="kw">let</span> <span class="ident">slide_id_to_submissions_count</span> <span class="op">=</span>
-                <span class="ident">get_exercise_slide_submission_counts_for_exercise_user</span>(
-                    <span class="ident">conn</span>,
-                    <span class="ident">exercise</span>.<span class="ident">id</span>,
-                    <span class="ident">course_instance_id_or_exam_id</span>,
-                    <span class="ident">user_id</span>,
+    }<span class="question-mark">?
+    </span>.data;
+    <span class="kw">if </span>exercise.limit_number_of_tries {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(max_tries_per_slide) = exercise.max_tries_per_slide {
+            <span class="comment">// check if the user has attempts remaining
+            </span><span class="kw">let </span>slide_id_to_submissions_count =
+                get_exercise_slide_submission_counts_for_exercise_user(
+                    conn,
+                    exercise.id,
+                    course_instance_id_or_exam_id,
+                    user_id,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">slide_id_to_submissions_count</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">slide_id</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="number">0</span>);
-            <span class="kw">if</span> <span class="ident">count</span> <span class="op">&gt;</span><span class="op">=</span> <span class="kw-2">&amp;</span>(<span class="ident">max_tries_per_slide</span> <span class="kw">as</span> <span class="ident">i64</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-                    <span class="ident">ControllerErrorType::BadRequest</span>,
-                    <span class="string">&quot;You&#39;ve ran out of tries.&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="kw">let </span>count = slide_id_to_submissions_count.get(<span class="kw-2">&amp;</span>slide_id).unwrap_or(<span class="kw-2">&amp;</span><span class="number">0</span>);
+            <span class="kw">if </span>count &gt;= <span class="kw-2">&amp;</span>(max_tries_per_slide <span class="kw">as </span>i64) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    <span class="string">&quot;You&#39;ve ran out of tries.&quot;</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 ));
             }
-            <span class="kw">if</span> <span class="ident">count</span> <span class="op">+</span> <span class="number">1</span> <span class="op">&gt;</span><span class="op">=</span> (<span class="ident">max_tries_per_slide</span> <span class="kw">as</span> <span class="ident">i64</span>) {
-                <span class="ident">last_try</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="kw">if </span>count + <span class="number">1 </span>&gt;= (max_tries_per_slide <span class="kw">as </span>i64) {
+                last_try = <span class="bool-val">true</span>;
             }
         }
     }
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="ident">Res::Exercise</span>(<span class="ident">exercise</span>.<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>((<span class="ident">course_instance_id_or_exam_id</span>, <span class="ident">last_try</span>))
+    <span class="kw">let </span>token = authorize(conn, Act::View, <span class="prelude-val">Some</span>(user_id), Res::Exercise(exercise.id)).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok((course_instance_id_or_exam_id, last_try))
 }
 
 <span class="doccomment">/**
@@ -800,29 +800,29 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{exercise_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_exercise</span>))
-        .<span class="ident">route</span>(
+*/
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;/{exercise_id}&quot;</span>, web::get().to(get_exercise))
+        .route(
             <span class="string">&quot;/{exercise_id}/peer-reviews&quot;</span>,
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">submit_peer_review</span>),
+            web::post().to(submit_peer_review),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{exercise_id}/peer-reviews/start&quot;</span>,
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">start_peer_review</span>),
+            web::post().to(start_peer_review),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{exercise_id}/peer-review&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_peer_review_for_exercise</span>),
+            web::get().to(get_peer_review_for_exercise),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-reviews-received&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_peer_reviews_received</span>),
+            web::get().to(get_peer_reviews_received),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{exercise_id}/submissions&quot;</span>,
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_submission</span>),
+            web::post().to(post_submission),
         );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

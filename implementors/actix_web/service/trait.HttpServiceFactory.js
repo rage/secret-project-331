@@ -1,4 +1,4 @@
-(function() {var implementors = {};
-implementors["actix_files"] = [{"text":"impl <a class=\"trait\" href=\"actix_web/service/trait.HttpServiceFactory.html\" title=\"trait actix_web::service::HttpServiceFactory\">HttpServiceFactory</a> for <a class=\"struct\" href=\"actix_files/struct.Files.html\" title=\"struct actix_files::Files\">Files</a>","synthetic":false,"types":["actix_files::files::Files"]},{"text":"impl <a class=\"trait\" href=\"actix_web/service/trait.HttpServiceFactory.html\" title=\"trait actix_web::service::HttpServiceFactory\">HttpServiceFactory</a> for <a class=\"struct\" href=\"actix_files/struct.NamedFile.html\" title=\"struct actix_files::NamedFile\">NamedFile</a>","synthetic":false,"types":["actix_files::named::NamedFile"]}];
-implementors["actix_web"] = [];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"actix_files":[["impl <a class=\"trait\" href=\"actix_web/service/trait.HttpServiceFactory.html\" title=\"trait actix_web::service::HttpServiceFactory\">HttpServiceFactory</a> for <a class=\"struct\" href=\"actix_files/struct.Files.html\" title=\"struct actix_files::Files\">Files</a>"],["impl <a class=\"trait\" href=\"actix_web/service/trait.HttpServiceFactory.html\" title=\"trait actix_web::service::HttpServiceFactory\">HttpServiceFactory</a> for <a class=\"struct\" href=\"actix_files/struct.NamedFile.html\" title=\"struct actix_files::NamedFile\">NamedFile</a>"]],
+"actix_web":[]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

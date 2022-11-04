@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/database.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>database.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/database.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>database.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -151,158 +151,158 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Traits to represent a database driver.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Support</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Tier 1</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Tier 1 support can be thought of as &quot;guaranteed to work&quot;. Automated testing is setup to</span>
-<span class="doccomment">//! ensure a high level of stability and functionality.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Database | Version | Driver |</span>
-<span class="doccomment">//! | - | - | - |</span>
-<span class="doccomment">//! | [MariaDB] | 10.1+ | [`mysql`] |</span>
-<span class="doccomment">//! | [Microsoft SQL Server] | 2019 | [`mssql`] |</span>
-<span class="doccomment">//! | [MySQL] | 5.6, 5.7, 8.0 | [`mysql`] |</span>
-<span class="doccomment">//! | [PostgreSQL] | 9.5+ | [`postgres`] |</span>
-<span class="doccomment">//! | [SQLite] | 3.20.1+ | [`sqlite`] |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [MariaDB]: https://mariadb.com/</span>
-<span class="doccomment">//! [MySQL]: https://www.mysql.com/</span>
-<span class="doccomment">//! [Microsoft SQL Server]: https://www.microsoft.com/en-us/sql-server</span>
-<span class="doccomment">//! [PostgreSQL]: https://www.postgresql.org/</span>
-<span class="doccomment">//! [SQLite]: https://www.sqlite.org/</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`mysql`]: crate::mysql</span>
-<span class="doccomment">//! [`postgres`]: crate::postgres</span>
-<span class="doccomment">//! [`mssql`]: crate::mssql</span>
-<span class="doccomment">//! [`sqlite`]: crate::sqlite</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Tier 2</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Tier 2 support can be thought as &quot;should work&quot;. No specific automated testing is done,</span>
-<span class="doccomment">//! at this time, but there are efforts to ensure compatibility. Tier 2 support also includes</span>
-<span class="doccomment">//! database distributions that provide protocols that closely match a database from Tier 1.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! _No databases are in tier 2 at this time._</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # `Any`</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Selecting a database driver is, by default, a compile-time decision. SQLx is designed this way</span>
-<span class="doccomment">//! to take full advantage of the performance and type safety made available by Rust.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! We recognize that you may wish to make a runtime decision to decide the database driver. The</span>
-<span class="doccomment">//! [`Any`](crate::any) driver is provided for that purpose.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Example</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! // connect to SQLite</span>
-<span class="doccomment">//! let conn = AnyConnection::connect(&quot;sqlite://file.db&quot;).await?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // connect to Postgres, no code change</span>
-<span class="doccomment">//! // required, decided by the scheme of the URL</span>
-<span class="doccomment">//! let conn = AnyConnection::connect(&quot;postgres://localhost/sqlx&quot;).await?;</span>
-<span class="doccomment">//! ```</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Traits to represent a database driver.
+//!
+//! # Support
+//!
+//! ## Tier 1
+//!
+//! Tier 1 support can be thought of as &quot;guaranteed to work&quot;. Automated testing is setup to
+//! ensure a high level of stability and functionality.
+//!
+//! | Database | Version | Driver |
+//! | - | - | - |
+//! | [MariaDB] | 10.1+ | [`mysql`] |
+//! | [Microsoft SQL Server] | 2019 | [`mssql`] |
+//! | [MySQL] | 5.6, 5.7, 8.0 | [`mysql`] |
+//! | [PostgreSQL] | 9.5+ | [`postgres`] |
+//! | [SQLite] | 3.20.1+ | [`sqlite`] |
+//!
+//! [MariaDB]: https://mariadb.com/
+//! [MySQL]: https://www.mysql.com/
+//! [Microsoft SQL Server]: https://www.microsoft.com/en-us/sql-server
+//! [PostgreSQL]: https://www.postgresql.org/
+//! [SQLite]: https://www.sqlite.org/
+//!
+//! [`mysql`]: crate::mysql
+//! [`postgres`]: crate::postgres
+//! [`mssql`]: crate::mssql
+//! [`sqlite`]: crate::sqlite
+//!
+//! ## Tier 2
+//!
+//! Tier 2 support can be thought as &quot;should work&quot;. No specific automated testing is done,
+//! at this time, but there are efforts to ensure compatibility. Tier 2 support also includes
+//! database distributions that provide protocols that closely match a database from Tier 1.
+//!
+//! _No databases are in tier 2 at this time._
+//!
+//! # `Any`
+//!
+//! Selecting a database driver is, by default, a compile-time decision. SQLx is designed this way
+//! to take full advantage of the performance and type safety made available by Rust.
+//!
+//! We recognize that you may wish to make a runtime decision to decide the database driver. The
+//! [`Any`](crate::any) driver is provided for that purpose.
+//!
+//! ## Example
+//!
+//! ```rust,ignore
+//! // connect to SQLite
+//! let conn = AnyConnection::connect(&quot;sqlite://file.db&quot;).await?;
+//!
+//! // connect to Postgres, no code change
+//! // required, decided by the scheme of the URL
+//! let conn = AnyConnection::connect(&quot;postgres://localhost/sqlx&quot;).await?;
+//! ```
 
-<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
+</span><span class="kw">use </span>std::fmt::Debug;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::arguments::Arguments</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::column::Column</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Connection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::row::Row</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::statement::Statement</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transaction::TransactionManager</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_info::TypeInfo</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::value</span>::{<span class="ident">Value</span>, <span class="ident">ValueRef</span>};
+<span class="kw">use </span><span class="kw">crate</span>::arguments::Arguments;
+<span class="kw">use </span><span class="kw">crate</span>::column::Column;
+<span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::row::Row;
+<span class="kw">use </span><span class="kw">crate</span>::statement::Statement;
+<span class="kw">use </span><span class="kw">crate</span>::transaction::TransactionManager;
+<span class="kw">use </span><span class="kw">crate</span>::type_info::TypeInfo;
+<span class="kw">use </span><span class="kw">crate</span>::value::{Value, ValueRef};
 
-<span class="doccomment">/// A database driver.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait encapsulates a complete set of traits that implement a driver for a</span>
-<span class="doccomment">/// specific database (e.g., MySQL, PostgreSQL).</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Database</span>:
-    <span class="lifetime">&#39;static</span>
-    <span class="op">+</span> <span class="ident">Sized</span>
-    <span class="op">+</span> <span class="ident">Send</span>
-    <span class="op">+</span> <span class="ident">Debug</span>
-    <span class="op">+</span> <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>
-    <span class="op">+</span> <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>
-    <span class="op">+</span> <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>
+<span class="doccomment">/// A database driver.
+///
+/// This trait encapsulates a complete set of traits that implement a driver for a
+/// specific database (e.g., MySQL, PostgreSQL).
+</span><span class="kw">pub trait </span>Database:
+    <span class="lifetime">&#39;static
+    </span>+ Sized
+    + Send
+    + Debug
+    + <span class="kw">for</span>&lt;<span class="lifetime">&#39;r</span>&gt; HasValueRef&lt;<span class="lifetime">&#39;r</span>, Database = <span class="self">Self</span>&gt;
+    + <span class="kw">for</span>&lt;<span class="lifetime">&#39;q</span>&gt; HasArguments&lt;<span class="lifetime">&#39;q</span>, Database = <span class="self">Self</span>&gt;
+    + <span class="kw">for</span>&lt;<span class="lifetime">&#39;q</span>&gt; HasStatement&lt;<span class="lifetime">&#39;q</span>, Database = <span class="self">Self</span>&gt;
 {
-    <span class="doccomment">/// The concrete `Connection` implementation for this database.</span>
-    <span class="kw">type</span> <span class="ident">Connection</span>: <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">Database</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The concrete `Connection` implementation for this database.
+    </span><span class="kw">type </span>Connection: Connection&lt;Database = <span class="self">Self</span>&gt;;
 
-    <span class="doccomment">/// The concrete `TransactionManager` implementation for this database.</span>
-    <span class="kw">type</span> <span class="ident">TransactionManager</span>: <span class="ident">TransactionManager</span><span class="op">&lt;</span><span class="ident">Database</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The concrete `TransactionManager` implementation for this database.
+    </span><span class="kw">type </span>TransactionManager: TransactionManager&lt;Database = <span class="self">Self</span>&gt;;
 
-    <span class="doccomment">/// The concrete `Row` implementation for this database.</span>
-    <span class="kw">type</span> <span class="ident">Row</span>: <span class="ident">Row</span><span class="op">&lt;</span><span class="ident">Database</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The concrete `Row` implementation for this database.
+    </span><span class="kw">type </span>Row: Row&lt;Database = <span class="self">Self</span>&gt;;
 
-    <span class="doccomment">/// The concrete `QueryResult` implementation for this database.</span>
-    <span class="kw">type</span> <span class="ident">QueryResult</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">Default</span> <span class="op">+</span> <span class="ident">Extend</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::QueryResult</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The concrete `QueryResult` implementation for this database.
+    </span><span class="kw">type </span>QueryResult: <span class="lifetime">&#39;static </span>+ Sized + Send + Sync + Default + Extend&lt;<span class="self">Self</span>::QueryResult&gt;;
 
-    <span class="doccomment">/// The concrete `Column` implementation for this database.</span>
-    <span class="kw">type</span> <span class="ident">Column</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="ident">Database</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The concrete `Column` implementation for this database.
+    </span><span class="kw">type </span>Column: Column&lt;Database = <span class="self">Self</span>&gt;;
 
-    <span class="doccomment">/// The concrete `TypeInfo` implementation for this database.</span>
-    <span class="kw">type</span> <span class="ident">TypeInfo</span>: <span class="ident">TypeInfo</span>;
+    <span class="doccomment">/// The concrete `TypeInfo` implementation for this database.
+    </span><span class="kw">type </span>TypeInfo: TypeInfo;
 
-    <span class="doccomment">/// The concrete type used to hold an owned copy of the not-yet-decoded value that was</span>
-    <span class="doccomment">/// received from the database.</span>
-    <span class="kw">type</span> <span class="ident">Value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="ident">Database</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>;
+    <span class="doccomment">/// The concrete type used to hold an owned copy of the not-yet-decoded value that was
+    /// received from the database.
+    </span><span class="kw">type </span>Value: Value&lt;Database = <span class="self">Self</span>&gt; + <span class="lifetime">&#39;static</span>;
 }
 
-<span class="doccomment">/// Associate [`Database`] with a [`ValueRef`](crate::value::ValueRef) of a generic lifetime.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ---</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The upcoming Rust feature, [Generic Associated Types], should obviate</span>
-<span class="doccomment">/// the need for this trait.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [Generic Associated Types]: https://github.com/rust-lang/rust/issues/44265</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// Associate [`Database`] with a [`ValueRef`](crate::value::ValueRef) of a generic lifetime.
+///
+/// ---
+///
+/// The upcoming Rust feature, [Generic Associated Types], should obviate
+/// the need for this trait.
+///
+/// [Generic Associated Types]: https://github.com/rust-lang/rust/issues/44265
+</span><span class="kw">pub trait </span>HasValueRef&lt;<span class="lifetime">&#39;r</span>&gt; {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="doccomment">/// The concrete type used to hold a reference to the not-yet-decoded value that has just been</span>
-    <span class="doccomment">/// received from the database.</span>
-    <span class="kw">type</span> <span class="ident">ValueRef</span>: <span class="ident">ValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The concrete type used to hold a reference to the not-yet-decoded value that has just been
+    /// received from the database.
+    </span><span class="kw">type </span>ValueRef: ValueRef&lt;<span class="lifetime">&#39;r</span>, Database = <span class="self">Self</span>::Database&gt;;
 }
 
-<span class="doccomment">/// Associate [`Database`] with an [`Arguments`](crate::arguments::Arguments) of a generic lifetime.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ---</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The upcoming Rust feature, [Generic Associated Types], should obviate</span>
-<span class="doccomment">/// the need for this trait.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [Generic Associated Types]: https://github.com/rust-lang/rust/issues/44265</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// Associate [`Database`] with an [`Arguments`](crate::arguments::Arguments) of a generic lifetime.
+///
+/// ---
+///
+/// The upcoming Rust feature, [Generic Associated Types], should obviate
+/// the need for this trait.
+///
+/// [Generic Associated Types]: https://github.com/rust-lang/rust/issues/44265
+</span><span class="kw">pub trait </span>HasArguments&lt;<span class="lifetime">&#39;q</span>&gt; {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="doccomment">/// The concrete `Arguments` implementation for this database.</span>
-    <span class="kw">type</span> <span class="ident">Arguments</span>: <span class="ident">Arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The concrete `Arguments` implementation for this database.
+    </span><span class="kw">type </span>Arguments: Arguments&lt;<span class="lifetime">&#39;q</span>, Database = <span class="self">Self</span>::Database&gt;;
 
-    <span class="doccomment">/// The concrete type used as a buffer for arguments while encoding.</span>
-    <span class="kw">type</span> <span class="ident">ArgumentBuffer</span>;
+    <span class="doccomment">/// The concrete type used as a buffer for arguments while encoding.
+    </span><span class="kw">type </span>ArgumentBuffer;
 }
 
-<span class="doccomment">/// Associate [`Database`] with a [`Statement`](crate::statement::Statement) of a generic lifetime.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ---</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The upcoming Rust feature, [Generic Associated Types], should obviate</span>
-<span class="doccomment">/// the need for this trait.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [Generic Associated Types]: https://github.com/rust-lang/rust/issues/44265</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// Associate [`Database`] with a [`Statement`](crate::statement::Statement) of a generic lifetime.
+///
+/// ---
+///
+/// The upcoming Rust feature, [Generic Associated Types], should obviate
+/// the need for this trait.
+///
+/// [Generic Associated Types]: https://github.com/rust-lang/rust/issues/44265
+</span><span class="kw">pub trait </span>HasStatement&lt;<span class="lifetime">&#39;q</span>&gt; {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="doccomment">/// The concrete `Statement` implementation for this database.</span>
-    <span class="kw">type</span> <span class="ident">Statement</span>: <span class="ident">Statement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The concrete `Statement` implementation for this database.
+    </span><span class="kw">type </span>Statement: Statement&lt;<span class="lifetime">&#39;q</span>, Database = <span class="self">Self</span>::Database&gt;;
 }
 
-<span class="doccomment">/// A [`Database`] that maintains a client-side cache of prepared statements.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HasStatementCache</span> {}
+<span class="doccomment">/// A [`Database`] that maintains a client-side cache of prepared statements.
+</span><span class="kw">pub trait </span>HasStatementCache {}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

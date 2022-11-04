@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dotenv-0.15.0/src/parse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dotenv/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dotenv/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dotenv/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dotenv-0.15.0/src/parse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dotenv/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dotenv/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dotenv/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -627,258 +627,258 @@
 <span id="627">627</span>
 <span id="628">628</span>
 <span id="629">629</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::errors::<span class="kw-2">*</span>;
 
-<span class="comment">// for readability&#39;s sake</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ParsedLine</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="comment">// for readability&#39;s sake
+</span><span class="kw">pub type </span>ParsedLine = <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(String, String)&gt;&gt;;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_line</span>(<span class="ident">line</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">substitution_data</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">ParsedLine</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">LineParser::new</span>(<span class="ident">line</span>, <span class="ident">substitution_data</span>);
-    <span class="ident">parser</span>.<span class="ident">parse_line</span>()
+<span class="kw">pub fn </span>parse_line(line: <span class="kw-2">&amp;</span>str, substitution_data: <span class="kw-2">&amp;mut </span>HashMap&lt;String, <span class="prelude-ty">Option</span>&lt;String&gt;&gt;) -&gt; ParsedLine {
+    <span class="kw">let </span><span class="kw-2">mut </span>parser = LineParser::new(line, substitution_data);
+    parser.parse_line()
 }
 
-<span class="kw">struct</span> <span class="ident">LineParser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">original_line</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-    <span class="ident">substitution_data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">line</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-    <span class="ident">pos</span>: <span class="ident">usize</span>,
+<span class="kw">struct </span>LineParser&lt;<span class="lifetime">&#39;a</span>&gt; {
+    original_line: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    substitution_data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>HashMap&lt;String, <span class="prelude-ty">Option</span>&lt;String&gt;&gt;,
+    line: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    pos: usize,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">LineParser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">line</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-        <span class="ident">substitution_data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">LineParser</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">LineParser</span> {
-            <span class="ident">original_line</span>: <span class="ident">line</span>,
-            <span class="ident">substitution_data</span>,
-            <span class="ident">line</span>: <span class="ident">line</span>.<span class="ident">trim_end</span>(), <span class="comment">// we don’t want trailing whitespace</span>
-            <span class="ident">pos</span>: <span class="number">0</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LineParser&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>new(
+        line: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        substitution_data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>HashMap&lt;String, <span class="prelude-ty">Option</span>&lt;String&gt;&gt;,
+    ) -&gt; LineParser&lt;<span class="lifetime">&#39;a</span>&gt; {
+        LineParser {
+            original_line: line,
+            substitution_data,
+            line: line.trim_end(), <span class="comment">// we don’t want trailing whitespace
+            </span>pos: <span class="number">0</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Error</span> {
-        <span class="kw">return</span> <span class="ident">Error::LineParse</span>(<span class="self">self</span>.<span class="ident">original_line</span>.<span class="ident">into</span>(), <span class="self">self</span>.<span class="ident">pos</span>);
+    <span class="kw">fn </span>err(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Error {
+        <span class="kw">return </span>Error::LineParse(<span class="self">self</span>.original_line.into(), <span class="self">self</span>.pos);
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">ParsedLine</span> {
-        <span class="self">self</span>.<span class="ident">skip_whitespace</span>();
-        <span class="comment">// if its an empty line or a comment, skip it</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&#39;#&#39;</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+    <span class="kw">fn </span>parse_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; ParsedLine {
+        <span class="self">self</span>.skip_whitespace();
+        <span class="comment">// if its an empty line or a comment, skip it
+        </span><span class="kw">if </span><span class="self">self</span>.line.is_empty() || <span class="self">self</span>.line.starts_with(<span class="string">&#39;#&#39;</span>) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_key</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">skip_whitespace</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>key = <span class="self">self</span>.parse_key()<span class="question-mark">?</span>;
+        <span class="self">self</span>.skip_whitespace();
 
-        <span class="comment">// export can be either an optional prefix or a key itself</span>
-        <span class="kw">if</span> <span class="ident">key</span> <span class="op">==</span> <span class="string">&quot;export&quot;</span> {
-            <span class="comment">// here we check for an optional `=`, below we throw directly when it’s not found.</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">expect_equal</span>().<span class="ident">is_err</span>() {
-                <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_key</span>()<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">skip_whitespace</span>();
-                <span class="self">self</span>.<span class="ident">expect_equal</span>()<span class="question-mark">?</span>;
+        <span class="comment">// export can be either an optional prefix or a key itself
+        </span><span class="kw">if </span>key == <span class="string">&quot;export&quot; </span>{
+            <span class="comment">// here we check for an optional `=`, below we throw directly when it’s not found.
+            </span><span class="kw">if </span><span class="self">self</span>.expect_equal().is_err() {
+                key = <span class="self">self</span>.parse_key()<span class="question-mark">?</span>;
+                <span class="self">self</span>.skip_whitespace();
+                <span class="self">self</span>.expect_equal()<span class="question-mark">?</span>;
             }
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">expect_equal</span>()<span class="question-mark">?</span>;
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.expect_equal()<span class="question-mark">?</span>;
         }
-        <span class="self">self</span>.<span class="ident">skip_whitespace</span>();
+        <span class="self">self</span>.skip_whitespace();
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&#39;#&#39;</span>) {
-            <span class="self">self</span>.<span class="ident">substitution_data</span>.<span class="ident">insert</span>(<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="prelude-val">None</span>);
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">key</span>, <span class="ident">String::new</span>())));
+        <span class="kw">if </span><span class="self">self</span>.line.is_empty() || <span class="self">self</span>.line.starts_with(<span class="string">&#39;#&#39;</span>) {
+            <span class="self">self</span>.substitution_data.insert(key.clone(), <span class="prelude-val">None</span>);
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((key, String::new())));
         }
 
-        <span class="kw">let</span> <span class="ident">parsed_value</span> <span class="op">=</span> <span class="ident">parse_value</span>(<span class="self">self</span>.<span class="ident">line</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">substitution_data</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">substitution_data</span>
-            .<span class="ident">insert</span>(<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="prelude-val">Some</span>(<span class="ident">parsed_value</span>.<span class="ident">clone</span>()));
+        <span class="kw">let </span>parsed_value = parse_value(<span class="self">self</span>.line, <span class="kw-2">&amp;mut </span><span class="self">self</span>.substitution_data)<span class="question-mark">?</span>;
+        <span class="self">self</span>.substitution_data
+            .insert(key.clone(), <span class="prelude-val">Some</span>(parsed_value.clone()));
 
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">key</span>, <span class="ident">parsed_value</span>)));
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((key, parsed_value)));
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_key</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>
-            .<span class="ident">line</span>
-            .<span class="ident">starts_with</span>(<span class="op">|</span><span class="ident">c</span>: <span class="ident">char</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_alphabetic</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span>)
+    <span class="kw">fn </span>parse_key(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">if </span>!<span class="self">self
+            </span>.line
+            .starts_with(|c: char| c.is_ascii_alphabetic() || c == <span class="string">&#39;_&#39;</span>)
         {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">err</span>());
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.err());
         }
-        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>
-            .<span class="ident">line</span>
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">c</span>: <span class="ident">char</span><span class="op">|</span> <span class="op">!</span>(<span class="ident">c</span>.<span class="ident">is_ascii_alphanumeric</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;.&#39;</span>))
+        <span class="kw">let </span>index = <span class="kw">match </span><span class="self">self
+            </span>.line
+            .find(|c: char| !(c.is_ascii_alphanumeric() || c == <span class="string">&#39;_&#39; </span>|| c == <span class="string">&#39;.&#39;</span>))
         {
-            <span class="prelude-val">Some</span>(<span class="ident">index</span>) =&gt; <span class="ident">index</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">len</span>(),
+            <span class="prelude-val">Some</span>(index) =&gt; index,
+            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.line.len(),
         };
-        <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">index</span>;
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line</span>[..<span class="ident">index</span>]);
-        <span class="self">self</span>.<span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line</span>[<span class="ident">index</span>..];
-        <span class="prelude-val">Ok</span>(<span class="ident">key</span>)
+        <span class="self">self</span>.pos += index;
+        <span class="kw">let </span>key = String::from(<span class="kw-2">&amp;</span><span class="self">self</span>.line[..index]);
+        <span class="self">self</span>.line = <span class="kw-2">&amp;</span><span class="self">self</span>.line[index..];
+        <span class="prelude-val">Ok</span>(key)
     }
 
-    <span class="kw">fn</span> <span class="ident">expect_equal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&quot;=&quot;</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">err</span>());
+    <span class="kw">fn </span>expect_equal(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span>!<span class="self">self</span>.line.starts_with(<span class="string">&quot;=&quot;</span>) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.err());
         }
-        <span class="self">self</span>.<span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line</span>[<span class="number">1</span>..];
-        <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="self">self</span>.line = <span class="kw-2">&amp;</span><span class="self">self</span>.line[<span class="number">1</span>..];
+        <span class="self">self</span>.pos += <span class="number">1</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">skip_whitespace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">find</span>(<span class="op">|</span><span class="ident">c</span>: <span class="ident">char</span><span class="op">|</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">is_whitespace</span>()) {
-            <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">index</span>;
-            <span class="self">self</span>.<span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line</span>[<span class="ident">index</span>..];
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">len</span>();
-            <span class="self">self</span>.<span class="ident">line</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>;
+    <span class="kw">fn </span>skip_whitespace(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(index) = <span class="self">self</span>.line.find(|c: char| !c.is_whitespace()) {
+            <span class="self">self</span>.pos += index;
+            <span class="self">self</span>.line = <span class="kw-2">&amp;</span><span class="self">self</span>.line[index..];
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.pos += <span class="self">self</span>.line.len();
+            <span class="self">self</span>.line = <span class="string">&quot;&quot;</span>;
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">SubstitutionMode</span> {
+<span class="attribute">#[derive(Eq, PartialEq)]
+</span><span class="kw">enum </span>SubstitutionMode {
     <span class="prelude-val">None</span>,
-    <span class="ident">Block</span>,
-    <span class="ident">EscapedBlock</span>,
+    Block,
+    EscapedBlock,
 }
 
-<span class="kw">fn</span> <span class="ident">parse_value</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">substitution_data</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">strong_quote</span> <span class="op">=</span> <span class="bool-val">false</span>; <span class="comment">// &#39;</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">weak_quote</span> <span class="op">=</span> <span class="bool-val">false</span>; <span class="comment">// &quot;</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expecting_end</span> <span class="op">=</span> <span class="bool-val">false</span>;
+<span class="kw">fn </span>parse_value(input: <span class="kw-2">&amp;</span>str, substitution_data: <span class="kw-2">&amp;mut </span>HashMap&lt;String, <span class="prelude-ty">Option</span>&lt;String&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>strong_quote = <span class="bool-val">false</span>; <span class="comment">// &#39;
+    </span><span class="kw">let </span><span class="kw-2">mut </span>weak_quote = <span class="bool-val">false</span>; <span class="comment">// &quot;
+    </span><span class="kw">let </span><span class="kw-2">mut </span>escaped = <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>expecting_end = <span class="bool-val">false</span>;
 
-    <span class="comment">//FIXME can this be done without yet another allocation per line?</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String::new</span>();
+    <span class="comment">//FIXME can this be done without yet another allocation per line?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>output = String::new();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">substitution_mode</span> <span class="op">=</span> <span class="ident">SubstitutionMode::None</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">substitution_name</span> <span class="op">=</span> <span class="ident">String::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>substitution_mode = SubstitutionMode::None;
+    <span class="kw">let </span><span class="kw-2">mut </span>substitution_name = String::new();
 
-    <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">chars</span>().<span class="ident">enumerate</span>() {
-        <span class="comment">//the regex _should_ already trim whitespace off the end</span>
-        <span class="comment">//expecting_end is meant to permit: k=v #comment</span>
-        <span class="comment">//without affecting: k=v#comment</span>
-        <span class="comment">//and throwing on: k=v w</span>
-        <span class="kw">if</span> <span class="ident">expecting_end</span> {
-            <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\t&#39;</span> {
+    <span class="kw">for </span>(index, c) <span class="kw">in </span>input.chars().enumerate() {
+        <span class="comment">//the regex _should_ already trim whitespace off the end
+        //expecting_end is meant to permit: k=v #comment
+        //without affecting: k=v#comment
+        //and throwing on: k=v w
+        </span><span class="kw">if </span>expecting_end {
+            <span class="kw">if </span>c == <span class="string">&#39; &#39; </span>|| c == <span class="string">&#39;\t&#39; </span>{
                 <span class="kw">continue</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;#&#39;</span> {
+            } <span class="kw">else if </span>c == <span class="string">&#39;#&#39; </span>{
                 <span class="kw">break</span>;
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::LineParse</span>(<span class="ident">input</span>.<span class="ident">to_owned</span>(), <span class="ident">index</span>));
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::LineParse(input.to_owned(), index));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">escaped</span> {
-            <span class="comment">//TODO I tried handling literal \r but various issues</span>
-            <span class="comment">//imo not worth worrying about until there&#39;s a use case</span>
-            <span class="comment">//(actually handling backslash 0x10 would be a whole other matter)</span>
-            <span class="comment">//then there&#39;s \v \f bell hex... etc</span>
-            <span class="kw">match</span> <span class="ident">c</span> {
-                <span class="string">&#39;\\&#39;</span> <span class="op">|</span> <span class="string">&#39;\&#39;&#39;</span> <span class="op">|</span> <span class="string">&#39;&quot;&#39;</span> <span class="op">|</span> <span class="string">&#39;$&#39;</span> <span class="op">|</span> <span class="string">&#39; &#39;</span> =&gt; <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">c</span>),
-                <span class="string">&#39;n&#39;</span> =&gt; <span class="ident">output</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>),  <span class="comment">// handle \n case</span>
-                <span class="kw">_</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::LineParse</span>(<span class="ident">input</span>.<span class="ident">to_owned</span>(), <span class="ident">index</span>));
+        } <span class="kw">else if </span>escaped {
+            <span class="comment">//TODO I tried handling literal \r but various issues
+            //imo not worth worrying about until there&#39;s a use case
+            //(actually handling backslash 0x10 would be a whole other matter)
+            //then there&#39;s \v \f bell hex... etc
+            </span><span class="kw">match </span>c {
+                <span class="string">&#39;\\&#39; </span>| <span class="string">&#39;\&#39;&#39; </span>| <span class="string">&#39;&quot;&#39; </span>| <span class="string">&#39;$&#39; </span>| <span class="string">&#39; &#39; </span>=&gt; output.push(c),
+                <span class="string">&#39;n&#39; </span>=&gt; output.push(<span class="string">&#39;\n&#39;</span>),  <span class="comment">// handle \n case
+                </span><span class="kw">_ </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::LineParse(input.to_owned(), index));
                 }
             }
 
-            <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">strong_quote</span> {
-            <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\&#39;&#39;</span> {
-                <span class="ident">strong_quote</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+            escaped = <span class="bool-val">false</span>;
+        } <span class="kw">else if </span>strong_quote {
+            <span class="kw">if </span>c == <span class="string">&#39;\&#39;&#39; </span>{
+                strong_quote = <span class="bool-val">false</span>;
+            } <span class="kw">else </span>{
+                output.push(c);
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">substitution_mode</span> <span class="op">!</span><span class="op">=</span> <span class="ident">SubstitutionMode::None</span> {
-            <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">is_alphanumeric</span>() {
-                <span class="ident">substitution_name</span>.<span class="ident">push</span>(<span class="ident">c</span>);
-            } <span class="kw">else</span> {
-                <span class="kw">match</span> <span class="ident">substitution_mode</span> {
-                    <span class="ident">SubstitutionMode::None</span> =&gt; <span class="macro">unreachable!</span>(),
-                    <span class="ident">SubstitutionMode::Block</span> =&gt; {
-                        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;{&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">substitution_name</span>.<span class="ident">is_empty</span>() {
-                            <span class="ident">substitution_mode</span> <span class="op">=</span> <span class="ident">SubstitutionMode::EscapedBlock</span>;
-                        } <span class="kw">else</span> {
-                            <span class="ident">apply_substitution</span>(<span class="ident">substitution_data</span>, <span class="kw-2">&amp;</span><span class="ident">substitution_name</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">output</span>);
-                            <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;$&#39;</span> {
-                                <span class="ident">substitution_mode</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">strong_quote</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">escaped</span> {
-                                    <span class="ident">SubstitutionMode::Block</span>
-                                } <span class="kw">else</span> {
-                                    <span class="ident">SubstitutionMode::None</span>
+        } <span class="kw">else if </span>substitution_mode != SubstitutionMode::None {
+            <span class="kw">if </span>c.is_alphanumeric() {
+                substitution_name.push(c);
+            } <span class="kw">else </span>{
+                <span class="kw">match </span>substitution_mode {
+                    SubstitutionMode::None =&gt; <span class="macro">unreachable!</span>(),
+                    SubstitutionMode::Block =&gt; {
+                        <span class="kw">if </span>c == <span class="string">&#39;{&#39; </span>&amp;&amp; substitution_name.is_empty() {
+                            substitution_mode = SubstitutionMode::EscapedBlock;
+                        } <span class="kw">else </span>{
+                            apply_substitution(substitution_data, <span class="kw-2">&amp;</span>substitution_name.drain(..).collect::&lt;String&gt;(), <span class="kw-2">&amp;mut </span>output);
+                            <span class="kw">if </span>c == <span class="string">&#39;$&#39; </span>{
+                                substitution_mode = <span class="kw">if </span>!strong_quote &amp;&amp; !escaped {
+                                    SubstitutionMode::Block
+                                } <span class="kw">else </span>{
+                                    SubstitutionMode::None
                                 }
-                            } <span class="kw">else</span> {
-                                <span class="ident">substitution_mode</span> <span class="op">=</span> <span class="ident">SubstitutionMode::None</span>;
-                                <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+                            } <span class="kw">else </span>{
+                                substitution_mode = SubstitutionMode::None;
+                                output.push(c);
                             }
                         }
                     }
-                    <span class="ident">SubstitutionMode::EscapedBlock</span> =&gt; {
-                        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;}&#39;</span> {
-                            <span class="ident">substitution_mode</span> <span class="op">=</span> <span class="ident">SubstitutionMode::None</span>;
-                            <span class="ident">apply_substitution</span>(<span class="ident">substitution_data</span>, <span class="kw-2">&amp;</span><span class="ident">substitution_name</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">output</span>);
-                        } <span class="kw">else</span> {
-                            <span class="ident">substitution_name</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+                    SubstitutionMode::EscapedBlock =&gt; {
+                        <span class="kw">if </span>c == <span class="string">&#39;}&#39; </span>{
+                            substitution_mode = SubstitutionMode::None;
+                            apply_substitution(substitution_data, <span class="kw-2">&amp;</span>substitution_name.drain(..).collect::&lt;String&gt;(), <span class="kw-2">&amp;mut </span>output);
+                        } <span class="kw">else </span>{
+                            substitution_name.push(c);
                         }
                     }
                 }
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;$&#39;</span> {
-            <span class="ident">substitution_mode</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">strong_quote</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">escaped</span> {
-                <span class="ident">SubstitutionMode::Block</span>
-            } <span class="kw">else</span> {
-                <span class="ident">SubstitutionMode::None</span>
+        } <span class="kw">else if </span>c == <span class="string">&#39;$&#39; </span>{
+            substitution_mode = <span class="kw">if </span>!strong_quote &amp;&amp; !escaped {
+                SubstitutionMode::Block
+            } <span class="kw">else </span>{
+                SubstitutionMode::None
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">weak_quote</span> {
-            <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&quot;&#39;</span> {
-                <span class="ident">weak_quote</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\\&#39;</span> {
-                <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+        } <span class="kw">else if </span>weak_quote {
+            <span class="kw">if </span>c == <span class="string">&#39;&quot;&#39; </span>{
+                weak_quote = <span class="bool-val">false</span>;
+            } <span class="kw">else if </span>c == <span class="string">&#39;\\&#39; </span>{
+                escaped = <span class="bool-val">true</span>;
+            } <span class="kw">else </span>{
+                output.push(c);
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\&#39;&#39;</span> {
-            <span class="ident">strong_quote</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&quot;&#39;</span> {
-            <span class="ident">weak_quote</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\\&#39;</span> {
-            <span class="ident">escaped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\t&#39;</span> {
-            <span class="ident">expecting_end</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+        } <span class="kw">else if </span>c == <span class="string">&#39;\&#39;&#39; </span>{
+            strong_quote = <span class="bool-val">true</span>;
+        } <span class="kw">else if </span>c == <span class="string">&#39;&quot;&#39; </span>{
+            weak_quote = <span class="bool-val">true</span>;
+        } <span class="kw">else if </span>c == <span class="string">&#39;\\&#39; </span>{
+            escaped = <span class="bool-val">true</span>;
+        } <span class="kw">else if </span>c == <span class="string">&#39; &#39; </span>|| c == <span class="string">&#39;\t&#39; </span>{
+            expecting_end = <span class="bool-val">true</span>;
+        } <span class="kw">else </span>{
+            output.push(c);
         }
     }
 
-    <span class="comment">//XXX also fail if escaped? or...</span>
-    <span class="kw">if</span> <span class="ident">substitution_mode</span> <span class="op">==</span> <span class="ident">SubstitutionMode::EscapedBlock</span> <span class="op">|</span><span class="op">|</span> <span class="ident">strong_quote</span> <span class="op">|</span><span class="op">|</span> <span class="ident">weak_quote</span> {
-        <span class="kw">let</span> <span class="ident">value_length</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>();
-        <span class="prelude-val">Err</span>(<span class="ident">Error::LineParse</span>(<span class="ident">input</span>.<span class="ident">to_owned</span>(), <span class="kw">if</span> <span class="ident">value_length</span> <span class="op">==</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="ident">value_length</span> <span class="op">-</span> <span class="number">1</span> }))
-    } <span class="kw">else</span> {
-        <span class="ident">apply_substitution</span>(<span class="ident">substitution_data</span>, <span class="kw-2">&amp;</span><span class="ident">substitution_name</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">output</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">output</span>)
+    <span class="comment">//XXX also fail if escaped? or...
+    </span><span class="kw">if </span>substitution_mode == SubstitutionMode::EscapedBlock || strong_quote || weak_quote {
+        <span class="kw">let </span>value_length = input.len();
+        <span class="prelude-val">Err</span>(Error::LineParse(input.to_owned(), <span class="kw">if </span>value_length == <span class="number">0 </span>{ <span class="number">0 </span>} <span class="kw">else </span>{ value_length - <span class="number">1 </span>}))
+    } <span class="kw">else </span>{
+        apply_substitution(substitution_data, <span class="kw-2">&amp;</span>substitution_name.drain(..).collect::&lt;String&gt;(), <span class="kw-2">&amp;mut </span>output);
+        <span class="prelude-val">Ok</span>(output)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">apply_substitution</span>(<span class="ident">substitution_data</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">substitution_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">environment_value</span>) <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="ident">substitution_name</span>) {
-        <span class="ident">output</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">environment_value</span>);
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">stored_value</span> <span class="op">=</span> <span class="ident">substitution_data</span>.<span class="ident">get</span>(<span class="ident">substitution_name</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="prelude-val">None</span>).<span class="ident">to_owned</span>();
-        <span class="ident">output</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">stored_value</span>.<span class="ident">unwrap_or_else</span>(<span class="ident">String::new</span>));
+<span class="kw">fn </span>apply_substitution(substitution_data: <span class="kw-2">&amp;mut </span>HashMap&lt;String, <span class="prelude-ty">Option</span>&lt;String&gt;&gt;, substitution_name: <span class="kw-2">&amp;</span>str, output: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(environment_value) = std::env::var(substitution_name) {
+        output.push_str(<span class="kw-2">&amp;</span>environment_value);
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>stored_value = substitution_data.get(substitution_name).unwrap_or(<span class="kw-2">&amp;</span><span class="prelude-val">None</span>).to_owned();
+        output.push_str(<span class="kw-2">&amp;</span>stored_value.unwrap_or_else(String::new));
     };
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::iter::Iter</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span><span class="kw">crate</span>::iter::Iter;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_line_env</span>() {
-        <span class="comment">// Note 5 spaces after &#39;KEY8=&#39; below</span>
-        <span class="kw">let</span> <span class="ident">actual_iter</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="string">r#&quot;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_line_env() {
+        <span class="comment">// Note 5 spaces after &#39;KEY8=&#39; below
+        </span><span class="kw">let </span>actual_iter = Iter::new(<span class="string">r#&quot;
 KEY=1
 KEY2=&quot;2&quot;
 KEY3=&#39;3&#39;
@@ -892,9 +892,9 @@ KEY10  =&quot;whitespace before =&quot;
 KEY11=    &quot;whitespace after =&quot;
 export=&quot;export as key&quot;
 export   SHELL_LOVER=1
-&quot;#</span>.<span class="ident">as_bytes</span>());
+&quot;#</span>.as_bytes());
 
-        <span class="kw">let</span> <span class="ident">expected_iter</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        <span class="kw">let </span>expected_iter = <span class="macro">vec!</span>[
             (<span class="string">&quot;KEY&quot;</span>, <span class="string">&quot;1&quot;</span>),
             (<span class="string">&quot;KEY2&quot;</span>, <span class="string">&quot;2&quot;</span>),
             (<span class="string">&quot;KEY3&quot;</span>, <span class="string">&quot;3&quot;</span>),
@@ -908,46 +908,46 @@ export   SHELL_LOVER=1
             (<span class="string">&quot;KEY11&quot;</span>, <span class="string">&quot;whitespace after =&quot;</span>),
             (<span class="string">&quot;export&quot;</span>, <span class="string">&quot;export as key&quot;</span>),
             (<span class="string">&quot;SHELL_LOVER&quot;</span>, <span class="string">&quot;1&quot;</span>),
-        ].<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> (<span class="ident">key</span>.<span class="ident">to_string</span>(), <span class="ident">value</span>.<span class="ident">to_string</span>()));
+        ].into_iter()
+            .map(|(key, value)| (key.to_string(), value.to_string()));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="ident">expected</span>, <span class="ident">actual</span>) <span class="kw">in</span> <span class="ident">expected_iter</span>.<span class="ident">zip</span>(<span class="ident">actual_iter</span>) {
-            <span class="macro">assert!</span>(<span class="ident">actual</span>.<span class="ident">is_ok</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">actual</span>.<span class="ident">ok</span>().<span class="ident">unwrap</span>());
-            <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+        <span class="kw">for </span>(expected, actual) <span class="kw">in </span>expected_iter.zip(actual_iter) {
+            <span class="macro">assert!</span>(actual.is_ok());
+            <span class="macro">assert_eq!</span>(expected, actual.ok().unwrap());
+            count += <span class="number">1</span>;
         }
 
-        <span class="macro">assert_eq!</span>(<span class="ident">count</span>, <span class="number">13</span>);
+        <span class="macro">assert_eq!</span>(count, <span class="number">13</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_line_comment</span>() {
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="string">r#&quot;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_line_comment() {
+        <span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;Vec&lt;(String, String)&gt;&gt; = Iter::new(<span class="string">r#&quot;
 # foo=bar
-#    &quot;#</span>.<span class="ident">as_bytes</span>()).<span class="ident">collect</span>();
-        <span class="macro">assert!</span>(<span class="ident">result</span>.<span class="ident">unwrap</span>().<span class="ident">is_empty</span>());
+#    &quot;#</span>.as_bytes()).collect();
+        <span class="macro">assert!</span>(result.unwrap().is_empty());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_line_invalid</span>() {
-        <span class="comment">// Note 4 spaces after &#39;invalid&#39; below</span>
-        <span class="kw">let</span> <span class="ident">actual_iter</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="string">r#&quot;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_line_invalid() {
+        <span class="comment">// Note 4 spaces after &#39;invalid&#39; below
+        </span><span class="kw">let </span>actual_iter = Iter::new(<span class="string">r#&quot;
   invalid    
 very bacon = yes indeed
-=value&quot;#</span>.<span class="ident">as_bytes</span>());
+=value&quot;#</span>.as_bytes());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">actual</span> <span class="kw">in</span> <span class="ident">actual_iter</span> {
-            <span class="macro">assert!</span>(<span class="ident">actual</span>.<span class="ident">is_err</span>());
-            <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+        <span class="kw">for </span>actual <span class="kw">in </span>actual_iter {
+            <span class="macro">assert!</span>(actual.is_err());
+            count += <span class="number">1</span>;
         }
-        <span class="macro">assert_eq!</span>(<span class="ident">count</span>, <span class="number">3</span>);
+        <span class="macro">assert_eq!</span>(count, <span class="number">3</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_value_escapes</span>() {
-        <span class="kw">let</span> <span class="ident">actual_iter</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="string">r#&quot;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_value_escapes() {
+        <span class="kw">let </span>actual_iter = Iter::new(<span class="string">r#&quot;
 KEY=my\ cool\ value
 KEY2=\$sweet
 KEY3=&quot;awesome stuff \&quot;mang\&quot;&quot;
@@ -955,9 +955,9 @@ KEY4=&#39;sweet $\fgs&#39;\&#39;&#39;fds&#39;
 KEY5=&quot;&#39;\&quot;yay\\&quot;\ &quot;stuff&quot;
 KEY6=&quot;lol&quot; #well you see when I say lol wh
 KEY7=&quot;line 1\nline 2&quot;
-&quot;#</span>.<span class="ident">as_bytes</span>());
+&quot;#</span>.as_bytes());
 
-        <span class="kw">let</span> <span class="ident">expected_iter</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        <span class="kw">let </span>expected_iter = <span class="macro">vec!</span>[
             (<span class="string">&quot;KEY&quot;</span>, <span class="string">r#&quot;my cool value&quot;#</span>),
             (<span class="string">&quot;KEY2&quot;</span>, <span class="string">r#&quot;$sweet&quot;#</span>),
             (<span class="string">&quot;KEY3&quot;</span>, <span class="string">r#&quot;awesome stuff &quot;mang&quot;&quot;#</span>),
@@ -965,54 +965,54 @@ KEY7=&quot;line 1\nline 2&quot;
             (<span class="string">&quot;KEY5&quot;</span>, <span class="string">r#&quot;&#39;&quot;yay\ stuff&quot;#</span>),
             (<span class="string">&quot;KEY6&quot;</span>, <span class="string">&quot;lol&quot;</span>),
             (<span class="string">&quot;KEY7&quot;</span>, <span class="string">&quot;line 1\nline 2&quot;</span>),
-        ].<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> (<span class="ident">key</span>.<span class="ident">to_string</span>(), <span class="ident">value</span>.<span class="ident">to_string</span>()));
+        ].into_iter()
+            .map(|(key, value)| (key.to_string(), value.to_string()));
 
-        <span class="kw">for</span> (<span class="ident">expected</span>, <span class="ident">actual</span>) <span class="kw">in</span> <span class="ident">expected_iter</span>.<span class="ident">zip</span>(<span class="ident">actual_iter</span>) {
-            <span class="macro">assert!</span>(<span class="ident">actual</span>.<span class="ident">is_ok</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">actual</span>.<span class="ident">unwrap</span>());
+        <span class="kw">for </span>(expected, actual) <span class="kw">in </span>expected_iter.zip(actual_iter) {
+            <span class="macro">assert!</span>(actual.is_ok());
+            <span class="macro">assert_eq!</span>(expected, actual.unwrap());
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_value_escapes_invalid</span>() {
-        <span class="kw">let</span> <span class="ident">actual_iter</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="string">r#&quot;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_value_escapes_invalid() {
+        <span class="kw">let </span>actual_iter = Iter::new(<span class="string">r#&quot;
 KEY=my uncool value
 KEY2=&quot;why
 KEY3=&#39;please stop&#39;&#39;
 KEY4=h\8u
-&quot;#</span>.<span class="ident">as_bytes</span>());
+&quot;#</span>.as_bytes());
 
-        <span class="kw">for</span> <span class="ident">actual</span> <span class="kw">in</span> <span class="ident">actual_iter</span> {
-            <span class="macro">assert!</span>(<span class="ident">actual</span>.<span class="ident">is_err</span>());
+        <span class="kw">for </span>actual <span class="kw">in </span>actual_iter {
+            <span class="macro">assert!</span>(actual.is_err());
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">variable_substitution_tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::iter::Iter</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>variable_substitution_tests {
+    <span class="kw">use </span><span class="kw">crate</span>::iter::Iter;
 
-    <span class="kw">fn</span> <span class="ident">assert_parsed_string</span>(<span class="ident">input_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">expected_parse_result</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>)<span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">actual_iter</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="ident">input_string</span>.<span class="ident">as_bytes</span>());
-        <span class="kw">let</span> <span class="ident">expected_count</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">expected_parse_result</span>.<span class="ident">len</span>();
+    <span class="kw">fn </span>assert_parsed_string(input_string: <span class="kw-2">&amp;</span>str, expected_parse_result: Vec&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str)&gt;) {
+        <span class="kw">let </span>actual_iter = Iter::new(input_string.as_bytes());
+        <span class="kw">let </span>expected_count = <span class="kw-2">&amp;</span>expected_parse_result.len();
 
-        <span class="kw">let</span> <span class="ident">expected_iter</span> <span class="op">=</span> <span class="ident">expected_parse_result</span>.<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> (<span class="ident">key</span>.<span class="ident">to_string</span>(), <span class="ident">value</span>.<span class="ident">to_string</span>()));
+        <span class="kw">let </span>expected_iter = expected_parse_result.into_iter()
+            .map(|(key, value)| (key.to_string(), value.to_string()));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="ident">expected</span>, <span class="ident">actual</span>) <span class="kw">in</span> <span class="ident">expected_iter</span>.<span class="ident">zip</span>(<span class="ident">actual_iter</span>) {
-            <span class="macro">assert!</span>(<span class="ident">actual</span>.<span class="ident">is_ok</span>());
-            <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">actual</span>.<span class="ident">ok</span>().<span class="ident">unwrap</span>());
-            <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+        <span class="kw">for </span>(expected, actual) <span class="kw">in </span>expected_iter.zip(actual_iter) {
+            <span class="macro">assert!</span>(actual.is_ok());
+            <span class="macro">assert_eq!</span>(expected, actual.ok().unwrap());
+            count += <span class="number">1</span>;
         }
 
-        <span class="macro">assert_eq!</span>(<span class="ident">count</span>, <span class="kw-2">*</span><span class="ident">expected_count</span>);
+        <span class="macro">assert_eq!</span>(count, <span class="kw-2">*</span>expected_count);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">variable_in_parenthesis_surrounded_by_quotes</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>variable_in_parenthesis_surrounded_by_quotes() {
+        assert_parsed_string(
             <span class="string">r#&quot;
             KEY=test
             KEY1=&quot;${KEY}&quot;
@@ -1024,9 +1024,9 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">substitute_undefined_variables_to_empty_string</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>substitute_undefined_variables_to_empty_string() {
+        assert_parsed_string(
             <span class="string">r#&quot;KEY=&quot;&gt;$KEY1&lt;&gt;${KEY2}&lt;&quot;&quot;#</span>,
             <span class="macro">vec!</span>[
                 (<span class="string">&quot;KEY&quot;</span>, <span class="string">&quot;&gt;&lt;&gt;&lt;&quot;</span>),
@@ -1034,9 +1034,9 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">do_not_substitute_variables_with_dollar_escaped</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>do_not_substitute_variables_with_dollar_escaped() {
+        assert_parsed_string(
             <span class="string">&quot;KEY=&gt;\\$KEY1&lt;&gt;\\${KEY2}&lt;&quot;</span>,
             <span class="macro">vec!</span>[
                 (<span class="string">&quot;KEY&quot;</span>, <span class="string">&quot;&gt;$KEY1&lt;&gt;${KEY2}&lt;&quot;</span>),
@@ -1044,9 +1044,9 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">do_not_substitute_variables_in_weak_quotes_with_dollar_escaped</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>do_not_substitute_variables_in_weak_quotes_with_dollar_escaped() {
+        assert_parsed_string(
             <span class="string">r#&quot;KEY=&quot;&gt;\$KEY1&lt;&gt;\${KEY2}&lt;&quot;&quot;#</span>,
             <span class="macro">vec!</span>[
                 (<span class="string">&quot;KEY&quot;</span>, <span class="string">&quot;&gt;$KEY1&lt;&gt;${KEY2}&lt;&quot;</span>),
@@ -1054,9 +1054,9 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">do_not_substitute_variables_in_strong_quotes</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>do_not_substitute_variables_in_strong_quotes() {
+        assert_parsed_string(
             <span class="string">&quot;KEY=&#39;&gt;${KEY1}&lt;&gt;$KEY2&lt;&#39;&quot;</span>,
             <span class="macro">vec!</span>[
                 (<span class="string">&quot;KEY&quot;</span>, <span class="string">&quot;&gt;${KEY1}&lt;&gt;$KEY2&lt;&quot;</span>),
@@ -1064,9 +1064,9 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">same_variable_reused</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>same_variable_reused() {
+        assert_parsed_string(
             <span class="string">r#&quot;
     KEY=VALUE
     KEY1=$KEY$KEY
@@ -1078,9 +1078,9 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">with_dot</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>with_dot() {
+        assert_parsed_string(
             <span class="string">r#&quot;
     KEY.Value=VALUE
     &quot;#</span>,
@@ -1091,9 +1091,9 @@ KEY4=h\8u
     }
 
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">recursive_substitution</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>recursive_substitution() {
+        assert_parsed_string(
             <span class="string">r#&quot;
             KEY=${KEY1}+KEY_VALUE
             KEY1=${KEY}+KEY1_VALUE
@@ -1105,9 +1105,9 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">variable_without_parenthesis_is_substituted_before_separators</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>variable_without_parenthesis_is_substituted_before_separators() {
+        assert_parsed_string(
             <span class="string">r#&quot;
             KEY1=test_user
             KEY1_1=test_user_with_separator
@@ -1121,11 +1121,11 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">substitute_variable_from_env_variable</span>() {
-        <span class="ident">std::env::set_var</span>(<span class="string">&quot;KEY11&quot;</span>, <span class="string">&quot;test_user_env&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>substitute_variable_from_env_variable() {
+        std::env::set_var(<span class="string">&quot;KEY11&quot;</span>, <span class="string">&quot;test_user_env&quot;</span>);
 
-        <span class="ident">assert_parsed_string</span>(
+        assert_parsed_string(
             <span class="string">r#&quot;KEY=&quot;&gt;${KEY11}&lt;&quot;&quot;#</span>,
             <span class="macro">vec!</span>[
                 (<span class="string">&quot;KEY&quot;</span>, <span class="string">&quot;&gt;test_user_env&lt;&quot;</span>),
@@ -1133,11 +1133,11 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">substitute_variable_env_variable_overrides_dotenv_in_substitution</span>() {
-        <span class="ident">std::env::set_var</span>(<span class="string">&quot;KEY11&quot;</span>, <span class="string">&quot;test_user_env&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>substitute_variable_env_variable_overrides_dotenv_in_substitution() {
+        std::env::set_var(<span class="string">&quot;KEY11&quot;</span>, <span class="string">&quot;test_user_env&quot;</span>);
 
-        <span class="ident">assert_parsed_string</span>(
+        assert_parsed_string(
             <span class="string">r#&quot;
     KEY11=test_user
     KEY=&quot;&gt;${KEY11}&lt;&quot;
@@ -1149,9 +1149,9 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">consequent_substitutions</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>consequent_substitutions() {
+        assert_parsed_string(
             <span class="string">r#&quot;
     KEY1=test_user
     KEY2=$KEY1_2
@@ -1165,9 +1165,9 @@ KEY4=h\8u
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">consequent_substitutions_with_one_missing</span>() {
-        <span class="ident">assert_parsed_string</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>consequent_substitutions_with_one_missing() {
+        assert_parsed_string(
             <span class="string">r#&quot;
     KEY2=$KEY1_2
     KEY=&gt;${KEY1}&lt;&gt;${KEY2}&lt;
@@ -1180,81 +1180,81 @@ KEY4=h\8u
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">error_tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors::Error::LineParse</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::iter::Iter</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>error_tests {
+    <span class="kw">use </span><span class="kw">crate</span>::errors::Error::LineParse;
+    <span class="kw">use </span><span class="kw">crate</span>::iter::Iter;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">should_not_parse_unfinished_substitutions</span>() {
-        <span class="kw">let</span> <span class="ident">wrong_value</span> <span class="op">=</span> <span class="string">&quot;&gt;${KEY{&lt;&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>should_not_parse_unfinished_substitutions() {
+        <span class="kw">let </span>wrong_value = <span class="string">&quot;&gt;${KEY{&lt;&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">parsed_values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="macro">format!</span>(<span class="string">r#&quot;
+        <span class="kw">let </span>parsed_values: Vec&lt;<span class="kw">_</span>&gt; = Iter::new(<span class="macro">format!</span>(<span class="string">r#&quot;
     KEY=VALUE
     KEY1={}
-    &quot;#</span>, <span class="ident">wrong_value</span>).<span class="ident">as_bytes</span>()).<span class="ident">collect</span>();
+    &quot;#</span>, wrong_value).as_bytes()).collect();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">parsed_values</span>.<span class="ident">len</span>(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(parsed_values.len(), <span class="number">2</span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">first_line</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">parsed_values</span>[<span class="number">0</span>] {
-            <span class="macro">assert_eq!</span>(<span class="ident">first_line</span>, <span class="kw-2">&amp;</span>(<span class="ident">String::from</span>(<span class="string">&quot;KEY&quot;</span>), <span class="ident">String::from</span>(<span class="string">&quot;VALUE&quot;</span>)))
-        } <span class="kw">else</span> {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(first_line) = <span class="kw-2">&amp;</span>parsed_values[<span class="number">0</span>] {
+            <span class="macro">assert_eq!</span>(first_line, <span class="kw-2">&amp;</span>(String::from(<span class="string">&quot;KEY&quot;</span>), String::from(<span class="string">&quot;VALUE&quot;</span>)))
+        } <span class="kw">else </span>{
             <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Expected the first value to be parsed&quot;</span>)
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">LineParse</span>(<span class="ident">second_value</span>, <span class="ident">index</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">parsed_values</span>[<span class="number">1</span>] {
-            <span class="macro">assert_eq!</span>(<span class="ident">second_value</span>, <span class="ident">wrong_value</span>);
-            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">index</span>, <span class="ident">wrong_value</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
-        } <span class="kw">else</span> {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(LineParse(second_value, index)) = <span class="kw-2">&amp;</span>parsed_values[<span class="number">1</span>] {
+            <span class="macro">assert_eq!</span>(second_value, wrong_value);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>index, wrong_value.len() - <span class="number">1</span>)
+        } <span class="kw">else </span>{
             <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Expected the second value not to be parsed&quot;</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">should_not_allow_dot_as_first_character_of_key</span>() {
-        <span class="kw">let</span> <span class="ident">wrong_key_value</span> <span class="op">=</span> <span class="string">&quot;.Key=VALUE&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>should_not_allow_dot_as_first_character_of_key() {
+        <span class="kw">let </span>wrong_key_value = <span class="string">&quot;.Key=VALUE&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">parsed_values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="ident">wrong_key_value</span>.<span class="ident">as_bytes</span>()).<span class="ident">collect</span>();
+        <span class="kw">let </span>parsed_values: Vec&lt;<span class="kw">_</span>&gt; = Iter::new(wrong_key_value.as_bytes()).collect();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">parsed_values</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(parsed_values.len(), <span class="number">1</span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">LineParse</span>(<span class="ident">second_value</span>, <span class="ident">index</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">parsed_values</span>[<span class="number">0</span>] {
-            <span class="macro">assert_eq!</span>(<span class="ident">second_value</span>, <span class="ident">wrong_key_value</span>);
-            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">index</span>, <span class="number">0</span>)
-        } <span class="kw">else</span> {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(LineParse(second_value, index)) = <span class="kw-2">&amp;</span>parsed_values[<span class="number">0</span>] {
+            <span class="macro">assert_eq!</span>(second_value, wrong_key_value);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>index, <span class="number">0</span>)
+        } <span class="kw">else </span>{
             <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Expected the second value not to be parsed&quot;</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">should_not_parse_illegal_format</span>() {
-        <span class="kw">let</span> <span class="ident">wrong_format</span> <span class="op">=</span> <span class="string">r&quot;&lt;&gt;&lt;&gt;&lt;&gt;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">parsed_values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="ident">wrong_format</span>.<span class="ident">as_bytes</span>()).<span class="ident">collect</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>should_not_parse_illegal_format() {
+        <span class="kw">let </span>wrong_format = <span class="string">r&quot;&lt;&gt;&lt;&gt;&lt;&gt;&quot;</span>;
+        <span class="kw">let </span>parsed_values: Vec&lt;<span class="kw">_</span>&gt; = Iter::new(wrong_format.as_bytes()).collect();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">parsed_values</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(parsed_values.len(), <span class="number">1</span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">LineParse</span>(<span class="ident">wrong_value</span>, <span class="ident">index</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">parsed_values</span>[<span class="number">0</span>] {
-            <span class="macro">assert_eq!</span>(<span class="ident">wrong_value</span>, <span class="ident">wrong_format</span>);
-            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">index</span>, <span class="number">0</span>)
-        } <span class="kw">else</span> {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(LineParse(wrong_value, index)) = <span class="kw-2">&amp;</span>parsed_values[<span class="number">0</span>] {
+            <span class="macro">assert_eq!</span>(wrong_value, wrong_format);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>index, <span class="number">0</span>)
+        } <span class="kw">else </span>{
             <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Expected the second value not to be parsed&quot;</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">should_not_parse_illegal_escape</span>() {
-        <span class="kw">let</span> <span class="ident">wrong_escape</span> <span class="op">=</span> <span class="string">r&quot;&gt;\f&lt;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">parsed_values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Iter::new</span>(<span class="macro">format!</span>(<span class="string">&quot;VALUE={}&quot;</span>, <span class="ident">wrong_escape</span>).<span class="ident">as_bytes</span>()).<span class="ident">collect</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>should_not_parse_illegal_escape() {
+        <span class="kw">let </span>wrong_escape = <span class="string">r&quot;&gt;\f&lt;&quot;</span>;
+        <span class="kw">let </span>parsed_values: Vec&lt;<span class="kw">_</span>&gt; = Iter::new(<span class="macro">format!</span>(<span class="string">&quot;VALUE={}&quot;</span>, wrong_escape).as_bytes()).collect();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">parsed_values</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(parsed_values.len(), <span class="number">1</span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">LineParse</span>(<span class="ident">wrong_value</span>, <span class="ident">index</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">parsed_values</span>[<span class="number">0</span>] {
-            <span class="macro">assert_eq!</span>(<span class="ident">wrong_value</span>, <span class="ident">wrong_escape</span>);
-            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">index</span>, <span class="ident">wrong_escape</span>.<span class="ident">find</span>(<span class="string">&quot;\\&quot;</span>).<span class="ident">unwrap</span>() <span class="op">+</span> <span class="number">1</span>)
-        } <span class="kw">else</span> {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(LineParse(wrong_value, index)) = <span class="kw-2">&amp;</span>parsed_values[<span class="number">0</span>] {
+            <span class="macro">assert_eq!</span>(wrong_value, wrong_escape);
+            <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>index, wrong_escape.find(<span class="string">&quot;\\&quot;</span>).unwrap() + <span class="number">1</span>)
+        } <span class="kw">else </span>{
             <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;Expected the second value not to be parsed&quot;</span>)
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dotenv" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dotenv" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/roles.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>roles.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/roles.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>roles.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -376,90 +376,90 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Type</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;user_role&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">UserRole</span> {
-    <span class="ident">Reviewer</span>,
-    <span class="ident">Assistant</span>,
-    <span class="ident">Teacher</span>,
-    <span class="ident">Admin</span>,
-    <span class="ident">CourseOrExamCreator</span>,
-    <span class="ident">MaterialViewer</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">&quot;user_role&quot;</span>, rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+</span><span class="kw">pub enum </span>UserRole {
+    Reviewer,
+    Assistant,
+    Teacher,
+    Admin,
+    CourseOrExamCreator,
+    MaterialViewer,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Role</span> {
-    <span class="kw">pub</span> <span class="ident">is_global</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_instance_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">role</span>: <span class="ident">UserRole</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+</span><span class="kw">pub struct </span>Role {
+    <span class="kw">pub </span>is_global: bool,
+    <span class="kw">pub </span>organization_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>course_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>course_instance_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>role: UserRole,
 }
 
-<span class="kw">impl</span> <span class="ident">Role</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_global</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">is_global</span>
+<span class="kw">impl </span>Role {
+    <span class="kw">pub fn </span>is_global(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_global
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_role_for_organization</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">organization_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">organization_id</span>
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span> <span class="op">==</span> <span class="ident">organization_id</span>)
-            .<span class="ident">unwrap_or_default</span>()
+    <span class="kw">pub fn </span>is_role_for_organization(<span class="kw-2">&amp;</span><span class="self">self</span>, organization_id: Uuid) -&gt; bool {
+        <span class="self">self</span>.organization_id
+            .map(|id| id == organization_id)
+            .unwrap_or_default()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_role_for_course</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">course_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">course_id</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span> <span class="op">==</span> <span class="ident">course_id</span>).<span class="ident">unwrap_or_default</span>()
+    <span class="kw">pub fn </span>is_role_for_course(<span class="kw-2">&amp;</span><span class="self">self</span>, course_id: Uuid) -&gt; bool {
+        <span class="self">self</span>.course_id.map(|id| id == course_id).unwrap_or_default()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_role_for_course_instance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">course_instance_id</span>
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span> <span class="op">==</span> <span class="ident">course_instance_id</span>)
-            .<span class="ident">unwrap_or_default</span>()
+    <span class="kw">pub fn </span>is_role_for_course_instance(<span class="kw-2">&amp;</span><span class="self">self</span>, course_instance_id: Uuid) -&gt; bool {
+        <span class="self">self</span>.course_instance_id
+            .map(|id| id == course_instance_id)
+            .unwrap_or_default()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_role_for_exam</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">exam_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">exam_id</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span> <span class="op">==</span> <span class="ident">exam_id</span>).<span class="ident">unwrap_or_default</span>()
+    <span class="kw">pub fn </span>is_role_for_exam(<span class="kw-2">&amp;</span><span class="self">self</span>, exam_id: Uuid) -&gt; bool {
+        <span class="self">self</span>.exam_id.map(|id| id == exam_id).unwrap_or_default()
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;tag&quot;</span>, <span class="ident">content</span> <span class="op">=</span> <span class="string">&quot;id&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RoleDomain</span> {
-    <span class="ident">Global</span>,
-    <span class="ident">Organization</span>(<span class="ident">Uuid</span>),
-    <span class="ident">Course</span>(<span class="ident">Uuid</span>),
-    <span class="ident">CourseInstance</span>(<span class="ident">Uuid</span>),
-    <span class="ident">Exam</span>(<span class="ident">Uuid</span>),
+<span class="attribute">#[derive(Debug, Clone, Copy, Deserialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[serde(tag = <span class="string">&quot;tag&quot;</span>, content = <span class="string">&quot;id&quot;</span>)]
+</span><span class="kw">pub enum </span>RoleDomain {
+    Global,
+    Organization(Uuid),
+    Course(Uuid),
+    CourseInstance(Uuid),
+    Exam(Uuid),
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoleInfo</span> {
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">role</span>: <span class="ident">UserRole</span>,
-    <span class="kw">pub</span> <span class="ident">domain</span>: <span class="ident">RoleDomain</span>,
+<span class="attribute">#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>RoleInfo {
+    <span class="kw">pub </span>email: String,
+    <span class="kw">pub </span>role: UserRole,
+    <span class="kw">pub </span>domain: RoleDomain,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoleUser</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">first_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">last_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">role</span>: <span class="ident">UserRole</span>,
+<span class="attribute">#[derive(Debug, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>RoleUser {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>first_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>last_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>email: String,
+    <span class="kw">pub </span>role: UserRole,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">domain</span>: <span class="ident">RoleDomain</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoleUser</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">users</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">domain</span> {
-        <span class="ident">RoleDomain::Global</span> =&gt; {
+<span class="kw">pub async fn </span>get(conn: <span class="kw-2">&amp;mut </span>PgConnection, domain: RoleDomain) -&gt; ModelResult&lt;Vec&lt;RoleUser&gt;&gt; {
+    <span class="kw">let </span>users = <span class="kw">match </span>domain {
+        RoleDomain::Global =&gt; {
             <span class="macro">sqlx::query_as!</span>(
-                <span class="ident">RoleUser</span>,
+                RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id AS &quot;id!&quot;,
   users.first_name,
@@ -472,12 +472,12 @@ WHERE is_global = TRUE
 AND roles.deleted_at IS NULL
 &quot;#</span>,
             )
-            .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        }
-        <span class="ident">RoleDomain::Organization</span>(<span class="ident">id</span>) =&gt; {
+            .fetch_all(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        RoleDomain::Organization(id) =&gt; {
             <span class="macro">sqlx::query_as!</span>(
-                <span class="ident">RoleUser</span>,
+                RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id,
   users.first_name,
@@ -489,14 +489,14 @@ FROM users
 WHERE roles.organization_id = $1
 AND roles.deleted_at IS NULL
 &quot;#</span>,
-                <span class="ident">id</span>
+                id
             )
-            .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        }
-        <span class="ident">RoleDomain::Course</span>(<span class="ident">id</span>) =&gt; {
+            .fetch_all(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        RoleDomain::Course(id) =&gt; {
             <span class="macro">sqlx::query_as!</span>(
-                <span class="ident">RoleUser</span>,
+                RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id,
   users.first_name,
@@ -508,14 +508,14 @@ FROM users
 WHERE roles.course_id = $1
 AND roles.deleted_at IS NULL
 &quot;#</span>,
-                <span class="ident">id</span>
+                id
             )
-            .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        }
-        <span class="ident">RoleDomain::CourseInstance</span>(<span class="ident">id</span>) =&gt; {
+            .fetch_all(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        RoleDomain::CourseInstance(id) =&gt; {
             <span class="macro">sqlx::query_as!</span>(
-                <span class="ident">RoleUser</span>,
+                RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id,
   users.first_name,
@@ -527,14 +527,14 @@ FROM users
 WHERE roles.course_instance_id = $1
 AND roles.deleted_at IS NULL
 &quot;#</span>,
-                <span class="ident">id</span>
+                id
             )
-            .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        }
-        <span class="ident">RoleDomain::Exam</span>(<span class="ident">id</span>) =&gt; {
+            .fetch_all(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        RoleDomain::Exam(id) =&gt; {
             <span class="macro">sqlx::query_as!</span>(
-                <span class="ident">RoleUser</span>,
+                RoleUser,
                 <span class="string">r#&quot;
 SELECT users.id,
   users.first_name,
@@ -546,108 +546,108 @@ FROM users
 WHERE roles.exam_id = $1
 AND roles.deleted_at IS NULL
 &quot;#</span>,
-                <span class="ident">id</span>
+                id
             )
-            .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        }
+            .fetch_all(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
     };
-    <span class="prelude-val">Ok</span>(<span class="ident">users</span>)
+    <span class="prelude-val">Ok</span>(users)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">role</span>: <span class="ident">UserRole</span>,
-    <span class="ident">domain</span>: <span class="ident">RoleDomain</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">domain</span> {
-        <span class="ident">RoleDomain::Global</span> =&gt; {
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    role: UserRole,
+    domain: RoleDomain,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>id = <span class="kw">match </span>domain {
+        RoleDomain::Global =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 INSERT INTO roles (user_id, role, is_global)
 VALUES ($1, $2, True)
 RETURNING id
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>
+                user_id,
+                role <span class="kw">as </span>UserRole
             )
-            .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">id</span>
+            .fetch_one(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.id
         }
-        <span class="ident">RoleDomain::Organization</span>(<span class="ident">id</span>) =&gt; {
+        RoleDomain::Organization(id) =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 INSERT INTO roles (user_id, role, organization_id)
 VALUES ($1, $2, $3)
 RETURNING id
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>,
-                <span class="ident">id</span>
+                user_id,
+                role <span class="kw">as </span>UserRole,
+                id
             )
-            .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">id</span>
+            .fetch_one(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.id
         }
-        <span class="ident">RoleDomain::Course</span>(<span class="ident">id</span>) =&gt; {
+        RoleDomain::Course(id) =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 INSERT INTO roles (user_id, role, course_id)
 VALUES ($1, $2, $3)
 RETURNING id
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>,
-                <span class="ident">id</span>
+                user_id,
+                role <span class="kw">as </span>UserRole,
+                id
             )
-            .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">id</span>
+            .fetch_one(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.id
         }
-        <span class="ident">RoleDomain::CourseInstance</span>(<span class="ident">id</span>) =&gt; {
+        RoleDomain::CourseInstance(id) =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 INSERT INTO roles (user_id, role, course_instance_id)
 VALUES ($1, $2, $3)
 RETURNING id
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>,
-                <span class="ident">id</span>
+                user_id,
+                role <span class="kw">as </span>UserRole,
+                id
             )
-            .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">id</span>
+            .fetch_one(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.id
         }
-        <span class="ident">RoleDomain::Exam</span>(<span class="ident">id</span>) =&gt; {
+        RoleDomain::Exam(id) =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 INSERT INTO roles (user_id, role, exam_id)
 VALUES ($1, $2, $3)
 RETURNING id
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>,
-                <span class="ident">id</span>
+                user_id,
+                role <span class="kw">as </span>UserRole,
+                id
             )
-            .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">id</span>
+            .fetch_one(conn)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.id
         }
     };
-    <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">role</span>: <span class="ident">UserRole</span>,
-    <span class="ident">domain</span>: <span class="ident">RoleDomain</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">domain</span> {
-        <span class="ident">RoleDomain::Global</span> =&gt; {
+<span class="kw">pub async fn </span>remove(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    role: UserRole,
+    domain: RoleDomain,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="kw">match </span>domain {
+        RoleDomain::Global =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 UPDATE roles
@@ -656,13 +656,13 @@ WHERE user_id = $1
   AND role = $2
   AND deleted_at IS NULL
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>
+                user_id,
+                role <span class="kw">as </span>UserRole
             )
-            .<span class="ident">execute</span>(<span class="ident">conn</span>)
+            .execute(conn)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
-        <span class="ident">RoleDomain::Organization</span>(<span class="ident">id</span>) =&gt; {
+        RoleDomain::Organization(id) =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 UPDATE roles
@@ -672,14 +672,14 @@ WHERE user_id = $1
   AND organization_id = $3
   AND deleted_at IS NULL
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>,
-                <span class="ident">id</span>
+                user_id,
+                role <span class="kw">as </span>UserRole,
+                id
             )
-            .<span class="ident">execute</span>(<span class="ident">conn</span>)
+            .execute(conn)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
-        <span class="ident">RoleDomain::Course</span>(<span class="ident">id</span>) =&gt; {
+        RoleDomain::Course(id) =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 UPDATE roles
@@ -689,14 +689,14 @@ WHERE user_id = $1
   AND course_id = $3
   AND deleted_at IS NULL
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>,
-                <span class="ident">id</span>
+                user_id,
+                role <span class="kw">as </span>UserRole,
+                id
             )
-            .<span class="ident">execute</span>(<span class="ident">conn</span>)
+            .execute(conn)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
-        <span class="ident">RoleDomain::CourseInstance</span>(<span class="ident">id</span>) =&gt; {
+        RoleDomain::CourseInstance(id) =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 UPDATE roles
@@ -706,14 +706,14 @@ WHERE user_id = $1
   AND course_instance_id = $3
   AND deleted_at IS NULL
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>,
-                <span class="ident">id</span>
+                user_id,
+                role <span class="kw">as </span>UserRole,
+                id
             )
-            .<span class="ident">execute</span>(<span class="ident">conn</span>)
+            .execute(conn)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
-        <span class="ident">RoleDomain::Exam</span>(<span class="ident">id</span>) =&gt; {
+        RoleDomain::Exam(id) =&gt; {
             <span class="macro">sqlx::query!</span>(
                 <span class="string">&quot;
 UPDATE roles
@@ -723,20 +723,20 @@ WHERE user_id = $1
   AND exam_id = $3
   AND deleted_at IS NULL
 &quot;</span>,
-                <span class="ident">user_id</span>,
-                <span class="ident">role</span> <span class="kw">as</span> <span class="ident">UserRole</span>,
-                <span class="ident">id</span>
+                user_id,
+                role <span class="kw">as </span>UserRole,
+                id
             )
-            .<span class="ident">execute</span>(<span class="ident">conn</span>)
+            .execute(conn)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         }
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_roles</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">user_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Role</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roles</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Role</span>,
+<span class="kw">pub async fn </span>get_roles(conn: <span class="kw-2">&amp;mut </span>PgConnection, user_id: Uuid) -&gt; ModelResult&lt;Vec&lt;Role&gt;&gt; {
+    <span class="kw">let </span>roles = <span class="macro">sqlx::query_as!</span>(
+        Role,
         <span class="string">r#&quot;
 SELECT is_global,
   organization_id,
@@ -748,11 +748,11 @@ FROM roles
 WHERE user_id = $1
 AND roles.deleted_at IS NULL
 &quot;#</span>,
-        <span class="ident">user_id</span>
+        user_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">roles</span>)
+    <span class="prelude-val">Ok</span>(roles)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

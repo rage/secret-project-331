@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/user_exercise_state_updater/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/user_exercise_state_updater/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -160,92 +160,92 @@
 <span id="160">160</span>
 <span id="161">161</span>
 <span id="162">162</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Always update the user_exercise_state table though this module</span>
-<span class="doccomment">//!</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Always update the user_exercise_state table though this module
+//!
 
-<span class="comment">// Internal modules, not public to make sure someone does not accidentally import them and mess things up.</span>
-<span class="kw">mod</span> <span class="ident">data_loader</span>;
-<span class="kw">mod</span> <span class="ident">state_deriver</span>;
-<span class="kw">mod</span> <span class="ident">validation</span>;
+</span><span class="comment">// Internal modules, not public to make sure someone does not accidentally import them and mess things up.
+</span><span class="kw">mod </span>data_loader;
+<span class="kw">mod </span>state_deriver;
+<span class="kw">mod </span>validation;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">course_modules</span>,
-    <span class="ident">exercise_slide_submissions::ExerciseSlideSubmission</span>,
-    <span class="ident">exercises::Exercise</span>,
-    <span class="ident">peer_review_configs::PeerReviewConfig</span>,
-    <span class="ident">peer_review_question_submissions::PeerReviewQuestionSubmission</span>,
-    <span class="ident">peer_review_queue_entries::PeerReviewQueueEntry</span>,
-    <span class="ident">peer_review_submissions::PeerReviewSubmission</span>,
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">teacher_grading_decisions::TeacherGradingDecision</span>,
-    <span class="ident">user_exercise_slide_states::UserExerciseSlideStateGradingSummary</span>,
-    <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">UserExerciseState</span>, <span class="ident">UserExerciseStateUpdate</span>},
+<span class="kw">use crate</span>::{
+    course_modules,
+    exercise_slide_submissions::ExerciseSlideSubmission,
+    exercises::Exercise,
+    peer_review_configs::PeerReviewConfig,
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_queue_entries::PeerReviewQueueEntry,
+    peer_review_submissions::PeerReviewSubmission,
+    prelude::<span class="kw-2">*</span>,
+    teacher_grading_decisions::TeacherGradingDecision,
+    user_exercise_slide_states::UserExerciseSlideStateGradingSummary,
+    user_exercise_states::{<span class="self">self</span>, UserExerciseState, UserExerciseStateUpdate},
 };
 
-<span class="kw">use</span> <span class="ident">std::default::Default</span>;
+<span class="kw">use </span>std::default::Default;
 
-<span class="doccomment">/// Visible only in the current module (and submodules) to prevent misuse.</span>
-<span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">struct</span> <span class="ident">UserExerciseStateUpdateRequiredData</span> {
-    <span class="kw">pub</span> <span class="ident">exercise</span>: <span class="ident">Exercise</span>,
-    <span class="kw">pub</span> <span class="ident">current_user_exercise_state</span>: <span class="ident">UserExerciseState</span>,
-    <span class="doccomment">/// None if peer review is not enabled for the exercise</span>
-    <span class="kw">pub</span> <span class="ident">peer_review_information</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// None if a teacher has not made a grading decision yet.</span>
-    <span class="kw">pub</span> <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TeacherGradingDecision</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The grades summed up from all the user exercise slide states. Note that multiple slides can give points, and they are all aggregated here.</span>
-    <span class="kw">pub</span> <span class="ident">user_exercise_slide_state_grading_summary</span>: <span class="ident">UserExerciseSlideStateGradingSummary</span>,
+<span class="doccomment">/// Visible only in the current module (and submodules) to prevent misuse.
+</span><span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">struct </span>UserExerciseStateUpdateRequiredData {
+    <span class="kw">pub </span>exercise: Exercise,
+    <span class="kw">pub </span>current_user_exercise_state: UserExerciseState,
+    <span class="doccomment">/// None if peer review is not enabled for the exercise
+    </span><span class="kw">pub </span>peer_review_information: <span class="prelude-ty">Option</span>&lt;UserExerciseStateUpdateRequiredDataPeerReviewInformation&gt;,
+    <span class="doccomment">/// None if a teacher has not made a grading decision yet.
+    </span><span class="kw">pub </span>latest_teacher_grading_decision: <span class="prelude-ty">Option</span>&lt;TeacherGradingDecision&gt;,
+    <span class="doccomment">/// The grades summed up from all the user exercise slide states. Note that multiple slides can give points, and they are all aggregated here.
+    </span><span class="kw">pub </span>user_exercise_slide_state_grading_summary: UserExerciseSlideStateGradingSummary,
 }
 
-<span class="doccomment">/// Visible only in the current module (and submodules) to prevent misuse.</span>
-<span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">struct</span> <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span> {
-    <span class="kw">pub</span> <span class="ident">given_peer_review_submissions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewSubmission</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>:
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestionSubmission</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_queue_entry</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_config</span>: <span class="ident">PeerReviewConfig</span>,
+<span class="doccomment">/// Visible only in the current module (and submodules) to prevent misuse.
+</span><span class="kw">pub</span>(<span class="self">self</span>) <span class="kw">struct </span>UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+    <span class="kw">pub </span>given_peer_review_submissions: Vec&lt;PeerReviewSubmission&gt;,
+    <span class="kw">pub </span>latest_exercise_slide_submission_received_peer_review_question_submissions:
+        Vec&lt;PeerReviewQuestionSubmission&gt;,
+    <span class="kw">pub </span>peer_review_queue_entry: <span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;,
+    <span class="kw">pub </span>peer_review_config: PeerReviewConfig,
 }
 
 <span class="doccomment">/**
 Same as `UserExerciseStateUpdateRequiredData` but public and everything is optional. Can be used to pass some already loaded dependencies to the update function.
-*/</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredData</span> {
-    <span class="kw">pub</span> <span class="ident">exercise</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">current_user_exercise_state</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_information</span>:
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether a teacher has made a grading decision or not.</span>
-    <span class="kw">pub</span> <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TeacherGradingDecision</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">user_exercise_slide_state_grading_summary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseSlideStateGradingSummary</span><span class="op">&gt;</span>,
+*/
+</span><span class="attribute">#[derive(Default)]
+</span><span class="kw">pub struct </span>UserExerciseStateUpdateAlreadyLoadedRequiredData {
+    <span class="kw">pub </span>exercise: <span class="prelude-ty">Option</span>&lt;Exercise&gt;,
+    <span class="kw">pub </span>current_user_exercise_state: <span class="prelude-ty">Option</span>&lt;UserExerciseState&gt;,
+    <span class="kw">pub </span>peer_review_information:
+        <span class="prelude-ty">Option</span>&lt;UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation&gt;,
+    <span class="doccomment">/// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether a teacher has made a grading decision or not.
+    </span><span class="kw">pub </span>latest_teacher_grading_decision: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;TeacherGradingDecision&gt;&gt;,
+    <span class="kw">pub </span>user_exercise_slide_state_grading_summary: <span class="prelude-ty">Option</span>&lt;UserExerciseSlideStateGradingSummary&gt;,
 }
 
 <span class="doccomment">/**
 Same as `UserExerciseStateUpdateRequiredDataPeerReviewInformation` but public and everything is optional. Can be used to pass some already loaded dependencies to the update function.
-*/</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation</span> {
-    <span class="kw">pub</span> <span class="ident">given_peer_review_submissions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewSubmission</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">latest_exercise_slide_submission</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmission</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>:
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestionSubmission</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether the answer has been added to the the peer review queue or not</span>
-    <span class="kw">pub</span> <span class="ident">peer_review_queue_entry</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_config</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span>,
+*/
+</span><span class="attribute">#[derive(Default)]
+</span><span class="kw">pub struct </span>UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
+    <span class="kw">pub </span>given_peer_review_submissions: <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerReviewSubmission&gt;&gt;,
+    <span class="kw">pub </span>latest_exercise_slide_submission: <span class="prelude-ty">Option</span>&lt;ExerciseSlideSubmission&gt;,
+    <span class="kw">pub </span>latest_exercise_slide_submission_received_peer_review_question_submissions:
+        <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerReviewQuestionSubmission&gt;&gt;,
+    <span class="doccomment">/// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether the answer has been added to the the peer review queue or not
+    </span><span class="kw">pub </span>peer_review_queue_entry: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;&gt;,
+    <span class="kw">pub </span>peer_review_config: <span class="prelude-ty">Option</span>&lt;PeerReviewConfig&gt;,
 }
 
-<span class="doccomment">/// Loads all required data and updates user_exercise_state. Also creates completions if needed.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_user_exercise_state</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="ident">update_user_exercise_state_with_some_already_loaded_data</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">user_exercise_state_id</span>,
-        <span class="comment">// Fills all the fields with None so that all the data will be loaded from the database.</span>
-        <span class="ident">Default::default</span>(),
+<span class="doccomment">/// Loads all required data and updates user_exercise_state. Also creates completions if needed.
+</span><span class="kw">pub async fn </span>update_user_exercise_state(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_state_id: Uuid,
+) -&gt; ModelResult&lt;UserExerciseState&gt; {
+    update_user_exercise_state_with_some_already_loaded_data(
+        conn,
+        user_exercise_state_id,
+        <span class="comment">// Fills all the fields with None so that all the data will be loaded from the database.
+        </span>Default::default(),
     )
-    .<span class="kw">await</span>
-}
+    .<span class="kw">await
+</span>}
 
 <span class="doccomment">/**
 Allows you to pass some data that `update_user_exercise_state` fetches to avoid repeating SQL queries for performance. Note that the caller must be careful that it passes correct data to the function. A good rule of thumb is that this function expects unmodified data directly from the database.
@@ -273,54 +273,54 @@ update_user_exercise_state_with_some_already_loaded_data(
 # Ok(())
 # }
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">conn</span>, <span class="ident">already_loaded_internal_dependencies</span>))]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_user_exercise_state_with_some_already_loaded_data</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">already_loaded_internal_dependencies</span>: <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredData</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">required_data</span> <span class="op">=</span> <span class="ident">data_loader::load_required_data</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">user_exercise_state_id</span>,
-        <span class="ident">already_loaded_internal_dependencies</span>,
+*/
+</span><span class="attribute">#[instrument(skip(conn, already_loaded_internal_dependencies))]
+</span><span class="kw">pub async fn </span>update_user_exercise_state_with_some_already_loaded_data(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_state_id: Uuid,
+    already_loaded_internal_dependencies: UserExerciseStateUpdateAlreadyLoadedRequiredData,
+) -&gt; ModelResult&lt;UserExerciseState&gt; {
+    <span class="kw">let </span>required_data = data_loader::load_required_data(
+        conn,
+        user_exercise_state_id,
+        already_loaded_internal_dependencies,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exercise_id</span> <span class="op">=</span> <span class="ident">required_data</span>.<span class="ident">exercise</span>.<span class="ident">id</span>;
+    <span class="kw">let </span>exercise_id = required_data.exercise.id;
 
-    <span class="kw">let</span> <span class="ident">prev_user_exercise_state</span> <span class="op">=</span> <span class="ident">required_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">clone</span>();
+    <span class="kw">let </span>prev_user_exercise_state = required_data.current_user_exercise_state.clone();
 
-    <span class="kw">let</span> <span class="ident">derived_user_exercise_state</span> <span class="op">=</span> <span class="ident">state_deriver::derive_new_user_exercise_state</span>(<span class="ident">required_data</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>derived_user_exercise_state = state_deriver::derive_new_user_exercise_state(required_data)<span class="question-mark">?</span>;
 
-    <span class="comment">// Try to avoid updating if nothing changed</span>
-    <span class="kw">if</span> <span class="ident">derived_user_exercise_state</span>
-        <span class="op">==</span> (<span class="ident">UserExerciseStateUpdate</span> {
-            <span class="ident">id</span>: <span class="ident">prev_user_exercise_state</span>.<span class="ident">id</span>,
-            <span class="ident">score_given</span>: <span class="ident">prev_user_exercise_state</span>.<span class="ident">score_given</span>,
-            <span class="ident">activity_progress</span>: <span class="ident">prev_user_exercise_state</span>.<span class="ident">activity_progress</span>,
-            <span class="ident">reviewing_stage</span>: <span class="ident">prev_user_exercise_state</span>.<span class="ident">reviewing_stage</span>,
-            <span class="ident">grading_progress</span>: <span class="ident">prev_user_exercise_state</span>.<span class="ident">grading_progress</span>,
+    <span class="comment">// Try to avoid updating if nothing changed
+    </span><span class="kw">if </span>derived_user_exercise_state
+        == (UserExerciseStateUpdate {
+            id: prev_user_exercise_state.id,
+            score_given: prev_user_exercise_state.score_given,
+            activity_progress: prev_user_exercise_state.activity_progress,
+            reviewing_stage: prev_user_exercise_state.reviewing_stage,
+            grading_progress: prev_user_exercise_state.grading_progress,
         })
     {
         <span class="macro">info!</span>(<span class="string">&quot;Update resulting in no changes, not updating the database.&quot;</span>);
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">prev_user_exercise_state</span>);
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(prev_user_exercise_state);
     }
 
-    <span class="kw">let</span> <span class="ident">new_saved_user_exercise_state</span> <span class="op">=</span>
-        <span class="ident">user_exercise_states::update</span>(<span class="ident">conn</span>, <span class="ident">derived_user_exercise_state</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>new_saved_user_exercise_state =
+        user_exercise_states::update(conn, derived_user_exercise_state).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Always when the user_exercise_state updates, we need to also check if the user has completed the course.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>) <span class="op">=</span> <span class="ident">new_saved_user_exercise_state</span>.<span class="ident">course_instance_id</span> {
-        <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span> <span class="ident">course_modules::get_by_exercise_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident"><span class="kw">super</span>::progressing::update_automatic_completion_status_and_grant_if_eligible</span>(
-            <span class="ident">conn</span>,
-            <span class="kw-2">&amp;</span><span class="ident">course_module</span>,
-            <span class="ident">course_instance_id</span>,
-            <span class="ident">new_saved_user_exercise_state</span>.<span class="ident">user_id</span>,
+    <span class="comment">// Always when the user_exercise_state updates, we need to also check if the user has completed the course.
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(course_instance_id) = new_saved_user_exercise_state.course_instance_id {
+        <span class="kw">let </span>course_module = course_modules::get_by_exercise_id(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">super</span>::progressing::update_automatic_completion_status_and_grant_if_eligible(
+            conn,
+            <span class="kw-2">&amp;</span>course_module,
+            course_instance_id,
+            new_saved_user_exercise_state.user_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">new_saved_user_exercise_state</span>)
+    <span class="prelude-val">Ok</span>(new_saved_user_exercise_state)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/content_management.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>content_management.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/content_management.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>content_management.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -155,162 +155,162 @@
 <span id="155">155</span>
 <span id="156">156</span>
 <span id="157">157</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils::document_schema_processor::GutenbergBlock</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::document_schema_processor::GutenbergBlock;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">DatabaseChapter</span>, <span class="ident">NewChapter</span>},
-    <span class="ident">course_instances</span>::{<span class="ident">CourseInstance</span>, <span class="ident">NewCourseInstance</span>},
-    <span class="ident">course_language_groups</span>,
-    <span class="ident">course_modules::CourseModule</span>,
-    <span class="ident">courses</span>::{<span class="self">self</span>, <span class="ident">Course</span>, <span class="ident">NewCourse</span>},
-    <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">NewPage</span>, <span class="ident">Page</span>},
-    <span class="ident">peer_review_questions::CmsPeerReviewQuestion</span>,
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+<span class="kw">use crate</span>::{
+    chapters::{<span class="self">self</span>, DatabaseChapter, NewChapter},
+    course_instances::{CourseInstance, NewCourseInstance},
+    course_language_groups,
+    course_modules::CourseModule,
+    courses::{<span class="self">self</span>, Course, NewCourse},
+    pages::{<span class="self">self</span>, NewPage, Page},
+    peer_review_questions::CmsPeerReviewQuestion,
+    prelude::<span class="kw-2">*</span>,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CreateNewCourseFixedIds</span> {
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">default_course_instance_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>CreateNewCourseFixedIds {
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>default_course_instance_id: Uuid,
 }
 
-<span class="doccomment">/// Creates a new course with a front page and default instances.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_new_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">CreateNewCourseFixedIds</span><span class="op">&gt;</span>,
-    <span class="ident">new_course</span>: <span class="ident">NewCourse</span>,
-    <span class="ident">user</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Course</span>, <span class="ident">Page</span>, <span class="ident">CourseInstance</span>, <span class="ident">CourseModule</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="doccomment">/// Creates a new course with a front page and default instances.
+</span><span class="kw">pub async fn </span>create_new_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;CreateNewCourseFixedIds&gt;,
+    new_course: NewCourse,
+    user: Uuid,
+) -&gt; ModelResult&lt;(Course, Page, CourseInstance, CourseModule)&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span>
-        <span class="ident">course_language_groups::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">PKeyPolicy::Generate</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">map_ref</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">course_id</span>),
-        <span class="ident">course_language_group_id</span>,
-        <span class="kw-2">&amp;</span><span class="ident">new_course</span>,
+    <span class="kw">let </span>course_language_group_id =
+        course_language_groups::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_id = courses::insert(
+        <span class="kw-2">&amp;mut </span>tx,
+        pkey_policy.map_ref(|x| x.course_id),
+        course_language_group_id,
+        <span class="kw-2">&amp;</span>new_course,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course = courses::get_course(<span class="kw-2">&amp;mut </span>tx, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Create front page for course</span>
-    <span class="kw">let</span> <span class="ident">course_front_page_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="macro">vec!</span>[
-        <span class="ident">GutenbergBlock::landing_page_hero_section</span>(<span class="string">&quot;Welcome to...&quot;</span>, <span class="string">&quot;Subheading&quot;</span>),
-        <span class="ident">GutenbergBlock::course_objective_section</span>(),
-        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/top-level-pages&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/congratulations&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-progress&quot;</span>.<span class="ident">to_string</span>()),
+    <span class="comment">// Create front page for course
+    </span><span class="kw">let </span>course_front_page_content = serde_json::to_value(<span class="macro">vec!</span>[
+        GutenbergBlock::landing_page_hero_section(<span class="string">&quot;Welcome to...&quot;</span>, <span class="string">&quot;Subheading&quot;</span>),
+        GutenbergBlock::course_objective_section(),
+        GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.to_string()),
+        GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/top-level-pages&quot;</span>.to_string()),
+        GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/congratulations&quot;</span>.to_string()),
+        GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/course-progress&quot;</span>.to_string()),
     ])<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_front_page</span> <span class="op">=</span> <span class="ident">NewPage</span> {
-        <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">content</span>: <span class="ident">course_front_page_content</span>,
-        <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course</span>.<span class="ident">id</span>),
-        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">title</span>: <span class="ident">course</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
-        <span class="ident">url_path</span>: <span class="ident">String::from</span>(<span class="string">&quot;/&quot;</span>),
-        <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
-        <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
-        <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
-        <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
+    <span class="kw">let </span>course_front_page = NewPage {
+        chapter_id: <span class="prelude-val">None</span>,
+        content: course_front_page_content,
+        course_id: <span class="prelude-val">Some</span>(course.id),
+        exam_id: <span class="prelude-val">None</span>,
+        front_page_of_chapter_id: <span class="prelude-val">None</span>,
+        title: course.name.clone(),
+        url_path: String::from(<span class="string">&quot;/&quot;</span>),
+        exercises: <span class="macro">vec!</span>[],
+        exercise_slides: <span class="macro">vec!</span>[],
+        exercise_tasks: <span class="macro">vec!</span>[],
+        content_search_language: <span class="prelude-val">None</span>,
     };
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::insert_page</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">course_front_page</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page = <span class="kw">crate</span>::pages::insert_page(<span class="kw-2">&amp;mut </span>tx, course_front_page, user).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Create default course instance</span>
-    <span class="kw">let</span> <span class="ident">default_course_instance</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::course_instances::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">map_ref</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">default_course_instance_id</span>),
-        <span class="ident">NewCourseInstance</span> {
-            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
-            <span class="ident">name</span>: <span class="prelude-val">None</span>,
-            <span class="ident">description</span>: <span class="prelude-val">None</span>,
-            <span class="ident">support_email</span>: <span class="prelude-val">None</span>,
-            <span class="ident">teacher_in_charge_name</span>: <span class="kw-2">&amp;</span><span class="ident">new_course</span>.<span class="ident">teacher_in_charge_name</span>,
-            <span class="ident">teacher_in_charge_email</span>: <span class="kw-2">&amp;</span><span class="ident">new_course</span>.<span class="ident">teacher_in_charge_email</span>,
-            <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
-            <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+    <span class="comment">// Create default course instance
+    </span><span class="kw">let </span>default_course_instance = <span class="kw">crate</span>::course_instances::insert(
+        <span class="kw-2">&amp;mut </span>tx,
+        pkey_policy.map_ref(|x| x.default_course_instance_id),
+        NewCourseInstance {
+            course_id: course.id,
+            name: <span class="prelude-val">None</span>,
+            description: <span class="prelude-val">None</span>,
+            support_email: <span class="prelude-val">None</span>,
+            teacher_in_charge_name: <span class="kw-2">&amp;</span>new_course.teacher_in_charge_name,
+            teacher_in_charge_email: <span class="kw-2">&amp;</span>new_course.teacher_in_charge_email,
+            opening_time: <span class="prelude-val">None</span>,
+            closing_time: <span class="prelude-val">None</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Create default course module</span>
-    <span class="kw">let</span> <span class="ident">default_module</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::course_modules::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>, <span class="number">0</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Create default course module
+    </span><span class="kw">let </span>default_module =
+        <span class="kw">crate</span>::course_modules::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate, course.id, <span class="prelude-val">None</span>, <span class="number">0</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Create course default peer review config</span>
-    <span class="kw">let</span> <span class="ident">peer_review_config_id</span> <span class="op">=</span>
-        <span class="ident"><span class="kw">crate</span>::peer_review_configs::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Create course default peer review config
+    </span><span class="kw">let </span>peer_review_config_id =
+        <span class="kw">crate</span>::peer_review_configs::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate, course.id, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Create peer review questions for default peer review config</span>
-    <span class="ident"><span class="kw">crate</span>::peer_review_questions::upsert_multiple_peer_review_questions</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+    <span class="comment">// Create peer review questions for default peer review config
+    </span><span class="kw">crate</span>::peer_review_questions::upsert_multiple_peer_review_questions(
+        <span class="kw-2">&amp;mut </span>tx,
         <span class="kw-2">&amp;</span>[
-            <span class="ident">CmsPeerReviewQuestion</span> {
-                <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
-                <span class="ident">peer_review_config_id</span>,
-                <span class="ident">order_number</span>: <span class="number">0</span>,
-                <span class="ident">question</span>: <span class="string">&quot;General comments&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">question_type</span>: <span class="ident"><span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Essay</span>,
-                <span class="ident">answer_required</span>: <span class="bool-val">false</span>,
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id,
+                order_number: <span class="number">0</span>,
+                question: <span class="string">&quot;General comments&quot;</span>.to_string(),
+                question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Essay,
+                answer_required: <span class="bool-val">false</span>,
             },
-            <span class="ident">CmsPeerReviewQuestion</span> {
-                <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
-                <span class="ident">peer_review_config_id</span>,
-                <span class="ident">order_number</span>: <span class="number">1</span>,
-                <span class="ident">question</span>: <span class="string">&quot;The answer was correct&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">question_type</span>: <span class="ident"><span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Scale</span>,
-                <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id,
+                order_number: <span class="number">1</span>,
+                question: <span class="string">&quot;The answer was correct&quot;</span>.to_string(),
+                question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Scale,
+                answer_required: <span class="bool-val">true</span>,
             },
-            <span class="ident">CmsPeerReviewQuestion</span> {
-                <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
-                <span class="ident">peer_review_config_id</span>,
-                <span class="ident">order_number</span>: <span class="number">2</span>,
-                <span class="ident">question</span>: <span class="string">&quot;The answer was easy to read&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">question_type</span>: <span class="ident"><span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Scale</span>,
-                <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id,
+                order_number: <span class="number">2</span>,
+                question: <span class="string">&quot;The answer was easy to read&quot;</span>.to_string(),
+                question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Scale,
+                answer_required: <span class="bool-val">true</span>,
             },
         ],
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>((<span class="ident">course</span>, <span class="ident">page</span>, <span class="ident">default_course_instance</span>, <span class="ident">default_module</span>))
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((course, page, default_course_instance, default_module))
 }
 
-<span class="doccomment">/// Creates a new chapter with a front page.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_new_chapter</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span>,
-    <span class="ident">new_chapter</span>: <span class="kw-2">&amp;</span><span class="ident">NewChapter</span>,
-    <span class="ident">user</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">DatabaseChapter</span>, <span class="ident">Page</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">pkey_policy</span>.<span class="ident">map_ref</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="number">0</span>), <span class="ident">new_chapter</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">chapters::get_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter_frontpage_content</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="macro">vec!</span>[
-        <span class="ident">GutenbergBlock::hero_section</span>(<span class="kw-2">&amp;</span><span class="ident">chapter</span>.<span class="ident">name</span>, <span class="string">&quot;&quot;</span>),
-        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.<span class="ident">to_string</span>()),
-        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.<span class="ident">to_string</span>()),
+<span class="doccomment">/// Creates a new chapter with a front page.
+</span><span class="kw">pub async fn </span>create_new_chapter(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;(Uuid, Uuid)&gt;,
+    new_chapter: <span class="kw-2">&amp;</span>NewChapter,
+    user: Uuid,
+) -&gt; ModelResult&lt;(DatabaseChapter, Page)&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter_id = chapters::insert(<span class="kw-2">&amp;mut </span>tx, pkey_policy.map_ref(|x| x.<span class="number">0</span>), new_chapter).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter = chapters::get_chapter(<span class="kw-2">&amp;mut </span>tx, chapter_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter_frontpage_content = serde_json::to_value(<span class="macro">vec!</span>[
+        GutenbergBlock::hero_section(<span class="kw-2">&amp;</span>chapter.name, <span class="string">&quot;&quot;</span>),
+        GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/pages-in-chapter&quot;</span>.to_string()),
+        GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/chapter-progress&quot;</span>.to_string()),
+        GutenbergBlock::empty_block_from_name(<span class="string">&quot;moocfi/exercises-in-chapter&quot;</span>.to_string()),
     ])<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter_frontpage</span> <span class="op">=</span> <span class="ident">NewPage</span> {
-        <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">id</span>),
-        <span class="ident">content</span>: <span class="ident">chapter_frontpage_content</span>,
-        <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">course_id</span>),
-        <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">id</span>),
-        <span class="ident">title</span>: <span class="ident">chapter</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
-        <span class="ident">url_path</span>: <span class="macro">format!</span>(<span class="string">&quot;/chapter-{}&quot;</span>, <span class="ident">chapter</span>.<span class="ident">chapter_number</span>),
-        <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
-        <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
-        <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
-        <span class="ident">content_search_language</span>: <span class="prelude-val">None</span>,
+    <span class="kw">let </span>chapter_frontpage = NewPage {
+        chapter_id: <span class="prelude-val">Some</span>(chapter.id),
+        content: chapter_frontpage_content,
+        course_id: <span class="prelude-val">Some</span>(chapter.course_id),
+        exam_id: <span class="prelude-val">None</span>,
+        front_page_of_chapter_id: <span class="prelude-val">Some</span>(chapter.id),
+        title: chapter.name.clone(),
+        url_path: <span class="macro">format!</span>(<span class="string">&quot;/chapter-{}&quot;</span>, chapter.chapter_number),
+        exercises: <span class="macro">vec!</span>[],
+        exercise_slides: <span class="macro">vec!</span>[],
+        exercise_tasks: <span class="macro">vec!</span>[],
+        content_search_language: <span class="prelude-val">None</span>,
     };
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">pages::insert_page</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">chapter_frontpage</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>((<span class="ident">chapter</span>, <span class="ident">page</span>))
+    <span class="kw">let </span>page = pages::insert_page(<span class="kw-2">&amp;mut </span>tx, chapter_frontpage, user).<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((chapter, page))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

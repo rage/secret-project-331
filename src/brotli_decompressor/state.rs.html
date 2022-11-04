@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/state.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>state.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../brotli_decompressor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/state.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>state.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../brotli_decompressor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -573,580 +573,580 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
+#![allow(non_upper_case_globals)]
 
 
-<span class="kw">use</span> <span class="ident">alloc</span>;
-<span class="kw">use</span> <span class="ident">core</span>;
-<span class="kw">use</span> <span class="ident">context::kContextLookup</span>;
-<span class="kw">use</span> <span class="ident">bit_reader</span>::{<span class="ident">BrotliBitReader</span>, <span class="ident">BrotliGetAvailableBits</span>, <span class="ident">BrotliInitBitReader</span>};
-<span class="kw">use</span> <span class="ident">huffman</span>::{<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span>, <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTHS_SIZE</span>,
-              <span class="ident">BROTLI_HUFFMAN_MAX_TABLE_SIZE</span>, <span class="ident">HuffmanCode</span>, <span class="ident">HuffmanTreeGroup</span>};
-<span class="kw">use</span> <span class="ident">alloc::SliceWrapper</span>;
+</span><span class="kw">use </span>alloc;
+<span class="kw">use </span>core;
+<span class="kw">use </span>context::kContextLookup;
+<span class="kw">use </span>bit_reader::{BrotliBitReader, BrotliGetAvailableBits, BrotliInitBitReader};
+<span class="kw">use </span>huffman::{BROTLI_HUFFMAN_MAX_CODE_LENGTH, BROTLI_HUFFMAN_MAX_CODE_LENGTHS_SIZE,
+              BROTLI_HUFFMAN_MAX_TABLE_SIZE, HuffmanCode, HuffmanTreeGroup};
+<span class="kw">use </span>alloc::SliceWrapper;
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WhichTreeGroup</span> {
-  <span class="ident">LITERAL</span>,
-  <span class="ident">INSERT_COPY</span>,
-  <span class="ident">DISTANCE</span>,
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">pub enum </span>WhichTreeGroup {
+  LITERAL,
+  INSERT_COPY,
+  DISTANCE,
 }
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>,<span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliDecoderErrorCode</span>{
-  <span class="ident">BROTLI_DECODER_NO_ERROR</span> <span class="op">=</span> <span class="number">0</span>,
-  <span class="comment">/* Same as BrotliDecoderResult values */</span>
-  <span class="ident">BROTLI_DECODER_SUCCESS</span> <span class="op">=</span> <span class="number">1</span>,
-  <span class="ident">BROTLI_DECODER_NEEDS_MORE_INPUT</span> <span class="op">=</span> <span class="number">2</span>,
-  <span class="ident">BROTLI_DECODER_NEEDS_MORE_OUTPUT</span> <span class="op">=</span> <span class="number">3</span>,
+<span class="attribute">#[repr(C)]
+#[derive(Clone,Copy, Debug)]
+</span><span class="kw">pub enum </span>BrotliDecoderErrorCode{
+  BROTLI_DECODER_NO_ERROR = <span class="number">0</span>,
+  <span class="comment">/* Same as BrotliDecoderResult values */
+  </span>BROTLI_DECODER_SUCCESS = <span class="number">1</span>,
+  BROTLI_DECODER_NEEDS_MORE_INPUT = <span class="number">2</span>,
+  BROTLI_DECODER_NEEDS_MORE_OUTPUT = <span class="number">3</span>,
 
-  <span class="comment">/* Errors caused by invalid input */</span>
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_RESERVED</span> <span class="op">=</span> <span class="op">-</span><span class="number">2</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE</span> <span class="op">=</span> <span class="op">-</span><span class="number">3</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET</span> <span class="op">=</span> <span class="op">-</span><span class="number">4</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME</span> <span class="op">=</span> <span class="op">-</span><span class="number">5</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_CL_SPACE</span> <span class="op">=</span> <span class="op">-</span><span class="number">6</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE</span> <span class="op">=</span> <span class="op">-</span><span class="number">7</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT</span> <span class="op">=</span> <span class="op">-</span><span class="number">8</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1</span> <span class="op">=</span> <span class="op">-</span><span class="number">9</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2</span> <span class="op">=</span> <span class="op">-</span><span class="number">10</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_TRANSFORM</span> <span class="op">=</span> <span class="op">-</span><span class="number">11</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_DICTIONARY</span> <span class="op">=</span> <span class="op">-</span><span class="number">12</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS</span> <span class="op">=</span> <span class="op">-</span><span class="number">13</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_PADDING_1</span> <span class="op">=</span> <span class="op">-</span><span class="number">14</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_PADDING_2</span> <span class="op">=</span> <span class="op">-</span><span class="number">15</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_FORMAT_DISTANCE</span> <span class="op">=</span> <span class="op">-</span><span class="number">16</span>,
+  <span class="comment">/* Errors caused by invalid input */
+  </span>BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE = -<span class="number">1</span>,
+  BROTLI_DECODER_ERROR_FORMAT_RESERVED = -<span class="number">2</span>,
+  BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE = -<span class="number">3</span>,
+  BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET = -<span class="number">4</span>,
+  BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME = -<span class="number">5</span>,
+  BROTLI_DECODER_ERROR_FORMAT_CL_SPACE = -<span class="number">6</span>,
+  BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE = -<span class="number">7</span>,
+  BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT = -<span class="number">8</span>,
+  BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1 = -<span class="number">9</span>,
+  BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2 = -<span class="number">10</span>,
+  BROTLI_DECODER_ERROR_FORMAT_TRANSFORM = -<span class="number">11</span>,
+  BROTLI_DECODER_ERROR_FORMAT_DICTIONARY = -<span class="number">12</span>,
+  BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS = -<span class="number">13</span>,
+  BROTLI_DECODER_ERROR_FORMAT_PADDING_1 = -<span class="number">14</span>,
+  BROTLI_DECODER_ERROR_FORMAT_PADDING_2 = -<span class="number">15</span>,
+  BROTLI_DECODER_ERROR_FORMAT_DISTANCE = -<span class="number">16</span>,
 
-  <span class="comment">/* -17..-18 codes are reserved */</span>
+  <span class="comment">/* -17..-18 codes are reserved */
 
-  <span class="ident">BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET</span> <span class="op">=</span> <span class="op">-</span><span class="number">19</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_INVALID_ARGUMENTS</span> <span class="op">=</span> <span class="op">-</span><span class="number">20</span>,
+  </span>BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET = -<span class="number">19</span>,
+  BROTLI_DECODER_ERROR_INVALID_ARGUMENTS = -<span class="number">20</span>,
 
-  <span class="comment">/* Memory allocation problems */</span>
-  <span class="ident">BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES</span> <span class="op">=</span> <span class="op">-</span><span class="number">21</span>,
-  <span class="comment">/* Literal = insert and distance trees together */</span>
-  <span class="ident">BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS</span> <span class="op">=</span> <span class="op">-</span><span class="number">22</span>,
-  <span class="comment">/* -23..-24 codes are reserved for distinct tree groups */</span>
-  <span class="ident">BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP</span> <span class="op">=</span> <span class="op">-</span><span class="number">25</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1</span> <span class="op">=</span> <span class="op">-</span><span class="number">26</span>,
-  <span class="ident">BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2</span> <span class="op">=</span> <span class="op">-</span><span class="number">27</span>,
-  <span class="comment">/* -28..-29 codes are reserved for dynamic ring-buffer allocation */</span>
-  <span class="ident">BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES</span> <span class="op">=</span> <span class="op">-</span><span class="number">30</span>,
+  <span class="comment">/* Memory allocation problems */
+  </span>BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES = -<span class="number">21</span>,
+  <span class="comment">/* Literal = insert and distance trees together */
+  </span>BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS = -<span class="number">22</span>,
+  <span class="comment">/* -23..-24 codes are reserved for distinct tree groups */
+  </span>BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP = -<span class="number">25</span>,
+  BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1 = -<span class="number">26</span>,
+  BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2 = -<span class="number">27</span>,
+  <span class="comment">/* -28..-29 codes are reserved for dynamic ring-buffer allocation */
+  </span>BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES = -<span class="number">30</span>,
 
-  <span class="comment">/* &quot;Impossible&quot; states */</span>
-  <span class="ident">BROTLI_DECODER_ERROR_UNREACHABLE</span> <span class="op">=</span> <span class="op">-</span><span class="number">31</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliRunningState</span> {
-  <span class="ident">BROTLI_STATE_UNINITED</span>,
-  <span class="ident">BROTLI_STATE_LARGE_WINDOW_BITS</span>,
-  <span class="ident">BROTLI_STATE_INITIALIZE</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_BEGIN</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER_2</span>,
-  <span class="ident">BROTLI_STATE_CONTEXT_MODES</span>,
-  <span class="ident">BROTLI_STATE_COMMAND_BEGIN</span>,
-  <span class="ident">BROTLI_STATE_COMMAND_INNER</span>,
-  <span class="ident">BROTLI_STATE_COMMAND_POST_DECODE_LITERALS</span>,
-  <span class="ident">BROTLI_STATE_COMMAND_POST_WRAP_COPY</span>,
-  <span class="ident">BROTLI_STATE_UNCOMPRESSED</span>,
-  <span class="ident">BROTLI_STATE_METADATA</span>,
-  <span class="ident">BROTLI_STATE_COMMAND_INNER_WRITE</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_DONE</span>,
-  <span class="ident">BROTLI_STATE_COMMAND_POST_WRITE_1</span>,
-  <span class="ident">BROTLI_STATE_COMMAND_POST_WRITE_2</span>,
-  <span class="ident">BROTLI_STATE_HUFFMAN_CODE_0</span>,
-  <span class="ident">BROTLI_STATE_HUFFMAN_CODE_1</span>,
-  <span class="ident">BROTLI_STATE_HUFFMAN_CODE_2</span>,
-  <span class="ident">BROTLI_STATE_HUFFMAN_CODE_3</span>,
-  <span class="ident">BROTLI_STATE_CONTEXT_MAP_1</span>,
-  <span class="ident">BROTLI_STATE_CONTEXT_MAP_2</span>,
-  <span class="ident">BROTLI_STATE_TREE_GROUP</span>,
-  <span class="ident">BROTLI_STATE_DONE</span>,
+  <span class="comment">/* &quot;Impossible&quot; states */
+  </span>BROTLI_DECODER_ERROR_UNREACHABLE = -<span class="number">31</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliRunningMetablockHeaderState</span> {
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER_NONE</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER_EMPTY</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER_NIBBLES</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER_SIZE</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER_UNCOMPRESSED</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER_RESERVED</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER_BYTES</span>,
-  <span class="ident">BROTLI_STATE_METABLOCK_HEADER_METADATA</span>,
-}
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliRunningUncompressedState</span> {
-  <span class="ident">BROTLI_STATE_UNCOMPRESSED_NONE</span>,
-  <span class="ident">BROTLI_STATE_UNCOMPRESSED_WRITE</span>,
-}
-
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliRunningTreeGroupState</span> {
-  <span class="ident">BROTLI_STATE_TREE_GROUP_NONE</span>,
-  <span class="ident">BROTLI_STATE_TREE_GROUP_LOOP</span>,
-}
-
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliRunningContextMapState</span> {
-  <span class="ident">BROTLI_STATE_CONTEXT_MAP_NONE</span>,
-  <span class="ident">BROTLI_STATE_CONTEXT_MAP_READ_PREFIX</span>,
-  <span class="ident">BROTLI_STATE_CONTEXT_MAP_HUFFMAN</span>,
-  <span class="ident">BROTLI_STATE_CONTEXT_MAP_DECODE</span>,
-  <span class="ident">BROTLI_STATE_CONTEXT_MAP_TRANSFORM</span>,
-}
-
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliRunningHuffmanState</span> {
-  <span class="ident">BROTLI_STATE_HUFFMAN_NONE</span>,
-  <span class="ident">BROTLI_STATE_HUFFMAN_SIMPLE_SIZE</span>,
-  <span class="ident">BROTLI_STATE_HUFFMAN_SIMPLE_READ</span>,
-  <span class="ident">BROTLI_STATE_HUFFMAN_SIMPLE_BUILD</span>,
-  <span class="ident">BROTLI_STATE_HUFFMAN_COMPLEX</span>,
-  <span class="ident">BROTLI_STATE_HUFFMAN_LENGTH_SYMBOLS</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>BrotliRunningState {
+  BROTLI_STATE_UNINITED,
+  BROTLI_STATE_LARGE_WINDOW_BITS,
+  BROTLI_STATE_INITIALIZE,
+  BROTLI_STATE_METABLOCK_BEGIN,
+  BROTLI_STATE_METABLOCK_HEADER,
+  BROTLI_STATE_METABLOCK_HEADER_2,
+  BROTLI_STATE_CONTEXT_MODES,
+  BROTLI_STATE_COMMAND_BEGIN,
+  BROTLI_STATE_COMMAND_INNER,
+  BROTLI_STATE_COMMAND_POST_DECODE_LITERALS,
+  BROTLI_STATE_COMMAND_POST_WRAP_COPY,
+  BROTLI_STATE_UNCOMPRESSED,
+  BROTLI_STATE_METADATA,
+  BROTLI_STATE_COMMAND_INNER_WRITE,
+  BROTLI_STATE_METABLOCK_DONE,
+  BROTLI_STATE_COMMAND_POST_WRITE_1,
+  BROTLI_STATE_COMMAND_POST_WRITE_2,
+  BROTLI_STATE_HUFFMAN_CODE_0,
+  BROTLI_STATE_HUFFMAN_CODE_1,
+  BROTLI_STATE_HUFFMAN_CODE_2,
+  BROTLI_STATE_HUFFMAN_CODE_3,
+  BROTLI_STATE_CONTEXT_MAP_1,
+  BROTLI_STATE_CONTEXT_MAP_2,
+  BROTLI_STATE_TREE_GROUP,
+  BROTLI_STATE_DONE,
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliRunningDecodeUint8State</span> {
-  <span class="ident">BROTLI_STATE_DECODE_UINT8_NONE</span>,
-  <span class="ident">BROTLI_STATE_DECODE_UINT8_SHORT</span>,
-  <span class="ident">BROTLI_STATE_DECODE_UINT8_LONG</span>,
+<span class="kw">pub enum </span>BrotliRunningMetablockHeaderState {
+  BROTLI_STATE_METABLOCK_HEADER_NONE,
+  BROTLI_STATE_METABLOCK_HEADER_EMPTY,
+  BROTLI_STATE_METABLOCK_HEADER_NIBBLES,
+  BROTLI_STATE_METABLOCK_HEADER_SIZE,
+  BROTLI_STATE_METABLOCK_HEADER_UNCOMPRESSED,
+  BROTLI_STATE_METABLOCK_HEADER_RESERVED,
+  BROTLI_STATE_METABLOCK_HEADER_BYTES,
+  BROTLI_STATE_METABLOCK_HEADER_METADATA,
+}
+<span class="kw">pub enum </span>BrotliRunningUncompressedState {
+  BROTLI_STATE_UNCOMPRESSED_NONE,
+  BROTLI_STATE_UNCOMPRESSED_WRITE,
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BrotliRunningReadBlockLengthState</span> {
-  <span class="ident">BROTLI_STATE_READ_BLOCK_LENGTH_NONE</span>,
-  <span class="ident">BROTLI_STATE_READ_BLOCK_LENGTH_SUFFIX</span>,
+<span class="kw">pub enum </span>BrotliRunningTreeGroupState {
+  BROTLI_STATE_TREE_GROUP_NONE,
+  BROTLI_STATE_TREE_GROUP_LOOP,
 }
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">kLiteralContextBits</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">6</span>;
-
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BlockTypeAndLengthState</span><span class="op">&lt;</span><span class="ident">AllocHC</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="ident">substate_read_block_length</span>: <span class="ident">BrotliRunningReadBlockLengthState</span>,
-  <span class="kw">pub</span> <span class="ident">num_block_types</span>: [<span class="ident">u32</span>; <span class="number">3</span>],
-  <span class="kw">pub</span> <span class="ident">block_length_index</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">block_length</span>: [<span class="ident">u32</span>; <span class="number">3</span>],
-  <span class="kw">pub</span> <span class="ident">block_type_trees</span>: <span class="ident">AllocHC::AllocatedMemory</span>,
-  <span class="kw">pub</span> <span class="ident">block_len_trees</span>: <span class="ident">AllocHC::AllocatedMemory</span>,
-  <span class="kw">pub</span> <span class="ident">block_type_rb</span>: [<span class="ident">u32</span>; <span class="number">6</span>],
+<span class="kw">pub enum </span>BrotliRunningContextMapState {
+  BROTLI_STATE_CONTEXT_MAP_NONE,
+  BROTLI_STATE_CONTEXT_MAP_READ_PREFIX,
+  BROTLI_STATE_CONTEXT_MAP_HUFFMAN,
+  BROTLI_STATE_CONTEXT_MAP_DECODE,
+  BROTLI_STATE_CONTEXT_MAP_TRANSFORM,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrotliState</span><span class="op">&lt;</span><span class="ident">AllocU8</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-                       <span class="ident">AllocU32</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-                       <span class="ident">AllocHC</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">pub enum </span>BrotliRunningHuffmanState {
+  BROTLI_STATE_HUFFMAN_NONE,
+  BROTLI_STATE_HUFFMAN_SIMPLE_SIZE,
+  BROTLI_STATE_HUFFMAN_SIMPLE_READ,
+  BROTLI_STATE_HUFFMAN_SIMPLE_BUILD,
+  BROTLI_STATE_HUFFMAN_COMPLEX,
+  BROTLI_STATE_HUFFMAN_LENGTH_SYMBOLS,
+}
+
+<span class="kw">pub enum </span>BrotliRunningDecodeUint8State {
+  BROTLI_STATE_DECODE_UINT8_NONE,
+  BROTLI_STATE_DECODE_UINT8_SHORT,
+  BROTLI_STATE_DECODE_UINT8_LONG,
+}
+
+<span class="kw">pub enum </span>BrotliRunningReadBlockLengthState {
+  BROTLI_STATE_READ_BLOCK_LENGTH_NONE,
+  BROTLI_STATE_READ_BLOCK_LENGTH_SUFFIX,
+}
+
+<span class="kw">pub const </span>kLiteralContextBits: usize = <span class="number">6</span>;
+
+<span class="kw">pub struct </span>BlockTypeAndLengthState&lt;AllocHC: alloc::Allocator&lt;HuffmanCode&gt;&gt; {
+  <span class="kw">pub </span>substate_read_block_length: BrotliRunningReadBlockLengthState,
+  <span class="kw">pub </span>num_block_types: [u32; <span class="number">3</span>],
+  <span class="kw">pub </span>block_length_index: u32,
+  <span class="kw">pub </span>block_length: [u32; <span class="number">3</span>],
+  <span class="kw">pub </span>block_type_trees: AllocHC::AllocatedMemory,
+  <span class="kw">pub </span>block_len_trees: AllocHC::AllocatedMemory,
+  <span class="kw">pub </span>block_type_rb: [u32; <span class="number">6</span>],
+}
+
+<span class="kw">pub struct </span>BrotliState&lt;AllocU8: alloc::Allocator&lt;u8&gt;,
+                       AllocU32: alloc::Allocator&lt;u32&gt;,
+                       AllocHC: alloc::Allocator&lt;HuffmanCode&gt;&gt;
 {
-  <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">BrotliRunningState</span>,
+  <span class="kw">pub </span>state: BrotliRunningState,
 
-  <span class="comment">// This counter is reused for several disjoint loops.</span>
-  <span class="kw">pub</span> <span class="ident">loop_counter</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">br</span>: <span class="ident">BrotliBitReader</span>,
-  <span class="kw">pub</span> <span class="ident">alloc_u8</span>: <span class="ident">AllocU8</span>,
-  <span class="kw">pub</span> <span class="ident">alloc_u32</span>: <span class="ident">AllocU32</span>,
-  <span class="kw">pub</span> <span class="ident">alloc_hc</span>: <span class="ident">AllocHC</span>,
-  <span class="comment">// void* memory_manager_opaque,</span>
-  <span class="kw">pub</span> <span class="ident">buffer</span>: [<span class="ident">u8</span>; <span class="number">8</span>],
-  <span class="kw">pub</span> <span class="ident">buffer_length</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">max_backward_distance</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">max_backward_distance_minus_custom_dict_size</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">max_distance</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">ringbuffer_size</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">ringbuffer_mask</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">dist_rb_idx</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">dist_rb</span>: [<span class="ident">i32</span>; <span class="number">4</span>],
-  <span class="kw">pub</span> <span class="ident">ringbuffer</span>: <span class="ident">AllocU8::AllocatedMemory</span>,
-  <span class="comment">// pub ringbuffer_end : usize,</span>
-  <span class="kw">pub</span> <span class="ident">htree_command_index</span>: <span class="ident">u16</span>,
-  <span class="kw">pub</span> <span class="ident">context_lookup</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>;<span class="number">512</span>],
-  <span class="kw">pub</span> <span class="ident">context_map_slice_index</span>: <span class="ident">usize</span>,
-  <span class="kw">pub</span> <span class="ident">dist_context_map_slice_index</span>: <span class="ident">usize</span>,
+  <span class="comment">// This counter is reused for several disjoint loops.
+  </span><span class="kw">pub </span>loop_counter: i32,
+  <span class="kw">pub </span>br: BrotliBitReader,
+  <span class="kw">pub </span>alloc_u8: AllocU8,
+  <span class="kw">pub </span>alloc_u32: AllocU32,
+  <span class="kw">pub </span>alloc_hc: AllocHC,
+  <span class="comment">// void* memory_manager_opaque,
+  </span><span class="kw">pub </span>buffer: [u8; <span class="number">8</span>],
+  <span class="kw">pub </span>buffer_length: u32,
+  <span class="kw">pub </span>pos: i32,
+  <span class="kw">pub </span>max_backward_distance: i32,
+  <span class="kw">pub </span>max_backward_distance_minus_custom_dict_size: i32,
+  <span class="kw">pub </span>max_distance: i32,
+  <span class="kw">pub </span>ringbuffer_size: i32,
+  <span class="kw">pub </span>ringbuffer_mask: i32,
+  <span class="kw">pub </span>dist_rb_idx: i32,
+  <span class="kw">pub </span>dist_rb: [i32; <span class="number">4</span>],
+  <span class="kw">pub </span>ringbuffer: AllocU8::AllocatedMemory,
+  <span class="comment">// pub ringbuffer_end : usize,
+  </span><span class="kw">pub </span>htree_command_index: u16,
+  <span class="kw">pub </span>context_lookup: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8;<span class="number">512</span>],
+  <span class="kw">pub </span>context_map_slice_index: usize,
+  <span class="kw">pub </span>dist_context_map_slice_index: usize,
 
-  <span class="kw">pub</span> <span class="ident">sub_loop_counter</span>: <span class="ident">u32</span>,
+  <span class="kw">pub </span>sub_loop_counter: u32,
 
-  <span class="comment">// This ring buffer holds a few past copy distances that will be used by */</span>
-  <span class="comment">// some special distance codes.</span>
-  <span class="kw">pub</span> <span class="ident">literal_hgroup</span>: <span class="ident">HuffmanTreeGroup</span><span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>,
-  <span class="kw">pub</span> <span class="ident">insert_copy_hgroup</span>: <span class="ident">HuffmanTreeGroup</span><span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>,
-  <span class="kw">pub</span> <span class="ident">distance_hgroup</span>: <span class="ident">HuffmanTreeGroup</span><span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>,
-  <span class="comment">// This is true if the literal context map histogram type always matches the</span>
-  <span class="comment">// block type. It is then not needed to keep the context (faster decoding).</span>
-  <span class="kw">pub</span> <span class="ident">trivial_literal_context</span>: <span class="ident">i32</span>,
-  <span class="comment">// Distance context is actual after command is decoded and before distance</span>
-  <span class="comment">// is computed. After distance computation it is used as a temporary variable</span>
-  <span class="kw">pub</span> <span class="ident">distance_context</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">meta_block_remaining_len</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">block_type_length_state</span>: <span class="ident">BlockTypeAndLengthState</span><span class="op">&lt;</span><span class="ident">AllocHC</span><span class="op">&gt;</span>,
-  <span class="kw">pub</span> <span class="ident">distance_postfix_bits</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">num_direct_distance_codes</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">distance_postfix_mask</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">num_dist_htrees</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">dist_context_map</span>: <span class="ident">AllocU8::AllocatedMemory</span>,
-  <span class="comment">// NOT NEEDED? the index below seems to supersede it pub literal_htree : AllocHC::AllocatedMemory,</span>
-  <span class="kw">pub</span> <span class="ident">literal_htree_index</span>: <span class="ident">u8</span>,
-  <span class="kw">pub</span> <span class="ident">dist_htree_index</span>: <span class="ident">u8</span>,
-  <span class="kw">pub</span> <span class="ident">large_window</span>: <span class="ident">bool</span>,
-  <span class="kw">pub</span> <span class="ident">should_wrap_ringbuffer</span>: <span class="ident">bool</span>,
-  <span class="kw">pub</span> <span class="ident">error_code</span>: <span class="ident">BrotliDecoderErrorCode</span>,
-  <span class="kw">pub</span> <span class="ident">repeat_code_len</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">prev_code_len</span>: <span class="ident">u32</span>,
+  <span class="comment">// This ring buffer holds a few past copy distances that will be used by */
+  // some special distance codes.
+  </span><span class="kw">pub </span>literal_hgroup: HuffmanTreeGroup&lt;AllocU32, AllocHC&gt;,
+  <span class="kw">pub </span>insert_copy_hgroup: HuffmanTreeGroup&lt;AllocU32, AllocHC&gt;,
+  <span class="kw">pub </span>distance_hgroup: HuffmanTreeGroup&lt;AllocU32, AllocHC&gt;,
+  <span class="comment">// This is true if the literal context map histogram type always matches the
+  // block type. It is then not needed to keep the context (faster decoding).
+  </span><span class="kw">pub </span>trivial_literal_context: i32,
+  <span class="comment">// Distance context is actual after command is decoded and before distance
+  // is computed. After distance computation it is used as a temporary variable
+  </span><span class="kw">pub </span>distance_context: i32,
+  <span class="kw">pub </span>meta_block_remaining_len: i32,
+  <span class="kw">pub </span>block_type_length_state: BlockTypeAndLengthState&lt;AllocHC&gt;,
+  <span class="kw">pub </span>distance_postfix_bits: u32,
+  <span class="kw">pub </span>num_direct_distance_codes: u32,
+  <span class="kw">pub </span>distance_postfix_mask: i32,
+  <span class="kw">pub </span>num_dist_htrees: u32,
+  <span class="kw">pub </span>dist_context_map: AllocU8::AllocatedMemory,
+  <span class="comment">// NOT NEEDED? the index below seems to supersede it pub literal_htree : AllocHC::AllocatedMemory,
+  </span><span class="kw">pub </span>literal_htree_index: u8,
+  <span class="kw">pub </span>dist_htree_index: u8,
+  <span class="kw">pub </span>large_window: bool,
+  <span class="kw">pub </span>should_wrap_ringbuffer: bool,
+  <span class="kw">pub </span>error_code: BrotliDecoderErrorCode,
+  <span class="kw">pub </span>repeat_code_len: u32,
+  <span class="kw">pub </span>prev_code_len: u32,
 
-  <span class="kw">pub</span> <span class="ident">copy_length</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">distance_code</span>: <span class="ident">i32</span>,
+  <span class="kw">pub </span>copy_length: i32,
+  <span class="kw">pub </span>distance_code: i32,
 
-  <span class="comment">// For partial write operations</span>
-  <span class="kw">pub</span> <span class="ident">rb_roundtrips</span>: <span class="ident">usize</span>, <span class="comment">// How many times we went around the ringbuffer</span>
-  <span class="kw">pub</span> <span class="ident">partial_pos_out</span>: <span class="ident">usize</span>, <span class="comment">// How much output to the user in total (&lt;= rb)</span>
+  <span class="comment">// For partial write operations
+  </span><span class="kw">pub </span>rb_roundtrips: usize, <span class="comment">// How many times we went around the ringbuffer
+  </span><span class="kw">pub </span>partial_pos_out: usize, <span class="comment">// How much output to the user in total (&lt;= rb)
 
-  <span class="comment">// For ReadHuffmanCode</span>
-  <span class="kw">pub</span> <span class="ident">symbol</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">repeat</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">space</span>: <span class="ident">u32</span>,
+  // For ReadHuffmanCode
+  </span><span class="kw">pub </span>symbol: u32,
+  <span class="kw">pub </span>repeat: u32,
+  <span class="kw">pub </span>space: u32,
 
-  <span class="kw">pub</span> <span class="ident">table</span>: [<span class="ident">HuffmanCode</span>; <span class="number">32</span>],
-  <span class="comment">// List of of symbol chains.</span>
-  <span class="kw">pub</span> <span class="ident">symbol_lists_index</span>: <span class="ident">usize</span>, <span class="comment">// AllocU16::AllocatedMemory,</span>
-  <span class="comment">// Storage from symbol_lists.</span>
-  <span class="kw">pub</span> <span class="ident">symbols_lists_array</span>: [<span class="ident">u16</span>; <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span>
-                                 <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTHS_SIZE</span>],
-  <span class="comment">// Tails of symbol chains.</span>
-  <span class="kw">pub</span> <span class="ident">next_symbol</span>: [<span class="ident">i32</span>; <span class="number">32</span>],
-  <span class="kw">pub</span> <span class="ident">code_length_code_lengths</span>: [<span class="ident">u8</span>; <span class="number">18</span>],
-  <span class="comment">// Population counts for the code lengths</span>
-  <span class="kw">pub</span> <span class="ident">code_length_histo</span>: [<span class="ident">u16</span>; <span class="number">16</span>],
+  <span class="kw">pub </span>table: [HuffmanCode; <span class="number">32</span>],
+  <span class="comment">// List of of symbol chains.
+  </span><span class="kw">pub </span>symbol_lists_index: usize, <span class="comment">// AllocU16::AllocatedMemory,
+  // Storage from symbol_lists.
+  </span><span class="kw">pub </span>symbols_lists_array: [u16; BROTLI_HUFFMAN_MAX_CODE_LENGTH + <span class="number">1 </span>+
+                                 BROTLI_HUFFMAN_MAX_CODE_LENGTHS_SIZE],
+  <span class="comment">// Tails of symbol chains.
+  </span><span class="kw">pub </span>next_symbol: [i32; <span class="number">32</span>],
+  <span class="kw">pub </span>code_length_code_lengths: [u8; <span class="number">18</span>],
+  <span class="comment">// Population counts for the code lengths
+  </span><span class="kw">pub </span>code_length_histo: [u16; <span class="number">16</span>],
 
-  <span class="comment">// For HuffmanTreeGroupDecode</span>
-  <span class="kw">pub</span> <span class="ident">htree_index</span>: <span class="ident">i32</span>,
-  <span class="kw">pub</span> <span class="ident">htree_next_offset</span>: <span class="ident">u32</span>,
+  <span class="comment">// For HuffmanTreeGroupDecode
+  </span><span class="kw">pub </span>htree_index: i32,
+  <span class="kw">pub </span>htree_next_offset: u32,
 
-  <span class="comment">// For DecodeContextMap</span>
-  <span class="kw">pub</span> <span class="ident">context_index</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">max_run_length_prefix</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">code</span>: <span class="ident">u32</span>,
-  <span class="comment">// always pre-allocated on state creation</span>
-  <span class="kw">pub</span> <span class="ident">context_map_table</span>: <span class="ident">AllocHC::AllocatedMemory</span>,
+  <span class="comment">// For DecodeContextMap
+  </span><span class="kw">pub </span>context_index: u32,
+  <span class="kw">pub </span>max_run_length_prefix: u32,
+  <span class="kw">pub </span>code: u32,
+  <span class="comment">// always pre-allocated on state creation
+  </span><span class="kw">pub </span>context_map_table: AllocHC::AllocatedMemory,
 
-  <span class="comment">// For InverseMoveToFrontTransform</span>
-  <span class="kw">pub</span> <span class="ident">mtf_upper_bound</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">mtf_or_error_string</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">256</span>], [<span class="ident">u8</span>; <span class="number">256</span>]<span class="op">&gt;</span>,
+  <span class="comment">// For InverseMoveToFrontTransform
+  </span><span class="kw">pub </span>mtf_upper_bound: u32,
+  <span class="kw">pub </span>mtf_or_error_string: <span class="prelude-ty">Result</span>&lt;[u8; <span class="number">256</span>], [u8; <span class="number">256</span>]&gt;,
 
-  <span class="comment">// For custom dictionaries</span>
-  <span class="kw">pub</span> <span class="ident">custom_dict</span>: <span class="ident">AllocU8::AllocatedMemory</span>,
-  <span class="kw">pub</span> <span class="ident">custom_dict_size</span>: <span class="ident">i32</span>,
-  <span class="comment">// less used attributes are in the end of this struct */</span>
-  <span class="comment">// States inside function calls</span>
-  <span class="kw">pub</span> <span class="ident">substate_metablock_header</span>: <span class="ident">BrotliRunningMetablockHeaderState</span>,
-  <span class="kw">pub</span> <span class="ident">substate_tree_group</span>: <span class="ident">BrotliRunningTreeGroupState</span>,
-  <span class="kw">pub</span> <span class="ident">substate_context_map</span>: <span class="ident">BrotliRunningContextMapState</span>,
-  <span class="kw">pub</span> <span class="ident">substate_uncompressed</span>: <span class="ident">BrotliRunningUncompressedState</span>,
-  <span class="kw">pub</span> <span class="ident">substate_huffman</span>: <span class="ident">BrotliRunningHuffmanState</span>,
-  <span class="kw">pub</span> <span class="ident">substate_decode_uint8</span>: <span class="ident">BrotliRunningDecodeUint8State</span>,
+  <span class="comment">// For custom dictionaries
+  </span><span class="kw">pub </span>custom_dict: AllocU8::AllocatedMemory,
+  <span class="kw">pub </span>custom_dict_size: i32,
+  <span class="comment">// less used attributes are in the end of this struct */
+  // States inside function calls
+  </span><span class="kw">pub </span>substate_metablock_header: BrotliRunningMetablockHeaderState,
+  <span class="kw">pub </span>substate_tree_group: BrotliRunningTreeGroupState,
+  <span class="kw">pub </span>substate_context_map: BrotliRunningContextMapState,
+  <span class="kw">pub </span>substate_uncompressed: BrotliRunningUncompressedState,
+  <span class="kw">pub </span>substate_huffman: BrotliRunningHuffmanState,
+  <span class="kw">pub </span>substate_decode_uint8: BrotliRunningDecodeUint8State,
 
-  <span class="kw">pub</span> <span class="ident">is_last_metablock</span>: <span class="ident">u8</span>,
-  <span class="kw">pub</span> <span class="ident">is_uncompressed</span>: <span class="ident">u8</span>,
-  <span class="kw">pub</span> <span class="ident">is_metadata</span>: <span class="ident">u8</span>,
-  <span class="kw">pub</span> <span class="ident">size_nibbles</span>: <span class="ident">u8</span>,
-  <span class="kw">pub</span> <span class="ident">window_bits</span>: <span class="ident">u32</span>,
+  <span class="kw">pub </span>is_last_metablock: u8,
+  <span class="kw">pub </span>is_uncompressed: u8,
+  <span class="kw">pub </span>is_metadata: u8,
+  <span class="kw">pub </span>size_nibbles: u8,
+  <span class="kw">pub </span>window_bits: u32,
 
-  <span class="kw">pub</span> <span class="ident">num_literal_htrees</span>: <span class="ident">u32</span>,
-  <span class="kw">pub</span> <span class="ident">context_map</span>: <span class="ident">AllocU8::AllocatedMemory</span>,
-  <span class="kw">pub</span> <span class="ident">context_modes</span>: <span class="ident">AllocU8::AllocatedMemory</span>,
-  <span class="kw">pub</span> <span class="ident">trivial_literal_contexts</span>: [<span class="ident">u32</span>; <span class="number">8</span>],
+  <span class="kw">pub </span>num_literal_htrees: u32,
+  <span class="kw">pub </span>context_map: AllocU8::AllocatedMemory,
+  <span class="kw">pub </span>context_modes: AllocU8::AllocatedMemory,
+  <span class="kw">pub </span>trivial_literal_contexts: [u32; <span class="number">8</span>],
 }
-<span class="macro">macro_rules!</span> <span class="ident">make_brotli_state</span> {
- (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">alloc_u8</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">alloc_u32</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">alloc_hc</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">custom_dict</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">custom_dict_len</span>: <span class="ident">expr</span>) =&gt; (<span class="ident">BrotliState</span>::<span class="op">&lt;</span><span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>{
-            <span class="ident">state</span> : <span class="ident">BrotliRunningState::BROTLI_STATE_UNINITED</span>,
-            <span class="ident">loop_counter</span> : <span class="number">0</span>,
-            <span class="ident">br</span> : <span class="ident">BrotliBitReader::default</span>(),
-            <span class="ident">alloc_u8</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">alloc_u8</span>,
-            <span class="ident">alloc_u32</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">alloc_u32</span>,
-            <span class="ident">alloc_hc</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">alloc_hc</span>,
-            <span class="ident">buffer</span> : [<span class="number">0u8</span>; <span class="number">8</span>],
-            <span class="ident">buffer_length</span> : <span class="number">0</span>,
-            <span class="ident">pos</span> : <span class="number">0</span>,
-            <span class="ident">max_backward_distance</span> : <span class="number">0</span>,
-            <span class="ident">max_backward_distance_minus_custom_dict_size</span> : <span class="number">0</span>,
-            <span class="ident">max_distance</span> : <span class="number">0</span>,
-            <span class="ident">ringbuffer_size</span> : <span class="number">0</span>,
-            <span class="ident">ringbuffer_mask</span>: <span class="number">0</span>,
-            <span class="ident">dist_rb_idx</span> : <span class="number">0</span>,
-            <span class="ident">dist_rb</span> : [<span class="number">16</span>, <span class="number">15</span>, <span class="number">11</span>, <span class="number">4</span>],
-            <span class="ident">ringbuffer</span> : <span class="ident">AllocU8::AllocatedMemory::default</span>(),
-            <span class="ident">htree_command_index</span> : <span class="number">0</span>,
-            <span class="ident">context_lookup</span> : <span class="kw-2">&amp;</span><span class="ident">kContextLookup</span>[<span class="number">0</span>],
-            <span class="ident">context_map_slice_index</span> : <span class="number">0</span>,
-            <span class="ident">dist_context_map_slice_index</span> : <span class="number">0</span>,
-            <span class="ident">sub_loop_counter</span> : <span class="number">0</span>,
+<span class="macro">macro_rules! </span>make_brotli_state {
+ (<span class="macro-nonterminal">$alloc_u8 </span>: expr, <span class="macro-nonterminal">$alloc_u32 </span>: expr, <span class="macro-nonterminal">$alloc_hc </span>: expr, <span class="macro-nonterminal">$custom_dict </span>: expr, <span class="macro-nonterminal">$custom_dict_len</span>: expr) =&gt; (BrotliState::&lt;AllocU8, AllocU32, AllocHC&gt;{
+            state : BrotliRunningState::BROTLI_STATE_UNINITED,
+            loop_counter : <span class="number">0</span>,
+            br : BrotliBitReader::default(),
+            alloc_u8 : <span class="macro-nonterminal">$alloc_u8</span>,
+            alloc_u32 : <span class="macro-nonterminal">$alloc_u32</span>,
+            alloc_hc : <span class="macro-nonterminal">$alloc_hc</span>,
+            buffer : [<span class="number">0u8</span>; <span class="number">8</span>],
+            buffer_length : <span class="number">0</span>,
+            pos : <span class="number">0</span>,
+            max_backward_distance : <span class="number">0</span>,
+            max_backward_distance_minus_custom_dict_size : <span class="number">0</span>,
+            max_distance : <span class="number">0</span>,
+            ringbuffer_size : <span class="number">0</span>,
+            ringbuffer_mask: <span class="number">0</span>,
+            dist_rb_idx : <span class="number">0</span>,
+            dist_rb : [<span class="number">16</span>, <span class="number">15</span>, <span class="number">11</span>, <span class="number">4</span>],
+            ringbuffer : AllocU8::AllocatedMemory::default(),
+            htree_command_index : <span class="number">0</span>,
+            context_lookup : <span class="kw-2">&amp;</span>kContextLookup[<span class="number">0</span>],
+            context_map_slice_index : <span class="number">0</span>,
+            dist_context_map_slice_index : <span class="number">0</span>,
+            sub_loop_counter : <span class="number">0</span>,
 
-            <span class="ident">literal_hgroup</span> : <span class="ident">HuffmanTreeGroup</span>::<span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span><span class="ident">::default</span>(),
-            <span class="ident">insert_copy_hgroup</span> : <span class="ident">HuffmanTreeGroup</span>::<span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span><span class="ident">::default</span>(),
-            <span class="ident">distance_hgroup</span> : <span class="ident">HuffmanTreeGroup</span>::<span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span><span class="ident">::default</span>(),
-            <span class="ident">trivial_literal_context</span> : <span class="number">0</span>,
-            <span class="ident">distance_context</span> : <span class="number">0</span>,
-            <span class="ident">meta_block_remaining_len</span> : <span class="number">0</span>,
-            <span class="ident">block_type_length_state</span> : <span class="ident">BlockTypeAndLengthState</span>::<span class="op">&lt;</span><span class="ident">AllocHC</span><span class="op">&gt;</span> {
-              <span class="ident">block_length_index</span> : <span class="number">0</span>,
-              <span class="ident">block_length</span> : [<span class="number">0</span>; <span class="number">3</span>],
-              <span class="ident">num_block_types</span> : [<span class="number">0</span>;<span class="number">3</span>],
-              <span class="ident">block_type_rb</span>: [<span class="number">0</span>;<span class="number">6</span>],
-              <span class="ident">substate_read_block_length</span> : <span class="ident">BrotliRunningReadBlockLengthState::BROTLI_STATE_READ_BLOCK_LENGTH_NONE</span>,
-              <span class="ident">block_type_trees</span> : <span class="ident">AllocHC::AllocatedMemory::default</span>(),
-              <span class="ident">block_len_trees</span> : <span class="ident">AllocHC::AllocatedMemory::default</span>(),
+            literal_hgroup : HuffmanTreeGroup::&lt;AllocU32, AllocHC&gt;::default(),
+            insert_copy_hgroup : HuffmanTreeGroup::&lt;AllocU32, AllocHC&gt;::default(),
+            distance_hgroup : HuffmanTreeGroup::&lt;AllocU32, AllocHC&gt;::default(),
+            trivial_literal_context : <span class="number">0</span>,
+            distance_context : <span class="number">0</span>,
+            meta_block_remaining_len : <span class="number">0</span>,
+            block_type_length_state : BlockTypeAndLengthState::&lt;AllocHC&gt; {
+              block_length_index : <span class="number">0</span>,
+              block_length : [<span class="number">0</span>; <span class="number">3</span>],
+              num_block_types : [<span class="number">0</span>;<span class="number">3</span>],
+              block_type_rb: [<span class="number">0</span>;<span class="number">6</span>],
+              substate_read_block_length : BrotliRunningReadBlockLengthState::BROTLI_STATE_READ_BLOCK_LENGTH_NONE,
+              block_type_trees : AllocHC::AllocatedMemory::default(),
+              block_len_trees : AllocHC::AllocatedMemory::default(),
             },
-            <span class="ident">distance_postfix_bits</span> : <span class="number">0</span>,
-            <span class="ident">num_direct_distance_codes</span> : <span class="number">0</span>,
-            <span class="ident">distance_postfix_mask</span> : <span class="number">0</span>,
-            <span class="ident">num_dist_htrees</span> : <span class="number">0</span>,
-            <span class="ident">dist_context_map</span> : <span class="ident">AllocU8::AllocatedMemory::default</span>(),
-            <span class="comment">//// not needed literal_htree : AllocHC::AllocatedMemory::default(),</span>
-            <span class="ident">literal_htree_index</span> : <span class="number">0</span>,
-            <span class="ident">dist_htree_index</span> : <span class="number">0</span>,
-            <span class="ident">repeat_code_len</span> : <span class="number">0</span>,
-            <span class="ident">prev_code_len</span> : <span class="number">0</span>,
-            <span class="ident">copy_length</span> : <span class="number">0</span>,
-            <span class="ident">distance_code</span> : <span class="number">0</span>,
-            <span class="ident">rb_roundtrips</span> : <span class="number">0</span>,  <span class="comment">/* How many times we went around the ringbuffer */</span>
-            <span class="ident">partial_pos_out</span> : <span class="number">0</span>,  <span class="comment">/* How much output to the user in total (&lt;= rb) */</span>
-            <span class="ident">symbol</span> : <span class="number">0</span>,
-            <span class="ident">repeat</span> : <span class="number">0</span>,
-            <span class="ident">space</span> : <span class="number">0</span>,
-            <span class="ident">table</span> : [<span class="ident">HuffmanCode::default</span>(); <span class="number">32</span>],
-            <span class="comment">//symbol_lists: AllocU16::AllocatedMemory::default(),</span>
-            <span class="ident">symbol_lists_index</span> : <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="op">+</span> <span class="number">1</span>,
-            <span class="ident">symbols_lists_array</span> : [<span class="number">0</span>;<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span>
-                              <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTHS_SIZE</span>],
-            <span class="ident">next_symbol</span> : [<span class="number">0</span>; <span class="number">32</span>],
-            <span class="ident">code_length_code_lengths</span> : [<span class="number">0</span>; <span class="number">18</span>],
-            <span class="ident">code_length_histo</span> : [<span class="number">0</span>; <span class="number">16</span>],
-            <span class="ident">htree_index</span> : <span class="number">0</span>,
-            <span class="ident">htree_next_offset</span> : <span class="number">0</span>,
+            distance_postfix_bits : <span class="number">0</span>,
+            num_direct_distance_codes : <span class="number">0</span>,
+            distance_postfix_mask : <span class="number">0</span>,
+            num_dist_htrees : <span class="number">0</span>,
+            dist_context_map : AllocU8::AllocatedMemory::default(),
+            <span class="comment">//// not needed literal_htree : AllocHC::AllocatedMemory::default(),
+            </span>literal_htree_index : <span class="number">0</span>,
+            dist_htree_index : <span class="number">0</span>,
+            repeat_code_len : <span class="number">0</span>,
+            prev_code_len : <span class="number">0</span>,
+            copy_length : <span class="number">0</span>,
+            distance_code : <span class="number">0</span>,
+            rb_roundtrips : <span class="number">0</span>,  <span class="comment">/* How many times we went around the ringbuffer */
+            </span>partial_pos_out : <span class="number">0</span>,  <span class="comment">/* How much output to the user in total (&lt;= rb) */
+            </span>symbol : <span class="number">0</span>,
+            repeat : <span class="number">0</span>,
+            space : <span class="number">0</span>,
+            table : [HuffmanCode::default(); <span class="number">32</span>],
+            <span class="comment">//symbol_lists: AllocU16::AllocatedMemory::default(),
+            </span>symbol_lists_index : BROTLI_HUFFMAN_MAX_CODE_LENGTH + <span class="number">1</span>,
+            symbols_lists_array : [<span class="number">0</span>;BROTLI_HUFFMAN_MAX_CODE_LENGTH + <span class="number">1 </span>+
+                              BROTLI_HUFFMAN_MAX_CODE_LENGTHS_SIZE],
+            next_symbol : [<span class="number">0</span>; <span class="number">32</span>],
+            code_length_code_lengths : [<span class="number">0</span>; <span class="number">18</span>],
+            code_length_histo : [<span class="number">0</span>; <span class="number">16</span>],
+            htree_index : <span class="number">0</span>,
+            htree_next_offset : <span class="number">0</span>,
 
-            <span class="comment">/* For DecodeContextMap */</span>
-           <span class="ident">context_index</span> : <span class="number">0</span>,
-           <span class="ident">max_run_length_prefix</span> : <span class="number">0</span>,
-           <span class="ident">code</span> : <span class="number">0</span>,
-           <span class="ident">context_map_table</span> : <span class="ident">AllocHC::AllocatedMemory::default</span>(),
+            <span class="comment">/* For DecodeContextMap */
+           </span>context_index : <span class="number">0</span>,
+           max_run_length_prefix : <span class="number">0</span>,
+           code : <span class="number">0</span>,
+           context_map_table : AllocHC::AllocatedMemory::default(),
 
-           <span class="comment">/* For InverseMoveToFrontTransform */</span>
-           <span class="ident">mtf_upper_bound</span> : <span class="number">255</span>,
-           <span class="ident">mtf_or_error_string</span> : <span class="prelude-val">Ok</span>([<span class="number">0</span>; <span class="number">256</span>]),
+           <span class="comment">/* For InverseMoveToFrontTransform */
+           </span>mtf_upper_bound : <span class="number">255</span>,
+           mtf_or_error_string : <span class="prelude-val">Ok</span>([<span class="number">0</span>; <span class="number">256</span>]),
 
-           <span class="comment">/* For custom dictionaries */</span>
-           <span class="ident">custom_dict</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">custom_dict</span>,
-           <span class="ident">custom_dict_size</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">custom_dict_len</span> <span class="kw">as</span> <span class="ident">i32</span>,
+           <span class="comment">/* For custom dictionaries */
+           </span>custom_dict : <span class="macro-nonterminal">$custom_dict</span>,
+           custom_dict_size : <span class="macro-nonterminal">$custom_dict_len </span><span class="kw">as </span>i32,
 
-           <span class="comment">/* less used attributes are in the end of this struct */</span>
-           <span class="comment">/* States inside function calls */</span>
-           <span class="ident">substate_metablock_header</span> : <span class="ident">BrotliRunningMetablockHeaderState::BROTLI_STATE_METABLOCK_HEADER_NONE</span>,
-           <span class="ident">substate_tree_group</span> : <span class="ident">BrotliRunningTreeGroupState::BROTLI_STATE_TREE_GROUP_NONE</span>,
-           <span class="ident">substate_context_map</span> : <span class="ident">BrotliRunningContextMapState::BROTLI_STATE_CONTEXT_MAP_NONE</span>,
-           <span class="ident">substate_uncompressed</span> : <span class="ident">BrotliRunningUncompressedState::BROTLI_STATE_UNCOMPRESSED_NONE</span>,
-           <span class="ident">substate_huffman</span> : <span class="ident">BrotliRunningHuffmanState::BROTLI_STATE_HUFFMAN_NONE</span>,
-           <span class="ident">substate_decode_uint8</span> : <span class="ident">BrotliRunningDecodeUint8State::BROTLI_STATE_DECODE_UINT8_NONE</span>,
+           <span class="comment">/* less used attributes are in the end of this struct */
+           /* States inside function calls */
+           </span>substate_metablock_header : BrotliRunningMetablockHeaderState::BROTLI_STATE_METABLOCK_HEADER_NONE,
+           substate_tree_group : BrotliRunningTreeGroupState::BROTLI_STATE_TREE_GROUP_NONE,
+           substate_context_map : BrotliRunningContextMapState::BROTLI_STATE_CONTEXT_MAP_NONE,
+           substate_uncompressed : BrotliRunningUncompressedState::BROTLI_STATE_UNCOMPRESSED_NONE,
+           substate_huffman : BrotliRunningHuffmanState::BROTLI_STATE_HUFFMAN_NONE,
+           substate_decode_uint8 : BrotliRunningDecodeUint8State::BROTLI_STATE_DECODE_UINT8_NONE,
 
-           <span class="ident">is_last_metablock</span> : <span class="number">0</span>,
-           <span class="ident">is_uncompressed</span> : <span class="number">0</span>,
-           <span class="ident">is_metadata</span> : <span class="number">0</span>,
-           <span class="ident">size_nibbles</span> : <span class="number">0</span>,
-           <span class="ident">window_bits</span> : <span class="number">0</span>,
-           <span class="ident">large_window</span>: <span class="bool-val">false</span>,
-           <span class="ident">should_wrap_ringbuffer</span>: <span class="bool-val">false</span>,
-           <span class="ident">error_code</span>: <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_SUCCESS</span>,
-           <span class="ident">num_literal_htrees</span> : <span class="number">0</span>,
-           <span class="ident">context_map</span> : <span class="ident">AllocU8::AllocatedMemory::default</span>(),
-           <span class="ident">context_modes</span> : <span class="ident">AllocU8::AllocatedMemory::default</span>(),
-           <span class="ident">trivial_literal_contexts</span> : [<span class="number">0u32</span>; <span class="number">8</span>],
+           is_last_metablock : <span class="number">0</span>,
+           is_uncompressed : <span class="number">0</span>,
+           is_metadata : <span class="number">0</span>,
+           size_nibbles : <span class="number">0</span>,
+           window_bits : <span class="number">0</span>,
+           large_window: <span class="bool-val">false</span>,
+           should_wrap_ringbuffer: <span class="bool-val">false</span>,
+           error_code: BrotliDecoderErrorCode::BROTLI_DECODER_SUCCESS,
+           num_literal_htrees : <span class="number">0</span>,
+           context_map : AllocU8::AllocatedMemory::default(),
+           context_modes : AllocU8::AllocatedMemory::default(),
+           trivial_literal_contexts : [<span class="number">0u32</span>; <span class="number">8</span>],
         }
     );
 }
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="lifetime">&#39;brotli_state</span>,
-      <span class="ident">AllocU8</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-      <span class="ident">AllocU32</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-      <span class="ident">AllocHC</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span> <span class="ident">BrotliState</span><span class="op">&lt;</span><span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">alloc_u8</span> : <span class="ident">AllocU8</span>,
-           <span class="ident">alloc_u32</span> : <span class="ident">AllocU32</span>,
-           <span class="ident">alloc_hc</span> : <span class="ident">AllocHC</span>) -&gt; <span class="self">Self</span>{
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">retval</span> <span class="op">=</span> <span class="macro">make_brotli_state!</span>(<span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">AllocU8::AllocatedMemory::default</span>(), <span class="number">0</span>);
-        <span class="ident">retval</span>.<span class="ident">large_window</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">retval</span>.<span class="ident">context_map_table</span> <span class="op">=</span> <span class="ident">retval</span>.<span class="ident">alloc_hc</span>.<span class="ident">alloc_cell</span>(
-          <span class="ident">BROTLI_HUFFMAN_MAX_TABLE_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="ident">BrotliInitBitReader</span>(<span class="kw-2">&amp;mut</span> <span class="ident">retval</span>.<span class="ident">br</span>);
-        <span class="ident">retval</span>
+<span class="kw">impl </span>&lt;<span class="lifetime">&#39;brotli_state</span>,
+      AllocU8 : alloc::Allocator&lt;u8&gt;,
+      AllocU32 : alloc::Allocator&lt;u32&gt;,
+      AllocHC : alloc::Allocator&lt;HuffmanCode&gt; &gt; BrotliState&lt;AllocU8, AllocU32, AllocHC&gt; {
+    <span class="kw">pub fn </span>new(alloc_u8 : AllocU8,
+           alloc_u32 : AllocU32,
+           alloc_hc : AllocHC) -&gt; <span class="self">Self</span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>retval = <span class="macro">make_brotli_state!</span>(alloc_u8, alloc_u32, alloc_hc, AllocU8::AllocatedMemory::default(), <span class="number">0</span>);
+        retval.large_window = <span class="bool-val">true</span>;
+        retval.context_map_table = retval.alloc_hc.alloc_cell(
+          BROTLI_HUFFMAN_MAX_TABLE_SIZE <span class="kw">as </span>usize);
+        BrotliInitBitReader(<span class="kw-2">&amp;mut </span>retval.br);
+        retval
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_custom_dictionary</span>(<span class="ident">alloc_u8</span> : <span class="ident">AllocU8</span>,
-           <span class="ident">alloc_u32</span> : <span class="ident">AllocU32</span>,
-           <span class="ident">alloc_hc</span> : <span class="ident">AllocHC</span>,
-           <span class="ident">custom_dict</span>: <span class="ident">AllocU8::AllocatedMemory</span>) -&gt; <span class="self">Self</span>{
-        <span class="kw">let</span> <span class="ident">custom_dict_len</span> <span class="op">=</span> <span class="ident">custom_dict</span>.<span class="ident">slice</span>().<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">retval</span> <span class="op">=</span> <span class="macro">make_brotli_state!</span>(<span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">custom_dict</span>, <span class="ident">custom_dict_len</span>);
-        <span class="ident">retval</span>.<span class="ident">context_map_table</span> <span class="op">=</span> <span class="ident">retval</span>.<span class="ident">alloc_hc</span>.<span class="ident">alloc_cell</span>(
-          <span class="ident">BROTLI_HUFFMAN_MAX_TABLE_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="ident">retval</span>.<span class="ident">large_window</span> <span class="op">=</span>  <span class="bool-val">true</span>;
-        <span class="ident">BrotliInitBitReader</span>(<span class="kw-2">&amp;mut</span> <span class="ident">retval</span>.<span class="ident">br</span>);
-        <span class="ident">retval</span>
+    <span class="kw">pub fn </span>new_with_custom_dictionary(alloc_u8 : AllocU8,
+           alloc_u32 : AllocU32,
+           alloc_hc : AllocHC,
+           custom_dict: AllocU8::AllocatedMemory) -&gt; <span class="self">Self</span>{
+        <span class="kw">let </span>custom_dict_len = custom_dict.slice().len();
+        <span class="kw">let </span><span class="kw-2">mut </span>retval = <span class="macro">make_brotli_state!</span>(alloc_u8, alloc_u32, alloc_hc, custom_dict, custom_dict_len);
+        retval.context_map_table = retval.alloc_hc.alloc_cell(
+          BROTLI_HUFFMAN_MAX_TABLE_SIZE <span class="kw">as </span>usize);
+        retval.large_window =  <span class="bool-val">true</span>;
+        BrotliInitBitReader(<span class="kw-2">&amp;mut </span>retval.br);
+        retval
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_strict</span>(<span class="ident">alloc_u8</span> : <span class="ident">AllocU8</span>,
-           <span class="ident">alloc_u32</span> : <span class="ident">AllocU32</span>,
-           <span class="ident">alloc_hc</span> : <span class="ident">AllocHC</span>) -&gt; <span class="self">Self</span>{
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">retval</span> <span class="op">=</span> <span class="macro">make_brotli_state!</span>(<span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">AllocU8::AllocatedMemory::default</span>(), <span class="number">0</span>);
-        <span class="ident">retval</span>.<span class="ident">context_map_table</span> <span class="op">=</span> <span class="ident">retval</span>.<span class="ident">alloc_hc</span>.<span class="ident">alloc_cell</span>(
-          <span class="ident">BROTLI_HUFFMAN_MAX_TABLE_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="ident">retval</span>.<span class="ident">large_window</span> <span class="op">=</span>  <span class="bool-val">false</span>;
-        <span class="ident">BrotliInitBitReader</span>(<span class="kw-2">&amp;mut</span> <span class="ident">retval</span>.<span class="ident">br</span>);
-        <span class="ident">retval</span>
+    <span class="kw">pub fn </span>new_strict(alloc_u8 : AllocU8,
+           alloc_u32 : AllocU32,
+           alloc_hc : AllocHC) -&gt; <span class="self">Self</span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>retval = <span class="macro">make_brotli_state!</span>(alloc_u8, alloc_u32, alloc_hc, AllocU8::AllocatedMemory::default(), <span class="number">0</span>);
+        retval.context_map_table = retval.alloc_hc.alloc_cell(
+          BROTLI_HUFFMAN_MAX_TABLE_SIZE <span class="kw">as </span>usize);
+        retval.large_window =  <span class="bool-val">false</span>;
+        BrotliInitBitReader(<span class="kw-2">&amp;mut </span>retval.br);
+        retval
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStateMetablockBegin</span>(<span class="self">self</span> : <span class="kw-2">&amp;mut</span> <span class="self">Self</span>) {
-        <span class="self">self</span>.<span class="ident">meta_block_remaining_len</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_length</span>[<span class="number">0</span>] <span class="op">=</span> <span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">24</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_length</span>[<span class="number">1</span>] <span class="op">=</span> <span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">24</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_length</span>[<span class="number">2</span>] <span class="op">=</span> <span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">24</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">num_block_types</span>[<span class="number">0</span>] <span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">num_block_types</span>[<span class="number">1</span>] <span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">num_block_types</span>[<span class="number">2</span>] <span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_type_rb</span>[<span class="number">0</span>] <span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_type_rb</span>[<span class="number">1</span>] <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_type_rb</span>[<span class="number">2</span>] <span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_type_rb</span>[<span class="number">3</span>] <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_type_rb</span>[<span class="number">4</span>] <span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_type_rb</span>[<span class="number">5</span>] <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">alloc_u8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">context_map</span>,
-                                             <span class="ident">AllocU8::AllocatedMemory::default</span>()));
-        <span class="self">self</span>.<span class="ident">alloc_u8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">context_modes</span>,
-                                             <span class="ident">AllocU8::AllocatedMemory::default</span>()));
-        <span class="self">self</span>.<span class="ident">alloc_u8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">dist_context_map</span>,
-                                             <span class="ident">AllocU8::AllocatedMemory::default</span>()));
-        <span class="self">self</span>.<span class="ident">context_map_slice_index</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">literal_htree_index</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">dist_context_map_slice_index</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">dist_htree_index</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">context_lookup</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">kContextLookup</span>[<span class="number">0</span>];
-        <span class="self">self</span>.<span class="ident">literal_hgroup</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>);
-        <span class="self">self</span>.<span class="ident">insert_copy_hgroup</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>);
-        <span class="self">self</span>.<span class="ident">distance_hgroup</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>);
+    <span class="kw">pub fn </span>BrotliStateMetablockBegin(<span class="self">self </span>: <span class="kw-2">&amp;mut </span><span class="self">Self</span>) {
+        <span class="self">self</span>.meta_block_remaining_len = <span class="number">0</span>;
+        <span class="self">self</span>.block_type_length_state.block_length[<span class="number">0</span>] = <span class="number">1u32 </span>&lt;&lt; <span class="number">24</span>;
+        <span class="self">self</span>.block_type_length_state.block_length[<span class="number">1</span>] = <span class="number">1u32 </span>&lt;&lt; <span class="number">24</span>;
+        <span class="self">self</span>.block_type_length_state.block_length[<span class="number">2</span>] = <span class="number">1u32 </span>&lt;&lt; <span class="number">24</span>;
+        <span class="self">self</span>.block_type_length_state.num_block_types[<span class="number">0</span>] = <span class="number">1</span>;
+        <span class="self">self</span>.block_type_length_state.num_block_types[<span class="number">1</span>] = <span class="number">1</span>;
+        <span class="self">self</span>.block_type_length_state.num_block_types[<span class="number">2</span>] = <span class="number">1</span>;
+        <span class="self">self</span>.block_type_length_state.block_type_rb[<span class="number">0</span>] = <span class="number">1</span>;
+        <span class="self">self</span>.block_type_length_state.block_type_rb[<span class="number">1</span>] = <span class="number">0</span>;
+        <span class="self">self</span>.block_type_length_state.block_type_rb[<span class="number">2</span>] = <span class="number">1</span>;
+        <span class="self">self</span>.block_type_length_state.block_type_rb[<span class="number">3</span>] = <span class="number">0</span>;
+        <span class="self">self</span>.block_type_length_state.block_type_rb[<span class="number">4</span>] = <span class="number">1</span>;
+        <span class="self">self</span>.block_type_length_state.block_type_rb[<span class="number">5</span>] = <span class="number">0</span>;
+        <span class="self">self</span>.alloc_u8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.context_map,
+                                             AllocU8::AllocatedMemory::default()));
+        <span class="self">self</span>.alloc_u8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.context_modes,
+                                             AllocU8::AllocatedMemory::default()));
+        <span class="self">self</span>.alloc_u8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.dist_context_map,
+                                             AllocU8::AllocatedMemory::default()));
+        <span class="self">self</span>.context_map_slice_index = <span class="number">0</span>;
+        <span class="self">self</span>.literal_htree_index = <span class="number">0</span>;
+        <span class="self">self</span>.dist_context_map_slice_index = <span class="number">0</span>;
+        <span class="self">self</span>.dist_htree_index = <span class="number">0</span>;
+        <span class="self">self</span>.context_lookup = <span class="kw-2">&amp;</span>kContextLookup[<span class="number">0</span>];
+        <span class="self">self</span>.literal_hgroup.reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32, <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc);
+        <span class="self">self</span>.insert_copy_hgroup.reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32, <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc);
+        <span class="self">self</span>.distance_hgroup.reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32, <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc);
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStateCleanupAfterMetablock</span>(<span class="self">self</span> : <span class="kw-2">&amp;mut</span> <span class="self">Self</span>) {
-        <span class="self">self</span>.<span class="ident">alloc_u8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">context_map</span>,
-                                             <span class="ident">AllocU8::AllocatedMemory::default</span>()));
-        <span class="self">self</span>.<span class="ident">alloc_u8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">context_modes</span>,
-                                             <span class="ident">AllocU8::AllocatedMemory::default</span>()));
-        <span class="self">self</span>.<span class="ident">alloc_u8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">dist_context_map</span>,
-                                             <span class="ident">AllocU8::AllocatedMemory::default</span>()));
+    <span class="kw">pub fn </span>BrotliStateCleanupAfterMetablock(<span class="self">self </span>: <span class="kw-2">&amp;mut </span><span class="self">Self</span>) {
+        <span class="self">self</span>.alloc_u8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.context_map,
+                                             AllocU8::AllocatedMemory::default()));
+        <span class="self">self</span>.alloc_u8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.context_modes,
+                                             AllocU8::AllocatedMemory::default()));
+        <span class="self">self</span>.alloc_u8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.dist_context_map,
+                                             AllocU8::AllocatedMemory::default()));
 
 
-        <span class="self">self</span>.<span class="ident">literal_hgroup</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>);
-        <span class="self">self</span>.<span class="ident">insert_copy_hgroup</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>);
-        <span class="self">self</span>.<span class="ident">distance_hgroup</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>);
+        <span class="self">self</span>.literal_hgroup.reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32, <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc);
+        <span class="self">self</span>.insert_copy_hgroup.reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32, <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc);
+        <span class="self">self</span>.distance_hgroup.reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32, <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc);
     }
 
-   <span class="kw">fn</span> <span class="ident">BrotliStateCleanup</span>(<span class="self">self</span> : <span class="kw-2">&amp;mut</span> <span class="self">Self</span>) {
-      <span class="self">self</span>.<span class="ident">BrotliStateCleanupAfterMetablock</span>();
-      <span class="self">self</span>.<span class="ident">alloc_u8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">ringbuffer</span>,
-                              <span class="ident">AllocU8::AllocatedMemory::default</span>()));
-      <span class="self">self</span>.<span class="ident">alloc_hc</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_type_trees</span>,
-                              <span class="ident">AllocHC::AllocatedMemory::default</span>()));
-      <span class="self">self</span>.<span class="ident">alloc_hc</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">block_type_length_state</span>.<span class="ident">block_len_trees</span>,
-                              <span class="ident">AllocHC::AllocatedMemory::default</span>()));
-      <span class="self">self</span>.<span class="ident">alloc_hc</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">context_map_table</span>,
-                              <span class="ident">AllocHC::AllocatedMemory::default</span>()));
-      <span class="self">self</span>.<span class="ident">alloc_u8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">custom_dict</span>,
-                              <span class="ident">AllocU8::AllocatedMemory::default</span>()));
+   <span class="kw">fn </span>BrotliStateCleanup(<span class="self">self </span>: <span class="kw-2">&amp;mut </span><span class="self">Self</span>) {
+      <span class="self">self</span>.BrotliStateCleanupAfterMetablock();
+      <span class="self">self</span>.alloc_u8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ringbuffer,
+                              AllocU8::AllocatedMemory::default()));
+      <span class="self">self</span>.alloc_hc.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.block_type_length_state.block_type_trees,
+                              AllocHC::AllocatedMemory::default()));
+      <span class="self">self</span>.alloc_hc.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.block_type_length_state.block_len_trees,
+                              AllocHC::AllocatedMemory::default()));
+      <span class="self">self</span>.alloc_hc.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.context_map_table,
+                              AllocHC::AllocatedMemory::default()));
+      <span class="self">self</span>.alloc_u8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.custom_dict,
+                              AllocU8::AllocatedMemory::default()));
 
-      <span class="comment">//FIXME??  BROTLI_FREE(s, s-&gt;legacy_input_buffer);</span>
-      <span class="comment">//FIXME??  BROTLI_FREE(s, s-&gt;legacy_output_buffer);</span>
-    }
+      <span class="comment">//FIXME??  BROTLI_FREE(s, s-&gt;legacy_input_buffer);
+      //FIXME??  BROTLI_FREE(s, s-&gt;legacy_output_buffer);
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStateIsStreamStart</span>(<span class="self">self</span> : <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">BrotliRunningState::BROTLI_STATE_UNINITED</span> =&gt;
-                <span class="ident">BrotliGetAvailableBits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">br</span>) <span class="op">==</span> <span class="number">0</span>,
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+    <span class="kw">pub fn </span>BrotliStateIsStreamStart(<span class="self">self </span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.state {
+            BrotliRunningState::BROTLI_STATE_UNINITED =&gt;
+                BrotliGetAvailableBits(<span class="kw-2">&amp;</span><span class="self">self</span>.br) == <span class="number">0</span>,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliStateIsStreamEnd</span>(<span class="self">self</span> : <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">BrotliRunningState::BROTLI_STATE_DONE</span> =&gt; <span class="bool-val">true</span>,
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>
+    <span class="kw">pub fn </span>BrotliStateIsStreamEnd(<span class="self">self </span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.state {
+            BrotliRunningState::BROTLI_STATE_DONE =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false
+        </span>}
+    }
+    <span class="kw">pub fn </span>BrotliHuffmanTreeGroupInit(<span class="self">self </span>:<span class="kw-2">&amp;mut </span><span class="self">Self</span>, group : WhichTreeGroup,
+                                      alphabet_size : u16, max_symbol: u16, ntrees : u16) {
+        <span class="kw">match </span>group {
+            WhichTreeGroup::LITERAL =&gt; <span class="self">self</span>.literal_hgroup.init(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32,
+                                                                <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc,
+                                                                alphabet_size, max_symbol, ntrees),
+            WhichTreeGroup::INSERT_COPY =&gt; <span class="self">self</span>.insert_copy_hgroup.init(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32,
+                                                                        <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc,
+                                                                        alphabet_size, max_symbol, ntrees),
+            WhichTreeGroup::DISTANCE =&gt; <span class="self">self</span>.distance_hgroup.init(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32,
+                                                                  <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc,
+                                                                  alphabet_size, max_symbol, ntrees),
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliHuffmanTreeGroupInit</span>(<span class="self">self</span> :<span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="ident">group</span> : <span class="ident">WhichTreeGroup</span>,
-                                      <span class="ident">alphabet_size</span> : <span class="ident">u16</span>, <span class="ident">max_symbol</span>: <span class="ident">u16</span>, <span class="ident">ntrees</span> : <span class="ident">u16</span>) {
-        <span class="kw">match</span> <span class="ident">group</span> {
-            <span class="ident">WhichTreeGroup::LITERAL</span> =&gt; <span class="self">self</span>.<span class="ident">literal_hgroup</span>.<span class="ident">init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>,
-                                                                <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>,
-                                                                <span class="ident">alphabet_size</span>, <span class="ident">max_symbol</span>, <span class="ident">ntrees</span>),
-            <span class="ident">WhichTreeGroup::INSERT_COPY</span> =&gt; <span class="self">self</span>.<span class="ident">insert_copy_hgroup</span>.<span class="ident">init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>,
-                                                                        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>,
-                                                                        <span class="ident">alphabet_size</span>, <span class="ident">max_symbol</span>, <span class="ident">ntrees</span>),
-            <span class="ident">WhichTreeGroup::DISTANCE</span> =&gt; <span class="self">self</span>.<span class="ident">distance_hgroup</span>.<span class="ident">init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>,
-                                                                  <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>,
-                                                                  <span class="ident">alphabet_size</span>, <span class="ident">max_symbol</span>, <span class="ident">ntrees</span>),
-        }
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliHuffmanTreeGroupRelease</span>(<span class="self">self</span> :<span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="ident">group</span> : <span class="ident">WhichTreeGroup</span>) {
-        <span class="kw">match</span> <span class="ident">group</span> {
-            <span class="ident">WhichTreeGroup::LITERAL</span> =&gt; <span class="self">self</span>.<span class="ident">literal_hgroup</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>,
-                                                                 <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>),
-            <span class="ident">WhichTreeGroup::INSERT_COPY</span> =&gt; <span class="self">self</span>.<span class="ident">insert_copy_hgroup</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>,
-                                                                         <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>),
-            <span class="ident">WhichTreeGroup::DISTANCE</span> =&gt; <span class="self">self</span>.<span class="ident">distance_hgroup</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_u32</span>,
-                                                                   <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">alloc_hc</span>),
+    <span class="kw">pub fn </span>BrotliHuffmanTreeGroupRelease(<span class="self">self </span>:<span class="kw-2">&amp;mut </span><span class="self">Self</span>, group : WhichTreeGroup) {
+        <span class="kw">match </span>group {
+            WhichTreeGroup::LITERAL =&gt; <span class="self">self</span>.literal_hgroup.reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32,
+                                                                 <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc),
+            WhichTreeGroup::INSERT_COPY =&gt; <span class="self">self</span>.insert_copy_hgroup.reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32,
+                                                                         <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc),
+            WhichTreeGroup::DISTANCE =&gt; <span class="self">self</span>.distance_hgroup.reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_u32,
+                                                                   <span class="kw-2">&amp;mut </span><span class="self">self</span>.alloc_hc),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="lifetime">&#39;brotli_state</span>,
-      <span class="ident">AllocU8</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-      <span class="ident">AllocU32</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-      <span class="ident">AllocHC</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">BrotliState</span><span class="op">&lt;</span><span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">BrotliStateCleanup</span>();
+<span class="kw">impl </span>&lt;<span class="lifetime">&#39;brotli_state</span>,
+      AllocU8 : alloc::Allocator&lt;u8&gt;,
+      AllocU32 : alloc::Allocator&lt;u32&gt;,
+      AllocHC : alloc::Allocator&lt;HuffmanCode&gt; &gt; Drop <span class="kw">for </span>BrotliState&lt;AllocU8, AllocU32, AllocHC&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.BrotliStateCleanup();
     }
 }
 
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderErrorStr</span>(<span class="ident">c</span>: <span class="ident">BrotliDecoderErrorCode</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-  <span class="kw">match</span> <span class="ident">c</span> {
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_NO_ERROR</span> =&gt; <span class="string">&quot;NO_ERROR\0&quot;</span>,
-  <span class="comment">/* Same as BrotliDecoderResult values */</span>
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_SUCCESS</span> =&gt; <span class="string">&quot;SUCCESS\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_NEEDS_MORE_INPUT</span> =&gt; <span class="string">&quot;NEEDS_MORE_INPUT\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_NEEDS_MORE_OUTPUT</span> =&gt; <span class="string">&quot;NEEDS_MORE_OUTPUT\0&quot;</span>,
+<span class="kw">pub fn </span>BrotliDecoderErrorStr(c: BrotliDecoderErrorCode) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+  <span class="kw">match </span>c {
+  BrotliDecoderErrorCode::BROTLI_DECODER_NO_ERROR =&gt; <span class="string">&quot;NO_ERROR\0&quot;</span>,
+  <span class="comment">/* Same as BrotliDecoderResult values */
+  </span>BrotliDecoderErrorCode::BROTLI_DECODER_SUCCESS =&gt; <span class="string">&quot;SUCCESS\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_NEEDS_MORE_INPUT =&gt; <span class="string">&quot;NEEDS_MORE_INPUT\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_NEEDS_MORE_OUTPUT =&gt; <span class="string">&quot;NEEDS_MORE_OUTPUT\0&quot;</span>,
 
-  <span class="comment">/* Errors caused by invalid input */</span>
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE</span> =&gt; <span class="string">&quot;ERROR_FORMAT_EXUBERANT_NIBBLE\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_RESERVED</span> =&gt; <span class="string">&quot;ERROR_FORMAT_RESERVED\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE</span> =&gt; <span class="string">&quot;ERROR_FORMAT_EXUBERANT_META_NIBBLE\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET</span> =&gt; <span class="string">&quot;ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME</span> =&gt; <span class="string">&quot;ERROR_FORMAT_SIMPLE_HUFFMAN_SAME\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_CL_SPACE</span> =&gt; <span class="string">&quot;ERROR_FORMAT_FL_SPACE\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE</span> =&gt; <span class="string">&quot;ERROR_FORMAT_HUFFMAN_SPACE\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT</span> =&gt; <span class="string">&quot;ERROR_FORMAT_CONTEXT_MAP_REPEAT\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1</span> =&gt;<span class="string">&quot;ERROR_FORMAT_BLOCK_LENGTH_1\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2</span> =&gt;<span class="string">&quot;ERROR_FORMAT_BLOCK_LENGTH_2\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_TRANSFORM</span> =&gt; <span class="string">&quot;ERROR_FORMAT_TRANSFORM\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_DICTIONARY</span> =&gt;<span class="string">&quot;ERROR_FORMAT_DICTIONARY\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS</span> =&gt;<span class="string">&quot;ERROR_FORMAT_WINDOW_BITS\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_PADDING_1</span> =&gt;<span class="string">&quot;ERROR_FORMAT_PADDING_1\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_PADDING_2</span> =&gt;<span class="string">&quot;ERROR_FORMAT_PADDING_2\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_DISTANCE</span> =&gt;<span class="string">&quot;ERROR_FORMAT_DISTANCE\0&quot;</span>,
+  <span class="comment">/* Errors caused by invalid input */
+  </span>BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE =&gt; <span class="string">&quot;ERROR_FORMAT_EXUBERANT_NIBBLE\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_RESERVED =&gt; <span class="string">&quot;ERROR_FORMAT_RESERVED\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE =&gt; <span class="string">&quot;ERROR_FORMAT_EXUBERANT_META_NIBBLE\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET =&gt; <span class="string">&quot;ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME =&gt; <span class="string">&quot;ERROR_FORMAT_SIMPLE_HUFFMAN_SAME\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_CL_SPACE =&gt; <span class="string">&quot;ERROR_FORMAT_FL_SPACE\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE =&gt; <span class="string">&quot;ERROR_FORMAT_HUFFMAN_SPACE\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT =&gt; <span class="string">&quot;ERROR_FORMAT_CONTEXT_MAP_REPEAT\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1 =&gt;<span class="string">&quot;ERROR_FORMAT_BLOCK_LENGTH_1\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2 =&gt;<span class="string">&quot;ERROR_FORMAT_BLOCK_LENGTH_2\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_TRANSFORM =&gt; <span class="string">&quot;ERROR_FORMAT_TRANSFORM\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_DICTIONARY =&gt;<span class="string">&quot;ERROR_FORMAT_DICTIONARY\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS =&gt;<span class="string">&quot;ERROR_FORMAT_WINDOW_BITS\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_PADDING_1 =&gt;<span class="string">&quot;ERROR_FORMAT_PADDING_1\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_PADDING_2 =&gt;<span class="string">&quot;ERROR_FORMAT_PADDING_2\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_FORMAT_DISTANCE =&gt;<span class="string">&quot;ERROR_FORMAT_DISTANCE\0&quot;</span>,
 
-  <span class="comment">/* -17..-18 codes are reserved */</span>
+  <span class="comment">/* -17..-18 codes are reserved */
 
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET</span> =&gt; <span class="string">&quot;ERROR_DICTIONARY_NOT_SET\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_INVALID_ARGUMENTS</span> =&gt; <span class="string">&quot;ERROR_INVALID_ARGUMENTS\0&quot;</span>,
+  </span>BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET =&gt; <span class="string">&quot;ERROR_DICTIONARY_NOT_SET\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_INVALID_ARGUMENTS =&gt; <span class="string">&quot;ERROR_INVALID_ARGUMENTS\0&quot;</span>,
 
-  <span class="comment">/* Memory allocation problems */</span>
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES</span> =&gt; <span class="string">&quot;ERROR_ALLOC_CONTEXT_MODES\0&quot;</span>,
-  <span class="comment">/* Literal =&gt; insert and distance trees together */</span>
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS</span> =&gt; <span class="string">&quot;ERROR_ALLOC_TREE_GROUPS\0&quot;</span>,
-  <span class="comment">/* -23..-24 codes are reserved for distinct tree groups */</span>
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP</span> =&gt; <span class="string">&quot;ERROR_ALLOC_CONTEXT_MAP\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1</span> =&gt; <span class="string">&quot;ERROR_ALLOC_RING_BUFFER_1\0&quot;</span>,
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2</span> =&gt; <span class="string">&quot;ERROR_ALLOC_RING_BUFFER_2\0&quot;</span>,
-  <span class="comment">/* -28..-29 codes are reserved for dynamic ring-buffer allocation */</span>
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES</span> =&gt; <span class="string">&quot;ERROR_ALLOC_BLOCK_TYPE_TREES\0&quot;</span>,
+  <span class="comment">/* Memory allocation problems */
+  </span>BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES =&gt; <span class="string">&quot;ERROR_ALLOC_CONTEXT_MODES\0&quot;</span>,
+  <span class="comment">/* Literal =&gt; insert and distance trees together */
+  </span>BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS =&gt; <span class="string">&quot;ERROR_ALLOC_TREE_GROUPS\0&quot;</span>,
+  <span class="comment">/* -23..-24 codes are reserved for distinct tree groups */
+  </span>BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP =&gt; <span class="string">&quot;ERROR_ALLOC_CONTEXT_MAP\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1 =&gt; <span class="string">&quot;ERROR_ALLOC_RING_BUFFER_1\0&quot;</span>,
+  BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2 =&gt; <span class="string">&quot;ERROR_ALLOC_RING_BUFFER_2\0&quot;</span>,
+  <span class="comment">/* -28..-29 codes are reserved for dynamic ring-buffer allocation */
+  </span>BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES =&gt; <span class="string">&quot;ERROR_ALLOC_BLOCK_TYPE_TREES\0&quot;</span>,
 
-  <span class="comment">/* &quot;Impossible&quot; states */</span>
-  <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_UNREACHABLE</span> =&gt; <span class="string">&quot;ERROR_UNREACHABLE\0&quot;</span>,
+  <span class="comment">/* &quot;Impossible&quot; states */
+  </span>BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_UNREACHABLE =&gt; <span class="string">&quot;ERROR_UNREACHABLE\0&quot;</span>,
   }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

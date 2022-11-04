@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/types/money.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>money.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/types/money.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>money.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -356,363 +356,363 @@
 <span id="356">356</span>
 <span id="357">357</span>
 <span id="358">358</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">decode::Decode</span>,
-    <span class="ident">encode</span>::{<span class="ident">Encode</span>, <span class="ident">IsNull</span>},
-    <span class="ident">error::BoxDynError</span>,
-    <span class="ident">postgres</span>::{<span class="ident">PgArgumentBuffer</span>, <span class="ident">PgHasArrayType</span>, <span class="ident">PgTypeInfo</span>, <span class="ident">PgValueFormat</span>, <span class="ident">PgValueRef</span>, <span class="ident">Postgres</span>},
-    <span class="ident">types::Type</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    decode::Decode,
+    encode::{Encode, IsNull},
+    error::BoxDynError,
+    postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueFormat, PgValueRef, Postgres},
+    types::Type,
 };
-<span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">BigEndian</span>, <span class="ident">ByteOrder</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">io</span>,
-    <span class="ident">ops</span>::{<span class="ident">Add</span>, <span class="ident">AddAssign</span>, <span class="ident">Sub</span>, <span class="ident">SubAssign</span>},
+<span class="kw">use </span>byteorder::{BigEndian, ByteOrder};
+<span class="kw">use </span>std::{
+    io,
+    ops::{Add, AddAssign, Sub, SubAssign},
 };
 
-<span class="doccomment">/// The PostgreSQL [`MONEY`] type stores a currency amount with a fixed fractional</span>
-<span class="doccomment">/// precision. The fractional precision is determined by the database&#39;s</span>
-<span class="doccomment">/// `lc_monetary` setting.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Data is read and written as 64-bit signed integers, and conversion into a</span>
-<span class="doccomment">/// decimal should be done using the right precision.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Reading `MONEY` value in text format is not supported and will cause an error.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### `locale_frac_digits`</span>
-<span class="doccomment">/// This parameter corresponds to the number of digits after the decimal separator.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This value must match what Postgres is expecting for the locale set in the database</span>
-<span class="doccomment">/// or else the decimal value you see on the client side will not match the `money` value</span>
-<span class="doccomment">/// on the server side.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **For _most_ locales, this value is `2`.**</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If you&#39;re not sure what locale your database is set to or how many decimal digits it specifies,</span>
-<span class="doccomment">/// you can execute `SHOW lc_monetary;` to get the locale name, and then look it up in this list</span>
-<span class="doccomment">/// (you can ignore the `.utf8` prefix):</span>
-<span class="doccomment">/// https://lh.2xlibre.net/values/frac_digits/</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If that link is dead and you&#39;re on a POSIX-compliant system (Unix, FreeBSD) you can also execute:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```sh</span>
-<span class="doccomment">/// $ LC_MONETARY=&lt;value returned by `SHOW lc_monetary`&gt; locale -k frac_digits</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// And the value you want is `N` in `frac_digits=N`. If you have shell access to the database</span>
-<span class="doccomment">/// server you should execute it there as available locales may differ between machines.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that if `frac_digits` for the locale is outside the range `[0, 10]`, Postgres assumes</span>
-<span class="doccomment">/// it&#39;s a sentinel value and defaults to 2:</span>
-<span class="doccomment">/// https://github.com/postgres/postgres/blob/master/src/backend/utils/adt/cash.c#L114-L123</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`MONEY`]: https://www.postgresql.org/docs/current/datatype-money.html</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgMoney</span>(
-    <span class="doccomment">/// The raw integer value sent over the wire; for locales with `frac_digits=2` (i.e. most</span>
-    <span class="doccomment">/// of them), this will be the value in whole cents.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// E.g. for `select &#39;$123.45&#39;::money` with a locale of `en_US` (`frac_digits=2`),</span>
-    <span class="doccomment">/// this will be `12345`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the currency of your locale does not have fractional units, e.g. Yen, then this will</span>
-    <span class="doccomment">/// just be the units of the currency.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See the type-level docs for an explanation of `locale_frac_units`.</span>
-    <span class="kw">pub</span> <span class="ident">i64</span>,
+<span class="doccomment">/// The PostgreSQL [`MONEY`] type stores a currency amount with a fixed fractional
+/// precision. The fractional precision is determined by the database&#39;s
+/// `lc_monetary` setting.
+///
+/// Data is read and written as 64-bit signed integers, and conversion into a
+/// decimal should be done using the right precision.
+///
+/// Reading `MONEY` value in text format is not supported and will cause an error.
+///
+/// ### `locale_frac_digits`
+/// This parameter corresponds to the number of digits after the decimal separator.
+///
+/// This value must match what Postgres is expecting for the locale set in the database
+/// or else the decimal value you see on the client side will not match the `money` value
+/// on the server side.
+///
+/// **For _most_ locales, this value is `2`.**
+///
+/// If you&#39;re not sure what locale your database is set to or how many decimal digits it specifies,
+/// you can execute `SHOW lc_monetary;` to get the locale name, and then look it up in this list
+/// (you can ignore the `.utf8` prefix):
+/// https://lh.2xlibre.net/values/frac_digits/
+///
+/// If that link is dead and you&#39;re on a POSIX-compliant system (Unix, FreeBSD) you can also execute:
+///
+/// ```sh
+/// $ LC_MONETARY=&lt;value returned by `SHOW lc_monetary`&gt; locale -k frac_digits
+/// ```
+///
+/// And the value you want is `N` in `frac_digits=N`. If you have shell access to the database
+/// server you should execute it there as available locales may differ between machines.
+///
+/// Note that if `frac_digits` for the locale is outside the range `[0, 10]`, Postgres assumes
+/// it&#39;s a sentinel value and defaults to 2:
+/// https://github.com/postgres/postgres/blob/master/src/backend/utils/adt/cash.c#L114-L123
+///
+/// [`MONEY`]: https://www.postgresql.org/docs/current/datatype-money.html
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+</span><span class="kw">pub struct </span>PgMoney(
+    <span class="doccomment">/// The raw integer value sent over the wire; for locales with `frac_digits=2` (i.e. most
+    /// of them), this will be the value in whole cents.
+    ///
+    /// E.g. for `select &#39;$123.45&#39;::money` with a locale of `en_US` (`frac_digits=2`),
+    /// this will be `12345`.
+    ///
+    /// If the currency of your locale does not have fractional units, e.g. Yen, then this will
+    /// just be the units of the currency.
+    ///
+    /// See the type-level docs for an explanation of `locale_frac_units`.
+    </span><span class="kw">pub </span>i64,
 );
 
-<span class="kw">impl</span> <span class="ident">PgMoney</span> {
-    <span class="doccomment">/// Convert the money value into a [`BigDecimal`] using `locale_frac_digits`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See the type-level docs for an explanation of `locale_frac_digits`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`BigDecimal`]: crate::types::BigDecimal</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bigdecimal</span>(<span class="self">self</span>, <span class="ident">locale_frac_digits</span>: <span class="ident">i64</span>) -&gt; <span class="ident">bigdecimal::BigDecimal</span> {
-        <span class="kw">let</span> <span class="ident">digits</span> <span class="op">=</span> <span class="ident">num_bigint::BigInt::from</span>(<span class="self">self</span>.<span class="number">0</span>);
+<span class="kw">impl </span>PgMoney {
+    <span class="doccomment">/// Convert the money value into a [`BigDecimal`] using `locale_frac_digits`.
+    ///
+    /// See the type-level docs for an explanation of `locale_frac_digits`.
+    ///
+    /// [`BigDecimal`]: crate::types::BigDecimal
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
+    </span><span class="kw">pub fn </span>to_bigdecimal(<span class="self">self</span>, locale_frac_digits: i64) -&gt; bigdecimal::BigDecimal {
+        <span class="kw">let </span>digits = num_bigint::BigInt::from(<span class="self">self</span>.<span class="number">0</span>);
 
-        <span class="ident">bigdecimal::BigDecimal::new</span>(<span class="ident">digits</span>, <span class="ident">locale_frac_digits</span>)
+        bigdecimal::BigDecimal::new(digits, locale_frac_digits)
     }
 
-    <span class="doccomment">/// Convert the money value into a [`Decimal`] using `locale_frac_digits`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See the type-level docs for an explanation of `locale_frac_digits`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Decimal`]: crate::types::Decimal</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_decimal</span>(<span class="self">self</span>, <span class="ident">locale_frac_digits</span>: <span class="ident">u32</span>) -&gt; <span class="ident">rust_decimal::Decimal</span> {
-        <span class="ident">rust_decimal::Decimal::new</span>(<span class="self">self</span>.<span class="number">0</span>, <span class="ident">locale_frac_digits</span>)
+    <span class="doccomment">/// Convert the money value into a [`Decimal`] using `locale_frac_digits`.
+    ///
+    /// See the type-level docs for an explanation of `locale_frac_digits`.
+    ///
+    /// [`Decimal`]: crate::types::Decimal
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;decimal&quot;</span>)]
+    </span><span class="kw">pub fn </span>to_decimal(<span class="self">self</span>, locale_frac_digits: u32) -&gt; rust_decimal::Decimal {
+        rust_decimal::Decimal::new(<span class="self">self</span>.<span class="number">0</span>, locale_frac_digits)
     }
 
-    <span class="doccomment">/// Convert a [`Decimal`] value into money using `locale_frac_digits`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See the type-level docs for an explanation of `locale_frac_digits`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that `Decimal` has 96 bits of precision, but `PgMoney` only has 63 plus the sign bit.</span>
-    <span class="doccomment">/// If the value is larger than 63 bits it will be truncated.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Decimal`]: crate::types::Decimal</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_decimal</span>(<span class="kw-2">mut</span> <span class="ident">decimal</span>: <span class="ident">rust_decimal::Decimal</span>, <span class="ident">locale_frac_digits</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// this is all we need to convert to our expected locale&#39;s `frac_digits`</span>
-        <span class="ident">decimal</span>.<span class="ident">rescale</span>(<span class="ident">locale_frac_digits</span>);
+    <span class="doccomment">/// Convert a [`Decimal`] value into money using `locale_frac_digits`.
+    ///
+    /// See the type-level docs for an explanation of `locale_frac_digits`.
+    ///
+    /// Note that `Decimal` has 96 bits of precision, but `PgMoney` only has 63 plus the sign bit.
+    /// If the value is larger than 63 bits it will be truncated.
+    ///
+    /// [`Decimal`]: crate::types::Decimal
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;decimal&quot;</span>)]
+    </span><span class="kw">pub fn </span>from_decimal(<span class="kw-2">mut </span>decimal: rust_decimal::Decimal, locale_frac_digits: u32) -&gt; <span class="self">Self </span>{
+        <span class="comment">// this is all we need to convert to our expected locale&#39;s `frac_digits`
+        </span>decimal.rescale(locale_frac_digits);
 
-        <span class="doccomment">/// a mask to bitwise-AND with an `i64` to zero the sign bit</span>
-        <span class="kw">const</span> <span class="ident">SIGN_MASK</span>: <span class="ident">i64</span> <span class="op">=</span> <span class="ident">i64::MAX</span>;
+        <span class="doccomment">/// a mask to bitwise-AND with an `i64` to zero the sign bit
+        </span><span class="kw">const </span>SIGN_MASK: i64 = i64::MAX;
 
-        <span class="kw">let</span> <span class="ident">is_negative</span> <span class="op">=</span> <span class="ident">decimal</span>.<span class="ident">is_sign_negative</span>();
-        <span class="kw">let</span> <span class="ident">serialized</span> <span class="op">=</span> <span class="ident">decimal</span>.<span class="ident">serialize</span>();
+        <span class="kw">let </span>is_negative = decimal.is_sign_negative();
+        <span class="kw">let </span>serialized = decimal.serialize();
 
-        <span class="comment">// interpret bytes `4..12` as an i64, ignoring the sign bit</span>
-        <span class="comment">// this is where truncation occurs</span>
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">i64::from_le_bytes</span>(
-            <span class="kw-2">*</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">8</span>]<span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">serialized</span>[<span class="number">4</span>..<span class="number">12</span>])
-                .<span class="ident">expect</span>(<span class="string">&quot;BUG: slice of serialized should be 8 bytes&quot;</span>),
-        ) <span class="op">&amp;</span> <span class="ident">SIGN_MASK</span>; <span class="comment">// zero out the sign bit</span>
+        <span class="comment">// interpret bytes `4..12` as an i64, ignoring the sign bit
+        // this is where truncation occurs
+        </span><span class="kw">let </span>value = i64::from_le_bytes(
+            <span class="kw-2">*</span>&lt;<span class="kw-2">&amp;</span>[u8; <span class="number">8</span>]&gt;::try_from(<span class="kw-2">&amp;</span>serialized[<span class="number">4</span>..<span class="number">12</span>])
+                .expect(<span class="string">&quot;BUG: slice of serialized should be 8 bytes&quot;</span>),
+        ) &amp; SIGN_MASK; <span class="comment">// zero out the sign bit
 
-        <span class="comment">// negate if necessary</span>
-        <span class="self">Self</span>(<span class="kw">if</span> <span class="ident">is_negative</span> { <span class="op">-</span><span class="ident">value</span> } <span class="kw">else</span> { <span class="ident">value</span> })
+        // negate if necessary
+        </span><span class="self">Self</span>(<span class="kw">if </span>is_negative { -value } <span class="kw">else </span>{ value })
     }
 
-    <span class="doccomment">/// Convert a [`BigDecimal`](crate::types::BigDecimal) value into money using the correct precision</span>
-    <span class="doccomment">/// defined in the PostgreSQL settings. The default precision is two.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bigdecimal</span>(
-        <span class="ident">decimal</span>: <span class="ident">bigdecimal::BigDecimal</span>,
-        <span class="ident">locale_frac_digits</span>: <span class="ident">u32</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">bigdecimal::ToPrimitive</span>;
+    <span class="doccomment">/// Convert a [`BigDecimal`](crate::types::BigDecimal) value into money using the correct precision
+    /// defined in the PostgreSQL settings. The default precision is two.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
+    </span><span class="kw">pub fn </span>from_bigdecimal(
+        decimal: bigdecimal::BigDecimal,
+        locale_frac_digits: u32,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxDynError&gt; {
+        <span class="kw">use </span>bigdecimal::ToPrimitive;
 
-        <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="ident">bigdecimal::BigDecimal::new</span>(
-            <span class="ident">num_bigint::BigInt::from</span>(<span class="number">10i128</span>.<span class="ident">pow</span>(<span class="ident">locale_frac_digits</span>)),
+        <span class="kw">let </span>multiplier = bigdecimal::BigDecimal::new(
+            num_bigint::BigInt::from(<span class="number">10i128</span>.pow(locale_frac_digits)),
             <span class="number">0</span>,
         );
 
-        <span class="kw">let</span> <span class="ident">cents</span> <span class="op">=</span> <span class="ident">decimal</span> <span class="op">*</span> <span class="ident">multiplier</span>;
+        <span class="kw">let </span>cents = decimal * multiplier;
 
-        <span class="kw">let</span> <span class="ident">money</span> <span class="op">=</span> <span class="ident">cents</span>.<span class="ident">to_i64</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">io::Error::new</span>(
-                <span class="ident">io::ErrorKind::InvalidData</span>,
+        <span class="kw">let </span>money = cents.to_i64().ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::InvalidData,
                 <span class="string">&quot;Provided BigDecimal could not convert to i64: overflow.&quot;</span>,
             )
         })<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">money</span>))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(money))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
-        <span class="ident">PgTypeInfo::MONEY</span>
+<span class="kw">impl </span>Type&lt;Postgres&gt; <span class="kw">for </span>PgMoney {
+    <span class="kw">fn </span>type_info() -&gt; PgTypeInfo {
+        PgTypeInfo::MONEY
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PgHasArrayType</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="kw">fn</span> <span class="ident">array_type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
-        <span class="ident">PgTypeInfo::MONEY_ARRAY</span>
+<span class="kw">impl </span>PgHasArrayType <span class="kw">for </span>PgMoney {
+    <span class="kw">fn </span>array_type_info() -&gt; PgTypeInfo {
+        PgTypeInfo::MONEY_ARRAY
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T&gt; From&lt;T&gt; <span class="kw">for </span>PgMoney
+<span class="kw">where
+    </span>T: Into&lt;i64&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">num</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">num</span>.<span class="ident">into</span>())
+    <span class="kw">fn </span>from(num: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(num.into())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgArgumentBuffer</span>) -&gt; <span class="ident">IsNull</span> {
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">to_be_bytes</span>());
+<span class="kw">impl </span>Encode&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; <span class="kw">for </span>PgMoney {
+    <span class="kw">fn </span>encode_by_ref(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>PgArgumentBuffer) -&gt; IsNull {
+        buf.extend(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.to_be_bytes());
 
-        <span class="ident">IsNull::No</span>
+        IsNull::No
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">format</span>() {
-            <span class="ident">PgValueFormat::Binary</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">cents</span> <span class="op">=</span> <span class="ident">BigEndian::read_i64</span>(<span class="ident">value</span>.<span class="ident">as_bytes</span>()<span class="question-mark">?</span>);
+<span class="kw">impl </span>Decode&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; <span class="kw">for </span>PgMoney {
+    <span class="kw">fn </span>decode(value: PgValueRef&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxDynError&gt; {
+        <span class="kw">match </span>value.format() {
+            PgValueFormat::Binary =&gt; {
+                <span class="kw">let </span>cents = BigEndian::read_i64(value.as_bytes()<span class="question-mark">?</span>);
 
-                <span class="prelude-val">Ok</span>(<span class="ident">PgMoney</span>(<span class="ident">cents</span>))
+                <span class="prelude-val">Ok</span>(PgMoney(cents))
             }
-            <span class="ident">PgValueFormat::Text</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">io::Error::new</span>(
-                    <span class="ident">io::ErrorKind::InvalidData</span>,
+            PgValueFormat::Text =&gt; {
+                <span class="kw">let </span>error = io::Error::new(
+                    io::ErrorKind::InvalidData,
                     <span class="string">&quot;Reading a `MONEY` value in text format is not supported.&quot;</span>,
                 );
 
-                <span class="prelude-val">Err</span>(<span class="ident">Box::new</span>(<span class="ident">error</span>))
+                <span class="prelude-val">Err</span>(Box::new(error))
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">PgMoney</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">PgMoney</span>;
+<span class="kw">impl </span>Add&lt;PgMoney&gt; <span class="kw">for </span>PgMoney {
+    <span class="kw">type </span>Output = PgMoney;
 
-    <span class="doccomment">/// Adds two monetary values.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if overflowing the `i64::MAX`.</span>
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">PgMoney</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-            .<span class="ident">checked_add</span>(<span class="ident">rhs</span>.<span class="number">0</span>)
-            .<span class="ident">map</span>(<span class="ident">PgMoney</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;overflow adding money amounts&quot;</span>)
+    <span class="doccomment">/// Adds two monetary values.
+    ///
+    /// # Panics
+    /// Panics if overflowing the `i64::MAX`.
+    </span><span class="kw">fn </span>add(<span class="self">self</span>, rhs: PgMoney) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.<span class="number">0
+            </span>.checked_add(rhs.<span class="number">0</span>)
+            .map(PgMoney)
+            .expect(<span class="string">&quot;overflow adding money amounts&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AddAssign</span><span class="op">&lt;</span><span class="ident">PgMoney</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="doccomment">/// An assigning add for two monetary values.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if overflowing the `i64::MAX`.</span>
-    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">PgMoney</span>) {
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">checked_add</span>(<span class="ident">rhs</span>.<span class="number">0</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;overflow adding money amounts&quot;</span>)
+<span class="kw">impl </span>AddAssign&lt;PgMoney&gt; <span class="kw">for </span>PgMoney {
+    <span class="doccomment">/// An assigning add for two monetary values.
+    ///
+    /// # Panics
+    /// Panics if overflowing the `i64::MAX`.
+    </span><span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: PgMoney) {
+        <span class="self">self</span>.<span class="number">0 </span>= <span class="self">self
+            </span>.<span class="number">0
+            </span>.checked_add(rhs.<span class="number">0</span>)
+            .expect(<span class="string">&quot;overflow adding money amounts&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Sub</span><span class="op">&lt;</span><span class="ident">PgMoney</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">PgMoney</span>;
+<span class="kw">impl </span>Sub&lt;PgMoney&gt; <span class="kw">for </span>PgMoney {
+    <span class="kw">type </span>Output = PgMoney;
 
-    <span class="doccomment">/// Subtracts two monetary values.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if underflowing the `i64::MIN`.</span>
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">PgMoney</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-            .<span class="ident">checked_sub</span>(<span class="ident">rhs</span>.<span class="number">0</span>)
-            .<span class="ident">map</span>(<span class="ident">PgMoney</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;overflow subtracting money amounts&quot;</span>)
+    <span class="doccomment">/// Subtracts two monetary values.
+    ///
+    /// # Panics
+    /// Panics if underflowing the `i64::MIN`.
+    </span><span class="kw">fn </span>sub(<span class="self">self</span>, rhs: PgMoney) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.<span class="number">0
+            </span>.checked_sub(rhs.<span class="number">0</span>)
+            .map(PgMoney)
+            .expect(<span class="string">&quot;overflow subtracting money amounts&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SubAssign</span><span class="op">&lt;</span><span class="ident">PgMoney</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgMoney</span> {
-    <span class="doccomment">/// An assigning subtract for two monetary values.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if underflowing the `i64::MIN`.</span>
-    <span class="kw">fn</span> <span class="ident">sub_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">PgMoney</span>) {
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">checked_sub</span>(<span class="ident">rhs</span>.<span class="number">0</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;overflow subtracting money amounts&quot;</span>)
+<span class="kw">impl </span>SubAssign&lt;PgMoney&gt; <span class="kw">for </span>PgMoney {
+    <span class="doccomment">/// An assigning subtract for two monetary values.
+    ///
+    /// # Panics
+    /// Panics if underflowing the `i64::MIN`.
+    </span><span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rhs: PgMoney) {
+        <span class="self">self</span>.<span class="number">0 </span>= <span class="self">self
+            </span>.<span class="number">0
+            </span>.checked_sub(rhs.<span class="number">0</span>)
+            .expect(<span class="string">&quot;overflow subtracting money amounts&quot;</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::PgMoney</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::PgMoney;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">adding_works</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">PgMoney</span>(<span class="number">3</span>), <span class="ident">PgMoney</span>(<span class="number">1</span>) <span class="op">+</span> <span class="ident">PgMoney</span>(<span class="number">2</span>))
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>adding_works() {
+        <span class="macro">assert_eq!</span>(PgMoney(<span class="number">3</span>), PgMoney(<span class="number">1</span>) + PgMoney(<span class="number">2</span>))
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">money</span> <span class="op">=</span> <span class="ident">PgMoney</span>(<span class="number">1</span>);
-        <span class="ident">money</span> <span class="op">+</span><span class="op">=</span> <span class="ident">PgMoney</span>(<span class="number">2</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>add_assign_works() {
+        <span class="kw">let </span><span class="kw-2">mut </span>money = PgMoney(<span class="number">1</span>);
+        money += PgMoney(<span class="number">2</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">PgMoney</span>(<span class="number">3</span>), <span class="ident">money</span>);
+        <span class="macro">assert_eq!</span>(PgMoney(<span class="number">3</span>), money);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">subtracting_works</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">PgMoney</span>(<span class="number">4</span>), <span class="ident">PgMoney</span>(<span class="number">5</span>) <span class="op">-</span> <span class="ident">PgMoney</span>(<span class="number">1</span>))
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>subtracting_works() {
+        <span class="macro">assert_eq!</span>(PgMoney(<span class="number">4</span>), PgMoney(<span class="number">5</span>) - PgMoney(<span class="number">1</span>))
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sub_assign_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">money</span> <span class="op">=</span> <span class="ident">PgMoney</span>(<span class="number">1</span>);
-        <span class="ident">money</span> <span class="op">-</span><span class="op">=</span> <span class="ident">PgMoney</span>(<span class="number">2</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>sub_assign_works() {
+        <span class="kw">let </span><span class="kw-2">mut </span>money = PgMoney(<span class="number">1</span>);
+        money -= PgMoney(<span class="number">2</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">PgMoney</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">money</span>);
+        <span class="macro">assert_eq!</span>(PgMoney(-<span class="number">1</span>), money);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_overflow_panics</span>() {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">PgMoney</span>(<span class="ident">i64::MAX</span>) <span class="op">+</span> <span class="ident">PgMoney</span>(<span class="number">1</span>);
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>add_overflow_panics() {
+        <span class="kw">let _ </span>= PgMoney(i64::MAX) + PgMoney(<span class="number">1</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign_overflow_panics</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">money</span> <span class="op">=</span> <span class="ident">PgMoney</span>(<span class="ident">i64::MAX</span>);
-        <span class="ident">money</span> <span class="op">+</span><span class="op">=</span> <span class="ident">PgMoney</span>(<span class="number">1</span>);
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>add_assign_overflow_panics() {
+        <span class="kw">let </span><span class="kw-2">mut </span>money = PgMoney(i64::MAX);
+        money += PgMoney(<span class="number">1</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sub_overflow_panics</span>() {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">PgMoney</span>(<span class="ident">i64::MIN</span>) <span class="op">-</span> <span class="ident">PgMoney</span>(<span class="number">1</span>);
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>sub_overflow_panics() {
+        <span class="kw">let _ </span>= PgMoney(i64::MIN) - PgMoney(<span class="number">1</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sub_assign_overflow_panics</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">money</span> <span class="op">=</span> <span class="ident">PgMoney</span>(<span class="ident">i64::MIN</span>);
-        <span class="ident">money</span> <span class="op">-</span><span class="op">=</span> <span class="ident">PgMoney</span>(<span class="number">1</span>);
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>sub_assign_overflow_panics() {
+        <span class="kw">let </span><span class="kw-2">mut </span>money = PgMoney(i64::MIN);
+        money -= PgMoney(<span class="number">1</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">conversion_to_bigdecimal_works</span>() {
-        <span class="kw">let</span> <span class="ident">money</span> <span class="op">=</span> <span class="ident">PgMoney</span>(<span class="number">12345</span>);
+    <span class="attribute">#[test]
+    #[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
+    </span><span class="kw">fn </span>conversion_to_bigdecimal_works() {
+        <span class="kw">let </span>money = PgMoney(<span class="number">12345</span>);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">bigdecimal::BigDecimal::new</span>(<span class="ident">num_bigint::BigInt::from</span>(<span class="number">12345</span>), <span class="number">2</span>),
-            <span class="ident">money</span>.<span class="ident">to_bigdecimal</span>(<span class="number">2</span>)
+            bigdecimal::BigDecimal::new(num_bigint::BigInt::from(<span class="number">12345</span>), <span class="number">2</span>),
+            money.to_bigdecimal(<span class="number">2</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">conversion_to_decimal_works</span>() {
+    <span class="attribute">#[test]
+    #[cfg(feature = <span class="string">&quot;decimal&quot;</span>)]
+    </span><span class="kw">fn </span>conversion_to_decimal_works() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">rust_decimal::Decimal::new</span>(<span class="number">12345</span>, <span class="number">2</span>),
-            <span class="ident">PgMoney</span>(<span class="number">12345</span>).<span class="ident">to_decimal</span>(<span class="number">2</span>)
+            rust_decimal::Decimal::new(<span class="number">12345</span>, <span class="number">2</span>),
+            PgMoney(<span class="number">12345</span>).to_decimal(<span class="number">2</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">conversion_from_decimal_works</span>() {
+    <span class="attribute">#[test]
+    #[cfg(feature = <span class="string">&quot;decimal&quot;</span>)]
+    </span><span class="kw">fn </span>conversion_from_decimal_works() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">PgMoney</span>(<span class="number">12345</span>),
-            <span class="ident">PgMoney::from_decimal</span>(<span class="ident">rust_decimal::Decimal::new</span>(<span class="number">12345</span>, <span class="number">2</span>), <span class="number">2</span>)
+            PgMoney(<span class="number">12345</span>),
+            PgMoney::from_decimal(rust_decimal::Decimal::new(<span class="number">12345</span>, <span class="number">2</span>), <span class="number">2</span>)
         );
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">PgMoney</span>(<span class="number">12345</span>),
-            <span class="ident">PgMoney::from_decimal</span>(<span class="ident">rust_decimal::Decimal::new</span>(<span class="number">123450</span>, <span class="number">3</span>), <span class="number">2</span>)
+            PgMoney(<span class="number">12345</span>),
+            PgMoney::from_decimal(rust_decimal::Decimal::new(<span class="number">123450</span>, <span class="number">3</span>), <span class="number">2</span>)
         );
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">PgMoney</span>(<span class="op">-</span><span class="number">12345</span>),
-            <span class="ident">PgMoney::from_decimal</span>(<span class="ident">rust_decimal::Decimal::new</span>(<span class="op">-</span><span class="number">123450</span>, <span class="number">3</span>), <span class="number">2</span>)
+            PgMoney(-<span class="number">12345</span>),
+            PgMoney::from_decimal(rust_decimal::Decimal::new(-<span class="number">123450</span>, <span class="number">3</span>), <span class="number">2</span>)
         );
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">PgMoney</span>(<span class="op">-</span><span class="number">12300</span>),
-            <span class="ident">PgMoney::from_decimal</span>(<span class="ident">rust_decimal::Decimal::new</span>(<span class="op">-</span><span class="number">123</span>, <span class="number">0</span>), <span class="number">2</span>)
+            PgMoney(-<span class="number">12300</span>),
+            PgMoney::from_decimal(rust_decimal::Decimal::new(-<span class="number">123</span>, <span class="number">0</span>), <span class="number">2</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">conversion_from_bigdecimal_works</span>() {
-        <span class="kw">let</span> <span class="ident">dec</span> <span class="op">=</span> <span class="ident">bigdecimal::BigDecimal::new</span>(<span class="ident">num_bigint::BigInt::from</span>(<span class="number">12345</span>), <span class="number">2</span>);
+    <span class="attribute">#[test]
+    #[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
+    </span><span class="kw">fn </span>conversion_from_bigdecimal_works() {
+        <span class="kw">let </span>dec = bigdecimal::BigDecimal::new(num_bigint::BigInt::from(<span class="number">12345</span>), <span class="number">2</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">PgMoney</span>(<span class="number">12345</span>), <span class="ident">PgMoney::from_bigdecimal</span>(<span class="ident">dec</span>, <span class="number">2</span>).<span class="ident">unwrap</span>());
+        <span class="macro">assert_eq!</span>(PgMoney(<span class="number">12345</span>), PgMoney::from_bigdecimal(dec, <span class="number">2</span>).unwrap());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/header/special.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>special.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/header/special.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>special.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -106,111 +106,111 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">message::header</span>::{<span class="ident">Header</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>},
-    <span class="ident">BoxError</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    message::header::{Header, HeaderName, HeaderValue},
+    BoxError,
 };
 
-<span class="doccomment">/// Message format version, defined in [RFC2045](https://tools.ietf.org/html/rfc2045#section-4)</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MimeVersion</span> {
-    <span class="ident">major</span>: <span class="ident">u8</span>,
-    <span class="ident">minor</span>: <span class="ident">u8</span>,
+<span class="doccomment">/// Message format version, defined in [RFC2045](https://tools.ietf.org/html/rfc2045#section-4)
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>MimeVersion {
+    major: u8,
+    minor: u8,
 }
 
-<span class="doccomment">/// MIME version 1.0</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Should be used in all MIME messages.</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MIME_VERSION_1_0</span>: <span class="ident">MimeVersion</span> <span class="op">=</span> <span class="ident">MimeVersion::new</span>(<span class="number">1</span>, <span class="number">0</span>);
+<span class="doccomment">/// MIME version 1.0
+///
+/// Should be used in all MIME messages.
+</span><span class="kw">pub const </span>MIME_VERSION_1_0: MimeVersion = MimeVersion::new(<span class="number">1</span>, <span class="number">0</span>);
 
-<span class="kw">impl</span> <span class="ident">MimeVersion</span> {
-    <span class="doccomment">/// Build a new `MimeVersion` header</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">major</span>: <span class="ident">u8</span>, <span class="ident">minor</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">MimeVersion</span> { <span class="ident">major</span>, <span class="ident">minor</span> }
+<span class="kw">impl </span>MimeVersion {
+    <span class="doccomment">/// Build a new `MimeVersion` header
+    </span><span class="kw">pub const fn </span>new(major: u8, minor: u8) -&gt; <span class="self">Self </span>{
+        MimeVersion { major, minor }
     }
 
-    <span class="doccomment">/// Get the `major` value of this `MimeVersion` header.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">major</span>(<span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="ident">major</span>
+    <span class="doccomment">/// Get the `major` value of this `MimeVersion` header.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub const fn </span>major(<span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.major
     }
 
-    <span class="doccomment">/// Get the `minor` value of this `MimeVersion` header.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">minor</span>(<span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="ident">minor</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Header</span> <span class="kw">for</span> <span class="ident">MimeVersion</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span> {
-        <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;MIME-Version&quot;</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">split</span>(<span class="string">&#39;.&#39;</span>);
-
-        <span class="kw">let</span> <span class="ident">major</span> <span class="op">=</span> <span class="ident">s</span>
-            .<span class="ident">next</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;The first call to next for a Split&lt;char&gt; always succeeds&quot;</span>);
-        <span class="kw">let</span> <span class="ident">minor</span> <span class="op">=</span> <span class="ident">s</span>
-            .<span class="ident">next</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">String::from</span>(<span class="string">&quot;MIME-Version header doesn&#39;t contain &#39;.&#39;&quot;</span>))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">major</span> <span class="op">=</span> <span class="ident">major</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">minor</span> <span class="op">=</span> <span class="ident">minor</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">MimeVersion::new</span>(<span class="ident">major</span>, <span class="ident">minor</span>))
-    }
-
-    <span class="kw">fn</span> <span class="ident">display</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HeaderValue</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}.{}&quot;</span>, <span class="self">self</span>.<span class="ident">major</span>, <span class="self">self</span>.<span class="ident">minor</span>);
-        <span class="ident">HeaderValue::dangerous_new_pre_encoded</span>(<span class="ident"><span class="self">Self</span>::name</span>(), <span class="ident">val</span>.<span class="ident">clone</span>(), <span class="ident">val</span>)
+    <span class="doccomment">/// Get the `minor` value of this `MimeVersion` header.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub const fn </span>minor(<span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.minor
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MimeVersion</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">MIME_VERSION_1_0</span>
+<span class="kw">impl </span>Header <span class="kw">for </span>MimeVersion {
+    <span class="kw">fn </span>name() -&gt; HeaderName {
+        HeaderName::new_from_ascii_str(<span class="string">&quot;MIME-Version&quot;</span>)
+    }
+
+    <span class="kw">fn </span>parse(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = s.split(<span class="string">&#39;.&#39;</span>);
+
+        <span class="kw">let </span>major = s
+            .next()
+            .expect(<span class="string">&quot;The first call to next for a Split&lt;char&gt; always succeeds&quot;</span>);
+        <span class="kw">let </span>minor = s
+            .next()
+            .ok_or_else(|| String::from(<span class="string">&quot;MIME-Version header doesn&#39;t contain &#39;.&#39;&quot;</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>major = major.parse()<span class="question-mark">?</span>;
+        <span class="kw">let </span>minor = minor.parse()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(MimeVersion::new(major, minor))
+    }
+
+    <span class="kw">fn </span>display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HeaderValue {
+        <span class="kw">let </span>val = <span class="macro">format!</span>(<span class="string">&quot;{}.{}&quot;</span>, <span class="self">self</span>.major, <span class="self">self</span>.minor);
+        HeaderValue::dangerous_new_pre_encoded(<span class="self">Self</span>::name(), val.clone(), val)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+<span class="kw">impl </span>Default <span class="kw">for </span>MimeVersion {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        MIME_VERSION_1_0
+    }
+}
 
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">MimeVersion</span>, <span class="ident">MIME_VERSION_1_0</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message::header</span>::{<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">Headers</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>pretty_assertions::assert_eq;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_mime_version</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
+    <span class="kw">use super</span>::{MimeVersion, MIME_VERSION_1_0};
+    <span class="kw">use </span><span class="kw">crate</span>::message::header::{HeaderName, HeaderValue, Headers};
 
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">MIME_VERSION_1_0</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>format_mime_version() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">to_string</span>(), <span class="string">&quot;MIME-Version: 1.0\r\n&quot;</span>);
+        headers.set(MIME_VERSION_1_0);
 
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">MimeVersion::new</span>(<span class="number">0</span>, <span class="number">1</span>));
+        <span class="macro">assert_eq!</span>(headers.to_string(), <span class="string">&quot;MIME-Version: 1.0\r\n&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">to_string</span>(), <span class="string">&quot;MIME-Version: 0.1\r\n&quot;</span>);
+        headers.set(MimeVersion::new(<span class="number">0</span>, <span class="number">1</span>));
+
+        <span class="macro">assert_eq!</span>(headers.to_string(), <span class="string">&quot;MIME-Version: 0.1\r\n&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_mime_version</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_mime_version() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
 
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;MIME-Version&quot;</span>),
-            <span class="string">&quot;1.0&quot;</span>.<span class="ident">to_string</span>(),
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;MIME-Version&quot;</span>),
+            <span class="string">&quot;1.0&quot;</span>.to_string(),
         ));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">MimeVersion</span><span class="op">&gt;</span>(), <span class="prelude-val">Some</span>(<span class="ident">MIME_VERSION_1_0</span>));
+        <span class="macro">assert_eq!</span>(headers.get::&lt;MimeVersion&gt;(), <span class="prelude-val">Some</span>(MIME_VERSION_1_0));
 
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;MIME-Version&quot;</span>),
-            <span class="string">&quot;0.1&quot;</span>.<span class="ident">to_string</span>(),
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;MIME-Version&quot;</span>),
+            <span class="string">&quot;0.1&quot;</span>.to_string(),
         ));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">MimeVersion</span><span class="op">&gt;</span>(), <span class="prelude-val">Some</span>(<span class="ident">MimeVersion::new</span>(<span class="number">0</span>, <span class="number">1</span>)));
+        <span class="macro">assert_eq!</span>(headers.get::&lt;MimeVersion&gt;(), <span class="prelude-val">Some</span>(MimeVersion::new(<span class="number">0</span>, <span class="number">1</span>)));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

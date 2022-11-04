@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/file_store/google_cloud_file_store.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>google_cloud_file_store.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_utils/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/file_store/google_cloud_file_store.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>google_cloud_file_store.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_utils/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -121,128 +121,128 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::path::Path</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::path::Path;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">cloud_storage::Client</span>;
-<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">future::try_join</span>, <span class="ident">StreamExt</span>};
-<span class="kw">use</span> <span class="ident">tokio_stream::wrappers::ReceiverStream</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>cloud_storage::Client;
+<span class="kw">use </span>futures::{future::try_join, StreamExt};
+<span class="kw">use </span>tokio_stream::wrappers::ReceiverStream;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">path_to_str</span>, <span class="ident">FileStore</span>, <span class="ident">GenericPayload</span>};
+<span class="kw">use super</span>::{path_to_str, FileStore, GenericPayload};
 
-<span class="kw">const</span> <span class="ident">BUFFER_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">512</span>;
+<span class="kw">const </span>BUFFER_SIZE: usize = <span class="number">512</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GoogleCloudFileStore</span> {
-    <span class="ident">bucket_name</span>: <span class="ident">String</span>,
-    <span class="ident">client</span>: <span class="ident">Client</span>,
+<span class="kw">pub struct </span>GoogleCloudFileStore {
+    bucket_name: String,
+    client: Client,
 }
 
-<span class="kw">impl</span> <span class="ident">GoogleCloudFileStore</span> {
-    <span class="doccomment">/// Needs to not be async because of how this is used in worker factories</span>
-    <span class="attribute">#[<span class="ident">instrument</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">bucket_name</span>: <span class="ident">String</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Client::default</span>();
+<span class="kw">impl </span>GoogleCloudFileStore {
+    <span class="doccomment">/// Needs to not be async because of how this is used in worker factories
+    </span><span class="attribute">#[instrument]
+    </span><span class="kw">pub fn </span>new(bucket_name: String) -&gt; UtilResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>client = Client::default();
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">bucket_name</span>,
-            <span class="ident">client</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            bucket_name,
+            client,
         })
     }
 }
 
-<span class="attribute">#[<span class="ident">async_trait</span>(<span class="question-mark">?</span><span class="ident">Send</span>)]</span>
-<span class="kw">impl</span> <span class="ident">FileStore</span> <span class="kw">for</span> <span class="ident">GoogleCloudFileStore</span> {
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">file</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">client</span>
-            .<span class="ident">object</span>()
-            .<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bucket_name</span>, <span class="ident">file</span>, <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>, <span class="ident">mime_type</span>)
+<span class="attribute">#[async_trait(<span class="question-mark">?</span>Send)]
+</span><span class="kw">impl </span>FileStore <span class="kw">for </span>GoogleCloudFileStore {
+    <span class="kw">async fn </span>upload(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path, file: Vec&lt;u8&gt;, mime_type: <span class="kw-2">&amp;</span>str) -&gt; UtilResult&lt;()&gt; {
+        <span class="self">self</span>.client
+            .object()
+            .create(<span class="kw-2">&amp;</span><span class="self">self</span>.bucket_name, file, path_to_str(path)<span class="question-mark">?</span>, mime_type)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">client</span>
-            .<span class="ident">object</span>()
-            .<span class="ident">download</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bucket_name</span>, <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>)
+    <span class="kw">async fn </span>download(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; UtilResult&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span>res = <span class="self">self
+            </span>.client
+            .object()
+            .download(<span class="kw-2">&amp;</span><span class="self">self</span>.bucket_name, path_to_str(path)<span class="question-mark">?</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+        <span class="prelude-val">Ok</span>(res)
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_direct_download_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">object</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">client</span>
-            .<span class="ident">object</span>()
-            .<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bucket_name</span>, <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>)
+    <span class="kw">async fn </span>get_direct_download_url(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; UtilResult&lt;String&gt; {
+        <span class="kw">let </span>object = <span class="self">self
+            </span>.client
+            .object()
+            .read(<span class="kw-2">&amp;</span><span class="self">self</span>.bucket_name, path_to_str(path)<span class="question-mark">?</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">object</span>.<span class="ident">download_url</span>(<span class="number">300</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
+        <span class="kw">let </span>url = object.download_url(<span class="number">300</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(url)
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">client</span>
-            .<span class="ident">object</span>()
-            .<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bucket_name</span>, <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>)
+    <span class="kw">async fn </span>delete(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; UtilResult&lt;()&gt; {
+        <span class="self">self</span>.client
+            .object()
+            .delete(<span class="kw-2">&amp;</span><span class="self">self</span>.bucket_name, path_to_str(path)<span class="question-mark">?</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_stream</span>(
+    <span class="kw">async fn </span>upload_stream(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-        <span class="kw-2">mut</span> <span class="ident">contents</span>: <span class="ident">GenericPayload</span>,
-        <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">object_client</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">object</span>();
-        <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::channel</span>(<span class="ident">BUFFER_SIZE</span>);
-        <span class="kw">let</span> <span class="ident">receiver_stream</span> <span class="op">=</span> <span class="ident">ReceiverStream::new</span>(<span class="ident">receiver</span>);
-        <span class="kw">let</span> <span class="ident">send_fut</span> <span class="op">=</span> <span class="kw">async</span> {
-            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">contents</span>.<span class="ident">next</span>().<span class="kw">await</span> {
-                <span class="ident">sender</span>
-                    .<span class="ident">send</span>(<span class="ident">bytes</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">cloud_storage::Error::Other</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+        path: <span class="kw-2">&amp;</span>Path,
+        <span class="kw-2">mut </span>contents: GenericPayload,
+        mime_type: <span class="kw-2">&amp;</span>str,
+    ) -&gt; UtilResult&lt;()&gt; {
+        <span class="kw">let </span>object_client = <span class="self">self</span>.client.object();
+        <span class="kw">let </span>(sender, receiver) = tokio::sync::mpsc::channel(BUFFER_SIZE);
+        <span class="kw">let </span>receiver_stream = ReceiverStream::new(receiver);
+        <span class="kw">let </span>send_fut = <span class="kw">async </span>{
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(bytes) = contents.next().<span class="kw">await </span>{
+                sender
+                    .send(bytes)
+                    .<span class="kw">await
+                    </span>.map_err(|e| cloud_storage::Error::Other(e.to_string()))<span class="question-mark">?</span>;
             }
-            <span class="ident">drop</span>(<span class="ident">sender</span>);
+            drop(sender);
             <span class="prelude-val">Ok</span>(())
         };
-        <span class="kw">let</span> <span class="ident">recv_fut</span> <span class="op">=</span> <span class="ident">object_client</span>.<span class="ident">create_streamed</span>(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bucket_name</span>,
-            <span class="ident">receiver_stream</span>,
+        <span class="kw">let </span>recv_fut = object_client.create_streamed(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.bucket_name,
+            receiver_stream,
             <span class="prelude-val">None</span>,
-            <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>,
-            <span class="ident">mime_type</span>,
+            path_to_str(path)<span class="question-mark">?</span>,
+            mime_type,
         );
-        <span class="ident">try_join</span>(<span class="ident">send_fut</span>, <span class="ident">recv_fut</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        try_join(send_fut, recv_fut).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_stream</span>(
+    <span class="kw">async fn </span>download_stream(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-    ) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">futures::Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">bytes::Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">client</span>
-            .<span class="ident">object</span>()
-            .<span class="ident">download_streamed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bucket_name</span>, <span class="ident">path_to_str</span>(<span class="ident">path</span>)<span class="question-mark">?</span>)
+        path: <span class="kw-2">&amp;</span>Path,
+    ) -&gt; UtilResult&lt;Box&lt;<span class="kw">dyn </span>futures::Stream&lt;Item = std::io::Result&lt;bytes::Bytes&gt;&gt;&gt;&gt; {
+        <span class="kw">let </span>stream = <span class="self">self
+            </span>.client
+            .object()
+            .download_streamed(<span class="kw-2">&amp;</span><span class="self">self</span>.bucket_name, path_to_str(path)<span class="question-mark">?</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">stream_with_corrected_type</span>: <span class="kw">_</span> <span class="op">=</span> <span class="ident">stream</span>
-            <span class="comment">// cloud_storage download_streamed returns the bytes one by one which is not optimal for us</span>
-            <span class="comment">// that&#39;s why why group the singular bytes to chunks and convert those chunks to Bytes objects.</span>
-            .<span class="ident">chunks</span>(<span class="ident">BUFFER_SIZE</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">chunked_bytes_results</span><span class="op">|</span> {
-                <span class="comment">// Turn Vec&lt;Result&lt;u8&gt;&gt; -&gt; Result&lt;Vec&lt;u8&gt;&gt;</span>
-                <span class="kw">let</span> <span class="ident">with_combined_result</span> <span class="op">=</span> <span class="ident">chunked_bytes_results</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-                <span class="ident">with_combined_result</span>
-                    .<span class="ident">map</span>(<span class="ident">Bytes::from</span>)
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">std::io::Error::new</span>(<span class="ident">std::io::ErrorKind::Other</span>, <span class="ident">err</span>))
+        <span class="kw">let </span>stream_with_corrected_type: <span class="kw">_ </span>= stream
+            <span class="comment">// cloud_storage download_streamed returns the bytes one by one which is not optimal for us
+            // that&#39;s why why group the singular bytes to chunks and convert those chunks to Bytes objects.
+            </span>.chunks(BUFFER_SIZE)
+            .map(|chunked_bytes_results| {
+                <span class="comment">// Turn Vec&lt;Result&lt;u8&gt;&gt; -&gt; Result&lt;Vec&lt;u8&gt;&gt;
+                </span><span class="kw">let </span>with_combined_result = chunked_bytes_results
+                    .into_iter()
+                    .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;();
+                with_combined_result
+                    .map(Bytes::from)
+                    .map_err(|err| std::io::Error::new(std::io::ErrorKind::Other, err))
             });
-        <span class="prelude-val">Ok</span>(<span class="ident">Box::new</span>(<span class="ident">stream_with_corrected_type</span>))
+        <span class="prelude-val">Ok</span>(Box::new(stream_with_corrected_type))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

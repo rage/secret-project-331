@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/sync/manual_reset_event.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>manual_reset_event.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-intrusive-0.4.0/src/sync/manual_reset_event.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>manual_reset_event.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../futures_intrusive/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../futures_intrusive/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -315,322 +315,322 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
-</pre><pre class="rust"><code><span class="doccomment">//! An asynchronously awaitable event for signalization between tasks</span>
+</pre><pre class="rust"><code><span class="doccomment">//! An asynchronously awaitable event for signalization between tasks
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">intrusive_double_linked_list</span>::{<span class="ident">LinkedList</span>, <span class="ident">ListNode</span>},
-    <span class="ident">utils::update_waker_ref</span>,
-    <span class="ident">NoopLock</span>,
+</span><span class="kw">use crate</span>::{
+    intrusive_double_linked_list::{LinkedList, ListNode},
+    utils::update_waker_ref,
+    NoopLock,
 };
-<span class="kw">use</span> <span class="ident">core::pin::Pin</span>;
-<span class="kw">use</span> <span class="ident">futures_core</span>::{
-    <span class="ident">future</span>::{<span class="ident">FusedFuture</span>, <span class="ident">Future</span>},
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>},
+<span class="kw">use </span>core::pin::Pin;
+<span class="kw">use </span>futures_core::{
+    future::{FusedFuture, Future},
+    task::{Context, Poll, Waker},
 };
-<span class="kw">use</span> <span class="ident">lock_api</span>::{<span class="ident">Mutex</span>, <span class="ident">RawMutex</span>};
+<span class="kw">use </span>lock_api::{Mutex, RawMutex};
 
-<span class="doccomment">/// Tracks how the future had interacted with the event</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">PollState</span> {
-    <span class="doccomment">/// The task has never interacted with the event.</span>
-    <span class="ident">New</span>,
-    <span class="doccomment">/// The task was added to the wait queue at the event.</span>
-    <span class="ident">Waiting</span>,
-    <span class="doccomment">/// The task has been polled to completion.</span>
-    <span class="ident">Done</span>,
+<span class="doccomment">/// Tracks how the future had interacted with the event
+</span><span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">enum </span>PollState {
+    <span class="doccomment">/// The task has never interacted with the event.
+    </span>New,
+    <span class="doccomment">/// The task was added to the wait queue at the event.
+    </span>Waiting,
+    <span class="doccomment">/// The task has been polled to completion.
+    </span>Done,
 }
 
-<span class="doccomment">/// Tracks the WaitForEventFuture waiting state.</span>
-<span class="doccomment">/// Access to this struct is synchronized through the mutex in the Event.</span>
-<span class="kw">struct</span> <span class="ident">WaitQueueEntry</span> {
-    <span class="doccomment">/// The task handle of the waiting task</span>
-    <span class="ident">task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Current polling state</span>
-    <span class="ident">state</span>: <span class="ident">PollState</span>,
+<span class="doccomment">/// Tracks the WaitForEventFuture waiting state.
+/// Access to this struct is synchronized through the mutex in the Event.
+</span><span class="kw">struct </span>WaitQueueEntry {
+    <span class="doccomment">/// The task handle of the waiting task
+    </span>task: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
+    <span class="doccomment">/// Current polling state
+    </span>state: PollState,
 }
 
-<span class="kw">impl</span> <span class="ident">WaitQueueEntry</span> {
-    <span class="doccomment">/// Creates a new WaitQueueEntry</span>
-    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">WaitQueueEntry</span> {
-        <span class="ident">WaitQueueEntry</span> {
-            <span class="ident">task</span>: <span class="prelude-val">None</span>,
-            <span class="ident">state</span>: <span class="ident">PollState::New</span>,
+<span class="kw">impl </span>WaitQueueEntry {
+    <span class="doccomment">/// Creates a new WaitQueueEntry
+    </span><span class="kw">fn </span>new() -&gt; WaitQueueEntry {
+        WaitQueueEntry {
+            task: <span class="prelude-val">None</span>,
+            state: PollState::New,
         }
     }
 }
 
-<span class="doccomment">/// Internal state of the `ManualResetEvent` pair above</span>
-<span class="kw">struct</span> <span class="ident">EventState</span> {
-    <span class="ident">is_set</span>: <span class="ident">bool</span>,
-    <span class="ident">waiters</span>: <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Internal state of the `ManualResetEvent` pair above
+</span><span class="kw">struct </span>EventState {
+    is_set: bool,
+    waiters: LinkedList&lt;WaitQueueEntry&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">EventState</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_set</span>: <span class="ident">bool</span>) -&gt; <span class="ident">EventState</span> {
-        <span class="ident">EventState</span> {
-            <span class="ident">is_set</span>,
-            <span class="ident">waiters</span>: <span class="ident">LinkedList::new</span>(),
+<span class="kw">impl </span>EventState {
+    <span class="kw">fn </span>new(is_set: bool) -&gt; EventState {
+        EventState {
+            is_set,
+            waiters: LinkedList::new(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">is_set</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.is_set = <span class="bool-val">false</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_set</span> <span class="op">!</span><span class="op">=</span> <span class="bool-val">true</span> {
-            <span class="self">self</span>.<span class="ident">is_set</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.is_set != <span class="bool-val">true </span>{
+            <span class="self">self</span>.is_set = <span class="bool-val">true</span>;
 
-            <span class="comment">// Wakeup all waiters</span>
-            <span class="comment">// This happens inside the lock to make cancellation reliable</span>
-            <span class="comment">// If we would access waiters outside of the lock, the pointers</span>
-            <span class="comment">// may no longer be valid.</span>
-            <span class="comment">// Typically this shouldn&#39;t be an issue, since waking a task should</span>
-            <span class="comment">// only move it from the blocked into the ready state and not have</span>
-            <span class="comment">// further side effects.</span>
+            <span class="comment">// Wakeup all waiters
+            // This happens inside the lock to make cancellation reliable
+            // If we would access waiters outside of the lock, the pointers
+            // may no longer be valid.
+            // Typically this shouldn&#39;t be an issue, since waking a task should
+            // only move it from the blocked into the ready state and not have
+            // further side effects.
 
-            <span class="comment">// Use a reverse iterator, so that the oldest waiter gets</span>
-            <span class="comment">// scheduled first</span>
-            <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">reverse_drain</span>(<span class="op">|</span><span class="ident">waiter</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">handle</span>) <span class="op">=</span> <span class="ident">waiter</span>.<span class="ident">task</span>.<span class="ident">take</span>() {
-                    <span class="ident">handle</span>.<span class="ident">wake</span>();
+            // Use a reverse iterator, so that the oldest waiter gets
+            // scheduled first
+            </span><span class="self">self</span>.waiters.reverse_drain(|waiter| {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(handle) = waiter.task.take() {
+                    handle.wake();
                 }
-                <span class="ident">waiter</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
+                waiter.state = PollState::Done;
             });
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">is_set</span>
+    <span class="kw">fn </span>is_set(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_set
     }
 
-    <span class="doccomment">/// Checks if the event is set. If it is this returns immediately.</span>
-    <span class="doccomment">/// If the event isn&#39;t set, the WaitForEventFuture gets added to the wait</span>
-    <span class="doccomment">/// queue at the event, and will be signalled once ready.</span>
-    <span class="doccomment">/// This function is only safe as long as the `wait_node`s address is guaranteed</span>
-    <span class="doccomment">/// to be stable until it gets removed from the queue.</span>
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">try_wait</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
-            <span class="ident">PollState::New</span> =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_set</span> {
-                    <span class="comment">// The event is already signaled</span>
-                    <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
-                    <span class="ident">Poll::Ready</span>(())
-                } <span class="kw">else</span> {
-                    <span class="comment">// Added the task to the wait queue</span>
-                    <span class="ident">wait_node</span>.<span class="ident">task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
-                    <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Waiting</span>;
-                    <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">add_front</span>(<span class="ident">wait_node</span>);
-                    <span class="ident">Poll::Pending</span>
+    <span class="doccomment">/// Checks if the event is set. If it is this returns immediately.
+    /// If the event isn&#39;t set, the WaitForEventFuture gets added to the wait
+    /// queue at the event, and will be signalled once ready.
+    /// This function is only safe as long as the `wait_node`s address is guaranteed
+    /// to be stable until it gets removed from the queue.
+    </span><span class="kw">unsafe fn </span>try_wait(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;WaitQueueEntry&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;()&gt; {
+        <span class="kw">match </span>wait_node.state {
+            PollState::New =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.is_set {
+                    <span class="comment">// The event is already signaled
+                    </span>wait_node.state = PollState::Done;
+                    Poll::Ready(())
+                } <span class="kw">else </span>{
+                    <span class="comment">// Added the task to the wait queue
+                    </span>wait_node.task = <span class="prelude-val">Some</span>(cx.waker().clone());
+                    wait_node.state = PollState::Waiting;
+                    <span class="self">self</span>.waiters.add_front(wait_node);
+                    Poll::Pending
                 }
             }
-            <span class="ident">PollState::Waiting</span> =&gt; {
-                <span class="comment">// The WaitForEventFuture is already in the queue.</span>
-                <span class="comment">// The event can&#39;t have been set, since this would change the</span>
-                <span class="comment">// waitstate inside the mutex. However the caller might have</span>
-                <span class="comment">// passed a different `Waker`. In this case we need to update it.</span>
-                <span class="ident">update_waker_ref</span>(<span class="kw-2">&amp;mut</span> <span class="ident">wait_node</span>.<span class="ident">task</span>, <span class="ident">cx</span>);
-                <span class="ident">Poll::Pending</span>
+            PollState::Waiting =&gt; {
+                <span class="comment">// The WaitForEventFuture is already in the queue.
+                // The event can&#39;t have been set, since this would change the
+                // waitstate inside the mutex. However the caller might have
+                // passed a different `Waker`. In this case we need to update it.
+                </span>update_waker_ref(<span class="kw-2">&amp;mut </span>wait_node.task, cx);
+                Poll::Pending
             }
-            <span class="ident">PollState::Done</span> =&gt; {
-                <span class="comment">// We have been woken up by the event.</span>
-                <span class="comment">// This does not guarantee that the event is still set. It could</span>
-                <span class="comment">// have been reset it in the meantime.</span>
-                <span class="ident">Poll::Ready</span>(())
+            PollState::Done =&gt; {
+                <span class="comment">// We have been woken up by the event.
+                // This does not guarantee that the event is still set. It could
+                // have been reset it in the meantime.
+                </span>Poll::Ready(())
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">remove_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>) {
-        <span class="comment">// WaitForEventFuture only needs to get removed if it has been added to</span>
-        <span class="comment">// the wait queue of the Event. This has happened in the PollState::Waiting case.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PollState::Waiting</span> <span class="op">=</span> <span class="ident">wait_node</span>.<span class="ident">state</span> {
-            <span class="comment">// Safety: Due to the state, we know that the node must be part</span>
-            <span class="comment">// of the waiter list</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">waiters</span>.<span class="ident">remove</span>(<span class="ident">wait_node</span>) } {
-                <span class="comment">// Panic if the address isn&#39;t found. This can only happen if the contract was</span>
-                <span class="comment">// violated, e.g. the WaitQueueEntry got moved after the initial poll.</span>
-                <span class="macro">panic!</span>(<span class="string">&quot;Future could not be removed from wait queue&quot;</span>);
+    <span class="kw">fn </span>remove_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;WaitQueueEntry&gt;) {
+        <span class="comment">// WaitForEventFuture only needs to get removed if it has been added to
+        // the wait queue of the Event. This has happened in the PollState::Waiting case.
+        </span><span class="kw">if let </span>PollState::Waiting = wait_node.state {
+            <span class="comment">// Safety: Due to the state, we know that the node must be part
+            // of the waiter list
+            </span><span class="kw">if </span>!<span class="kw">unsafe </span>{ <span class="self">self</span>.waiters.remove(wait_node) } {
+                <span class="comment">// Panic if the address isn&#39;t found. This can only happen if the contract was
+                // violated, e.g. the WaitQueueEntry got moved after the initial poll.
+                </span><span class="macro">panic!</span>(<span class="string">&quot;Future could not be removed from wait queue&quot;</span>);
             }
-            <span class="ident">wait_node</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PollState::Done</span>;
+            wait_node.state = PollState::Done;
         }
     }
 }
 
-<span class="doccomment">/// A synchronization primitive which can be either in the set or reset state.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Tasks can wait for the event to get set by obtaining a Future via `wait`.</span>
-<span class="doccomment">/// This Future will get fulfilled when the event has been set.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">EventState</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A synchronization primitive which can be either in the set or reset state.
+///
+/// Tasks can wait for the event to get set by obtaining a Future via `wait`.
+/// This Future will get fulfilled when the event has been set.
+</span><span class="kw">pub struct </span>GenericManualResetEvent&lt;MutexType: RawMutex&gt; {
+    inner: Mutex&lt;MutexType, EventState&gt;,
 }
 
-<span class="comment">// The Event is can be sent to other threads as long as it&#39;s not borrowed</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Send</span>
-    <span class="kw">for</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
+<span class="comment">// The Event is can be sent to other threads as long as it&#39;s not borrowed
+</span><span class="kw">unsafe impl</span>&lt;MutexType: RawMutex + Send&gt; Send
+    <span class="kw">for </span>GenericManualResetEvent&lt;MutexType&gt;
 {
 }
-<span class="comment">// The Event is thread-safe as long as the utilized Mutex is thread-safe</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Sync</span>
-    <span class="kw">for</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
+<span class="comment">// The Event is thread-safe as long as the utilized Mutex is thread-safe
+</span><span class="kw">unsafe impl</span>&lt;MutexType: RawMutex + Sync&gt; Sync
+    <span class="kw">for </span>GenericManualResetEvent&lt;MutexType&gt;
 {
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
-    <span class="kw">for</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;MutexType: RawMutex&gt; core::fmt::Debug
+    <span class="kw">for </span>GenericManualResetEvent&lt;MutexType&gt;
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;ManualResetEvent&quot;</span>).<span class="ident">finish</span>()
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">&quot;ManualResetEvent&quot;</span>).finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new ManualResetEvent in the given state</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_set</span>: <span class="ident">bool</span>) -&gt; <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
-        <span class="ident">GenericManualResetEvent</span> {
-            <span class="ident">inner</span>: <span class="ident">Mutex</span>::<span class="op">&lt;</span><span class="ident">MutexType</span>, <span class="ident">EventState</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">EventState::new</span>(<span class="ident">is_set</span>)),
+<span class="kw">impl</span>&lt;MutexType: RawMutex&gt; GenericManualResetEvent&lt;MutexType&gt; {
+    <span class="doccomment">/// Creates a new ManualResetEvent in the given state
+    </span><span class="kw">pub fn </span>new(is_set: bool) -&gt; GenericManualResetEvent&lt;MutexType&gt; {
+        GenericManualResetEvent {
+            inner: Mutex::&lt;MutexType, EventState&gt;::new(EventState::new(is_set)),
         }
     }
 
-    <span class="doccomment">/// Sets the event.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Setting the event will notify all pending waiters.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">set</span>()
+    <span class="doccomment">/// Sets the event.
+    ///
+    /// Setting the event will notify all pending waiters.
+    </span><span class="kw">pub fn </span>set(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.inner.lock().set()
     }
 
-    <span class="doccomment">/// Resets the event.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">reset</span>()
+    <span class="doccomment">/// Resets the event.
+    </span><span class="kw">pub fn </span>reset(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.inner.lock().reset()
     }
 
-    <span class="doccomment">/// Returns whether the event is set</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">is_set</span>()
+    <span class="doccomment">/// Returns whether the event is set
+    </span><span class="kw">pub fn </span>is_set(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.inner.lock().is_set()
     }
 
-    <span class="doccomment">/// Returns a future that gets fulfilled when the event is set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> {
-        <span class="ident">GenericWaitForEventFuture</span> {
-            <span class="ident">event</span>: <span class="prelude-val">Some</span>(<span class="self">self</span>),
-            <span class="ident">wait_node</span>: <span class="ident">ListNode::new</span>(<span class="ident">WaitQueueEntry::new</span>()),
+    <span class="doccomment">/// Returns a future that gets fulfilled when the event is set.
+    </span><span class="kw">pub fn </span>wait(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GenericWaitForEventFuture&lt;MutexType&gt; {
+        GenericWaitForEventFuture {
+            event: <span class="prelude-val">Some</span>(<span class="self">self</span>),
+            wait_node: ListNode::new(WaitQueueEntry::new()),
         }
     }
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">try_wait</span>(
+    <span class="kw">unsafe fn </span>try_wait(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">try_wait</span>(<span class="ident">wait_node</span>, <span class="ident">cx</span>)
+        wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;WaitQueueEntry&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;()&gt; {
+        <span class="self">self</span>.inner.lock().try_wait(wait_node, cx)
     }
 
-    <span class="kw">fn</span> <span class="ident">remove_waiter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">wait_node</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lock</span>().<span class="ident">remove_waiter</span>(<span class="ident">wait_node</span>)
-    }
-}
-
-<span class="doccomment">/// A Future that is resolved once the corresponding ManualResetEvent has been set</span>
-<span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;futures do nothing unless polled&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The ManualResetEvent that is associated with this WaitForEventFuture</span>
-    <span class="ident">event</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Node for waiting at the event</span>
-    <span class="ident">wait_node</span>: <span class="ident">ListNode</span><span class="op">&lt;</span><span class="ident">WaitQueueEntry</span><span class="op">&gt;</span>,
-}
-
-<span class="comment">// Safety: Futures can be sent between threads as long as the underlying</span>
-<span class="comment">// event is thread-safe (Sync), which allows to poll/register/unregister from</span>
-<span class="comment">// a different thread.</span>
-<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Send</span>
-    <span class="kw">for</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
-{
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span>
-    <span class="kw">for</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
-{
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GenericWaitForEventFuture&quot;</span>).<span class="ident">finish</span>()
+    <span class="kw">fn </span>remove_waiter(<span class="kw-2">&amp;</span><span class="self">self</span>, wait_node: <span class="kw-2">&amp;mut </span>ListNode&lt;WaitQueueEntry&gt;) {
+        <span class="self">self</span>.inner.lock().remove_waiter(wait_node)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">Future</span>
-    <span class="kw">for</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
+<span class="doccomment">/// A Future that is resolved once the corresponding ManualResetEvent has been set
+</span><span class="attribute">#[must_use = <span class="string">&quot;futures do nothing unless polled&quot;</span>]
+</span><span class="kw">pub struct </span>GenericWaitForEventFuture&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex&gt; {
+    <span class="doccomment">/// The ManualResetEvent that is associated with this WaitForEventFuture
+    </span>event: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>GenericManualResetEvent&lt;MutexType&gt;&gt;,
+    <span class="doccomment">/// Node for waiting at the event
+    </span>wait_node: ListNode&lt;WaitQueueEntry&gt;,
+}
+
+<span class="comment">// Safety: Futures can be sent between threads as long as the underlying
+// event is thread-safe (Sync), which allows to poll/register/unregister from
+// a different thread.
+</span><span class="kw">unsafe impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex + Sync&gt; Send
+    <span class="kw">for </span>GenericWaitForEventFuture&lt;<span class="lifetime">&#39;a</span>, MutexType&gt;
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
+}
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.</span>
-        <span class="comment">// However this didn&#39;t seem to work for some borrow checker reasons</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex&gt; core::fmt::Debug
+    <span class="kw">for </span>GenericWaitForEventFuture&lt;<span class="lifetime">&#39;a</span>, MutexType&gt;
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">&quot;GenericWaitForEventFuture&quot;</span>).finish()
+    }
+}
 
-        <span class="comment">// Safety: The next operations are safe, because Pin promises us that</span>
-        <span class="comment">// the address of the wait queue entry inside MutexLocalFuture is stable,</span>
-        <span class="comment">// and we don&#39;t move any fields inside the future until it gets dropped.</span>
-        <span class="kw">let</span> <span class="ident">mut_self</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="ident">MutexType</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="kw">unsafe</span> { <span class="ident">Pin::get_unchecked_mut</span>(<span class="self">self</span>) };
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex&gt; Future
+    <span class="kw">for </span>GenericWaitForEventFuture&lt;<span class="lifetime">&#39;a</span>, MutexType&gt;
+{
+    <span class="kw">type </span>Output = ();
 
-        <span class="kw">let</span> <span class="ident">event</span> <span class="op">=</span> <span class="ident">mut_self</span>
-            .<span class="ident">event</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;polled WaitForEventFuture after completion&quot;</span>);
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;()&gt; {
+        <span class="comment">// It might be possible to use Pin::map_unchecked here instead of the two unsafe APIs.
+        // However this didn&#39;t seem to work for some borrow checker reasons
 
-        <span class="kw">let</span> <span class="ident">poll_res</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">event</span>.<span class="ident">try_wait</span>(<span class="kw-2">&amp;mut</span> <span class="ident">mut_self</span>.<span class="ident">wait_node</span>, <span class="ident">cx</span>) };
+        // Safety: The next operations are safe, because Pin promises us that
+        // the address of the wait queue entry inside MutexLocalFuture is stable,
+        // and we don&#39;t move any fields inside the future until it gets dropped.
+        </span><span class="kw">let </span>mut_self: <span class="kw-2">&amp;mut </span>GenericWaitForEventFuture&lt;MutexType&gt; =
+            <span class="kw">unsafe </span>{ Pin::get_unchecked_mut(<span class="self">self</span>) };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Poll::Ready</span>(()) <span class="op">=</span> <span class="ident">poll_res</span> {
-            <span class="comment">// The event was set</span>
-            <span class="ident">mut_self</span>.<span class="ident">event</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span>event = mut_self
+            .event
+            .expect(<span class="string">&quot;polled WaitForEventFuture after completion&quot;</span>);
+
+        <span class="kw">let </span>poll_res = <span class="kw">unsafe </span>{ event.try_wait(<span class="kw-2">&amp;mut </span>mut_self.wait_node, cx) };
+
+        <span class="kw">if let </span>Poll::Ready(()) = poll_res {
+            <span class="comment">// The event was set
+            </span>mut_self.event = <span class="prelude-val">None</span>;
         }
 
-        <span class="ident">poll_res</span>
+        poll_res
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">FusedFuture</span>
-    <span class="kw">for</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex&gt; FusedFuture
+    <span class="kw">for </span>GenericWaitForEventFuture&lt;<span class="lifetime">&#39;a</span>, MutexType&gt;
 {
-    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">event</span>.<span class="ident">is_none</span>()
+    <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.event.is_none()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span>: <span class="ident">RawMutex</span><span class="op">&gt;</span> <span class="ident">Drop</span>
-    <span class="kw">for</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">MutexType</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, MutexType: RawMutex&gt; Drop
+    <span class="kw">for </span>GenericWaitForEventFuture&lt;<span class="lifetime">&#39;a</span>, MutexType&gt;
 {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// If this WaitForEventFuture has been polled and it was added to the</span>
-        <span class="comment">// wait queue at the event, it must be removed before dropping.</span>
-        <span class="comment">// Otherwise the event would access invalid memory.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">event</span> {
-            <span class="ident">ev</span>.<span class="ident">remove_waiter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wait_node</span>);
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// If this WaitForEventFuture has been polled and it was added to the
+        // wait queue at the event, it must be removed before dropping.
+        // Otherwise the event would access invalid memory.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ev) = <span class="self">self</span>.event {
+            ev.remove_waiter(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wait_node);
         }
     }
 }
 
-<span class="comment">// Export a non thread-safe version using NoopLock</span>
+<span class="comment">// Export a non thread-safe version using NoopLock
 
-<span class="doccomment">/// A [`GenericManualResetEvent`] which is not thread-safe.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LocalManualResetEvent</span> <span class="op">=</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">NoopLock</span><span class="op">&gt;</span>;
-<span class="doccomment">/// A [`GenericWaitForEventFuture`] for [`LocalManualResetEvent`].</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LocalWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">NoopLock</span><span class="op">&gt;</span>;
+</span><span class="doccomment">/// A [`GenericManualResetEvent`] which is not thread-safe.
+</span><span class="kw">pub type </span>LocalManualResetEvent = GenericManualResetEvent&lt;NoopLock&gt;;
+<span class="doccomment">/// A [`GenericWaitForEventFuture`] for [`LocalManualResetEvent`].
+</span><span class="kw">pub type </span>LocalWaitForEventFuture&lt;<span class="lifetime">&#39;a</span>&gt; = GenericWaitForEventFuture&lt;<span class="lifetime">&#39;a</span>, NoopLock&gt;;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">if_std</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">mod </span>if_std {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="comment">// Export a thread-safe version using parking_lot::RawMutex</span>
+    <span class="comment">// Export a thread-safe version using parking_lot::RawMutex
 
-    <span class="doccomment">/// A [`GenericManualResetEvent`] implementation backed by [`parking_lot`].</span>
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ManualResetEvent</span> <span class="op">=</span> <span class="ident">GenericManualResetEvent</span><span class="op">&lt;</span><span class="ident">parking_lot::RawMutex</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// A [`GenericWaitForEventFuture`] for [`ManualResetEvent`].</span>
-    <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">WaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">GenericWaitForEventFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">parking_lot::RawMutex</span><span class="op">&gt;</span>;
+    </span><span class="doccomment">/// A [`GenericManualResetEvent`] implementation backed by [`parking_lot`].
+    </span><span class="kw">pub type </span>ManualResetEvent = GenericManualResetEvent&lt;parking_lot::RawMutex&gt;;
+    <span class="doccomment">/// A [`GenericWaitForEventFuture`] for [`ManualResetEvent`].
+    </span><span class="kw">pub type </span>WaitForEventFuture&lt;<span class="lifetime">&#39;a</span>&gt; =
+        GenericWaitForEventFuture&lt;<span class="lifetime">&#39;a</span>, parking_lot::RawMutex&gt;;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_std</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::if_std::<span class="kw-2">*</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="futures_intrusive" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

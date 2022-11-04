@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/transform_err.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transform_err.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/transform_err.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transform_err.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_service/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -95,100 +95,100 @@
 <span id="93">93</span>
 <span id="94">94</span>
 <span id="95">95</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>core::{
+    future::Future,
+    marker::PhantomData,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Transform</span>;
+<span class="kw">use </span><span class="kw">super</span>::Transform;
 
-<span class="doccomment">/// Transform for the [`TransformExt::map_init_err`] combinator, changing the type of a new</span>
-<span class="doccomment">/// [`Transform`]&#39;s initialization error.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TransformMapInitErr</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span> {
-    <span class="ident">transform</span>: <span class="ident">T</span>,
-    <span class="ident">mapper</span>: <span class="ident">F</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>(<span class="ident">Req</span>) -&gt; (<span class="ident">S</span>, <span class="ident">E</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// Transform for the [`TransformExt::map_init_err`] combinator, changing the type of a new
+/// [`Transform`]&#39;s initialization error.
+</span><span class="kw">pub struct </span>TransformMapInitErr&lt;T, S, Req, F, E&gt; {
+    transform: T,
+    mapper: F,
+    _phantom: PhantomData&lt;<span class="kw">fn</span>(Req) -&gt; (S, E)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">E</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">TransformMapInitErr</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">t</span>: <span class="ident">T</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">T::InitError</span>) -&gt; <span class="ident">E</span>,
+<span class="kw">impl</span>&lt;T, S, F, E, Req&gt; TransformMapInitErr&lt;T, S, Req, F, E&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(t: T, f: F) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>T: Transform&lt;S, Req&gt;,
+        F: Fn(T::InitError) -&gt; E,
     {
-        <span class="self">Self</span> {
-            <span class="ident">transform</span>: <span class="ident">t</span>,
-            <span class="ident">mapper</span>: <span class="ident">f</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        <span class="self">Self </span>{
+            transform: t,
+            mapper: f,
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">TransformMapInitErr</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Clone</span>,
-    <span class="ident">F</span>: <span class="ident">Clone</span>,
+<span class="kw">impl</span>&lt;T, S, Req, F, E&gt; Clone <span class="kw">for </span>TransformMapInitErr&lt;T, S, Req, F, E&gt;
+<span class="kw">where
+    </span>T: Clone,
+    F: Clone,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">transform</span>: <span class="self">self</span>.<span class="ident">transform</span>.<span class="ident">clone</span>(),
-            <span class="ident">mapper</span>: <span class="self">self</span>.<span class="ident">mapper</span>.<span class="ident">clone</span>(),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            transform: <span class="self">self</span>.transform.clone(),
+            mapper: <span class="self">self</span>.mapper.clone(),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">E</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TransformMapInitErr</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">T::InitError</span>) -&gt; <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
+<span class="kw">impl</span>&lt;T, S, F, E, Req&gt; Transform&lt;S, Req&gt; <span class="kw">for </span>TransformMapInitErr&lt;T, S, Req, F, E&gt;
+<span class="kw">where
+    </span>T: Transform&lt;S, Req&gt;,
+    F: Fn(T::InitError) -&gt; E + Clone,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">T::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">T::Error</span>;
-    <span class="kw">type</span> <span class="ident">Transform</span> <span class="op">=</span> <span class="ident">T::Transform</span>;
+    <span class="kw">type </span>Response = T::Response;
+    <span class="kw">type </span>Error = T::Error;
+    <span class="kw">type </span>Transform = T::Transform;
 
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">E</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">TransformMapInitErrFuture</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">E</span>, <span class="ident">Req</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>InitError = E;
+    <span class="kw">type </span>Future = TransformMapInitErrFuture&lt;T, S, F, E, Req&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident">TransformMapInitErrFuture</span> {
-            <span class="ident">fut</span>: <span class="self">self</span>.<span class="ident">transform</span>.<span class="ident">new_transform</span>(<span class="ident">service</span>),
-            <span class="ident">f</span>: <span class="self">self</span>.<span class="ident">mapper</span>.<span class="ident">clone</span>(),
+    <span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; <span class="self">Self</span>::Future {
+        TransformMapInitErrFuture {
+            fut: <span class="self">self</span>.transform.new_transform(service),
+            f: <span class="self">self</span>.mapper.clone(),
         }
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TransformMapInitErrFuture</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">E</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">T::InitError</span>) -&gt; <span class="ident">E</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>TransformMapInitErrFuture&lt;T, S, F, E, Req&gt;
+    <span class="kw">where
+    </span>T: Transform&lt;S, Req&gt;,
+    F: Fn(T::InitError) -&gt; E,
     {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">fut</span>: <span class="ident">T::Future</span>,
-        <span class="ident">f</span>: <span class="ident">F</span>,
+        <span class="attribute">#[pin]
+        </span>fut: T::Future,
+        f: F,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">E</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">TransformMapInitErrFuture</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">E</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">T::InitError</span>) -&gt; <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
+<span class="kw">impl</span>&lt;T, S, F, E, Req&gt; Future <span class="kw">for </span>TransformMapInitErrFuture&lt;T, S, F, E, Req&gt;
+<span class="kw">where
+    </span>T: Transform&lt;S, Req&gt;,
+    F: Fn(T::InitError) -&gt; E + Clone,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Transform</span>, <span class="ident">E</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;T::Transform, E&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Poll::Ready</span>(<span class="ident">res</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
-            <span class="ident">Poll::Ready</span>(<span class="ident">res</span>.<span class="ident">map_err</span>(<span class="ident">this</span>.<span class="ident">f</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">Poll::Pending</span>
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
+        <span class="kw">if let </span>Poll::Ready(res) = this.fut.poll(cx) {
+            Poll::Ready(res.map_err(this.f))
+        } <span class="kw">else </span>{
+            Poll::Pending
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

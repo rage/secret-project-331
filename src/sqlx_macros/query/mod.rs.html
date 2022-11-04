@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/query/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/query/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -437,444 +437,444 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
+<span class="kw">use </span>std::path::PathBuf;
+<span class="kw">use </span>std::str::FromStr;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+</span><span class="kw">use </span>std::sync::{Arc, Mutex};
 
-<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span>;
-<span class="kw">use</span> <span class="ident">syn::Type</span>;
+<span class="kw">use </span>once_cell::sync::Lazy;
+<span class="kw">use </span>proc_macro2::TokenStream;
+<span class="kw">use </span>syn::Type;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">input::QueryMacroInput</span>;
-<span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">format_ident</span>, <span class="ident">quote</span>};
-<span class="kw">use</span> <span class="ident">sqlx_core::connection::Connection</span>;
-<span class="kw">use</span> <span class="ident">sqlx_core::database::Database</span>;
-<span class="kw">use</span> <span class="ident">sqlx_core</span>::{<span class="ident">column::Column</span>, <span class="ident">describe::Describe</span>, <span class="ident">type_info::TypeInfo</span>};
-<span class="kw">use</span> <span class="ident">sqlx_rt</span>::{<span class="ident">block_on</span>, <span class="ident">AsyncMutex</span>};
+<span class="kw">pub use </span>input::QueryMacroInput;
+<span class="kw">use </span>quote::{format_ident, quote};
+<span class="kw">use </span>sqlx_core::connection::Connection;
+<span class="kw">use </span>sqlx_core::database::Database;
+<span class="kw">use </span>sqlx_core::{column::Column, describe::Describe, type_info::TypeInfo};
+<span class="kw">use </span>sqlx_rt::{block_on, AsyncMutex};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::DatabaseExt</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query::data::QueryData</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query::input::RecordType</span>;
-<span class="kw">use</span> <span class="ident">either::Either</span>;
+<span class="kw">use </span><span class="kw">crate</span>::database::DatabaseExt;
+<span class="kw">use </span><span class="kw">crate</span>::query::data::QueryData;
+<span class="kw">use </span><span class="kw">crate</span>::query::input::RecordType;
+<span class="kw">use </span>either::Either;
 
-<span class="kw">mod</span> <span class="ident">args</span>;
-<span class="kw">mod</span> <span class="ident">data</span>;
-<span class="kw">mod</span> <span class="ident">input</span>;
-<span class="kw">mod</span> <span class="ident">output</span>;
+<span class="kw">mod </span>args;
+<span class="kw">mod </span>data;
+<span class="kw">mod </span>input;
+<span class="kw">mod </span>output;
 
-<span class="kw">struct</span> <span class="ident">Metadata</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-    <span class="ident">manifest_dir</span>: <span class="ident">PathBuf</span>,
-    <span class="ident">offline</span>: <span class="ident">bool</span>,
-    <span class="ident">database_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-    <span class="ident">package_name</span>: <span class="ident">String</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-    <span class="ident">target_dir</span>: <span class="ident">PathBuf</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-    <span class="ident">workspace_root</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>Metadata {
+    <span class="attribute">#[allow(unused)]
+    </span>manifest_dir: PathBuf,
+    offline: bool,
+    database_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+    </span>package_name: String,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+    </span>target_dir: PathBuf,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+    </span>workspace_root: Arc&lt;Mutex&lt;<span class="prelude-ty">Option</span>&lt;PathBuf&gt;&gt;&gt;,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Metadata</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">workspace_root</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PathBuf</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">root</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workspace_root</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="ident">root</span>.<span class="ident">is_none</span>() {
-            <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-            <span class="kw">use</span> <span class="ident">std::process::Command</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+</span><span class="kw">impl </span>Metadata {
+    <span class="kw">pub fn </span>workspace_root(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathBuf {
+        <span class="kw">let </span><span class="kw-2">mut </span>root = <span class="self">self</span>.workspace_root.lock().unwrap();
+        <span class="kw">if </span>root.is_none() {
+            <span class="kw">use </span>serde::Deserialize;
+            <span class="kw">use </span>std::process::Command;
 
-            <span class="kw">let</span> <span class="ident">cargo</span> <span class="op">=</span> <span class="ident">env</span>(<span class="string">&quot;CARGO&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;`CARGO` must be set&quot;</span>);
+            <span class="kw">let </span>cargo = env(<span class="string">&quot;CARGO&quot;</span>).expect(<span class="string">&quot;`CARGO` must be set&quot;</span>);
 
-            <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Command::new</span>(<span class="kw-2">&amp;</span><span class="ident">cargo</span>)
-                .<span class="ident">args</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;metadata&quot;</span>, <span class="string">&quot;--format-version=1&quot;</span>, <span class="string">&quot;--no-deps&quot;</span>])
-                .<span class="ident">current_dir</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">manifest_dir</span>)
-                .<span class="ident">env_remove</span>(<span class="string">&quot;__CARGO_FIX_PLZ&quot;</span>)
-                .<span class="ident">output</span>()
-                .<span class="ident">expect</span>(<span class="string">&quot;Could not fetch metadata&quot;</span>);
+            <span class="kw">let </span>output = Command::new(<span class="kw-2">&amp;</span>cargo)
+                .args(<span class="kw-2">&amp;</span>[<span class="string">&quot;metadata&quot;</span>, <span class="string">&quot;--format-version=1&quot;</span>, <span class="string">&quot;--no-deps&quot;</span>])
+                .current_dir(<span class="kw-2">&amp;</span><span class="self">self</span>.manifest_dir)
+                .env_remove(<span class="string">&quot;__CARGO_FIX_PLZ&quot;</span>)
+                .output()
+                .expect(<span class="string">&quot;Could not fetch metadata&quot;</span>);
 
-            <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-            <span class="kw">struct</span> <span class="ident">CargoMetadata</span> {
-                <span class="ident">workspace_root</span>: <span class="ident">PathBuf</span>,
+            <span class="attribute">#[derive(Deserialize)]
+            </span><span class="kw">struct </span>CargoMetadata {
+                workspace_root: PathBuf,
             }
 
-            <span class="kw">let</span> <span class="ident">metadata</span>: <span class="ident">CargoMetadata</span> <span class="op">=</span>
-                <span class="ident">serde_json::from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>.<span class="ident">stdout</span>).<span class="ident">expect</span>(<span class="string">&quot;Invalid `cargo metadata` output&quot;</span>);
+            <span class="kw">let </span>metadata: CargoMetadata =
+                serde_json::from_slice(<span class="kw-2">&amp;</span>output.stdout).expect(<span class="string">&quot;Invalid `cargo metadata` output&quot;</span>);
 
-            <span class="kw-2">*</span><span class="ident">root</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">metadata</span>.<span class="ident">workspace_root</span>);
+            <span class="kw-2">*</span>root = <span class="prelude-val">Some</span>(metadata.workspace_root);
         }
-        <span class="ident">root</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>()
+        root.clone().unwrap()
     }
 }
 
-<span class="comment">// If we are in a workspace, lookup `workspace_root` since `CARGO_MANIFEST_DIR` won&#39;t</span>
-<span class="comment">// reflect the workspace dir: https://github.com/rust-lang/cargo/issues/3946</span>
-<span class="kw">static</span> <span class="ident">METADATA</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Metadata</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="ident">manifest_dir</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="ident">env</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>)
-        .<span class="ident">expect</span>(<span class="string">&quot;`CARGO_MANIFEST_DIR` must be set&quot;</span>)
-        .<span class="ident">into</span>();
+<span class="comment">// If we are in a workspace, lookup `workspace_root` since `CARGO_MANIFEST_DIR` won&#39;t
+// reflect the workspace dir: https://github.com/rust-lang/cargo/issues/3946
+</span><span class="kw">static </span>METADATA: Lazy&lt;Metadata&gt; = Lazy::new(|| {
+    <span class="kw">let </span>manifest_dir: PathBuf = env(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>)
+        .expect(<span class="string">&quot;`CARGO_MANIFEST_DIR` must be set&quot;</span>)
+        .into();
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-    <span class="kw">let</span> <span class="ident">package_name</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">env</span>(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>)
-        .<span class="ident">expect</span>(<span class="string">&quot;`CARGO_PKG_NAME` must be set&quot;</span>)
-        .<span class="ident">into</span>();
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+    </span><span class="kw">let </span>package_name: String = env(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>)
+        .expect(<span class="string">&quot;`CARGO_PKG_NAME` must be set&quot;</span>)
+        .into();
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-    <span class="kw">let</span> <span class="ident">target_dir</span> <span class="op">=</span> <span class="ident">env</span>(<span class="string">&quot;CARGO_TARGET_DIR&quot;</span>).<span class="ident">map_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;target&quot;</span>.<span class="ident">into</span>(), <span class="op">|</span><span class="ident">dir</span><span class="op">|</span> <span class="ident">dir</span>.<span class="ident">into</span>());
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+    </span><span class="kw">let </span>target_dir = env(<span class="string">&quot;CARGO_TARGET_DIR&quot;</span>).map_or_else(|<span class="kw">_</span>| <span class="string">&quot;target&quot;</span>.into(), |dir| dir.into());
 
-    <span class="comment">// If a .env file exists at CARGO_MANIFEST_DIR, load environment variables from this,</span>
-    <span class="comment">// otherwise fallback to default dotenv behaviour.</span>
-    <span class="kw">let</span> <span class="ident">env_path</span> <span class="op">=</span> <span class="ident">manifest_dir</span>.<span class="ident">join</span>(<span class="string">&quot;.env&quot;</span>);
+    <span class="comment">// If a .env file exists at CARGO_MANIFEST_DIR, load environment variables from this,
+    // otherwise fallback to default dotenv behaviour.
+    </span><span class="kw">let </span>env_path = manifest_dir.join(<span class="string">&quot;.env&quot;</span>);
 
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">procmacro2_semver_exempt</span>), <span class="ident">allow</span>(<span class="ident">unused_variables</span>))]</span>
-    <span class="kw">let</span> <span class="ident">env_path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">env_path</span>.<span class="ident">exists</span>() {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">dotenvy::from_path</span>(<span class="kw-2">&amp;</span><span class="ident">env_path</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">res</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;failed to load environment from {:?}, {}&quot;</span>, <span class="ident">env_path</span>, <span class="ident">e</span>);
+    <span class="attribute">#[cfg_attr(not(procmacro2_semver_exempt), allow(unused_variables))]
+    </span><span class="kw">let </span>env_path = <span class="kw">if </span>env_path.exists() {
+        <span class="kw">let </span>res = dotenvy::from_path(<span class="kw-2">&amp;</span>env_path);
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = res {
+            <span class="macro">panic!</span>(<span class="string">&quot;failed to load environment from {:?}, {}&quot;</span>, env_path, e);
         }
 
-        <span class="prelude-val">Some</span>(<span class="ident">env_path</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">dotenvy::dotenv</span>().<span class="ident">ok</span>()
+        <span class="prelude-val">Some</span>(env_path)
+    } <span class="kw">else </span>{
+        dotenvy::dotenv().ok()
     };
 
-    <span class="comment">// tell the compiler to watch the `.env` for changes, if applicable</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">procmacro2_semver_exempt</span>)]</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">env_path</span>) <span class="op">=</span> <span class="ident">env_path</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">to_str</span>()) {
-        <span class="ident">proc_macro::tracked_path::path</span>(<span class="ident">env_path</span>);
+    <span class="comment">// tell the compiler to watch the `.env` for changes, if applicable
+    </span><span class="attribute">#[cfg(procmacro2_semver_exempt)]
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(env_path) = env_path.as_ref().and_then(|path| path.to_str()) {
+        proc_macro::tracked_path::path(env_path);
     }
 
-    <span class="kw">let</span> <span class="ident">offline</span> <span class="op">=</span> <span class="ident">env</span>(<span class="string">&quot;SQLX_OFFLINE&quot;</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">eq_ignore_ascii_case</span>(<span class="string">&quot;true&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span> <span class="op">==</span> <span class="string">&quot;1&quot;</span>)
-        .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
+    <span class="kw">let </span>offline = env(<span class="string">&quot;SQLX_OFFLINE&quot;</span>)
+        .map(|s| s.eq_ignore_ascii_case(<span class="string">&quot;true&quot;</span>) || s == <span class="string">&quot;1&quot;</span>)
+        .unwrap_or(<span class="bool-val">false</span>);
 
-    <span class="kw">let</span> <span class="ident">database_url</span> <span class="op">=</span> <span class="ident">env</span>(<span class="string">&quot;DATABASE_URL&quot;</span>).<span class="ident">ok</span>();
+    <span class="kw">let </span>database_url = env(<span class="string">&quot;DATABASE_URL&quot;</span>).ok();
 
-    <span class="ident">Metadata</span> {
-        <span class="ident">manifest_dir</span>,
-        <span class="ident">offline</span>,
-        <span class="ident">database_url</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-        <span class="ident">package_name</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-        <span class="ident">target_dir</span>,
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-        <span class="ident">workspace_root</span>: <span class="ident">Arc::new</span>(<span class="ident">Mutex::new</span>(<span class="prelude-val">None</span>)),
+    Metadata {
+        manifest_dir,
+        offline,
+        database_url,
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+        </span>package_name,
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+        </span>target_dir,
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+        </span>workspace_root: Arc::new(Mutex::new(<span class="prelude-val">None</span>)),
     }
 });
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_input</span>(<span class="ident">input</span>: <span class="ident">QueryMacroInput</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">METADATA</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(
-            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>,
-            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>,
-            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>,
-            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>
-        )))]</span>
-        <span class="ident">Metadata</span> {
-            <span class="ident">offline</span>: <span class="bool-val">false</span>,
-            <span class="ident">database_url</span>: <span class="prelude-val">Some</span>(<span class="ident">db_url</span>),
+<span class="kw">pub fn </span>expand_input(input: QueryMacroInput) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
+    <span class="kw">match </span><span class="kw-2">&amp;*</span>METADATA {
+        <span class="attribute">#[cfg(not(any(
+            feature = <span class="string">&quot;postgres&quot;</span>,
+            feature = <span class="string">&quot;mysql&quot;</span>,
+            feature = <span class="string">&quot;mssql&quot;</span>,
+            feature = <span class="string">&quot;sqlite&quot;
+        </span>)))]
+        </span>Metadata {
+            offline: <span class="bool-val">false</span>,
+            database_url: <span class="prelude-val">Some</span>(db_url),
             ..
         } =&gt; <span class="prelude-val">Err</span>(
             <span class="string">&quot;At least one of the features [&#39;postgres&#39;, &#39;mysql&#39;, &#39;mssql&#39;, &#39;sqlite&#39;] must be enabled \
-            to get information directly from a database&quot;</span>
-            .<span class="ident">into</span>(),
+            to get information directly from a database&quot;
+            </span>.into(),
         ),
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
-            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>,
-            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>,
-            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>,
-            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>
-        ))]</span>
-        <span class="ident">Metadata</span> {
-            <span class="ident">offline</span>: <span class="bool-val">false</span>,
-            <span class="ident">database_url</span>: <span class="prelude-val">Some</span>(<span class="ident">db_url</span>),
+        <span class="attribute">#[cfg(any(
+            feature = <span class="string">&quot;postgres&quot;</span>,
+            feature = <span class="string">&quot;mysql&quot;</span>,
+            feature = <span class="string">&quot;mssql&quot;</span>,
+            feature = <span class="string">&quot;sqlite&quot;
+        </span>))]
+        </span>Metadata {
+            offline: <span class="bool-val">false</span>,
+            database_url: <span class="prelude-val">Some</span>(db_url),
             ..
-        } =&gt; <span class="ident">expand_from_db</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">db_url</span>),
+        } =&gt; expand_from_db(input, <span class="kw-2">&amp;</span>db_url),
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-        <span class="kw">_</span> =&gt; {
-            <span class="kw">let</span> <span class="ident">data_file_path</span> <span class="op">=</span> <span class="ident">METADATA</span>.<span class="ident">manifest_dir</span>.<span class="ident">join</span>(<span class="string">&quot;sqlx-data.json&quot;</span>);
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+        </span><span class="kw">_ </span>=&gt; {
+            <span class="kw">let </span>data_file_path = METADATA.manifest_dir.join(<span class="string">&quot;sqlx-data.json&quot;</span>);
 
-            <span class="kw">if</span> <span class="ident">data_file_path</span>.<span class="ident">exists</span>() {
-                <span class="ident">expand_from_file</span>(<span class="ident">input</span>, <span class="ident">data_file_path</span>)
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">workspace_data_file_path</span> <span class="op">=</span> <span class="ident">METADATA</span>.<span class="ident">workspace_root</span>().<span class="ident">join</span>(<span class="string">&quot;sqlx-data.json&quot;</span>);
-                <span class="kw">if</span> <span class="ident">workspace_data_file_path</span>.<span class="ident">exists</span>() {
-                    <span class="ident">expand_from_file</span>(<span class="ident">input</span>, <span class="ident">workspace_data_file_path</span>)
-                } <span class="kw">else</span> {
+            <span class="kw">if </span>data_file_path.exists() {
+                expand_from_file(input, data_file_path)
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>workspace_data_file_path = METADATA.workspace_root().join(<span class="string">&quot;sqlx-data.json&quot;</span>);
+                <span class="kw">if </span>workspace_data_file_path.exists() {
+                    expand_from_file(input, workspace_data_file_path)
+                } <span class="kw">else </span>{
                     <span class="prelude-val">Err</span>(
                         <span class="string">&quot;`DATABASE_URL` must be set, or `cargo sqlx prepare` must have been run \
-                     and sqlx-data.json must exist, to use query macros&quot;</span>
-                            .<span class="ident">into</span>(),
+                     and sqlx-data.json must exist, to use query macros&quot;
+                            </span>.into(),
                     )
                 }
             }
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>))]</span>
-        <span class="ident">Metadata</span> { <span class="ident">offline</span>: <span class="bool-val">true</span>, .. } =&gt; {
-            <span class="prelude-val">Err</span>(<span class="string">&quot;The cargo feature `offline` has to be enabled to use `SQLX_OFFLINE`&quot;</span>.<span class="ident">into</span>())
+        <span class="attribute">#[cfg(not(feature = <span class="string">&quot;offline&quot;</span>))]
+        </span>Metadata { offline: <span class="bool-val">true</span>, .. } =&gt; {
+            <span class="prelude-val">Err</span>(<span class="string">&quot;The cargo feature `offline` has to be enabled to use `SQLX_OFFLINE`&quot;</span>.into())
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>))]</span>
-        <span class="ident">Metadata</span> {
-            <span class="ident">offline</span>: <span class="bool-val">false</span>,
-            <span class="ident">database_url</span>: <span class="prelude-val">None</span>,
+        <span class="attribute">#[cfg(not(feature = <span class="string">&quot;offline&quot;</span>))]
+        </span>Metadata {
+            offline: <span class="bool-val">false</span>,
+            database_url: <span class="prelude-val">None</span>,
             ..
-        } =&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;`DATABASE_URL` must be set to use query macros&quot;</span>.<span class="ident">into</span>()),
+        } =&gt; <span class="prelude-val">Err</span>(<span class="string">&quot;`DATABASE_URL` must be set to use query macros&quot;</span>.into()),
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>,
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>,
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>,
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>
-))]</span>
-<span class="kw">fn</span> <span class="ident">expand_from_db</span>(<span class="ident">input</span>: <span class="ident">QueryMacroInput</span>, <span class="ident">db_url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">sqlx_core::any</span>::{<span class="ident">AnyConnectOptions</span>, <span class="ident">AnyConnection</span>};
+<span class="attribute">#[cfg(any(
+    feature = <span class="string">&quot;postgres&quot;</span>,
+    feature = <span class="string">&quot;mysql&quot;</span>,
+    feature = <span class="string">&quot;mssql&quot;</span>,
+    feature = <span class="string">&quot;sqlite&quot;
+</span>))]
+</span><span class="kw">fn </span>expand_from_db(input: QueryMacroInput, db_url: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
+    <span class="kw">use </span>sqlx_core::any::{AnyConnectOptions, AnyConnection};
 
-    <span class="kw">let</span> <span class="ident">connect_opts</span> <span class="op">=</span> <span class="ident">AnyConnectOptions::from_str</span>(<span class="ident">db_url</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>connect_opts = AnyConnectOptions::from_str(db_url)<span class="question-mark">?</span>;
 
-    <span class="comment">// SQLite is not used in the connection cache due to issues with newly created</span>
-    <span class="comment">// databases seemingly being locked for several seconds when journaling is off. This</span>
-    <span class="comment">// isn&#39;t a huge issue since the intent of the connection cache was to make connections</span>
-    <span class="comment">// to remote databases much faster. Relevant links:</span>
-    <span class="comment">// - https://github.com/launchbadge/sqlx/pull/1782#issuecomment-1089226716</span>
-    <span class="comment">// - https://github.com/launchbadge/sqlx/issues/1929</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sqlite_opts</span>) <span class="op">=</span> <span class="ident">connect_opts</span>.<span class="ident">as_sqlite</span>() {
-        <span class="comment">// Since proc-macros don&#39;t benefit from async, we can make a describe call directly</span>
-        <span class="comment">// which also ensures that the database is closed afterwards, regardless of errors.</span>
-        <span class="kw">let</span> <span class="ident">describe</span> <span class="op">=</span> <span class="ident">sqlx_core::sqlite::describe_blocking</span>(<span class="ident">sqlite_opts</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">QueryData::from_describe</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>, <span class="ident">describe</span>);
-        <span class="kw">return</span> <span class="ident">expand_with_data</span>(<span class="ident">input</span>, <span class="ident">data</span>, <span class="bool-val">false</span>);
+    <span class="comment">// SQLite is not used in the connection cache due to issues with newly created
+    // databases seemingly being locked for several seconds when journaling is off. This
+    // isn&#39;t a huge issue since the intent of the connection cache was to make connections
+    // to remote databases much faster. Relevant links:
+    // - https://github.com/launchbadge/sqlx/pull/1782#issuecomment-1089226716
+    // - https://github.com/launchbadge/sqlx/issues/1929
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(sqlite_opts) = connect_opts.as_sqlite() {
+        <span class="comment">// Since proc-macros don&#39;t benefit from async, we can make a describe call directly
+        // which also ensures that the database is closed afterwards, regardless of errors.
+        </span><span class="kw">let </span>describe = sqlx_core::sqlite::describe_blocking(sqlite_opts, <span class="kw-2">&amp;</span>input.sql)<span class="question-mark">?</span>;
+        <span class="kw">let </span>data = QueryData::from_describe(<span class="kw-2">&amp;</span>input.sql, describe);
+        <span class="kw">return </span>expand_with_data(input, data, <span class="bool-val">false</span>);
     }
 
-    <span class="ident">block_on</span>(<span class="kw">async</span> {
-        <span class="kw">static</span> <span class="ident">CONNECTION_CACHE</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">AsyncMutex</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">AnyConnection</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AsyncMutex::new</span>(<span class="ident">BTreeMap::new</span>()));
+    block_on(<span class="kw">async </span>{
+        <span class="kw">static </span>CONNECTION_CACHE: Lazy&lt;AsyncMutex&lt;BTreeMap&lt;String, AnyConnection&gt;&gt;&gt; =
+            Lazy::new(|| AsyncMutex::new(BTreeMap::new()));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="ident">CONNECTION_CACHE</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>cache = CONNECTION_CACHE.lock().<span class="kw">await</span>;
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">cache</span>.<span class="ident">contains_key</span>(<span class="ident">db_url</span>) {
-            <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">AnyConnection::connect_with</span>(<span class="kw-2">&amp;</span><span class="ident">connect_opts</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">cache</span>.<span class="ident">insert</span>(<span class="ident">db_url</span>.<span class="ident">to_owned</span>(), <span class="ident">conn</span>);
+        <span class="kw">if </span>!cache.contains_key(db_url) {
+            <span class="kw">let </span>conn = AnyConnection::connect_with(<span class="kw-2">&amp;</span>connect_opts).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let _ </span>= cache.insert(db_url.to_owned(), conn);
         }
 
-        <span class="kw">let</span> <span class="ident">conn_item</span> <span class="op">=</span> <span class="ident">cache</span>.<span class="ident">get_mut</span>(<span class="ident">db_url</span>).<span class="ident">expect</span>(<span class="string">&quot;Item was just inserted&quot;</span>);
-        <span class="kw">match</span> <span class="ident">conn_item</span>.<span class="ident">private_get_mut</span>() {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="ident">sqlx_core::any::AnyConnectionKind::Postgres</span>(<span class="ident">conn</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">QueryData::from_db</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="ident">expand_with_data</span>(<span class="ident">input</span>, <span class="ident">data</span>, <span class="bool-val">false</span>)
+        <span class="kw">let </span>conn_item = cache.get_mut(db_url).expect(<span class="string">&quot;Item was just inserted&quot;</span>);
+        <span class="kw">match </span>conn_item.private_get_mut() {
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span>sqlx_core::any::AnyConnectionKind::Postgres(conn) =&gt; {
+                <span class="kw">let </span>data = QueryData::from_db(conn, <span class="kw-2">&amp;</span>input.sql).<span class="kw">await</span><span class="question-mark">?</span>;
+                expand_with_data(input, data, <span class="bool-val">false</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">sqlx_core::any::AnyConnectionKind::Mssql</span>(<span class="ident">conn</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">QueryData::from_db</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="ident">expand_with_data</span>(<span class="ident">input</span>, <span class="ident">data</span>, <span class="bool-val">false</span>)
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+            </span>sqlx_core::any::AnyConnectionKind::Mssql(conn) =&gt; {
+                <span class="kw">let </span>data = QueryData::from_db(conn, <span class="kw-2">&amp;</span>input.sql).<span class="kw">await</span><span class="question-mark">?</span>;
+                expand_with_data(input, data, <span class="bool-val">false</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">sqlx_core::any::AnyConnectionKind::MySql</span>(<span class="ident">conn</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">QueryData::from_db</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                <span class="ident">expand_with_data</span>(<span class="ident">input</span>, <span class="ident">data</span>, <span class="bool-val">false</span>)
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+            </span>sqlx_core::any::AnyConnectionKind::MySql(conn) =&gt; {
+                <span class="kw">let </span>data = QueryData::from_db(conn, <span class="kw-2">&amp;</span>input.sql).<span class="kw">await</span><span class="question-mark">?</span>;
+                expand_with_data(input, data, <span class="bool-val">false</span>)
             }
-            <span class="comment">// Variants depend on feature flags</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_patterns</span>)]</span>
-            <span class="ident">item</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Missing expansion needed for: {:?}&quot;</span>, <span class="ident">item</span>).<span class="ident">into</span>());
+            <span class="comment">// Variants depend on feature flags
+            </span><span class="attribute">#[allow(unreachable_patterns)]
+            </span>item =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Missing expansion needed for: {:?}&quot;</span>, item).into());
             }
         }
     })
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_from_file</span>(<span class="ident">input</span>: <span class="ident">QueryMacroInput</span>, <span class="ident">file</span>: <span class="ident">PathBuf</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">data::offline::DynQueryData</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+</span><span class="kw">pub fn </span>expand_from_file(input: QueryMacroInput, file: PathBuf) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
+    <span class="kw">use </span>data::offline::DynQueryData;
 
-    <span class="kw">let</span> <span class="ident">query_data</span> <span class="op">=</span> <span class="ident">DynQueryData::from_data_file</span>(<span class="ident">file</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>)<span class="question-mark">?</span>;
-    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">query_data</span>.<span class="ident">db_name</span>.<span class="ident">is_empty</span>());
+    <span class="kw">let </span>query_data = DynQueryData::from_data_file(file, <span class="kw-2">&amp;</span>input.sql)<span class="question-mark">?</span>;
+    <span class="macro">assert!</span>(!query_data.db_name.is_empty());
 
-    <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">query_data</span>.<span class="ident">db_name</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-        <span class="ident">sqlx_core::postgres::Postgres::NAME</span> =&gt; <span class="ident">expand_with_data</span>(
-            <span class="ident">input</span>,
-            <span class="ident">QueryData</span>::<span class="op">&lt;</span><span class="ident">sqlx_core::postgres::Postgres</span><span class="op">&gt;</span><span class="ident">::from_dyn_data</span>(<span class="ident">query_data</span>)<span class="question-mark">?</span>,
+    <span class="kw">match </span><span class="kw-2">&amp;*</span>query_data.db_name {
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+        </span>sqlx_core::postgres::Postgres::NAME =&gt; expand_with_data(
+            input,
+            QueryData::&lt;sqlx_core::postgres::Postgres&gt;::from_dyn_data(query_data)<span class="question-mark">?</span>,
             <span class="bool-val">true</span>,
         ),
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-        <span class="ident">sqlx_core::mysql::MySql::NAME</span> =&gt; <span class="ident">expand_with_data</span>(
-            <span class="ident">input</span>,
-            <span class="ident">QueryData</span>::<span class="op">&lt;</span><span class="ident">sqlx_core::mysql::MySql</span><span class="op">&gt;</span><span class="ident">::from_dyn_data</span>(<span class="ident">query_data</span>)<span class="question-mark">?</span>,
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+        </span>sqlx_core::mysql::MySql::NAME =&gt; expand_with_data(
+            input,
+            QueryData::&lt;sqlx_core::mysql::MySql&gt;::from_dyn_data(query_data)<span class="question-mark">?</span>,
             <span class="bool-val">true</span>,
         ),
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-        <span class="ident">sqlx_core::sqlite::Sqlite::NAME</span> =&gt; <span class="ident">expand_with_data</span>(
-            <span class="ident">input</span>,
-            <span class="ident">QueryData</span>::<span class="op">&lt;</span><span class="ident">sqlx_core::sqlite::Sqlite</span><span class="op">&gt;</span><span class="ident">::from_dyn_data</span>(<span class="ident">query_data</span>)<span class="question-mark">?</span>,
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+        </span>sqlx_core::sqlite::Sqlite::NAME =&gt; expand_with_data(
+            input,
+            QueryData::&lt;sqlx_core::sqlite::Sqlite&gt;::from_dyn_data(query_data)<span class="question-mark">?</span>,
             <span class="bool-val">true</span>,
         ),
-        <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
             <span class="string">&quot;found query data for {} but the feature for that database was not enabled&quot;</span>,
-            <span class="ident">query_data</span>.<span class="ident">db_name</span>
+            query_data.db_name
         )
-        .<span class="ident">into</span>()),
+        .into()),
     }
 }
 
-<span class="comment">// marker trait for `Describe` that lets us conditionally require it to be `Serialize + Deserialize`</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-<span class="kw">trait</span> <span class="ident">DescribeExt</span>: <span class="ident">serde::Serialize</span> <span class="op">+</span> <span class="ident">serde::de::DeserializeOwned</span> {}
+<span class="comment">// marker trait for `Describe` that lets us conditionally require it to be `Serialize + Deserialize`
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+</span><span class="kw">trait </span>DescribeExt: serde::Serialize + serde::de::DeserializeOwned {}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">DescribeExt</span> <span class="kw">for</span> <span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">where</span>
-    <span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>: <span class="ident">serde::Serialize</span> <span class="op">+</span> <span class="ident">serde::de::DeserializeOwned</span>
+<span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+</span><span class="kw">impl</span>&lt;DB: Database&gt; DescribeExt <span class="kw">for </span>Describe&lt;DB&gt; <span class="kw">where
+    </span>Describe&lt;DB&gt;: serde::Serialize + serde::de::DeserializeOwned
 {
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>))]</span>
-<span class="kw">trait</span> <span class="ident">DescribeExt</span> {}
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;offline&quot;</span>))]
+</span><span class="kw">trait </span>DescribeExt {}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">DescribeExt</span> <span class="kw">for</span> <span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {}
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;offline&quot;</span>))]
+</span><span class="kw">impl</span>&lt;DB: Database&gt; DescribeExt <span class="kw">for </span>Describe&lt;DB&gt; {}
 
-<span class="kw">fn</span> <span class="ident">expand_with_data</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(
-    <span class="ident">input</span>: <span class="ident">QueryMacroInput</span>,
-    <span class="ident">data</span>: <span class="ident">QueryData</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span> <span class="ident">offline</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>: <span class="ident">DescribeExt</span>,
+<span class="kw">fn </span>expand_with_data&lt;DB: DatabaseExt&gt;(
+    input: QueryMacroInput,
+    data: QueryData&lt;DB&gt;,
+    <span class="attribute">#[allow(unused_variables)] </span>offline: bool,
+) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt;
+<span class="kw">where
+    </span>Describe&lt;DB&gt;: DescribeExt,
 {
-    <span class="comment">// validate at the minimum that our args match the query&#39;s input parameters</span>
-    <span class="kw">let</span> <span class="ident">num_parameters</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">data</span>.<span class="ident">describe</span>.<span class="ident">parameters</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">Either::Left</span>(<span class="ident">params</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">params</span>.<span class="ident">len</span>()),
-        <span class="prelude-val">Some</span>(<span class="ident">Either::Right</span>(<span class="ident">num</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">num</span>),
+    <span class="comment">// validate at the minimum that our args match the query&#39;s input parameters
+    </span><span class="kw">let </span>num_parameters = <span class="kw">match </span>data.describe.parameters() {
+        <span class="prelude-val">Some</span>(Either::Left(params)) =&gt; <span class="prelude-val">Some</span>(params.len()),
+        <span class="prelude-val">Some</span>(Either::Right(num)) =&gt; <span class="prelude-val">Some</span>(num),
 
-        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
     };
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">num_parameters</span> {
-        <span class="kw">if</span> <span class="ident">num</span> <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">arg_exprs</span>.<span class="ident">len</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(
-                <span class="macro">format!</span>(<span class="string">&quot;expected {} parameters, got {}&quot;</span>, <span class="ident">num</span>, <span class="ident">input</span>.<span class="ident">arg_exprs</span>.<span class="ident">len</span>()).<span class="ident">into</span>(),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(num) = num_parameters {
+        <span class="kw">if </span>num != input.arg_exprs.len() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(
+                <span class="macro">format!</span>(<span class="string">&quot;expected {} parameters, got {}&quot;</span>, num, input.arg_exprs.len()).into(),
             );
         }
     }
 
-    <span class="kw">let</span> <span class="ident">args_tokens</span> <span class="op">=</span> <span class="ident">args::quote_args</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">describe</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>args_tokens = args::quote_args(<span class="kw-2">&amp;</span>input, <span class="kw-2">&amp;</span>data.describe)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">query_args</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;query_args&quot;</span>);
+    <span class="kw">let </span>query_args = <span class="macro">format_ident!</span>(<span class="string">&quot;query_args&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">data</span>
-        .<span class="ident">describe</span>
-        .<span class="ident">columns</span>()
-        .<span class="ident">iter</span>()
-        .<span class="ident">all</span>(<span class="op">|</span><span class="ident">it</span><span class="op">|</span> <span class="ident">it</span>.<span class="ident">type_info</span>().<span class="ident">is_void</span>())
+    <span class="kw">let </span>output = <span class="kw">if </span>data
+        .describe
+        .columns()
+        .iter()
+        .all(|it| it.type_info().is_void())
     {
-        <span class="kw">let</span> <span class="ident">db_path</span> <span class="op">=</span> <span class="ident">DB::db_path</span>();
-        <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>;
+        <span class="kw">let </span>db_path = DB::db_path();
+        <span class="kw">let </span>sql = <span class="kw-2">&amp;</span>input.sql;
 
-        <span class="macro">quote!</span> {
-            <span class="ident">::sqlx::query_with</span>::<span class="op">&lt;</span>#<span class="ident">db_path</span>, <span class="kw">_</span><span class="op">&gt;</span>(#<span class="ident">sql</span>, #<span class="ident">query_args</span>)
+        <span class="macro">quote! </span>{
+            ::sqlx::query_with::&lt;#db_path, <span class="kw">_</span>&gt;(#sql, #query_args)
         }
-    } <span class="kw">else</span> {
-        <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">record_type</span> {
-            <span class="ident">RecordType::Generated</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">output::columns_to_rust</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">describe</span>)<span class="question-mark">?</span>;
+    } <span class="kw">else </span>{
+        <span class="kw">match </span>input.record_type {
+            RecordType::Generated =&gt; {
+                <span class="kw">let </span>columns = output::columns_to_rust::&lt;DB&gt;(<span class="kw-2">&amp;</span>data.describe)<span class="question-mark">?</span>;
 
-                <span class="kw">let</span> <span class="ident">record_name</span>: <span class="ident">Type</span> <span class="op">=</span> <span class="ident">syn::parse_str</span>(<span class="string">&quot;Record&quot;</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let </span>record_name: Type = syn::parse_str(<span class="string">&quot;Record&quot;</span>).unwrap();
 
-                <span class="kw">for</span> <span class="ident">rust_col</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">columns</span> {
-                    <span class="kw">if</span> <span class="ident">rust_col</span>.<span class="ident">type_</span>.<span class="ident">is_wildcard</span>() {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(
+                <span class="kw">for </span>rust_col <span class="kw">in </span><span class="kw-2">&amp;</span>columns {
+                    <span class="kw">if </span>rust_col.type_.is_wildcard() {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(
                             <span class="string">&quot;wildcard overrides are only allowed with an explicit record type, \
-                             e.g. `query_as!()` and its variants&quot;</span>
-                                .<span class="ident">into</span>(),
+                             e.g. `query_as!()` and its variants&quot;
+                                </span>.into(),
                         );
                     }
                 }
 
-                <span class="kw">let</span> <span class="ident">record_fields</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">map</span>(
-                    <span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">output::RustColumn</span> {
-                         <span class="kw-2">ref</span> <span class="ident">ident</span>,
-                         <span class="kw-2">ref</span> <span class="ident">type_</span>,
+                <span class="kw">let </span>record_fields = columns.iter().map(
+                    |<span class="kw-2">&amp;</span>output::RustColumn {
+                         <span class="kw-2">ref </span>ident,
+                         <span class="kw-2">ref </span>type_,
                          ..
-                     }<span class="op">|</span> <span class="macro">quote!</span>(#<span class="ident">ident</span>: #<span class="ident">type_</span>,),
+                     }| <span class="macro">quote!</span>(#ident: #type_,),
                 );
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">record_tokens</span> <span class="op">=</span> <span class="macro">quote!</span> {
-                    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-                    <span class="kw">struct</span> #<span class="ident">record_name</span> {
-                        #(#<span class="ident">record_fields</span>)<span class="op">*</span>
+                <span class="kw">let </span><span class="kw-2">mut </span>record_tokens = <span class="macro">quote! </span>{
+                    <span class="attribute">#[derive(Debug)]
+                    </span><span class="kw">struct </span>#record_name {
+                        #(#record_fields)*
                     }
                 };
 
-                <span class="ident">record_tokens</span>.<span class="ident">extend</span>(<span class="ident">output::quote_query_as</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">input</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">record_name</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">query_args</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">columns</span>,
+                record_tokens.extend(output::quote_query_as::&lt;DB&gt;(
+                    <span class="kw-2">&amp;</span>input,
+                    <span class="kw-2">&amp;</span>record_name,
+                    <span class="kw-2">&amp;</span>query_args,
+                    <span class="kw-2">&amp;</span>columns,
                 ));
 
-                <span class="ident">record_tokens</span>
+                record_tokens
             }
-            <span class="ident">RecordType::Given</span>(<span class="kw-2">ref</span> <span class="ident">out_ty</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">output::columns_to_rust</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">describe</span>)<span class="question-mark">?</span>;
+            RecordType::Given(<span class="kw-2">ref </span>out_ty) =&gt; {
+                <span class="kw">let </span>columns = output::columns_to_rust::&lt;DB&gt;(<span class="kw-2">&amp;</span>data.describe)<span class="question-mark">?</span>;
 
-                <span class="ident">output::quote_query_as</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">out_ty</span>, <span class="kw-2">&amp;</span><span class="ident">query_args</span>, <span class="kw-2">&amp;</span><span class="ident">columns</span>)
+                output::quote_query_as::&lt;DB&gt;(<span class="kw-2">&amp;</span>input, out_ty, <span class="kw-2">&amp;</span>query_args, <span class="kw-2">&amp;</span>columns)
             }
-            <span class="ident">RecordType::Scalar</span> =&gt; {
-                <span class="ident">output::quote_query_scalar</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="ident">query_args</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">describe</span>)<span class="question-mark">?</span>
-            }
+            RecordType::Scalar =&gt; {
+                output::quote_query_scalar::&lt;DB&gt;(<span class="kw-2">&amp;</span>input, <span class="kw-2">&amp;</span>query_args, <span class="kw-2">&amp;</span>data.describe)<span class="question-mark">?
+            </span>}
         }
     };
 
-    <span class="kw">let</span> <span class="ident">ret_tokens</span> <span class="op">=</span> <span class="macro">quote!</span> {
+    <span class="kw">let </span>ret_tokens = <span class="macro">quote! </span>{
         {
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::all</span>)]</span>
-            {
-                <span class="kw">use</span> <span class="ident">::sqlx::Arguments</span> <span class="kw">as</span> <span class="kw">_</span>;
+            <span class="attribute">#[allow(clippy::all)]
+            </span>{
+                <span class="kw">use </span>::sqlx::Arguments <span class="kw">as _</span>;
 
-                #<span class="ident">args_tokens</span>
+                #args_tokens
 
-                #<span class="ident">output</span>
+                #output
             }
         }
     };
 
-    <span class="comment">// Store query metadata only if offline support is enabled but the current build is online.</span>
-    <span class="comment">// If the build is offline, the cache is our input so it&#39;s pointless to also write data for it.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;offline&quot;</span>)]</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">offline</span> {
-        <span class="comment">// Use a separate sub-directory for each crate in a workspace. This avoids a race condition</span>
-        <span class="comment">// where `prepare` can pull in queries from multiple crates if they happen to be generated</span>
-        <span class="comment">// simultaneously (e.g. Rust Analyzer building in the background).</span>
-        <span class="kw">let</span> <span class="ident">save_dir</span> <span class="op">=</span> <span class="ident">METADATA</span>
-            .<span class="ident">target_dir</span>
-            .<span class="ident">join</span>(<span class="string">&quot;sqlx&quot;</span>)
-            .<span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="ident">METADATA</span>.<span class="ident">package_name</span>);
-        <span class="ident">std::fs::create_dir_all</span>(<span class="kw-2">&amp;</span><span class="ident">save_dir</span>)<span class="question-mark">?</span>;
-        <span class="ident">data</span>.<span class="ident">save_in</span>(<span class="ident">save_dir</span>, <span class="ident">input</span>.<span class="ident">src_span</span>)<span class="question-mark">?</span>;
+    <span class="comment">// Store query metadata only if offline support is enabled but the current build is online.
+    // If the build is offline, the cache is our input so it&#39;s pointless to also write data for it.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;offline&quot;</span>)]
+    </span><span class="kw">if </span>!offline {
+        <span class="comment">// Use a separate sub-directory for each crate in a workspace. This avoids a race condition
+        // where `prepare` can pull in queries from multiple crates if they happen to be generated
+        // simultaneously (e.g. Rust Analyzer building in the background).
+        </span><span class="kw">let </span>save_dir = METADATA
+            .target_dir
+            .join(<span class="string">&quot;sqlx&quot;</span>)
+            .join(<span class="kw-2">&amp;</span>METADATA.package_name);
+        std::fs::create_dir_all(<span class="kw-2">&amp;</span>save_dir)<span class="question-mark">?</span>;
+        data.save_in(save_dir, input.src_span)<span class="question-mark">?</span>;
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">ret_tokens</span>)
+    <span class="prelude-val">Ok</span>(ret_tokens)
 }
 
-<span class="doccomment">/// Get the value of an environment variable, telling the compiler about it if applicable.</span>
-<span class="kw">fn</span> <span class="ident">env</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">std::env::VarError</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">procmacro2_semver_exempt</span>)]</span>
-    {
-        <span class="ident">proc_macro::tracked_env::var</span>(<span class="ident">name</span>)
+<span class="doccomment">/// Get the value of an environment variable, telling the compiler about it if applicable.
+</span><span class="kw">fn </span>env(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, std::env::VarError&gt; {
+    <span class="attribute">#[cfg(procmacro2_semver_exempt)]
+    </span>{
+        proc_macro::tracked_env::var(name)
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">procmacro2_semver_exempt</span>))]</span>
-    {
-        <span class="ident">std::env::var</span>(<span class="ident">name</span>)
+    <span class="attribute">#[cfg(not(procmacro2_semver_exempt))]
+    </span>{
+        std::env::var(name)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

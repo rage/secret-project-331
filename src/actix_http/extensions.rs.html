@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/extensions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extensions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/extensions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extensions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -280,285 +280,285 @@
 <span id="278">278</span>
 <span id="279">279</span>
 <span id="280">280</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">any</span>::{<span class="ident">Any</span>, <span class="ident">TypeId</span>},
-    <span class="ident">fmt</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    any::{Any, TypeId},
+    fmt,
 };
 
-<span class="kw">use</span> <span class="ident">ahash::AHashMap</span>;
+<span class="kw">use </span>ahash::AHashMap;
 
-<span class="doccomment">/// A type map for request extensions.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// All entries into this map must be owned types (or static references).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Extensions</span> {
-    <span class="doccomment">/// Use AHasher with a std HashMap with for faster lookups on the small `TypeId` keys.</span>
-    <span class="ident">map</span>: <span class="ident">AHashMap</span><span class="op">&lt;</span><span class="ident">TypeId</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Any</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A type map for request extensions.
+///
+/// All entries into this map must be owned types (or static references).
+</span><span class="attribute">#[derive(Default)]
+</span><span class="kw">pub struct </span>Extensions {
+    <span class="doccomment">/// Use AHasher with a std HashMap with for faster lookups on the small `TypeId` keys.
+    </span>map: AHashMap&lt;TypeId, Box&lt;<span class="kw">dyn </span>Any&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Extensions</span> {
-    <span class="doccomment">/// Creates an empty `Extensions`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Extensions</span> {
-        <span class="ident">Extensions</span> {
-            <span class="ident">map</span>: <span class="ident">AHashMap::new</span>(),
+<span class="kw">impl </span>Extensions {
+    <span class="doccomment">/// Creates an empty `Extensions`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>new() -&gt; Extensions {
+        Extensions {
+            map: AHashMap::new(),
         }
     }
 
-    <span class="doccomment">/// Insert an item into the map.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If an item of this type was already stored, it will be replaced and returned.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::Extensions;</span>
-    <span class="doccomment">/// let mut map = Extensions::new();</span>
-    <span class="doccomment">/// assert_eq!(map.insert(&quot;&quot;), None);</span>
-    <span class="doccomment">/// assert_eq!(map.insert(1u32), None);</span>
-    <span class="doccomment">/// assert_eq!(map.insert(2u32), Some(1u32));</span>
-    <span class="doccomment">/// assert_eq!(*map.get::&lt;u32&gt;().unwrap(), 2u32);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map</span>
-            .<span class="ident">insert</span>(<span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(), <span class="ident">Box::new</span>(<span class="ident">val</span>))
-            .<span class="ident">and_then</span>(<span class="ident">downcast_owned</span>)
+    <span class="doccomment">/// Insert an item into the map.
+    ///
+    /// If an item of this type was already stored, it will be replaced and returned.
+    ///
+    /// ```
+    /// # use actix_http::Extensions;
+    /// let mut map = Extensions::new();
+    /// assert_eq!(map.insert(&quot;&quot;), None);
+    /// assert_eq!(map.insert(1u32), None);
+    /// assert_eq!(map.insert(2u32), Some(1u32));
+    /// assert_eq!(*map.get::&lt;u32&gt;().unwrap(), 2u32);
+    /// ```
+    </span><span class="kw">pub fn </span>insert&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+        <span class="self">self</span>.map
+            .insert(TypeId::of::&lt;T&gt;(), Box::new(val))
+            .and_then(downcast_owned)
     }
 
-    <span class="doccomment">/// Check if map contains an item of a given type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::Extensions;</span>
-    <span class="doccomment">/// let mut map = Extensions::new();</span>
-    <span class="doccomment">/// assert!(!map.contains::&lt;u32&gt;());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(map.insert(1u32), None);</span>
-    <span class="doccomment">/// assert!(map.contains::&lt;u32&gt;());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
+    <span class="doccomment">/// Check if map contains an item of a given type.
+    ///
+    /// ```
+    /// # use actix_http::Extensions;
+    /// let mut map = Extensions::new();
+    /// assert!(!map.contains::&lt;u32&gt;());
+    ///
+    /// assert_eq!(map.insert(1u32), None);
+    /// assert!(map.contains::&lt;u32&gt;());
+    /// ```
+    </span><span class="kw">pub fn </span>contains&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.map.contains_key(<span class="kw-2">&amp;</span>TypeId::of::&lt;T&gt;())
     }
 
-    <span class="doccomment">/// Get a reference to an item of a given type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::Extensions;</span>
-    <span class="doccomment">/// let mut map = Extensions::new();</span>
-    <span class="doccomment">/// map.insert(1u32);</span>
-    <span class="doccomment">/// assert_eq!(map.get::&lt;u32&gt;(), Some(&amp;1u32));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">boxed</span><span class="op">|</span> <span class="ident">boxed</span>.<span class="ident">downcast_ref</span>())
+    <span class="doccomment">/// Get a reference to an item of a given type.
+    ///
+    /// ```
+    /// # use actix_http::Extensions;
+    /// let mut map = Extensions::new();
+    /// map.insert(1u32);
+    /// assert_eq!(map.get::&lt;u32&gt;(), Some(&amp;1u32));
+    /// ```
+    </span><span class="kw">pub fn </span>get&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+        <span class="self">self</span>.map
+            .get(<span class="kw-2">&amp;</span>TypeId::of::&lt;T&gt;())
+            .and_then(|boxed| boxed.downcast_ref())
     }
 
-    <span class="doccomment">/// Get a mutable reference to an item of a given type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::Extensions;</span>
-    <span class="doccomment">/// let mut map = Extensions::new();</span>
-    <span class="doccomment">/// map.insert(1u32);</span>
-    <span class="doccomment">/// assert_eq!(map.get_mut::&lt;u32&gt;(), Some(&amp;mut 1u32));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map</span>
-            .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">boxed</span><span class="op">|</span> <span class="ident">boxed</span>.<span class="ident">downcast_mut</span>())
+    <span class="doccomment">/// Get a mutable reference to an item of a given type.
+    ///
+    /// ```
+    /// # use actix_http::Extensions;
+    /// let mut map = Extensions::new();
+    /// map.insert(1u32);
+    /// assert_eq!(map.get_mut::&lt;u32&gt;(), Some(&amp;mut 1u32));
+    /// ```
+    </span><span class="kw">pub fn </span>get_mut&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>T&gt; {
+        <span class="self">self</span>.map
+            .get_mut(<span class="kw-2">&amp;</span>TypeId::of::&lt;T&gt;())
+            .and_then(|boxed| boxed.downcast_mut())
     }
 
-    <span class="doccomment">/// Remove an item from the map of a given type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If an item of this type was already stored, it will be returned.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::Extensions;</span>
-    <span class="doccomment">/// let mut map = Extensions::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(1u32);</span>
-    <span class="doccomment">/// assert_eq!(map.get::&lt;u32&gt;(), Some(&amp;1u32));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(map.remove::&lt;u32&gt;(), Some(1u32));</span>
-    <span class="doccomment">/// assert!(!map.contains::&lt;u32&gt;());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">and_then</span>(<span class="ident">downcast_owned</span>)
+    <span class="doccomment">/// Remove an item from the map of a given type.
+    ///
+    /// If an item of this type was already stored, it will be returned.
+    ///
+    /// ```
+    /// # use actix_http::Extensions;
+    /// let mut map = Extensions::new();
+    ///
+    /// map.insert(1u32);
+    /// assert_eq!(map.get::&lt;u32&gt;(), Some(&amp;1u32));
+    ///
+    /// assert_eq!(map.remove::&lt;u32&gt;(), Some(1u32));
+    /// assert!(!map.contains::&lt;u32&gt;());
+    /// ```
+    </span><span class="kw">pub fn </span>remove&lt;T: <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+        <span class="self">self</span>.map.remove(<span class="kw-2">&amp;</span>TypeId::of::&lt;T&gt;()).and_then(downcast_owned)
     }
 
-    <span class="doccomment">/// Clear the `Extensions` of all inserted extensions.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use actix_http::Extensions;</span>
-    <span class="doccomment">/// let mut map = Extensions::new();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.insert(1u32);</span>
-    <span class="doccomment">/// assert!(map.contains::&lt;u32&gt;());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// map.clear();</span>
-    <span class="doccomment">/// assert!(!map.contains::&lt;u32&gt;());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">clear</span>();
+    <span class="doccomment">/// Clear the `Extensions` of all inserted extensions.
+    ///
+    /// ```
+    /// # use actix_http::Extensions;
+    /// let mut map = Extensions::new();
+    ///
+    /// map.insert(1u32);
+    /// assert!(map.contains::&lt;u32&gt;());
+    ///
+    /// map.clear();
+    /// assert!(!map.contains::&lt;u32&gt;());
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.map.clear();
     }
 
-    <span class="doccomment">/// Extends self with the items from another `Extensions`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Extensions</span>) {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">map</span>);
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Extensions</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Extensions&quot;</span>).<span class="ident">finish</span>()
+    <span class="doccomment">/// Extends self with the items from another `Extensions`.
+    </span><span class="kw">pub fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Extensions) {
+        <span class="self">self</span>.map.extend(other.map);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">downcast_owned</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">boxed</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Any</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">boxed</span>.<span class="ident">downcast</span>().<span class="ident">ok</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">boxed</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">boxed</span>)
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Extensions {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;Extensions&quot;</span>).finish()
+    }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="kw">fn </span>downcast_owned&lt;T: <span class="lifetime">&#39;static</span>&gt;(boxed: Box&lt;<span class="kw">dyn </span>Any&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+    boxed.downcast().ok().map(|boxed| <span class="kw-2">*</span>boxed)
+}
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_remove</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Extensions::new</span>();
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>(<span class="number">123</span>);
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_remove() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = Extensions::new();
 
-        <span class="ident">map</span>.<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>();
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>().<span class="ident">is_none</span>());
+        map.insert::&lt;i8&gt;(<span class="number">123</span>);
+        <span class="macro">assert!</span>(map.get::&lt;i8&gt;().is_some());
+
+        map.remove::&lt;i8&gt;();
+        <span class="macro">assert!</span>(map.get::&lt;i8&gt;().is_none());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_clear</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Extensions::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_clear() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = Extensions::new();
 
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>(<span class="number">8</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span>(<span class="number">16</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(<span class="number">32</span>);
+        map.insert::&lt;i8&gt;(<span class="number">8</span>);
+        map.insert::&lt;i16&gt;(<span class="number">16</span>);
+        map.insert::&lt;i32&gt;(<span class="number">32</span>);
 
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">contains</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">contains</span>::<span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">contains</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>());
+        <span class="macro">assert!</span>(map.contains::&lt;i8&gt;());
+        <span class="macro">assert!</span>(map.contains::&lt;i16&gt;());
+        <span class="macro">assert!</span>(map.contains::&lt;i32&gt;());
 
-        <span class="ident">map</span>.<span class="ident">clear</span>();
+        map.clear();
 
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">contains</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>());
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">contains</span>::<span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span>());
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">contains</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>());
+        <span class="macro">assert!</span>(!map.contains::&lt;i8&gt;());
+        <span class="macro">assert!</span>(!map.contains::&lt;i16&gt;());
+        <span class="macro">assert!</span>(!map.contains::&lt;i32&gt;());
 
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>(<span class="number">10</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(), <span class="number">10</span>);
+        map.insert::&lt;i8&gt;(<span class="number">10</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>map.get::&lt;i8&gt;().unwrap(), <span class="number">10</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_integers</span>() {
-        <span class="kw">static</span> <span class="ident">A</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">8</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_integers() {
+        <span class="kw">static </span>A: u32 = <span class="number">8</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Extensions::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>map = Extensions::new();
 
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>(<span class="number">8</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span>(<span class="number">16</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(<span class="number">32</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>(<span class="number">64</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">i128</span><span class="op">&gt;</span>(<span class="number">128</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>(<span class="number">8</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>(<span class="number">16</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">32</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>(<span class="number">64</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span>(<span class="number">128</span>);
-        <span class="ident">map</span>.<span class="ident">insert</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">u32</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">A</span>);
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i128</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">u32</span><span class="op">&gt;</span>().<span class="ident">is_some</span>());
+        map.insert::&lt;i8&gt;(<span class="number">8</span>);
+        map.insert::&lt;i16&gt;(<span class="number">16</span>);
+        map.insert::&lt;i32&gt;(<span class="number">32</span>);
+        map.insert::&lt;i64&gt;(<span class="number">64</span>);
+        map.insert::&lt;i128&gt;(<span class="number">128</span>);
+        map.insert::&lt;u8&gt;(<span class="number">8</span>);
+        map.insert::&lt;u16&gt;(<span class="number">16</span>);
+        map.insert::&lt;u32&gt;(<span class="number">32</span>);
+        map.insert::&lt;u64&gt;(<span class="number">64</span>);
+        map.insert::&lt;u128&gt;(<span class="number">128</span>);
+        map.insert::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>u32&gt;(<span class="kw-2">&amp;</span>A);
+        <span class="macro">assert!</span>(map.get::&lt;i8&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;i16&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;i32&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;i64&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;i128&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;u8&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;u16&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;u32&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;u64&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;u128&gt;().is_some());
+        <span class="macro">assert!</span>(map.get::&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>u32&gt;().is_some());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_composition</span>() {
-        <span class="kw">struct</span> <span class="ident">Magi</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">T</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_composition() {
+        <span class="kw">struct </span>Magi&lt;T&gt;(<span class="kw">pub </span>T);
 
-        <span class="kw">struct</span> <span class="ident">Madoka</span> {
-            <span class="kw">pub</span> <span class="ident">god</span>: <span class="ident">bool</span>,
+        <span class="kw">struct </span>Madoka {
+            <span class="kw">pub </span>god: bool,
         }
 
-        <span class="kw">struct</span> <span class="ident">Homura</span> {
-            <span class="kw">pub</span> <span class="ident">attempts</span>: <span class="ident">usize</span>,
+        <span class="kw">struct </span>Homura {
+            <span class="kw">pub </span>attempts: usize,
         }
 
-        <span class="kw">struct</span> <span class="ident">Mami</span> {
-            <span class="kw">pub</span> <span class="ident">guns</span>: <span class="ident">usize</span>,
+        <span class="kw">struct </span>Mami {
+            <span class="kw">pub </span>guns: usize,
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Extensions::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>map = Extensions::new();
 
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Magi</span>(<span class="ident">Madoka</span> { <span class="ident">god</span>: <span class="bool-val">false</span> }));
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Magi</span>(<span class="ident">Homura</span> { <span class="ident">attempts</span>: <span class="number">0</span> }));
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Magi</span>(<span class="ident">Mami</span> { <span class="ident">guns</span>: <span class="number">999</span> }));
+        map.insert(Magi(Madoka { god: <span class="bool-val">false </span>}));
+        map.insert(Magi(Homura { attempts: <span class="number">0 </span>}));
+        map.insert(Magi(Mami { guns: <span class="number">999 </span>}));
 
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">Magi</span><span class="op">&lt;</span><span class="ident">Madoka</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="number">0</span>.<span class="ident">god</span>);
-        <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">Magi</span><span class="op">&lt;</span><span class="ident">Homura</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="number">0</span>.<span class="ident">attempts</span>);
-        <span class="macro">assert_eq!</span>(<span class="number">999</span>, <span class="ident">map</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">Magi</span><span class="op">&lt;</span><span class="ident">Mami</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="number">0</span>.<span class="ident">guns</span>);
+        <span class="macro">assert!</span>(!map.get::&lt;Magi&lt;Madoka&gt;&gt;().unwrap().<span class="number">0</span>.god);
+        <span class="macro">assert_eq!</span>(<span class="number">0</span>, map.get::&lt;Magi&lt;Homura&gt;&gt;().unwrap().<span class="number">0</span>.attempts);
+        <span class="macro">assert_eq!</span>(<span class="number">999</span>, map.get::&lt;Magi&lt;Mami&gt;&gt;().unwrap().<span class="number">0</span>.guns);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_extensions</span>() {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">MyType</span>(<span class="ident">i32</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_extensions() {
+        <span class="attribute">#[derive(Debug, PartialEq)]
+        </span><span class="kw">struct </span>MyType(i32);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extensions</span> <span class="op">=</span> <span class="ident">Extensions::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>extensions = Extensions::new();
 
-        <span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="number">5i32</span>);
-        <span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="ident">MyType</span>(<span class="number">10</span>));
+        extensions.insert(<span class="number">5i32</span>);
+        extensions.insert(MyType(<span class="number">10</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">5i32</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get_mut</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut</span> <span class="number">5i32</span>));
+        <span class="macro">assert_eq!</span>(extensions.get(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">5i32</span>));
+        <span class="macro">assert_eq!</span>(extensions.get_mut(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span><span class="number">5i32</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(), <span class="prelude-val">Some</span>(<span class="number">5i32</span>));
-        <span class="macro">assert!</span>(<span class="ident">extensions</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">is_none</span>());
+        <span class="macro">assert_eq!</span>(extensions.remove::&lt;i32&gt;(), <span class="prelude-val">Some</span>(<span class="number">5i32</span>));
+        <span class="macro">assert!</span>(extensions.get::&lt;i32&gt;().is_none());
 
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">MyType</span>(<span class="number">10</span>)));
+        <span class="macro">assert_eq!</span>(extensions.get::&lt;bool&gt;(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(extensions.get(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>MyType(<span class="number">10</span>)));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_extend</span>() {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-        <span class="kw">struct</span> <span class="ident">MyType</span>(<span class="ident">i32</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_extend() {
+        <span class="attribute">#[derive(Debug, PartialEq)]
+        </span><span class="kw">struct </span>MyType(i32);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extensions</span> <span class="op">=</span> <span class="ident">Extensions::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>extensions = Extensions::new();
 
-        <span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="number">5i32</span>);
-        <span class="ident">extensions</span>.<span class="ident">insert</span>(<span class="ident">MyType</span>(<span class="number">10</span>));
+        extensions.insert(<span class="number">5i32</span>);
+        extensions.insert(MyType(<span class="number">10</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">other</span> <span class="op">=</span> <span class="ident">Extensions::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>other = Extensions::new();
 
-        <span class="ident">other</span>.<span class="ident">insert</span>(<span class="number">15i32</span>);
-        <span class="ident">other</span>.<span class="ident">insert</span>(<span class="number">20u8</span>);
+        other.insert(<span class="number">15i32</span>);
+        other.insert(<span class="number">20u8</span>);
 
-        <span class="ident">extensions</span>.<span class="ident">extend</span>(<span class="ident">other</span>);
+        extensions.extend(other);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">15i32</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get_mut</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut</span> <span class="number">15i32</span>));
+        <span class="macro">assert_eq!</span>(extensions.get(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">15i32</span>));
+        <span class="macro">assert_eq!</span>(extensions.get_mut(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span><span class="number">15i32</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(), <span class="prelude-val">Some</span>(<span class="number">15i32</span>));
-        <span class="macro">assert!</span>(<span class="ident">extensions</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">is_none</span>());
+        <span class="macro">assert_eq!</span>(extensions.remove::&lt;i32&gt;(), <span class="prelude-val">Some</span>(<span class="number">15i32</span>));
+        <span class="macro">assert!</span>(extensions.get::&lt;i32&gt;().is_none());
 
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">MyType</span>(<span class="number">10</span>)));
+        <span class="macro">assert_eq!</span>(extensions.get::&lt;bool&gt;(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(extensions.get(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>MyType(<span class="number">10</span>)));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">20u8</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">extensions</span>.<span class="ident">get_mut</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut</span> <span class="number">20u8</span>));
+        <span class="macro">assert_eq!</span>(extensions.get(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">20u8</span>));
+        <span class="macro">assert_eq!</span>(extensions.get_mut(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span><span class="number">20u8</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

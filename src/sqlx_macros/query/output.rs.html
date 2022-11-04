@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/query/output.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>output.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/query/output.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>output.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -329,336 +329,336 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Ident</span>, <span class="ident">Span</span>, <span class="ident">TokenStream</span>};
-<span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">quote</span>, <span class="ident">ToTokens</span>, <span class="ident">TokenStreamExt</span>};
-<span class="kw">use</span> <span class="ident">syn::Type</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>proc_macro2::{Ident, Span, TokenStream};
+<span class="kw">use </span>quote::{quote, ToTokens, TokenStreamExt};
+<span class="kw">use </span>syn::Type;
 
-<span class="kw">use</span> <span class="ident">sqlx_core::column::Column</span>;
-<span class="kw">use</span> <span class="ident">sqlx_core::describe::Describe</span>;
+<span class="kw">use </span>sqlx_core::column::Column;
+<span class="kw">use </span>sqlx_core::describe::Describe;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::DatabaseExt</span>;
+<span class="kw">use </span><span class="kw">crate</span>::database::DatabaseExt;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query::QueryMacroInput</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>};
-<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
-<span class="kw">use</span> <span class="ident">syn::Token</span>;
+<span class="kw">use </span><span class="kw">crate</span>::query::QueryMacroInput;
+<span class="kw">use </span>std::fmt::{<span class="self">self</span>, Display, Formatter};
+<span class="kw">use </span>syn::parse::{Parse, ParseStream};
+<span class="kw">use </span>syn::Token;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RustColumn</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">ident</span>: <span class="ident">Ident</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">var_name</span>: <span class="ident">Ident</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">type_</span>: <span class="ident">ColumnType</span>,
+<span class="kw">pub struct </span>RustColumn {
+    <span class="kw">pub</span>(<span class="kw">super</span>) ident: Ident,
+    <span class="kw">pub</span>(<span class="kw">super</span>) var_name: Ident,
+    <span class="kw">pub</span>(<span class="kw">super</span>) type_: ColumnType,
 }
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">ColumnType</span> {
-    <span class="ident">Exact</span>(<span class="ident">TokenStream</span>),
-    <span class="ident">Wildcard</span>,
-    <span class="ident">OptWildcard</span>,
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum </span>ColumnType {
+    Exact(TokenStream),
+    Wildcard,
+    OptWildcard,
 }
 
-<span class="kw">impl</span> <span class="ident">ColumnType</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_wildcard</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">ColumnType::Exact</span>(<span class="kw">_</span>))
+<span class="kw">impl </span>ColumnType {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>is_wildcard(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        !<span class="macro">matches!</span>(<span class="self">self</span>, ColumnType::Exact(<span class="kw">_</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">ColumnType</span> {
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
-        <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
-            <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>) =&gt; <span class="ident">type_</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>(),
-            <span class="ident">ColumnType::Wildcard</span> =&gt; <span class="macro">quote!</span> { <span class="kw">_</span> }.<span class="ident">into_iter</span>(),
-            <span class="ident">ColumnType::OptWildcard</span> =&gt; <span class="macro">quote!</span> { <span class="ident">::std::option::Option</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> }.<span class="ident">into_iter</span>(),
+<span class="kw">impl </span>ToTokens <span class="kw">for </span>ColumnType {
+    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>TokenStream) {
+        tokens.append_all(<span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
+            ColumnType::Exact(type_) =&gt; type_.clone().into_iter(),
+            ColumnType::Wildcard =&gt; <span class="macro">quote! </span>{ <span class="kw">_ </span>}.into_iter(),
+            ColumnType::OptWildcard =&gt; <span class="macro">quote! </span>{ ::std::option::Option&lt;<span class="kw">_</span>&gt; }.into_iter(),
         })
     }
 }
 
-<span class="kw">struct</span> <span class="ident">DisplayColumn</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="comment">// zero-based index, converted to 1-based number</span>
-    <span class="ident">idx</span>: <span class="ident">usize</span>,
-    <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+<span class="kw">struct </span>DisplayColumn&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="comment">// zero-based index, converted to 1-based number
+    </span>idx: usize,
+    name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
 }
 
-<span class="kw">struct</span> <span class="ident">ColumnDecl</span> {
-    <span class="ident">ident</span>: <span class="ident">Ident</span>,
-    <span class="ident">r#override</span>: <span class="ident">ColumnOverride</span>,
+<span class="kw">struct </span>ColumnDecl {
+    ident: Ident,
+    r#override: ColumnOverride,
 }
 
-<span class="kw">struct</span> <span class="ident">ColumnOverride</span> {
-    <span class="ident">nullability</span>: <span class="ident">ColumnNullabilityOverride</span>,
-    <span class="ident">type_</span>: <span class="ident">ColumnTypeOverride</span>,
+<span class="kw">struct </span>ColumnOverride {
+    nullability: ColumnNullabilityOverride,
+    type_: ColumnTypeOverride,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">ColumnNullabilityOverride</span> {
-    <span class="ident">NonNull</span>,
-    <span class="ident">Nullable</span>,
+<span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">enum </span>ColumnNullabilityOverride {
+    NonNull,
+    Nullable,
     <span class="prelude-val">None</span>,
 }
 
-<span class="kw">enum</span> <span class="ident">ColumnTypeOverride</span> {
-    <span class="ident">Exact</span>(<span class="ident">Type</span>),
-    <span class="ident">Wildcard</span>,
+<span class="kw">enum </span>ColumnTypeOverride {
+    Exact(Type),
+    Wildcard,
     <span class="prelude-val">None</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DisplayColumn</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;column #{} ({:?})&quot;</span>, <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">name</span>)
+<span class="kw">impl </span>Display <span class="kw">for </span>DisplayColumn&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;column #{} ({:?})&quot;</span>, <span class="self">self</span>.idx + <span class="number">1</span>, <span class="self">self</span>.name)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns_to_rust</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(<span class="ident">describe</span>: <span class="kw-2">&amp;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RustColumn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    (<span class="number">0</span>..<span class="ident">describe</span>.<span class="ident">columns</span>().<span class="ident">len</span>())
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">column_to_rust</span>(<span class="ident">describe</span>, <span class="ident">i</span>))
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+<span class="kw">pub fn </span>columns_to_rust&lt;DB: DatabaseExt&gt;(describe: <span class="kw-2">&amp;</span>Describe&lt;DB&gt;) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;RustColumn&gt;&gt; {
+    (<span class="number">0</span>..describe.columns().len())
+        .map(|i| column_to_rust(describe, i))
+        .collect::&lt;<span class="kw">crate</span>::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()
 }
 
-<span class="kw">fn</span> <span class="ident">column_to_rust</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(<span class="ident">describe</span>: <span class="kw-2">&amp;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">i</span>: <span class="ident">usize</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">RustColumn</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">column</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">describe</span>.<span class="ident">columns</span>()[<span class="ident">i</span>];
+<span class="kw">fn </span>column_to_rust&lt;DB: DatabaseExt&gt;(describe: <span class="kw-2">&amp;</span>Describe&lt;DB&gt;, i: usize) -&gt; <span class="kw">crate</span>::Result&lt;RustColumn&gt; {
+    <span class="kw">let </span>column = <span class="kw-2">&amp;</span>describe.columns()[i];
 
-    <span class="comment">// add raw prefix to all identifiers</span>
-    <span class="kw">let</span> <span class="ident">decl</span> <span class="op">=</span> <span class="ident">ColumnDecl::parse</span>(<span class="kw-2">&amp;</span><span class="ident">column</span>.<span class="ident">name</span>())
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;column name {:?} is invalid: {}&quot;</span>, <span class="ident">column</span>.<span class="ident">name</span>(), <span class="ident">e</span>))<span class="question-mark">?</span>;
+    <span class="comment">// add raw prefix to all identifiers
+    </span><span class="kw">let </span>decl = ColumnDecl::parse(<span class="kw-2">&amp;</span>column.name())
+        .map_err(|e| <span class="macro">format!</span>(<span class="string">&quot;column name {:?} is invalid: {}&quot;</span>, column.name(), e))<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">ColumnOverride</span> { <span class="ident">nullability</span>, <span class="ident">type_</span> } <span class="op">=</span> <span class="ident">decl</span>.<span class="ident">r#override</span>;
+    <span class="kw">let </span>ColumnOverride { nullability, type_ } = decl.r#override;
 
-    <span class="kw">let</span> <span class="ident">nullable</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">nullability</span> {
-        <span class="ident">ColumnNullabilityOverride::NonNull</span> =&gt; <span class="bool-val">false</span>,
-        <span class="ident">ColumnNullabilityOverride::Nullable</span> =&gt; <span class="bool-val">true</span>,
-        <span class="ident">ColumnNullabilityOverride::None</span> =&gt; <span class="ident">describe</span>.<span class="ident">nullable</span>(<span class="ident">i</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>),
+    <span class="kw">let </span>nullable = <span class="kw">match </span>nullability {
+        ColumnNullabilityOverride::NonNull =&gt; <span class="bool-val">false</span>,
+        ColumnNullabilityOverride::Nullable =&gt; <span class="bool-val">true</span>,
+        ColumnNullabilityOverride::None =&gt; describe.nullable(i).unwrap_or(<span class="bool-val">true</span>),
     };
-    <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">type_</span>, <span class="ident">nullable</span>) {
-        (<span class="ident">ColumnTypeOverride::Exact</span>(<span class="ident">type_</span>), <span class="bool-val">false</span>) =&gt; <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>.<span class="ident">to_token_stream</span>()),
-        (<span class="ident">ColumnTypeOverride::Exact</span>(<span class="ident">type_</span>), <span class="bool-val">true</span>) =&gt; {
-            <span class="ident">ColumnType::Exact</span>(<span class="macro">quote!</span> { <span class="ident">::std::option::Option</span><span class="op">&lt;</span>#<span class="ident">type_</span><span class="op">&gt;</span> })
+    <span class="kw">let </span>type_ = <span class="kw">match </span>(type_, nullable) {
+        (ColumnTypeOverride::Exact(type_), <span class="bool-val">false</span>) =&gt; ColumnType::Exact(type_.to_token_stream()),
+        (ColumnTypeOverride::Exact(type_), <span class="bool-val">true</span>) =&gt; {
+            ColumnType::Exact(<span class="macro">quote! </span>{ ::std::option::Option&lt;#type_&gt; })
         }
 
-        (<span class="ident">ColumnTypeOverride::Wildcard</span>, <span class="bool-val">false</span>) =&gt; <span class="ident">ColumnType::Wildcard</span>,
-        (<span class="ident">ColumnTypeOverride::Wildcard</span>, <span class="bool-val">true</span>) =&gt; <span class="ident">ColumnType::OptWildcard</span>,
+        (ColumnTypeOverride::Wildcard, <span class="bool-val">false</span>) =&gt; ColumnType::Wildcard,
+        (ColumnTypeOverride::Wildcard, <span class="bool-val">true</span>) =&gt; ColumnType::OptWildcard,
 
-        (<span class="ident">ColumnTypeOverride::None</span>, <span class="kw">_</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="ident">get_column_type</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">column</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">nullable</span> {
-                <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">ColumnType::Exact</span>(<span class="macro">quote!</span> { <span class="ident">::std::option::Option</span><span class="op">&lt;</span>#<span class="ident">type_</span><span class="op">&gt;</span> })
+        (ColumnTypeOverride::None, <span class="kw">_</span>) =&gt; {
+            <span class="kw">let </span>type_ = get_column_type::&lt;DB&gt;(i, column);
+            <span class="kw">if </span>!nullable {
+                ColumnType::Exact(type_)
+            } <span class="kw">else </span>{
+                ColumnType::Exact(<span class="macro">quote! </span>{ ::std::option::Option&lt;#type_&gt; })
             }
         }
     };
 
-    <span class="prelude-val">Ok</span>(<span class="ident">RustColumn</span> {
-        <span class="comment">// prefix the variable name we use in `quote_query_as!()` so it doesn&#39;t conflict</span>
-        <span class="comment">// https://github.com/launchbadge/sqlx/issues/1322</span>
-        <span class="ident">var_name</span>: <span class="macro">quote::format_ident!</span>(<span class="string">&quot;sqlx_query_as_{}&quot;</span>, <span class="ident">decl</span>.<span class="ident">ident</span>),
-        <span class="ident">ident</span>: <span class="ident">decl</span>.<span class="ident">ident</span>,
-        <span class="ident">type_</span>,
+    <span class="prelude-val">Ok</span>(RustColumn {
+        <span class="comment">// prefix the variable name we use in `quote_query_as!()` so it doesn&#39;t conflict
+        // https://github.com/launchbadge/sqlx/issues/1322
+        </span>var_name: <span class="macro">quote::format_ident!</span>(<span class="string">&quot;sqlx_query_as_{}&quot;</span>, decl.ident),
+        ident: decl.ident,
+        type_,
     })
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quote_query_as</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">QueryMacroInput</span>,
-    <span class="ident">out_ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>,
-    <span class="ident">bind_args</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
-    <span class="ident">columns</span>: <span class="kw-2">&amp;</span>[<span class="ident">RustColumn</span>],
-) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">instantiations</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(
-        <span class="op">|</span>(
-            <span class="ident">i</span>,
-            <span class="kw-2">&amp;</span><span class="ident">RustColumn</span> {
-                <span class="kw-2">ref</span> <span class="ident">var_name</span>,
-                <span class="kw-2">ref</span> <span class="ident">type_</span>,
+<span class="kw">pub fn </span>quote_query_as&lt;DB: DatabaseExt&gt;(
+    input: <span class="kw-2">&amp;</span>QueryMacroInput,
+    out_ty: <span class="kw-2">&amp;</span>Type,
+    bind_args: <span class="kw-2">&amp;</span>Ident,
+    columns: <span class="kw-2">&amp;</span>[RustColumn],
+) -&gt; TokenStream {
+    <span class="kw">let </span>instantiations = columns.iter().enumerate().map(
+        |(
+            i,
+            <span class="kw-2">&amp;</span>RustColumn {
+                <span class="kw-2">ref </span>var_name,
+                <span class="kw-2">ref </span>type_,
                 ..
             },
-        )<span class="op">|</span> {
-            <span class="kw">match</span> (<span class="ident">input</span>.<span class="ident">checked</span>, <span class="ident">type_</span>) {
-                <span class="comment">// we guarantee the type is valid so we can skip the runtime check</span>
-                (<span class="bool-val">true</span>, <span class="ident">ColumnType::Exact</span>(<span class="ident">type_</span>)) =&gt; <span class="macro">quote!</span> {
-                    <span class="comment">// binding to a `let` avoids confusing errors about</span>
-                    <span class="comment">// &quot;try expression alternatives have incompatible types&quot;</span>
-                    <span class="comment">// it doesn&#39;t seem to hurt inference in the other branches</span>
-                    <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get_unchecked</span>::<span class="op">&lt;</span>#<span class="ident">type_</span>, <span class="kw">_</span><span class="op">&gt;</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>;
+        )| {
+            <span class="kw">match </span>(input.checked, type_) {
+                <span class="comment">// we guarantee the type is valid so we can skip the runtime check
+                </span>(<span class="bool-val">true</span>, ColumnType::Exact(type_)) =&gt; <span class="macro">quote! </span>{
+                    <span class="comment">// binding to a `let` avoids confusing errors about
+                    // &quot;try expression alternatives have incompatible types&quot;
+                    // it doesn&#39;t seem to hurt inference in the other branches
+                    </span><span class="kw">let </span>#var_name = row.try_get_unchecked::&lt;#type_, <span class="kw">_</span>&gt;(#i)<span class="question-mark">?</span>;
                 },
-                <span class="comment">// type was overridden to be a wildcard so we fallback to the runtime check</span>
-                (<span class="bool-val">true</span>, <span class="ident">ColumnType::Wildcard</span>) =&gt; <span class="macro">quote!</span> ( <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>; ),
-                (<span class="bool-val">true</span>, <span class="ident">ColumnType::OptWildcard</span>) =&gt; {
-                    <span class="macro">quote!</span> ( <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get</span>::<span class="op">&lt;</span><span class="ident">::std::option::Option</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>; )
+                <span class="comment">// type was overridden to be a wildcard so we fallback to the runtime check
+                </span>(<span class="bool-val">true</span>, ColumnType::Wildcard) =&gt; <span class="macro">quote! </span>( <span class="kw">let </span>#var_name = row.try_get(#i)<span class="question-mark">?</span>; ),
+                (<span class="bool-val">true</span>, ColumnType::OptWildcard) =&gt; {
+                    <span class="macro">quote! </span>( <span class="kw">let </span>#var_name = row.try_get::&lt;::std::option::Option&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;(#i)<span class="question-mark">?</span>; )
                 }
-                <span class="comment">// macro is the `_unchecked!()` variant so this will die in decoding if it&#39;s wrong</span>
-                (<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; <span class="macro">quote!</span>( <span class="kw">let</span> #<span class="ident">var_name</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">try_get_unchecked</span>(#<span class="ident">i</span>)<span class="question-mark">?</span>; ),
+                <span class="comment">// macro is the `_unchecked!()` variant so this will die in decoding if it&#39;s wrong
+                </span>(<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; <span class="macro">quote!</span>( <span class="kw">let </span>#var_name = row.try_get_unchecked(#i)<span class="question-mark">?</span>; ),
             }
         },
     );
 
-    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">col</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">col</span>.<span class="ident">ident</span>);
-    <span class="kw">let</span> <span class="ident">var_name</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">col</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">col</span>.<span class="ident">var_name</span>);
+    <span class="kw">let </span>ident = columns.iter().map(|col| <span class="kw-2">&amp;</span>col.ident);
+    <span class="kw">let </span>var_name = columns.iter().map(|col| <span class="kw-2">&amp;</span>col.var_name);
 
-    <span class="kw">let</span> <span class="ident">db_path</span> <span class="op">=</span> <span class="ident">DB::db_path</span>();
-    <span class="kw">let</span> <span class="ident">row_path</span> <span class="op">=</span> <span class="ident">DB::row_path</span>();
+    <span class="kw">let </span>db_path = DB::db_path();
+    <span class="kw">let </span>row_path = DB::row_path();
 
-    <span class="comment">// if this query came from a file, use `include_str!()` to tell the compiler where it came from</span>
-    <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">file_path</span> {
-        <span class="macro">quote::quote_spanned!</span> { <span class="ident">input</span>.<span class="ident">src_span</span> =&gt; <span class="macro">include_str!</span>(#<span class="ident">path</span>) }
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>;
-        <span class="macro">quote!</span> { #<span class="ident">sql</span> }
+    <span class="comment">// if this query came from a file, use `include_str!()` to tell the compiler where it came from
+    </span><span class="kw">let </span>sql = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) = <span class="kw-2">&amp;</span>input.file_path {
+        <span class="macro">quote::quote_spanned! </span>{ input.src_span =&gt; <span class="macro">include_str!</span>(#path) }
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>sql = <span class="kw-2">&amp;</span>input.sql;
+        <span class="macro">quote! </span>{ #sql }
     };
 
-    <span class="macro">quote!</span> {
-        <span class="ident">::sqlx::query_with</span>::<span class="op">&lt;</span>#<span class="ident">db_path</span>, <span class="kw">_</span><span class="op">&gt;</span>(#<span class="ident">sql</span>, #<span class="ident">bind_args</span>).<span class="ident">try_map</span>(<span class="op">|</span><span class="ident">row</span>: #<span class="ident">row_path</span><span class="op">|</span> {
-            <span class="kw">use</span> <span class="ident">::sqlx::Row</span> <span class="kw">as</span> <span class="kw">_</span>;
+    <span class="macro">quote! </span>{
+        ::sqlx::query_with::&lt;#db_path, <span class="kw">_</span>&gt;(#sql, #bind_args).try_map(|row: #row_path| {
+            <span class="kw">use </span>::sqlx::Row <span class="kw">as _</span>;
 
-            #(#<span class="ident">instantiations</span>)<span class="op">*</span>
+            #(#instantiations)*
 
-            <span class="prelude-val">Ok</span>(#<span class="ident">out_ty</span> { #(#<span class="ident">ident</span>: #<span class="ident">var_name</span>),<span class="op">*</span> })
+            <span class="prelude-val">Ok</span>(#out_ty { #(#ident: #var_name),* })
         })
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quote_query_scalar</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">QueryMacroInput</span>,
-    <span class="ident">bind_args</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
-    <span class="ident">describe</span>: <span class="kw-2">&amp;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">describe</span>.<span class="ident">columns</span>();
+<span class="kw">pub fn </span>quote_query_scalar&lt;DB: DatabaseExt&gt;(
+    input: <span class="kw-2">&amp;</span>QueryMacroInput,
+    bind_args: <span class="kw-2">&amp;</span>Ident,
+    describe: <span class="kw-2">&amp;</span>Describe&lt;DB&gt;,
+) -&gt; <span class="kw">crate</span>::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>columns = describe.columns();
 
-    <span class="kw">if</span> <span class="ident">columns</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new</span>(
-            <span class="ident">input</span>.<span class="ident">src_span</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;expected exactly 1 column, got {}&quot;</span>, <span class="ident">columns</span>.<span class="ident">len</span>()),
+    <span class="kw">if </span>columns.len() != <span class="number">1 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new(
+            input.src_span,
+            <span class="macro">format!</span>(<span class="string">&quot;expected exactly 1 column, got {}&quot;</span>, columns.len()),
         )
-        .<span class="ident">into</span>());
+        .into());
     }
 
-    <span class="comment">// attempt to parse a column override, otherwise fall back to the inferred type of the column</span>
-    <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">rust_col</span>) <span class="op">=</span> <span class="ident">column_to_rust</span>(<span class="ident">describe</span>, <span class="number">0</span>) {
-        <span class="ident">rust_col</span>.<span class="ident">type_</span>.<span class="ident">to_token_stream</span>()
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">checked</span> {
-        <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">get_column_type</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">columns</span>[<span class="number">0</span>]);
-        <span class="kw">if</span> <span class="ident">describe</span>.<span class="ident">nullable</span>(<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>) {
-            <span class="macro">quote!</span> { <span class="ident">::std::option::Option</span><span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span> }
-        } <span class="kw">else</span> {
-            <span class="ident">ty</span>
+    <span class="comment">// attempt to parse a column override, otherwise fall back to the inferred type of the column
+    </span><span class="kw">let </span>ty = <span class="kw">if let </span><span class="prelude-val">Ok</span>(rust_col) = column_to_rust(describe, <span class="number">0</span>) {
+        rust_col.type_.to_token_stream()
+    } <span class="kw">else if </span>input.checked {
+        <span class="kw">let </span>ty = get_column_type::&lt;DB&gt;(<span class="number">0</span>, <span class="kw-2">&amp;</span>columns[<span class="number">0</span>]);
+        <span class="kw">if </span>describe.nullable(<span class="number">0</span>).unwrap_or(<span class="bool-val">true</span>) {
+            <span class="macro">quote! </span>{ ::std::option::Option&lt;#ty&gt; }
+        } <span class="kw">else </span>{
+            ty
         }
-    } <span class="kw">else</span> {
-        <span class="macro">quote!</span> { <span class="kw">_</span> }
+    } <span class="kw">else </span>{
+        <span class="macro">quote! </span>{ <span class="kw">_ </span>}
     };
 
-    <span class="kw">let</span> <span class="ident">db</span> <span class="op">=</span> <span class="ident">DB::db_path</span>();
-    <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">sql</span>;
+    <span class="kw">let </span>db = DB::db_path();
+    <span class="kw">let </span>query = <span class="kw-2">&amp;</span>input.sql;
 
-    <span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {
-        <span class="ident">::sqlx::query_scalar_with</span>::<span class="op">&lt;</span>#<span class="ident">db</span>, #<span class="ident">ty</span>, <span class="kw">_</span><span class="op">&gt;</span>(#<span class="ident">query</span>, #<span class="ident">bind_args</span>)
+    <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
+        ::sqlx::query_scalar_with::&lt;#db, #ty, <span class="kw">_</span>&gt;(#query, #bind_args)
     })
 }
 
-<span class="kw">fn</span> <span class="ident">get_column_type</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">DatabaseExt</span><span class="op">&gt;</span>(<span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">column</span>: <span class="kw-2">&amp;</span><span class="ident">DB::Column</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">type_info</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">column</span>.<span class="ident">type_info</span>();
+<span class="kw">fn </span>get_column_type&lt;DB: DatabaseExt&gt;(i: usize, column: <span class="kw-2">&amp;</span>DB::Column) -&gt; TokenStream {
+    <span class="kw">let </span>type_info = <span class="kw-2">&amp;*</span>column.type_info();
 
-    <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">DatabaseExt</span><span class="op">&gt;</span><span class="ident">::return_type_for_id</span>(<span class="kw-2">&amp;</span><span class="ident">type_info</span>).<span class="ident">map_or_else</span>(
-        <span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">feature_gate</span>) <span class="op">=</span> <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">DatabaseExt</span><span class="op">&gt;</span><span class="ident">::get_feature_gate</span>(<span class="kw-2">&amp;</span><span class="ident">type_info</span>) {
+    &lt;DB <span class="kw">as </span>DatabaseExt&gt;::return_type_for_id(<span class="kw-2">&amp;</span>type_info).map_or_else(
+        || {
+            <span class="kw">let </span>message =
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(feature_gate) = &lt;DB <span class="kw">as </span>DatabaseExt&gt;::get_feature_gate(<span class="kw-2">&amp;</span>type_info) {
                     <span class="macro">format!</span>(
                         <span class="string">&quot;optional feature `{feat}` required for type {ty} of {col}&quot;</span>,
-                        <span class="ident">ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">type_info</span>,
-                        <span class="ident">feat</span> <span class="op">=</span> <span class="ident">feature_gate</span>,
-                        <span class="ident">col</span> <span class="op">=</span> <span class="ident">DisplayColumn</span> {
-                            <span class="ident">idx</span>: <span class="ident">i</span>,
-                            <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">column</span>.<span class="ident">name</span>()
+                        ty = <span class="kw-2">&amp;</span>type_info,
+                        feat = feature_gate,
+                        col = DisplayColumn {
+                            idx: i,
+                            name: <span class="kw-2">&amp;*</span>column.name()
                         }
                     )
-                } <span class="kw">else</span> {
+                } <span class="kw">else </span>{
                     <span class="macro">format!</span>(
                         <span class="string">&quot;unsupported type {ty} of {col}&quot;</span>,
-                        <span class="ident">ty</span> <span class="op">=</span> <span class="ident">type_info</span>,
-                        <span class="ident">col</span> <span class="op">=</span> <span class="ident">DisplayColumn</span> {
-                            <span class="ident">idx</span>: <span class="ident">i</span>,
-                            <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">column</span>.<span class="ident">name</span>()
+                        ty = type_info,
+                        col = DisplayColumn {
+                            idx: i,
+                            name: <span class="kw-2">&amp;*</span>column.name()
                         }
                     )
                 };
-            <span class="ident">syn::Error::new</span>(<span class="ident">Span::call_site</span>(), <span class="ident">message</span>).<span class="ident">to_compile_error</span>()
+            syn::Error::new(Span::call_site(), message).to_compile_error()
         },
-        <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+        |t| t.parse().unwrap(),
     )
 }
 
-<span class="kw">impl</span> <span class="ident">ColumnDecl</span> {
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">col_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="comment">// find the end of the identifier because we want to use our own logic to parse it</span>
-        <span class="comment">// if we tried to feed this into `syn::parse_str()` we might get an un-great error</span>
-        <span class="comment">// for some kinds of invalid identifiers</span>
-        <span class="kw">let</span> (<span class="ident">ident</span>, <span class="ident">remainder</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">col_name</span>.<span class="ident">find</span>(<span class="kw-2">&amp;</span>[<span class="string">&#39;:&#39;</span>, <span class="string">&#39;!&#39;</span>, <span class="string">&#39;?&#39;</span>][..]) {
-            <span class="kw">let</span> (<span class="ident">ident</span>, <span class="ident">remainder</span>) <span class="op">=</span> <span class="ident">col_name</span>.<span class="ident">split_at</span>(<span class="ident">i</span>);
+<span class="kw">impl </span>ColumnDecl {
+    <span class="kw">fn </span>parse(col_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="comment">// find the end of the identifier because we want to use our own logic to parse it
+        // if we tried to feed this into `syn::parse_str()` we might get an un-great error
+        // for some kinds of invalid identifiers
+        </span><span class="kw">let </span>(ident, remainder) = <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = col_name.find(<span class="kw-2">&amp;</span>[<span class="string">&#39;:&#39;</span>, <span class="string">&#39;!&#39;</span>, <span class="string">&#39;?&#39;</span>][..]) {
+            <span class="kw">let </span>(ident, remainder) = col_name.split_at(i);
 
-            (<span class="ident">parse_ident</span>(<span class="ident">ident</span>)<span class="question-mark">?</span>, <span class="ident">remainder</span>)
-        } <span class="kw">else</span> {
-            (<span class="ident">parse_ident</span>(<span class="ident">col_name</span>)<span class="question-mark">?</span>, <span class="string">&quot;&quot;</span>)
+            (parse_ident(ident)<span class="question-mark">?</span>, remainder)
+        } <span class="kw">else </span>{
+            (parse_ident(col_name)<span class="question-mark">?</span>, <span class="string">&quot;&quot;</span>)
         };
 
-        <span class="prelude-val">Ok</span>(<span class="ident">ColumnDecl</span> {
-            <span class="ident">ident</span>,
-            <span class="ident">r#override</span>: <span class="kw">if</span> <span class="op">!</span><span class="ident">remainder</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">syn::parse_str</span>(<span class="ident">remainder</span>)<span class="question-mark">?</span>
-            } <span class="kw">else</span> {
-                <span class="ident">ColumnOverride</span> {
-                    <span class="ident">nullability</span>: <span class="ident">ColumnNullabilityOverride::None</span>,
-                    <span class="ident">type_</span>: <span class="ident">ColumnTypeOverride::None</span>,
+        <span class="prelude-val">Ok</span>(ColumnDecl {
+            ident,
+            r#override: <span class="kw">if </span>!remainder.is_empty() {
+                syn::parse_str(remainder)<span class="question-mark">?
+            </span>} <span class="kw">else </span>{
+                ColumnOverride {
+                    nullability: ColumnNullabilityOverride::None,
+                    type_: ColumnTypeOverride::None,
                 }
             },
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">ColumnOverride</span> {
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">lookahead1</span>();
+<span class="kw">impl </span>Parse <span class="kw">for </span>ColumnOverride {
+    <span class="kw">fn </span>parse(input: ParseStream) -&gt; syn::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>lookahead = input.lookahead1();
 
-        <span class="kw">let</span> <span class="ident">nullability</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="op">!</span>]) {
-            <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="macro">Token!</span>[<span class="op">!</span>]<span class="op">&gt;</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>nullability = <span class="kw">if </span>lookahead.peek(<span class="macro">Token!</span>[!]) {
+            input.parse::&lt;<span class="macro">Token!</span>[!]&gt;()<span class="question-mark">?</span>;
 
-            <span class="ident">ColumnNullabilityOverride::NonNull</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="question-mark">?</span>]) {
-            <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="macro">Token!</span>[<span class="question-mark">?</span>]<span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            ColumnNullabilityOverride::NonNull
+        } <span class="kw">else if </span>lookahead.peek(<span class="macro">Token!</span>[<span class="question-mark">?</span>]) {
+            input.parse::&lt;<span class="macro">Token!</span>[<span class="question-mark">?</span>]&gt;()<span class="question-mark">?</span>;
 
-            <span class="ident">ColumnNullabilityOverride::Nullable</span>
-        } <span class="kw">else</span> {
-            <span class="ident">ColumnNullabilityOverride::None</span>
+            ColumnNullabilityOverride::Nullable
+        } <span class="kw">else </span>{
+            ColumnNullabilityOverride::None
         };
 
-        <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">lookahead1</span>().<span class="ident">peek</span>(<span class="macro">Token!</span>[:]) {
-            <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="macro">Token!</span>[:]<span class="op">&gt;</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>type_ = <span class="kw">if </span>input.lookahead1().peek(<span class="macro">Token!</span>[:]) {
+            input.parse::&lt;<span class="macro">Token!</span>[:]&gt;()<span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">Type::parse</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>ty = Type::parse(input)<span class="question-mark">?</span>;
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Type::Infer</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">ty</span> {
-                <span class="ident">ColumnTypeOverride::Wildcard</span>
-            } <span class="kw">else</span> {
-                <span class="ident">ColumnTypeOverride::Exact</span>(<span class="ident">ty</span>)
+            <span class="kw">if let </span>Type::Infer(<span class="kw">_</span>) = ty {
+                ColumnTypeOverride::Wildcard
+            } <span class="kw">else </span>{
+                ColumnTypeOverride::Exact(ty)
             }
-        } <span class="kw">else</span> {
-            <span class="ident">ColumnTypeOverride::None</span>
+        } <span class="kw">else </span>{
+            ColumnTypeOverride::None
         };
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">nullability</span>, <span class="ident">type_</span> })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ nullability, type_ })
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_ident</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span> {
-    <span class="comment">// workaround for the following issue (it&#39;s semi-fixed but still spits out extra diagnostics)</span>
-    <span class="comment">// https://github.com/dtolnay/syn/issues/749#issuecomment-575451318</span>
+<span class="kw">fn </span>parse_ident(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Ident&gt; {
+    <span class="comment">// workaround for the following issue (it&#39;s semi-fixed but still spits out extra diagnostics)
+    // https://github.com/dtolnay/syn/issues/749#issuecomment-575451318
 
-    <span class="kw">let</span> <span class="ident">is_valid_ident</span> <span class="op">=</span> <span class="op">!</span><span class="ident">name</span>.<span class="ident">is_empty</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="op">|</span><span class="ident">c</span>: <span class="ident">char</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_alphabetic</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span>)
-        <span class="op">&amp;&amp;</span> <span class="ident">name</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_alphanumeric</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span>);
+    </span><span class="kw">let </span>is_valid_ident = !name.is_empty()
+        &amp;&amp; name.starts_with(|c: char| c.is_alphabetic() || c == <span class="string">&#39;_&#39;</span>)
+        &amp;&amp; name.chars().all(|c| c.is_alphanumeric() || c == <span class="string">&#39;_&#39;</span>);
 
-    <span class="kw">if</span> <span class="ident">is_valid_ident</span> {
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;r#&quot;</span>) <span class="op">+</span> <span class="ident">name</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">syn::parse_str</span>(<span class="kw-2">&amp;</span><span class="ident">ident</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">ident</span>);
+    <span class="kw">if </span>is_valid_ident {
+        <span class="kw">let </span>ident = String::from(<span class="string">&quot;r#&quot;</span>) + name;
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(ident) = syn::parse_str(<span class="kw-2">&amp;</span>ident) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(ident);
         }
     }
 
-    <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?} is not a valid Rust identifier&quot;</span>, <span class="ident">name</span>).<span class="ident">into</span>())
+    <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?} is not a valid Rust identifier&quot;</span>, name).into())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

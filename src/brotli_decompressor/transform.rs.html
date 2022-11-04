@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/transform.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transform.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../brotli_decompressor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/transform.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transform.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../brotli_decompressor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -793,38 +793,38 @@
 <span id="793">793</span>
 <span id="794">794</span>
 <span id="795">795</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(non_upper_case_globals)]
 
-<span class="kw">const</span> <span class="ident">kIdentity</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">const</span> <span class="ident">kOmitLast1</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">const</span> <span class="ident">kOmitLast2</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">const</span> <span class="ident">kOmitLast3</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">const</span> <span class="ident">kOmitLast4</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">4</span>;
-<span class="kw">const</span> <span class="ident">kOmitLast5</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">5</span>;
-<span class="kw">const</span> <span class="ident">kOmitLast6</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">6</span>;
-<span class="kw">const</span> <span class="ident">kOmitLast7</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">7</span>;
-<span class="kw">const</span> <span class="ident">kOmitLast8</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">8</span>;
-<span class="kw">const</span> <span class="ident">kOmitLast9</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">9</span>;
-<span class="kw">const</span> <span class="ident">kUppercaseFirst</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">10</span>;
-<span class="kw">const</span> <span class="ident">kUppercaseAll</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">11</span>;
-<span class="kw">const</span> <span class="ident">kOmitFirst1</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">12</span>;
-<span class="kw">const</span> <span class="ident">kOmitFirst2</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">13</span>;
-<span class="kw">const</span> <span class="ident">kOmitFirst3</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">14</span>;
-<span class="kw">const</span> <span class="ident">kOmitFirst4</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">15</span>;
-<span class="kw">const</span> <span class="ident">kOmitFirst5</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">16</span>;
-<span class="kw">const</span> <span class="ident">kOmitFirst6</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">17</span>;
-<span class="kw">const</span> <span class="ident">kOmitFirst7</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">18</span>;
-<span class="comment">// const  kOmitFirst8     : u8 = 19; // &lt;-- unused (reserved)</span>
-<span class="kw">const</span> <span class="ident">kOmitFirst9</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">20</span>;
+</span><span class="kw">const </span>kIdentity: u8 = <span class="number">0</span>;
+<span class="kw">const </span>kOmitLast1: u8 = <span class="number">1</span>;
+<span class="kw">const </span>kOmitLast2: u8 = <span class="number">2</span>;
+<span class="kw">const </span>kOmitLast3: u8 = <span class="number">3</span>;
+<span class="kw">const </span>kOmitLast4: u8 = <span class="number">4</span>;
+<span class="kw">const </span>kOmitLast5: u8 = <span class="number">5</span>;
+<span class="kw">const </span>kOmitLast6: u8 = <span class="number">6</span>;
+<span class="kw">const </span>kOmitLast7: u8 = <span class="number">7</span>;
+<span class="kw">const </span>kOmitLast8: u8 = <span class="number">8</span>;
+<span class="kw">const </span>kOmitLast9: u8 = <span class="number">9</span>;
+<span class="kw">const </span>kUppercaseFirst: u8 = <span class="number">10</span>;
+<span class="kw">const </span>kUppercaseAll: u8 = <span class="number">11</span>;
+<span class="kw">const </span>kOmitFirst1: u8 = <span class="number">12</span>;
+<span class="kw">const </span>kOmitFirst2: u8 = <span class="number">13</span>;
+<span class="kw">const </span>kOmitFirst3: u8 = <span class="number">14</span>;
+<span class="kw">const </span>kOmitFirst4: u8 = <span class="number">15</span>;
+<span class="kw">const </span>kOmitFirst5: u8 = <span class="number">16</span>;
+<span class="kw">const </span>kOmitFirst6: u8 = <span class="number">17</span>;
+<span class="kw">const </span>kOmitFirst7: u8 = <span class="number">18</span>;
+<span class="comment">// const  kOmitFirst8     : u8 = 19; // &lt;-- unused (reserved)
+</span><span class="kw">const </span>kOmitFirst9: u8 = <span class="number">20</span>;
 
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Transform</span> {
-  <span class="kw">pub</span> <span class="ident">prefix_id</span>: <span class="ident">u8</span>,
-  <span class="kw">pub</span> <span class="ident">transform</span>: <span class="ident">u8</span>,
-  <span class="kw">pub</span> <span class="ident">suffix_id</span>: <span class="ident">u8</span>,
+<span class="kw">pub struct </span>Transform {
+  <span class="kw">pub </span>prefix_id: u8,
+  <span class="kw">pub </span>transform: u8,
+  <span class="kw">pub </span>suffix_id: u8,
 }
 
-<span class="kw">const</span> <span class="ident">kPrefixSuffix</span>: [<span class="ident">u8</span>; <span class="number">208</span>] <span class="op">=</span>
+<span class="kw">const </span>kPrefixSuffix: [u8; <span class="number">208</span>] =
   [<span class="number">0x00</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x2c</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x20</span>, <span class="number">0x6f</span>, <span class="number">0x66</span>, <span class="number">0x20</span>, <span class="number">0x74</span>, <span class="number">0x68</span>, <span class="number">0x65</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x20</span>,
    <span class="number">0x6f</span>, <span class="number">0x66</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x73</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x2e</span>, <span class="number">0x00</span>, <span class="number">0x20</span>, <span class="number">0x61</span>, <span class="number">0x6e</span>, <span class="number">0x64</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x20</span>,
    <span class="number">0x69</span>, <span class="number">0x6e</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x22</span>, <span class="number">0x00</span>, <span class="number">0x20</span>, <span class="number">0x74</span>, <span class="number">0x6f</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x22</span>, <span class="number">0x3e</span>, <span class="number">0x00</span>, <span class="number">0x0a</span>, <span class="number">0x00</span>,
@@ -838,755 +838,755 @@
    <span class="number">0x20</span>, <span class="number">0x6e</span>, <span class="number">0x6f</span>, <span class="number">0x74</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x65</span>, <span class="number">0x72</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x61</span>, <span class="number">0x6c</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x66</span>, <span class="number">0x75</span>,
    <span class="number">0x6c</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x69</span>, <span class="number">0x76</span>, <span class="number">0x65</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x6c</span>, <span class="number">0x65</span>, <span class="number">0x73</span>, <span class="number">0x73</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x65</span>, <span class="number">0x73</span>,
    <span class="number">0x74</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x69</span>, <span class="number">0x7a</span>, <span class="number">0x65</span>, <span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0xc2</span>, <span class="number">0xa0</span>, <span class="number">0x00</span>, <span class="number">0x6f</span>, <span class="number">0x75</span>, <span class="number">0x73</span>, <span class="number">0x20</span>, <span class="number">0x00</span>];
-<span class="comment">//    &quot;\0 \0, \0 of the \0 of \0s \0.\0 and \0 in \0\&quot;\0 to \0\&quot;&gt;\0\n\0. \0]\0&quot;</span>
-<span class="comment">//    &quot; for \0 a \0 that \0\&#39;\0 with \0 from \0 by \0(\0. The \0 on \0 as \0&quot;</span>
-<span class="comment">//    &quot; is \0ing \0\n\t\0:\0ed \0=\&quot;\0 at \0ly \0,\0=\&#39;\0.com/\0. This \0&quot;</span>
-<span class="comment">//    &quot; not \0er \0al \0ful \0ive \0less \0est \0ize \0\xc2\xa0\0ous &quot;;</span>
+<span class="comment">//    &quot;\0 \0, \0 of the \0 of \0s \0.\0 and \0 in \0\&quot;\0 to \0\&quot;&gt;\0\n\0. \0]\0&quot;
+//    &quot; for \0 a \0 that \0\&#39;\0 with \0 from \0 by \0(\0. The \0 on \0 as \0&quot;
+//    &quot; is \0ing \0\n\t\0:\0ed \0=\&quot;\0 at \0ly \0,\0=\&#39;\0.com/\0. This \0&quot;
+//    &quot; not \0er \0al \0ful \0ive \0less \0est \0ize \0\xc2\xa0\0ous &quot;;
 
-<span class="comment">// EMPTY = &quot;&quot;</span>
-<span class="comment">// SP = &quot; &quot;</span>
-<span class="comment">// DQUOT = &quot;\&quot;&quot;</span>
-<span class="comment">// SQUOT = &quot;&#39;&quot;</span>
-<span class="comment">// CLOSEBR = &quot;]&quot;</span>
-<span class="comment">// OPEN = &quot;(&quot;</span>
-<span class="comment">// SLASH = &quot;/&quot;</span>
-<span class="comment">// NBSP = non-breaking space &quot;\0xc2\xa0&quot;</span>
-<span class="comment">//</span>
-<span class="kw">const</span> <span class="ident">kPFix_EMPTY</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">const</span> <span class="ident">kPFix_COMMASP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPofSPtheSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">6</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPtheSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">9</span>;
-<span class="kw">const</span> <span class="ident">kPFix_eSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">12</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPofSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">15</span>;
-<span class="kw">const</span> <span class="ident">kPFix_sSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">20</span>;
-<span class="kw">const</span> <span class="ident">kPFix_DOT</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">23</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPandSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">25</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPinSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">31</span>;
-<span class="kw">const</span> <span class="ident">kPFix_DQUOT</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">36</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPtoSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">38</span>;
-<span class="kw">const</span> <span class="ident">kPFix_DQUOTGT</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">43</span>;
-<span class="kw">const</span> <span class="ident">kPFix_NEWLINE</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">46</span>;
-<span class="kw">const</span> <span class="ident">kPFix_DOTSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">48</span>;
-<span class="kw">const</span> <span class="ident">kPFix_CLOSEBR</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">51</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPforSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">53</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPaSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">59</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPthatSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">63</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SQUOT</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">70</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPwithSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">72</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPfromSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">79</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPbySP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">86</span>;
-<span class="kw">const</span> <span class="ident">kPFix_OPEN</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">91</span>;
-<span class="kw">const</span> <span class="ident">kPFix_DOTSPTheSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">93</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPonSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">100</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPasSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">105</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPisSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">110</span>;
-<span class="kw">const</span> <span class="ident">kPFix_ingSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">115</span>;
-<span class="kw">const</span> <span class="ident">kPFix_NEWLINETAB</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">120</span>;
-<span class="kw">const</span> <span class="ident">kPFix_COLON</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">123</span>;
-<span class="kw">const</span> <span class="ident">kPFix_edSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">125</span>;
-<span class="kw">const</span> <span class="ident">kPFix_EQDQUOT</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">129</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPatSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">132</span>;
-<span class="kw">const</span> <span class="ident">kPFix_lySP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">137</span>;
-<span class="kw">const</span> <span class="ident">kPFix_COMMA</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">141</span>;
-<span class="kw">const</span> <span class="ident">kPFix_EQSQUOT</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">143</span>;
-<span class="kw">const</span> <span class="ident">kPFix_DOTcomSLASH</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">146</span>;
-<span class="kw">const</span> <span class="ident">kPFix_DOTSPThisSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">152</span>;
-<span class="kw">const</span> <span class="ident">kPFix_SPnotSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">160</span>;
-<span class="kw">const</span> <span class="ident">kPFix_erSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">166</span>;
-<span class="kw">const</span> <span class="ident">kPFix_alSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">170</span>;
-<span class="kw">const</span> <span class="ident">kPFix_fulSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">174</span>;
-<span class="kw">const</span> <span class="ident">kPFix_iveSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">179</span>;
-<span class="kw">const</span> <span class="ident">kPFix_lessSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">184</span>;
-<span class="kw">const</span> <span class="ident">kPFix_estSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">190</span>;
-<span class="kw">const</span> <span class="ident">kPFix_izeSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">195</span>;
-<span class="kw">const</span> <span class="ident">kPFix_NBSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">200</span>;
-<span class="kw">const</span> <span class="ident">kPFix_ousSP</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">203</span>;
+// EMPTY = &quot;&quot;
+// SP = &quot; &quot;
+// DQUOT = &quot;\&quot;&quot;
+// SQUOT = &quot;&#39;&quot;
+// CLOSEBR = &quot;]&quot;
+// OPEN = &quot;(&quot;
+// SLASH = &quot;/&quot;
+// NBSP = non-breaking space &quot;\0xc2\xa0&quot;
+//
+</span><span class="kw">const </span>kPFix_EMPTY: u8 = <span class="number">0</span>;
+<span class="kw">const </span>kPFix_SP: u8 = <span class="number">1</span>;
+<span class="kw">const </span>kPFix_COMMASP: u8 = <span class="number">3</span>;
+<span class="kw">const </span>kPFix_SPofSPtheSP: u8 = <span class="number">6</span>;
+<span class="kw">const </span>kPFix_SPtheSP: u8 = <span class="number">9</span>;
+<span class="kw">const </span>kPFix_eSP: u8 = <span class="number">12</span>;
+<span class="kw">const </span>kPFix_SPofSP: u8 = <span class="number">15</span>;
+<span class="kw">const </span>kPFix_sSP: u8 = <span class="number">20</span>;
+<span class="kw">const </span>kPFix_DOT: u8 = <span class="number">23</span>;
+<span class="kw">const </span>kPFix_SPandSP: u8 = <span class="number">25</span>;
+<span class="kw">const </span>kPFix_SPinSP: u8 = <span class="number">31</span>;
+<span class="kw">const </span>kPFix_DQUOT: u8 = <span class="number">36</span>;
+<span class="kw">const </span>kPFix_SPtoSP: u8 = <span class="number">38</span>;
+<span class="kw">const </span>kPFix_DQUOTGT: u8 = <span class="number">43</span>;
+<span class="kw">const </span>kPFix_NEWLINE: u8 = <span class="number">46</span>;
+<span class="kw">const </span>kPFix_DOTSP: u8 = <span class="number">48</span>;
+<span class="kw">const </span>kPFix_CLOSEBR: u8 = <span class="number">51</span>;
+<span class="kw">const </span>kPFix_SPforSP: u8 = <span class="number">53</span>;
+<span class="kw">const </span>kPFix_SPaSP: u8 = <span class="number">59</span>;
+<span class="kw">const </span>kPFix_SPthatSP: u8 = <span class="number">63</span>;
+<span class="kw">const </span>kPFix_SQUOT: u8 = <span class="number">70</span>;
+<span class="kw">const </span>kPFix_SPwithSP: u8 = <span class="number">72</span>;
+<span class="kw">const </span>kPFix_SPfromSP: u8 = <span class="number">79</span>;
+<span class="kw">const </span>kPFix_SPbySP: u8 = <span class="number">86</span>;
+<span class="kw">const </span>kPFix_OPEN: u8 = <span class="number">91</span>;
+<span class="kw">const </span>kPFix_DOTSPTheSP: u8 = <span class="number">93</span>;
+<span class="kw">const </span>kPFix_SPonSP: u8 = <span class="number">100</span>;
+<span class="kw">const </span>kPFix_SPasSP: u8 = <span class="number">105</span>;
+<span class="kw">const </span>kPFix_SPisSP: u8 = <span class="number">110</span>;
+<span class="kw">const </span>kPFix_ingSP: u8 = <span class="number">115</span>;
+<span class="kw">const </span>kPFix_NEWLINETAB: u8 = <span class="number">120</span>;
+<span class="kw">const </span>kPFix_COLON: u8 = <span class="number">123</span>;
+<span class="kw">const </span>kPFix_edSP: u8 = <span class="number">125</span>;
+<span class="kw">const </span>kPFix_EQDQUOT: u8 = <span class="number">129</span>;
+<span class="kw">const </span>kPFix_SPatSP: u8 = <span class="number">132</span>;
+<span class="kw">const </span>kPFix_lySP: u8 = <span class="number">137</span>;
+<span class="kw">const </span>kPFix_COMMA: u8 = <span class="number">141</span>;
+<span class="kw">const </span>kPFix_EQSQUOT: u8 = <span class="number">143</span>;
+<span class="kw">const </span>kPFix_DOTcomSLASH: u8 = <span class="number">146</span>;
+<span class="kw">const </span>kPFix_DOTSPThisSP: u8 = <span class="number">152</span>;
+<span class="kw">const </span>kPFix_SPnotSP: u8 = <span class="number">160</span>;
+<span class="kw">const </span>kPFix_erSP: u8 = <span class="number">166</span>;
+<span class="kw">const </span>kPFix_alSP: u8 = <span class="number">170</span>;
+<span class="kw">const </span>kPFix_fulSP: u8 = <span class="number">174</span>;
+<span class="kw">const </span>kPFix_iveSP: u8 = <span class="number">179</span>;
+<span class="kw">const </span>kPFix_lessSP: u8 = <span class="number">184</span>;
+<span class="kw">const </span>kPFix_estSP: u8 = <span class="number">190</span>;
+<span class="kw">const </span>kPFix_izeSP: u8 = <span class="number">195</span>;
+<span class="kw">const </span>kPFix_NBSP: u8 = <span class="number">200</span>;
+<span class="kw">const </span>kPFix_ousSP: u8 = <span class="number">203</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">kNumTransforms</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">121</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">kTransforms</span>: [<span class="ident">Transform</span>; <span class="ident">kNumTransforms</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">=</span> [<span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitFirst1</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPtheSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_sSP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPofSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPandSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitFirst2</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast1</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_COMMASP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMASP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPinSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPtoSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_eSP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DQUOTGT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_NEWLINE</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast3</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_CLOSEBR</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPforSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitFirst3</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast2</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPaSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPthatSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOTSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_DOT</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMASP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitFirst4</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPwithSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPfromSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPbySP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitFirst5</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitFirst6</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SPtheSP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast4</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOTSPTheSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPonSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPasSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPisSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast7</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast1</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_ingSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_NEWLINETAB</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COLON</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOTSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_edSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitFirst9</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitFirst7</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast6</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_OPEN</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMASP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast8</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPatSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_lySP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SPtheSP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPofSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast5</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kOmitLast9</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMASP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_DOT</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_OPEN</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DQUOTGT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQDQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_DOTcomSLASH</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SPtheSP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPofSPtheSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOTSPThisSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMA</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_DOT</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_OPEN</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SPnotSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQDQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_erSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_alSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQSQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOTSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_OPEN</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_fulSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOTSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_iveSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_lessSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_SQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_estSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DQUOTGT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQSQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMA</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_izeSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_NBSP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMA</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQDQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQDQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kIdentity</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_ousSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMASP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQSQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMA</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQDQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMASP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_COMMA</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_OPEN</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOTSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_EMPTY</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQSQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_DOTSP</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQDQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseAll</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQSQUOT</span>,
-                                                               },
-                                                               <span class="ident">Transform</span> {
-                                                                 <span class="ident">prefix_id</span>: <span class="ident">kPFix_SP</span>,
-                                                                 <span class="ident">transform</span>: <span class="ident">kUppercaseFirst</span>,
-                                                                 <span class="ident">suffix_id</span>: <span class="ident">kPFix_EQSQUOT</span>,
+<span class="kw">pub const </span>kNumTransforms: i32 = <span class="number">121</span>;
+<span class="kw">pub const </span>kTransforms: [Transform; kNumTransforms <span class="kw">as </span>usize] = [Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitFirst1,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPtheSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_sSP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPofSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPandSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitFirst2,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast1,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_COMMASP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_COMMASP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPinSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPtoSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_eSP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_DQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_DOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_DQUOTGT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_NEWLINE,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast3,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_CLOSEBR,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPforSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitFirst3,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast2,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPaSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPthatSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_DOTSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_DOT,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_COMMASP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitFirst4,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPwithSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPfromSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPbySP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitFirst5,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitFirst6,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SPtheSP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast4,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_DOTSPTheSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPonSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPasSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPisSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast7,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast1,
+                                                                 suffix_id: kPFix_ingSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_NEWLINETAB,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_COLON,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_DOTSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_edSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitFirst9,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitFirst7,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast6,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_OPEN,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_COMMASP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast8,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPatSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_lySP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SPtheSP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPofSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast5,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kOmitLast9,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_COMMASP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_DQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_DOT,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_OPEN,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_DQUOTGT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EQDQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_DOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_DOTcomSLASH,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SPtheSP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPofSPtheSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_SQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_DOTSPThisSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_COMMA,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_DOT,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_OPEN,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_DOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_SPnotSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EQDQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_erSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_SP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_alSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EQSQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_DQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_DOTSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_OPEN,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_fulSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_DOTSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_iveSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_lessSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_SQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_estSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_DOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_DQUOTGT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EQSQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_COMMA,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_izeSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_DOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_NBSP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_EMPTY,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_COMMA,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_EQDQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_EQDQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kIdentity,
+                                                                 suffix_id: kPFix_ousSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_COMMASP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_EQSQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_COMMA,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_EQDQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_COMMASP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_COMMA,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_OPEN,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_DOTSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_DOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_EMPTY,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_EQSQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_DOTSP,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_EQDQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseAll,
+                                                                 suffix_id: kPFix_EQSQUOT,
+                                                               },
+                                                               Transform {
+                                                                 prefix_id: kPFix_SP,
+                                                                 transform: kUppercaseFirst,
+                                                                 suffix_id: kPFix_EQSQUOT,
                                                                }];
 
 
 
-<span class="kw">fn</span> <span class="ident">ToUpperCase</span>(<span class="ident">p</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">i32</span> {
-  <span class="kw">if</span> (<span class="macro">fast!</span>((<span class="ident">p</span>)[<span class="number">0</span>]) <span class="op">&lt;</span> <span class="number">0xc0</span>) {
-    <span class="kw">if</span> (<span class="macro">fast!</span>((<span class="ident">p</span>)[<span class="number">0</span>]) <span class="op">&gt;</span><span class="op">=</span> <span class="string">b&#39;a&#39;</span> <span class="op">&amp;&amp;</span> <span class="macro">fast!</span>((<span class="ident">p</span>)[<span class="number">0</span>]) <span class="op">&lt;</span><span class="op">=</span> <span class="string">b&#39;z&#39;</span>) {
-      <span class="macro">fast_mut!</span>((<span class="ident">p</span>)[<span class="number">0</span>]) <span class="op">^</span><span class="op">=</span> <span class="number">32</span>;
+<span class="kw">fn </span>ToUpperCase(p: <span class="kw-2">&amp;mut </span>[u8]) -&gt; i32 {
+  <span class="kw">if </span>(<span class="macro">fast!</span>((p)[<span class="number">0</span>]) &lt; <span class="number">0xc0</span>) {
+    <span class="kw">if </span>(<span class="macro">fast!</span>((p)[<span class="number">0</span>]) &gt;= <span class="string">b&#39;a&#39; </span>&amp;&amp; <span class="macro">fast!</span>((p)[<span class="number">0</span>]) &lt;= <span class="string">b&#39;z&#39;</span>) {
+      <span class="macro">fast_mut!</span>((p)[<span class="number">0</span>]) ^= <span class="number">32</span>;
     }
-    <span class="kw">return</span> <span class="number">1</span>;
+    <span class="kw">return </span><span class="number">1</span>;
   }
-  <span class="comment">// An overly simplified uppercasing model for utf-8.</span>
-  <span class="kw">if</span> (<span class="macro">fast!</span>((<span class="ident">p</span>)[<span class="number">0</span>]) <span class="op">&lt;</span> <span class="number">0xe0</span>) {
-    <span class="macro">fast_mut!</span>((<span class="ident">p</span>)[<span class="number">1</span>]) <span class="op">^</span><span class="op">=</span> <span class="number">32</span>;
-    <span class="kw">return</span> <span class="number">2</span>;
+  <span class="comment">// An overly simplified uppercasing model for utf-8.
+  </span><span class="kw">if </span>(<span class="macro">fast!</span>((p)[<span class="number">0</span>]) &lt; <span class="number">0xe0</span>) {
+    <span class="macro">fast_mut!</span>((p)[<span class="number">1</span>]) ^= <span class="number">32</span>;
+    <span class="kw">return </span><span class="number">2</span>;
   }
-  <span class="comment">// An arbitrary transform for three byte characters.</span>
-  <span class="macro">fast_mut!</span>((<span class="ident">p</span>)[<span class="number">2</span>]) <span class="op">^</span><span class="op">=</span> <span class="number">5</span>;
-  <span class="number">3</span>
-}
+  <span class="comment">// An arbitrary transform for three byte characters.
+  </span><span class="macro">fast_mut!</span>((p)[<span class="number">2</span>]) ^= <span class="number">5</span>;
+  <span class="number">3
+</span>}
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">TransformDictionaryWord</span>(<span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-                               <span class="kw-2">mut</span> <span class="ident">word</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-                               <span class="kw-2">mut</span> <span class="ident">len</span>: <span class="ident">i32</span>,
-                               <span class="ident">transform</span>: <span class="ident">i32</span>)
-                               -&gt; <span class="ident">i32</span> {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="kw">pub fn </span>TransformDictionaryWord(dst: <span class="kw-2">&amp;mut </span>[u8],
+                               <span class="kw-2">mut </span>word: <span class="kw-2">&amp;</span>[u8],
+                               <span class="kw-2">mut </span>len: i32,
+                               transform: i32)
+                               -&gt; i32 {
+  <span class="kw">let </span><span class="kw-2">mut </span>idx: i32 = <span class="number">0</span>;
   {
-    <span class="kw">let</span> <span class="ident">prefix</span> <span class="op">=</span>
-      <span class="kw-2">&amp;</span><span class="macro">fast!</span>((<span class="ident">kPrefixSuffix</span>)[<span class="macro">fast_inner!</span>((<span class="ident">kTransforms</span>)[<span class="ident">transform</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">prefix_id</span> <span class="kw">as</span> <span class="ident">usize</span>;]);
-    <span class="kw">while</span> (<span class="macro">fast!</span>((<span class="ident">prefix</span>)[<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>) {
-      <span class="macro">fast_mut!</span>((<span class="ident">dst</span>)[<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">prefix</span>)[<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-      <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">let </span>prefix =
+      <span class="kw-2">&amp;</span><span class="macro">fast!</span>((kPrefixSuffix)[<span class="macro">fast_inner!</span>((kTransforms)[transform <span class="kw">as </span>usize]).prefix_id <span class="kw">as </span>usize;]);
+    <span class="kw">while </span>(<span class="macro">fast!</span>((prefix)[idx <span class="kw">as </span>usize]) != <span class="number">0</span>) {
+      <span class="macro">fast_mut!</span>((dst)[idx <span class="kw">as </span>usize]) = <span class="macro">fast!</span>((prefix)[idx <span class="kw">as </span>usize]);
+      idx += <span class="number">1</span>;
     }
   }
   {
-    <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="macro">fast_ref!</span>((<span class="ident">kTransforms</span>)[<span class="ident">transform</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">transform</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">skip</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">t</span> <span class="op">&lt;</span> <span class="ident">kOmitFirst1</span> {
-      <span class="number">0</span>
-    } <span class="kw">else</span> {
-      <span class="ident">t</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">-</span> (<span class="ident">kOmitFirst1</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">i32</span>
+    <span class="kw">let </span>t = <span class="macro">fast_ref!</span>((kTransforms)[transform <span class="kw">as </span>usize]).transform;
+    <span class="kw">let </span><span class="kw-2">mut </span>skip: i32 = <span class="kw">if </span>t &lt; kOmitFirst1 {
+      <span class="number">0
+    </span>} <span class="kw">else </span>{
+      t <span class="kw">as </span>i32 - (kOmitFirst1 - <span class="number">1</span>) <span class="kw">as </span>i32
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">if</span> (<span class="ident">skip</span> <span class="op">&gt;</span> <span class="ident">len</span>) {
-      <span class="ident">skip</span> <span class="op">=</span> <span class="ident">len</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>i: i32 = <span class="number">0</span>;
+    <span class="kw">if </span>(skip &gt; len) {
+      skip = len;
     }
-    <span class="ident">word</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">word</span>)[<span class="ident">skip</span> <span class="kw">as</span> <span class="ident">usize</span>;]);
-    <span class="ident">len</span> <span class="op">-</span><span class="op">=</span> <span class="ident">skip</span>;
-    <span class="kw">if</span> (<span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">kOmitLast9</span>) {
-      <span class="ident">len</span> <span class="op">-</span><span class="op">=</span> <span class="ident">t</span> <span class="kw">as</span> <span class="ident">i32</span>;
+    word = <span class="macro">fast!</span>((word)[skip <span class="kw">as </span>usize;]);
+    len -= skip;
+    <span class="kw">if </span>(t &lt;= kOmitLast9) {
+      len -= t <span class="kw">as </span>i32;
     }
-    <span class="kw">while</span> (<span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">len</span>) {
-      <span class="macro">fast_mut!</span>((<span class="ident">dst</span>)[<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">word</span>)[<span class="ident">i</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-      <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-      <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">while </span>(i &lt; len) {
+      <span class="macro">fast_mut!</span>((dst)[idx <span class="kw">as </span>usize]) = <span class="macro">fast!</span>((word)[i <span class="kw">as </span>usize]);
+      idx += <span class="number">1</span>;
+      i += <span class="number">1</span>;
     }
-    <span class="kw">let</span> <span class="ident">uppercase</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="macro">fast_mut!</span>((<span class="ident">dst</span>)[(<span class="ident">idx</span> <span class="op">-</span> <span class="ident">len</span>) <span class="kw">as</span> <span class="ident">usize</span> ;]);
-    <span class="kw">if</span> (<span class="ident">t</span> <span class="op">==</span> <span class="ident">kUppercaseFirst</span>) {
-      <span class="ident">ToUpperCase</span>(<span class="ident">uppercase</span>);
-    } <span class="kw">else</span> <span class="kw">if</span> (<span class="ident">t</span> <span class="op">==</span> <span class="ident">kUppercaseAll</span>) {
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uppercase_offset</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-      <span class="kw">while</span> (<span class="ident">len</span> <span class="op">&gt;</span> <span class="number">0</span>) {
-        <span class="kw">let</span> <span class="ident">step</span> <span class="op">=</span> <span class="ident">ToUpperCase</span>(<span class="kw-2">&amp;mut</span> <span class="macro">fast_mut!</span>((<span class="ident">uppercase</span>)[<span class="ident">uppercase_offset</span>;]));
-        <span class="ident">uppercase_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step</span> <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="ident">len</span> <span class="op">-</span><span class="op">=</span> <span class="ident">step</span>;
+    <span class="kw">let </span>uppercase = <span class="kw-2">&amp;mut </span><span class="macro">fast_mut!</span>((dst)[(idx - len) <span class="kw">as </span>usize ;]);
+    <span class="kw">if </span>(t == kUppercaseFirst) {
+      ToUpperCase(uppercase);
+    } <span class="kw">else if </span>(t == kUppercaseAll) {
+      <span class="kw">let </span><span class="kw-2">mut </span>uppercase_offset: usize = <span class="number">0</span>;
+      <span class="kw">while </span>(len &gt; <span class="number">0</span>) {
+        <span class="kw">let </span>step = ToUpperCase(<span class="kw-2">&amp;mut </span><span class="macro">fast_mut!</span>((uppercase)[uppercase_offset;]));
+        uppercase_offset += step <span class="kw">as </span>usize;
+        len -= step;
       }
     }
   }
   {
-    <span class="kw">let</span> <span class="ident">suffix</span> <span class="op">=</span>
-      <span class="kw-2">&amp;</span><span class="macro">fast!</span>((<span class="ident">kPrefixSuffix</span>)[<span class="macro">fast_inner!</span>((<span class="ident">kTransforms</span>)[<span class="ident">transform</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">suffix_id</span> <span class="kw">as</span> <span class="ident">usize</span> ; ]);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">while</span> (<span class="macro">fast!</span>((<span class="ident">suffix</span>)[<span class="ident">i</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>) {
-      <span class="macro">fast_mut!</span>((<span class="ident">dst</span>)[<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">suffix</span>)[<span class="ident">i</span>]);
-      <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-      <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">let </span>suffix =
+      <span class="kw-2">&amp;</span><span class="macro">fast!</span>((kPrefixSuffix)[<span class="macro">fast_inner!</span>((kTransforms)[transform <span class="kw">as </span>usize]).suffix_id <span class="kw">as </span>usize ; ]);
+    <span class="kw">let </span><span class="kw-2">mut </span>i: usize = <span class="number">0</span>;
+    <span class="kw">while </span>(<span class="macro">fast!</span>((suffix)[i <span class="kw">as </span>usize]) != <span class="number">0</span>) {
+      <span class="macro">fast_mut!</span>((dst)[idx <span class="kw">as </span>usize]) = <span class="macro">fast!</span>((suffix)[i]);
+      idx += <span class="number">1</span>;
+      i += <span class="number">1</span>;
     }
-    <span class="ident">idx</span>
+    idx
   }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

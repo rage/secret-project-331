@@ -1,4 +1,4 @@
-(function() {var implementors = {};
-implementors["actix_http"] = [];
-implementors["actix_web"] = [];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"actix_http":[],
+"actix_web":[]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

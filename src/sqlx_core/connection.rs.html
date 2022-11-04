@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -179,186 +179,186 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database</span>::{<span class="ident">Database</span>, <span class="ident">HasStatementCache</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transaction::Transaction</span>;
-<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">log::LevelFilter</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasStatementCache};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::transaction::Transaction;
+<span class="kw">use </span>futures_core::future::BoxFuture;
+<span class="kw">use </span>log::LevelFilter;
+<span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::str::FromStr;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="doccomment">/// Represents a single database connection.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Connection</span>: <span class="ident">Send</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// Represents a single database connection.
+</span><span class="kw">pub trait </span>Connection: Send {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="kw">type</span> <span class="ident">Options</span>: <span class="ident">ConnectOptions</span><span class="op">&lt;</span><span class="ident">Connection</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Options: ConnectOptions&lt;Connection = <span class="self">Self</span>&gt;;
 
-    <span class="doccomment">/// Explicitly close this database connection.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method is **not required** for safe and consistent operation. However, it is</span>
-    <span class="doccomment">/// recommended to call it instead of letting a connection `drop` as the database backend</span>
-    <span class="doccomment">/// will be faster at cleaning up resources.</span>
-    <span class="kw">fn</span> <span class="ident">close</span>(<span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Explicitly close this database connection.
+    ///
+    /// This method is **not required** for safe and consistent operation. However, it is
+    /// recommended to call it instead of letting a connection `drop` as the database backend
+    /// will be faster at cleaning up resources.
+    </span><span class="kw">fn </span>close(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt;;
 
-    <span class="doccomment">/// Immediately close the connection without sending a graceful shutdown.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This should still at least send a TCP `FIN` frame to let the server know we&#39;re dying.</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">close_hard</span>(<span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Immediately close the connection without sending a graceful shutdown.
+    ///
+    /// This should still at least send a TCP `FIN` frame to let the server know we&#39;re dying.
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>close_hard(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt;;
 
-    <span class="doccomment">/// Checks if a connection to the database is still valid.</span>
-    <span class="kw">fn</span> <span class="ident">ping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Checks if a connection to the database is still valid.
+    </span><span class="kw">fn </span>ping(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt;;
 
-    <span class="doccomment">/// Begin a new transaction or establish a savepoint within the active transaction.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns a [`Transaction`] for controlling and tracking the new transaction.</span>
-    <span class="kw">fn</span> <span class="ident">begin</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>;
+    <span class="doccomment">/// Begin a new transaction or establish a savepoint within the active transaction.
+    ///
+    /// Returns a [`Transaction`] for controlling and tracking the new transaction.
+    </span><span class="kw">fn </span>begin(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>::Database&gt;, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized;
 
-    <span class="doccomment">/// Execute the function inside a transaction.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the function returns an error, the transaction will be rolled back. If it does not</span>
-    <span class="doccomment">/// return an error, the transaction will be committed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use sqlx_core::connection::Connection;</span>
-    <span class="doccomment">/// use sqlx_core::error::Error;</span>
-    <span class="doccomment">/// use sqlx_core::executor::Executor;</span>
-    <span class="doccomment">/// use sqlx_core::postgres::{PgConnection, PgRow};</span>
-    <span class="doccomment">/// use sqlx_core::query::query;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # pub async fn _f(conn: &amp;mut PgConnection) -&gt; Result&lt;Vec&lt;PgRow&gt;, Error&gt; {</span>
-    <span class="doccomment">/// conn.transaction(|conn|Box::pin(async move {</span>
-    <span class="doccomment">///     query(&quot;select * from ..&quot;).fetch_all(conn).await</span>
-    <span class="doccomment">/// })).await</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>, <span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">callback</span>: <span class="ident">F</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>
-            <span class="op">+</span> <span class="lifetime">&#39;a</span>
-            <span class="op">+</span> <span class="ident">Send</span>
-            <span class="op">+</span> <span class="ident">Sync</span>,
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">R</span>: <span class="ident">Send</span>,
-        <span class="ident">E</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="doccomment">/// Execute the function inside a transaction.
+    ///
+    /// If the function returns an error, the transaction will be rolled back. If it does not
+    /// return an error, the transaction will be committed.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use sqlx_core::connection::Connection;
+    /// use sqlx_core::error::Error;
+    /// use sqlx_core::executor::Executor;
+    /// use sqlx_core::postgres::{PgConnection, PgRow};
+    /// use sqlx_core::query::query;
+    ///
+    /// # pub async fn _f(conn: &amp;mut PgConnection) -&gt; Result&lt;Vec&lt;PgRow&gt;, Error&gt; {
+    /// conn.transaction(|conn|Box::pin(async move {
+    ///     query(&quot;select * from ..&quot;).fetch_all(conn).await
+    /// })).await
+    /// # }
+    /// ```
+    </span><span class="kw">fn </span>transaction&lt;<span class="lifetime">&#39;a</span>, F, R, E&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, callback: F) -&gt; BoxFuture&lt;<span class="lifetime">&#39;a</span>, <span class="prelude-ty">Result</span>&lt;R, E&gt;&gt;
+    <span class="kw">where
+        for</span>&lt;<span class="lifetime">&#39;c</span>&gt; F: FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>Transaction&lt;<span class="lifetime">&#39;_</span>, <span class="self">Self</span>::Database&gt;) -&gt; BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;R, E&gt;&gt;
+            + <span class="lifetime">&#39;a
+            </span>+ Send
+            + Sync,
+        <span class="self">Self</span>: Sized,
+        R: Send,
+        E: From&lt;Error&gt; + Send,
     {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transaction</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">callback</span>(<span class="kw-2">&amp;mut</span> <span class="ident">transaction</span>).<span class="kw">await</span>;
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>transaction = <span class="self">self</span>.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>ret = callback(<span class="kw-2">&amp;mut </span>transaction).<span class="kw">await</span>;
 
-            <span class="kw">match</span> <span class="ident">ret</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">ret</span>) =&gt; {
-                    <span class="ident">transaction</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">match </span>ret {
+                <span class="prelude-val">Ok</span>(ret) =&gt; {
+                    transaction.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-                    <span class="prelude-val">Ok</span>(<span class="ident">ret</span>)
+                    <span class="prelude-val">Ok</span>(ret)
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="ident">transaction</span>.<span class="ident">rollback</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    transaction.rollback().<span class="kw">await</span><span class="question-mark">?</span>;
 
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>)
+                    <span class="prelude-val">Err</span>(err)
                 }
             }
         })
     }
 
-    <span class="doccomment">/// The number of statements currently cached in the connection.</span>
-    <span class="kw">fn</span> <span class="ident">cached_statements_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>
-    <span class="kw">where</span>
-        <span class="ident"><span class="self">Self</span>::Database</span>: <span class="ident">HasStatementCache</span>,
+    <span class="doccomment">/// The number of statements currently cached in the connection.
+    </span><span class="kw">fn </span>cached_statements_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize
+    <span class="kw">where
+        </span><span class="self">Self</span>::Database: HasStatementCache,
     {
-        <span class="number">0</span>
+        <span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Removes all statements from the cache, closing them on the server if
+    /// needed.
+    </span><span class="kw">fn </span>clear_cached_statements(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>::Database: HasStatementCache,
+    {
+        Box::pin(<span class="kw">async move </span>{ <span class="prelude-val">Ok</span>(()) })
     }
 
-    <span class="doccomment">/// Removes all statements from the cache, closing them on the server if</span>
-    <span class="doccomment">/// needed.</span>
-    <span class="kw">fn</span> <span class="ident">clear_cached_statements</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident"><span class="self">Self</span>::Database</span>: <span class="ident">HasStatementCache</span>,
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt;;
+
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>should_flush(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+
+    <span class="doccomment">/// Establish a new database connection.
+    ///
+    /// A value of [`Options`][Self::Options] is parsed from the provided connection string. This parsing
+    /// is database-specific.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>connect(url: <span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>(()) })
+        <span class="kw">let </span>options = url.parse();
+
+        Box::pin(<span class="kw">async move </span>{ <span class="prelude-val">Ok</span>(<span class="self">Self</span>::connect_with(<span class="kw-2">&amp;</span>options<span class="question-mark">?</span>).<span class="kw">await</span><span class="question-mark">?</span>) })
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">should_flush</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
-
-    <span class="doccomment">/// Establish a new database connection.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A value of [`Options`][Self::Options] is parsed from the provided connection string. This parsing</span>
-    <span class="doccomment">/// is database-specific.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">connect</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="doccomment">/// Establish a new database connection with the provided options.
+    </span><span class="kw">fn </span>connect_with(options: <span class="kw-2">&amp;</span><span class="self">Self</span>::Options) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">parse</span>();
-
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::connect_with</span>(<span class="kw-2">&amp;</span><span class="ident">options</span><span class="question-mark">?</span>).<span class="kw">await</span><span class="question-mark">?</span>) })
-    }
-
-    <span class="doccomment">/// Establish a new database connection with the provided options.</span>
-    <span class="kw">fn</span> <span class="ident">connect_with</span>(<span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Options</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-    {
-        <span class="ident">options</span>.<span class="ident">connect</span>()
+        options.connect()
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">LogSettings</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">statements_level</span>: <span class="ident">LevelFilter</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">slow_statements_level</span>: <span class="ident">LevelFilter</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">slow_statements_duration</span>: <span class="ident">Duration</span>,
+<span class="attribute">#[derive(Clone, Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>LogSettings {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) statements_level: LevelFilter,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) slow_statements_level: LevelFilter,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) slow_statements_duration: Duration,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">LogSettings</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">LogSettings</span> {
-            <span class="ident">statements_level</span>: <span class="ident">LevelFilter::Info</span>,
-            <span class="ident">slow_statements_level</span>: <span class="ident">LevelFilter::Warn</span>,
-            <span class="ident">slow_statements_duration</span>: <span class="ident">Duration::from_secs</span>(<span class="number">1</span>),
+<span class="kw">impl </span>Default <span class="kw">for </span>LogSettings {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        LogSettings {
+            statements_level: LevelFilter::Info,
+            slow_statements_level: LevelFilter::Warn,
+            slow_statements_duration: Duration::from_secs(<span class="number">1</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">LogSettings</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">log_statements</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">level</span>: <span class="ident">LevelFilter</span>) {
-        <span class="self">self</span>.<span class="ident">statements_level</span> <span class="op">=</span> <span class="ident">level</span>;
+<span class="kw">impl </span>LogSettings {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>log_statements(<span class="kw-2">&amp;mut </span><span class="self">self</span>, level: LevelFilter) {
+        <span class="self">self</span>.statements_level = level;
     }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">log_slow_statements</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">level</span>: <span class="ident">LevelFilter</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) {
-        <span class="self">self</span>.<span class="ident">slow_statements_level</span> <span class="op">=</span> <span class="ident">level</span>;
-        <span class="self">self</span>.<span class="ident">slow_statements_duration</span> <span class="op">=</span> <span class="ident">duration</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>log_slow_statements(<span class="kw-2">&amp;mut </span><span class="self">self</span>, level: LevelFilter, duration: Duration) {
+        <span class="self">self</span>.slow_statements_level = level;
+        <span class="self">self</span>.slow_statements_duration = duration;
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ConnectOptions</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">FromStr</span><span class="op">&lt;</span><span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Clone</span> {
-    <span class="kw">type</span> <span class="ident">Connection</span>: <span class="ident">Connection</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>;
+<span class="kw">pub trait </span>ConnectOptions: <span class="lifetime">&#39;static </span>+ Send + Sync + FromStr&lt;<span class="prelude-val">Err </span>= Error&gt; + Debug + Clone {
+    <span class="kw">type </span>Connection: Connection + <span class="question-mark">?</span>Sized;
 
-    <span class="doccomment">/// Establish a new database connection with the options specified by `self`.</span>
-    <span class="kw">fn</span> <span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Connection</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident"><span class="self">Self</span>::Connection</span>: <span class="ident">Sized</span>;
+    <span class="doccomment">/// Establish a new database connection with the options specified by `self`.
+    </span><span class="kw">fn </span>connect(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>::Connection: Sized;
 
-    <span class="doccomment">/// Log executed statements with the specified `level`</span>
-    <span class="kw">fn</span> <span class="ident">log_statements</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">level</span>: <span class="ident">LevelFilter</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>;
+    <span class="doccomment">/// Log executed statements with the specified `level`
+    </span><span class="kw">fn </span>log_statements(<span class="kw-2">&amp;mut </span><span class="self">self</span>, level: LevelFilter) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>;
 
-    <span class="doccomment">/// Log executed statements with a duration above the specified `duration`</span>
-    <span class="doccomment">/// at the specified `level`.</span>
-    <span class="kw">fn</span> <span class="ident">log_slow_statements</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">level</span>: <span class="ident">LevelFilter</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>;
+    <span class="doccomment">/// Log executed statements with a duration above the specified `duration`
+    /// at the specified `level`.
+    </span><span class="kw">fn </span>log_slow_statements(<span class="kw-2">&amp;mut </span><span class="self">self</span>, level: LevelFilter, duration: Duration) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>;
 
-    <span class="doccomment">/// Entirely disables statement logging (both slow and regular).</span>
-    <span class="kw">fn</span> <span class="ident">disable_statement_logging</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">log_statements</span>(<span class="ident">LevelFilter::Off</span>)
-            .<span class="ident">log_slow_statements</span>(<span class="ident">LevelFilter::Off</span>, <span class="ident">Duration::default</span>())
+    <span class="doccomment">/// Entirely disables statement logging (both slow and regular).
+    </span><span class="kw">fn </span>disable_statement_logging(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="self">self</span>.log_statements(LevelFilter::Off)
+            .log_slow_statements(LevelFilter::Off, Duration::default())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

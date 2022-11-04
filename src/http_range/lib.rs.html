@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/http-range-0.1.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../http_range/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../http_range/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../http_range/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/http-range-0.1.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../http_range/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../http_range/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../http_range/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -566,568 +566,568 @@
 <span id="566">566</span>
 <span id="567">567</span>
 <span id="568">568</span>
-</pre><pre class="rust"><code><span class="doccomment">//! # http-range</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! HTTP Range header parser.</span>
-<span class="doccomment">//! Inspired by Go&#39;s net/http library.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! # http-range
+//!
+//! HTTP Range header parser.
+//! Inspired by Go&#39;s net/http library.
 
-<span class="kw">static</span> <span class="ident">PREFIX</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;bytes=&quot;</span>;
-<span class="kw">const</span> <span class="ident">PREFIX_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">6</span>;
+</span><span class="kw">static </span>PREFIX: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8] = <span class="string">b&quot;bytes=&quot;</span>;
+<span class="kw">const </span>PREFIX_LEN: usize = <span class="number">6</span>;
 
-<span class="doccomment">/// Range parsing error</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HttpRangeParseError</span> {
-    <span class="doccomment">/// Returned if range is invalid.</span>
-    <span class="ident">InvalidRange</span>,
-    <span class="doccomment">/// Returned if first-byte-pos of all of the byte-range-spec</span>
-    <span class="doccomment">/// values is greater than the content size.</span>
-    <span class="doccomment">/// See https://github.com/golang/go/commit/aa9b3d7</span>
-    <span class="ident">NoOverlap</span>,
+<span class="doccomment">/// Range parsing error
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>HttpRangeParseError {
+    <span class="doccomment">/// Returned if range is invalid.
+    </span>InvalidRange,
+    <span class="doccomment">/// Returned if first-byte-pos of all of the byte-range-spec
+    /// values is greater than the content size.
+    /// See https://github.com/golang/go/commit/aa9b3d7
+    </span>NoOverlap,
 }
 
-<span class="doccomment">/// HTTP Range header representation.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HttpRange</span> {
-    <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">u64</span>,
-    <span class="kw">pub</span> <span class="ident">length</span>: <span class="ident">u64</span>,
+<span class="doccomment">/// HTTP Range header representation.
+</span><span class="attribute">#[derive(Debug, Clone, Copy)]
+</span><span class="kw">pub struct </span>HttpRange {
+    <span class="kw">pub </span>start: u64,
+    <span class="kw">pub </span>length: u64,
 }
 
-<span class="kw">impl</span> <span class="ident">HttpRange</span> {
-    <span class="doccomment">/// Parses Range HTTP header string as per RFC 2616.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `header` is HTTP Range header (e.g. `bytes=bytes=0-9`).</span>
-    <span class="doccomment">/// `size` is full size of response (file).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">header</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">size</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HttpRange</span><span class="op">&gt;</span>, <span class="ident">HttpRangeParseError</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::parse_bytes</span>(<span class="ident">header</span>.<span class="ident">as_bytes</span>(), <span class="ident">size</span>)
+<span class="kw">impl </span>HttpRange {
+    <span class="doccomment">/// Parses Range HTTP header string as per RFC 2616.
+    ///
+    /// `header` is HTTP Range header (e.g. `bytes=bytes=0-9`).
+    /// `size` is full size of response (file).
+    </span><span class="kw">pub fn </span>parse(header: <span class="kw-2">&amp;</span>str, size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;HttpRange&gt;, HttpRangeParseError&gt; {
+        <span class="self">Self</span>::parse_bytes(header.as_bytes(), size)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_bytes</span>(<span class="ident">header</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">size</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HttpRange</span><span class="op">&gt;</span>, <span class="ident">HttpRangeParseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">header</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Vec::new</span>());
+    <span class="kw">pub fn </span>parse_bytes(header: <span class="kw-2">&amp;</span>[u8], size: u64) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;HttpRange&gt;, HttpRangeParseError&gt; {
+        <span class="kw">if </span>header.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(Vec::new());
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">header</span>.<span class="ident">starts_with</span>(<span class="ident">PREFIX</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HttpRangeParseError::InvalidRange</span>);
+        <span class="kw">if </span>!header.starts_with(PREFIX) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(HttpRangeParseError::InvalidRange);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">no_overlap</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>no_overlap = <span class="bool-val">false</span>;
 
-        <span class="kw">let</span> <span class="ident">ranges</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HttpRange</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">header</span>[<span class="ident">PREFIX_LEN</span>..]
-            .<span class="ident">split</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;,&#39;</span>)
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">ra</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">ra</span> <span class="op">=</span> <span class="ident">ra</span>.<span class="ident">trim</span>();
-                <span class="kw">if</span> <span class="ident">ra</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span>ranges: Vec&lt;HttpRange&gt; = header[PREFIX_LEN..]
+            .split(|b| <span class="kw-2">*</span>b == <span class="string">b&#39;,&#39;</span>)
+            .filter_map(|ra| {
+                <span class="kw">let </span>ra = ra.trim();
+                <span class="kw">if </span>ra.is_empty() {
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="kw">match</span> <span class="ident"><span class="self">Self</span>::parse_single_range</span>(<span class="ident">ra</span>, <span class="ident">size</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">range</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">range</span>)),
+                <span class="kw">match </span><span class="self">Self</span>::parse_single_range(ra, size) {
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(range)) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(range)),
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
-                        <span class="ident">no_overlap</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="prelude-val">None</span>
-                    }
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)),
+                        no_overlap = <span class="bool-val">true</span>;
+                        <span class="prelude-val">None
+                    </span>}
+                    <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)),
                 }
             })
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="ident">no_overlap</span> <span class="op">&amp;&amp;</span> <span class="ident">ranges</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HttpRangeParseError::NoOverlap</span>);
+        <span class="kw">if </span>no_overlap &amp;&amp; ranges.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(HttpRangeParseError::NoOverlap);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">ranges</span>)
+        <span class="prelude-val">Ok</span>(ranges)
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_single_range</span>(
-        <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">size</span>: <span class="ident">u64</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpRange</span><span class="op">&gt;</span>, <span class="ident">HttpRangeParseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start_end_iter</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">splitn</span>(<span class="number">2</span>, <span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;-&#39;</span>);
+    <span class="kw">fn </span>parse_single_range(
+        bytes: <span class="kw-2">&amp;</span>[u8],
+        size: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;HttpRange&gt;, HttpRangeParseError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>start_end_iter = bytes.splitn(<span class="number">2</span>, |b| <span class="kw-2">*</span>b == <span class="string">b&#39;-&#39;</span>);
 
-        <span class="kw">let</span> <span class="ident">start_str</span> <span class="op">=</span> <span class="ident">start_end_iter</span>
-            .<span class="ident">next</span>()
-            .<span class="ident">ok_or</span>(<span class="ident">HttpRangeParseError::InvalidRange</span>)<span class="question-mark">?</span>
-            .<span class="ident">trim</span>();
-        <span class="kw">let</span> <span class="ident">end_str</span> <span class="op">=</span> <span class="ident">start_end_iter</span>
-            .<span class="ident">next</span>()
-            .<span class="ident">ok_or</span>(<span class="ident">HttpRangeParseError::InvalidRange</span>)<span class="question-mark">?</span>
-            .<span class="ident">trim</span>();
+        <span class="kw">let </span>start_str = start_end_iter
+            .next()
+            .ok_or(HttpRangeParseError::InvalidRange)<span class="question-mark">?
+            </span>.trim();
+        <span class="kw">let </span>end_str = start_end_iter
+            .next()
+            .ok_or(HttpRangeParseError::InvalidRange)<span class="question-mark">?
+            </span>.trim();
 
-        <span class="kw">if</span> <span class="ident">start_str</span>.<span class="ident">is_empty</span>() {
-            <span class="comment">// If no start is specified, end specifies the</span>
-            <span class="comment">// range start relative to the end of the file,</span>
-            <span class="comment">// and we are dealing with &lt;suffix-length&gt;</span>
-            <span class="comment">// which has to be a non-negative integer as per</span>
-            <span class="comment">// RFC 7233 Section 2.1 &quot;Byte-Ranges&quot;.</span>
-            <span class="kw">if</span> <span class="ident">end_str</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">end_str</span>[<span class="number">0</span>] <span class="op">==</span> <span class="string">b&#39;-&#39;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HttpRangeParseError::InvalidRange</span>);
+        <span class="kw">if </span>start_str.is_empty() {
+            <span class="comment">// If no start is specified, end specifies the
+            // range start relative to the end of the file,
+            // and we are dealing with &lt;suffix-length&gt;
+            // which has to be a non-negative integer as per
+            // RFC 7233 Section 2.1 &quot;Byte-Ranges&quot;.
+            </span><span class="kw">if </span>end_str.is_empty() || end_str[<span class="number">0</span>] == <span class="string">b&#39;-&#39; </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(HttpRangeParseError::InvalidRange);
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">length</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">end_str</span>
-                .<span class="ident">parse_u64</span>()
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">HttpRangeParseError::InvalidRange</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>length: u64 = end_str
+                .parse_u64()
+                .map_err(|<span class="kw">_</span>| HttpRangeParseError::InvalidRange)<span class="question-mark">?</span>;
 
-            <span class="kw">if</span> <span class="ident">length</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            <span class="kw">if </span>length == <span class="number">0 </span>{
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
             }
 
-            <span class="kw">if</span> <span class="ident">length</span> <span class="op">&gt;</span> <span class="ident">size</span> {
-                <span class="ident">length</span> <span class="op">=</span> <span class="ident">size</span>;
+            <span class="kw">if </span>length &gt; size {
+                length = size;
             }
 
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">HttpRange</span> {
-                <span class="ident">start</span>: (<span class="ident">size</span> <span class="op">-</span> <span class="ident">length</span>),
-                <span class="ident">length</span>,
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(HttpRange {
+                start: (size - length),
+                length,
             }))
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">start</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">start_str</span>
-                .<span class="ident">parse_u64</span>()
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">HttpRangeParseError::InvalidRange</span>)<span class="question-mark">?</span>;
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>start: u64 = start_str
+                .parse_u64()
+                .map_err(|<span class="kw">_</span>| HttpRangeParseError::InvalidRange)<span class="question-mark">?</span>;
 
-            <span class="kw">if</span> <span class="ident">start</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">size</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            <span class="kw">if </span>start &gt;= size {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
             }
 
-            <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">end_str</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// If no end is specified, range extends to end of the file.</span>
-                <span class="ident">size</span> <span class="op">-</span> <span class="ident">start</span>
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">end</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">end_str</span>
-                    .<span class="ident">parse_u64</span>()
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">HttpRangeParseError::InvalidRange</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>length = <span class="kw">if </span>end_str.is_empty() {
+                <span class="comment">// If no end is specified, range extends to end of the file.
+                </span>size - start
+            } <span class="kw">else </span>{
+                <span class="kw">let </span><span class="kw-2">mut </span>end: u64 = end_str
+                    .parse_u64()
+                    .map_err(|<span class="kw">_</span>| HttpRangeParseError::InvalidRange)<span class="question-mark">?</span>;
 
-                <span class="kw">if</span> <span class="ident">start</span> <span class="op">&gt;</span> <span class="ident">end</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HttpRangeParseError::InvalidRange</span>);
+                <span class="kw">if </span>start &gt; end {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(HttpRangeParseError::InvalidRange);
                 }
 
-                <span class="kw">if</span> <span class="ident">end</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">size</span> {
-                    <span class="ident">end</span> <span class="op">=</span> <span class="ident">size</span> <span class="op">-</span> <span class="number">1</span>;
+                <span class="kw">if </span>end &gt;= size {
+                    end = size - <span class="number">1</span>;
                 }
 
-                <span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span> <span class="op">+</span> <span class="number">1</span>
-            };
+                end - start + <span class="number">1
+            </span>};
 
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">HttpRange</span> { <span class="ident">start</span>, <span class="ident">length</span> }))
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(HttpRange { start, length }))
         }
     }
 }
 
-<span class="kw">trait</span> <span class="ident">SliceExt</span> {
-    <span class="kw">fn</span> <span class="ident">trim</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>;
-    <span class="kw">fn</span> <span class="ident">parse_u64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span>, ()<span class="op">&gt;</span>;
+<span class="kw">trait </span>SliceExt {
+    <span class="kw">fn </span>trim(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>;
+    <span class="kw">fn </span>parse_u64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64, ()&gt;;
 }
 
-<span class="kw">impl</span> <span class="ident">SliceExt</span> <span class="kw">for</span> [<span class="ident">u8</span>] {
-    <span class="kw">fn</span> <span class="ident">trim</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw">fn</span> <span class="ident">is_whitespace</span>(<span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
-            <span class="kw-2">*</span><span class="ident">c</span> <span class="op">==</span> <span class="string">b&#39;\t&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">==</span> <span class="string">b&#39; &#39;</span>
+<span class="kw">impl </span>SliceExt <span class="kw">for </span>[u8] {
+    <span class="kw">fn </span>trim(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw">fn </span>is_whitespace(c: <span class="kw-2">&amp;</span>u8) -&gt; bool {
+            <span class="kw-2">*</span>c == <span class="string">b&#39;\t&#39; </span>|| <span class="kw-2">*</span>c == <span class="string">b&#39; &#39;
+        </span>}
+
+        <span class="kw">fn </span>is_not_whitespace(c: <span class="kw-2">&amp;</span>u8) -&gt; bool {
+            !is_whitespace(c)
         }
 
-        <span class="kw">fn</span> <span class="ident">is_not_whitespace</span>(<span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
-            <span class="op">!</span><span class="ident">is_whitespace</span>(<span class="ident">c</span>)
-        }
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">first</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="ident">is_not_whitespace</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">rposition</span>(<span class="ident">is_not_whitespace</span>) {
-                <span class="kw-2">&amp;</span><span class="self">self</span>[<span class="ident">first</span>..<span class="ident">last</span> <span class="op">+</span> <span class="number">1</span>]
-            } <span class="kw">else</span> {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(first) = <span class="self">self</span>.iter().position(is_not_whitespace) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(last) = <span class="self">self</span>.iter().rposition(is_not_whitespace) {
+                <span class="kw-2">&amp;</span><span class="self">self</span>[first..last + <span class="number">1</span>]
+            } <span class="kw">else </span>{
                 <span class="macro">unreachable!</span>();
             }
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="kw-2">&amp;</span>[]
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_u64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span>, ()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(());
+    <span class="kw">fn </span>parse_u64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u64, ()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(());
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="number">0u64</span>;
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">&gt;</span><span class="op">=</span> <span class="string">b&#39;0&#39;</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">&lt;</span><span class="op">=</span> <span class="string">b&#39;9&#39;</span> {
-                <span class="ident">res</span> <span class="op">=</span> <span class="ident">res</span>
-                    .<span class="ident">checked_mul</span>(<span class="number">10</span>)
-                    .<span class="ident">ok_or</span>(())<span class="question-mark">?</span>
-                    .<span class="ident">checked_add</span>((<span class="ident">b</span> <span class="op">-</span> <span class="string">b&#39;0&#39;</span>) <span class="kw">as</span> <span class="ident">u64</span>)
-                    .<span class="ident">ok_or</span>(())<span class="question-mark">?</span>;
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(());
+        <span class="kw">let </span><span class="kw-2">mut </span>res = <span class="number">0u64</span>;
+        <span class="kw">for </span>b <span class="kw">in </span><span class="self">self </span>{
+            <span class="kw">if </span><span class="kw-2">*</span>b &gt;= <span class="string">b&#39;0&#39; </span>&amp;&amp; <span class="kw-2">*</span>b &lt;= <span class="string">b&#39;9&#39; </span>{
+                res = res
+                    .checked_mul(<span class="number">10</span>)
+                    .ok_or(())<span class="question-mark">?
+                    </span>.checked_add((b - <span class="string">b&#39;0&#39;</span>) <span class="kw">as </span>u64)
+                    .ok_or(())<span class="question-mark">?</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(());
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+        <span class="prelude-val">Ok</span>(res)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">struct</span> <span class="ident">T</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">u64</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HttpRange</span><span class="op">&gt;</span>);
+    <span class="kw">struct </span>T(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, u64, Vec&lt;HttpRange&gt;);
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse</span>() {
-        <span class="kw">let</span> <span class="ident">tests</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="ident">T</span>(<span class="string">&quot;&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;&quot;</span>, <span class="number">1000</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;foo&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=7&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes= 7 &quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=1-&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=5-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=--6&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=--0&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=---0&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse() {
+        <span class="kw">let </span>tests = <span class="macro">vec!</span>[
+            T(<span class="string">&quot;&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;&quot;</span>, <span class="number">1000</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;foo&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=7&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes= 7 &quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=1-&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=5-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=--6&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=--0&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=---0&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
+            T(
                 <span class="string">&quot;bytes=-6&quot;</span>,
                 <span class="number">200</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">194</span>,
-                    <span class="ident">length</span>: <span class="number">6</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">194</span>,
+                    length: <span class="number">6</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=6-&quot;</span>,
                 <span class="number">200</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">6</span>,
-                    <span class="ident">length</span>: <span class="number">194</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">6</span>,
+                    length: <span class="number">194</span>,
                 }],
             ),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=-6-&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=-0&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=0-2,5-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=2-5,4-3&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=--5,4--3&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=A-&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=A- &quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=A-Z&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes= -Z&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=5-Z&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=Ran-dom, garbage&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=0x01-0x02&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=         &quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes= , , ,   &quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(
+            T(<span class="string">&quot;bytes=-6-&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=-0&quot;</span>, <span class="number">200</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=0-2,5-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=2-5,4-3&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=--5,4--3&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=A-&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=A- &quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=A-Z&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes= -Z&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=5-Z&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=Ran-dom, garbage&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=0x01-0x02&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=         &quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes= , , ,   &quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(
                 <span class="string">&quot;bytes=0-9&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">0</span>,
-                    <span class="ident">length</span>: <span class="number">10</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">0</span>,
+                    length: <span class="number">10</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=0-&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">0</span>,
-                    <span class="ident">length</span>: <span class="number">10</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">0</span>,
+                    length: <span class="number">10</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=5-&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">5</span>,
-                    <span class="ident">length</span>: <span class="number">5</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">5</span>,
+                    length: <span class="number">5</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=0-20&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">0</span>,
-                    <span class="ident">length</span>: <span class="number">10</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">0</span>,
+                    length: <span class="number">10</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=15-,0-5&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">0</span>,
-                    <span class="ident">length</span>: <span class="number">6</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">0</span>,
+                    length: <span class="number">6</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=1-2,5-&quot;</span>,
                 <span class="number">10</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">1</span>,
-                        <span class="ident">length</span>: <span class="number">2</span>,
+                    HttpRange {
+                        start: <span class="number">1</span>,
+                        length: <span class="number">2</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">5</span>,
-                        <span class="ident">length</span>: <span class="number">5</span>,
+                    HttpRange {
+                        start: <span class="number">5</span>,
+                        length: <span class="number">5</span>,
                     },
                 ],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=-2 , 7-&quot;</span>,
                 <span class="number">11</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">9</span>,
-                        <span class="ident">length</span>: <span class="number">2</span>,
+                    HttpRange {
+                        start: <span class="number">9</span>,
+                        length: <span class="number">2</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">7</span>,
-                        <span class="ident">length</span>: <span class="number">4</span>,
+                    HttpRange {
+                        start: <span class="number">7</span>,
+                        length: <span class="number">4</span>,
                     },
                 ],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=0-0 ,2-2, 7-&quot;</span>,
                 <span class="number">11</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">0</span>,
-                        <span class="ident">length</span>: <span class="number">1</span>,
+                    HttpRange {
+                        start: <span class="number">0</span>,
+                        length: <span class="number">1</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">2</span>,
-                        <span class="ident">length</span>: <span class="number">1</span>,
+                    HttpRange {
+                        start: <span class="number">2</span>,
+                        length: <span class="number">1</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">7</span>,
-                        <span class="ident">length</span>: <span class="number">4</span>,
+                    HttpRange {
+                        start: <span class="number">7</span>,
+                        length: <span class="number">4</span>,
                     },
                 ],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=-5&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">5</span>,
-                    <span class="ident">length</span>: <span class="number">5</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">5</span>,
+                    length: <span class="number">5</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=-15&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">0</span>,
-                    <span class="ident">length</span>: <span class="number">10</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">0</span>,
+                    length: <span class="number">10</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=0-499&quot;</span>,
                 <span class="number">10000</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">0</span>,
-                    <span class="ident">length</span>: <span class="number">500</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">0</span>,
+                    length: <span class="number">500</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=500-999&quot;</span>,
                 <span class="number">10000</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">500</span>,
-                    <span class="ident">length</span>: <span class="number">500</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">500</span>,
+                    length: <span class="number">500</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=-500&quot;</span>,
                 <span class="number">10000</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">9500</span>,
-                    <span class="ident">length</span>: <span class="number">500</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">9500</span>,
+                    length: <span class="number">500</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=9500-&quot;</span>,
                 <span class="number">10000</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">9500</span>,
-                    <span class="ident">length</span>: <span class="number">500</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">9500</span>,
+                    length: <span class="number">500</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=0-0,-1&quot;</span>,
                 <span class="number">10000</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">0</span>,
-                        <span class="ident">length</span>: <span class="number">1</span>,
+                    HttpRange {
+                        start: <span class="number">0</span>,
+                        length: <span class="number">1</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">9999</span>,
-                        <span class="ident">length</span>: <span class="number">1</span>,
+                    HttpRange {
+                        start: <span class="number">9999</span>,
+                        length: <span class="number">1</span>,
                     },
                 ],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=500-600,601-999&quot;</span>,
                 <span class="number">10000</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">500</span>,
-                        <span class="ident">length</span>: <span class="number">101</span>,
+                    HttpRange {
+                        start: <span class="number">500</span>,
+                        length: <span class="number">101</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">601</span>,
-                        <span class="ident">length</span>: <span class="number">399</span>,
+                    HttpRange {
+                        start: <span class="number">601</span>,
+                        length: <span class="number">399</span>,
                     },
                 ],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=500-700,601-999&quot;</span>,
                 <span class="number">10000</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">500</span>,
-                        <span class="ident">length</span>: <span class="number">201</span>,
+                    HttpRange {
+                        start: <span class="number">500</span>,
+                        length: <span class="number">201</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">601</span>,
-                        <span class="ident">length</span>: <span class="number">399</span>,
+                    HttpRange {
+                        start: <span class="number">601</span>,
+                        length: <span class="number">399</span>,
                     },
                 ],
             ),
-            <span class="comment">// Match Apache laxity:</span>
-            <span class="ident">T</span>(
+            <span class="comment">// Match Apache laxity:
+            </span>T(
                 <span class="string">&quot;bytes=   1 -2   ,  4- 5, 7 - 8 , ,,&quot;</span>,
                 <span class="number">11</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">1</span>,
-                        <span class="ident">length</span>: <span class="number">2</span>,
+                    HttpRange {
+                        start: <span class="number">1</span>,
+                        length: <span class="number">2</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">4</span>,
-                        <span class="ident">length</span>: <span class="number">2</span>,
+                    HttpRange {
+                        start: <span class="number">4</span>,
+                        length: <span class="number">2</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">7</span>,
-                        <span class="ident">length</span>: <span class="number">2</span>,
+                    HttpRange {
+                        start: <span class="number">7</span>,
+                        length: <span class="number">2</span>,
                     },
                 ],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=50-60,2-3&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">2</span>,
-                    <span class="ident">length</span>: <span class="number">2</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">2</span>,
+                    length: <span class="number">2</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=50-60,-5&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">5</span>,
-                    <span class="ident">length</span>: <span class="number">5</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">5</span>,
+                    length: <span class="number">5</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=50-60,7-&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">7</span>,
-                    <span class="ident">length</span>: <span class="number">3</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">7</span>,
+                    length: <span class="number">3</span>,
                 }],
             ),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=50-60,20-&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(
+            T(<span class="string">&quot;bytes=50-60,20-&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(
                 <span class="string">&quot;bytes=50-60,20-,3-4&quot;</span>,
                 <span class="number">10</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">3</span>,
-                    <span class="ident">length</span>: <span class="number">2</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">3</span>,
+                    length: <span class="number">2</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=9-20,-5&quot;</span>,
                 <span class="number">10</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">9</span>,
-                        <span class="ident">length</span>: <span class="number">1</span>,
+                    HttpRange {
+                        start: <span class="number">9</span>,
+                        length: <span class="number">1</span>,
                     },
-                    <span class="ident">HttpRange</span> {
-                        <span class="ident">start</span>: <span class="number">5</span>,
-                        <span class="ident">length</span>: <span class="number">5</span>,
+                    HttpRange {
+                        start: <span class="number">5</span>,
+                        length: <span class="number">5</span>,
                     },
                 ],
             ),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=15-20,-0&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(
+            T(<span class="string">&quot;bytes=15-20,-0&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(
                 <span class="string">&quot;bytes=15-20,-0&quot;</span>,
                 <span class="number">20</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">15</span>,
-                    <span class="ident">length</span>: <span class="number">5</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">15</span>,
+                    length: <span class="number">5</span>,
                 }],
             ),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=1-2,bytes=3-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=1-2,blergh=3-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;blergh=1-2,bytes=3-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=-0&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(<span class="string">&quot;bytes=-0&quot;</span>, <span class="number">5</span>, <span class="macro">vec!</span>[]),
-            <span class="ident">T</span>(
+            T(<span class="string">&quot;bytes=1-2,bytes=3-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=1-2,blergh=3-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;blergh=1-2,bytes=3-4&quot;</span>, <span class="number">10</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=-0&quot;</span>, <span class="number">0</span>, <span class="macro">vec!</span>[]),
+            T(<span class="string">&quot;bytes=-0&quot;</span>, <span class="number">5</span>, <span class="macro">vec!</span>[]),
+            T(
                 <span class="string">&quot;bytes=-1&quot;</span>,
                 <span class="number">0</span>,
-                <span class="macro">vec!</span>[<span class="ident">HttpRange</span> {
-                    <span class="ident">start</span>: <span class="number">0</span>,
-                    <span class="ident">length</span>: <span class="number">0</span>,
+                <span class="macro">vec!</span>[HttpRange {
+                    start: <span class="number">0</span>,
+                    length: <span class="number">0</span>,
                 }],
             ),
-            <span class="ident">T</span>(
+            T(
                 <span class="string">&quot;bytes=0-99999999999999999999999999999999999999999999&quot;</span>,
                 <span class="number">10</span>,
                 <span class="macro">vec!</span>[],
             ),
         ];
 
-        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">tests</span> {
-            <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">t</span>.<span class="number">0</span>;
-            <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">t</span>.<span class="number">1</span>;
-            <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">t</span>.<span class="number">2</span>;
+        <span class="kw">for </span>t <span class="kw">in </span>tests {
+            <span class="kw">let </span>header = t.<span class="number">0</span>;
+            <span class="kw">let </span>size = t.<span class="number">1</span>;
+            <span class="kw">let </span>expected = t.<span class="number">2</span>;
 
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpRange::parse</span>(<span class="ident">header</span>, <span class="ident">size</span>);
+            <span class="kw">let </span>res = HttpRange::parse(header, size);
 
-            <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_err</span>() {
-                <span class="kw">if</span> <span class="ident">expected</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if </span>res.is_err() {
+                <span class="kw">if </span>expected.is_empty() {
                     <span class="kw">continue</span>;
-                } <span class="kw">else</span> {
+                } <span class="kw">else </span>{
                     <span class="macro">assert!</span>(
                         <span class="bool-val">false</span>,
                         <span class="string">&quot;parse({}, {}) returned error {:?}&quot;</span>,
-                        <span class="ident">header</span>,
-                        <span class="ident">size</span>,
-                        <span class="ident">res</span>.<span class="ident">unwrap_err</span>()
+                        header,
+                        size,
+                        res.unwrap_err()
                     );
                 }
             }
 
-            <span class="kw">let</span> <span class="ident">got</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">unwrap</span>();
+            <span class="kw">let </span>got = res.unwrap();
 
-            <span class="kw">if</span> <span class="ident">got</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">expected</span>.<span class="ident">len</span>() {
+            <span class="kw">if </span>got.len() != expected.len() {
                 <span class="macro">assert!</span>(
                     <span class="bool-val">false</span>,
                     <span class="string">&quot;len(parseRange({}, {})) = {}, want {}&quot;</span>,
-                    <span class="ident">header</span>,
-                    <span class="ident">size</span>,
-                    <span class="ident">got</span>.<span class="ident">len</span>(),
-                    <span class="ident">expected</span>.<span class="ident">len</span>()
+                    header,
+                    size,
+                    got.len(),
+                    expected.len()
                 );
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">expected</span>.<span class="ident">len</span>() {
-                <span class="kw">if</span> <span class="ident">got</span>[<span class="ident">i</span>].<span class="ident">start</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected</span>[<span class="ident">i</span>].<span class="ident">start</span> {
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..expected.len() {
+                <span class="kw">if </span>got[i].start != expected[i].start {
                     <span class="macro">assert!</span>(
                         <span class="bool-val">false</span>,
                         <span class="string">&quot;parseRange({}, {})[{}].start = {}, want {}&quot;</span>,
-                        <span class="ident">header</span>, <span class="ident">size</span>, <span class="ident">i</span>, <span class="ident">got</span>[<span class="ident">i</span>].<span class="ident">start</span>, <span class="ident">expected</span>[<span class="ident">i</span>].<span class="ident">start</span>
+                        header, size, i, got[i].start, expected[i].start
                     )
                 }
-                <span class="kw">if</span> <span class="ident">got</span>[<span class="ident">i</span>].<span class="ident">length</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected</span>[<span class="ident">i</span>].<span class="ident">length</span> {
+                <span class="kw">if </span>got[i].length != expected[i].length {
                     <span class="macro">assert!</span>(
                         <span class="bool-val">false</span>,
                         <span class="string">&quot;parseRange({}, {})[{}].length = {}, want {}&quot;</span>,
-                        <span class="ident">header</span>, <span class="ident">size</span>, <span class="ident">i</span>, <span class="ident">got</span>[<span class="ident">i</span>].<span class="ident">length</span>, <span class="ident">expected</span>[<span class="ident">i</span>].<span class="ident">length</span>
+                        header, size, i, got[i].length, expected[i].length
                     )
                 }
             }
@@ -1135,4 +1135,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="http_range" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="http_range" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/exercises.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/exercises.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercises.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -167,155 +167,155 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/exercises`.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
-<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">futures::future</span>;
+</span><span class="kw">use </span>chrono::{DateTime, Utc};
+<span class="kw">use </span>futures::future;
 
-<span class="kw">use</span> <span class="ident">models</span>::{
-    <span class="ident">exercise_slide_submissions</span>::{<span class="ident">get_all_answers_requiring_attention</span>, <span class="ident">ExerciseSlideSubmission</span>},
-    <span class="ident">exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id</span>,
-    <span class="ident">exercise_tasks::CourseMaterialExerciseTask</span>,
-    <span class="ident">exercises</span>::{<span class="ident">get_exercise_by_id</span>, <span class="ident">GradingProgress</span>},
-    <span class="ident">CourseOrExamId</span>,
+<span class="kw">use </span>models::{
+    exercise_slide_submissions::{get_all_answers_requiring_attention, ExerciseSlideSubmission},
+    exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id,
+    exercise_tasks::CourseMaterialExerciseTask,
+    exercises::{get_exercise_by_id, GradingProgress},
+    CourseOrExamId,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseSubmissions</span> {
-    <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmission</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">total_pages</span>: <span class="ident">u32</span>,
+<span class="attribute">#[derive(Debug, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExerciseSubmissions {
+    <span class="kw">pub </span>data: Vec&lt;ExerciseSlideSubmission&gt;,
+    <span class="kw">pub </span>total_pages: u32,
 }
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AnswersRequiringAttention</span> {
-    <span class="kw">pub</span> <span class="ident">exercise_max_points</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AnswerRequiringAttentionWithTasks</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">total_pages</span>: <span class="ident">u32</span>,
+<span class="attribute">#[derive(Debug, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>AnswersRequiringAttention {
+    <span class="kw">pub </span>exercise_max_points: i32,
+    <span class="kw">pub </span>data: Vec&lt;AnswerRequiringAttentionWithTasks&gt;,
+    <span class="kw">pub </span>total_pages: u32,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AnswerRequiringAttentionWithTasks</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">data_json</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseMaterialExerciseTask</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>AnswerRequiringAttentionWithTasks {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>data_json: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+    <span class="kw">pub </span>grading_progress: GradingProgress,
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>submission_id: Uuid,
+    <span class="kw">pub </span>exercise_id: Uuid,
+    <span class="kw">pub </span>tasks: Vec&lt;CourseMaterialExerciseTask&gt;,
 }
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise&#39;s submissions.
- */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_submissions</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pagination</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">Pagination</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExerciseSubmissions</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+ */
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_exercise_submissions(
+    pool: web::Data&lt;PgPool&gt;,
+    exercise_id: web::Path&lt;Uuid&gt;,
+    pagination: web::Query&lt;Pagination&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;ExerciseSubmissions&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">models::exercises::get_course_or_exam_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
-        }
-        <span class="ident">CourseOrExamId::Exam</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Exam</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
-        }
+    <span class="kw">let </span>token = <span class="kw">match </span>models::exercises::get_course_or_exam_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">? </span>{
+        CourseOrExamId::Course(id) =&gt; {
+            authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Course(id)).<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        CourseOrExamId::Exam(id) =&gt; {
+            authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Exam(id)).<span class="kw">await</span><span class="question-mark">?
+        </span>}
     };
 
-    <span class="kw">let</span> <span class="ident">submission_count</span> <span class="op">=</span> <span class="ident">models::exercise_slide_submissions::exercise_slide_submission_count</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">exercise_id</span>,
+    <span class="kw">let </span>submission_count = models::exercise_slide_submissions::exercise_slide_submission_count(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">*</span>exercise_id,
     );
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">submissions</span> <span class="op">=</span> <span class="ident">models::exercise_slide_submissions::exercise_slide_submissions</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">exercise_id</span>,
-        <span class="kw-2">*</span><span class="ident">pagination</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>submissions = models::exercise_slide_submissions::exercise_slide_submissions(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">*</span>exercise_id,
+        <span class="kw-2">*</span>pagination,
     );
-    <span class="kw">let</span> (<span class="ident">submission_count</span>, <span class="ident">submissions</span>) <span class="op">=</span> <span class="ident">future::try_join</span>(<span class="ident">submission_count</span>, <span class="ident">submissions</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>(submission_count, submissions) = future::try_join(submission_count, submissions).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">total_pages</span> <span class="op">=</span> <span class="ident">pagination</span>.<span class="ident">total_pages</span>(<span class="ident">submission_count</span>);
+    <span class="kw">let </span>total_pages = pagination.total_pages(submission_count);
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">ExerciseSubmissions</span> {
-        <span class="ident">data</span>: <span class="ident">submissions</span>,
-        <span class="ident">total_pages</span>,
+    token.authorized_ok(web::Json(ExerciseSubmissions {
+        data: submissions,
+        total_pages,
     }))
 }
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise&#39;s answers requiring attention.
- */</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_answers_requiring_attention</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pagination</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">Pagination</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">AnswersRequiringAttention</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+ */
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_exercise_answers_requiring_attention(
+    pool: web::Data&lt;PgPool&gt;,
+    exercise_id: web::Path&lt;Uuid&gt;,
+    pagination: web::Query&lt;Pagination&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;AnswersRequiringAttention&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">models::exercises::get_course_or_exam_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
-        }
-        <span class="ident">CourseOrExamId::Exam</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Exam</span>(<span class="ident">id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
-        }
+    <span class="kw">let </span>token = <span class="kw">match </span>models::exercises::get_course_or_exam_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">? </span>{
+        CourseOrExamId::Course(id) =&gt; {
+            authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Course(id)).<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        CourseOrExamId::Exam(id) =&gt; {
+            authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Exam(id)).<span class="kw">await</span><span class="question-mark">?
+        </span>}
     };
-    <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">get_exercise_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">answer_requiring_attention_count</span> <span class="op">=</span>
-        <span class="ident">models::exercise_slide_submissions::answer_requiring_attention_count</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="kw-2">*</span><span class="ident">exercise_id</span>,
+    <span class="kw">let </span>exercise = get_exercise_by_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>answer_requiring_attention_count =
+        models::exercise_slide_submissions::answer_requiring_attention_count(
+            <span class="kw-2">&amp;mut </span>conn,
+            <span class="kw-2">*</span>exercise_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">get_all_answers_requiring_attention</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">pagination</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">answers</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">data</span>.<span class="ident">len</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>data = get_all_answers_requiring_attention(<span class="kw-2">&amp;mut </span>conn, exercise.id, <span class="kw-2">*</span>pagination).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>answers = Vec::with_capacity(data.len());
 
-    <span class="kw">for</span> <span class="ident">answer</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">data</span> {
-        <span class="kw">let</span> <span class="ident">tasks</span> <span class="op">=</span> <span class="ident">get_exercise_task_submission_info_by_exercise_slide_submission_id</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">answer</span>.<span class="ident">submission_id</span>,
-            <span class="ident">user</span>.<span class="ident">id</span>,
+    <span class="kw">for </span>answer <span class="kw">in </span><span class="kw-2">&amp;</span>data {
+        <span class="kw">let </span>tasks = get_exercise_task_submission_info_by_exercise_slide_submission_id(
+            <span class="kw-2">&amp;mut </span>conn,
+            answer.submission_id,
+            user.id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">new_answer</span> <span class="op">=</span> <span class="ident">AnswerRequiringAttentionWithTasks</span> {
-            <span class="ident">id</span>: <span class="ident">answer</span>.<span class="ident">id</span>,
-            <span class="ident">user_id</span>: <span class="ident">answer</span>.<span class="ident">user_id</span>,
-            <span class="ident">created_at</span>: <span class="ident">answer</span>.<span class="ident">created_at</span>,
-            <span class="ident">updated_at</span>: <span class="ident">answer</span>.<span class="ident">updated_at</span>,
-            <span class="ident">deleted_at</span>: <span class="ident">answer</span>.<span class="ident">deleted_at</span>,
-            <span class="ident">data_json</span>: <span class="ident">answer</span>.<span class="ident">data_json</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">grading_progress</span>: <span class="ident">answer</span>.<span class="ident">grading_progress</span>,
-            <span class="ident">score_given</span>: <span class="ident">answer</span>.<span class="ident">score_given</span>,
-            <span class="ident">submission_id</span>: <span class="ident">answer</span>.<span class="ident">submission_id</span>,
-            <span class="ident">exercise_id</span>: <span class="ident">answer</span>.<span class="ident">exercise_id</span>,
-            <span class="ident">tasks</span>,
+        <span class="kw">let </span>new_answer = AnswerRequiringAttentionWithTasks {
+            id: answer.id,
+            user_id: answer.user_id,
+            created_at: answer.created_at,
+            updated_at: answer.updated_at,
+            deleted_at: answer.deleted_at,
+            data_json: answer.data_json.to_owned(),
+            grading_progress: answer.grading_progress,
+            score_given: answer.score_given,
+            submission_id: answer.submission_id,
+            exercise_id: answer.exercise_id,
+            tasks,
         };
-        <span class="ident">answers</span>.<span class="ident">push</span>(<span class="ident">new_answer</span>);
+        answers.push(new_answer);
     }
 
-    <span class="kw">let</span> <span class="ident">total_pages</span> <span class="op">=</span> <span class="ident">pagination</span>.<span class="ident">total_pages</span>(<span class="ident">answer_requiring_attention_count</span>);
+    <span class="kw">let </span>total_pages = pagination.total_pages(answer_requiring_attention_count);
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">AnswersRequiringAttention</span> {
-        <span class="ident">exercise_max_points</span>: <span class="ident">exercise</span>.<span class="ident">score_maximum</span>,
-        <span class="ident">data</span>: <span class="ident">answers</span>,
-        <span class="ident">total_pages</span>,
+    token.authorized_ok(web::Json(AnswersRequiringAttention {
+        exercise_max_points: exercise.score_maximum,
+        data: answers,
+        total_pages,
     }))
 }
 
@@ -325,16 +325,16 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(
+*/
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(
         <span class="string">&quot;/{exercise_id}/submissions&quot;</span>,
-        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_exercise_submissions</span>),
+        web::get().to(get_exercise_submissions),
     )
-    .<span class="ident">route</span>(
+    .route(
         <span class="string">&quot;/{exercise_id}/answers-requiring-attention&quot;</span>,
-        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_exercise_answers_requiring_attention</span>),
+        web::get().to(get_exercise_answers_requiring_attention),
     );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

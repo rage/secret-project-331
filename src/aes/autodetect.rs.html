@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.8.1/src/autodetect.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>autodetect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.8.1/src/autodetect.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>autodetect.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../aes/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../aes/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -388,393 +388,393 @@
 <span id="386">386</span>
 <span id="387">387</span>
 <span id="388">388</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Autodetection support for hardware accelerated AES backends with fallback</span>
-<span class="doccomment">//! to the fixsliced &quot;soft&quot; implementation.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Autodetection support for hardware accelerated AES backends with fallback
+//! to the fixsliced &quot;soft&quot; implementation.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::soft</span>;
-<span class="kw">use</span> <span class="ident">cipher</span>::{
-    <span class="ident">consts</span>::{<span class="ident">U16</span>, <span class="ident">U24</span>, <span class="ident">U32</span>},
-    <span class="ident">AlgorithmName</span>, <span class="ident">BlockCipher</span>, <span class="ident">BlockClosure</span>, <span class="ident">BlockDecrypt</span>, <span class="ident">BlockEncrypt</span>, <span class="ident">BlockSizeUser</span>, <span class="ident">Key</span>,
-    <span class="ident">KeyInit</span>, <span class="ident">KeySizeUser</span>,
+</span><span class="kw">use </span><span class="kw">crate</span>::soft;
+<span class="kw">use </span>cipher::{
+    consts::{U16, U24, U32},
+    AlgorithmName, BlockCipher, BlockClosure, BlockDecrypt, BlockEncrypt, BlockSizeUser, Key,
+    KeyInit, KeySizeUser,
 };
-<span class="kw">use</span> <span class="ident">core::fmt</span>;
-<span class="kw">use</span> <span class="ident">core::mem::ManuallyDrop</span>;
+<span class="kw">use </span>core::fmt;
+<span class="kw">use </span>core::mem::ManuallyDrop;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;aarch64&quot;</span>, <span class="ident">aes_armv8</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::armv8</span> <span class="kw">as</span> <span class="ident">intrinsics</span>;
+<span class="attribute">#[cfg(all(target_arch = <span class="string">&quot;aarch64&quot;</span>, aes_armv8))]
+</span><span class="kw">use </span><span class="kw">crate</span>::armv8 <span class="kw">as </span>intrinsics;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>, <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ni</span> <span class="kw">as</span> <span class="ident">intrinsics</span>;
+<span class="attribute">#[cfg(any(target_arch = <span class="string">&quot;x86_64&quot;</span>, target_arch = <span class="string">&quot;x86&quot;</span>))]
+</span><span class="kw">use </span><span class="kw">crate</span>::ni <span class="kw">as </span>intrinsics;
 
-<span class="macro">cpufeatures::new!</span>(<span class="ident">aes_intrinsics</span>, <span class="string">&quot;aes&quot;</span>);
+<span class="macro">cpufeatures::new!</span>(aes_intrinsics, <span class="string">&quot;aes&quot;</span>);
 
-<span class="macro">macro_rules!</span> <span class="ident">define_aes_impl</span> {
+<span class="macro">macro_rules! </span>define_aes_impl {
     (
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>,
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span>:<span class="ident">ident</span>,
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span>:<span class="ident">ident</span>,
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span>:<span class="ident">tt</span>,
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">key_size</span>:<span class="ident">ty</span>,
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">expr</span> $(,)<span class="question-mark">?</span>
-    ) =&gt; {
-        <span class="kw">mod</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module</span> {
-            <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">intrinsics</span>, <span class="ident">soft</span>};
-            <span class="kw">use</span> <span class="ident">core::mem::ManuallyDrop</span>;
+        <span class="macro-nonterminal">$name</span>:ident,
+        <span class="macro-nonterminal">$name_enc</span>:ident,
+        <span class="macro-nonterminal">$name_dec</span>:ident,
+        <span class="macro-nonterminal">$module</span>:tt,
+        <span class="macro-nonterminal">$key_size</span>:ty,
+        <span class="macro-nonterminal">$doc</span>:expr $(,)<span class="question-mark">?
+    </span>) =&gt; {
+        <span class="kw">mod </span><span class="macro-nonterminal">$module </span>{
+            <span class="kw">use super</span>::{intrinsics, soft};
+            <span class="kw">use </span>core::mem::ManuallyDrop;
 
-            <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">union</span> <span class="ident">Inner</span> {
-                <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>,
-                <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">soft</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">soft</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>,
+            <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">union </span>Inner {
+                <span class="kw">pub</span>(<span class="kw">super</span>) intrinsics: ManuallyDrop&lt;intrinsics::<span class="macro-nonterminal">$name</span>&gt;,
+                <span class="kw">pub</span>(<span class="kw">super</span>) soft: ManuallyDrop&lt;soft::<span class="macro-nonterminal">$name</span>&gt;,
             }
 
-            <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">union</span> <span class="ident">InnerEnc</span> {
-                <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span><span class="op">&gt;</span>,
-                <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">soft</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">soft</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span><span class="op">&gt;</span>,
+            <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">union </span>InnerEnc {
+                <span class="kw">pub</span>(<span class="kw">super</span>) intrinsics: ManuallyDrop&lt;intrinsics::<span class="macro-nonterminal">$name_enc</span>&gt;,
+                <span class="kw">pub</span>(<span class="kw">super</span>) soft: ManuallyDrop&lt;soft::<span class="macro-nonterminal">$name_enc</span>&gt;,
             }
 
-            <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">union</span> <span class="ident">InnerDec</span> {
-                <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span><span class="op">&gt;</span>,
-                <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">soft</span>: <span class="ident">ManuallyDrop</span><span class="op">&lt;</span><span class="ident">soft</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span><span class="op">&gt;</span>,
-            }
-        }
-
-        <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span>
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;block cipher&quot;</span>]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::Inner</span>,
-            <span class="ident">token</span>: <span class="ident">aes_intrinsics::InitToken</span>,
-        }
-
-        <span class="kw">impl</span> <span class="ident">KeySizeUser</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">type</span> <span class="ident">KeySize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">key_size</span>;
-        }
-        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">enc</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-                <span class="ident"><span class="self">Self</span>::from</span>(<span class="kw-2">&amp;</span><span class="ident">enc</span>)
+            <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">union </span>InnerDec {
+                <span class="kw">pub</span>(<span class="kw">super</span>) intrinsics: ManuallyDrop&lt;intrinsics::<span class="macro-nonterminal">$name_dec</span>&gt;,
+                <span class="kw">pub</span>(<span class="kw">super</span>) soft: ManuallyDrop&lt;soft::<span class="macro-nonterminal">$name_dec</span>&gt;,
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-                <span class="kw">use</span> <span class="ident">core::ops::Deref</span>;
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">enc</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::Inner</span> {
-                        <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop::new</span>(<span class="kw">unsafe</span> {
-                            <span class="ident">enc</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>.<span class="ident">deref</span>().<span class="ident">into</span>()
+        <span class="attribute">#[doc=<span class="macro-nonterminal">$doc</span>]
+        #[doc = <span class="string">&quot;block cipher&quot;</span>]
+        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name </span>{
+            inner: <span class="macro-nonterminal">$module::Inner</span>,
+            token: aes_intrinsics::InitToken,
+        }
+
+        <span class="kw">impl </span>KeySizeUser <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="kw">type </span>KeySize = <span class="macro-nonterminal">$key_size</span>;
+        }
+        <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$name_enc</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>from(enc: <span class="macro-nonterminal">$name_enc</span>) -&gt; <span class="macro-nonterminal">$name </span>{
+                <span class="self">Self</span>::from(<span class="kw-2">&amp;</span>enc)
+            }
+        }
+
+        <span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="macro-nonterminal">$name_enc</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="kw">fn </span>from(enc: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$name_enc</span>) -&gt; <span class="macro-nonterminal">$name </span>{
+                <span class="kw">use </span>core::ops::Deref;
+                <span class="kw">let </span>inner = <span class="kw">if </span>enc.token.get() {
+                    <span class="macro-nonterminal">$module::Inner </span>{
+                        intrinsics: ManuallyDrop::new(<span class="kw">unsafe </span>{
+                            enc.inner.intrinsics.deref().into()
                         }),
                     }
-                } <span class="kw">else</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::Inner</span> {
-                        <span class="ident">soft</span>: <span class="ident">ManuallyDrop::new</span>(<span class="kw">unsafe</span> { <span class="ident">enc</span>.<span class="ident">inner</span>.<span class="ident">soft</span>.<span class="ident">deref</span>().<span class="ident">into</span>() }),
+                } <span class="kw">else </span>{
+                    <span class="macro-nonterminal">$module::Inner </span>{
+                        soft: ManuallyDrop::new(<span class="kw">unsafe </span>{ enc.inner.soft.deref().into() }),
                     }
                 };
 
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>,
-                    <span class="ident">token</span>: <span class="ident">enc</span>.<span class="ident">token</span>,
+                <span class="self">Self </span>{
+                    inner,
+                    token: enc.token,
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">KeyInit</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-                <span class="kw">let</span> (<span class="ident">token</span>, <span class="ident">aesni_present</span>) <span class="op">=</span> <span class="ident">aes_intrinsics::init_get</span>();
+        <span class="kw">impl </span>KeyInit <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>new(key: <span class="kw-2">&amp;</span>Key&lt;<span class="self">Self</span>&gt;) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>(token, aesni_present) = aes_intrinsics::init_get();
 
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">aesni_present</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::Inner</span> {
-                        <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name::new</span>(<span class="ident">key</span>)),
+                <span class="kw">let </span>inner = <span class="kw">if </span>aesni_present {
+                    <span class="macro-nonterminal">$module::Inner </span>{
+                        intrinsics: ManuallyDrop::new(intrinsics::<span class="macro-nonterminal">$name::new</span>(key)),
                     }
-                } <span class="kw">else</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::Inner</span> {
-                        <span class="ident">soft</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">soft</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name::new</span>(<span class="ident">key</span>)),
+                } <span class="kw">else </span>{
+                    <span class="macro-nonterminal">$module::Inner </span>{
+                        soft: ManuallyDrop::new(soft::<span class="macro-nonterminal">$name::new</span>(key)),
                     }
                 };
 
-                <span class="self">Self</span> { <span class="ident">inner</span>, <span class="ident">token</span> }
+                <span class="self">Self </span>{ inner, token }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::Inner</span> {
-                        <span class="ident">intrinsics</span>: <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>.<span class="ident">clone</span>() },
+        <span class="kw">impl </span>Clone <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>inner = <span class="kw">if </span><span class="self">self</span>.token.get() {
+                    <span class="macro-nonterminal">$module::Inner </span>{
+                        intrinsics: <span class="kw">unsafe </span>{ <span class="self">self</span>.inner.intrinsics.clone() },
                     }
-                } <span class="kw">else</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::Inner</span> {
-                        <span class="ident">soft</span>: <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>.<span class="ident">clone</span>() },
+                } <span class="kw">else </span>{
+                    <span class="macro-nonterminal">$module::Inner </span>{
+                        soft: <span class="kw">unsafe </span>{ <span class="self">self</span>.inner.soft.clone() },
                     }
                 };
 
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>,
-                    <span class="ident">token</span>: <span class="self">self</span>.<span class="ident">token</span>,
+                <span class="self">Self </span>{
+                    inner,
+                    token: <span class="self">self</span>.token,
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span>;
+        <span class="kw">impl </span>BlockSizeUser <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="kw">type </span>BlockSize = U16;
         }
 
-        <span class="kw">impl</span> <span class="ident">BlockCipher</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {}
+        <span class="kw">impl </span>BlockCipher <span class="kw">for </span><span class="macro-nonterminal">$name </span>{}
 
-        <span class="kw">impl</span> <span class="ident">BlockEncrypt</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">encrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span><span class="op">&gt;</span>) {
-                <span class="kw">unsafe</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                        <span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-                        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">inner</span>(
-                            <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-                            <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span><span class="op">&gt;</span>,
+        <span class="kw">impl </span>BlockEncrypt <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="kw">fn </span>encrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = U16&gt;) {
+                <span class="kw">unsafe </span>{
+                    <span class="kw">if </span><span class="self">self</span>.token.get() {
+                        <span class="attribute">#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+                        </span><span class="kw">unsafe fn </span>inner(
+                            state: <span class="kw-2">&amp;</span>intrinsics::<span class="macro-nonterminal">$name</span>,
+                            f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = U16&gt;,
                         ) {
-                            <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>.<span class="ident">get_enc_backend</span>());
+                            f.call(<span class="kw-2">&amp;mut </span>state.get_enc_backend());
                         }
-                        <span class="ident">inner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>, <span class="ident">f</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>.<span class="ident">get_enc_backend</span>());
+                        inner(<span class="kw-2">&amp;</span><span class="self">self</span>.inner.intrinsics, f);
+                    } <span class="kw">else </span>{
+                        f.call(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner.soft.get_enc_backend());
                     }
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">BlockDecrypt</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">decrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span><span class="op">&gt;</span>) {
-                <span class="kw">unsafe</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                        <span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-                        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">inner</span>(
-                            <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-                            <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span><span class="op">&gt;</span>,
+        <span class="kw">impl </span>BlockDecrypt <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="kw">fn </span>decrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = U16&gt;) {
+                <span class="kw">unsafe </span>{
+                    <span class="kw">if </span><span class="self">self</span>.token.get() {
+                        <span class="attribute">#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+                        </span><span class="kw">unsafe fn </span>inner(
+                            state: <span class="kw-2">&amp;</span>intrinsics::<span class="macro-nonterminal">$name</span>,
+                            f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = U16&gt;,
                         ) {
-                            <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>.<span class="ident">get_dec_backend</span>());
+                            f.call(<span class="kw-2">&amp;mut </span>state.get_dec_backend());
                         }
-                        <span class="ident">inner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>, <span class="ident">f</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>.<span class="ident">get_dec_backend</span>());
+                        inner(<span class="kw-2">&amp;</span><span class="self">self</span>.inner.intrinsics, f);
+                    } <span class="kw">else </span>{
+                        f.call(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner.soft.get_dec_backend());
                     }
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="string">&quot; { .. }&quot;</span>))
+        <span class="kw">impl </span>fmt::Debug <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+                f.write_str(<span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), <span class="string">&quot; { .. }&quot;</span>))
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">AlgorithmName</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">fn</span> <span class="ident">write_alg_name</span>(<span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>))
+        <span class="kw">impl </span>AlgorithmName <span class="kw">for </span><span class="macro-nonterminal">$name </span>{
+            <span class="kw">fn </span>write_alg_name(f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+                f.write_str(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>))
             }
         }
 
-        <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span>
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;block cipher (encrypt-only)&quot;</span>]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span> {
-            <span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerEnc</span>,
-            <span class="ident">token</span>: <span class="ident">aes_intrinsics::InitToken</span>,
+        <span class="attribute">#[doc=<span class="macro-nonterminal">$doc</span>]
+        #[doc = <span class="string">&quot;block cipher (encrypt-only)&quot;</span>]
+        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name_enc </span>{
+            inner: <span class="macro-nonterminal">$module::InnerEnc</span>,
+            token: aes_intrinsics::InitToken,
         }
 
-        <span class="kw">impl</span> <span class="ident">KeySizeUser</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span> {
-            <span class="kw">type</span> <span class="ident">KeySize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">key_size</span>;
+        <span class="kw">impl </span>KeySizeUser <span class="kw">for </span><span class="macro-nonterminal">$name_enc </span>{
+            <span class="kw">type </span>KeySize = <span class="macro-nonterminal">$key_size</span>;
         }
 
-        <span class="kw">impl</span> <span class="ident">KeyInit</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-                <span class="kw">let</span> (<span class="ident">token</span>, <span class="ident">aesni_present</span>) <span class="op">=</span> <span class="ident">aes_intrinsics::init_get</span>();
+        <span class="kw">impl </span>KeyInit <span class="kw">for </span><span class="macro-nonterminal">$name_enc </span>{
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>new(key: <span class="kw-2">&amp;</span>Key&lt;<span class="self">Self</span>&gt;) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>(token, aesni_present) = aes_intrinsics::init_get();
 
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">aesni_present</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerEnc</span> {
-                        <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc::new</span>(<span class="ident">key</span>)),
+                <span class="kw">let </span>inner = <span class="kw">if </span>aesni_present {
+                    <span class="macro-nonterminal">$module::InnerEnc </span>{
+                        intrinsics: ManuallyDrop::new(intrinsics::<span class="macro-nonterminal">$name_enc::new</span>(key)),
                     }
-                } <span class="kw">else</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerEnc</span> {
-                        <span class="ident">soft</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">soft</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc::new</span>(<span class="ident">key</span>)),
+                } <span class="kw">else </span>{
+                    <span class="macro-nonterminal">$module::InnerEnc </span>{
+                        soft: ManuallyDrop::new(soft::<span class="macro-nonterminal">$name_enc::new</span>(key)),
                     }
                 };
 
-                <span class="self">Self</span> { <span class="ident">inner</span>, <span class="ident">token</span> }
+                <span class="self">Self </span>{ inner, token }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span> {
-            <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerEnc</span> {
-                        <span class="ident">intrinsics</span>: <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>.<span class="ident">clone</span>() },
+        <span class="kw">impl </span>Clone <span class="kw">for </span><span class="macro-nonterminal">$name_enc </span>{
+            <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>inner = <span class="kw">if </span><span class="self">self</span>.token.get() {
+                    <span class="macro-nonterminal">$module::InnerEnc </span>{
+                        intrinsics: <span class="kw">unsafe </span>{ <span class="self">self</span>.inner.intrinsics.clone() },
                     }
-                } <span class="kw">else</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerEnc</span> {
-                        <span class="ident">soft</span>: <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>.<span class="ident">clone</span>() },
+                } <span class="kw">else </span>{
+                    <span class="macro-nonterminal">$module::InnerEnc </span>{
+                        soft: <span class="kw">unsafe </span>{ <span class="self">self</span>.inner.soft.clone() },
                     }
                 };
 
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>,
-                    <span class="ident">token</span>: <span class="self">self</span>.<span class="ident">token</span>,
+                <span class="self">Self </span>{
+                    inner,
+                    token: <span class="self">self</span>.token,
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span> {
-            <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span>;
+        <span class="kw">impl </span>BlockSizeUser <span class="kw">for </span><span class="macro-nonterminal">$name_enc </span>{
+            <span class="kw">type </span>BlockSize = U16;
         }
 
-        <span class="kw">impl</span> <span class="ident">BlockCipher</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span> {}
+        <span class="kw">impl </span>BlockCipher <span class="kw">for </span><span class="macro-nonterminal">$name_enc </span>{}
 
-        <span class="kw">impl</span> <span class="ident">BlockEncrypt</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span> {
-            <span class="kw">fn</span> <span class="ident">encrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span><span class="op">&gt;</span>) {
-                <span class="kw">unsafe</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                        <span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-                        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">inner</span>(
-                            <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span>,
-                            <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span><span class="op">&gt;</span>,
+        <span class="kw">impl </span>BlockEncrypt <span class="kw">for </span><span class="macro-nonterminal">$name_enc </span>{
+            <span class="kw">fn </span>encrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = U16&gt;) {
+                <span class="kw">unsafe </span>{
+                    <span class="kw">if </span><span class="self">self</span>.token.get() {
+                        <span class="attribute">#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+                        </span><span class="kw">unsafe fn </span>inner(
+                            state: <span class="kw-2">&amp;</span>intrinsics::<span class="macro-nonterminal">$name_enc</span>,
+                            f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = U16&gt;,
                         ) {
-                            <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>.<span class="ident">get_enc_backend</span>());
+                            f.call(<span class="kw-2">&amp;mut </span>state.get_enc_backend());
                         }
-                        <span class="ident">inner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>, <span class="ident">f</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>.<span class="ident">get_enc_backend</span>());
+                        inner(<span class="kw-2">&amp;</span><span class="self">self</span>.inner.intrinsics, f);
+                    } <span class="kw">else </span>{
+                        f.call(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner.soft.get_enc_backend());
                     }
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span>), <span class="string">&quot; { .. }&quot;</span>))
+        <span class="kw">impl </span>fmt::Debug <span class="kw">for </span><span class="macro-nonterminal">$name_enc </span>{
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+                f.write_str(<span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$name_enc</span>), <span class="string">&quot; { .. }&quot;</span>))
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">AlgorithmName</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span> {
-            <span class="kw">fn</span> <span class="ident">write_alg_name</span>(<span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span>))
+        <span class="kw">impl </span>AlgorithmName <span class="kw">for </span><span class="macro-nonterminal">$name_enc </span>{
+            <span class="kw">fn </span>write_alg_name(f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+                f.write_str(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$name_enc</span>))
             }
         }
 
-        <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span>
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;block cipher (decrypt-only)&quot;</span>]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerDec</span>,
-            <span class="ident">token</span>: <span class="ident">aes_intrinsics::InitToken</span>,
+        <span class="attribute">#[doc=<span class="macro-nonterminal">$doc</span>]
+        #[doc = <span class="string">&quot;block cipher (decrypt-only)&quot;</span>]
+        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name_dec </span>{
+            inner: <span class="macro-nonterminal">$module::InnerDec</span>,
+            token: aes_intrinsics::InitToken,
         }
 
-        <span class="kw">impl</span> <span class="ident">KeySizeUser</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="kw">type</span> <span class="ident">KeySize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">key_size</span>;
+        <span class="kw">impl </span>KeySizeUser <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{
+            <span class="kw">type </span>KeySize = <span class="macro-nonterminal">$key_size</span>;
         }
 
-        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">enc</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-                <span class="ident"><span class="self">Self</span>::from</span>(<span class="kw-2">&amp;</span><span class="ident">enc</span>)
+        <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$name_enc</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>from(enc: <span class="macro-nonterminal">$name_enc</span>) -&gt; <span class="macro-nonterminal">$name_dec </span>{
+                <span class="self">Self</span>::from(<span class="kw-2">&amp;</span>enc)
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_enc</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-                <span class="kw">use</span> <span class="ident">core::ops::Deref</span>;
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">enc</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerDec</span> {
-                        <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop::new</span>(<span class="kw">unsafe</span> {
-                            <span class="ident">enc</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>.<span class="ident">deref</span>().<span class="ident">into</span>()
+        <span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="macro-nonterminal">$name_enc</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{
+            <span class="kw">fn </span>from(enc: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$name_enc</span>) -&gt; <span class="macro-nonterminal">$name_dec </span>{
+                <span class="kw">use </span>core::ops::Deref;
+                <span class="kw">let </span>inner = <span class="kw">if </span>enc.token.get() {
+                    <span class="macro-nonterminal">$module::InnerDec </span>{
+                        intrinsics: ManuallyDrop::new(<span class="kw">unsafe </span>{
+                            enc.inner.intrinsics.deref().into()
                         }),
                     }
-                } <span class="kw">else</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerDec</span> {
-                        <span class="ident">soft</span>: <span class="ident">ManuallyDrop::new</span>(<span class="kw">unsafe</span> { <span class="ident">enc</span>.<span class="ident">inner</span>.<span class="ident">soft</span>.<span class="ident">deref</span>().<span class="ident">into</span>() }),
+                } <span class="kw">else </span>{
+                    <span class="macro-nonterminal">$module::InnerDec </span>{
+                        soft: ManuallyDrop::new(<span class="kw">unsafe </span>{ enc.inner.soft.deref().into() }),
                     }
                 };
 
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>,
-                    <span class="ident">token</span>: <span class="ident">enc</span>.<span class="ident">token</span>,
+                <span class="self">Self </span>{
+                    inner,
+                    token: enc.token,
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">KeyInit</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-                <span class="kw">let</span> (<span class="ident">token</span>, <span class="ident">aesni_present</span>) <span class="op">=</span> <span class="ident">aes_intrinsics::init_get</span>();
+        <span class="kw">impl </span>KeyInit <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>new(key: <span class="kw-2">&amp;</span>Key&lt;<span class="self">Self</span>&gt;) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>(token, aesni_present) = aes_intrinsics::init_get();
 
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">aesni_present</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerDec</span> {
-                        <span class="ident">intrinsics</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec::new</span>(<span class="ident">key</span>)),
+                <span class="kw">let </span>inner = <span class="kw">if </span>aesni_present {
+                    <span class="macro-nonterminal">$module::InnerDec </span>{
+                        intrinsics: ManuallyDrop::new(intrinsics::<span class="macro-nonterminal">$name_dec::new</span>(key)),
                     }
-                } <span class="kw">else</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerDec</span> {
-                        <span class="ident">soft</span>: <span class="ident">ManuallyDrop::new</span>(<span class="ident">soft</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec::new</span>(<span class="ident">key</span>)),
+                } <span class="kw">else </span>{
+                    <span class="macro-nonterminal">$module::InnerDec </span>{
+                        soft: ManuallyDrop::new(soft::<span class="macro-nonterminal">$name_dec::new</span>(key)),
                     }
                 };
 
-                <span class="self">Self</span> { <span class="ident">inner</span>, <span class="ident">token</span> }
+                <span class="self">Self </span>{ inner, token }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-                <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerDec</span> {
-                        <span class="ident">intrinsics</span>: <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>.<span class="ident">clone</span>() },
+        <span class="kw">impl </span>Clone <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{
+            <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>inner = <span class="kw">if </span><span class="self">self</span>.token.get() {
+                    <span class="macro-nonterminal">$module::InnerDec </span>{
+                        intrinsics: <span class="kw">unsafe </span>{ <span class="self">self</span>.inner.intrinsics.clone() },
                     }
-                } <span class="kw">else</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">module::InnerDec</span> {
-                        <span class="ident">soft</span>: <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>.<span class="ident">clone</span>() },
+                } <span class="kw">else </span>{
+                    <span class="macro-nonterminal">$module::InnerDec </span>{
+                        soft: <span class="kw">unsafe </span>{ <span class="self">self</span>.inner.soft.clone() },
                     }
                 };
 
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>,
-                    <span class="ident">token</span>: <span class="self">self</span>.<span class="ident">token</span>,
+                <span class="self">Self </span>{
+                    inner,
+                    token: <span class="self">self</span>.token,
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span>;
+        <span class="kw">impl </span>BlockSizeUser <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{
+            <span class="kw">type </span>BlockSize = U16;
         }
 
-        <span class="kw">impl</span> <span class="ident">BlockCipher</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {}
+        <span class="kw">impl </span>BlockCipher <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{}
 
-        <span class="kw">impl</span> <span class="ident">BlockDecrypt</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="kw">fn</span> <span class="ident">decrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span><span class="op">&gt;</span>) {
-                <span class="kw">unsafe</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">get</span>() {
-                        <span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-                        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">inner</span>(
-                            <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">intrinsics</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span>,
-                            <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">U16</span><span class="op">&gt;</span>,
+        <span class="kw">impl </span>BlockDecrypt <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{
+            <span class="kw">fn </span>decrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = U16&gt;) {
+                <span class="kw">unsafe </span>{
+                    <span class="kw">if </span><span class="self">self</span>.token.get() {
+                        <span class="attribute">#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+                        </span><span class="kw">unsafe fn </span>inner(
+                            state: <span class="kw-2">&amp;</span>intrinsics::<span class="macro-nonterminal">$name_dec</span>,
+                            f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = U16&gt;,
                         ) {
-                            <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>.<span class="ident">get_dec_backend</span>());
+                            f.call(<span class="kw-2">&amp;mut </span>state.get_dec_backend());
                         }
-                        <span class="ident">inner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">intrinsics</span>, <span class="ident">f</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">soft</span>.<span class="ident">get_dec_backend</span>());
+                        inner(<span class="kw-2">&amp;</span><span class="self">self</span>.inner.intrinsics, f);
+                    } <span class="kw">else </span>{
+                        f.call(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner.soft.get_dec_backend());
                     }
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span>), <span class="string">&quot; { .. }&quot;</span>))
+        <span class="kw">impl </span>fmt::Debug <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+                f.write_str(<span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$name_dec</span>), <span class="string">&quot; { .. }&quot;</span>))
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">AlgorithmName</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span> {
-            <span class="kw">fn</span> <span class="ident">write_alg_name</span>(<span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name_dec</span>))
+        <span class="kw">impl </span>AlgorithmName <span class="kw">for </span><span class="macro-nonterminal">$name_dec </span>{
+            <span class="kw">fn </span>write_alg_name(f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+                f.write_str(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$name_dec</span>))
             }
         }
     };
 }
 
-<span class="macro">define_aes_impl!</span>(<span class="ident">Aes128</span>, <span class="ident">Aes128Enc</span>, <span class="ident">Aes128Dec</span>, <span class="ident">aes128</span>, <span class="ident">U16</span>, <span class="string">&quot;AES-128&quot;</span>);
-<span class="macro">define_aes_impl!</span>(<span class="ident">Aes192</span>, <span class="ident">Aes192Enc</span>, <span class="ident">Aes192Dec</span>, <span class="ident">aes192</span>, <span class="ident">U24</span>, <span class="string">&quot;AES-192&quot;</span>);
-<span class="macro">define_aes_impl!</span>(<span class="ident">Aes256</span>, <span class="ident">Aes256Enc</span>, <span class="ident">Aes256Dec</span>, <span class="ident">aes256</span>, <span class="ident">U32</span>, <span class="string">&quot;AES-256&quot;</span>);
+<span class="macro">define_aes_impl!</span>(Aes128, Aes128Enc, Aes128Dec, aes128, U16, <span class="string">&quot;AES-128&quot;</span>);
+<span class="macro">define_aes_impl!</span>(Aes192, Aes192Enc, Aes192Dec, aes192, U24, <span class="string">&quot;AES-192&quot;</span>);
+<span class="macro">define_aes_impl!</span>(Aes256, Aes256Enc, Aes256Dec, aes256, U32, <span class="string">&quot;AES-256&quot;</span>);
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="aes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="aes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

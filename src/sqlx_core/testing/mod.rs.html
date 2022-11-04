@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/testing/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/testing/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -260,267 +260,267 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::future::Future</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::future::Future;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
+<span class="kw">use </span>futures_core::future::BoxFuture;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">fixtures::FixtureSnapshot</span>;
-<span class="kw">use</span> <span class="ident">sqlx_rt::test_block_on</span>;
+<span class="kw">pub use </span>fixtures::FixtureSnapshot;
+<span class="kw">use </span>sqlx_rt::test_block_on;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection</span>::{<span class="ident">ConnectOptions</span>, <span class="ident">Connection</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::Database</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::executor::Executor</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::migrate</span>::{<span class="ident">Migrate</span>, <span class="ident">Migrator</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool</span>::{<span class="ident">Pool</span>, <span class="ident">PoolConnection</span>, <span class="ident">PoolOptions</span>};
+<span class="kw">use </span><span class="kw">crate</span>::connection::{ConnectOptions, Connection};
+<span class="kw">use </span><span class="kw">crate</span>::database::Database;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::executor::Executor;
+<span class="kw">use </span><span class="kw">crate</span>::migrate::{Migrate, Migrator};
+<span class="kw">use </span><span class="kw">crate</span>::pool::{Pool, PoolConnection, PoolOptions};
 
-<span class="kw">mod</span> <span class="ident">fixtures</span>;
+<span class="kw">mod </span>fixtures;
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TestSupport</span>: <span class="ident">Database</span> {
-    <span class="doccomment">/// Get parameters to construct a `Pool` suitable for testing.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This `Pool` instance will behave somewhat specially:</span>
-    <span class="doccomment">/// * all handles share a single global semaphore to avoid exceeding the connection limit</span>
-    <span class="doccomment">///   on the database server.</span>
-    <span class="doccomment">/// * each invocation results in a different temporary database.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The implementation may require `DATABASE_URL` to be set in order to manage databases.</span>
-    <span class="doccomment">/// The user credentials it contains must have the privilege to create and drop databases.</span>
-    <span class="kw">fn</span> <span class="ident">test_context</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="ident">TestArgs</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TestContext</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">pub trait </span>TestSupport: Database {
+    <span class="doccomment">/// Get parameters to construct a `Pool` suitable for testing.
+    ///
+    /// This `Pool` instance will behave somewhat specially:
+    /// * all handles share a single global semaphore to avoid exceeding the connection limit
+    ///   on the database server.
+    /// * each invocation results in a different temporary database.
+    ///
+    /// The implementation may require `DATABASE_URL` to be set in order to manage databases.
+    /// The user credentials it contains must have the privilege to create and drop databases.
+    </span><span class="kw">fn </span>test_context(args: <span class="kw-2">&amp;</span>TestArgs) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;TestContext&lt;<span class="self">Self</span>&gt;, Error&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">cleanup_test</span>(<span class="ident">db_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>cleanup_test(db_name: <span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt;;
 
-    <span class="doccomment">/// Cleanup any test databases that are no longer in-use.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns a count of the databases deleted, if possible.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The implementation may require `DATABASE_URL` to be set in order to manage databases.</span>
-    <span class="doccomment">/// The user credentials it contains must have the privilege to create and drop databases.</span>
-    <span class="kw">fn</span> <span class="ident">cleanup_test_dbs</span>() -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Cleanup any test databases that are no longer in-use.
+    ///
+    /// Returns a count of the databases deleted, if possible.
+    ///
+    /// The implementation may require `DATABASE_URL` to be set in order to manage databases.
+    /// The user credentials it contains must have the privilege to create and drop databases.
+    </span><span class="kw">fn </span>cleanup_test_dbs() -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;, Error&gt;&gt;;
 
-    <span class="doccomment">/// Take a snapshot of the current state of the database (data only).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This snapshot can then be used to generate test fixtures.</span>
-    <span class="kw">fn</span> <span class="ident">snapshot</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Connection</span>)
-        -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FixtureSnapshot</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Take a snapshot of the current state of the database (data only).
+    ///
+    /// This snapshot can then be used to generate test fixtures.
+    </span><span class="kw">fn </span>snapshot(conn: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Connection)
+        -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;FixtureSnapshot&lt;<span class="self">Self</span>&gt;, Error&gt;&gt;;
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestFixture</span> {
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    <span class="kw">pub</span> <span class="ident">contents</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+<span class="kw">pub struct </span>TestFixture {
+    <span class="kw">pub </span>path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    <span class="kw">pub </span>contents: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestArgs</span> {
-    <span class="kw">pub</span> <span class="ident">test_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    <span class="kw">pub</span> <span class="ident">migrator</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Migrator</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">fixtures</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">TestFixture</span>],
+<span class="kw">pub struct </span>TestArgs {
+    <span class="kw">pub </span>test_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+    <span class="kw">pub </span>migrator: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Migrator&gt;,
+    <span class="kw">pub </span>fixtures: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[TestFixture],
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TestFn</span> {
-    <span class="kw">type</span> <span class="ident">Output</span>;
+<span class="kw">pub trait </span>TestFn {
+    <span class="kw">type </span>Output;
 
-    <span class="kw">fn</span> <span class="ident">run_test</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">TestArgs</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
+    <span class="kw">fn </span>run_test(<span class="self">self</span>, args: TestArgs) -&gt; <span class="self">Self</span>::Output;
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TestTermination</span> {
-    <span class="kw">fn</span> <span class="ident">is_success</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+<span class="kw">pub trait </span>TestTermination {
+    <span class="kw">fn </span>is_success(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestContext</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">pool_opts</span>: <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">connect_opts</span>: <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>,
-    <span class="kw">pub</span> <span class="ident">db_name</span>: <span class="ident">String</span>,
+<span class="kw">pub struct </span>TestContext&lt;DB: Database&gt; {
+    <span class="kw">pub </span>pool_opts: PoolOptions&lt;DB&gt;,
+    <span class="kw">pub </span>connect_opts: &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options,
+    <span class="kw">pub </span>db_name: String,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">TestFn</span> <span class="kw">for</span> <span class="kw">fn</span>(<span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident">Fut</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">TestSupport</span> <span class="op">+</span> <span class="ident">Database</span>,
-    <span class="ident">DB::Connection</span>: <span class="ident">Migrate</span>,
-    <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>: <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident">DB</span><span class="op">&gt;</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span>,
-    <span class="ident">Fut::Output</span>: <span class="ident">TestTermination</span>,
+<span class="kw">impl</span>&lt;DB, Fut&gt; TestFn <span class="kw">for fn</span>(Pool&lt;DB&gt;) -&gt; Fut
+<span class="kw">where
+    </span>DB: TestSupport + Database,
+    DB::Connection: Migrate,
+    <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>DB::Connection: Executor&lt;<span class="lifetime">&#39;c</span>, Database = DB&gt;,
+    Fut: Future,
+    Fut::Output: TestTermination,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Fut::Output</span>;
+    <span class="kw">type </span>Output = Fut::Output;
 
-    <span class="kw">fn</span> <span class="ident">run_test</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">TestArgs</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">run_test_with_pool</span>(<span class="ident">args</span>, <span class="self">self</span>)
+    <span class="kw">fn </span>run_test(<span class="self">self</span>, args: TestArgs) -&gt; <span class="self">Self</span>::Output {
+        run_test_with_pool(args, <span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">TestFn</span> <span class="kw">for</span> <span class="kw">fn</span>(<span class="ident">PoolConnection</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident">Fut</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">TestSupport</span> <span class="op">+</span> <span class="ident">Database</span>,
-    <span class="ident">DB::Connection</span>: <span class="ident">Migrate</span>,
-    <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>: <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident">DB</span><span class="op">&gt;</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span>,
-    <span class="ident">Fut::Output</span>: <span class="ident">TestTermination</span>,
+<span class="kw">impl</span>&lt;DB, Fut&gt; TestFn <span class="kw">for fn</span>(PoolConnection&lt;DB&gt;) -&gt; Fut
+<span class="kw">where
+    </span>DB: TestSupport + Database,
+    DB::Connection: Migrate,
+    <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>DB::Connection: Executor&lt;<span class="lifetime">&#39;c</span>, Database = DB&gt;,
+    Fut: Future,
+    Fut::Output: TestTermination,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Fut::Output</span>;
+    <span class="kw">type </span>Output = Fut::Output;
 
-    <span class="kw">fn</span> <span class="ident">run_test</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">TestArgs</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">run_test_with_pool</span>(<span class="ident">args</span>, <span class="op">|</span><span class="ident">pool</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>
-                .<span class="ident">acquire</span>()
-                .<span class="kw">await</span>
-                .<span class="ident">expect</span>(<span class="string">&quot;failed to acquire test pool connection&quot;</span>);
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> (<span class="self">self</span>)(<span class="ident">conn</span>).<span class="kw">await</span>;
-            <span class="ident">pool</span>.<span class="ident">close</span>().<span class="kw">await</span>;
-            <span class="ident">res</span>
+    <span class="kw">fn </span>run_test(<span class="self">self</span>, args: TestArgs) -&gt; <span class="self">Self</span>::Output {
+        run_test_with_pool(args, |pool| <span class="kw">async move </span>{
+            <span class="kw">let </span>conn = pool
+                .acquire()
+                .<span class="kw">await
+                </span>.expect(<span class="string">&quot;failed to acquire test pool connection&quot;</span>);
+            <span class="kw">let </span>res = (<span class="self">self</span>)(conn).<span class="kw">await</span>;
+            pool.close().<span class="kw">await</span>;
+            res
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">TestFn</span> <span class="kw">for</span> <span class="kw">fn</span>(<span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>) -&gt; <span class="ident">Fut</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">Database</span> <span class="op">+</span> <span class="ident">TestSupport</span>,
-    <span class="ident">DB::Connection</span>: <span class="ident">Migrate</span>,
-    <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>: <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident">DB</span><span class="op">&gt;</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span>,
-    <span class="ident">Fut::Output</span>: <span class="ident">TestTermination</span>,
+<span class="kw">impl</span>&lt;DB, Fut&gt; TestFn <span class="kw">for fn</span>(PoolOptions&lt;DB&gt;, &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options) -&gt; Fut
+<span class="kw">where
+    </span>DB: Database + TestSupport,
+    DB::Connection: Migrate,
+    <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>DB::Connection: Executor&lt;<span class="lifetime">&#39;c</span>, Database = DB&gt;,
+    Fut: Future,
+    Fut::Output: TestTermination,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Fut::Output</span>;
+    <span class="kw">type </span>Output = Fut::Output;
 
-    <span class="kw">fn</span> <span class="ident">run_test</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">TestArgs</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">run_test</span>(<span class="ident">args</span>, <span class="self">self</span>)
+    <span class="kw">fn </span>run_test(<span class="self">self</span>, args: TestArgs) -&gt; <span class="self">Self</span>::Output {
+        run_test(args, <span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> <span class="ident">TestFn</span> <span class="kw">for</span> <span class="kw">fn</span>() -&gt; <span class="ident">Fut</span>
-<span class="kw">where</span>
-    <span class="ident">Fut</span>: <span class="ident">Future</span>,
+<span class="kw">impl</span>&lt;Fut&gt; TestFn <span class="kw">for fn</span>() -&gt; Fut
+<span class="kw">where
+    </span>Fut: Future,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Fut::Output</span>;
+    <span class="kw">type </span>Output = Fut::Output;
 
-    <span class="kw">fn</span> <span class="ident">run_test</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">TestArgs</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn </span>run_test(<span class="self">self</span>, args: TestArgs) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">assert!</span>(
-            <span class="ident">args</span>.<span class="ident">fixtures</span>.<span class="ident">is_empty</span>(),
-            <span class="string">&quot;fixtures cannot be applied for a bare function&quot;</span>
-        );
-        <span class="ident">test_block_on</span>(<span class="self">self</span>())
+            args.fixtures.is_empty(),
+            <span class="string">&quot;fixtures cannot be applied for a bare function&quot;
+        </span>);
+        test_block_on(<span class="self">self</span>())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TestArgs</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">test_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">TestArgs</span> {
-            <span class="ident">test_path</span>,
-            <span class="ident">migrator</span>: <span class="prelude-val">None</span>,
-            <span class="ident">fixtures</span>: <span class="kw-2">&amp;</span>[],
+<span class="kw">impl </span>TestArgs {
+    <span class="kw">pub fn </span>new(test_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+        TestArgs {
+            test_path,
+            migrator: <span class="prelude-val">None</span>,
+            fixtures: <span class="kw-2">&amp;</span>[],
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">migrator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">migrator</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Migrator</span>) {
-        <span class="self">self</span>.<span class="ident">migrator</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">migrator</span>);
+    <span class="kw">pub fn </span>migrator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, migrator: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Migrator) {
+        <span class="self">self</span>.migrator = <span class="prelude-val">Some</span>(migrator);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fixtures</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fixtures</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">TestFixture</span>]) {
-        <span class="self">self</span>.<span class="ident">fixtures</span> <span class="op">=</span> <span class="ident">fixtures</span>;
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">TestTermination</span> <span class="kw">for</span> () {
-    <span class="kw">fn</span> <span class="ident">is_success</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
+    <span class="kw">pub fn </span>fixtures(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fixtures: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[TestFixture]) {
+        <span class="self">self</span>.fixtures = fixtures;
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">TestTermination</span> <span class="kw">for</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">is_success</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">is_ok</span>()
+<span class="kw">impl </span>TestTermination <span class="kw">for </span>() {
+    <span class="kw">fn </span>is_success(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">true
+    </span>}
+}
+
+<span class="kw">impl</span>&lt;T, E&gt; TestTermination <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;T, E&gt; {
+    <span class="kw">fn </span>is_success(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_ok()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">run_test_with_pool</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span>(<span class="ident">args</span>: <span class="ident">TestArgs</span>, <span class="ident">test_fn</span>: <span class="ident">F</span>) -&gt; <span class="ident">Fut::Output</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">TestSupport</span>,
-    <span class="ident">DB::Connection</span>: <span class="ident">Migrate</span>,
-    <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>: <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident">DB</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="ident">Fut</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span>,
-    <span class="ident">Fut::Output</span>: <span class="ident">TestTermination</span>,
+<span class="kw">fn </span>run_test_with_pool&lt;DB, F, Fut&gt;(args: TestArgs, test_fn: F) -&gt; Fut::Output
+<span class="kw">where
+    </span>DB: TestSupport,
+    DB::Connection: Migrate,
+    <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>DB::Connection: Executor&lt;<span class="lifetime">&#39;c</span>, Database = DB&gt;,
+    F: FnOnce(Pool&lt;DB&gt;) -&gt; Fut,
+    Fut: Future,
+    Fut::Output: TestTermination,
 {
-    <span class="kw">let</span> <span class="ident">test_path</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">test_path</span>;
-    <span class="ident">run_test</span>::<span class="op">&lt;</span><span class="ident">DB</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">args</span>, <span class="op">|</span><span class="ident">pool_opts</span>, <span class="ident">connect_opts</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">pool_opts</span>
-            .<span class="ident">connect_with</span>(<span class="ident">connect_opts</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;failed to connect test pool&quot;</span>);
+    <span class="kw">let </span>test_path = args.test_path;
+    run_test::&lt;DB, <span class="kw">_</span>, <span class="kw">_</span>&gt;(args, |pool_opts, connect_opts| <span class="kw">async move </span>{
+        <span class="kw">let </span>pool = pool_opts
+            .connect_with(connect_opts)
+            .<span class="kw">await
+            </span>.expect(<span class="string">&quot;failed to connect test pool&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">test_fn</span>(<span class="ident">pool</span>.<span class="ident">clone</span>()).<span class="kw">await</span>;
+        <span class="kw">let </span>res = test_fn(pool.clone()).<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">close_timed_out</span> <span class="op">=</span> <span class="ident">sqlx_rt::timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">10</span>), <span class="ident">pool</span>.<span class="ident">close</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">is_err</span>();
+        <span class="kw">let </span>close_timed_out = sqlx_rt::timeout(Duration::from_secs(<span class="number">10</span>), pool.close())
+            .<span class="kw">await
+            </span>.is_err();
 
-        <span class="kw">if</span> <span class="ident">close_timed_out</span> {
-            <span class="macro">eprintln!</span>(<span class="string">&quot;test {} held onto Pool after exiting&quot;</span>, <span class="ident">test_path</span>);
+        <span class="kw">if </span>close_timed_out {
+            <span class="macro">eprintln!</span>(<span class="string">&quot;test {} held onto Pool after exiting&quot;</span>, test_path);
         }
 
-        <span class="ident">res</span>
+        res
     })
 }
 
-<span class="kw">fn</span> <span class="ident">run_test</span><span class="op">&lt;</span><span class="ident">DB</span>, <span class="ident">F</span>, <span class="ident">Fut</span><span class="op">&gt;</span>(<span class="ident">args</span>: <span class="ident">TestArgs</span>, <span class="ident">test_fn</span>: <span class="ident">F</span>) -&gt; <span class="ident">Fut::Output</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">TestSupport</span>,
-    <span class="ident">DB::Connection</span>: <span class="ident">Migrate</span>,
-    <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>: <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident">DB</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>) -&gt; <span class="ident">Fut</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span>,
-    <span class="ident">Fut::Output</span>: <span class="ident">TestTermination</span>,
+<span class="kw">fn </span>run_test&lt;DB, F, Fut&gt;(args: TestArgs, test_fn: F) -&gt; Fut::Output
+<span class="kw">where
+    </span>DB: TestSupport,
+    DB::Connection: Migrate,
+    <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>DB::Connection: Executor&lt;<span class="lifetime">&#39;c</span>, Database = DB&gt;,
+    F: FnOnce(PoolOptions&lt;DB&gt;, &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options) -&gt; Fut,
+    Fut: Future,
+    Fut::Output: TestTermination,
 {
-    <span class="ident">test_block_on</span>(<span class="kw">async</span> <span class="kw">move</span> {
-        <span class="kw">let</span> <span class="ident">test_context</span> <span class="op">=</span> <span class="ident">DB::test_context</span>(<span class="kw-2">&amp;</span><span class="ident">args</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;failed to connect to setup test database&quot;</span>);
+    test_block_on(<span class="kw">async move </span>{
+        <span class="kw">let </span>test_context = DB::test_context(<span class="kw-2">&amp;</span>args)
+            .<span class="kw">await
+            </span>.expect(<span class="string">&quot;failed to connect to setup test database&quot;</span>);
 
-        <span class="ident">setup_test_db</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">test_context</span>.<span class="ident">connect_opts</span>, <span class="kw-2">&amp;</span><span class="ident">args</span>).<span class="kw">await</span>;
+        setup_test_db::&lt;DB&gt;(<span class="kw-2">&amp;</span>test_context.connect_opts, <span class="kw-2">&amp;</span>args).<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">test_fn</span>(<span class="ident">test_context</span>.<span class="ident">pool_opts</span>, <span class="ident">test_context</span>.<span class="ident">connect_opts</span>).<span class="kw">await</span>;
+        <span class="kw">let </span>res = test_fn(test_context.pool_opts, test_context.connect_opts).<span class="kw">await</span>;
 
-        <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_success</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">DB::cleanup_test</span>(<span class="kw-2">&amp;</span><span class="ident">test_context</span>.<span class="ident">db_name</span>).<span class="kw">await</span> {
+        <span class="kw">if </span>res.is_success() {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = DB::cleanup_test(<span class="kw-2">&amp;</span>test_context.db_name).<span class="kw">await </span>{
                 <span class="macro">eprintln!</span>(
                     <span class="string">&quot;failed to delete database {:?}: {}&quot;</span>,
-                    <span class="ident">test_context</span>.<span class="ident">db_name</span>, <span class="ident">e</span>
+                    test_context.db_name, e
                 );
             }
         }
 
-        <span class="ident">res</span>
+        res
     })
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">setup_test_db</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(
-    <span class="ident">copts</span>: <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>,
-    <span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="ident">TestArgs</span>,
-) <span class="kw">where</span>
-    <span class="ident">DB::Connection</span>: <span class="ident">Migrate</span> <span class="op">+</span> <span class="ident">Sized</span>,
-    <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>: <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">Database</span> <span class="op">=</span> <span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">async fn </span>setup_test_db&lt;DB: Database&gt;(
+    copts: <span class="kw-2">&amp;</span>&lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options,
+    args: <span class="kw-2">&amp;</span>TestArgs,
+) <span class="kw">where
+    </span>DB::Connection: Migrate + Sized,
+    <span class="kw">for</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>DB::Connection: Executor&lt;<span class="lifetime">&#39;c</span>, Database = DB&gt;,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">copts</span>
-        .<span class="ident">connect</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;failed to connect to test database&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = copts
+        .connect()
+        .<span class="kw">await
+        </span>.expect(<span class="string">&quot;failed to connect to test database&quot;</span>);
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">migrator</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">migrator</span> {
-        <span class="ident">migrator</span>
-            .<span class="ident">run_direct</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;failed to apply migrations&quot;</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(migrator) = args.migrator {
+        migrator
+            .run_direct(<span class="kw-2">&amp;mut </span>conn)
+            .<span class="kw">await
+            </span>.expect(<span class="string">&quot;failed to apply migrations&quot;</span>);
     }
 
-    <span class="kw">for</span> <span class="ident">fixture</span> <span class="kw">in</span> <span class="ident">args</span>.<span class="ident">fixtures</span> {
-        (<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
-            .<span class="ident">execute</span>(<span class="ident">fixture</span>.<span class="ident">contents</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;failed to apply test fixture {:?}: {:?}&quot;</span>, <span class="ident">fixture</span>.<span class="ident">path</span>, <span class="ident">e</span>));
+    <span class="kw">for </span>fixture <span class="kw">in </span>args.fixtures {
+        (<span class="kw-2">&amp;mut </span>conn)
+            .execute(fixture.contents)
+            .<span class="kw">await
+            </span>.unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">&quot;failed to apply test fixture {:?}: {:?}&quot;</span>, fixture.path, e));
     }
 
-    <span class="ident">conn</span>.<span class="ident">close</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;failed to close setup connection&quot;</span>);
+    conn.close()
+        .<span class="kw">await
+        </span>.expect(<span class="string">&quot;failed to close setup connection&quot;</span>);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/client/connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/client/connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -310,315 +310,315 @@
 <span id="308">308</span>
 <span id="309">309</span>
 <span id="310">310</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">fmt::Display</span>,
-    <span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">Write</span>},
-    <span class="ident">net</span>::{<span class="ident">IpAddr</span>, <span class="ident">ToSocketAddrs</span>},
-    <span class="ident">time::Duration</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    fmt::Display,
+    io::{<span class="self">self</span>, BufRead, BufReader, Write},
+    net::{IpAddr, ToSocketAddrs},
+    time::Duration,
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::escape_crlf</span>;
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ClientCodec</span>, <span class="ident">NetworkStream</span>, <span class="ident">TlsParameters</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">address::Envelope</span>,
-    <span class="ident">transport::smtp</span>::{
-        <span class="ident">authentication</span>::{<span class="ident">Credentials</span>, <span class="ident">Mechanism</span>},
-        <span class="ident">commands</span>::{<span class="ident">Auth</span>, <span class="ident">Data</span>, <span class="ident">Ehlo</span>, <span class="ident">Mail</span>, <span class="ident">Noop</span>, <span class="ident">Quit</span>, <span class="ident">Rcpt</span>, <span class="ident">Starttls</span>},
-        <span class="ident">error</span>,
-        <span class="ident">error::Error</span>,
-        <span class="ident">extension</span>::{<span class="ident">ClientId</span>, <span class="ident">Extension</span>, <span class="ident">MailBodyParameter</span>, <span class="ident">MailParameter</span>, <span class="ident">ServerInfo</span>},
-        <span class="ident">response</span>::{<span class="ident">parse_response</span>, <span class="ident">Response</span>},
+<span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">super</span>::escape_crlf;
+<span class="kw">use super</span>::{ClientCodec, NetworkStream, TlsParameters};
+<span class="kw">use crate</span>::{
+    address::Envelope,
+    transport::smtp::{
+        authentication::{Credentials, Mechanism},
+        commands::{Auth, Data, Ehlo, Mail, Noop, Quit, Rcpt, Starttls},
+        error,
+        error::Error,
+        extension::{ClientId, Extension, MailBodyParameter, MailParameter, ServerInfo},
+        response::{parse_response, Response},
     },
 };
 
-<span class="macro">macro_rules!</span> <span class="ident">try_smtp</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">client</span>: <span class="ident">ident</span>) =&gt; ({
-        <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">client</span>.<span class="ident">abort</span>();
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">From::from</span>(<span class="ident">err</span>))
+<span class="macro">macro_rules! </span>try_smtp (
+    (<span class="macro-nonterminal">$err</span>: expr, <span class="macro-nonterminal">$client</span>: ident) =&gt; ({
+        <span class="kw">match </span><span class="macro-nonterminal">$err </span>{
+            <span class="prelude-val">Ok</span>(val) =&gt; val,
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="macro-nonterminal">$client</span>.abort();
+                <span class="kw">return </span><span class="prelude-val">Err</span>(From::from(err))
             },
         }
     })
 );
 
-<span class="doccomment">/// Structure that implements the SMTP client</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SmtpConnection</span> {
-    <span class="doccomment">/// TCP stream between client and server</span>
-    <span class="doccomment">/// Value is None before connection</span>
-    <span class="ident">stream</span>: <span class="ident">BufReader</span><span class="op">&lt;</span><span class="ident">NetworkStream</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Panic state</span>
-    <span class="ident">panic</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Information about the server</span>
-    <span class="ident">server_info</span>: <span class="ident">ServerInfo</span>,
+<span class="doccomment">/// Structure that implements the SMTP client
+</span><span class="kw">pub struct </span>SmtpConnection {
+    <span class="doccomment">/// TCP stream between client and server
+    /// Value is None before connection
+    </span>stream: BufReader&lt;NetworkStream&gt;,
+    <span class="doccomment">/// Panic state
+    </span>panic: bool,
+    <span class="doccomment">/// Information about the server
+    </span>server_info: ServerInfo,
 }
 
-<span class="kw">impl</span> <span class="ident">SmtpConnection</span> {
-    <span class="doccomment">/// Get information about the server</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">server_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ServerInfo</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">server_info</span>
+<span class="kw">impl </span>SmtpConnection {
+    <span class="doccomment">/// Get information about the server
+    </span><span class="kw">pub fn </span>server_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ServerInfo {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.server_info
     }
 
-    <span class="comment">// FIXME add simple connect and rename this one</span>
+    <span class="comment">// FIXME add simple connect and rename this one
 
-    <span class="doccomment">/// Connects to the configured server</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Sends EHLO and parses server information</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">ToSocketAddrs</span><span class="op">&gt;</span>(
-        <span class="ident">server</span>: <span class="ident">A</span>,
-        <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-        <span class="ident">hello_name</span>: <span class="kw-2">&amp;</span><span class="ident">ClientId</span>,
-        <span class="ident">tls_parameters</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TlsParameters</span><span class="op">&gt;</span>,
-        <span class="ident">local_address</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SmtpConnection</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">NetworkStream::connect</span>(<span class="ident">server</span>, <span class="ident">timeout</span>, <span class="ident">tls_parameters</span>, <span class="ident">local_address</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">stream</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">SmtpConnection</span> {
-            <span class="ident">stream</span>,
-            <span class="ident">panic</span>: <span class="bool-val">false</span>,
-            <span class="ident">server_info</span>: <span class="ident">ServerInfo::default</span>(),
+    </span><span class="doccomment">/// Connects to the configured server
+    ///
+    /// Sends EHLO and parses server information
+    </span><span class="kw">pub fn </span>connect&lt;A: ToSocketAddrs&gt;(
+        server: A,
+        timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+        hello_name: <span class="kw-2">&amp;</span>ClientId,
+        tls_parameters: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TlsParameters&gt;,
+        local_address: <span class="prelude-ty">Option</span>&lt;IpAddr&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;SmtpConnection, Error&gt; {
+        <span class="kw">let </span>stream = NetworkStream::connect(server, timeout, tls_parameters, local_address)<span class="question-mark">?</span>;
+        <span class="kw">let </span>stream = BufReader::new(stream);
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = SmtpConnection {
+            stream,
+            panic: <span class="bool-val">false</span>,
+            server_info: ServerInfo::default(),
         };
-        <span class="ident">conn</span>.<span class="ident">set_timeout</span>(<span class="ident">timeout</span>).<span class="ident">map_err</span>(<span class="ident">error::network</span>)<span class="question-mark">?</span>;
-        <span class="comment">// TODO log</span>
-        <span class="kw">let</span> <span class="ident">_response</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">read_response</span>()<span class="question-mark">?</span>;
+        conn.set_timeout(timeout).map_err(error::network)<span class="question-mark">?</span>;
+        <span class="comment">// TODO log
+        </span><span class="kw">let </span>_response = conn.read_response()<span class="question-mark">?</span>;
 
-        <span class="ident">conn</span>.<span class="ident">ehlo</span>(<span class="ident">hello_name</span>)<span class="question-mark">?</span>;
+        conn.ehlo(hello_name)<span class="question-mark">?</span>;
 
-        <span class="comment">// Print server information</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-        <span class="macro">tracing::debug!</span>(<span class="string">&quot;server {}&quot;</span>, <span class="ident">conn</span>.<span class="ident">server_info</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">conn</span>)
+        <span class="comment">// Print server information
+        </span><span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+        </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;server {}&quot;</span>, conn.server_info);
+        <span class="prelude-val">Ok</span>(conn)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">envelope</span>: <span class="kw-2">&amp;</span><span class="ident">Envelope</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="comment">// Mail</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mail_options</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+    <span class="kw">pub fn </span>send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, envelope: <span class="kw-2">&amp;</span>Envelope, email: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Response, Error&gt; {
+        <span class="comment">// Mail
+        </span><span class="kw">let </span><span class="kw-2">mut </span>mail_options = <span class="macro">vec!</span>[];
 
-        <span class="comment">// Internationalization handling</span>
-        <span class="comment">//</span>
-        <span class="comment">// * 8BITMIME: https://tools.ietf.org/html/rfc6152</span>
-        <span class="comment">// * SMTPUTF8: https://tools.ietf.org/html/rfc653</span>
+        <span class="comment">// Internationalization handling
+        //
+        // * 8BITMIME: https://tools.ietf.org/html/rfc6152
+        // * SMTPUTF8: https://tools.ietf.org/html/rfc653
 
-        <span class="comment">// Check for non-ascii addresses and use the SMTPUTF8 option if any.</span>
-        <span class="kw">if</span> <span class="ident">envelope</span>.<span class="ident">has_non_ascii_addresses</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">server_info</span>().<span class="ident">supports_feature</span>(<span class="ident">Extension::SmtpUtfEight</span>) {
-                <span class="comment">// don&#39;t try to send non-ascii addresses (per RFC)</span>
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::client</span>(
+        // Check for non-ascii addresses and use the SMTPUTF8 option if any.
+        </span><span class="kw">if </span>envelope.has_non_ascii_addresses() {
+            <span class="kw">if </span>!<span class="self">self</span>.server_info().supports_feature(Extension::SmtpUtfEight) {
+                <span class="comment">// don&#39;t try to send non-ascii addresses (per RFC)
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(error::client(
                     <span class="string">&quot;Envelope contains non-ascii chars but server does not support SMTPUTF8&quot;</span>,
                 ));
             }
-            <span class="ident">mail_options</span>.<span class="ident">push</span>(<span class="ident">MailParameter::SmtpUtfEight</span>);
+            mail_options.push(MailParameter::SmtpUtfEight);
         }
 
-        <span class="comment">// Check for non-ascii content in message</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">email</span>.<span class="ident">is_ascii</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">server_info</span>().<span class="ident">supports_feature</span>(<span class="ident">Extension::EightBitMime</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::client</span>(
+        <span class="comment">// Check for non-ascii content in message
+        </span><span class="kw">if </span>!email.is_ascii() {
+            <span class="kw">if </span>!<span class="self">self</span>.server_info().supports_feature(Extension::EightBitMime) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(error::client(
                     <span class="string">&quot;Message contains non-ascii chars but server does not support 8BITMIME&quot;</span>,
                 ));
             }
-            <span class="ident">mail_options</span>.<span class="ident">push</span>(<span class="ident">MailParameter::Body</span>(<span class="ident">MailBodyParameter::EightBitMime</span>));
+            mail_options.push(MailParameter::Body(MailBodyParameter::EightBitMime));
         }
 
         <span class="macro">try_smtp!</span>(
-            <span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Mail::new</span>(<span class="ident">envelope</span>.<span class="ident">from</span>().<span class="ident">cloned</span>(), <span class="ident">mail_options</span>)),
-            <span class="self">self</span>
-        );
+            <span class="self">self</span>.command(Mail::new(envelope.from().cloned(), mail_options)),
+            <span class="self">self
+        </span>);
 
-        <span class="comment">// Recipient</span>
-        <span class="kw">for</span> <span class="ident">to_address</span> <span class="kw">in</span> <span class="ident">envelope</span>.<span class="ident">to</span>() {
-            <span class="macro">try_smtp!</span>(<span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Rcpt::new</span>(<span class="ident">to_address</span>.<span class="ident">clone</span>(), <span class="macro">vec!</span>[])), <span class="self">self</span>);
+        <span class="comment">// Recipient
+        </span><span class="kw">for </span>to_address <span class="kw">in </span>envelope.to() {
+            <span class="macro">try_smtp!</span>(<span class="self">self</span>.command(Rcpt::new(to_address.clone(), <span class="macro">vec!</span>[])), <span class="self">self</span>);
         }
 
-        <span class="comment">// Data</span>
-        <span class="macro">try_smtp!</span>(<span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Data</span>), <span class="self">self</span>);
+        <span class="comment">// Data
+        </span><span class="macro">try_smtp!</span>(<span class="self">self</span>.command(Data), <span class="self">self</span>);
 
-        <span class="comment">// Message content</span>
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">try_smtp!</span>(<span class="self">self</span>.<span class="ident">message</span>(<span class="ident">email</span>), <span class="self">self</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+        <span class="comment">// Message content
+        </span><span class="kw">let </span>result = <span class="macro">try_smtp!</span>(<span class="self">self</span>.message(email), <span class="self">self</span>);
+        <span class="prelude-val">Ok</span>(result)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_broken</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">panic</span>
+    <span class="kw">pub fn </span>has_broken(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.panic
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_starttls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="self">self</span>.<span class="ident">is_encrypted</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">server_info</span>.<span class="ident">supports_feature</span>(<span class="ident">Extension::StartTls</span>)
+    <span class="kw">pub fn </span>can_starttls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        !<span class="self">self</span>.is_encrypted() &amp;&amp; <span class="self">self</span>.server_info.supports_feature(Extension::StartTls)
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">starttls</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">tls_parameters</span>: <span class="kw-2">&amp;</span><span class="ident">TlsParameters</span>,
-        <span class="ident">hello_name</span>: <span class="kw-2">&amp;</span><span class="ident">ClientId</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">server_info</span>.<span class="ident">supports_feature</span>(<span class="ident">Extension::StartTls</span>) {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-            {
-                <span class="macro">try_smtp!</span>(<span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Starttls</span>), <span class="self">self</span>);
-                <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_mut</span>().<span class="ident">upgrade_tls</span>(<span class="ident">tls_parameters</span>)<span class="question-mark">?</span>;
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                <span class="macro">tracing::debug!</span>(<span class="string">&quot;connection encrypted&quot;</span>);
-                <span class="comment">// Send EHLO again</span>
-                <span class="macro">try_smtp!</span>(<span class="self">self</span>.<span class="ident">ehlo</span>(<span class="ident">hello_name</span>), <span class="self">self</span>);
+    <span class="attribute">#[allow(unused_variables)]
+    </span><span class="kw">pub fn </span>starttls(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        tls_parameters: <span class="kw-2">&amp;</span>TlsParameters,
+        hello_name: <span class="kw-2">&amp;</span>ClientId,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">if </span><span class="self">self</span>.server_info.supports_feature(Extension::StartTls) {
+            <span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+            </span>{
+                <span class="macro">try_smtp!</span>(<span class="self">self</span>.command(Starttls), <span class="self">self</span>);
+                <span class="self">self</span>.stream.get_mut().upgrade_tls(tls_parameters)<span class="question-mark">?</span>;
+                <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;connection encrypted&quot;</span>);
+                <span class="comment">// Send EHLO again
+                </span><span class="macro">try_smtp!</span>(<span class="self">self</span>.ehlo(hello_name), <span class="self">self</span>);
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(
-                <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>,
-                <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>,
-                <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>
-            )))]</span>
-            <span class="comment">// This should never happen as `Tls` can only be created</span>
-            <span class="comment">// when a TLS library is enabled</span>
-            <span class="macro">unreachable!</span>(<span class="string">&quot;TLS support required but not supported&quot;</span>);
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">error::client</span>(<span class="string">&quot;STARTTLS is not supported on this server&quot;</span>))
+            <span class="attribute">#[cfg(not(any(
+                feature = <span class="string">&quot;native-tls&quot;</span>,
+                feature = <span class="string">&quot;rustls-tls&quot;</span>,
+                feature = <span class="string">&quot;boring-tls&quot;
+            </span>)))]
+            </span><span class="comment">// This should never happen as `Tls` can only be created
+            // when a TLS library is enabled
+            </span><span class="macro">unreachable!</span>(<span class="string">&quot;TLS support required but not supported&quot;</span>);
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(error::client(<span class="string">&quot;STARTTLS is not supported on this server&quot;</span>))
         }
     }
 
-    <span class="doccomment">/// Send EHLO and update server info</span>
-    <span class="kw">fn</span> <span class="ident">ehlo</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">hello_name</span>: <span class="kw-2">&amp;</span><span class="ident">ClientId</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ehlo_response</span> <span class="op">=</span> <span class="macro">try_smtp!</span>(<span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Ehlo::new</span>(<span class="ident">hello_name</span>.<span class="ident">clone</span>())), <span class="self">self</span>);
-        <span class="self">self</span>.<span class="ident">server_info</span> <span class="op">=</span> <span class="macro">try_smtp!</span>(<span class="ident">ServerInfo::from_response</span>(<span class="kw-2">&amp;</span><span class="ident">ehlo_response</span>), <span class="self">self</span>);
+    <span class="doccomment">/// Send EHLO and update server info
+    </span><span class="kw">fn </span>ehlo(<span class="kw-2">&amp;mut </span><span class="self">self</span>, hello_name: <span class="kw-2">&amp;</span>ClientId) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">let </span>ehlo_response = <span class="macro">try_smtp!</span>(<span class="self">self</span>.command(Ehlo::new(hello_name.clone())), <span class="self">self</span>);
+        <span class="self">self</span>.server_info = <span class="macro">try_smtp!</span>(ServerInfo::from_response(<span class="kw-2">&amp;</span>ehlo_response), <span class="self">self</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="macro">try_smtp!</span>(<span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Quit</span>), <span class="self">self</span>))
+    <span class="kw">pub fn </span>quit(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Response, Error&gt; {
+        <span class="prelude-val">Ok</span>(<span class="macro">try_smtp!</span>(<span class="self">self</span>.command(Quit), <span class="self">self</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abort</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// Only try to quit if we are not already broken</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">panic</span> {
-            <span class="self">self</span>.<span class="ident">panic</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Quit</span>);
+    <span class="kw">pub fn </span>abort(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// Only try to quit if we are not already broken
+        </span><span class="kw">if </span>!<span class="self">self</span>.panic {
+            <span class="self">self</span>.panic = <span class="bool-val">true</span>;
+            <span class="kw">let _ </span>= <span class="self">self</span>.command(Quit);
         }
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_mut</span>().<span class="ident">shutdown</span>(<span class="ident">std::net::Shutdown::Both</span>);
+        <span class="kw">let _ </span>= <span class="self">self</span>.stream.get_mut().shutdown(std::net::Shutdown::Both);
     }
 
-    <span class="doccomment">/// Sets the underlying stream</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_stream</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">NetworkStream</span>) {
-        <span class="self">self</span>.<span class="ident">stream</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">stream</span>);
+    <span class="doccomment">/// Sets the underlying stream
+    </span><span class="kw">pub fn </span>set_stream(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: NetworkStream) {
+        <span class="self">self</span>.stream = BufReader::new(stream);
     }
 
-    <span class="doccomment">/// Tells if the underlying stream is currently encrypted</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_encrypted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_ref</span>().<span class="ident">is_encrypted</span>()
+    <span class="doccomment">/// Tells if the underlying stream is currently encrypted
+    </span><span class="kw">pub fn </span>is_encrypted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.stream.get_ref().is_encrypted()
     }
 
-    <span class="doccomment">/// Set timeout</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_timeout</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_mut</span>().<span class="ident">set_read_timeout</span>(<span class="ident">duration</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_mut</span>().<span class="ident">set_write_timeout</span>(<span class="ident">duration</span>)
+    <span class="doccomment">/// Set timeout
+    </span><span class="kw">pub fn </span>set_timeout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, duration: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.stream.get_mut().set_read_timeout(duration)<span class="question-mark">?</span>;
+        <span class="self">self</span>.stream.get_mut().set_write_timeout(duration)
     }
 
-    <span class="doccomment">/// Checks if the server is connected using the NOOP SMTP command</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test_connected</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Noop</span>).<span class="ident">is_ok</span>()
+    <span class="doccomment">/// Checks if the server is connected using the NOOP SMTP command
+    </span><span class="kw">pub fn </span>test_connected(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.command(Noop).is_ok()
     }
 
-    <span class="doccomment">/// Sends an AUTH command with the given mechanism, and handles challenge if needed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">auth</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">mechanisms</span>: <span class="kw-2">&amp;</span>[<span class="ident">Mechanism</span>],
-        <span class="ident">credentials</span>: <span class="kw-2">&amp;</span><span class="ident">Credentials</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">mechanism</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">server_info</span>
-            .<span class="ident">get_auth_mechanism</span>(<span class="ident">mechanisms</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">error::client</span>(<span class="string">&quot;No compatible authentication mechanism was found&quot;</span>))<span class="question-mark">?</span>;
+    <span class="doccomment">/// Sends an AUTH command with the given mechanism, and handles challenge if needed
+    </span><span class="kw">pub fn </span>auth(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        mechanisms: <span class="kw-2">&amp;</span>[Mechanism],
+        credentials: <span class="kw-2">&amp;</span>Credentials,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Response, Error&gt; {
+        <span class="kw">let </span>mechanism = <span class="self">self
+            </span>.server_info
+            .get_auth_mechanism(mechanisms)
+            .ok_or_else(|| error::client(<span class="string">&quot;No compatible authentication mechanism was found&quot;</span>))<span class="question-mark">?</span>;
 
-        <span class="comment">// Limit challenges to avoid blocking</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">challenges</span> <span class="op">=</span> <span class="number">10</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Auth::new</span>(<span class="ident">mechanism</span>, <span class="ident">credentials</span>.<span class="ident">clone</span>(), <span class="prelude-val">None</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Limit challenges to avoid blocking
+        </span><span class="kw">let </span><span class="kw-2">mut </span>challenges = <span class="number">10</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>response = <span class="self">self</span>.command(Auth::new(mechanism, credentials.clone(), <span class="prelude-val">None</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">while</span> <span class="ident">challenges</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">response</span>.<span class="ident">has_code</span>(<span class="number">334</span>) {
-            <span class="ident">challenges</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">response</span> <span class="op">=</span> <span class="macro">try_smtp!</span>(
-                <span class="self">self</span>.<span class="ident">command</span>(<span class="ident">Auth::new_from_response</span>(
-                    <span class="ident">mechanism</span>,
-                    <span class="ident">credentials</span>.<span class="ident">clone</span>(),
-                    <span class="kw-2">&amp;</span><span class="ident">response</span>,
+        <span class="kw">while </span>challenges &gt; <span class="number">0 </span>&amp;&amp; response.has_code(<span class="number">334</span>) {
+            challenges -= <span class="number">1</span>;
+            response = <span class="macro">try_smtp!</span>(
+                <span class="self">self</span>.command(Auth::new_from_response(
+                    mechanism,
+                    credentials.clone(),
+                    <span class="kw-2">&amp;</span>response,
                 )<span class="question-mark">?</span>),
-                <span class="self">self</span>
-            );
+                <span class="self">self
+            </span>);
         }
 
-        <span class="kw">if</span> <span class="ident">challenges</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">error::response</span>(<span class="string">&quot;Unexpected number of challenges&quot;</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
+        <span class="kw">if </span>challenges == <span class="number">0 </span>{
+            <span class="prelude-val">Err</span>(error::response(<span class="string">&quot;Unexpected number of challenges&quot;</span>))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(response)
         }
     }
 
-    <span class="doccomment">/// Sends the message content</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">message</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">codec</span> <span class="op">=</span> <span class="ident">ClientCodec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_buf</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">message</span>.<span class="ident">len</span>());
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="ident">message</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out_buf</span>);
-        <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">out_buf</span>.<span class="ident">as_slice</span>())<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">b&quot;\r\n.\r\n&quot;</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Sends the message content
+    </span><span class="kw">pub fn </span>message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Response, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>codec = ClientCodec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>out_buf = Vec::with_capacity(message.len());
+        codec.encode(message, <span class="kw-2">&amp;mut </span>out_buf);
+        <span class="self">self</span>.write(out_buf.as_slice())<span class="question-mark">?</span>;
+        <span class="self">self</span>.write(<span class="string">b&quot;\r\n.\r\n&quot;</span>)<span class="question-mark">?</span>;
 
-        <span class="self">self</span>.<span class="ident">read_response</span>()
+        <span class="self">self</span>.read_response()
     }
 
-    <span class="doccomment">/// Sends an SMTP command</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">command</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">command</span>: <span class="ident">C</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">command</span>.<span class="ident">to_string</span>().<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">read_response</span>()
+    <span class="doccomment">/// Sends an SMTP command
+    </span><span class="kw">pub fn </span>command&lt;C: Display&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, command: C) -&gt; <span class="prelude-ty">Result</span>&lt;Response, Error&gt; {
+        <span class="self">self</span>.write(command.to_string().as_bytes())<span class="question-mark">?</span>;
+        <span class="self">self</span>.read_response()
     }
 
-    <span class="doccomment">/// Writes a string to the server</span>
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">stream</span>
-            .<span class="ident">get_mut</span>()
-            .<span class="ident">write_all</span>(<span class="ident">string</span>)
-            .<span class="ident">map_err</span>(<span class="ident">error::network</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_mut</span>().<span class="ident">flush</span>().<span class="ident">map_err</span>(<span class="ident">error::network</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Writes a string to the server
+    </span><span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, string: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="self">self</span>.stream
+            .get_mut()
+            .write_all(string)
+            .map_err(error::network)<span class="question-mark">?</span>;
+        <span class="self">self</span>.stream.get_mut().flush().map_err(error::network)<span class="question-mark">?</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-        <span class="macro">tracing::debug!</span>(<span class="string">&quot;Wrote: {}&quot;</span>, <span class="ident">escape_crlf</span>(<span class="kw-2">&amp;</span><span class="ident">String::from_utf8_lossy</span>(<span class="ident">string</span>)));
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+        </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;Wrote: {}&quot;</span>, escape_crlf(<span class="kw-2">&amp;</span>String::from_utf8_lossy(string)));
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Gets the SMTP response</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_response</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="number">100</span>);
+    <span class="doccomment">/// Gets the SMTP response
+    </span><span class="kw">pub fn </span>read_response(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Response, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer = String::with_capacity(<span class="number">100</span>);
 
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">read_line</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer</span>).<span class="ident">map_err</span>(<span class="ident">error::network</span>)<span class="question-mark">?</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-            <span class="macro">tracing::debug!</span>(<span class="string">&quot;&lt;&lt; {}&quot;</span>, <span class="ident">escape_crlf</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>));
-            <span class="kw">match</span> <span class="ident">parse_response</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>) {
-                <span class="prelude-val">Ok</span>((<span class="ident">_remaining</span>, <span class="ident">response</span>)) =&gt; {
-                    <span class="kw">return</span> <span class="kw">if</span> <span class="ident">response</span>.<span class="ident">is_positive</span>() {
-                        <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">Err</span>(<span class="ident">error::code</span>(
-                            <span class="ident">response</span>.<span class="ident">code</span>(),
-                            <span class="ident">response</span>.<span class="ident">first_line</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">to_owned</span>()),
+        <span class="kw">while </span><span class="self">self</span>.stream.read_line(<span class="kw-2">&amp;mut </span>buffer).map_err(error::network)<span class="question-mark">? </span>&gt; <span class="number">0 </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+            </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;&lt;&lt; {}&quot;</span>, escape_crlf(<span class="kw-2">&amp;</span>buffer));
+            <span class="kw">match </span>parse_response(<span class="kw-2">&amp;</span>buffer) {
+                <span class="prelude-val">Ok</span>((_remaining, response)) =&gt; {
+                    <span class="kw">return if </span>response.is_positive() {
+                        <span class="prelude-val">Ok</span>(response)
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">Err</span>(error::code(
+                            response.code(),
+                            response.first_line().map(|s| s.to_owned()),
                         ))
                     };
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Failure</span>(<span class="ident">e</span>)) =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::response</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()));
+                <span class="prelude-val">Err</span>(nom::Err::Failure(e)) =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(error::response(e.to_string()));
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Incomplete</span>(<span class="kw">_</span>)) =&gt; { <span class="comment">/* read more */</span> }
-                <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>(<span class="ident">e</span>)) =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::response</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()));
+                <span class="prelude-val">Err</span>(nom::Err::Incomplete(<span class="kw">_</span>)) =&gt; { <span class="comment">/* read more */ </span>}
+                <span class="prelude-val">Err</span>(nom::Err::Error(e)) =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(error::response(e.to_string()));
                 }
             }
         }
 
-        <span class="prelude-val">Err</span>(<span class="ident">error::response</span>(<span class="string">&quot;incomplete response&quot;</span>))
+        <span class="prelude-val">Err</span>(error::response(<span class="string">&quot;incomplete response&quot;</span>))
     }
 
-    <span class="doccomment">/// The X509 certificate of the server (DER encoded)</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peer_certificate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">get_ref</span>().<span class="ident">peer_certificate</span>()
+    <span class="doccomment">/// The X509 certificate of the server (DER encoded)
+    </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+    </span><span class="kw">pub fn </span>peer_certificate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, Error&gt; {
+        <span class="self">self</span>.stream.get_ref().peer_certificate()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

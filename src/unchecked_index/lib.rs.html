@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/unchecked-index-0.2.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../unchecked_index/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../unchecked_index/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../unchecked_index/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/unchecked-index-0.2.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../unchecked_index/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../unchecked_index/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../unchecked_index/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -329,334 +329,334 @@
 <span id="329">329</span>
 <span id="330">330</span>
 </pre><pre class="rust"><code>
-<span class="doccomment">//! Unchecked indexing through the regular index syntax.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Using a wrapper type that requires an `unsafe` block to create.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! *Note:* All unchecked indexing here is actually “checked” with *debug</span>
-<span class="doccomment">//! assertions* when they are enabled (they are off by default in release</span>
-<span class="doccomment">//! builds). This is a feature! Debug checking does **not** make your code safe,</span>
-<span class="doccomment">//! but it helps finding bugs in `unsafe` code. Test your code responsibly.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Example</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! use unchecked_index::unchecked_index;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! /// unsafe because: trusts the permutation to be correct</span>
-<span class="doccomment">//! unsafe fn apply_permutation&lt;T&gt;(perm: &amp;mut [usize], v: &amp;mut [T]) {</span>
-<span class="doccomment">//!     debug_assert_eq!(perm.len(), v.len());</span>
-<span class="doccomment">//!     </span>
-<span class="doccomment">//!     // use unchecked (in reality, debug-checked) indexing throughout</span>
-<span class="doccomment">//!     let mut perm = unchecked_index(perm);</span>
-<span class="doccomment">//!     </span>
-<span class="doccomment">//!     for i in 0..perm.len() {</span>
-<span class="doccomment">//!         let mut current = i;</span>
-<span class="doccomment">//!         while i != perm[current] {</span>
-<span class="doccomment">//!             let next = perm[current];</span>
-<span class="doccomment">//!             // move element from next to current</span>
-<span class="doccomment">//!             v.swap(next, current);</span>
-<span class="doccomment">//!             perm[current] = current;</span>
-<span class="doccomment">//!             current = next;</span>
-<span class="doccomment">//!         }</span>
-<span class="doccomment">//!         perm[current] = current;</span>
-<span class="doccomment">//!     }</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Crate Features</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This crate is always `#![no_std]`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Rust Version</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This version of the crate requires Rust 1.15 or later.</span>
+<span class="doccomment">//! Unchecked indexing through the regular index syntax.
+//!
+//! Using a wrapper type that requires an `unsafe` block to create.
+//!
+//! *Note:* All unchecked indexing here is actually “checked” with *debug
+//! assertions* when they are enabled (they are off by default in release
+//! builds). This is a feature! Debug checking does **not** make your code safe,
+//! but it helps finding bugs in `unsafe` code. Test your code responsibly.
+//!
+//! # Example
+//!
+//! ```rust
+//!
+//! use unchecked_index::unchecked_index;
+//!
+//! /// unsafe because: trusts the permutation to be correct
+//! unsafe fn apply_permutation&lt;T&gt;(perm: &amp;mut [usize], v: &amp;mut [T]) {
+//!     debug_assert_eq!(perm.len(), v.len());
+//!     
+//!     // use unchecked (in reality, debug-checked) indexing throughout
+//!     let mut perm = unchecked_index(perm);
+//!     
+//!     for i in 0..perm.len() {
+//!         let mut current = i;
+//!         while i != perm[current] {
+//!             let next = perm[current];
+//!             // move element from next to current
+//!             v.swap(next, current);
+//!             perm[current] = current;
+//!             current = next;
+//!         }
+//!         perm[current] = current;
+//!     }
+//! }
+//! ```
+//!
+//! # Crate Features
+//!
+//! This crate is always `#![no_std]`.
+//!
+//! # Rust Version
+//!
+//! This version of the crate requires Rust 1.15 or later.
 
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">test</span>), <span class="ident">no_std</span>)]</span>
+</span><span class="attribute">#![cfg_attr(not(test), no_std)]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">core</span> <span class="kw">as</span> <span class="ident">std</span>;
+#[cfg(not(test))]
+</span><span class="kw">extern crate </span>core <span class="kw">as </span>std;
 
-<span class="doccomment">/// Wrapper type for unchecked indexing through the regular index syntax</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that the indexing is checked with debug assertions, but unchecked</span>
-<span class="doccomment">/// in release mode. Test your code responsibly.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UncheckedIndex</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">S</span>);
+<span class="doccomment">/// Wrapper type for unchecked indexing through the regular index syntax
+///
+/// Note that the indexing is checked with debug assertions, but unchecked
+/// in release mode. Test your code responsibly.
+</span><span class="attribute">#[derive(Copy)]
+</span><span class="kw">pub struct </span>UncheckedIndex&lt;S&gt;(S);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">UncheckedIndex</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> { <span class="kw-2">*</span><span class="self">self</span> }
+<span class="kw">impl</span>&lt;S: Copy&gt; Clone <span class="kw">for </span>UncheckedIndex&lt;S&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{ <span class="kw-2">*</span><span class="self">self </span>}
 }
 
-<span class="doccomment">/// Create a new unchecked indexing wrapper.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This function is `unsafe` to call because it allows all further indexing</span>
-<span class="doccomment">/// on the wrapper to omit bounds checks.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Safety</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The caller must ensure that **all** indexing of the resulting</span>
-<span class="doccomment">/// `UncheckedIndex` wrapper is in bounds of the underlying container.</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">unchecked_index</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="ident">T</span>) -&gt; <span class="ident">UncheckedIndex</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="doccomment">/// Create a new unchecked indexing wrapper.
+///
+/// This function is `unsafe` to call because it allows all further indexing
+/// on the wrapper to omit bounds checks.
+///
+/// # Safety
+///
+/// The caller must ensure that **all** indexing of the resulting
+/// `UncheckedIndex` wrapper is in bounds of the underlying container.
+</span><span class="kw">pub unsafe fn </span>unchecked_index&lt;T&gt;(v: T) -&gt; UncheckedIndex&lt;T&gt;
 {
-    <span class="ident">UncheckedIndex</span>(<span class="ident">v</span>)
+    UncheckedIndex(v)
 }
 
-<span class="doccomment">/// Access the element(s) at `index`, without bounds checks!</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// *Note:* Will use *debug assertions* to check that the index is actually</span>
-<span class="doccomment">/// valid. In release mode, debug assertions are *off* by default.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Safety</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The caller must ensure that `index` is in bounds of the underlying</span>
-<span class="doccomment">/// container.</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T::Output</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">GetUnchecked</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="doccomment">/// Access the element(s) at `index`, without bounds checks!
+///
+/// *Note:* Will use *debug assertions* to check that the index is actually
+/// valid. In release mode, debug assertions are *off* by default.
+///
+/// # Safety
+///
+/// The caller must ensure that `index` is in bounds of the underlying
+/// container.
+</span><span class="kw">pub unsafe fn </span>get_unchecked&lt;T: <span class="question-mark">?</span>Sized, I&gt;(v: <span class="kw-2">&amp;</span>T, index: I) -&gt; <span class="kw-2">&amp;</span>T::Output
+    <span class="kw">where </span>T: GetUnchecked&lt;I&gt;
 {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    <span class="ident">v</span>.<span class="ident">assert_indexable_with</span>(<span class="kw-2">&amp;</span><span class="ident">index</span>);
-    <span class="ident">v</span>.<span class="ident">get_unchecked</span>(<span class="ident">index</span>)
+    <span class="attribute">#[cfg(debug_assertions)]
+    </span>v.assert_indexable_with(<span class="kw-2">&amp;</span>index);
+    v.get_unchecked(index)
 }
 
-<span class="doccomment">/// Access the element(s) at `index`, without bounds checks!</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// *Note:* Will use *debug assertions* to check that the index is actually</span>
-<span class="doccomment">/// valid. In release mode, debug assertions are *off* by default.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Safety</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The caller must ensure that `index` is in bounds of the underlying</span>
-<span class="doccomment">/// container.</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked_mut</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;mut</span> <span class="ident">T</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T::Output</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">GetUncheckedMut</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="doccomment">/// Access the element(s) at `index`, without bounds checks!
+///
+/// *Note:* Will use *debug assertions* to check that the index is actually
+/// valid. In release mode, debug assertions are *off* by default.
+///
+/// # Safety
+///
+/// The caller must ensure that `index` is in bounds of the underlying
+/// container.
+</span><span class="kw">pub unsafe fn </span>get_unchecked_mut&lt;T: <span class="question-mark">?</span>Sized, I&gt;(v: <span class="kw-2">&amp;mut </span>T, index: I) -&gt; <span class="kw-2">&amp;mut </span>T::Output
+    <span class="kw">where </span>T: GetUncheckedMut&lt;I&gt;
 {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    <span class="ident">v</span>.<span class="ident">assert_indexable_with</span>(<span class="kw-2">&amp;</span><span class="ident">index</span>);
-    <span class="ident">v</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">index</span>)
+    <span class="attribute">#[cfg(debug_assertions)]
+    </span>v.assert_indexable_with(<span class="kw-2">&amp;</span>index);
+    v.get_unchecked_mut(index)
 }
 
-<span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>, <span class="ident">Index</span>, <span class="ident">IndexMut</span>};
+<span class="kw">use </span>std::ops::{Deref, DerefMut, Index, IndexMut};
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">UncheckedIndex</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-    }
+<span class="kw">impl</span>&lt;T&gt; Deref <span class="kw">for </span>UncheckedIndex&lt;T&gt; {
+    <span class="kw">type </span>Target = T;
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>T {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">UncheckedIndex</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>
-    }
+<span class="kw">impl</span>&lt;T&gt; DerefMut <span class="kw">for </span>UncheckedIndex&lt;T&gt; {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>T {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="ident">Index</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UncheckedIndex</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">GetUnchecked</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;T, I&gt; Index&lt;I&gt; <span class="kw">for </span>UncheckedIndex&lt;T&gt;
+    <span class="kw">where </span>T: GetUnchecked&lt;I&gt;
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">T::Output</span>;
+    <span class="kw">type </span>Output = T::Output;
 
-    <span class="doccomment">/// Access the element(s) at `index`, without bounds checks!</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// *Note:* Will use *debug assertions* to check that the index is actually</span>
-    <span class="doccomment">/// valid. In release mode, debug assertions are *off* by default.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The caller must ensure that `index` is always in bounds of the</span>
-    <span class="doccomment">/// underlying container.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">unsafe</span> {
-            <span class="ident">get_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, <span class="ident">index</span>)
+    <span class="doccomment">/// Access the element(s) at `index`, without bounds checks!
+    ///
+    /// *Note:* Will use *debug assertions* to check that the index is actually
+    /// valid. In release mode, debug assertions are *off* by default.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that `index` is always in bounds of the
+    /// underlying container.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: I) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
+        <span class="kw">unsafe </span>{
+            get_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, index)
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="ident">IndexMut</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UncheckedIndex</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">GetUncheckedMut</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;T, I&gt; IndexMut&lt;I&gt; <span class="kw">for </span>UncheckedIndex&lt;T&gt;
+    <span class="kw">where </span>T: GetUncheckedMut&lt;I&gt;
 {
-    <span class="doccomment">/// Access the element(s) at `index`, without bounds checks!</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// *Note:* Will use *debug assertions* to check that the index is actually</span>
-    <span class="doccomment">/// valid. In release mode, debug assertions are *off* by default.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The caller must ensure that `index` is always in bounds of the</span>
-    <span class="doccomment">/// underlying container.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">unsafe</span> {
-            <span class="ident">get_unchecked_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>, <span class="ident">index</span>)
+    <span class="doccomment">/// Access the element(s) at `index`, without bounds checks!
+    ///
+    /// *Note:* Will use *debug assertions* to check that the index is actually
+    /// valid. In release mode, debug assertions are *off* by default.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that `index` is always in bounds of the
+    /// underlying container.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: I) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output {
+        <span class="kw">unsafe </span>{
+            get_unchecked_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>, index)
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CheckIndex</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Assert (using a regular assertion) that the index is valid.</span>
-    <span class="doccomment">/// Must not return if the index is invalid for indexing self.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ***Panics*** if `index` is invalid.</span>
-    <span class="kw">fn</span> <span class="ident">assert_indexable_with</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>);
+<span class="kw">pub trait </span>CheckIndex&lt;I&gt; {
+    <span class="doccomment">/// Assert (using a regular assertion) that the index is valid.
+    /// Must not return if the index is invalid for indexing self.
+    ///
+    /// ***Panics*** if `index` is invalid.
+    </span><span class="kw">fn </span>assert_indexable_with(<span class="kw-2">&amp;</span><span class="self">self</span>, index: <span class="kw-2">&amp;</span>I);
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="ident">CheckIndex</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">CheckIndex</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">assert_indexable_with</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">assert_indexable_with</span>(<span class="ident">index</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, I&gt; CheckIndex&lt;I&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T <span class="kw">where </span>T: CheckIndex&lt;I&gt; {
+    <span class="kw">fn </span>assert_indexable_with(<span class="kw-2">&amp;</span><span class="self">self</span>, index: <span class="kw-2">&amp;</span>I) {
+        (<span class="kw-2">**</span><span class="self">self</span>).assert_indexable_with(index)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="ident">CheckIndex</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">CheckIndex</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">assert_indexable_with</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">assert_indexable_with</span>(<span class="ident">index</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, I&gt; CheckIndex&lt;I&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T <span class="kw">where </span>T: CheckIndex&lt;I&gt; {
+    <span class="kw">fn </span>assert_indexable_with(<span class="kw-2">&amp;</span><span class="self">self</span>, index: <span class="kw-2">&amp;</span>I) {
+        (<span class="kw-2">**</span><span class="self">self</span>).assert_indexable_with(index)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GetUnchecked</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>: <span class="ident">CheckIndex</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span>: <span class="question-mark">?</span><span class="ident">Sized</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Output</span>;
+<span class="kw">pub trait </span>GetUnchecked&lt;I&gt;: CheckIndex&lt;I&gt; {
+    <span class="kw">type </span>Output: <span class="question-mark">?</span>Sized;
+    <span class="kw">unsafe fn </span>get_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>, index: I) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output;
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GetUncheckedMut</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>: <span class="ident">GetUnchecked</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Output</span>;
+<span class="kw">pub trait </span>GetUncheckedMut&lt;I&gt;: GetUnchecked&lt;I&gt; {
+    <span class="kw">unsafe fn </span>get_unchecked_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: I) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="ident">GetUnchecked</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">GetUnchecked</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, I&gt; GetUnchecked&lt;I&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T
+    <span class="kw">where </span>T: GetUnchecked&lt;I&gt;
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">T::Output</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Output</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">get_unchecked</span>(<span class="ident">index</span>)
+    <span class="kw">type </span>Output = T::Output;
+    <span class="kw">unsafe fn </span>get_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>, index: I) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
+        (<span class="kw-2">**</span><span class="self">self</span>).get_unchecked(index)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="ident">GetUnchecked</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">GetUnchecked</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, I&gt; GetUnchecked&lt;I&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T
+    <span class="kw">where </span>T: GetUnchecked&lt;I&gt;
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">T::Output</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Output</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">get_unchecked</span>(<span class="ident">index</span>)
+    <span class="kw">type </span>Output = T::Output;
+    <span class="kw">unsafe fn </span>get_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>, index: I) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
+        (<span class="kw-2">**</span><span class="self">self</span>).get_unchecked(index)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="ident">GetUncheckedMut</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">GetUncheckedMut</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: <span class="question-mark">?</span>Sized, I&gt; GetUncheckedMut&lt;I&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T
+    <span class="kw">where </span>T: GetUncheckedMut&lt;I&gt;
 {
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Output</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">get_unchecked_mut</span>(<span class="ident">index</span>)
+    <span class="kw">unsafe fn </span>get_unchecked_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: I) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output {
+        (<span class="kw-2">**</span><span class="self">self</span>).get_unchecked_mut(index)
     }
 }
 
-<span class="kw">mod</span> <span class="ident">slice_impls</span>;
+<span class="kw">mod </span>slice_impls;
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">unchecked_index</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>);
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">data</span>.<span class="ident">len</span>() {
-                <span class="ident">data</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">i</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_works() {
+        <span class="kw">let </span><span class="kw-2">mut </span>data = [<span class="number">0</span>; <span class="number">8</span>];
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>data = unchecked_index(<span class="kw-2">&amp;mut </span>data);
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..data.len() {
+                data[i] = i;
             }
         }
-        <span class="macro">assert_eq!</span>(<span class="ident">data</span>, [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]);
+        <span class="macro">assert_eq!</span>(data, [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">debug_oob_check_write</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">unchecked_index</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>[..<span class="number">7</span>]);
-            <span class="ident">data</span>[<span class="number">7</span>] <span class="op">=</span> <span class="number">1</span>;
+    <span class="attribute">#[cfg(debug_assertions)]
+    #[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>debug_oob_check_write() {
+        <span class="kw">let </span><span class="kw-2">mut </span>data = [<span class="number">0</span>; <span class="number">8</span>];
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>data = unchecked_index(<span class="kw-2">&amp;mut </span>data[..<span class="number">7</span>]);
+            data[<span class="number">7</span>] = <span class="number">1</span>;
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">debug_oob_check_read</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">unchecked_index</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>[..<span class="number">7</span>]);
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">data</span>[<span class="number">17</span>]);
+    <span class="attribute">#[cfg(debug_assertions)]
+    #[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>debug_oob_check_read() {
+        <span class="kw">let </span><span class="kw-2">mut </span>data = [<span class="number">0</span>; <span class="number">8</span>];
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>data = unchecked_index(<span class="kw-2">&amp;mut </span>data[..<span class="number">7</span>]);
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, data[<span class="number">17</span>]);
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">debug_assertions</span>))]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">non_debug_oob</span>() {
-        <span class="comment">// outside bounds of the slice but not the data -- should be ok</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">unchecked_index</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>[..<span class="number">7</span>]);
-            <span class="ident">data</span>[<span class="number">7</span>] <span class="op">=</span> <span class="number">1</span>;
+    <span class="attribute">#[cfg(not(debug_assertions))]
+    #[test]
+    </span><span class="kw">fn </span>non_debug_oob() {
+        <span class="comment">// outside bounds of the slice but not the data -- should be ok
+        </span><span class="kw">let </span><span class="kw-2">mut </span>data = [<span class="number">0</span>; <span class="number">8</span>];
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>data = unchecked_index(<span class="kw-2">&amp;mut </span>data[..<span class="number">7</span>]);
+            data[<span class="number">7</span>] = <span class="number">1</span>;
         }
-        <span class="macro">assert_eq!</span>(<span class="ident">data</span>, [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]);
+        <span class="macro">assert_eq!</span>(data, [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">debug_oob_check_read_slice_1</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">unchecked_index</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>[..<span class="number">7</span>]);
-            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[<span class="number">5</span>..<span class="number">10</span>]);
-        }
-    }
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">debug_oob_check_read_slice_2</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">unchecked_index</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>[..<span class="number">7</span>]);
-            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[<span class="number">7</span>..<span class="number">6</span>]);
+    <span class="attribute">#[cfg(debug_assertions)]
+    #[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>debug_oob_check_read_slice_1() {
+        <span class="kw">let </span><span class="kw-2">mut </span>data = [<span class="number">0</span>; <span class="number">8</span>];
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>data = unchecked_index(<span class="kw-2">&amp;mut </span>data[..<span class="number">7</span>]);
+            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span>data[<span class="number">5</span>..<span class="number">10</span>]);
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">debug_oob_check_read_slice_3</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">unchecked_index</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>[..<span class="number">7</span>]);
-            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[<span class="number">8</span>..]);
+    <span class="attribute">#[cfg(debug_assertions)]
+    #[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>debug_oob_check_read_slice_2() {
+        <span class="kw">let </span><span class="kw-2">mut </span>data = [<span class="number">0</span>; <span class="number">8</span>];
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>data = unchecked_index(<span class="kw-2">&amp;mut </span>data[..<span class="number">7</span>]);
+            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span>data[<span class="number">7</span>..<span class="number">6</span>]);
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">debug_oob_check_read_slice_4</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">unchecked_index</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>[..<span class="number">7</span>]);
-            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..<span class="number">9</span>]);
+    <span class="attribute">#[cfg(debug_assertions)]
+    #[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>debug_oob_check_read_slice_3() {
+        <span class="kw">let </span><span class="kw-2">mut </span>data = [<span class="number">0</span>; <span class="number">8</span>];
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>data = unchecked_index(<span class="kw-2">&amp;mut </span>data[..<span class="number">7</span>]);
+            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span>data[<span class="number">8</span>..]);
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">debug_assertions</span>))]</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">non_debug_oob_slice</span>() {
-        <span class="comment">// outside bounds of the slice but not the data -- should be ok</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">unchecked_index</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>[..<span class="number">7</span>]);
-            <span class="ident">data</span>[<span class="number">7</span>..<span class="number">8</span>][<span class="number">0</span>] <span class="op">=</span> <span class="number">1</span>;
+    <span class="attribute">#[cfg(debug_assertions)]
+    #[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>debug_oob_check_read_slice_4() {
+        <span class="kw">let </span><span class="kw-2">mut </span>data = [<span class="number">0</span>; <span class="number">8</span>];
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>data = unchecked_index(<span class="kw-2">&amp;mut </span>data[..<span class="number">7</span>]);
+            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span>data[..<span class="number">9</span>]);
         }
-        <span class="macro">assert_eq!</span>(<span class="ident">data</span>, [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]);
+    }
+
+    <span class="attribute">#[cfg(not(debug_assertions))]
+    #[test]
+    </span><span class="kw">fn </span>non_debug_oob_slice() {
+        <span class="comment">// outside bounds of the slice but not the data -- should be ok
+        </span><span class="kw">let </span><span class="kw-2">mut </span>data = [<span class="number">0</span>; <span class="number">8</span>];
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>data = unchecked_index(<span class="kw-2">&amp;mut </span>data[..<span class="number">7</span>]);
+            data[<span class="number">7</span>..<span class="number">8</span>][<span class="number">0</span>] = <span class="number">1</span>;
+        }
+        <span class="macro">assert_eq!</span>(data, [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="unchecked_index" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="unchecked_index" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

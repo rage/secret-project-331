@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h2/dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h2/dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -352,357 +352,357 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cmp</span>,
-    <span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">net</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">rc::Rc</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    cmp,
+    error::Error <span class="kw">as </span>StdError,
+    future::Future,
+    marker::PhantomData,
+    net,
+    pin::Pin,
+    rc::Rc,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">actix_codec</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>};
-<span class="kw">use</span> <span class="ident">actix_rt::time</span>::{<span class="ident">sleep</span>, <span class="ident">Sleep</span>};
-<span class="kw">use</span> <span class="ident">actix_service::Service</span>;
-<span class="kw">use</span> <span class="ident">actix_utils::future::poll_fn</span>;
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">h2</span>::{
-    <span class="ident">server</span>::{<span class="ident">Connection</span>, <span class="ident">SendResponse</span>},
-    <span class="ident">Ping</span>, <span class="ident">PingPong</span>,
+<span class="kw">use </span>actix_codec::{AsyncRead, AsyncWrite};
+<span class="kw">use </span>actix_rt::time::{sleep, Sleep};
+<span class="kw">use </span>actix_service::Service;
+<span class="kw">use </span>actix_utils::future::poll_fn;
+<span class="kw">use </span>bytes::{Bytes, BytesMut};
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>h2::{
+    server::{Connection, SendResponse},
+    Ping, PingPong,
 };
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
-<span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">error</span>, <span class="ident">trace</span>, <span class="ident">warn</span>};
+<span class="kw">use </span>pin_project_lite::pin_project;
+<span class="kw">use </span>tracing::{error, trace, warn};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">BodySize</span>, <span class="ident">BoxBody</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">config::ServiceConfig</span>,
-    <span class="ident">header</span>::{
-        <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">CONNECTION</span>, <span class="ident">CONTENT_LENGTH</span>, <span class="ident">DATE</span>, <span class="ident">TRANSFER_ENCODING</span>, <span class="ident">UPGRADE</span>,
+<span class="kw">use crate</span>::{
+    body::{BodySize, BoxBody, MessageBody},
+    config::ServiceConfig,
+    header::{
+        HeaderName, HeaderValue, CONNECTION, CONTENT_LENGTH, DATE, TRANSFER_ENCODING, UPGRADE,
     },
-    <span class="ident">service::HttpFlow</span>,
-    <span class="ident">Extensions</span>, <span class="ident">OnConnectData</span>, <span class="ident">Payload</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">ResponseHead</span>,
+    service::HttpFlow,
+    Extensions, OnConnectData, Payload, Request, Response, ResponseHead,
 };
 
-<span class="kw">const</span> <span class="ident">CHUNK_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16_384</span>;
+<span class="kw">const </span>CHUNK_SIZE: usize = <span class="number">16_384</span>;
 
-<span class="macro">pin_project!</span> {
-    <span class="doccomment">/// Dispatcher for HTTP/2 protocol.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-        <span class="ident">flow</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">connection</span>: <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Bytes</span><span class="op">&gt;</span>,
-        <span class="ident">conn_data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">config</span>: <span class="ident">ServiceConfig</span>,
-        <span class="ident">peer_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
-        <span class="ident">ping_pong</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">H2PingPong</span><span class="op">&gt;</span>,
-        <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
+<span class="macro">pin_project! </span>{
+    <span class="doccomment">/// Dispatcher for HTTP/2 protocol.
+    </span><span class="kw">pub struct </span>Dispatcher&lt;T, S, B, X, U&gt; {
+        flow: Rc&lt;HttpFlow&lt;S, X, U&gt;&gt;,
+        connection: Connection&lt;T, Bytes&gt;,
+        conn_data: <span class="prelude-ty">Option</span>&lt;Rc&lt;Extensions&gt;&gt;,
+        config: ServiceConfig,
+        peer_addr: <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;,
+        ping_pong: <span class="prelude-ty">Option</span>&lt;H2PingPong&gt;,
+        _phantom: PhantomData&lt;B&gt;
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+<span class="kw">impl</span>&lt;T, S, B, X, U&gt; Dispatcher&lt;T, S, B, X, U&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin,
 {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="kw-2">mut</span> <span class="ident">conn</span>: <span class="ident">Connection</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Bytes</span><span class="op">&gt;</span>,
-        <span class="ident">flow</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">config</span>: <span class="ident">ServiceConfig</span>,
-        <span class="ident">peer_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
-        <span class="ident">conn_data</span>: <span class="ident">OnConnectData</span>,
-        <span class="ident">timer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Sleep</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">ping_pong</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">keep_alive</span>().<span class="ident">duration</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">dur</span><span class="op">|</span> <span class="ident">H2PingPong</span> {
-            <span class="ident">timer</span>: <span class="ident">timer</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-                    <span class="comment">// reuse timer slot if it was initialized for handshake</span>
-                    <span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">reset</span>((<span class="ident">config</span>.<span class="ident">now</span>() <span class="op">+</span> <span class="ident">dur</span>).<span class="ident">into</span>());
-                    <span class="ident">timer</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        <span class="kw-2">mut </span>conn: Connection&lt;T, Bytes&gt;,
+        flow: Rc&lt;HttpFlow&lt;S, X, U&gt;&gt;,
+        config: ServiceConfig,
+        peer_addr: <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;,
+        conn_data: OnConnectData,
+        timer: <span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>ping_pong = config.keep_alive().duration().map(|dur| H2PingPong {
+            timer: timer
+                .map(|<span class="kw-2">mut </span>timer| {
+                    <span class="comment">// reuse timer slot if it was initialized for handshake
+                    </span>timer.as_mut().reset((config.now() + dur).into());
+                    timer
                 })
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Box::pin</span>(<span class="ident">sleep</span>(<span class="ident">dur</span>))),
-            <span class="ident">in_flight</span>: <span class="bool-val">false</span>,
-            <span class="ident">ping_pong</span>: <span class="ident">conn</span>.<span class="ident">ping_pong</span>().<span class="ident">unwrap</span>(),
+                .unwrap_or_else(|| Box::pin(sleep(dur))),
+            in_flight: <span class="bool-val">false</span>,
+            ping_pong: conn.ping_pong().unwrap(),
         });
 
-        <span class="self">Self</span> {
-            <span class="ident">flow</span>,
-            <span class="ident">config</span>,
-            <span class="ident">peer_addr</span>,
-            <span class="ident">connection</span>: <span class="ident">conn</span>,
-            <span class="ident">conn_data</span>: <span class="ident">conn_data</span>.<span class="number">0</span>.<span class="ident">map</span>(<span class="ident">Rc::new</span>),
-            <span class="ident">ping_pong</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        <span class="self">Self </span>{
+            flow,
+            config,
+            peer_addr,
+            connection: conn,
+            conn_data: conn_data.<span class="number">0</span>.map(Rc::new),
+            ping_pong,
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">struct</span> <span class="ident">H2PingPong</span> {
-    <span class="doccomment">/// Handle to send ping frames from the peer.</span>
-    <span class="ident">ping_pong</span>: <span class="ident">PingPong</span>,
+<span class="kw">struct </span>H2PingPong {
+    <span class="doccomment">/// Handle to send ping frames from the peer.
+    </span>ping_pong: PingPong,
 
-    <span class="doccomment">/// True when a ping has been sent and is waiting for a reply.</span>
-    <span class="ident">in_flight</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// True when a ping has been sent and is waiting for a reply.
+    </span>in_flight: bool,
 
-    <span class="doccomment">/// Timeout for pong response.</span>
-    <span class="ident">timer</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Sleep</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Timeout for pong response.
+    </span>timer: Pin&lt;Box&lt;Sleep&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+<span class="kw">impl</span>&lt;T, S, B, X, U&gt; Future <span class="kw">for </span>Dispatcher&lt;T, S, B, X, U&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin,
 
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    S: Service&lt;Request&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt;,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+    B: MessageBody,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::error::DispatchError</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(), <span class="kw">crate</span>::error::DispatchError&gt;;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_mut</span>();
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
 
-        <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">this</span>.<span class="ident">connection</span>).<span class="ident">poll_accept</span>(<span class="ident">cx</span>)<span class="question-mark">?</span> {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>((<span class="ident">req</span>, <span class="ident">tx</span>))) =&gt; {
-                    <span class="kw">let</span> (<span class="ident">parts</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
-                    <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::h2::Payload::new</span>(<span class="ident">body</span>);
-                    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">Payload::H2</span> { <span class="ident">payload</span> };
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">Request::with_payload</span>(<span class="ident">pl</span>);
+        <span class="kw">loop </span>{
+            <span class="kw">match </span>Pin::new(<span class="kw-2">&amp;mut </span>this.connection).poll_accept(cx)<span class="question-mark">? </span>{
+                Poll::Ready(<span class="prelude-val">Some</span>((req, tx))) =&gt; {
+                    <span class="kw">let </span>(parts, body) = req.into_parts();
+                    <span class="kw">let </span>payload = <span class="kw">crate</span>::h2::Payload::new(body);
+                    <span class="kw">let </span>pl = Payload::H2 { payload };
+                    <span class="kw">let </span><span class="kw-2">mut </span>req = Request::with_payload(pl);
 
-                    <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">head_mut</span>();
-                    <span class="ident">head</span>.<span class="ident">uri</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">uri</span>;
-                    <span class="ident">head</span>.<span class="ident">method</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">method</span>;
-                    <span class="ident">head</span>.<span class="ident">version</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">version</span>;
-                    <span class="ident">head</span>.<span class="ident">headers</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">headers</span>.<span class="ident">into</span>();
-                    <span class="ident">head</span>.<span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">peer_addr</span>;
+                    <span class="kw">let </span>head = req.head_mut();
+                    head.uri = parts.uri;
+                    head.method = parts.method;
+                    head.version = parts.version;
+                    head.headers = parts.headers.into();
+                    head.peer_addr = this.peer_addr;
 
-                    <span class="ident">req</span>.<span class="ident">conn_data</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">conn_data</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="ident">Rc::clone</span>);
+                    req.conn_data = this.conn_data.as_ref().map(Rc::clone);
 
-                    <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
-                    <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">config</span>.<span class="ident">clone</span>();
+                    <span class="kw">let </span>fut = this.flow.service.call(req);
+                    <span class="kw">let </span>config = this.config.clone();
 
-                    <span class="comment">// multiplex request handling with spawn task</span>
-                    <span class="ident">actix_rt::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                        <span class="comment">// resolve service call and send response.</span>
-                        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">fut</span>.<span class="kw">await</span> {
-                            <span class="prelude-val">Ok</span>(<span class="ident">res</span>) =&gt; <span class="ident">handle_response</span>(<span class="ident">res</span>.<span class="ident">into</span>(), <span class="ident">tx</span>, <span class="ident">config</span>).<span class="kw">await</span>,
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                                <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
-                                <span class="ident">handle_response</span>(<span class="ident">res</span>, <span class="ident">tx</span>, <span class="ident">config</span>).<span class="kw">await</span>
-                            }
+                    <span class="comment">// multiplex request handling with spawn task
+                    </span>actix_rt::spawn(<span class="kw">async move </span>{
+                        <span class="comment">// resolve service call and send response.
+                        </span><span class="kw">let </span>res = <span class="kw">match </span>fut.<span class="kw">await </span>{
+                            <span class="prelude-val">Ok</span>(res) =&gt; handle_response(res.into(), tx, config).<span class="kw">await</span>,
+                            <span class="prelude-val">Err</span>(err) =&gt; {
+                                <span class="kw">let </span>res: Response&lt;BoxBody&gt; = err.into();
+                                handle_response(res, tx, config).<span class="kw">await
+                            </span>}
                         };
 
-                        <span class="comment">// log error.</span>
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">res</span> {
-                            <span class="kw">match</span> <span class="ident">err</span> {
-                                <span class="ident">DispatchError::SendResponse</span>(<span class="ident">err</span>) =&gt; {
-                                    <span class="macro">trace!</span>(<span class="string">&quot;Error sending HTTP/2 response: {:?}&quot;</span>, <span class="ident">err</span>)
+                        <span class="comment">// log error.
+                        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = res {
+                            <span class="kw">match </span>err {
+                                DispatchError::SendResponse(err) =&gt; {
+                                    <span class="macro">trace!</span>(<span class="string">&quot;Error sending HTTP/2 response: {:?}&quot;</span>, err)
                                 }
-                                <span class="ident">DispatchError::SendData</span>(<span class="ident">err</span>) =&gt; <span class="macro">warn!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">err</span>),
-                                <span class="ident">DispatchError::ResponseBody</span>(<span class="ident">err</span>) =&gt; {
-                                    <span class="macro">error!</span>(<span class="string">&quot;Response payload stream error: {:?}&quot;</span>, <span class="ident">err</span>)
+                                DispatchError::SendData(err) =&gt; <span class="macro">warn!</span>(<span class="string">&quot;{:?}&quot;</span>, err),
+                                DispatchError::ResponseBody(err) =&gt; {
+                                    <span class="macro">error!</span>(<span class="string">&quot;Response payload stream error: {:?}&quot;</span>, err)
                                 }
                             }
                         }
                     });
                 }
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())),
+                Poll::Ready(<span class="prelude-val">None</span>) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(())),
 
-                <span class="ident">Poll::Pending</span> =&gt; <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">ping_pong</span>.<span class="ident">as_mut</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">ping_pong</span>) =&gt; <span class="kw">loop</span> {
-                        <span class="kw">if</span> <span class="ident">ping_pong</span>.<span class="ident">in_flight</span> {
-                            <span class="comment">// When there is an in-flight ping-pong, poll pong and and keep-alive</span>
-                            <span class="comment">// timer. On successful pong received, update keep-alive timer to</span>
-                            <span class="comment">// determine the next timing of ping pong.</span>
-                            <span class="kw">match</span> <span class="ident">ping_pong</span>.<span class="ident">ping_pong</span>.<span class="ident">poll_pong</span>(<span class="ident">cx</span>)<span class="question-mark">?</span> {
-                                <span class="ident">Poll::Ready</span>(<span class="kw">_</span>) =&gt; {
-                                    <span class="ident">ping_pong</span>.<span class="ident">in_flight</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                Poll::Pending =&gt; <span class="kw">match </span>this.ping_pong.as_mut() {
+                    <span class="prelude-val">Some</span>(ping_pong) =&gt; <span class="kw">loop </span>{
+                        <span class="kw">if </span>ping_pong.in_flight {
+                            <span class="comment">// When there is an in-flight ping-pong, poll pong and and keep-alive
+                            // timer. On successful pong received, update keep-alive timer to
+                            // determine the next timing of ping pong.
+                            </span><span class="kw">match </span>ping_pong.ping_pong.poll_pong(cx)<span class="question-mark">? </span>{
+                                Poll::Ready(<span class="kw">_</span>) =&gt; {
+                                    ping_pong.in_flight = <span class="bool-val">false</span>;
 
-                                    <span class="kw">let</span> <span class="ident">dead_line</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">config</span>.<span class="ident">keep_alive_deadline</span>().<span class="ident">unwrap</span>();
-                                    <span class="ident">ping_pong</span>.<span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">reset</span>(<span class="ident">dead_line</span>.<span class="ident">into</span>());
+                                    <span class="kw">let </span>dead_line = this.config.keep_alive_deadline().unwrap();
+                                    ping_pong.timer.as_mut().reset(dead_line.into());
                                 }
-                                <span class="ident">Poll::Pending</span> =&gt; {
-                                    <span class="kw">return</span> <span class="ident">ping_pong</span>.<span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Ok</span>(()));
+                                Poll::Pending =&gt; {
+                                    <span class="kw">return </span>ping_pong.timer.as_mut().poll(cx).map(|<span class="kw">_</span>| <span class="prelude-val">Ok</span>(()));
                                 }
                             }
-                        } <span class="kw">else</span> {
-                            <span class="comment">// When there is no in-flight ping-pong, keep-alive timer is used to</span>
-                            <span class="comment">// wait for next timing of ping-pong. Therefore, at this point it serves</span>
-                            <span class="comment">// as an interval instead.</span>
-                            <span class="macro">ready!</span>(<span class="ident">ping_pong</span>.<span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>));
+                        } <span class="kw">else </span>{
+                            <span class="comment">// When there is no in-flight ping-pong, keep-alive timer is used to
+                            // wait for next timing of ping-pong. Therefore, at this point it serves
+                            // as an interval instead.
+                            </span><span class="macro">ready!</span>(ping_pong.timer.as_mut().poll(cx));
 
-                            <span class="ident">ping_pong</span>.<span class="ident">ping_pong</span>.<span class="ident">send_ping</span>(<span class="ident">Ping::opaque</span>())<span class="question-mark">?</span>;
+                            ping_pong.ping_pong.send_ping(Ping::opaque())<span class="question-mark">?</span>;
 
-                            <span class="kw">let</span> <span class="ident">dead_line</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">config</span>.<span class="ident">keep_alive_deadline</span>().<span class="ident">unwrap</span>();
-                            <span class="ident">ping_pong</span>.<span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">reset</span>(<span class="ident">dead_line</span>.<span class="ident">into</span>());
+                            <span class="kw">let </span>dead_line = this.config.keep_alive_deadline().unwrap();
+                            ping_pong.timer.as_mut().reset(dead_line.into());
 
-                            <span class="ident">ping_pong</span>.<span class="ident">in_flight</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                            ping_pong.in_flight = <span class="bool-val">true</span>;
                         }
                     },
-                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">Poll::Pending</span>,
+                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>Poll::Pending,
                 },
             }
         }
     }
 }
 
-<span class="kw">enum</span> <span class="ident">DispatchError</span> {
-    <span class="ident">SendResponse</span>(<span class="ident">h2::Error</span>),
-    <span class="ident">SendData</span>(<span class="ident">h2::Error</span>),
-    <span class="ident">ResponseBody</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span>),
+<span class="kw">enum </span>DispatchError {
+    SendResponse(h2::Error),
+    SendData(h2::Error),
+    ResponseBody(Box&lt;<span class="kw">dyn </span>StdError&gt;),
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(
-    <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
-    <span class="kw-2">mut</span> <span class="ident">tx</span>: <span class="ident">SendResponse</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>,
-    <span class="ident">config</span>: <span class="ident">ServiceConfig</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+<span class="kw">async fn </span>handle_response&lt;B&gt;(
+    res: Response&lt;B&gt;,
+    <span class="kw-2">mut </span>tx: SendResponse&lt;Bytes&gt;,
+    config: ServiceConfig,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt;
+<span class="kw">where
+    </span>B: MessageBody,
 {
-    <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">res</span>.<span class="ident">replace_body</span>(());
+    <span class="kw">let </span>(res, body) = res.replace_body(());
 
-    <span class="comment">// prepare response.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">size</span>();
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">prepare_response</span>(<span class="ident">config</span>, <span class="ident">res</span>.<span class="ident">head</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">size</span>);
-    <span class="kw">let</span> <span class="ident">eof</span> <span class="op">=</span> <span class="ident">size</span>.<span class="ident">is_eof</span>();
+    <span class="comment">// prepare response.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>size = body.size();
+    <span class="kw">let </span>res = prepare_response(config, res.head(), <span class="kw-2">&amp;mut </span>size);
+    <span class="kw">let </span>eof = size.is_eof();
 
-    <span class="comment">// send response head and return on eof.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">tx</span>
-        .<span class="ident">send_response</span>(<span class="ident">res</span>, <span class="ident">eof</span>)
-        .<span class="ident">map_err</span>(<span class="ident">DispatchError::SendResponse</span>)<span class="question-mark">?</span>;
+    <span class="comment">// send response head and return on eof.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>stream = tx
+        .send_response(res, eof)
+        .map_err(DispatchError::SendResponse)<span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="ident">eof</span> {
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    <span class="kw">if </span>eof {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
 
-    <span class="comment">// poll response body and send chunks to client</span>
-    <span class="macro">actix_rt::pin!</span>(<span class="ident">body</span>);
+    <span class="comment">// poll response body and send chunks to client
+    </span><span class="macro">actix_rt::pin!</span>(body);
 
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">res</span>) <span class="op">=</span> <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">body</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>)).<span class="kw">await</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chunk</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">DispatchError::ResponseBody</span>(<span class="ident">err</span>.<span class="ident">into</span>()))<span class="question-mark">?</span>;
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(res) = poll_fn(|cx| body.as_mut().poll_next(cx)).<span class="kw">await </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>chunk = res.map_err(|err| DispatchError::ResponseBody(err.into()))<span class="question-mark">?</span>;
 
-        <span class="lifetime">&#39;send</span>: <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">chunk_size</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">chunk</span>.<span class="ident">len</span>(), <span class="ident">CHUNK_SIZE</span>);
+        <span class="lifetime">&#39;send</span>: <span class="kw">loop </span>{
+            <span class="kw">let </span>chunk_size = cmp::min(chunk.len(), CHUNK_SIZE);
 
-            <span class="comment">// reserve enough space and wait for stream ready.</span>
-            <span class="ident">stream</span>.<span class="ident">reserve_capacity</span>(<span class="ident">chunk_size</span>);
+            <span class="comment">// reserve enough space and wait for stream ready.
+            </span>stream.reserve_capacity(chunk_size);
 
-            <span class="kw">match</span> <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">stream</span>.<span class="ident">poll_capacity</span>(<span class="ident">cx</span>)).<span class="kw">await</span> {
-                <span class="comment">// No capacity left. drop body and return.</span>
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+            <span class="kw">match </span>poll_fn(|cx| stream.poll_capacity(cx)).<span class="kw">await </span>{
+                <span class="comment">// No capacity left. drop body and return.
+                </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
 
-                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">DispatchError::SendData</span>(<span class="ident">err</span>)),
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(DispatchError::SendData(err)),
 
-                <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">cap</span>)) =&gt; {
-                    <span class="comment">// split chunk to writeable size and send to client</span>
-                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">chunk</span>.<span class="ident">len</span>();
-                    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">chunk</span>.<span class="ident">split_to</span>(<span class="ident">cmp::min</span>(<span class="ident">len</span>, <span class="ident">cap</span>));
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(cap)) =&gt; {
+                    <span class="comment">// split chunk to writeable size and send to client
+                    </span><span class="kw">let </span>len = chunk.len();
+                    <span class="kw">let </span>bytes = chunk.split_to(cmp::min(len, cap));
 
-                    <span class="ident">stream</span>
-                        .<span class="ident">send_data</span>(<span class="ident">bytes</span>, <span class="bool-val">false</span>)
-                        .<span class="ident">map_err</span>(<span class="ident">DispatchError::SendData</span>)<span class="question-mark">?</span>;
+                    stream
+                        .send_data(bytes, <span class="bool-val">false</span>)
+                        .map_err(DispatchError::SendData)<span class="question-mark">?</span>;
 
-                    <span class="comment">// Current chuck completely sent. break send loop and poll next one.</span>
-                    <span class="kw">if</span> <span class="ident">chunk</span>.<span class="ident">is_empty</span>() {
-                        <span class="kw">break</span> <span class="lifetime">&#39;send</span>;
+                    <span class="comment">// Current chuck completely sent. break send loop and poll next one.
+                    </span><span class="kw">if </span>chunk.is_empty() {
+                        <span class="kw">break </span><span class="lifetime">&#39;send</span>;
                     }
                 }
             }
         }
     }
 
-    <span class="comment">// response body streaming finished. send end of stream and return.</span>
-    <span class="ident">stream</span>
-        .<span class="ident">send_data</span>(<span class="ident">Bytes::new</span>(), <span class="bool-val">true</span>)
-        .<span class="ident">map_err</span>(<span class="ident">DispatchError::SendData</span>)<span class="question-mark">?</span>;
+    <span class="comment">// response body streaming finished. send end of stream and return.
+    </span>stream
+        .send_data(Bytes::new(), <span class="bool-val">true</span>)
+        .map_err(DispatchError::SendData)<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">prepare_response</span>(
-    <span class="ident">config</span>: <span class="ident">ServiceConfig</span>,
-    <span class="ident">head</span>: <span class="kw-2">&amp;</span><span class="ident">ResponseHead</span>,
-    <span class="ident">size</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BodySize</span>,
-) -&gt; <span class="ident">http::Response</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_date</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">skip_len</span> <span class="op">=</span> <span class="ident">size</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">BodySize::Stream</span>;
+<span class="kw">fn </span>prepare_response(
+    config: ServiceConfig,
+    head: <span class="kw-2">&amp;</span>ResponseHead,
+    size: <span class="kw-2">&amp;mut </span>BodySize,
+) -&gt; http::Response&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>has_date = <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>skip_len = size != <span class="kw-2">&amp;</span>BodySize::Stream;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">http::Response::new</span>(());
-    <span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">status_mut</span>() <span class="op">=</span> <span class="ident">head</span>.<span class="ident">status</span>;
-    <span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">version_mut</span>() <span class="op">=</span> <span class="ident">http::Version::HTTP_2</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>res = http::Response::new(());
+    <span class="kw-2">*</span>res.status_mut() = head.status;
+    <span class="kw-2">*</span>res.version_mut() = http::Version::HTTP_2;
 
-    <span class="comment">// Content length</span>
-    <span class="kw">match</span> <span class="ident">head</span>.<span class="ident">status</span> {
-        <span class="ident">http::StatusCode::NO_CONTENT</span>
-        <span class="op">|</span> <span class="ident">http::StatusCode::CONTINUE</span>
-        <span class="op">|</span> <span class="ident">http::StatusCode::PROCESSING</span> =&gt; <span class="kw-2">*</span><span class="ident">size</span> <span class="op">=</span> <span class="ident">BodySize::None</span>,
-        <span class="ident">http::StatusCode::SWITCHING_PROTOCOLS</span> =&gt; {
-            <span class="ident">skip_len</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="kw-2">*</span><span class="ident">size</span> <span class="op">=</span> <span class="ident">BodySize::Stream</span>;
+    <span class="comment">// Content length
+    </span><span class="kw">match </span>head.status {
+        http::StatusCode::NO_CONTENT
+        | http::StatusCode::CONTINUE
+        | http::StatusCode::PROCESSING =&gt; <span class="kw-2">*</span>size = BodySize::None,
+        http::StatusCode::SWITCHING_PROTOCOLS =&gt; {
+            skip_len = <span class="bool-val">true</span>;
+            <span class="kw-2">*</span>size = BodySize::Stream;
         }
-        <span class="kw">_</span> =&gt; {}
+        <span class="kw">_ </span>=&gt; {}
     }
 
-    <span class="kw">match</span> <span class="ident">size</span> {
-        <span class="ident">BodySize::None</span> <span class="op">|</span> <span class="ident">BodySize::Stream</span> =&gt; {}
+    <span class="kw">match </span>size {
+        BodySize::None | BodySize::Stream =&gt; {}
 
-        <span class="ident">BodySize::Sized</span>(<span class="number">0</span>) =&gt; {
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::declare_interior_mutable_const</span>)]</span>
-            <span class="kw">const</span> <span class="ident">HV_ZERO</span>: <span class="ident">HeaderValue</span> <span class="op">=</span> <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;0&quot;</span>);
-            <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="ident">HV_ZERO</span>);
+        BodySize::Sized(<span class="number">0</span>) =&gt; {
+            <span class="attribute">#[allow(clippy::declare_interior_mutable_const)]
+            </span><span class="kw">const </span>HV_ZERO: HeaderValue = HeaderValue::from_static(<span class="string">&quot;0&quot;</span>);
+            res.headers_mut().insert(CONTENT_LENGTH, HV_ZERO);
         }
 
-        <span class="ident">BodySize::Sized</span>(<span class="ident">len</span>) =&gt; {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">itoa::Buffer::new</span>();
+        BodySize::Sized(len) =&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>buf = itoa::Buffer::new();
 
-            <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(
-                <span class="ident">CONTENT_LENGTH</span>,
-                <span class="ident">HeaderValue::from_str</span>(<span class="ident">buf</span>.<span class="ident">format</span>(<span class="kw-2">*</span><span class="ident">len</span>)).<span class="ident">unwrap</span>(),
+            res.headers_mut().insert(
+                CONTENT_LENGTH,
+                HeaderValue::from_str(buf.format(<span class="kw-2">*</span>len)).unwrap(),
             );
         }
     };
 
-    <span class="comment">// copy headers</span>
-    <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">iter</span>() {
-        <span class="kw">match</span> <span class="ident">key</span> {
-            <span class="comment">// omit HTTP/1.x only headers according to:</span>
-            <span class="comment">// https://datatracker.ietf.org/doc/html/rfc7540#section-8.1.2.2</span>
-            <span class="kw-2">&amp;</span><span class="ident">CONNECTION</span> <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">TRANSFER_ENCODING</span> <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">UPGRADE</span> =&gt; <span class="kw">continue</span>,
+    <span class="comment">// copy headers
+    </span><span class="kw">for </span>(key, value) <span class="kw">in </span>head.headers.iter() {
+        <span class="kw">match </span>key {
+            <span class="comment">// omit HTTP/1.x only headers according to:
+            // https://datatracker.ietf.org/doc/html/rfc7540#section-8.1.2.2
+            </span><span class="kw-2">&amp;</span>CONNECTION | <span class="kw-2">&amp;</span>TRANSFER_ENCODING | <span class="kw-2">&amp;</span>UPGRADE =&gt; <span class="kw">continue</span>,
 
-            <span class="kw-2">&amp;</span><span class="ident">CONTENT_LENGTH</span> <span class="kw">if</span> <span class="ident">skip_len</span> =&gt; <span class="kw">continue</span>,
-            <span class="kw-2">&amp;</span><span class="ident">DATE</span> =&gt; <span class="ident">has_date</span> <span class="op">=</span> <span class="bool-val">true</span>,
+            <span class="kw-2">&amp;</span>CONTENT_LENGTH <span class="kw">if </span>skip_len =&gt; <span class="kw">continue</span>,
+            <span class="kw-2">&amp;</span>DATE =&gt; has_date = <span class="bool-val">true</span>,
 
-            <span class="comment">// omit HTTP/1.x only headers according to:</span>
-            <span class="comment">// https://datatracker.ietf.org/doc/html/rfc7540#section-8.1.2.2</span>
-            <span class="ident">hdr</span> <span class="kw">if</span> <span class="ident">hdr</span> <span class="op">==</span> <span class="ident">HeaderName::from_static</span>(<span class="string">&quot;keep-alive&quot;</span>)
-                <span class="op">|</span><span class="op">|</span> <span class="ident">hdr</span> <span class="op">==</span> <span class="ident">HeaderName::from_static</span>(<span class="string">&quot;proxy-connection&quot;</span>) =&gt;
+            <span class="comment">// omit HTTP/1.x only headers according to:
+            // https://datatracker.ietf.org/doc/html/rfc7540#section-8.1.2.2
+            </span>hdr <span class="kw">if </span>hdr == HeaderName::from_static(<span class="string">&quot;keep-alive&quot;</span>)
+                || hdr == HeaderName::from_static(<span class="string">&quot;proxy-connection&quot;</span>) =&gt;
             {
-                <span class="kw">continue</span>
-            }
+                <span class="kw">continue
+            </span>}
 
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">append</span>(<span class="ident">key</span>, <span class="ident">value</span>.<span class="ident">clone</span>());
+        res.headers_mut().append(key, value.clone());
     }
 
-    <span class="comment">// set date header</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">has_date</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::with_capacity</span>(<span class="number">29</span>);
-        <span class="ident">config</span>.<span class="ident">write_date_header_value</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>);
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(
-            <span class="ident">DATE</span>,
-            <span class="comment">// SAFETY: serialized date-times are known ASCII strings</span>
-            <span class="kw">unsafe</span> { <span class="ident">HeaderValue::from_maybe_shared_unchecked</span>(<span class="ident">bytes</span>.<span class="ident">freeze</span>()) },
+    <span class="comment">// set date header
+    </span><span class="kw">if </span>!has_date {
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::with_capacity(<span class="number">29</span>);
+        config.write_date_header_value(<span class="kw-2">&amp;mut </span>bytes);
+        res.headers_mut().insert(
+            DATE,
+            <span class="comment">// SAFETY: serialized date-times are known ASCII strings
+            </span><span class="kw">unsafe </span>{ HeaderValue::from_maybe_shared_unchecked(bytes.freeze()) },
         );
     }
 
-    <span class="ident">res</span>
+    res
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

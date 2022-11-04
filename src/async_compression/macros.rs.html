@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../async_compression/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../async_compression/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -114,116 +114,116 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
-</pre><pre class="rust"><code><span class="macro">macro_rules!</span> <span class="ident">algos</span> {
-    (@<span class="ident">algo</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo</span>:<span class="ident">ident</span> [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>:<span class="ident">expr</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">decoder</span>:<span class="ident">ident</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">encoder</span>:<span class="ident">ident</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>:<span class="ident">ident</span><span class="op">&gt;</span> $({ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">constructor</span>:<span class="ident">tt</span>)<span class="op">*</span> })<span class="kw-2">*</span>) =&gt; {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>)]</span>
-        <span class="macro">decoder!</span> {
-            <span class="doccomment">/// A</span>
-            <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>]</span>
-            <span class="doccomment">/// decoder, or decompressor.</span>
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>)))]</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">decoder</span>
-        }
+</pre><pre class="rust"><code><span class="macro">macro_rules! </span>algos {
+    (@algo <span class="macro-nonterminal">$algo</span>:ident [<span class="macro-nonterminal">$algo_s</span>:expr] <span class="macro-nonterminal">$decoder</span>:ident <span class="macro-nonterminal">$encoder</span>:ident&lt;<span class="macro-nonterminal">$inner</span>:ident&gt; $({ $(<span class="macro-nonterminal">$constructor</span>:tt)* })<span class="kw-2">*</span>) =&gt; {
+        <span class="attribute">#[cfg(feature = <span class="macro-nonterminal">$algo_s</span>)]
+        </span><span class="macro">decoder! </span>{
+            <span class="doccomment">/// A
+            </span><span class="attribute">#[doc = <span class="macro-nonterminal">$algo_s</span>]
+            </span><span class="doccomment">/// decoder, or decompressor.
+            </span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="macro-nonterminal">$algo_s</span>)))]
+            </span><span class="macro-nonterminal">$decoder
+        </span>}
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>)]</span>
-        <span class="macro">encoder!</span> {
-            <span class="doccomment">/// A</span>
-            <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>]</span>
-            <span class="doccomment">/// encoder, or compressor.</span>
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">algo_s</span>)))]</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">encoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>) -&gt; <span class="self">Self</span> {
-                    <span class="ident"><span class="self">Self</span>::with_quality</span>(<span class="ident">inner</span>, <span class="ident"><span class="kw">crate</span>::Level::Default</span>)
+        <span class="attribute">#[cfg(feature = <span class="macro-nonterminal">$algo_s</span>)]
+        </span><span class="macro">encoder! </span>{
+            <span class="doccomment">/// A
+            </span><span class="attribute">#[doc = <span class="macro-nonterminal">$algo_s</span>]
+            </span><span class="doccomment">/// encoder, or compressor.
+            </span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="macro-nonterminal">$algo_s</span>)))]
+            </span><span class="macro-nonterminal">$encoder</span>&lt;<span class="macro-nonterminal">$inner</span>&gt; {
+                <span class="kw">pub fn </span>new(inner: <span class="macro-nonterminal">$inner</span>) -&gt; <span class="self">Self </span>{
+                    <span class="self">Self</span>::with_quality(inner, <span class="kw">crate</span>::Level::Default)
                 }
-            } $({ $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">constructor</span>)<span class="op">*</span> })<span class="op">*</span>
+            } $({ $(<span class="macro-nonterminal">$constructor</span>)* })*
         }
     };
 
-    ($(<span class="macro-nonterminal">$</span><span class="kw">mod</span>:<span class="macro-nonterminal">ident</span>)::<span class="op">+</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>:<span class="ident">ident</span><span class="op">&gt;</span>) =&gt; {
-        <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">brotli</span> [<span class="string">&quot;brotli&quot;</span>] <span class="ident">BrotliDecoder</span> <span class="ident">BrotliEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
-                <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">brotli::enc::backward_references::BrotliEncoderParams::default</span>();
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
-                        <span class="ident">inner</span>,
-                        <span class="ident"><span class="kw">crate</span>::codec::BrotliEncoder::new</span>(<span class="ident">level</span>.<span class="ident">into_brotli</span>(<span class="ident">params</span>)),
+    ($(<span class="macro-nonterminal">$</span><span class="kw">mod</span>:<span class="macro-nonterminal">ident</span>)::+&lt;<span class="macro-nonterminal">$inner</span>:ident&gt;) =&gt; {
+        <span class="macro">algos!</span>(@algo brotli [<span class="string">&quot;brotli&quot;</span>] BrotliDecoder BrotliEncoder&lt;<span class="macro-nonterminal">$inner</span>&gt; {
+            <span class="kw">pub fn </span>with_quality(inner: <span class="macro-nonterminal">$inner</span>, level: <span class="kw">crate</span>::Level) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>params = brotli::enc::backward_references::BrotliEncoderParams::default();
+                <span class="self">Self </span>{
+                    inner: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)+<span class="macro-nonterminal">generic::Encoder::new</span>(
+                        inner,
+                        <span class="kw">crate</span>::codec::BrotliEncoder::new(level.into_brotli(params)),
                     ),
                 }
             }
         });
 
-        <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">bzip2</span> [<span class="string">&quot;bzip2&quot;</span>] <span class="ident">BzDecoder</span> <span class="ident">BzEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
-                        <span class="ident">inner</span>,
-                        <span class="ident"><span class="kw">crate</span>::codec::BzEncoder::new</span>(<span class="ident">level</span>.<span class="ident">into_bzip2</span>(), <span class="number">0</span>),
+        <span class="macro">algos!</span>(@algo bzip2 [<span class="string">&quot;bzip2&quot;</span>] BzDecoder BzEncoder&lt;<span class="macro-nonterminal">$inner</span>&gt; {
+            <span class="kw">pub fn </span>with_quality(inner: <span class="macro-nonterminal">$inner</span>, level: <span class="kw">crate</span>::Level) -&gt; <span class="self">Self </span>{
+                <span class="self">Self </span>{
+                    inner: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)+<span class="macro-nonterminal">generic::Encoder::new</span>(
+                        inner,
+                        <span class="kw">crate</span>::codec::BzEncoder::new(level.into_bzip2(), <span class="number">0</span>),
                     ),
                 }
             }
         });
 
-        <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">deflate</span> [<span class="string">&quot;deflate&quot;</span>] <span class="ident">DeflateDecoder</span> <span class="ident">DeflateEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
-                        <span class="ident">inner</span>,
-                        <span class="ident"><span class="kw">crate</span>::codec::DeflateEncoder::new</span>(<span class="ident">level</span>.<span class="ident">into_flate2</span>()),
+        <span class="macro">algos!</span>(@algo deflate [<span class="string">&quot;deflate&quot;</span>] DeflateDecoder DeflateEncoder&lt;<span class="macro-nonterminal">$inner</span>&gt; {
+            <span class="kw">pub fn </span>with_quality(inner: <span class="macro-nonterminal">$inner</span>, level: <span class="kw">crate</span>::Level) -&gt; <span class="self">Self </span>{
+                <span class="self">Self </span>{
+                    inner: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)+<span class="macro-nonterminal">generic::Encoder::new</span>(
+                        inner,
+                        <span class="kw">crate</span>::codec::DeflateEncoder::new(level.into_flate2()),
                     ),
                 }
             }
         });
 
-        <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">gzip</span> [<span class="string">&quot;gzip&quot;</span>] <span class="ident">GzipDecoder</span> <span class="ident">GzipEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
-                        <span class="ident">inner</span>,
-                        <span class="ident"><span class="kw">crate</span>::codec::GzipEncoder::new</span>(<span class="ident">level</span>.<span class="ident">into_flate2</span>()),
+        <span class="macro">algos!</span>(@algo gzip [<span class="string">&quot;gzip&quot;</span>] GzipDecoder GzipEncoder&lt;<span class="macro-nonterminal">$inner</span>&gt; {
+            <span class="kw">pub fn </span>with_quality(inner: <span class="macro-nonterminal">$inner</span>, level: <span class="kw">crate</span>::Level) -&gt; <span class="self">Self </span>{
+                <span class="self">Self </span>{
+                    inner: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)+<span class="macro-nonterminal">generic::Encoder::new</span>(
+                        inner,
+                        <span class="kw">crate</span>::codec::GzipEncoder::new(level.into_flate2()),
                     ),
                 }
             }
         });
 
-        <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">zlib</span> [<span class="string">&quot;zlib&quot;</span>] <span class="ident">ZlibDecoder</span> <span class="ident">ZlibEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
-                        <span class="ident">inner</span>,
-                        <span class="ident"><span class="kw">crate</span>::codec::ZlibEncoder::new</span>(<span class="ident">level</span>.<span class="ident">into_flate2</span>()),
+        <span class="macro">algos!</span>(@algo zlib [<span class="string">&quot;zlib&quot;</span>] ZlibDecoder ZlibEncoder&lt;<span class="macro-nonterminal">$inner</span>&gt; {
+            <span class="kw">pub fn </span>with_quality(inner: <span class="macro-nonterminal">$inner</span>, level: <span class="kw">crate</span>::Level) -&gt; <span class="self">Self </span>{
+                <span class="self">Self </span>{
+                    inner: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)+<span class="macro-nonterminal">generic::Encoder::new</span>(
+                        inner,
+                        <span class="kw">crate</span>::codec::ZlibEncoder::new(level.into_flate2()),
                     ),
                 }
             }
         });
 
-        <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">zstd</span> [<span class="string">&quot;zstd&quot;</span>] <span class="ident">ZstdDecoder</span> <span class="ident">ZstdEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
-                        <span class="ident">inner</span>,
-                        <span class="ident"><span class="kw">crate</span>::codec::ZstdEncoder::new</span>(<span class="ident">level</span>.<span class="ident">into_zstd</span>()),
+        <span class="macro">algos!</span>(@algo zstd [<span class="string">&quot;zstd&quot;</span>] ZstdDecoder ZstdEncoder&lt;<span class="macro-nonterminal">$inner</span>&gt; {
+            <span class="kw">pub fn </span>with_quality(inner: <span class="macro-nonterminal">$inner</span>, level: <span class="kw">crate</span>::Level) -&gt; <span class="self">Self </span>{
+                <span class="self">Self </span>{
+                    inner: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)+<span class="macro-nonterminal">generic::Encoder::new</span>(
+                        inner,
+                        <span class="kw">crate</span>::codec::ZstdEncoder::new(level.into_zstd()),
                     ),
                 }
             }
         });
 
-        <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">xz</span> [<span class="string">&quot;xz&quot;</span>] <span class="ident">XzDecoder</span> <span class="ident">XzEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
-                        <span class="ident">inner</span>,
-                        <span class="ident"><span class="kw">crate</span>::codec::XzEncoder::new</span>(<span class="ident">level</span>.<span class="ident">into_xz2</span>()),
+        <span class="macro">algos!</span>(@algo xz [<span class="string">&quot;xz&quot;</span>] XzDecoder XzEncoder&lt;<span class="macro-nonterminal">$inner</span>&gt; {
+            <span class="kw">pub fn </span>with_quality(inner: <span class="macro-nonterminal">$inner</span>, level: <span class="kw">crate</span>::Level) -&gt; <span class="self">Self </span>{
+                <span class="self">Self </span>{
+                    inner: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)+<span class="macro-nonterminal">generic::Encoder::new</span>(
+                        inner,
+                        <span class="kw">crate</span>::codec::XzEncoder::new(level.into_xz2()),
                     ),
                 }
             }
         });
 
-        <span class="macro">algos!</span>(@<span class="ident">algo</span> <span class="ident">lzma</span> [<span class="string">&quot;lzma&quot;</span>] <span class="ident">LzmaDecoder</span> <span class="ident">LzmaEncoder</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span><span class="op">&gt;</span> {
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_quality</span>(<span class="ident">inner</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner</span>, <span class="ident">level</span>: <span class="ident"><span class="kw">crate</span>::Level</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span> {
-                    <span class="ident">inner</span>: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)<span class="op">+</span><span class="macro-nonterminal">generic::Encoder::new</span>(
-                        <span class="ident">inner</span>,
-                        <span class="ident"><span class="kw">crate</span>::codec::LzmaEncoder::new</span>(<span class="ident">level</span>.<span class="ident">into_xz2</span>()),
+        <span class="macro">algos!</span>(@algo lzma [<span class="string">&quot;lzma&quot;</span>] LzmaDecoder LzmaEncoder&lt;<span class="macro-nonterminal">$inner</span>&gt; {
+            <span class="kw">pub fn </span>with_quality(inner: <span class="macro-nonterminal">$inner</span>, level: <span class="kw">crate</span>::Level) -&gt; <span class="self">Self </span>{
+                <span class="self">Self </span>{
+                    inner: <span class="kw">crate</span>::$(<span class="macro-nonterminal">$</span><span class="kw">mod</span>::)+<span class="macro-nonterminal">generic::Encoder::new</span>(
+                        inner,
+                        <span class="kw">crate</span>::codec::LzmaEncoder::new(level.into_xz2()),
                     ),
                 }
             }
@@ -231,4 +231,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

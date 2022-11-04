@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/chapters.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chapters.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/chapters.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chapters.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -263,13 +263,13 @@
 <span id="263">263</span>
 <span id="264">264</span>
 <span id="265">265</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/chapters`.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/chapters`.
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">path::PathBuf</span>, <span class="ident">str::FromStr</span>};
+</span><span class="kw">use </span>std::{path::PathBuf, str::FromStr};
 
-<span class="kw">use</span> <span class="ident">models::chapters</span>::{<span class="ident">Chapter</span>, <span class="ident">ChapterUpdate</span>, <span class="ident">NewChapter</span>};
+<span class="kw">use </span>models::chapters::{Chapter, ChapterUpdate, NewChapter};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/chapters` - Create a new course part.
@@ -287,65 +287,65 @@ Content-Type: application/json
     &quot;front_page_id&quot;: null
 }
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_chapter</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewChapter</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Course</span>(<span class="ident">payload</span>.<span class="ident">course_id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool, file_store, app_conf))]
+</span><span class="kw">async fn </span>post_new_chapter(
+    pool: web::Data&lt;PgPool&gt;,
+    payload: web::Json&lt;NewChapter&gt;,
+    user: AuthUser,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Chapter&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(payload.course_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">new_chapter</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> (<span class="ident">database_chapter</span>, ..) <span class="op">=</span> <span class="ident">models::library::content_management::create_new_chapter</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
-        <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
+    <span class="kw">let </span>new_chapter = payload.<span class="number">0</span>;
+    <span class="kw">let </span>(database_chapter, ..) = models::library::content_management::create_new_chapter(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Generate,
+        <span class="kw-2">&amp;</span>new_chapter,
+        user.id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">return</span> <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">Chapter::from_database_chapter</span>(
-        <span class="kw-2">&amp;</span><span class="ident">database_chapter</span>,
-        <span class="ident">file_store</span>.<span class="ident">as_ref</span>(),
-        <span class="ident">app_conf</span>.<span class="ident">as_ref</span>(),
+    <span class="kw">return </span>token.authorized_ok(web::Json(Chapter::from_database_chapter(
+        <span class="kw-2">&amp;</span>database_chapter,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )));
 }
 
 <span class="doccomment">/**
 DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a chapter.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_chapter</span>(
-    <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">Uuid::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">chapter_id</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Chapter</span>(<span class="ident">chapter_id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool, file_store, app_conf))]
+</span><span class="kw">async fn </span>delete_chapter(
+    chapter_id: web::Path&lt;String&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Chapter&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter_id = Uuid::from_str(<span class="kw-2">&amp;</span>chapter_id)<span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Chapter(chapter_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">deleted_chapter</span> <span class="op">=</span> <span class="ident">models::chapters::delete_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">return</span> <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">Chapter::from_database_chapter</span>(
-        <span class="kw-2">&amp;</span><span class="ident">deleted_chapter</span>,
-        <span class="ident">file_store</span>.<span class="ident">as_ref</span>(),
-        <span class="ident">app_conf</span>.<span class="ident">as_ref</span>(),
+    <span class="kw">let </span>deleted_chapter = models::chapters::delete_chapter(<span class="kw-2">&amp;mut </span>conn, chapter_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">return </span>token.authorized_ok(web::Json(Chapter::from_database_chapter(
+        <span class="kw-2">&amp;</span>deleted_chapter,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )));
 }
 
@@ -366,27 +366,27 @@ Content-Type: application/json
 }
 
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">payload</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_chapter</span>(
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ChapterUpdate</span><span class="op">&gt;</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">Uuid::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">chapter_id</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">models::chapters::get_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_update</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">models::chapters::update_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">chapter_id</span>, <span class="ident">course_update</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(payload, pool, file_store, app_conf))]
+</span><span class="kw">async fn </span>update_chapter(
+    payload: web::Json&lt;ChapterUpdate&gt;,
+    chapter_id: web::Path&lt;String&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Chapter&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter_id = Uuid::from_str(<span class="kw-2">&amp;</span>chapter_id)<span class="question-mark">?</span>;
+    <span class="kw">let </span>course_id = models::chapters::get_course_id(<span class="kw-2">&amp;mut </span>conn, chapter_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Course(course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_update = payload.<span class="number">0</span>;
+    <span class="kw">let </span>chapter = models::chapters::update_chapter(<span class="kw-2">&amp;mut </span>conn, chapter_id, course_update).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">Chapter::from_database_chapter</span>(<span class="kw-2">&amp;</span><span class="ident">chapter</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>(), <span class="ident">app_conf</span>.<span class="ident">as_ref</span>());
+    <span class="kw">let </span>response = Chapter::from_database_chapter(<span class="kw-2">&amp;</span>chapter, file_store.as_ref(), app_conf.as_ref());
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">response</span>))
+    token.authorized_ok(web::Json(response))
 }
 
 <span class="doccomment">/**
@@ -401,67 +401,67 @@ Content-Type: multipart/form-data
 
 BINARY_DATA
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">request</span>, <span class="ident">payload</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_chapter_image</span>(
-    <span class="ident">request</span>: <span class="ident">HttpRequest</span>,
-    <span class="ident">payload</span>: <span class="ident">Multipart</span>,
-    <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">models::chapters::get_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Course</span>(<span class="ident">chapter</span>.<span class="ident">course_id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(request, payload, pool, file_store, app_conf))]
+</span><span class="kw">async fn </span>set_chapter_image(
+    request: HttpRequest,
+    payload: Multipart,
+    chapter_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Chapter&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter = models::chapters::get_chapter(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>chapter_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(chapter.course_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">models::courses::get_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">chapter</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter_image</span> <span class="op">=</span> <span class="ident">upload_media</span>(
-        <span class="ident">request</span>.<span class="ident">headers</span>(),
-        <span class="ident">payload</span>,
-        <span class="ident">StoreKind::Course</span>(<span class="ident">course</span>.<span class="ident">id</span>),
-        <span class="ident">file_store</span>.<span class="ident">as_ref</span>(),
-        <span class="ident">pool</span>,
-        <span class="ident">user</span>,
+    <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, chapter.course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter_image = upload_media(
+        request.headers(),
+        payload,
+        StoreKind::Course(course.id),
+        file_store.as_ref(),
+        pool,
+        user,
     )
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">data</span>
-    .<span class="ident">to_string_lossy</span>()
-    .<span class="ident">to_string</span>();
-    <span class="kw">let</span> <span class="ident">updated_chapter</span> <span class="op">=</span>
-        <span class="ident">models::chapters::update_chapter_image_path</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">chapter</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="ident">chapter_image</span>))
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.data
+    .to_string_lossy()
+    .to_string();
+    <span class="kw">let </span>updated_chapter =
+        models::chapters::update_chapter_image_path(<span class="kw-2">&amp;mut </span>conn, chapter.id, <span class="prelude-val">Some</span>(chapter_image))
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Remove old image if one exists.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">old_image_path</span>) <span class="op">=</span> <span class="ident">chapter</span>.<span class="ident">chapter_image_path</span> {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">PathBuf::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">old_image_path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+    <span class="comment">// Remove old image if one exists.
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(old_image_path) = chapter.chapter_image_path {
+        <span class="kw">let </span>file = PathBuf::from_str(<span class="kw-2">&amp;</span>old_image_path).map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
-        <span class="ident">file_store</span>.<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+        file_store.delete(<span class="kw-2">&amp;</span>file).<span class="kw">await</span>.map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span>
-        <span class="ident">Chapter::from_database_chapter</span>(<span class="kw-2">&amp;</span><span class="ident">updated_chapter</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>(), <span class="ident">app_conf</span>.<span class="ident">as_ref</span>());
+    <span class="kw">let </span>response =
+        Chapter::from_database_chapter(<span class="kw-2">&amp;</span>updated_chapter, file_store.as_ref(), app_conf.as_ref());
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">response</span>))
+    token.authorized_ok(web::Json(response))
 }
 
 <span class="doccomment">/**
@@ -473,42 +473,42 @@ Request:
 ```http
 DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_chapter_image</span>(
-    <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">models::chapters::get_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Course</span>(<span class="ident">chapter</span>.<span class="ident">course_id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool, file_store))]
+</span><span class="kw">async fn </span>remove_chapter_image(
+    chapter_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;()&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapter = models::chapters::get_chapter(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>chapter_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Course(chapter.course_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chapter_image_path</span>) <span class="op">=</span> <span class="ident">chapter</span>.<span class="ident">chapter_image_path</span> {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">PathBuf::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">chapter_image_path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(chapter_image_path) = chapter.chapter_image_path {
+        <span class="kw">let </span>file = PathBuf::from_str(<span class="kw-2">&amp;</span>chapter_image_path).map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span> <span class="ident">models::chapters::update_chapter_image_path</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">chapter</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">file_store</span>.<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+        <span class="kw">let </span>_res = models::chapters::update_chapter_image_path(<span class="kw-2">&amp;mut </span>conn, chapter.id, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        file_store.delete(<span class="kw-2">&amp;</span>file).<span class="kw">await</span>.map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
     }
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
+    token.authorized_ok(web::Json(()))
 }
 
 <span class="doccomment">/**
@@ -517,16 +517,16 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_chapter</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}&quot;</span>, <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">delete_chapter</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_chapter</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}/image&quot;</span>, <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">set_chapter_image</span>))
-        .<span class="ident">route</span>(
+*/
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;&quot;</span>, web::post().to(post_new_chapter))
+        .route(<span class="string">&quot;/{chapter_id}&quot;</span>, web::delete().to(delete_chapter))
+        .route(<span class="string">&quot;/{chapter_id}&quot;</span>, web::put().to(update_chapter))
+        .route(<span class="string">&quot;/{chapter_id}/image&quot;</span>, web::put().to(set_chapter_image))
+        .route(
             <span class="string">&quot;/{chapter_id}/image&quot;</span>,
-            <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">remove_chapter_image</span>),
+            web::delete().to(remove_chapter_image),
         );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

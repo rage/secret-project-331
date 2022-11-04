@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/ws/frame.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>frame.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/ws/frame.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>frame.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -400,405 +400,405 @@
 <span id="398">398</span>
 <span id="399">399</span>
 <span id="400">400</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::convert::TryFrom;
 
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">BufMut</span>, <span class="ident">BytesMut</span>};
-<span class="kw">use</span> <span class="ident">tracing::debug</span>;
+<span class="kw">use </span>bytes::{Buf, BufMut, BytesMut};
+<span class="kw">use </span>tracing::debug;
 
-<span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">mask::apply_mask</span>,
-    <span class="ident">proto</span>::{<span class="ident">CloseCode</span>, <span class="ident">CloseReason</span>, <span class="ident">OpCode</span>},
-    <span class="ident">ProtocolError</span>,
+<span class="kw">use super</span>::{
+    mask::apply_mask,
+    proto::{CloseCode, CloseReason, OpCode},
+    ProtocolError,
 };
 
-<span class="doccomment">/// A struct representing a WebSocket frame.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Parser</span>;
+<span class="doccomment">/// A struct representing a WebSocket frame.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Parser;
 
-<span class="kw">impl</span> <span class="ident">Parser</span> {
-    <span class="kw">fn</span> <span class="ident">parse_metadata</span>(
-        <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">server</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">bool</span>, <span class="ident">OpCode</span>, <span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">4</span>]<span class="op">&gt;</span>)<span class="op">&gt;</span>, <span class="ident">ProtocolError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chunk_len</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">len</span>();
+<span class="kw">impl </span>Parser {
+    <span class="kw">fn </span>parse_metadata(
+        src: <span class="kw-2">&amp;</span>[u8],
+        server: bool,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(usize, bool, OpCode, usize, <span class="prelude-ty">Option</span>&lt;[u8; <span class="number">4</span>]&gt;)&gt;, ProtocolError&gt; {
+        <span class="kw">let </span>chunk_len = src.len();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="number">2</span>;
-        <span class="kw">if</span> <span class="ident">chunk_len</span> <span class="op">&lt;</span> <span class="number">2</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>idx = <span class="number">2</span>;
+        <span class="kw">if </span>chunk_len &lt; <span class="number">2 </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="ident">src</span>[<span class="number">0</span>];
-        <span class="kw">let</span> <span class="ident">second</span> <span class="op">=</span> <span class="ident">src</span>[<span class="number">1</span>];
-        <span class="kw">let</span> <span class="ident">finished</span> <span class="op">=</span> <span class="ident">first</span> <span class="op">&amp;</span> <span class="number">0x80</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let </span>first = src[<span class="number">0</span>];
+        <span class="kw">let </span>second = src[<span class="number">1</span>];
+        <span class="kw">let </span>finished = first &amp; <span class="number">0x80 </span>!= <span class="number">0</span>;
 
-        <span class="comment">// check masking</span>
-        <span class="kw">let</span> <span class="ident">masked</span> <span class="op">=</span> <span class="ident">second</span> <span class="op">&amp;</span> <span class="number">0x80</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">masked</span> <span class="op">&amp;&amp;</span> <span class="ident">server</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::UnmaskedFrame</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">masked</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">server</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::MaskedFrame</span>);
+        <span class="comment">// check masking
+        </span><span class="kw">let </span>masked = second &amp; <span class="number">0x80 </span>!= <span class="number">0</span>;
+        <span class="kw">if </span>!masked &amp;&amp; server {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ProtocolError::UnmaskedFrame);
+        } <span class="kw">else if </span>masked &amp;&amp; !server {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ProtocolError::MaskedFrame);
         }
 
-        <span class="comment">// Op code</span>
-        <span class="kw">let</span> <span class="ident">opcode</span> <span class="op">=</span> <span class="ident">OpCode::from</span>(<span class="ident">first</span> <span class="op">&amp;</span> <span class="number">0x0F</span>);
+        <span class="comment">// Op code
+        </span><span class="kw">let </span>opcode = OpCode::from(first &amp; <span class="number">0x0F</span>);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OpCode::Bad</span> <span class="op">=</span> <span class="ident">opcode</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::InvalidOpcode</span>(<span class="ident">first</span> <span class="op">&amp;</span> <span class="number">0x0F</span>));
+        <span class="kw">if let </span>OpCode::Bad = opcode {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ProtocolError::InvalidOpcode(first &amp; <span class="number">0x0F</span>));
         }
 
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">second</span> <span class="op">&amp;</span> <span class="number">0x7F</span>;
-        <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">126</span> {
-            <span class="kw">if</span> <span class="ident">chunk_len</span> <span class="op">&lt;</span> <span class="number">4</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        <span class="kw">let </span>len = second &amp; <span class="number">0x7F</span>;
+        <span class="kw">let </span>length = <span class="kw">if </span>len == <span class="number">126 </span>{
+            <span class="kw">if </span>chunk_len &lt; <span class="number">4 </span>{
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
             }
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">usize::from</span>(<span class="ident">u16::from_be_bytes</span>(
-                <span class="ident">TryFrom::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>[<span class="ident">idx</span>..<span class="ident">idx</span> <span class="op">+</span> <span class="number">2</span>]).<span class="ident">unwrap</span>(),
+            <span class="kw">let </span>len = usize::from(u16::from_be_bytes(
+                TryFrom::try_from(<span class="kw-2">&amp;</span>src[idx..idx + <span class="number">2</span>]).unwrap(),
             ));
-            <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
-            <span class="ident">len</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">127</span> {
-            <span class="kw">if</span> <span class="ident">chunk_len</span> <span class="op">&lt;</span> <span class="number">10</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            idx += <span class="number">2</span>;
+            len
+        } <span class="kw">else if </span>len == <span class="number">127 </span>{
+            <span class="kw">if </span>chunk_len &lt; <span class="number">10 </span>{
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
             }
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">u64::from_be_bytes</span>(<span class="ident">TryFrom::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>[<span class="ident">idx</span>..<span class="ident">idx</span> <span class="op">+</span> <span class="number">8</span>]).<span class="ident">unwrap</span>());
-            <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">8</span>;
-            <span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>
-        } <span class="kw">else</span> {
-            <span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>
+            <span class="kw">let </span>len = u64::from_be_bytes(TryFrom::try_from(<span class="kw-2">&amp;</span>src[idx..idx + <span class="number">8</span>]).unwrap());
+            idx += <span class="number">8</span>;
+            len <span class="kw">as </span>usize
+        } <span class="kw">else </span>{
+            len <span class="kw">as </span>usize
         };
 
-        <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">server</span> {
-            <span class="kw">if</span> <span class="ident">chunk_len</span> <span class="op">&lt;</span> <span class="ident">idx</span> <span class="op">+</span> <span class="number">4</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        <span class="kw">let </span>mask = <span class="kw">if </span>server {
+            <span class="kw">if </span>chunk_len &lt; idx + <span class="number">4 </span>{
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
             }
 
-            <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">TryFrom::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>[<span class="ident">idx</span>..<span class="ident">idx</span> <span class="op">+</span> <span class="number">4</span>]).<span class="ident">unwrap</span>();
+            <span class="kw">let </span>mask = TryFrom::try_from(<span class="kw-2">&amp;</span>src[idx..idx + <span class="number">4</span>]).unwrap();
 
-            <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">4</span>;
+            idx += <span class="number">4</span>;
 
-            <span class="prelude-val">Some</span>(<span class="ident">mask</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
+            <span class="prelude-val">Some</span>(mask)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
 
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">idx</span>, <span class="ident">finished</span>, <span class="ident">opcode</span>, <span class="ident">length</span>, <span class="ident">mask</span>)))
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((idx, finished, opcode, length, mask)))
     }
 
-    <span class="doccomment">/// Parse the input stream into a frame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(
-        <span class="ident">src</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
-        <span class="ident">server</span>: <span class="ident">bool</span>,
-        <span class="ident">max_size</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">OpCode</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BytesMut</span><span class="op">&gt;</span>)<span class="op">&gt;</span>, <span class="ident">ProtocolError</span><span class="op">&gt;</span> {
-        <span class="comment">// try to parse ws frame metadata</span>
-        <span class="kw">let</span> (<span class="ident">idx</span>, <span class="ident">finished</span>, <span class="ident">opcode</span>, <span class="ident">length</span>, <span class="ident">mask</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">Parser::parse_metadata</span>(<span class="ident">src</span>, <span class="ident">server</span>)<span class="question-mark">?</span> {
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">res</span>) =&gt; <span class="ident">res</span>,
+    <span class="doccomment">/// Parse the input stream into a frame.
+    </span><span class="kw">pub fn </span>parse(
+        src: <span class="kw-2">&amp;mut </span>BytesMut,
+        server: bool,
+        max_size: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(bool, OpCode, <span class="prelude-ty">Option</span>&lt;BytesMut&gt;)&gt;, ProtocolError&gt; {
+        <span class="comment">// try to parse ws frame metadata
+        </span><span class="kw">let </span>(idx, finished, opcode, length, mask) = <span class="kw">match </span>Parser::parse_metadata(src, server)<span class="question-mark">? </span>{
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(res) =&gt; res,
         };
 
-        <span class="comment">// not enough data</span>
-        <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">idx</span> <span class="op">+</span> <span class="ident">length</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        <span class="comment">// not enough data
+        </span><span class="kw">if </span>src.len() &lt; idx + length {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="comment">// remove prefix</span>
-        <span class="ident">src</span>.<span class="ident">advance</span>(<span class="ident">idx</span>);
+        <span class="comment">// remove prefix
+        </span>src.advance(idx);
 
-        <span class="comment">// check for max allowed size</span>
-        <span class="kw">if</span> <span class="ident">length</span> <span class="op">&gt;</span> <span class="ident">max_size</span> {
-            <span class="comment">// drop the payload</span>
-            <span class="ident">src</span>.<span class="ident">advance</span>(<span class="ident">length</span>);
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::Overflow</span>);
+        <span class="comment">// check for max allowed size
+        </span><span class="kw">if </span>length &gt; max_size {
+            <span class="comment">// drop the payload
+            </span>src.advance(length);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ProtocolError::Overflow);
         }
 
-        <span class="comment">// no need for body</span>
-        <span class="kw">if</span> <span class="ident">length</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">finished</span>, <span class="ident">opcode</span>, <span class="prelude-val">None</span>)));
+        <span class="comment">// no need for body
+        </span><span class="kw">if </span>length == <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((finished, opcode, <span class="prelude-val">None</span>)));
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">split_to</span>(<span class="ident">length</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>data = src.split_to(length);
 
-        <span class="comment">// control frames must have length &lt;= 125</span>
-        <span class="kw">match</span> <span class="ident">opcode</span> {
-            <span class="ident">OpCode::Ping</span> <span class="op">|</span> <span class="ident">OpCode::Pong</span> <span class="kw">if</span> <span class="ident">length</span> <span class="op">&gt;</span> <span class="number">125</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::InvalidLength</span>(<span class="ident">length</span>));
+        <span class="comment">// control frames must have length &lt;= 125
+        </span><span class="kw">match </span>opcode {
+            OpCode::Ping | OpCode::Pong <span class="kw">if </span>length &gt; <span class="number">125 </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ProtocolError::InvalidLength(length));
             }
-            <span class="ident">OpCode::Close</span> <span class="kw">if</span> <span class="ident">length</span> <span class="op">&gt;</span> <span class="number">125</span> =&gt; {
+            OpCode::Close <span class="kw">if </span>length &gt; <span class="number">125 </span>=&gt; {
                 <span class="macro">debug!</span>(<span class="string">&quot;Received close frame with payload length exceeding 125. Morphing to protocol close frame.&quot;</span>);
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="bool-val">true</span>, <span class="ident">OpCode::Close</span>, <span class="prelude-val">None</span>)));
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="bool-val">true</span>, OpCode::Close, <span class="prelude-val">None</span>)));
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="comment">// unmask</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mask</span>) <span class="op">=</span> <span class="ident">mask</span> {
-            <span class="ident">apply_mask</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>, <span class="ident">mask</span>);
+        <span class="comment">// unmask
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(mask) = mask {
+            apply_mask(<span class="kw-2">&amp;mut </span>data, mask);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">finished</span>, <span class="ident">opcode</span>, <span class="prelude-val">Some</span>(<span class="ident">data</span>))))
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((finished, opcode, <span class="prelude-val">Some</span>(data))))
     }
 
-    <span class="doccomment">/// Parse the payload of a close frame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_close_payload</span>(<span class="ident">payload</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CloseReason</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">payload</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
-            <span class="kw">let</span> <span class="ident">raw_code</span> <span class="op">=</span> <span class="ident">u16::from_be_bytes</span>(<span class="ident">TryFrom::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">payload</span>[..<span class="number">2</span>]).<span class="ident">unwrap</span>());
-            <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">CloseCode::from</span>(<span class="ident">raw_code</span>);
-            <span class="kw">let</span> <span class="ident">description</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">payload</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">2</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">String::from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="ident">payload</span>[<span class="number">2</span>..]).<span class="ident">into</span>())
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            };
-            <span class="prelude-val">Some</span>(<span class="ident">CloseReason</span> { <span class="ident">code</span>, <span class="ident">description</span> })
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+    <span class="doccomment">/// Parse the payload of a close frame.
+    </span><span class="kw">pub fn </span>parse_close_payload(payload: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;CloseReason&gt; {
+        <span class="kw">if </span>payload.len() &gt;= <span class="number">2 </span>{
+            <span class="kw">let </span>raw_code = u16::from_be_bytes(TryFrom::try_from(<span class="kw-2">&amp;</span>payload[..<span class="number">2</span>]).unwrap());
+            <span class="kw">let </span>code = CloseCode::from(raw_code);
+            <span class="kw">let </span>description = <span class="kw">if </span>payload.len() &gt; <span class="number">2 </span>{
+                <span class="prelude-val">Some</span>(String::from_utf8_lossy(<span class="kw-2">&amp;</span>payload[<span class="number">2</span>..]).into())
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>};
+            <span class="prelude-val">Some</span>(CloseReason { code, description })
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="doccomment">/// Generate binary representation</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_message</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
-        <span class="ident">pl</span>: <span class="ident">B</span>,
-        <span class="ident">op</span>: <span class="ident">OpCode</span>,
-        <span class="ident">fin</span>: <span class="ident">bool</span>,
-        <span class="ident">mask</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Generate binary representation
+    </span><span class="kw">pub fn </span>write_message&lt;B: AsRef&lt;[u8]&gt;&gt;(
+        dst: <span class="kw-2">&amp;mut </span>BytesMut,
+        pl: B,
+        op: OpCode,
+        fin: bool,
+        mask: bool,
     ) {
-        <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">as_ref</span>();
-        <span class="kw">let</span> <span class="ident">one</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">fin</span> {
-            <span class="number">0x80</span> <span class="op">|</span> <span class="ident">Into</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::into</span>(<span class="ident">op</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">op</span>.<span class="ident">into</span>()
+        <span class="kw">let </span>payload = pl.as_ref();
+        <span class="kw">let </span>one: u8 = <span class="kw">if </span>fin {
+            <span class="number">0x80 </span>| Into::&lt;u8&gt;::into(op)
+        } <span class="kw">else </span>{
+            op.into()
         };
-        <span class="kw">let</span> <span class="ident">payload_len</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> (<span class="ident">two</span>, <span class="ident">p_len</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">mask</span> {
-            (<span class="number">0x80</span>, <span class="ident">payload_len</span> <span class="op">+</span> <span class="number">4</span>)
-        } <span class="kw">else</span> {
-            (<span class="number">0</span>, <span class="ident">payload_len</span>)
-        };
-
-        <span class="kw">if</span> <span class="ident">payload_len</span> <span class="op">&lt;</span> <span class="number">126</span> {
-            <span class="ident">dst</span>.<span class="ident">reserve</span>(<span class="ident">p_len</span> <span class="op">+</span> <span class="number">2</span> <span class="op">+</span> <span class="kw">if</span> <span class="ident">mask</span> { <span class="number">4</span> } <span class="kw">else</span> { <span class="number">0</span> });
-            <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="kw-2">&amp;</span>[<span class="ident">one</span>, <span class="ident">two</span> <span class="op">|</span> <span class="ident">payload_len</span> <span class="kw">as</span> <span class="ident">u8</span>]);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">payload_len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">65_535</span> {
-            <span class="ident">dst</span>.<span class="ident">reserve</span>(<span class="ident">p_len</span> <span class="op">+</span> <span class="number">4</span> <span class="op">+</span> <span class="kw">if</span> <span class="ident">mask</span> { <span class="number">4</span> } <span class="kw">else</span> { <span class="number">0</span> });
-            <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="kw-2">&amp;</span>[<span class="ident">one</span>, <span class="ident">two</span> <span class="op">|</span> <span class="number">126</span>]);
-            <span class="ident">dst</span>.<span class="ident">put_u16</span>(<span class="ident">payload_len</span> <span class="kw">as</span> <span class="ident">u16</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">dst</span>.<span class="ident">reserve</span>(<span class="ident">p_len</span> <span class="op">+</span> <span class="number">10</span> <span class="op">+</span> <span class="kw">if</span> <span class="ident">mask</span> { <span class="number">4</span> } <span class="kw">else</span> { <span class="number">0</span> });
-            <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="kw-2">&amp;</span>[<span class="ident">one</span>, <span class="ident">two</span> <span class="op">|</span> <span class="number">127</span>]);
-            <span class="ident">dst</span>.<span class="ident">put_u64</span>(<span class="ident">payload_len</span> <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="kw">let </span>payload_len = payload.len();
+        <span class="kw">let </span>(two, p_len) = <span class="kw">if </span>mask {
+            (<span class="number">0x80</span>, payload_len + <span class="number">4</span>)
+        } <span class="kw">else </span>{
+            (<span class="number">0</span>, payload_len)
         };
 
-        <span class="kw">if</span> <span class="ident">mask</span> {
-            <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">rand::random</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">4</span>]<span class="op">&gt;</span>();
-            <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="ident">mask</span>.<span class="ident">as_ref</span>());
-            <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="ident">payload</span>.<span class="ident">as_ref</span>());
-            <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">payload_len</span>;
-            <span class="ident">apply_mask</span>(<span class="kw-2">&amp;mut</span> <span class="ident">dst</span>[<span class="ident">pos</span>..], <span class="ident">mask</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="ident">payload</span>.<span class="ident">as_ref</span>());
+        <span class="kw">if </span>payload_len &lt; <span class="number">126 </span>{
+            dst.reserve(p_len + <span class="number">2 </span>+ <span class="kw">if </span>mask { <span class="number">4 </span>} <span class="kw">else </span>{ <span class="number">0 </span>});
+            dst.put_slice(<span class="kw-2">&amp;</span>[one, two | payload_len <span class="kw">as </span>u8]);
+        } <span class="kw">else if </span>payload_len &lt;= <span class="number">65_535 </span>{
+            dst.reserve(p_len + <span class="number">4 </span>+ <span class="kw">if </span>mask { <span class="number">4 </span>} <span class="kw">else </span>{ <span class="number">0 </span>});
+            dst.put_slice(<span class="kw-2">&amp;</span>[one, two | <span class="number">126</span>]);
+            dst.put_u16(payload_len <span class="kw">as </span>u16);
+        } <span class="kw">else </span>{
+            dst.reserve(p_len + <span class="number">10 </span>+ <span class="kw">if </span>mask { <span class="number">4 </span>} <span class="kw">else </span>{ <span class="number">0 </span>});
+            dst.put_slice(<span class="kw-2">&amp;</span>[one, two | <span class="number">127</span>]);
+            dst.put_u64(payload_len <span class="kw">as </span>u64);
+        };
+
+        <span class="kw">if </span>mask {
+            <span class="kw">let </span>mask = rand::random::&lt;[u8; <span class="number">4</span>]&gt;();
+            dst.put_slice(mask.as_ref());
+            dst.put_slice(payload.as_ref());
+            <span class="kw">let </span>pos = dst.len() - payload_len;
+            apply_mask(<span class="kw-2">&amp;mut </span>dst[pos..], mask);
+        } <span class="kw">else </span>{
+            dst.put_slice(payload.as_ref());
         }
     }
 
-    <span class="doccomment">/// Create a new Close control frame.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_close</span>(<span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>, <span class="ident">reason</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CloseReason</span><span class="op">&gt;</span>, <span class="ident">mask</span>: <span class="ident">bool</span>) {
-        <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">reason</span> {
-            <span class="prelude-val">None</span> =&gt; <span class="ident">Vec::new</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">reason</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">payload</span> <span class="op">=</span> <span class="ident">Into</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="ident">::into</span>(<span class="ident">reason</span>.<span class="ident">code</span>).<span class="ident">to_be_bytes</span>().<span class="ident">to_vec</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">description</span>) <span class="op">=</span> <span class="ident">reason</span>.<span class="ident">description</span> {
-                    <span class="ident">payload</span>.<span class="ident">extend</span>(<span class="ident">description</span>.<span class="ident">as_bytes</span>());
+    <span class="doccomment">/// Create a new Close control frame.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>write_close(dst: <span class="kw-2">&amp;mut </span>BytesMut, reason: <span class="prelude-ty">Option</span>&lt;CloseReason&gt;, mask: bool) {
+        <span class="kw">let </span>payload = <span class="kw">match </span>reason {
+            <span class="prelude-val">None </span>=&gt; Vec::new(),
+            <span class="prelude-val">Some</span>(reason) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>payload = Into::&lt;u16&gt;::into(reason.code).to_be_bytes().to_vec();
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(description) = reason.description {
+                    payload.extend(description.as_bytes());
                 }
-                <span class="ident">payload</span>
+                payload
             }
         };
 
-        <span class="ident">Parser::write_message</span>(<span class="ident">dst</span>, <span class="ident">payload</span>, <span class="ident">OpCode::Close</span>, <span class="bool-val">true</span>, <span class="ident">mask</span>)
+        Parser::write_message(dst, payload, OpCode::Close, <span class="bool-val">true</span>, mask)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>bytes::Bytes;
 
-    <span class="kw">struct</span> <span class="ident">F</span> {
-        <span class="ident">finished</span>: <span class="ident">bool</span>,
-        <span class="ident">opcode</span>: <span class="ident">OpCode</span>,
-        <span class="ident">payload</span>: <span class="ident">Bytes</span>,
+    <span class="kw">struct </span>F {
+        finished: bool,
+        opcode: OpCode,
+        payload: Bytes,
     }
 
-    <span class="kw">fn</span> <span class="ident">is_none</span>(<span class="ident">frm</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">OpCode</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BytesMut</span><span class="op">&gt;</span>)<span class="op">&gt;</span>, <span class="ident">ProtocolError</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="kw-2">*</span><span class="ident">frm</span>, <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
+    <span class="kw">fn </span>is_none(frm: <span class="kw-2">&amp;</span><span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(bool, OpCode, <span class="prelude-ty">Option</span>&lt;BytesMut&gt;)&gt;, ProtocolError&gt;) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="kw-2">*</span>frm, <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">frm</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">OpCode</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BytesMut</span><span class="op">&gt;</span>)<span class="op">&gt;</span>, <span class="ident">ProtocolError</span><span class="op">&gt;</span>) -&gt; <span class="ident">F</span> {
-        <span class="kw">match</span> <span class="ident">frm</span> {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">finished</span>, <span class="ident">opcode</span>, <span class="ident">payload</span>))) =&gt; <span class="ident">F</span> {
-                <span class="ident">finished</span>,
-                <span class="ident">opcode</span>,
-                <span class="ident">payload</span>: <span class="ident">payload</span>
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">freeze</span>())
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Bytes::from</span>(<span class="string">&quot;&quot;</span>)),
+    <span class="kw">fn </span>extract(frm: <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(bool, OpCode, <span class="prelude-ty">Option</span>&lt;BytesMut&gt;)&gt;, ProtocolError&gt;) -&gt; F {
+        <span class="kw">match </span>frm {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((finished, opcode, payload))) =&gt; F {
+                finished,
+                opcode,
+                payload: payload
+                    .map(|b| b.freeze())
+                    .unwrap_or_else(|| Bytes::from(<span class="string">&quot;&quot;</span>)),
             },
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;error&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;error&quot;</span>),
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0001u8</span>][..]);
-        <span class="macro">assert!</span>(<span class="ident">is_none</span>(<span class="kw-2">&amp;</span><span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1024</span>)));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0001u8</span>][..]);
+        <span class="macro">assert!</span>(is_none(<span class="kw-2">&amp;</span>Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1024</span>)));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0001u8</span>][..]);
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;1&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0001u8</span>][..]);
+        buf.extend(<span class="string">b&quot;1&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">extract</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1024</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">frame</span>.<span class="ident">finished</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">opcode</span>, <span class="ident">OpCode::Text</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">payload</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;1&quot;</span>[..]);
+        <span class="kw">let </span>frame = extract(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1024</span>));
+        <span class="macro">assert!</span>(!frame.finished);
+        <span class="macro">assert_eq!</span>(frame.opcode, OpCode::Text);
+        <span class="macro">assert_eq!</span>(frame.payload.as_ref(), <span class="kw-2">&amp;</span><span class="string">b&quot;1&quot;</span>[..]);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_length0</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0000u8</span>][..]);
-        <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">extract</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1024</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">frame</span>.<span class="ident">finished</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">opcode</span>, <span class="ident">OpCode::Text</span>);
-        <span class="macro">assert!</span>(<span class="ident">frame</span>.<span class="ident">payload</span>.<span class="ident">is_empty</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_length0() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0000u8</span>][..]);
+        <span class="kw">let </span>frame = extract(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1024</span>));
+        <span class="macro">assert!</span>(!frame.finished);
+        <span class="macro">assert_eq!</span>(frame.opcode, OpCode::Text);
+        <span class="macro">assert!</span>(frame.payload.is_empty());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_length2</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">126u8</span>][..]);
-        <span class="macro">assert!</span>(<span class="ident">is_none</span>(<span class="kw-2">&amp;</span><span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1024</span>)));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_length2() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">126u8</span>][..]);
+        <span class="macro">assert!</span>(is_none(<span class="kw-2">&amp;</span>Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1024</span>)));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">126u8</span>][..]);
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span>[<span class="number">0u8</span>, <span class="number">4u8</span>][..]);
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;1234&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">126u8</span>][..]);
+        buf.extend(<span class="kw-2">&amp;</span>[<span class="number">0u8</span>, <span class="number">4u8</span>][..]);
+        buf.extend(<span class="string">b&quot;1234&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">extract</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1024</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">frame</span>.<span class="ident">finished</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">opcode</span>, <span class="ident">OpCode::Text</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">payload</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;1234&quot;</span>[..]);
+        <span class="kw">let </span>frame = extract(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1024</span>));
+        <span class="macro">assert!</span>(!frame.finished);
+        <span class="macro">assert_eq!</span>(frame.opcode, OpCode::Text);
+        <span class="macro">assert_eq!</span>(frame.payload.as_ref(), <span class="kw-2">&amp;</span><span class="string">b&quot;1234&quot;</span>[..]);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_length4</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">127u8</span>][..]);
-        <span class="macro">assert!</span>(<span class="ident">is_none</span>(<span class="kw-2">&amp;</span><span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1024</span>)));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_length4() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">127u8</span>][..]);
+        <span class="macro">assert!</span>(is_none(<span class="kw-2">&amp;</span>Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1024</span>)));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">127u8</span>][..]);
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span>[<span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">4u8</span>][..]);
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;1234&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">127u8</span>][..]);
+        buf.extend(<span class="kw-2">&amp;</span>[<span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">0u8</span>, <span class="number">4u8</span>][..]);
+        buf.extend(<span class="string">b&quot;1234&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">extract</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1024</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">frame</span>.<span class="ident">finished</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">opcode</span>, <span class="ident">OpCode::Text</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">payload</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;1234&quot;</span>[..]);
+        <span class="kw">let </span>frame = extract(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1024</span>));
+        <span class="macro">assert!</span>(!frame.finished);
+        <span class="macro">assert_eq!</span>(frame.opcode, OpCode::Text);
+        <span class="macro">assert_eq!</span>(frame.payload.as_ref(), <span class="kw-2">&amp;</span><span class="string">b&quot;1234&quot;</span>[..]);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_frame_mask</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b1000_0001u8</span>][..]);
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;0001&quot;</span>);
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="string">b&quot;1&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_frame_mask() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b1000_0001u8</span>][..]);
+        buf.extend(<span class="string">b&quot;0001&quot;</span>);
+        buf.extend(<span class="string">b&quot;1&quot;</span>);
 
-        <span class="macro">assert!</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1024</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1024</span>).is_err());
 
-        <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">extract</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">true</span>, <span class="number">1024</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">frame</span>.<span class="ident">finished</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">opcode</span>, <span class="ident">OpCode::Text</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">payload</span>, <span class="ident">Bytes::from</span>(<span class="macro">vec!</span>[<span class="number">1u8</span>]));
+        <span class="kw">let </span>frame = extract(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">true</span>, <span class="number">1024</span>));
+        <span class="macro">assert!</span>(!frame.finished);
+        <span class="macro">assert_eq!</span>(frame.opcode, OpCode::Text);
+        <span class="macro">assert_eq!</span>(frame.payload, Bytes::from(<span class="macro">vec!</span>[<span class="number">1u8</span>]));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_frame_no_mask</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0001u8</span>][..]);
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span>[<span class="number">1u8</span>]);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_frame_no_mask() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0001u8</span>][..]);
+        buf.extend(<span class="kw-2">&amp;</span>[<span class="number">1u8</span>]);
 
-        <span class="macro">assert!</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">true</span>, <span class="number">1024</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">true</span>, <span class="number">1024</span>).is_err());
 
-        <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">extract</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1024</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">frame</span>.<span class="ident">finished</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">opcode</span>, <span class="ident">OpCode::Text</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">payload</span>, <span class="ident">Bytes::from</span>(<span class="macro">vec!</span>[<span class="number">1u8</span>]));
+        <span class="kw">let </span>frame = extract(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1024</span>));
+        <span class="macro">assert!</span>(!frame.finished);
+        <span class="macro">assert_eq!</span>(frame.opcode, OpCode::Text);
+        <span class="macro">assert_eq!</span>(frame.payload, Bytes::from(<span class="macro">vec!</span>[<span class="number">1u8</span>]));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_frame_max_size</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0010u8</span>][..]);
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span>[<span class="number">1u8</span>, <span class="number">1u8</span>]);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_frame_max_size() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::from(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0010u8</span>][..]);
+        buf.extend(<span class="kw-2">&amp;</span>[<span class="number">1u8</span>, <span class="number">1u8</span>]);
 
-        <span class="macro">assert!</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">true</span>, <span class="number">1</span>).<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">true</span>, <span class="number">1</span>).is_err());
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::Overflow</span>) <span class="op">=</span> <span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">0</span>) {
-        } <span class="kw">else</span> {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(ProtocolError::Overflow) = Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">0</span>) {
+        } <span class="kw">else </span>{
             <span class="macro">unreachable!</span>(<span class="string">&quot;error&quot;</span>);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_frame_max_size_recoverability</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="comment">// The first text frame with length == 2, payload doesn&#39;t matter.</span>
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0010u8</span>, <span class="number">0b0000_0000u8</span>, <span class="number">0b0000_0000u8</span>]);
-        <span class="comment">// Next binary frame with length == 2 and payload == `[0x1111_1111u8, 0x1111_1111u8]`.</span>
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0010u8</span>, <span class="number">0b0000_0010u8</span>, <span class="number">0b1111_1111u8</span>, <span class="number">0b1111_1111u8</span>]);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_frame_max_size_recoverability() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
+        <span class="comment">// The first text frame with length == 2, payload doesn&#39;t matter.
+        </span>buf.extend(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0001u8</span>, <span class="number">0b0000_0010u8</span>, <span class="number">0b0000_0000u8</span>, <span class="number">0b0000_0000u8</span>]);
+        <span class="comment">// Next binary frame with length == 2 and payload == `[0x1111_1111u8, 0x1111_1111u8]`.
+        </span>buf.extend(<span class="kw-2">&amp;</span>[<span class="number">0b0000_0010u8</span>, <span class="number">0b0000_0010u8</span>, <span class="number">0b1111_1111u8</span>, <span class="number">0b1111_1111u8</span>]);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="number">8</span>);
+        <span class="macro">assert_eq!</span>(buf.len(), <span class="number">8</span>);
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(
-            <span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">1</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::Overflow</span>)
+            Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">1</span>),
+            <span class="prelude-val">Err</span>(ProtocolError::Overflow)
         ));
-        <span class="macro">assert_eq!</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="number">4</span>);
-        <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">extract</span>(<span class="ident">Parser::parse</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="bool-val">false</span>, <span class="number">2</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">frame</span>.<span class="ident">finished</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">frame</span>.<span class="ident">opcode</span>, <span class="ident">OpCode::Binary</span>);
+        <span class="macro">assert_eq!</span>(buf.len(), <span class="number">4</span>);
+        <span class="kw">let </span>frame = extract(Parser::parse(<span class="kw-2">&amp;mut </span>buf, <span class="bool-val">false</span>, <span class="number">2</span>));
+        <span class="macro">assert!</span>(!frame.finished);
+        <span class="macro">assert_eq!</span>(frame.opcode, OpCode::Binary);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">frame</span>.<span class="ident">payload</span>,
-            <span class="ident">Bytes::from</span>(<span class="macro">vec!</span>[<span class="number">0b1111_1111u8</span>, <span class="number">0b1111_1111u8</span>])
+            frame.payload,
+            Bytes::from(<span class="macro">vec!</span>[<span class="number">0b1111_1111u8</span>, <span class="number">0b1111_1111u8</span>])
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">buf</span>.<span class="ident">len</span>(), <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(buf.len(), <span class="number">0</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_ping_frame</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="ident">Parser::write_message</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="ident">Vec::from</span>(<span class="string">&quot;data&quot;</span>), <span class="ident">OpCode::Ping</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_ping_frame() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
+        Parser::write_message(<span class="kw-2">&amp;mut </span>buf, Vec::from(<span class="string">&quot;data&quot;</span>), OpCode::Ping, <span class="bool-val">true</span>, <span class="bool-val">false</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">137u8</span>, <span class="number">4u8</span>];
-        <span class="ident">v</span>.<span class="ident">extend</span>(<span class="string">b&quot;data&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..], <span class="kw-2">&amp;</span><span class="ident">v</span>[..]);
+        <span class="kw">let </span><span class="kw-2">mut </span>v = <span class="macro">vec!</span>[<span class="number">137u8</span>, <span class="number">4u8</span>];
+        v.extend(<span class="string">b&quot;data&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="kw-2">&amp;</span>v[..]);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_pong_frame</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="ident">Parser::write_message</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="ident">Vec::from</span>(<span class="string">&quot;data&quot;</span>), <span class="ident">OpCode::Pong</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_pong_frame() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
+        Parser::write_message(<span class="kw-2">&amp;mut </span>buf, Vec::from(<span class="string">&quot;data&quot;</span>), OpCode::Pong, <span class="bool-val">true</span>, <span class="bool-val">false</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">138u8</span>, <span class="number">4u8</span>];
-        <span class="ident">v</span>.<span class="ident">extend</span>(<span class="string">b&quot;data&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..], <span class="kw-2">&amp;</span><span class="ident">v</span>[..]);
+        <span class="kw">let </span><span class="kw-2">mut </span>v = <span class="macro">vec!</span>[<span class="number">138u8</span>, <span class="number">4u8</span>];
+        v.extend(<span class="string">b&quot;data&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="kw-2">&amp;</span>v[..]);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_close_frame</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="kw">let</span> <span class="ident">reason</span> <span class="op">=</span> (<span class="ident">CloseCode::Normal</span>, <span class="string">&quot;data&quot;</span>);
-        <span class="ident">Parser::write_close</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="prelude-val">Some</span>(<span class="ident">reason</span>.<span class="ident">into</span>()), <span class="bool-val">false</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_close_frame() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
+        <span class="kw">let </span>reason = (CloseCode::Normal, <span class="string">&quot;data&quot;</span>);
+        Parser::write_close(<span class="kw-2">&amp;mut </span>buf, <span class="prelude-val">Some</span>(reason.into()), <span class="bool-val">false</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">136u8</span>, <span class="number">6u8</span>, <span class="number">3u8</span>, <span class="number">232u8</span>];
-        <span class="ident">v</span>.<span class="ident">extend</span>(<span class="string">b&quot;data&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..], <span class="kw-2">&amp;</span><span class="ident">v</span>[..]);
+        <span class="kw">let </span><span class="kw-2">mut </span>v = <span class="macro">vec!</span>[<span class="number">136u8</span>, <span class="number">6u8</span>, <span class="number">3u8</span>, <span class="number">232u8</span>];
+        v.extend(<span class="string">b&quot;data&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="kw-2">&amp;</span>v[..]);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_empty_close_frame</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="ident">Parser::write_close</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..], <span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="number">0x88</span>, <span class="number">0x00</span>][..]);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_empty_close_frame() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new();
+        Parser::write_close(<span class="kw-2">&amp;mut </span>buf, <span class="prelude-val">None</span>, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>buf[..], <span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="number">0x88</span>, <span class="number">0x00</span>][..]);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

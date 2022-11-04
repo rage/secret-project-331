@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/woothee-0.13.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../woothee/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../woothee/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../woothee/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/woothee-0.13.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../woothee/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../woothee/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../woothee/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -65,72 +65,72 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">recursion_limit</span> <span class="op">=</span> <span class="string">&quot;100&quot;</span>]</span>
-<span class="doccomment">//! # Woothee</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Woothee is a user-agent strings parser.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Usage</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```toml</span>
-<span class="doccomment">//! [dependencies]</span>
-<span class="doccomment">//! woothee = &quot;*&quot;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use woothee::parser::Parser;</span>
-<span class="doccomment">//! let parser = Parser::new();</span>
-<span class="doccomment">//! let result = parser.parse(&quot;Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)&quot;);</span>
-<span class="doccomment">//! println!(&quot;{:?}&quot;, result);</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
+</pre><pre class="rust"><code><span class="attribute">#![recursion_limit = <span class="string">&quot;100&quot;</span>]
+</span><span class="doccomment">//! # Woothee
+//!
+//! Woothee is a user-agent strings parser.
+//!
+//! ## Usage
+//!
+//! ```toml
+//! [dependencies]
+//! woothee = &quot;*&quot;
+//! ```
+//!
+//! ```rust
+//! use woothee::parser::Parser;
+//! let parser = Parser::new();
+//! let result = parser.parse(&quot;Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)&quot;);
+//! println!(&quot;{:?}&quot;, result);
+//! ```
+//!
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">lazy_static</span>;
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">regex</span>;
+</span><span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>lazy_static;
+<span class="kw">extern crate </span>regex;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dataset</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">parser</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">woothee</span>;
+<span class="kw">pub mod </span>dataset;
+<span class="kw">pub mod </span>parser;
+<span class="kw">pub mod </span>woothee;
 
-<span class="kw">use</span> <span class="ident">parser</span>::{<span class="ident">Parser</span>, <span class="ident">WootheeResult</span>};
+<span class="kw">use </span>parser::{Parser, WootheeResult};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_crawler</span>(<span class="ident">agent</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">if</span> <span class="ident">agent</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">agent</span> <span class="op">==</span> <span class="string">&quot;-&quot;</span> {
-        <span class="kw">return</span> <span class="bool-val">false</span>;
+<span class="kw">pub fn </span>is_crawler(agent: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    <span class="kw">if </span>agent.is_empty() || agent == <span class="string">&quot;-&quot; </span>{
+        <span class="kw">return </span><span class="bool-val">false</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">Parser::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">WootheeResult::new</span>();
-    <span class="ident">parser</span>.<span class="ident">try_crawler</span>(<span class="ident">agent</span>, <span class="kw-2">&amp;mut</span> <span class="ident">result</span>)
+    <span class="kw">let </span>parser = Parser::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>result = WootheeResult::new();
+    parser.try_crawler(agent, <span class="kw-2">&amp;mut </span>result)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">is_crawler</span>, <span class="ident">Parser</span>, <span class="ident">WootheeResult</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::{is_crawler, Parser, WootheeResult};
 
-    <span class="kw">fn</span> <span class="ident">get_woothee_result</span>(<span class="ident">agent</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">WootheeResult</span> {
-        <span class="ident">Parser::new</span>().<span class="ident">parse</span>(<span class="ident">agent</span>).<span class="ident">expect</span>(<span class="string">&quot;fail parse()&quot;</span>)
+    <span class="kw">fn </span>get_woothee_result(agent: <span class="kw-2">&amp;</span>str) -&gt; WootheeResult {
+        Parser::new().parse(agent).expect(<span class="string">&quot;fail parse()&quot;</span>)
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parser_lifetime</span>() {
-        <span class="kw">let</span> <span class="ident">agent</span> <span class="op">=</span> <span class="string">&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:21.0) Gecko/20100101 Firefox/21.0&quot;</span>;
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">get_woothee_result</span>(<span class="ident">agent</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">result</span>.<span class="ident">name</span>, <span class="string">&quot;Firefox&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">result</span>.<span class="ident">version</span>, <span class="string">&quot;21.0&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parser_lifetime() {
+        <span class="kw">let </span>agent = <span class="string">&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:21.0) Gecko/20100101 Firefox/21.0&quot;</span>;
+        <span class="kw">let </span>result = get_woothee_result(agent);
+        <span class="macro">assert_eq!</span>(result.name, <span class="string">&quot;Firefox&quot;</span>);
+        <span class="macro">assert_eq!</span>(result.version, <span class="string">&quot;21.0&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_is_crawler_smoke</span>() {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">is_crawler</span>(
-            <span class="string">&quot;Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)&quot;</span>
-        ));
-        <span class="macro">assert!</span>(<span class="ident">is_crawler</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_is_crawler_smoke() {
+        <span class="macro">assert!</span>(!is_crawler(
+            <span class="string">&quot;Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)&quot;
+        </span>));
+        <span class="macro">assert!</span>(is_crawler(
             <span class="string">&quot;Mozilla/5.0 (compatible; Yahoo! Slurp; \
-             http://help.yahoo.com/help/us/ysearch/slurp)&quot;</span>
-        ));
+             http://help.yahoo.com/help/us/ysearch/slurp)&quot;
+        </span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="woothee" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="woothee" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

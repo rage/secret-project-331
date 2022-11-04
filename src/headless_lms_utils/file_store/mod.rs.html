@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/file_store/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_utils/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/file_store/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_utils/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -94,101 +94,101 @@
 <span id="94">94</span>
 <span id="95">95</span>
 <span id="96">96</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Allows storing files to a file storage backend.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">file_utils</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">google_cloud_file_store</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">local_file_store</span>;
+</pre><pre class="rust"><code><span class="doccomment">//! Allows storing files to a file storage backend.
+</span><span class="kw">pub mod </span>file_utils;
+<span class="kw">pub mod </span>google_cloud_file_store;
+<span class="kw">pub mod </span>local_file_store;
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>},
-    <span class="ident">pin::Pin</span>,
+<span class="kw">use </span>std::{
+    path::{Path, PathBuf},
+    pin::Pin,
 };
 
-<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">futures::Stream</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>futures::Stream;
+<span class="kw">use </span>uuid::Uuid;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">ApplicationConfiguration</span>};
+<span class="kw">use crate</span>::{prelude::<span class="kw-2">*</span>, ApplicationConfiguration};
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GenericPayload</span> <span class="op">=</span> <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">anyhow::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">pub type </span>GenericPayload = Pin&lt;Box&lt;<span class="kw">dyn </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, anyhow::Error&gt;&gt;&gt;&gt;;
 <span class="doccomment">/**
 Allows storing files to a file storage backend.
-*/</span>
-<span class="attribute">#[<span class="ident">async_trait</span>(<span class="question-mark">?</span><span class="ident">Send</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FileStore</span> {
-    <span class="doccomment">/// Upload a file that&#39;s in memory to a path.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">contents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
-    <span class="doccomment">/// Upload a file without loading the whole file to memory</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_stream</span>(
+*/
+</span><span class="attribute">#[async_trait(<span class="question-mark">?</span>Send)]
+</span><span class="kw">pub trait </span>FileStore {
+    <span class="doccomment">/// Upload a file that&#39;s in memory to a path.
+    </span><span class="kw">async fn </span>upload(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path, contents: Vec&lt;u8&gt;, mime_type: <span class="kw-2">&amp;</span>str) -&gt; UtilResult&lt;()&gt;;
+    <span class="doccomment">/// Upload a file without loading the whole file to memory
+    </span><span class="kw">async fn </span>upload_stream(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-        <span class="kw-2">mut</span> <span class="ident">contents</span>: <span class="ident">GenericPayload</span>,
-        <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
-    <span class="doccomment">/// Download a file to memory.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// Download a file without loading the whole file to memory.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_stream</span>(
+        path: <span class="kw-2">&amp;</span>Path,
+        <span class="kw-2">mut </span>contents: GenericPayload,
+        mime_type: <span class="kw-2">&amp;</span>str,
+    ) -&gt; UtilResult&lt;()&gt;;
+    <span class="doccomment">/// Download a file to memory.
+    </span><span class="kw">async fn </span>download(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; UtilResult&lt;Vec&lt;u8&gt;&gt;;
+    <span class="doccomment">/// Download a file without loading the whole file to memory.
+    </span><span class="kw">async fn </span>download_stream(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-    ) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// Get a url that can be used to download the file without authentication for a while.</span>
-    <span class="doccomment">/// In most cases you probably want to use get_download_url() instead.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_direct_download_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// Get a url for a file in FileStore that can be used to access the resource.</span>
-    <span class="kw">fn</span> <span class="ident">get_download_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">app_conf</span>: <span class="kw-2">&amp;</span><span class="ident">ApplicationConfiguration</span>) -&gt; <span class="ident">String</span> {
+        path: <span class="kw-2">&amp;</span>Path,
+    ) -&gt; UtilResult&lt;Box&lt;<span class="kw">dyn </span>Stream&lt;Item = std::io::Result&lt;Bytes&gt;&gt;&gt;&gt;;
+    <span class="doccomment">/// Get a url that can be used to download the file without authentication for a while.
+    /// In most cases you probably want to use get_download_url() instead.
+    </span><span class="kw">async fn </span>get_direct_download_url(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; UtilResult&lt;String&gt;;
+    <span class="doccomment">/// Get a url for a file in FileStore that can be used to access the resource.
+    </span><span class="kw">fn </span>get_download_url(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path, app_conf: <span class="kw-2">&amp;</span>ApplicationConfiguration) -&gt; String {
         <span class="macro">format!</span>(
             <span class="string">&quot;{}/api/v0/files/{}&quot;</span>,
-            <span class="ident">app_conf</span>.<span class="ident">base_url</span>,
-            <span class="ident">path</span>.<span class="ident">to_string_lossy</span>()
+            app_conf.base_url,
+            path.to_string_lossy()
         )
     }
-    <span class="doccomment">/// Delete a file.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+    <span class="doccomment">/// Delete a file.
+    </span><span class="kw">async fn </span>delete(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; UtilResult&lt;()&gt;;
 }
 
-<span class="kw">fn</span> <span class="ident">path_to_str</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">str</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">to_str</span>();
-    <span class="kw">match</span> <span class="ident">str</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UtilError::new</span>(
-            <span class="ident">UtilErrorType::Other</span>,
-            <span class="string">&quot;Could not convert path to string because it contained invalid UTF-8 characters.&quot;</span>
-                .<span class="ident">to_string</span>(),
+<span class="kw">fn </span>path_to_str(path: <span class="kw-2">&amp;</span>Path) -&gt; UtilResult&lt;<span class="kw-2">&amp;</span>str&gt; {
+    <span class="kw">let </span>str = path.to_str();
+    <span class="kw">match </span>str {
+        <span class="prelude-val">Some</span>(s) =&gt; <span class="prelude-val">Ok</span>(s),
+        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(UtilError::new(
+            UtilErrorType::Other,
+            <span class="string">&quot;Could not convert path to string because it contained invalid UTF-8 characters.&quot;
+                </span>.to_string(),
             <span class="prelude-val">None</span>,
         )),
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">organization_image_path</span>(<span class="ident">organization_id</span>: <span class="ident">Uuid</span>, <span class="ident">image_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>organization_image_path(organization_id: Uuid, image_name: <span class="kw-2">&amp;</span>str) -&gt; UtilResult&lt;PathBuf&gt; {
+    <span class="kw">let </span>path = PathBuf::from(<span class="macro">format!</span>(
         <span class="string">&quot;organizations/{}/images/{}&quot;</span>,
-        <span class="ident">organization_id</span>, <span class="ident">image_name</span>
+        organization_id, image_name
     ));
-    <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+    <span class="prelude-val">Ok</span>(path)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">organization_audio_path</span>(<span class="ident">organization_id</span>: <span class="ident">Uuid</span>, <span class="ident">audio_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>organization_audio_path(organization_id: Uuid, audio_name: <span class="kw-2">&amp;</span>str) -&gt; UtilResult&lt;PathBuf&gt; {
+    <span class="kw">let </span>path = PathBuf::from(<span class="macro">format!</span>(
         <span class="string">&quot;organizations/{}/audios/{}&quot;</span>,
-        <span class="ident">organization_id</span>, <span class="ident">audio_name</span>
+        organization_id, audio_name
     ));
-    <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+    <span class="prelude-val">Ok</span>(path)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">organization_file_path</span>(<span class="ident">organization_id</span>: <span class="ident">Uuid</span>, <span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>organization_file_path(organization_id: Uuid, file_name: <span class="kw-2">&amp;</span>str) -&gt; UtilResult&lt;PathBuf&gt; {
+    <span class="kw">let </span>path = PathBuf::from(<span class="macro">format!</span>(
         <span class="string">&quot;organizations/{}/files/{}&quot;</span>,
-        <span class="ident">organization_id</span>, <span class="ident">file_name</span>
+        organization_id, file_name
     ));
-    <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+    <span class="prelude-val">Ok</span>(path)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">repository_exercise_path</span>(<span class="ident">repository_id</span>: <span class="ident">Uuid</span>, <span class="ident">repository_exercise_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">PathBuf</span> {
-    <span class="ident">PathBuf::from</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>repository_exercise_path(repository_id: Uuid, repository_exercise_id: Uuid) -&gt; PathBuf {
+    PathBuf::from(<span class="macro">format!</span>(
         <span class="string">&quot;repository_exercises/{repository_id}/{repository_exercise_id}&quot;</span>,
     ))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

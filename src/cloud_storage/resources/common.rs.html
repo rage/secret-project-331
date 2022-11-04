@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/resources/common.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/resources/common.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -255,262 +255,262 @@
 <span id="255">255</span>
 <span id="256">256</span>
 <span id="257">257</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde::Serializer</span>;
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>serde::Serializer;
+<span class="kw">use </span>std::str::FromStr;
 
-<span class="doccomment">/// Contains information about the team related to this `DefaultObjectAccessControls`</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ProjectTeam</span> {
-    <span class="doccomment">/// The project number.</span>
-    <span class="ident">project_number</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The team.</span>
-    <span class="ident">team</span>: <span class="ident">Team</span>,
+<span class="doccomment">/// Contains information about the team related to this `DefaultObjectAccessControls`
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>ProjectTeam {
+    <span class="doccomment">/// The project number.
+    </span>project_number: String,
+    <span class="doccomment">/// The team.
+    </span>team: Team,
 }
 
-<span class="doccomment">/// Any type of team we can encounter.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Team</span> {
-    <span class="doccomment">/// The team consists of `Editors`.</span>
-    <span class="ident">Editors</span>,
-    <span class="doccomment">/// The team consists of `Owners`.</span>
-    <span class="ident">Owners</span>,
-    <span class="doccomment">/// The team consists of `Viewers`.</span>
-    <span class="ident">Viewers</span>,
+<span class="doccomment">/// Any type of team we can encounter.
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;lowercase&quot;</span>)]
+</span><span class="kw">pub enum </span>Team {
+    <span class="doccomment">/// The team consists of `Editors`.
+    </span>Editors,
+    <span class="doccomment">/// The team consists of `Owners`.
+    </span>Owners,
+    <span class="doccomment">/// The team consists of `Viewers`.
+    </span>Viewers,
 }
 
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Team</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Team::Editors</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;editors&quot;</span>),
-            <span class="ident">Team::Owners</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;owners&quot;</span>),
-            <span class="ident">Team::Viewers</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;viewers&quot;</span>),
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Team {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            Team::Editors =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;editors&quot;</span>),
+            Team::Owners =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;owners&quot;</span>),
+            Team::Viewers =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;viewers&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Team</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">String</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>Team {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= String;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="string">&quot;editors&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Editors</span>),
-            <span class="string">&quot;owners&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Owners</span>),
-            <span class="string">&quot;viewers&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Viewers</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid `Team`: {}&quot;</span>, <span class="ident">s</span>)),
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">match </span>s {
+            <span class="string">&quot;editors&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Editors),
+            <span class="string">&quot;owners&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Owners),
+            <span class="string">&quot;viewers&quot; </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Viewers),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid `Team`: {}&quot;</span>, s)),
         }
     }
 }
 
-<span class="doccomment">/// Any type of role we can encounter.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;UPPERCASE&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Role</span> {
-    <span class="doccomment">/// Full access.</span>
-    <span class="ident">Owner</span>,
-    <span class="doccomment">/// Write, but not administer.</span>
-    <span class="ident">Writer</span>,
-    <span class="doccomment">/// Only read access.</span>
-    <span class="ident">Reader</span>,
+<span class="doccomment">/// Any type of role we can encounter.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;UPPERCASE&quot;</span>)]
+</span><span class="kw">pub enum </span>Role {
+    <span class="doccomment">/// Full access.
+    </span>Owner,
+    <span class="doccomment">/// Write, but not administer.
+    </span>Writer,
+    <span class="doccomment">/// Only read access.
+    </span>Reader,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">ListResponse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;Vec::new&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="comment">// pub next_page_token: Option&lt;String&gt;,</span>
+<span class="attribute">#[derive(Debug, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ListResponse&lt;T&gt; {
+    <span class="attribute">#[serde(default = <span class="string">&quot;Vec::new&quot;</span>)]
+    </span><span class="kw">pub </span>items: Vec&lt;T&gt;,
+    <span class="comment">// pub next_page_token: Option&lt;String&gt;,
+</span>}
+
+<span class="doccomment">/// An entity is used to represent a user or group of users that often have some kind of permission.
+</span><span class="attribute">#[derive(Debug, PartialEq, Clone)]
+</span><span class="kw">pub enum </span>Entity {
+    <span class="doccomment">/// A single user, identified by its id.
+    </span>UserId(String),
+    <span class="doccomment">/// A single user, identified by its email address.
+    </span>UserEmail(String),
+    <span class="doccomment">/// A group of users, identified by its id.
+    </span>GroupId(String),
+    <span class="doccomment">/// A group of users, identified by its email address.
+    </span>GroupEmail(String),
+    <span class="doccomment">/// All users identifed by an email that ends with the domain, for example `mydomain.rs` in
+    /// `me@mydomain.rs`.
+    </span>Domain(String),
+    <span class="doccomment">/// All users within a project, identified by the `team` name and `project` id.
+    </span>Project(Team, String),
+    <span class="doccomment">/// All users.
+    </span>AllUsers,
+    <span class="doccomment">/// All users that are logged in.
+    </span>AllAuthenticatedUsers,
 }
 
-<span class="doccomment">/// An entity is used to represent a user or group of users that often have some kind of permission.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Entity</span> {
-    <span class="doccomment">/// A single user, identified by its id.</span>
-    <span class="ident">UserId</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// A single user, identified by its email address.</span>
-    <span class="ident">UserEmail</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// A group of users, identified by its id.</span>
-    <span class="ident">GroupId</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// A group of users, identified by its email address.</span>
-    <span class="ident">GroupEmail</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// All users identifed by an email that ends with the domain, for example `mydomain.rs` in</span>
-    <span class="doccomment">/// `me@mydomain.rs`.</span>
-    <span class="ident">Domain</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// All users within a project, identified by the `team` name and `project` id.</span>
-    <span class="ident">Project</span>(<span class="ident">Team</span>, <span class="ident">String</span>),
-    <span class="doccomment">/// All users.</span>
-    <span class="ident">AllUsers</span>,
-    <span class="doccomment">/// All users that are logged in.</span>
-    <span class="ident">AllAuthenticatedUsers</span>,
-}
+<span class="kw">use </span>Entity::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident">Entity</span>::<span class="kw-2">*</span>;
-
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Entity</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">UserId</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;user-{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">UserEmail</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;user-{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">GroupId</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;group-{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">GroupEmail</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;group-{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">Domain</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;domain-{}&quot;</span>, <span class="ident">s</span>),
-            <span class="ident">Project</span>(<span class="ident">team</span>, <span class="ident">project_id</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;project-{}-{}&quot;</span>, <span class="ident">team</span>, <span class="ident">project_id</span>),
-            <span class="ident">AllUsers</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;allUsers&quot;</span>),
-            <span class="ident">AllAuthenticatedUsers</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;allAuthenticatedUsers&quot;</span>),
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Entity {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            UserId(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;user-{}&quot;</span>, s),
+            UserEmail(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;user-{}&quot;</span>, s),
+            GroupId(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;group-{}&quot;</span>, s),
+            GroupEmail(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;group-{}&quot;</span>, s),
+            Domain(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;domain-{}&quot;</span>, s),
+            Project(team, project_id) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;project-{}-{}&quot;</span>, team, project_id),
+            AllUsers =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;allUsers&quot;</span>),
+            AllAuthenticatedUsers =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;allAuthenticatedUsers&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">serde::Serialize</span> <span class="kw">for</span> <span class="ident">Entity</span> {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Serializer</span>,
+<span class="kw">impl </span>serde::Serialize <span class="kw">for </span>Entity {
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: Serializer,
     {
-        <span class="ident">serializer</span>.<span class="ident">serialize_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>))
+        serializer.serialize_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>))
     }
 }
 
-<span class="kw">struct</span> <span class="ident">EntityVisitor</span>;
+<span class="kw">struct </span>EntityVisitor;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">serde::de::Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EntityVisitor</span> {
-    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">Entity</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>EntityVisitor {
+    <span class="kw">type </span>Value = Entity;
 
-    <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;an `Entity` resource&quot;</span>)
+    <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
+        f.write_str(<span class="string">&quot;an `Entity` resource&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">E</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">serde::de::Error</span>,
+    <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
+    <span class="kw">where
+        </span>E: serde::de::Error,
     {
-        <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">split</span>(<span class="string">&#39;-&#39;</span>).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">parts</span>[..] {
-            [<span class="string">&quot;user&quot;</span>, <span class="ident">rest</span> @ ..] <span class="kw">if</span> <span class="ident">is_email</span>(<span class="ident">rest</span>) =&gt; <span class="ident">UserEmail</span>(<span class="ident">rest</span>.<span class="ident">join</span>(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;user&quot;</span>, <span class="ident">rest</span> @ ..] =&gt; <span class="ident">UserId</span>(<span class="ident">rest</span>.<span class="ident">join</span>(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;group&quot;</span>, <span class="ident">rest</span> @ ..] <span class="kw">if</span> <span class="ident">is_email</span>(<span class="ident">rest</span>) =&gt; <span class="ident">GroupEmail</span>(<span class="ident">rest</span>.<span class="ident">join</span>(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;group&quot;</span>, <span class="ident">rest</span> @ ..] =&gt; <span class="ident">GroupId</span>(<span class="ident">rest</span>.<span class="ident">join</span>(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;domain&quot;</span>, <span class="ident">rest</span> @ ..] =&gt; <span class="ident">Domain</span>(<span class="ident">rest</span>.<span class="ident">join</span>(<span class="string">&quot;-&quot;</span>)),
-            [<span class="string">&quot;project&quot;</span>, <span class="ident">team</span>, <span class="ident">project_id</span>] =&gt; {
-                <span class="ident">Project</span>(<span class="ident">Team::from_str</span>(<span class="ident">team</span>).<span class="ident">unwrap</span>(), <span class="ident">project_id</span>.<span class="ident">to_string</span>())
+        <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = value.split(<span class="string">&#39;-&#39;</span>).collect();
+        <span class="kw">let </span>result = <span class="kw">match </span><span class="kw-2">&amp;</span>parts[..] {
+            [<span class="string">&quot;user&quot;</span>, rest @ ..] <span class="kw">if </span>is_email(rest) =&gt; UserEmail(rest.join(<span class="string">&quot;-&quot;</span>)),
+            [<span class="string">&quot;user&quot;</span>, rest @ ..] =&gt; UserId(rest.join(<span class="string">&quot;-&quot;</span>)),
+            [<span class="string">&quot;group&quot;</span>, rest @ ..] <span class="kw">if </span>is_email(rest) =&gt; GroupEmail(rest.join(<span class="string">&quot;-&quot;</span>)),
+            [<span class="string">&quot;group&quot;</span>, rest @ ..] =&gt; GroupId(rest.join(<span class="string">&quot;-&quot;</span>)),
+            [<span class="string">&quot;domain&quot;</span>, rest @ ..] =&gt; Domain(rest.join(<span class="string">&quot;-&quot;</span>)),
+            [<span class="string">&quot;project&quot;</span>, team, project_id] =&gt; {
+                Project(Team::from_str(team).unwrap(), project_id.to_string())
             }
-            [<span class="string">&quot;allUsers&quot;</span>] =&gt; <span class="ident">AllUsers</span>,
-            [<span class="string">&quot;allAuthenticatedUsers&quot;</span>] =&gt; <span class="ident">AllAuthenticatedUsers</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">E::custom</span>(<span class="macro">format!</span>(<span class="string">&quot;Unexpected `Entity`: {}&quot;</span>, <span class="ident">value</span>))),
+            [<span class="string">&quot;allUsers&quot;</span>] =&gt; AllUsers,
+            [<span class="string">&quot;allAuthenticatedUsers&quot;</span>] =&gt; AllAuthenticatedUsers,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(E::custom(<span class="macro">format!</span>(<span class="string">&quot;Unexpected `Entity`: {}&quot;</span>, value))),
         };
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+        <span class="prelude-val">Ok</span>(result)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">is_email</span>(<span class="ident">pattern</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) -&gt; <span class="ident">bool</span> {
-    <span class="ident">pattern</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">contains</span>(<span class="string">&#39;@&#39;</span>))
+<span class="kw">fn </span>is_email(pattern: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) -&gt; bool {
+    pattern.iter().any(|s| s.contains(<span class="string">&#39;@&#39;</span>))
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">serde::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Entity</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">serde::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Entity {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+    <span class="kw">where
+        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="ident">deserializer</span>.<span class="ident">deserialize_str</span>(<span class="ident">EntityVisitor</span>)
+        deserializer.deserialize_str(EntityVisitor)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize</span>() {
-        <span class="kw">let</span> <span class="ident">entity1</span> <span class="op">=</span> <span class="ident">UserId</span>(<span class="string">&quot;some id&quot;</span>.<span class="ident">to_string</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">entity1</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;\&quot;user-some id\&quot;&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>serialize() {
+        <span class="kw">let </span>entity1 = UserId(<span class="string">&quot;some id&quot;</span>.to_string());
+        <span class="macro">assert_eq!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>entity1).unwrap(), <span class="string">&quot;\&quot;user-some id\&quot;&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">entity2</span> <span class="op">=</span> <span class="ident">UserEmail</span>(<span class="string">&quot;some@email&quot;</span>.<span class="ident">to_string</span>());
+        <span class="kw">let </span>entity2 = UserEmail(<span class="string">&quot;some@email&quot;</span>.to_string());
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">entity2</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;\&quot;user-some@email\&quot;&quot;</span>
-        );
+            serde_json::to_string(<span class="kw-2">&amp;</span>entity2).unwrap(),
+            <span class="string">&quot;\&quot;user-some@email\&quot;&quot;
+        </span>);
 
-        <span class="kw">let</span> <span class="ident">entity3</span> <span class="op">=</span> <span class="ident">GroupId</span>(<span class="string">&quot;some group id&quot;</span>.<span class="ident">to_string</span>());
+        <span class="kw">let </span>entity3 = GroupId(<span class="string">&quot;some group id&quot;</span>.to_string());
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">entity3</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;\&quot;group-some group id\&quot;&quot;</span>
-        );
+            serde_json::to_string(<span class="kw-2">&amp;</span>entity3).unwrap(),
+            <span class="string">&quot;\&quot;group-some group id\&quot;&quot;
+        </span>);
 
-        <span class="kw">let</span> <span class="ident">entity4</span> <span class="op">=</span> <span class="ident">GroupEmail</span>(<span class="string">&quot;some@group.email&quot;</span>.<span class="ident">to_string</span>());
+        <span class="kw">let </span>entity4 = GroupEmail(<span class="string">&quot;some@group.email&quot;</span>.to_string());
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">entity4</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;\&quot;group-some@group.email\&quot;&quot;</span>
-        );
+            serde_json::to_string(<span class="kw-2">&amp;</span>entity4).unwrap(),
+            <span class="string">&quot;\&quot;group-some@group.email\&quot;&quot;
+        </span>);
 
-        <span class="kw">let</span> <span class="ident">entity5</span> <span class="op">=</span> <span class="ident">Domain</span>(<span class="string">&quot;example.com&quot;</span>.<span class="ident">to_string</span>());
+        <span class="kw">let </span>entity5 = Domain(<span class="string">&quot;example.com&quot;</span>.to_string());
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">entity5</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;\&quot;domain-example.com\&quot;&quot;</span>
-        );
+            serde_json::to_string(<span class="kw-2">&amp;</span>entity5).unwrap(),
+            <span class="string">&quot;\&quot;domain-example.com\&quot;&quot;
+        </span>);
 
-        <span class="kw">let</span> <span class="ident">entity6</span> <span class="op">=</span> <span class="ident">Project</span>(<span class="ident">Team::Viewers</span>, <span class="string">&quot;project id&quot;</span>.<span class="ident">to_string</span>());
+        <span class="kw">let </span>entity6 = Project(Team::Viewers, <span class="string">&quot;project id&quot;</span>.to_string());
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">entity6</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;\&quot;project-viewers-project id\&quot;&quot;</span>
-        );
+            serde_json::to_string(<span class="kw-2">&amp;</span>entity6).unwrap(),
+            <span class="string">&quot;\&quot;project-viewers-project id\&quot;&quot;
+        </span>);
 
-        <span class="kw">let</span> <span class="ident">entity7</span> <span class="op">=</span> <span class="ident">AllUsers</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">entity7</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;\&quot;allUsers\&quot;&quot;</span>);
+        <span class="kw">let </span>entity7 = AllUsers;
+        <span class="macro">assert_eq!</span>(serde_json::to_string(<span class="kw-2">&amp;</span>entity7).unwrap(), <span class="string">&quot;\&quot;allUsers\&quot;&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">entity8</span> <span class="op">=</span> <span class="ident">AllAuthenticatedUsers</span>;
+        <span class="kw">let </span>entity8 = AllAuthenticatedUsers;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">entity8</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;\&quot;allAuthenticatedUsers\&quot;&quot;</span>
-        );
+            serde_json::to_string(<span class="kw-2">&amp;</span>entity8).unwrap(),
+            <span class="string">&quot;\&quot;allAuthenticatedUsers\&quot;&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deserialize</span>() {
-        <span class="kw">let</span> <span class="ident">str1</span> <span class="op">=</span> <span class="string">&quot;\&quot;user-some id\&quot;&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>deserialize() {
+        <span class="kw">let </span>str1 = <span class="string">&quot;\&quot;user-some id\&quot;&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Entity</span><span class="op">&gt;</span>(<span class="ident">str1</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">UserId</span>(<span class="string">&quot;some id&quot;</span>.<span class="ident">to_string</span>())
+            serde_json::from_str::&lt;Entity&gt;(str1).unwrap(),
+            UserId(<span class="string">&quot;some id&quot;</span>.to_string())
         );
 
-        <span class="kw">let</span> <span class="ident">str2</span> <span class="op">=</span> <span class="string">&quot;\&quot;user-some@email\&quot;&quot;</span>;
+        <span class="kw">let </span>str2 = <span class="string">&quot;\&quot;user-some@email\&quot;&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Entity</span><span class="op">&gt;</span>(<span class="ident">str2</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">UserEmail</span>(<span class="string">&quot;some@email&quot;</span>.<span class="ident">to_string</span>())
+            serde_json::from_str::&lt;Entity&gt;(str2).unwrap(),
+            UserEmail(<span class="string">&quot;some@email&quot;</span>.to_string())
         );
 
-        <span class="kw">let</span> <span class="ident">str3</span> <span class="op">=</span> <span class="string">&quot;\&quot;group-some group id\&quot;&quot;</span>;
+        <span class="kw">let </span>str3 = <span class="string">&quot;\&quot;group-some group id\&quot;&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Entity</span><span class="op">&gt;</span>(<span class="ident">str3</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">GroupId</span>(<span class="string">&quot;some group id&quot;</span>.<span class="ident">to_string</span>())
+            serde_json::from_str::&lt;Entity&gt;(str3).unwrap(),
+            GroupId(<span class="string">&quot;some group id&quot;</span>.to_string())
         );
 
-        <span class="kw">let</span> <span class="ident">str4</span> <span class="op">=</span> <span class="string">&quot;\&quot;group-some@group.email\&quot;&quot;</span>;
+        <span class="kw">let </span>str4 = <span class="string">&quot;\&quot;group-some@group.email\&quot;&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Entity</span><span class="op">&gt;</span>(<span class="ident">str4</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">GroupEmail</span>(<span class="string">&quot;some@group.email&quot;</span>.<span class="ident">to_string</span>())
+            serde_json::from_str::&lt;Entity&gt;(str4).unwrap(),
+            GroupEmail(<span class="string">&quot;some@group.email&quot;</span>.to_string())
         );
 
-        <span class="kw">let</span> <span class="ident">str5</span> <span class="op">=</span> <span class="string">&quot;\&quot;domain-example.com\&quot;&quot;</span>;
+        <span class="kw">let </span>str5 = <span class="string">&quot;\&quot;domain-example.com\&quot;&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Entity</span><span class="op">&gt;</span>(<span class="ident">str5</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Domain</span>(<span class="string">&quot;example.com&quot;</span>.<span class="ident">to_string</span>())
+            serde_json::from_str::&lt;Entity&gt;(str5).unwrap(),
+            Domain(<span class="string">&quot;example.com&quot;</span>.to_string())
         );
 
-        <span class="kw">let</span> <span class="ident">str6</span> <span class="op">=</span> <span class="string">&quot;\&quot;project-viewers-project id\&quot;&quot;</span>;
+        <span class="kw">let </span>str6 = <span class="string">&quot;\&quot;project-viewers-project id\&quot;&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Entity</span><span class="op">&gt;</span>(<span class="ident">str6</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Project</span>(<span class="ident">Team::Viewers</span>, <span class="string">&quot;project id&quot;</span>.<span class="ident">to_string</span>())
+            serde_json::from_str::&lt;Entity&gt;(str6).unwrap(),
+            Project(Team::Viewers, <span class="string">&quot;project id&quot;</span>.to_string())
         );
 
-        <span class="kw">let</span> <span class="ident">str7</span> <span class="op">=</span> <span class="string">&quot;\&quot;allUsers\&quot;&quot;</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Entity</span><span class="op">&gt;</span>(<span class="ident">str7</span>).<span class="ident">unwrap</span>(), <span class="ident">AllUsers</span>);
+        <span class="kw">let </span>str7 = <span class="string">&quot;\&quot;allUsers\&quot;&quot;</span>;
+        <span class="macro">assert_eq!</span>(serde_json::from_str::&lt;Entity&gt;(str7).unwrap(), AllUsers);
 
-        <span class="kw">let</span> <span class="ident">str8</span> <span class="op">=</span> <span class="string">&quot;\&quot;allAuthenticatedUsers\&quot;&quot;</span>;
+        <span class="kw">let </span>str8 = <span class="string">&quot;\&quot;allAuthenticatedUsers\&quot;&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">Entity</span><span class="op">&gt;</span>(<span class="ident">str8</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">AllAuthenticatedUsers</span>
+            serde_json::from_str::&lt;Entity&gt;(str8).unwrap(),
+            AllAuthenticatedUsers
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

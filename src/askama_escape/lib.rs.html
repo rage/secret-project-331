@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/askama_escape-0.10.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../askama_escape/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../askama_escape/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../askama_escape/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/askama_escape-0.10.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../askama_escape/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../askama_escape/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../askama_escape/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -237,244 +237,244 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">test</span>)), <span class="ident">no_std</span>)]</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">elided_lifetimes_in_paths</span>)]</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">unreachable_pub</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(not(any(feature = <span class="string">&quot;json&quot;</span>, test)), no_std)]
+#![deny(elided_lifetimes_in_paths)]
+#![deny(unreachable_pub)]
 
-<span class="kw">use</span> <span class="ident">core::fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>, <span class="ident">Write</span>};
-<span class="kw">use</span> <span class="ident">core::str</span>;
+</span><span class="kw">use </span>core::fmt::{<span class="self">self</span>, Display, Formatter, Write};
+<span class="kw">use </span>core::str;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MarkupDisplay</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Escaper</span>,
-    <span class="ident">T</span>: <span class="ident">Display</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>MarkupDisplay&lt;E, T&gt;
+<span class="kw">where
+    </span>E: Escaper,
+    T: Display,
 {
-    <span class="ident">value</span>: <span class="ident">DisplayValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">escaper</span>: <span class="ident">E</span>,
+    value: DisplayValue&lt;T&gt;,
+    escaper: E,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MarkupDisplay</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Escaper</span>,
-    <span class="ident">T</span>: <span class="ident">Display</span>,
+<span class="kw">impl</span>&lt;E, T&gt; MarkupDisplay&lt;E, T&gt;
+<span class="kw">where
+    </span>E: Escaper,
+    T: Display,
 {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_unsafe</span>(<span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">escaper</span>: <span class="ident">E</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">value</span>: <span class="ident">DisplayValue::Unsafe</span>(<span class="ident">value</span>),
-            <span class="ident">escaper</span>,
+    <span class="kw">pub fn </span>new_unsafe(value: T, escaper: E) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            value: DisplayValue::Unsafe(value),
+            escaper,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_safe</span>(<span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">escaper</span>: <span class="ident">E</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">value</span>: <span class="ident">DisplayValue::Safe</span>(<span class="ident">value</span>),
-            <span class="ident">escaper</span>,
+    <span class="kw">pub fn </span>new_safe(value: T, escaper: E) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            value: DisplayValue::Safe(value),
+            escaper,
         }
     }
 
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mark_safe</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">MarkupDisplay</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">value</span> {
-            <span class="ident">DisplayValue::Unsafe</span>(<span class="ident">t</span>) =&gt; <span class="ident">DisplayValue::Safe</span>(<span class="ident">t</span>),
-            <span class="kw">_</span> =&gt; <span class="self">self</span>.<span class="ident">value</span>,
+    <span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>mark_safe(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; MarkupDisplay&lt;E, T&gt; {
+        <span class="self">self</span>.value = <span class="kw">match </span><span class="self">self</span>.value {
+            DisplayValue::Unsafe(t) =&gt; DisplayValue::Safe(t),
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.value,
         };
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">MarkupDisplay</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Escaper</span>,
-    <span class="ident">T</span>: <span class="ident">Display</span>,
+<span class="kw">impl</span>&lt;E, T&gt; Display <span class="kw">for </span>MarkupDisplay&lt;E, T&gt;
+<span class="kw">where
+    </span>E: Escaper,
+    T: Display,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">value</span> {
-            <span class="ident">DisplayValue::Unsafe</span>(<span class="kw-2">ref</span> <span class="ident">t</span>) =&gt; <span class="macro">write!</span>(
-                <span class="ident">EscapeWriter</span> {
-                    <span class="ident">fmt</span>,
-                    <span class="ident">escaper</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">escaper</span>
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self</span>.value {
+            DisplayValue::Unsafe(<span class="kw-2">ref </span>t) =&gt; <span class="macro">write!</span>(
+                EscapeWriter {
+                    fmt,
+                    escaper: <span class="kw-2">&amp;</span><span class="self">self</span>.escaper
                 },
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">t</span>
+                t
             ),
-            <span class="ident">DisplayValue::Safe</span>(<span class="kw-2">ref</span> <span class="ident">t</span>) =&gt; <span class="ident">t</span>.<span class="ident">fmt</span>(<span class="ident">fmt</span>),
+            DisplayValue::Safe(<span class="kw-2">ref </span>t) =&gt; t.fmt(fmt),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EscapeWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">E</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="ident">fmt</span>: <span class="ident">W</span>,
-    <span class="ident">escaper</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">E</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>EscapeWriter&lt;<span class="lifetime">&#39;a</span>, E, W&gt; {
+    fmt: W,
+    escaper: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>E,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">W</span><span class="op">&gt;</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">EscapeWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">E</span>, <span class="ident">W</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">W</span>: <span class="ident">Write</span>,
-    <span class="ident">E</span>: <span class="ident">Escaper</span>,
+<span class="kw">impl</span>&lt;E, W&gt; Write <span class="kw">for </span>EscapeWriter&lt;<span class="lifetime">&#39;_</span>, E, W&gt;
+<span class="kw">where
+    </span>W: Write,
+    E: Escaper,
 {
-    <span class="kw">fn</span> <span class="ident">write_str</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="ident">escaper</span>.<span class="ident">write_escaped</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">fmt</span>, <span class="ident">s</span>)
+    <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result {
+        <span class="self">self</span>.escaper.write_escaped(<span class="kw-2">&amp;mut </span><span class="self">self</span>.fmt, s)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">escape</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">escaper</span>: <span class="ident">E</span>) -&gt; <span class="ident">Escaped</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Escaper</span>,
+<span class="kw">pub fn </span>escape&lt;E&gt;(string: <span class="kw-2">&amp;</span>str, escaper: E) -&gt; Escaped&lt;<span class="lifetime">&#39;_</span>, E&gt;
+<span class="kw">where
+    </span>E: Escaper,
 {
-    <span class="ident">Escaped</span> { <span class="ident">string</span>, <span class="ident">escaper</span> }
+    Escaped { string, escaper }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Escaped</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Escaper</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Escaped&lt;<span class="lifetime">&#39;a</span>, E&gt;
+<span class="kw">where
+    </span>E: Escaper,
 {
-    <span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-    <span class="ident">escaper</span>: <span class="ident">E</span>,
+    string: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    escaper: E,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Escaped</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Escaper</span>,
+<span class="kw">impl</span>&lt;E&gt; Display <span class="kw">for </span>Escaped&lt;<span class="lifetime">&#39;_</span>, E&gt;
+<span class="kw">where
+    </span>E: Escaper,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="ident">escaper</span>.<span class="ident">write_escaped</span>(<span class="ident">fmt</span>, <span class="self">self</span>.<span class="ident">string</span>)
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="self">self</span>.escaper.write_escaped(fmt, <span class="self">self</span>.string)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Html</span>;
+<span class="kw">pub struct </span>Html;
 
-<span class="macro">macro_rules!</span> <span class="ident">escaping_body</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">quote</span>:<span class="ident">expr</span>) =&gt; {{
-        <span class="kw">if</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span> <span class="op">&lt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span> {
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt</span>.<span class="ident">write_str</span>(<span class="kw">unsafe</span> { <span class="ident">str::from_utf8_unchecked</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes</span>[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>..<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>]) })<span class="question-mark">?</span>;
+<span class="macro">macro_rules! </span>escaping_body {
+    (<span class="macro-nonterminal">$start</span>:ident, <span class="macro-nonterminal">$i</span>:ident, <span class="macro-nonterminal">$fmt</span>:ident, <span class="macro-nonterminal">$bytes</span>:ident, <span class="macro-nonterminal">$quote</span>:expr) =&gt; {{
+        <span class="kw">if </span><span class="macro-nonterminal">$start </span>&lt; <span class="macro-nonterminal">$i </span>{
+            <span class="macro-nonterminal">$fmt</span>.write_str(<span class="kw">unsafe </span>{ str::from_utf8_unchecked(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$bytes</span>[<span class="macro-nonterminal">$start</span>..<span class="macro-nonterminal">$i</span>]) })<span class="question-mark">?</span>;
         }
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt</span>.<span class="ident">write_str</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">quote</span>)<span class="question-mark">?</span>;
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span> <span class="op">+</span> <span class="number">1</span>;
+        <span class="macro-nonterminal">$fmt</span>.write_str(<span class="macro-nonterminal">$quote</span>)<span class="question-mark">?</span>;
+        <span class="macro-nonterminal">$start </span>= <span class="macro-nonterminal">$i </span>+ <span class="number">1</span>;
     }};
 }
 
-<span class="kw">impl</span> <span class="ident">Escaper</span> <span class="kw">for</span> <span class="ident">Html</span> {
-    <span class="kw">fn</span> <span class="ident">write_escaped</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">fmt</span>: <span class="ident">W</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">fmt::Result</span>
-    <span class="kw">where</span>
-        <span class="ident">W</span>: <span class="ident">Write</span>,
+<span class="kw">impl </span>Escaper <span class="kw">for </span>Html {
+    <span class="kw">fn </span>write_escaped&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>fmt: W, string: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result
+    <span class="kw">where
+        </span>W: Write,
     {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">string</span>.<span class="ident">as_bytes</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">wrapping_sub</span>(<span class="string">b&#39;&quot;&#39;</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="ident">FLAG</span> {
-                <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">b</span> {
-                    <span class="string">b&#39;&lt;&#39;</span> =&gt; <span class="macro">escaping_body!</span>(<span class="ident">start</span>, <span class="ident">i</span>, <span class="ident">fmt</span>, <span class="ident">bytes</span>, <span class="string">&quot;&amp;lt;&quot;</span>),
-                    <span class="string">b&#39;&gt;&#39;</span> =&gt; <span class="macro">escaping_body!</span>(<span class="ident">start</span>, <span class="ident">i</span>, <span class="ident">fmt</span>, <span class="ident">bytes</span>, <span class="string">&quot;&amp;gt;&quot;</span>),
-                    <span class="string">b&#39;&amp;&#39;</span> =&gt; <span class="macro">escaping_body!</span>(<span class="ident">start</span>, <span class="ident">i</span>, <span class="ident">fmt</span>, <span class="ident">bytes</span>, <span class="string">&quot;&amp;amp;&quot;</span>),
-                    <span class="string">b&#39;&quot;&#39;</span> =&gt; <span class="macro">escaping_body!</span>(<span class="ident">start</span>, <span class="ident">i</span>, <span class="ident">fmt</span>, <span class="ident">bytes</span>, <span class="string">&quot;&amp;quot;&quot;</span>),
-                    <span class="string">b&#39;\&#39;&#39;</span> =&gt; <span class="macro">escaping_body!</span>(<span class="ident">start</span>, <span class="ident">i</span>, <span class="ident">fmt</span>, <span class="ident">bytes</span>, <span class="string">&quot;&amp;#x27;&quot;</span>),
-                    <span class="kw">_</span> =&gt; (),
+        <span class="kw">let </span>bytes = string.as_bytes();
+        <span class="kw">let </span><span class="kw-2">mut </span>start = <span class="number">0</span>;
+        <span class="kw">for </span>(i, b) <span class="kw">in </span>bytes.iter().enumerate() {
+            <span class="kw">if </span>b.wrapping_sub(<span class="string">b&#39;&quot;&#39;</span>) &lt;= FLAG {
+                <span class="kw">match </span><span class="kw-2">*</span>b {
+                    <span class="string">b&#39;&lt;&#39; </span>=&gt; <span class="macro">escaping_body!</span>(start, i, fmt, bytes, <span class="string">&quot;&amp;lt;&quot;</span>),
+                    <span class="string">b&#39;&gt;&#39; </span>=&gt; <span class="macro">escaping_body!</span>(start, i, fmt, bytes, <span class="string">&quot;&amp;gt;&quot;</span>),
+                    <span class="string">b&#39;&amp;&#39; </span>=&gt; <span class="macro">escaping_body!</span>(start, i, fmt, bytes, <span class="string">&quot;&amp;amp;&quot;</span>),
+                    <span class="string">b&#39;&quot;&#39; </span>=&gt; <span class="macro">escaping_body!</span>(start, i, fmt, bytes, <span class="string">&quot;&amp;quot;&quot;</span>),
+                    <span class="string">b&#39;\&#39;&#39; </span>=&gt; <span class="macro">escaping_body!</span>(start, i, fmt, bytes, <span class="string">&quot;&amp;#x27;&quot;</span>),
+                    <span class="kw">_ </span>=&gt; (),
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
-            <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="kw">unsafe</span> { <span class="ident">str::from_utf8_unchecked</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">start</span>..]) })
-        } <span class="kw">else</span> {
+        <span class="kw">if </span>start &lt; bytes.len() {
+            fmt.write_str(<span class="kw">unsafe </span>{ str::from_utf8_unchecked(<span class="kw-2">&amp;</span>bytes[start..]) })
+        } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(())
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Text</span>;
+<span class="kw">pub struct </span>Text;
 
-<span class="kw">impl</span> <span class="ident">Escaper</span> <span class="kw">for</span> <span class="ident">Text</span> {
-    <span class="kw">fn</span> <span class="ident">write_escaped</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">fmt</span>: <span class="ident">W</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">fmt::Result</span>
-    <span class="kw">where</span>
-        <span class="ident">W</span>: <span class="ident">Write</span>,
+<span class="kw">impl </span>Escaper <span class="kw">for </span>Text {
+    <span class="kw">fn </span>write_escaped&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>fmt: W, string: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result
+    <span class="kw">where
+        </span>W: Write,
     {
-        <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="ident">string</span>)
+        fmt.write_str(string)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">DisplayValue</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Display</span>,
+<span class="attribute">#[derive(Debug, PartialEq)]
+</span><span class="kw">enum </span>DisplayValue&lt;T&gt;
+<span class="kw">where
+    </span>T: Display,
 {
-    <span class="ident">Safe</span>(<span class="ident">T</span>),
-    <span class="ident">Unsafe</span>(<span class="ident">T</span>),
+    Safe(T),
+    Unsafe(T),
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Escaper</span> {
-    <span class="kw">fn</span> <span class="ident">write_escaped</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="ident">W</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">fmt::Result</span>
-    <span class="kw">where</span>
-        <span class="ident">W</span>: <span class="ident">Write</span>;
+<span class="kw">pub trait </span>Escaper {
+    <span class="kw">fn </span>write_escaped&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: W, string: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result
+    <span class="kw">where
+        </span>W: Write;
 }
 
-<span class="kw">const</span> <span class="ident">FLAG</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="string">b&#39;&gt;&#39;</span> <span class="op">-</span> <span class="string">b&#39;&quot;&#39;</span>;
+<span class="kw">const </span>FLAG: u8 = <span class="string">b&#39;&gt;&#39; </span>- <span class="string">b&#39;&quot;&#39;</span>;
 
-<span class="doccomment">/// Escape chevrons, ampersand and apostrophes for use in JSON</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">JsonEscapeBuffer</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Escape chevrons, ampersand and apostrophes for use in JSON
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+#[derive(Debug, Clone, Default)]
+</span><span class="kw">pub struct </span>JsonEscapeBuffer(Vec&lt;u8&gt;);
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">JsonEscapeBuffer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Vec::new</span>())
+<span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+</span><span class="kw">impl </span>JsonEscapeBuffer {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Vec::new())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">unsafe</span> { <span class="ident">String::from_utf8_unchecked</span>(<span class="self">self</span>.<span class="number">0</span>) }
+    <span class="kw">pub fn </span>finish(<span class="self">self</span>) -&gt; String {
+        <span class="kw">unsafe </span>{ String::from_utf8_unchecked(<span class="self">self</span>.<span class="number">0</span>) }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">std::io::Write</span> <span class="kw">for</span> <span class="ident">JsonEscapeBuffer</span> {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="macro">macro_rules!</span> <span class="ident">push_esc_sequence</span> {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">self</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">quote</span>:<span class="ident">expr</span>) =&gt; {{
-                <span class="kw">if</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span> <span class="op">&lt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">self</span>.<span class="number">0</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes</span>[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span>..<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>]);
+<span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+</span><span class="kw">impl </span>std::io::Write <span class="kw">for </span>JsonEscapeBuffer {
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; std::io::Result&lt;usize&gt; {
+        <span class="macro">macro_rules! </span>push_esc_sequence {
+            (<span class="macro-nonterminal">$start</span>:ident, <span class="macro-nonterminal">$i</span>:ident, <span class="macro-nonterminal">$self</span>:ident, <span class="macro-nonterminal">$bytes</span>:ident, <span class="macro-nonterminal">$quote</span>:expr) =&gt; {{
+                <span class="kw">if </span><span class="macro-nonterminal">$start </span>&lt; <span class="macro-nonterminal">$i </span>{
+                    <span class="macro-nonterminal">$self</span>.<span class="number">0</span>.extend_from_slice(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$bytes</span>[<span class="macro-nonterminal">$start</span>..<span class="macro-nonterminal">$i</span>]);
                 }
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">self</span>.<span class="number">0</span>.<span class="ident">extend_from_slice</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">quote</span>);
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">start</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span> <span class="op">+</span> <span class="number">1</span>;
+                <span class="macro-nonterminal">$self</span>.<span class="number">0</span>.extend_from_slice(<span class="macro-nonterminal">$quote</span>);
+                <span class="macro-nonterminal">$start </span>= <span class="macro-nonterminal">$i </span>+ <span class="number">1</span>;
             }};
         }
 
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">reserve</span>(<span class="ident">bytes</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">b</span> {
-                <span class="string">b&#39;&amp;&#39;</span> =&gt; <span class="macro">push_esc_sequence!</span>(<span class="ident">start</span>, <span class="ident">i</span>, <span class="self">self</span>, <span class="ident">bytes</span>, <span class="string">br#&quot;\u0026&quot;#</span>),
-                <span class="string">b&#39;\&#39;&#39;</span> =&gt; <span class="macro">push_esc_sequence!</span>(<span class="ident">start</span>, <span class="ident">i</span>, <span class="self">self</span>, <span class="ident">bytes</span>, <span class="string">br#&quot;\u0027&quot;#</span>),
-                <span class="string">b&#39;&lt;&#39;</span> =&gt; <span class="macro">push_esc_sequence!</span>(<span class="ident">start</span>, <span class="ident">i</span>, <span class="self">self</span>, <span class="ident">bytes</span>, <span class="string">br#&quot;\u003c&quot;#</span>),
-                <span class="string">b&#39;&gt;&#39;</span> =&gt; <span class="macro">push_esc_sequence!</span>(<span class="ident">start</span>, <span class="ident">i</span>, <span class="self">self</span>, <span class="ident">bytes</span>, <span class="string">br#&quot;\u003e&quot;#</span>),
-                <span class="kw">_</span> =&gt; (),
+        <span class="self">self</span>.<span class="number">0</span>.reserve(bytes.len());
+        <span class="kw">let </span><span class="kw-2">mut </span>start = <span class="number">0</span>;
+        <span class="kw">for </span>(i, b) <span class="kw">in </span>bytes.iter().enumerate() {
+            <span class="kw">match </span><span class="kw-2">*</span>b {
+                <span class="string">b&#39;&amp;&#39; </span>=&gt; <span class="macro">push_esc_sequence!</span>(start, i, <span class="self">self</span>, bytes, <span class="string">br#&quot;\u0026&quot;#</span>),
+                <span class="string">b&#39;\&#39;&#39; </span>=&gt; <span class="macro">push_esc_sequence!</span>(start, i, <span class="self">self</span>, bytes, <span class="string">br#&quot;\u0027&quot;#</span>),
+                <span class="string">b&#39;&lt;&#39; </span>=&gt; <span class="macro">push_esc_sequence!</span>(start, i, <span class="self">self</span>, bytes, <span class="string">br#&quot;\u003c&quot;#</span>),
+                <span class="string">b&#39;&gt;&#39; </span>=&gt; <span class="macro">push_esc_sequence!</span>(start, i, <span class="self">self</span>, bytes, <span class="string">br#&quot;\u003e&quot;#</span>),
+                <span class="kw">_ </span>=&gt; (),
             }
         }
-        <span class="kw">if</span> <span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
-            <span class="self">self</span>.<span class="number">0</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">start</span>..]);
+        <span class="kw">if </span>start &lt; bytes.len() {
+            <span class="self">self</span>.<span class="number">0</span>.extend_from_slice(<span class="kw-2">&amp;</span>bytes[start..]);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>.<span class="ident">len</span>())
+        <span class="prelude-val">Ok</span>(bytes.len())
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; std::io::Result&lt;()&gt; {
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">std::string::ToString</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>std::string::ToString;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_escape</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">escape</span>(<span class="string">&quot;&quot;</span>, <span class="ident">Html</span>).<span class="ident">to_string</span>(), <span class="string">&quot;&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">escape</span>(<span class="string">&quot;&lt;&amp;&gt;&quot;</span>, <span class="ident">Html</span>).<span class="ident">to_string</span>(), <span class="string">&quot;&amp;lt;&amp;amp;&amp;gt;&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">escape</span>(<span class="string">&quot;bla&amp;&quot;</span>, <span class="ident">Html</span>).<span class="ident">to_string</span>(), <span class="string">&quot;bla&amp;amp;&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">escape</span>(<span class="string">&quot;&lt;foo&quot;</span>, <span class="ident">Html</span>).<span class="ident">to_string</span>(), <span class="string">&quot;&amp;lt;foo&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">escape</span>(<span class="string">&quot;bla&amp;h&quot;</span>, <span class="ident">Html</span>).<span class="ident">to_string</span>(), <span class="string">&quot;bla&amp;amp;h&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_escape() {
+        <span class="macro">assert_eq!</span>(escape(<span class="string">&quot;&quot;</span>, Html).to_string(), <span class="string">&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(escape(<span class="string">&quot;&lt;&amp;&gt;&quot;</span>, Html).to_string(), <span class="string">&quot;&amp;lt;&amp;amp;&amp;gt;&quot;</span>);
+        <span class="macro">assert_eq!</span>(escape(<span class="string">&quot;bla&amp;&quot;</span>, Html).to_string(), <span class="string">&quot;bla&amp;amp;&quot;</span>);
+        <span class="macro">assert_eq!</span>(escape(<span class="string">&quot;&lt;foo&quot;</span>, Html).to_string(), <span class="string">&quot;&amp;lt;foo&quot;</span>);
+        <span class="macro">assert_eq!</span>(escape(<span class="string">&quot;bla&amp;h&quot;</span>, Html).to_string(), <span class="string">&quot;bla&amp;amp;h&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="askama_escape" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="askama_escape" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

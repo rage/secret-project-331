@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/histogram.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>histogram.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/histogram.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>histogram.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -543,550 +543,550 @@
 <span id="543">543</span>
 <span id="544">544</span>
 <span id="545">545</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(dead_code)]
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::block_split::BlockSplit</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::command</span>::{<span class="ident">Command</span>, <span class="ident">CommandCopyLen</span>, <span class="ident">CommandDistanceContext</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::constants</span>::{<span class="ident">kSigned3BitContextLookup</span>, <span class="ident">kUTF8ContextLookup</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::alloc</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::alloc</span>::{<span class="ident">SliceWrapper</span>, <span class="ident">SliceWrapperMut</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::vectorization</span>::{<span class="ident">Mem256i</span>};
-<span class="kw">use</span> <span class="ident">core</span>;
-<span class="kw">use</span> <span class="ident">core::cmp::min</span>;
-<span class="kw">static</span> <span class="ident">kBrotliMinWindowBits</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">10i32</span>;
+</span><span class="kw">use </span><span class="kw">super</span>::block_split::BlockSplit;
+<span class="kw">use </span><span class="kw">super</span>::command::{Command, CommandCopyLen, CommandDistanceContext};
+<span class="kw">use </span><span class="kw">super</span>::constants::{kSigned3BitContextLookup, kUTF8ContextLookup};
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc;
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::{SliceWrapper, SliceWrapperMut};
+<span class="kw">use </span><span class="kw">super</span>::vectorization::{Mem256i};
+<span class="kw">use </span>core;
+<span class="kw">use </span>core::cmp::min;
+<span class="kw">static </span>kBrotliMinWindowBits: i32 = <span class="number">10i32</span>;
 
-<span class="kw">static</span> <span class="ident">kBrotliMaxWindowBits</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">24i32</span>;
+<span class="kw">static </span>kBrotliMaxWindowBits: i32 = <span class="number">24i32</span>;
 
-<span class="comment">//#[derive(Clone)] clone is broken for arrays &gt; 32</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HistogramLiteral</span> {
-  <span class="kw">pub</span> <span class="ident">data_</span>: [<span class="ident">u32</span>; <span class="number">256</span>],
-  <span class="kw">pub</span> <span class="ident">total_count_</span>: <span class="ident">usize</span>,
-  <span class="kw">pub</span> <span class="ident">bit_cost_</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>,
+<span class="comment">//#[derive(Clone)] clone is broken for arrays &gt; 32
+</span><span class="kw">pub struct </span>HistogramLiteral {
+  <span class="kw">pub </span>data_: [u32; <span class="number">256</span>],
+  <span class="kw">pub </span>total_count_: usize,
+  <span class="kw">pub </span>bit_cost_: <span class="kw">super</span>::util::floatX,
 }
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">HistogramLiteral</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HistogramLiteral</span> {
-    <span class="kw">return</span> <span class="ident">HistogramLiteral</span> {
-             <span class="ident">data_</span>: <span class="self">self</span>.<span class="ident">data_</span>,
-             <span class="ident">total_count_</span>: <span class="self">self</span>.<span class="ident">total_count_</span>,
-             <span class="ident">bit_cost_</span>: <span class="self">self</span>.<span class="ident">bit_cost_</span>,
+<span class="kw">impl </span>Clone <span class="kw">for </span>HistogramLiteral {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HistogramLiteral {
+    <span class="kw">return </span>HistogramLiteral {
+             data_: <span class="self">self</span>.data_,
+             total_count_: <span class="self">self</span>.total_count_,
+             bit_cost_: <span class="self">self</span>.bit_cost_,
            };
   }
 }
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HistogramLiteral</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">HistogramLiteral</span> {
-    <span class="kw">return</span> <span class="ident">HistogramLiteral</span> {
-             <span class="ident">data_</span>: [<span class="number">0</span>; <span class="number">256</span>],
-             <span class="ident">total_count_</span>: <span class="number">0</span>,
-             <span class="ident">bit_cost_</span>: <span class="number">3.402e+38</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>HistogramLiteral {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>default() -&gt; HistogramLiteral {
+    <span class="kw">return </span>HistogramLiteral {
+             data_: [<span class="number">0</span>; <span class="number">256</span>],
+             total_count_: <span class="number">0</span>,
+             bit_cost_: <span class="number">3.402e+38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
            };
   }
 }
-<span class="comment">//#[derive(Clone)] clone is broken for arrays &gt; 32</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HistogramCommand</span> {
-  <span class="kw">pub</span> <span class="ident">data_</span>: [<span class="ident">u32</span>; <span class="number">704</span>],
-  <span class="kw">pub</span> <span class="ident">total_count_</span>: <span class="ident">usize</span>,
-  <span class="kw">pub</span> <span class="ident">bit_cost_</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>,
+<span class="comment">//#[derive(Clone)] clone is broken for arrays &gt; 32
+</span><span class="kw">pub struct </span>HistogramCommand {
+  <span class="kw">pub </span>data_: [u32; <span class="number">704</span>],
+  <span class="kw">pub </span>total_count_: usize,
+  <span class="kw">pub </span>bit_cost_: <span class="kw">super</span>::util::floatX,
 }
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">HistogramCommand</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HistogramCommand</span> {
-    <span class="kw">return</span> <span class="ident">HistogramCommand</span> {
-             <span class="ident">data_</span>: <span class="self">self</span>.<span class="ident">data_</span>,
-             <span class="ident">total_count_</span>: <span class="self">self</span>.<span class="ident">total_count_</span>,
-             <span class="ident">bit_cost_</span>: <span class="self">self</span>.<span class="ident">bit_cost_</span>,
+<span class="kw">impl </span>Clone <span class="kw">for </span>HistogramCommand {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HistogramCommand {
+    <span class="kw">return </span>HistogramCommand {
+             data_: <span class="self">self</span>.data_,
+             total_count_: <span class="self">self</span>.total_count_,
+             bit_cost_: <span class="self">self</span>.bit_cost_,
            };
   }
 }
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HistogramCommand</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">HistogramCommand</span> {
-    <span class="kw">return</span> <span class="ident">HistogramCommand</span> {
-             <span class="ident">data_</span>: [<span class="number">0</span>; <span class="number">704</span>],
-             <span class="ident">total_count_</span>: <span class="number">0</span>,
-             <span class="ident">bit_cost_</span>: <span class="number">3.402e+38</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>HistogramCommand {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>default() -&gt; HistogramCommand {
+    <span class="kw">return </span>HistogramCommand {
+             data_: [<span class="number">0</span>; <span class="number">704</span>],
+             total_count_: <span class="number">0</span>,
+             bit_cost_: <span class="number">3.402e+38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
            };
   }
 }
-<span class="comment">//#[derive(Clone)] // #derive is broken for arrays &gt; 32</span>
+<span class="comment">//#[derive(Clone)] // #derive is broken for arrays &gt; 32
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;disallow_large_window_size&quot;</span>))]</span>
-<span class="kw">const</span> <span class="ident">BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">544</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;disallow_large_window_size&quot;</span>)]</span>
-<span class="kw">const</span> <span class="ident">BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">520</span>;
+</span><span class="attribute">#[cfg(not(feature=<span class="string">&quot;disallow_large_window_size&quot;</span>))]
+</span><span class="kw">const </span>BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS: usize = <span class="number">544</span>;
+<span class="attribute">#[cfg(feature=<span class="string">&quot;disallow_large_window_size&quot;</span>)]
+</span><span class="kw">const </span>BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS: usize = <span class="number">520</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HistogramDistance</span> {
-  <span class="kw">pub</span> <span class="ident">data_</span>: [<span class="ident">u32</span>; <span class="ident">BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS</span>],
-  <span class="kw">pub</span> <span class="ident">total_count_</span>: <span class="ident">usize</span>,
-  <span class="kw">pub</span> <span class="ident">bit_cost_</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>,
+<span class="kw">pub struct </span>HistogramDistance {
+  <span class="kw">pub </span>data_: [u32; BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS],
+  <span class="kw">pub </span>total_count_: usize,
+  <span class="kw">pub </span>bit_cost_: <span class="kw">super</span>::util::floatX,
 }
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">HistogramDistance</span> {
-  <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HistogramDistance</span> {
-    <span class="kw">return</span> <span class="ident">HistogramDistance</span> {
-             <span class="ident">data_</span>: <span class="self">self</span>.<span class="ident">data_</span>,
-             <span class="ident">total_count_</span>: <span class="self">self</span>.<span class="ident">total_count_</span>,
-             <span class="ident">bit_cost_</span>: <span class="self">self</span>.<span class="ident">bit_cost_</span>,
+<span class="kw">impl </span>Clone <span class="kw">for </span>HistogramDistance {
+  <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HistogramDistance {
+    <span class="kw">return </span>HistogramDistance {
+             data_: <span class="self">self</span>.data_,
+             total_count_: <span class="self">self</span>.total_count_,
+             bit_cost_: <span class="self">self</span>.bit_cost_,
            };
   }
 }
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HistogramDistance</span> {
-  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">HistogramDistance</span> {
-    <span class="kw">return</span> <span class="ident">HistogramDistance</span> {
-             <span class="ident">data_</span>: [<span class="number">0</span>; <span class="ident">BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS</span>],
-             <span class="ident">total_count_</span>: <span class="number">0</span>,
-             <span class="ident">bit_cost_</span>: <span class="number">3.402e+38</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>HistogramDistance {
+  <span class="kw">fn </span>default() -&gt; HistogramDistance {
+    <span class="kw">return </span>HistogramDistance {
+             data_: [<span class="number">0</span>; BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS],
+             total_count_: <span class="number">0</span>,
+             bit_cost_: <span class="number">3.402e+38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
            };
   }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CostAccessors</span> {
-  <span class="kw">type</span> <span class="ident">i32vec</span> : <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span>;
-  <span class="kw">fn</span> <span class="ident">make_nnz_storage</span>() -&gt; <span class="ident"><span class="self">Self</span>::i32vec</span>;
-  <span class="kw">fn</span> <span class="ident">total_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
-  <span class="kw">fn</span> <span class="ident">bit_cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span>;
-  <span class="kw">fn</span> <span class="ident">set_bit_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cost</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>);
-  <span class="kw">fn</span> <span class="ident">set_total_count</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">count</span>: <span class="ident">usize</span>);
+<span class="kw">pub trait </span>CostAccessors {
+  <span class="kw">type </span>i32vec : Sized + SliceWrapper&lt;Mem256i&gt;+SliceWrapperMut&lt;Mem256i&gt;;
+  <span class="kw">fn </span>make_nnz_storage() -&gt; <span class="self">Self</span>::i32vec;
+  <span class="kw">fn </span>total_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
+  <span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::util::floatX;
+  <span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cost: <span class="kw">super</span>::util::floatX);
+  <span class="kw">fn </span>set_total_count(<span class="kw-2">&amp;mut </span><span class="self">self</span>, count: usize);
 }
-<span class="kw">impl</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HistogramLiteral</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u32</span>] {
-    <span class="kw">return</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data_</span>[..];
+<span class="kw">impl </span>SliceWrapper&lt;u32&gt; <span class="kw">for </span>HistogramLiteral {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u32] {
+    <span class="kw">return </span><span class="kw-2">&amp;</span><span class="self">self</span>.data_[..];
   }
 }
-<span class="kw">impl</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HistogramLiteral</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>] {
-    <span class="kw">return</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">data_</span>[..];
+<span class="kw">impl </span>SliceWrapperMut&lt;u32&gt; <span class="kw">for </span>HistogramLiteral {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u32] {
+    <span class="kw">return </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.data_[..];
   }
 }
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Array264i</span>([<span class="ident">Mem256i</span>;<span class="number">33</span>]);
-<span class="kw">impl</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Array264i</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">Mem256i</span>] {
-        <span class="kw">return</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>[..]
+<span class="kw">pub struct </span>Array264i([Mem256i;<span class="number">33</span>]);
+<span class="kw">impl </span>SliceWrapperMut&lt;Mem256i&gt; <span class="kw">for </span>Array264i {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[Mem256i] {
+        <span class="kw">return </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[..]
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Array264i</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="op">&amp;</span> [<span class="ident">Mem256i</span>] {
-        <span class="kw">return</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..]
+<span class="kw">impl </span>SliceWrapper&lt;Mem256i&gt; <span class="kw">for </span>Array264i {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &amp; [Mem256i] {
+        <span class="kw">return </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..]
     }
 }
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Array264i</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Array264i</span> {
-        <span class="kw">return</span> <span class="ident">Array264i</span>([<span class="ident">Mem256i::default</span>().<span class="ident">clone</span>();<span class="number">33</span>]);
+<span class="kw">impl </span>Default <span class="kw">for </span>Array264i {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>default() -&gt; Array264i {
+        <span class="kw">return </span>Array264i([Mem256i::default().clone();<span class="number">33</span>]);
     }
 }
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Array528i</span>([<span class="ident">Mem256i</span>;<span class="number">66</span>]);
-<span class="kw">impl</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Array528i</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">Mem256i</span>] {
-        <span class="kw">return</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>[..]
+<span class="kw">pub struct </span>Array528i([Mem256i;<span class="number">66</span>]);
+<span class="kw">impl </span>SliceWrapperMut&lt;Mem256i&gt; <span class="kw">for </span>Array528i {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[Mem256i] {
+        <span class="kw">return </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[..]
     }
 }
-<span class="kw">impl</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Array528i</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="op">&amp;</span> [<span class="ident">Mem256i</span>] {
-        <span class="kw">return</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..]
+<span class="kw">impl </span>SliceWrapper&lt;Mem256i&gt; <span class="kw">for </span>Array528i {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &amp; [Mem256i] {
+        <span class="kw">return </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..]
     }
 }
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Array528i</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Array528i</span> {
-        <span class="kw">return</span> <span class="ident">Array528i</span>([<span class="ident">Mem256i::default</span>();<span class="number">66</span>]);
-    }
-}
-
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Array712i</span>([<span class="ident">Mem256i</span>;<span class="number">89</span>]);
-<span class="kw">impl</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Array712i</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">Mem256i</span>] {
-        <span class="kw">return</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>[..]
-    }
-}
-<span class="kw">impl</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Array712i</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="op">&amp;</span> [<span class="ident">Mem256i</span>] {
-        <span class="kw">return</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..]
-    }
-}
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Array712i</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Array712i</span> {
-        <span class="kw">return</span> <span class="ident">Array712i</span>([<span class="ident">Mem256i::default</span>();<span class="number">89</span>]);
+<span class="kw">impl </span>Default <span class="kw">for </span>Array528i {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>default() -&gt; Array528i {
+        <span class="kw">return </span>Array528i([Mem256i::default();<span class="number">66</span>]);
     }
 }
 
-
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EmptyIVec</span>{}
-
-<span class="kw">impl</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EmptyIVec</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">Mem256i</span>] {
-        <span class="kw">return</span> <span class="kw-2">&amp;mut</span> []
+<span class="kw">pub struct </span>Array712i([Mem256i;<span class="number">89</span>]);
+<span class="kw">impl </span>SliceWrapperMut&lt;Mem256i&gt; <span class="kw">for </span>Array712i {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[Mem256i] {
+        <span class="kw">return </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[..]
     }
 }
-<span class="kw">impl</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">Mem256i</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EmptyIVec</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="op">&amp;</span> [<span class="ident">Mem256i</span>] {
-        <span class="kw">return</span> <span class="op">&amp;</span> []
+<span class="kw">impl </span>SliceWrapper&lt;Mem256i&gt; <span class="kw">for </span>Array712i {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &amp; [Mem256i] {
+        <span class="kw">return </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..]
     }
 }
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">EmptyIVec</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">EmptyIVec</span> {
-        <span class="kw">return</span> <span class="ident">EmptyIVec</span>{};
+<span class="kw">impl </span>Default <span class="kw">for </span>Array712i {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>default() -&gt; Array712i {
+        <span class="kw">return </span>Array712i([Mem256i::default();<span class="number">89</span>]);
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;vector_scratch_space&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HistogramLiteralScratch</span> <span class="op">=</span> <span class="ident">Array264i</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;vector_scratch_space&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HistogramLiteralScratch</span> <span class="op">=</span> <span class="ident">EmptyIVec</span>;
+<span class="kw">pub struct </span>EmptyIVec{}
 
-<span class="kw">impl</span> <span class="ident">CostAccessors</span> <span class="kw">for</span> <span class="ident">HistogramLiteral</span> {
-  <span class="kw">type</span> <span class="ident">i32vec</span> <span class="op">=</span> <span class="ident">HistogramLiteralScratch</span>;
-  <span class="kw">fn</span> <span class="ident">make_nnz_storage</span>() -&gt; <span class="ident"><span class="self">Self</span>::i32vec</span> {
-      <span class="kw">return</span> <span class="ident">HistogramLiteralScratch::default</span>();
+<span class="kw">impl </span>SliceWrapperMut&lt;Mem256i&gt; <span class="kw">for </span>EmptyIVec {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[Mem256i] {
+        <span class="kw">return </span><span class="kw-2">&amp;mut </span>[]
+    }
+}
+<span class="kw">impl </span>SliceWrapper&lt;Mem256i&gt; <span class="kw">for </span>EmptyIVec {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &amp; [Mem256i] {
+        <span class="kw">return </span>&amp; []
+    }
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>EmptyIVec {
+  <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>default() -&gt; EmptyIVec {
+        <span class="kw">return </span>EmptyIVec{};
+    }
+}
+
+<span class="attribute">#[cfg(feature=<span class="string">&quot;vector_scratch_space&quot;</span>)]
+</span><span class="kw">pub type </span>HistogramLiteralScratch = Array264i;
+
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;vector_scratch_space&quot;</span>))]
+</span><span class="kw">pub type </span>HistogramLiteralScratch = EmptyIVec;
+
+<span class="kw">impl </span>CostAccessors <span class="kw">for </span>HistogramLiteral {
+  <span class="kw">type </span>i32vec = HistogramLiteralScratch;
+  <span class="kw">fn </span>make_nnz_storage() -&gt; <span class="self">Self</span>::i32vec {
+      <span class="kw">return </span>HistogramLiteralScratch::default();
   }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">total_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">total_count_</span>;
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>total_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="kw">return </span><span class="self">self</span>.total_count_;
   }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">bit_cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span> {
-    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">bit_cost_</span>;
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::util::floatX {
+    <span class="kw">return </span><span class="self">self</span>.bit_cost_;
   }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_bit_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>) {
-    <span class="self">self</span>.<span class="ident">bit_cost_</span> <span class="op">=</span> <span class="ident">data</span>;
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw">super</span>::util::floatX) {
+    <span class="self">self</span>.bit_cost_ = data;
   }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_total_count</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">usize</span>) {
-    <span class="self">self</span>.<span class="ident">total_count_</span> <span class="op">=</span> <span class="ident">data</span>;
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>set_total_count(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: usize) {
+    <span class="self">self</span>.total_count_ = data;
   }
 }
 
-<span class="kw">impl</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HistogramCommand</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u32</span>] {
-    <span class="kw">return</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data_</span>[..];
+<span class="kw">impl </span>SliceWrapper&lt;u32&gt; <span class="kw">for </span>HistogramCommand {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u32] {
+    <span class="kw">return </span><span class="kw-2">&amp;</span><span class="self">self</span>.data_[..];
   }
 }
-<span class="kw">impl</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HistogramCommand</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>] {
-    <span class="kw">return</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">data_</span>[..];
-  }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;vector_scratch_space&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HistogramCommandScratch</span> <span class="op">=</span> <span class="ident">Array712i</span>;
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;vector_scratch_space&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HistogramCommandScratch</span> <span class="op">=</span> <span class="ident">EmptyIVec</span>;
-
-
-<span class="kw">impl</span> <span class="ident">CostAccessors</span> <span class="kw">for</span> <span class="ident">HistogramCommand</span> {
-  <span class="kw">type</span> <span class="ident">i32vec</span> <span class="op">=</span> <span class="ident">HistogramCommandScratch</span>;
-  <span class="kw">fn</span> <span class="ident">make_nnz_storage</span>() -&gt; <span class="ident"><span class="self">Self</span>::i32vec</span> {
-      <span class="kw">return</span> <span class="ident">HistogramCommandScratch::default</span>();
-  }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">total_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">total_count_</span>;
-  }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">bit_cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span> {
-    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">bit_cost_</span>;
-  }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_bit_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>) {
-    <span class="self">self</span>.<span class="ident">bit_cost_</span> <span class="op">=</span> <span class="ident">data</span>;
-  }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_total_count</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">usize</span>) {
-    <span class="self">self</span>.<span class="ident">total_count_</span> <span class="op">=</span> <span class="ident">data</span>;
+<span class="kw">impl </span>SliceWrapperMut&lt;u32&gt; <span class="kw">for </span>HistogramCommand {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u32] {
+    <span class="kw">return </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.data_[..];
   }
 }
 
-<span class="kw">impl</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HistogramDistance</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u32</span>] {
-    <span class="kw">return</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data_</span>[..];
-  }
-}
-<span class="kw">impl</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HistogramDistance</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>] {
-    <span class="kw">return</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">data_</span>[..];
-  }
-}
+<span class="attribute">#[cfg(feature=<span class="string">&quot;vector_scratch_space&quot;</span>)]
+</span><span class="kw">pub type </span>HistogramCommandScratch = Array712i;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;vector_scratch_space&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HistogramDistanceScratch</span> <span class="op">=</span> <span class="ident">Array528i</span>;
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;vector_scratch_space&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">HistogramDistanceScratch</span> <span class="op">=</span> <span class="ident">EmptyIVec</span>;
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;vector_scratch_space&quot;</span>))]
+</span><span class="kw">pub type </span>HistogramCommandScratch = EmptyIVec;
 
 
-<span class="kw">impl</span> <span class="ident">CostAccessors</span> <span class="kw">for</span> <span class="ident">HistogramDistance</span> {
-  <span class="kw">type</span> <span class="ident">i32vec</span> <span class="op">=</span> <span class="ident">HistogramDistanceScratch</span>;
-  <span class="kw">fn</span> <span class="ident">make_nnz_storage</span>() -&gt; <span class="ident"><span class="self">Self</span>::i32vec</span> {
-      <span class="kw">return</span> <span class="ident">HistogramDistanceScratch::default</span>();
+<span class="kw">impl </span>CostAccessors <span class="kw">for </span>HistogramCommand {
+  <span class="kw">type </span>i32vec = HistogramCommandScratch;
+  <span class="kw">fn </span>make_nnz_storage() -&gt; <span class="self">Self</span>::i32vec {
+      <span class="kw">return </span>HistogramCommandScratch::default();
   }
-
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">total_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">total_count_</span>;
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>total_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="kw">return </span><span class="self">self</span>.total_count_;
   }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">bit_cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span> {
-    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">bit_cost_</span>;
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::util::floatX {
+    <span class="kw">return </span><span class="self">self</span>.bit_cost_;
   }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_bit_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>) {
-    <span class="self">self</span>.<span class="ident">bit_cost_</span> <span class="op">=</span> <span class="ident">data</span>;
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw">super</span>::util::floatX) {
+    <span class="self">self</span>.bit_cost_ = data;
   }
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">set_total_count</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">usize</span>) {
-    <span class="self">self</span>.<span class="ident">total_count_</span> <span class="op">=</span> <span class="ident">data</span>;
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>set_total_count(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: usize) {
+    <span class="self">self</span>.total_count_ = data;
   }
 }
 
-
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>,<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ContextType</span> {
-  <span class="ident">CONTEXT_LSB6</span> <span class="op">=</span> <span class="number">0</span>,
-  <span class="ident">CONTEXT_MSB6</span> <span class="op">=</span> <span class="number">1</span>,
-  <span class="ident">CONTEXT_UTF8</span> <span class="op">=</span> <span class="number">2</span>,
-  <span class="ident">CONTEXT_SIGNED</span> <span class="op">=</span> <span class="number">3</span>,
+<span class="kw">impl </span>SliceWrapper&lt;u32&gt; <span class="kw">for </span>HistogramDistance {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u32] {
+    <span class="kw">return </span><span class="kw-2">&amp;</span><span class="self">self</span>.data_[..];
+  }
+}
+<span class="kw">impl </span>SliceWrapperMut&lt;u32&gt; <span class="kw">for </span>HistogramDistance {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u32] {
+    <span class="kw">return </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.data_[..];
+  }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ContextType</span> {
-  <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">ContextType</span> {
-    <span class="ident">ContextType::CONTEXT_LSB6</span>
+<span class="attribute">#[cfg(feature=<span class="string">&quot;vector_scratch_space&quot;</span>)]
+</span><span class="kw">pub type </span>HistogramDistanceScratch = Array528i;
+
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;vector_scratch_space&quot;</span>))]
+</span><span class="kw">pub type </span>HistogramDistanceScratch = EmptyIVec;
+
+
+<span class="kw">impl </span>CostAccessors <span class="kw">for </span>HistogramDistance {
+  <span class="kw">type </span>i32vec = HistogramDistanceScratch;
+  <span class="kw">fn </span>make_nnz_storage() -&gt; <span class="self">Self</span>::i32vec {
+      <span class="kw">return </span>HistogramDistanceScratch::default();
+  }
+
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>total_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+    <span class="kw">return </span><span class="self">self</span>.total_count_;
+  }
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::util::floatX {
+    <span class="kw">return </span><span class="self">self</span>.bit_cost_;
+  }
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw">super</span>::util::floatX) {
+    <span class="self">self</span>.bit_cost_ = data;
+  }
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>set_total_count(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: usize) {
+    <span class="self">self</span>.total_count_ = data;
   }
 }
 
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BlockSplitIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-                              <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+
+<span class="attribute">#[derive(Copy,Clone)]
+</span><span class="kw">pub enum </span>ContextType {
+  CONTEXT_LSB6 = <span class="number">0</span>,
+  CONTEXT_MSB6 = <span class="number">1</span>,
+  CONTEXT_UTF8 = <span class="number">2</span>,
+  CONTEXT_SIGNED = <span class="number">3</span>,
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>ContextType {
+  <span class="attribute">#[inline(always)]
+  </span><span class="kw">fn </span>default() -&gt; ContextType {
+    ContextType::CONTEXT_LSB6
+  }
+}
+
+
+<span class="kw">pub struct </span>BlockSplitIterator&lt;<span class="lifetime">&#39;a</span>,
+                              Alloc: alloc::Allocator&lt;u8&gt; + <span class="lifetime">&#39;a </span>+ alloc::Allocator&lt;u32&gt; + <span class="lifetime">&#39;a</span>&gt;
 {
-  <span class="kw">pub</span> <span class="ident">split_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">BlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-  <span class="kw">pub</span> <span class="ident">idx_</span>: <span class="ident">usize</span>,
-  <span class="kw">pub</span> <span class="ident">type_</span>: <span class="ident">usize</span>,
-  <span class="kw">pub</span> <span class="ident">length_</span>: <span class="ident">usize</span>,
+  <span class="kw">pub </span>split_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BlockSplit&lt;Alloc&gt;,
+  <span class="kw">pub </span>idx_: usize,
+  <span class="kw">pub </span>type_: usize,
+  <span class="kw">pub </span>length_: usize,
 }
 
 
 
-<span class="kw">fn</span> <span class="ident">NewBlockSplitIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span>  <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>
-  (<span class="ident">split</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">BlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>)
-   -&gt; <span class="ident">BlockSplitIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-  <span class="kw">return</span> <span class="ident">BlockSplitIterator</span>::<span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-           <span class="ident">split_</span>: <span class="ident">split</span>,
-           <span class="ident">idx_</span>: <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">usize</span>),
-           <span class="ident">type_</span>: <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">usize</span>),
-           <span class="ident">length_</span>: <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths</span>.<span class="ident">slice</span>().<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-             (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths</span>.<span class="ident">slice</span>()[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">usize</span>
-           } <span class="kw">else</span> {
-             <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">usize</span>)
+<span class="kw">fn </span>NewBlockSplitIterator&lt;<span class="lifetime">&#39;a</span>, Alloc: alloc::Allocator&lt;u8&gt; +  alloc::Allocator&lt;u32&gt;&gt;
+  (split: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BlockSplit&lt;Alloc&gt;)
+   -&gt; BlockSplitIterator&lt;<span class="lifetime">&#39;a</span>, Alloc&gt; {
+  <span class="kw">return </span>BlockSplitIterator::&lt;<span class="lifetime">&#39;a</span>&gt; {
+           split_: split,
+           idx_: <span class="number">0i32 </span><span class="kw">as </span>(usize),
+           type_: <span class="number">0i32 </span><span class="kw">as </span>(usize),
+           length_: <span class="kw">if </span>(<span class="kw-2">*</span>split).lengths.slice().len() != <span class="number">0 </span>{
+             (<span class="kw-2">*</span>split).lengths.slice()[<span class="number">0</span>] <span class="kw">as </span>usize
+           } <span class="kw">else </span>{
+             <span class="number">0i32 </span><span class="kw">as </span>(usize)
            },
          };
 }
 
 
-<span class="kw">fn</span> <span class="ident">InitBlockSplitIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-                          <span class="ident">Alloc</span>:<span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-          <span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">BlockSplitIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span>,
-<span class="ident">split</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">BlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>){
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">split_</span> <span class="op">=</span> <span class="ident">split</span>;
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">idx_</span> <span class="op">=</span> <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">usize</span>);
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">type_</span> <span class="op">=</span> <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">usize</span>);
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">length_</span> <span class="op">=</span> <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths</span>.<span class="ident">slice</span>().<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-    (<span class="kw-2">*</span><span class="ident">split</span>).<span class="ident">lengths</span>.<span class="ident">slice</span>()[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">u32</span>
-  } <span class="kw">else</span> {
-    <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">u32</span>)
-  } <span class="kw">as</span> (<span class="ident">usize</span>);
+<span class="kw">fn </span>InitBlockSplitIterator&lt;<span class="lifetime">&#39;a</span>,
+                          Alloc:alloc::Allocator&lt;u8&gt; + alloc::Allocator&lt;u32&gt;&gt;(
+          xself: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BlockSplitIterator&lt;<span class="lifetime">&#39;a</span>, Alloc&gt;,
+split: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BlockSplit&lt;Alloc&gt;){
+  (<span class="kw-2">*</span>xself).split_ = split;
+  (<span class="kw-2">*</span>xself).idx_ = <span class="number">0i32 </span><span class="kw">as </span>(usize);
+  (<span class="kw-2">*</span>xself).type_ = <span class="number">0i32 </span><span class="kw">as </span>(usize);
+  (<span class="kw-2">*</span>xself).length_ = <span class="kw">if </span>(<span class="kw-2">*</span>split).lengths.slice().len() != <span class="number">0 </span>{
+    (<span class="kw-2">*</span>split).lengths.slice()[<span class="number">0</span>] <span class="kw">as </span>u32
+  } <span class="kw">else </span>{
+    <span class="number">0i32 </span><span class="kw">as </span>(u32)
+  } <span class="kw">as </span>(usize);
 }
-<span class="kw">fn</span> <span class="ident">BlockSplitIteratorNext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-                          <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BlockSplitIterator</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>){
-  <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">length_</span> <span class="op">==</span> <span class="number">0i32</span> <span class="kw">as</span> (<span class="ident">usize</span>) {
-    (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">idx_</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">idx_</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
-    (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">type_</span> <span class="op">=</span> (<span class="kw-2">*</span>(<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">split_</span>).<span class="ident">types</span>.<span class="ident">slice</span>()[(<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">idx_</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>);
-    (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">length_</span> <span class="op">=</span> (<span class="kw-2">*</span>(<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">split_</span>).<span class="ident">lengths</span>.<span class="ident">slice</span>()[(<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">idx_</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">usize</span>);
+<span class="kw">fn </span>BlockSplitIteratorNext&lt;<span class="lifetime">&#39;a</span>,
+                          Alloc: alloc::Allocator&lt;u8&gt; + alloc::Allocator&lt;u32&gt;&gt;(xself: <span class="kw-2">&amp;mut </span>BlockSplitIterator&lt;Alloc&gt;){
+  <span class="kw">if </span>(<span class="kw-2">*</span>xself).length_ == <span class="number">0i32 </span><span class="kw">as </span>(usize) {
+    (<span class="kw-2">*</span>xself).idx_ = (<span class="kw-2">*</span>xself).idx_.wrapping_add(<span class="number">1 </span><span class="kw">as </span>(usize));
+    (<span class="kw-2">*</span>xself).type_ = (<span class="kw-2">*</span>(<span class="kw-2">*</span>xself).split_).types.slice()[(<span class="kw-2">*</span>xself).idx_ <span class="kw">as </span>(usize)] <span class="kw">as </span>(usize);
+    (<span class="kw-2">*</span>xself).length_ = (<span class="kw-2">*</span>(<span class="kw-2">*</span>xself).split_).lengths.slice()[(<span class="kw-2">*</span>xself).idx_ <span class="kw">as </span>(usize)] <span class="kw">as </span>(usize);
   }
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">length_</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">length_</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
+  (<span class="kw-2">*</span>xself).length_ = (<span class="kw-2">*</span>xself).length_.wrapping_sub(<span class="number">1 </span><span class="kw">as </span>(usize));
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">HistogramAddItem</span><span class="op">&lt;</span><span class="ident">HistogramType</span>: <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">CostAccessors</span><span class="op">&gt;</span>
-  (<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramType</span>,
-   <span class="ident">val</span>: <span class="ident">usize</span>) {
+<span class="kw">pub fn </span>HistogramAddItem&lt;HistogramType: SliceWrapper&lt;u32&gt; + SliceWrapperMut&lt;u32&gt; + CostAccessors&gt;
+  (xself: <span class="kw-2">&amp;mut </span>HistogramType,
+   val: usize) {
   {
-    <span class="kw">let</span> <span class="ident">_rhs</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">slice_mut</span>()[<span class="ident">val</span>];
-    <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span>).<span class="ident">wrapping_add</span>(<span class="ident">_rhs</span> <span class="kw">as</span> (<span class="ident">u32</span>));
-    <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> <span class="ident">val</span>;
+    <span class="kw">let </span>_rhs = <span class="number">1</span>;
+    <span class="kw">let </span>_lhs = <span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span>xself).slice_mut()[val];
+    <span class="kw">let </span>val = (<span class="kw-2">*</span>_lhs).wrapping_add(_rhs <span class="kw">as </span>(u32));
+    <span class="kw-2">*</span>_lhs = val;
   }
-  <span class="kw">let</span> <span class="ident">new_count</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">total_count</span>().<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">set_total_count</span>(<span class="ident">new_count</span>);
+  <span class="kw">let </span>new_count = (<span class="kw-2">*</span>xself).total_count().wrapping_add(<span class="number">1 </span><span class="kw">as </span>(usize));
+  (<span class="kw-2">*</span>xself).set_total_count(new_count);
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">HistogramAddVector</span><span class="op">&lt;</span><span class="ident">HistogramType</span>: <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">CostAccessors</span>,
-                          <span class="ident">IntegerType</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span>
-  (<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramType</span>,
-   <span class="ident">p</span>: <span class="kw-2">&amp;</span>[<span class="ident">IntegerType</span>],
-   <span class="ident">n</span>: <span class="ident">usize</span>)
-  <span class="kw">where</span> <span class="ident">u64</span>: <span class="ident">core::convert::From</span><span class="op">&lt;</span><span class="ident">IntegerType</span><span class="op">&gt;</span>
+<span class="kw">pub fn </span>HistogramAddVector&lt;HistogramType: SliceWrapper&lt;u32&gt; + SliceWrapperMut&lt;u32&gt; + CostAccessors,
+                          IntegerType: Sized + Clone&gt;
+  (xself: <span class="kw-2">&amp;mut </span>HistogramType,
+   p: <span class="kw-2">&amp;</span>[IntegerType],
+   n: usize)
+  <span class="kw">where </span>u64: core::convert::From&lt;IntegerType&gt;
 {
-  <span class="kw">let</span> <span class="ident">new_tc</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">total_count</span>().<span class="ident">wrapping_add</span>(<span class="ident">n</span>);
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">set_total_count</span>(<span class="ident">new_tc</span>);
-  <span class="kw">for</span> <span class="ident">p_item</span> <span class="kw">in</span> <span class="ident">p</span>[..<span class="ident">n</span>].<span class="ident">iter</span>() {
-    <span class="kw">let</span> <span class="ident">_rhs</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">index</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">u64::from</span>(<span class="ident">p_item</span>.<span class="ident">clone</span>()) <span class="kw">as</span> <span class="ident">usize</span>;
-    <span class="kw">let</span> <span class="ident">_lhs</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">slice_mut</span>()[<span class="ident">index</span>];
-    <span class="kw-2">*</span><span class="ident">_lhs</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">_lhs</span>).<span class="ident">wrapping_add</span>(<span class="ident">_rhs</span> <span class="kw">as</span> (<span class="ident">u32</span>));
+  <span class="kw">let </span>new_tc = (<span class="kw-2">*</span>xself).total_count().wrapping_add(n);
+  (<span class="kw-2">*</span>xself).set_total_count(new_tc);
+  <span class="kw">for </span>p_item <span class="kw">in </span>p[..n].iter() {
+    <span class="kw">let </span>_rhs = <span class="number">1</span>;
+    <span class="kw">let </span>index: usize = u64::from(p_item.clone()) <span class="kw">as </span>usize;
+    <span class="kw">let </span>_lhs = <span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span>xself).slice_mut()[index];
+    <span class="kw-2">*</span>_lhs = (<span class="kw-2">*</span>_lhs).wrapping_add(_rhs <span class="kw">as </span>(u32));
   }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">HistogramClear</span><span class="op">&lt;</span><span class="ident">HistogramType</span>:<span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">CostAccessors</span><span class="op">&gt;</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HistogramType</span>){
-  <span class="kw">for</span> <span class="ident">data_elem</span> <span class="kw">in</span> <span class="ident">xself</span>.<span class="ident">slice_mut</span>().<span class="ident">iter_mut</span>() {
-    <span class="kw-2">*</span><span class="ident">data_elem</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>HistogramClear&lt;HistogramType:SliceWrapperMut&lt;u32&gt;+CostAccessors&gt;(xself: <span class="kw-2">&amp;mut </span>HistogramType){
+  <span class="kw">for </span>data_elem <span class="kw">in </span>xself.slice_mut().iter_mut() {
+    <span class="kw-2">*</span>data_elem = <span class="number">0</span>;
   }
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">set_total_count</span>(<span class="number">0</span>);
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">set_bit_cost</span>(<span class="number">3.402e+38</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>);
+  (<span class="kw-2">*</span>xself).set_total_count(<span class="number">0</span>);
+  (<span class="kw-2">*</span>xself).set_bit_cost(<span class="number">3.402e+38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX);
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ClearHistograms</span><span class="op">&lt;</span><span class="ident">HistogramType</span>:<span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">CostAccessors</span><span class="op">&gt;</span>(<span class="ident">array</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramType</span>], <span class="ident">length</span>: <span class="ident">usize</span>){
-  <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">array</span>[..<span class="ident">length</span>].<span class="ident">iter_mut</span>() {
-    <span class="ident">HistogramClear</span>(<span class="ident">item</span>)
+<span class="kw">pub fn </span>ClearHistograms&lt;HistogramType:SliceWrapperMut&lt;u32&gt;+CostAccessors&gt;(array: <span class="kw-2">&amp;mut </span>[HistogramType], length: usize){
+  <span class="kw">for </span>item <span class="kw">in </span>array[..length].iter_mut() {
+    HistogramClear(item)
   }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">HistogramAddHistogram</span><span class="op">&lt;</span><span class="ident">HistogramType</span>:<span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">CostAccessors</span><span class="op">&gt;</span>(
-    <span class="ident">xself</span> : <span class="kw-2">&amp;mut</span> <span class="ident">HistogramType</span>, <span class="ident">v</span> : <span class="kw-2">&amp;</span><span class="ident">HistogramType</span>
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>HistogramAddHistogram&lt;HistogramType:SliceWrapperMut&lt;u32&gt; + SliceWrapper&lt;u32&gt; + CostAccessors&gt;(
+    xself : <span class="kw-2">&amp;mut </span>HistogramType, v : <span class="kw-2">&amp;</span>HistogramType
 ){
-  <span class="kw">let</span> <span class="ident">old_total_count</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">total_count</span>();
-  (<span class="kw-2">*</span><span class="ident">xself</span>).<span class="ident">set_total_count</span>(<span class="ident">old_total_count</span> <span class="op">+</span> (<span class="kw-2">*</span><span class="ident">v</span>).<span class="ident">total_count</span>());
-  <span class="kw">let</span> <span class="ident">h0</span> <span class="op">=</span> <span class="ident">xself</span>.<span class="ident">slice_mut</span>();
-  <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">slice</span>();
-  <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">min</span>(<span class="ident">h0</span>.<span class="ident">len</span>(), <span class="ident">h1</span>.<span class="ident">len</span>());
-  <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> {
-    <span class="kw">let</span> <span class="ident">h0val</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">h0</span>[<span class="ident">i</span>];
-    <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">h0val</span>.<span class="ident">wrapping_add</span>(<span class="ident">h1</span>[<span class="ident">i</span>]);
-    <span class="kw-2">*</span><span class="ident">h0val</span> <span class="op">=</span> <span class="ident">val</span>;
+  <span class="kw">let </span>old_total_count = (<span class="kw-2">*</span>xself).total_count();
+  (<span class="kw-2">*</span>xself).set_total_count(old_total_count + (<span class="kw-2">*</span>v).total_count());
+  <span class="kw">let </span>h0 = xself.slice_mut();
+  <span class="kw">let </span>h1 = v.slice();
+  <span class="kw">let </span>n = min(h0.len(), h1.len());
+  <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..n {
+    <span class="kw">let </span>h0val = <span class="kw-2">&amp;mut </span>h0[i];
+    <span class="kw">let </span>val = h0val.wrapping_add(h1[i]);
+    <span class="kw-2">*</span>h0val = val;
   }
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">HistogramSelfAddHistogram</span><span class="op">&lt;</span><span class="ident">HistogramType</span>:<span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">CostAccessors</span><span class="op">&gt;</span>(
-    <span class="ident">xself</span> : <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramType</span>], <span class="ident">i0</span> : <span class="ident">usize</span>, <span class="ident">i1</span> : <span class="ident">usize</span>
+<span class="kw">pub fn </span>HistogramSelfAddHistogram&lt;HistogramType:SliceWrapperMut&lt;u32&gt; + SliceWrapper&lt;u32&gt; + CostAccessors&gt;(
+    xself : <span class="kw-2">&amp;mut </span>[HistogramType], i0 : usize, i1 : usize
 ){
-  <span class="kw">let</span> <span class="ident">tc_new</span> <span class="op">=</span> <span class="ident">xself</span>[<span class="ident">i1</span>].<span class="ident">total_count</span>();
-  <span class="kw">let</span> <span class="ident">tc_old</span> <span class="op">=</span> <span class="ident">xself</span>[<span class="ident">i0</span>].<span class="ident">total_count</span>();
-  <span class="ident">xself</span>[<span class="ident">i0</span>].<span class="ident">set_total_count</span>(<span class="ident">tc_old</span>.<span class="ident">wrapping_add</span>(<span class="ident">tc_new</span>));
-  <span class="kw">let</span> <span class="ident">h0</span> <span class="op">=</span> <span class="ident">xself</span>[<span class="ident">i0</span>].<span class="ident">slice</span>().<span class="ident">len</span>();
-  <span class="kw">let</span> <span class="ident">h0a</span> <span class="op">=</span> <span class="ident">xself</span>[<span class="ident">i0</span>].<span class="ident">slice</span>().<span class="ident">len</span>();
-  <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">xself</span>[<span class="ident">i1</span>].<span class="ident">slice</span>().<span class="ident">len</span>();
-  <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">min</span>(<span class="ident">h0</span>, <span class="ident">min</span>(<span class="ident">h0a</span>, <span class="ident">h1</span>));
-  <span class="kw">for</span> <span class="ident">h_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> {
-    <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">xself</span>[<span class="ident">i0</span>].<span class="ident">slice</span>()[<span class="ident">h_index</span>].<span class="ident">wrapping_add</span>(<span class="ident">xself</span>[<span class="ident">i1</span>].<span class="ident">slice</span>()[<span class="ident">h_index</span>]);
-    <span class="ident">xself</span>[<span class="ident">i0</span>].<span class="ident">slice_mut</span>()[<span class="ident">h_index</span>] <span class="op">=</span> <span class="ident">val</span>;
+  <span class="kw">let </span>tc_new = xself[i1].total_count();
+  <span class="kw">let </span>tc_old = xself[i0].total_count();
+  xself[i0].set_total_count(tc_old.wrapping_add(tc_new));
+  <span class="kw">let </span>h0 = xself[i0].slice().len();
+  <span class="kw">let </span>h0a = xself[i0].slice().len();
+  <span class="kw">let </span>h1 = xself[i1].slice().len();
+  <span class="kw">let </span>n = min(h0, min(h0a, h1));
+  <span class="kw">for </span>h_index <span class="kw">in </span><span class="number">0</span>..n {
+    <span class="kw">let </span>val = xself[i0].slice()[h_index].wrapping_add(xself[i1].slice()[h_index]);
+    xself[i0].slice_mut()[h_index] = val;
   }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Context</span>(<span class="ident">p1</span>: <span class="ident">u8</span>, <span class="ident">p2</span>: <span class="ident">u8</span>, <span class="ident">mode</span>: <span class="ident">ContextType</span>) -&gt; <span class="ident">u8</span> {
-  <span class="kw">match</span> <span class="ident">mode</span> {
-    <span class="ident">ContextType::CONTEXT_SIGNED</span> =&gt; {
-      ((<span class="ident">kSigned3BitContextLookup</span>[<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3i32</span>) <span class="op">+</span>
-       <span class="ident">kSigned3BitContextLookup</span>[<span class="ident">p2</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u8</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>Context(p1: u8, p2: u8, mode: ContextType) -&gt; u8 {
+  <span class="kw">match </span>mode {
+    ContextType::CONTEXT_SIGNED =&gt; {
+      ((kSigned3BitContextLookup[p1 <span class="kw">as </span>(usize)] <span class="kw">as </span>(i32) &lt;&lt; <span class="number">3i32</span>) +
+       kSigned3BitContextLookup[p2 <span class="kw">as </span>(usize)] <span class="kw">as </span>(i32)) <span class="kw">as </span>(u8)
     }
-    <span class="ident">ContextType::CONTEXT_UTF8</span> =&gt; {
-      (<span class="ident">kUTF8ContextLookup</span>[<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">|</span>
-       <span class="ident">kUTF8ContextLookup</span>[(<span class="ident">p2</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">+</span> <span class="number">256i32</span>) <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u8</span>)
+    ContextType::CONTEXT_UTF8 =&gt; {
+      (kUTF8ContextLookup[p1 <span class="kw">as </span>(usize)] <span class="kw">as </span>(i32) |
+       kUTF8ContextLookup[(p2 <span class="kw">as </span>(i32) + <span class="number">256i32</span>) <span class="kw">as </span>(usize)] <span class="kw">as </span>(i32)) <span class="kw">as </span>(u8)
     }
-    <span class="ident">ContextType::CONTEXT_MSB6</span> =&gt; (<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2i32</span>) <span class="kw">as</span> (<span class="ident">u8</span>),
-    <span class="ident">ContextType::CONTEXT_LSB6</span> =&gt; (<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">0x3fi32</span>) <span class="kw">as</span> (<span class="ident">u8</span>),<span class="comment">/* else {
+    ContextType::CONTEXT_MSB6 =&gt; (p1 <span class="kw">as </span>(i32) &gt;&gt; <span class="number">2i32</span>) <span class="kw">as </span>(u8),
+    ContextType::CONTEXT_LSB6 =&gt; (p1 <span class="kw">as </span>(i32) &amp; <span class="number">0x3fi32</span>) <span class="kw">as </span>(u8),<span class="comment">/* else {
     0i32 as (u8)
-    }*/</span>
-  }
+    }*/
+  </span>}
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliBuildHistogramsWithContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-                                        <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span>
-  (<span class="ident">cmds</span>: <span class="kw-2">&amp;</span>[<span class="ident">Command</span>],
-   <span class="ident">num_commands</span>: <span class="ident">usize</span>,
-   <span class="ident">literal_split</span>: <span class="kw-2">&amp;</span><span class="ident">BlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-   <span class="ident">insert_and_copy_split</span>: <span class="kw-2">&amp;</span><span class="ident">BlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-   <span class="ident">dist_split</span>: <span class="kw-2">&amp;</span><span class="ident">BlockSplit</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>,
-   <span class="ident">ringbuffer</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-   <span class="ident">start_pos</span>: <span class="ident">usize</span>,
-   <span class="ident">mask</span>: <span class="ident">usize</span>,
-   <span class="kw-2">mut</span> <span class="ident">prev_byte</span>: <span class="ident">u8</span>,
-   <span class="kw-2">mut</span> <span class="ident">prev_byte2</span>: <span class="ident">u8</span>,
-   <span class="ident">context_modes</span>: <span class="kw-2">&amp;</span>[<span class="ident">ContextType</span>],
-   <span class="ident">literal_histograms</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramLiteral</span>],
-   <span class="ident">insert_and_copy_histograms</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramCommand</span>],
-   <span class="ident">copy_dist_histograms</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HistogramDistance</span>]) {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pos</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">start_pos</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">literal_it</span>: <span class="ident">BlockSplitIterator</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">insert_and_copy_it</span>: <span class="ident">BlockSplitIterator</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_it</span>: <span class="ident">BlockSplitIterator</span><span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">usize</span>;
-  <span class="ident">literal_it</span> <span class="op">=</span> <span class="ident">NewBlockSplitIterator</span>(<span class="ident">literal_split</span>);
-  <span class="ident">insert_and_copy_it</span> <span class="op">=</span> <span class="ident">NewBlockSplitIterator</span>(<span class="ident">insert_and_copy_split</span>);
-  <span class="ident">dist_it</span> <span class="op">=</span> <span class="ident">NewBlockSplitIterator</span>(<span class="ident">dist_split</span>);
-  <span class="ident">i</span> <span class="op">=</span> <span class="number">0usize</span>;
-  <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">num_commands</span> {
+<span class="kw">pub fn </span>BrotliBuildHistogramsWithContext&lt;<span class="lifetime">&#39;a</span>,
+                                        Alloc: alloc::Allocator&lt;u8&gt; + alloc::Allocator&lt;u32&gt;&gt;
+  (cmds: <span class="kw-2">&amp;</span>[Command],
+   num_commands: usize,
+   literal_split: <span class="kw-2">&amp;</span>BlockSplit&lt;Alloc&gt;,
+   insert_and_copy_split: <span class="kw-2">&amp;</span>BlockSplit&lt;Alloc&gt;,
+   dist_split: <span class="kw-2">&amp;</span>BlockSplit&lt;Alloc&gt;,
+   ringbuffer: <span class="kw-2">&amp;</span>[u8],
+   start_pos: usize,
+   mask: usize,
+   <span class="kw-2">mut </span>prev_byte: u8,
+   <span class="kw-2">mut </span>prev_byte2: u8,
+   context_modes: <span class="kw-2">&amp;</span>[ContextType],
+   literal_histograms: <span class="kw-2">&amp;mut </span>[HistogramLiteral],
+   insert_and_copy_histograms: <span class="kw-2">&amp;mut </span>[HistogramCommand],
+   copy_dist_histograms: <span class="kw-2">&amp;mut </span>[HistogramDistance]) {
+  <span class="kw">let </span><span class="kw-2">mut </span>pos: usize = start_pos;
+  <span class="kw">let </span><span class="kw-2">mut </span>literal_it: BlockSplitIterator&lt;Alloc&gt;;
+  <span class="kw">let </span><span class="kw-2">mut </span>insert_and_copy_it: BlockSplitIterator&lt;Alloc&gt;;
+  <span class="kw">let </span><span class="kw-2">mut </span>dist_it: BlockSplitIterator&lt;Alloc&gt;;
+  <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
+  literal_it = NewBlockSplitIterator(literal_split);
+  insert_and_copy_it = NewBlockSplitIterator(insert_and_copy_split);
+  dist_it = NewBlockSplitIterator(dist_split);
+  i = <span class="number">0usize</span>;
+  <span class="kw">while </span>i &lt; num_commands {
     {
-      <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">cmds</span>[(<span class="ident">i</span> <span class="kw">as</span> (<span class="ident">usize</span>))];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span>: <span class="ident">usize</span>;
-      <span class="ident">BlockSplitIteratorNext</span>(<span class="kw-2">&amp;mut</span> <span class="ident">insert_and_copy_it</span>);
-      <span class="ident">HistogramAddItem</span>(<span class="kw-2">&amp;mut</span> <span class="ident">insert_and_copy_histograms</span>[(<span class="ident">insert_and_copy_it</span>.<span class="ident">type_</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
-                       (<span class="kw-2">*</span><span class="ident">cmd</span>).<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">usize</span>));
-      <span class="ident">j</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">cmd</span>).<span class="ident">insert_len_</span> <span class="kw">as</span> (<span class="ident">usize</span>);
-      <span class="kw">while</span> <span class="ident">j</span> <span class="op">!</span><span class="op">=</span> <span class="number">0usize</span> {
+      <span class="kw">let </span>cmd = <span class="kw-2">&amp;</span>cmds[(i <span class="kw">as </span>(usize))];
+      <span class="kw">let </span><span class="kw-2">mut </span>j: usize;
+      BlockSplitIteratorNext(<span class="kw-2">&amp;mut </span>insert_and_copy_it);
+      HistogramAddItem(<span class="kw-2">&amp;mut </span>insert_and_copy_histograms[(insert_and_copy_it.type_ <span class="kw">as </span>(usize))],
+                       (<span class="kw-2">*</span>cmd).cmd_prefix_ <span class="kw">as </span>(usize));
+      j = (<span class="kw-2">*</span>cmd).insert_len_ <span class="kw">as </span>(usize);
+      <span class="kw">while </span>j != <span class="number">0usize </span>{
         {
-          <span class="kw">let</span> <span class="ident">context</span>: <span class="ident">usize</span>;
-          <span class="ident">BlockSplitIteratorNext</span>(<span class="kw-2">&amp;mut</span> <span class="ident">literal_it</span>);
-          <span class="ident">context</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">context_modes</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            (<span class="ident">literal_it</span>.<span class="ident">type_</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6i32</span>).<span class="ident">wrapping_add</span>(<span class="ident">Context</span>(<span class="ident">prev_byte</span>,
-                                                            <span class="ident">prev_byte2</span>,
-                                                            <span class="ident">context_modes</span>[(<span class="ident">literal_it</span>.<span class="ident">type_</span> <span class="kw">as</span>
-                                                             (<span class="ident">usize</span>))]) <span class="kw">as</span>
-                                                    (<span class="ident">usize</span>))
-          } <span class="kw">else</span> {
-            <span class="ident">literal_it</span>.<span class="ident">type_</span>
+          <span class="kw">let </span>context: usize;
+          BlockSplitIteratorNext(<span class="kw-2">&amp;mut </span>literal_it);
+          context = <span class="kw">if </span>context_modes.len() != <span class="number">0 </span>{
+            (literal_it.type_ &lt;&lt; <span class="number">6i32</span>).wrapping_add(Context(prev_byte,
+                                                            prev_byte2,
+                                                            context_modes[(literal_it.type_ <span class="kw">as
+                                                             </span>(usize))]) <span class="kw">as
+                                                    </span>(usize))
+          } <span class="kw">else </span>{
+            literal_it.type_
           };
-          <span class="ident">HistogramAddItem</span>(<span class="kw-2">&amp;mut</span> <span class="ident">literal_histograms</span>[(<span class="ident">context</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
-                           <span class="ident">ringbuffer</span>[((<span class="ident">pos</span> <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>))] <span class="kw">as</span> (<span class="ident">usize</span>));
-          <span class="ident">prev_byte2</span> <span class="op">=</span> <span class="ident">prev_byte</span>;
-          <span class="ident">prev_byte</span> <span class="op">=</span> <span class="ident">ringbuffer</span>[((<span class="ident">pos</span> <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>))];
-          <span class="ident">pos</span> <span class="op">=</span> <span class="ident">pos</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
+          HistogramAddItem(<span class="kw-2">&amp;mut </span>literal_histograms[(context <span class="kw">as </span>(usize))],
+                           ringbuffer[((pos &amp; mask) <span class="kw">as </span>(usize))] <span class="kw">as </span>(usize));
+          prev_byte2 = prev_byte;
+          prev_byte = ringbuffer[((pos &amp; mask) <span class="kw">as </span>(usize))];
+          pos = pos.wrapping_add(<span class="number">1 </span><span class="kw">as </span>(usize));
         }
-        <span class="ident">j</span> <span class="op">=</span> <span class="ident">j</span>.<span class="ident">wrapping_sub</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
+        j = j.wrapping_sub(<span class="number">1 </span><span class="kw">as </span>(usize));
       }
-      <span class="ident">pos</span> <span class="op">=</span> <span class="ident">pos</span>.<span class="ident">wrapping_add</span>(<span class="ident">CommandCopyLen</span>(<span class="ident">cmd</span>) <span class="kw">as</span> (<span class="ident">usize</span>));
-      <span class="kw">if</span> <span class="ident">CommandCopyLen</span>(<span class="ident">cmd</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">prev_byte2</span> <span class="op">=</span> <span class="ident">ringbuffer</span>[((<span class="ident">pos</span>.<span class="ident">wrapping_sub</span>(<span class="number">2usize</span>) <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>))];
-        <span class="ident">prev_byte</span> <span class="op">=</span> <span class="ident">ringbuffer</span>[((<span class="ident">pos</span>.<span class="ident">wrapping_sub</span>(<span class="number">1usize</span>) <span class="op">&amp;</span> <span class="ident">mask</span>) <span class="kw">as</span> (<span class="ident">usize</span>))];
-        <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">cmd</span>).<span class="ident">cmd_prefix_</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="number">128i32</span> {
-          <span class="kw">let</span> <span class="ident">context</span>: <span class="ident">usize</span>;
-          <span class="ident">BlockSplitIteratorNext</span>(<span class="kw-2">&amp;mut</span> <span class="ident">dist_it</span>);
-          <span class="ident">context</span> <span class="op">=</span> (<span class="ident">dist_it</span>.<span class="ident">type_</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2i32</span>).<span class="ident">wrapping_add</span>(<span class="ident">CommandDistanceContext</span>(<span class="ident">cmd</span>) <span class="kw">as</span> (<span class="ident">usize</span>));
-          <span class="ident">HistogramAddItem</span>(<span class="kw-2">&amp;mut</span> <span class="ident">copy_dist_histograms</span>[(<span class="ident">context</span> <span class="kw">as</span> (<span class="ident">usize</span>))],
-                           (<span class="kw-2">*</span><span class="ident">cmd</span>).<span class="ident">dist_prefix_</span> <span class="kw">as</span> (<span class="ident">usize</span>) <span class="op">&amp;</span> <span class="number">0x3ff</span>);
+      pos = pos.wrapping_add(CommandCopyLen(cmd) <span class="kw">as </span>(usize));
+      <span class="kw">if </span>CommandCopyLen(cmd) != <span class="number">0 </span>{
+        prev_byte2 = ringbuffer[((pos.wrapping_sub(<span class="number">2usize</span>) &amp; mask) <span class="kw">as </span>(usize))];
+        prev_byte = ringbuffer[((pos.wrapping_sub(<span class="number">1usize</span>) &amp; mask) <span class="kw">as </span>(usize))];
+        <span class="kw">if </span>(<span class="kw-2">*</span>cmd).cmd_prefix_ <span class="kw">as </span>(i32) &gt;= <span class="number">128i32 </span>{
+          <span class="kw">let </span>context: usize;
+          BlockSplitIteratorNext(<span class="kw-2">&amp;mut </span>dist_it);
+          context = (dist_it.type_ &lt;&lt; <span class="number">2i32</span>).wrapping_add(CommandDistanceContext(cmd) <span class="kw">as </span>(usize));
+          HistogramAddItem(<span class="kw-2">&amp;mut </span>copy_dist_histograms[(context <span class="kw">as </span>(usize))],
+                           (<span class="kw-2">*</span>cmd).dist_prefix_ <span class="kw">as </span>(usize) &amp; <span class="number">0x3ff</span>);
         }
       }
     }
-    <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">usize</span>));
+    i = i.wrapping_add(<span class="number">1 </span><span class="kw">as </span>(usize));
   }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

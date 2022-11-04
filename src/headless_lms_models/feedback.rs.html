@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/feedback.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>feedback.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/feedback.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>feedback.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -209,34 +209,34 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewFeedback</span> {
-    <span class="kw">pub</span> <span class="ident">feedback_given</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">selected_text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">related_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FeedbackBlock</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>NewFeedback {
+    <span class="kw">pub </span>feedback_given: String,
+    <span class="kw">pub </span>selected_text: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>related_blocks: Vec&lt;FeedbackBlock&gt;,
+    <span class="kw">pub </span>page_id: Uuid,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FeedbackBlock</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>FeedbackBlock {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>text: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>order_number: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">new_feedback</span>: <span class="ident">NewFeedback</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    course_id: Uuid,
+    new_feedback: NewFeedback,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO feedback(
     id,
@@ -249,71 +249,71 @@ INSERT INTO feedback(
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">user_id</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">new_feedback</span>.<span class="ident">feedback_given</span>,
-        <span class="ident">new_feedback</span>.<span class="ident">selected_text</span>,
-        <span class="ident">new_feedback</span>.<span class="ident">page_id</span>
+        pkey_policy.into_uuid(),
+        user_id,
+        course_id,
+        new_feedback.feedback_given,
+        new_feedback.selected_text,
+        new_feedback.page_id
     )
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">for</span> (<span class="ident">n</span>, <span class="ident">block</span>) <span class="kw">in</span> <span class="ident">new_feedback</span>.<span class="ident">related_blocks</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+    <span class="kw">for </span>(n, block) <span class="kw">in </span>new_feedback.related_blocks.iter().enumerate() {
         <span class="macro">sqlx::query!</span>(
             <span class="string">&quot;
 INSERT INTO block_feedback(feedback_id, block_id, block_text, order_number)
 VALUES ($1, $2, $3, $4)
 &quot;</span>,
-            <span class="ident">res</span>.<span class="ident">id</span>,
-            <span class="ident">block</span>.<span class="ident">id</span>,
-            <span class="ident">block</span>.<span class="ident">text</span>,
-            <span class="ident">n</span> <span class="kw">as</span> <span class="ident">i32</span>
+            res.id,
+            block.id,
+            block.text,
+            n <span class="kw">as </span>i32
         )
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
+        .execute(<span class="kw-2">&amp;mut </span>tx)
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">mark_as_read</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>, <span class="ident">read</span>: <span class="ident">bool</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>mark_as_read(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid, read: bool) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE feedback
 SET marked_as_read = $1
 WHERE id = $2
 &quot;</span>,
-        <span class="ident">read</span>,
-        <span class="ident">id</span>
+        read,
+        id
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Feedback</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">feedback_given</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">selected_text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">marked_as_read</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FeedbackBlock</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">page_title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">page_url_path</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>Feedback {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>course_id: Uuid,
+    <span class="kw">pub </span>page_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>feedback_given: String,
+    <span class="kw">pub </span>selected_text: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>marked_as_read: bool,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>blocks: Vec&lt;FeedbackBlock&gt;,
+    <span class="kw">pub </span>page_title: String,
+    <span class="kw">pub </span>page_url_path: String,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_feedback_for_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">read</span>: <span class="ident">bool</span>,
-    <span class="ident">pagination</span>: <span class="ident">Pagination</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Feedback</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_feedback_for_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+    read: bool,
+    pagination: Pagination,
+) -&gt; ModelResult&lt;Vec&lt;Feedback&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT fb.*,
   pages.title as &quot;page_title&quot;,
@@ -354,52 +354,52 @@ FROM (
   ) fb
   JOIN pages on pages.id = fb.page_id
 &quot;#</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">read</span>,
-        <span class="ident">pagination</span>.<span class="ident">limit</span>(),
-        <span class="ident">pagination</span>.<span class="ident">offset</span>(),
+        course_id,
+        read,
+        pagination.limit(),
+        pagination.offset(),
     )
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">Feedback</span> {
-        <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-        <span class="ident">user_id</span>: <span class="ident">r</span>.<span class="ident">user_id</span>,
-        <span class="ident">course_id</span>: <span class="ident">r</span>.<span class="ident">course_id</span>,
-        <span class="ident">page_id</span>: <span class="ident">r</span>.<span class="ident">page_id</span>,
-        <span class="ident">feedback_given</span>: <span class="ident">r</span>.<span class="ident">feedback_given</span>,
-        <span class="ident">selected_text</span>: <span class="ident">r</span>.<span class="ident">selected_text</span>,
-        <span class="ident">marked_as_read</span>: <span class="ident">r</span>.<span class="ident">marked_as_read</span>,
-        <span class="ident">created_at</span>: <span class="ident">r</span>.<span class="ident">created_at</span>,
-        <span class="ident">blocks</span>: <span class="ident">r</span>
-            .<span class="ident">block_ids</span>
-            .<span class="ident">unwrap_or_default</span>()
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">zip</span>(<span class="ident">r</span>.<span class="ident">block_texts</span>.<span class="ident">unwrap_or_default</span>())
-            .<span class="ident">zip</span>(<span class="ident">r</span>.<span class="ident">block_order_numbers</span>.<span class="ident">unwrap_or_default</span>())
-            .<span class="ident">map</span>(<span class="op">|</span>((<span class="ident">id</span>, <span class="ident">text</span>), <span class="ident">order_number</span>)<span class="op">|</span> <span class="ident">FeedbackBlock</span> {
-                <span class="ident">id</span>,
-                <span class="ident">text</span>,
-                <span class="ident">order_number</span>,
+    .map(|r| Feedback {
+        id: r.id,
+        user_id: r.user_id,
+        course_id: r.course_id,
+        page_id: r.page_id,
+        feedback_given: r.feedback_given,
+        selected_text: r.selected_text,
+        marked_as_read: r.marked_as_read,
+        created_at: r.created_at,
+        blocks: r
+            .block_ids
+            .unwrap_or_default()
+            .into_iter()
+            .zip(r.block_texts.unwrap_or_default())
+            .zip(r.block_order_numbers.unwrap_or_default())
+            .map(|((id, text), order_number)| FeedbackBlock {
+                id,
+                text,
+                order_number,
             })
-            .<span class="ident">collect</span>(),
-        <span class="ident">page_title</span>: <span class="ident">r</span>.<span class="ident">page_title</span>,
-        <span class="ident">page_url_path</span>: <span class="ident">r</span>.<span class="ident">page_url_path</span>,
+            .collect(),
+        page_title: r.page_title,
+        page_url_path: r.page_url_path,
     })
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FeedbackCount</span> {
-    <span class="kw">pub</span> <span class="ident">read</span>: <span class="ident">u32</span>,
-    <span class="kw">pub</span> <span class="ident">unread</span>: <span class="ident">u32</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>FeedbackCount {
+    <span class="kw">pub </span>read: u32,
+    <span class="kw">pub </span>unread: u32,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_feedback_count_for_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">FeedbackCount</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_feedback_count_for_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+) -&gt; ModelResult&lt;FeedbackCount&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT COUNT(*) filter (
     where marked_as_read
@@ -411,14 +411,14 @@ FROM feedback
 WHERE course_id = $1
   AND feedback.deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">course_id</span>,
+        course_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">FeedbackCount</span> {
-        <span class="ident">read</span>: <span class="ident">res</span>.<span class="ident">read</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
-        <span class="ident">unread</span>: <span class="ident">res</span>.<span class="ident">unread</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
+    <span class="prelude-val">Ok</span>(FeedbackCount {
+        read: res.read.unwrap_or_default().try_into()<span class="question-mark">?</span>,
+        unread: res.unread.unwrap_or_default().try_into()<span class="question-mark">?</span>,
     })
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-sys-2.0.1+zstd.1.5.2/src/bindings_zstd_std.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bindings_zstd_std.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../zstd_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../zstd_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../zstd_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-sys-2.0.1+zstd.1.5.2/src/bindings_zstd_std.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bindings_zstd_std.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../zstd_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../zstd_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../zstd_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -860,799 +860,799 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/</span>
-<span class="comment">/* automatically generated by rust-bindgen 0.59.2 */</span>
+*/
+/* automatically generated by rust-bindgen 0.59.2 */
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_VERSION_MAJOR</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_VERSION_MINOR</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">5</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_VERSION_RELEASE</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_VERSION_NUMBER</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">10502</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_CLEVEL_DEFAULT</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_MAGICNUMBER</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">4247762216</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_MAGIC_DICTIONARY</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">3962610743</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_MAGIC_SKIPPABLE_START</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">407710288</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_MAGIC_SKIPPABLE_MASK</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">4294967280</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_BLOCKSIZELOG_MAX</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">17</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_BLOCKSIZE_MAX</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">131072</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_CONTENTSIZE_UNKNOWN</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZSTD_CONTENTSIZE_ERROR</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="op">-</span><span class="number">2</span>;
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_versionNumber() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Return runtime library version, the value is (MAJOR*100*100 + MINOR*100 + RELEASE).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_versionNumber</span>() -&gt; <span class="ident">::std::os::raw::c_uint</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_versionString() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Return runtime library version, like \&quot;1.4.5\&quot;. Requires v1.3.0+.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_versionString</span>() -&gt; <span class="kw-2">*const</span> <span class="ident">::std::os::raw::c_char</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Simple API&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Compresses `src` content as a single zstd compressed frame into already allocated `dst`.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Hint : compression runs faster if `dstCapacity` &gt;=  `ZSTD_compressBound(srcSize)`.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  @return : compressed size written into `dst` (&lt;= `dstCapacity),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            or an error code if it fails (which can be tested using ZSTD_isError()).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compress</span>(
-        <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-        <span class="ident">compressionLevel</span>: <span class="ident">::std::os::raw::c_int</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_decompress() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  `compressedSize` : must be the _exact_ size of some number of compressed and/or skippable frames.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  `dstCapacity` is an upper bound of originalSize to regenerate.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  If user cannot imply a maximum upper bound, it&#39;s better to use streaming mode to decompress data.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  @return : the number of bytes decompressed into `dst` (&lt;= `dstCapacity`),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            or an errorCode if it fails (which can be tested using ZSTD_isError()).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_decompress</span>(
-        <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">compressedSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getFrameContentSize</span>(
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">::std::os::raw::c_ulonglong</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_getDecompressedSize() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  NOTE: This function is now obsolete, in favor of ZSTD_getFrameContentSize().&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Both functions work the same way, but ZSTD_getDecompressedSize() blends&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  \&quot;empty\&quot;, \&quot;unknown\&quot; and \&quot;error\&quot; results to the same return value (0),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  while ZSTD_getFrameContentSize() gives them separate return values.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : decompressed size of `src` frame content _if known and not empty_, 0 otherwise.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDecompressedSize</span>(
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">::std::os::raw::c_ulonglong</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_findFrameCompressedSize() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; `src` should point to the start of a ZSTD frame or skippable frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; `srcSize` must be &gt;= first frame size&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : the compressed size of the first frame starting at `src`,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           suitable to pass as `srcSize` to `ZSTD_decompress` or similar,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;        or an error code if input is invalid&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_findFrameCompressedSize</span>(
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compressBound</span>(<span class="ident">srcSize</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_isError</span>(<span class="ident">code</span>: <span class="ident">usize</span>) -&gt; <span class="ident">::std::os::raw::c_uint</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getErrorName</span>(<span class="ident">code</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">::std::os::raw::c_char</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_minCLevel</span>() -&gt; <span class="ident">::std::os::raw::c_int</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_maxCLevel</span>() -&gt; <span class="ident">::std::os::raw::c_int</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_defaultCLevel</span>() -&gt; <span class="ident">::std::os::raw::c_int</span>;
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZSTD_CCtx_s</span> {
-    <span class="ident">_unused</span>: [<span class="ident">u8</span>; <span class="number">0</span>],
-}
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Explicit context&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_CCtx</span> <span class="op">=</span> <span class="ident">ZSTD_CCtx_s</span>;
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createCCtx</span>() -&gt; <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeCCtx</span>(<span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_compressCCtx() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Same as ZSTD_compress(), using an explicit ZSTD_CCtx.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Important : in order to behave similarly to `ZSTD_compress()`,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  this function compresses at requested compression level,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  __ignoring any other parameter__ .&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  If any advanced parameter was set using the advanced API,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  they will all be reset. Only `compressionLevel` remains.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compressCCtx</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-        <span class="ident">compressionLevel</span>: <span class="ident">::std::os::raw::c_int</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZSTD_DCtx_s</span> {
-    <span class="ident">_unused</span>: [<span class="ident">u8</span>; <span class="number">0</span>],
-}
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_DCtx</span> <span class="op">=</span> <span class="ident">ZSTD_DCtx_s</span>;
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createDCtx</span>() -&gt; <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeDCtx</span>(<span class="ident">dctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_decompressDCtx() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Same as ZSTD_decompress(),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  requires an allocated ZSTD_DCtx.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Compatible with sticky parameters.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_decompressDCtx</span>(
-        <span class="ident">dctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>,
-        <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Advanced compression API (Requires v1.4.0+)&quot;</span>]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ZSTD_strategy</span> {
-    <span class="ident">ZSTD_fast</span> <span class="op">=</span> <span class="number">1</span>,
-    <span class="ident">ZSTD_dfast</span> <span class="op">=</span> <span class="number">2</span>,
-    <span class="ident">ZSTD_greedy</span> <span class="op">=</span> <span class="number">3</span>,
-    <span class="ident">ZSTD_lazy</span> <span class="op">=</span> <span class="number">4</span>,
-    <span class="ident">ZSTD_lazy2</span> <span class="op">=</span> <span class="number">5</span>,
-    <span class="ident">ZSTD_btlazy2</span> <span class="op">=</span> <span class="number">6</span>,
-    <span class="ident">ZSTD_btopt</span> <span class="op">=</span> <span class="number">7</span>,
-    <span class="ident">ZSTD_btultra</span> <span class="op">=</span> <span class="number">8</span>,
-    <span class="ident">ZSTD_btultra2</span> <span class="op">=</span> <span class="number">9</span>,
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ZSTD_cParameter</span> {
-    <span class="ident">ZSTD_c_compressionLevel</span> <span class="op">=</span> <span class="number">100</span>,
-    <span class="ident">ZSTD_c_windowLog</span> <span class="op">=</span> <span class="number">101</span>,
-    <span class="ident">ZSTD_c_hashLog</span> <span class="op">=</span> <span class="number">102</span>,
-    <span class="ident">ZSTD_c_chainLog</span> <span class="op">=</span> <span class="number">103</span>,
-    <span class="ident">ZSTD_c_searchLog</span> <span class="op">=</span> <span class="number">104</span>,
-    <span class="ident">ZSTD_c_minMatch</span> <span class="op">=</span> <span class="number">105</span>,
-    <span class="ident">ZSTD_c_targetLength</span> <span class="op">=</span> <span class="number">106</span>,
-    <span class="ident">ZSTD_c_strategy</span> <span class="op">=</span> <span class="number">107</span>,
-    <span class="ident">ZSTD_c_enableLongDistanceMatching</span> <span class="op">=</span> <span class="number">160</span>,
-    <span class="ident">ZSTD_c_ldmHashLog</span> <span class="op">=</span> <span class="number">161</span>,
-    <span class="ident">ZSTD_c_ldmMinMatch</span> <span class="op">=</span> <span class="number">162</span>,
-    <span class="ident">ZSTD_c_ldmBucketSizeLog</span> <span class="op">=</span> <span class="number">163</span>,
-    <span class="ident">ZSTD_c_ldmHashRateLog</span> <span class="op">=</span> <span class="number">164</span>,
-    <span class="ident">ZSTD_c_contentSizeFlag</span> <span class="op">=</span> <span class="number">200</span>,
-    <span class="ident">ZSTD_c_checksumFlag</span> <span class="op">=</span> <span class="number">201</span>,
-    <span class="ident">ZSTD_c_dictIDFlag</span> <span class="op">=</span> <span class="number">202</span>,
-    <span class="ident">ZSTD_c_nbWorkers</span> <span class="op">=</span> <span class="number">400</span>,
-    <span class="ident">ZSTD_c_jobSize</span> <span class="op">=</span> <span class="number">401</span>,
-    <span class="ident">ZSTD_c_overlapLog</span> <span class="op">=</span> <span class="number">402</span>,
-    <span class="ident">ZSTD_c_experimentalParam1</span> <span class="op">=</span> <span class="number">500</span>,
-    <span class="ident">ZSTD_c_experimentalParam2</span> <span class="op">=</span> <span class="number">10</span>,
-    <span class="ident">ZSTD_c_experimentalParam3</span> <span class="op">=</span> <span class="number">1000</span>,
-    <span class="ident">ZSTD_c_experimentalParam4</span> <span class="op">=</span> <span class="number">1001</span>,
-    <span class="ident">ZSTD_c_experimentalParam5</span> <span class="op">=</span> <span class="number">1002</span>,
-    <span class="ident">ZSTD_c_experimentalParam6</span> <span class="op">=</span> <span class="number">1003</span>,
-    <span class="ident">ZSTD_c_experimentalParam7</span> <span class="op">=</span> <span class="number">1004</span>,
-    <span class="ident">ZSTD_c_experimentalParam8</span> <span class="op">=</span> <span class="number">1005</span>,
-    <span class="ident">ZSTD_c_experimentalParam9</span> <span class="op">=</span> <span class="number">1006</span>,
-    <span class="ident">ZSTD_c_experimentalParam10</span> <span class="op">=</span> <span class="number">1007</span>,
-    <span class="ident">ZSTD_c_experimentalParam11</span> <span class="op">=</span> <span class="number">1008</span>,
-    <span class="ident">ZSTD_c_experimentalParam12</span> <span class="op">=</span> <span class="number">1009</span>,
-    <span class="ident">ZSTD_c_experimentalParam13</span> <span class="op">=</span> <span class="number">1010</span>,
-    <span class="ident">ZSTD_c_experimentalParam14</span> <span class="op">=</span> <span class="number">1011</span>,
-    <span class="ident">ZSTD_c_experimentalParam15</span> <span class="op">=</span> <span class="number">1012</span>,
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZSTD_bounds</span> {
-    <span class="kw">pub</span> <span class="ident">error</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">lowerBound</span>: <span class="ident">::std::os::raw::c_int</span>,
-    <span class="kw">pub</span> <span class="ident">upperBound</span>: <span class="ident">::std::os::raw::c_int</span>,
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_cParam_getBounds() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  All parameters must belong to an interval with lower and upper bounds,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  otherwise they will either trigger an error or be automatically clamped.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : a structure, ZSTD_bounds, which contains&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         - an error status field, which must be tested using ZSTD_isError()&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         - lower and upper bounds, both inclusive&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_cParam_getBounds</span>(<span class="ident">cParam</span>: <span class="ident">ZSTD_cParameter</span>) -&gt; <span class="ident">ZSTD_bounds</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_setParameter() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Set one compression parameter, selected by enum ZSTD_cParameter.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  All parameters have valid bounds. Bounds can be queried using ZSTD_cParam_getBounds().&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Providing a value beyond bound will either clamp it, or trigger an error (depending on parameter).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Setting a parameter is generally only possible during frame initialization (before starting compression).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Exception : when using multi-threading mode (nbWorkers &gt;= 1),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;              the following parameters can be updated _during_ compression (within same frame):&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;              =&gt; compressionLevel, hashLog, chainLog, searchLog, minMatch, targetLength and strategy.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;              new parameters will be active for next job only (after a flush()).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : an error code (which can be tested using ZSTD_isError()).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CCtx_setParameter</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">param</span>: <span class="ident">ZSTD_cParameter</span>,
-        <span class="ident">value</span>: <span class="ident">::std::os::raw::c_int</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_setPledgedSrcSize() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Total input data size to be compressed as a single frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Value will be written in frame header, unless if explicitly forbidden using ZSTD_c_contentSizeFlag.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  This value will also be controlled at end of frame, and trigger an error if not respected.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 1 : pledgedSrcSize==0 actually means zero, aka an empty frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           In order to mean \&quot;unknown content size\&quot;, pass constant ZSTD_CONTENTSIZE_UNKNOWN.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           ZSTD_CONTENTSIZE_UNKNOWN is default value for any new frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 2 : pledgedSrcSize is only valid once, for the next frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           It&#39;s discarded at the end of the frame, and replaced by ZSTD_CONTENTSIZE_UNKNOWN.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 3 : Whenever all input data is provided and consumed in a single round,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           for example with ZSTD_compress2(),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           or invoking immediately ZSTD_compressStream2(,,,ZSTD_e_end),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           this value is automatically overridden by srcSize instead.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CCtx_setPledgedSrcSize</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">pledgedSrcSize</span>: <span class="ident">::std::os::raw::c_ulonglong</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ZSTD_ResetDirective</span> {
-    <span class="ident">ZSTD_reset_session_only</span> <span class="op">=</span> <span class="number">1</span>,
-    <span class="ident">ZSTD_reset_parameters</span> <span class="op">=</span> <span class="number">2</span>,
-    <span class="ident">ZSTD_reset_session_and_parameters</span> <span class="op">=</span> <span class="number">3</span>,
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_reset() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  There are 2 different things that can be reset, independently or jointly :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - The session : will stop compressing current frame, and make CCtx ready to start a new one.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                  Useful after an error, or to interrupt any ongoing compression.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                  Any internal data not yet flushed is cancelled.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                  Compression parameters and dictionary remain unchanged.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                  They will be used to compress next frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                  Resetting session never fails.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - The parameters : changes all parameters back to \&quot;default\&quot;.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                  This removes any reference to any dictionary too.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                  Parameters can only be changed between 2 sessions (i.e. no compression is currently ongoing)&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                  otherwise the reset fails, and function returns an error value (which can be tested using ZSTD_isError())&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - Both : similar to resetting the session, followed by resetting parameters.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CCtx_reset</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">reset</span>: <span class="ident">ZSTD_ResetDirective</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_compress2() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Behave the same as ZSTD_compressCCtx(), but compression parameters are set using the advanced API.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  ZSTD_compress2() always starts a new frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Should cctx hold data from a previously unfinished frame, everything about it is forgotten.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - Compression parameters are pushed into CCtx before starting compression, using ZSTD_CCtx_set*()&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - The function is always blocking, returns when compression is completed.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Hint : compression runs faster if `dstCapacity` &gt;=  `ZSTD_compressBound(srcSize)`.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : compressed size written into `dst` (&lt;= `dstCapacity),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           or an error code if it fails (which can be tested using ZSTD_isError()).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compress2</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Advanced decompression API (Requires v1.4.0+)&quot;</span>]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ZSTD_dParameter</span> {
-    <span class="ident">ZSTD_d_windowLogMax</span> <span class="op">=</span> <span class="number">100</span>,
-    <span class="ident">ZSTD_d_experimentalParam1</span> <span class="op">=</span> <span class="number">1000</span>,
-    <span class="ident">ZSTD_d_experimentalParam2</span> <span class="op">=</span> <span class="number">1001</span>,
-    <span class="ident">ZSTD_d_experimentalParam3</span> <span class="op">=</span> <span class="number">1002</span>,
-    <span class="ident">ZSTD_d_experimentalParam4</span> <span class="op">=</span> <span class="number">1003</span>,
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_dParam_getBounds() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  All parameters must belong to an interval with lower and upper bounds,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  otherwise they will either trigger an error or be automatically clamped.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : a structure, ZSTD_bounds, which contains&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         - an error status field, which must be tested using ZSTD_isError()&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         - both lower and upper bounds, inclusive&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_dParam_getBounds</span>(<span class="ident">dParam</span>: <span class="ident">ZSTD_dParameter</span>) -&gt; <span class="ident">ZSTD_bounds</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_setParameter() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Set one compression parameter, selected by enum ZSTD_dParameter.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  All parameters have valid bounds. Bounds can be queried using ZSTD_dParam_getBounds().&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Providing a value beyond bound will either clamp it, or trigger an error (depending on parameter).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Setting a parameter is only possible during frame initialization (before starting decompression).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : 0, or an error code (which can be tested using ZSTD_isError()).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DCtx_setParameter</span>(
-        <span class="ident">dctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>,
-        <span class="ident">param</span>: <span class="ident">ZSTD_dParameter</span>,
-        <span class="ident">value</span>: <span class="ident">::std::os::raw::c_int</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_reset() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Return a DCtx to clean state.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Session and parameters can be reset jointly or separately.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Parameters can only be reset when no active frame is being decompressed.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return : 0, or an error code, which can be tested with ZSTD_isError()&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DCtx_reset</span>(
-        <span class="ident">dctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>,
-        <span class="ident">reset</span>: <span class="ident">ZSTD_ResetDirective</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Streaming&quot;</span>]</span>
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZSTD_inBuffer_s</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&lt; start of input buffer&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&lt; size of input buffer&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="ident">size</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&lt; position where reading stopped. Will be updated. Necessarily 0 &lt;= pos &lt;= size&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">usize</span>,
-}
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Streaming&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_inBuffer</span> <span class="op">=</span> <span class="ident">ZSTD_inBuffer_s</span>;
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZSTD_outBuffer_s</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&lt; start of output buffer&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&lt; size of output buffer&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="ident">size</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&lt; position where writing stopped. Will be updated. Necessarily 0 &lt;= pos &lt;= size&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">usize</span>,
-}
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_outBuffer</span> <span class="op">=</span> <span class="ident">ZSTD_outBuffer_s</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_CStream</span> <span class="op">=</span> <span class="ident">ZSTD_CCtx</span>;
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createCStream</span>() -&gt; <span class="kw-2">*mut</span> <span class="ident">ZSTD_CStream</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeCStream</span>(<span class="ident">zcs</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CStream</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ZSTD_EndDirective</span> {
-    <span class="ident">ZSTD_e_continue</span> <span class="op">=</span> <span class="number">0</span>,
-    <span class="ident">ZSTD_e_flush</span> <span class="op">=</span> <span class="number">1</span>,
-    <span class="ident">ZSTD_e_end</span> <span class="op">=</span> <span class="number">2</span>,
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_compressStream2() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Behaves about the same as ZSTD_compressStream, with additional control on end directive.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - Compression parameters are pushed into CCtx before starting compression, using ZSTD_CCtx_set*()&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - Compression parameters cannot be changed once compression is started (save a list of exceptions in multi-threading mode)&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - output-&gt;pos must be &lt;= dstCapacity, input-&gt;pos must be &lt;= srcSize&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - output-&gt;pos and input-&gt;pos will be updated. They are guaranteed to remain below their respective limit.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - endOp must be a valid directive&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - When nbWorkers==0 (default), function is blocking : it completes its job before returning to caller.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - When nbWorkers&gt;=1, function is non-blocking : it copies a portion of input, distributes jobs to internal worker threads, flush to output whatever is available,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                                                  and then immediately returns, just indicating that there is some data remaining to be flushed.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;                                                  The function nonetheless guarantees forward progress : it will return only after it reads or write at least 1+ byte.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - Exception : if the first call requests a ZSTD_e_end directive and provides enough dstCapacity, the function delegates to ZSTD_compress2() which is always blocking.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - @return provides a minimum amount of data remaining to be flushed from internal buffers&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            or an error code, which can be tested using ZSTD_isError().&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            if @return != 0, flush is not fully completed, there is still some data left within internal buffers.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            This is useful for ZSTD_e_flush, since in this case more flushes are necessary to empty all buffers.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            For ZSTD_e_end, @return == 0 when internal buffers are fully flushed and frame is completed.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - after a ZSTD_e_end directive, if internal buffer is not fully flushed (@return != 0),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            only ZSTD_e_end or ZSTD_e_flush operations are allowed.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            Before starting a new compression job, or changing compression parameters,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            it is required to fully flush internal buffers.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compressStream2</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">output</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_outBuffer</span>,
-        <span class="ident">input</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_inBuffer</span>,
-        <span class="ident">endOp</span>: <span class="ident">ZSTD_EndDirective</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CStreamInSize</span>() -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CStreamOutSize</span>() -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Equivalent to:&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;     ZSTD_CCtx_reset(zcs, ZSTD_reset_session_only);&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;     ZSTD_CCtx_refCDict(zcs, NULL); // clear the dictionary (if any)&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;     ZSTD_CCtx_setParameter(zcs, ZSTD_c_compressionLevel, compressionLevel);&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_initCStream</span>(
-        <span class="ident">zcs</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CStream</span>,
-        <span class="ident">compressionLevel</span>: <span class="ident">::std::os::raw::c_int</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Alternative for ZSTD_compressStream2(zcs, output, input, ZSTD_e_continue).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; NOTE: The return value is different. ZSTD_compressStream() returns a hint for&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; the next read size (if non-zero and not an error). ZSTD_compressStream2()&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; returns the minimum nb of bytes left to flush (if non-zero and not an error).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compressStream</span>(
-        <span class="ident">zcs</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CStream</span>,
-        <span class="ident">output</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_outBuffer</span>,
-        <span class="ident">input</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_inBuffer</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_flush).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_flushStream</span>(
-        <span class="ident">zcs</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CStream</span>,
-        <span class="ident">output</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_outBuffer</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_end).&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_endStream</span>(
-        <span class="ident">zcs</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CStream</span>,
-        <span class="ident">output</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_outBuffer</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_DStream</span> <span class="op">=</span> <span class="ident">ZSTD_DCtx</span>;
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createDStream</span>() -&gt; <span class="kw-2">*mut</span> <span class="ident">ZSTD_DStream</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeDStream</span>(<span class="ident">zds</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DStream</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_initDStream</span>(<span class="ident">zds</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DStream</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_decompressStream</span>(
-        <span class="ident">zds</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DStream</span>,
-        <span class="ident">output</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_outBuffer</span>,
-        <span class="ident">input</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_inBuffer</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DStreamInSize</span>() -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DStreamOutSize</span>() -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Simple dictionary API&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Compression at an explicit compression level using a Dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  A dictionary can be any arbitrary data segment (also called a prefix),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  or a buffer with specified information (see zdict.h).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note : This function loads the dictionary, resulting in significant startup delay.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         It&#39;s intended for a dictionary used only once.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 2 : When `dict == NULL || dictSize &lt; 8` no dictionary is used.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compress_usingDict</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-        <span class="ident">dict</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-        <span class="ident">compressionLevel</span>: <span class="ident">::std::os::raw::c_int</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_decompress_usingDict() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Decompression using a known Dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Dictionary must be identical to the one used during compression.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note : This function loads the dictionary, resulting in significant startup delay.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         It&#39;s intended for a dictionary used only once.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note : When `dict == NULL || dictSize &lt; 8` no dictionary is used.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_decompress_usingDict</span>(
-        <span class="ident">dctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>,
-        <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-        <span class="ident">dict</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZSTD_CDict_s</span> {
-    <span class="ident">_unused</span>: [<span class="ident">u8</span>; <span class="number">0</span>],
-}
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Bulk processing dictionary API&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_CDict</span> <span class="op">=</span> <span class="ident">ZSTD_CDict_s</span>;
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_createCDict() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  When compressing multiple messages or blocks using the same dictionary,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  it&#39;s recommended to digest the dictionary only once, since it&#39;s a costly operation.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  ZSTD_createCDict() will create a state from digesting a dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  The resulting state can be used for future compression operations with very limited startup cost.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  ZSTD_CDict can be created once and shared by multiple threads concurrently, since its usage is read-only.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @dictBuffer can be released after ZSTD_CDict creation, because its content is copied within CDict.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 1 : Consider experimental function `ZSTD_createCDict_byReference()` if you prefer to not duplicate @dictBuffer content.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 2 : A ZSTD_CDict can be created from an empty @dictBuffer,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;      in which case the only thing that it transports is the @compressionLevel.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;      This can be useful in a pipeline featuring ZSTD_compress_usingCDict() exclusively,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;      expecting a ZSTD_CDict parameter with any data, including those without a known dictionary.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createCDict</span>(
-        <span class="ident">dictBuffer</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-        <span class="ident">compressionLevel</span>: <span class="ident">::std::os::raw::c_int</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">ZSTD_CDict</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_freeCDict() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Function frees memory allocated by ZSTD_createCDict().&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  If a NULL pointer is passed, no operation is performed.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeCDict</span>(<span class="ident">CDict</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CDict</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_compress_usingCDict() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Compression using a digested Dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Recommended when same dictionary is used multiple times.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note : compression level is _decided at dictionary creation time_,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;     and frame parameters are hardcoded (dictID=yes, contentSize=yes, checksum=no)&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_compress_usingCDict</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-        <span class="ident">cdict</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_CDict</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZSTD_DDict_s</span> {
-    <span class="ident">_unused</span>: [<span class="ident">u8</span>; <span class="number">0</span>],
-}
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZSTD_DDict</span> <span class="op">=</span> <span class="ident">ZSTD_DDict_s</span>;
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_createDDict() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Create a digested dictionary, ready to start decompression operation without startup delay.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  dictBuffer can be released after DDict creation, as its content is copied inside DDict.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_createDDict</span>(
-        <span class="ident">dictBuffer</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">ZSTD_DDict</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_freeDDict() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Function frees memory allocated with ZSTD_createDDict()&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  If a NULL pointer is passed, no operation is performed.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_freeDDict</span>(<span class="ident">ddict</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DDict</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_decompress_usingDDict() :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Decompression using a digested Dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Recommended when same dictionary is used multiple times.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_decompress_usingDDict</span>(
-        <span class="ident">dctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>,
-        <span class="ident">dst</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dstCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-        <span class="ident">ddict</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_DDict</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_getDictID_fromDict() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Provides the dictID stored within dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  if @return == 0, the dictionary is not conformant with Zstandard specification.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  It can still be loaded, but as a content-only dictionary.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDictID_fromDict</span>(
-        <span class="ident">dict</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">::std::os::raw::c_uint</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_getDictID_fromCDict() : Requires v1.5.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Provides the dictID of the dictionary loaded into `cdict`.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  If @return == 0, the dictionary is not conformant to Zstandard specification, or empty.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Non-conformant dictionaries can still be loaded, but as content-only dictionaries.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDictID_fromCDict</span>(
-        <span class="ident">cdict</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_CDict</span>,
-    ) -&gt; <span class="ident">::std::os::raw::c_uint</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_getDictID_fromDDict() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Provides the dictID of the dictionary loaded into `ddict`.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  If @return == 0, the dictionary is not conformant to Zstandard specification, or empty.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Non-conformant dictionaries can still be loaded, but as content-only dictionaries.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDictID_fromDDict</span>(
-        <span class="ident">ddict</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_DDict</span>,
-    ) -&gt; <span class="ident">::std::os::raw::c_uint</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_getDictID_fromFrame() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Provides the dictID required to decompressed the frame stored within `src`.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  If @return == 0, the dictID could not be decoded.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  This could for one of the following reasons :&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - The frame does not require a dictionary to be decoded (most common case).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - The frame was built with dictID intentionally removed. Whatever dictionary is necessary is a hidden information.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;    Note : this use case also happens when using a non-conformant dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - `srcSize` is too small, and as a result, the frame header could not be decoded (only possible if `srcSize &lt; ZSTD_FRAMEHEADERSIZE_MAX`).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  - This is not a Zstandard frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  When identifying the exact failure cause, it&#39;s possible to use ZSTD_getFrameHeader(), which will provide a more precise error code.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_getDictID_fromFrame</span>(
-        <span class="ident">src</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">srcSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">::std::os::raw::c_uint</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_loadDictionary() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Create an internal CDict from `dict` buffer.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Decompression will have to use same dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Special: Loading a NULL (or 0-size) dictionary invalidates previous dictionary,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           meaning \&quot;return to no-dictionary mode\&quot;.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 1 : Dictionary is sticky, it will be used for all future compressed frames.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           To return to \&quot;no-dictionary\&quot; situation, load a NULL dictionary (or reset parameters).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 2 : Loading a dictionary involves building tables.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           It&#39;s also a CPU consuming operation, with non-negligible impact on latency.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           Tables are dependent on compression parameters, and for this reason,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           compression parameters can no longer be changed after loading a dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 3 :`dict` content will be copied internally.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           Use experimental ZSTD_CCtx_loadDictionary_byReference() to reference content instead.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           In such a case, dictionary buffer must outlive its users.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 4 : Use ZSTD_CCtx_loadDictionary_advanced()&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           to precisely select how dictionary content must be interpreted.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CCtx_loadDictionary</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">dict</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_refCDict() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Reference a prepared dictionary, to be used for all next compressed frames.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note that compression parameters are enforced from within CDict,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  and supersede any compression parameter previously set within CCtx.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  The parameters ignored are labelled as \&quot;superseded-by-cdict\&quot; in the ZSTD_cParameter enum docs.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  The ignored parameters will be used again if the CCtx is returned to no-dictionary mode.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  The dictionary will remain valid for future compressed frames using same CCtx.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Special : Referencing a NULL CDict means \&quot;return to no-dictionary mode\&quot;.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 1 : Currently, only one dictionary can be managed.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           Referencing a new dictionary effectively \&quot;discards\&quot; any previous one.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 2 : CDict is just referenced, its lifetime must outlive its usage within CCtx.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CCtx_refCDict</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">cdict</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_CDict</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_CCtx_refPrefix() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Reference a prefix (single-usage dictionary) for next compressed frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  A prefix is **only used once**. Tables are discarded at end of frame (ZSTD_e_end).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Decompression will need same prefix to properly regenerate data.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Compressing with a prefix is similar in outcome as performing a diff and compressing it,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  but performs much faster, especially during decompression (compression speed is tunable with compression level).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Special: Adding any prefix (including NULL) invalidates any previous prefix or dictionary&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 1 : Prefix buffer is referenced. It **must** outlive compression.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           Its content must remain unmodified during compression.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 2 : If the intention is to diff some large src data blob with some prior version of itself,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           ensure that the window size is large enough to contain the entire source.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           See ZSTD_c_windowLog.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 3 : Referencing a prefix involves building tables, which are dependent on compression parameters.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           It&#39;s a CPU consuming operation, with non-negligible impact on latency.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           If there is a need to use the same prefix multiple times, consider loadDictionary instead.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 4 : By default, the prefix is interpreted as raw content (ZSTD_dct_rawContent).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           Use experimental ZSTD_CCtx_refPrefix_advanced() to alter dictionary interpretation.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_CCtx_refPrefix</span>(
-        <span class="ident">cctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_CCtx</span>,
-        <span class="ident">prefix</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">prefixSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_loadDictionary() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Create an internal DDict from dict buffer,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  to be used to decompress next frames.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  The dictionary remains valid for all future frames, until explicitly invalidated.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Special : Adding a NULL (or 0-size) dictionary invalidates any previous dictionary,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;            meaning \&quot;return to no-dictionary mode\&quot;.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 1 : Loading a dictionary involves building tables,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           which has a non-negligible impact on CPU usage and latency.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           It&#39;s recommended to \&quot;load once, use many times\&quot;, to amortize the cost&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 2 :`dict` content will be copied internally, so `dict` can be released after loading.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           Use ZSTD_DCtx_loadDictionary_byReference() to reference dictionary content instead.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 3 : Use ZSTD_DCtx_loadDictionary_advanced() to take control of&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           how dictionary content is loaded and interpreted.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DCtx_loadDictionary</span>(
-        <span class="ident">dctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>,
-        <span class="ident">dict</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_refDDict() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Reference a prepared dictionary, to be used to decompress next frames.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  The dictionary remains active for decompression of future frames using same DCtx.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  If called with ZSTD_d_refMultipleDDicts enabled, repeated calls of this function&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  will store the DDict references in a table, and the DDict used for decompression&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  will be determined at decompression time, as per the dict ID in the frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  The memory for the table is allocated on the first call to refDDict, and can be&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  freed with ZSTD_freeDCtx().&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 1 : Currently, only one dictionary can be managed.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           Referencing a new dictionary effectively \&quot;discards\&quot; any previous one.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Special: referencing a NULL DDict means \&quot;return to no-dictionary mode\&quot;.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 2 : DDict is just referenced, its lifetime must outlive its usage from DCtx.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DCtx_refDDict</span>(
-        <span class="ident">dctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>,
-        <span class="ident">ddict</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_DDict</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_DCtx_refPrefix() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Reference a prefix (single-usage dictionary) to decompress next frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  This is the reverse operation of ZSTD_CCtx_refPrefix(),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  and must use the same prefix as the one used during compression.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Prefix is **only used once**. Reference is discarded at end of frame.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  End of frame is reached when ZSTD_decompressStream() returns 0.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 1 : Adding any prefix (including NULL) invalidates any previously set prefix or dictionary&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 2 : Prefix buffer is referenced. It **must** outlive decompression.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           Prefix buffer must remain unmodified up to the end of frame,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           reached when ZSTD_decompressStream() returns 0.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 3 : By default, the prefix is treated as raw content (ZSTD_dct_rawContent).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           Use ZSTD_CCtx_refPrefix_advanced() to alter dictMode (Experimental section)&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note 4 : Referencing a raw content prefix has almost no cpu nor memory cost.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;           A full dictionary is more costly, as it requires building tables.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_DCtx_refPrefix</span>(
-        <span class="ident">dctx</span>: <span class="kw-2">*mut</span> <span class="ident">ZSTD_DCtx</span>,
-        <span class="ident">prefix</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">prefixSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZSTD_sizeof_*() : Requires v1.4.0+&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  These functions give the _current_ memory usage of selected object.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note that object memory usage can evolve (increase or decrease) over time.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_CCtx</span>(<span class="ident">cctx</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_CCtx</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_DCtx</span>(<span class="ident">dctx</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_DCtx</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_CStream</span>(<span class="ident">zcs</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_CStream</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_DStream</span>(<span class="ident">zds</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_DStream</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_CDict</span>(<span class="ident">cdict</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_CDict</span>) -&gt; <span class="ident">usize</span>;
-}
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZSTD_sizeof_DDict</span>(<span class="ident">ddict</span>: <span class="kw-2">*const</span> <span class="ident">ZSTD_DDict</span>) -&gt; <span class="ident">usize</span>;
+</span><span class="kw">pub const </span>ZSTD_VERSION_MAJOR: u32 = <span class="number">1</span>;
+<span class="kw">pub const </span>ZSTD_VERSION_MINOR: u32 = <span class="number">5</span>;
+<span class="kw">pub const </span>ZSTD_VERSION_RELEASE: u32 = <span class="number">2</span>;
+<span class="kw">pub const </span>ZSTD_VERSION_NUMBER: u32 = <span class="number">10502</span>;
+<span class="kw">pub const </span>ZSTD_CLEVEL_DEFAULT: u32 = <span class="number">3</span>;
+<span class="kw">pub const </span>ZSTD_MAGICNUMBER: u32 = <span class="number">4247762216</span>;
+<span class="kw">pub const </span>ZSTD_MAGIC_DICTIONARY: u32 = <span class="number">3962610743</span>;
+<span class="kw">pub const </span>ZSTD_MAGIC_SKIPPABLE_START: u32 = <span class="number">407710288</span>;
+<span class="kw">pub const </span>ZSTD_MAGIC_SKIPPABLE_MASK: u32 = <span class="number">4294967280</span>;
+<span class="kw">pub const </span>ZSTD_BLOCKSIZELOG_MAX: u32 = <span class="number">17</span>;
+<span class="kw">pub const </span>ZSTD_BLOCKSIZE_MAX: u32 = <span class="number">131072</span>;
+<span class="kw">pub const </span>ZSTD_CONTENTSIZE_UNKNOWN: i32 = -<span class="number">1</span>;
+<span class="kw">pub const </span>ZSTD_CONTENTSIZE_ERROR: i32 = -<span class="number">2</span>;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_versionNumber() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Return runtime library version, the value is (MAJOR*100*100 + MINOR*100 + RELEASE).&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_versionNumber() -&gt; ::std::os::raw::c_uint;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_versionString() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Return runtime library version, like \&quot;1.4.5\&quot;. Requires v1.3.0+.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_versionString() -&gt; <span class="kw-2">*const </span>::std::os::raw::c_char;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot;  Simple API&quot;</span>]
+    #[doc = <span class="string">&quot;  Compresses `src` content as a single zstd compressed frame into already allocated `dst`.&quot;</span>]
+    #[doc = <span class="string">&quot;  Hint : compression runs faster if `dstCapacity` &gt;=  `ZSTD_compressBound(srcSize)`.&quot;</span>]
+    #[doc = <span class="string">&quot;  @return : compressed size written into `dst` (&lt;= `dstCapacity),&quot;</span>]
+    #[doc = <span class="string">&quot;            or an error code if it fails (which can be tested using ZSTD_isError()).&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_compress(
+        dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dstCapacity: usize,
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+        compressionLevel: ::std::os::raw::c_int,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_decompress() :&quot;</span>]
+    #[doc = <span class="string">&quot;  `compressedSize` : must be the _exact_ size of some number of compressed and/or skippable frames.&quot;</span>]
+    #[doc = <span class="string">&quot;  `dstCapacity` is an upper bound of originalSize to regenerate.&quot;</span>]
+    #[doc = <span class="string">&quot;  If user cannot imply a maximum upper bound, it&#39;s better to use streaming mode to decompress data.&quot;</span>]
+    #[doc = <span class="string">&quot;  @return : the number of bytes decompressed into `dst` (&lt;= `dstCapacity`),&quot;</span>]
+    #[doc = <span class="string">&quot;            or an errorCode if it fails (which can be tested using ZSTD_isError()).&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_decompress(
+        dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dstCapacity: usize,
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        compressedSize: usize,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_getFrameContentSize(
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+    ) -&gt; ::std::os::raw::c_ulonglong;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_getDecompressedSize() :&quot;</span>]
+    #[doc = <span class="string">&quot;  NOTE: This function is now obsolete, in favor of ZSTD_getFrameContentSize().&quot;</span>]
+    #[doc = <span class="string">&quot;  Both functions work the same way, but ZSTD_getDecompressedSize() blends&quot;</span>]
+    #[doc = <span class="string">&quot;  \&quot;empty\&quot;, \&quot;unknown\&quot; and \&quot;error\&quot; results to the same return value (0),&quot;</span>]
+    #[doc = <span class="string">&quot;  while ZSTD_getFrameContentSize() gives them separate return values.&quot;</span>]
+    #[doc = <span class="string">&quot; @return : decompressed size of `src` frame content _if known and not empty_, 0 otherwise.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_getDecompressedSize(
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+    ) -&gt; ::std::os::raw::c_ulonglong;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_findFrameCompressedSize() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot; `src` should point to the start of a ZSTD frame or skippable frame.&quot;</span>]
+    #[doc = <span class="string">&quot; `srcSize` must be &gt;= first frame size&quot;</span>]
+    #[doc = <span class="string">&quot; @return : the compressed size of the first frame starting at `src`,&quot;</span>]
+    #[doc = <span class="string">&quot;           suitable to pass as `srcSize` to `ZSTD_decompress` or similar,&quot;</span>]
+    #[doc = <span class="string">&quot;        or an error code if input is invalid&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_findFrameCompressedSize(
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_compressBound(srcSize: usize) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_isError(code: usize) -&gt; ::std::os::raw::c_uint;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_getErrorName(code: usize) -&gt; <span class="kw-2">*const </span>::std::os::raw::c_char;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_minCLevel() -&gt; ::std::os::raw::c_int;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_maxCLevel() -&gt; ::std::os::raw::c_int;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_defaultCLevel() -&gt; ::std::os::raw::c_int;
+}
+<span class="attribute">#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub struct </span>ZSTD_CCtx_s {
+    _unused: [u8; <span class="number">0</span>],
+}
+<span class="attribute">#[doc = <span class="string">&quot;  Explicit context&quot;</span>]
+</span><span class="kw">pub type </span>ZSTD_CCtx = ZSTD_CCtx_s;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_createCCtx() -&gt; <span class="kw-2">*mut </span>ZSTD_CCtx;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_freeCCtx(cctx: <span class="kw-2">*mut </span>ZSTD_CCtx) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_compressCCtx() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Same as ZSTD_compress(), using an explicit ZSTD_CCtx.&quot;</span>]
+    #[doc = <span class="string">&quot;  Important : in order to behave similarly to `ZSTD_compress()`,&quot;</span>]
+    #[doc = <span class="string">&quot;  this function compresses at requested compression level,&quot;</span>]
+    #[doc = <span class="string">&quot;  __ignoring any other parameter__ .&quot;</span>]
+    #[doc = <span class="string">&quot;  If any advanced parameter was set using the advanced API,&quot;</span>]
+    #[doc = <span class="string">&quot;  they will all be reset. Only `compressionLevel` remains.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_compressCCtx(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dstCapacity: usize,
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+        compressionLevel: ::std::os::raw::c_int,
+    ) -&gt; usize;
+}
+<span class="attribute">#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub struct </span>ZSTD_DCtx_s {
+    _unused: [u8; <span class="number">0</span>],
+}
+<span class="kw">pub type </span>ZSTD_DCtx = ZSTD_DCtx_s;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_createDCtx() -&gt; <span class="kw-2">*mut </span>ZSTD_DCtx;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_freeDCtx(dctx: <span class="kw-2">*mut </span>ZSTD_DCtx) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_decompressDCtx() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Same as ZSTD_decompress(),&quot;</span>]
+    #[doc = <span class="string">&quot;  requires an allocated ZSTD_DCtx.&quot;</span>]
+    #[doc = <span class="string">&quot;  Compatible with sticky parameters.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_decompressDCtx(
+        dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
+        dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dstCapacity: usize,
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+    ) -&gt; usize;
+}
+<span class="attribute">#[repr(u32)]
+#[doc = <span class="string">&quot;  Advanced compression API (Requires v1.4.0+)&quot;</span>]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>ZSTD_strategy {
+    ZSTD_fast = <span class="number">1</span>,
+    ZSTD_dfast = <span class="number">2</span>,
+    ZSTD_greedy = <span class="number">3</span>,
+    ZSTD_lazy = <span class="number">4</span>,
+    ZSTD_lazy2 = <span class="number">5</span>,
+    ZSTD_btlazy2 = <span class="number">6</span>,
+    ZSTD_btopt = <span class="number">7</span>,
+    ZSTD_btultra = <span class="number">8</span>,
+    ZSTD_btultra2 = <span class="number">9</span>,
+}
+<span class="attribute">#[repr(u32)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>ZSTD_cParameter {
+    ZSTD_c_compressionLevel = <span class="number">100</span>,
+    ZSTD_c_windowLog = <span class="number">101</span>,
+    ZSTD_c_hashLog = <span class="number">102</span>,
+    ZSTD_c_chainLog = <span class="number">103</span>,
+    ZSTD_c_searchLog = <span class="number">104</span>,
+    ZSTD_c_minMatch = <span class="number">105</span>,
+    ZSTD_c_targetLength = <span class="number">106</span>,
+    ZSTD_c_strategy = <span class="number">107</span>,
+    ZSTD_c_enableLongDistanceMatching = <span class="number">160</span>,
+    ZSTD_c_ldmHashLog = <span class="number">161</span>,
+    ZSTD_c_ldmMinMatch = <span class="number">162</span>,
+    ZSTD_c_ldmBucketSizeLog = <span class="number">163</span>,
+    ZSTD_c_ldmHashRateLog = <span class="number">164</span>,
+    ZSTD_c_contentSizeFlag = <span class="number">200</span>,
+    ZSTD_c_checksumFlag = <span class="number">201</span>,
+    ZSTD_c_dictIDFlag = <span class="number">202</span>,
+    ZSTD_c_nbWorkers = <span class="number">400</span>,
+    ZSTD_c_jobSize = <span class="number">401</span>,
+    ZSTD_c_overlapLog = <span class="number">402</span>,
+    ZSTD_c_experimentalParam1 = <span class="number">500</span>,
+    ZSTD_c_experimentalParam2 = <span class="number">10</span>,
+    ZSTD_c_experimentalParam3 = <span class="number">1000</span>,
+    ZSTD_c_experimentalParam4 = <span class="number">1001</span>,
+    ZSTD_c_experimentalParam5 = <span class="number">1002</span>,
+    ZSTD_c_experimentalParam6 = <span class="number">1003</span>,
+    ZSTD_c_experimentalParam7 = <span class="number">1004</span>,
+    ZSTD_c_experimentalParam8 = <span class="number">1005</span>,
+    ZSTD_c_experimentalParam9 = <span class="number">1006</span>,
+    ZSTD_c_experimentalParam10 = <span class="number">1007</span>,
+    ZSTD_c_experimentalParam11 = <span class="number">1008</span>,
+    ZSTD_c_experimentalParam12 = <span class="number">1009</span>,
+    ZSTD_c_experimentalParam13 = <span class="number">1010</span>,
+    ZSTD_c_experimentalParam14 = <span class="number">1011</span>,
+    ZSTD_c_experimentalParam15 = <span class="number">1012</span>,
+}
+<span class="attribute">#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub struct </span>ZSTD_bounds {
+    <span class="kw">pub </span>error: usize,
+    <span class="kw">pub </span>lowerBound: ::std::os::raw::c_int,
+    <span class="kw">pub </span>upperBound: ::std::os::raw::c_int,
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_cParam_getBounds() :&quot;</span>]
+    #[doc = <span class="string">&quot;  All parameters must belong to an interval with lower and upper bounds,&quot;</span>]
+    #[doc = <span class="string">&quot;  otherwise they will either trigger an error or be automatically clamped.&quot;</span>]
+    #[doc = <span class="string">&quot; @return : a structure, ZSTD_bounds, which contains&quot;</span>]
+    #[doc = <span class="string">&quot;         - an error status field, which must be tested using ZSTD_isError()&quot;</span>]
+    #[doc = <span class="string">&quot;         - lower and upper bounds, both inclusive&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_cParam_getBounds(cParam: ZSTD_cParameter) -&gt; ZSTD_bounds;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_CCtx_setParameter() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Set one compression parameter, selected by enum ZSTD_cParameter.&quot;</span>]
+    #[doc = <span class="string">&quot;  All parameters have valid bounds. Bounds can be queried using ZSTD_cParam_getBounds().&quot;</span>]
+    #[doc = <span class="string">&quot;  Providing a value beyond bound will either clamp it, or trigger an error (depending on parameter).&quot;</span>]
+    #[doc = <span class="string">&quot;  Setting a parameter is generally only possible during frame initialization (before starting compression).&quot;</span>]
+    #[doc = <span class="string">&quot;  Exception : when using multi-threading mode (nbWorkers &gt;= 1),&quot;</span>]
+    #[doc = <span class="string">&quot;              the following parameters can be updated _during_ compression (within same frame):&quot;</span>]
+    #[doc = <span class="string">&quot;              =&gt; compressionLevel, hashLog, chainLog, searchLog, minMatch, targetLength and strategy.&quot;</span>]
+    #[doc = <span class="string">&quot;              new parameters will be active for next job only (after a flush()).&quot;</span>]
+    #[doc = <span class="string">&quot; @return : an error code (which can be tested using ZSTD_isError()).&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_CCtx_setParameter(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        param: ZSTD_cParameter,
+        value: ::std::os::raw::c_int,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_CCtx_setPledgedSrcSize() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Total input data size to be compressed as a single frame.&quot;</span>]
+    #[doc = <span class="string">&quot;  Value will be written in frame header, unless if explicitly forbidden using ZSTD_c_contentSizeFlag.&quot;</span>]
+    #[doc = <span class="string">&quot;  This value will also be controlled at end of frame, and trigger an error if not respected.&quot;</span>]
+    #[doc = <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 1 : pledgedSrcSize==0 actually means zero, aka an empty frame.&quot;</span>]
+    #[doc = <span class="string">&quot;           In order to mean \&quot;unknown content size\&quot;, pass constant ZSTD_CONTENTSIZE_UNKNOWN.&quot;</span>]
+    #[doc = <span class="string">&quot;           ZSTD_CONTENTSIZE_UNKNOWN is default value for any new frame.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 2 : pledgedSrcSize is only valid once, for the next frame.&quot;</span>]
+    #[doc = <span class="string">&quot;           It&#39;s discarded at the end of the frame, and replaced by ZSTD_CONTENTSIZE_UNKNOWN.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 3 : Whenever all input data is provided and consumed in a single round,&quot;</span>]
+    #[doc = <span class="string">&quot;           for example with ZSTD_compress2(),&quot;</span>]
+    #[doc = <span class="string">&quot;           or invoking immediately ZSTD_compressStream2(,,,ZSTD_e_end),&quot;</span>]
+    #[doc = <span class="string">&quot;           this value is automatically overridden by srcSize instead.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_CCtx_setPledgedSrcSize(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        pledgedSrcSize: ::std::os::raw::c_ulonglong,
+    ) -&gt; usize;
+}
+<span class="attribute">#[repr(u32)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>ZSTD_ResetDirective {
+    ZSTD_reset_session_only = <span class="number">1</span>,
+    ZSTD_reset_parameters = <span class="number">2</span>,
+    ZSTD_reset_session_and_parameters = <span class="number">3</span>,
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_CCtx_reset() :&quot;</span>]
+    #[doc = <span class="string">&quot;  There are 2 different things that can be reset, independently or jointly :&quot;</span>]
+    #[doc = <span class="string">&quot;  - The session : will stop compressing current frame, and make CCtx ready to start a new one.&quot;</span>]
+    #[doc = <span class="string">&quot;                  Useful after an error, or to interrupt any ongoing compression.&quot;</span>]
+    #[doc = <span class="string">&quot;                  Any internal data not yet flushed is cancelled.&quot;</span>]
+    #[doc = <span class="string">&quot;                  Compression parameters and dictionary remain unchanged.&quot;</span>]
+    #[doc = <span class="string">&quot;                  They will be used to compress next frame.&quot;</span>]
+    #[doc = <span class="string">&quot;                  Resetting session never fails.&quot;</span>]
+    #[doc = <span class="string">&quot;  - The parameters : changes all parameters back to \&quot;default\&quot;.&quot;</span>]
+    #[doc = <span class="string">&quot;                  This removes any reference to any dictionary too.&quot;</span>]
+    #[doc = <span class="string">&quot;                  Parameters can only be changed between 2 sessions (i.e. no compression is currently ongoing)&quot;</span>]
+    #[doc = <span class="string">&quot;                  otherwise the reset fails, and function returns an error value (which can be tested using ZSTD_isError())&quot;</span>]
+    #[doc = <span class="string">&quot;  - Both : similar to resetting the session, followed by resetting parameters.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_CCtx_reset(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        reset: ZSTD_ResetDirective,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_compress2() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Behave the same as ZSTD_compressCCtx(), but compression parameters are set using the advanced API.&quot;</span>]
+    #[doc = <span class="string">&quot;  ZSTD_compress2() always starts a new frame.&quot;</span>]
+    #[doc = <span class="string">&quot;  Should cctx hold data from a previously unfinished frame, everything about it is forgotten.&quot;</span>]
+    #[doc = <span class="string">&quot;  - Compression parameters are pushed into CCtx before starting compression, using ZSTD_CCtx_set*()&quot;</span>]
+    #[doc = <span class="string">&quot;  - The function is always blocking, returns when compression is completed.&quot;</span>]
+    #[doc = <span class="string">&quot;  Hint : compression runs faster if `dstCapacity` &gt;=  `ZSTD_compressBound(srcSize)`.&quot;</span>]
+    #[doc = <span class="string">&quot; @return : compressed size written into `dst` (&lt;= `dstCapacity),&quot;</span>]
+    #[doc = <span class="string">&quot;           or an error code if it fails (which can be tested using ZSTD_isError()).&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_compress2(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dstCapacity: usize,
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+    ) -&gt; usize;
+}
+<span class="attribute">#[repr(u32)]
+#[doc = <span class="string">&quot;  Advanced decompression API (Requires v1.4.0+)&quot;</span>]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>ZSTD_dParameter {
+    ZSTD_d_windowLogMax = <span class="number">100</span>,
+    ZSTD_d_experimentalParam1 = <span class="number">1000</span>,
+    ZSTD_d_experimentalParam2 = <span class="number">1001</span>,
+    ZSTD_d_experimentalParam3 = <span class="number">1002</span>,
+    ZSTD_d_experimentalParam4 = <span class="number">1003</span>,
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_dParam_getBounds() :&quot;</span>]
+    #[doc = <span class="string">&quot;  All parameters must belong to an interval with lower and upper bounds,&quot;</span>]
+    #[doc = <span class="string">&quot;  otherwise they will either trigger an error or be automatically clamped.&quot;</span>]
+    #[doc = <span class="string">&quot; @return : a structure, ZSTD_bounds, which contains&quot;</span>]
+    #[doc = <span class="string">&quot;         - an error status field, which must be tested using ZSTD_isError()&quot;</span>]
+    #[doc = <span class="string">&quot;         - both lower and upper bounds, inclusive&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_dParam_getBounds(dParam: ZSTD_dParameter) -&gt; ZSTD_bounds;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_DCtx_setParameter() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Set one compression parameter, selected by enum ZSTD_dParameter.&quot;</span>]
+    #[doc = <span class="string">&quot;  All parameters have valid bounds. Bounds can be queried using ZSTD_dParam_getBounds().&quot;</span>]
+    #[doc = <span class="string">&quot;  Providing a value beyond bound will either clamp it, or trigger an error (depending on parameter).&quot;</span>]
+    #[doc = <span class="string">&quot;  Setting a parameter is only possible during frame initialization (before starting decompression).&quot;</span>]
+    #[doc = <span class="string">&quot; @return : 0, or an error code (which can be tested using ZSTD_isError()).&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_DCtx_setParameter(
+        dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
+        param: ZSTD_dParameter,
+        value: ::std::os::raw::c_int,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_DCtx_reset() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Return a DCtx to clean state.&quot;</span>]
+    #[doc = <span class="string">&quot;  Session and parameters can be reset jointly or separately.&quot;</span>]
+    #[doc = <span class="string">&quot;  Parameters can only be reset when no active frame is being decompressed.&quot;</span>]
+    #[doc = <span class="string">&quot; @return : 0, or an error code, which can be tested with ZSTD_isError()&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_DCtx_reset(
+        dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
+        reset: ZSTD_ResetDirective,
+    ) -&gt; usize;
+}
+<span class="attribute">#[doc = <span class="string">&quot;  Streaming&quot;</span>]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub struct </span>ZSTD_inBuffer_s {
+    <span class="attribute">#[doc = <span class="string">&quot;&lt; start of input buffer&quot;</span>]
+    </span><span class="kw">pub </span>src: <span class="kw-2">*const </span>::core::ffi::c_void,
+    <span class="attribute">#[doc = <span class="string">&quot;&lt; size of input buffer&quot;</span>]
+    </span><span class="kw">pub </span>size: usize,
+    <span class="attribute">#[doc = <span class="string">&quot;&lt; position where reading stopped. Will be updated. Necessarily 0 &lt;= pos &lt;= size&quot;</span>]
+    </span><span class="kw">pub </span>pos: usize,
+}
+<span class="attribute">#[doc = <span class="string">&quot;  Streaming&quot;</span>]
+</span><span class="kw">pub type </span>ZSTD_inBuffer = ZSTD_inBuffer_s;
+<span class="attribute">#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub struct </span>ZSTD_outBuffer_s {
+    <span class="attribute">#[doc = <span class="string">&quot;&lt; start of output buffer&quot;</span>]
+    </span><span class="kw">pub </span>dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+    <span class="attribute">#[doc = <span class="string">&quot;&lt; size of output buffer&quot;</span>]
+    </span><span class="kw">pub </span>size: usize,
+    <span class="attribute">#[doc = <span class="string">&quot;&lt; position where writing stopped. Will be updated. Necessarily 0 &lt;= pos &lt;= size&quot;</span>]
+    </span><span class="kw">pub </span>pos: usize,
+}
+<span class="kw">pub type </span>ZSTD_outBuffer = ZSTD_outBuffer_s;
+<span class="kw">pub type </span>ZSTD_CStream = ZSTD_CCtx;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_createCStream() -&gt; <span class="kw-2">*mut </span>ZSTD_CStream;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_freeCStream(zcs: <span class="kw-2">*mut </span>ZSTD_CStream) -&gt; usize;
+}
+<span class="attribute">#[repr(u32)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>ZSTD_EndDirective {
+    ZSTD_e_continue = <span class="number">0</span>,
+    ZSTD_e_flush = <span class="number">1</span>,
+    ZSTD_e_end = <span class="number">2</span>,
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_compressStream2() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Behaves about the same as ZSTD_compressStream, with additional control on end directive.&quot;</span>]
+    #[doc = <span class="string">&quot;  - Compression parameters are pushed into CCtx before starting compression, using ZSTD_CCtx_set*()&quot;</span>]
+    #[doc = <span class="string">&quot;  - Compression parameters cannot be changed once compression is started (save a list of exceptions in multi-threading mode)&quot;</span>]
+    #[doc = <span class="string">&quot;  - output-&gt;pos must be &lt;= dstCapacity, input-&gt;pos must be &lt;= srcSize&quot;</span>]
+    #[doc = <span class="string">&quot;  - output-&gt;pos and input-&gt;pos will be updated. They are guaranteed to remain below their respective limit.&quot;</span>]
+    #[doc = <span class="string">&quot;  - endOp must be a valid directive&quot;</span>]
+    #[doc = <span class="string">&quot;  - When nbWorkers==0 (default), function is blocking : it completes its job before returning to caller.&quot;</span>]
+    #[doc = <span class="string">&quot;  - When nbWorkers&gt;=1, function is non-blocking : it copies a portion of input, distributes jobs to internal worker threads, flush to output whatever is available,&quot;</span>]
+    #[doc = <span class="string">&quot;                                                  and then immediately returns, just indicating that there is some data remaining to be flushed.&quot;</span>]
+    #[doc = <span class="string">&quot;                                                  The function nonetheless guarantees forward progress : it will return only after it reads or write at least 1+ byte.&quot;</span>]
+    #[doc = <span class="string">&quot;  - Exception : if the first call requests a ZSTD_e_end directive and provides enough dstCapacity, the function delegates to ZSTD_compress2() which is always blocking.&quot;</span>]
+    #[doc = <span class="string">&quot;  - @return provides a minimum amount of data remaining to be flushed from internal buffers&quot;</span>]
+    #[doc = <span class="string">&quot;            or an error code, which can be tested using ZSTD_isError().&quot;</span>]
+    #[doc = <span class="string">&quot;            if @return != 0, flush is not fully completed, there is still some data left within internal buffers.&quot;</span>]
+    #[doc = <span class="string">&quot;            This is useful for ZSTD_e_flush, since in this case more flushes are necessary to empty all buffers.&quot;</span>]
+    #[doc = <span class="string">&quot;            For ZSTD_e_end, @return == 0 when internal buffers are fully flushed and frame is completed.&quot;</span>]
+    #[doc = <span class="string">&quot;  - after a ZSTD_e_end directive, if internal buffer is not fully flushed (@return != 0),&quot;</span>]
+    #[doc = <span class="string">&quot;            only ZSTD_e_end or ZSTD_e_flush operations are allowed.&quot;</span>]
+    #[doc = <span class="string">&quot;            Before starting a new compression job, or changing compression parameters,&quot;</span>]
+    #[doc = <span class="string">&quot;            it is required to fully flush internal buffers.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_compressStream2(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
+        input: <span class="kw-2">*mut </span>ZSTD_inBuffer,
+        endOp: ZSTD_EndDirective,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_CStreamInSize() -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_CStreamOutSize() -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; Equivalent to:&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;     ZSTD_CCtx_reset(zcs, ZSTD_reset_session_only);&quot;</span>]
+    #[doc = <span class="string">&quot;     ZSTD_CCtx_refCDict(zcs, NULL); // clear the dictionary (if any)&quot;</span>]
+    #[doc = <span class="string">&quot;     ZSTD_CCtx_setParameter(zcs, ZSTD_c_compressionLevel, compressionLevel);&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_initCStream(
+        zcs: <span class="kw-2">*mut </span>ZSTD_CStream,
+        compressionLevel: ::std::os::raw::c_int,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; Alternative for ZSTD_compressStream2(zcs, output, input, ZSTD_e_continue).&quot;</span>]
+    #[doc = <span class="string">&quot; NOTE: The return value is different. ZSTD_compressStream() returns a hint for&quot;</span>]
+    #[doc = <span class="string">&quot; the next read size (if non-zero and not an error). ZSTD_compressStream2()&quot;</span>]
+    #[doc = <span class="string">&quot; returns the minimum nb of bytes left to flush (if non-zero and not an error).&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_compressStream(
+        zcs: <span class="kw-2">*mut </span>ZSTD_CStream,
+        output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
+        input: <span class="kw-2">*mut </span>ZSTD_inBuffer,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_flush).&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_flushStream(
+        zcs: <span class="kw-2">*mut </span>ZSTD_CStream,
+        output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; Equivalent to ZSTD_compressStream2(zcs, output, &amp;emptyInput, ZSTD_e_end).&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_endStream(
+        zcs: <span class="kw-2">*mut </span>ZSTD_CStream,
+        output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
+    ) -&gt; usize;
+}
+<span class="kw">pub type </span>ZSTD_DStream = ZSTD_DCtx;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_createDStream() -&gt; <span class="kw-2">*mut </span>ZSTD_DStream;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_freeDStream(zds: <span class="kw-2">*mut </span>ZSTD_DStream) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_initDStream(zds: <span class="kw-2">*mut </span>ZSTD_DStream) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_decompressStream(
+        zds: <span class="kw-2">*mut </span>ZSTD_DStream,
+        output: <span class="kw-2">*mut </span>ZSTD_outBuffer,
+        input: <span class="kw-2">*mut </span>ZSTD_inBuffer,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_DStreamInSize() -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_DStreamOutSize() -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot;  Simple dictionary API&quot;</span>]
+    #[doc = <span class="string">&quot;  Compression at an explicit compression level using a Dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot;  A dictionary can be any arbitrary data segment (also called a prefix),&quot;</span>]
+    #[doc = <span class="string">&quot;  or a buffer with specified information (see zdict.h).&quot;</span>]
+    #[doc = <span class="string">&quot;  Note : This function loads the dictionary, resulting in significant startup delay.&quot;</span>]
+    #[doc = <span class="string">&quot;         It&#39;s intended for a dictionary used only once.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 2 : When `dict == NULL || dictSize &lt; 8` no dictionary is used.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_compress_usingDict(
+        ctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dstCapacity: usize,
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+        dict: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictSize: usize,
+        compressionLevel: ::std::os::raw::c_int,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_decompress_usingDict() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Decompression using a known Dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot;  Dictionary must be identical to the one used during compression.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note : This function loads the dictionary, resulting in significant startup delay.&quot;</span>]
+    #[doc = <span class="string">&quot;         It&#39;s intended for a dictionary used only once.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note : When `dict == NULL || dictSize &lt; 8` no dictionary is used.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_decompress_usingDict(
+        dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
+        dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dstCapacity: usize,
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+        dict: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictSize: usize,
+    ) -&gt; usize;
+}
+<span class="attribute">#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub struct </span>ZSTD_CDict_s {
+    _unused: [u8; <span class="number">0</span>],
+}
+<span class="attribute">#[doc = <span class="string">&quot;  Bulk processing dictionary API&quot;</span>]
+</span><span class="kw">pub type </span>ZSTD_CDict = ZSTD_CDict_s;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_createCDict() :&quot;</span>]
+    #[doc = <span class="string">&quot;  When compressing multiple messages or blocks using the same dictionary,&quot;</span>]
+    #[doc = <span class="string">&quot;  it&#39;s recommended to digest the dictionary only once, since it&#39;s a costly operation.&quot;</span>]
+    #[doc = <span class="string">&quot;  ZSTD_createCDict() will create a state from digesting a dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot;  The resulting state can be used for future compression operations with very limited startup cost.&quot;</span>]
+    #[doc = <span class="string">&quot;  ZSTD_CDict can be created once and shared by multiple threads concurrently, since its usage is read-only.&quot;</span>]
+    #[doc = <span class="string">&quot; @dictBuffer can be released after ZSTD_CDict creation, because its content is copied within CDict.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 1 : Consider experimental function `ZSTD_createCDict_byReference()` if you prefer to not duplicate @dictBuffer content.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 2 : A ZSTD_CDict can be created from an empty @dictBuffer,&quot;</span>]
+    #[doc = <span class="string">&quot;      in which case the only thing that it transports is the @compressionLevel.&quot;</span>]
+    #[doc = <span class="string">&quot;      This can be useful in a pipeline featuring ZSTD_compress_usingCDict() exclusively,&quot;</span>]
+    #[doc = <span class="string">&quot;      expecting a ZSTD_CDict parameter with any data, including those without a known dictionary.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_createCDict(
+        dictBuffer: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictSize: usize,
+        compressionLevel: ::std::os::raw::c_int,
+    ) -&gt; <span class="kw-2">*mut </span>ZSTD_CDict;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_freeCDict() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Function frees memory allocated by ZSTD_createCDict().&quot;</span>]
+    #[doc = <span class="string">&quot;  If a NULL pointer is passed, no operation is performed.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_freeCDict(CDict: <span class="kw-2">*mut </span>ZSTD_CDict) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_compress_usingCDict() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Compression using a digested Dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot;  Recommended when same dictionary is used multiple times.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note : compression level is _decided at dictionary creation time_,&quot;</span>]
+    #[doc = <span class="string">&quot;     and frame parameters are hardcoded (dictID=yes, contentSize=yes, checksum=no)&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_compress_usingCDict(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dstCapacity: usize,
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+        cdict: <span class="kw-2">*const </span>ZSTD_CDict,
+    ) -&gt; usize;
+}
+<span class="attribute">#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub struct </span>ZSTD_DDict_s {
+    _unused: [u8; <span class="number">0</span>],
+}
+<span class="kw">pub type </span>ZSTD_DDict = ZSTD_DDict_s;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_createDDict() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Create a digested dictionary, ready to start decompression operation without startup delay.&quot;</span>]
+    #[doc = <span class="string">&quot;  dictBuffer can be released after DDict creation, as its content is copied inside DDict.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_createDDict(
+        dictBuffer: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictSize: usize,
+    ) -&gt; <span class="kw-2">*mut </span>ZSTD_DDict;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_freeDDict() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Function frees memory allocated with ZSTD_createDDict()&quot;</span>]
+    #[doc = <span class="string">&quot;  If a NULL pointer is passed, no operation is performed.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_freeDDict(ddict: <span class="kw-2">*mut </span>ZSTD_DDict) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_decompress_usingDDict() :&quot;</span>]
+    #[doc = <span class="string">&quot;  Decompression using a digested Dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot;  Recommended when same dictionary is used multiple times.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_decompress_usingDDict(
+        dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
+        dst: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dstCapacity: usize,
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+        ddict: <span class="kw-2">*const </span>ZSTD_DDict,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_getDictID_fromDict() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Provides the dictID stored within dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot;  if @return == 0, the dictionary is not conformant with Zstandard specification.&quot;</span>]
+    #[doc = <span class="string">&quot;  It can still be loaded, but as a content-only dictionary.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_getDictID_fromDict(
+        dict: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictSize: usize,
+    ) -&gt; ::std::os::raw::c_uint;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_getDictID_fromCDict() : Requires v1.5.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Provides the dictID of the dictionary loaded into `cdict`.&quot;</span>]
+    #[doc = <span class="string">&quot;  If @return == 0, the dictionary is not conformant to Zstandard specification, or empty.&quot;</span>]
+    #[doc = <span class="string">&quot;  Non-conformant dictionaries can still be loaded, but as content-only dictionaries.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_getDictID_fromCDict(
+        cdict: <span class="kw-2">*const </span>ZSTD_CDict,
+    ) -&gt; ::std::os::raw::c_uint;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_getDictID_fromDDict() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Provides the dictID of the dictionary loaded into `ddict`.&quot;</span>]
+    #[doc = <span class="string">&quot;  If @return == 0, the dictionary is not conformant to Zstandard specification, or empty.&quot;</span>]
+    #[doc = <span class="string">&quot;  Non-conformant dictionaries can still be loaded, but as content-only dictionaries.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_getDictID_fromDDict(
+        ddict: <span class="kw-2">*const </span>ZSTD_DDict,
+    ) -&gt; ::std::os::raw::c_uint;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_getDictID_fromFrame() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Provides the dictID required to decompressed the frame stored within `src`.&quot;</span>]
+    #[doc = <span class="string">&quot;  If @return == 0, the dictID could not be decoded.&quot;</span>]
+    #[doc = <span class="string">&quot;  This could for one of the following reasons :&quot;</span>]
+    #[doc = <span class="string">&quot;  - The frame does not require a dictionary to be decoded (most common case).&quot;</span>]
+    #[doc = <span class="string">&quot;  - The frame was built with dictID intentionally removed. Whatever dictionary is necessary is a hidden information.&quot;</span>]
+    #[doc = <span class="string">&quot;    Note : this use case also happens when using a non-conformant dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot;  - `srcSize` is too small, and as a result, the frame header could not be decoded (only possible if `srcSize &lt; ZSTD_FRAMEHEADERSIZE_MAX`).&quot;</span>]
+    #[doc = <span class="string">&quot;  - This is not a Zstandard frame.&quot;</span>]
+    #[doc = <span class="string">&quot;  When identifying the exact failure cause, it&#39;s possible to use ZSTD_getFrameHeader(), which will provide a more precise error code.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_getDictID_fromFrame(
+        src: <span class="kw-2">*const </span>::core::ffi::c_void,
+        srcSize: usize,
+    ) -&gt; ::std::os::raw::c_uint;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_CCtx_loadDictionary() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Create an internal CDict from `dict` buffer.&quot;</span>]
+    #[doc = <span class="string">&quot;  Decompression will have to use same dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]
+    #[doc = <span class="string">&quot;  Special: Loading a NULL (or 0-size) dictionary invalidates previous dictionary,&quot;</span>]
+    #[doc = <span class="string">&quot;           meaning \&quot;return to no-dictionary mode\&quot;.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 1 : Dictionary is sticky, it will be used for all future compressed frames.&quot;</span>]
+    #[doc = <span class="string">&quot;           To return to \&quot;no-dictionary\&quot; situation, load a NULL dictionary (or reset parameters).&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 2 : Loading a dictionary involves building tables.&quot;</span>]
+    #[doc = <span class="string">&quot;           It&#39;s also a CPU consuming operation, with non-negligible impact on latency.&quot;</span>]
+    #[doc = <span class="string">&quot;           Tables are dependent on compression parameters, and for this reason,&quot;</span>]
+    #[doc = <span class="string">&quot;           compression parameters can no longer be changed after loading a dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 3 :`dict` content will be copied internally.&quot;</span>]
+    #[doc = <span class="string">&quot;           Use experimental ZSTD_CCtx_loadDictionary_byReference() to reference content instead.&quot;</span>]
+    #[doc = <span class="string">&quot;           In such a case, dictionary buffer must outlive its users.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 4 : Use ZSTD_CCtx_loadDictionary_advanced()&quot;</span>]
+    #[doc = <span class="string">&quot;           to precisely select how dictionary content must be interpreted.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_CCtx_loadDictionary(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        dict: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictSize: usize,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_CCtx_refCDict() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Reference a prepared dictionary, to be used for all next compressed frames.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note that compression parameters are enforced from within CDict,&quot;</span>]
+    #[doc = <span class="string">&quot;  and supersede any compression parameter previously set within CCtx.&quot;</span>]
+    #[doc = <span class="string">&quot;  The parameters ignored are labelled as \&quot;superseded-by-cdict\&quot; in the ZSTD_cParameter enum docs.&quot;</span>]
+    #[doc = <span class="string">&quot;  The ignored parameters will be used again if the CCtx is returned to no-dictionary mode.&quot;</span>]
+    #[doc = <span class="string">&quot;  The dictionary will remain valid for future compressed frames using same CCtx.&quot;</span>]
+    #[doc = <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]
+    #[doc = <span class="string">&quot;  Special : Referencing a NULL CDict means \&quot;return to no-dictionary mode\&quot;.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 1 : Currently, only one dictionary can be managed.&quot;</span>]
+    #[doc = <span class="string">&quot;           Referencing a new dictionary effectively \&quot;discards\&quot; any previous one.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 2 : CDict is just referenced, its lifetime must outlive its usage within CCtx.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_CCtx_refCDict(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        cdict: <span class="kw-2">*const </span>ZSTD_CDict,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_CCtx_refPrefix() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Reference a prefix (single-usage dictionary) for next compressed frame.&quot;</span>]
+    #[doc = <span class="string">&quot;  A prefix is **only used once**. Tables are discarded at end of frame (ZSTD_e_end).&quot;</span>]
+    #[doc = <span class="string">&quot;  Decompression will need same prefix to properly regenerate data.&quot;</span>]
+    #[doc = <span class="string">&quot;  Compressing with a prefix is similar in outcome as performing a diff and compressing it,&quot;</span>]
+    #[doc = <span class="string">&quot;  but performs much faster, especially during decompression (compression speed is tunable with compression level).&quot;</span>]
+    #[doc = <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]
+    #[doc = <span class="string">&quot;  Special: Adding any prefix (including NULL) invalidates any previous prefix or dictionary&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 1 : Prefix buffer is referenced. It **must** outlive compression.&quot;</span>]
+    #[doc = <span class="string">&quot;           Its content must remain unmodified during compression.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 2 : If the intention is to diff some large src data blob with some prior version of itself,&quot;</span>]
+    #[doc = <span class="string">&quot;           ensure that the window size is large enough to contain the entire source.&quot;</span>]
+    #[doc = <span class="string">&quot;           See ZSTD_c_windowLog.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 3 : Referencing a prefix involves building tables, which are dependent on compression parameters.&quot;</span>]
+    #[doc = <span class="string">&quot;           It&#39;s a CPU consuming operation, with non-negligible impact on latency.&quot;</span>]
+    #[doc = <span class="string">&quot;           If there is a need to use the same prefix multiple times, consider loadDictionary instead.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 4 : By default, the prefix is interpreted as raw content (ZSTD_dct_rawContent).&quot;</span>]
+    #[doc = <span class="string">&quot;           Use experimental ZSTD_CCtx_refPrefix_advanced() to alter dictionary interpretation.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_CCtx_refPrefix(
+        cctx: <span class="kw-2">*mut </span>ZSTD_CCtx,
+        prefix: <span class="kw-2">*const </span>::core::ffi::c_void,
+        prefixSize: usize,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_DCtx_loadDictionary() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Create an internal DDict from dict buffer,&quot;</span>]
+    #[doc = <span class="string">&quot;  to be used to decompress next frames.&quot;</span>]
+    #[doc = <span class="string">&quot;  The dictionary remains valid for all future frames, until explicitly invalidated.&quot;</span>]
+    #[doc = <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]
+    #[doc = <span class="string">&quot;  Special : Adding a NULL (or 0-size) dictionary invalidates any previous dictionary,&quot;</span>]
+    #[doc = <span class="string">&quot;            meaning \&quot;return to no-dictionary mode\&quot;.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 1 : Loading a dictionary involves building tables,&quot;</span>]
+    #[doc = <span class="string">&quot;           which has a non-negligible impact on CPU usage and latency.&quot;</span>]
+    #[doc = <span class="string">&quot;           It&#39;s recommended to \&quot;load once, use many times\&quot;, to amortize the cost&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 2 :`dict` content will be copied internally, so `dict` can be released after loading.&quot;</span>]
+    #[doc = <span class="string">&quot;           Use ZSTD_DCtx_loadDictionary_byReference() to reference dictionary content instead.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 3 : Use ZSTD_DCtx_loadDictionary_advanced() to take control of&quot;</span>]
+    #[doc = <span class="string">&quot;           how dictionary content is loaded and interpreted.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_DCtx_loadDictionary(
+        dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
+        dict: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictSize: usize,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_DCtx_refDDict() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Reference a prepared dictionary, to be used to decompress next frames.&quot;</span>]
+    #[doc = <span class="string">&quot;  The dictionary remains active for decompression of future frames using same DCtx.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot;  If called with ZSTD_d_refMultipleDDicts enabled, repeated calls of this function&quot;</span>]
+    #[doc = <span class="string">&quot;  will store the DDict references in a table, and the DDict used for decompression&quot;</span>]
+    #[doc = <span class="string">&quot;  will be determined at decompression time, as per the dict ID in the frame.&quot;</span>]
+    #[doc = <span class="string">&quot;  The memory for the table is allocated on the first call to refDDict, and can be&quot;</span>]
+    #[doc = <span class="string">&quot;  freed with ZSTD_freeDCtx().&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 1 : Currently, only one dictionary can be managed.&quot;</span>]
+    #[doc = <span class="string">&quot;           Referencing a new dictionary effectively \&quot;discards\&quot; any previous one.&quot;</span>]
+    #[doc = <span class="string">&quot;  Special: referencing a NULL DDict means \&quot;return to no-dictionary mode\&quot;.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 2 : DDict is just referenced, its lifetime must outlive its usage from DCtx.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_DCtx_refDDict(
+        dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
+        ddict: <span class="kw-2">*const </span>ZSTD_DDict,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_DCtx_refPrefix() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  Reference a prefix (single-usage dictionary) to decompress next frame.&quot;</span>]
+    #[doc = <span class="string">&quot;  This is the reverse operation of ZSTD_CCtx_refPrefix(),&quot;</span>]
+    #[doc = <span class="string">&quot;  and must use the same prefix as the one used during compression.&quot;</span>]
+    #[doc = <span class="string">&quot;  Prefix is **only used once**. Reference is discarded at end of frame.&quot;</span>]
+    #[doc = <span class="string">&quot;  End of frame is reached when ZSTD_decompressStream() returns 0.&quot;</span>]
+    #[doc = <span class="string">&quot; @result : 0, or an error code (which can be tested with ZSTD_isError()).&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 1 : Adding any prefix (including NULL) invalidates any previously set prefix or dictionary&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 2 : Prefix buffer is referenced. It **must** outlive decompression.&quot;</span>]
+    #[doc = <span class="string">&quot;           Prefix buffer must remain unmodified up to the end of frame,&quot;</span>]
+    #[doc = <span class="string">&quot;           reached when ZSTD_decompressStream() returns 0.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 3 : By default, the prefix is treated as raw content (ZSTD_dct_rawContent).&quot;</span>]
+    #[doc = <span class="string">&quot;           Use ZSTD_CCtx_refPrefix_advanced() to alter dictMode (Experimental section)&quot;</span>]
+    #[doc = <span class="string">&quot;  Note 4 : Referencing a raw content prefix has almost no cpu nor memory cost.&quot;</span>]
+    #[doc = <span class="string">&quot;           A full dictionary is more costly, as it requires building tables.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_DCtx_refPrefix(
+        dctx: <span class="kw-2">*mut </span>ZSTD_DCtx,
+        prefix: <span class="kw-2">*const </span>::core::ffi::c_void,
+        prefixSize: usize,
+    ) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZSTD_sizeof_*() : Requires v1.4.0+&quot;</span>]
+    #[doc = <span class="string">&quot;  These functions give the _current_ memory usage of selected object.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note that object memory usage can evolve (increase or decrease) over time.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZSTD_sizeof_CCtx(cctx: <span class="kw-2">*const </span>ZSTD_CCtx) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_sizeof_DCtx(dctx: <span class="kw-2">*const </span>ZSTD_DCtx) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_sizeof_CStream(zcs: <span class="kw-2">*const </span>ZSTD_CStream) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_sizeof_DStream(zds: <span class="kw-2">*const </span>ZSTD_DStream) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_sizeof_CDict(cdict: <span class="kw-2">*const </span>ZSTD_CDict) -&gt; usize;
+}
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZSTD_sizeof_DDict(ddict: <span class="kw-2">*const </span>ZSTD_DDict) -&gt; usize;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="zstd_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="zstd_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

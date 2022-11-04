@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-rt-2.7.0/src/runtime.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>runtime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_rt/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_rt/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-rt-2.7.0/src/runtime.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>runtime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_rt/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_rt/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_rt/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -91,96 +91,96 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">future::Future</span>, <span class="ident">io</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{future::Future, io};
 
-<span class="kw">use</span> <span class="ident">tokio::task</span>::{<span class="ident">JoinHandle</span>, <span class="ident">LocalSet</span>};
+<span class="kw">use </span>tokio::task::{JoinHandle, LocalSet};
 
-<span class="doccomment">/// A Tokio-based runtime proxy.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// All spawned futures will be executed on the current thread. Therefore, there is no `Send` bound</span>
-<span class="doccomment">/// on submitted futures.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Runtime</span> {
-    <span class="ident">local</span>: <span class="ident">LocalSet</span>,
-    <span class="ident">rt</span>: <span class="ident">tokio::runtime::Runtime</span>,
+<span class="doccomment">/// A Tokio-based runtime proxy.
+///
+/// All spawned futures will be executed on the current thread. Therefore, there is no `Send` bound
+/// on submitted futures.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Runtime {
+    local: LocalSet,
+    rt: tokio::runtime::Runtime,
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">default_tokio_runtime</span>() -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">tokio::runtime::Runtime</span><span class="op">&gt;</span> {
-    <span class="ident">tokio::runtime::Builder::new_current_thread</span>()
-        .<span class="ident">enable_io</span>()
-        .<span class="ident">enable_time</span>()
-        .<span class="ident">build</span>()
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>default_tokio_runtime() -&gt; io::Result&lt;tokio::runtime::Runtime&gt; {
+    tokio::runtime::Builder::new_current_thread()
+        .enable_io()
+        .enable_time()
+        .build()
 }
 
-<span class="kw">impl</span> <span class="ident">Runtime</span> {
-    <span class="doccomment">/// Returns a new runtime initialized with default configuration values.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::new_ret_no_self</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">default_tokio_runtime</span>()<span class="question-mark">?</span>;
+<span class="kw">impl </span>Runtime {
+    <span class="doccomment">/// Returns a new runtime initialized with default configuration values.
+    </span><span class="attribute">#[allow(clippy::new_ret_no_self)]
+    </span><span class="kw">pub fn </span>new() -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>rt = default_tokio_runtime()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Runtime</span> {
-            <span class="ident">rt</span>,
-            <span class="ident">local</span>: <span class="ident">LocalSet::new</span>(),
+        <span class="prelude-val">Ok</span>(Runtime {
+            rt,
+            local: LocalSet::new(),
         })
     }
 
-    <span class="doccomment">/// Offload a future onto the single-threaded runtime.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned join handle can be used to await the future&#39;s result.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [crate root][crate] documentation for more details.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// let rt = actix_rt::Runtime::new().unwrap();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Spawn a future onto the runtime</span>
-    <span class="doccomment">/// let handle = rt.spawn(async {</span>
-    <span class="doccomment">///     println!(&quot;running on the runtime&quot;);</span>
-    <span class="doccomment">///     42</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(rt.block_on(handle).unwrap(), 42);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// This function panics if the spawn fails. Failure occurs if the executor is currently at</span>
-    <span class="doccomment">/// capacity and is unable to spawn a new future.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spawn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) -&gt; <span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">F::Output</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Future</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Offload a future onto the single-threaded runtime.
+    ///
+    /// The returned join handle can be used to await the future&#39;s result.
+    ///
+    /// See [crate root][crate] documentation for more details.
+    ///
+    /// # Examples
+    /// ```
+    /// let rt = actix_rt::Runtime::new().unwrap();
+    ///
+    /// // Spawn a future onto the runtime
+    /// let handle = rt.spawn(async {
+    ///     println!(&quot;running on the runtime&quot;);
+    ///     42
+    /// });
+    ///
+    /// assert_eq!(rt.block_on(handle).unwrap(), 42);
+    /// ```
+    ///
+    /// # Panics
+    /// This function panics if the spawn fails. Failure occurs if the executor is currently at
+    /// capacity and is unable to spawn a new future.
+    </span><span class="kw">pub fn </span>spawn&lt;F&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, future: F) -&gt; JoinHandle&lt;F::Output&gt;
+    <span class="kw">where
+        </span>F: Future + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">local</span>.<span class="ident">spawn_local</span>(<span class="ident">future</span>)
+        <span class="self">self</span>.local.spawn_local(future)
     }
 
-    <span class="doccomment">/// Runs the provided future, blocking the current thread until the future completes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function can be used to synchronously block the current thread until the provided</span>
-    <span class="doccomment">/// `future` has resolved either successfully or with an error. The result of the future is</span>
-    <span class="doccomment">/// then returned from this function call.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this function will also execute any spawned futures on the current thread, but</span>
-    <span class="doccomment">/// will not block until these other spawned futures have completed. Once the function returns,</span>
-    <span class="doccomment">/// any uncompleted futures remain pending in the `Runtime` instance. These futures will not run</span>
-    <span class="doccomment">/// until `block_on` or `run` is called again.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The caller is responsible for ensuring that other spawned futures complete execution by</span>
-    <span class="doccomment">/// calling `block_on` or `run`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">F::Output</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Future</span>,
+    <span class="doccomment">/// Runs the provided future, blocking the current thread until the future completes.
+    ///
+    /// This function can be used to synchronously block the current thread until the provided
+    /// `future` has resolved either successfully or with an error. The result of the future is
+    /// then returned from this function call.
+    ///
+    /// Note that this function will also execute any spawned futures on the current thread, but
+    /// will not block until these other spawned futures have completed. Once the function returns,
+    /// any uncompleted futures remain pending in the `Runtime` instance. These futures will not run
+    /// until `block_on` or `run` is called again.
+    ///
+    /// The caller is responsible for ensuring that other spawned futures complete execution by
+    /// calling `block_on` or `run`.
+    </span><span class="kw">pub fn </span>block_on&lt;F&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, f: F) -&gt; F::Output
+    <span class="kw">where
+        </span>F: Future,
     {
-        <span class="self">self</span>.<span class="ident">local</span>.<span class="ident">block_on</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rt</span>, <span class="ident">f</span>)
+        <span class="self">self</span>.local.block_on(<span class="kw-2">&amp;</span><span class="self">self</span>.rt, f)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">tokio::runtime::Runtime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Runtime</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">rt</span>: <span class="ident">tokio::runtime::Runtime</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">local</span>: <span class="ident">LocalSet::new</span>(),
-            <span class="ident">rt</span>,
+<span class="kw">impl </span>From&lt;tokio::runtime::Runtime&gt; <span class="kw">for </span>Runtime {
+    <span class="kw">fn </span>from(rt: tokio::runtime::Runtime) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            local: LocalSet::new(),
+            rt,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_rt" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_rt" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

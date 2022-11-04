@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/derives/type.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>type.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/derives/type.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>type.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -229,236 +229,236 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::attributes</span>::{
-    <span class="ident">check_strong_enum_attributes</span>, <span class="ident">check_struct_attributes</span>, <span class="ident">check_transparent_attributes</span>,
-    <span class="ident">check_weak_enum_attributes</span>, <span class="ident">parse_container_attributes</span>, <span class="ident">TypeName</span>,
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::attributes::{
+    check_strong_enum_attributes, check_struct_attributes, check_transparent_attributes,
+    check_weak_enum_attributes, parse_container_attributes, TypeName,
 };
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Ident</span>, <span class="ident">TokenStream</span>};
-<span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">quote</span>, <span class="ident">quote_spanned</span>};
-<span class="kw">use</span> <span class="ident">syn::punctuated::Punctuated</span>;
-<span class="kw">use</span> <span class="ident">syn::token::Comma</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{
-    <span class="ident">parse_quote</span>, <span class="ident">Data</span>, <span class="ident">DataEnum</span>, <span class="ident">DataStruct</span>, <span class="ident">DeriveInput</span>, <span class="ident">Field</span>, <span class="ident">Fields</span>, <span class="ident">FieldsNamed</span>,
-    <span class="ident">FieldsUnnamed</span>, <span class="ident">Variant</span>,
+<span class="kw">use </span>proc_macro2::{Ident, TokenStream};
+<span class="kw">use </span>quote::{quote, quote_spanned};
+<span class="kw">use </span>syn::punctuated::Punctuated;
+<span class="kw">use </span>syn::token::Comma;
+<span class="kw">use </span>syn::{
+    parse_quote, Data, DataEnum, DataStruct, DeriveInput, Field, Fields, FieldsNamed,
+    FieldsUnnamed, Variant,
 };
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_derive_type</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">parse_container_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
-    <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">data</span> {
-        <span class="ident">Data::Struct</span>(<span class="ident">DataStruct</span> {
-            <span class="ident">fields</span>: <span class="ident">Fields::Unnamed</span>(<span class="ident">FieldsUnnamed</span> { <span class="ident">unnamed</span>, .. }),
+<span class="kw">pub fn </span>expand_derive_type(input: <span class="kw-2">&amp;</span>DeriveInput) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>attrs = parse_container_attributes(<span class="kw-2">&amp;</span>input.attrs)<span class="question-mark">?</span>;
+    <span class="kw">match </span><span class="kw-2">&amp;</span>input.data {
+        Data::Struct(DataStruct {
+            fields: Fields::Unnamed(FieldsUnnamed { unnamed, .. }),
             ..
-        }) <span class="kw">if</span> <span class="ident">unnamed</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> =&gt; {
-            <span class="ident">expand_derive_has_sql_type_transparent</span>(<span class="ident">input</span>, <span class="ident">unnamed</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>())
+        }) <span class="kw">if </span>unnamed.len() == <span class="number">1 </span>=&gt; {
+            expand_derive_has_sql_type_transparent(input, unnamed.first().unwrap())
         }
-        <span class="ident">Data::Enum</span>(<span class="ident">DataEnum</span> { <span class="ident">variants</span>, .. }) =&gt; <span class="kw">match</span> <span class="ident">attrs</span>.<span class="ident">repr</span> {
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="ident">expand_derive_has_sql_type_weak_enum</span>(<span class="ident">input</span>, <span class="ident">variants</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">expand_derive_has_sql_type_strong_enum</span>(<span class="ident">input</span>, <span class="ident">variants</span>),
+        Data::Enum(DataEnum { variants, .. }) =&gt; <span class="kw">match </span>attrs.repr {
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; expand_derive_has_sql_type_weak_enum(input, variants),
+            <span class="prelude-val">None </span>=&gt; expand_derive_has_sql_type_strong_enum(input, variants),
         },
-        <span class="ident">Data::Struct</span>(<span class="ident">DataStruct</span> {
-            <span class="ident">fields</span>: <span class="ident">Fields::Named</span>(<span class="ident">FieldsNamed</span> { <span class="ident">named</span>, .. }),
+        Data::Struct(DataStruct {
+            fields: Fields::Named(FieldsNamed { named, .. }),
             ..
-        }) =&gt; <span class="ident">expand_derive_has_sql_type_struct</span>(<span class="ident">input</span>, <span class="ident">named</span>),
-        <span class="ident">Data::Union</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(<span class="ident">input</span>, <span class="string">&quot;unions are not supported&quot;</span>)),
-        <span class="ident">Data::Struct</span>(<span class="ident">DataStruct</span> {
-            <span class="ident">fields</span>: <span class="ident">Fields::Unnamed</span>(..),
+        }) =&gt; expand_derive_has_sql_type_struct(input, named),
+        Data::Union(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(syn::Error::new_spanned(input, <span class="string">&quot;unions are not supported&quot;</span>)),
+        Data::Struct(DataStruct {
+            fields: Fields::Unnamed(..),
             ..
-        }) =&gt; <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-            <span class="ident">input</span>,
+        }) =&gt; <span class="prelude-val">Err</span>(syn::Error::new_spanned(
+            input,
             <span class="string">&quot;structs with zero or more than one unnamed field are not supported&quot;</span>,
         )),
-        <span class="ident">Data::Struct</span>(<span class="ident">DataStruct</span> {
-            <span class="ident">fields</span>: <span class="ident">Fields::Unit</span>,
+        Data::Struct(DataStruct {
+            fields: Fields::Unit,
             ..
-        }) =&gt; <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-            <span class="ident">input</span>,
+        }) =&gt; <span class="prelude-val">Err</span>(syn::Error::new_spanned(
+            input,
             <span class="string">&quot;unit structs are not supported&quot;</span>,
         )),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">expand_derive_has_sql_type_transparent</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attr</span> <span class="op">=</span> <span class="ident">check_transparent_attributes</span>(<span class="ident">input</span>, <span class="ident">field</span>)<span class="question-mark">?</span>;
+<span class="kw">fn </span>expand_derive_has_sql_type_transparent(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    field: <span class="kw-2">&amp;</span>Field,
+) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>attr = check_transparent_attributes(input, field)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
-    <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>;
+    <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
+    <span class="kw">let </span>ty = <span class="kw-2">&amp;</span>field.ty;
 
-    <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">generics</span>;
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ty_generics</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
+    <span class="kw">let </span>generics = <span class="kw-2">&amp;</span>input.generics;
+    <span class="kw">let </span>(<span class="kw">_</span>, ty_generics, <span class="kw">_</span>) = generics.split_for_impl();
 
-    <span class="kw">if</span> <span class="ident">attr</span>.<span class="ident">transparent</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">array_generics</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">clone</span>();
+    <span class="kw">if </span>attr.transparent {
+        <span class="kw">let </span><span class="kw-2">mut </span>generics = generics.clone();
+        <span class="kw">let </span><span class="kw-2">mut </span>array_generics = generics.clone();
 
-        <span class="ident">generics</span>
-            .<span class="ident">params</span>
-            .<span class="ident">insert</span>(<span class="number">0</span>, <span class="macro">parse_quote!</span>(<span class="ident">DB</span>: <span class="ident">::sqlx::Database</span>));
-        <span class="ident">generics</span>
-            .<span class="ident">make_where_clause</span>()
-            .<span class="ident">predicates</span>
-            .<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">ty</span>: <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>));
-        <span class="kw">let</span> (<span class="ident">impl_generics</span>, <span class="kw">_</span>, <span class="ident">where_clause</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
+        generics
+            .params
+            .insert(<span class="number">0</span>, <span class="macro">parse_quote!</span>(DB: ::sqlx::Database));
+        generics
+            .make_where_clause()
+            .predicates
+            .push(<span class="macro">parse_quote!</span>(#ty: ::sqlx::Type&lt;DB&gt;));
+        <span class="kw">let </span>(impl_generics, <span class="kw">_</span>, where_clause) = generics.split_for_impl();
 
-        <span class="ident">array_generics</span>
-            .<span class="ident">make_where_clause</span>()
-            .<span class="ident">predicates</span>
-            .<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">ty</span>: <span class="ident">::sqlx::postgres::PgHasArrayType</span>));
-        <span class="kw">let</span> (<span class="ident">array_impl_generics</span>, <span class="kw">_</span>, <span class="ident">array_where_clause</span>) <span class="op">=</span> <span class="ident">array_generics</span>.<span class="ident">split_for_impl</span>();
+        array_generics
+            .make_where_clause()
+            .predicates
+            .push(<span class="macro">parse_quote!</span>(#ty: ::sqlx::postgres::PgHasArrayType));
+        <span class="kw">let </span>(array_impl_generics, <span class="kw">_</span>, array_where_clause) = array_generics.split_for_impl();
 
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
-            <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-            <span class="kw">impl</span> #<span class="ident">impl_generics</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span> <span class="ident">DB</span> <span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> #<span class="ident">ty_generics</span> #<span class="ident">where_clause</span> {
-                <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">DB::TypeInfo</span> {
-                    <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
+            <span class="attribute">#[automatically_derived]
+            </span><span class="kw">impl </span>#impl_generics ::sqlx::Type&lt; DB &gt; <span class="kw">for </span>#ident #ty_generics #where_clause {
+                <span class="kw">fn </span>type_info() -&gt; DB::TypeInfo {
+                    &lt;#ty <span class="kw">as </span>::sqlx::Type&lt;DB&gt;&gt;::type_info()
                 }
 
-                <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">DB::TypeInfo</span>) -&gt; <span class="ident">::std::primitive::bool</span> {
-                    <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::compatible</span>(<span class="ident">ty</span>)
-                }
-            }
-            <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-            <span class="kw">impl</span> #<span class="ident">array_impl_generics</span> <span class="ident">::sqlx::postgres::PgHasArrayType</span> <span class="kw">for</span> #<span class="ident">ident</span> #<span class="ident">ty_generics</span>
-            #<span class="ident">array_where_clause</span> {
-                <span class="kw">fn</span> <span class="ident">array_type_info</span>() -&gt; <span class="ident">::sqlx::postgres::PgTypeInfo</span> {
-                    <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::sqlx::postgres::PgHasArrayType</span><span class="op">&gt;</span><span class="ident">::array_type_info</span>()
+                <span class="kw">fn </span>compatible(ty: <span class="kw-2">&amp;</span>DB::TypeInfo) -&gt; ::std::primitive::bool {
+                    &lt;#ty <span class="kw">as </span>::sqlx::Type&lt;DB&gt;&gt;::compatible(ty)
                 }
             }
-        ));
-    }
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tts</span> <span class="op">=</span> <span class="ident">TokenStream::new</span>();
-
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>) {
-        <span class="kw">let</span> <span class="ident">ty_name</span> <span class="op">=</span> <span class="ident">type_name</span>(<span class="ident">ident</span>, <span class="ident">attr</span>.<span class="ident">type_name</span>.<span class="ident">as_ref</span>());
-
-        <span class="ident">tts</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-            <span class="kw">impl</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">::sqlx::postgres::Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> #<span class="ident">ty_generics</span> {
-                <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">::sqlx::postgres::PgTypeInfo</span> {
-                    <span class="ident">::sqlx::postgres::PgTypeInfo::with_name</span>(#<span class="ident">ty_name</span>)
+            <span class="attribute">#[automatically_derived]
+            #[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+            </span><span class="kw">impl </span>#array_impl_generics ::sqlx::postgres::PgHasArrayType <span class="kw">for </span>#ident #ty_generics
+            #array_where_clause {
+                <span class="kw">fn </span>array_type_info() -&gt; ::sqlx::postgres::PgTypeInfo {
+                    &lt;#ty <span class="kw">as </span>::sqlx::postgres::PgHasArrayType&gt;::array_type_info()
                 }
             }
         ));
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">tts</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>tts = TokenStream::new();
+
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;postgres&quot;</span>) {
+        <span class="kw">let </span>ty_name = type_name(ident, attr.type_name.as_ref());
+
+        tts.extend(<span class="macro">quote!</span>(
+            <span class="attribute">#[automatically_derived]
+            </span><span class="kw">impl </span>::sqlx::Type&lt;::sqlx::postgres::Postgres&gt; <span class="kw">for </span>#ident #ty_generics {
+                <span class="kw">fn </span>type_info() -&gt; ::sqlx::postgres::PgTypeInfo {
+                    ::sqlx::postgres::PgTypeInfo::with_name(#ty_name)
+                }
+            }
+        ));
+    }
+
+    <span class="prelude-val">Ok</span>(tts)
 }
 
-<span class="kw">fn</span> <span class="ident">expand_derive_has_sql_type_weak_enum</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">variants</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Variant</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attr</span> <span class="op">=</span> <span class="ident">check_weak_enum_attributes</span>(<span class="ident">input</span>, <span class="ident">variants</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">repr</span> <span class="op">=</span> <span class="ident">attr</span>.<span class="ident">repr</span>.<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
-    <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="macro">quote!</span>(
-        <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">::sqlx::Database</span><span class="op">&gt;</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span>
-        <span class="kw">where</span>
-            #<span class="ident">repr</span>: <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">fn </span>expand_derive_has_sql_type_weak_enum(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    variants: <span class="kw-2">&amp;</span>Punctuated&lt;Variant, Comma&gt;,
+) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>attr = check_weak_enum_attributes(input, variants)<span class="question-mark">?</span>;
+    <span class="kw">let </span>repr = attr.repr.unwrap();
+    <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
+    <span class="kw">let </span>ts = <span class="macro">quote!</span>(
+        <span class="attribute">#[automatically_derived]
+        </span><span class="kw">impl</span>&lt;DB: ::sqlx::Database&gt; ::sqlx::Type&lt;DB&gt; <span class="kw">for </span>#ident
+        <span class="kw">where
+            </span>#repr: ::sqlx::Type&lt;DB&gt;,
         {
-            <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">DB::TypeInfo</span> {
-                <span class="op">&lt;</span>#<span class="ident">repr</span> <span class="kw">as</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
+            <span class="kw">fn </span>type_info() -&gt; DB::TypeInfo {
+                &lt;#repr <span class="kw">as </span>::sqlx::Type&lt;DB&gt;&gt;::type_info()
             }
 
-            <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">DB::TypeInfo</span>) -&gt; <span class="ident">bool</span> {
-                <span class="op">&lt;</span>#<span class="ident">repr</span> <span class="kw">as</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::compatible</span>(<span class="ident">ty</span>)
+            <span class="kw">fn </span>compatible(ty: <span class="kw-2">&amp;</span>DB::TypeInfo) -&gt; bool {
+                &lt;#repr <span class="kw">as </span>::sqlx::Type&lt;DB&gt;&gt;::compatible(ty)
             }
         }
     );
 
-    <span class="prelude-val">Ok</span>(<span class="ident">ts</span>)
+    <span class="prelude-val">Ok</span>(ts)
 }
 
-<span class="kw">fn</span> <span class="ident">expand_derive_has_sql_type_strong_enum</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">variants</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Variant</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">check_strong_enum_attributes</span>(<span class="ident">input</span>, <span class="ident">variants</span>)<span class="question-mark">?</span>;
+<span class="kw">fn </span>expand_derive_has_sql_type_strong_enum(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    variants: <span class="kw-2">&amp;</span>Punctuated&lt;Variant, Comma&gt;,
+) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>attributes = check_strong_enum_attributes(input, variants)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tts</span> <span class="op">=</span> <span class="ident">TokenStream::new</span>();
+    <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
+    <span class="kw">let </span><span class="kw-2">mut </span>tts = TokenStream::new();
 
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>) {
-        <span class="ident">tts</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-            <span class="kw">impl</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">::sqlx::MySql</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> {
-                <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">::sqlx::mysql::MySqlTypeInfo</span> {
-                    <span class="ident">::sqlx::mysql::MySqlTypeInfo::__enum</span>()
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;mysql&quot;</span>) {
+        tts.extend(<span class="macro">quote!</span>(
+            <span class="attribute">#[automatically_derived]
+            </span><span class="kw">impl </span>::sqlx::Type&lt;::sqlx::MySql&gt; <span class="kw">for </span>#ident {
+                <span class="kw">fn </span>type_info() -&gt; ::sqlx::mysql::MySqlTypeInfo {
+                    ::sqlx::mysql::MySqlTypeInfo::__enum()
                 }
 
-                <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">::sqlx::mysql::MySqlTypeInfo</span>) -&gt; <span class="ident">::std::primitive::bool</span> {
-                    <span class="kw-2">*</span><span class="ident">ty</span> <span class="op">==</span> <span class="ident">::sqlx::mysql::MySqlTypeInfo::__enum</span>()
-                }
-            }
-        ));
-    }
-
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>) {
-        <span class="kw">let</span> <span class="ident">ty_name</span> <span class="op">=</span> <span class="ident">type_name</span>(<span class="ident">ident</span>, <span class="ident">attributes</span>.<span class="ident">type_name</span>.<span class="ident">as_ref</span>());
-
-        <span class="ident">tts</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-            <span class="kw">impl</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">::sqlx::Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> {
-                <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">::sqlx::postgres::PgTypeInfo</span> {
-                    <span class="ident">::sqlx::postgres::PgTypeInfo::with_name</span>(#<span class="ident">ty_name</span>)
+                <span class="kw">fn </span>compatible(ty: <span class="kw-2">&amp;</span>::sqlx::mysql::MySqlTypeInfo) -&gt; ::std::primitive::bool {
+                    <span class="kw-2">*</span>ty == ::sqlx::mysql::MySqlTypeInfo::__enum()
                 }
             }
         ));
     }
 
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>) {
-        <span class="ident">tts</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-            <span class="kw">impl</span> <span class="ident">sqlx::Type</span><span class="op">&lt;</span><span class="ident">::sqlx::Sqlite</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> {
-                <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">::sqlx::sqlite::SqliteTypeInfo</span> {
-                    <span class="op">&lt;</span><span class="ident">::std::primitive::str</span> <span class="kw">as</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">sqlx::Sqlite</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::type_info</span>()
-                }
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;postgres&quot;</span>) {
+        <span class="kw">let </span>ty_name = type_name(ident, attributes.type_name.as_ref());
 
-                <span class="kw">fn</span> <span class="ident">compatible</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">::sqlx::sqlite::SqliteTypeInfo</span>) -&gt; <span class="ident">::std::primitive::bool</span> {
-                    <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">::std::primitive::str</span> <span class="kw">as</span> <span class="ident">::sqlx::types::Type</span><span class="op">&lt;</span><span class="ident">sqlx::sqlite::Sqlite</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::compatible</span>(<span class="ident">ty</span>)
+        tts.extend(<span class="macro">quote!</span>(
+            <span class="attribute">#[automatically_derived]
+            </span><span class="kw">impl </span>::sqlx::Type&lt;::sqlx::Postgres&gt; <span class="kw">for </span>#ident {
+                <span class="kw">fn </span>type_info() -&gt; ::sqlx::postgres::PgTypeInfo {
+                    ::sqlx::postgres::PgTypeInfo::with_name(#ty_name)
                 }
             }
         ));
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">tts</span>)
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;sqlite&quot;</span>) {
+        tts.extend(<span class="macro">quote!</span>(
+            <span class="attribute">#[automatically_derived]
+            </span><span class="kw">impl </span>sqlx::Type&lt;::sqlx::Sqlite&gt; <span class="kw">for </span>#ident {
+                <span class="kw">fn </span>type_info() -&gt; ::sqlx::sqlite::SqliteTypeInfo {
+                    &lt;::std::primitive::str <span class="kw">as </span>::sqlx::Type&lt;sqlx::Sqlite&gt;&gt;::type_info()
+                }
+
+                <span class="kw">fn </span>compatible(ty: <span class="kw-2">&amp;</span>::sqlx::sqlite::SqliteTypeInfo) -&gt; ::std::primitive::bool {
+                    &lt;<span class="kw-2">&amp;</span>::std::primitive::str <span class="kw">as </span>::sqlx::types::Type&lt;sqlx::sqlite::Sqlite&gt;&gt;::compatible(ty)
+                }
+            }
+        ));
+    }
+
+    <span class="prelude-val">Ok</span>(tts)
 }
 
-<span class="kw">fn</span> <span class="ident">expand_derive_has_sql_type_struct</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Field</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">check_struct_attributes</span>(<span class="ident">input</span>, <span class="ident">fields</span>)<span class="question-mark">?</span>;
+<span class="kw">fn </span>expand_derive_has_sql_type_struct(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    fields: <span class="kw-2">&amp;</span>Punctuated&lt;Field, Comma&gt;,
+) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>attributes = check_struct_attributes(input, fields)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tts</span> <span class="op">=</span> <span class="ident">TokenStream::new</span>();
+    <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
+    <span class="kw">let </span><span class="kw-2">mut </span>tts = TokenStream::new();
 
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>) {
-        <span class="kw">let</span> <span class="ident">ty_name</span> <span class="op">=</span> <span class="ident">type_name</span>(<span class="ident">ident</span>, <span class="ident">attributes</span>.<span class="ident">type_name</span>.<span class="ident">as_ref</span>());
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;postgres&quot;</span>) {
+        <span class="kw">let </span>ty_name = type_name(ident, attributes.type_name.as_ref());
 
-        <span class="ident">tts</span>.<span class="ident">extend</span>(<span class="macro">quote!</span>(
-            <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-            <span class="kw">impl</span> <span class="ident">::sqlx::Type</span><span class="op">&lt;</span><span class="ident">::sqlx::Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> {
-                <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">::sqlx::postgres::PgTypeInfo</span> {
-                    <span class="ident">::sqlx::postgres::PgTypeInfo::with_name</span>(#<span class="ident">ty_name</span>)
+        tts.extend(<span class="macro">quote!</span>(
+            <span class="attribute">#[automatically_derived]
+            </span><span class="kw">impl </span>::sqlx::Type&lt;::sqlx::Postgres&gt; <span class="kw">for </span>#ident {
+                <span class="kw">fn </span>type_info() -&gt; ::sqlx::postgres::PgTypeInfo {
+                    ::sqlx::postgres::PgTypeInfo::with_name(#ty_name)
                 }
             }
         ));
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">tts</span>)
+    <span class="prelude-val">Ok</span>(tts)
 }
 
-<span class="kw">fn</span> <span class="ident">type_name</span>(<span class="ident">ident</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>, <span class="ident">explicit_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TypeName</span><span class="op">&gt;</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="ident">explicit_name</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">tn</span><span class="op">|</span> <span class="ident">tn</span>.<span class="ident">get</span>()).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">to_string</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">ident</span>.<span class="ident">span</span>()=&gt; #<span class="ident">s</span>)
+<span class="kw">fn </span>type_name(ident: <span class="kw-2">&amp;</span>Ident, explicit_name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TypeName&gt;) -&gt; TokenStream {
+    explicit_name.map(|tn| tn.get()).unwrap_or_else(|| {
+        <span class="kw">let </span>s = ident.to_string();
+        <span class="macro">quote_spanned!</span>(ident.span()=&gt; #s)
     })
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

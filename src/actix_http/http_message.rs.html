@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/http_message.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>http_message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/http_message.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>http_message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -231,236 +231,236 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cell</span>::{<span class="ident">Ref</span>, <span class="ident">RefMut</span>},
-    <span class="ident">str</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    cell::{Ref, RefMut},
+    str,
 };
 
-<span class="kw">use</span> <span class="ident">encoding_rs</span>::{<span class="ident">Encoding</span>, <span class="ident">UTF_8</span>};
-<span class="kw">use</span> <span class="ident">http::header</span>;
-<span class="kw">use</span> <span class="ident">mime::Mime</span>;
+<span class="kw">use </span>encoding_rs::{Encoding, UTF_8};
+<span class="kw">use </span>http::header;
+<span class="kw">use </span>mime::Mime;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error</span>::{<span class="ident">ContentTypeError</span>, <span class="ident">ParseError</span>},
-    <span class="ident">header</span>::{<span class="ident">Header</span>, <span class="ident">HeaderMap</span>},
-    <span class="ident">payload::Payload</span>,
-    <span class="ident">Extensions</span>,
+<span class="kw">use crate</span>::{
+    error::{ContentTypeError, ParseError},
+    header::{Header, HeaderMap},
+    payload::Payload,
+    Extensions,
 };
 
-<span class="doccomment">/// Trait that implements general purpose operations on HTTP messages.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HttpMessage</span>: <span class="ident">Sized</span> {
-    <span class="doccomment">/// Type of message payload stream</span>
-    <span class="kw">type</span> <span class="ident">Stream</span>;
+<span class="doccomment">/// Trait that implements general purpose operations on HTTP messages.
+</span><span class="kw">pub trait </span>HttpMessage: Sized {
+    <span class="doccomment">/// Type of message payload stream
+    </span><span class="kw">type </span>Stream;
 
-    <span class="doccomment">/// Read the message headers.</span>
-    <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>;
+    <span class="doccomment">/// Read the message headers.
+    </span><span class="kw">fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap;
 
-    <span class="doccomment">/// Message payload stream</span>
-    <span class="kw">fn</span> <span class="ident">take_payload</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Stream</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Message payload stream
+    </span><span class="kw">fn </span>take_payload(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Payload&lt;<span class="self">Self</span>::Stream&gt;;
 
-    <span class="doccomment">/// Returns a reference to the request-local data/extensions container.</span>
-    <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Returns a reference to the request-local data/extensions container.
+    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt;;
 
-    <span class="doccomment">/// Returns a mutable reference to the request-local data/extensions container.</span>
-    <span class="kw">fn</span> <span class="ident">extensions_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Returns a mutable reference to the request-local data/extensions container.
+    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt;;
 
-    <span class="doccomment">/// Get a header.</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">get_header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="doccomment">/// Get a header.
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>get_header&lt;H: Header&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;H&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">headers</span>().<span class="ident">contains_key</span>(<span class="ident">H::name</span>()) {
-            <span class="ident">H::parse</span>(<span class="self">self</span>).<span class="ident">ok</span>()
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+        <span class="kw">if </span><span class="self">self</span>.headers().contains_key(H::name()) {
+            H::parse(<span class="self">self</span>).ok()
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="doccomment">/// Read the request content type. If request did not contain a *Content-Type* header, an empty</span>
-    <span class="doccomment">/// string is returned.</span>
-    <span class="kw">fn</span> <span class="ident">content_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">content_type</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::CONTENT_TYPE</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">content_type</span>) <span class="op">=</span> <span class="ident">content_type</span>.<span class="ident">to_str</span>() {
-                <span class="kw">return</span> <span class="ident">content_type</span>.<span class="ident">split</span>(<span class="string">&#39;;&#39;</span>).<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">trim</span>();
+    <span class="doccomment">/// Read the request content type. If request did not contain a *Content-Type* header, an empty
+    /// string is returned.
+    </span><span class="kw">fn </span>content_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(content_type) = <span class="self">self</span>.headers().get(header::CONTENT_TYPE) {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(content_type) = content_type.to_str() {
+                <span class="kw">return </span>content_type.split(<span class="string">&#39;;&#39;</span>).next().unwrap().trim();
             }
         }
-        <span class="string">&quot;&quot;</span>
-    }
+        <span class="string">&quot;&quot;
+    </span>}
 
-    <span class="doccomment">/// Get content type encoding.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// UTF-8 is used by default, If request charset is not set.</span>
-    <span class="kw">fn</span> <span class="ident">encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Encoding</span>, <span class="ident">ContentTypeError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mime_type</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">mime_type</span>()<span class="question-mark">?</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">charset</span>) <span class="op">=</span> <span class="ident">mime_type</span>.<span class="ident">get_param</span>(<span class="string">&quot;charset&quot;</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">enc</span>) <span class="op">=</span>
-                    <span class="ident">Encoding::for_label_no_replacement</span>(<span class="ident">charset</span>.<span class="ident">as_str</span>().<span class="ident">as_bytes</span>())
+    <span class="doccomment">/// Get content type encoding.
+    ///
+    /// UTF-8 is used by default, If request charset is not set.
+    </span><span class="kw">fn </span>encoding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>Encoding, ContentTypeError&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(mime_type) = <span class="self">self</span>.mime_type()<span class="question-mark">? </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(charset) = mime_type.get_param(<span class="string">&quot;charset&quot;</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(enc) =
+                    Encoding::for_label_no_replacement(charset.as_str().as_bytes())
                 {
-                    <span class="prelude-val">Ok</span>(<span class="ident">enc</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Err</span>(<span class="ident">ContentTypeError::UnknownEncoding</span>)
+                    <span class="prelude-val">Ok</span>(enc)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(ContentTypeError::UnknownEncoding)
                 }
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">UTF_8</span>)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Ok</span>(UTF_8)
             }
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">UTF_8</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(UTF_8)
         }
     }
 
-    <span class="doccomment">/// Convert the request content type to a known mime type.</span>
-    <span class="kw">fn</span> <span class="ident">mime_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mime</span><span class="op">&gt;</span>, <span class="ident">ContentTypeError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">content_type</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::CONTENT_TYPE</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">content_type</span>) <span class="op">=</span> <span class="ident">content_type</span>.<span class="ident">to_str</span>() {
-                <span class="kw">return</span> <span class="kw">match</span> <span class="ident">content_type</span>.<span class="ident">parse</span>() {
-                    <span class="prelude-val">Ok</span>(<span class="ident">mt</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">mt</span>)),
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ContentTypeError::ParseError</span>),
+    <span class="doccomment">/// Convert the request content type to a known mime type.
+    </span><span class="kw">fn </span>mime_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Mime&gt;, ContentTypeError&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(content_type) = <span class="self">self</span>.headers().get(header::CONTENT_TYPE) {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(content_type) = content_type.to_str() {
+                <span class="kw">return match </span>content_type.parse() {
+                    <span class="prelude-val">Ok</span>(mt) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(mt)),
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ContentTypeError::ParseError),
                 };
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ContentTypeError::ParseError</span>);
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ContentTypeError::ParseError);
             }
         }
         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 
-    <span class="doccomment">/// Check if request has chunked transfer encoding.</span>
-    <span class="kw">fn</span> <span class="ident">chunked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">encodings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::TRANSFER_ENCODING</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">encodings</span>.<span class="ident">to_str</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_lowercase</span>().<span class="ident">contains</span>(<span class="string">&quot;chunked&quot;</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>)
+    <span class="doccomment">/// Check if request has chunked transfer encoding.
+    </span><span class="kw">fn </span>chunked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool, ParseError&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(encodings) = <span class="self">self</span>.headers().get(header::TRANSFER_ENCODING) {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = encodings.to_str() {
+                <span class="prelude-val">Ok</span>(s.to_lowercase().contains(<span class="string">&quot;chunked&quot;</span>))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Err</span>(ParseError::Header)
             }
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">HttpMessage</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">HttpMessage</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; HttpMessage <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T
+<span class="kw">where
+    </span>T: HttpMessage,
 {
-    <span class="kw">type</span> <span class="ident">Stream</span> <span class="op">=</span> <span class="ident">T::Stream</span>;
+    <span class="kw">type </span>Stream = T::Stream;
 
-    <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">headers</span>()
+    <span class="kw">fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
+        (<span class="kw-2">**</span><span class="self">self</span>).headers()
     }
 
-    <span class="doccomment">/// Message payload stream</span>
-    <span class="kw">fn</span> <span class="ident">take_payload</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Stream</span><span class="op">&gt;</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">take_payload</span>()
+    <span class="doccomment">/// Message payload stream
+    </span><span class="kw">fn </span>take_payload(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Payload&lt;<span class="self">Self</span>::Stream&gt; {
+        (<span class="kw-2">**</span><span class="self">self</span>).take_payload()
     }
 
-    <span class="doccomment">/// Request&#39;s extensions container</span>
-    <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">extensions</span>()
+    <span class="doccomment">/// Request&#39;s extensions container
+    </span><span class="kw">fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+        (<span class="kw-2">**</span><span class="self">self</span>).extensions()
     }
 
-    <span class="doccomment">/// Mutable reference to a the request&#39;s extensions container</span>
-    <span class="kw">fn</span> <span class="ident">extensions_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">extensions_mut</span>()
+    <span class="doccomment">/// Mutable reference to a the request&#39;s extensions container
+    </span><span class="kw">fn </span>extensions_mut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+        (<span class="kw-2">**</span><span class="self">self</span>).extensions_mut()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-    <span class="kw">use</span> <span class="ident">encoding_rs::ISO_8859_2</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>bytes::Bytes;
+    <span class="kw">use </span>encoding_rs::ISO_8859_2;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test::TestRequest</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test::TestRequest;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_content_type</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;text/plain&quot;</span>))
-            .<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">content_type</span>(), <span class="string">&quot;text/plain&quot;</span>);
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=utf=8&quot;</span>))
-            .<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">content_type</span>(), <span class="string">&quot;application/json&quot;</span>);
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">content_type</span>(), <span class="string">&quot;&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_content_type() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;text/plain&quot;</span>))
+            .finish();
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;text/plain&quot;</span>);
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=utf=8&quot;</span>))
+            .finish();
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;application/json&quot;</span>);
+        <span class="kw">let </span>req = TestRequest::default().finish();
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_mime_type</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json&quot;</span>))
-            .<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">mime_type</span>().<span class="ident">unwrap</span>(), <span class="prelude-val">Some</span>(<span class="ident">mime::APPLICATION_JSON</span>));
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">mime_type</span>().<span class="ident">unwrap</span>(), <span class="prelude-val">None</span>);
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=utf-8&quot;</span>))
-            .<span class="ident">finish</span>();
-        <span class="kw">let</span> <span class="ident">mt</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">mime_type</span>().<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">mt</span>.<span class="ident">get_param</span>(<span class="ident">mime::CHARSET</span>), <span class="prelude-val">Some</span>(<span class="ident">mime::UTF_8</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">mt</span>.<span class="ident">type_</span>(), <span class="ident">mime::APPLICATION</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">mt</span>.<span class="ident">subtype</span>(), <span class="ident">mime::JSON</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_mime_type() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json&quot;</span>))
+            .finish();
+        <span class="macro">assert_eq!</span>(req.mime_type().unwrap(), <span class="prelude-val">Some</span>(mime::APPLICATION_JSON));
+        <span class="kw">let </span>req = TestRequest::default().finish();
+        <span class="macro">assert_eq!</span>(req.mime_type().unwrap(), <span class="prelude-val">None</span>);
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=utf-8&quot;</span>))
+            .finish();
+        <span class="kw">let </span>mt = req.mime_type().unwrap().unwrap();
+        <span class="macro">assert_eq!</span>(mt.get_param(mime::CHARSET), <span class="prelude-val">Some</span>(mime::UTF_8));
+        <span class="macro">assert_eq!</span>(mt.type_(), mime::APPLICATION);
+        <span class="macro">assert_eq!</span>(mt.subtype(), mime::JSON);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_mime_type_error</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;applicationadfadsfasdflknadsfklnadsfjson&quot;</span>))
-            .<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>(<span class="ident">ContentTypeError::ParseError</span>), <span class="ident">req</span>.<span class="ident">mime_type</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_mime_type_error() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;applicationadfadsfasdflknadsfklnadsfjson&quot;</span>))
+            .finish();
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Err</span>(ContentTypeError::ParseError), req.mime_type());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_encoding</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">UTF_8</span>.<span class="ident">name</span>(), <span class="ident">req</span>.<span class="ident">encoding</span>().<span class="ident">unwrap</span>().<span class="ident">name</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_encoding() {
+        <span class="kw">let </span>req = TestRequest::default().finish();
+        <span class="macro">assert_eq!</span>(UTF_8.name(), req.encoding().unwrap().name());
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json&quot;</span>))
-            .<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">UTF_8</span>.<span class="ident">name</span>(), <span class="ident">req</span>.<span class="ident">encoding</span>().<span class="ident">unwrap</span>().<span class="ident">name</span>());
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json&quot;</span>))
+            .finish();
+        <span class="macro">assert_eq!</span>(UTF_8.name(), req.encoding().unwrap().name());
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=ISO-8859-2&quot;</span>))
-            .<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">ISO_8859_2</span>, <span class="ident">req</span>.<span class="ident">encoding</span>().<span class="ident">unwrap</span>());
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=ISO-8859-2&quot;</span>))
+            .finish();
+        <span class="macro">assert_eq!</span>(ISO_8859_2, req.encoding().unwrap());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_encoding_error</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;applicatjson&quot;</span>))
-            .<span class="ident">finish</span>();
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="ident">ContentTypeError::ParseError</span>), <span class="ident">req</span>.<span class="ident">encoding</span>().<span class="ident">err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_encoding_error() {
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;applicatjson&quot;</span>))
+            .finish();
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(ContentTypeError::ParseError), req.encoding().err());
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=kkkttktk&quot;</span>))
-            .<span class="ident">finish</span>();
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((<span class="string">&quot;content-type&quot;</span>, <span class="string">&quot;application/json; charset=kkkttktk&quot;</span>))
+            .finish();
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Some</span>(<span class="ident">ContentTypeError::UnknownEncoding</span>),
-            <span class="ident">req</span>.<span class="ident">encoding</span>().<span class="ident">err</span>()
+            <span class="prelude-val">Some</span>(ContentTypeError::UnknownEncoding),
+            req.encoding().err()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_chunked</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">finish</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">req</span>.<span class="ident">chunked</span>().<span class="ident">unwrap</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_chunked() {
+        <span class="kw">let </span>req = TestRequest::default().finish();
+        <span class="macro">assert!</span>(!req.chunked().unwrap());
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::TRANSFER_ENCODING</span>, <span class="string">&quot;chunked&quot;</span>))
-            .<span class="ident">finish</span>();
-        <span class="macro">assert!</span>(<span class="ident">req</span>.<span class="ident">chunked</span>().<span class="ident">unwrap</span>());
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((header::TRANSFER_ENCODING, <span class="string">&quot;chunked&quot;</span>))
+            .finish();
+        <span class="macro">assert!</span>(req.chunked().unwrap());
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((
-                <span class="ident">header::TRANSFER_ENCODING</span>,
-                <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;some va\xadscc\xacas0xsdasdlue&quot;</span>),
+        <span class="kw">let </span>req = TestRequest::default()
+            .insert_header((
+                header::TRANSFER_ENCODING,
+                Bytes::from_static(<span class="string">b&quot;some va\xadscc\xacas0xsdasdlue&quot;</span>),
             ))
-            .<span class="ident">finish</span>();
-        <span class="macro">assert!</span>(<span class="ident">req</span>.<span class="ident">chunked</span>().<span class="ident">is_err</span>());
+            .finish();
+        <span class="macro">assert!</span>(req.chunked().is_err());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

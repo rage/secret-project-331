@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/pipeline.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pipeline.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/pipeline.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pipeline.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_service/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -309,314 +309,314 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
-</pre><pre class="rust"><code><span class="comment">// TODO: see if pipeline is necessary</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+</pre><pre class="rust"><code><span class="comment">// TODO: see if pipeline is necessary
+</span><span class="attribute">#![allow(dead_code)]
 
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>core::{
+    marker::PhantomData,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::and_then</span>::{<span class="ident">AndThenService</span>, <span class="ident">AndThenServiceFactory</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::map</span>::{<span class="ident">Map</span>, <span class="ident">MapServiceFactory</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::map_err</span>::{<span class="ident">MapErr</span>, <span class="ident">MapErrServiceFactory</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::map_init_err::MapInitErr</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::then</span>::{<span class="ident">ThenService</span>, <span class="ident">ThenServiceFactory</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IntoService</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>};
+<span class="kw">use </span><span class="kw">crate</span>::and_then::{AndThenService, AndThenServiceFactory};
+<span class="kw">use </span><span class="kw">crate</span>::map::{Map, MapServiceFactory};
+<span class="kw">use </span><span class="kw">crate</span>::map_err::{MapErr, MapErrServiceFactory};
+<span class="kw">use </span><span class="kw">crate</span>::map_init_err::MapInitErr;
+<span class="kw">use </span><span class="kw">crate</span>::then::{ThenService, ThenServiceFactory};
+<span class="kw">use crate</span>::{IntoService, IntoServiceFactory, Service, ServiceFactory};
 
-<span class="doccomment">/// Construct new pipeline with one service in pipeline chain.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pipeline</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">service</span>: <span class="ident">I</span>) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Construct new pipeline with one service in pipeline chain.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>pipeline&lt;I, S, Req&gt;(service: I) -&gt; Pipeline&lt;S, Req&gt;
+<span class="kw">where
+    </span>I: IntoService&lt;S, Req&gt;,
+    S: Service&lt;Req&gt;,
 {
-    <span class="ident">Pipeline</span> {
-        <span class="ident">service</span>: <span class="ident">service</span>.<span class="ident">into_service</span>(),
-        <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    Pipeline {
+        service: service.into_service(),
+        _phantom: PhantomData,
     }
 }
 
-<span class="doccomment">/// Construct new pipeline factory with one service factory.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pipeline_factory</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>(<span class="ident">factory</span>: <span class="ident">I</span>) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>,
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Construct new pipeline factory with one service factory.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>pipeline_factory&lt;I, SF, Req&gt;(factory: I) -&gt; PipelineFactory&lt;SF, Req&gt;
+<span class="kw">where
+    </span>I: IntoServiceFactory&lt;SF, Req&gt;,
+    SF: ServiceFactory&lt;Req&gt;,
 {
-    <span class="ident">PipelineFactory</span> {
-        <span class="ident">factory</span>: <span class="ident">factory</span>.<span class="ident">into_factory</span>(),
-        <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    PipelineFactory {
+        factory: factory.into_factory(),
+        _phantom: PhantomData,
     }
 }
 
-<span class="doccomment">/// Pipeline service - pipeline allows to compose multiple service into one service.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="ident">service</span>: <span class="ident">S</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>(<span class="ident">Req</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// Pipeline service - pipeline allows to compose multiple service into one service.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Pipeline&lt;S, Req&gt; {
+    service: S,
+    _phantom: PhantomData&lt;<span class="kw">fn</span>(Req)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, Req&gt; Pipeline&lt;S, Req&gt;
+<span class="kw">where
+    </span>S: Service&lt;Req&gt;,
 {
-    <span class="doccomment">/// Call another service after call to this one has resolved successfully.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function can be used to chain two services together and ensure that</span>
-    <span class="doccomment">/// the second service isn&#39;t called until call to the fist service have</span>
-    <span class="doccomment">/// finished. Result of the call to the first service is used as an</span>
-    <span class="doccomment">/// input parameter for the second service&#39;s call.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this function consumes the receiving service and returns a</span>
-    <span class="doccomment">/// wrapped version of it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_then</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S1</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Call another service after call to this one has resolved successfully.
+    ///
+    /// This function can be used to chain two services together and ensure that
+    /// the second service isn&#39;t called until call to the fist service have
+    /// finished. Result of the call to the first service is used as an
+    /// input parameter for the second service&#39;s call.
+    ///
+    /// Note that this function consumes the receiving service and returns a
+    /// wrapped version of it.
+    </span><span class="kw">pub fn </span>and_then&lt;I, S1&gt;(
         <span class="self">self</span>,
-        <span class="ident">service</span>: <span class="ident">I</span>,
-    ) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S1::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">I</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="ident">S::Response</span><span class="op">&gt;</span>,
-        <span class="ident">S1</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">S::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span><span class="op">&gt;</span>,
+        service: I,
+    ) -&gt; Pipeline&lt;<span class="kw">impl </span>Service&lt;Req, Response = S1::Response, Error = S::Error&gt; + Clone, Req&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        I: IntoService&lt;S1, S::Response&gt;,
+        S1: Service&lt;S::Response, Error = S::Error&gt;,
     {
-        <span class="ident">Pipeline</span> {
-            <span class="ident">service</span>: <span class="ident">AndThenService::new</span>(<span class="self">self</span>.<span class="ident">service</span>, <span class="ident">service</span>.<span class="ident">into_service</span>()),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        Pipeline {
+            service: AndThenService::new(<span class="self">self</span>.service, service.into_service()),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Chain on a computation for when a call to the service finished,</span>
-    <span class="doccomment">/// passing the result of the call to the next service `U`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this function consumes the receiving pipeline and returns a</span>
-    <span class="doccomment">/// wrapped version of it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">then</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S1</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Chain on a computation for when a call to the service finished,
+    /// passing the result of the call to the next service `U`.
+    ///
+    /// Note that this function consumes the receiving pipeline and returns a
+    /// wrapped version of it.
+    </span><span class="kw">pub fn </span>then&lt;F, S1&gt;(
         <span class="self">self</span>,
-        <span class="ident">service</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S1::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S1</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Response</span>, <span class="ident">S::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">S1</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Response</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span><span class="op">&gt;</span>,
+        service: F,
+    ) -&gt; Pipeline&lt;<span class="kw">impl </span>Service&lt;Req, Response = S1::Response, Error = S::Error&gt; + Clone, Req&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: IntoService&lt;S1, <span class="prelude-ty">Result</span>&lt;S::Response, S::Error&gt;&gt;,
+        S1: Service&lt;<span class="prelude-ty">Result</span>&lt;S::Response, S::Error&gt;, Error = S::Error&gt;,
     {
-        <span class="ident">Pipeline</span> {
-            <span class="ident">service</span>: <span class="ident">ThenService::new</span>(<span class="self">self</span>.<span class="ident">service</span>, <span class="ident">service</span>.<span class="ident">into_service</span>()),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        Pipeline {
+            service: ThenService::new(<span class="self">self</span>.service, service.into_service()),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Map this service&#39;s output to a different type, returning a new service</span>
-    <span class="doccomment">/// of the resulting type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is similar to the `Option::map` or `Iterator::map` where</span>
-    <span class="doccomment">/// it will change the type of the underlying service.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this function consumes the receiving service and returns a</span>
-    <span class="doccomment">/// wrapped version of it, similar to the existing `map` methods in the</span>
-    <span class="doccomment">/// standard library.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">S::Response</span>) -&gt; <span class="ident">R</span>,
+    <span class="doccomment">/// Map this service&#39;s output to a different type, returning a new service
+    /// of the resulting type.
+    ///
+    /// This function is similar to the `Option::map` or `Iterator::map` where
+    /// it will change the type of the underlying service.
+    ///
+    /// Note that this function consumes the receiving service and returns a
+    /// wrapped version of it, similar to the existing `map` methods in the
+    /// standard library.
+    </span><span class="kw">pub fn </span>map&lt;F, R&gt;(<span class="self">self</span>, f: F) -&gt; Pipeline&lt;Map&lt;S, F, Req, R&gt;, Req&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: FnMut(S::Response) -&gt; R,
     {
-        <span class="ident">Pipeline</span> {
-            <span class="ident">service</span>: <span class="ident">Map::new</span>(<span class="self">self</span>.<span class="ident">service</span>, <span class="ident">f</span>),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        Pipeline {
+            service: Map::new(<span class="self">self</span>.service, f),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Map this service&#39;s error to a different error, returning a new service.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is similar to the `Result::map_err` where it will change</span>
-    <span class="doccomment">/// the error type of the underlying service. This is useful for example to</span>
-    <span class="doccomment">/// ensure that services have the same error type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this function consumes the receiving service and returns a</span>
-    <span class="doccomment">/// wrapped version of it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">MapErr</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">S::Error</span>) -&gt; <span class="ident">E</span>,
+    <span class="doccomment">/// Map this service&#39;s error to a different error, returning a new service.
+    ///
+    /// This function is similar to the `Result::map_err` where it will change
+    /// the error type of the underlying service. This is useful for example to
+    /// ensure that services have the same error type.
+    ///
+    /// Note that this function consumes the receiving service and returns a
+    /// wrapped version of it.
+    </span><span class="kw">pub fn </span>map_err&lt;F, E&gt;(<span class="self">self</span>, f: F) -&gt; Pipeline&lt;MapErr&lt;S, Req, F, E&gt;, Req&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: Fn(S::Error) -&gt; E,
     {
-        <span class="ident">Pipeline</span> {
-            <span class="ident">service</span>: <span class="ident">MapErr::new</span>(<span class="self">self</span>.<span class="ident">service</span>, <span class="ident">f</span>),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        Pipeline {
+            service: MapErr::new(<span class="self">self</span>.service, f),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Clone</span>,
+<span class="kw">impl</span>&lt;T, Req&gt; Clone <span class="kw">for </span>Pipeline&lt;T, Req&gt;
+<span class="kw">where
+    </span>T: Clone,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Pipeline</span> {
-            <span class="ident">service</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">clone</span>(),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Pipeline {
+            service: <span class="self">self</span>.service.clone(),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Pipeline</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">S::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">S::Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">S::Future</span>;
+<span class="kw">impl</span>&lt;S: Service&lt;Req&gt;, Req&gt; Service&lt;Req&gt; <span class="kw">for </span>Pipeline&lt;S, Req&gt; {
+    <span class="kw">type </span>Response = S::Response;
+    <span class="kw">type </span>Error = S::Error;
+    <span class="kw">type </span>Future = S::Future;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">S::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">poll_ready</span>(<span class="ident">ctx</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), S::Error&gt;&gt; {
+        <span class="self">self</span>.service.poll_ready(ctx)
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: Req) -&gt; <span class="self">Self</span>::Future {
+        <span class="self">self</span>.service.call(req)
     }
 }
 
-<span class="doccomment">/// Pipeline factory</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span> {
-    <span class="ident">factory</span>: <span class="ident">SF</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>(<span class="ident">Req</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// Pipeline factory
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>PipelineFactory&lt;SF, Req&gt; {
+    factory: SF,
+    _phantom: PhantomData&lt;<span class="kw">fn</span>(Req)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;SF, Req&gt; PipelineFactory&lt;SF, Req&gt;
+<span class="kw">where
+    </span>SF: ServiceFactory&lt;Req&gt;,
 {
-    <span class="doccomment">/// Call another service after call to this one has resolved successfully.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_then</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF1</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Call another service after call to this one has resolved successfully.
+    </span><span class="kw">pub fn </span>and_then&lt;I, SF1&gt;(
         <span class="self">self</span>,
-        <span class="ident">factory</span>: <span class="ident">I</span>,
-    ) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span>
-        <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-                <span class="ident">Req</span>,
-                <span class="ident">Response</span> <span class="op">=</span> <span class="ident">SF1::Response</span>,
-                <span class="ident">Error</span> <span class="op">=</span> <span class="ident">SF::Error</span>,
-                <span class="ident">Config</span> <span class="op">=</span> <span class="ident">SF::Config</span>,
-                <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">SF::InitError</span>,
-                <span class="ident">Service</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">SF1::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">SF::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-            <span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-        <span class="ident">Req</span>,
-    <span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">SF::Config</span>: <span class="ident">Clone</span>,
-        <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">SF1</span>, <span class="ident">SF::Response</span><span class="op">&gt;</span>,
-        <span class="ident">SF1</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            <span class="ident">SF::Response</span>,
-            <span class="ident">Config</span> <span class="op">=</span> <span class="ident">SF::Config</span>,
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">SF::Error</span>,
-            <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">SF::InitError</span>,
-        <span class="op">&gt;</span>,
+        factory: I,
+    ) -&gt; PipelineFactory&lt;
+        <span class="kw">impl </span>ServiceFactory&lt;
+                Req,
+                Response = SF1::Response,
+                Error = SF::Error,
+                Config = SF::Config,
+                InitError = SF::InitError,
+                Service = <span class="kw">impl </span>Service&lt;Req, Response = SF1::Response, Error = SF::Error&gt; + Clone,
+            &gt; + Clone,
+        Req,
+    &gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        SF::Config: Clone,
+        I: IntoServiceFactory&lt;SF1, SF::Response&gt;,
+        SF1: ServiceFactory&lt;
+            SF::Response,
+            Config = SF::Config,
+            Error = SF::Error,
+            InitError = SF::InitError,
+        &gt;,
     {
-        <span class="ident">PipelineFactory</span> {
-            <span class="ident">factory</span>: <span class="ident">AndThenServiceFactory::new</span>(<span class="self">self</span>.<span class="ident">factory</span>, <span class="ident">factory</span>.<span class="ident">into_factory</span>()),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        PipelineFactory {
+            factory: AndThenServiceFactory::new(<span class="self">self</span>.factory, factory.into_factory()),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Create `NewService` to chain on a computation for when a call to the</span>
-    <span class="doccomment">/// service finished, passing the result of the call to the next</span>
-    <span class="doccomment">/// service `U`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this function consumes the receiving pipeline and returns a</span>
-    <span class="doccomment">/// wrapped version of it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">then</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF1</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Create `NewService` to chain on a computation for when a call to the
+    /// service finished, passing the result of the call to the next
+    /// service `U`.
+    ///
+    /// Note that this function consumes the receiving pipeline and returns a
+    /// wrapped version of it.
+    </span><span class="kw">pub fn </span>then&lt;I, SF1&gt;(
         <span class="self">self</span>,
-        <span class="ident">factory</span>: <span class="ident">I</span>,
-    ) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span>
-        <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-                <span class="ident">Req</span>,
-                <span class="ident">Response</span> <span class="op">=</span> <span class="ident">SF1::Response</span>,
-                <span class="ident">Error</span> <span class="op">=</span> <span class="ident">SF::Error</span>,
-                <span class="ident">Config</span> <span class="op">=</span> <span class="ident">SF::Config</span>,
-                <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">SF::InitError</span>,
-                <span class="ident">Service</span> <span class="op">=</span> <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">SF1::Response</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">SF::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-            <span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-        <span class="ident">Req</span>,
-    <span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">SF::Config</span>: <span class="ident">Clone</span>,
-        <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">SF1</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SF::Response</span>, <span class="ident">SF::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">SF1</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SF::Response</span>, <span class="ident">SF::Error</span><span class="op">&gt;</span>,
-            <span class="ident">Config</span> <span class="op">=</span> <span class="ident">SF::Config</span>,
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">SF::Error</span>,
-            <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">SF::InitError</span>,
-        <span class="op">&gt;</span>,
+        factory: I,
+    ) -&gt; PipelineFactory&lt;
+        <span class="kw">impl </span>ServiceFactory&lt;
+                Req,
+                Response = SF1::Response,
+                Error = SF::Error,
+                Config = SF::Config,
+                InitError = SF::InitError,
+                Service = <span class="kw">impl </span>Service&lt;Req, Response = SF1::Response, Error = SF::Error&gt; + Clone,
+            &gt; + Clone,
+        Req,
+    &gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        SF::Config: Clone,
+        I: IntoServiceFactory&lt;SF1, <span class="prelude-ty">Result</span>&lt;SF::Response, SF::Error&gt;&gt;,
+        SF1: ServiceFactory&lt;
+            <span class="prelude-ty">Result</span>&lt;SF::Response, SF::Error&gt;,
+            Config = SF::Config,
+            Error = SF::Error,
+            InitError = SF::InitError,
+        &gt;,
     {
-        <span class="ident">PipelineFactory</span> {
-            <span class="ident">factory</span>: <span class="ident">ThenServiceFactory::new</span>(<span class="self">self</span>.<span class="ident">factory</span>, <span class="ident">factory</span>.<span class="ident">into_factory</span>()),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        PipelineFactory {
+            factory: ThenServiceFactory::new(<span class="self">self</span>.factory, factory.into_factory()),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Map this service&#39;s output to a different type, returning a new service</span>
-    <span class="doccomment">/// of the resulting type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">MapServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">SF::Response</span>) -&gt; <span class="ident">R</span> <span class="op">+</span> <span class="ident">Clone</span>,
+    <span class="doccomment">/// Map this service&#39;s output to a different type, returning a new service
+    /// of the resulting type.
+    </span><span class="kw">pub fn </span>map&lt;F, R&gt;(<span class="self">self</span>, f: F) -&gt; PipelineFactory&lt;MapServiceFactory&lt;SF, F, Req, R&gt;, Req&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: FnMut(SF::Response) -&gt; R + Clone,
     {
-        <span class="ident">PipelineFactory</span> {
-            <span class="ident">factory</span>: <span class="ident">MapServiceFactory::new</span>(<span class="self">self</span>.<span class="ident">factory</span>, <span class="ident">f</span>),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        PipelineFactory {
+            factory: MapServiceFactory::new(<span class="self">self</span>.factory, f),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Map this service&#39;s error to a different error, returning a new service.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Map this service&#39;s error to a different error, returning a new service.
+    </span><span class="kw">pub fn </span>map_err&lt;F, E&gt;(
         <span class="self">self</span>,
-        <span class="ident">f</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">MapErrServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">SF::Error</span>) -&gt; <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
+        f: F,
+    ) -&gt; PipelineFactory&lt;MapErrServiceFactory&lt;SF, Req, F, E&gt;, Req&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: Fn(SF::Error) -&gt; E + Clone,
     {
-        <span class="ident">PipelineFactory</span> {
-            <span class="ident">factory</span>: <span class="ident">MapErrServiceFactory::new</span>(<span class="self">self</span>.<span class="ident">factory</span>, <span class="ident">f</span>),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        PipelineFactory {
+            factory: MapErrServiceFactory::new(<span class="self">self</span>.factory, f),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Map this factory&#39;s init error to a different error, returning a new service.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_init_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">MapInitErr</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">SF::InitError</span>) -&gt; <span class="ident">E</span> <span class="op">+</span> <span class="ident">Clone</span>,
+    <span class="doccomment">/// Map this factory&#39;s init error to a different error, returning a new service.
+    </span><span class="kw">pub fn </span>map_init_err&lt;F, E&gt;(<span class="self">self</span>, f: F) -&gt; PipelineFactory&lt;MapInitErr&lt;SF, F, Req, E&gt;, Req&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+        F: Fn(SF::InitError) -&gt; E + Clone,
     {
-        <span class="ident">PipelineFactory</span> {
-            <span class="ident">factory</span>: <span class="ident">MapInitErr::new</span>(<span class="self">self</span>.<span class="ident">factory</span>, <span class="ident">f</span>),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        PipelineFactory {
+            factory: MapInitErr::new(<span class="self">self</span>.factory, f),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Clone</span>,
+<span class="kw">impl</span>&lt;T, Req&gt; Clone <span class="kw">for </span>PipelineFactory&lt;T, Req&gt;
+<span class="kw">where
+    </span>T: Clone,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">PipelineFactory</span> {
-            <span class="ident">factory</span>: <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">clone</span>(),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        PipelineFactory {
+            factory: <span class="self">self</span>.factory.clone(),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PipelineFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">Req</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;SF, Req&gt; ServiceFactory&lt;Req&gt; <span class="kw">for </span>PipelineFactory&lt;SF, Req&gt;
+<span class="kw">where
+    </span>SF: ServiceFactory&lt;Req&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">SF::Config</span>;
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">SF::Response</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">SF::Error</span>;
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">SF::Service</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">SF::InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">SF::Future</span>;
+    <span class="kw">type </span>Config = SF::Config;
+    <span class="kw">type </span>Response = SF::Response;
+    <span class="kw">type </span>Error = SF::Error;
+    <span class="kw">type </span>Service = SF::Service;
+    <span class="kw">type </span>InitError = SF::InitError;
+    <span class="kw">type </span>Future = SF::Future;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">SF::Config</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">new_service</span>(<span class="ident">cfg</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, cfg: SF::Config) -&gt; <span class="self">Self</span>::Future {
+        <span class="self">self</span>.factory.new_service(cfg)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

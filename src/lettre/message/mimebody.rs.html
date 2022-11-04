@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/mimebody.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mimebody.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/mimebody.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mimebody.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -710,486 +710,486 @@
 <span id="708">708</span>
 <span id="709">709</span>
 <span id="710">710</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io::Write</span>, <span class="ident">iter::repeat_with</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{io::Write, iter::repeat_with};
 
-<span class="kw">use</span> <span class="ident">mime::Mime</span>;
+<span class="kw">use </span>mime::Mime;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message</span>::{
-    <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">ContentTransferEncoding</span>, <span class="ident">ContentType</span>, <span class="ident">Header</span>, <span class="ident">Headers</span>},
-    <span class="ident">EmailFormat</span>, <span class="ident">IntoBody</span>,
+<span class="kw">use </span><span class="kw">crate</span>::message::{
+    header::{<span class="self">self</span>, ContentTransferEncoding, ContentType, Header, Headers},
+    EmailFormat, IntoBody,
 };
 
-<span class="doccomment">/// MIME part variants</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">Part</span> {
-    <span class="doccomment">/// Single part with content</span>
-    <span class="ident">Single</span>(<span class="ident">SinglePart</span>),
+<span class="doccomment">/// MIME part variants
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum </span>Part {
+    <span class="doccomment">/// Single part with content
+    </span>Single(SinglePart),
 
-    <span class="doccomment">/// Multiple parts of content</span>
-    <span class="ident">Multi</span>(<span class="ident">MultiPart</span>),
+    <span class="doccomment">/// Multiple parts of content
+    </span>Multi(MultiPart),
 }
 
-<span class="kw">impl</span> <span class="ident">EmailFormat</span> <span class="kw">for</span> <span class="ident">Part</span> {
-    <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Part::Single</span>(<span class="ident">part</span>) =&gt; <span class="ident">part</span>.<span class="ident">format</span>(<span class="ident">out</span>),
-            <span class="ident">Part::Multi</span>(<span class="ident">part</span>) =&gt; <span class="ident">part</span>.<span class="ident">format</span>(<span class="ident">out</span>),
+<span class="kw">impl </span>EmailFormat <span class="kw">for </span>Part {
+    <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        <span class="kw">match </span><span class="self">self </span>{
+            Part::Single(part) =&gt; part.format(out),
+            Part::Multi(part) =&gt; part.format(out),
         }
     }
 }
 
-<span class="doccomment">/// Creates builder for single part</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SinglePartBuilder</span> {
-    <span class="ident">headers</span>: <span class="ident">Headers</span>,
+<span class="doccomment">/// Creates builder for single part
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>SinglePartBuilder {
+    headers: Headers,
 }
 
-<span class="kw">impl</span> <span class="ident">SinglePartBuilder</span> {
-    <span class="doccomment">/// Creates a default singlepart builder</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">headers</span>: <span class="ident">Headers::new</span>(),
+<span class="kw">impl </span>SinglePartBuilder {
+    <span class="doccomment">/// Creates a default singlepart builder
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            headers: Headers::new(),
         }
     }
 
-    <span class="doccomment">/// Set the header to singlepart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set the header to singlepart
+    </span><span class="kw">pub fn </span>header&lt;H: Header&gt;(<span class="kw-2">mut </span><span class="self">self</span>, header: H) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.headers.set(header);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set the Content-Type header of the singlepart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">content_type</span>: <span class="ident">ContentType</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">content_type</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set the Content-Type header of the singlepart
+    </span><span class="kw">pub fn </span>content_type(<span class="kw-2">mut </span><span class="self">self</span>, content_type: ContentType) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.headers.set(content_type);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Build singlepart using body</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">body</span>: <span class="ident">T</span>) -&gt; <span class="ident">SinglePart</span> {
-        <span class="kw">let</span> <span class="ident">maybe_encoding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">ContentTransferEncoding</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">into_body</span>(<span class="ident">maybe_encoding</span>);
+    <span class="doccomment">/// Build singlepart using body
+    </span><span class="kw">pub fn </span>body&lt;T: IntoBody&gt;(<span class="kw-2">mut </span><span class="self">self</span>, body: T) -&gt; SinglePart {
+        <span class="kw">let </span>maybe_encoding = <span class="self">self</span>.headers.get::&lt;ContentTransferEncoding&gt;();
+        <span class="kw">let </span>body = body.into_body(maybe_encoding);
 
-        <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">body</span>.<span class="ident">encoding</span>());
+        <span class="self">self</span>.headers.set(body.encoding());
 
-        <span class="ident">SinglePart</span> {
-            <span class="ident">headers</span>: <span class="self">self</span>.<span class="ident">headers</span>,
-            <span class="ident">body</span>: <span class="ident">body</span>.<span class="ident">into_vec</span>(),
+        SinglePart {
+            headers: <span class="self">self</span>.headers,
+            body: body.into_vec(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SinglePartBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>SinglePartBuilder {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
     }
 }
 
-<span class="doccomment">/// Single part</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use lettre::message::{header, SinglePart};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # use std::error::Error;</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">/// let part = SinglePart::builder()</span>
-<span class="doccomment">///     .header(header::ContentType::TEXT_PLAIN)</span>
-<span class="doccomment">///     .body(String::from(&quot;Текст письма в уникоде&quot;));</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SinglePart</span> {
-    <span class="ident">headers</span>: <span class="ident">Headers</span>,
-    <span class="ident">body</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Single part
+///
+/// # Example
+///
+/// ```
+/// use lettre::message::{header, SinglePart};
+///
+/// # use std::error::Error;
+/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+/// let part = SinglePart::builder()
+///     .header(header::ContentType::TEXT_PLAIN)
+///     .body(String::from(&quot;Текст письма в уникоде&quot;));
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>SinglePart {
+    headers: Headers,
+    body: Vec&lt;u8&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SinglePart</span> {
-    <span class="doccomment">/// Creates a builder for singlepart</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">SinglePartBuilder</span> {
-        <span class="ident">SinglePartBuilder::new</span>()
+<span class="kw">impl </span>SinglePart {
+    <span class="doccomment">/// Creates a builder for singlepart
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>builder() -&gt; SinglePartBuilder {
+        SinglePartBuilder::new()
     }
 
-    <span class="doccomment">/// Directly create a `SinglePart` from an plain UTF-8 content</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plain</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::builder</span>()
-            .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-            .<span class="ident">body</span>(<span class="ident">body</span>)
+    <span class="doccomment">/// Directly create a `SinglePart` from an plain UTF-8 content
+    </span><span class="kw">pub fn </span>plain&lt;T: IntoBody&gt;(body: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::builder()
+            .header(header::ContentType::TEXT_PLAIN)
+            .body(body)
     }
 
-    <span class="doccomment">/// Directly create a `SinglePart` from an UTF-8 HTML content</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">html</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::builder</span>()
-            .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_HTML</span>)
-            .<span class="ident">body</span>(<span class="ident">body</span>)
+    <span class="doccomment">/// Directly create a `SinglePart` from an UTF-8 HTML content
+    </span><span class="kw">pub fn </span>html&lt;T: IntoBody&gt;(body: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::builder()
+            .header(header::ContentType::TEXT_HTML)
+            .body(body)
     }
 
-    <span class="doccomment">/// Get the headers from singlepart</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Headers</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">headers</span>
+    <span class="doccomment">/// Get the headers from singlepart
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Headers {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.headers
     }
 
-    <span class="doccomment">/// Get the encoded body</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">body</span>
+    <span class="doccomment">/// Get the encoded body
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>raw_body(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.body
     }
 
-    <span class="doccomment">/// Get message content formatted for sending</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">formatted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="self">self</span>.<span class="ident">format</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out</span>);
-        <span class="ident">out</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">EmailFormat</span> <span class="kw">for</span> <span class="ident">SinglePart</span> {
-    <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="macro">write!</span>(<span class="ident">out</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">headers</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
-        <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
-        <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">body</span>);
-        <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
+    <span class="doccomment">/// Get message content formatted for sending
+    </span><span class="kw">pub fn </span>formatted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
+        <span class="self">self</span>.format(<span class="kw-2">&amp;mut </span>out);
+        out
     }
 }
 
-<span class="doccomment">/// The kind of multipart</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MultiPartKind</span> {
-    <span class="doccomment">/// Mixed kind to combine unrelated content parts</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For example this kind can be used to mix email message and attachments.</span>
-    <span class="ident">Mixed</span>,
-
-    <span class="doccomment">/// Alternative kind to join several variants of same email contents.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// That kind is recommended to use for joining plain (text) and rich (HTML) messages into single email message.</span>
-    <span class="ident">Alternative</span>,
-
-    <span class="doccomment">/// Related kind to mix content and related resources.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For example, you can include images into HTML content using that.</span>
-    <span class="ident">Related</span>,
-
-    <span class="doccomment">/// Encrypted kind for encrypted messages</span>
-    <span class="ident">Encrypted</span> { <span class="ident">protocol</span>: <span class="ident">String</span> },
-
-    <span class="doccomment">/// Signed kind for signed messages</span>
-    <span class="ident">Signed</span> { <span class="ident">protocol</span>: <span class="ident">String</span>, <span class="ident">micalg</span>: <span class="ident">String</span> },
+<span class="kw">impl </span>EmailFormat <span class="kw">for </span>SinglePart {
+    <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        <span class="macro">write!</span>(out, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.headers)
+            .expect(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
+        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+        out.extend_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.body);
+        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+    }
 }
 
-<span class="doccomment">/// Create a random MIME boundary.</span>
-<span class="doccomment">/// (Not cryptographically random)</span>
-<span class="kw">fn</span> <span class="ident">make_boundary</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">repeat_with</span>(<span class="ident">fastrand::alphanumeric</span>).<span class="ident">take</span>(<span class="number">40</span>).<span class="ident">collect</span>()
+<span class="doccomment">/// The kind of multipart
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub enum </span>MultiPartKind {
+    <span class="doccomment">/// Mixed kind to combine unrelated content parts
+    ///
+    /// For example this kind can be used to mix email message and attachments.
+    </span>Mixed,
+
+    <span class="doccomment">/// Alternative kind to join several variants of same email contents.
+    ///
+    /// That kind is recommended to use for joining plain (text) and rich (HTML) messages into single email message.
+    </span>Alternative,
+
+    <span class="doccomment">/// Related kind to mix content and related resources.
+    ///
+    /// For example, you can include images into HTML content using that.
+    </span>Related,
+
+    <span class="doccomment">/// Encrypted kind for encrypted messages
+    </span>Encrypted { protocol: String },
+
+    <span class="doccomment">/// Signed kind for signed messages
+    </span>Signed { protocol: String, micalg: String },
 }
 
-<span class="kw">impl</span> <span class="ident">MultiPartKind</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_mime</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">boundary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="ident">Mime</span> {
-        <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="ident">boundary</span>.<span class="ident">map_or_else</span>(<span class="ident">make_boundary</span>, <span class="ident">Into::into</span>);
+<span class="doccomment">/// Create a random MIME boundary.
+/// (Not cryptographically random)
+</span><span class="kw">fn </span>make_boundary() -&gt; String {
+    repeat_with(fastrand::alphanumeric).take(<span class="number">40</span>).collect()
+}
+
+<span class="kw">impl </span>MultiPartKind {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_mime&lt;S: Into&lt;String&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, boundary: <span class="prelude-ty">Option</span>&lt;S&gt;) -&gt; Mime {
+        <span class="kw">let </span>boundary = boundary.map_or_else(make_boundary, Into::into);
 
         <span class="macro">format!</span>(
             <span class="string">&quot;multipart/{}; boundary=\&quot;{}\&quot;{}&quot;</span>,
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident"><span class="self">Self</span>::Mixed</span> =&gt; <span class="string">&quot;mixed&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Alternative</span> =&gt; <span class="string">&quot;alternative&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Related</span> =&gt; <span class="string">&quot;related&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Encrypted</span> { .. } =&gt; <span class="string">&quot;encrypted&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Signed</span> { .. } =&gt; <span class="string">&quot;signed&quot;</span>,
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Mixed =&gt; <span class="string">&quot;mixed&quot;</span>,
+                <span class="self">Self</span>::Alternative =&gt; <span class="string">&quot;alternative&quot;</span>,
+                <span class="self">Self</span>::Related =&gt; <span class="string">&quot;related&quot;</span>,
+                <span class="self">Self</span>::Encrypted { .. } =&gt; <span class="string">&quot;encrypted&quot;</span>,
+                <span class="self">Self</span>::Signed { .. } =&gt; <span class="string">&quot;signed&quot;</span>,
             },
-            <span class="ident">boundary</span>,
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident"><span class="self">Self</span>::Encrypted</span> { <span class="ident">protocol</span> } =&gt; <span class="macro">format!</span>(<span class="string">&quot;; protocol=\&quot;{}\&quot;&quot;</span>, <span class="ident">protocol</span>),
-                <span class="ident"><span class="self">Self</span>::Signed</span> { <span class="ident">protocol</span>, <span class="ident">micalg</span> } =&gt;
-                    <span class="macro">format!</span>(<span class="string">&quot;; protocol=\&quot;{}\&quot;; micalg=\&quot;{}\&quot;&quot;</span>, <span class="ident">protocol</span>, <span class="ident">micalg</span>),
-                <span class="kw">_</span> =&gt; <span class="ident">String::new</span>(),
+            boundary,
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Encrypted { protocol } =&gt; <span class="macro">format!</span>(<span class="string">&quot;; protocol=\&quot;{}\&quot;&quot;</span>, protocol),
+                <span class="self">Self</span>::Signed { protocol, micalg } =&gt;
+                    <span class="macro">format!</span>(<span class="string">&quot;; protocol=\&quot;{}\&quot;; micalg=\&quot;{}\&quot;&quot;</span>, protocol, micalg),
+                <span class="kw">_ </span>=&gt; String::new(),
             }
         )
-        .<span class="ident">parse</span>()
-        .<span class="ident">unwrap</span>()
+        .parse()
+        .unwrap()
     }
 
-    <span class="kw">fn</span> <span class="ident">from_mime</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">Mime</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">m</span>.<span class="ident">subtype</span>().<span class="ident">as_ref</span>() {
-            <span class="string">&quot;mixed&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Mixed</span>),
-            <span class="string">&quot;alternative&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Alternative</span>),
-            <span class="string">&quot;related&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="self">Self</span>::Related</span>),
-            <span class="string">&quot;signed&quot;</span> =&gt; <span class="ident">m</span>.<span class="ident">get_param</span>(<span class="string">&quot;protocol&quot;</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
-                <span class="ident">m</span>.<span class="ident">get_param</span>(<span class="string">&quot;micalg&quot;</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">micalg</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::Signed</span> {
-                    <span class="ident">protocol</span>: <span class="ident">p</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>(),
-                    <span class="ident">micalg</span>: <span class="ident">micalg</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>(),
+    <span class="kw">fn </span>from_mime(m: <span class="kw-2">&amp;</span>Mime) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span>m.subtype().as_ref() {
+            <span class="string">&quot;mixed&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Mixed),
+            <span class="string">&quot;alternative&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Alternative),
+            <span class="string">&quot;related&quot; </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">Self</span>::Related),
+            <span class="string">&quot;signed&quot; </span>=&gt; m.get_param(<span class="string">&quot;protocol&quot;</span>).and_then(|p| {
+                m.get_param(<span class="string">&quot;micalg&quot;</span>).map(|micalg| <span class="self">Self</span>::Signed {
+                    protocol: p.as_str().to_owned(),
+                    micalg: micalg.as_str().to_owned(),
                 })
             }),
-            <span class="string">&quot;encrypted&quot;</span> =&gt; <span class="ident">m</span>.<span class="ident">get_param</span>(<span class="string">&quot;protocol&quot;</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::Encrypted</span> {
-                <span class="ident">protocol</span>: <span class="ident">p</span>.<span class="ident">as_str</span>().<span class="ident">to_owned</span>(),
+            <span class="string">&quot;encrypted&quot; </span>=&gt; m.get_param(<span class="string">&quot;protocol&quot;</span>).map(|p| <span class="self">Self</span>::Encrypted {
+                protocol: p.as_str().to_owned(),
             }),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="doccomment">/// Multipart builder</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MultiPartBuilder</span> {
-    <span class="ident">headers</span>: <span class="ident">Headers</span>,
+<span class="doccomment">/// Multipart builder
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>MultiPartBuilder {
+    headers: Headers,
 }
 
-<span class="kw">impl</span> <span class="ident">MultiPartBuilder</span> {
-    <span class="doccomment">/// Creates default multipart builder</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">headers</span>: <span class="ident">Headers::new</span>(),
+<span class="kw">impl </span>MultiPartBuilder {
+    <span class="doccomment">/// Creates default multipart builder
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            headers: Headers::new(),
         }
     }
 
-    <span class="doccomment">/// Set a header</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header</span>);
-        <span class="self">self</span>
+    <span class="doccomment">/// Set a header
+    </span><span class="kw">pub fn </span>header&lt;H: Header&gt;(<span class="kw-2">mut </span><span class="self">self</span>, header: H) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.headers.set(header);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Set `Content-Type` header using [`MultiPartKind`]
+    </span><span class="kw">pub fn </span>kind(<span class="self">self</span>, kind: MultiPartKind) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.header(ContentType::from_mime(kind.to_mime::&lt;String&gt;(<span class="prelude-val">None</span>)))
     }
 
-    <span class="doccomment">/// Set `Content-Type` header using [`MultiPartKind`]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">MultiPartKind</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">ContentType::from_mime</span>(<span class="ident">kind</span>.<span class="ident">to_mime</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="prelude-val">None</span>)))
-    }
-
-    <span class="doccomment">/// Set custom boundary</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">boundary</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">boundary</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">content_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">ContentType</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-            <span class="ident">MultiPartKind::from_mime</span>(<span class="ident">content_type</span>.<span class="ident">as_ref</span>()).<span class="ident">unwrap</span>()
+    <span class="doccomment">/// Set custom boundary
+    </span><span class="kw">pub fn </span>boundary&lt;S: Into&lt;String&gt;&gt;(<span class="self">self</span>, boundary: S) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>kind = {
+            <span class="kw">let </span>content_type = <span class="self">self</span>.headers.get::&lt;ContentType&gt;().unwrap();
+            MultiPartKind::from_mime(content_type.as_ref()).unwrap()
         };
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">kind</span>.<span class="ident">to_mime</span>(<span class="prelude-val">Some</span>(<span class="ident">boundary</span>));
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">ContentType::from_mime</span>(<span class="ident">mime</span>))
+        <span class="kw">let </span>mime = kind.to_mime(<span class="prelude-val">Some</span>(boundary));
+        <span class="self">self</span>.header(ContentType::from_mime(mime))
     }
 
-    <span class="doccomment">/// Creates multipart without parts</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="ident">MultiPart</span> {
-        <span class="ident">MultiPart</span> {
-            <span class="ident">headers</span>: <span class="self">self</span>.<span class="ident">headers</span>,
-            <span class="ident">parts</span>: <span class="ident">Vec::new</span>(),
+    <span class="doccomment">/// Creates multipart without parts
+    </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; MultiPart {
+        MultiPart {
+            headers: <span class="self">self</span>.headers,
+            parts: Vec::new(),
         }
     }
 
-    <span class="doccomment">/// Creates multipart using singlepart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">singlepart</span>(<span class="self">self</span>, <span class="ident">part</span>: <span class="ident">SinglePart</span>) -&gt; <span class="ident">MultiPart</span> {
-        <span class="self">self</span>.<span class="ident">build</span>().<span class="ident">singlepart</span>(<span class="ident">part</span>)
+    <span class="doccomment">/// Creates multipart using singlepart
+    </span><span class="kw">pub fn </span>singlepart(<span class="self">self</span>, part: SinglePart) -&gt; MultiPart {
+        <span class="self">self</span>.build().singlepart(part)
     }
 
-    <span class="doccomment">/// Creates multipart using multipart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multipart</span>(<span class="self">self</span>, <span class="ident">part</span>: <span class="ident">MultiPart</span>) -&gt; <span class="ident">MultiPart</span> {
-        <span class="self">self</span>.<span class="ident">build</span>().<span class="ident">multipart</span>(<span class="ident">part</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MultiPartBuilder</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>()
+    <span class="doccomment">/// Creates multipart using multipart
+    </span><span class="kw">pub fn </span>multipart(<span class="self">self</span>, part: MultiPart) -&gt; MultiPart {
+        <span class="self">self</span>.build().multipart(part)
     }
 }
 
-<span class="doccomment">/// Multipart variant with parts</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MultiPart</span> {
-    <span class="ident">headers</span>: <span class="ident">Headers</span>,
-    <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Part</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">MultiPart</span> {
-    <span class="doccomment">/// Creates multipart builder</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">MultiPartBuilder</span> {
-        <span class="ident">MultiPartBuilder::new</span>()
-    }
-
-    <span class="doccomment">/// Creates mixed multipart builder</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Mixed)`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mixed</span>() -&gt; <span class="ident">MultiPartBuilder</span> {
-        <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Mixed</span>)
-    }
-
-    <span class="doccomment">/// Creates alternative multipart builder</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Alternative)`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alternative</span>() -&gt; <span class="ident">MultiPartBuilder</span> {
-        <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Alternative</span>)
-    }
-
-    <span class="doccomment">/// Creates related multipart builder</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Related)`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">related</span>() -&gt; <span class="ident">MultiPartBuilder</span> {
-        <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Related</span>)
-    }
-
-    <span class="doccomment">/// Creates encrypted multipart builder</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Encrypted{ protocol })`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encrypted</span>(<span class="ident">protocol</span>: <span class="ident">String</span>) -&gt; <span class="ident">MultiPartBuilder</span> {
-        <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Encrypted</span> { <span class="ident">protocol</span> })
-    }
-
-    <span class="doccomment">/// Creates signed multipart builder</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `MultiPart::builder().kind(MultiPartKind::Signed{ protocol, micalg })`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signed</span>(<span class="ident">protocol</span>: <span class="ident">String</span>, <span class="ident">micalg</span>: <span class="ident">String</span>) -&gt; <span class="ident">MultiPartBuilder</span> {
-        <span class="ident">MultiPart::builder</span>().<span class="ident">kind</span>(<span class="ident">MultiPartKind::Signed</span> { <span class="ident">protocol</span>, <span class="ident">micalg</span> })
-    }
-
-    <span class="doccomment">/// Alias for HTML and plain text versions of an email</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alternative_plain_html</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoBody</span>, <span class="ident">V</span>: <span class="ident">IntoBody</span><span class="op">&gt;</span>(<span class="ident">plain</span>: <span class="ident">T</span>, <span class="ident">html</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::alternative</span>()
-            .<span class="ident">singlepart</span>(<span class="ident">SinglePart::plain</span>(<span class="ident">plain</span>))
-            .<span class="ident">singlepart</span>(<span class="ident">SinglePart::html</span>(<span class="ident">html</span>))
-    }
-
-    <span class="doccomment">/// Add single part to multipart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">singlepart</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">part</span>: <span class="ident">SinglePart</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">Part::Single</span>(<span class="ident">part</span>));
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Add multi part to multipart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multipart</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">part</span>: <span class="ident">MultiPart</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">Part::Multi</span>(<span class="ident">part</span>));
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Get the boundary of multipart contents</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">boundary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="ident">content_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">ContentType</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="ident">content_type</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">get_param</span>(<span class="string">&quot;boundary&quot;</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">as_str</span>()
-            .<span class="ident">into</span>()
-    }
-
-    <span class="doccomment">/// Get the headers from the multipart</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Headers</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">headers</span>
-    }
-
-    <span class="doccomment">/// Get a mutable reference to the headers</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Headers</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">headers</span>
-    }
-
-    <span class="doccomment">/// Get message content formatted for SMTP</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">formatted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="self">self</span>.<span class="ident">format</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out</span>);
-        <span class="ident">out</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>MultiPartBuilder {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">EmailFormat</span> <span class="kw">for</span> <span class="ident">MultiPart</span> {
-    <span class="kw">fn</span> <span class="ident">format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="macro">write!</span>(<span class="ident">out</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">headers</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
-        <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
+<span class="doccomment">/// Multipart variant with parts
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>MultiPart {
+    headers: Headers,
+    parts: Vec&lt;Part&gt;,
+}
 
-        <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">boundary</span>();
+<span class="kw">impl </span>MultiPart {
+    <span class="doccomment">/// Creates multipart builder
+    </span><span class="kw">pub fn </span>builder() -&gt; MultiPartBuilder {
+        MultiPartBuilder::new()
+    }
 
-        <span class="kw">for</span> <span class="ident">part</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parts</span> {
-            <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;--&quot;</span>);
-            <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="ident">boundary</span>.<span class="ident">as_bytes</span>());
-            <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
-            <span class="ident">part</span>.<span class="ident">format</span>(<span class="ident">out</span>);
+    <span class="doccomment">/// Creates mixed multipart builder
+    ///
+    /// Shortcut for `MultiPart::builder().kind(MultiPartKind::Mixed)`
+    </span><span class="kw">pub fn </span>mixed() -&gt; MultiPartBuilder {
+        MultiPart::builder().kind(MultiPartKind::Mixed)
+    }
+
+    <span class="doccomment">/// Creates alternative multipart builder
+    ///
+    /// Shortcut for `MultiPart::builder().kind(MultiPartKind::Alternative)`
+    </span><span class="kw">pub fn </span>alternative() -&gt; MultiPartBuilder {
+        MultiPart::builder().kind(MultiPartKind::Alternative)
+    }
+
+    <span class="doccomment">/// Creates related multipart builder
+    ///
+    /// Shortcut for `MultiPart::builder().kind(MultiPartKind::Related)`
+    </span><span class="kw">pub fn </span>related() -&gt; MultiPartBuilder {
+        MultiPart::builder().kind(MultiPartKind::Related)
+    }
+
+    <span class="doccomment">/// Creates encrypted multipart builder
+    ///
+    /// Shortcut for `MultiPart::builder().kind(MultiPartKind::Encrypted{ protocol })`
+    </span><span class="kw">pub fn </span>encrypted(protocol: String) -&gt; MultiPartBuilder {
+        MultiPart::builder().kind(MultiPartKind::Encrypted { protocol })
+    }
+
+    <span class="doccomment">/// Creates signed multipart builder
+    ///
+    /// Shortcut for `MultiPart::builder().kind(MultiPartKind::Signed{ protocol, micalg })`
+    </span><span class="kw">pub fn </span>signed(protocol: String, micalg: String) -&gt; MultiPartBuilder {
+        MultiPart::builder().kind(MultiPartKind::Signed { protocol, micalg })
+    }
+
+    <span class="doccomment">/// Alias for HTML and plain text versions of an email
+    </span><span class="kw">pub fn </span>alternative_plain_html&lt;T: IntoBody, V: IntoBody&gt;(plain: T, html: V) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::alternative()
+            .singlepart(SinglePart::plain(plain))
+            .singlepart(SinglePart::html(html))
+    }
+
+    <span class="doccomment">/// Add single part to multipart
+    </span><span class="kw">pub fn </span>singlepart(<span class="kw-2">mut </span><span class="self">self</span>, part: SinglePart) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.parts.push(Part::Single(part));
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Add multi part to multipart
+    </span><span class="kw">pub fn </span>multipart(<span class="kw-2">mut </span><span class="self">self</span>, part: MultiPart) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.parts.push(Part::Multi(part));
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Get the boundary of multipart contents
+    </span><span class="kw">pub fn </span>boundary(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">let </span>content_type = <span class="self">self</span>.headers.get::&lt;ContentType&gt;().unwrap();
+        content_type
+            .as_ref()
+            .get_param(<span class="string">&quot;boundary&quot;</span>)
+            .unwrap()
+            .as_str()
+            .into()
+    }
+
+    <span class="doccomment">/// Get the headers from the multipart
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Headers {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.headers
+    }
+
+    <span class="doccomment">/// Get a mutable reference to the headers
+    </span><span class="kw">pub fn </span>headers_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Headers {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.headers
+    }
+
+    <span class="doccomment">/// Get message content formatted for SMTP
+    </span><span class="kw">pub fn </span>formatted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
+        <span class="self">self</span>.format(<span class="kw-2">&amp;mut </span>out);
+        out
+    }
+}
+
+<span class="kw">impl </span>EmailFormat <span class="kw">for </span>MultiPart {
+    <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        <span class="macro">write!</span>(out, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.headers)
+            .expect(<span class="string">&quot;A Write implementation panicked while formatting headers&quot;</span>);
+        out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+
+        <span class="kw">let </span>boundary = <span class="self">self</span>.boundary();
+
+        <span class="kw">for </span>part <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.parts {
+            out.extend_from_slice(<span class="string">b&quot;--&quot;</span>);
+            out.extend_from_slice(boundary.as_bytes());
+            out.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
+            part.format(out);
         }
 
-        <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;--&quot;</span>);
-        <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="ident">boundary</span>.<span class="ident">as_bytes</span>());
-        <span class="ident">out</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;--\r\n&quot;</span>);
+        out.extend_from_slice(<span class="string">b&quot;--&quot;</span>);
+        out.extend_from_slice(boundary.as_bytes());
+        out.extend_from_slice(<span class="string">b&quot;--\r\n&quot;</span>);
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>pretty_assertions::assert_eq;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message::header</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::message::header;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">single_part_binary</span>() {
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">SinglePart::builder</span>()
-            .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-            .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::Binary</span>)
-            .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>single_part_binary() {
+        <span class="kw">let </span>part = SinglePart::builder()
+            .header(header::ContentType::TEXT_PLAIN)
+            .header(header::ContentTransferEncoding::Binary)
+            .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from_utf8</span>(<span class="ident">part</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+            String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
                 <span class="string">&quot;Content-Transfer-Encoding: binary\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;Текст письма в уникоде\r\n&quot;</span>
-            )
+                <span class="string">&quot;Текст письма в уникоде\r\n&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">single_part_quoted_printable</span>() {
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">SinglePart::builder</span>()
-            .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-            .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::QuotedPrintable</span>)
-            .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>single_part_quoted_printable() {
+        <span class="kw">let </span>part = SinglePart::builder()
+            .header(header::ContentType::TEXT_PLAIN)
+            .header(header::ContentTransferEncoding::QuotedPrintable)
+            .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from_utf8</span>(<span class="ident">part</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+            String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
                 <span class="string">&quot;Content-Transfer-Encoding: quoted-printable\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
                 <span class="string">&quot;=D0=A2=D0=B5=D0=BA=D1=81=D1=82 =D0=BF=D0=B8=D1=81=D1=8C=D0=BC=D0=B0 =D0=B2 =\r\n&quot;</span>,
-                <span class="string">&quot;=D1=83=D0=BD=D0=B8=D0=BA=D0=BE=D0=B4=D0=B5\r\n&quot;</span>
-            )
+                <span class="string">&quot;=D1=83=D0=BD=D0=B8=D0=BA=D0=BE=D0=B4=D0=B5\r\n&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">single_part_base64</span>() {
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">SinglePart::builder</span>()
-            .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-            .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::Base64</span>)
-            .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>single_part_base64() {
+        <span class="kw">let </span>part = SinglePart::builder()
+            .header(header::ContentType::TEXT_PLAIN)
+            .header(header::ContentTransferEncoding::Base64)
+            .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from_utf8</span>(<span class="ident">part</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+            String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Type: text/plain; charset=utf-8\r\n&quot;</span>,
                 <span class="string">&quot;Content-Transfer-Encoding: base64\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;0KLQtdC60YHRgiDQv9C40YHRjNC80LAg0LIg0YPQvdC40LrQvtC00LU=\r\n&quot;</span>
-            )
+                <span class="string">&quot;0KLQtdC60YHRgiDQv9C40YHRjNC80LAg0LIg0YPQvdC40LrQvtC00LU=\r\n&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">multi_part_mixed</span>() {
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">MultiPart::mixed</span>()
-            .<span class="ident">boundary</span>(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
-            .<span class="ident">singlepart</span>(
-                <span class="ident">SinglePart::builder</span>()
-                    .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-                    .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::Binary</span>)
-                    .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Текст письма в уникоде&quot;</span>)),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>multi_part_mixed() {
+        <span class="kw">let </span>part = MultiPart::mixed()
+            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+            .singlepart(
+                SinglePart::builder()
+                    .header(header::ContentType::TEXT_PLAIN)
+                    .header(header::ContentTransferEncoding::Binary)
+                    .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>)),
             )
-            .<span class="ident">singlepart</span>(
-                <span class="ident">SinglePart::builder</span>()
-                    .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-                    .<span class="ident">header</span>(<span class="ident">header::ContentDisposition::attachment</span>(<span class="string">&quot;example.c&quot;</span>))
-                    .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::Binary</span>)
-                    .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;int main() { return 0; }&quot;</span>)),
+            .singlepart(
+                SinglePart::builder()
+                    .header(header::ContentType::TEXT_PLAIN)
+                    .header(header::ContentDisposition::attachment(<span class="string">&quot;example.c&quot;</span>))
+                    .header(header::ContentTransferEncoding::Binary)
+                    .body(String::from(<span class="string">&quot;int main() { return 0; }&quot;</span>)),
             );
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from_utf8</span>(<span class="ident">part</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+            String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Type: multipart/mixed;\r\n&quot;</span>,
                 <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;\r\n&quot;</span>,
@@ -1205,38 +1205,38 @@
                 <span class="string">&quot;Content-Transfer-Encoding: binary\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
                 <span class="string">&quot;int main() { return 0; }\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;</span>
-            )
+                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;
+            </span>)
         );
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">multi_part_encrypted</span>() {
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">MultiPart::encrypted</span>(<span class="string">&quot;application/pgp-encrypted&quot;</span>.<span class="ident">to_owned</span>())
-            .<span class="ident">boundary</span>(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
-            .<span class="ident">singlepart</span>(
-                <span class="ident">SinglePart::builder</span>()
-                    .<span class="ident">header</span>(<span class="ident">header::ContentType::parse</span>(<span class="string">&quot;application/pgp-encrypted&quot;</span>).<span class="ident">unwrap</span>())
-                    .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Version: 1&quot;</span>)),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>multi_part_encrypted() {
+        <span class="kw">let </span>part = MultiPart::encrypted(<span class="string">&quot;application/pgp-encrypted&quot;</span>.to_owned())
+            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+            .singlepart(
+                SinglePart::builder()
+                    .header(header::ContentType::parse(<span class="string">&quot;application/pgp-encrypted&quot;</span>).unwrap())
+                    .body(String::from(<span class="string">&quot;Version: 1&quot;</span>)),
             )
-            .<span class="ident">singlepart</span>(
-                <span class="ident">SinglePart::builder</span>()
-                    .<span class="ident">header</span>(
-                        <span class="ident">ContentType::parse</span>(<span class="string">&quot;application/octet-stream; name=\&quot;encrypted.asc\&quot;&quot;</span>)
-                            .<span class="ident">unwrap</span>(),
+            .singlepart(
+                SinglePart::builder()
+                    .header(
+                        ContentType::parse(<span class="string">&quot;application/octet-stream; name=\&quot;encrypted.asc\&quot;&quot;</span>)
+                            .unwrap(),
                     )
-                    .<span class="ident">header</span>(<span class="ident">header::ContentDisposition::inline_with_name</span>(
+                    .header(header::ContentDisposition::inline_with_name(
                         <span class="string">&quot;encrypted.asc&quot;</span>,
                     ))
-                    .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="macro">concat!</span>(
+                    .body(String::from(<span class="macro">concat!</span>(
                         <span class="string">&quot;-----BEGIN PGP MESSAGE-----\r\n&quot;</span>,
                         <span class="string">&quot;wV4D0dz5vDXklO8SAQdA5lGX1UU/eVQqDxNYdHa7tukoingHzqUB6wQssbMfHl8w\r\n&quot;</span>,
                         <span class="string">&quot;...\r\n&quot;</span>,
-                        <span class="string">&quot;-----END PGP MESSAGE-----\r\n&quot;</span>
-                    ))),
+                        <span class="string">&quot;-----END PGP MESSAGE-----\r\n&quot;
+                    </span>))),
             );
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from_utf8</span>(<span class="ident">part</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+            String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Type: multipart/encrypted;\r\n&quot;</span>,
                 <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;;\r\n&quot;</span>,
@@ -1257,30 +1257,30 @@
                 <span class="string">&quot;...\r\n&quot;</span>,
                 <span class="string">&quot;-----END PGP MESSAGE-----\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;</span>
-            )
+                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;
+            </span>)
         );
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">multi_part_signed</span>() {
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">MultiPart::signed</span>(
-            <span class="string">&quot;application/pgp-signature&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="string">&quot;pgp-sha256&quot;</span>.<span class="ident">to_owned</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>multi_part_signed() {
+        <span class="kw">let </span>part = MultiPart::signed(
+            <span class="string">&quot;application/pgp-signature&quot;</span>.to_owned(),
+            <span class="string">&quot;pgp-sha256&quot;</span>.to_owned(),
         )
-        .<span class="ident">boundary</span>(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
-        .<span class="ident">singlepart</span>(
-            <span class="ident">SinglePart::builder</span>()
-                .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-                .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Test email for signature&quot;</span>)),
+        .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+        .singlepart(
+            SinglePart::builder()
+                .header(header::ContentType::TEXT_PLAIN)
+                .body(String::from(<span class="string">&quot;Test email for signature&quot;</span>)),
         )
-        .<span class="ident">singlepart</span>(
-            <span class="ident">SinglePart::builder</span>()
-                .<span class="ident">header</span>(
-                    <span class="ident">ContentType::parse</span>(<span class="string">&quot;application/pgp-signature; name=\&quot;signature.asc\&quot;&quot;</span>)
-                        .<span class="ident">unwrap</span>(),
+        .singlepart(
+            SinglePart::builder()
+                .header(
+                    ContentType::parse(<span class="string">&quot;application/pgp-signature; name=\&quot;signature.asc\&quot;&quot;</span>)
+                        .unwrap(),
                 )
-                .<span class="ident">header</span>(<span class="ident">header::ContentDisposition::attachment</span>(<span class="string">&quot;signature.asc&quot;</span>))
-                .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="macro">concat!</span>(
+                .header(header::ContentDisposition::attachment(<span class="string">&quot;signature.asc&quot;</span>))
+                .body(String::from(<span class="macro">concat!</span>(
                     <span class="string">&quot;-----BEGIN PGP SIGNATURE-----\r\n&quot;</span>,
                     <span class="string">&quot;\r\n&quot;</span>,
                     <span class="string">&quot;iHUEARYIAB0WIQTNsp3S/GbdE0KoiQ+IGQOscREZuQUCXyOzDAAKCRCIGQOscREZ\r\n&quot;</span>,
@@ -1292,7 +1292,7 @@
         );
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from_utf8</span>(<span class="ident">part</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+            String::from_utf8(part.formatted()).unwrap(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Type: multipart/signed;\r\n&quot;</span>,
                 <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;;\r\n&quot;</span>,
@@ -1317,25 +1317,25 @@
                 <span class="string">&quot;=3FYZ\r\n&quot;</span>,
                 <span class="string">&quot;-----END PGP SIGNATURE-----\r\n&quot;</span>,
                 <span class="string">&quot;\r\n&quot;</span>,
-                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;</span>
-            )
+                <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">multi_part_alternative</span>() {
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">MultiPart::alternative</span>()
-            .<span class="ident">boundary</span>(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
-            .<span class="ident">singlepart</span>(<span class="ident">SinglePart::builder</span>()
-                             .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-                             .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::Binary</span>)
-                             .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Текст письма в уникоде&quot;</span>)))
-            .<span class="ident">singlepart</span>(<span class="ident">SinglePart::builder</span>()
-                             .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_HTML</span>)
-                             .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::Binary</span>)
-                             .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\&quot;https://ru.wikipedia.org/wiki/Юникод\&quot;&gt;уникоде&lt;/a&gt;&lt;p&gt;&quot;</span>)));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>multi_part_alternative() {
+        <span class="kw">let </span>part = MultiPart::alternative()
+            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+            .singlepart(SinglePart::builder()
+                             .header(header::ContentType::TEXT_PLAIN)
+                             .header(header::ContentTransferEncoding::Binary)
+                             .body(String::from(<span class="string">&quot;Текст письма в уникоде&quot;</span>)))
+            .singlepart(SinglePart::builder()
+                             .header(header::ContentType::TEXT_HTML)
+                             .header(header::ContentTransferEncoding::Binary)
+                             .body(String::from(<span class="string">&quot;&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\&quot;https://ru.wikipedia.org/wiki/Юникод\&quot;&gt;уникоде&lt;/a&gt;&lt;p&gt;&quot;</span>)));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from_utf8</span>(<span class="ident">part</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(String::from_utf8(part.formatted()).unwrap(),
                    <span class="macro">concat!</span>(<span class="string">&quot;Content-Type: multipart/alternative;\r\n&quot;</span>,
                            <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;\r\n&quot;</span>,
                            <span class="string">&quot;\r\n&quot;</span>,
@@ -1352,28 +1352,28 @@
                            <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">multi_part_mixed_related</span>() {
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">MultiPart::mixed</span>()
-            .<span class="ident">boundary</span>(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
-            .<span class="ident">multipart</span>(<span class="ident">MultiPart::related</span>()
-                            .<span class="ident">boundary</span>(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
-                            .<span class="ident">singlepart</span>(<span class="ident">SinglePart::builder</span>()
-                                             .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_HTML</span>)
-                                             .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::Binary</span>)
-                                             .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\&quot;https://ru.wikipedia.org/wiki/Юникод\&quot;&gt;уникоде&lt;/a&gt;&lt;p&gt;&quot;</span>)))
-                            .<span class="ident">singlepart</span>(<span class="ident">SinglePart::builder</span>()
-                                             .<span class="ident">header</span>(<span class="ident">header::ContentType::parse</span>(<span class="string">&quot;image/png&quot;</span>).<span class="ident">unwrap</span>())
-                                             .<span class="ident">header</span>(<span class="ident">header::ContentLocation::from</span>(<span class="ident">String::from</span>(<span class="string">&quot;/image.png&quot;</span>)))
-                                             .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::Base64</span>)
-                                             .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890&quot;</span>))))
-            .<span class="ident">singlepart</span>(<span class="ident">SinglePart::builder</span>()
-                             .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-                             .<span class="ident">header</span>(<span class="ident">header::ContentDisposition::attachment</span>(<span class="string">&quot;example.c&quot;</span>))
-                             .<span class="ident">header</span>(<span class="ident">header::ContentTransferEncoding::Binary</span>)
-                             .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;int main() { return 0; }&quot;</span>)));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>multi_part_mixed_related() {
+        <span class="kw">let </span>part = MultiPart::mixed()
+            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+            .multipart(MultiPart::related()
+                            .boundary(<span class="string">&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1&quot;</span>)
+                            .singlepart(SinglePart::builder()
+                                             .header(header::ContentType::TEXT_HTML)
+                                             .header(header::ContentTransferEncoding::Binary)
+                                             .body(String::from(<span class="string">&quot;&lt;p&gt;Текст &lt;em&gt;письма&lt;/em&gt; в &lt;a href=\&quot;https://ru.wikipedia.org/wiki/Юникод\&quot;&gt;уникоде&lt;/a&gt;&lt;p&gt;&quot;</span>)))
+                            .singlepart(SinglePart::builder()
+                                             .header(header::ContentType::parse(<span class="string">&quot;image/png&quot;</span>).unwrap())
+                                             .header(header::ContentLocation::from(String::from(<span class="string">&quot;/image.png&quot;</span>)))
+                                             .header(header::ContentTransferEncoding::Base64)
+                                             .body(String::from(<span class="string">&quot;1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890&quot;</span>))))
+            .singlepart(SinglePart::builder()
+                             .header(header::ContentType::TEXT_PLAIN)
+                             .header(header::ContentDisposition::attachment(<span class="string">&quot;example.c&quot;</span>))
+                             .header(header::ContentTransferEncoding::Binary)
+                             .body(String::from(<span class="string">&quot;int main() { return 0; }&quot;</span>)));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from_utf8</span>(<span class="ident">part</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+        <span class="macro">assert_eq!</span>(String::from_utf8(part.formatted()).unwrap(),
                    <span class="macro">concat!</span>(<span class="string">&quot;Content-Type: multipart/mixed;\r\n&quot;</span>,
                            <span class="string">&quot; boundary=\&quot;0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1\&quot;\r\n&quot;</span>,
                            <span class="string">&quot;\r\n&quot;</span>,
@@ -1404,21 +1404,21 @@
                            <span class="string">&quot;--0oVZ2r6AoLAhLlb0gPNSKy6BEqdS2IfwxrcbUuo1--\r\n&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_make_boundary</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">boundaries</span> <span class="op">=</span> <span class="ident">std::collections::HashSet::with_capacity</span>(<span class="number">10</span>);
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">1000</span> {
-            <span class="ident">boundaries</span>.<span class="ident">insert</span>(<span class="ident">make_boundary</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_make_boundary() {
+        <span class="kw">let </span><span class="kw-2">mut </span>boundaries = std::collections::HashSet::with_capacity(<span class="number">10</span>);
+        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">1000 </span>{
+            boundaries.insert(make_boundary());
         }
 
-        <span class="comment">// Ensure there are no duplicates</span>
-        <span class="macro">assert_eq!</span>(<span class="number">1000</span>, <span class="ident">boundaries</span>.<span class="ident">len</span>());
+        <span class="comment">// Ensure there are no duplicates
+        </span><span class="macro">assert_eq!</span>(<span class="number">1000</span>, boundaries.len());
 
-        <span class="comment">// Ensure correct length</span>
-        <span class="kw">for</span> <span class="ident">boundary</span> <span class="kw">in</span> <span class="ident">boundaries</span> {
-            <span class="macro">assert_eq!</span>(<span class="number">40</span>, <span class="ident">boundary</span>.<span class="ident">len</span>());
+        <span class="comment">// Ensure correct length
+        </span><span class="kw">for </span>boundary <span class="kw">in </span>boundaries {
+            <span class="macro">assert_eq!</span>(<span class="number">40</span>, boundary.len());
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

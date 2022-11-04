@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/email-encoding-0.1.3/src/body/chooser.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chooser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../email_encoding/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../email_encoding/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../email_encoding/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/email-encoding-0.1.3/src/body/chooser.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chooser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../email_encoding/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../email_encoding/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../email_encoding/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -251,258 +251,258 @@
 <span id="251">251</span>
 <span id="252">252</span>
 <span id="253">253</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::mem</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::mem;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Encoding</span>, <span class="ident">StrOrBytes</span>};
+<span class="kw">use super</span>::{Encoding, StrOrBytes};
 
-<span class="kw">enum</span> <span class="ident">InputKind</span> {
-    <span class="ident">Ascii</span>,
-    <span class="ident">Utf8</span>,
-    <span class="ident">Binary</span>,
+<span class="kw">enum </span>InputKind {
+    Ascii,
+    Utf8,
+    Binary,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">StrOrBytes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">InputKind</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_ascii</span>() {
-            <span class="ident">InputKind::Ascii</span>
-        } <span class="kw">else</span> {
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident"><span class="self">Self</span>::Str</span>(<span class="kw">_</span>) =&gt; <span class="ident">InputKind::Utf8</span>,
-                <span class="ident"><span class="self">Self</span>::Bytes</span>(<span class="kw">_</span>) =&gt; <span class="ident">InputKind::Binary</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; StrOrBytes&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; InputKind {
+        <span class="kw">if </span><span class="self">self</span>.is_ascii() {
+            InputKind::Ascii
+        } <span class="kw">else </span>{
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Str(<span class="kw">_</span>) =&gt; InputKind::Utf8,
+                <span class="self">Self</span>::Bytes(<span class="kw">_</span>) =&gt; InputKind::Binary,
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Encoding</span> {
-    <span class="doccomment">/// Choose the most efficient `Encoding` for `input`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Look into `input` and decide what encoding format could best</span>
-    <span class="doccomment">/// be used to represent it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the SMTP server supports the `SMTPUTF8` extension</span>
-    <span class="doccomment">/// `supports_utf8` _may_ me set to `true`, otherwise `false`</span>
-    <span class="doccomment">/// is the safest option.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Possible return values based on `supports_utf8`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// | `Encoding`         | `false` | `true` |</span>
-    <span class="doccomment">/// | ------------------ | ------- | ------ |</span>
-    <span class="doccomment">/// | `7bit`             | ✅      | ✅     |</span>
-    <span class="doccomment">/// | `8bit`             | ❌      | ✅     |</span>
-    <span class="doccomment">/// | `quoted-printable` | ✅      | ✅     |</span>
-    <span class="doccomment">/// | `base64`           | ✅      | ✅     |</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use email_encoding::body::Encoding;</span>
-    <span class="doccomment">/// // Ascii</span>
-    <span class="doccomment">/// {</span>
-    <span class="doccomment">///     let input = &quot;Hello, World!&quot;;</span>
-    <span class="doccomment">///     assert_eq!(Encoding::choose(input, false), Encoding::SevenBit);</span>
-    <span class="doccomment">///     assert_eq!(Encoding::choose(input, true), Encoding::SevenBit);</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Mostly ascii + utf-8</span>
-    <span class="doccomment">/// {</span>
-    <span class="doccomment">///     let input = &quot;Hello, World! 📬&quot;;</span>
-    <span class="doccomment">///     assert_eq!(Encoding::choose(input, false), Encoding::QuotedPrintable);</span>
-    <span class="doccomment">///     assert_eq!(Encoding::choose(input, true), Encoding::EightBit);</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Mostly utf-8</span>
-    <span class="doccomment">/// {</span>
-    <span class="doccomment">///     let input = &quot;Hello! 📬📬📬📬📬📬📬📬📬📬&quot;;</span>
-    <span class="doccomment">///     assert_eq!(Encoding::choose(input, false), Encoding::Base64);</span>
-    <span class="doccomment">///     assert_eq!(Encoding::choose(input, true), Encoding::EightBit);</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Non utf-8 bytes</span>
-    <span class="doccomment">/// {</span>
-    <span class="doccomment">///     let input = &amp;[255, 35, 123, 190];</span>
-    <span class="doccomment">///     assert_eq!(Encoding::choose(input, false), Encoding::Base64);</span>
-    <span class="doccomment">///     assert_eq!(Encoding::choose(input, true), Encoding::Base64);</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">choose</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">StrOrBytes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">supports_utf8</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">into</span>();
-        <span class="ident"><span class="self">Self</span>::choose_impl</span>(<span class="ident">input</span>, <span class="ident">supports_utf8</span>)
+<span class="kw">impl </span>Encoding {
+    <span class="doccomment">/// Choose the most efficient `Encoding` for `input`
+    ///
+    /// Look into `input` and decide what encoding format could best
+    /// be used to represent it.
+    ///
+    /// If the SMTP server supports the `SMTPUTF8` extension
+    /// `supports_utf8` _may_ me set to `true`, otherwise `false`
+    /// is the safest option.
+    ///
+    /// Possible return values based on `supports_utf8`
+    ///
+    /// | `Encoding`         | `false` | `true` |
+    /// | ------------------ | ------- | ------ |
+    /// | `7bit`             | ✅      | ✅     |
+    /// | `8bit`             | ❌      | ✅     |
+    /// | `quoted-printable` | ✅      | ✅     |
+    /// | `base64`           | ✅      | ✅     |
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use email_encoding::body::Encoding;
+    /// // Ascii
+    /// {
+    ///     let input = &quot;Hello, World!&quot;;
+    ///     assert_eq!(Encoding::choose(input, false), Encoding::SevenBit);
+    ///     assert_eq!(Encoding::choose(input, true), Encoding::SevenBit);
+    /// }
+    ///
+    /// // Mostly ascii + utf-8
+    /// {
+    ///     let input = &quot;Hello, World! 📬&quot;;
+    ///     assert_eq!(Encoding::choose(input, false), Encoding::QuotedPrintable);
+    ///     assert_eq!(Encoding::choose(input, true), Encoding::EightBit);
+    /// }
+    ///
+    /// // Mostly utf-8
+    /// {
+    ///     let input = &quot;Hello! 📬📬📬📬📬📬📬📬📬📬&quot;;
+    ///     assert_eq!(Encoding::choose(input, false), Encoding::Base64);
+    ///     assert_eq!(Encoding::choose(input, true), Encoding::EightBit);
+    /// }
+    ///
+    /// // Non utf-8 bytes
+    /// {
+    ///     let input = &amp;[255, 35, 123, 190];
+    ///     assert_eq!(Encoding::choose(input, false), Encoding::Base64);
+    ///     assert_eq!(Encoding::choose(input, true), Encoding::Base64);
+    /// }
+    /// ```
+    </span><span class="kw">pub fn </span>choose&lt;<span class="lifetime">&#39;a</span>&gt;(input: <span class="kw">impl </span>Into&lt;StrOrBytes&lt;<span class="lifetime">&#39;a</span>&gt;&gt;, supports_utf8: bool) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>input = input.into();
+        <span class="self">Self</span>::choose_impl(input, supports_utf8)
     }
 
-    <span class="kw">fn</span> <span class="ident">choose_impl</span>(<span class="ident">input</span>: <span class="ident">StrOrBytes</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">supports_utf8</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">line_too_long</span> <span class="op">=</span> <span class="ident">line_too_long</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+    <span class="kw">fn </span>choose_impl(input: StrOrBytes&lt;<span class="lifetime">&#39;_</span>&gt;, supports_utf8: bool) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>line_too_long = line_too_long(<span class="kw-2">&amp;</span>input);
 
-        <span class="kw">match</span> (<span class="ident">input</span>.<span class="ident">kind</span>(), <span class="ident">line_too_long</span>, <span class="ident">supports_utf8</span>) {
-            (<span class="ident">InputKind::Ascii</span>, <span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; {
-                <span class="comment">// Input is ascii and fits the maximum line length</span>
-                <span class="ident"><span class="self">Self</span>::SevenBit</span>
+        <span class="kw">match </span>(input.kind(), line_too_long, supports_utf8) {
+            (InputKind::Ascii, <span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; {
+                <span class="comment">// Input is ascii and fits the maximum line length
+                </span><span class="self">Self</span>::SevenBit
             }
-            (<span class="ident">InputKind::Ascii</span>, <span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; {
-                <span class="comment">// Input is ascii but doesn&#39;t fix the maximum line length</span>
-                <span class="ident">quoted_printable_or_base64</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>)
+            (InputKind::Ascii, <span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; {
+                <span class="comment">// Input is ascii but doesn&#39;t fix the maximum line length
+                </span>quoted_printable_or_base64(<span class="kw-2">&amp;</span>input)
             }
-            (<span class="ident">InputKind::Utf8</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; {
-                <span class="comment">// Input is utf-8, line fits, the server supports it</span>
-                <span class="ident"><span class="self">Self</span>::EightBit</span>
+            (InputKind::Utf8, <span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; {
+                <span class="comment">// Input is utf-8, line fits, the server supports it
+                </span><span class="self">Self</span>::EightBit
             }
-            (<span class="ident">InputKind::Utf8</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; {
-                <span class="comment">// Input is utf-8, line doesn&#39;t fit, the server supports it</span>
-                <span class="ident">quoted_printable_or_base64</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>)
+            (InputKind::Utf8, <span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; {
+                <span class="comment">// Input is utf-8, line doesn&#39;t fit, the server supports it
+                </span>quoted_printable_or_base64(<span class="kw-2">&amp;</span>input)
             }
-            (<span class="ident">InputKind::Utf8</span>, <span class="kw">_</span>, <span class="bool-val">false</span>) =&gt; {
-                <span class="comment">// Input is utf-8, the server doesn&#39;t support it</span>
-                <span class="ident">quoted_printable_or_base64</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>)
+            (InputKind::Utf8, <span class="kw">_</span>, <span class="bool-val">false</span>) =&gt; {
+                <span class="comment">// Input is utf-8, the server doesn&#39;t support it
+                </span>quoted_printable_or_base64(<span class="kw-2">&amp;</span>input)
             }
-            (<span class="ident">InputKind::Binary</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="comment">// Input is binary</span>
-                <span class="ident"><span class="self">Self</span>::Base64</span>
+            (InputKind::Binary, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                <span class="comment">// Input is binary
+                </span><span class="self">Self</span>::Base64
             }
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">line_too_long</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="ident">memchr::memchr_iter</span>(<span class="string">b&#39;\n&#39;</span>, <span class="ident">b</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">last_</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">last</span>, <span class="ident">i</span>);
-        (<span class="ident">i</span> <span class="op">-</span> <span class="ident">last_</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="number">76</span>
-    }) <span class="op">|</span><span class="op">|</span> (<span class="ident">b</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">last</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="number">76</span>
-}
+<span class="kw">fn </span>line_too_long(b: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
+    <span class="kw">let </span><span class="kw-2">mut </span>last = <span class="number">0</span>;
+    memchr::memchr_iter(<span class="string">b&#39;\n&#39;</span>, b).any(|i| {
+        <span class="kw">let </span>last_ = mem::replace(<span class="kw-2">&amp;mut </span>last, i);
+        (i - last_) &gt;= <span class="number">76
+    </span>}) || (b.len() - last) &gt;= <span class="number">76
+</span>}
 
-<span class="kw">fn</span> <span class="ident">quoted_printable_or_base64</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Encoding</span> {
-    <span class="kw">if</span> <span class="ident">quoted_printable_efficient</span>(<span class="ident">b</span>) {
-        <span class="ident">Encoding::QuotedPrintable</span>
-    } <span class="kw">else</span> {
-        <span class="ident">Encoding::Base64</span>
+<span class="kw">fn </span>quoted_printable_or_base64(b: <span class="kw-2">&amp;</span>[u8]) -&gt; Encoding {
+    <span class="kw">if </span>quoted_printable_efficient(b) {
+        Encoding::QuotedPrintable
+    } <span class="kw">else </span>{
+        Encoding::Base64
     }
 }
 
-<span class="kw">fn</span> <span class="ident">quoted_printable_efficient</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="ident">requiring_escaping</span> <span class="op">=</span> <span class="ident">b</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">b</span>, <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39; &#39;</span>..<span class="op">=</span><span class="string">b&#39;~&#39;</span>))
-        .<span class="ident">count</span>();
-    <span class="ident">requiring_escaping</span> <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">b</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="number">3</span>) <span class="comment">// 33.33% or less</span>
-}
+<span class="kw">fn </span>quoted_printable_efficient(b: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
+    <span class="kw">let </span>requiring_escaping = b
+        .iter()
+        .filter(|<span class="kw-2">&amp;</span>b| !<span class="macro">matches!</span>(b, <span class="string">b&#39;\t&#39; </span>| <span class="string">b&#39; &#39;</span>..=<span class="string">b&#39;~&#39;</span>))
+        .count();
+    requiring_escaping &lt;= (b.len() / <span class="number">3</span>) <span class="comment">// 33.33% or less
+</span>}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">line_too_long</span>, <span class="ident">Encoding</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::{line_too_long, Encoding};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ascii_short_str</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;0123&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ascii_short_str() {
+        <span class="kw">let </span>input = <span class="string">&quot;0123&quot;</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">false</span>), <span class="ident">Encoding::SevenBit</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">false</span>), Encoding::SevenBit);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ascii_long_str</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">concat!</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ascii_long_str() {
+        <span class="kw">let </span>input = <span class="macro">concat!</span>(
             <span class="string">&quot;0123\n&quot;</span>,
             <span class="string">&quot;01234567899876543210012345678998765432100123456789987654321001234567899876543210\n&quot;</span>,
-            <span class="string">&quot;4567&quot;</span>
-        );
+            <span class="string">&quot;4567&quot;
+        </span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">false</span>), <span class="ident">Encoding::QuotedPrintable</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">false</span>), Encoding::QuotedPrintable);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ascii_short_binary</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">b&quot;0123&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ascii_short_binary() {
+        <span class="kw">let </span>input = <span class="string">b&quot;0123&quot;</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">false</span>), <span class="ident">Encoding::SevenBit</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">false</span>), Encoding::SevenBit);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ascii_long_binary</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">concat!</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ascii_long_binary() {
+        <span class="kw">let </span>input = <span class="macro">concat!</span>(
             <span class="string">&quot;0123\n&quot;</span>,
             <span class="string">&quot;01234567899876543210012345678998765432100123456789987654321001234567899876543210\n&quot;</span>,
-            <span class="string">&quot;4567&quot;</span>
-        )
-        .<span class="ident">as_bytes</span>();
+            <span class="string">&quot;4567&quot;
+        </span>)
+        .as_bytes();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">false</span>), <span class="ident">Encoding::QuotedPrintable</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">false</span>), Encoding::QuotedPrintable);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">utf8_short_str_supported</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;0123 📬&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>utf8_short_str_supported() {
+        <span class="kw">let </span>input = <span class="string">&quot;0123 📬&quot;</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">true</span>), <span class="ident">Encoding::EightBit</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">true</span>), Encoding::EightBit);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">utf8_short_str_unsupported_efficient</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;01234567899876543210 📬&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>utf8_short_str_unsupported_efficient() {
+        <span class="kw">let </span>input = <span class="string">&quot;01234567899876543210 📬&quot;</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">false</span>), <span class="ident">Encoding::QuotedPrintable</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">false</span>), Encoding::QuotedPrintable);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">utf8_short_str_unsupported_inefficient</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;0123 📬&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>utf8_short_str_unsupported_inefficient() {
+        <span class="kw">let </span>input = <span class="string">&quot;0123 📬&quot;</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">false</span>), <span class="ident">Encoding::Base64</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">false</span>), Encoding::Base64);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">utf8_long_str_efficient</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span>
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>utf8_long_str_efficient() {
+        <span class="kw">let </span>input =
             <span class="string">&quot;01234567899876543210012345678998765432100123456789987654321001234567899876543210&quot;</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">true</span>), <span class="ident">Encoding::QuotedPrintable</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">true</span>), Encoding::QuotedPrintable);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">utf8_long_str_inefficient</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">&quot;0123 📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>utf8_long_str_inefficient() {
+        <span class="kw">let </span>input = <span class="string">&quot;0123 📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬📬&quot;</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">true</span>), <span class="ident">Encoding::Base64</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">true</span>), Encoding::Base64);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">binary</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="number">255</span>, <span class="number">234</span>, <span class="string">b&#39;A&#39;</span>, <span class="string">b&#39;C&#39;</span>, <span class="number">210</span>];
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>binary() {
+        <span class="kw">let </span>input = <span class="kw-2">&amp;</span>[<span class="number">255</span>, <span class="number">234</span>, <span class="string">b&#39;A&#39;</span>, <span class="string">b&#39;C&#39;</span>, <span class="number">210</span>];
 
-        <span class="macro">assert_eq!</span>(<span class="ident">Encoding::choose</span>(<span class="ident">input</span>, <span class="bool-val">false</span>), <span class="ident">Encoding::Base64</span>);
+        <span class="macro">assert_eq!</span>(Encoding::choose(input, <span class="bool-val">false</span>), Encoding::Base64);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_too_long_oneline</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="string">b&quot;0123&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>not_too_long_oneline() {
+        <span class="kw">let </span>input = <span class="string">b&quot;0123&quot;</span>;
 
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">line_too_long</span>(<span class="ident">input</span>));
+        <span class="macro">assert!</span>(!line_too_long(input));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_too_long_multiline</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;0123\n&quot;</span>, <span class="string">&quot;4567&quot;</span>).<span class="ident">as_bytes</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>not_too_long_multiline() {
+        <span class="kw">let </span>input = <span class="macro">concat!</span>(<span class="string">&quot;0123\n&quot;</span>, <span class="string">&quot;4567&quot;</span>).as_bytes();
 
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">line_too_long</span>(<span class="ident">input</span>));
+        <span class="macro">assert!</span>(!line_too_long(input));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">too_long_oneline</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span>
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>too_long_oneline() {
+        <span class="kw">let </span>input =
             <span class="string">b&quot;01234567899876543210012345678998765432100123456789987654321001234567899876543210&quot;</span>;
 
-        <span class="macro">assert!</span>(<span class="ident">line_too_long</span>(<span class="ident">input</span>));
+        <span class="macro">assert!</span>(line_too_long(input));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">too_long_multiline</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">concat!</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>too_long_multiline() {
+        <span class="kw">let </span>input = <span class="macro">concat!</span>(
             <span class="string">&quot;0123\n&quot;</span>,
             <span class="string">&quot;01234567899876543210012345678998765432100123456789987654321001234567899876543210\n&quot;</span>,
-            <span class="string">&quot;4567&quot;</span>
-        )
-        .<span class="ident">as_bytes</span>();
+            <span class="string">&quot;4567&quot;
+        </span>)
+        .as_bytes();
 
-        <span class="macro">assert!</span>(<span class="ident">line_too_long</span>(<span class="ident">input</span>));
+        <span class="macro">assert!</span>(line_too_long(input));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="email_encoding" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="email_encoding" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

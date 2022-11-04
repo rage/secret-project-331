@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/client/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/client/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -149,154 +149,154 @@
 <span id="147">147</span>
 <span id="148">148</span>
 <span id="149">149</span>
-</pre><pre class="rust"><code><span class="doccomment">//! SMTP client</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! `SmtpConnection` allows manually sending SMTP commands.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! # use std::error::Error;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # #[cfg(feature = &quot;smtp-transport&quot;)]</span>
-<span class="doccomment">//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">//! use lettre::transport::smtp::{</span>
-<span class="doccomment">//!     client::SmtpConnection, commands::*, extension::ClientId, SMTP_PORT,</span>
-<span class="doccomment">//! };</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let hello = ClientId::Domain(&quot;my_hostname&quot;.to_string());</span>
-<span class="doccomment">//! let mut client = SmtpConnection::connect(&amp;(&quot;localhost&quot;, SMTP_PORT), None, &amp;hello, None, None)?;</span>
-<span class="doccomment">//! client.command(Mail::new(Some(&quot;user@example.com&quot;.parse()?), vec![]))?;</span>
-<span class="doccomment">//! client.command(Rcpt::new(&quot;user@example.org&quot;.parse()?, vec![]))?;</span>
-<span class="doccomment">//! client.command(Data)?;</span>
-<span class="doccomment">//! client.message(&quot;Test email&quot;.as_bytes())?;</span>
-<span class="doccomment">//! client.command(Quit)?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
+</pre><pre class="rust"><code><span class="doccomment">//! SMTP client
+//!
+//! `SmtpConnection` allows manually sending SMTP commands.
+//!
+//! ```rust,no_run
+//! # use std::error::Error;
+//!
+//! # #[cfg(feature = &quot;smtp-transport&quot;)]
+//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+//! use lettre::transport::smtp::{
+//!     client::SmtpConnection, commands::*, extension::ClientId, SMTP_PORT,
+//! };
+//!
+//! let hello = ClientId::Domain(&quot;my_hostname&quot;.to_string());
+//! let mut client = SmtpConnection::connect(&amp;(&quot;localhost&quot;, SMTP_PORT), None, &amp;hello, None, None)?;
+//! client.command(Mail::new(Some(&quot;user@example.com&quot;.parse()?), vec![]))?;
+//! client.command(Rcpt::new(&quot;user@example.org&quot;.parse()?, vec![]))?;
+//! client.command(Data)?;
+//! client.message(&quot;Test email&quot;.as_bytes())?;
+//! client.command(Quit)?;
+//! # Ok(())
+//! # }
+//! ```
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;serde&quot;</span>)]
+</span><span class="kw">use </span>std::fmt::Debug;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::async_connection::AsyncSmtpConnection</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::async_net::AsyncNetworkStream</span>;
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::net::NetworkStream</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::tls::InnerTlsParameters</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::tls::TlsVersion</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">connection::SmtpConnection</span>,
-    <span class="ident">tls</span>::{<span class="ident">Certificate</span>, <span class="ident">Tls</span>, <span class="ident">TlsParameters</span>, <span class="ident">TlsParametersBuilder</span>},
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+</span><span class="kw">pub use </span><span class="self">self</span>::async_connection::AsyncSmtpConnection;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+</span><span class="kw">pub use </span><span class="self">self</span>::async_net::AsyncNetworkStream;
+<span class="kw">use </span><span class="self">self</span>::net::NetworkStream;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span><span class="self">self</span>::tls::InnerTlsParameters;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+</span><span class="kw">pub use </span><span class="self">self</span>::tls::TlsVersion;
+<span class="kw">pub use </span><span class="self">self</span>::{
+    connection::SmtpConnection,
+    tls::{Certificate, Tls, TlsParameters, TlsParametersBuilder},
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">async_connection</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">async_net</span>;
-<span class="kw">mod</span> <span class="ident">connection</span>;
-<span class="kw">mod</span> <span class="ident">net</span>;
-<span class="kw">mod</span> <span class="ident">tls</span>;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+</span><span class="kw">mod </span>async_connection;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+</span><span class="kw">mod </span>async_net;
+<span class="kw">mod </span>connection;
+<span class="kw">mod </span>net;
+<span class="kw">mod </span>tls;
 
-<span class="doccomment">/// The codec used for transparency</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ClientCodec</span> {
-    <span class="ident">status</span>: <span class="ident">CodecStatus</span>,
+<span class="doccomment">/// The codec used for transparency
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">struct </span>ClientCodec {
+    status: CodecStatus,
 }
 
-<span class="kw">impl</span> <span class="ident">ClientCodec</span> {
-    <span class="doccomment">/// Creates a new client codec</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">status</span>: <span class="ident">CodecStatus::StartOfNewLine</span>,
+<span class="kw">impl </span>ClientCodec {
+    <span class="doccomment">/// Creates a new client codec
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            status: CodecStatus::StartOfNewLine,
         }
     }
 
-    <span class="doccomment">/// Adds transparency</span>
-    <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">frame</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">b</span> <span class="kw">in</span> <span class="ident">frame</span> {
-            <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">b</span>);
-            <span class="kw">match</span> (<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">status</span>) {
+    <span class="doccomment">/// Adds transparency
+    </span><span class="kw">fn </span>encode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>[u8], buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
+        <span class="kw">for </span><span class="kw-2">&amp;</span>b <span class="kw">in </span>frame {
+            buf.push(b);
+            <span class="kw">match </span>(b, <span class="self">self</span>.status) {
                 (<span class="string">b&#39;\r&#39;</span>, <span class="kw">_</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::StartingNewLine</span>;
+                    <span class="self">self</span>.status = CodecStatus::StartingNewLine;
                 }
-                (<span class="string">b&#39;\n&#39;</span>, <span class="ident">CodecStatus::StartingNewLine</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::StartOfNewLine</span>;
+                (<span class="string">b&#39;\n&#39;</span>, CodecStatus::StartingNewLine) =&gt; {
+                    <span class="self">self</span>.status = CodecStatus::StartOfNewLine;
                 }
-                (<span class="kw">_</span>, <span class="ident">CodecStatus::StartingNewLine</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::MiddleOfLine</span>;
+                (<span class="kw">_</span>, CodecStatus::StartingNewLine) =&gt; {
+                    <span class="self">self</span>.status = CodecStatus::MiddleOfLine;
                 }
-                (<span class="string">b&#39;.&#39;</span>, <span class="ident">CodecStatus::StartOfNewLine</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::MiddleOfLine</span>;
-                    <span class="ident">buf</span>.<span class="ident">push</span>(<span class="string">b&#39;.&#39;</span>);
+                (<span class="string">b&#39;.&#39;</span>, CodecStatus::StartOfNewLine) =&gt; {
+                    <span class="self">self</span>.status = CodecStatus::MiddleOfLine;
+                    buf.push(<span class="string">b&#39;.&#39;</span>);
                 }
-                (<span class="kw">_</span>, <span class="ident">CodecStatus::StartOfNewLine</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::MiddleOfLine</span>;
+                (<span class="kw">_</span>, CodecStatus::StartOfNewLine) =&gt; {
+                    <span class="self">self</span>.status = CodecStatus::MiddleOfLine;
                 }
-                <span class="kw">_</span> =&gt; {}
+                <span class="kw">_ </span>=&gt; {}
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::enum_variant_names</span>)]</span>
-<span class="kw">enum</span> <span class="ident">CodecStatus</span> {
-    <span class="doccomment">/// We are past the first character of the current line</span>
-    <span class="ident">MiddleOfLine</span>,
-    <span class="doccomment">/// We just read a `\r` character</span>
-    <span class="ident">StartingNewLine</span>,
-    <span class="doccomment">/// We are at the start of a new line</span>
-    <span class="ident">StartOfNewLine</span>,
+<span class="attribute">#[derive(Debug, Copy, Clone)]
+#[allow(clippy::enum_variant_names)]
+</span><span class="kw">enum </span>CodecStatus {
+    <span class="doccomment">/// We are past the first character of the current line
+    </span>MiddleOfLine,
+    <span class="doccomment">/// We just read a `\r` character
+    </span>StartingNewLine,
+    <span class="doccomment">/// We are at the start of a new line
+    </span>StartOfNewLine,
 }
 
-<span class="doccomment">/// Returns the string replacing all the CRLF with &quot;\&lt;CRLF\&gt;&quot;</span>
-<span class="doccomment">/// Used for debug displays</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">escape_crlf</span>(<span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">string</span>.<span class="ident">replace</span>(<span class="string">&quot;\r\n&quot;</span>, <span class="string">&quot;&lt;CRLF&gt;&quot;</span>)
+<span class="doccomment">/// Returns the string replacing all the CRLF with &quot;\&lt;CRLF\&gt;&quot;
+/// Used for debug displays
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>escape_crlf(string: <span class="kw-2">&amp;</span>str) -&gt; String {
+    string.replace(<span class="string">&quot;\r\n&quot;</span>, <span class="string">&quot;&lt;CRLF&gt;&quot;</span>)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_codec</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">codec</span> <span class="op">=</span> <span class="ident">ClientCodec::new</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_codec() {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>codec = ClientCodec::new();
 
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;.\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test\r\n\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;.\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;\r\ntest&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;te\r\n.\r\nst&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test.&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;.test\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;.test\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test.\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+        codec.encode(<span class="string">b&quot;.\r\n&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;test\r\n&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;test\r\n\r\n&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;.\r\n&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;\r\ntest&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;te\r\n.\r\nst&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;test.&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;test\n&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;.test\n&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;test\r\n&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;.test\r\n&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
+        codec.encode(<span class="string">b&quot;test.\r\n&quot;</span>, <span class="kw-2">&amp;mut </span>buf);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from_utf8</span>(<span class="ident">buf</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;..\r\ntest\r\ntest\r\n\r\n..\r\n\r\ntestte\r\n..\r\nsttesttest.test\n.test\ntesttesttest\r\n..test\r\ntest.\r\n&quot;</span>
-        );
+            String::from_utf8(buf).unwrap(),
+            <span class="string">&quot;..\r\ntest\r\ntest\r\n\r\n..\r\n\r\ntestte\r\n..\r\nsttesttest.test\n.test\ntesttesttest\r\n..test\r\ntest.\r\n&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;log&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">test_escape_crlf</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">escape_crlf</span>(<span class="string">&quot;\r\n&quot;</span>), <span class="string">&quot;&lt;CRLF&gt;&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">escape_crlf</span>(<span class="string">&quot;EHLO my_name\r\n&quot;</span>), <span class="string">&quot;EHLO my_name&lt;CRLF&gt;&quot;</span>);
+    <span class="attribute">#[test]
+    #[cfg(feature = <span class="string">&quot;log&quot;</span>)]
+    </span><span class="kw">fn </span>test_escape_crlf() {
+        <span class="macro">assert_eq!</span>(escape_crlf(<span class="string">&quot;\r\n&quot;</span>), <span class="string">&quot;&lt;CRLF&gt;&quot;</span>);
+        <span class="macro">assert_eq!</span>(escape_crlf(<span class="string">&quot;EHLO my_name\r\n&quot;</span>), <span class="string">&quot;EHLO my_name&lt;CRLF&gt;&quot;</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">escape_crlf</span>(<span class="string">&quot;EHLO my_name\r\nSIZE 42\r\n&quot;</span>),
-            <span class="string">&quot;EHLO my_name&lt;CRLF&gt;SIZE 42&lt;CRLF&gt;&quot;</span>
-        );
+            escape_crlf(<span class="string">&quot;EHLO my_name\r\nSIZE 42\r\n&quot;</span>),
+            <span class="string">&quot;EHLO my_name&lt;CRLF&gt;SIZE 42&lt;CRLF&gt;&quot;
+        </span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

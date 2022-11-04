@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/course_material/exams.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exams.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/course_material/exams.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exams.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -207,199 +207,199 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Duration</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">models</span>::{
-    <span class="ident">exams</span>::{<span class="self">self</span>, <span class="ident">ExamEnrollment</span>},
-    <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">Page</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Duration, Utc};
+<span class="kw">use </span>models::{
+    exams::{<span class="self">self</span>, ExamEnrollment},
+    pages::{<span class="self">self</span>, Page},
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
 GET /api/v0/course-material/exams/:id/enrollment
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">enrollment</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExamEnrollment</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">exams::get_enrollment</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">enrollment</span>))
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">pub async fn </span>enrollment(
+    pool: web::Data&lt;PgPool&gt;,
+    exam_id: web::Path&lt;Uuid&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;<span class="prelude-ty">Option</span>&lt;ExamEnrollment&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>enrollment = exams::get_enrollment(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(enrollment))
 }
 
 <span class="doccomment">/**
 POST /api/v0/course-material/exams/:id/enroll
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">enroll</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">pub async fn </span>enroll(
+    pool: web::Data&lt;PgPool&gt;,
+    exam_id: web::Path&lt;Uuid&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;()&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exam = exams::get(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// check that the exam is not over</span>
-    <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Utc::now</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ends_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">ends_at</span> {
-        <span class="kw">if</span> <span class="ident">ends_at</span> <span class="op">&lt;</span> <span class="ident">now</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::Forbidden</span>,
-                <span class="string">&quot;Exam is over&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="comment">// check that the exam is not over
+    </span><span class="kw">let </span>now = Utc::now();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(ends_at) = exam.ends_at {
+        <span class="kw">if </span>ends_at &lt; now {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                <span class="string">&quot;Exam is over&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">starts_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">starts_at</span> {
-        <span class="kw">if</span> <span class="ident">now</span> <span class="op">&gt;</span> <span class="ident">starts_at</span> {
-            <span class="ident">exams::enroll</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="comment">// Anyone should be able to start an exam.</span>
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-            <span class="kw">return</span> <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(starts_at) = exam.starts_at {
+        <span class="kw">if </span>now &gt; starts_at {
+            exams::enroll(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="comment">// Anyone should be able to start an exam.
+            </span><span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+            <span class="kw">return </span>token.authorized_ok(web::Json(()));
         }
     }
 
-    <span class="comment">// no start time defined or it&#39;s still upcoming</span>
-    <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-        <span class="ident">ControllerErrorType::Forbidden</span>,
-        <span class="string">&quot;Exam has not started yet&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="comment">// no start time defined or it&#39;s still upcoming
+    </span><span class="prelude-val">Err</span>(ControllerError::new(
+        ControllerErrorType::Forbidden,
+        <span class="string">&quot;Exam has not started yet&quot;</span>.to_string(),
         <span class="prelude-val">None</span>,
     ))
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExamData</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">instructions</span>: <span class="ident">serde_json::Value</span>,
-    <span class="kw">pub</span> <span class="ident">starts_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">ends_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">ended</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">time_minutes</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData</span>,
+<span class="attribute">#[derive(Debug, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExamData {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>instructions: serde_json::Value,
+    <span class="kw">pub </span>starts_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>ends_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>ended: bool,
+    <span class="kw">pub </span>time_minutes: i32,
+    <span class="kw">pub </span>enrollment_data: ExamEnrollmentData,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;tag&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ExamEnrollmentData</span> {
-    <span class="ident">EnrolledAndStarted</span> {
-        <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-        <span class="ident">page</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span>,
-        <span class="ident">enrollment</span>: <span class="ident">ExamEnrollment</span>,
+<span class="attribute">#[derive(Debug, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[serde(tag = <span class="string">&quot;tag&quot;</span>)]
+</span><span class="kw">pub enum </span>ExamEnrollmentData {
+    EnrolledAndStarted {
+        page_id: Uuid,
+        page: Box&lt;Page&gt;,
+        enrollment: ExamEnrollment,
     },
-    <span class="ident">NotEnrolled</span>,
-    <span class="ident">NotYetStarted</span>,
-    <span class="ident">StudentTimeUp</span>,
+    NotEnrolled,
+    NotYetStarted,
+    StudentTimeUp,
 }
 
 <span class="doccomment">/**
 GET /api/v0/course-material/exams/:id
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_exam_for_user</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exam_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExamData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">pub async fn </span>fetch_exam_for_user(
+    pool: web::Data&lt;PgPool&gt;,
+    exam_id: web::Path&lt;Uuid&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;ExamData&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exam = exams::get(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">starts_at</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">starts_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">starts_at</span> {
-        <span class="ident">starts_at</span>
-    } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::Forbidden</span>,
-            <span class="string">&quot;Cannot fetch exam that has no start time&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>starts_at = <span class="kw">if let </span><span class="prelude-val">Some</span>(starts_at) = exam.starts_at {
+        starts_at
+    } <span class="kw">else </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            <span class="string">&quot;Cannot fetch exam that has no start time&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     };
-    <span class="kw">let</span> <span class="ident">ends_at</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ends_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">ends_at</span> {
-        <span class="ident">ends_at</span>
-    } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::Forbidden</span>,
-            <span class="string">&quot;Cannot fetch exam that has no end time&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>ends_at = <span class="kw">if let </span><span class="prelude-val">Some</span>(ends_at) = exam.ends_at {
+        ends_at
+    } <span class="kw">else </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            <span class="string">&quot;Cannot fetch exam that has no end time&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     };
 
-    <span class="kw">let</span> <span class="ident">ended</span> <span class="op">=</span> <span class="ident">ends_at</span> <span class="op">&lt;</span> <span class="ident">Utc::now</span>();
+    <span class="kw">let </span>ended = ends_at &lt; Utc::now();
 
-    <span class="kw">if</span> <span class="ident">starts_at</span> <span class="op">&gt;</span> <span class="ident">Utc::now</span>() {
-        <span class="comment">// exam has not started yet</span>
-        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">return</span> <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">ExamData</span> {
-            <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
-            <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
-            <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
-            <span class="ident">starts_at</span>,
-            <span class="ident">ends_at</span>,
-            <span class="ident">ended</span>,
-            <span class="ident">time_minutes</span>: <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
-            <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::NotYetStarted</span>,
+    <span class="kw">if </span>starts_at &gt; Utc::now() {
+        <span class="comment">// exam has not started yet
+        </span><span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::View, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">return </span>token.authorized_ok(web::Json(ExamData {
+            id: exam.id,
+            name: exam.name,
+            instructions: exam.instructions,
+            starts_at,
+            ends_at,
+            ended,
+            time_minutes: exam.time_minutes,
+            enrollment_data: ExamEnrollmentData::NotYetStarted,
         }));
     }
 
-    <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">enrollment</span>) <span class="op">=</span>
-        <span class="ident">exams::get_enrollment</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>
-    {
-        <span class="comment">// user has started the exam</span>
-        <span class="kw">if</span> <span class="ident">Utc::now</span>() <span class="op">&lt;</span> <span class="ident">ends_at</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">Utc::now</span>() <span class="op">&gt;</span> <span class="ident">enrollment</span>.<span class="ident">started_at</span> <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="ident">exam</span>.<span class="ident">time_minutes</span>.<span class="ident">into</span>())
+    <span class="kw">let </span>enrollment = <span class="kw">if let </span><span class="prelude-val">Some</span>(enrollment) =
+        exams::get_enrollment(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id).<span class="kw">await</span><span class="question-mark">?
+    </span>{
+        <span class="comment">// user has started the exam
+        </span><span class="kw">if </span>Utc::now() &lt; ends_at
+            &amp;&amp; Utc::now() &gt; enrollment.started_at + Duration::minutes(exam.time_minutes.into())
         {
-            <span class="comment">// exam is still open but the student&#39;s time has expired</span>
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">return</span> <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">ExamData</span> {
-                <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
-                <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
-                <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
-                <span class="ident">starts_at</span>,
-                <span class="ident">ends_at</span>,
-                <span class="ident">ended</span>,
-                <span class="ident">time_minutes</span>: <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
-                <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::StudentTimeUp</span>,
+            <span class="comment">// exam is still open but the student&#39;s time has expired
+            </span><span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::View, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">return </span>token.authorized_ok(web::Json(ExamData {
+                id: exam.id,
+                name: exam.name,
+                instructions: exam.instructions,
+                starts_at,
+                ends_at,
+                ended,
+                time_minutes: exam.time_minutes,
+                enrollment_data: ExamEnrollmentData::StudentTimeUp,
             }));
         }
-        <span class="ident">enrollment</span>
-    } <span class="kw">else</span> {
-        <span class="comment">// user has not started the exam</span>
-        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">return</span> <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">ExamData</span> {
-            <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
-            <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
-            <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
-            <span class="ident">starts_at</span>,
-            <span class="ident">ends_at</span>,
-            <span class="ident">ended</span>,
-            <span class="ident">time_minutes</span>: <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
-            <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::NotEnrolled</span>,
+        enrollment
+    } <span class="kw">else </span>{
+        <span class="comment">// user has not started the exam
+        </span><span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::View, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">return </span>token.authorized_ok(web::Json(ExamData {
+            id: exam.id,
+            name: exam.name,
+            instructions: exam.instructions,
+            starts_at,
+            ends_at,
+            ended,
+            time_minutes: exam.time_minutes,
+            enrollment_data: ExamEnrollmentData::NotEnrolled,
         }));
     };
 
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">pages::get_page</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">exam</span>.<span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>page = pages::get_page(<span class="kw-2">&amp;mut </span>conn, exam.page_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Exam</span>(<span class="kw-2">*</span><span class="ident">exam_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">ExamData</span> {
-        <span class="ident">id</span>: <span class="ident">exam</span>.<span class="ident">id</span>,
-        <span class="ident">name</span>: <span class="ident">exam</span>.<span class="ident">name</span>,
-        <span class="ident">instructions</span>: <span class="ident">exam</span>.<span class="ident">instructions</span>,
-        <span class="ident">starts_at</span>,
-        <span class="ident">ends_at</span>,
-        <span class="ident">ended</span>,
-        <span class="ident">time_minutes</span>: <span class="ident">exam</span>.<span class="ident">time_minutes</span>,
-        <span class="ident">enrollment_data</span>: <span class="ident">ExamEnrollmentData::EnrolledAndStarted</span> {
-            <span class="ident">page_id</span>: <span class="ident">exam</span>.<span class="ident">page_id</span>,
-            <span class="ident">page</span>: <span class="ident">Box::new</span>(<span class="ident">page</span>),
-            <span class="ident">enrollment</span>,
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::View, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(ExamData {
+        id: exam.id,
+        name: exam.name,
+        instructions: exam.instructions,
+        starts_at,
+        ends_at,
+        ended,
+        time_minutes: exam.time_minutes,
+        enrollment_data: ExamEnrollmentData::EnrolledAndStarted {
+            page_id: exam.page_id,
+            page: Box::new(page),
+            enrollment,
         },
     }))
 }
@@ -410,11 +410,11 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{id}/enrollment&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">enrollment</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{id}/enroll&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">enroll</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">fetch_exam_for_user</span>));
+*/
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;/{id}/enrollment&quot;</span>, web::get().to(enrollment))
+        .route(<span class="string">&quot;/{id}/enroll&quot;</span>, web::post().to(enroll))
+        .route(<span class="string">&quot;/{id}&quot;</span>, web::get().to(fetch_exam_for_user));
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

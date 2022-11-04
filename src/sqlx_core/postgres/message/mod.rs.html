@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/message/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/message/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -126,133 +126,133 @@
 <span id="126">126</span>
 <span id="127">127</span>
 <span id="128">128</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>bytes::Bytes;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io::Decode</span>;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::io::Decode;
 
-<span class="kw">mod</span> <span class="ident">authentication</span>;
-<span class="kw">mod</span> <span class="ident">backend_key_data</span>;
-<span class="kw">mod</span> <span class="ident">bind</span>;
-<span class="kw">mod</span> <span class="ident">close</span>;
-<span class="kw">mod</span> <span class="ident">command_complete</span>;
-<span class="kw">mod</span> <span class="ident">copy</span>;
-<span class="kw">mod</span> <span class="ident">data_row</span>;
-<span class="kw">mod</span> <span class="ident">describe</span>;
-<span class="kw">mod</span> <span class="ident">execute</span>;
-<span class="kw">mod</span> <span class="ident">flush</span>;
-<span class="kw">mod</span> <span class="ident">notification</span>;
-<span class="kw">mod</span> <span class="ident">parameter_description</span>;
-<span class="kw">mod</span> <span class="ident">parameter_status</span>;
-<span class="kw">mod</span> <span class="ident">parse</span>;
-<span class="kw">mod</span> <span class="ident">password</span>;
-<span class="kw">mod</span> <span class="ident">query</span>;
-<span class="kw">mod</span> <span class="ident">ready_for_query</span>;
-<span class="kw">mod</span> <span class="ident">response</span>;
-<span class="kw">mod</span> <span class="ident">row_description</span>;
-<span class="kw">mod</span> <span class="ident">sasl</span>;
-<span class="kw">mod</span> <span class="ident">ssl_request</span>;
-<span class="kw">mod</span> <span class="ident">startup</span>;
-<span class="kw">mod</span> <span class="ident">sync</span>;
-<span class="kw">mod</span> <span class="ident">terminate</span>;
+<span class="kw">mod </span>authentication;
+<span class="kw">mod </span>backend_key_data;
+<span class="kw">mod </span>bind;
+<span class="kw">mod </span>close;
+<span class="kw">mod </span>command_complete;
+<span class="kw">mod </span>copy;
+<span class="kw">mod </span>data_row;
+<span class="kw">mod </span>describe;
+<span class="kw">mod </span>execute;
+<span class="kw">mod </span>flush;
+<span class="kw">mod </span>notification;
+<span class="kw">mod </span>parameter_description;
+<span class="kw">mod </span>parameter_status;
+<span class="kw">mod </span>parse;
+<span class="kw">mod </span>password;
+<span class="kw">mod </span>query;
+<span class="kw">mod </span>ready_for_query;
+<span class="kw">mod </span>response;
+<span class="kw">mod </span>row_description;
+<span class="kw">mod </span>sasl;
+<span class="kw">mod </span>ssl_request;
+<span class="kw">mod </span>startup;
+<span class="kw">mod </span>sync;
+<span class="kw">mod </span>terminate;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">authentication</span>::{<span class="ident">Authentication</span>, <span class="ident">AuthenticationSasl</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">backend_key_data::BackendKeyData</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bind::Bind</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">close::Close</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">command_complete::CommandComplete</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">copy</span>::{<span class="ident">CopyData</span>, <span class="ident">CopyDone</span>, <span class="ident">CopyFail</span>, <span class="ident">CopyResponse</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">data_row::DataRow</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">describe::Describe</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">execute::Execute</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">flush::Flush</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">notification::Notification</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">parameter_description::ParameterDescription</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">parameter_status::ParameterStatus</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">parse::Parse</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">password::Password</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">query::Query</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ready_for_query</span>::{<span class="ident">ReadyForQuery</span>, <span class="ident">TransactionStatus</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">response</span>::{<span class="ident">Notice</span>, <span class="ident">PgSeverity</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">row_description::RowDescription</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sasl</span>::{<span class="ident">SaslInitialResponse</span>, <span class="ident">SaslResponse</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ssl_request::SslRequest</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">startup::Startup</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sync::Sync</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">terminate::Terminate</span>;
+<span class="kw">pub use </span>authentication::{Authentication, AuthenticationSasl};
+<span class="kw">pub use </span>backend_key_data::BackendKeyData;
+<span class="kw">pub use </span>bind::Bind;
+<span class="kw">pub use </span>close::Close;
+<span class="kw">pub use </span>command_complete::CommandComplete;
+<span class="kw">pub use </span>copy::{CopyData, CopyDone, CopyFail, CopyResponse};
+<span class="kw">pub use </span>data_row::DataRow;
+<span class="kw">pub use </span>describe::Describe;
+<span class="kw">pub use </span>execute::Execute;
+<span class="kw">pub use </span>flush::Flush;
+<span class="kw">pub use </span>notification::Notification;
+<span class="kw">pub use </span>parameter_description::ParameterDescription;
+<span class="kw">pub use </span>parameter_status::ParameterStatus;
+<span class="kw">pub use </span>parse::Parse;
+<span class="kw">pub use </span>password::Password;
+<span class="kw">pub use </span>query::Query;
+<span class="kw">pub use </span>ready_for_query::{ReadyForQuery, TransactionStatus};
+<span class="kw">pub use </span>response::{Notice, PgSeverity};
+<span class="kw">pub use </span>row_description::RowDescription;
+<span class="kw">pub use </span>sasl::{SaslInitialResponse, SaslResponse};
+<span class="kw">pub use </span>ssl_request::SslRequest;
+<span class="kw">pub use </span>startup::Startup;
+<span class="kw">pub use </span>sync::Sync;
+<span class="kw">pub use </span>terminate::Terminate;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialOrd</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u8</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MessageFormat</span> {
-    <span class="ident">Authentication</span>,
-    <span class="ident">BackendKeyData</span>,
-    <span class="ident">BindComplete</span>,
-    <span class="ident">CloseComplete</span>,
-    <span class="ident">CommandComplete</span>,
-    <span class="ident">CopyData</span>,
-    <span class="ident">CopyDone</span>,
-    <span class="ident">CopyInResponse</span>,
-    <span class="ident">CopyOutResponse</span>,
-    <span class="ident">DataRow</span>,
-    <span class="ident">EmptyQueryResponse</span>,
-    <span class="ident">ErrorResponse</span>,
-    <span class="ident">NoData</span>,
-    <span class="ident">NoticeResponse</span>,
-    <span class="ident">NotificationResponse</span>,
-    <span class="ident">ParameterDescription</span>,
-    <span class="ident">ParameterStatus</span>,
-    <span class="ident">ParseComplete</span>,
-    <span class="ident">PortalSuspended</span>,
-    <span class="ident">ReadyForQuery</span>,
-    <span class="ident">RowDescription</span>,
+<span class="attribute">#[derive(Debug, PartialOrd, PartialEq)]
+#[repr(u8)]
+</span><span class="kw">pub enum </span>MessageFormat {
+    Authentication,
+    BackendKeyData,
+    BindComplete,
+    CloseComplete,
+    CommandComplete,
+    CopyData,
+    CopyDone,
+    CopyInResponse,
+    CopyOutResponse,
+    DataRow,
+    EmptyQueryResponse,
+    ErrorResponse,
+    NoData,
+    NoticeResponse,
+    NotificationResponse,
+    ParameterDescription,
+    ParameterStatus,
+    ParseComplete,
+    PortalSuspended,
+    ReadyForQuery,
+    RowDescription,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Message</span> {
-    <span class="kw">pub</span> <span class="ident">format</span>: <span class="ident">MessageFormat</span>,
-    <span class="kw">pub</span> <span class="ident">contents</span>: <span class="ident">Bytes</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Message {
+    <span class="kw">pub </span>format: MessageFormat,
+    <span class="kw">pub </span>contents: Bytes,
 }
 
-<span class="kw">impl</span> <span class="ident">Message</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>Message {
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>decode&lt;<span class="lifetime">&#39;de</span>, T&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt;
+    <span class="kw">where
+        </span>T: Decode&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="ident">T::decode</span>(<span class="self">self</span>.<span class="ident">contents</span>)
+        T::decode(<span class="self">self</span>.contents)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">MessageFormat</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_from_u8</span>(<span class="ident">v</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="comment">// https://www.postgresql.org/docs/current/protocol-message-formats.html</span>
+<span class="kw">impl </span>MessageFormat {
+    <span class="kw">pub fn </span>try_from_u8(v: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="comment">// https://www.postgresql.org/docs/current/protocol-message-formats.html
 
-        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">v</span> {
-            <span class="string">b&#39;1&#39;</span> =&gt; <span class="ident">MessageFormat::ParseComplete</span>,
-            <span class="string">b&#39;2&#39;</span> =&gt; <span class="ident">MessageFormat::BindComplete</span>,
-            <span class="string">b&#39;3&#39;</span> =&gt; <span class="ident">MessageFormat::CloseComplete</span>,
-            <span class="string">b&#39;C&#39;</span> =&gt; <span class="ident">MessageFormat::CommandComplete</span>,
-            <span class="string">b&#39;d&#39;</span> =&gt; <span class="ident">MessageFormat::CopyData</span>,
-            <span class="string">b&#39;c&#39;</span> =&gt; <span class="ident">MessageFormat::CopyDone</span>,
-            <span class="string">b&#39;G&#39;</span> =&gt; <span class="ident">MessageFormat::CopyInResponse</span>,
-            <span class="string">b&#39;H&#39;</span> =&gt; <span class="ident">MessageFormat::CopyOutResponse</span>,
-            <span class="string">b&#39;D&#39;</span> =&gt; <span class="ident">MessageFormat::DataRow</span>,
-            <span class="string">b&#39;E&#39;</span> =&gt; <span class="ident">MessageFormat::ErrorResponse</span>,
-            <span class="string">b&#39;I&#39;</span> =&gt; <span class="ident">MessageFormat::EmptyQueryResponse</span>,
-            <span class="string">b&#39;A&#39;</span> =&gt; <span class="ident">MessageFormat::NotificationResponse</span>,
-            <span class="string">b&#39;K&#39;</span> =&gt; <span class="ident">MessageFormat::BackendKeyData</span>,
-            <span class="string">b&#39;N&#39;</span> =&gt; <span class="ident">MessageFormat::NoticeResponse</span>,
-            <span class="string">b&#39;R&#39;</span> =&gt; <span class="ident">MessageFormat::Authentication</span>,
-            <span class="string">b&#39;S&#39;</span> =&gt; <span class="ident">MessageFormat::ParameterStatus</span>,
-            <span class="string">b&#39;T&#39;</span> =&gt; <span class="ident">MessageFormat::RowDescription</span>,
-            <span class="string">b&#39;Z&#39;</span> =&gt; <span class="ident">MessageFormat::ReadyForQuery</span>,
-            <span class="string">b&#39;n&#39;</span> =&gt; <span class="ident">MessageFormat::NoData</span>,
-            <span class="string">b&#39;s&#39;</span> =&gt; <span class="ident">MessageFormat::PortalSuspended</span>,
-            <span class="string">b&#39;t&#39;</span> =&gt; <span class="ident">MessageFormat::ParameterDescription</span>,
+        </span><span class="prelude-val">Ok</span>(<span class="kw">match </span>v {
+            <span class="string">b&#39;1&#39; </span>=&gt; MessageFormat::ParseComplete,
+            <span class="string">b&#39;2&#39; </span>=&gt; MessageFormat::BindComplete,
+            <span class="string">b&#39;3&#39; </span>=&gt; MessageFormat::CloseComplete,
+            <span class="string">b&#39;C&#39; </span>=&gt; MessageFormat::CommandComplete,
+            <span class="string">b&#39;d&#39; </span>=&gt; MessageFormat::CopyData,
+            <span class="string">b&#39;c&#39; </span>=&gt; MessageFormat::CopyDone,
+            <span class="string">b&#39;G&#39; </span>=&gt; MessageFormat::CopyInResponse,
+            <span class="string">b&#39;H&#39; </span>=&gt; MessageFormat::CopyOutResponse,
+            <span class="string">b&#39;D&#39; </span>=&gt; MessageFormat::DataRow,
+            <span class="string">b&#39;E&#39; </span>=&gt; MessageFormat::ErrorResponse,
+            <span class="string">b&#39;I&#39; </span>=&gt; MessageFormat::EmptyQueryResponse,
+            <span class="string">b&#39;A&#39; </span>=&gt; MessageFormat::NotificationResponse,
+            <span class="string">b&#39;K&#39; </span>=&gt; MessageFormat::BackendKeyData,
+            <span class="string">b&#39;N&#39; </span>=&gt; MessageFormat::NoticeResponse,
+            <span class="string">b&#39;R&#39; </span>=&gt; MessageFormat::Authentication,
+            <span class="string">b&#39;S&#39; </span>=&gt; MessageFormat::ParameterStatus,
+            <span class="string">b&#39;T&#39; </span>=&gt; MessageFormat::RowDescription,
+            <span class="string">b&#39;Z&#39; </span>=&gt; MessageFormat::ReadyForQuery,
+            <span class="string">b&#39;n&#39; </span>=&gt; MessageFormat::NoData,
+            <span class="string">b&#39;s&#39; </span>=&gt; MessageFormat::PortalSuspended,
+            <span class="string">b&#39;t&#39; </span>=&gt; MessageFormat::ParameterDescription,
 
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(<span class="string">&quot;unknown message type: {:?}&quot;</span>, <span class="ident">v</span> <span class="kw">as</span> <span class="ident">char</span>)),
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(<span class="string">&quot;unknown message type: {:?}&quot;</span>, v <span class="kw">as </span>char)),
         })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

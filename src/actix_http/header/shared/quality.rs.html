@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/shared/quality.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quality.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/header/shared/quality.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quality.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -225,122 +225,122 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">convert</span>::{<span class="ident">TryFrom</span>, <span class="ident">TryInto</span>},
-    <span class="ident">fmt</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    convert::{TryFrom, TryInto},
+    fmt,
 };
 
-<span class="kw">use</span> <span class="ident">derive_more</span>::{<span class="ident">Display</span>, <span class="ident">Error</span>};
+<span class="kw">use </span>derive_more::{Display, Error};
 
-<span class="kw">const</span> <span class="ident">MAX_QUALITY_INT</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="number">1000</span>;
-<span class="kw">const</span> <span class="ident">MAX_QUALITY_FLOAT</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="kw">const </span>MAX_QUALITY_INT: u16 = <span class="number">1000</span>;
+<span class="kw">const </span>MAX_QUALITY_FLOAT: f32 = <span class="number">1.0</span>;
 
-<span class="doccomment">/// Represents a quality used in q-factor values.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The default value is equivalent to `q=1.0` (the [max](Self::MAX) value).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Implementation notes</span>
-<span class="doccomment">/// The quality value is defined as a number between 0.0 and 1.0 with three decimal places.</span>
-<span class="doccomment">/// This means there are 1001 possible values. Since floating point numbers are not exact and the</span>
-<span class="doccomment">/// smallest floating point data type (`f32`) consumes four bytes, we use an `u16` value to store</span>
-<span class="doccomment">/// the quality internally.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [RFC 7231 §5.3.1] gives more information on quality values in HTTP header fields.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_http::header::{Quality, q};</span>
-<span class="doccomment">/// assert_eq!(q(1.0), Quality::MAX);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(q(0.42).to_string(), &quot;0.42&quot;);</span>
-<span class="doccomment">/// assert_eq!(q(1.0).to_string(), &quot;1&quot;);</span>
-<span class="doccomment">/// assert_eq!(Quality::MIN.to_string(), &quot;0.001&quot;);</span>
-<span class="doccomment">/// assert_eq!(Quality::ZERO.to_string(), &quot;0&quot;);</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [RFC 7231 §5.3.1]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.1</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Quality</span>(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">u16</span>);
+<span class="doccomment">/// Represents a quality used in q-factor values.
+///
+/// The default value is equivalent to `q=1.0` (the [max](Self::MAX) value).
+///
+/// # Implementation notes
+/// The quality value is defined as a number between 0.0 and 1.0 with three decimal places.
+/// This means there are 1001 possible values. Since floating point numbers are not exact and the
+/// smallest floating point data type (`f32`) consumes four bytes, we use an `u16` value to store
+/// the quality internally.
+///
+/// [RFC 7231 §5.3.1] gives more information on quality values in HTTP header fields.
+///
+/// # Examples
+/// ```
+/// use actix_http::header::{Quality, q};
+/// assert_eq!(q(1.0), Quality::MAX);
+///
+/// assert_eq!(q(0.42).to_string(), &quot;0.42&quot;);
+/// assert_eq!(q(1.0).to_string(), &quot;1&quot;);
+/// assert_eq!(Quality::MIN.to_string(), &quot;0.001&quot;);
+/// assert_eq!(Quality::ZERO.to_string(), &quot;0&quot;);
+/// ```
+///
+/// [RFC 7231 §5.3.1]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.1
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+</span><span class="kw">pub struct </span>Quality(<span class="kw">pub</span>(<span class="kw">super</span>) u16);
 
-<span class="kw">impl</span> <span class="ident">Quality</span> {
-    <span class="doccomment">/// The maximum quality value, equivalent to `q=1.0`.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAX</span>: <span class="ident">Quality</span> <span class="op">=</span> <span class="ident">Quality</span>(<span class="ident">MAX_QUALITY_INT</span>);
+<span class="kw">impl </span>Quality {
+    <span class="doccomment">/// The maximum quality value, equivalent to `q=1.0`.
+    </span><span class="kw">pub const </span>MAX: Quality = Quality(MAX_QUALITY_INT);
 
-    <span class="doccomment">/// The minimum, non-zero quality value, equivalent to `q=0.001`.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MIN</span>: <span class="ident">Quality</span> <span class="op">=</span> <span class="ident">Quality</span>(<span class="number">1</span>);
+    <span class="doccomment">/// The minimum, non-zero quality value, equivalent to `q=0.001`.
+    </span><span class="kw">pub const </span>MIN: Quality = Quality(<span class="number">1</span>);
 
-    <span class="doccomment">/// The zero quality value, equivalent to `q=0.0`.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="ident">Quality</span> <span class="op">=</span> <span class="ident">Quality</span>(<span class="number">0</span>);
+    <span class="doccomment">/// The zero quality value, equivalent to `q=0.0`.
+    </span><span class="kw">pub const </span>ZERO: Quality = Quality(<span class="number">0</span>);
 
-    <span class="doccomment">/// Converts a float in the range 0.0–1.0 to a `Quality`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Intentionally private. External uses should rely on the `TryFrom` impl.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics in debug mode when value is not in the range 0.0 &lt;= n &lt;= 1.0.</span>
-    <span class="kw">fn</span> <span class="ident">from_f32</span>(<span class="ident">value</span>: <span class="ident">f32</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// Check that `value` is within range should be done before calling this method.</span>
-        <span class="comment">// Just in case, this debug_assert should catch if we were forgetful.</span>
-        <span class="macro">debug_assert!</span>(
-            (<span class="number">0.0</span>..<span class="op">=</span><span class="ident">MAX_QUALITY_FLOAT</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>),
-            <span class="string">&quot;q value must be between 0.0 and 1.0&quot;</span>
-        );
+    <span class="doccomment">/// Converts a float in the range 0.0–1.0 to a `Quality`.
+    ///
+    /// Intentionally private. External uses should rely on the `TryFrom` impl.
+    ///
+    /// # Panics
+    /// Panics in debug mode when value is not in the range 0.0 &lt;= n &lt;= 1.0.
+    </span><span class="kw">fn </span>from_f32(value: f32) -&gt; <span class="self">Self </span>{
+        <span class="comment">// Check that `value` is within range should be done before calling this method.
+        // Just in case, this debug_assert should catch if we were forgetful.
+        </span><span class="macro">debug_assert!</span>(
+            (<span class="number">0.0</span>..=MAX_QUALITY_FLOAT).contains(<span class="kw-2">&amp;</span>value),
+            <span class="string">&quot;q value must be between 0.0 and 1.0&quot;
+        </span>);
 
-        <span class="ident">Quality</span>((<span class="ident">value</span> <span class="op">*</span> <span class="ident">MAX_QUALITY_INT</span> <span class="kw">as</span> <span class="ident">f32</span>) <span class="kw">as</span> <span class="ident">u16</span>)
+        Quality((value * MAX_QUALITY_INT <span class="kw">as </span>f32) <span class="kw">as </span>u16)
     }
 }
 
-<span class="doccomment">/// The default value is [`Quality::MAX`].</span>
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Quality</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Quality</span> {
-        <span class="ident">Quality::MAX</span>
+<span class="doccomment">/// The default value is [`Quality::MAX`].
+</span><span class="kw">impl </span>Default <span class="kw">for </span>Quality {
+    <span class="kw">fn </span>default() -&gt; Quality {
+        Quality::MAX
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Quality</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="number">0</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;0&quot;</span>),
-            <span class="ident">MAX_QUALITY_INT</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;1&quot;</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Quality {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="number">0 </span>=&gt; f.write_str(<span class="string">&quot;0&quot;</span>),
+            MAX_QUALITY_INT =&gt; f.write_str(<span class="string">&quot;1&quot;</span>),
 
-            <span class="comment">// some number in the range 1–999</span>
-            <span class="ident">x</span> =&gt; {
-                <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;0.&quot;</span>)<span class="question-mark">?</span>;
+            <span class="comment">// some number in the range 1–999
+            </span>x =&gt; {
+                f.write_str(<span class="string">&quot;0.&quot;</span>)<span class="question-mark">?</span>;
 
-                <span class="comment">// This implementation avoids string allocation for removing trailing zeroes.</span>
-                <span class="comment">// In benchmarks it is twice as fast as approach using something like</span>
-                <span class="comment">// `format!(&quot;{}&quot;).trim_end_matches(&#39;0&#39;)` for non-fast-path quality values.</span>
+                <span class="comment">// This implementation avoids string allocation for removing trailing zeroes.
+                // In benchmarks it is twice as fast as approach using something like
+                // `format!(&quot;{}&quot;).trim_end_matches(&#39;0&#39;)` for non-fast-path quality values.
 
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="number">10</span> {
-                    <span class="comment">// x in is range 1–9</span>
+                </span><span class="kw">if </span>x &lt; <span class="number">10 </span>{
+                    <span class="comment">// x in is range 1–9
 
-                    <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;00&quot;</span>)<span class="question-mark">?</span>;
+                    </span>f.write_str(<span class="string">&quot;00&quot;</span>)<span class="question-mark">?</span>;
 
-                    <span class="comment">// 0 is already handled so it&#39;s not possible to have a trailing 0 in this range</span>
-                    <span class="comment">// we can just write the integer</span>
-                    <span class="ident">itoa_fmt</span>(<span class="ident">f</span>, <span class="ident">x</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="number">100</span> {
-                    <span class="comment">// x in is range 10–99</span>
+                    <span class="comment">// 0 is already handled so it&#39;s not possible to have a trailing 0 in this range
+                    // we can just write the integer
+                    </span>itoa_fmt(f, x)
+                } <span class="kw">else if </span>x &lt; <span class="number">100 </span>{
+                    <span class="comment">// x in is range 10–99
 
-                    <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;0&quot;</span>)<span class="question-mark">?</span>;
+                    </span>f.write_str(<span class="string">&quot;0&quot;</span>)<span class="question-mark">?</span>;
 
-                    <span class="kw">if</span> <span class="ident">x</span> <span class="op">%</span> <span class="number">10</span> <span class="op">==</span> <span class="number">0</span> {
-                        <span class="comment">// trailing 0, divide by 10 and write</span>
-                        <span class="ident">itoa_fmt</span>(<span class="ident">f</span>, <span class="ident">x</span> <span class="op">/</span> <span class="number">10</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">itoa_fmt</span>(<span class="ident">f</span>, <span class="ident">x</span>)
+                    <span class="kw">if </span>x % <span class="number">10 </span>== <span class="number">0 </span>{
+                        <span class="comment">// trailing 0, divide by 10 and write
+                        </span>itoa_fmt(f, x / <span class="number">10</span>)
+                    } <span class="kw">else </span>{
+                        itoa_fmt(f, x)
                     }
-                } <span class="kw">else</span> {
-                    <span class="comment">// x is in range 100–999</span>
+                } <span class="kw">else </span>{
+                    <span class="comment">// x is in range 100–999
 
-                    <span class="kw">if</span> <span class="ident">x</span> <span class="op">%</span> <span class="number">100</span> <span class="op">==</span> <span class="number">0</span> {
-                        <span class="comment">// two trailing 0s, divide by 100 and write</span>
-                        <span class="ident">itoa_fmt</span>(<span class="ident">f</span>, <span class="ident">x</span> <span class="op">/</span> <span class="number">100</span>)
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">%</span> <span class="number">10</span> <span class="op">==</span> <span class="number">0</span> {
-                        <span class="comment">// one trailing 0, divide by 10 and write</span>
-                        <span class="ident">itoa_fmt</span>(<span class="ident">f</span>, <span class="ident">x</span> <span class="op">/</span> <span class="number">10</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">itoa_fmt</span>(<span class="ident">f</span>, <span class="ident">x</span>)
+                    </span><span class="kw">if </span>x % <span class="number">100 </span>== <span class="number">0 </span>{
+                        <span class="comment">// two trailing 0s, divide by 100 and write
+                        </span>itoa_fmt(f, x / <span class="number">100</span>)
+                    } <span class="kw">else if </span>x % <span class="number">10 </span>== <span class="number">0 </span>{
+                        <span class="comment">// one trailing 0, divide by 10 and write
+                        </span>itoa_fmt(f, x / <span class="number">10</span>)
+                    } <span class="kw">else </span>{
+                        itoa_fmt(f, x)
                     }
                 }
             }
@@ -348,107 +348,107 @@
     }
 }
 
-<span class="doccomment">/// Write integer to a `fmt::Write`.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">itoa_fmt</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">fmt::Write</span>, <span class="ident">V</span>: <span class="ident">itoa::Integer</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">wr</span>: <span class="ident">W</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="ident">fmt::Result</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">itoa::Buffer::new</span>();
-    <span class="ident">wr</span>.<span class="ident">write_str</span>(<span class="ident">buf</span>.<span class="ident">format</span>(<span class="ident">value</span>))
+<span class="doccomment">/// Write integer to a `fmt::Write`.
+</span><span class="kw">pub fn </span>itoa_fmt&lt;W: fmt::Write, V: itoa::Integer&gt;(<span class="kw-2">mut </span>wr: W, value: V) -&gt; fmt::Result {
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = itoa::Buffer::new();
+    wr.write_str(buf.format(value))
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Display</span>, <span class="ident">Error</span>)]</span>
-<span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;quality out of bounds&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QualityOutOfBounds</span>;
+<span class="attribute">#[derive(Debug, Clone, Display, Error)]
+#[display(fmt = <span class="string">&quot;quality out of bounds&quot;</span>)]
+#[non_exhaustive]
+</span><span class="kw">pub struct </span>QualityOutOfBounds;
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quality</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">QualityOutOfBounds</span>;
+<span class="kw">impl </span>TryFrom&lt;f32&gt; <span class="kw">for </span>Quality {
+    <span class="kw">type </span>Error = QualityOutOfBounds;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">f32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> (<span class="number">0.0</span>..<span class="op">=</span><span class="ident">MAX_QUALITY_FLOAT</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">Quality::from_f32</span>(<span class="ident">value</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">QualityOutOfBounds</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_from(value: f32) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">if </span>(<span class="number">0.0</span>..=MAX_QUALITY_FLOAT).contains(<span class="kw-2">&amp;</span>value) {
+            <span class="prelude-val">Ok</span>(Quality::from_f32(value))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(QualityOutOfBounds)
         }
     }
 }
 
-<span class="doccomment">/// Convenience function to create a [`Quality`] from an `f32` (0.0–1.0).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Not recommended for use with user input. Rely on the `TryFrom` impls where possible.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// Panics if value is out of range.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use actix_http::header::{q, Quality};</span>
-<span class="doccomment">/// let q1 = q(1.0);</span>
-<span class="doccomment">/// assert_eq!(q1, Quality::MAX);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let q2 = q(0.001);</span>
-<span class="doccomment">/// assert_eq!(q2, Quality::MIN);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let q3 = q(0.0);</span>
-<span class="doccomment">/// assert_eq!(q3, Quality::ZERO);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let q4 = q(0.42);</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// An out-of-range `f32` quality will panic.</span>
-<span class="doccomment">/// ```should_panic</span>
-<span class="doccomment">/// # use actix_http::header::q;</span>
-<span class="doccomment">/// let _q2 = q(1.42);</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">q</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">quality</span>: <span class="ident">T</span>) -&gt; <span class="ident">Quality</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">TryInto</span><span class="op">&lt;</span><span class="ident">Quality</span><span class="op">&gt;</span>,
-    <span class="ident">T::Error</span>: <span class="ident">fmt::Debug</span>,
+<span class="doccomment">/// Convenience function to create a [`Quality`] from an `f32` (0.0–1.0).
+///
+/// Not recommended for use with user input. Rely on the `TryFrom` impls where possible.
+///
+/// # Panics
+/// Panics if value is out of range.
+///
+/// # Examples
+/// ```
+/// # use actix_http::header::{q, Quality};
+/// let q1 = q(1.0);
+/// assert_eq!(q1, Quality::MAX);
+///
+/// let q2 = q(0.001);
+/// assert_eq!(q2, Quality::MIN);
+///
+/// let q3 = q(0.0);
+/// assert_eq!(q3, Quality::ZERO);
+///
+/// let q4 = q(0.42);
+/// ```
+///
+/// An out-of-range `f32` quality will panic.
+/// ```should_panic
+/// # use actix_http::header::q;
+/// let _q2 = q(1.42);
+/// ```
+</span><span class="attribute">#[inline]
+</span><span class="kw">pub fn </span>q&lt;T&gt;(quality: T) -&gt; Quality
+<span class="kw">where
+    </span>T: TryInto&lt;Quality&gt;,
+    T::Error: fmt::Debug,
 {
-    <span class="ident">quality</span>.<span class="ident">try_into</span>().<span class="ident">expect</span>(<span class="string">&quot;quality value was out of bounds&quot;</span>)
+    quality.try_into().expect(<span class="string">&quot;quality value was out of bounds&quot;</span>)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">q_helper</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>(<span class="number">0.5</span>), <span class="ident">Quality</span>(<span class="number">500</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>q_helper() {
+        <span class="macro">assert_eq!</span>(q(<span class="number">0.5</span>), Quality(<span class="number">500</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">display_output</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">Quality::ZERO</span>.<span class="ident">to_string</span>(), <span class="string">&quot;0&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">Quality::MIN</span>.<span class="ident">to_string</span>(), <span class="string">&quot;0.001&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">Quality::MAX</span>.<span class="ident">to_string</span>(), <span class="string">&quot;1&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>display_output() {
+        <span class="macro">assert_eq!</span>(Quality::ZERO.to_string(), <span class="string">&quot;0&quot;</span>);
+        <span class="macro">assert_eq!</span>(Quality::MIN.to_string(), <span class="string">&quot;0.001&quot;</span>);
+        <span class="macro">assert_eq!</span>(Quality::MAX.to_string(), <span class="string">&quot;1&quot;</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>(<span class="number">0.0</span>).<span class="ident">to_string</span>(), <span class="string">&quot;0&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>(<span class="number">1.0</span>).<span class="ident">to_string</span>(), <span class="string">&quot;1&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>(<span class="number">0.001</span>).<span class="ident">to_string</span>(), <span class="string">&quot;0.001&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>(<span class="number">0.5</span>).<span class="ident">to_string</span>(), <span class="string">&quot;0.5&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>(<span class="number">0.22</span>).<span class="ident">to_string</span>(), <span class="string">&quot;0.22&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>(<span class="number">0.123</span>).<span class="ident">to_string</span>(), <span class="string">&quot;0.123&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>(<span class="number">0.999</span>).<span class="ident">to_string</span>(), <span class="string">&quot;0.999&quot;</span>);
+        <span class="macro">assert_eq!</span>(q(<span class="number">0.0</span>).to_string(), <span class="string">&quot;0&quot;</span>);
+        <span class="macro">assert_eq!</span>(q(<span class="number">1.0</span>).to_string(), <span class="string">&quot;1&quot;</span>);
+        <span class="macro">assert_eq!</span>(q(<span class="number">0.001</span>).to_string(), <span class="string">&quot;0.001&quot;</span>);
+        <span class="macro">assert_eq!</span>(q(<span class="number">0.5</span>).to_string(), <span class="string">&quot;0.5&quot;</span>);
+        <span class="macro">assert_eq!</span>(q(<span class="number">0.22</span>).to_string(), <span class="string">&quot;0.22&quot;</span>);
+        <span class="macro">assert_eq!</span>(q(<span class="number">0.123</span>).to_string(), <span class="string">&quot;0.123&quot;</span>);
+        <span class="macro">assert_eq!</span>(q(<span class="number">0.999</span>).to_string(), <span class="string">&quot;0.999&quot;</span>);
 
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="number">1000</span> {
-            <span class="comment">// if trailing zeroes are handled correctly, we would not expect the serialized length</span>
-            <span class="comment">// to ever exceed &quot;0.&quot; + 3 decimal places = 5 in length</span>
-            <span class="macro">assert!</span>(<span class="ident">q</span>(<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">1000.0</span>).<span class="ident">to_string</span>().<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">5</span>);
+        <span class="kw">for </span>x <span class="kw">in </span><span class="number">0</span>..=<span class="number">1000 </span>{
+            <span class="comment">// if trailing zeroes are handled correctly, we would not expect the serialized length
+            // to ever exceed &quot;0.&quot; + 3 decimal places = 5 in length
+            </span><span class="macro">assert!</span>(q(x <span class="kw">as </span>f32 / <span class="number">1000.0</span>).to_string().len() &lt;= <span class="number">5</span>);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">negative_quality</span>() {
-        <span class="ident">q</span>(<span class="op">-</span><span class="number">1.0</span>);
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>negative_quality() {
+        q(-<span class="number">1.0</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">quality_out_of_bounds</span>() {
-        <span class="ident">q</span>(<span class="number">2.0</span>);
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>quality_out_of_bounds() {
+        q(<span class="number">2.0</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h1/encoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h1/encoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -671,483 +671,483 @@
 <span id="669">669</span>
 <span id="670">670</span>
 <span id="671">671</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cmp</span>,
-    <span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Write</span> <span class="kw">as</span> <span class="kw">_</span>},
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">ptr::copy_nonoverlapping</span>,
-    <span class="ident">slice::from_raw_parts_mut</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    cmp,
+    io::{<span class="self">self</span>, Write <span class="kw">as _</span>},
+    marker::PhantomData,
+    ptr::copy_nonoverlapping,
+    slice::from_raw_parts_mut,
 };
 
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">BufMut</span>, <span class="ident">BytesMut</span>};
+<span class="kw">use </span>bytes::{BufMut, BytesMut};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body::BodySize</span>,
-    <span class="ident">header</span>::{
-        <span class="ident">map::Value</span>, <span class="ident">HeaderMap</span>, <span class="ident">HeaderName</span>, <span class="ident">CONNECTION</span>, <span class="ident">CONTENT_LENGTH</span>, <span class="ident">DATE</span>, <span class="ident">TRANSFER_ENCODING</span>,
+<span class="kw">use crate</span>::{
+    body::BodySize,
+    header::{
+        map::Value, HeaderMap, HeaderName, CONNECTION, CONTENT_LENGTH, DATE, TRANSFER_ENCODING,
     },
-    <span class="ident">helpers</span>, <span class="ident">ConnectionType</span>, <span class="ident">RequestHeadType</span>, <span class="ident">Response</span>, <span class="ident">ServiceConfig</span>, <span class="ident">StatusCode</span>, <span class="ident">Version</span>,
+    helpers, ConnectionType, RequestHeadType, Response, ServiceConfig, StatusCode, Version,
 };
 
-<span class="kw">const</span> <span class="ident">AVERAGE_HEADER_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">30</span>;
+<span class="kw">const </span>AVERAGE_HEADER_SIZE: usize = <span class="number">30</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">MessageEncoder</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">MessageType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">length</span>: <span class="ident">BodySize</span>,
-    <span class="kw">pub</span> <span class="ident">te</span>: <span class="ident">TransferEncoding</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>MessageEncoder&lt;T: MessageType&gt; {
+    <span class="attribute">#[allow(dead_code)]
+    </span><span class="kw">pub </span>length: BodySize,
+    <span class="kw">pub </span>te: TransferEncoding,
+    _phantom: PhantomData&lt;T&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">MessageType</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MessageEncoder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">MessageEncoder</span> {
-            <span class="ident">length</span>: <span class="ident">BodySize::None</span>,
-            <span class="ident">te</span>: <span class="ident">TransferEncoding::empty</span>(),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+<span class="kw">impl</span>&lt;T: MessageType&gt; Default <span class="kw">for </span>MessageEncoder&lt;T&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        MessageEncoder {
+            length: BodySize::None,
+            te: TransferEncoding::empty(),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait</span> <span class="ident">MessageType</span>: <span class="ident">Sized</span> {
-    <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StatusCode</span><span class="op">&gt;</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>MessageType: Sized {
+    <span class="kw">fn </span>status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;StatusCode&gt;;
 
-    <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span>;
+    <span class="kw">fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap;
 
-    <span class="kw">fn</span> <span class="ident">extra_headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>extra_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>HeaderMap&gt;;
 
-    <span class="kw">fn</span> <span class="ident">camel_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">false</span>
-    }
+    <span class="kw">fn </span>camel_case(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">chunked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn </span>chunked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
-    <span class="kw">fn</span> <span class="ident">encode_status</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+    <span class="kw">fn </span>encode_status(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; io::Result&lt;()&gt;;
 
-    <span class="kw">fn</span> <span class="ident">encode_headers</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
-        <span class="ident">version</span>: <span class="ident">Version</span>,
-        <span class="kw-2">mut</span> <span class="ident">length</span>: <span class="ident">BodySize</span>,
-        <span class="ident">conn_type</span>: <span class="ident">ConnectionType</span>,
-        <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceConfig</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">chunked</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">chunked</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">skip_len</span> <span class="op">=</span> <span class="ident">length</span> <span class="op">!</span><span class="op">=</span> <span class="ident">BodySize::Stream</span>;
-        <span class="kw">let</span> <span class="ident">camel_case</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">camel_case</span>();
+    <span class="kw">fn </span>encode_headers(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        dst: <span class="kw-2">&amp;mut </span>BytesMut,
+        version: Version,
+        <span class="kw-2">mut </span>length: BodySize,
+        conn_type: ConnectionType,
+        config: <span class="kw-2">&amp;</span>ServiceConfig,
+    ) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">let </span>chunked = <span class="self">self</span>.chunked();
+        <span class="kw">let </span><span class="kw-2">mut </span>skip_len = length != BodySize::Stream;
+        <span class="kw">let </span>camel_case = <span class="self">self</span>.camel_case();
 
-        <span class="comment">// Content length</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">status</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">status</span>() {
-            <span class="kw">match</span> <span class="ident">status</span> {
-                <span class="ident">StatusCode::CONTINUE</span>
-                <span class="op">|</span> <span class="ident">StatusCode::SWITCHING_PROTOCOLS</span>
-                <span class="op">|</span> <span class="ident">StatusCode::PROCESSING</span>
-                <span class="op">|</span> <span class="ident">StatusCode::NO_CONTENT</span> =&gt; {
-                    <span class="comment">// skip content-length and transfer-encoding headers</span>
-                    <span class="comment">// see https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.1</span>
-                    <span class="comment">// and https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2</span>
-                    <span class="ident">skip_len</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">length</span> <span class="op">=</span> <span class="ident">BodySize::None</span>
+        <span class="comment">// Content length
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(status) = <span class="self">self</span>.status() {
+            <span class="kw">match </span>status {
+                StatusCode::CONTINUE
+                | StatusCode::SWITCHING_PROTOCOLS
+                | StatusCode::PROCESSING
+                | StatusCode::NO_CONTENT =&gt; {
+                    <span class="comment">// skip content-length and transfer-encoding headers
+                    // see https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.1
+                    // and https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2
+                    </span>skip_len = <span class="bool-val">true</span>;
+                    length = BodySize::None
                 }
 
-                <span class="ident">StatusCode::NOT_MODIFIED</span> =&gt; {
-                    <span class="comment">// 304 responses should never have a body but should retain a manually set</span>
-                    <span class="comment">// content-length header</span>
-                    <span class="comment">// see https://datatracker.ietf.org/doc/html/rfc7232#section-4.1</span>
-                    <span class="ident">skip_len</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    <span class="ident">length</span> <span class="op">=</span> <span class="ident">BodySize::None</span>;
+                StatusCode::NOT_MODIFIED =&gt; {
+                    <span class="comment">// 304 responses should never have a body but should retain a manually set
+                    // content-length header
+                    // see https://datatracker.ietf.org/doc/html/rfc7232#section-4.1
+                    </span>skip_len = <span class="bool-val">false</span>;
+                    length = BodySize::None;
                 }
 
-                <span class="kw">_</span> =&gt; {}
+                <span class="kw">_ </span>=&gt; {}
             }
         }
 
-        <span class="kw">match</span> <span class="ident">length</span> {
-            <span class="ident">BodySize::Stream</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">chunked</span> {
-                    <span class="ident">skip_len</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">if</span> <span class="ident">camel_case</span> {
-                        <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\nTransfer-Encoding: chunked\r\n&quot;</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\ntransfer-encoding: chunked\r\n&quot;</span>)
+        <span class="kw">match </span>length {
+            BodySize::Stream =&gt; {
+                <span class="kw">if </span>chunked {
+                    skip_len = <span class="bool-val">true</span>;
+                    <span class="kw">if </span>camel_case {
+                        dst.put_slice(<span class="string">b&quot;\r\nTransfer-Encoding: chunked\r\n&quot;</span>)
+                    } <span class="kw">else </span>{
+                        dst.put_slice(<span class="string">b&quot;\r\ntransfer-encoding: chunked\r\n&quot;</span>)
                     }
-                } <span class="kw">else</span> {
-                    <span class="ident">skip_len</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
+                } <span class="kw">else </span>{
+                    skip_len = <span class="bool-val">false</span>;
+                    dst.put_slice(<span class="string">b&quot;\r\n&quot;</span>);
                 }
             }
-            <span class="ident">BodySize::Sized</span>(<span class="number">0</span>) <span class="kw">if</span> <span class="ident">camel_case</span> =&gt; <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\nContent-Length: 0\r\n&quot;</span>),
-            <span class="ident">BodySize::Sized</span>(<span class="number">0</span>) =&gt; <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\ncontent-length: 0\r\n&quot;</span>),
-            <span class="ident">BodySize::Sized</span>(<span class="ident">len</span>) =&gt; <span class="ident">helpers::write_content_length</span>(<span class="ident">len</span>, <span class="ident">dst</span>, <span class="ident">camel_case</span>),
-            <span class="ident">BodySize::None</span> =&gt; <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\n&quot;</span>),
+            BodySize::Sized(<span class="number">0</span>) <span class="kw">if </span>camel_case =&gt; dst.put_slice(<span class="string">b&quot;\r\nContent-Length: 0\r\n&quot;</span>),
+            BodySize::Sized(<span class="number">0</span>) =&gt; dst.put_slice(<span class="string">b&quot;\r\ncontent-length: 0\r\n&quot;</span>),
+            BodySize::Sized(len) =&gt; helpers::write_content_length(len, dst, camel_case),
+            BodySize::None =&gt; dst.put_slice(<span class="string">b&quot;\r\n&quot;</span>),
         }
 
-        <span class="comment">// Connection</span>
-        <span class="kw">match</span> <span class="ident">conn_type</span> {
-            <span class="ident">ConnectionType::Upgrade</span> =&gt; <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;connection: upgrade\r\n&quot;</span>),
-            <span class="ident">ConnectionType::KeepAlive</span> <span class="kw">if</span> <span class="ident">version</span> <span class="op">&lt;</span> <span class="ident">Version::HTTP_11</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">camel_case</span> {
-                    <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;Connection: keep-alive\r\n&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;connection: keep-alive\r\n&quot;</span>)
+        <span class="comment">// Connection
+        </span><span class="kw">match </span>conn_type {
+            ConnectionType::Upgrade =&gt; dst.put_slice(<span class="string">b&quot;connection: upgrade\r\n&quot;</span>),
+            ConnectionType::KeepAlive <span class="kw">if </span>version &lt; Version::HTTP_11 =&gt; {
+                <span class="kw">if </span>camel_case {
+                    dst.put_slice(<span class="string">b&quot;Connection: keep-alive\r\n&quot;</span>)
+                } <span class="kw">else </span>{
+                    dst.put_slice(<span class="string">b&quot;connection: keep-alive\r\n&quot;</span>)
                 }
             }
-            <span class="ident">ConnectionType::Close</span> <span class="kw">if</span> <span class="ident">version</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Version::HTTP_11</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">camel_case</span> {
-                    <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;Connection: close\r\n&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;connection: close\r\n&quot;</span>)
+            ConnectionType::Close <span class="kw">if </span>version &gt;= Version::HTTP_11 =&gt; {
+                <span class="kw">if </span>camel_case {
+                    dst.put_slice(<span class="string">b&quot;Connection: close\r\n&quot;</span>)
+                } <span class="kw">else </span>{
+                    dst.put_slice(<span class="string">b&quot;connection: close\r\n&quot;</span>)
                 }
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="comment">// write headers</span>
+        <span class="comment">// write headers
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_date</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        </span><span class="kw">let </span><span class="kw-2">mut </span>has_date = <span class="bool-val">false</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">chunk_mut</span>().<span class="ident">as_mut_ptr</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remaining</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">capacity</span>() <span class="op">-</span> <span class="ident">dst</span>.<span class="ident">len</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = dst.chunk_mut().as_mut_ptr();
+        <span class="kw">let </span><span class="kw-2">mut </span>remaining = dst.capacity() - dst.len();
 
-        <span class="comment">// tracks bytes written since last buffer resize</span>
-        <span class="comment">// since buf is a raw pointer to a bytes container storage but is written to without the</span>
-        <span class="comment">// container&#39;s knowledge, this is used to sync the containers cursor after data is written</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pos</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="comment">// tracks bytes written since last buffer resize
+        // since buf is a raw pointer to a bytes container storage but is written to without the
+        // container&#39;s knowledge, this is used to sync the containers cursor after data is written
+        </span><span class="kw">let </span><span class="kw-2">mut </span>pos = <span class="number">0</span>;
 
-        <span class="self">self</span>.<span class="ident">write_headers</span>(<span class="op">|</span><span class="ident">key</span>, <span class="ident">value</span><span class="op">|</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">key</span> {
-                <span class="ident">CONNECTION</span> =&gt; <span class="kw">return</span>,
-                <span class="ident">TRANSFER_ENCODING</span> <span class="op">|</span> <span class="ident">CONTENT_LENGTH</span> <span class="kw">if</span> <span class="ident">skip_len</span> =&gt; <span class="kw">return</span>,
-                <span class="ident">DATE</span> =&gt; <span class="ident">has_date</span> <span class="op">=</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> =&gt; {}
+        <span class="self">self</span>.write_headers(|key, value| {
+            <span class="kw">match </span><span class="kw-2">*</span>key {
+                CONNECTION =&gt; <span class="kw">return</span>,
+                TRANSFER_ENCODING | CONTENT_LENGTH <span class="kw">if </span>skip_len =&gt; <span class="kw">return</span>,
+                DATE =&gt; has_date = <span class="bool-val">true</span>,
+                <span class="kw">_ </span>=&gt; {}
             }
 
-            <span class="kw">let</span> <span class="ident">k</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">as_str</span>().<span class="ident">as_bytes</span>();
-            <span class="kw">let</span> <span class="ident">k_len</span> <span class="op">=</span> <span class="ident">k</span>.<span class="ident">len</span>();
+            <span class="kw">let </span>k = key.as_str().as_bytes();
+            <span class="kw">let </span>k_len = k.len();
 
-            <span class="kw">for</span> <span class="ident">val</span> <span class="kw">in</span> <span class="ident">value</span>.<span class="ident">iter</span>() {
-                <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">as_ref</span>();
-                <span class="kw">let</span> <span class="ident">v_len</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">len</span>();
+            <span class="kw">for </span>val <span class="kw">in </span>value.iter() {
+                <span class="kw">let </span>v = val.as_ref();
+                <span class="kw">let </span>v_len = v.len();
 
-                <span class="comment">// key length + value length + colon + space + \r\n</span>
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">k_len</span> <span class="op">+</span> <span class="ident">v_len</span> <span class="op">+</span> <span class="number">4</span>;
+                <span class="comment">// key length + value length + colon + space + \r\n
+                </span><span class="kw">let </span>len = k_len + v_len + <span class="number">4</span>;
 
-                <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span> <span class="ident">remaining</span> {
-                    <span class="comment">// SAFETY: all the bytes written up to position &quot;pos&quot; are initialized</span>
-                    <span class="comment">// the written byte count and pointer advancement are kept in sync</span>
-                    <span class="kw">unsafe</span> {
-                        <span class="ident">dst</span>.<span class="ident">advance_mut</span>(<span class="ident">pos</span>);
+                <span class="kw">if </span>len &gt; remaining {
+                    <span class="comment">// SAFETY: all the bytes written up to position &quot;pos&quot; are initialized
+                    // the written byte count and pointer advancement are kept in sync
+                    </span><span class="kw">unsafe </span>{
+                        dst.advance_mut(pos);
                     }
 
-                    <span class="ident">pos</span> <span class="op">=</span> <span class="number">0</span>;
-                    <span class="ident">dst</span>.<span class="ident">reserve</span>(<span class="ident">len</span> <span class="op">*</span> <span class="number">2</span>);
-                    <span class="ident">remaining</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">capacity</span>() <span class="op">-</span> <span class="ident">dst</span>.<span class="ident">len</span>();
+                    pos = <span class="number">0</span>;
+                    dst.reserve(len * <span class="number">2</span>);
+                    remaining = dst.capacity() - dst.len();
 
-                    <span class="comment">// re-assign buf raw pointer since it&#39;s possible that the buffer was</span>
-                    <span class="comment">// reallocated and/or resized</span>
-                    <span class="ident">buf</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">chunk_mut</span>().<span class="ident">as_mut_ptr</span>();
+                    <span class="comment">// re-assign buf raw pointer since it&#39;s possible that the buffer was
+                    // reallocated and/or resized
+                    </span>buf = dst.chunk_mut().as_mut_ptr();
                 }
 
-                <span class="comment">// SAFETY: on each write, it is enough to ensure that the advancement of</span>
-                <span class="comment">// the cursor matches the number of bytes written</span>
-                <span class="kw">unsafe</span> {
-                    <span class="kw">if</span> <span class="ident">camel_case</span> {
-                        <span class="comment">// use Camel-Case headers</span>
-                        <span class="ident">write_camel_case</span>(<span class="ident">k</span>, <span class="ident">buf</span>, <span class="ident">k_len</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">write_data</span>(<span class="ident">k</span>, <span class="ident">buf</span>, <span class="ident">k_len</span>);
+                <span class="comment">// SAFETY: on each write, it is enough to ensure that the advancement of
+                // the cursor matches the number of bytes written
+                </span><span class="kw">unsafe </span>{
+                    <span class="kw">if </span>camel_case {
+                        <span class="comment">// use Camel-Case headers
+                        </span>write_camel_case(k, buf, k_len);
+                    } <span class="kw">else </span>{
+                        write_data(k, buf, k_len);
                     }
 
-                    <span class="ident">buf</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">add</span>(<span class="ident">k_len</span>);
+                    buf = buf.add(k_len);
 
-                    <span class="ident">write_data</span>(<span class="string">b&quot;: &quot;</span>, <span class="ident">buf</span>, <span class="number">2</span>);
-                    <span class="ident">buf</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">add</span>(<span class="number">2</span>);
+                    write_data(<span class="string">b&quot;: &quot;</span>, buf, <span class="number">2</span>);
+                    buf = buf.add(<span class="number">2</span>);
 
-                    <span class="ident">write_data</span>(<span class="ident">v</span>, <span class="ident">buf</span>, <span class="ident">v_len</span>);
-                    <span class="ident">buf</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">add</span>(<span class="ident">v_len</span>);
+                    write_data(v, buf, v_len);
+                    buf = buf.add(v_len);
 
-                    <span class="ident">write_data</span>(<span class="string">b&quot;\r\n&quot;</span>, <span class="ident">buf</span>, <span class="number">2</span>);
-                    <span class="ident">buf</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">add</span>(<span class="number">2</span>);
+                    write_data(<span class="string">b&quot;\r\n&quot;</span>, buf, <span class="number">2</span>);
+                    buf = buf.add(<span class="number">2</span>);
                 };
 
-                <span class="ident">pos</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span>;
-                <span class="ident">remaining</span> <span class="op">-</span><span class="op">=</span> <span class="ident">len</span>;
+                pos += len;
+                remaining -= len;
             }
         });
 
-        <span class="comment">// final cursor synchronization with the bytes container</span>
-        <span class="comment">//</span>
-        <span class="comment">// SAFETY: all the bytes written up to position &quot;pos&quot; are initialized</span>
-        <span class="comment">// the written byte count and pointer advancement are kept in sync</span>
-        <span class="kw">unsafe</span> {
-            <span class="ident">dst</span>.<span class="ident">advance_mut</span>(<span class="ident">pos</span>);
+        <span class="comment">// final cursor synchronization with the bytes container
+        //
+        // SAFETY: all the bytes written up to position &quot;pos&quot; are initialized
+        // the written byte count and pointer advancement are kept in sync
+        </span><span class="kw">unsafe </span>{
+            dst.advance_mut(pos);
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">has_date</span> {
-            <span class="comment">// optimized date header, write_date_header writes its own \r\n</span>
-            <span class="ident">config</span>.<span class="ident">write_date_header</span>(<span class="ident">dst</span>, <span class="ident">camel_case</span>);
+        <span class="kw">if </span>!has_date {
+            <span class="comment">// optimized date header, write_date_header writes its own \r\n
+            </span>config.write_date_header(dst, camel_case);
         }
 
-        <span class="comment">// end-of-headers marker</span>
-        <span class="ident">dst</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
+        <span class="comment">// end-of-headers marker
+        </span>dst.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">write_headers</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>)
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">HeaderName</span>, <span class="kw-2">&amp;</span><span class="ident">Value</span>),
+    <span class="kw">fn </span>write_headers&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>f: F)
+    <span class="kw">where
+        </span>F: FnMut(<span class="kw-2">&amp;</span>HeaderName, <span class="kw-2">&amp;</span>Value),
     {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">extra_headers</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">headers</span>) =&gt; {
-                <span class="comment">// merging headers from head and extra headers.</span>
-                <span class="self">self</span>.<span class="ident">headers</span>()
-                    .<span class="ident">inner</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="op">!</span><span class="ident">headers</span>.<span class="ident">contains_key</span>(<span class="kw-2">*</span><span class="ident">name</span>))
-                    .<span class="ident">chain</span>(<span class="ident">headers</span>.<span class="ident">inner</span>.<span class="ident">iter</span>())
-                    .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> <span class="ident">f</span>(<span class="ident">k</span>, <span class="ident">v</span>))
+        <span class="kw">match </span><span class="self">self</span>.extra_headers() {
+            <span class="prelude-val">Some</span>(headers) =&gt; {
+                <span class="comment">// merging headers from head and extra headers.
+                </span><span class="self">self</span>.headers()
+                    .inner
+                    .iter()
+                    .filter(|(name, <span class="kw">_</span>)| !headers.contains_key(<span class="kw-2">*</span>name))
+                    .chain(headers.inner.iter())
+                    .for_each(|(k, v)| f(k, v))
             }
-            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">headers</span>().<span class="ident">inner</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> <span class="ident">f</span>(<span class="ident">k</span>, <span class="ident">v</span>)),
+            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.headers().inner.iter().for_each(|(k, v)| f(k, v)),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">MessageType</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StatusCode</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">head</span>().<span class="ident">status</span>)
+<span class="kw">impl </span>MessageType <span class="kw">for </span>Response&lt;()&gt; {
+    <span class="kw">fn </span>status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;StatusCode&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.head().status)
     }
 
-    <span class="kw">fn</span> <span class="ident">chunked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">head</span>().<span class="ident">chunked</span>()
+    <span class="kw">fn </span>chunked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.head().chunked()
     }
 
-    <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>().<span class="ident">headers</span>
+    <span class="kw">fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.head().headers
     }
 
-    <span class="kw">fn</span> <span class="ident">extra_headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
+    <span class="kw">fn </span>extra_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>HeaderMap&gt; {
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">fn </span>camel_case(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.head()
+            .flags
+            .contains(<span class="kw">crate</span>::message::Flags::CAMEL_CASE)
     }
 
-    <span class="kw">fn</span> <span class="ident">camel_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">head</span>()
-            .<span class="ident">flags</span>
-            .<span class="ident">contains</span>(<span class="ident"><span class="kw">crate</span>::message::Flags::CAMEL_CASE</span>)
-    }
+    <span class="kw">fn </span>encode_status(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">let </span>head = <span class="self">self</span>.head();
+        <span class="kw">let </span>reason = head.reason().as_bytes();
+        dst.reserve(<span class="number">256 </span>+ head.headers.len() * AVERAGE_HEADER_SIZE + reason.len());
 
-    <span class="kw">fn</span> <span class="ident">encode_status</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">head</span>();
-        <span class="kw">let</span> <span class="ident">reason</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">reason</span>().<span class="ident">as_bytes</span>();
-        <span class="ident">dst</span>.<span class="ident">reserve</span>(<span class="number">256</span> <span class="op">+</span> <span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="ident">AVERAGE_HEADER_SIZE</span> <span class="op">+</span> <span class="ident">reason</span>.<span class="ident">len</span>());
-
-        <span class="comment">// status line</span>
-        <span class="ident">helpers::write_status_line</span>(<span class="ident">head</span>.<span class="ident">version</span>, <span class="ident">head</span>.<span class="ident">status</span>.<span class="ident">as_u16</span>(), <span class="ident">dst</span>);
-        <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="ident">reason</span>);
+        <span class="comment">// status line
+        </span>helpers::write_status_line(head.version, head.status.as_u16(), dst);
+        dst.put_slice(reason);
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">MessageType</span> <span class="kw">for</span> <span class="ident">RequestHeadType</span> {
-    <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StatusCode</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
+<span class="kw">impl </span>MessageType <span class="kw">for </span>RequestHeadType {
+    <span class="kw">fn </span>status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;StatusCode&gt; {
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">fn </span>chunked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.as_ref().chunked()
     }
 
-    <span class="kw">fn</span> <span class="ident">chunked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">chunked</span>()
+    <span class="kw">fn </span>camel_case(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.as_ref().camel_case_headers()
     }
 
-    <span class="kw">fn</span> <span class="ident">camel_case</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">camel_case_headers</span>()
+    <span class="kw">fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
+        <span class="self">self</span>.as_ref().headers()
     }
 
-    <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
-        <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">headers</span>()
+    <span class="kw">fn </span>extra_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>HeaderMap&gt; {
+        <span class="self">self</span>.extra_headers()
     }
 
-    <span class="kw">fn</span> <span class="ident">extra_headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">extra_headers</span>()
-    }
-
-    <span class="kw">fn</span> <span class="ident">encode_status</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>();
-        <span class="ident">dst</span>.<span class="ident">reserve</span>(<span class="number">256</span> <span class="op">+</span> <span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="ident">AVERAGE_HEADER_SIZE</span>);
+    <span class="kw">fn </span>encode_status(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">let </span>head = <span class="self">self</span>.as_ref();
+        dst.reserve(<span class="number">256 </span>+ head.headers.len() * AVERAGE_HEADER_SIZE);
         <span class="macro">write!</span>(
-            <span class="ident">helpers::MutWriter</span>(<span class="ident">dst</span>),
+            helpers::MutWriter(dst),
             <span class="string">&quot;{} {} {}&quot;</span>,
-            <span class="ident">head</span>.<span class="ident">method</span>,
-            <span class="ident">head</span>.<span class="ident">uri</span>.<span class="ident">path_and_query</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap_or</span>(<span class="string">&quot;/&quot;</span>),
-            <span class="kw">match</span> <span class="ident">head</span>.<span class="ident">version</span> {
-                <span class="ident">Version::HTTP_09</span> =&gt; <span class="string">&quot;HTTP/0.9&quot;</span>,
-                <span class="ident">Version::HTTP_10</span> =&gt; <span class="string">&quot;HTTP/1.0&quot;</span>,
-                <span class="ident">Version::HTTP_11</span> =&gt; <span class="string">&quot;HTTP/1.1&quot;</span>,
-                <span class="ident">Version::HTTP_2</span> =&gt; <span class="string">&quot;HTTP/2.0&quot;</span>,
-                <span class="ident">Version::HTTP_3</span> =&gt; <span class="string">&quot;HTTP/3.0&quot;</span>,
-                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="string">&quot;unsupported version&quot;</span>)),
+            head.method,
+            head.uri.path_and_query().map(|u| u.as_str()).unwrap_or(<span class="string">&quot;/&quot;</span>),
+            <span class="kw">match </span>head.version {
+                Version::HTTP_09 =&gt; <span class="string">&quot;HTTP/0.9&quot;</span>,
+                Version::HTTP_10 =&gt; <span class="string">&quot;HTTP/1.0&quot;</span>,
+                Version::HTTP_11 =&gt; <span class="string">&quot;HTTP/1.1&quot;</span>,
+                Version::HTTP_2 =&gt; <span class="string">&quot;HTTP/2.0&quot;</span>,
+                Version::HTTP_3 =&gt; <span class="string">&quot;HTTP/3.0&quot;</span>,
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::Other, <span class="string">&quot;unsupported version&quot;</span>)),
             }
         )
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">e</span>))
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">MessageType</span><span class="op">&gt;</span> <span class="ident">MessageEncoder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Encode chunk.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode_chunk</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">te</span>.<span class="ident">encode</span>(<span class="ident">msg</span>, <span class="ident">buf</span>)
+<span class="kw">impl</span>&lt;T: MessageType&gt; MessageEncoder&lt;T&gt; {
+    <span class="doccomment">/// Encode chunk.
+    </span><span class="kw">pub fn </span>encode_chunk(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw-2">&amp;</span>[u8], buf: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; io::Result&lt;bool&gt; {
+        <span class="self">self</span>.te.encode(msg, buf)
     }
 
-    <span class="doccomment">/// Encode EOF.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode_eof</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">te</span>.<span class="ident">encode_eof</span>(<span class="ident">buf</span>)
+    <span class="doccomment">/// Encode EOF.
+    </span><span class="kw">pub fn </span>encode_eof(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.te.encode_eof(buf)
     }
 
-    <span class="doccomment">/// Encode message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
-        <span class="ident">message</span>: <span class="kw-2">&amp;mut</span> <span class="ident">T</span>,
-        <span class="ident">head</span>: <span class="ident">bool</span>,
-        <span class="ident">stream</span>: <span class="ident">bool</span>,
-        <span class="ident">version</span>: <span class="ident">Version</span>,
-        <span class="ident">length</span>: <span class="ident">BodySize</span>,
-        <span class="ident">conn_type</span>: <span class="ident">ConnectionType</span>,
-        <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceConfig</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="comment">// transfer encoding</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">head</span> {
-            <span class="self">self</span>.<span class="ident">te</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">length</span> {
-                <span class="ident">BodySize::Sized</span>(<span class="number">0</span>) =&gt; <span class="ident">TransferEncoding::empty</span>(),
-                <span class="ident">BodySize::Sized</span>(<span class="ident">len</span>) =&gt; <span class="ident">TransferEncoding::length</span>(<span class="ident">len</span>),
-                <span class="ident">BodySize::Stream</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">message</span>.<span class="ident">chunked</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">stream</span> {
-                        <span class="ident">TransferEncoding::chunked</span>()
-                    } <span class="kw">else</span> {
-                        <span class="ident">TransferEncoding::eof</span>()
+    <span class="doccomment">/// Encode message.
+    </span><span class="kw">pub fn </span>encode(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        dst: <span class="kw-2">&amp;mut </span>BytesMut,
+        message: <span class="kw-2">&amp;mut </span>T,
+        head: bool,
+        stream: bool,
+        version: Version,
+        length: BodySize,
+        conn_type: ConnectionType,
+        config: <span class="kw-2">&amp;</span>ServiceConfig,
+    ) -&gt; io::Result&lt;()&gt; {
+        <span class="comment">// transfer encoding
+        </span><span class="kw">if </span>!head {
+            <span class="self">self</span>.te = <span class="kw">match </span>length {
+                BodySize::Sized(<span class="number">0</span>) =&gt; TransferEncoding::empty(),
+                BodySize::Sized(len) =&gt; TransferEncoding::length(len),
+                BodySize::Stream =&gt; {
+                    <span class="kw">if </span>message.chunked() &amp;&amp; !stream {
+                        TransferEncoding::chunked()
+                    } <span class="kw">else </span>{
+                        TransferEncoding::eof()
                     }
                 }
-                <span class="ident">BodySize::None</span> =&gt; <span class="ident">TransferEncoding::empty</span>(),
+                BodySize::None =&gt; TransferEncoding::empty(),
             };
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">te</span> <span class="op">=</span> <span class="ident">TransferEncoding::empty</span>();
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.te = TransferEncoding::empty();
         }
 
-        <span class="ident">message</span>.<span class="ident">encode_status</span>(<span class="ident">dst</span>)<span class="question-mark">?</span>;
-        <span class="ident">message</span>.<span class="ident">encode_headers</span>(<span class="ident">dst</span>, <span class="ident">version</span>, <span class="ident">length</span>, <span class="ident">conn_type</span>, <span class="ident">config</span>)
+        message.encode_status(dst)<span class="question-mark">?</span>;
+        message.encode_headers(dst, version, length, conn_type, config)
     }
 }
 
-<span class="doccomment">/// Encoders to handle different Transfer-Encodings.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">TransferEncoding</span> {
-    <span class="ident">kind</span>: <span class="ident">TransferEncodingKind</span>,
+<span class="doccomment">/// Encoders to handle different Transfer-Encodings.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>TransferEncoding {
+    kind: TransferEncodingKind,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">enum</span> <span class="ident">TransferEncodingKind</span> {
-    <span class="doccomment">/// An Encoder for when Transfer-Encoding includes `chunked`.</span>
-    <span class="ident">Chunked</span>(<span class="ident">bool</span>),
+<span class="attribute">#[derive(Debug, PartialEq, Clone)]
+</span><span class="kw">enum </span>TransferEncodingKind {
+    <span class="doccomment">/// An Encoder for when Transfer-Encoding includes `chunked`.
+    </span>Chunked(bool),
 
-    <span class="doccomment">/// An Encoder for when Content-Length is set.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Enforces that the body is not longer than the Content-Length header.</span>
-    <span class="ident">Length</span>(<span class="ident">u64</span>),
+    <span class="doccomment">/// An Encoder for when Content-Length is set.
+    ///
+    /// Enforces that the body is not longer than the Content-Length header.
+    </span>Length(u64),
 
-    <span class="doccomment">/// An Encoder for when Content-Length is not known.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Application decides when to stop writing.</span>
-    <span class="ident">Eof</span>,
+    <span class="doccomment">/// An Encoder for when Content-Length is not known.
+    ///
+    /// Application decides when to stop writing.
+    </span>Eof,
 }
 
-<span class="kw">impl</span> <span class="ident">TransferEncoding</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">TransferEncoding</span> {
-        <span class="ident">TransferEncoding</span> {
-            <span class="ident">kind</span>: <span class="ident">TransferEncodingKind::Length</span>(<span class="number">0</span>),
+<span class="kw">impl </span>TransferEncoding {
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>empty() -&gt; TransferEncoding {
+        TransferEncoding {
+            kind: TransferEncodingKind::Length(<span class="number">0</span>),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eof</span>() -&gt; <span class="ident">TransferEncoding</span> {
-        <span class="ident">TransferEncoding</span> {
-            <span class="ident">kind</span>: <span class="ident">TransferEncodingKind::Eof</span>,
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>eof() -&gt; TransferEncoding {
+        TransferEncoding {
+            kind: TransferEncodingKind::Eof,
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">chunked</span>() -&gt; <span class="ident">TransferEncoding</span> {
-        <span class="ident">TransferEncoding</span> {
-            <span class="ident">kind</span>: <span class="ident">TransferEncodingKind::Chunked</span>(<span class="bool-val">false</span>),
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>chunked() -&gt; TransferEncoding {
+        TransferEncoding {
+            kind: TransferEncodingKind::Chunked(<span class="bool-val">false</span>),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="ident">len</span>: <span class="ident">u64</span>) -&gt; <span class="ident">TransferEncoding</span> {
-        <span class="ident">TransferEncoding</span> {
-            <span class="ident">kind</span>: <span class="ident">TransferEncodingKind::Length</span>(<span class="ident">len</span>),
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>length(len: u64) -&gt; TransferEncoding {
+        TransferEncoding {
+            kind: TransferEncodingKind::Length(len),
         }
     }
 
-    <span class="doccomment">/// Encode message. Return `EOF` state of encoder</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">TransferEncodingKind::Eof</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">eof</span> <span class="op">=</span> <span class="ident">msg</span>.<span class="ident">is_empty</span>();
-                <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="ident">msg</span>);
-                <span class="prelude-val">Ok</span>(<span class="ident">eof</span>)
+    <span class="doccomment">/// Encode message. Return `EOF` state of encoder
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>encode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw-2">&amp;</span>[u8], buf: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; io::Result&lt;bool&gt; {
+        <span class="kw">match </span><span class="self">self</span>.kind {
+            TransferEncodingKind::Eof =&gt; {
+                <span class="kw">let </span>eof = msg.is_empty();
+                buf.extend_from_slice(msg);
+                <span class="prelude-val">Ok</span>(eof)
             }
-            <span class="ident">TransferEncodingKind::Chunked</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">eof</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">eof</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
+            TransferEncodingKind::Chunked(<span class="kw-2">ref mut </span>eof) =&gt; {
+                <span class="kw">if </span><span class="kw-2">*</span>eof {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
                 }
 
-                <span class="kw">if</span> <span class="ident">msg</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw-2">*</span><span class="ident">eof</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;0\r\n\r\n&quot;</span>);
-                } <span class="kw">else</span> {
-                    <span class="macro">writeln!</span>(<span class="ident">helpers::MutWriter</span>(<span class="ident">buf</span>), <span class="string">&quot;{:X}\r&quot;</span>, <span class="ident">msg</span>.<span class="ident">len</span>())
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">e</span>))<span class="question-mark">?</span>;
+                <span class="kw">if </span>msg.is_empty() {
+                    <span class="kw-2">*</span>eof = <span class="bool-val">true</span>;
+                    buf.extend_from_slice(<span class="string">b&quot;0\r\n\r\n&quot;</span>);
+                } <span class="kw">else </span>{
+                    <span class="macro">writeln!</span>(helpers::MutWriter(buf), <span class="string">&quot;{:X}\r&quot;</span>, msg.len())
+                        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))<span class="question-mark">?</span>;
 
-                    <span class="ident">buf</span>.<span class="ident">reserve</span>(<span class="ident">msg</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">2</span>);
-                    <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="ident">msg</span>);
-                    <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
+                    buf.reserve(msg.len() + <span class="number">2</span>);
+                    buf.extend_from_slice(msg);
+                    buf.extend_from_slice(<span class="string">b&quot;\r\n&quot;</span>);
                 }
-                <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">eof</span>)
+                <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>eof)
             }
-            <span class="ident">TransferEncodingKind::Length</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">remaining</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">remaining</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                    <span class="kw">if</span> <span class="ident">msg</span>.<span class="ident">is_empty</span>() {
-                        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">remaining</span> <span class="op">==</span> <span class="number">0</span>);
+            TransferEncodingKind::Length(<span class="kw-2">ref mut </span>remaining) =&gt; {
+                <span class="kw">if </span><span class="kw-2">*</span>remaining &gt; <span class="number">0 </span>{
+                    <span class="kw">if </span>msg.is_empty() {
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw-2">*</span>remaining == <span class="number">0</span>);
                     }
-                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="kw-2">*</span><span class="ident">remaining</span>, <span class="ident">msg</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+                    <span class="kw">let </span>len = cmp::min(<span class="kw-2">*</span>remaining, msg.len() <span class="kw">as </span>u64);
 
-                    <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>[..<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>]);
+                    buf.extend_from_slice(<span class="kw-2">&amp;</span>msg[..len <span class="kw">as </span>usize]);
 
-                    <span class="kw-2">*</span><span class="ident">remaining</span> <span class="op">-</span><span class="op">=</span> <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u64</span>;
-                    <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">remaining</span> <span class="op">==</span> <span class="number">0</span>)
-                } <span class="kw">else</span> {
+                    <span class="kw-2">*</span>remaining -= len <span class="kw">as </span>u64;
+                    <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>remaining == <span class="number">0</span>)
+                } <span class="kw">else </span>{
                     <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
                 }
             }
         }
     }
 
-    <span class="doccomment">/// Encode eof. Return `EOF` state of encoder</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode_eof</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">TransferEncodingKind::Eof</span> =&gt; <span class="prelude-val">Ok</span>(()),
-            <span class="ident">TransferEncodingKind::Length</span>(<span class="ident">rem</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">rem</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::UnexpectedEof</span>, <span class="string">&quot;&quot;</span>))
-                } <span class="kw">else</span> {
+    <span class="doccomment">/// Encode eof. Return `EOF` state of encoder
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>encode_eof(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">match </span><span class="self">self</span>.kind {
+            TransferEncodingKind::Eof =&gt; <span class="prelude-val">Ok</span>(()),
+            TransferEncodingKind::Length(rem) =&gt; {
+                <span class="kw">if </span>rem != <span class="number">0 </span>{
+                    <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::UnexpectedEof, <span class="string">&quot;&quot;</span>))
+                } <span class="kw">else </span>{
                     <span class="prelude-val">Ok</span>(())
                 }
             }
-            <span class="ident">TransferEncodingKind::Chunked</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">eof</span>) =&gt; {
-                <span class="kw">if</span> <span class="op">!</span><span class="kw-2">*</span><span class="ident">eof</span> {
-                    <span class="kw-2">*</span><span class="ident">eof</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;0\r\n\r\n&quot;</span>);
+            TransferEncodingKind::Chunked(<span class="kw-2">ref mut </span>eof) =&gt; {
+                <span class="kw">if </span>!<span class="kw-2">*</span>eof {
+                    <span class="kw-2">*</span>eof = <span class="bool-val">true</span>;
+                    buf.extend_from_slice(<span class="string">b&quot;0\r\n\r\n&quot;</span>);
                 }
                 <span class="prelude-val">Ok</span>(())
             }
@@ -1155,192 +1155,192 @@
     }
 }
 
-<span class="doccomment">/// # Safety</span>
-<span class="doccomment">/// Callers must ensure that the given `len` matches the given `value` length and that `buf` is</span>
-<span class="doccomment">/// valid for writes of at least `len` bytes.</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">write_data</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">buf</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>, <span class="ident">len</span>: <span class="ident">usize</span>) {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">value</span>.<span class="ident">len</span>(), <span class="ident">len</span>);
-    <span class="ident">copy_nonoverlapping</span>(<span class="ident">value</span>.<span class="ident">as_ptr</span>(), <span class="ident">buf</span>, <span class="ident">len</span>);
+<span class="doccomment">/// # Safety
+/// Callers must ensure that the given `len` matches the given `value` length and that `buf` is
+/// valid for writes of at least `len` bytes.
+</span><span class="kw">unsafe fn </span>write_data(value: <span class="kw-2">&amp;</span>[u8], buf: <span class="kw-2">*mut </span>u8, len: usize) {
+    <span class="macro">debug_assert_eq!</span>(value.len(), len);
+    copy_nonoverlapping(value.as_ptr(), buf, len);
 }
 
-<span class="doccomment">/// # Safety</span>
-<span class="doccomment">/// Callers must ensure that the given `len` matches the given `value` length and that `buf` is</span>
-<span class="doccomment">/// valid for writes of at least `len` bytes.</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">write_camel_case</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">buf</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>, <span class="ident">len</span>: <span class="ident">usize</span>) {
-    <span class="comment">// first copy entire (potentially wrong) slice to output</span>
-    <span class="ident">write_data</span>(<span class="ident">value</span>, <span class="ident">buf</span>, <span class="ident">len</span>);
+<span class="doccomment">/// # Safety
+/// Callers must ensure that the given `len` matches the given `value` length and that `buf` is
+/// valid for writes of at least `len` bytes.
+</span><span class="kw">unsafe fn </span>write_camel_case(value: <span class="kw-2">&amp;</span>[u8], buf: <span class="kw-2">*mut </span>u8, len: usize) {
+    <span class="comment">// first copy entire (potentially wrong) slice to output
+    </span>write_data(value, buf, len);
 
-    <span class="comment">// SAFETY: We just initialized the buffer with `value`</span>
-    <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">from_raw_parts_mut</span>(<span class="ident">buf</span>, <span class="ident">len</span>);
+    <span class="comment">// SAFETY: We just initialized the buffer with `value`
+    </span><span class="kw">let </span>buffer = from_raw_parts_mut(buf, len);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">iter</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>iter = value.iter();
 
-    <span class="comment">// first character should be uppercase</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span> @ <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;z&#39;</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-        <span class="ident">buffer</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">c</span> <span class="op">&amp;</span> <span class="number">0b1101_1111</span>;
+    <span class="comment">// first character should be uppercase
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(c @ <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;z&#39;</span>) = iter.next() {
+        buffer[<span class="number">0</span>] = c &amp; <span class="number">0b1101_1111</span>;
     }
 
-    <span class="comment">// track 1 ahead of the current position since that&#39;s the location being assigned to</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="number">2</span>;
+    <span class="comment">// track 1 ahead of the current position since that&#39;s the location being assigned to
+    </span><span class="kw">let </span><span class="kw-2">mut </span>index = <span class="number">2</span>;
 
-    <span class="comment">// remaining characters after hyphens should also be uppercase</span>
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">b&#39;-&#39;</span> {
-            <span class="comment">// advance iter by one and uppercase if needed</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span> @ <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;z&#39;</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-                <span class="ident">buffer</span>[<span class="ident">index</span>] <span class="op">=</span> <span class="ident">c</span> <span class="op">&amp;</span> <span class="number">0b1101_1111</span>;
+    <span class="comment">// remaining characters after hyphens should also be uppercase
+    </span><span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>c) = iter.next() {
+        <span class="kw">if </span>c == <span class="string">b&#39;-&#39; </span>{
+            <span class="comment">// advance iter by one and uppercase if needed
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(c @ <span class="string">b&#39;a&#39;</span>..=<span class="string">b&#39;z&#39;</span>) = iter.next() {
+                buffer[index] = c &amp; <span class="number">0b1101_1111</span>;
             }
-            <span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            index += <span class="number">1</span>;
         }
 
-        <span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        index += <span class="number">1</span>;
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::rc::Rc;
 
-    <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-    <span class="kw">use</span> <span class="ident">http::header</span>::{<span class="ident">AUTHORIZATION</span>, <span class="ident">UPGRADE_INSECURE_REQUESTS</span>};
+    <span class="kw">use </span>bytes::Bytes;
+    <span class="kw">use </span>http::header::{AUTHORIZATION, UPGRADE_INSECURE_REQUESTS};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">header</span>::{<span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>},
-        <span class="ident">RequestHead</span>,
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{
+        header::{HeaderValue, CONTENT_TYPE},
+        RequestHead,
     };
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_chunked_te</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">enc</span> <span class="op">=</span> <span class="ident">TransferEncoding::chunked</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_chunked_te() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>enc = TransferEncoding::chunked();
         {
-            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">enc</span>.<span class="ident">encode</span>(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>).<span class="ident">ok</span>().<span class="ident">unwrap</span>());
-            <span class="macro">assert!</span>(<span class="ident">enc</span>.<span class="ident">encode</span>(<span class="string">b&quot;&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>).<span class="ident">ok</span>().<span class="ident">unwrap</span>());
+            <span class="macro">assert!</span>(!enc.encode(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut </span>bytes).ok().unwrap());
+            <span class="macro">assert!</span>(enc.encode(<span class="string">b&quot;&quot;</span>, <span class="kw-2">&amp;mut </span>bytes).ok().unwrap());
         }
         <span class="macro">assert_eq!</span>(
-            <span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(),
-            <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;4\r\ntest\r\n0\r\n\r\n&quot;</span>)
+            bytes.split().freeze(),
+            Bytes::from_static(<span class="string">b&quot;4\r\ntest\r\n0\r\n\r\n&quot;</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_camel_case</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::with_capacity</span>(<span class="number">2048</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">RequestHead::default</span>();
-        <span class="ident">head</span>.<span class="ident">set_camel_case_headers</span>(<span class="bool-val">true</span>);
-        <span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">DATE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;date&quot;</span>));
-        <span class="ident">head</span>.<span class="ident">headers</span>
-            .<span class="ident">insert</span>(<span class="ident">CONTENT_TYPE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;plain/text&quot;</span>));
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_camel_case() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::with_capacity(<span class="number">2048</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHead::default();
+        head.set_camel_case_headers(<span class="bool-val">true</span>);
+        head.headers.insert(DATE, HeaderValue::from_static(<span class="string">&quot;date&quot;</span>));
+        head.headers
+            .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;plain/text&quot;</span>));
 
-        <span class="ident">head</span>.<span class="ident">headers</span>
-            .<span class="ident">insert</span>(<span class="ident">UPGRADE_INSECURE_REQUESTS</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;1&quot;</span>));
+        head.headers
+            .insert(UPGRADE_INSECURE_REQUESTS, HeaderValue::from_static(<span class="string">&quot;1&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">RequestHeadType::Owned</span>(<span class="ident">head</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHeadType::Owned(head);
 
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">encode_headers</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>,
-            <span class="ident">Version::HTTP_11</span>,
-            <span class="ident">BodySize::Sized</span>(<span class="number">0</span>),
-            <span class="ident">ConnectionType::Close</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ServiceConfig::default</span>(),
+        <span class="kw">let _ </span>= head.encode_headers(
+            <span class="kw-2">&amp;mut </span>bytes,
+            Version::HTTP_11,
+            BodySize::Sized(<span class="number">0</span>),
+            ConnectionType::Close,
+            <span class="kw-2">&amp;</span>ServiceConfig::default(),
         );
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">Vec::from</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>().<span class="ident">as_ref</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
 
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;Content-Length: 0\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;Connection: close\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;Content-Type: plain/text\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;Date: date\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;Upgrade-Insecure-Requests: 1\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Content-Length: 0\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Connection: close\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Content-Type: plain/text\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Date: date\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Upgrade-Insecure-Requests: 1\r\n&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">encode_headers</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>,
-            <span class="ident">Version::HTTP_11</span>,
-            <span class="ident">BodySize::Stream</span>,
-            <span class="ident">ConnectionType::KeepAlive</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ServiceConfig::default</span>(),
+        <span class="kw">let _ </span>= head.encode_headers(
+            <span class="kw-2">&amp;mut </span>bytes,
+            Version::HTTP_11,
+            BodySize::Stream,
+            ConnectionType::KeepAlive,
+            <span class="kw-2">&amp;</span>ServiceConfig::default(),
         );
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">Vec::from</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>().<span class="ident">as_ref</span>())).<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;Transfer-Encoding: chunked\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;Content-Type: plain/text\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;Date: date\r\n&quot;</span>));
+        <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Transfer-Encoding: chunked\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Content-Type: plain/text\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;Date: date\r\n&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">RequestHead::default</span>();
-        <span class="ident">head</span>.<span class="ident">set_camel_case_headers</span>(<span class="bool-val">false</span>);
-        <span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">DATE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;date&quot;</span>));
-        <span class="ident">head</span>.<span class="ident">headers</span>
-            .<span class="ident">insert</span>(<span class="ident">CONTENT_TYPE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;plain/text&quot;</span>));
-        <span class="ident">head</span>.<span class="ident">headers</span>
-            .<span class="ident">append</span>(<span class="ident">CONTENT_TYPE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;xml&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHead::default();
+        head.set_camel_case_headers(<span class="bool-val">false</span>);
+        head.headers.insert(DATE, HeaderValue::from_static(<span class="string">&quot;date&quot;</span>));
+        head.headers
+            .insert(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;plain/text&quot;</span>));
+        head.headers
+            .append(CONTENT_TYPE, HeaderValue::from_static(<span class="string">&quot;xml&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">RequestHeadType::Owned</span>(<span class="ident">head</span>);
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">encode_headers</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>,
-            <span class="ident">Version::HTTP_11</span>,
-            <span class="ident">BodySize::Stream</span>,
-            <span class="ident">ConnectionType::KeepAlive</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ServiceConfig::default</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHeadType::Owned(head);
+        <span class="kw">let _ </span>= head.encode_headers(
+            <span class="kw-2">&amp;mut </span>bytes,
+            Version::HTTP_11,
+            BodySize::Stream,
+            ConnectionType::KeepAlive,
+            <span class="kw-2">&amp;</span>ServiceConfig::default(),
         );
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">Vec::from</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>().<span class="ident">as_ref</span>())).<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;transfer-encoding: chunked\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;content-type: xml\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;content-type: plain/text\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;date: date\r\n&quot;</span>));
+        <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;transfer-encoding: chunked\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;content-type: xml\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;content-type: plain/text\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;date: date\r\n&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_extra_headers</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::with_capacity</span>(<span class="number">2048</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_extra_headers() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::with_capacity(<span class="number">2048</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">RequestHead::default</span>();
-        <span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">insert</span>(
-            <span class="ident">AUTHORIZATION</span>,
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;some authorization&quot;</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHead::default();
+        head.headers.insert(
+            AUTHORIZATION,
+            HeaderValue::from_static(<span class="string">&quot;some authorization&quot;</span>),
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extra_headers</span> <span class="op">=</span> <span class="ident">HeaderMap::new</span>();
-        <span class="ident">extra_headers</span>.<span class="ident">insert</span>(
-            <span class="ident">AUTHORIZATION</span>,
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;another authorization&quot;</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>extra_headers = HeaderMap::new();
+        extra_headers.insert(
+            AUTHORIZATION,
+            HeaderValue::from_static(<span class="string">&quot;another authorization&quot;</span>),
         );
-        <span class="ident">extra_headers</span>.<span class="ident">insert</span>(<span class="ident">DATE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;date&quot;</span>));
+        extra_headers.insert(DATE, HeaderValue::from_static(<span class="string">&quot;date&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">RequestHeadType::Rc</span>(<span class="ident">Rc::new</span>(<span class="ident">head</span>), <span class="prelude-val">Some</span>(<span class="ident">extra_headers</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>head = RequestHeadType::Rc(Rc::new(head), <span class="prelude-val">Some</span>(extra_headers));
 
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">encode_headers</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>,
-            <span class="ident">Version::HTTP_11</span>,
-            <span class="ident">BodySize::Sized</span>(<span class="number">0</span>),
-            <span class="ident">ConnectionType::Close</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ServiceConfig::default</span>(),
+        <span class="kw">let _ </span>= head.encode_headers(
+            <span class="kw-2">&amp;mut </span>bytes,
+            Version::HTTP_11,
+            BodySize::Sized(<span class="number">0</span>),
+            ConnectionType::Close,
+            <span class="kw-2">&amp;</span>ServiceConfig::default(),
         );
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">Vec::from</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>().<span class="ident">as_ref</span>())).<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;content-length: 0\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;connection: close\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;authorization: another authorization\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;date: date\r\n&quot;</span>));
+        <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;content-length: 0\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;connection: close\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;authorization: another authorization\r\n&quot;</span>));
+        <span class="macro">assert!</span>(data.contains(<span class="string">&quot;date: date\r\n&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_no_content_length</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::with_capacity</span>(<span class="number">2048</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_no_content_length() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::with_capacity(<span class="number">2048</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::SWITCHING_PROTOCOLS</span>, ());
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">DATE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;&quot;</span>));
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>()
-            .<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;0&quot;</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::SWITCHING_PROTOCOLS, ());
+        res.headers_mut().insert(DATE, HeaderValue::from_static(<span class="string">&quot;&quot;</span>));
+        res.headers_mut()
+            .insert(CONTENT_LENGTH, HeaderValue::from_static(<span class="string">&quot;0&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">encode_headers</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>,
-            <span class="ident">Version::HTTP_11</span>,
-            <span class="ident">BodySize::Stream</span>,
-            <span class="ident">ConnectionType::Upgrade</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ServiceConfig::default</span>(),
+        <span class="kw">let _ </span>= res.encode_headers(
+            <span class="kw-2">&amp;mut </span>bytes,
+            Version::HTTP_11,
+            BodySize::Stream,
+            ConnectionType::Upgrade,
+            <span class="kw-2">&amp;</span>ServiceConfig::default(),
         );
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">Vec::from</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>().<span class="ident">as_ref</span>())).<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;content-length: 0\r\n&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">data</span>.<span class="ident">contains</span>(<span class="string">&quot;transfer-encoding: chunked\r\n&quot;</span>));
+        <span class="kw">let </span>data = String::from_utf8(Vec::from(bytes.split().freeze().as_ref())).unwrap();
+        <span class="macro">assert!</span>(!data.contains(<span class="string">&quot;content-length: 0\r\n&quot;</span>));
+        <span class="macro">assert!</span>(!data.contains(<span class="string">&quot;transfer-encoding: chunked\r\n&quot;</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

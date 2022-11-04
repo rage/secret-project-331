@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-sys-2.0.1+zstd.1.5.2/src/bindings_zdict_std.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bindings_zdict_std.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../zstd_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../zstd_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../zstd_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-sys-2.0.1+zstd.1.5.2/src/bindings_zdict_std.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bindings_zdict_std.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../zstd_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../zstd_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../zstd_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -170,109 +170,109 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/</span>
-<span class="comment">/* automatically generated by rust-bindgen 0.59.2 */</span>
+*/
+/* automatically generated by rust-bindgen 0.59.2 */
 
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZDICT_trainFromBuffer():&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Train a dictionary from an array of samples.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Redirect towards ZDICT_optimizeTrainFromBuffer_fastCover() single-threaded, with d=8, steps=4,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  f=20, and accel=1.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Samples must be stored concatenated in a single flat buffer `samplesBuffer`,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  supplied with an array of sizes `samplesSizes`, providing the size of each sample, in order.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  The resulting dictionary will be saved into `dictBuffer`.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return: size of dictionary stored into `dictBuffer` (&lt;= `dictBufferCapacity`)&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;          or an error code, which can be tested with ZDICT_isError().&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note:  Dictionary training will fail if there are not enough samples to construct a&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         dictionary, or if most of the samples are too small (&lt; 8 bytes being the lower limit).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         If dictionary training fails, you should use zstd without a dictionary, as the dictionary&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         would&#39;ve been ineffective anyways. If you believe your samples would benefit from a dictionary&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         please open an issue with details, and we can look into it.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Note: ZDICT_trainFromBuffer()&#39;s memory usage is about 6 MB.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;  Tips: In general, a reasonable dictionary has a size of ~ 100 KB.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;        It&#39;s possible to select smaller or larger size, just by specifying `dictBufferCapacity`.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;        In general, it&#39;s recommended to provide a few thousands samples, though this can vary a lot.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;        It&#39;s recommended that total size of all samples be about ~x100 times the target size of dictionary.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_trainFromBuffer</span>(
-        <span class="ident">dictBuffer</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictBufferCapacity</span>: <span class="ident">usize</span>,
-        <span class="ident">samplesBuffer</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">samplesSizes</span>: <span class="kw-2">*const</span> <span class="ident">usize</span>,
-        <span class="ident">nbSamples</span>: <span class="ident">::std::os::raw::c_uint</span>,
-    ) -&gt; <span class="ident">usize</span>;
+</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZDICT_trainFromBuffer():&quot;</span>]
+    #[doc = <span class="string">&quot;  Train a dictionary from an array of samples.&quot;</span>]
+    #[doc = <span class="string">&quot;  Redirect towards ZDICT_optimizeTrainFromBuffer_fastCover() single-threaded, with d=8, steps=4,&quot;</span>]
+    #[doc = <span class="string">&quot;  f=20, and accel=1.&quot;</span>]
+    #[doc = <span class="string">&quot;  Samples must be stored concatenated in a single flat buffer `samplesBuffer`,&quot;</span>]
+    #[doc = <span class="string">&quot;  supplied with an array of sizes `samplesSizes`, providing the size of each sample, in order.&quot;</span>]
+    #[doc = <span class="string">&quot;  The resulting dictionary will be saved into `dictBuffer`.&quot;</span>]
+    #[doc = <span class="string">&quot; @return: size of dictionary stored into `dictBuffer` (&lt;= `dictBufferCapacity`)&quot;</span>]
+    #[doc = <span class="string">&quot;          or an error code, which can be tested with ZDICT_isError().&quot;</span>]
+    #[doc = <span class="string">&quot;  Note:  Dictionary training will fail if there are not enough samples to construct a&quot;</span>]
+    #[doc = <span class="string">&quot;         dictionary, or if most of the samples are too small (&lt; 8 bytes being the lower limit).&quot;</span>]
+    #[doc = <span class="string">&quot;         If dictionary training fails, you should use zstd without a dictionary, as the dictionary&quot;</span>]
+    #[doc = <span class="string">&quot;         would&#39;ve been ineffective anyways. If you believe your samples would benefit from a dictionary&quot;</span>]
+    #[doc = <span class="string">&quot;         please open an issue with details, and we can look into it.&quot;</span>]
+    #[doc = <span class="string">&quot;  Note: ZDICT_trainFromBuffer()&#39;s memory usage is about 6 MB.&quot;</span>]
+    #[doc = <span class="string">&quot;  Tips: In general, a reasonable dictionary has a size of ~ 100 KB.&quot;</span>]
+    #[doc = <span class="string">&quot;        It&#39;s possible to select smaller or larger size, just by specifying `dictBufferCapacity`.&quot;</span>]
+    #[doc = <span class="string">&quot;        In general, it&#39;s recommended to provide a few thousands samples, though this can vary a lot.&quot;</span>]
+    #[doc = <span class="string">&quot;        It&#39;s recommended that total size of all samples be about ~x100 times the target size of dictionary.&quot;</span>]
+    </span><span class="kw">pub fn </span>ZDICT_trainFromBuffer(
+        dictBuffer: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        dictBufferCapacity: usize,
+        samplesBuffer: <span class="kw-2">*const </span>::core::ffi::c_void,
+        samplesSizes: <span class="kw-2">*const </span>usize,
+        nbSamples: ::std::os::raw::c_uint,
+    ) -&gt; usize;
 }
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZDICT_params_t</span> {
-    <span class="kw">pub</span> <span class="ident">compressionLevel</span>: <span class="ident">::std::os::raw::c_int</span>,
-    <span class="kw">pub</span> <span class="ident">notificationLevel</span>: <span class="ident">::std::os::raw::c_uint</span>,
-    <span class="kw">pub</span> <span class="ident">dictID</span>: <span class="ident">::std::os::raw::c_uint</span>,
+<span class="attribute">#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub struct </span>ZDICT_params_t {
+    <span class="kw">pub </span>compressionLevel: ::std::os::raw::c_int,
+    <span class="kw">pub </span>notificationLevel: ::std::os::raw::c_uint,
+    <span class="kw">pub </span>dictID: ::std::os::raw::c_uint,
 }
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; ZDICT_finalizeDictionary():&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Given a custom content as a basis for dictionary, and a set of samples,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; finalize dictionary by adding headers and statistics according to the zstd&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; dictionary format.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Samples must be stored concatenated in a flat buffer `samplesBuffer`,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; supplied with an array of sizes `samplesSizes`, providing the size of each&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; sample in order. The samples are used to construct the statistics, so they&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; should be representative of what you will compress with this dictionary.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; The compression level can be set in `parameters`. You should pass the&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; compression level you expect to use in production. The statistics for each&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; compression level differ, so tuning the dictionary for the compression level&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; can help quite a bit.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; You can set an explicit dictionary ID in `parameters`, or allow us to pick&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; a random dictionary ID for you, but we can&#39;t guarantee no collisions.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; The dstDictBuffer and the dictContent may overlap, and the content will be&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; appended to the end of the header. If the header + the content doesn&#39;t fit in&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; maxDictSize the beginning of the content is truncated to make room, since it&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; is presumed that the most profitable content is at the end of the dictionary,&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; since that is the cheapest to reference.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; `maxDictSize` must be &gt;= max(dictContentSize, ZSTD_DICTSIZE_MIN).&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; @return: size of dictionary stored into `dstDictBuffer` (&lt;= `maxDictSize`),&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;          or an error code, which can be tested by ZDICT_isError().&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; Note: ZDICT_finalizeDictionary() will push notifications into stderr if&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;       instructed to, using notificationLevel&gt;0.&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot; NOTE: This function currently may fail in several edge cases including:&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         * Not enough samples&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         * Samples are uncompressible&quot;</span>]</span>
-    <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;         * Samples are all exactly the same&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_finalizeDictionary</span>(
-        <span class="ident">dstDictBuffer</span>: <span class="kw-2">*mut</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">maxDictSize</span>: <span class="ident">usize</span>,
-        <span class="ident">dictContent</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictContentSize</span>: <span class="ident">usize</span>,
-        <span class="ident">samplesBuffer</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">samplesSizes</span>: <span class="kw-2">*const</span> <span class="ident">usize</span>,
-        <span class="ident">nbSamples</span>: <span class="ident">::std::os::raw::c_uint</span>,
-        <span class="ident">parameters</span>: <span class="ident">ZDICT_params_t</span>,
-    ) -&gt; <span class="ident">usize</span>;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="attribute">#[doc = <span class="string">&quot; ZDICT_finalizeDictionary():&quot;</span>]
+    #[doc = <span class="string">&quot; Given a custom content as a basis for dictionary, and a set of samples,&quot;</span>]
+    #[doc = <span class="string">&quot; finalize dictionary by adding headers and statistics according to the zstd&quot;</span>]
+    #[doc = <span class="string">&quot; dictionary format.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot; Samples must be stored concatenated in a flat buffer `samplesBuffer`,&quot;</span>]
+    #[doc = <span class="string">&quot; supplied with an array of sizes `samplesSizes`, providing the size of each&quot;</span>]
+    #[doc = <span class="string">&quot; sample in order. The samples are used to construct the statistics, so they&quot;</span>]
+    #[doc = <span class="string">&quot; should be representative of what you will compress with this dictionary.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot; The compression level can be set in `parameters`. You should pass the&quot;</span>]
+    #[doc = <span class="string">&quot; compression level you expect to use in production. The statistics for each&quot;</span>]
+    #[doc = <span class="string">&quot; compression level differ, so tuning the dictionary for the compression level&quot;</span>]
+    #[doc = <span class="string">&quot; can help quite a bit.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot; You can set an explicit dictionary ID in `parameters`, or allow us to pick&quot;</span>]
+    #[doc = <span class="string">&quot; a random dictionary ID for you, but we can&#39;t guarantee no collisions.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot; The dstDictBuffer and the dictContent may overlap, and the content will be&quot;</span>]
+    #[doc = <span class="string">&quot; appended to the end of the header. If the header + the content doesn&#39;t fit in&quot;</span>]
+    #[doc = <span class="string">&quot; maxDictSize the beginning of the content is truncated to make room, since it&quot;</span>]
+    #[doc = <span class="string">&quot; is presumed that the most profitable content is at the end of the dictionary,&quot;</span>]
+    #[doc = <span class="string">&quot; since that is the cheapest to reference.&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot; `maxDictSize` must be &gt;= max(dictContentSize, ZSTD_DICTSIZE_MIN).&quot;</span>]
+    #[doc = <span class="string">&quot;&quot;</span>]
+    #[doc = <span class="string">&quot; @return: size of dictionary stored into `dstDictBuffer` (&lt;= `maxDictSize`),&quot;</span>]
+    #[doc = <span class="string">&quot;          or an error code, which can be tested by ZDICT_isError().&quot;</span>]
+    #[doc = <span class="string">&quot; Note: ZDICT_finalizeDictionary() will push notifications into stderr if&quot;</span>]
+    #[doc = <span class="string">&quot;       instructed to, using notificationLevel&gt;0.&quot;</span>]
+    #[doc = <span class="string">&quot; NOTE: This function currently may fail in several edge cases including:&quot;</span>]
+    #[doc = <span class="string">&quot;         * Not enough samples&quot;</span>]
+    #[doc = <span class="string">&quot;         * Samples are uncompressible&quot;</span>]
+    #[doc = <span class="string">&quot;         * Samples are all exactly the same&quot;</span>]
+    </span><span class="kw">pub fn </span>ZDICT_finalizeDictionary(
+        dstDictBuffer: <span class="kw-2">*mut </span>::core::ffi::c_void,
+        maxDictSize: usize,
+        dictContent: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictContentSize: usize,
+        samplesBuffer: <span class="kw-2">*const </span>::core::ffi::c_void,
+        samplesSizes: <span class="kw-2">*const </span>usize,
+        nbSamples: ::std::os::raw::c_uint,
+        parameters: ZDICT_params_t,
+    ) -&gt; usize;
 }
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_getDictID</span>(
-        <span class="ident">dictBuffer</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">::std::os::raw::c_uint</span>;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZDICT_getDictID(
+        dictBuffer: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictSize: usize,
+    ) -&gt; ::std::os::raw::c_uint;
 }
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_getDictHeaderSize</span>(
-        <span class="ident">dictBuffer</span>: <span class="kw-2">*const</span> <span class="ident">::core::ffi::c_void</span>,
-        <span class="ident">dictSize</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">usize</span>;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZDICT_getDictHeaderSize(
+        dictBuffer: <span class="kw-2">*const </span>::core::ffi::c_void,
+        dictSize: usize,
+    ) -&gt; usize;
 }
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_isError</span>(<span class="ident">errorCode</span>: <span class="ident">usize</span>) -&gt; <span class="ident">::std::os::raw::c_uint</span>;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZDICT_isError(errorCode: usize) -&gt; ::std::os::raw::c_uint;
 }
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ZDICT_getErrorName</span>(
-        <span class="ident">errorCode</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="kw-2">*const</span> <span class="ident">::std::os::raw::c_char</span>;
+<span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+    <span class="kw">pub fn </span>ZDICT_getErrorName(
+        errorCode: usize,
+    ) -&gt; <span class="kw-2">*const </span>::std::os::raw::c_char;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="zstd_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="zstd_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/listenfd-1.0.0/src/manager.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>manager.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../listenfd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../listenfd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../listenfd/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/listenfd-1.0.0/src/manager.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>manager.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../listenfd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../listenfd/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../listenfd/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -145,152 +145,152 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io</span>;
-<span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">TcpListener</span>, <span class="ident">UdpSocket</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::net::{TcpListener, UdpSocket};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
-<span class="kw">use</span> <span class="ident">std::os::unix::net</span>::{<span class="ident">UnixDatagram</span>, <span class="ident">UnixListener</span>};
+<span class="attribute">#[cfg(not(windows))]
+</span><span class="kw">use </span>std::os::unix::net::{UnixDatagram, UnixListener};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::unix</span> <span class="kw">as</span> <span class="ident">imp</span>;
+<span class="attribute">#[cfg(not(windows))]
+</span><span class="kw">use </span><span class="kw">crate</span>::unix <span class="kw">as </span>imp;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::windows</span> <span class="kw">as</span> <span class="ident">imp</span>;
+<span class="attribute">#[cfg(windows)]
+</span><span class="kw">use </span><span class="kw">crate</span>::windows <span class="kw">as </span>imp;
 
-<span class="doccomment">/// A helper object that gives access to raw file descriptors.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ListenFd</span> {
-    <span class="ident">fds</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">imp::FdType</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A helper object that gives access to raw file descriptors.
+</span><span class="kw">pub struct </span>ListenFd {
+    fds: Vec&lt;<span class="prelude-ty">Option</span>&lt;imp::FdType&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ListenFd</span> {
-    <span class="doccomment">/// Creates the listenfd manager object from the environment.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_env</span>() -&gt; <span class="ident">ListenFd</span> {
-        <span class="kw">match</span> <span class="ident">imp::get_fds</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">fds</span>) =&gt; <span class="ident">ListenFd</span> {
-                <span class="ident">fds</span>: <span class="ident">fds</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>).<span class="ident">collect</span>(),
+<span class="kw">impl </span>ListenFd {
+    <span class="doccomment">/// Creates the listenfd manager object from the environment.
+    </span><span class="kw">pub fn </span>from_env() -&gt; ListenFd {
+        <span class="kw">match </span>imp::get_fds() {
+            <span class="prelude-val">Some</span>(fds) =&gt; ListenFd {
+                fds: fds.into_iter().map(<span class="prelude-val">Some</span>).collect(),
             },
-            <span class="prelude-val">None</span> =&gt; <span class="ident">ListenFd::empty</span>(),
+            <span class="prelude-val">None </span>=&gt; ListenFd::empty(),
         }
     }
 
-    <span class="doccomment">/// Creates an empty listenfd object.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is helpful when the ability to work with external file</span>
-    <span class="doccomment">/// descriptors should be disabled in certain code paths.  This</span>
-    <span class="doccomment">/// way the functions on the object will just never return</span>
-    <span class="doccomment">/// sockets.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">ListenFd</span> {
-        <span class="ident">ListenFd</span> { <span class="ident">fds</span>: <span class="macro">vec!</span>[] }
+    <span class="doccomment">/// Creates an empty listenfd object.
+    ///
+    /// This is helpful when the ability to work with external file
+    /// descriptors should be disabled in certain code paths.  This
+    /// way the functions on the object will just never return
+    /// sockets.
+    </span><span class="kw">pub fn </span>empty() -&gt; ListenFd {
+        ListenFd { fds: <span class="macro">vec!</span>[] }
     }
 
-    <span class="doccomment">/// Returns the number of fds in the manager object.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that even if fds are taken out of the manager this count</span>
-    <span class="doccomment">/// does not change.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::len_without_is_empty</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">fds</span>.<span class="ident">len</span>()
+    <span class="doccomment">/// Returns the number of fds in the manager object.
+    ///
+    /// Note that even if fds are taken out of the manager this count
+    /// does not change.
+    </span><span class="attribute">#[allow(clippy::len_without_is_empty)]
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.fds.len()
     }
 
-    <span class="kw">fn</span> <span class="ident">with_fd</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">imp::FdType</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">idx</span>: <span class="ident">usize</span>,
-        <span class="ident">f</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">fds</span>.<span class="ident">get_mut</span>(<span class="ident">idx</span>) {
-            <span class="prelude-val">Some</span>(<span class="prelude-val">None</span>) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">bucket</span>) =&gt; <span class="ident">bucket</span>,
+    <span class="kw">fn </span>with_fd&lt;R, F: FnOnce(imp::FdType) -&gt; io::Result&lt;R&gt;&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        idx: usize,
+        f: F,
+    ) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;R&gt;&gt; {
+        <span class="kw">let </span>bucket = <span class="kw">match </span><span class="self">self</span>.fds.get_mut(idx) {
+            <span class="prelude-val">Some</span>(<span class="prelude-val">None</span>) | <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(bucket) =&gt; bucket,
         };
-        <span class="ident">f</span>(<span class="kw-2">*</span><span class="ident">bucket</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">rv</span><span class="op">|</span> {
-            <span class="ident">bucket</span>.<span class="ident">take</span>();
-            <span class="prelude-val">Some</span>(<span class="ident">rv</span>)
+        f(<span class="kw-2">*</span>bucket.as_ref().unwrap()).map(|rv| {
+            bucket.take();
+            <span class="prelude-val">Some</span>(rv)
         })
     }
 
-    <span class="doccomment">/// Takes the TCP listener at an index.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the given index has been used before `Ok(None)` is returned,</span>
-    <span class="doccomment">/// otherwise the fd at that index is returned as `TcpListener`.  If</span>
-    <span class="doccomment">/// the fd at that position is not a TCP socket then an error is</span>
-    <span class="doccomment">/// returned and the fd is left at its place.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_tcp_listener</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TcpListener</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="ident">imp::make_tcp_listener</span>)
+    <span class="doccomment">/// Takes the TCP listener at an index.
+    ///
+    /// If the given index has been used before `Ok(None)` is returned,
+    /// otherwise the fd at that index is returned as `TcpListener`.  If
+    /// the fd at that position is not a TCP socket then an error is
+    /// returned and the fd is left at its place.
+    </span><span class="kw">pub fn </span>take_tcp_listener(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: usize) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;TcpListener&gt;&gt; {
+        <span class="self">self</span>.with_fd(idx, imp::make_tcp_listener)
     }
 
-    <span class="doccomment">/// Takes the UNIX stream listener at an index.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the given index has been used before `Ok(None)` is returned,</span>
-    <span class="doccomment">/// otherwise the fd at that index is returned as `UnixListener`.  If</span>
-    <span class="doccomment">/// the fd at that position is not a UNIX stream socket then an error is</span>
-    <span class="doccomment">/// returned and the fd is left at its place.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on unix platforms.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_unix_listener</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnixListener</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="ident">imp::make_unix_listener</span>)
+    <span class="doccomment">/// Takes the UNIX stream listener at an index.
+    ///
+    /// If the given index has been used before `Ok(None)` is returned,
+    /// otherwise the fd at that index is returned as `UnixListener`.  If
+    /// the fd at that position is not a UNIX stream socket then an error is
+    /// returned and the fd is left at its place.
+    ///
+    /// This function is only available on unix platforms.
+    </span><span class="attribute">#[cfg(not(windows))]
+    </span><span class="kw">pub fn </span>take_unix_listener(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: usize) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;UnixListener&gt;&gt; {
+        <span class="self">self</span>.with_fd(idx, imp::make_unix_listener)
     }
 
-    <span class="doccomment">/// Takes the UDP socket at an index.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the given index has been used before `Ok(None)` is returned,</span>
-    <span class="doccomment">/// otherwise the fd at that index is returned as `UdpSocket`.  If</span>
-    <span class="doccomment">/// the fd at that position is not a UDP socket then an error is</span>
-    <span class="doccomment">/// returned and the fd is left at its place.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_udp_socket</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UdpSocket</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">_idx</span> <span class="op">=</span> <span class="ident">idx</span>;
-        <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="ident">imp::make_udp_socket</span>)
+    <span class="doccomment">/// Takes the UDP socket at an index.
+    ///
+    /// If the given index has been used before `Ok(None)` is returned,
+    /// otherwise the fd at that index is returned as `UdpSocket`.  If
+    /// the fd at that position is not a UDP socket then an error is
+    /// returned and the fd is left at its place.
+    </span><span class="kw">pub fn </span>take_udp_socket(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: usize) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;UdpSocket&gt;&gt; {
+        <span class="kw">let </span>_idx = idx;
+        <span class="self">self</span>.with_fd(idx, imp::make_udp_socket)
     }
 
-    <span class="doccomment">/// Takes the UNIX datagram socket at an index.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the given index has been used before `Ok(None)` is returned,</span>
-    <span class="doccomment">/// otherwise the fd at that index is returned as `UnixDatagram`.  If</span>
-    <span class="doccomment">/// the fd at that position is not a UNIX datagram socket then an error is</span>
-    <span class="doccomment">/// returned and the fd is left at its place.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on unix platforms.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_unix_datagram</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnixDatagram</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="ident">imp::make_unix_datagram</span>)
+    <span class="doccomment">/// Takes the UNIX datagram socket at an index.
+    ///
+    /// If the given index has been used before `Ok(None)` is returned,
+    /// otherwise the fd at that index is returned as `UnixDatagram`.  If
+    /// the fd at that position is not a UNIX datagram socket then an error is
+    /// returned and the fd is left at its place.
+    ///
+    /// This function is only available on unix platforms.
+    </span><span class="attribute">#[cfg(not(windows))]
+    </span><span class="kw">pub fn </span>take_unix_datagram(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: usize) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;UnixDatagram&gt;&gt; {
+        <span class="self">self</span>.with_fd(idx, imp::make_unix_datagram)
     }
 
-    <span class="doccomment">/// Takes a custom socket on unix platforms.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// You have to provide a socket family, socket type, and a hint</span>
-    <span class="doccomment">/// for the validation error, e.g.</span>
-    <span class="doccomment">/// `libc::AF_UNIX, libc::SOCK_SEQPACKET, &quot;unix seqpacket socket&quot;`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The file descriptor will be validated to actually be a socket</span>
-    <span class="doccomment">/// with the appropriate options, set as CLOEXEC, and converted to</span>
-    <span class="doccomment">/// the given Rust type using `FromRawFd`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is only available on unix platforms.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_custom</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">std::os::unix::prelude::FromRawFd</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">idx</span>: <span class="ident">usize</span>,
-        <span class="ident">sock_fam</span>: <span class="ident">libc::c_int</span>,
-        <span class="ident">sock_type</span>: <span class="ident">libc::c_int</span>,
-        <span class="ident">hint</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="op">|</span><span class="ident">fd</span><span class="op">|</span> <span class="ident">imp::make_custom</span>(<span class="ident">fd</span>, <span class="ident">sock_fam</span>, <span class="ident">sock_type</span>, <span class="ident">hint</span>))
+    <span class="doccomment">/// Takes a custom socket on unix platforms.
+    ///
+    /// You have to provide a socket family, socket type, and a hint
+    /// for the validation error, e.g.
+    /// `libc::AF_UNIX, libc::SOCK_SEQPACKET, &quot;unix seqpacket socket&quot;`.
+    ///
+    /// The file descriptor will be validated to actually be a socket
+    /// with the appropriate options, set as CLOEXEC, and converted to
+    /// the given Rust type using `FromRawFd`.
+    ///
+    /// This function is only available on unix platforms.
+    </span><span class="attribute">#[cfg(not(windows))]
+    </span><span class="kw">pub fn </span>take_custom&lt;T: std::os::unix::prelude::FromRawFd&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        idx: usize,
+        sock_fam: libc::c_int,
+        sock_type: libc::c_int,
+        hint: <span class="kw-2">&amp;</span>str,
+    ) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt; {
+        <span class="self">self</span>.with_fd(idx, |fd| imp::make_custom(fd, sock_fam, sock_type, hint))
     }
 
-    <span class="doccomment">/// Takes the `RawFd` on unix platforms.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_raw_fd</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">imp::FdType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">_idx</span> <span class="op">=</span> <span class="ident">idx</span>;
-        <span class="self">self</span>.<span class="ident">with_fd</span>(<span class="ident">idx</span>, <span class="prelude-val">Ok</span>)
+    <span class="doccomment">/// Takes the `RawFd` on unix platforms.
+    </span><span class="attribute">#[cfg(not(windows))]
+    </span><span class="kw">pub fn </span>take_raw_fd(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: usize) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;imp::FdType&gt;&gt; {
+        <span class="kw">let </span>_idx = idx;
+        <span class="self">self</span>.with_fd(idx, <span class="prelude-val">Ok</span>)
     }
 
-    <span class="doccomment">/// Takes the `RawSocket` on windows platforms.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This will error if the fd at this position is not a socket (but a handle).</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_raw_socket</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">imp::RawSocket</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">_idx</span> <span class="op">=</span> <span class="ident">idx</span>;
+    <span class="doccomment">/// Takes the `RawSocket` on windows platforms.
+    ///
+    /// This will error if the fd at this position is not a socket (but a handle).
+    </span><span class="attribute">#[cfg(windows)]
+    </span><span class="kw">pub fn </span>take_raw_socket(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: usize) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;imp::RawSocket&gt;&gt; {
+        <span class="kw">let </span>_idx = idx;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="listenfd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="listenfd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

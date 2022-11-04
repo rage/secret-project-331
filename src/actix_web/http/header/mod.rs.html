@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -102,107 +102,107 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A Collection of Header implementations for common HTTP Headers.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Mime Types</span>
-<span class="doccomment">//! Several header fields use MIME values for their contents. Keeping with the strongly-typed theme,</span>
-<span class="doccomment">//! the [mime] crate is used in such headers as [`ContentType`] and [`Accept`].</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A Collection of Header implementations for common HTTP Headers.
+//!
+//! ## Mime Types
+//! Several header fields use MIME values for their contents. Keeping with the strongly-typed theme,
+//! the [mime] crate is used in such headers as [`ContentType`] and [`Accept`].
 
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</span><span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
+<span class="kw">use </span>bytes::{Bytes, BytesMut};
 
-<span class="comment">// re-export from actix-http</span>
-<span class="comment">// - header name / value types</span>
-<span class="comment">// - relevant traits for converting to header name / value</span>
-<span class="comment">// - all const header names</span>
-<span class="comment">// - header map</span>
-<span class="comment">// - the few typed headers from actix-http</span>
-<span class="comment">// - header parsing utils</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">actix_http::header</span>::<span class="kw-2">*</span>;
+<span class="comment">// re-export from actix-http
+// - header name / value types
+// - relevant traits for converting to header name / value
+// - all const header names
+// - header map
+// - the few typed headers from actix-http
+// - header parsing utils
+</span><span class="kw">pub use </span>actix_http::header::<span class="kw-2">*</span>;
 
-<span class="kw">mod</span> <span class="ident">accept</span>;
-<span class="kw">mod</span> <span class="ident">accept_charset</span>;
-<span class="kw">mod</span> <span class="ident">accept_encoding</span>;
-<span class="kw">mod</span> <span class="ident">accept_language</span>;
-<span class="kw">mod</span> <span class="ident">allow</span>;
-<span class="kw">mod</span> <span class="ident">cache_control</span>;
-<span class="kw">mod</span> <span class="ident">content_disposition</span>;
-<span class="kw">mod</span> <span class="ident">content_language</span>;
-<span class="kw">mod</span> <span class="ident">content_range</span>;
-<span class="kw">mod</span> <span class="ident">content_type</span>;
-<span class="kw">mod</span> <span class="ident">date</span>;
-<span class="kw">mod</span> <span class="ident">encoding</span>;
-<span class="kw">mod</span> <span class="ident">entity</span>;
-<span class="kw">mod</span> <span class="ident">etag</span>;
-<span class="kw">mod</span> <span class="ident">expires</span>;
-<span class="kw">mod</span> <span class="ident">if_match</span>;
-<span class="kw">mod</span> <span class="ident">if_modified_since</span>;
-<span class="kw">mod</span> <span class="ident">if_none_match</span>;
-<span class="kw">mod</span> <span class="ident">if_range</span>;
-<span class="kw">mod</span> <span class="ident">if_unmodified_since</span>;
-<span class="kw">mod</span> <span class="ident">last_modified</span>;
-<span class="kw">mod</span> <span class="ident">macros</span>;
-<span class="kw">mod</span> <span class="ident">preference</span>;
-<span class="kw">mod</span> <span class="ident">range</span>;
+<span class="kw">mod </span>accept;
+<span class="kw">mod </span>accept_charset;
+<span class="kw">mod </span>accept_encoding;
+<span class="kw">mod </span>accept_language;
+<span class="kw">mod </span>allow;
+<span class="kw">mod </span>cache_control;
+<span class="kw">mod </span>content_disposition;
+<span class="kw">mod </span>content_language;
+<span class="kw">mod </span>content_range;
+<span class="kw">mod </span>content_type;
+<span class="kw">mod </span>date;
+<span class="kw">mod </span>encoding;
+<span class="kw">mod </span>entity;
+<span class="kw">mod </span>etag;
+<span class="kw">mod </span>expires;
+<span class="kw">mod </span>if_match;
+<span class="kw">mod </span>if_modified_since;
+<span class="kw">mod </span>if_none_match;
+<span class="kw">mod </span>if_range;
+<span class="kw">mod </span>if_unmodified_since;
+<span class="kw">mod </span>last_modified;
+<span class="kw">mod </span>macros;
+<span class="kw">mod </span>preference;
+<span class="kw">mod </span>range;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">macros::common_header_test</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">macros</span>::{<span class="ident">common_header</span>, <span class="ident">common_header_test_module</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>macros::common_header_test;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>macros::{common_header, common_header_test_module};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::accept::Accept</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::accept_charset::AcceptCharset</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::accept_encoding::AcceptEncoding</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::accept_language::AcceptLanguage</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::allow::Allow</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::cache_control</span>::{<span class="ident">CacheControl</span>, <span class="ident">CacheDirective</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::content_disposition</span>::{<span class="ident">ContentDisposition</span>, <span class="ident">DispositionParam</span>, <span class="ident">DispositionType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::content_language::ContentLanguage</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::content_range</span>::{<span class="ident">ContentRange</span>, <span class="ident">ContentRangeSpec</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::content_type::ContentType</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::date::Date</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::encoding::Encoding</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::entity::EntityTag</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::etag::ETag</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::expires::Expires</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_match::IfMatch</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_modified_since::IfModifiedSince</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_none_match::IfNoneMatch</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_range::IfRange</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::if_unmodified_since::IfUnmodifiedSince</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::last_modified::LastModified</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::preference::Preference</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::range</span>::{<span class="ident">ByteRangeSpec</span>, <span class="ident">Range</span>};
+<span class="kw">pub use </span><span class="self">self</span>::accept::Accept;
+<span class="kw">pub use </span><span class="self">self</span>::accept_charset::AcceptCharset;
+<span class="kw">pub use </span><span class="self">self</span>::accept_encoding::AcceptEncoding;
+<span class="kw">pub use </span><span class="self">self</span>::accept_language::AcceptLanguage;
+<span class="kw">pub use </span><span class="self">self</span>::allow::Allow;
+<span class="kw">pub use </span><span class="self">self</span>::cache_control::{CacheControl, CacheDirective};
+<span class="kw">pub use </span><span class="self">self</span>::content_disposition::{ContentDisposition, DispositionParam, DispositionType};
+<span class="kw">pub use </span><span class="self">self</span>::content_language::ContentLanguage;
+<span class="kw">pub use </span><span class="self">self</span>::content_range::{ContentRange, ContentRangeSpec};
+<span class="kw">pub use </span><span class="self">self</span>::content_type::ContentType;
+<span class="kw">pub use </span><span class="self">self</span>::date::Date;
+<span class="kw">pub use </span><span class="self">self</span>::encoding::Encoding;
+<span class="kw">pub use </span><span class="self">self</span>::entity::EntityTag;
+<span class="kw">pub use </span><span class="self">self</span>::etag::ETag;
+<span class="kw">pub use </span><span class="self">self</span>::expires::Expires;
+<span class="kw">pub use </span><span class="self">self</span>::if_match::IfMatch;
+<span class="kw">pub use </span><span class="self">self</span>::if_modified_since::IfModifiedSince;
+<span class="kw">pub use </span><span class="self">self</span>::if_none_match::IfNoneMatch;
+<span class="kw">pub use </span><span class="self">self</span>::if_range::IfRange;
+<span class="kw">pub use </span><span class="self">self</span>::if_unmodified_since::IfUnmodifiedSince;
+<span class="kw">pub use </span><span class="self">self</span>::last_modified::LastModified;
+<span class="kw">pub use </span><span class="self">self</span>::preference::Preference;
+<span class="kw">pub use </span><span class="self">self</span>::range::{ByteRangeSpec, Range};
 
-<span class="doccomment">/// Format writer ([`fmt::Write`]) for a [`BytesMut`].</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Writer</span> {
-    <span class="ident">buf</span>: <span class="ident">BytesMut</span>,
+<span class="doccomment">/// Format writer ([`fmt::Write`]) for a [`BytesMut`].
+</span><span class="attribute">#[derive(Debug, Default)]
+</span><span class="kw">struct </span>Writer {
+    buf: BytesMut,
 }
 
-<span class="kw">impl</span> <span class="ident">Writer</span> {
-    <span class="doccomment">/// Constructs new bytes writer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Writer</span> {
-        <span class="ident">Writer::default</span>()
+<span class="kw">impl </span>Writer {
+    <span class="doccomment">/// Constructs new bytes writer.
+    </span><span class="kw">pub fn </span>new() -&gt; Writer {
+        Writer::default()
     }
 
-    <span class="doccomment">/// Splits bytes out of writer, leaving writer buffer empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Bytes</span> {
-        <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">split</span>().<span class="ident">freeze</span>()
+    <span class="doccomment">/// Splits bytes out of writer, leaving writer buffer empty.
+    </span><span class="kw">pub fn </span>take(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Bytes {
+        <span class="self">self</span>.buf.split().freeze()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Write</span> <span class="kw">for</span> <span class="ident">Writer</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">write_str</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>());
+<span class="kw">impl </span>fmt::Write <span class="kw">for </span>Writer {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result {
+        <span class="self">self</span>.buf.extend_from_slice(s.as_bytes());
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">write_fmt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">args</span>: <span class="ident">fmt::Arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">fmt::write</span>(<span class="self">self</span>, <span class="ident">args</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>write_fmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, args: fmt::Arguments&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        fmt::write(<span class="self">self</span>, args)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

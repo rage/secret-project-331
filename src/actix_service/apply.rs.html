@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/apply.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>apply.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-service-2.0.2/src/apply.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>apply.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_service/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_service/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -276,281 +276,281 @@
 <span id="274">274</span>
 <span id="275">275</span>
 <span id="276">276</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>core::{
+    future::Future,
+    marker::PhantomData,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">IntoService</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>};
+<span class="kw">use super</span>::{IntoService, IntoServiceFactory, Service, ServiceFactory};
 
-<span class="doccomment">/// Apply transform function to a service.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The In and Out type params refer to the request and response types for the wrapped service.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_fn</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>(
-    <span class="ident">service</span>: <span class="ident">I</span>,
-    <span class="ident">wrap_fn</span>: <span class="ident">F</span>,
-) -&gt; <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoService</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">In</span><span class="op">&gt;</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) -&gt; <span class="ident">Fut</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Apply transform function to a service.
+///
+/// The In and Out type params refer to the request and response types for the wrapped service.
+</span><span class="kw">pub fn </span>apply_fn&lt;I, S, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt;(
+    service: I,
+    wrap_fn: F,
+) -&gt; Apply&lt;S, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>I: IntoService&lt;S, In&gt;,
+    S: Service&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
+    F: Fn(Req, <span class="kw-2">&amp;</span>S) -&gt; Fut,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="ident">Apply::new</span>(<span class="ident">service</span>.<span class="ident">into_service</span>(), <span class="ident">wrap_fn</span>)
+    Apply::new(service.into_service(), wrap_fn)
 }
 
-<span class="doccomment">/// Service factory that produces `apply_fn` service.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The In and Out type params refer to the request and response types for the wrapped service.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_fn_factory</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>(
-    <span class="ident">service</span>: <span class="ident">I</span>,
-    <span class="ident">f</span>: <span class="ident">F</span>,
-) -&gt; <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">In</span><span class="op">&gt;</span>,
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Service factory that produces `apply_fn` service.
+///
+/// The In and Out type params refer to the request and response types for the wrapped service.
+</span><span class="kw">pub fn </span>apply_fn_factory&lt;I, SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt;(
+    service: I,
+    f: F,
+) -&gt; ApplyFactory&lt;SF, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>I: IntoServiceFactory&lt;SF, In&gt;,
+    SF: ServiceFactory&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
+    F: Fn(Req, <span class="kw-2">&amp;</span>SF::Service) -&gt; Fut + Clone,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="ident">ApplyFactory::new</span>(<span class="ident">service</span>.<span class="ident">into_factory</span>(), <span class="ident">f</span>)
+    ApplyFactory::new(service.into_factory(), f)
 }
 
-<span class="doccomment">/// `Apply` service combinator.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The In and Out type params refer to the request and response types for the wrapped service.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
+<span class="doccomment">/// `Apply` service combinator.
+///
+/// The In and Out type params refer to the request and response types for the wrapped service.
+</span><span class="kw">pub struct </span>Apply&lt;S, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>S: Service&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
 {
-    <span class="ident">service</span>: <span class="ident">S</span>,
-    <span class="ident">wrap_fn</span>: <span class="ident">F</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>(<span class="ident">Req</span>) -&gt; (<span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span>)<span class="op">&gt;</span>,
+    service: S,
+    wrap_fn: F,
+    _phantom: PhantomData&lt;<span class="kw">fn</span>(Req) -&gt; (In, Res, <span class="prelude-val">Err</span>)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) -&gt; <span class="ident">Fut</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt; Apply&lt;S, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>S: Service&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
+    F: Fn(Req, <span class="kw-2">&amp;</span>S) -&gt; Fut,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="doccomment">/// Create new `Apply` combinator</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">service</span>: <span class="ident">S</span>, <span class="ident">wrap_fn</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">service</span>,
-            <span class="ident">wrap_fn</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="doccomment">/// Create new `Apply` combinator
+    </span><span class="kw">fn </span>new(service: S, wrap_fn: F) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            service,
+            wrap_fn,
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt; Clone <span class="kw">for </span>Apply&lt;S, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>S: Service&lt;In, Error = <span class="prelude-val">Err</span>&gt; + Clone,
+    F: Fn(Req, <span class="kw-2">&amp;</span>S) -&gt; Fut + Clone,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Apply</span> {
-            <span class="ident">service</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">clone</span>(),
-            <span class="ident">wrap_fn</span>: <span class="self">self</span>.<span class="ident">wrap_fn</span>.<span class="ident">clone</span>(),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Apply {
+            service: <span class="self">self</span>.service.clone(),
+            wrap_fn: <span class="self">self</span>.wrap_fn.clone(),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">S</span>) -&gt; <span class="ident">Fut</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt; Service&lt;Req&gt; <span class="kw">for </span>Apply&lt;S, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>S: Service&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
+    F: Fn(Req, <span class="kw-2">&amp;</span>S) -&gt; Fut,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Fut</span>;
+    <span class="kw">type </span>Response = Res;
+    <span class="kw">type </span>Error = <span class="prelude-val">Err</span>;
+    <span class="kw">type </span>Future = Fut;
 
-    <span class="macro">crate::forward_ready!</span>(<span class="ident">service</span>);
+    <span class="macro">crate::forward_ready!</span>(service);
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">Req</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        (<span class="self">self</span>.<span class="ident">wrap_fn</span>)(<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">service</span>)
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: Req) -&gt; <span class="self">Self</span>::Future {
+        (<span class="self">self</span>.wrap_fn)(req, <span class="kw-2">&amp;</span><span class="self">self</span>.service)
     }
 }
 
-<span class="doccomment">/// `ApplyFactory` service factory combinator.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> {
-    <span class="ident">factory</span>: <span class="ident">SF</span>,
-    <span class="ident">wrap_fn</span>: <span class="ident">F</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>(<span class="ident">Req</span>) -&gt; (<span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// `ApplyFactory` service factory combinator.
+</span><span class="kw">pub struct </span>ApplyFactory&lt;SF, F, Req, In, Res, <span class="prelude-val">Err</span>&gt; {
+    factory: SF,
+    wrap_fn: F,
+    _phantom: PhantomData&lt;<span class="kw">fn</span>(Req) -&gt; (In, Res, <span class="prelude-val">Err</span>)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt; ApplyFactory&lt;SF, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>SF: ServiceFactory&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
+    F: Fn(Req, <span class="kw-2">&amp;</span>SF::Service) -&gt; Fut + Clone,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="doccomment">/// Create new `ApplyFactory` new service instance</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">factory</span>: <span class="ident">SF</span>, <span class="ident">wrap_fn</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">factory</span>,
-            <span class="ident">wrap_fn</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="doccomment">/// Create new `ApplyFactory` new service instance
+    </span><span class="kw">fn </span>new(factory: SF, wrap_fn: F) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            factory,
+            wrap_fn,
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt; Clone <span class="kw">for </span>ApplyFactory&lt;SF, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>SF: ServiceFactory&lt;In, Error = <span class="prelude-val">Err</span>&gt; + Clone,
+    F: Fn(Req, <span class="kw-2">&amp;</span>SF::Service) -&gt; Fut + Clone,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">factory</span>: <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">clone</span>(),
-            <span class="ident">wrap_fn</span>: <span class="self">self</span>.<span class="ident">wrap_fn</span>.<span class="ident">clone</span>(),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            factory: <span class="self">self</span>.factory.clone(),
+            wrap_fn: <span class="self">self</span>.wrap_fn.clone(),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Req</span><span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">ApplyFactory</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt; ServiceFactory&lt;Req&gt;
+    <span class="kw">for </span>ApplyFactory&lt;SF, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>SF: ServiceFactory&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
+    F: Fn(Req, <span class="kw-2">&amp;</span>SF::Service) -&gt; Fut + Clone,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Res</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span>;
+    <span class="kw">type </span>Response = Res;
+    <span class="kw">type </span>Error = <span class="prelude-val">Err</span>;
 
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> <span class="ident">SF::Config</span>;
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">SF::Service</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">SF::InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">ApplyServiceFactoryResponse</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Config = SF::Config;
+    <span class="kw">type </span>Service = Apply&lt;SF::Service, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;;
+    <span class="kw">type </span>InitError = SF::InitError;
+    <span class="kw">type </span>Future = ApplyServiceFactoryResponse&lt;SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="ident">SF::Config</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">svc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">factory</span>.<span class="ident">new_service</span>(<span class="ident">cfg</span>);
-        <span class="ident">ApplyServiceFactoryResponse::new</span>(<span class="ident">svc</span>, <span class="self">self</span>.<span class="ident">wrap_fn</span>.<span class="ident">clone</span>())
+    <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, cfg: SF::Config) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>svc = <span class="self">self</span>.factory.new_service(cfg);
+        ApplyServiceFactoryResponse::new(svc, <span class="self">self</span>.wrap_fn.clone())
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ApplyServiceFactoryResponse</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span>,
-        <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>ApplyServiceFactoryResponse&lt;SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+    <span class="kw">where
+        </span>SF: ServiceFactory&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
+        F: Fn(Req, <span class="kw-2">&amp;</span>SF::Service) -&gt; Fut,
+        Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
     {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">fut</span>: <span class="ident">SF::Future</span>,
-        <span class="ident">wrap_fn</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-        <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>(<span class="ident">Req</span>) -&gt; <span class="ident">Res</span><span class="op">&gt;</span>,
+        <span class="attribute">#[pin]
+        </span>fut: SF::Future,
+        wrap_fn: <span class="prelude-ty">Option</span>&lt;F&gt;,
+        _phantom: PhantomData&lt;<span class="kw">fn</span>(Req) -&gt; Res&gt;,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">ApplyServiceFactoryResponse</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt; ApplyServiceFactoryResponse&lt;SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>SF: ServiceFactory&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
+    F: Fn(Req, <span class="kw-2">&amp;</span>SF::Service) -&gt; Fut,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">fut</span>: <span class="ident">SF::Future</span>, <span class="ident">wrap_fn</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">fut</span>,
-            <span class="ident">wrap_fn</span>: <span class="prelude-val">Some</span>(<span class="ident">wrap_fn</span>),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">fn </span>new(fut: SF::Future, wrap_fn: F) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            fut,
+            wrap_fn: <span class="prelude-val">Some</span>(wrap_fn),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span> <span class="ident">Future</span>
-    <span class="kw">for</span> <span class="ident">ApplyServiceFactoryResponse</span><span class="op">&lt;</span><span class="ident">SF</span>, <span class="ident">F</span>, <span class="ident">Fut</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">SF</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">In</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="prelude-val">Err</span><span class="op">&gt;</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">Req</span>, <span class="kw-2">&amp;</span><span class="ident">SF::Service</span>) -&gt; <span class="ident">Fut</span>,
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt; Future
+    <span class="kw">for </span>ApplyServiceFactoryResponse&lt;SF, F, Fut, Req, In, Res, <span class="prelude-val">Err</span>&gt;
+<span class="kw">where
+    </span>SF: ServiceFactory&lt;In, Error = <span class="prelude-val">Err</span>&gt;,
+    F: Fn(Req, <span class="kw-2">&amp;</span>SF::Service) -&gt; Fut,
+    Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Res, <span class="prelude-val">Err</span>&gt;&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Apply</span><span class="op">&lt;</span><span class="ident">SF::Service</span>, <span class="ident">F</span>, <span class="ident">Req</span>, <span class="ident">In</span>, <span class="ident">Res</span>, <span class="prelude-val">Err</span><span class="op">&gt;</span>, <span class="ident">SF::InitError</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Apply&lt;SF::Service, F, Req, In, Res, <span class="prelude-val">Err</span>&gt;, SF::InitError&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
 
-        <span class="kw">let</span> <span class="ident">svc</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">Apply::new</span>(<span class="ident">svc</span>, <span class="ident">this</span>.<span class="ident">wrap_fn</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())))
+        <span class="kw">let </span>svc = <span class="macro">ready!</span>(this.fut.poll(cx))<span class="question-mark">?</span>;
+        Poll::Ready(<span class="prelude-val">Ok</span>(Apply::new(svc, this.wrap_fn.take().unwrap())))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">core::task::Poll</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>core::task::Poll;
 
-    <span class="kw">use</span> <span class="ident">futures_util::future::lazy</span>;
+    <span class="kw">use </span>futures_util::future::lazy;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">ok</span>,
-        <span class="ident">pipeline</span>::{<span class="ident">pipeline</span>, <span class="ident">pipeline_factory</span>},
-        <span class="ident">Ready</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>,
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{
+        ok,
+        pipeline::{pipeline, pipeline_factory},
+        Ready, Service, ServiceFactory,
     };
 
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-    <span class="kw">struct</span> <span class="ident">Srv</span>;
+    <span class="attribute">#[derive(Clone)]
+    </span><span class="kw">struct </span>Srv;
 
-    <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span>()<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Srv</span> {
-        <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> ();
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
-        <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">impl </span>Service&lt;()&gt; <span class="kw">for </span>Srv {
+        <span class="kw">type </span>Response = ();
+        <span class="kw">type </span>Error = ();
+        <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;(), ()&gt;&gt;;
 
         <span class="macro">crate::always_ready!</span>();
 
-        <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-            <span class="ident">ok</span>(())
+        <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="self">Self</span>::Future {
+            ok(())
         }
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_call</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">pipeline</span>(<span class="ident">apply_fn</span>(<span class="ident">Srv</span>, <span class="op">|</span><span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">srv</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(());
-            <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="ident">fut</span>.<span class="kw">await</span>.<span class="ident">unwrap</span>();
-                <span class="prelude-val">Ok</span>((<span class="ident">req</span>, ()))
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_call() {
+        <span class="kw">let </span>srv = pipeline(apply_fn(Srv, |req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, srv| {
+            <span class="kw">let </span>fut = srv.call(());
+            <span class="kw">async move </span>{
+                fut.<span class="kw">await</span>.unwrap();
+                <span class="prelude-val">Ok</span>((req, ()))
             }
         }));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">lazy</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">srv</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>)).<span class="kw">await</span>, <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())));
+        <span class="macro">assert_eq!</span>(lazy(|cx| srv.poll_ready(cx)).<span class="kw">await</span>, Poll::Ready(<span class="prelude-val">Ok</span>(())));
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="string">&quot;srv&quot;</span>).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">unwrap</span>(), (<span class="string">&quot;srv&quot;</span>, ()));
+        <span class="kw">let </span>res = srv.call(<span class="string">&quot;srv&quot;</span>).<span class="kw">await</span>;
+        <span class="macro">assert!</span>(res.is_ok());
+        <span class="macro">assert_eq!</span>(res.unwrap(), (<span class="string">&quot;srv&quot;</span>, ()));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_new_service</span>() {
-        <span class="kw">let</span> <span class="ident">new_srv</span> <span class="op">=</span> <span class="ident">pipeline_factory</span>(<span class="ident">apply_fn_factory</span>(
-            <span class="op">|</span><span class="op">|</span> <span class="ident">ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, ()<span class="op">&gt;</span>(<span class="ident">Srv</span>),
-            <span class="op">|</span><span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">srv</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(());
-                <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="ident">fut</span>.<span class="kw">await</span>.<span class="ident">unwrap</span>();
-                    <span class="prelude-val">Ok</span>((<span class="ident">req</span>, ()))
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_new_service() {
+        <span class="kw">let </span>new_srv = pipeline_factory(apply_fn_factory(
+            || ok::&lt;<span class="kw">_</span>, ()&gt;(Srv),
+            |req: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, srv| {
+                <span class="kw">let </span>fut = srv.call(());
+                <span class="kw">async move </span>{
+                    fut.<span class="kw">await</span>.unwrap();
+                    <span class="prelude-val">Ok</span>((req, ()))
                 }
             },
         ));
 
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">new_srv</span>.<span class="ident">new_service</span>(()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>srv = new_srv.new_service(()).<span class="kw">await</span>.unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">lazy</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">srv</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>)).<span class="kw">await</span>, <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())));
+        <span class="macro">assert_eq!</span>(lazy(|cx| srv.poll_ready(cx)).<span class="kw">await</span>, Poll::Ready(<span class="prelude-val">Ok</span>(())));
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">srv</span>.<span class="ident">call</span>(<span class="string">&quot;srv&quot;</span>).<span class="kw">await</span>;
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">unwrap</span>(), (<span class="string">&quot;srv&quot;</span>, ()));
+        <span class="kw">let </span>res = srv.call(<span class="string">&quot;srv&quot;</span>).<span class="kw">await</span>;
+        <span class="macro">assert!</span>(res.is_ok());
+        <span class="macro">assert_eq!</span>(res.unwrap(), (<span class="string">&quot;srv&quot;</span>, ()));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_service" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

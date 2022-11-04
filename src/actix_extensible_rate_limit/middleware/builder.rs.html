@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-extensible-rate-limit-0.2.1/src/middleware/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_extensible_rate_limit/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-extensible-rate-limit-0.2.1/src/middleware/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_extensible_rate_limit/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -172,179 +172,179 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend::Backend</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::middleware</span>::{<span class="ident">AllowedTransformation</span>, <span class="ident">DeniedResponse</span>, <span class="ident">RateLimiter</span>, <span class="ident">RollbackCondition</span>};
-<span class="kw">use</span> <span class="ident">actix_web::dev::ServiceRequest</span>;
-<span class="kw">use</span> <span class="ident">actix_web::http::header</span>::{<span class="ident">HeaderMap</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">RETRY_AFTER</span>};
-<span class="kw">use</span> <span class="ident">actix_web::http::StatusCode</span>;
-<span class="kw">use</span> <span class="ident">actix_web::HttpResponse</span>;
-<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
-<span class="kw">use</span> <span class="ident">std::future::Future</span>;
-<span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::backend::Backend;
+<span class="kw">use </span><span class="kw">crate</span>::middleware::{AllowedTransformation, DeniedResponse, RateLimiter, RollbackCondition};
+<span class="kw">use </span>actix_web::dev::ServiceRequest;
+<span class="kw">use </span>actix_web::http::header::{HeaderMap, HeaderName, HeaderValue, RETRY_AFTER};
+<span class="kw">use </span>actix_web::http::StatusCode;
+<span class="kw">use </span>actix_web::HttpResponse;
+<span class="kw">use </span>once_cell::sync::Lazy;
+<span class="kw">use </span>std::future::Future;
+<span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">X_RATELIMIT_LIMIT</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">HeaderName</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HeaderName::from_static</span>(<span class="string">&quot;x-ratelimit-limit&quot;</span>));
+<span class="kw">pub static </span>X_RATELIMIT_LIMIT: Lazy&lt;HeaderName&gt; =
+    Lazy::new(|| HeaderName::from_static(<span class="string">&quot;x-ratelimit-limit&quot;</span>));
 
-<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">X_RATELIMIT_REMAINING</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">HeaderName</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HeaderName::from_static</span>(<span class="string">&quot;x-ratelimit-remaining&quot;</span>));
+<span class="kw">pub static </span>X_RATELIMIT_REMAINING: Lazy&lt;HeaderName&gt; =
+    Lazy::new(|| HeaderName::from_static(<span class="string">&quot;x-ratelimit-remaining&quot;</span>));
 
-<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">X_RATELIMIT_RESET</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">HeaderName</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HeaderName::from_static</span>(<span class="string">&quot;x-ratelimit-reset&quot;</span>));
+<span class="kw">pub static </span>X_RATELIMIT_RESET: Lazy&lt;HeaderName&gt; =
+    Lazy::new(|| HeaderName::from_static(<span class="string">&quot;x-ratelimit-reset&quot;</span>));
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RateLimiterBuilder</span><span class="op">&lt;</span><span class="ident">BE</span>, <span class="ident">BO</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="ident">backend</span>: <span class="ident">BE</span>,
-    <span class="ident">input_fn</span>: <span class="ident">F</span>,
-    <span class="ident">fail_open</span>: <span class="ident">bool</span>,
-    <span class="ident">allowed_transformation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">AllowedTransformation</span><span class="op">&lt;</span><span class="ident">BO</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">denied_response</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">DeniedResponse</span><span class="op">&lt;</span><span class="ident">BO</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">rollback_condition</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RollbackCondition</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>RateLimiterBuilder&lt;BE, BO, F&gt; {
+    backend: BE,
+    input_fn: F,
+    fail_open: bool,
+    allowed_transformation: <span class="prelude-ty">Option</span>&lt;Rc&lt;AllowedTransformation&lt;BO&gt;&gt;&gt;,
+    denied_response: Rc&lt;DeniedResponse&lt;BO&gt;&gt;,
+    rollback_condition: <span class="prelude-ty">Option</span>&lt;Rc&lt;RollbackCondition&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">BE</span>, <span class="ident">BI</span>, <span class="ident">BO</span>, <span class="ident">F</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">RateLimiterBuilder</span><span class="op">&lt;</span><span class="ident">BE</span>, <span class="ident">BO</span>, <span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">BE</span>: <span class="ident">Backend</span><span class="op">&lt;</span><span class="ident">BI</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">BO</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">BI</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="ident">O</span>,
-    <span class="ident">O</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BI</span>, <span class="ident">actix_web::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;BE, BI, BO, F, O&gt; RateLimiterBuilder&lt;BE, BO, F&gt;
+<span class="kw">where
+    </span>BE: Backend&lt;BI, Output = BO&gt; + <span class="lifetime">&#39;static</span>,
+    BI: <span class="lifetime">&#39;static</span>,
+    F: Fn(<span class="kw-2">&amp;</span>ServiceRequest) -&gt; O,
+    O: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;BI, actix_web::Error&gt;&gt;,
 {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">backend</span>: <span class="ident">BE</span>, <span class="ident">input_fn</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">backend</span>,
-            <span class="ident">input_fn</span>,
-            <span class="ident">fail_open</span>: <span class="bool-val">false</span>,
-            <span class="ident">allowed_transformation</span>: <span class="prelude-val">None</span>,
-            <span class="ident">denied_response</span>: <span class="ident">Rc::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">HttpResponse::TooManyRequests</span>().<span class="ident">finish</span>()),
-            <span class="ident">rollback_condition</span>: <span class="prelude-val">None</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(backend: BE, input_fn: F) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            backend,
+            input_fn,
+            fail_open: <span class="bool-val">false</span>,
+            allowed_transformation: <span class="prelude-val">None</span>,
+            denied_response: Rc::new(|<span class="kw">_</span>| HttpResponse::TooManyRequests().finish()),
+            rollback_condition: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Choose whether to allow a request if the backend returns a failure.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Default is false.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fail_open</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fail_open</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">fail_open</span> <span class="op">=</span> <span class="ident">fail_open</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Choose whether to allow a request if the backend returns a failure.
+    ///
+    /// Default is false.
+    </span><span class="kw">pub fn </span>fail_open(<span class="kw-2">mut </span><span class="self">self</span>, fail_open: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.fail_open = fail_open;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the [RateLimiterBuilder::request_allowed_transformation] and</span>
-    <span class="doccomment">/// [RateLimiterBuilder::request_denied_response] functions, such that the following headers</span>
-    <span class="doccomment">/// are set in both the allowed and denied responses:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - `x-ratelimit-limit`\</span>
-    <span class="doccomment">/// - `x-ratelimit-remaining`\</span>
-    <span class="doccomment">/// - `x-ratelimit-reset` (seconds until the reset)</span>
-    <span class="doccomment">/// - `retry-after` (denied only, seconds until the reset)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function requires the Backend Output to implement [HeaderCompatibleOutput]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_headers</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">BO</span>: <span class="ident">HeaderCompatibleOutput</span>,
+    <span class="doccomment">/// Sets the [RateLimiterBuilder::request_allowed_transformation] and
+    /// [RateLimiterBuilder::request_denied_response] functions, such that the following headers
+    /// are set in both the allowed and denied responses:
+    ///
+    /// - `x-ratelimit-limit`\
+    /// - `x-ratelimit-remaining`\
+    /// - `x-ratelimit-reset` (seconds until the reset)
+    /// - `retry-after` (denied only, seconds until the reset)
+    ///
+    /// This function requires the Backend Output to implement [HeaderCompatibleOutput]
+    </span><span class="kw">pub fn </span>add_headers(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>BO: HeaderCompatibleOutput,
     {
-        <span class="self">self</span>.<span class="ident">allowed_transformation</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="op">|</span><span class="ident">map</span>, <span class="ident">output</span>, <span class="ident">rolled_back</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">status</span>) <span class="op">=</span> <span class="ident">output</span> {
-                <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">X_RATELIMIT_LIMIT</span>.<span class="ident">clone</span>(), <span class="ident">HeaderValue::from</span>(<span class="ident">status</span>.<span class="ident">limit</span>()));
-                <span class="kw">let</span> <span class="ident">remaining</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">rolled_back</span> {
-                    <span class="ident">status</span>.<span class="ident">remaining</span>() <span class="op">+</span> <span class="number">1</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">status</span>.<span class="ident">remaining</span>()
+        <span class="self">self</span>.allowed_transformation = <span class="prelude-val">Some</span>(Rc::new(|map, output, rolled_back| {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(status) = output {
+                map.insert(X_RATELIMIT_LIMIT.clone(), HeaderValue::from(status.limit()));
+                <span class="kw">let </span>remaining = <span class="kw">if </span>rolled_back {
+                    status.remaining() + <span class="number">1
+                </span>} <span class="kw">else </span>{
+                    status.remaining()
                 };
-                <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">X_RATELIMIT_REMAINING</span>.<span class="ident">clone</span>(), <span class="ident">HeaderValue::from</span>(<span class="ident">remaining</span>));
-                <span class="ident">map</span>.<span class="ident">insert</span>(
-                    <span class="ident">X_RATELIMIT_RESET</span>.<span class="ident">clone</span>(),
-                    <span class="ident">HeaderValue::from</span>(<span class="ident">status</span>.<span class="ident">seconds_until_reset</span>()),
+                map.insert(X_RATELIMIT_REMAINING.clone(), HeaderValue::from(remaining));
+                map.insert(
+                    X_RATELIMIT_RESET.clone(),
+                    HeaderValue::from(status.seconds_until_reset()),
                 );
             }
         }));
-        <span class="self">self</span>.<span class="ident">denied_response</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="op">|</span><span class="ident">status</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">HttpResponse::TooManyRequests</span>().<span class="ident">finish</span>();
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">headers_mut</span>();
-            <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">X_RATELIMIT_LIMIT</span>.<span class="ident">clone</span>(), <span class="ident">HeaderValue::from</span>(<span class="ident">status</span>.<span class="ident">limit</span>()));
-            <span class="ident">map</span>.<span class="ident">insert</span>(
-                <span class="ident">X_RATELIMIT_REMAINING</span>.<span class="ident">clone</span>(),
-                <span class="ident">HeaderValue::from</span>(<span class="ident">status</span>.<span class="ident">remaining</span>()),
+        <span class="self">self</span>.denied_response = Rc::new(|status| {
+            <span class="kw">let </span><span class="kw-2">mut </span>response = HttpResponse::TooManyRequests().finish();
+            <span class="kw">let </span>map = response.headers_mut();
+            map.insert(X_RATELIMIT_LIMIT.clone(), HeaderValue::from(status.limit()));
+            map.insert(
+                X_RATELIMIT_REMAINING.clone(),
+                HeaderValue::from(status.remaining()),
             );
-            <span class="kw">let</span> <span class="ident">seconds</span> <span class="op">=</span> <span class="ident">status</span>.<span class="ident">seconds_until_reset</span>();
-            <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">X_RATELIMIT_RESET</span>.<span class="ident">clone</span>(), <span class="ident">HeaderValue::from</span>(<span class="ident">seconds</span>));
-            <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">RETRY_AFTER</span>, <span class="ident">HeaderValue::from</span>(<span class="ident">seconds</span>));
-            <span class="ident">response</span>
+            <span class="kw">let </span>seconds = status.seconds_until_reset();
+            map.insert(X_RATELIMIT_RESET.clone(), HeaderValue::from(seconds));
+            map.insert(RETRY_AFTER, HeaderValue::from(seconds));
+            response
         });
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// In the event that the request is allowed:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// You can optionally mutate the response headers to include the rate limit status.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default no changes are made to the response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note the [Backend::Output] will be [None] if the backend failed and</span>
-    <span class="doccomment">/// [RateLimiterBuilder::fail_open] is enabled.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The boolean parameter indicates if the rate limit was rolled back (so the remaining</span>
-    <span class="doccomment">/// request count can be adjusted).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request_allowed_transformation</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mutation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">M</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BO</span><span class="op">&gt;</span>, <span class="ident">bool</span>) <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// In the event that the request is allowed:
+    ///
+    /// You can optionally mutate the response headers to include the rate limit status.
+    ///
+    /// By default no changes are made to the response.
+    ///
+    /// Note the [Backend::Output] will be [None] if the backend failed and
+    /// [RateLimiterBuilder::fail_open] is enabled.
+    ///
+    /// The boolean parameter indicates if the rate limit was rolled back (so the remaining
+    /// request count can be adjusted).
+    </span><span class="kw">pub fn </span>request_allowed_transformation&lt;M&gt;(<span class="kw-2">mut </span><span class="self">self</span>, mutation: <span class="prelude-ty">Option</span>&lt;M&gt;) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>M: Fn(<span class="kw-2">&amp;mut </span>HeaderMap, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>BO&gt;, bool) + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">allowed_transformation</span> <span class="op">=</span> <span class="ident">mutation</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">Rc::new</span>(<span class="ident">m</span>) <span class="kw">as</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">AllowedTransformation</span><span class="op">&lt;</span><span class="ident">BO</span><span class="op">&gt;</span><span class="op">&gt;</span>);
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.allowed_transformation = mutation.map(|m| Rc::new(m) <span class="kw">as </span>Rc&lt;AllowedTransformation&lt;BO&gt;&gt;);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// In the event that the request is denied, configure the [HttpResponse] returned.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to an empty body with status 429.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request_denied_response</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">denied_response</span>: <span class="ident">R</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">R</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">BO</span>) -&gt; <span class="ident">HttpResponse</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// In the event that the request is denied, configure the [HttpResponse] returned.
+    ///
+    /// Defaults to an empty body with status 429.
+    </span><span class="kw">pub fn </span>request_denied_response&lt;R&gt;(<span class="kw-2">mut </span><span class="self">self</span>, denied_response: R) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>R: Fn(<span class="kw-2">&amp;</span>BO) -&gt; HttpResponse + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">denied_response</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">denied_response</span>);
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.denied_response = Rc::new(denied_response);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// After processing a request, attempt to rollback the request count based on the status</span>
-    <span class="doccomment">/// of the service response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default the rate limit is never rolled back.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rollback_condition</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">condition</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">Fn</span>(<span class="ident">StatusCode</span>) -&gt; <span class="ident">bool</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// After processing a request, attempt to rollback the request count based on the status
+    /// of the service response.
+    ///
+    /// By default the rate limit is never rolled back.
+    </span><span class="kw">pub fn </span>rollback_condition&lt;C&gt;(<span class="kw-2">mut </span><span class="self">self</span>, condition: <span class="prelude-ty">Option</span>&lt;C&gt;) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>C: Fn(StatusCode) -&gt; bool + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">rollback_condition</span> <span class="op">=</span> <span class="ident">condition</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">Rc::new</span>(<span class="ident">m</span>) <span class="kw">as</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RollbackCondition</span><span class="op">&gt;</span>);
-        <span class="self">self</span>
+        <span class="self">self</span>.rollback_condition = condition.map(|m| Rc::new(m) <span class="kw">as </span>Rc&lt;RollbackCondition&gt;);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Configures the [RateLimiterBuilder::rollback_condition] to rollback if the status code
+    /// is a server error (5xx).
+    </span><span class="kw">pub fn </span>rollback_server_errors(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.rollback_condition(<span class="prelude-val">Some</span>(|status: StatusCode| status.is_server_error()))
     }
 
-    <span class="doccomment">/// Configures the [RateLimiterBuilder::rollback_condition] to rollback if the status code</span>
-    <span class="doccomment">/// is a server error (5xx).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rollback_server_errors</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">rollback_condition</span>(<span class="prelude-val">Some</span>(<span class="op">|</span><span class="ident">status</span>: <span class="ident">StatusCode</span><span class="op">|</span> <span class="ident">status</span>.<span class="ident">is_server_error</span>()))
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="ident">RateLimiter</span><span class="op">&lt;</span><span class="ident">BE</span>, <span class="ident">BO</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="ident">RateLimiter</span> {
-            <span class="ident">backend</span>: <span class="self">self</span>.<span class="ident">backend</span>,
-            <span class="ident">input_fn</span>: <span class="ident">Rc::new</span>(<span class="self">self</span>.<span class="ident">input_fn</span>),
-            <span class="ident">fail_open</span>: <span class="self">self</span>.<span class="ident">fail_open</span>,
-            <span class="ident">allowed_mutation</span>: <span class="self">self</span>.<span class="ident">allowed_transformation</span>,
-            <span class="ident">denied_response</span>: <span class="self">self</span>.<span class="ident">denied_response</span>,
-            <span class="ident">rollback_condition</span>: <span class="self">self</span>.<span class="ident">rollback_condition</span>,
+    <span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; RateLimiter&lt;BE, BO, F&gt; {
+        RateLimiter {
+            backend: <span class="self">self</span>.backend,
+            input_fn: Rc::new(<span class="self">self</span>.input_fn),
+            fail_open: <span class="self">self</span>.fail_open,
+            allowed_mutation: <span class="self">self</span>.allowed_transformation,
+            denied_response: <span class="self">self</span>.denied_response,
+            rollback_condition: <span class="self">self</span>.rollback_condition,
         }
     }
 }
 
-<span class="doccomment">/// A trait that a [Backend::Output] should implement in order to use the</span>
-<span class="doccomment">/// [RateLimiterBuilder::add_headers] function.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HeaderCompatibleOutput</span> {
-    <span class="doccomment">/// Value for the `x-ratelimit-limit` header.</span>
-    <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span>;
+<span class="doccomment">/// A trait that a [Backend::Output] should implement in order to use the
+/// [RateLimiterBuilder::add_headers] function.
+</span><span class="kw">pub trait </span>HeaderCompatibleOutput {
+    <span class="doccomment">/// Value for the `x-ratelimit-limit` header.
+    </span><span class="kw">fn </span>limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64;
 
-    <span class="doccomment">/// Value for the `x-ratelimit-remaining` header.</span>
-    <span class="kw">fn</span> <span class="ident">remaining</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span>;
+    <span class="doccomment">/// Value for the `x-ratelimit-remaining` header.
+    </span><span class="kw">fn </span>remaining(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64;
 
-    <span class="doccomment">/// Value for the `x-ratelimit-reset` and `retry-at` headers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This should be the number of seconds from now until the limit resets.\</span>
-    <span class="doccomment">/// If the limit has already reset this should return 0.</span>
-    <span class="kw">fn</span> <span class="ident">seconds_until_reset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span>;
+    <span class="doccomment">/// Value for the `x-ratelimit-reset` and `retry-at` headers.
+    ///
+    /// This should be the number of seconds from now until the limit resets.\
+    /// If the limit has already reset this should return 0.
+    </span><span class="kw">fn </span>seconds_until_reset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_extensible_rate_limit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_extensible_rate_limit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

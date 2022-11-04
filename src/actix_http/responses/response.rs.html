@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/responses/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/responses/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -438,443 +438,443 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
-</pre><pre class="rust"><code><span class="doccomment">//! HTTP response.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! HTTP response.
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cell</span>::{<span class="ident">Ref</span>, <span class="ident">RefCell</span>, <span class="ident">RefMut</span>},
-    <span class="ident">fmt</span>, <span class="ident">str</span>,
+</span><span class="kw">use </span>std::{
+    cell::{Ref, RefCell, RefMut},
+    fmt, str,
 };
 
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
-<span class="kw">use</span> <span class="ident">bytestring::ByteString</span>;
+<span class="kw">use </span>bytes::{Bytes, BytesMut};
+<span class="kw">use </span>bytestring::ByteString;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">BoxBody</span>, <span class="ident">EitherBody</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">HeaderMap</span>, <span class="ident">TryIntoHeaderValue</span>},
-    <span class="ident">responses::BoxedResponseHead</span>,
-    <span class="ident">Error</span>, <span class="ident">Extensions</span>, <span class="ident">ResponseBuilder</span>, <span class="ident">ResponseHead</span>, <span class="ident">StatusCode</span>,
+<span class="kw">use crate</span>::{
+    body::{BoxBody, EitherBody, MessageBody},
+    header::{<span class="self">self</span>, HeaderMap, TryIntoHeaderValue},
+    responses::BoxedResponseHead,
+    Error, Extensions, ResponseBuilder, ResponseHead, StatusCode,
 };
 
-<span class="doccomment">/// An HTTP response.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">head</span>: <span class="ident">BoxedResponseHead</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">body</span>: <span class="ident">B</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">extensions</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An HTTP response.
+</span><span class="kw">pub struct </span>Response&lt;B&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) head: BoxedResponseHead,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) body: B,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) extensions: RefCell&lt;Extensions&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Constructs a new response with default body.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Response</span> {
-            <span class="ident">head</span>: <span class="ident">BoxedResponseHead::new</span>(<span class="ident">status</span>),
-            <span class="ident">body</span>: <span class="ident">BoxBody::new</span>(()),
-            <span class="ident">extensions</span>: <span class="ident">RefCell::new</span>(<span class="ident">Extensions::new</span>()),
+<span class="kw">impl </span>Response&lt;BoxBody&gt; {
+    <span class="doccomment">/// Constructs a new response with default body.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>new(status: StatusCode) -&gt; <span class="self">Self </span>{
+        Response {
+            head: BoxedResponseHead::new(status),
+            body: BoxBody::new(()),
+            extensions: RefCell::new(Extensions::new()),
         }
     }
 
-    <span class="doccomment">/// Constructs a new response builder.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="ident">ResponseBuilder</span> {
-        <span class="ident">ResponseBuilder::new</span>(<span class="ident">status</span>)
+    <span class="doccomment">/// Constructs a new response builder.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>build(status: StatusCode) -&gt; ResponseBuilder {
+        ResponseBuilder::new(status)
     }
 
-    <span class="comment">// just a couple frequently used shortcuts</span>
-    <span class="comment">// this list should not grow larger than a few</span>
+    <span class="comment">// just a couple frequently used shortcuts
+    // this list should not grow larger than a few
 
-    <span class="doccomment">/// Constructs a new response with status 200 OK.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ok</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Response::new</span>(<span class="ident">StatusCode::OK</span>)
+    </span><span class="doccomment">/// Constructs a new response with status 200 OK.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>ok() -&gt; <span class="self">Self </span>{
+        Response::new(StatusCode::OK)
     }
 
-    <span class="doccomment">/// Constructs a new response with status 400 Bad Request.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bad_request</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Response::new</span>(<span class="ident">StatusCode::BAD_REQUEST</span>)
+    <span class="doccomment">/// Constructs a new response with status 400 Bad Request.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>bad_request() -&gt; <span class="self">Self </span>{
+        Response::new(StatusCode::BAD_REQUEST)
     }
 
-    <span class="doccomment">/// Constructs a new response with status 404 Not Found.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">not_found</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Response::new</span>(<span class="ident">StatusCode::NOT_FOUND</span>)
+    <span class="doccomment">/// Constructs a new response with status 404 Not Found.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>not_found() -&gt; <span class="self">Self </span>{
+        Response::new(StatusCode::NOT_FOUND)
     }
 
-    <span class="doccomment">/// Constructs a new response with status 500 Internal Server Error.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">internal_server_error</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Response::new</span>(<span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>)
+    <span class="doccomment">/// Constructs a new response with status 500 Internal Server Error.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>internal_server_error() -&gt; <span class="self">Self </span>{
+        Response::new(StatusCode::INTERNAL_SERVER_ERROR)
     }
 
-    <span class="comment">// end shortcuts</span>
-}
+    <span class="comment">// end shortcuts
+</span>}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Constructs a new response with given body.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_body</span>(<span class="ident">status</span>: <span class="ident">StatusCode</span>, <span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="ident">Response</span> {
-            <span class="ident">head</span>: <span class="ident">BoxedResponseHead::new</span>(<span class="ident">status</span>),
-            <span class="ident">body</span>,
-            <span class="ident">extensions</span>: <span class="ident">RefCell::new</span>(<span class="ident">Extensions::new</span>()),
+<span class="kw">impl</span>&lt;B&gt; Response&lt;B&gt; {
+    <span class="doccomment">/// Constructs a new response with given body.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>with_body(status: StatusCode, body: B) -&gt; Response&lt;B&gt; {
+        Response {
+            head: BoxedResponseHead::new(status),
+            body,
+            extensions: RefCell::new(Extensions::new()),
         }
     }
 
-    <span class="doccomment">/// Returns a reference to the head of this response.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ResponseHead</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">head</span>
+    <span class="doccomment">/// Returns a reference to the head of this response.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>head(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ResponseHead {
+        <span class="kw-2">&amp;*</span><span class="self">self</span>.head
     }
 
-    <span class="doccomment">/// Returns a mutable reference to the head of this response.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">ResponseHead</span> {
-        <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">head</span>
+    <span class="doccomment">/// Returns a mutable reference to the head of this response.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>head_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ResponseHead {
+        <span class="kw-2">&amp;mut *</span><span class="self">self</span>.head
     }
 
-    <span class="doccomment">/// Returns the status code of this response.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">status</span>
+    <span class="doccomment">/// Returns the status code of this response.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        <span class="self">self</span>.head.status
     }
 
-    <span class="doccomment">/// Returns a mutable reference the status code of this response.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">StatusCode</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">status</span>
+    <span class="doccomment">/// Returns a mutable reference the status code of this response.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>status_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>StatusCode {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.head.status
     }
 
-    <span class="doccomment">/// Returns a reference to response headers.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>.<span class="ident">headers</span>
+    <span class="doccomment">/// Returns a reference to response headers.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.head.headers
     }
 
-    <span class="doccomment">/// Returns a mutable reference to response headers.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">headers</span>
+    <span class="doccomment">/// Returns a mutable reference to response headers.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>HeaderMap {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.head.headers
     }
 
-    <span class="doccomment">/// Returns true if connection upgrade is enabled.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">upgrade</span>()
+    <span class="doccomment">/// Returns true if connection upgrade is enabled.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>upgrade(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.head.upgrade()
     }
 
-    <span class="doccomment">/// Returns true if keep-alive is enabled.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">keep_alive</span>()
+    <span class="doccomment">/// Returns true if keep-alive is enabled.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>keep_alive(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.head.keep_alive()
     }
 
-    <span class="doccomment">/// Returns a reference to the request-local data/extensions container.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">extensions</span>.<span class="ident">borrow</span>()
+    <span class="doccomment">/// Returns a reference to the request-local data/extensions container.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+        <span class="self">self</span>.extensions.borrow()
     }
 
-    <span class="doccomment">/// Returns a mutable reference to the request-local data/extensions container.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">extensions</span>.<span class="ident">borrow_mut</span>()
+    <span class="doccomment">/// Returns a mutable reference to the request-local data/extensions container.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>extensions_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+        <span class="self">self</span>.extensions.borrow_mut()
     }
 
-    <span class="doccomment">/// Returns a reference to the body of this response.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">B</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">body</span>
+    <span class="doccomment">/// Returns a reference to the body of this response.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>body(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>B {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.body
     }
 
-    <span class="doccomment">/// Sets new body.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_body</span><span class="op">&lt;</span><span class="ident">B2</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">body</span>: <span class="ident">B2</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B2</span><span class="op">&gt;</span> {
-        <span class="ident">Response</span> {
-            <span class="ident">head</span>: <span class="self">self</span>.<span class="ident">head</span>,
-            <span class="ident">body</span>,
-            <span class="ident">extensions</span>: <span class="self">self</span>.<span class="ident">extensions</span>,
+    <span class="doccomment">/// Sets new body.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_body&lt;B2&gt;(<span class="self">self</span>, body: B2) -&gt; Response&lt;B2&gt; {
+        Response {
+            head: <span class="self">self</span>.head,
+            body,
+            extensions: <span class="self">self</span>.extensions,
         }
     }
 
-    <span class="doccomment">/// Drops body and returns new response.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">drop_body</span>(<span class="self">self</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">set_body</span>(())
+    <span class="doccomment">/// Drops body and returns new response.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>drop_body(<span class="self">self</span>) -&gt; Response&lt;()&gt; {
+        <span class="self">self</span>.set_body(())
     }
 
-    <span class="doccomment">/// Sets new body, returning new response and previous body value.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">replace_body</span><span class="op">&lt;</span><span class="ident">B2</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">body</span>: <span class="ident">B2</span>) -&gt; (<span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B2</span><span class="op">&gt;</span>, <span class="ident">B</span>) {
+    <span class="doccomment">/// Sets new body, returning new response and previous body value.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>replace_body&lt;B2&gt;(<span class="self">self</span>, body: B2) -&gt; (Response&lt;B2&gt;, B) {
         (
-            <span class="ident">Response</span> {
-                <span class="ident">head</span>: <span class="self">self</span>.<span class="ident">head</span>,
-                <span class="ident">body</span>,
-                <span class="ident">extensions</span>: <span class="self">self</span>.<span class="ident">extensions</span>,
+            Response {
+                head: <span class="self">self</span>.head,
+                body,
+                extensions: <span class="self">self</span>.extensions,
             },
-            <span class="self">self</span>.<span class="ident">body</span>,
+            <span class="self">self</span>.body,
         )
     }
 
-    <span class="doccomment">/// Returns split head and body.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Implementation Notes</span>
-    <span class="doccomment">/// Due to internal performance optimizations, the first element of the returned tuple is a</span>
-    <span class="doccomment">/// `Response` as well but only contains the head of the response this was called on.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_parts</span>(<span class="self">self</span>) -&gt; (<span class="ident">Response</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="ident">B</span>) {
-        <span class="self">self</span>.<span class="ident">replace_body</span>(())
+    <span class="doccomment">/// Returns split head and body.
+    ///
+    /// # Implementation Notes
+    /// Due to internal performance optimizations, the first element of the returned tuple is a
+    /// `Response` as well but only contains the head of the response this was called on.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>into_parts(<span class="self">self</span>) -&gt; (Response&lt;()&gt;, B) {
+        <span class="self">self</span>.replace_body(())
     }
 
-    <span class="doccomment">/// Map the current body type to another using a closure, returning a new response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Closure receives the response head and the current body type.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_body</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B2</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B2</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ResponseHead</span>, <span class="ident">B</span>) -&gt; <span class="ident">B2</span>,
+    <span class="doccomment">/// Map the current body type to another using a closure, returning a new response.
+    ///
+    /// Closure receives the response head and the current body type.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>map_body&lt;F, B2&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; Response&lt;B2&gt;
+    <span class="kw">where
+        </span>F: FnOnce(<span class="kw-2">&amp;mut </span>ResponseHead, B) -&gt; B2,
     {
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">head</span>, <span class="self">self</span>.<span class="ident">body</span>);
+        <span class="kw">let </span>body = f(<span class="kw-2">&amp;mut </span><span class="self">self</span>.head, <span class="self">self</span>.body);
 
-        <span class="ident">Response</span> {
-            <span class="ident">head</span>: <span class="self">self</span>.<span class="ident">head</span>,
-            <span class="ident">body</span>,
-            <span class="ident">extensions</span>: <span class="self">self</span>.<span class="ident">extensions</span>,
+        Response {
+            head: <span class="self">self</span>.head,
+            body,
+            extensions: <span class="self">self</span>.extensions,
         }
     }
 
-    <span class="doccomment">/// Map the current body to a type-erased `BoxBody`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_into_boxed_body</span>(<span class="self">self</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Map the current body to a type-erased `BoxBody`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>map_into_boxed_body(<span class="self">self</span>) -&gt; Response&lt;BoxBody&gt;
+    <span class="kw">where
+        </span>B: MessageBody + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">map_body</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">body</span><span class="op">|</span> <span class="ident">body</span>.<span class="ident">boxed</span>())
+        <span class="self">self</span>.map_body(|<span class="kw">_</span>, body| body.boxed())
     }
 
-    <span class="doccomment">/// Returns the response body, dropping all other parts.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>) -&gt; <span class="ident">B</span> {
-        <span class="self">self</span>.<span class="ident">body</span>
+    <span class="doccomment">/// Returns the response body, dropping all other parts.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>into_body(<span class="self">self</span>) -&gt; B {
+        <span class="self">self</span>.body
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+<span class="kw">impl</span>&lt;B&gt; fmt::Debug <span class="kw">for </span>Response&lt;B&gt;
+<span class="kw">where
+    </span>B: MessageBody,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">writeln!</span>(
-            <span class="ident">f</span>,
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span>res = <span class="macro">writeln!</span>(
+            f,
             <span class="string">&quot;\nResponse {:?} {}{}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">version</span>,
-            <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">status</span>,
-            <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">reason</span>.<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>),
+            <span class="self">self</span>.head.version,
+            <span class="self">self</span>.head.status,
+            <span class="self">self</span>.head.reason.unwrap_or(<span class="string">&quot;&quot;</span>),
         );
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;  headers:&quot;</span>);
-        <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">val</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;    {:?}: {:?}&quot;</span>, <span class="ident">key</span>, <span class="ident">val</span>);
+        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;  headers:&quot;</span>);
+        <span class="kw">for </span>(key, val) <span class="kw">in </span><span class="self">self</span>.head.headers.iter() {
+            <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;    {:?}: {:?}&quot;</span>, key, val);
         }
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;  body: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">size</span>());
-        <span class="ident">res</span>
+        <span class="kw">let _ </span>= <span class="macro">writeln!</span>(f, <span class="string">&quot;  body: {:?}&quot;</span>, <span class="self">self</span>.body.size());
+        res
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::default</span>(), <span class="ident">B::default</span>())
+<span class="kw">impl</span>&lt;B: Default&gt; Default <span class="kw">for </span>Response&lt;B&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>default() -&gt; Response&lt;B&gt; {
+        Response::with_body(StatusCode::default(), B::default())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">E</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">res</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">into</span>(),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Response::from</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+<span class="kw">impl</span>&lt;I: Into&lt;Response&lt;BoxBody&gt;&gt;, E: Into&lt;Error&gt;&gt; From&lt;<span class="prelude-ty">Result</span>&lt;I, E&gt;&gt; <span class="kw">for </span>Response&lt;BoxBody&gt; {
+    <span class="kw">fn </span>from(res: <span class="prelude-ty">Result</span>&lt;I, E&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>res {
+            <span class="prelude-val">Ok</span>(val) =&gt; val.into(),
+            <span class="prelude-val">Err</span>(err) =&gt; Response::from(err.into()),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ResponseBuilder</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">EitherBody</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">mut</span> <span class="ident">builder</span>: <span class="ident">ResponseBuilder</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">builder</span>.<span class="ident">finish</span>()
+<span class="kw">impl </span>From&lt;ResponseBuilder&gt; <span class="kw">for </span>Response&lt;EitherBody&lt;()&gt;&gt; {
+    <span class="kw">fn </span>from(<span class="kw-2">mut </span>builder: ResponseBuilder) -&gt; <span class="self">Self </span>{
+        builder.finish()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::convert::Infallible</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="ident">std::convert::Infallible</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">val</span> {}
+<span class="kw">impl </span>From&lt;std::convert::Infallible&gt; <span class="kw">for </span>Response&lt;BoxBody&gt; {
+    <span class="kw">fn </span>from(val: std::convert::Infallible) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>val {}
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::OK</span>, <span class="ident">val</span>);
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::TEXT_PLAIN_UTF_8</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
-        <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; <span class="kw">for </span>Response&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    <span class="kw">fn </span>from(val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val);
+        <span class="kw">let </span>mime = mime::TEXT_PLAIN_UTF_8.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
+        res
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::OK</span>, <span class="ident">val</span>);
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::APPLICATION_OCTET_STREAM</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
-        <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]&gt; <span class="kw">for </span>Response&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]&gt; {
+    <span class="kw">fn </span>from(val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val);
+        <span class="kw">let </span>mime = mime::APPLICATION_OCTET_STREAM.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
+        res
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::OK</span>, <span class="ident">val</span>);
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::APPLICATION_OCTET_STREAM</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
-        <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;Vec&lt;u8&gt;&gt; <span class="kw">for </span>Response&lt;Vec&lt;u8&gt;&gt; {
+    <span class="kw">fn </span>from(val: Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val);
+        <span class="kw">let </span>mime = mime::APPLICATION_OCTET_STREAM.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
+        res
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::OK</span>, <span class="ident">val</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::APPLICATION_OCTET_STREAM</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
-        <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>Vec&lt;u8&gt;&gt; <span class="kw">for </span>Response&lt;Vec&lt;u8&gt;&gt; {
+    <span class="kw">fn </span>from(val: <span class="kw-2">&amp;</span>Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val.clone());
+        <span class="kw">let </span>mime = mime::APPLICATION_OCTET_STREAM.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
+        res
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::OK</span>, <span class="ident">val</span>);
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::TEXT_PLAIN_UTF_8</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
-        <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;String&gt; <span class="kw">for </span>Response&lt;String&gt; {
+    <span class="kw">fn </span>from(val: String) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val);
+        <span class="kw">let </span>mime = mime::TEXT_PLAIN_UTF_8.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
+        res
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::OK</span>, <span class="ident">val</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::TEXT_PLAIN_UTF_8</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
-        <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>String&gt; <span class="kw">for </span>Response&lt;String&gt; {
+    <span class="kw">fn </span>from(val: <span class="kw-2">&amp;</span>String) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val.clone());
+        <span class="kw">let </span>mime = mime::TEXT_PLAIN_UTF_8.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
+        res
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="ident">Bytes</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::OK</span>, <span class="ident">val</span>);
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::APPLICATION_OCTET_STREAM</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
-        <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;Bytes&gt; <span class="kw">for </span>Response&lt;Bytes&gt; {
+    <span class="kw">fn </span>from(val: Bytes) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val);
+        <span class="kw">let </span>mime = mime::APPLICATION_OCTET_STREAM.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
+        res
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BytesMut</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BytesMut</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="ident">BytesMut</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::OK</span>, <span class="ident">val</span>);
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::APPLICATION_OCTET_STREAM</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
-        <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;BytesMut&gt; <span class="kw">for </span>Response&lt;BytesMut&gt; {
+    <span class="kw">fn </span>from(val: BytesMut) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val);
+        <span class="kw">let </span>mime = mime::APPLICATION_OCTET_STREAM.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
+        res
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ByteString</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">ByteString</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="ident">ByteString</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::OK</span>, <span class="ident">val</span>);
-        <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::TEXT_PLAIN_UTF_8</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-        <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
-        <span class="ident">res</span>
+<span class="kw">impl </span>From&lt;ByteString&gt; <span class="kw">for </span>Response&lt;ByteString&gt; {
+    <span class="kw">fn </span>from(val: ByteString) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>res = Response::with_body(StatusCode::OK, val);
+        <span class="kw">let </span>mime = mime::TEXT_PLAIN_UTF_8.try_into_value().unwrap();
+        res.headers_mut().insert(header::CONTENT_TYPE, mime);
+        res
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">body::to_bytes</span>,
-        <span class="ident">header</span>::{<span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>, <span class="ident">COOKIE</span>},
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{
+        body::to_bytes,
+        header::{HeaderValue, CONTENT_TYPE, COOKIE},
     };
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_debug</span>() {
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">Response::build</span>(<span class="ident">StatusCode::OK</span>)
-            .<span class="ident">append_header</span>((<span class="ident">COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;cookie1=value1; &quot;</span>)))
-            .<span class="ident">append_header</span>((<span class="ident">COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;cookie2=value2; &quot;</span>)))
-            .<span class="ident">finish</span>();
-        <span class="kw">let</span> <span class="ident">dbg</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">resp</span>);
-        <span class="macro">assert!</span>(<span class="ident">dbg</span>.<span class="ident">contains</span>(<span class="string">&quot;Response&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_debug() {
+        <span class="kw">let </span>resp = Response::build(StatusCode::OK)
+            .append_header((COOKIE, HeaderValue::from_static(<span class="string">&quot;cookie1=value1; &quot;</span>)))
+            .append_header((COOKIE, HeaderValue::from_static(<span class="string">&quot;cookie2=value2; &quot;</span>)))
+            .finish();
+        <span class="kw">let </span>dbg = <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, resp);
+        <span class="macro">assert!</span>(dbg.contains(<span class="string">&quot;Response&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_into_response</span>() {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::from</span>(<span class="string">&quot;test&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_into_response() {
+        <span class="kw">let </span>res = Response::from(<span class="string">&quot;test&quot;</span>);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::from</span>(<span class="string">b&quot;test&quot;</span>.<span class="ident">as_ref</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>res = Response::from(<span class="string">b&quot;test&quot;</span>.as_ref());
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/octet-stream&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::from</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">to_owned</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>res = Response::from(<span class="string">&quot;test&quot;</span>.to_owned());
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::from</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">to_owned</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>res = Response::from(<span class="string">&quot;test&quot;</span>.to_owned());
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;text/plain; charset=utf-8&quot;</span>)
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
 
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>);
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::from</span>(<span class="ident">b</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>b = Bytes::from_static(<span class="string">b&quot;test&quot;</span>);
+        <span class="kw">let </span>res = Response::from(b);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/octet-stream&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
 
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>);
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::from</span>(<span class="ident">b</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>b = Bytes::from_static(<span class="string">b&quot;test&quot;</span>);
+        <span class="kw">let </span>res = Response::from(b);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/octet-stream&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
 
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="string">&quot;test&quot;</span>);
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::from</span>(<span class="ident">b</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+        <span class="kw">let </span>b = BytesMut::from(<span class="string">&quot;test&quot;</span>);
+        <span class="kw">let </span>res = Response::from(b);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/octet-stream&quot;</span>)
+            res.headers().get(CONTENT_TYPE).unwrap(),
+            HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>)
         );
 
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">to_bytes</span>(<span class="ident">res</span>.<span class="ident">into_body</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(to_bytes(res.into_body()).<span class="kw">await</span>.unwrap(), <span class="kw-2">&amp;</span><span class="string">b&quot;test&quot;</span>[..]);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

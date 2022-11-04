@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -158,163 +158,163 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
-</pre><pre class="rust"><code><span class="doccomment">//! ## Transports for sending emails</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This module contains `Transport`s for sending emails. A `Transport` implements a high-level API</span>
-<span class="doccomment">//! for sending emails. It automatically manages the underlying resources and doesn&#39;t require any</span>
-<span class="doccomment">//! specific knowledge of email protocols in order to be used.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Getting started</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Sending emails from your programs requires using an email relay, as client libraries are not</span>
-<span class="doccomment">//! designed to handle email delivery by themselves. Depending on your infrastructure, your relay</span>
-<span class="doccomment">//! could be:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * a service from your Cloud or hosting provider</span>
-<span class="doccomment">//! * an email server ([MTA] for Mail Transfer Agent, like Postfix or Exchange), running either</span>
-<span class="doccomment">//! locally on your servers or accessible over the network</span>
-<span class="doccomment">//! * a dedicated external service, like Mailchimp, Mailgun, etc.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! In most cases, the best option is to:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * Use the [`SMTP`] transport, with the [`relay`] builder (or one of its async counterparts)</span>
-<span class="doccomment">//!   with your server&#39;s hostname. They provide modern and secure defaults.</span>
-<span class="doccomment">//! * Use the [`credentials`] method of the builder to pass your credentials.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! These should be enough to safely cover most use cases.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Available transports</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The following transports are available:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Module       | Protocol | Sync API              | Async API                  | Description                                             |</span>
-<span class="doccomment">//! | ------------ | -------- | --------------------- | -------------------------- | ------------------------------------------------------- |</span>
-<span class="doccomment">//! | [`smtp`]     | SMTP     | [`SmtpTransport`]     | [`AsyncSmtpTransport`]     | Uses the SMTP protocol to send emails to a relay server |</span>
-<span class="doccomment">//! | [`sendmail`] | Sendmail | [`SendmailTransport`] | [`AsyncSendmailTransport`] | Uses the `sendmail` command to send emails              |</span>
-<span class="doccomment">//! | [`file`]     | File     | [`FileTransport`]     | [`AsyncFileTransport`]     | Saves the email as an `.eml` file                       |</span>
-<span class="doccomment">//! | [`stub`]     | Debug    | [`StubTransport`]     | [`StubTransport`]          | Drops the email - Useful for debugging                  |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Building an email</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Emails can either be built though [`Message`], which is a typed API for constructing emails</span>
-<span class="doccomment">//! (find out more about it by going over the [`message`][crate::message] module),</span>
-<span class="doccomment">//! or via external means.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`Message`]s can be sent via [`Transport::send`] or [`AsyncTransport::send`], while messages</span>
-<span class="doccomment">//! built without lettre&#39;s [`message`][crate::message] APIs can be sent via [`Transport::send_raw`]</span>
-<span class="doccomment">//! or [`AsyncTransport::send_raw`].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Brief example</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This example shows how to build an email and send it via an SMTP relay server.</span>
-<span class="doccomment">//! It is in no way a complete example, but it shows how to get started with lettre.</span>
-<span class="doccomment">//! More examples can be found by looking at the specific modules, linked in the _Module_ column</span>
-<span class="doccomment">//! of the [table above](#transports-for-sending-emails).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! # use std::error::Error;</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # #[cfg(all(feature = &quot;builder&quot;, feature = &quot;smtp-transport&quot;))]</span>
-<span class="doccomment">//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="doccomment">//! use lettre::{transport::smtp::authentication::Credentials, Message, SmtpTransport, Transport};</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let email = Message::builder()</span>
-<span class="doccomment">//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .subject(&quot;Happy new year&quot;)</span>
-<span class="doccomment">//!     .body(String::from(&quot;Be happy!&quot;))?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let creds = Credentials::new(&quot;smtp_username&quot;.to_string(), &quot;smtp_password&quot;.to_string());</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Open a remote connection to the SMTP relay server</span>
-<span class="doccomment">//! let mailer = SmtpTransport::relay(&quot;smtp.gmail.com&quot;)?</span>
-<span class="doccomment">//!     .credentials(creds)</span>
-<span class="doccomment">//!     .build();</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Send the email</span>
-<span class="doccomment">//! match mailer.send(&amp;email) {</span>
-<span class="doccomment">//!     Ok(_) =&gt; println!(&quot;Email sent successfully!&quot;),</span>
-<span class="doccomment">//!     Err(e) =&gt; panic!(&quot;Could not send email: {:?}&quot;, e),</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! # #[cfg(not(all(feature = &quot;builder&quot;, feature = &quot;smtp-transport&quot;)))]</span>
-<span class="doccomment">//! # fn main() {}</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [MTA]: https://en.wikipedia.org/wiki/Message_transfer_agent</span>
-<span class="doccomment">//! [`SMTP`]: crate::transport::smtp</span>
-<span class="doccomment">//! [`relay`]: crate::SmtpTransport::relay</span>
-<span class="doccomment">//! [`starttls_relay`]: crate::SmtpTransport::starttls_relay</span>
-<span class="doccomment">//! [`credentials`]: crate::transport::smtp::SmtpTransportBuilder::credentials</span>
-<span class="doccomment">//! [`Message`]: crate::Message</span>
-<span class="doccomment">//! [`file`]: self::file</span>
-<span class="doccomment">//! [`SmtpTransport`]: crate::SmtpTransport</span>
-<span class="doccomment">//! [`AsyncSmtpTransport`]: crate::AsyncSmtpTransport</span>
-<span class="doccomment">//! [`SendmailTransport`]: crate::SendmailTransport</span>
-<span class="doccomment">//! [`AsyncSendmailTransport`]: crate::AsyncSendmailTransport</span>
-<span class="doccomment">//! [`FileTransport`]: crate::FileTransport</span>
-<span class="doccomment">//! [`AsyncFileTransport`]: crate::AsyncFileTransport</span>
-<span class="doccomment">//! [`StubTransport`]: crate::transport::stub::StubTransport</span>
+</pre><pre class="rust"><code><span class="doccomment">//! ## Transports for sending emails
+//!
+//! This module contains `Transport`s for sending emails. A `Transport` implements a high-level API
+//! for sending emails. It automatically manages the underlying resources and doesn&#39;t require any
+//! specific knowledge of email protocols in order to be used.
+//!
+//! ### Getting started
+//!
+//! Sending emails from your programs requires using an email relay, as client libraries are not
+//! designed to handle email delivery by themselves. Depending on your infrastructure, your relay
+//! could be:
+//!
+//! * a service from your Cloud or hosting provider
+//! * an email server ([MTA] for Mail Transfer Agent, like Postfix or Exchange), running either
+//! locally on your servers or accessible over the network
+//! * a dedicated external service, like Mailchimp, Mailgun, etc.
+//!
+//! In most cases, the best option is to:
+//!
+//! * Use the [`SMTP`] transport, with the [`relay`] builder (or one of its async counterparts)
+//!   with your server&#39;s hostname. They provide modern and secure defaults.
+//! * Use the [`credentials`] method of the builder to pass your credentials.
+//!
+//! These should be enough to safely cover most use cases.
+//!
+//! ### Available transports
+//!
+//! The following transports are available:
+//!
+//! | Module       | Protocol | Sync API              | Async API                  | Description                                             |
+//! | ------------ | -------- | --------------------- | -------------------------- | ------------------------------------------------------- |
+//! | [`smtp`]     | SMTP     | [`SmtpTransport`]     | [`AsyncSmtpTransport`]     | Uses the SMTP protocol to send emails to a relay server |
+//! | [`sendmail`] | Sendmail | [`SendmailTransport`] | [`AsyncSendmailTransport`] | Uses the `sendmail` command to send emails              |
+//! | [`file`]     | File     | [`FileTransport`]     | [`AsyncFileTransport`]     | Saves the email as an `.eml` file                       |
+//! | [`stub`]     | Debug    | [`StubTransport`]     | [`StubTransport`]          | Drops the email - Useful for debugging                  |
+//!
+//! ## Building an email
+//!
+//! Emails can either be built though [`Message`], which is a typed API for constructing emails
+//! (find out more about it by going over the [`message`][crate::message] module),
+//! or via external means.
+//!
+//! [`Message`]s can be sent via [`Transport::send`] or [`AsyncTransport::send`], while messages
+//! built without lettre&#39;s [`message`][crate::message] APIs can be sent via [`Transport::send_raw`]
+//! or [`AsyncTransport::send_raw`].
+//!
+//! ## Brief example
+//!
+//! This example shows how to build an email and send it via an SMTP relay server.
+//! It is in no way a complete example, but it shows how to get started with lettre.
+//! More examples can be found by looking at the specific modules, linked in the _Module_ column
+//! of the [table above](#transports-for-sending-emails).
+//!
+//! ```rust,no_run
+//! # use std::error::Error;
+//! #
+//! # #[cfg(all(feature = &quot;builder&quot;, feature = &quot;smtp-transport&quot;))]
+//! # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+//! use lettre::{transport::smtp::authentication::Credentials, Message, SmtpTransport, Transport};
+//!
+//! let email = Message::builder()
+//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
+//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
+//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
+//!     .subject(&quot;Happy new year&quot;)
+//!     .body(String::from(&quot;Be happy!&quot;))?;
+//!
+//! let creds = Credentials::new(&quot;smtp_username&quot;.to_string(), &quot;smtp_password&quot;.to_string());
+//!
+//! // Open a remote connection to the SMTP relay server
+//! let mailer = SmtpTransport::relay(&quot;smtp.gmail.com&quot;)?
+//!     .credentials(creds)
+//!     .build();
+//!
+//! // Send the email
+//! match mailer.send(&amp;email) {
+//!     Ok(_) =&gt; println!(&quot;Email sent successfully!&quot;),
+//!     Err(e) =&gt; panic!(&quot;Could not send email: {:?}&quot;, e),
+//! }
+//! # Ok(())
+//! # }
+//! # #[cfg(not(all(feature = &quot;builder&quot;, feature = &quot;smtp-transport&quot;)))]
+//! # fn main() {}
+//! ```
+//!
+//! [MTA]: https://en.wikipedia.org/wiki/Message_transfer_agent
+//! [`SMTP`]: crate::transport::smtp
+//! [`relay`]: crate::SmtpTransport::relay
+//! [`starttls_relay`]: crate::SmtpTransport::starttls_relay
+//! [`credentials`]: crate::transport::smtp::SmtpTransportBuilder::credentials
+//! [`Message`]: crate::Message
+//! [`file`]: self::file
+//! [`SmtpTransport`]: crate::SmtpTransport
+//! [`AsyncSmtpTransport`]: crate::AsyncSmtpTransport
+//! [`SendmailTransport`]: crate::SendmailTransport
+//! [`AsyncSendmailTransport`]: crate::AsyncSendmailTransport
+//! [`FileTransport`]: crate::FileTransport
+//! [`AsyncFileTransport`]: crate::AsyncFileTransport
+//! [`StubTransport`]: crate::transport::stub::StubTransport
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+</span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;async-std1&quot;</span>, feature = <span class="string">&quot;tokio1&quot;</span>))]
+</span><span class="kw">use </span>async_trait::async_trait;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Envelope</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Message</span>;
+<span class="kw">use </span><span class="kw">crate</span>::Envelope;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;builder&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::Message;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;file-transport&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;file-transport&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">file</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sendmail-transport&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sendmail-transport&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">sendmail</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;smtp-transport&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;smtp-transport&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">smtp</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">stub</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;file-transport&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;file-transport&quot;</span>)))]
+</span><span class="kw">pub mod </span>file;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sendmail-transport&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;sendmail-transport&quot;</span>)))]
+</span><span class="kw">pub mod </span>sendmail;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;smtp-transport&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;smtp-transport&quot;</span>)))]
+</span><span class="kw">pub mod </span>smtp;
+<span class="kw">pub mod </span>stub;
 
-<span class="doccomment">/// Blocking Transport method for emails</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Transport</span> {
-    <span class="doccomment">/// Response produced by the Transport</span>
-    <span class="kw">type</span> <span class="prelude-val">Ok</span>;
-    <span class="doccomment">/// Error produced by the Transport</span>
-    <span class="kw">type</span> <span class="ident">Error</span>;
+<span class="doccomment">/// Blocking Transport method for emails
+</span><span class="kw">pub trait </span>Transport {
+    <span class="doccomment">/// Response produced by the Transport
+    </span><span class="kw">type </span><span class="prelude-val">Ok</span>;
+    <span class="doccomment">/// Error produced by the Transport
+    </span><span class="kw">type </span>Error;
 
-    <span class="doccomment">/// Sends the email</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)))]</span>
-    <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">Message</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">formatted</span>();
-        <span class="self">self</span>.<span class="ident">send_raw</span>(<span class="ident">message</span>.<span class="ident">envelope</span>(), <span class="kw-2">&amp;</span><span class="ident">raw</span>)
+    <span class="doccomment">/// Sends the email
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;builder&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;builder&quot;</span>)))]
+    </span><span class="kw">fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, message: <span class="kw-2">&amp;</span>Message) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>raw = message.formatted();
+        <span class="self">self</span>.send_raw(message.envelope(), <span class="kw-2">&amp;</span>raw)
     }
 
-    <span class="kw">fn</span> <span class="ident">send_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">envelope</span>: <span class="kw-2">&amp;</span><span class="ident">Envelope</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>send_raw(<span class="kw-2">&amp;</span><span class="self">self</span>, envelope: <span class="kw-2">&amp;</span>Envelope, email: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;;
 }
 
-<span class="doccomment">/// Async Transport method for emails</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))))]</span>
-<span class="attribute">#[<span class="ident">async_trait</span>]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AsyncTransport</span> {
-    <span class="doccomment">/// Response produced by the Transport</span>
-    <span class="kw">type</span> <span class="prelude-val">Ok</span>;
-    <span class="doccomment">/// Error produced by the Transport</span>
-    <span class="kw">type</span> <span class="ident">Error</span>;
+<span class="doccomment">/// Async Transport method for emails
+</span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))))]
+#[async_trait]
+</span><span class="kw">pub trait </span>AsyncTransport {
+    <span class="doccomment">/// Response produced by the Transport
+    </span><span class="kw">type </span><span class="prelude-val">Ok</span>;
+    <span class="doccomment">/// Error produced by the Transport
+    </span><span class="kw">type </span>Error;
 
-    <span class="doccomment">/// Sends the email</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)))]</span>
-    <span class="comment">// TODO take &amp;Message</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">message</span>: <span class="ident">Message</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">formatted</span>();
-        <span class="kw">let</span> <span class="ident">envelope</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">envelope</span>();
-        <span class="self">self</span>.<span class="ident">send_raw</span>(<span class="ident">envelope</span>, <span class="kw-2">&amp;</span><span class="ident">raw</span>).<span class="kw">await</span>
-    }
+    <span class="doccomment">/// Sends the email
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;builder&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;builder&quot;</span>)))]
+    </span><span class="comment">// TODO take &amp;Message
+    </span><span class="kw">async fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, message: Message) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>raw = message.formatted();
+        <span class="kw">let </span>envelope = message.envelope();
+        <span class="self">self</span>.send_raw(envelope, <span class="kw-2">&amp;</span>raw).<span class="kw">await
+    </span>}
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">envelope</span>: <span class="kw-2">&amp;</span><span class="ident">Envelope</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Ok</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>;
+    <span class="kw">async fn </span>send_raw(<span class="kw-2">&amp;</span><span class="self">self</span>, envelope: <span class="kw-2">&amp;</span>Envelope, email: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Ok, <span class="self">Self</span>::Error&gt;;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

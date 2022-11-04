@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/blake3-1.3.1/src/portable.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>portable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../blake3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../blake3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../blake3/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/blake3-1.3.1/src/portable.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>portable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../blake3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../blake3/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../blake3/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -196,203 +196,203 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">counter_high</span>, <span class="ident">counter_low</span>, <span class="ident">CVBytes</span>, <span class="ident">CVWords</span>, <span class="ident">IncrementCounter</span>, <span class="ident">BLOCK_LEN</span>, <span class="ident">IV</span>, <span class="ident">MSG_SCHEDULE</span>,
-    <span class="ident">OUT_LEN</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    counter_high, counter_low, CVBytes, CVWords, IncrementCounter, BLOCK_LEN, IV, MSG_SCHEDULE,
+    OUT_LEN,
 };
-<span class="kw">use</span> <span class="ident">arrayref</span>::{<span class="ident">array_mut_ref</span>, <span class="ident">array_ref</span>};
+<span class="kw">use </span>arrayref::{array_mut_ref, array_ref};
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">g</span>(<span class="ident">state</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>; <span class="number">16</span>], <span class="ident">a</span>: <span class="ident">usize</span>, <span class="ident">b</span>: <span class="ident">usize</span>, <span class="ident">c</span>: <span class="ident">usize</span>, <span class="ident">d</span>: <span class="ident">usize</span>, <span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>) {
-    <span class="ident">state</span>[<span class="ident">a</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="ident">a</span>].<span class="ident">wrapping_add</span>(<span class="ident">state</span>[<span class="ident">b</span>]).<span class="ident">wrapping_add</span>(<span class="ident">x</span>);
-    <span class="ident">state</span>[<span class="ident">d</span>] <span class="op">=</span> (<span class="ident">state</span>[<span class="ident">d</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="ident">a</span>]).<span class="ident">rotate_right</span>(<span class="number">16</span>);
-    <span class="ident">state</span>[<span class="ident">c</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="ident">c</span>].<span class="ident">wrapping_add</span>(<span class="ident">state</span>[<span class="ident">d</span>]);
-    <span class="ident">state</span>[<span class="ident">b</span>] <span class="op">=</span> (<span class="ident">state</span>[<span class="ident">b</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="ident">c</span>]).<span class="ident">rotate_right</span>(<span class="number">12</span>);
-    <span class="ident">state</span>[<span class="ident">a</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="ident">a</span>].<span class="ident">wrapping_add</span>(<span class="ident">state</span>[<span class="ident">b</span>]).<span class="ident">wrapping_add</span>(<span class="ident">y</span>);
-    <span class="ident">state</span>[<span class="ident">d</span>] <span class="op">=</span> (<span class="ident">state</span>[<span class="ident">d</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="ident">a</span>]).<span class="ident">rotate_right</span>(<span class="number">8</span>);
-    <span class="ident">state</span>[<span class="ident">c</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="ident">c</span>].<span class="ident">wrapping_add</span>(<span class="ident">state</span>[<span class="ident">d</span>]);
-    <span class="ident">state</span>[<span class="ident">b</span>] <span class="op">=</span> (<span class="ident">state</span>[<span class="ident">b</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="ident">c</span>]).<span class="ident">rotate_right</span>(<span class="number">7</span>);
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>g(state: <span class="kw-2">&amp;mut </span>[u32; <span class="number">16</span>], a: usize, b: usize, c: usize, d: usize, x: u32, y: u32) {
+    state[a] = state[a].wrapping_add(state[b]).wrapping_add(x);
+    state[d] = (state[d] ^ state[a]).rotate_right(<span class="number">16</span>);
+    state[c] = state[c].wrapping_add(state[d]);
+    state[b] = (state[b] ^ state[c]).rotate_right(<span class="number">12</span>);
+    state[a] = state[a].wrapping_add(state[b]).wrapping_add(y);
+    state[d] = (state[d] ^ state[a]).rotate_right(<span class="number">8</span>);
+    state[c] = state[c].wrapping_add(state[d]);
+    state[b] = (state[b] ^ state[c]).rotate_right(<span class="number">7</span>);
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">round</span>(<span class="ident">state</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u32</span>; <span class="number">16</span>], <span class="ident">msg</span>: <span class="kw-2">&amp;</span>[<span class="ident">u32</span>; <span class="number">16</span>], <span class="ident">round</span>: <span class="ident">usize</span>) {
-    <span class="comment">// Select the message schedule based on the round.</span>
-    <span class="kw">let</span> <span class="ident">schedule</span> <span class="op">=</span> <span class="ident">MSG_SCHEDULE</span>[<span class="ident">round</span>];
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>round(state: <span class="kw-2">&amp;mut </span>[u32; <span class="number">16</span>], msg: <span class="kw-2">&amp;</span>[u32; <span class="number">16</span>], round: usize) {
+    <span class="comment">// Select the message schedule based on the round.
+    </span><span class="kw">let </span>schedule = MSG_SCHEDULE[round];
 
-    <span class="comment">// Mix the columns.</span>
-    <span class="ident">g</span>(<span class="ident">state</span>, <span class="number">0</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">12</span>, <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">0</span>]], <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">1</span>]]);
-    <span class="ident">g</span>(<span class="ident">state</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">9</span>, <span class="number">13</span>, <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">2</span>]], <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">3</span>]]);
-    <span class="ident">g</span>(<span class="ident">state</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">14</span>, <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">4</span>]], <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">5</span>]]);
-    <span class="ident">g</span>(<span class="ident">state</span>, <span class="number">3</span>, <span class="number">7</span>, <span class="number">11</span>, <span class="number">15</span>, <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">6</span>]], <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">7</span>]]);
+    <span class="comment">// Mix the columns.
+    </span>g(state, <span class="number">0</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">12</span>, msg[schedule[<span class="number">0</span>]], msg[schedule[<span class="number">1</span>]]);
+    g(state, <span class="number">1</span>, <span class="number">5</span>, <span class="number">9</span>, <span class="number">13</span>, msg[schedule[<span class="number">2</span>]], msg[schedule[<span class="number">3</span>]]);
+    g(state, <span class="number">2</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">14</span>, msg[schedule[<span class="number">4</span>]], msg[schedule[<span class="number">5</span>]]);
+    g(state, <span class="number">3</span>, <span class="number">7</span>, <span class="number">11</span>, <span class="number">15</span>, msg[schedule[<span class="number">6</span>]], msg[schedule[<span class="number">7</span>]]);
 
-    <span class="comment">// Mix the diagonals.</span>
-    <span class="ident">g</span>(<span class="ident">state</span>, <span class="number">0</span>, <span class="number">5</span>, <span class="number">10</span>, <span class="number">15</span>, <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">8</span>]], <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">9</span>]]);
-    <span class="ident">g</span>(<span class="ident">state</span>, <span class="number">1</span>, <span class="number">6</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">10</span>]], <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">11</span>]]);
-    <span class="ident">g</span>(<span class="ident">state</span>, <span class="number">2</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">13</span>, <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">12</span>]], <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">13</span>]]);
-    <span class="ident">g</span>(<span class="ident">state</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">14</span>, <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">14</span>]], <span class="ident">msg</span>[<span class="ident">schedule</span>[<span class="number">15</span>]]);
+    <span class="comment">// Mix the diagonals.
+    </span>g(state, <span class="number">0</span>, <span class="number">5</span>, <span class="number">10</span>, <span class="number">15</span>, msg[schedule[<span class="number">8</span>]], msg[schedule[<span class="number">9</span>]]);
+    g(state, <span class="number">1</span>, <span class="number">6</span>, <span class="number">11</span>, <span class="number">12</span>, msg[schedule[<span class="number">10</span>]], msg[schedule[<span class="number">11</span>]]);
+    g(state, <span class="number">2</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">13</span>, msg[schedule[<span class="number">12</span>]], msg[schedule[<span class="number">13</span>]]);
+    g(state, <span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">14</span>, msg[schedule[<span class="number">14</span>]], msg[schedule[<span class="number">15</span>]]);
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">compress_pre</span>(
-    <span class="ident">cv</span>: <span class="kw-2">&amp;</span><span class="ident">CVWords</span>,
-    <span class="ident">block</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="ident">BLOCK_LEN</span>],
-    <span class="ident">block_len</span>: <span class="ident">u8</span>,
-    <span class="ident">counter</span>: <span class="ident">u64</span>,
-    <span class="ident">flags</span>: <span class="ident">u8</span>,
-) -&gt; [<span class="ident">u32</span>; <span class="number">16</span>] {
-    <span class="kw">let</span> <span class="ident">block_words</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::platform::words_from_le_bytes_64</span>(<span class="ident">block</span>);
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>compress_pre(
+    cv: <span class="kw-2">&amp;</span>CVWords,
+    block: <span class="kw-2">&amp;</span>[u8; BLOCK_LEN],
+    block_len: u8,
+    counter: u64,
+    flags: u8,
+) -&gt; [u32; <span class="number">16</span>] {
+    <span class="kw">let </span>block_words = <span class="kw">crate</span>::platform::words_from_le_bytes_64(block);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> [
-        <span class="ident">cv</span>[<span class="number">0</span>],
-        <span class="ident">cv</span>[<span class="number">1</span>],
-        <span class="ident">cv</span>[<span class="number">2</span>],
-        <span class="ident">cv</span>[<span class="number">3</span>],
-        <span class="ident">cv</span>[<span class="number">4</span>],
-        <span class="ident">cv</span>[<span class="number">5</span>],
-        <span class="ident">cv</span>[<span class="number">6</span>],
-        <span class="ident">cv</span>[<span class="number">7</span>],
-        <span class="ident">IV</span>[<span class="number">0</span>],
-        <span class="ident">IV</span>[<span class="number">1</span>],
-        <span class="ident">IV</span>[<span class="number">2</span>],
-        <span class="ident">IV</span>[<span class="number">3</span>],
-        <span class="ident">counter_low</span>(<span class="ident">counter</span>),
-        <span class="ident">counter_high</span>(<span class="ident">counter</span>),
-        <span class="ident">block_len</span> <span class="kw">as</span> <span class="ident">u32</span>,
-        <span class="ident">flags</span> <span class="kw">as</span> <span class="ident">u32</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>state = [
+        cv[<span class="number">0</span>],
+        cv[<span class="number">1</span>],
+        cv[<span class="number">2</span>],
+        cv[<span class="number">3</span>],
+        cv[<span class="number">4</span>],
+        cv[<span class="number">5</span>],
+        cv[<span class="number">6</span>],
+        cv[<span class="number">7</span>],
+        IV[<span class="number">0</span>],
+        IV[<span class="number">1</span>],
+        IV[<span class="number">2</span>],
+        IV[<span class="number">3</span>],
+        counter_low(counter),
+        counter_high(counter),
+        block_len <span class="kw">as </span>u32,
+        flags <span class="kw">as </span>u32,
     ];
 
-    <span class="ident">round</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">block_words</span>, <span class="number">0</span>);
-    <span class="ident">round</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">block_words</span>, <span class="number">1</span>);
-    <span class="ident">round</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">block_words</span>, <span class="number">2</span>);
-    <span class="ident">round</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">block_words</span>, <span class="number">3</span>);
-    <span class="ident">round</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">block_words</span>, <span class="number">4</span>);
-    <span class="ident">round</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">block_words</span>, <span class="number">5</span>);
-    <span class="ident">round</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">block_words</span>, <span class="number">6</span>);
+    round(<span class="kw-2">&amp;mut </span>state, <span class="kw-2">&amp;</span>block_words, <span class="number">0</span>);
+    round(<span class="kw-2">&amp;mut </span>state, <span class="kw-2">&amp;</span>block_words, <span class="number">1</span>);
+    round(<span class="kw-2">&amp;mut </span>state, <span class="kw-2">&amp;</span>block_words, <span class="number">2</span>);
+    round(<span class="kw-2">&amp;mut </span>state, <span class="kw-2">&amp;</span>block_words, <span class="number">3</span>);
+    round(<span class="kw-2">&amp;mut </span>state, <span class="kw-2">&amp;</span>block_words, <span class="number">4</span>);
+    round(<span class="kw-2">&amp;mut </span>state, <span class="kw-2">&amp;</span>block_words, <span class="number">5</span>);
+    round(<span class="kw-2">&amp;mut </span>state, <span class="kw-2">&amp;</span>block_words, <span class="number">6</span>);
 
-    <span class="ident">state</span>
+    state
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compress_in_place</span>(
-    <span class="ident">cv</span>: <span class="kw-2">&amp;mut</span> <span class="ident">CVWords</span>,
-    <span class="ident">block</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="ident">BLOCK_LEN</span>],
-    <span class="ident">block_len</span>: <span class="ident">u8</span>,
-    <span class="ident">counter</span>: <span class="ident">u64</span>,
-    <span class="ident">flags</span>: <span class="ident">u8</span>,
+<span class="kw">pub fn </span>compress_in_place(
+    cv: <span class="kw-2">&amp;mut </span>CVWords,
+    block: <span class="kw-2">&amp;</span>[u8; BLOCK_LEN],
+    block_len: u8,
+    counter: u64,
+    flags: u8,
 ) {
-    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">compress_pre</span>(<span class="ident">cv</span>, <span class="ident">block</span>, <span class="ident">block_len</span>, <span class="ident">counter</span>, <span class="ident">flags</span>);
+    <span class="kw">let </span>state = compress_pre(cv, block, block_len, counter, flags);
 
-    <span class="ident">cv</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="number">0</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="number">8</span>];
-    <span class="ident">cv</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="number">1</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="number">9</span>];
-    <span class="ident">cv</span>[<span class="number">2</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="number">2</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="number">10</span>];
-    <span class="ident">cv</span>[<span class="number">3</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="number">3</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="number">11</span>];
-    <span class="ident">cv</span>[<span class="number">4</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="number">4</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="number">12</span>];
-    <span class="ident">cv</span>[<span class="number">5</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="number">5</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="number">13</span>];
-    <span class="ident">cv</span>[<span class="number">6</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="number">6</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="number">14</span>];
-    <span class="ident">cv</span>[<span class="number">7</span>] <span class="op">=</span> <span class="ident">state</span>[<span class="number">7</span>] <span class="op">^</span> <span class="ident">state</span>[<span class="number">15</span>];
+    cv[<span class="number">0</span>] = state[<span class="number">0</span>] ^ state[<span class="number">8</span>];
+    cv[<span class="number">1</span>] = state[<span class="number">1</span>] ^ state[<span class="number">9</span>];
+    cv[<span class="number">2</span>] = state[<span class="number">2</span>] ^ state[<span class="number">10</span>];
+    cv[<span class="number">3</span>] = state[<span class="number">3</span>] ^ state[<span class="number">11</span>];
+    cv[<span class="number">4</span>] = state[<span class="number">4</span>] ^ state[<span class="number">12</span>];
+    cv[<span class="number">5</span>] = state[<span class="number">5</span>] ^ state[<span class="number">13</span>];
+    cv[<span class="number">6</span>] = state[<span class="number">6</span>] ^ state[<span class="number">14</span>];
+    cv[<span class="number">7</span>] = state[<span class="number">7</span>] ^ state[<span class="number">15</span>];
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compress_xof</span>(
-    <span class="ident">cv</span>: <span class="kw-2">&amp;</span><span class="ident">CVWords</span>,
-    <span class="ident">block</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="ident">BLOCK_LEN</span>],
-    <span class="ident">block_len</span>: <span class="ident">u8</span>,
-    <span class="ident">counter</span>: <span class="ident">u64</span>,
-    <span class="ident">flags</span>: <span class="ident">u8</span>,
-) -&gt; [<span class="ident">u8</span>; <span class="number">64</span>] {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">compress_pre</span>(<span class="ident">cv</span>, <span class="ident">block</span>, <span class="ident">block_len</span>, <span class="ident">counter</span>, <span class="ident">flags</span>);
-    <span class="ident">state</span>[<span class="number">0</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">8</span>];
-    <span class="ident">state</span>[<span class="number">1</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">9</span>];
-    <span class="ident">state</span>[<span class="number">2</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">10</span>];
-    <span class="ident">state</span>[<span class="number">3</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">11</span>];
-    <span class="ident">state</span>[<span class="number">4</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">12</span>];
-    <span class="ident">state</span>[<span class="number">5</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">13</span>];
-    <span class="ident">state</span>[<span class="number">6</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">14</span>];
-    <span class="ident">state</span>[<span class="number">7</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">state</span>[<span class="number">15</span>];
-    <span class="ident">state</span>[<span class="number">8</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">cv</span>[<span class="number">0</span>];
-    <span class="ident">state</span>[<span class="number">9</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">cv</span>[<span class="number">1</span>];
-    <span class="ident">state</span>[<span class="number">10</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">cv</span>[<span class="number">2</span>];
-    <span class="ident">state</span>[<span class="number">11</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">cv</span>[<span class="number">3</span>];
-    <span class="ident">state</span>[<span class="number">12</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">cv</span>[<span class="number">4</span>];
-    <span class="ident">state</span>[<span class="number">13</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">cv</span>[<span class="number">5</span>];
-    <span class="ident">state</span>[<span class="number">14</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">cv</span>[<span class="number">6</span>];
-    <span class="ident">state</span>[<span class="number">15</span>] <span class="op">^</span><span class="op">=</span> <span class="ident">cv</span>[<span class="number">7</span>];
-    <span class="ident"><span class="kw">crate</span>::platform::le_bytes_from_words_64</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)
+<span class="kw">pub fn </span>compress_xof(
+    cv: <span class="kw-2">&amp;</span>CVWords,
+    block: <span class="kw-2">&amp;</span>[u8; BLOCK_LEN],
+    block_len: u8,
+    counter: u64,
+    flags: u8,
+) -&gt; [u8; <span class="number">64</span>] {
+    <span class="kw">let </span><span class="kw-2">mut </span>state = compress_pre(cv, block, block_len, counter, flags);
+    state[<span class="number">0</span>] ^= state[<span class="number">8</span>];
+    state[<span class="number">1</span>] ^= state[<span class="number">9</span>];
+    state[<span class="number">2</span>] ^= state[<span class="number">10</span>];
+    state[<span class="number">3</span>] ^= state[<span class="number">11</span>];
+    state[<span class="number">4</span>] ^= state[<span class="number">12</span>];
+    state[<span class="number">5</span>] ^= state[<span class="number">13</span>];
+    state[<span class="number">6</span>] ^= state[<span class="number">14</span>];
+    state[<span class="number">7</span>] ^= state[<span class="number">15</span>];
+    state[<span class="number">8</span>] ^= cv[<span class="number">0</span>];
+    state[<span class="number">9</span>] ^= cv[<span class="number">1</span>];
+    state[<span class="number">10</span>] ^= cv[<span class="number">2</span>];
+    state[<span class="number">11</span>] ^= cv[<span class="number">3</span>];
+    state[<span class="number">12</span>] ^= cv[<span class="number">4</span>];
+    state[<span class="number">13</span>] ^= cv[<span class="number">5</span>];
+    state[<span class="number">14</span>] ^= cv[<span class="number">6</span>];
+    state[<span class="number">15</span>] ^= cv[<span class="number">7</span>];
+    <span class="kw">crate</span>::platform::le_bytes_from_words_64(<span class="kw-2">&amp;</span>state)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash1</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="ident">N</span>],
-    <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">CVWords</span>,
-    <span class="ident">counter</span>: <span class="ident">u64</span>,
-    <span class="ident">flags</span>: <span class="ident">u8</span>,
-    <span class="ident">flags_start</span>: <span class="ident">u8</span>,
-    <span class="ident">flags_end</span>: <span class="ident">u8</span>,
-    <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> <span class="ident">CVBytes</span>,
+<span class="kw">pub fn </span>hash1&lt;<span class="kw">const </span>N: usize&gt;(
+    input: <span class="kw-2">&amp;</span>[u8; N],
+    key: <span class="kw-2">&amp;</span>CVWords,
+    counter: u64,
+    flags: u8,
+    flags_start: u8,
+    flags_end: u8,
+    out: <span class="kw-2">&amp;mut </span>CVBytes,
 ) {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">N</span> <span class="op">%</span> <span class="ident">BLOCK_LEN</span>, <span class="number">0</span>, <span class="string">&quot;uneven blocks&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cv</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">key</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">block_flags</span> <span class="op">=</span> <span class="ident">flags</span> <span class="op">|</span> <span class="ident">flags_start</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slice</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[..];
-    <span class="kw">while</span> <span class="ident">slice</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">BLOCK_LEN</span> {
-        <span class="kw">if</span> <span class="ident">slice</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">BLOCK_LEN</span> {
-            <span class="ident">block_flags</span> <span class="op">|</span><span class="op">=</span> <span class="ident">flags_end</span>;
+    <span class="macro">debug_assert_eq!</span>(N % BLOCK_LEN, <span class="number">0</span>, <span class="string">&quot;uneven blocks&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>cv = <span class="kw-2">*</span>key;
+    <span class="kw">let </span><span class="kw-2">mut </span>block_flags = flags | flags_start;
+    <span class="kw">let </span><span class="kw-2">mut </span>slice = <span class="kw-2">&amp;</span>input[..];
+    <span class="kw">while </span>slice.len() &gt;= BLOCK_LEN {
+        <span class="kw">if </span>slice.len() == BLOCK_LEN {
+            block_flags |= flags_end;
         }
-        <span class="ident">compress_in_place</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">cv</span>,
-            <span class="macro">array_ref!</span>(<span class="ident">slice</span>, <span class="number">0</span>, <span class="ident">BLOCK_LEN</span>),
-            <span class="ident">BLOCK_LEN</span> <span class="kw">as</span> <span class="ident">u8</span>,
-            <span class="ident">counter</span>,
-            <span class="ident">block_flags</span>,
+        compress_in_place(
+            <span class="kw-2">&amp;mut </span>cv,
+            <span class="macro">array_ref!</span>(slice, <span class="number">0</span>, BLOCK_LEN),
+            BLOCK_LEN <span class="kw">as </span>u8,
+            counter,
+            block_flags,
         );
-        <span class="ident">block_flags</span> <span class="op">=</span> <span class="ident">flags</span>;
-        <span class="ident">slice</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">slice</span>[<span class="ident">BLOCK_LEN</span>..];
+        block_flags = flags;
+        slice = <span class="kw-2">&amp;</span>slice[BLOCK_LEN..];
     }
-    <span class="kw-2">*</span><span class="ident">out</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::platform::le_bytes_from_words_32</span>(<span class="kw-2">&amp;</span><span class="ident">cv</span>);
+    <span class="kw-2">*</span>out = <span class="kw">crate</span>::platform::le_bytes_from_words_32(<span class="kw-2">&amp;</span>cv);
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_many</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(
-    <span class="ident">inputs</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="ident">N</span>]],
-    <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">CVWords</span>,
-    <span class="kw-2">mut</span> <span class="ident">counter</span>: <span class="ident">u64</span>,
-    <span class="ident">increment_counter</span>: <span class="ident">IncrementCounter</span>,
-    <span class="ident">flags</span>: <span class="ident">u8</span>,
-    <span class="ident">flags_start</span>: <span class="ident">u8</span>,
-    <span class="ident">flags_end</span>: <span class="ident">u8</span>,
-    <span class="ident">out</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
+<span class="kw">pub fn </span>hash_many&lt;<span class="kw">const </span>N: usize&gt;(
+    inputs: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[u8; N]],
+    key: <span class="kw-2">&amp;</span>CVWords,
+    <span class="kw-2">mut </span>counter: u64,
+    increment_counter: IncrementCounter,
+    flags: u8,
+    flags_start: u8,
+    flags_end: u8,
+    out: <span class="kw-2">&amp;mut </span>[u8],
 ) {
-    <span class="macro">debug_assert!</span>(<span class="ident">out</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">inputs</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="ident">OUT_LEN</span>, <span class="string">&quot;out too short&quot;</span>);
-    <span class="kw">for</span> (<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">output</span>) <span class="kw">in</span> <span class="ident">inputs</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">out</span>.<span class="ident">chunks_exact_mut</span>(<span class="ident">OUT_LEN</span>)) {
-        <span class="ident">hash1</span>(
-            <span class="ident">input</span>,
-            <span class="ident">key</span>,
-            <span class="ident">counter</span>,
-            <span class="ident">flags</span>,
-            <span class="ident">flags_start</span>,
-            <span class="ident">flags_end</span>,
-            <span class="macro">array_mut_ref!</span>(<span class="ident">output</span>, <span class="number">0</span>, <span class="ident">OUT_LEN</span>),
+    <span class="macro">debug_assert!</span>(out.len() &gt;= inputs.len() * OUT_LEN, <span class="string">&quot;out too short&quot;</span>);
+    <span class="kw">for </span>(<span class="kw-2">&amp;</span>input, output) <span class="kw">in </span>inputs.iter().zip(out.chunks_exact_mut(OUT_LEN)) {
+        hash1(
+            input,
+            key,
+            counter,
+            flags,
+            flags_start,
+            flags_end,
+            <span class="macro">array_mut_ref!</span>(output, <span class="number">0</span>, OUT_LEN),
         );
-        <span class="kw">if</span> <span class="ident">increment_counter</span>.<span class="ident">yes</span>() {
-            <span class="ident">counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">if </span>increment_counter.yes() {
+            counter += <span class="number">1</span>;
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">pub mod </span>test {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="comment">// This is basically testing the portable implementation against itself,</span>
-    <span class="comment">// but it also checks that compress_in_place and compress_xof are</span>
-    <span class="comment">// consistent. And there are tests against the reference implementation and</span>
-    <span class="comment">// against hardcoded test vectors elsewhere.</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_compress</span>() {
-        <span class="ident"><span class="kw">crate</span>::test::test_compress_fn</span>(<span class="ident">compress_in_place</span>, <span class="ident">compress_xof</span>);
+    <span class="comment">// This is basically testing the portable implementation against itself,
+    // but it also checks that compress_in_place and compress_xof are
+    // consistent. And there are tests against the reference implementation and
+    // against hardcoded test vectors elsewhere.
+    </span><span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_compress() {
+        <span class="kw">crate</span>::test::test_compress_fn(compress_in_place, compress_xof);
     }
 
-    <span class="comment">// Ditto.</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_hash_many</span>() {
-        <span class="ident"><span class="kw">crate</span>::test::test_hash_many_fn</span>(<span class="ident">hash_many</span>, <span class="ident">hash_many</span>);
+    <span class="comment">// Ditto.
+    </span><span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_hash_many() {
+        <span class="kw">crate</span>::test::test_hash_many_fn(hash_many, hash_many);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="blake3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="blake3" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

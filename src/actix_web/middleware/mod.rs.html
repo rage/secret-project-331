@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -65,70 +65,70 @@
 <span id="63">63</span>
 <span id="64">64</span>
 <span id="65">65</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A collection of common middleware.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A collection of common middleware.
 
-<span class="kw">mod</span> <span class="ident">compat</span>;
-<span class="kw">mod</span> <span class="ident">condition</span>;
-<span class="kw">mod</span> <span class="ident">default_headers</span>;
-<span class="kw">mod</span> <span class="ident">err_handlers</span>;
-<span class="kw">mod</span> <span class="ident">logger</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">noop</span>;
-<span class="kw">mod</span> <span class="ident">normalize</span>;
+</span><span class="kw">mod </span>compat;
+<span class="kw">mod </span>condition;
+<span class="kw">mod </span>default_headers;
+<span class="kw">mod </span>err_handlers;
+<span class="kw">mod </span>logger;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>noop;
+<span class="kw">mod </span>normalize;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::compat::Compat</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::condition::Condition</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::default_headers::DefaultHeaders</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::err_handlers</span>::{<span class="ident">ErrorHandlerResponse</span>, <span class="ident">ErrorHandlers</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::logger::Logger</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::noop::Noop</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::normalize</span>::{<span class="ident">NormalizePath</span>, <span class="ident">TrailingSlash</span>};
+<span class="kw">pub use </span><span class="self">self</span>::compat::Compat;
+<span class="kw">pub use </span><span class="self">self</span>::condition::Condition;
+<span class="kw">pub use </span><span class="self">self</span>::default_headers::DefaultHeaders;
+<span class="kw">pub use </span><span class="self">self</span>::err_handlers::{ErrorHandlerResponse, ErrorHandlers};
+<span class="kw">pub use </span><span class="self">self</span>::logger::Logger;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::noop::Noop;
+<span class="kw">pub use </span><span class="self">self</span>::normalize::{NormalizePath, TrailingSlash};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__compress&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">compress</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+</span><span class="kw">mod </span>compress;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__compress&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::compress::Compress</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::compress::Compress;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">http::StatusCode</span>, <span class="ident">App</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use crate</span>::{http::StatusCode, App};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">common_combinations</span>() {
-        <span class="comment">// ensure there&#39;s no reason that the built-in middleware cannot compose</span>
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>common_combinations() {
+        <span class="comment">// ensure there&#39;s no reason that the built-in middleware cannot compose
 
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">App::new</span>()
-            .<span class="ident">wrap</span>(<span class="ident">Compat::new</span>(<span class="ident">Logger::default</span>()))
-            .<span class="ident">wrap</span>(<span class="ident">Condition::new</span>(<span class="bool-val">true</span>, <span class="ident">DefaultHeaders::new</span>()))
-            .<span class="ident">wrap</span>(<span class="ident">DefaultHeaders::new</span>().<span class="ident">add</span>((<span class="string">&quot;X-Test2&quot;</span>, <span class="string">&quot;X-Value2&quot;</span>)))
-            .<span class="ident">wrap</span>(<span class="ident">ErrorHandlers::new</span>().<span class="ident">handler</span>(<span class="ident">StatusCode::FORBIDDEN</span>, <span class="op">|</span><span class="ident">res</span><span class="op">|</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">ErrorHandlerResponse::Response</span>(<span class="ident">res</span>.<span class="ident">map_into_left_body</span>()))
+        </span><span class="kw">let _ </span>= App::new()
+            .wrap(Compat::new(Logger::default()))
+            .wrap(Condition::new(<span class="bool-val">true</span>, DefaultHeaders::new()))
+            .wrap(DefaultHeaders::new().add((<span class="string">&quot;X-Test2&quot;</span>, <span class="string">&quot;X-Value2&quot;</span>)))
+            .wrap(ErrorHandlers::new().handler(StatusCode::FORBIDDEN, |res| {
+                <span class="prelude-val">Ok</span>(ErrorHandlerResponse::Response(res.map_into_left_body()))
             }))
-            .<span class="ident">wrap</span>(<span class="ident">Logger::default</span>())
-            .<span class="ident">wrap</span>(<span class="ident">NormalizePath::new</span>(<span class="ident">TrailingSlash::Trim</span>));
+            .wrap(Logger::default())
+            .wrap(NormalizePath::new(TrailingSlash::Trim));
 
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">App::new</span>()
-            .<span class="ident">wrap</span>(<span class="ident">NormalizePath::new</span>(<span class="ident">TrailingSlash::Trim</span>))
-            .<span class="ident">wrap</span>(<span class="ident">Logger::default</span>())
-            .<span class="ident">wrap</span>(<span class="ident">ErrorHandlers::new</span>().<span class="ident">handler</span>(<span class="ident">StatusCode::FORBIDDEN</span>, <span class="op">|</span><span class="ident">res</span><span class="op">|</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">ErrorHandlerResponse::Response</span>(<span class="ident">res</span>.<span class="ident">map_into_left_body</span>()))
+        <span class="kw">let _ </span>= App::new()
+            .wrap(NormalizePath::new(TrailingSlash::Trim))
+            .wrap(Logger::default())
+            .wrap(ErrorHandlers::new().handler(StatusCode::FORBIDDEN, |res| {
+                <span class="prelude-val">Ok</span>(ErrorHandlerResponse::Response(res.map_into_left_body()))
             }))
-            .<span class="ident">wrap</span>(<span class="ident">DefaultHeaders::new</span>().<span class="ident">add</span>((<span class="string">&quot;X-Test2&quot;</span>, <span class="string">&quot;X-Value2&quot;</span>)))
-            .<span class="ident">wrap</span>(<span class="ident">Condition::new</span>(<span class="bool-val">true</span>, <span class="ident">DefaultHeaders::new</span>()))
-            .<span class="ident">wrap</span>(<span class="ident">Compat::new</span>(<span class="ident">Logger::default</span>()));
+            .wrap(DefaultHeaders::new().add((<span class="string">&quot;X-Test2&quot;</span>, <span class="string">&quot;X-Value2&quot;</span>)))
+            .wrap(Condition::new(<span class="bool-val">true</span>, DefaultHeaders::new()))
+            .wrap(Compat::new(Logger::default()));
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__compress&quot;</span>)]</span>
-        {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">App::new</span>().<span class="ident">wrap</span>(<span class="ident">Compress::default</span>()).<span class="ident">wrap</span>(<span class="ident">Logger::default</span>());
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">App::new</span>().<span class="ident">wrap</span>(<span class="ident">Logger::default</span>()).<span class="ident">wrap</span>(<span class="ident">Compress::default</span>());
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">App::new</span>().<span class="ident">wrap</span>(<span class="ident">Compat::new</span>(<span class="ident">Compress::default</span>()));
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">App::new</span>().<span class="ident">wrap</span>(<span class="ident">Condition::new</span>(<span class="bool-val">true</span>, <span class="ident">Compat::new</span>(<span class="ident">Compress::default</span>())));
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;__compress&quot;</span>)]
+        </span>{
+            <span class="kw">let _ </span>= App::new().wrap(Compress::default()).wrap(Logger::default());
+            <span class="kw">let _ </span>= App::new().wrap(Logger::default()).wrap(Compress::default());
+            <span class="kw">let _ </span>= App::new().wrap(Compat::new(Compress::default()));
+            <span class="kw">let _ </span>= App::new().wrap(Condition::new(<span class="bool-val">true</span>, Compat::new(Compress::default())));
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

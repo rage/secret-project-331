@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/response/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/response/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -439,444 +439,444 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cell</span>::{<span class="ident">Ref</span>, <span class="ident">RefMut</span>},
-    <span class="ident">fmt</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    cell::{Ref, RefMut},
+    fmt,
 };
 
-<span class="kw">use</span> <span class="ident">actix_http</span>::{
-    <span class="ident">body</span>::{<span class="ident">BoxBody</span>, <span class="ident">EitherBody</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">header::HeaderMap</span>,
-    <span class="ident">Extensions</span>, <span class="ident">Response</span>, <span class="ident">ResponseHead</span>, <span class="ident">StatusCode</span>,
+<span class="kw">use </span>actix_http::{
+    body::{BoxBody, EitherBody, MessageBody},
+    header::HeaderMap,
+    Extensions, Response, ResponseHead, StatusCode,
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-<span class="kw">use</span> {
-    <span class="ident">actix_http</span>::{
-        <span class="ident">error::HttpError</span>,
-        <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">HeaderValue</span>},
+<span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+</span><span class="kw">use </span>{
+    actix_http::{
+        error::HttpError,
+        header::{<span class="self">self</span>, HeaderValue},
     },
-    <span class="ident">cookie::Cookie</span>,
+    cookie::Cookie,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">error::Error</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponseBuilder</span>, <span class="ident">Responder</span>};
+<span class="kw">use crate</span>::{error::Error, HttpRequest, HttpResponseBuilder, Responder};
 
-<span class="doccomment">/// An outgoing response.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span> <span class="op">=</span> <span class="ident">BoxBody</span><span class="op">&gt;</span> {
-    <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
-    <span class="ident">error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An outgoing response.
+</span><span class="kw">pub struct </span>HttpResponse&lt;B = BoxBody&gt; {
+    res: Response&lt;B&gt;,
+    error: <span class="prelude-ty">Option</span>&lt;Error&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Constructs a response.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">res</span>: <span class="ident">Response::new</span>(<span class="ident">status</span>),
-            <span class="ident">error</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>HttpResponse&lt;BoxBody&gt; {
+    <span class="doccomment">/// Constructs a response.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>new(status: StatusCode) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            res: Response::new(status),
+            error: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Constructs a response builder with specific HTTP status.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="ident">HttpResponseBuilder</span> {
-        <span class="ident">HttpResponseBuilder::new</span>(<span class="ident">status</span>)
+    <span class="doccomment">/// Constructs a response builder with specific HTTP status.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>build(status: StatusCode) -&gt; HttpResponseBuilder {
+        HttpResponseBuilder::new(status)
     }
 
-    <span class="doccomment">/// Create an error response.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_error</span>(<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">as_response_error</span>().<span class="ident">error_response</span>();
-        <span class="ident">response</span>.<span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">error</span>);
-        <span class="ident">response</span>
+    <span class="doccomment">/// Create an error response.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>from_error(error: <span class="kw">impl </span>Into&lt;Error&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>error = error.into();
+        <span class="kw">let </span><span class="kw-2">mut </span>response = error.as_response_error().error_response();
+        response.error = <span class="prelude-val">Some</span>(error);
+        response
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Constructs a response with body</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_body</span>(<span class="ident">status</span>: <span class="ident">StatusCode</span>, <span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">res</span>: <span class="ident">Response::with_body</span>(<span class="ident">status</span>, <span class="ident">body</span>),
-            <span class="ident">error</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl</span>&lt;B&gt; HttpResponse&lt;B&gt; {
+    <span class="doccomment">/// Constructs a response with body
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>with_body(status: StatusCode, body: B) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            res: Response::with_body(status, body),
+            error: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Returns a reference to response head.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ResponseHead</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">head</span>()
+    <span class="doccomment">/// Returns a reference to response head.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>head(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ResponseHead {
+        <span class="self">self</span>.res.head()
     }
 
-    <span class="doccomment">/// Returns a mutable reference to response head.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">ResponseHead</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">head_mut</span>()
+    <span class="doccomment">/// Returns a mutable reference to response head.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>head_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ResponseHead {
+        <span class="self">self</span>.res.head_mut()
     }
 
-    <span class="doccomment">/// The source `error` for this response</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">error</span>.<span class="ident">as_ref</span>()
+    <span class="doccomment">/// The source `error` for this response
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Error&gt; {
+        <span class="self">self</span>.error.as_ref()
     }
 
-    <span class="doccomment">/// Get the response status code</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">status</span>()
+    <span class="doccomment">/// Get the response status code
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        <span class="self">self</span>.res.status()
     }
 
-    <span class="doccomment">/// Set the `StatusCode` for this response</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">status_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">StatusCode</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">status_mut</span>()
+    <span class="doccomment">/// Set the `StatusCode` for this response
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>status_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>StatusCode {
+        <span class="self">self</span>.res.status_mut()
     }
 
-    <span class="doccomment">/// Get the headers from the response</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">headers</span>()
+    <span class="doccomment">/// Get the headers from the response
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
+        <span class="self">self</span>.res.headers()
     }
 
-    <span class="doccomment">/// Get a mutable reference to the headers</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">headers_mut</span>()
+    <span class="doccomment">/// Get a mutable reference to the headers
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>HeaderMap {
+        <span class="self">self</span>.res.headers_mut()
     }
 
-    <span class="doccomment">/// Get an iterator for the cookies set by this response.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookies</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CookieIter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">CookieIter</span> {
-            <span class="ident">iter</span>: <span class="self">self</span>.<span class="ident">headers</span>().<span class="ident">get_all</span>(<span class="ident">header::SET_COOKIE</span>),
+    <span class="doccomment">/// Get an iterator for the cookies set by this response.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+    </span><span class="kw">pub fn </span>cookies(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CookieIter&lt;<span class="lifetime">&#39;_</span>&gt; {
+        CookieIter {
+            iter: <span class="self">self</span>.headers().get_all(header::SET_COOKIE),
         }
     }
 
-    <span class="doccomment">/// Add a cookie to this response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// Returns an error if the cookie results in a malformed `Set-Cookie` header.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_cookie</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cookie</span>: <span class="kw-2">&amp;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">HttpError</span><span class="op">&gt;</span> {
-        <span class="ident">HeaderValue::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>.<span class="ident">to_string</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cookie</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">headers_mut</span>().<span class="ident">append</span>(<span class="ident">header::SET_COOKIE</span>, <span class="ident">cookie</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+    <span class="doccomment">/// Add a cookie to this response.
+    ///
+    /// # Errors
+    /// Returns an error if the cookie results in a malformed `Set-Cookie` header.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+    </span><span class="kw">pub fn </span>add_cookie(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cookie: <span class="kw-2">&amp;</span>Cookie&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), HttpError&gt; {
+        HeaderValue::from_str(<span class="kw-2">&amp;</span>cookie.to_string())
+            .map(|cookie| <span class="self">self</span>.headers_mut().append(header::SET_COOKIE, cookie))
+            .map_err(Into::into)
     }
 
-    <span class="doccomment">/// Add a &quot;removal&quot; cookie to the response that matches attributes of given cookie.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This will cause browsers/clients to remove stored cookies with this name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `Set-Cookie` header added to the response will have:</span>
-    <span class="doccomment">/// - name matching given cookie;</span>
-    <span class="doccomment">/// - domain matching given cookie;</span>
-    <span class="doccomment">/// - path matching given cookie;</span>
-    <span class="doccomment">/// - an empty value;</span>
-    <span class="doccomment">/// - a max-age of `0`;</span>
-    <span class="doccomment">/// - an expiration date far in the past.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the cookie you&#39;re trying to remove has an explicit path or domain set, those attributes</span>
-    <span class="doccomment">/// will need to be included in the cookie passed in here.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// Returns an error if the given name results in a malformed `Set-Cookie` header.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_removal_cookie</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cookie</span>: <span class="kw-2">&amp;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">HttpError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">removal_cookie</span> <span class="op">=</span> <span class="ident">cookie</span>.<span class="ident">to_owned</span>();
-        <span class="ident">removal_cookie</span>.<span class="ident">make_removal</span>();
+    <span class="doccomment">/// Add a &quot;removal&quot; cookie to the response that matches attributes of given cookie.
+    ///
+    /// This will cause browsers/clients to remove stored cookies with this name.
+    ///
+    /// The `Set-Cookie` header added to the response will have:
+    /// - name matching given cookie;
+    /// - domain matching given cookie;
+    /// - path matching given cookie;
+    /// - an empty value;
+    /// - a max-age of `0`;
+    /// - an expiration date far in the past.
+    ///
+    /// If the cookie you&#39;re trying to remove has an explicit path or domain set, those attributes
+    /// will need to be included in the cookie passed in here.
+    ///
+    /// # Errors
+    /// Returns an error if the given name results in a malformed `Set-Cookie` header.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+    </span><span class="kw">pub fn </span>add_removal_cookie(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cookie: <span class="kw-2">&amp;</span>Cookie&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), HttpError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>removal_cookie = cookie.to_owned();
+        removal_cookie.make_removal();
 
-        <span class="ident">HeaderValue::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">removal_cookie</span>.<span class="ident">to_string</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cookie</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">headers_mut</span>().<span class="ident">append</span>(<span class="ident">header::SET_COOKIE</span>, <span class="ident">cookie</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+        HeaderValue::from_str(<span class="kw-2">&amp;</span>removal_cookie.to_string())
+            .map(|cookie| <span class="self">self</span>.headers_mut().append(header::SET_COOKIE, cookie))
+            .map_err(Into::into)
     }
 
-    <span class="doccomment">/// Remove all cookies with the given name from this response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns the number of cookies removed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method can _not_ cause a browser/client to delete any of its stored cookies. Its only</span>
-    <span class="doccomment">/// purpose is to delete cookies that were added to this response using [`add_cookie`]</span>
-    <span class="doccomment">/// and [`add_removal_cookie`]. Use [`add_removal_cookie`] to send a &quot;removal&quot; cookie.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`add_cookie`]: Self::add_cookie</span>
-    <span class="doccomment">/// [`add_removal_cookie`]: Self::add_removal_cookie</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">del_cookie</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">headers_mut</span>();
+    <span class="doccomment">/// Remove all cookies with the given name from this response.
+    ///
+    /// Returns the number of cookies removed.
+    ///
+    /// This method can _not_ cause a browser/client to delete any of its stored cookies. Its only
+    /// purpose is to delete cookies that were added to this response using [`add_cookie`]
+    /// and [`add_removal_cookie`]. Use [`add_removal_cookie`] to send a &quot;removal&quot; cookie.
+    ///
+    /// [`add_cookie`]: Self::add_cookie
+    /// [`add_removal_cookie`]: Self::add_removal_cookie
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+    </span><span class="kw">pub fn </span>del_cookie(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; usize {
+        <span class="kw">let </span>headers = <span class="self">self</span>.headers_mut();
 
-        <span class="kw">let</span> <span class="ident">vals</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">headers</span>
-            .<span class="ident">get_all</span>(<span class="ident">header::SET_COOKIE</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">to_owned</span>())
-            .<span class="ident">collect</span>();
+        <span class="kw">let </span>vals: Vec&lt;HeaderValue&gt; = headers
+            .get_all(header::SET_COOKIE)
+            .map(|v| v.to_owned())
+            .collect();
 
-        <span class="ident">headers</span>.<span class="ident">remove</span>(<span class="ident">header::SET_COOKIE</span>);
+        headers.remove(header::SET_COOKIE);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>count: usize = <span class="number">0</span>;
 
-        <span class="kw">for</span> <span class="ident">v</span> <span class="kw">in</span> <span class="ident">vals</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">v</span>.<span class="ident">to_str</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">Cookie::parse_encoded</span>(<span class="ident">s</span>) {
-                    <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">name</span>() <span class="op">==</span> <span class="ident">name</span> {
-                        <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">for </span>v <span class="kw">in </span>vals {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = v.to_str() {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(c) = Cookie::parse_encoded(s) {
+                    <span class="kw">if </span>c.name() == name {
+                        count += <span class="number">1</span>;
                         <span class="kw">continue</span>;
                     }
                 }
             }
 
-            <span class="comment">// put set-cookie header head back if it does not validate</span>
-            <span class="ident">headers</span>.<span class="ident">append</span>(<span class="ident">header::SET_COOKIE</span>, <span class="ident">v</span>);
+            <span class="comment">// put set-cookie header head back if it does not validate
+            </span>headers.append(header::SET_COOKIE, v);
         }
 
-        <span class="ident">count</span>
+        count
     }
 
-    <span class="doccomment">/// Connection upgrade status</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">upgrade</span>()
+    <span class="doccomment">/// Connection upgrade status
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>upgrade(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.res.upgrade()
     }
 
-    <span class="doccomment">/// Keep-alive status for this connection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">keep_alive</span>()
+    <span class="doccomment">/// Keep-alive status for this connection
+    </span><span class="kw">pub fn </span>keep_alive(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.res.keep_alive()
     }
 
-    <span class="doccomment">/// Returns reference to the response-local data/extensions container.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">extensions</span>()
+    <span class="doccomment">/// Returns reference to the response-local data/extensions container.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ref&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+        <span class="self">self</span>.res.extensions()
     }
 
-    <span class="doccomment">/// Returns reference to the response-local data/extensions container.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Extensions</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">extensions_mut</span>()
+    <span class="doccomment">/// Returns reference to the response-local data/extensions container.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>extensions_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">&#39;_</span>, Extensions&gt; {
+        <span class="self">self</span>.res.extensions_mut()
     }
 
-    <span class="doccomment">/// Returns a reference to this response&#39;s body.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">B</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">body</span>()
+    <span class="doccomment">/// Returns a reference to this response&#39;s body.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>body(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>B {
+        <span class="self">self</span>.res.body()
     }
 
-    <span class="doccomment">/// Sets new body.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_body</span><span class="op">&lt;</span><span class="ident">B2</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">body</span>: <span class="ident">B2</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B2</span><span class="op">&gt;</span> {
-        <span class="ident">HttpResponse</span> {
-            <span class="ident">res</span>: <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">set_body</span>(<span class="ident">body</span>),
-            <span class="ident">error</span>: <span class="self">self</span>.<span class="ident">error</span>,
+    <span class="doccomment">/// Sets new body.
+    </span><span class="kw">pub fn </span>set_body&lt;B2&gt;(<span class="self">self</span>, body: B2) -&gt; HttpResponse&lt;B2&gt; {
+        HttpResponse {
+            res: <span class="self">self</span>.res.set_body(body),
+            error: <span class="self">self</span>.error,
         }
     }
 
-    <span class="doccomment">/// Returns split head and body.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Implementation Notes</span>
-    <span class="doccomment">/// Due to internal performance optimizations, the first element of the returned tuple is an</span>
-    <span class="doccomment">/// `HttpResponse` as well but only contains the head of the response this was called on.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_parts</span>(<span class="self">self</span>) -&gt; (<span class="ident">HttpResponse</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="ident">B</span>) {
-        <span class="kw">let</span> (<span class="ident">head</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">into_parts</span>();
+    <span class="doccomment">/// Returns split head and body.
+    ///
+    /// # Implementation Notes
+    /// Due to internal performance optimizations, the first element of the returned tuple is an
+    /// `HttpResponse` as well but only contains the head of the response this was called on.
+    </span><span class="kw">pub fn </span>into_parts(<span class="self">self</span>) -&gt; (HttpResponse&lt;()&gt;, B) {
+        <span class="kw">let </span>(head, body) = <span class="self">self</span>.res.into_parts();
 
         (
-            <span class="ident">HttpResponse</span> {
-                <span class="ident">res</span>: <span class="ident">head</span>,
-                <span class="ident">error</span>: <span class="self">self</span>.<span class="ident">error</span>,
+            HttpResponse {
+                res: head,
+                error: <span class="self">self</span>.error,
             },
-            <span class="ident">body</span>,
+            body,
         )
     }
 
-    <span class="doccomment">/// Drops body and returns new response.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">drop_body</span>(<span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">HttpResponse</span> {
-            <span class="ident">res</span>: <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">drop_body</span>(),
-            <span class="ident">error</span>: <span class="self">self</span>.<span class="ident">error</span>,
+    <span class="doccomment">/// Drops body and returns new response.
+    </span><span class="kw">pub fn </span>drop_body(<span class="self">self</span>) -&gt; HttpResponse&lt;()&gt; {
+        HttpResponse {
+            res: <span class="self">self</span>.res.drop_body(),
+            error: <span class="self">self</span>.error,
         }
     }
 
-    <span class="doccomment">/// Map the current body type to another using a closure, returning a new response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Closure receives the response head and the current body type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_body</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">B2</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B2</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ResponseHead</span>, <span class="ident">B</span>) -&gt; <span class="ident">B2</span>,
+    <span class="doccomment">/// Map the current body type to another using a closure, returning a new response.
+    ///
+    /// Closure receives the response head and the current body type.
+    </span><span class="kw">pub fn </span>map_body&lt;F, B2&gt;(<span class="self">self</span>, f: F) -&gt; HttpResponse&lt;B2&gt;
+    <span class="kw">where
+        </span>F: FnOnce(<span class="kw-2">&amp;mut </span>ResponseHead, B) -&gt; B2,
     {
-        <span class="ident">HttpResponse</span> {
-            <span class="ident">res</span>: <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">map_body</span>(<span class="ident">f</span>),
-            <span class="ident">error</span>: <span class="self">self</span>.<span class="ident">error</span>,
+        HttpResponse {
+            res: <span class="self">self</span>.res.map_body(f),
+            error: <span class="self">self</span>.error,
         }
     }
 
-    <span class="doccomment">/// Map the current body type `B` to `EitherBody::Left(B)`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Useful for middleware which can generate their own responses.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_into_left_body</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map_body</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">body</span><span class="op">|</span> <span class="ident">EitherBody::left</span>(<span class="ident">body</span>))
+    <span class="doccomment">/// Map the current body type `B` to `EitherBody::Left(B)`.
+    ///
+    /// Useful for middleware which can generate their own responses.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>map_into_left_body&lt;R&gt;(<span class="self">self</span>) -&gt; HttpResponse&lt;EitherBody&lt;B, R&gt;&gt; {
+        <span class="self">self</span>.map_body(|<span class="kw">_</span>, body| EitherBody::left(body))
     }
 
-    <span class="doccomment">/// Map the current body type `B` to `EitherBody::Right(B)`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Useful for middleware which can generate their own responses.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_into_right_body</span><span class="op">&lt;</span><span class="ident">L</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map_body</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">body</span><span class="op">|</span> <span class="ident">EitherBody::right</span>(<span class="ident">body</span>))
+    <span class="doccomment">/// Map the current body type `B` to `EitherBody::Right(B)`.
+    ///
+    /// Useful for middleware which can generate their own responses.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>map_into_right_body&lt;L&gt;(<span class="self">self</span>) -&gt; HttpResponse&lt;EitherBody&lt;L, B&gt;&gt; {
+        <span class="self">self</span>.map_body(|<span class="kw">_</span>, body| EitherBody::right(body))
     }
 
-    <span class="doccomment">/// Map the current body to a type-erased `BoxBody`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_into_boxed_body</span>(<span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Map the current body to a type-erased `BoxBody`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>map_into_boxed_body(<span class="self">self</span>) -&gt; HttpResponse&lt;BoxBody&gt;
+    <span class="kw">where
+        </span>B: MessageBody + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">map_body</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">body</span><span class="op">|</span> <span class="ident">body</span>.<span class="ident">boxed</span>())
+        <span class="self">self</span>.map_body(|<span class="kw">_</span>, body| body.boxed())
     }
 
-    <span class="doccomment">/// Returns the response body, dropping all other parts.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_body</span>(<span class="self">self</span>) -&gt; <span class="ident">B</span> {
-        <span class="self">self</span>.<span class="ident">res</span>.<span class="ident">into_body</span>()
+    <span class="doccomment">/// Returns the response body, dropping all other parts.
+    </span><span class="kw">pub fn </span>into_body(<span class="self">self</span>) -&gt; B {
+        <span class="self">self</span>.res.into_body()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+<span class="kw">impl</span>&lt;B&gt; fmt::Debug <span class="kw">for </span>HttpResponse&lt;B&gt;
+<span class="kw">where
+    </span>B: MessageBody,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;HttpResponse&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;error&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">error</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;res&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">res</span>)
-            .<span class="ident">finish</span>()
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;HttpResponse&quot;</span>)
+            .field(<span class="string">&quot;error&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.error)
+            .field(<span class="string">&quot;res&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.res)
+            .finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">HttpResponse</span> { <span class="ident">res</span>, <span class="ident">error</span>: <span class="prelude-val">None</span> }
+<span class="kw">impl</span>&lt;B&gt; From&lt;Response&lt;B&gt;&gt; <span class="kw">for </span>HttpResponse&lt;B&gt; {
+    <span class="kw">fn </span>from(res: Response&lt;B&gt;) -&gt; <span class="self">Self </span>{
+        HttpResponse { res, error: <span class="prelude-val">None </span>}
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HttpResponse</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">HttpResponse::from_error</span>(<span class="ident">err</span>)
+<span class="kw">impl </span>From&lt;Error&gt; <span class="kw">for </span>HttpResponse {
+    <span class="kw">fn </span>from(err: Error) -&gt; <span class="self">Self </span>{
+        HttpResponse::from_error(err)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">res</span>: <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// this impl will always be called as part of dispatcher</span>
-        <span class="ident">res</span>.<span class="ident">res</span>
+<span class="kw">impl</span>&lt;B&gt; From&lt;HttpResponse&lt;B&gt;&gt; <span class="kw">for </span>Response&lt;B&gt; {
+    <span class="kw">fn </span>from(res: HttpResponse&lt;B&gt;) -&gt; <span class="self">Self </span>{
+        <span class="comment">// this impl will always be called as part of dispatcher
+        </span>res.res
     }
 }
 
-<span class="comment">// Rationale for cfg(test): this impl causes false positives on a clippy lint (async_yields_async)</span>
-<span class="comment">// when returning an HttpResponse from an async function/closure and it&#39;s not very useful outside of</span>
-<span class="comment">// tests anyway.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">response_fut_impl</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::{
-        <span class="ident">future::Future</span>,
-        <span class="ident">mem</span>,
-        <span class="ident">pin::Pin</span>,
-        <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+<span class="comment">// Rationale for cfg(test): this impl causes false positives on a clippy lint (async_yields_async)
+// when returning an HttpResponse from an async function/closure and it&#39;s not very useful outside of
+// tests anyway.
+</span><span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>response_fut_impl {
+    <span class="kw">use </span>std::{
+        future::Future,
+        mem,
+        pin::Pin,
+        task::{Context, Poll},
     };
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="comment">// Future is only implemented for BoxBody payload type because it&#39;s the most useful for making</span>
-    <span class="comment">// simple handlers without async blocks. Making it generic over all MessageBody types requires a</span>
-    <span class="comment">// future impl on Response which would cause its body field to be, undesirably, Option&lt;B&gt;.</span>
-    <span class="comment">//</span>
-    <span class="comment">// This impl is not particularly efficient due to the Response construction and should probably</span>
-    <span class="comment">// not be invoked if performance is important. Prefer an async fn/block in such cases.</span>
-    <span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="comment">// Future is only implemented for BoxBody payload type because it&#39;s the most useful for making
+    // simple handlers without async blocks. Making it generic over all MessageBody types requires a
+    // future impl on Response which would cause its body field to be, undesirably, Option&lt;B&gt;.
+    //
+    // This impl is not particularly efficient due to the Response construction and should probably
+    // not be invoked if performance is important. Prefer an async fn/block in such cases.
+    </span><span class="kw">impl </span>Future <span class="kw">for </span>HttpResponse&lt;BoxBody&gt; {
+        <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Response&lt;BoxBody&gt;, Error&gt;;
 
-        <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">error</span>.<span class="ident">take</span>() {
-                <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
+        <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = <span class="self">self</span>.error.take() {
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(err));
             }
 
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">mem::replace</span>(
-                <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">res</span>,
-                <span class="ident">Response::new</span>(<span class="ident">StatusCode::default</span>()),
+            Poll::Ready(<span class="prelude-val">Ok</span>(mem::replace(
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>.res,
+                Response::new(StatusCode::default()),
             )))
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;B&gt; Responder <span class="kw">for </span>HttpResponse&lt;B&gt;
+<span class="kw">where
+    </span>B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">B</span>;
+    <span class="kw">type </span>Body = B;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="self">self</span>
-    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>respond_to(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        <span class="self">self
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CookieIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">iter</span>: <span class="ident">std::slice::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">HeaderValue</span><span class="op">&gt;</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+</span><span class="kw">pub struct </span>CookieIter&lt;<span class="lifetime">&#39;a</span>&gt; {
+    iter: std::slice::Iter&lt;<span class="lifetime">&#39;a</span>, HeaderValue&gt;,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">CookieIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>CookieIter&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = Cookie&lt;<span class="lifetime">&#39;a</span>&gt;;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">v</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">by_ref</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">Cookie::parse_encoded</span>(<span class="ident">v</span>.<span class="ident">to_str</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>);
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">for </span>v <span class="kw">in </span><span class="self">self</span>.iter.by_ref() {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(c) = Cookie::parse_encoded(v.to_str().ok()<span class="question-mark">?</span>) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(c);
             }
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+}
+
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>static_assertions::assert_impl_all;
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::http::header::{HeaderValue, COOKIE};
+
+    <span class="macro">assert_impl_all!</span>(HttpResponse: Responder);
+    <span class="macro">assert_impl_all!</span>(HttpResponse&lt;String&gt;: Responder);
+    <span class="macro">assert_impl_all!</span>(HttpResponse&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;: Responder);
+    <span class="macro">assert_impl_all!</span>(HttpResponse&lt;<span class="kw">crate</span>::body::None&gt;: Responder);
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_debug() {
+        <span class="kw">let </span>resp = HttpResponse::Ok()
+            .append_header((COOKIE, HeaderValue::from_static(<span class="string">&quot;cookie1=value1; &quot;</span>)))
+            .append_header((COOKIE, HeaderValue::from_static(<span class="string">&quot;cookie2=value2; &quot;</span>)))
+            .finish();
+        <span class="kw">let </span>dbg = <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, resp);
+        <span class="macro">assert!</span>(dbg.contains(<span class="string">&quot;HttpResponse&quot;</span>));
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">static_assertions::assert_impl_all</span>;
+<span class="attribute">#[cfg(test)]
+#[cfg(feature = <span class="string">&quot;cookies&quot;</span>)]
+</span><span class="kw">mod </span>cookie_tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http::header</span>::{<span class="ident">HeaderValue</span>, <span class="ident">COOKIE</span>};
-
-    <span class="macro">assert_impl_all!</span>(<span class="ident">HttpResponse</span>: <span class="ident">Responder</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>: <span class="ident">Responder</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>: <span class="ident">Responder</span>);
-    <span class="macro">assert_impl_all!</span>(<span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::body::None</span><span class="op">&gt;</span>: <span class="ident">Responder</span>);
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_debug</span>() {
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">HttpResponse::Ok</span>()
-            .<span class="ident">append_header</span>((<span class="ident">COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;cookie1=value1; &quot;</span>)))
-            .<span class="ident">append_header</span>((<span class="ident">COOKIE</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;cookie2=value2; &quot;</span>)))
-            .<span class="ident">finish</span>();
-        <span class="kw">let</span> <span class="ident">dbg</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">resp</span>);
-        <span class="macro">assert!</span>(<span class="ident">dbg</span>.<span class="ident">contains</span>(<span class="string">&quot;HttpResponse&quot;</span>));
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">cookie_tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">removal_cookies</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>();
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::new</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;&quot;</span>);
-        <span class="ident">res</span>.<span class="ident">add_removal_cookie</span>(<span class="kw-2">&amp;</span><span class="ident">cookie</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">set_cookie_hdr</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::SET_COOKIE</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>removal_cookies() {
+        <span class="kw">let </span><span class="kw-2">mut </span>res = HttpResponse::Ok().finish();
+        <span class="kw">let </span>cookie = Cookie::new(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;&quot;</span>);
+        res.add_removal_cookie(<span class="kw-2">&amp;</span>cookie).unwrap();
+        <span class="kw">let </span>set_cookie_hdr = res.headers().get(header::SET_COOKIE).unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="kw-2">&amp;</span><span class="ident">set_cookie_hdr</span>.<span class="ident">as_bytes</span>()[..<span class="number">25</span>],
+            <span class="kw-2">&amp;</span>set_cookie_hdr.as_bytes()[..<span class="number">25</span>],
             <span class="kw-2">&amp;</span><span class="string">b&quot;foo=; Max-Age=0; Expires=&quot;</span>[..],
             <span class="string">&quot;unexpected set-cookie value: {:?}&quot;</span>,
-            <span class="ident">set_cookie_hdr</span>.<span class="ident">to_str</span>()
+            set_cookie_hdr.to_str()
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

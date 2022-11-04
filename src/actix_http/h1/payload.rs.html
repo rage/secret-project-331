@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h1/payload.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>payload.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h1/payload.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>payload.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -281,286 +281,286 @@
 <span id="279">279</span>
 <span id="280">280</span>
 <span id="281">281</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Payload stream</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Payload stream
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cell::RefCell</span>,
-    <span class="ident">collections::VecDeque</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">rc</span>::{<span class="ident">Rc</span>, <span class="ident">Weak</span>},
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>},
+</span><span class="kw">use </span>std::{
+    cell::RefCell,
+    collections::VecDeque,
+    pin::Pin,
+    rc::{Rc, Weak},
+    task::{Context, Poll, Waker},
 };
 
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">futures_core::Stream</span>;
+<span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>futures_core::Stream;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::PayloadError</span>;
+<span class="kw">use </span><span class="kw">crate</span>::error::PayloadError;
 
-<span class="doccomment">/// max buffer size 32k</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">MAX_BUFFER_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32_768</span>;
+<span class="doccomment">/// max buffer size 32k
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>MAX_BUFFER_SIZE: usize = <span class="number">32_768</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PayloadStatus</span> {
-    <span class="ident">Read</span>,
-    <span class="ident">Pause</span>,
-    <span class="ident">Dropped</span>,
+<span class="attribute">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>PayloadStatus {
+    Read,
+    Pause,
+    Dropped,
 }
 
-<span class="doccomment">/// Buffered stream of bytes chunks</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Payload stores chunks in a vector. First chunk can be received with `poll_next`. Payload does</span>
-<span class="doccomment">/// not notify current task when new data is available.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Payload can be used as `Response` body stream.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Payload</span> {
-    <span class="ident">inner</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Buffered stream of bytes chunks
+///
+/// Payload stores chunks in a vector. First chunk can be received with `poll_next`. Payload does
+/// not notify current task when new data is available.
+///
+/// Payload can be used as `Response` body stream.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Payload {
+    inner: Rc&lt;RefCell&lt;Inner&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Payload</span> {
-    <span class="doccomment">/// Creates a payload stream.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method construct two objects responsible for bytes stream generation:</span>
-    <span class="doccomment">/// - `PayloadSender` - *Sender* side of the stream</span>
-    <span class="doccomment">/// - `Payload` - *Receiver* side of the stream</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="ident">eof</span>: <span class="ident">bool</span>) -&gt; (<span class="ident">PayloadSender</span>, <span class="ident">Payload</span>) {
-        <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">RefCell::new</span>(<span class="ident">Inner::new</span>(<span class="ident">eof</span>)));
+<span class="kw">impl </span>Payload {
+    <span class="doccomment">/// Creates a payload stream.
+    ///
+    /// This method construct two objects responsible for bytes stream generation:
+    /// - `PayloadSender` - *Sender* side of the stream
+    /// - `Payload` - *Receiver* side of the stream
+    </span><span class="kw">pub fn </span>create(eof: bool) -&gt; (PayloadSender, Payload) {
+        <span class="kw">let </span>shared = Rc::new(RefCell::new(Inner::new(eof)));
 
         (
-            <span class="ident">PayloadSender::new</span>(<span class="ident">Rc::downgrade</span>(<span class="kw-2">&amp;</span><span class="ident">shared</span>)),
-            <span class="ident">Payload</span> { <span class="ident">inner</span>: <span class="ident">shared</span> },
+            PayloadSender::new(Rc::downgrade(<span class="kw-2">&amp;</span>shared)),
+            Payload { inner: shared },
         )
     }
 
-    <span class="doccomment">/// Creates an empty payload.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">Payload</span> {
-        <span class="ident">Payload</span> {
-            <span class="ident">inner</span>: <span class="ident">Rc::new</span>(<span class="ident">RefCell::new</span>(<span class="ident">Inner::new</span>(<span class="bool-val">true</span>))),
+    <span class="doccomment">/// Creates an empty payload.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>empty() -&gt; Payload {
+        Payload {
+            inner: Rc::new(RefCell::new(Inner::new(<span class="bool-val">true</span>))),
         }
     }
 
-    <span class="doccomment">/// Length of the data in this payload</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow</span>().<span class="ident">len</span>()
+    <span class="doccomment">/// Length of the data in this payload
+    </span><span class="attribute">#[cfg(test)]
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.inner.borrow().len()
     }
 
-    <span class="doccomment">/// Is payload empty</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow</span>().<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span>
-    }
+    <span class="doccomment">/// Is payload empty
+    </span><span class="attribute">#[cfg(test)]
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.inner.borrow().len() == <span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Put unused data back to payload</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unread_data</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">Bytes</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow_mut</span>().<span class="ident">unread_data</span>(<span class="ident">data</span>);
+    <span class="doccomment">/// Put unused data back to payload
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>unread_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Bytes) {
+        <span class="self">self</span>.inner.borrow_mut().unread_data(data);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">Payload</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>Stream <span class="kw">for </span>Payload {
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(
-        <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow_mut</span>()).<span class="ident">poll_next</span>(<span class="ident">cx</span>)
+    <span class="kw">fn </span>poll_next(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt;&gt; {
+        Pin::new(<span class="kw-2">&amp;mut *</span><span class="self">self</span>.inner.borrow_mut()).poll_next(cx)
     }
 }
 
-<span class="doccomment">/// Sender part of the payload stream</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PayloadSender</span> {
-    <span class="ident">inner</span>: <span class="ident">Weak</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Sender part of the payload stream
+</span><span class="kw">pub struct </span>PayloadSender {
+    inner: Weak&lt;RefCell&lt;Inner&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">PayloadSender</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="ident">Weak</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">inner</span> }
+<span class="kw">impl </span>PayloadSender {
+    <span class="kw">fn </span>new(inner: Weak&lt;RefCell&lt;Inner&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ inner }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_error</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">err</span>: <span class="ident">PayloadError</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">shared</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">upgrade</span>() {
-            <span class="ident">shared</span>.<span class="ident">borrow_mut</span>().<span class="ident">set_error</span>(<span class="ident">err</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, err: PayloadError) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(shared) = <span class="self">self</span>.inner.upgrade() {
+            shared.borrow_mut().set_error(err)
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">feed_eof</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">shared</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">upgrade</span>() {
-            <span class="ident">shared</span>.<span class="ident">borrow_mut</span>().<span class="ident">feed_eof</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>feed_eof(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(shared) = <span class="self">self</span>.inner.upgrade() {
+            shared.borrow_mut().feed_eof()
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">feed_data</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">Bytes</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">shared</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">upgrade</span>() {
-            <span class="ident">shared</span>.<span class="ident">borrow_mut</span>().<span class="ident">feed_data</span>(<span class="ident">data</span>)
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>feed_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Bytes) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(shared) = <span class="self">self</span>.inner.upgrade() {
+            shared.borrow_mut().feed_data(data)
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">need_read</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">PayloadStatus</span> {
-        <span class="comment">// we check need_read only if Payload (other side) is alive,</span>
-        <span class="comment">// otherwise always return true (consume payload)</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">shared</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">upgrade</span>() {
-            <span class="kw">if</span> <span class="ident">shared</span>.<span class="ident">borrow</span>().<span class="ident">need_read</span> {
-                <span class="ident">PayloadStatus::Read</span>
-            } <span class="kw">else</span> {
-                <span class="ident">shared</span>.<span class="ident">borrow_mut</span>().<span class="ident">register_io</span>(<span class="ident">cx</span>);
-                <span class="ident">PayloadStatus::Pause</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>need_read(<span class="kw-2">&amp;</span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; PayloadStatus {
+        <span class="comment">// we check need_read only if Payload (other side) is alive,
+        // otherwise always return true (consume payload)
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(shared) = <span class="self">self</span>.inner.upgrade() {
+            <span class="kw">if </span>shared.borrow().need_read {
+                PayloadStatus::Read
+            } <span class="kw">else </span>{
+                shared.borrow_mut().register_io(cx);
+                PayloadStatus::Pause
             }
-        } <span class="kw">else</span> {
-            <span class="ident">PayloadStatus::Dropped</span>
+        } <span class="kw">else </span>{
+            PayloadStatus::Dropped
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Inner</span> {
-    <span class="ident">len</span>: <span class="ident">usize</span>,
-    <span class="ident">eof</span>: <span class="ident">bool</span>,
-    <span class="ident">err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PayloadError</span><span class="op">&gt;</span>,
-    <span class="ident">need_read</span>: <span class="ident">bool</span>,
-    <span class="ident">items</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>,
-    <span class="ident">task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>,
-    <span class="ident">io_task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Waker</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">struct </span>Inner {
+    len: usize,
+    eof: bool,
+    err: <span class="prelude-ty">Option</span>&lt;PayloadError&gt;,
+    need_read: bool,
+    items: VecDeque&lt;Bytes&gt;,
+    task: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
+    io_task: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Inner</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">eof</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Inner</span> {
-            <span class="ident">eof</span>,
-            <span class="ident">len</span>: <span class="number">0</span>,
-            <span class="ident">err</span>: <span class="prelude-val">None</span>,
-            <span class="ident">items</span>: <span class="ident">VecDeque::new</span>(),
-            <span class="ident">need_read</span>: <span class="bool-val">true</span>,
-            <span class="ident">task</span>: <span class="prelude-val">None</span>,
-            <span class="ident">io_task</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>Inner {
+    <span class="kw">fn </span>new(eof: bool) -&gt; <span class="self">Self </span>{
+        Inner {
+            eof,
+            len: <span class="number">0</span>,
+            err: <span class="prelude-val">None</span>,
+            items: VecDeque::new(),
+            need_read: <span class="bool-val">true</span>,
+            task: <span class="prelude-val">None</span>,
+            io_task: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Wake up future waiting for payload data to be available.</span>
-    <span class="kw">fn</span> <span class="ident">wake</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">task</span>.<span class="ident">take</span>() {
-            <span class="ident">waker</span>.<span class="ident">wake</span>();
+    <span class="doccomment">/// Wake up future waiting for payload data to be available.
+    </span><span class="kw">fn </span>wake(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(waker) = <span class="self">self</span>.task.take() {
+            waker.wake();
         }
     }
 
-    <span class="doccomment">/// Wake up future feeding data to Payload.</span>
-    <span class="kw">fn</span> <span class="ident">wake_io</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">io_task</span>.<span class="ident">take</span>() {
-            <span class="ident">waker</span>.<span class="ident">wake</span>();
+    <span class="doccomment">/// Wake up future feeding data to Payload.
+    </span><span class="kw">fn </span>wake_io(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(waker) = <span class="self">self</span>.io_task.take() {
+            waker.wake();
         }
     }
 
-    <span class="doccomment">/// Register future waiting data from payload.</span>
-    <span class="doccomment">/// Waker would be used in `Inner::wake`</span>
-    <span class="kw">fn</span> <span class="ident">register</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="self">self</span>
-            .<span class="ident">task</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map_or</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="op">!</span><span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">will_wake</span>(<span class="ident">w</span>))
+    <span class="doccomment">/// Register future waiting data from payload.
+    /// Waker would be used in `Inner::wake`
+    </span><span class="kw">fn </span>register(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) {
+        <span class="kw">if </span><span class="self">self
+            </span>.task
+            .as_ref()
+            .map_or(<span class="bool-val">true</span>, |w| !cx.waker().will_wake(w))
         {
-            <span class="self">self</span>.<span class="ident">task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
+            <span class="self">self</span>.task = <span class="prelude-val">Some</span>(cx.waker().clone());
         }
     }
 
-    <span class="comment">// Register future feeding data to payload.</span>
-    <span class="doccomment">/// Waker would be used in `Inner::wake_io`</span>
-    <span class="kw">fn</span> <span class="ident">register_io</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="self">self</span>
-            .<span class="ident">io_task</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map_or</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="op">!</span><span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">will_wake</span>(<span class="ident">w</span>))
+    <span class="comment">// Register future feeding data to payload.
+    </span><span class="doccomment">/// Waker would be used in `Inner::wake_io`
+    </span><span class="kw">fn </span>register_io(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) {
+        <span class="kw">if </span><span class="self">self
+            </span>.io_task
+            .as_ref()
+            .map_or(<span class="bool-val">true</span>, |w| !cx.waker().will_wake(w))
         {
-            <span class="self">self</span>.<span class="ident">io_task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
+            <span class="self">self</span>.io_task = <span class="prelude-val">Some</span>(cx.waker().clone());
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">set_error</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">err</span>: <span class="ident">PayloadError</span>) {
-        <span class="self">self</span>.<span class="ident">err</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>);
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>set_error(<span class="kw-2">&amp;mut </span><span class="self">self</span>, err: PayloadError) {
+        <span class="self">self</span>.err = <span class="prelude-val">Some</span>(err);
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">feed_eof</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">eof</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>feed_eof(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.eof = <span class="bool-val">true</span>;
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">feed_data</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">Bytes</span>) {
-        <span class="self">self</span>.<span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">push_back</span>(<span class="ident">data</span>);
-        <span class="self">self</span>.<span class="ident">need_read</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span> <span class="op">&lt;</span> <span class="ident">MAX_BUFFER_SIZE</span>;
-        <span class="self">self</span>.<span class="ident">wake</span>();
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>feed_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Bytes) {
+        <span class="self">self</span>.len += data.len();
+        <span class="self">self</span>.items.push_back(data);
+        <span class="self">self</span>.need_read = <span class="self">self</span>.len &lt; MAX_BUFFER_SIZE;
+        <span class="self">self</span>.wake();
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">len</span>
+    <span class="attribute">#[cfg(test)]
+    </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.len
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">pop_front</span>() {
-            <span class="self">self</span>.<span class="ident">len</span> <span class="op">-</span><span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>();
-            <span class="self">self</span>.<span class="ident">need_read</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span> <span class="op">&lt;</span> <span class="ident">MAX_BUFFER_SIZE</span>;
+    <span class="kw">fn </span>poll_next(
+        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt;&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = <span class="self">self</span>.items.pop_front() {
+            <span class="self">self</span>.len -= data.len();
+            <span class="self">self</span>.need_read = <span class="self">self</span>.len &lt; MAX_BUFFER_SIZE;
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">need_read</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">eof</span> {
-                <span class="self">self</span>.<span class="ident">register</span>(<span class="ident">cx</span>);
+            <span class="kw">if </span><span class="self">self</span>.need_read &amp;&amp; !<span class="self">self</span>.eof {
+                <span class="self">self</span>.register(cx);
             }
-            <span class="self">self</span>.<span class="ident">wake_io</span>();
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">data</span>)))
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">err</span>.<span class="ident">take</span>() {
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)))
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eof</span> {
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">need_read</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="self">self</span>.<span class="ident">register</span>(<span class="ident">cx</span>);
-            <span class="self">self</span>.<span class="ident">wake_io</span>();
-            <span class="ident">Poll::Pending</span>
+            <span class="self">self</span>.wake_io();
+            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(data)))
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(err) = <span class="self">self</span>.err.take() {
+            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)))
+        } <span class="kw">else if </span><span class="self">self</span>.eof {
+            Poll::Ready(<span class="prelude-val">None</span>)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.need_read = <span class="bool-val">true</span>;
+            <span class="self">self</span>.register(cx);
+            <span class="self">self</span>.wake_io();
+            Poll::Pending
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">unread_data</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">Bytes</span>) {
-        <span class="self">self</span>.<span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">push_front</span>(<span class="ident">data</span>);
+    <span class="kw">fn </span>unread_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Bytes) {
+        <span class="self">self</span>.len += data.len();
+        <span class="self">self</span>.items.push_front(data);
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_utils::future::poll_fn</span>;
-    <span class="kw">use</span> <span class="ident">static_assertions</span>::{<span class="ident">assert_impl_all</span>, <span class="ident">assert_not_impl_any</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_utils::future::poll_fn;
+    <span class="kw">use </span>static_assertions::{assert_impl_all, assert_not_impl_any};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="macro">assert_impl_all!</span>(<span class="ident">Payload</span>: <span class="ident">Unpin</span>);
-    <span class="macro">assert_not_impl_any!</span>(<span class="ident">Payload</span>: <span class="ident">Send</span>, <span class="ident">Sync</span>);
+    <span class="macro">assert_impl_all!</span>(Payload: Unpin);
+    <span class="macro">assert_not_impl_any!</span>(Payload: Send, Sync);
 
-    <span class="macro">assert_impl_all!</span>(<span class="ident">Inner</span>: <span class="ident">Unpin</span>, <span class="ident">Send</span>, <span class="ident">Sync</span>);
+    <span class="macro">assert_impl_all!</span>(Inner: Unpin, Send, Sync);
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_unread_data</span>() {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">Payload::create</span>(<span class="bool-val">false</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_unread_data() {
+        <span class="kw">let </span>(<span class="kw">_</span>, <span class="kw-2">mut </span>payload) = Payload::create(<span class="bool-val">false</span>);
 
-        <span class="ident">payload</span>.<span class="ident">unread_data</span>(<span class="ident">Bytes::from</span>(<span class="string">&quot;data&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">payload</span>.<span class="ident">is_empty</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">payload</span>.<span class="ident">len</span>(), <span class="number">4</span>);
+        payload.unread_data(Bytes::from(<span class="string">&quot;data&quot;</span>));
+        <span class="macro">assert!</span>(!payload.is_empty());
+        <span class="macro">assert_eq!</span>(payload.len(), <span class="number">4</span>);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Bytes::from</span>(<span class="string">&quot;data&quot;</span>),
-            <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">payload</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>))
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">unwrap</span>()
+            Bytes::from(<span class="string">&quot;data&quot;</span>),
+            poll_fn(|cx| Pin::new(<span class="kw-2">&amp;mut </span>payload).poll_next(cx))
+                .<span class="kw">await
+                </span>.unwrap()
+                .unwrap()
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

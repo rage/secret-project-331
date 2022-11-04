@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/test_server.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>test_server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/test_server.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>test_server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_server/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -153,158 +153,158 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io</span>, <span class="ident">net</span>, <span class="ident">sync::mpsc</span>, <span class="ident">thread</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{io, net, sync::mpsc, thread};
 
-<span class="kw">use</span> <span class="ident">actix_rt</span>::{<span class="ident">net::TcpStream</span>, <span class="ident">System</span>};
+<span class="kw">use </span>actix_rt::{net::TcpStream, System};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Server</span>, <span class="ident">ServerBuilder</span>, <span class="ident">ServerHandle</span>, <span class="ident">ServerServiceFactory</span>};
+<span class="kw">use crate</span>::{Server, ServerBuilder, ServerHandle, ServerServiceFactory};
 
-<span class="doccomment">/// A testing server.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `TestServer` is very simple test server that simplify process of writing integration tests for</span>
-<span class="doccomment">/// network applications.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_service::fn_service;</span>
-<span class="doccomment">/// use actix_server::TestServer;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[actix_rt::main]</span>
-<span class="doccomment">/// async fn main() {</span>
-<span class="doccomment">///     let srv = TestServer::start(|| fn_service(</span>
-<span class="doccomment">///         |sock| async move {</span>
-<span class="doccomment">///             println!(&quot;New connection: {:?}&quot;, sock);</span>
-<span class="doccomment">///             Ok::&lt;_, ()&gt;(())</span>
-<span class="doccomment">///         }</span>
-<span class="doccomment">///     ));</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     println!(&quot;SOCKET: {:?}&quot;, srv.connect());</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestServer</span>;
+<span class="doccomment">/// A testing server.
+///
+/// `TestServer` is very simple test server that simplify process of writing integration tests for
+/// network applications.
+///
+/// # Examples
+/// ```
+/// use actix_service::fn_service;
+/// use actix_server::TestServer;
+///
+/// #[actix_rt::main]
+/// async fn main() {
+///     let srv = TestServer::start(|| fn_service(
+///         |sock| async move {
+///             println!(&quot;New connection: {:?}&quot;, sock);
+///             Ok::&lt;_, ()&gt;(())
+///         }
+///     ));
+///
+///     println!(&quot;SOCKET: {:?}&quot;, srv.connect());
+/// }
+/// ```
+</span><span class="kw">pub struct </span>TestServer;
 
-<span class="doccomment">/// Test server handle.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestServerHandle</span> {
-    <span class="ident">addr</span>: <span class="ident">net::SocketAddr</span>,
-    <span class="ident">host</span>: <span class="ident">String</span>,
-    <span class="ident">port</span>: <span class="ident">u16</span>,
-    <span class="ident">server_handle</span>: <span class="ident">ServerHandle</span>,
-    <span class="ident">thread_handle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">thread::JoinHandle</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Test server handle.
+</span><span class="kw">pub struct </span>TestServerHandle {
+    addr: net::SocketAddr,
+    host: String,
+    port: u16,
+    server_handle: ServerHandle,
+    thread_handle: <span class="prelude-ty">Option</span>&lt;thread::JoinHandle&lt;io::Result&lt;()&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">TestServer</span> {
-    <span class="doccomment">/// Start new `TestServer` using application factory and default server config.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">factory</span>: <span class="kw">impl</span> <span class="ident">ServerServiceFactory</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>) -&gt; <span class="ident">TestServerHandle</span> {
-        <span class="ident"><span class="self">Self</span>::start_with_builder</span>(<span class="ident">Server::build</span>(), <span class="ident">factory</span>)
+<span class="kw">impl </span>TestServer {
+    <span class="doccomment">/// Start new `TestServer` using application factory and default server config.
+    </span><span class="kw">pub fn </span>start(factory: <span class="kw">impl </span>ServerServiceFactory&lt;TcpStream&gt;) -&gt; TestServerHandle {
+        <span class="self">Self</span>::start_with_builder(Server::build(), factory)
     }
 
-    <span class="doccomment">/// Start new `TestServer` using application factory and server builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_with_builder</span>(
-        <span class="ident">server_builder</span>: <span class="ident">ServerBuilder</span>,
-        <span class="ident">factory</span>: <span class="kw">impl</span> <span class="ident">ServerServiceFactory</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">TestServerHandle</span> {
-        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">mpsc::channel</span>();
+    <span class="doccomment">/// Start new `TestServer` using application factory and server builder.
+    </span><span class="kw">pub fn </span>start_with_builder(
+        server_builder: ServerBuilder,
+        factory: <span class="kw">impl </span>ServerServiceFactory&lt;TcpStream&gt;,
+    ) -&gt; TestServerHandle {
+        <span class="kw">let </span>(tx, rx) = mpsc::channel();
 
-        <span class="comment">// run server in separate thread</span>
-        <span class="kw">let</span> <span class="ident">thread_handle</span> <span class="op">=</span> <span class="ident">thread::spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">lst</span> <span class="op">=</span> <span class="ident">net::TcpListener::bind</span>(<span class="string">&quot;127.0.0.1:0&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">local_addr</span> <span class="op">=</span> <span class="ident">lst</span>.<span class="ident">local_addr</span>().<span class="ident">unwrap</span>();
+        <span class="comment">// run server in separate thread
+        </span><span class="kw">let </span>thread_handle = thread::spawn(<span class="kw">move </span>|| {
+            <span class="kw">let </span>lst = net::TcpListener::bind(<span class="string">&quot;127.0.0.1:0&quot;</span>).unwrap();
+            <span class="kw">let </span>local_addr = lst.local_addr().unwrap();
 
-            <span class="ident">System::new</span>().<span class="ident">block_on</span>(<span class="kw">async</span> {
-                <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">server_builder</span>
-                    .<span class="ident">listen</span>(<span class="string">&quot;test&quot;</span>, <span class="ident">lst</span>, <span class="ident">factory</span>)
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">workers</span>(<span class="number">1</span>)
-                    .<span class="ident">disable_signals</span>()
-                    .<span class="ident">run</span>();
+            System::new().block_on(<span class="kw">async </span>{
+                <span class="kw">let </span>server = server_builder
+                    .listen(<span class="string">&quot;test&quot;</span>, lst, factory)
+                    .unwrap()
+                    .workers(<span class="number">1</span>)
+                    .disable_signals()
+                    .run();
 
-                <span class="ident">tx</span>.<span class="ident">send</span>((<span class="ident">server</span>.<span class="ident">handle</span>(), <span class="ident">local_addr</span>)).<span class="ident">unwrap</span>();
-                <span class="ident">server</span>.<span class="kw">await</span>
-            })
+                tx.send((server.handle(), local_addr)).unwrap();
+                server.<span class="kw">await
+            </span>})
         });
 
-        <span class="kw">let</span> (<span class="ident">server_handle</span>, <span class="ident">addr</span>) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span>(server_handle, addr) = rx.recv().unwrap();
 
-        <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">addr</span>.<span class="ident">ip</span>());
-        <span class="kw">let</span> <span class="ident">port</span> <span class="op">=</span> <span class="ident">addr</span>.<span class="ident">port</span>();
+        <span class="kw">let </span>host = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, addr.ip());
+        <span class="kw">let </span>port = addr.port();
 
-        <span class="ident">TestServerHandle</span> {
-            <span class="ident">addr</span>,
-            <span class="ident">host</span>,
-            <span class="ident">port</span>,
-            <span class="ident">server_handle</span>,
-            <span class="ident">thread_handle</span>: <span class="prelude-val">Some</span>(<span class="ident">thread_handle</span>),
+        TestServerHandle {
+            addr,
+            host,
+            port,
+            server_handle,
+            thread_handle: <span class="prelude-val">Some</span>(thread_handle),
         }
     }
 
-    <span class="doccomment">/// Get first available unused local address.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unused_addr</span>() -&gt; <span class="ident">net::SocketAddr</span> {
-        <span class="kw">use</span> <span class="ident">socket2</span>::{<span class="ident">Domain</span>, <span class="ident">Protocol</span>, <span class="ident">Socket</span>, <span class="ident">Type</span>};
+    <span class="doccomment">/// Get first available unused local address.
+    </span><span class="kw">pub fn </span>unused_addr() -&gt; net::SocketAddr {
+        <span class="kw">use </span>socket2::{Domain, Protocol, Socket, Type};
 
-        <span class="kw">let</span> <span class="ident">addr</span>: <span class="ident">net::SocketAddr</span> <span class="op">=</span> <span class="string">&quot;127.0.0.1:0&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">domain</span> <span class="op">=</span> <span class="ident">Domain::for_address</span>(<span class="ident">addr</span>);
-        <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="ident">Socket::new</span>(<span class="ident">domain</span>, <span class="ident">Type::STREAM</span>, <span class="prelude-val">Some</span>(<span class="ident">Protocol::TCP</span>)).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>addr: net::SocketAddr = <span class="string">&quot;127.0.0.1:0&quot;</span>.parse().unwrap();
+        <span class="kw">let </span>domain = Domain::for_address(addr);
+        <span class="kw">let </span>socket = Socket::new(domain, Type::STREAM, <span class="prelude-val">Some</span>(Protocol::TCP)).unwrap();
 
-        <span class="ident">socket</span>.<span class="ident">set_reuse_address</span>(<span class="bool-val">true</span>).<span class="ident">unwrap</span>();
-        <span class="ident">socket</span>.<span class="ident">set_nonblocking</span>(<span class="bool-val">true</span>).<span class="ident">unwrap</span>();
-        <span class="ident">socket</span>.<span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="ident">addr</span>.<span class="ident">into</span>()).<span class="ident">unwrap</span>();
-        <span class="ident">socket</span>.<span class="ident">listen</span>(<span class="number">1024</span>).<span class="ident">unwrap</span>();
+        socket.set_reuse_address(<span class="bool-val">true</span>).unwrap();
+        socket.set_nonblocking(<span class="bool-val">true</span>).unwrap();
+        socket.bind(<span class="kw-2">&amp;</span>addr.into()).unwrap();
+        socket.listen(<span class="number">1024</span>).unwrap();
 
-        <span class="ident">net::TcpListener::from</span>(<span class="ident">socket</span>).<span class="ident">local_addr</span>().<span class="ident">unwrap</span>()
+        net::TcpListener::from(socket).local_addr().unwrap()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TestServerHandle</span> {
-    <span class="doccomment">/// Test server host.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">host</span>
+<span class="kw">impl </span>TestServerHandle {
+    <span class="doccomment">/// Test server host.
+    </span><span class="kw">pub fn </span>host(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.host
     }
 
-    <span class="doccomment">/// Test server port.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u16</span> {
-        <span class="self">self</span>.<span class="ident">port</span>
+    <span class="doccomment">/// Test server port.
+    </span><span class="kw">pub fn </span>port(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
+        <span class="self">self</span>.port
     }
 
-    <span class="doccomment">/// Get test server address.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">net::SocketAddr</span> {
-        <span class="self">self</span>.<span class="ident">addr</span>
+    <span class="doccomment">/// Get test server address.
+    </span><span class="kw">pub fn </span>addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; net::SocketAddr {
+        <span class="self">self</span>.addr
     }
 
-    <span class="doccomment">/// Stop server.</span>
-    <span class="kw">fn</span> <span class="ident">stop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">server_handle</span>.<span class="ident">stop</span>(<span class="bool-val">false</span>);
-        <span class="self">self</span>.<span class="ident">thread_handle</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">join</span>().<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+    <span class="doccomment">/// Stop server.
+    </span><span class="kw">fn </span>stop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let _ </span>= <span class="self">self</span>.server_handle.stop(<span class="bool-val">false</span>);
+        <span class="self">self</span>.thread_handle.take().unwrap().join().unwrap().unwrap();
     }
 
-    <span class="doccomment">/// Connect to server, returning a Tokio `TcpStream`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span> {
-        <span class="ident">TcpStream::from_std</span>(<span class="ident">net::TcpStream::connect</span>(<span class="self">self</span>.<span class="ident">addr</span>)<span class="question-mark">?</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">TestServerHandle</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">stop</span>()
+    <span class="doccomment">/// Connect to server, returning a Tokio `TcpStream`.
+    </span><span class="kw">pub fn </span>connect(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;TcpStream&gt; {
+        TcpStream::from_std(net::TcpStream::connect(<span class="self">self</span>.addr)<span class="question-mark">?</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_service::fn_service</span>;
+<span class="kw">impl </span>Drop <span class="kw">for </span>TestServerHandle {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.stop()
+    }
+}
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_service::fn_service;
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect_in_tokio_runtime</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">TestServer::start</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">fn_service</span>(<span class="op">|</span><span class="ident">_sock</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, ()<span class="op">&gt;</span>(()) }));
-        <span class="macro">assert!</span>(<span class="ident">srv</span>.<span class="ident">connect</span>().<span class="ident">is_ok</span>());
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>connect_in_tokio_runtime() {
+        <span class="kw">let </span>srv = TestServer::start(|| fn_service(|_sock| <span class="kw">async move </span>{ <span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, ()&gt;(()) }));
+        <span class="macro">assert!</span>(srv.connect().is_ok());
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect_in_actix_runtime</span>() {
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">TestServer::start</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">fn_service</span>(<span class="op">|</span><span class="ident">_sock</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, ()<span class="op">&gt;</span>(()) }));
-        <span class="macro">assert!</span>(<span class="ident">srv</span>.<span class="ident">connect</span>().<span class="ident">is_ok</span>());
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>connect_in_actix_runtime() {
+        <span class="kw">let </span>srv = TestServer::start(|| fn_service(|_sock| <span class="kw">async move </span>{ <span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, ()&gt;(()) }));
+        <span class="macro">assert!</span>(srv.connect().is_ok());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

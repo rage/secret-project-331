@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/resources/hmac_key.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hmac_key.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/resources/hmac_key.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>hmac_key.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -359,366 +359,366 @@
 <span id="359">359</span>
 <span id="360">360</span>
 <span id="361">361</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(unused_imports)]
+#![allow(dead_code)]
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::GoogleResponse</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::error::GoogleResponse;
 
-<span class="doccomment">/// The `HmacKey` resource represents an HMAC key within Cloud Storage. The resource consists of a</span>
-<span class="doccomment">/// secret and `HmacMeta`. HMAC keys can be used as credentials for service accounts. For more</span>
-<span class="doccomment">/// information, see HMAC Keys.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that the `HmacKey` resource is only returned when you use `HmacKey::create`. Other</span>
-<span class="doccomment">/// methods, such as `HmacKey::read`, return the metadata portion of the HMAC key resource.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HmacKey</span> {
-    <span class="doccomment">/// The kind of item this is. For HMAC keys, this is always `storage#hmacKey`.</span>
-    <span class="kw">pub</span> <span class="ident">kind</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// HMAC key metadata.</span>
-    <span class="kw">pub</span> <span class="ident">metadata</span>: <span class="ident">HmacMeta</span>,
-    <span class="doccomment">/// HMAC secret key material.</span>
-    <span class="kw">pub</span> <span class="ident">secret</span>: <span class="ident">String</span>,
+<span class="doccomment">/// The `HmacKey` resource represents an HMAC key within Cloud Storage. The resource consists of a
+/// secret and `HmacMeta`. HMAC keys can be used as credentials for service accounts. For more
+/// information, see HMAC Keys.
+///
+/// Note that the `HmacKey` resource is only returned when you use `HmacKey::create`. Other
+/// methods, such as `HmacKey::read`, return the metadata portion of the HMAC key resource.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>HmacKey {
+    <span class="doccomment">/// The kind of item this is. For HMAC keys, this is always `storage#hmacKey`.
+    </span><span class="kw">pub </span>kind: String,
+    <span class="doccomment">/// HMAC key metadata.
+    </span><span class="kw">pub </span>metadata: HmacMeta,
+    <span class="doccomment">/// HMAC secret key material.
+    </span><span class="kw">pub </span>secret: String,
 }
 
-<span class="doccomment">/// Contains information about an Hmac Key.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HmacMeta</span> {
-    <span class="doccomment">/// The kind of item this is. For HMAC key metadata, this is always `storage#hmacKeyMetadata`.</span>
-    <span class="kw">pub</span> <span class="ident">kind</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The ID of the HMAC key, including the Project ID and the Access ID.</span>
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The link to this resource.</span>
-    <span class="kw">pub</span> <span class="ident">self_link</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The access ID of the HMAC Key.</span>
-    <span class="kw">pub</span> <span class="ident">access_id</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The Project ID of the project that owns the service account to which the key authenticates.</span>
-    <span class="kw">pub</span> <span class="ident">project_id</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The email address of the key&#39;s associated service account.</span>
-    <span class="kw">pub</span> <span class="ident">service_account_email</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The state of the key.</span>
-    <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">HmacState</span>,
-    <span class="doccomment">/// The creation time of the HMAC key.</span>
-    <span class="kw">pub</span> <span class="ident">time_created</span>: <span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::Utc</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The last modification time of the HMAC key metadata.</span>
-    <span class="kw">pub</span> <span class="ident">updated</span>: <span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::Utc</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// HTTP 1.1 Entity tag for the HMAC key.</span>
-    <span class="kw">pub</span> <span class="ident">etag</span>: <span class="ident">String</span>,
+<span class="doccomment">/// Contains information about an Hmac Key.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>HmacMeta {
+    <span class="doccomment">/// The kind of item this is. For HMAC key metadata, this is always `storage#hmacKeyMetadata`.
+    </span><span class="kw">pub </span>kind: String,
+    <span class="doccomment">/// The ID of the HMAC key, including the Project ID and the Access ID.
+    </span><span class="kw">pub </span>id: String,
+    <span class="doccomment">/// The link to this resource.
+    </span><span class="kw">pub </span>self_link: String,
+    <span class="doccomment">/// The access ID of the HMAC Key.
+    </span><span class="kw">pub </span>access_id: String,
+    <span class="doccomment">/// The Project ID of the project that owns the service account to which the key authenticates.
+    </span><span class="kw">pub </span>project_id: String,
+    <span class="doccomment">/// The email address of the key&#39;s associated service account.
+    </span><span class="kw">pub </span>service_account_email: String,
+    <span class="doccomment">/// The state of the key.
+    </span><span class="kw">pub </span>state: HmacState,
+    <span class="doccomment">/// The creation time of the HMAC key.
+    </span><span class="kw">pub </span>time_created: chrono::DateTime&lt;chrono::Utc&gt;,
+    <span class="doccomment">/// The last modification time of the HMAC key metadata.
+    </span><span class="kw">pub </span>updated: chrono::DateTime&lt;chrono::Utc&gt;,
+    <span class="doccomment">/// HTTP 1.1 Entity tag for the HMAC key.
+    </span><span class="kw">pub </span>etag: String,
 }
 
-<span class="doccomment">/// The state of an Hmac Key.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;UPPERCASE&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HmacState</span> {
-    <span class="doccomment">/// This Hmac key is currently used.</span>
-    <span class="ident">Active</span>,
-    <span class="doccomment">/// This Hmac key has been set to inactive.</span>
-    <span class="ident">Inactive</span>,
-    <span class="doccomment">/// This Hmac key has been permanently deleted.</span>
-    <span class="ident">Deleted</span>,
+<span class="doccomment">/// The state of an Hmac Key.
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;UPPERCASE&quot;</span>)]
+</span><span class="kw">pub enum </span>HmacState {
+    <span class="doccomment">/// This Hmac key is currently used.
+    </span>Active,
+    <span class="doccomment">/// This Hmac key has been set to inactive.
+    </span>Inactive,
+    <span class="doccomment">/// This Hmac key has been permanently deleted.
+    </span>Deleted,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">ListResponse</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, serde::Deserialize)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ListResponse {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) items: Vec&lt;HmacMeta&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde::Serialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">UpdateRequest</span> {
-    <span class="ident">secret</span>: <span class="ident">String</span>,
-    <span class="ident">metadata</span>: <span class="ident">UpdateMeta</span>,
+<span class="attribute">#[derive(serde::Serialize)]
+</span><span class="kw">struct </span>UpdateRequest {
+    secret: String,
+    metadata: UpdateMeta,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde::Serialize</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">UpdateMeta</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">state</span>: <span class="ident">HmacState</span>,
+<span class="attribute">#[derive(serde::Serialize)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>UpdateMeta {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) state: HmacState,
 }
 
-<span class="kw">impl</span> <span class="ident">HmacKey</span> {
-    <span class="doccomment">/// Creates a new HMAC key for the specified service account.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have `storage.hmacKeys.create` permission for the project in</span>
-    <span class="doccomment">/// which the key will be created.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::HmacKey;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let hmac_key = HmacKey::create().await?;</span>
-    <span class="doccomment">/// # use cloud_storage::hmac_key::HmacState;</span>
-    <span class="doccomment">/// # HmacKey::update(&amp;hmac_key.metadata.access_id, HmacState::Inactive).await?;</span>
-    <span class="doccomment">/// # HmacKey::delete(&amp;hmac_key.metadata.access_id).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>() -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>.<span class="ident">hmac_key</span>().<span class="ident">create</span>().<span class="kw">await</span>
+<span class="kw">impl </span>HmacKey {
+    <span class="doccomment">/// Creates a new HMAC key for the specified service account.
+    ///
+    /// The authenticated user must have `storage.hmacKeys.create` permission for the project in
+    /// which the key will be created.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::hmac_key::HmacKey;
+    ///
+    /// let hmac_key = HmacKey::create().await?;
+    /// # use cloud_storage::hmac_key::HmacState;
+    /// # HmacKey::update(&amp;hmac_key.metadata.access_id, HmacState::Inactive).await?;
+    /// # HmacKey::delete(&amp;hmac_key.metadata.access_id).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>create() -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT.hmac_key().create().<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// The synchronous equivalent of `HmacKey::create`.
+    ///
+    /// ### Features
+    /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>create_sync() -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::create())
     }
 
-    <span class="doccomment">/// The synchronous equivalent of `HmacKey::create`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Features</span>
-    <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_sync</span>() -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::create</span>())
+    <span class="doccomment">/// Retrieves a list of HMAC keys matching the criteria. Since the HmacKey is secret, this does
+    /// not return a `HmacKey`, but a `HmacMeta`. This is a redacted version of a `HmacKey`, but
+    /// with the secret data omitted.
+    ///
+    /// The authenticated user must have `storage.hmacKeys.list` permission for the project in which
+    /// the key exists.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::hmac_key::HmacKey;
+    ///
+    /// let all_hmac_keys = HmacKey::list().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>list() -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;HmacMeta&gt;&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT.hmac_key().list().<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// The synchronous equivalent of `HmacKey::list`.
+    ///
+    /// ### Features
+    /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>list_sync() -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;HmacMeta&gt;&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::list())
     }
 
-    <span class="doccomment">/// Retrieves a list of HMAC keys matching the criteria. Since the HmacKey is secret, this does</span>
-    <span class="doccomment">/// not return a `HmacKey`, but a `HmacMeta`. This is a redacted version of a `HmacKey`, but</span>
-    <span class="doccomment">/// with the secret data omitted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have `storage.hmacKeys.list` permission for the project in which</span>
-    <span class="doccomment">/// the key exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::HmacKey;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let all_hmac_keys = HmacKey::list().await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>.<span class="ident">hmac_key</span>().<span class="ident">list</span>().<span class="kw">await</span>
+    <span class="doccomment">/// Retrieves an HMAC key&#39;s metadata. Since the HmacKey is secret, this does not return a
+    /// `HmacKey`, but a `HmacMeta`. This is a redacted version of a `HmacKey`, but with the secret
+    /// data omitted.
+    ///
+    /// The authenticated user must have `storage.hmacKeys.get` permission for the project in which
+    /// the key exists.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::hmac_key::HmacKey;
+    ///
+    /// let key = HmacKey::read(&quot;some identifier&quot;).await?;
+    /// # Ok(())
+    /// # }
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>read(access_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;HmacMeta&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT.hmac_key().read(access_id).<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// The synchronous equivalent of `HmacKey::read`.
+    ///
+    /// ### Features
+    /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>read_sync(access_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;HmacMeta&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::read(access_id))
     }
 
-    <span class="doccomment">/// The synchronous equivalent of `HmacKey::list`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Features</span>
-    <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_sync</span>() -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::list</span>())
+    <span class="doccomment">/// Updates the state of an HMAC key. See the HMAC Key resource descriptor for valid states.
+    /// Since the HmacKey is secret, this does not return a `HmacKey`, but a `HmacMeta`. This is a
+    /// redacted version of a `HmacKey`, but with the secret data omitted.
+    ///
+    /// The authenticated user must have `storage.hmacKeys.update` permission for the project in
+    /// which the key exists.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::hmac_key::{HmacKey, HmacState};
+    ///
+    /// let key = HmacKey::update(&quot;your key&quot;, HmacState::Active).await?;
+    /// # Ok(())
+    /// # }
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>update(access_id: <span class="kw-2">&amp;</span>str, state: HmacState) -&gt; <span class="kw">crate</span>::Result&lt;HmacMeta&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT
+            .hmac_key()
+            .update(access_id, state)
+            .<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// The synchronous equivalent of `HmacKey::update`.
+    ///
+    /// ### Features
+    /// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>update_sync(access_id: <span class="kw-2">&amp;</span>str, state: HmacState) -&gt; <span class="kw">crate</span>::Result&lt;HmacMeta&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::update(access_id, state))
     }
 
-    <span class="doccomment">/// Retrieves an HMAC key&#39;s metadata. Since the HmacKey is secret, this does not return a</span>
-    <span class="doccomment">/// `HmacKey`, but a `HmacMeta`. This is a redacted version of a `HmacKey`, but with the secret</span>
-    <span class="doccomment">/// data omitted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have `storage.hmacKeys.get` permission for the project in which</span>
-    <span class="doccomment">/// the key exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::HmacKey;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = HmacKey::read(&quot;some identifier&quot;).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>.<span class="ident">hmac_key</span>().<span class="ident">read</span>(<span class="ident">access_id</span>).<span class="kw">await</span>
-    }
+    <span class="doccomment">/// Deletes an HMAC key. Note that a key must be set to `Inactive` first.
+    ///
+    /// The authenticated user must have storage.hmacKeys.delete permission for the project in which
+    /// the key exists.
+    ///
+    /// For general information about HMAC keys in Cloud Storage, see
+    /// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::hmac_key::{HmacKey, HmacState};
+    ///
+    /// let key = HmacKey::update(&quot;your key&quot;, HmacState::Inactive).await?; // this is required.
+    /// HmacKey::delete(&amp;key.access_id).await?;
+    /// # Ok(())
+    /// # }
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+    </span><span class="kw">pub async fn </span>delete(access_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">crate</span>::CLOUD_CLIENT.hmac_key().delete(access_id).<span class="kw">await
+    </span>}
 
-    <span class="doccomment">/// The synchronous equivalent of `HmacKey::read`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Features</span>
-    <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_sync</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::read</span>(<span class="ident">access_id</span>))
-    }
-
-    <span class="doccomment">/// Updates the state of an HMAC key. See the HMAC Key resource descriptor for valid states.</span>
-    <span class="doccomment">/// Since the HmacKey is secret, this does not return a `HmacKey`, but a `HmacMeta`. This is a</span>
-    <span class="doccomment">/// redacted version of a `HmacKey`, but with the secret data omitted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have `storage.hmacKeys.update` permission for the project in</span>
-    <span class="doccomment">/// which the key exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::{HmacKey, HmacState};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = HmacKey::update(&quot;your key&quot;, HmacState::Active).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">state</span>: <span class="ident">HmacState</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>
-            .<span class="ident">hmac_key</span>()
-            .<span class="ident">update</span>(<span class="ident">access_id</span>, <span class="ident">state</span>)
-            .<span class="kw">await</span>
-    }
-
-    <span class="doccomment">/// The synchronous equivalent of `HmacKey::update`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Features</span>
-    <span class="doccomment">/// This function requires that the feature flag `sync` is enabled in `Cargo.toml`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_sync</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">state</span>: <span class="ident">HmacState</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">HmacMeta</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::update</span>(<span class="ident">access_id</span>, <span class="ident">state</span>))
-    }
-
-    <span class="doccomment">/// Deletes an HMAC key. Note that a key must be set to `Inactive` first.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authenticated user must have storage.hmacKeys.delete permission for the project in which</span>
-    <span class="doccomment">/// the key exists.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For general information about HMAC keys in Cloud Storage, see</span>
-    <span class="doccomment">/// [HMAC Keys](https://cloud.google.com/storage/docs/authentication/hmackeys).</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::hmac_key::{HmacKey, HmacState};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = HmacKey::update(&quot;your key&quot;, HmacState::Inactive).await?; // this is required.</span>
-    <span class="doccomment">/// HmacKey::delete(&amp;key.access_id).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::CLOUD_CLIENT</span>.<span class="ident">hmac_key</span>().<span class="ident">delete</span>(<span class="ident">access_id</span>).<span class="kw">await</span>
-    }
-
-    <span class="doccomment">/// The synchronous equivalent of `HmacKey::delete`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_sync</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::runtime</span>()<span class="question-mark">?</span>.<span class="ident">block_on</span>(<span class="ident"><span class="self">Self</span>::delete</span>(<span class="ident">access_id</span>))
+    <span class="doccomment">/// The synchronous equivalent of `HmacKey::delete`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">pub fn </span>delete_sync(access_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">crate</span>::runtime()<span class="question-mark">?</span>.block_on(<span class="self">Self</span>::delete(access_id))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>))]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_test_hmac</span>() -&gt; <span class="ident">HmacMeta</span> {
-        <span class="kw">match</span> <span class="ident">HmacKey::create</span>().<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">key</span>) =&gt; <span class="ident">key</span>.<span class="ident">metadata</span>,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="ident">HmacKey::list</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">pop</span>().<span class="ident">unwrap</span>(),
+    <span class="kw">async fn </span>get_test_hmac() -&gt; HmacMeta {
+        <span class="kw">match </span>HmacKey::create().<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(key) =&gt; key.metadata,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; HmacKey::list().<span class="kw">await</span>.unwrap().pop().unwrap(),
         }
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_test_hmac</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="ident">HmacKey::update</span>(<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="ident">HmacKey::delete</span>(<span class="ident">access_id</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+    <span class="kw">async fn </span>remove_test_hmac(access_id: <span class="kw-2">&amp;</span>str) {
+        HmacKey::update(access_id, HmacState::Inactive)
+            .<span class="kw">await
+            </span>.unwrap();
+        HmacKey::delete(access_id).<span class="kw">await</span>.unwrap();
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">HmacKey::create</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">remove_test_hmac</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">metadata</span>.<span class="ident">access_id</span>).<span class="kw">await</span>;
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>create() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>key = HmacKey::create().<span class="kw">await</span><span class="question-mark">?</span>;
+        remove_test_hmac(<span class="kw-2">&amp;</span>key.metadata.access_id).<span class="kw">await</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">HmacKey::list</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>list() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        HmacKey::list().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>().<span class="kw">await</span>;
-        <span class="ident">HmacKey::read</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">remove_test_hmac</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span>;
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>read() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>key = get_test_hmac().<span class="kw">await</span>;
+        HmacKey::read(<span class="kw-2">&amp;</span>key.access_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        remove_test_hmac(<span class="kw-2">&amp;</span>key.access_id).<span class="kw">await</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>().<span class="kw">await</span>;
-        <span class="ident">HmacKey::update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">HmacKey::delete</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>key = get_test_hmac().<span class="kw">await</span>;
+        HmacKey::update(<span class="kw-2">&amp;</span>key.access_id, HmacState::Inactive).<span class="kw">await</span><span class="question-mark">?</span>;
+        HmacKey::delete(<span class="kw-2">&amp;</span>key.access_id).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>().<span class="kw">await</span>;
-        <span class="ident">HmacKey::update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">HmacKey::delete</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>key = get_test_hmac().<span class="kw">await</span>;
+        HmacKey::update(<span class="kw-2">&amp;</span>key.access_id, HmacState::Inactive).<span class="kw">await</span><span class="question-mark">?</span>;
+        HmacKey::delete(<span class="kw-2">&amp;</span>key.access_id).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">clear_keys</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">keys</span> <span class="op">=</span> <span class="ident">HmacKey::list</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">keys</span> {
-            <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">HmacState::Inactive</span> {
-                <span class="ident">HmacKey::update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>clear_keys() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+        <span class="kw">let </span>keys = HmacKey::list().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">for </span>key <span class="kw">in </span><span class="kw-2">&amp;</span>keys {
+            <span class="kw">if </span>key.state != HmacState::Inactive {
+                HmacKey::update(<span class="kw-2">&amp;</span>key.access_id, HmacState::Inactive).<span class="kw">await</span><span class="question-mark">?</span>;
             }
-            <span class="ident">HmacKey::delete</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            HmacKey::delete(<span class="kw-2">&amp;</span>key.access_id).<span class="kw">await</span><span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-    <span class="kw">mod</span> <span class="ident">sync</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="attribute">#[cfg(all(feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+    </span><span class="kw">mod </span>sync {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="kw">fn</span> <span class="ident">get_test_hmac</span>() -&gt; <span class="ident">HmacMeta</span> {
-            <span class="kw">match</span> <span class="ident">HmacKey::create_sync</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">key</span>) =&gt; <span class="ident">key</span>.<span class="ident">metadata</span>,
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="ident">HmacKey::list_sync</span>().<span class="ident">unwrap</span>().<span class="ident">pop</span>().<span class="ident">unwrap</span>(),
+        <span class="kw">fn </span>get_test_hmac() -&gt; HmacMeta {
+            <span class="kw">match </span>HmacKey::create_sync() {
+                <span class="prelude-val">Ok</span>(key) =&gt; key.metadata,
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; HmacKey::list_sync().unwrap().pop().unwrap(),
             }
         }
 
-        <span class="kw">fn</span> <span class="ident">remove_test_hmac</span>(<span class="ident">access_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-            <span class="ident">HmacKey::update_sync</span>(<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>).<span class="ident">unwrap</span>();
-            <span class="ident">HmacKey::delete_sync</span>(<span class="ident">access_id</span>).<span class="ident">unwrap</span>();
+        <span class="kw">fn </span>remove_test_hmac(access_id: <span class="kw-2">&amp;</span>str) {
+            HmacKey::update_sync(access_id, HmacState::Inactive).unwrap();
+            HmacKey::delete_sync(access_id).unwrap();
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">create</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">HmacKey::create_sync</span>()<span class="question-mark">?</span>;
-            <span class="ident">remove_test_hmac</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">metadata</span>.<span class="ident">access_id</span>);
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>create() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            <span class="kw">let </span>key = HmacKey::create_sync()<span class="question-mark">?</span>;
+            remove_test_hmac(<span class="kw-2">&amp;</span>key.metadata.access_id);
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">list</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="ident">HmacKey::list_sync</span>()<span class="question-mark">?</span>;
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>list() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            HmacKey::list_sync()<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">read</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>();
-            <span class="ident">HmacKey::read_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>)<span class="question-mark">?</span>;
-            <span class="ident">remove_test_hmac</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>);
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>read() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            <span class="kw">let </span>key = get_test_hmac();
+            HmacKey::read_sync(<span class="kw-2">&amp;</span>key.access_id)<span class="question-mark">?</span>;
+            remove_test_hmac(<span class="kw-2">&amp;</span>key.access_id);
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">update</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>();
-            <span class="ident">HmacKey::update_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>)<span class="question-mark">?</span>;
-            <span class="ident">HmacKey::delete_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>)<span class="question-mark">?</span>;
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>update() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            <span class="kw">let </span>key = get_test_hmac();
+            HmacKey::update_sync(<span class="kw-2">&amp;</span>key.access_id, HmacState::Inactive)<span class="question-mark">?</span>;
+            HmacKey::delete_sync(<span class="kw-2">&amp;</span>key.access_id)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">delete</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">get_test_hmac</span>();
-            <span class="ident">HmacKey::update_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>, <span class="ident">HmacState::Inactive</span>)<span class="question-mark">?</span>;
-            <span class="ident">HmacKey::delete_sync</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">access_id</span>)<span class="question-mark">?</span>;
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>delete() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+            <span class="kw">let </span>key = get_test_hmac();
+            HmacKey::update_sync(<span class="kw-2">&amp;</span>key.access_id, HmacState::Inactive)<span class="question-mark">?</span>;
+            HmacKey::delete_sync(<span class="kw-2">&amp;</span>key.access_id)<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(())
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

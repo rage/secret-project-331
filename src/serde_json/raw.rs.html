@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_json-1.0.86/src/raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../serde_json/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../serde_json/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../serde_json/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_json-1.0.86/src/raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../serde_json/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../serde_json/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../serde_json/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -529,536 +529,536 @@
 <span id="529">529</span>
 <span id="530">530</span>
 <span id="531">531</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident">alloc::borrow::ToOwned</span>;
-<span class="kw">use</span> <span class="ident">alloc::boxed::Box</span>;
-<span class="kw">use</span> <span class="ident">alloc::string::String</span>;
-<span class="kw">use</span> <span class="ident">core::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Display</span>};
-<span class="kw">use</span> <span class="ident">core::mem</span>;
-<span class="kw">use</span> <span class="ident">serde::de::value::BorrowedStrDeserializer</span>;
-<span class="kw">use</span> <span class="ident">serde::de</span>::{
-    <span class="self">self</span>, <span class="ident">Deserialize</span>, <span class="ident">DeserializeSeed</span>, <span class="ident">Deserializer</span>, <span class="ident">IntoDeserializer</span>, <span class="ident">MapAccess</span>, <span class="ident">Unexpected</span>,
-    <span class="ident">Visitor</span>,
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span>alloc::borrow::ToOwned;
+<span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>alloc::string::String;
+<span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug, Display};
+<span class="kw">use </span>core::mem;
+<span class="kw">use </span>serde::de::value::BorrowedStrDeserializer;
+<span class="kw">use </span>serde::de::{
+    <span class="self">self</span>, Deserialize, DeserializeSeed, Deserializer, IntoDeserializer, MapAccess, Unexpected,
+    Visitor,
 };
-<span class="kw">use</span> <span class="ident">serde::forward_to_deserialize_any</span>;
-<span class="kw">use</span> <span class="ident">serde::ser</span>::{<span class="ident">Serialize</span>, <span class="ident">SerializeStruct</span>, <span class="ident">Serializer</span>};
+<span class="kw">use </span>serde::forward_to_deserialize_any;
+<span class="kw">use </span>serde::ser::{Serialize, SerializeStruct, Serializer};
 
-<span class="doccomment">/// Reference to a range of bytes encompassing a single valid JSON value in the</span>
-<span class="doccomment">/// input data.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A `RawValue` can be used to defer parsing parts of a payload until later,</span>
-<span class="doccomment">/// or to avoid parsing it at all in the case that part of the payload just</span>
-<span class="doccomment">/// needs to be transferred verbatim into a different output object.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When serializing, a value of this type will retain its original formatting</span>
-<span class="doccomment">/// and will not be minified or pretty-printed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `RawValue` is only available if serde\_json is built with the `&quot;raw_value&quot;`</span>
-<span class="doccomment">/// feature.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```toml</span>
-<span class="doccomment">/// [dependencies]</span>
-<span class="doccomment">/// serde_json = { version = &quot;1.0&quot;, features = [&quot;raw_value&quot;] }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use serde::{Deserialize, Serialize};</span>
-<span class="doccomment">/// use serde_json::{Result, value::RawValue};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Deserialize)]</span>
-<span class="doccomment">/// struct Input&lt;&#39;a&gt; {</span>
-<span class="doccomment">///     code: u32,</span>
-<span class="doccomment">///     #[serde(borrow)]</span>
-<span class="doccomment">///     payload: &amp;&#39;a RawValue,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Serialize)]</span>
-<span class="doccomment">/// struct Output&lt;&#39;a&gt; {</span>
-<span class="doccomment">///     info: (u32, &amp;&#39;a RawValue),</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Efficiently rearrange JSON input containing separate &quot;code&quot; and &quot;payload&quot;</span>
-<span class="doccomment">/// // keys into a single &quot;info&quot; key holding an array of code and payload.</span>
-<span class="doccomment">/// //</span>
-<span class="doccomment">/// // This could be done equivalently using serde_json::Value as the type for</span>
-<span class="doccomment">/// // payload, but &amp;RawValue will perform better because it does not require</span>
-<span class="doccomment">/// // memory allocation. The correct range of bytes is borrowed from the input</span>
-<span class="doccomment">/// // data and pasted verbatim into the output.</span>
-<span class="doccomment">/// fn rearrange(input: &amp;str) -&gt; Result&lt;String&gt; {</span>
-<span class="doccomment">///     let input: Input = serde_json::from_str(input)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let output = Output {</span>
-<span class="doccomment">///         info: (input.code, input.payload),</span>
-<span class="doccomment">///     };</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     serde_json::to_string(&amp;output)</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() -&gt; Result&lt;()&gt; {</span>
-<span class="doccomment">///     let out = rearrange(r#&quot; {&quot;code&quot;: 200, &quot;payload&quot;: {}} &quot;#)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     assert_eq!(out, r#&quot;{&quot;info&quot;:[200,{}]}&quot;#);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     Ok(())</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Ownership</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The typical usage of `RawValue` will be in the borrowed form:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use serde::Deserialize;</span>
-<span class="doccomment">/// # use serde_json::value::RawValue;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// #[derive(Deserialize)]</span>
-<span class="doccomment">/// struct SomeStruct&lt;&#39;a&gt; {</span>
-<span class="doccomment">///     #[serde(borrow)]</span>
-<span class="doccomment">///     raw_value: &amp;&#39;a RawValue,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The borrowed form is suitable when deserializing through</span>
-<span class="doccomment">/// [`serde_json::from_str`] and [`serde_json::from_slice`] which support</span>
-<span class="doccomment">/// borrowing from the input data without memory allocation.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When deserializing through [`serde_json::from_reader`] you will need to use</span>
-<span class="doccomment">/// the boxed form of `RawValue` instead. This is almost as efficient but</span>
-<span class="doccomment">/// involves buffering the raw value from the I/O stream into memory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`serde_json::from_str`]: ../fn.from_str.html</span>
-<span class="doccomment">/// [`serde_json::from_slice`]: ../fn.from_slice.html</span>
-<span class="doccomment">/// [`serde_json::from_reader`]: ../fn.from_reader.html</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use serde::Deserialize;</span>
-<span class="doccomment">/// # use serde_json::value::RawValue;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// #[derive(Deserialize)]</span>
-<span class="doccomment">/// struct SomeStruct {</span>
-<span class="doccomment">///     raw_value: Box&lt;RawValue&gt;,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;raw_value&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawValue</span> {
-    <span class="ident">json</span>: <span class="ident">str</span>,
+<span class="doccomment">/// Reference to a range of bytes encompassing a single valid JSON value in the
+/// input data.
+///
+/// A `RawValue` can be used to defer parsing parts of a payload until later,
+/// or to avoid parsing it at all in the case that part of the payload just
+/// needs to be transferred verbatim into a different output object.
+///
+/// When serializing, a value of this type will retain its original formatting
+/// and will not be minified or pretty-printed.
+///
+/// # Note
+///
+/// `RawValue` is only available if serde\_json is built with the `&quot;raw_value&quot;`
+/// feature.
+///
+/// ```toml
+/// [dependencies]
+/// serde_json = { version = &quot;1.0&quot;, features = [&quot;raw_value&quot;] }
+/// ```
+///
+/// # Example
+///
+/// ```
+/// use serde::{Deserialize, Serialize};
+/// use serde_json::{Result, value::RawValue};
+///
+/// #[derive(Deserialize)]
+/// struct Input&lt;&#39;a&gt; {
+///     code: u32,
+///     #[serde(borrow)]
+///     payload: &amp;&#39;a RawValue,
+/// }
+///
+/// #[derive(Serialize)]
+/// struct Output&lt;&#39;a&gt; {
+///     info: (u32, &amp;&#39;a RawValue),
+/// }
+///
+/// // Efficiently rearrange JSON input containing separate &quot;code&quot; and &quot;payload&quot;
+/// // keys into a single &quot;info&quot; key holding an array of code and payload.
+/// //
+/// // This could be done equivalently using serde_json::Value as the type for
+/// // payload, but &amp;RawValue will perform better because it does not require
+/// // memory allocation. The correct range of bytes is borrowed from the input
+/// // data and pasted verbatim into the output.
+/// fn rearrange(input: &amp;str) -&gt; Result&lt;String&gt; {
+///     let input: Input = serde_json::from_str(input)?;
+///
+///     let output = Output {
+///         info: (input.code, input.payload),
+///     };
+///
+///     serde_json::to_string(&amp;output)
+/// }
+///
+/// fn main() -&gt; Result&lt;()&gt; {
+///     let out = rearrange(r#&quot; {&quot;code&quot;: 200, &quot;payload&quot;: {}} &quot;#)?;
+///
+///     assert_eq!(out, r#&quot;{&quot;info&quot;:[200,{}]}&quot;#);
+///
+///     Ok(())
+/// }
+/// ```
+///
+/// # Ownership
+///
+/// The typical usage of `RawValue` will be in the borrowed form:
+///
+/// ```
+/// # use serde::Deserialize;
+/// # use serde_json::value::RawValue;
+/// #
+/// #[derive(Deserialize)]
+/// struct SomeStruct&lt;&#39;a&gt; {
+///     #[serde(borrow)]
+///     raw_value: &amp;&#39;a RawValue,
+/// }
+/// ```
+///
+/// The borrowed form is suitable when deserializing through
+/// [`serde_json::from_str`] and [`serde_json::from_slice`] which support
+/// borrowing from the input data without memory allocation.
+///
+/// When deserializing through [`serde_json::from_reader`] you will need to use
+/// the boxed form of `RawValue` instead. This is almost as efficient but
+/// involves buffering the raw value from the I/O stream into memory.
+///
+/// [`serde_json::from_str`]: ../fn.from_str.html
+/// [`serde_json::from_slice`]: ../fn.from_slice.html
+/// [`serde_json::from_reader`]: ../fn.from_reader.html
+///
+/// ```
+/// # use serde::Deserialize;
+/// # use serde_json::value::RawValue;
+/// #
+/// #[derive(Deserialize)]
+/// struct SomeStruct {
+///     raw_value: Box&lt;RawValue&gt;,
+/// }
+/// ```
+</span><span class="attribute">#[repr(C)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;raw_value&quot;</span>)))]
+</span><span class="kw">pub struct </span>RawValue {
+    json: str,
 }
 
-<span class="kw">impl</span> <span class="ident">RawValue</span> {
-    <span class="kw">fn</span> <span class="ident">from_borrowed</span>(<span class="ident">json</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span> {
-        <span class="kw">unsafe</span> { <span class="ident">mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">RawValue</span><span class="op">&gt;</span>(<span class="ident">json</span>) }
+<span class="kw">impl </span>RawValue {
+    <span class="kw">fn </span>from_borrowed(json: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
+        <span class="kw">unsafe </span>{ mem::transmute::&lt;<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>RawValue&gt;(json) }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_owned</span>(<span class="ident">json</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">mem::transmute</span>::<span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">json</span>) }
+    <span class="kw">fn </span>from_owned(json: Box&lt;str&gt;) -&gt; Box&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">unsafe </span>{ mem::transmute::&lt;Box&lt;str&gt;, Box&lt;RawValue&gt;&gt;(json) }
     }
 
-    <span class="kw">fn</span> <span class="ident">into_owned</span>(<span class="ident">raw_value</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">mem::transmute</span>::<span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">raw_value</span>) }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">to_owned</span>()
+    <span class="kw">fn </span>into_owned(raw_value: Box&lt;<span class="self">Self</span>&gt;) -&gt; Box&lt;str&gt; {
+        <span class="kw">unsafe </span>{ mem::transmute::&lt;Box&lt;RawValue&gt;, Box&lt;str&gt;&gt;(raw_value) }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToOwned</span> <span class="kw">for</span> <span class="ident">RawValue</span> {
-    <span class="kw">type</span> <span class="ident">Owned</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">to_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Owned</span> {
-        <span class="ident">RawValue::from_owned</span>(<span class="self">self</span>.<span class="ident">json</span>.<span class="ident">to_owned</span>().<span class="ident">into_boxed_str</span>())
+<span class="kw">impl </span>Clone <span class="kw">for </span>Box&lt;RawValue&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        (<span class="kw-2">**</span><span class="self">self</span>).to_owned()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">RawValue::from_borrowed</span>(<span class="string">&quot;null&quot;</span>).<span class="ident">to_owned</span>()
+<span class="kw">impl </span>ToOwned <span class="kw">for </span>RawValue {
+    <span class="kw">type </span>Owned = Box&lt;RawValue&gt;;
+
+    <span class="kw">fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Owned {
+        RawValue::from_owned(<span class="self">self</span>.json.to_owned().into_boxed_str())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">RawValue</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">formatter</span>
-            .<span class="ident">debug_tuple</span>(<span class="string">&quot;RawValue&quot;</span>)
-            .<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">json</span>))
-            .<span class="ident">finish</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>Box&lt;RawValue&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        RawValue::from_borrowed(<span class="string">&quot;null&quot;</span>).to_owned()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">RawValue</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">json</span>)
+<span class="kw">impl </span>Debug <span class="kw">for </span>RawValue {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        formatter
+            .debug_tuple(<span class="string">&quot;RawValue&quot;</span>)
+            .field(<span class="kw-2">&amp;</span><span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.json))
+            .finish()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">RawValue</span> {
-    <span class="doccomment">/// Convert an owned `String` of JSON data to an owned `RawValue`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function is equivalent to `serde_json::from_str::&lt;Box&lt;RawValue&gt;&gt;`</span>
-    <span class="doccomment">/// except that we avoid an allocation and memcpy if both of the following</span>
-    <span class="doccomment">/// are true:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - the input has no leading or trailing whitespace, and</span>
-    <span class="doccomment">/// - the input has capacity equal to its length.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_string</span>(<span class="ident">json</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>Display <span class="kw">for </span>RawValue {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        f.write_str(<span class="kw-2">&amp;</span><span class="self">self</span>.json)
+    }
+}
+
+<span class="kw">impl </span>RawValue {
+    <span class="doccomment">/// Convert an owned `String` of JSON data to an owned `RawValue`.
+    ///
+    /// This function is equivalent to `serde_json::from_str::&lt;Box&lt;RawValue&gt;&gt;`
+    /// except that we avoid an allocation and memcpy if both of the following
+    /// are true:
+    ///
+    /// - the input has no leading or trailing whitespace, and
+    /// - the input has capacity equal to its length.
+    </span><span class="kw">pub fn </span>from_string(json: String) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="self">Self</span>&gt;, Error&gt; {
         {
-            <span class="kw">let</span> <span class="ident">borrowed</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::from_str</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">json</span>)<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="ident">borrowed</span>.<span class="ident">json</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">json</span>.<span class="ident">len</span>() {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">borrowed</span>.<span class="ident">to_owned</span>());
+            <span class="kw">let </span>borrowed = <span class="kw">crate</span>::from_str::&lt;<span class="kw-2">&amp;</span><span class="self">Self</span>&gt;(<span class="kw-2">&amp;</span>json)<span class="question-mark">?</span>;
+            <span class="kw">if </span>borrowed.json.len() &lt; json.len() {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(borrowed.to_owned());
             }
         }
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from_owned</span>(<span class="ident">json</span>.<span class="ident">into_boxed_str</span>()))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_owned(json.into_boxed_str()))
     }
 
-    <span class="doccomment">/// Access the JSON text underlying a raw value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use serde::Deserialize;</span>
-    <span class="doccomment">/// use serde_json::{Result, value::RawValue};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// #[derive(Deserialize)]</span>
-    <span class="doccomment">/// struct Response&lt;&#39;a&gt; {</span>
-    <span class="doccomment">///     code: u32,</span>
-    <span class="doccomment">///     #[serde(borrow)]</span>
-    <span class="doccomment">///     payload: &amp;&#39;a RawValue,</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// fn process(input: &amp;str) -&gt; Result&lt;()&gt; {</span>
-    <span class="doccomment">///     let response: Response = serde_json::from_str(input)?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     let payload = response.payload.get();</span>
-    <span class="doccomment">///     if payload.starts_with(&#39;{&#39;) {</span>
-    <span class="doccomment">///         // handle a payload which is a JSON map</span>
-    <span class="doccomment">///     } else {</span>
-    <span class="doccomment">///         // handle any other type</span>
-    <span class="doccomment">///     }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     Ok(())</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// fn main() -&gt; Result&lt;()&gt; {</span>
-    <span class="doccomment">///     process(r#&quot; {&quot;code&quot;: 200, &quot;payload&quot;: {}} &quot;#)?;</span>
-    <span class="doccomment">///     Ok(())</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">json</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">raw_value</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">RawValue::into_owned</span>(<span class="ident">raw_value</span>)
+    <span class="doccomment">/// Access the JSON text underlying a raw value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use serde::Deserialize;
+    /// use serde_json::{Result, value::RawValue};
+    ///
+    /// #[derive(Deserialize)]
+    /// struct Response&lt;&#39;a&gt; {
+    ///     code: u32,
+    ///     #[serde(borrow)]
+    ///     payload: &amp;&#39;a RawValue,
+    /// }
+    ///
+    /// fn process(input: &amp;str) -&gt; Result&lt;()&gt; {
+    ///     let response: Response = serde_json::from_str(input)?;
+    ///
+    ///     let payload = response.payload.get();
+    ///     if payload.starts_with(&#39;{&#39;) {
+    ///         // handle a payload which is a JSON map
+    ///     } else {
+    ///         // handle any other type
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    ///
+    /// fn main() -&gt; Result&lt;()&gt; {
+    ///     process(r#&quot; {&quot;code&quot;: 200, &quot;payload&quot;: {}} &quot;#)?;
+    ///     Ok(())
+    /// }
+    /// ```
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.json
     }
 }
 
-<span class="doccomment">/// Convert a `T` into a boxed `RawValue`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// // Upstream crate</span>
-<span class="doccomment">/// # #[derive(Serialize)]</span>
-<span class="doccomment">/// pub struct Thing {</span>
-<span class="doccomment">///     foo: String,</span>
-<span class="doccomment">///     bar: Option&lt;String&gt;,</span>
-<span class="doccomment">///     extra_data: Box&lt;RawValue&gt;,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Local crate</span>
-<span class="doccomment">/// use serde::Serialize;</span>
-<span class="doccomment">/// use serde_json::value::{to_raw_value, RawValue};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Serialize)]</span>
-<span class="doccomment">/// struct MyExtraData {</span>
-<span class="doccomment">///     a: u32,</span>
-<span class="doccomment">///     b: u32,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let my_thing = Thing {</span>
-<span class="doccomment">///     foo: &quot;FooVal&quot;.into(),</span>
-<span class="doccomment">///     bar: None,</span>
-<span class="doccomment">///     extra_data: to_raw_value(&amp;MyExtraData { a: 1, b: 2 }).unwrap(),</span>
-<span class="doccomment">/// };</span>
-<span class="doccomment">/// # assert_eq!(</span>
-<span class="doccomment">/// #     serde_json::to_value(my_thing).unwrap(),</span>
-<span class="doccomment">/// #     serde_json::json!({</span>
-<span class="doccomment">/// #         &quot;foo&quot;: &quot;FooVal&quot;,</span>
-<span class="doccomment">/// #         &quot;bar&quot;: null,</span>
-<span class="doccomment">/// #         &quot;extra_data&quot;: { &quot;a&quot;: 1, &quot;b&quot;: 2 }</span>
-<span class="doccomment">/// #     })</span>
-<span class="doccomment">/// # );</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This conversion can fail if `T`&#39;s implementation of `Serialize` decides to</span>
-<span class="doccomment">/// fail, or if `T` contains a map with non-string keys.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use std::collections::BTreeMap;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // The keys in this map are vectors, not strings.</span>
-<span class="doccomment">/// let mut map = BTreeMap::new();</span>
-<span class="doccomment">/// map.insert(vec![32, 64], &quot;x86&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// println!(&quot;{}&quot;, serde_json::value::to_raw_value(&amp;map).unwrap_err());</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;raw_value&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_raw_value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+<span class="kw">impl </span>From&lt;Box&lt;RawValue&gt;&gt; <span class="kw">for </span>Box&lt;str&gt; {
+    <span class="kw">fn </span>from(raw_value: Box&lt;RawValue&gt;) -&gt; <span class="self">Self </span>{
+        RawValue::into_owned(raw_value)
+    }
+}
+
+<span class="doccomment">/// Convert a `T` into a boxed `RawValue`.
+///
+/// # Example
+///
+/// ```
+/// // Upstream crate
+/// # #[derive(Serialize)]
+/// pub struct Thing {
+///     foo: String,
+///     bar: Option&lt;String&gt;,
+///     extra_data: Box&lt;RawValue&gt;,
+/// }
+///
+/// // Local crate
+/// use serde::Serialize;
+/// use serde_json::value::{to_raw_value, RawValue};
+///
+/// #[derive(Serialize)]
+/// struct MyExtraData {
+///     a: u32,
+///     b: u32,
+/// }
+///
+/// let my_thing = Thing {
+///     foo: &quot;FooVal&quot;.into(),
+///     bar: None,
+///     extra_data: to_raw_value(&amp;MyExtraData { a: 1, b: 2 }).unwrap(),
+/// };
+/// # assert_eq!(
+/// #     serde_json::to_value(my_thing).unwrap(),
+/// #     serde_json::json!({
+/// #         &quot;foo&quot;: &quot;FooVal&quot;,
+/// #         &quot;bar&quot;: null,
+/// #         &quot;extra_data&quot;: { &quot;a&quot;: 1, &quot;b&quot;: 2 }
+/// #     })
+/// # );
+/// ```
+///
+/// # Errors
+///
+/// This conversion can fail if `T`&#39;s implementation of `Serialize` decides to
+/// fail, or if `T` contains a map with non-string keys.
+///
+/// ```
+/// use std::collections::BTreeMap;
+///
+/// // The keys in this map are vectors, not strings.
+/// let mut map = BTreeMap::new();
+/// map.insert(vec![32, 64], &quot;x86&quot;);
+///
+/// println!(&quot;{}&quot;, serde_json::value::to_raw_value(&amp;map).unwrap_err());
+/// ```
+</span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;raw_value&quot;</span>)))]
+</span><span class="kw">pub fn </span>to_raw_value&lt;T&gt;(value: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;RawValue&gt;, Error&gt;
+<span class="kw">where
+    </span>T: <span class="question-mark">?</span>Sized + Serialize,
 {
-    <span class="kw">let</span> <span class="ident">json_string</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::to_string</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">RawValue::from_owned</span>(<span class="ident">json_string</span>.<span class="ident">into_boxed_str</span>()))
+    <span class="kw">let </span>json_string = <span class="kw">crate</span>::to_string(value)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(RawValue::from_owned(json_string.into_boxed_str()))
 }
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">TOKEN</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;$serde_json::private::RawValue&quot;</span>;
+<span class="kw">pub const </span>TOKEN: <span class="kw-2">&amp;</span>str = <span class="string">&quot;$serde_json::private::RawValue&quot;</span>;
 
-<span class="kw">impl</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">RawValue</span> {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Serializer</span>,
+<span class="kw">impl </span>Serialize <span class="kw">for </span>RawValue {
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: Serializer,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">serializer</span>.<span class="ident">serialize_struct</span>(<span class="ident">TOKEN</span>, <span class="number">1</span>)<span class="question-mark">?</span>;
-        <span class="ident">s</span>.<span class="ident">serialize_field</span>(<span class="ident">TOKEN</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">json</span>)<span class="question-mark">?</span>;
-        <span class="ident">s</span>.<span class="ident">end</span>()
+        <span class="kw">let </span><span class="kw-2">mut </span>s = serializer.serialize_struct(TOKEN, <span class="number">1</span>)<span class="question-mark">?</span>;
+        s.serialize_field(TOKEN, <span class="kw-2">&amp;</span><span class="self">self</span>.json)<span class="question-mark">?</span>;
+        s.end()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">RawValue</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>: <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>RawValue {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+    <span class="kw">where
+        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">struct</span> <span class="ident">ReferenceVisitor</span>;
+        <span class="kw">struct </span>ReferenceVisitor;
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ReferenceVisitor</span> {
-            <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;de</span> <span class="ident">RawValue</span>;
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ReferenceVisitor {
+            <span class="kw">type </span>Value = <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>RawValue;
 
-            <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-                <span class="macro">write!</span>(<span class="ident">formatter</span>, <span class="string">&quot;any valid JSON value&quot;</span>)
+            <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+                <span class="macro">write!</span>(formatter, <span class="string">&quot;any valid JSON value&quot;</span>)
             }
 
-            <span class="kw">fn</span> <span class="ident">visit_map</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">V::Error</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">V</span>: <span class="ident">MapAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+            <span class="kw">fn </span>visit_map&lt;V&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, V::Error&gt;
+            <span class="kw">where
+                </span>V: MapAccess&lt;<span class="lifetime">&#39;de</span>&gt;,
             {
-                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">visitor</span>.<span class="ident">next_key</span>::<span class="op">&lt;</span><span class="ident">RawKey</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">de::Error::invalid_type</span>(<span class="ident">Unexpected::Map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>));
+                <span class="kw">let </span>value = visitor.next_key::&lt;RawKey&gt;()<span class="question-mark">?</span>;
+                <span class="kw">if </span>value.is_none() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::invalid_type(Unexpected::Map, <span class="kw-2">&amp;</span><span class="self">self</span>));
                 }
-                <span class="ident">visitor</span>.<span class="ident">next_value_seed</span>(<span class="ident">ReferenceFromString</span>)
+                visitor.next_value_seed(ReferenceFromString)
             }
         }
 
-        <span class="ident">deserializer</span>.<span class="ident">deserialize_newtype_struct</span>(<span class="ident">TOKEN</span>, <span class="ident">ReferenceVisitor</span>)
+        deserializer.deserialize_newtype_struct(TOKEN, ReferenceVisitor)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Box&lt;RawValue&gt; {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+    <span class="kw">where
+        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">struct</span> <span class="ident">BoxedVisitor</span>;
+        <span class="kw">struct </span>BoxedVisitor;
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BoxedVisitor</span> {
-            <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span>;
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>BoxedVisitor {
+            <span class="kw">type </span>Value = Box&lt;RawValue&gt;;
 
-            <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-                <span class="macro">write!</span>(<span class="ident">formatter</span>, <span class="string">&quot;any valid JSON value&quot;</span>)
+            <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+                <span class="macro">write!</span>(formatter, <span class="string">&quot;any valid JSON value&quot;</span>)
             }
 
-            <span class="kw">fn</span> <span class="ident">visit_map</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">V::Error</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">V</span>: <span class="ident">MapAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+            <span class="kw">fn </span>visit_map&lt;V&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, V::Error&gt;
+            <span class="kw">where
+                </span>V: MapAccess&lt;<span class="lifetime">&#39;de</span>&gt;,
             {
-                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">visitor</span>.<span class="ident">next_key</span>::<span class="op">&lt;</span><span class="ident">RawKey</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">de::Error::invalid_type</span>(<span class="ident">Unexpected::Map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>));
+                <span class="kw">let </span>value = visitor.next_key::&lt;RawKey&gt;()<span class="question-mark">?</span>;
+                <span class="kw">if </span>value.is_none() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(de::Error::invalid_type(Unexpected::Map, <span class="kw-2">&amp;</span><span class="self">self</span>));
                 }
-                <span class="ident">visitor</span>.<span class="ident">next_value_seed</span>(<span class="ident">BoxedFromString</span>)
+                visitor.next_value_seed(BoxedFromString)
             }
         }
 
-        <span class="ident">deserializer</span>.<span class="ident">deserialize_newtype_struct</span>(<span class="ident">TOKEN</span>, <span class="ident">BoxedVisitor</span>)
+        deserializer.deserialize_newtype_struct(TOKEN, BoxedVisitor)
     }
 }
 
-<span class="kw">struct</span> <span class="ident">RawKey</span>;
+<span class="kw">struct </span>RawKey;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RawKey</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RawKey</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>RawKey {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;RawKey, D::Error&gt;
+    <span class="kw">where
+        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">struct</span> <span class="ident">FieldVisitor</span>;
+        <span class="kw">struct </span>FieldVisitor;
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FieldVisitor</span> {
-            <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> ();
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>FieldVisitor {
+            <span class="kw">type </span>Value = ();
 
-            <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-                <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;raw value&quot;</span>)
+            <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+                formatter.write_str(<span class="string">&quot;raw value&quot;</span>)
             }
 
-            <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">de::Error</span>,
+            <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), E&gt;
+            <span class="kw">where
+                </span>E: de::Error,
             {
-                <span class="kw">if</span> <span class="ident">s</span> <span class="op">==</span> <span class="ident">TOKEN</span> {
+                <span class="kw">if </span>s == TOKEN {
                     <span class="prelude-val">Ok</span>(())
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Err</span>(<span class="ident">de::Error::custom</span>(<span class="string">&quot;unexpected raw value&quot;</span>))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(de::Error::custom(<span class="string">&quot;unexpected raw value&quot;</span>))
                 }
             }
         }
 
-        <span class="ident">deserializer</span>.<span class="ident">deserialize_identifier</span>(<span class="ident">FieldVisitor</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">RawKey</span>)
+        deserializer.deserialize_identifier(FieldVisitor)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(RawKey)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReferenceFromString</span>;
+<span class="kw">pub struct </span>ReferenceFromString;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">DeserializeSeed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ReferenceFromString</span> {
-    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;de</span> <span class="ident">RawValue</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ReferenceFromString {
+    <span class="kw">type </span>Value = <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>RawValue;
 
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>deserialize&lt;D&gt;(<span class="self">self</span>, deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, D::Error&gt;
+    <span class="kw">where
+        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="ident">deserializer</span>.<span class="ident">deserialize_str</span>(<span class="self">self</span>)
+        deserializer.deserialize_str(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ReferenceFromString</span> {
-    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;de</span> <span class="ident">RawValue</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ReferenceFromString {
+    <span class="kw">type </span>Value = <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>RawValue;
 
-    <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;raw value&quot;</span>)
+    <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        formatter.write_str(<span class="string">&quot;raw value&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_borrowed_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de</span> <span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">E</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">de::Error</span>,
+    <span class="kw">fn </span>visit_borrowed_str&lt;E&gt;(<span class="self">self</span>, s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
+    <span class="kw">where
+        </span>E: de::Error,
     {
-        <span class="prelude-val">Ok</span>(<span class="ident">RawValue::from_borrowed</span>(<span class="ident">s</span>))
+        <span class="prelude-val">Ok</span>(RawValue::from_borrowed(s))
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoxedFromString</span>;
+<span class="kw">pub struct </span>BoxedFromString;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">DeserializeSeed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BoxedFromString</span> {
-    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>BoxedFromString {
+    <span class="kw">type </span>Value = Box&lt;RawValue&gt;;
 
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>deserialize&lt;D&gt;(<span class="self">self</span>, deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, D::Error&gt;
+    <span class="kw">where
+        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="ident">deserializer</span>.<span class="ident">deserialize_str</span>(<span class="self">self</span>)
+        deserializer.deserialize_str(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BoxedFromString</span> {
-    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RawValue</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Visitor&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>BoxedFromString {
+    <span class="kw">type </span>Value = Box&lt;RawValue&gt;;
 
-    <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;raw value&quot;</span>)
+    <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        formatter.write_str(<span class="string">&quot;raw value&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">E</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">de::Error</span>,
+    <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
+    <span class="kw">where
+        </span>E: de::Error,
     {
-        <span class="prelude-val">Ok</span>(<span class="ident">RawValue::from_owned</span>(<span class="ident">s</span>.<span class="ident">to_owned</span>().<span class="ident">into_boxed_str</span>()))
+        <span class="prelude-val">Ok</span>(RawValue::from_owned(s.to_owned().into_boxed_str()))
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))]</span>
-    <span class="kw">fn</span> <span class="ident">visit_string</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">E</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">de::Error</span>,
+    <span class="attribute">#[cfg(any(feature = <span class="string">&quot;std&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))]
+    </span><span class="kw">fn </span>visit_string&lt;E&gt;(<span class="self">self</span>, s: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
+    <span class="kw">where
+        </span>E: de::Error,
     {
-        <span class="prelude-val">Ok</span>(<span class="ident">RawValue::from_owned</span>(<span class="ident">s</span>.<span class="ident">into_boxed_str</span>()))
+        <span class="prelude-val">Ok</span>(RawValue::from_owned(s.into_boxed_str()))
     }
 }
 
-<span class="kw">struct</span> <span class="ident">RawKeyDeserializer</span>;
+<span class="kw">struct </span>RawKeyDeserializer;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RawKeyDeserializer</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserializer&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>RawKeyDeserializer {
+    <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn</span> <span class="ident">deserialize_any</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">de::Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>deserialize_any&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, Error&gt;
+    <span class="kw">where
+        </span>V: de::Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="ident">visitor</span>.<span class="ident">visit_borrowed_str</span>(<span class="ident">TOKEN</span>)
+        visitor.visit_borrowed_str(TOKEN)
     }
 
-    <span class="macro">forward_to_deserialize_any!</span> {
-        <span class="ident">bool</span> <span class="ident">u8</span> <span class="ident">u16</span> <span class="ident">u32</span> <span class="ident">u64</span> <span class="ident">u128</span> <span class="ident">i8</span> <span class="ident">i16</span> <span class="ident">i32</span> <span class="ident">i64</span> <span class="ident">i128</span> <span class="ident">f32</span> <span class="ident">f64</span> <span class="ident">char</span> <span class="ident">str</span> <span class="ident">string</span> <span class="ident">seq</span>
-        <span class="ident">bytes</span> <span class="ident">byte_buf</span> <span class="ident">map</span> <span class="kw">struct</span> <span class="ident">option</span> <span class="ident">unit</span> <span class="ident">newtype_struct</span> <span class="ident">ignored_any</span>
-        <span class="ident">unit_struct</span> <span class="ident">tuple_struct</span> <span class="ident">tuple</span> <span class="kw">enum</span> <span class="ident">identifier</span>
+    <span class="macro">forward_to_deserialize_any! </span>{
+        bool u8 u16 u32 u64 u128 i8 i16 i32 i64 i128 f32 f64 char str string seq
+        bytes byte_buf map <span class="kw">struct </span>option unit newtype_struct ignored_any
+        unit_struct tuple_struct tuple <span class="kw">enum </span>identifier
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OwnedRawDeserializer</span> {
-    <span class="kw">pub</span> <span class="ident">raw_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>OwnedRawDeserializer {
+    <span class="kw">pub </span>raw_value: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">MapAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OwnedRawDeserializer</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; MapAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>OwnedRawDeserializer {
+    <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn</span> <span class="ident">next_key_seed</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">seed</span>: <span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">K::Value</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">de::DeserializeSeed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>next_key_seed&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;, Error&gt;
+    <span class="kw">where
+        </span>K: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">raw_value</span>.<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        <span class="kw">if </span><span class="self">self</span>.raw_value.is_none() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
-        <span class="ident">seed</span>.<span class="ident">deserialize</span>(<span class="ident">RawKeyDeserializer</span>).<span class="ident">map</span>(<span class="prelude-val">Some</span>)
+        seed.deserialize(RawKeyDeserializer).map(<span class="prelude-val">Some</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">next_value_seed</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">seed</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">de::DeserializeSeed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>next_value_seed&lt;V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, Error&gt;
+    <span class="kw">where
+        </span>V: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="ident">seed</span>.<span class="ident">deserialize</span>(<span class="self">self</span>.<span class="ident">raw_value</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">into_deserializer</span>())
+        seed.deserialize(<span class="self">self</span>.raw_value.take().unwrap().into_deserializer())
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BorrowedRawDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">raw_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;de</span> <span class="ident">str</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>BorrowedRawDeserializer&lt;<span class="lifetime">&#39;de</span>&gt; {
+    <span class="kw">pub </span>raw_value: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;de </span>str&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">MapAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BorrowedRawDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; MapAccess&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>BorrowedRawDeserializer&lt;<span class="lifetime">&#39;de</span>&gt; {
+    <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn</span> <span class="ident">next_key_seed</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">seed</span>: <span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">K::Value</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">de::DeserializeSeed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>next_key_seed&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;K::Value&gt;, Error&gt;
+    <span class="kw">where
+        </span>K: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">raw_value</span>.<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        <span class="kw">if </span><span class="self">self</span>.raw_value.is_none() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
-        <span class="ident">seed</span>.<span class="ident">deserialize</span>(<span class="ident">RawKeyDeserializer</span>).<span class="ident">map</span>(<span class="prelude-val">Some</span>)
+        seed.deserialize(RawKeyDeserializer).map(<span class="prelude-val">Some</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">next_value_seed</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">seed</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">de::DeserializeSeed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>next_value_seed&lt;V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, seed: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, Error&gt;
+    <span class="kw">where
+        </span>V: de::DeserializeSeed&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="ident">seed</span>.<span class="ident">deserialize</span>(<span class="ident">BorrowedStrDeserializer::new</span>(<span class="self">self</span>.<span class="ident">raw_value</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>()))
+        seed.deserialize(BorrowedStrDeserializer::new(<span class="self">self</span>.raw_value.take().unwrap()))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_json" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_json" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

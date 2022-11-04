@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-utils-3.0.0/src/future/either.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>either.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_utils/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_utils/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-utils-3.0.0/src/future/either.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>either.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_utils/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_utils/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_utils/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -91,96 +91,96 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A symmetric either future.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A symmetric either future.
 
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">future::Future</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>core::{
+    future::Future,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="macro">pin_project!</span> {
-    <span class="doccomment">/// Combines two different futures that have the same output type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Construct variants with [`Either::left`] and [`Either::right`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_utils::future::{ready, Ready, Either};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # async fn run() {</span>
-    <span class="doccomment">/// let res = Either::&lt;_, Ready&lt;usize&gt;&gt;::left(ready(42));</span>
-    <span class="doccomment">/// assert_eq!(res.await, 42);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let res = Either::&lt;Ready&lt;usize&gt;, _&gt;::right(ready(43));</span>
-    <span class="doccomment">/// assert_eq!(res.await, 43);</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">EitherProj</span>]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="doccomment">/// A value of type `L`.</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-        <span class="ident">Left</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">value</span>: <span class="ident">L</span> },
+<span class="macro">pin_project! </span>{
+    <span class="doccomment">/// Combines two different futures that have the same output type.
+    ///
+    /// Construct variants with [`Either::left`] and [`Either::right`].
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_utils::future::{ready, Ready, Either};
+    ///
+    /// # async fn run() {
+    /// let res = Either::&lt;_, Ready&lt;usize&gt;&gt;::left(ready(42));
+    /// assert_eq!(res.await, 42);
+    ///
+    /// let res = Either::&lt;Ready&lt;usize&gt;, _&gt;::right(ready(43));
+    /// assert_eq!(res.await, 43);
+    /// # }
+    /// ```
+    </span><span class="attribute">#[project = EitherProj]
+    #[derive(Debug, Clone)]
+    </span><span class="kw">pub enum </span>Either&lt;L, R&gt; {
+        <span class="doccomment">/// A value of type `L`.
+        </span><span class="attribute">#[allow(missing_docs)]
+        </span>Left { <span class="attribute">#[pin] </span>value: L },
 
-        <span class="doccomment">/// A value of type `R`.</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-        <span class="ident">Right</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">value</span>: <span class="ident">R</span> },
+        <span class="doccomment">/// A value of type `R`.
+        </span><span class="attribute">#[allow(missing_docs)]
+        </span>Right { <span class="attribute">#[pin] </span>value: R },
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates new `Either` using left variant.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left</span>(<span class="ident">value</span>: <span class="ident">L</span>) -&gt; <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="ident">Either::Left</span> { <span class="ident">value</span> }
+<span class="kw">impl</span>&lt;L, R&gt; Either&lt;L, R&gt; {
+    <span class="doccomment">/// Creates new `Either` using left variant.
+    </span><span class="kw">pub fn </span>left(value: L) -&gt; Either&lt;L, R&gt; {
+        Either::Left { value }
     }
 
-    <span class="doccomment">/// Creates new `Either` using right variant.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">right</span>(<span class="ident">value</span>: <span class="ident">R</span>) -&gt; <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="ident">Either::Right</span> { <span class="ident">value</span> }
+    <span class="doccomment">/// Creates new `Either` using right variant.
+    </span><span class="kw">pub fn </span>right(value: R) -&gt; Either&lt;L, R&gt; {
+        Either::Right { value }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Unwraps into inner value when left and right have a common type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">T</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Either::Left</span> { <span class="ident">value</span> } =&gt; <span class="ident">value</span>,
-            <span class="ident">Either::Right</span> { <span class="ident">value</span> } =&gt; <span class="ident">value</span>,
+<span class="kw">impl</span>&lt;T&gt; Either&lt;T, T&gt; {
+    <span class="doccomment">/// Unwraps into inner value when left and right have a common type.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; T {
+        <span class="kw">match </span><span class="self">self </span>{
+            Either::Left { value } =&gt; value,
+            Either::Right { value } =&gt; value,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">L</span>: <span class="ident">Future</span>,
-    <span class="ident">R</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">L::Output</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;L, R&gt; Future <span class="kw">for </span>Either&lt;L, R&gt;
+<span class="kw">where
+    </span>L: Future,
+    R: Future&lt;Output = L::Output&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">L::Output</span>;
+    <span class="kw">type </span>Output = L::Output;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">project</span>() {
-            <span class="ident">EitherProj::Left</span> { <span class="ident">value</span> } =&gt; <span class="ident">value</span>.<span class="ident">poll</span>(<span class="ident">cx</span>),
-            <span class="ident">EitherProj::Right</span> { <span class="ident">value</span> } =&gt; <span class="ident">value</span>.<span class="ident">poll</span>(<span class="ident">cx</span>),
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">match </span><span class="self">self</span>.project() {
+            EitherProj::Left { value } =&gt; value.poll(cx),
+            EitherProj::Right { value } =&gt; value.poll(cx),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::future</span>::{<span class="ident">ready</span>, <span class="ident">Ready</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::future::{ready, Ready};
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_either</span>() {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Either</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Ready</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::left</span>(<span class="ident">ready</span>(<span class="number">42</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="kw">await</span>, <span class="number">42</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_either() {
+        <span class="kw">let </span>res = Either::&lt;<span class="kw">_</span>, Ready&lt;usize&gt;&gt;::left(ready(<span class="number">42</span>));
+        <span class="macro">assert_eq!</span>(res.<span class="kw">await</span>, <span class="number">42</span>);
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Either</span>::<span class="op">&lt;</span><span class="ident">Ready</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="ident">::right</span>(<span class="ident">ready</span>(<span class="number">43</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="kw">await</span>, <span class="number">43</span>);
+        <span class="kw">let </span>res = Either::&lt;Ready&lt;usize&gt;, <span class="kw">_</span>&gt;::right(ready(<span class="number">43</span>));
+        <span class="macro">assert_eq!</span>(res.<span class="kw">await</span>, <span class="number">43</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/types/record.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>record.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/types/record.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>record.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -203,210 +203,210 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">bytes::Buf</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>bytes::Buf;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::decode::Decode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encode::Encode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error</span>::{<span class="ident">mismatched_types</span>, <span class="ident">BoxDynError</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::type_info</span>::{<span class="ident">PgType</span>, <span class="ident">PgTypeKind</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::Oid</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgArgumentBuffer</span>, <span class="ident">PgTypeInfo</span>, <span class="ident">PgValueFormat</span>, <span class="ident">PgValueRef</span>, <span class="ident">Postgres</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_info::TypeInfo</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
+<span class="kw">use </span><span class="kw">crate</span>::decode::Decode;
+<span class="kw">use </span><span class="kw">crate</span>::encode::Encode;
+<span class="kw">use </span><span class="kw">crate</span>::error::{mismatched_types, BoxDynError};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::type_info::{PgType, PgTypeKind};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::types::Oid;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{PgArgumentBuffer, PgTypeInfo, PgValueFormat, PgValueRef, Postgres};
+<span class="kw">use </span><span class="kw">crate</span>::type_info::TypeInfo;
+<span class="kw">use </span><span class="kw">crate</span>::types::Type;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgRecordEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>,
-    <span class="ident">off</span>: <span class="ident">usize</span>,
-    <span class="ident">num</span>: <span class="ident">u32</span>,
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub struct </span>PgRecordEncoder&lt;<span class="lifetime">&#39;a</span>&gt; {
+    buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>PgArgumentBuffer,
+    off: usize,
+    num: u32,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">PgRecordEncoder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">PgArgumentBuffer</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">off</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; PgRecordEncoder&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>new(buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>PgArgumentBuffer) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>off = buf.len();
 
-        <span class="comment">// reserve space for a field count</span>
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span>(<span class="number">0_u32</span>).<span class="ident">to_be_bytes</span>());
+        <span class="comment">// reserve space for a field count
+        </span>buf.extend(<span class="kw-2">&amp;</span>(<span class="number">0_u32</span>).to_be_bytes());
 
-        <span class="self">Self</span> { <span class="ident">buf</span>, <span class="ident">off</span>, <span class="ident">num</span>: <span class="number">0</span> }
+        <span class="self">Self </span>{ buf, off, num: <span class="number">0 </span>}
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// fill in the record length</span>
-        <span class="self">self</span>.<span class="ident">buf</span>[<span class="self">self</span>.<span class="ident">off</span>..(<span class="self">self</span>.<span class="ident">off</span> <span class="op">+</span> <span class="number">4</span>)].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">num</span>.<span class="ident">to_be_bytes</span>());
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// fill in the record length
+        </span><span class="self">self</span>.buf[<span class="self">self</span>.off..(<span class="self">self</span>.off + <span class="number">4</span>)].copy_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.num.to_be_bytes());
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;q</span>,
-        <span class="ident">T</span>: <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span>,
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>encode&lt;<span class="lifetime">&#39;q</span>, T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self
+    </span><span class="kw">where
+        </span><span class="lifetime">&#39;a</span>: <span class="lifetime">&#39;q</span>,
+        T: Encode&lt;<span class="lifetime">&#39;q</span>, Postgres&gt; + Type&lt;Postgres&gt;,
     {
-        <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">produces</span>().<span class="ident">unwrap_or_else</span>(<span class="ident">T::type_info</span>);
+        <span class="kw">let </span>ty = value.produces().unwrap_or_else(T::type_info);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PgType::DeclareWithName</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="ident">ty</span>.<span class="number">0</span> {
-            <span class="comment">// push a hole for this type ID</span>
-            <span class="comment">// to be filled in on query execution</span>
-            <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">patch_type_by_name</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>);
-        } <span class="kw">else</span> {
-            <span class="comment">// write type id</span>
-            <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="number">0</span>.<span class="ident">oid</span>().<span class="number">0</span>.<span class="ident">to_be_bytes</span>());
+        <span class="kw">if let </span>PgType::DeclareWithName(name) = ty.<span class="number">0 </span>{
+            <span class="comment">// push a hole for this type ID
+            // to be filled in on query execution
+            </span><span class="self">self</span>.buf.patch_type_by_name(<span class="kw-2">&amp;</span>name);
+        } <span class="kw">else </span>{
+            <span class="comment">// write type id
+            </span><span class="self">self</span>.buf.extend(<span class="kw-2">&amp;</span>ty.<span class="number">0</span>.oid().<span class="number">0</span>.to_be_bytes());
         }
 
-        <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">encode</span>(<span class="ident">value</span>);
-        <span class="self">self</span>.<span class="ident">num</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="self">self</span>.buf.encode(value);
+        <span class="self">self</span>.num += <span class="number">1</span>;
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgRecordDecoder</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> {
-    <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> [<span class="ident">u8</span>],
-    <span class="ident">typ</span>: <span class="ident">PgTypeInfo</span>,
-    <span class="ident">fmt</span>: <span class="ident">PgValueFormat</span>,
-    <span class="ident">ind</span>: <span class="ident">usize</span>,
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub struct </span>PgRecordDecoder&lt;<span class="lifetime">&#39;r</span>&gt; {
+    buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8],
+    typ: PgTypeInfo,
+    fmt: PgValueFormat,
+    ind: usize,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">PgRecordDecoder</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">fmt</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">format</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_bytes</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">typ</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">type_info</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; PgRecordDecoder&lt;<span class="lifetime">&#39;r</span>&gt; {
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>new(value: PgValueRef&lt;<span class="lifetime">&#39;r</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxDynError&gt; {
+        <span class="kw">let </span>fmt = value.format();
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = value.as_bytes()<span class="question-mark">?</span>;
+        <span class="kw">let </span>typ = value.type_info;
 
-        <span class="kw">match</span> <span class="ident">fmt</span> {
-            <span class="ident">PgValueFormat::Binary</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">_len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_u32</span>();
+        <span class="kw">match </span>fmt {
+            PgValueFormat::Binary =&gt; {
+                <span class="kw">let </span>_len = buf.get_u32();
             }
 
-            <span class="ident">PgValueFormat::Text</span> =&gt; {
-                <span class="comment">// remove the enclosing `(` .. `)`</span>
-                <span class="ident">buf</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">1</span>..(<span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)];
+            PgValueFormat::Text =&gt; {
+                <span class="comment">// remove the enclosing `(` .. `)`
+                </span>buf = <span class="kw-2">&amp;</span>buf[<span class="number">1</span>..(buf.len() - <span class="number">1</span>)];
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">buf</span>,
-            <span class="ident">fmt</span>,
-            <span class="ident">typ</span>,
-            <span class="ident">ind</span>: <span class="number">0</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            buf,
+            fmt,
+            typ,
+            ind: <span class="number">0</span>,
         })
     }
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_decode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span>,
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>try_decode&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T, BoxDynError&gt;
+    <span class="kw">where
+        </span>T: <span class="kw">for</span>&lt;<span class="lifetime">&#39;a</span>&gt; Decode&lt;<span class="lifetime">&#39;a</span>, Postgres&gt; + Type&lt;Postgres&gt;,
     {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;no field `{0}` found on record&quot;</span>, <span class="self">self</span>.<span class="ident">ind</span>).<span class="ident">into</span>());
+        <span class="kw">if </span><span class="self">self</span>.buf.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;no field `{0}` found on record&quot;</span>, <span class="self">self</span>.ind).into());
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">fmt</span> {
-            <span class="ident">PgValueFormat::Binary</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">element_type_oid</span> <span class="op">=</span> <span class="ident">Oid</span>(<span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">get_u32</span>());
-                <span class="kw">let</span> <span class="ident">element_type_opt</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">typ</span>.<span class="number">0</span>.<span class="ident">kind</span>() {
-                    <span class="ident">PgTypeKind::Simple</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">typ</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">PgType::Record</span> =&gt; {
-                        <span class="ident">PgTypeInfo::try_from_oid</span>(<span class="ident">element_type_oid</span>)
+        <span class="kw">match </span><span class="self">self</span>.fmt {
+            PgValueFormat::Binary =&gt; {
+                <span class="kw">let </span>element_type_oid = Oid(<span class="self">self</span>.buf.get_u32());
+                <span class="kw">let </span>element_type_opt = <span class="kw">match </span><span class="self">self</span>.typ.<span class="number">0</span>.kind() {
+                    PgTypeKind::Simple <span class="kw">if </span><span class="self">self</span>.typ.<span class="number">0 </span>== PgType::Record =&gt; {
+                        PgTypeInfo::try_from_oid(element_type_oid)
                     }
 
-                    <span class="ident">PgTypeKind::Composite</span>(<span class="ident">fields</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">fields</span>[<span class="self">self</span>.<span class="ident">ind</span>].<span class="number">1</span>.<span class="ident">clone</span>();
-                        <span class="kw">if</span> <span class="ident">ty</span>.<span class="number">0</span>.<span class="ident">oid</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">element_type_oid</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;unexpected mismatch of composite type information&quot;</span>.<span class="ident">into</span>());
+                    PgTypeKind::Composite(fields) =&gt; {
+                        <span class="kw">let </span>ty = fields[<span class="self">self</span>.ind].<span class="number">1</span>.clone();
+                        <span class="kw">if </span>ty.<span class="number">0</span>.oid() != element_type_oid {
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;unexpected mismatch of composite type information&quot;</span>.into());
                         }
 
-                        <span class="prelude-val">Some</span>(<span class="ident">ty</span>)
+                        <span class="prelude-val">Some</span>(ty)
                     }
 
-                    <span class="kw">_</span> =&gt; {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(
-                            <span class="string">&quot;unexpected non-composite type being decoded as a composite type&quot;</span>
-                                .<span class="ident">into</span>(),
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(
+                            <span class="string">&quot;unexpected non-composite type being decoded as a composite type&quot;
+                                </span>.into(),
                         );
                     }
                 };
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ty</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">element_type_opt</span> {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">ty</span>.<span class="ident">is_null</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">T::compatible</span>(<span class="ident">ty</span>) {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">mismatched_types</span>::<span class="op">&lt;</span><span class="ident">Postgres</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">ty</span>));
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(ty) = <span class="kw-2">&amp;</span>element_type_opt {
+                    <span class="kw">if </span>!ty.is_null() &amp;&amp; !T::compatible(ty) {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(mismatched_types::&lt;Postgres, T&gt;(ty));
                     }
                 }
 
-                <span class="kw">let</span> <span class="ident">element_type</span> <span class="op">=</span>
-                    <span class="ident">element_type_opt</span>
-                        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">BoxDynError::from</span>(<span class="macro">format!</span>(<span class="string">&quot;custom types in records are not fully supported yet: failed to retrieve type info for field {} with type oid {}&quot;</span>, <span class="self">self</span>.<span class="ident">ind</span>, <span class="ident">element_type_oid</span>.<span class="number">0</span>)))<span class="question-mark">?</span>;
+                <span class="kw">let </span>element_type =
+                    element_type_opt
+                        .ok_or_else(|| BoxDynError::from(<span class="macro">format!</span>(<span class="string">&quot;custom types in records are not fully supported yet: failed to retrieve type info for field {} with type oid {}&quot;</span>, <span class="self">self</span>.ind, element_type_oid.<span class="number">0</span>)))<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">ind</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="self">self</span>.ind += <span class="number">1</span>;
 
-                <span class="ident">T::decode</span>(<span class="ident">PgValueRef::get</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buf</span>, <span class="self">self</span>.<span class="ident">fmt</span>, <span class="ident">element_type</span>))
+                T::decode(PgValueRef::get(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buf, <span class="self">self</span>.fmt, element_type))
             }
 
-            <span class="ident">PgValueFormat::Text</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">element</span> <span class="op">=</span> <span class="ident">String::new</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quoted</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">in_quotes</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prev_ch</span> <span class="op">=</span> <span class="string">&#39;\0&#39;</span>;
+            PgValueFormat::Text =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>element = String::new();
+                <span class="kw">let </span><span class="kw-2">mut </span>quoted = <span class="bool-val">false</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>in_quotes = <span class="bool-val">false</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>in_escape = <span class="bool-val">false</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>prev_ch = <span class="string">&#39;\0&#39;</span>;
 
-                <span class="kw">while</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">get_u8</span>() <span class="kw">as</span> <span class="ident">char</span>;
-                    <span class="kw">match</span> <span class="ident">ch</span> {
-                        <span class="kw">_</span> <span class="kw">if</span> <span class="ident">in_escape</span> =&gt; {
-                            <span class="ident">element</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
-                            <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                <span class="kw">while </span>!<span class="self">self</span>.buf.is_empty() {
+                    <span class="kw">let </span>ch = <span class="self">self</span>.buf.get_u8() <span class="kw">as </span>char;
+                    <span class="kw">match </span>ch {
+                        <span class="kw">_ if </span>in_escape =&gt; {
+                            element.push(ch);
+                            in_escape = <span class="bool-val">false</span>;
                         }
 
-                        <span class="string">&#39;&quot;&#39;</span> <span class="kw">if</span> <span class="ident">in_quotes</span> =&gt; {
-                            <span class="ident">in_quotes</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                        <span class="string">&#39;&quot;&#39; </span><span class="kw">if </span>in_quotes =&gt; {
+                            in_quotes = <span class="bool-val">false</span>;
                         }
 
-                        <span class="string">&#39;&quot;&#39;</span> =&gt; {
-                            <span class="ident">in_quotes</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="ident">quoted</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="string">&#39;&quot;&#39; </span>=&gt; {
+                            in_quotes = <span class="bool-val">true</span>;
+                            quoted = <span class="bool-val">true</span>;
 
-                            <span class="kw">if</span> <span class="ident">prev_ch</span> <span class="op">==</span> <span class="string">&#39;&quot;&#39;</span> {
-                                <span class="ident">element</span>.<span class="ident">push</span>(<span class="string">&#39;&quot;&#39;</span>)
+                            <span class="kw">if </span>prev_ch == <span class="string">&#39;&quot;&#39; </span>{
+                                element.push(<span class="string">&#39;&quot;&#39;</span>)
                             }
                         }
 
-                        <span class="string">&#39;\\&#39;</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">in_escape</span> =&gt; {
-                            <span class="ident">in_escape</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="string">&#39;\\&#39; </span><span class="kw">if </span>!in_escape =&gt; {
+                            in_escape = <span class="bool-val">true</span>;
                         }
 
-                        <span class="string">&#39;,&#39;</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">in_quotes</span> =&gt; <span class="kw">break</span>,
+                        <span class="string">&#39;,&#39; </span><span class="kw">if </span>!in_quotes =&gt; <span class="kw">break</span>,
 
-                        <span class="kw">_</span> =&gt; {
-                            <span class="ident">element</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
+                        <span class="kw">_ </span>=&gt; {
+                            element.push(ch);
                         }
                     }
-                    <span class="ident">prev_ch</span> <span class="op">=</span> <span class="ident">ch</span>;
+                    prev_ch = ch;
                 }
 
-                <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">element</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">quoted</span> {
-                    <span class="comment">// completely empty input means NULL</span>
-                    <span class="prelude-val">None</span>
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">element</span>.<span class="ident">as_bytes</span>())
+                <span class="kw">let </span>buf = <span class="kw">if </span>element.is_empty() &amp;&amp; !quoted {
+                    <span class="comment">// completely empty input means NULL
+                    </span><span class="prelude-val">None
+                </span>} <span class="kw">else </span>{
+                    <span class="prelude-val">Some</span>(element.as_bytes())
                 };
 
-                <span class="comment">// NOTE: we do not call [`accepts`] or give a chance to from a user as</span>
-                <span class="comment">//       TEXT sequences are not strongly typed</span>
+                <span class="comment">// NOTE: we do not call [`accepts`] or give a chance to from a user as
+                //       TEXT sequences are not strongly typed
 
-                <span class="ident">T::decode</span>(<span class="ident">PgValueRef</span> {
-                    <span class="comment">// NOTE: We pass `0` as the type ID because we don&#39;t have a reasonable value</span>
-                    <span class="comment">//       we could use.</span>
-                    <span class="ident">type_info</span>: <span class="ident">PgTypeInfo::with_oid</span>(<span class="ident">Oid</span>(<span class="number">0</span>)),
-                    <span class="ident">format</span>: <span class="self">self</span>.<span class="ident">fmt</span>,
-                    <span class="ident">value</span>: <span class="ident">buf</span>,
-                    <span class="ident">row</span>: <span class="prelude-val">None</span>,
+                </span>T::decode(PgValueRef {
+                    <span class="comment">// NOTE: We pass `0` as the type ID because we don&#39;t have a reasonable value
+                    //       we could use.
+                    </span>type_info: PgTypeInfo::with_oid(Oid(<span class="number">0</span>)),
+                    format: <span class="self">self</span>.fmt,
+                    value: buf,
+                    row: <span class="prelude-val">None</span>,
                 })
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

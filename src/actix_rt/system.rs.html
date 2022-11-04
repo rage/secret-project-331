@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-rt-2.7.0/src/system.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>system.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_rt/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_rt/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-rt-2.7.0/src/system.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>system.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_rt/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_rt/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_rt/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -324,324 +324,324 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cell::RefCell</span>,
-    <span class="ident">collections::HashMap</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">io</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">sync::atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>},
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    cell::RefCell,
+    collections::HashMap,
+    future::Future,
+    io,
+    pin::Pin,
+    sync::atomic::{AtomicUsize, Ordering},
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">tokio::sync</span>::{<span class="ident">mpsc</span>, <span class="ident">oneshot</span>};
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>tokio::sync::{mpsc, oneshot};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">arbiter::ArbiterHandle</span>, <span class="ident">Arbiter</span>};
+<span class="kw">use crate</span>::{arbiter::ArbiterHandle, Arbiter};
 
-<span class="kw">static</span> <span class="ident">SYSTEM_COUNT</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>);
+<span class="kw">static </span>SYSTEM_COUNT: AtomicUsize = AtomicUsize::new(<span class="number">0</span>);
 
 <span class="macro">thread_local!</span>(
-    <span class="kw">static</span> <span class="ident">CURRENT</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">System</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RefCell::new</span>(<span class="prelude-val">None</span>);
+    <span class="kw">static </span>CURRENT: RefCell&lt;<span class="prelude-ty">Option</span>&lt;System&gt;&gt; = RefCell::new(<span class="prelude-val">None</span>);
 );
 
-<span class="doccomment">/// A manager for a per-thread distributed async runtime.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">System</span> {
-    <span class="ident">id</span>: <span class="ident">usize</span>,
-    <span class="ident">sys_tx</span>: <span class="ident">mpsc::UnboundedSender</span><span class="op">&lt;</span><span class="ident">SystemCommand</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A manager for a per-thread distributed async runtime.
+</span><span class="attribute">#[derive(Clone, Debug)]
+</span><span class="kw">pub struct </span>System {
+    id: usize,
+    sys_tx: mpsc::UnboundedSender&lt;SystemCommand&gt;,
 
-    <span class="doccomment">/// Handle to the first [Arbiter] that is created with the System.</span>
-    <span class="ident">arbiter_handle</span>: <span class="ident">ArbiterHandle</span>,
+    <span class="doccomment">/// Handle to the first [Arbiter] that is created with the System.
+    </span>arbiter_handle: ArbiterHandle,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-uring&quot;</span>))]</span>
-<span class="kw">impl</span> <span class="ident">System</span> {
-    <span class="doccomment">/// Create a new system.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if underlying Tokio runtime can not be created.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::new_ret_no_self</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">SystemRunner</span> {
-        <span class="ident"><span class="self">Self</span>::with_tokio_rt</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident"><span class="kw">crate</span>::runtime::default_tokio_runtime</span>()
-                .<span class="ident">expect</span>(<span class="string">&quot;Default Actix (Tokio) runtime could not be created.&quot;</span>)
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;io-uring&quot;</span>))]
+</span><span class="kw">impl </span>System {
+    <span class="doccomment">/// Create a new system.
+    ///
+    /// # Panics
+    /// Panics if underlying Tokio runtime can not be created.
+    </span><span class="attribute">#[allow(clippy::new_ret_no_self)]
+    </span><span class="kw">pub fn </span>new() -&gt; SystemRunner {
+        <span class="self">Self</span>::with_tokio_rt(|| {
+            <span class="kw">crate</span>::runtime::default_tokio_runtime()
+                .expect(<span class="string">&quot;Default Actix (Tokio) runtime could not be created.&quot;</span>)
         })
     }
 
-    <span class="doccomment">/// Create a new System using the [Tokio Runtime](tokio-runtime) returned from a closure.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [tokio-runtime]: tokio::runtime::Runtime</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_tokio_rt</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">runtime_factory</span>: <span class="ident">F</span>) -&gt; <span class="ident">SystemRunner</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>() -&gt; <span class="ident">tokio::runtime::Runtime</span>,
+    <span class="doccomment">/// Create a new System using the [Tokio Runtime](tokio-runtime) returned from a closure.
+    ///
+    /// [tokio-runtime]: tokio::runtime::Runtime
+    </span><span class="kw">pub fn </span>with_tokio_rt&lt;F&gt;(runtime_factory: F) -&gt; SystemRunner
+    <span class="kw">where
+        </span>F: Fn() -&gt; tokio::runtime::Runtime,
     {
-        <span class="kw">let</span> (<span class="ident">stop_tx</span>, <span class="ident">stop_rx</span>) <span class="op">=</span> <span class="ident">oneshot::channel</span>();
-        <span class="kw">let</span> (<span class="ident">sys_tx</span>, <span class="ident">sys_rx</span>) <span class="op">=</span> <span class="ident">mpsc::unbounded_channel</span>();
+        <span class="kw">let </span>(stop_tx, stop_rx) = oneshot::channel();
+        <span class="kw">let </span>(sys_tx, sys_rx) = mpsc::unbounded_channel();
 
-        <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::runtime::Runtime::from</span>(<span class="ident">runtime_factory</span>());
-        <span class="kw">let</span> <span class="ident">sys_arbiter</span> <span class="op">=</span> <span class="ident">rt</span>.<span class="ident">block_on</span>(<span class="kw">async</span> { <span class="ident">Arbiter::in_new_system</span>() });
-        <span class="kw">let</span> <span class="ident">system</span> <span class="op">=</span> <span class="ident">System::construct</span>(<span class="ident">sys_tx</span>, <span class="ident">sys_arbiter</span>.<span class="ident">clone</span>());
+        <span class="kw">let </span>rt = <span class="kw">crate</span>::runtime::Runtime::from(runtime_factory());
+        <span class="kw">let </span>sys_arbiter = rt.block_on(<span class="kw">async </span>{ Arbiter::in_new_system() });
+        <span class="kw">let </span>system = System::construct(sys_tx, sys_arbiter.clone());
 
-        <span class="ident">system</span>
-            .<span class="ident">tx</span>()
-            .<span class="ident">send</span>(<span class="ident">SystemCommand::RegisterArbiter</span>(<span class="ident">usize::MAX</span>, <span class="ident">sys_arbiter</span>))
-            .<span class="ident">unwrap</span>();
+        system
+            .tx()
+            .send(SystemCommand::RegisterArbiter(usize::MAX, sys_arbiter))
+            .unwrap();
 
-        <span class="comment">// init background system arbiter</span>
-        <span class="kw">let</span> <span class="ident">sys_ctrl</span> <span class="op">=</span> <span class="ident">SystemController::new</span>(<span class="ident">sys_rx</span>, <span class="ident">stop_tx</span>);
-        <span class="ident">rt</span>.<span class="ident">spawn</span>(<span class="ident">sys_ctrl</span>);
+        <span class="comment">// init background system arbiter
+        </span><span class="kw">let </span>sys_ctrl = SystemController::new(sys_rx, stop_tx);
+        rt.spawn(sys_ctrl);
 
-        <span class="ident">SystemRunner</span> { <span class="ident">rt</span>, <span class="ident">stop_rx</span> }
+        SystemRunner { rt, stop_rx }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-uring&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">System</span> {
-    <span class="doccomment">/// Create a new system.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if underlying Tokio runtime can not be created.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::new_ret_no_self</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">SystemRunner</span> {
-        <span class="ident">SystemRunner</span>
+<span class="attribute">#[cfg(feature = <span class="string">&quot;io-uring&quot;</span>)]
+</span><span class="kw">impl </span>System {
+    <span class="doccomment">/// Create a new system.
+    ///
+    /// # Panics
+    /// Panics if underlying Tokio runtime can not be created.
+    </span><span class="attribute">#[allow(clippy::new_ret_no_self)]
+    </span><span class="kw">pub fn </span>new() -&gt; SystemRunner {
+        SystemRunner
     }
 
-    <span class="doccomment">/// Create a new System using the [Tokio Runtime](tokio-runtime) returned from a closure.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [tokio-runtime]: tokio::runtime::Runtime</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_tokio_rt</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw">_</span>: <span class="ident">F</span>) -&gt; <span class="ident">SystemRunner</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>() -&gt; <span class="ident">tokio::runtime::Runtime</span>,
+    <span class="doccomment">/// Create a new System using the [Tokio Runtime](tokio-runtime) returned from a closure.
+    ///
+    /// [tokio-runtime]: tokio::runtime::Runtime
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>with_tokio_rt&lt;F&gt;(<span class="kw">_</span>: F) -&gt; SystemRunner
+    <span class="kw">where
+        </span>F: Fn() -&gt; tokio::runtime::Runtime,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;System::with_tokio_rt is not implemented for io-uring feature yet&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">System</span> {
-    <span class="doccomment">/// Constructs new system and registers it on the current thread.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">construct</span>(
-        <span class="ident">sys_tx</span>: <span class="ident">mpsc::UnboundedSender</span><span class="op">&lt;</span><span class="ident">SystemCommand</span><span class="op">&gt;</span>,
-        <span class="ident">arbiter_handle</span>: <span class="ident">ArbiterHandle</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">sys</span> <span class="op">=</span> <span class="ident">System</span> {
-            <span class="ident">sys_tx</span>,
-            <span class="ident">arbiter_handle</span>,
-            <span class="ident">id</span>: <span class="ident">SYSTEM_COUNT</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>),
+<span class="kw">impl </span>System {
+    <span class="doccomment">/// Constructs new system and registers it on the current thread.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>construct(
+        sys_tx: mpsc::UnboundedSender&lt;SystemCommand&gt;,
+        arbiter_handle: ArbiterHandle,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>sys = System {
+            sys_tx,
+            arbiter_handle,
+            id: SYSTEM_COUNT.fetch_add(<span class="number">1</span>, Ordering::SeqCst),
         };
 
-        <span class="ident">System::set_current</span>(<span class="ident">sys</span>.<span class="ident">clone</span>());
+        System::set_current(sys.clone());
 
-        <span class="ident">sys</span>
+        sys
     }
 
-    <span class="doccomment">/// Get current running system.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if no system is registered on the current thread.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current</span>() -&gt; <span class="ident">System</span> {
-        <span class="ident">CURRENT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">cell</span>.<span class="ident">borrow</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">sys</span>) =&gt; <span class="ident">sys</span>.<span class="ident">clone</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;System is not running&quot;</span>),
+    <span class="doccomment">/// Get current running system.
+    ///
+    /// # Panics
+    /// Panics if no system is registered on the current thread.
+    </span><span class="kw">pub fn </span>current() -&gt; System {
+        CURRENT.with(|cell| <span class="kw">match </span><span class="kw-2">*</span>cell.borrow() {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>sys) =&gt; sys.clone(),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;System is not running&quot;</span>),
         })
     }
 
-    <span class="doccomment">/// Try to get current running system.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if no System has been started.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Unlike [`current`](Self::current), this never panics.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_current</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">System</span><span class="op">&gt;</span> {
-        <span class="ident">CURRENT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> <span class="ident">cell</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>())
+    <span class="doccomment">/// Try to get current running system.
+    ///
+    /// Returns `None` if no System has been started.
+    ///
+    /// Unlike [`current`](Self::current), this never panics.
+    </span><span class="kw">pub fn </span>try_current() -&gt; <span class="prelude-ty">Option</span>&lt;System&gt; {
+        CURRENT.with(|cell| cell.borrow().clone())
     }
 
-    <span class="doccomment">/// Get handle to a the System&#39;s initial [Arbiter].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">arbiter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ArbiterHandle</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">arbiter_handle</span>
+    <span class="doccomment">/// Get handle to a the System&#39;s initial [Arbiter].
+    </span><span class="kw">pub fn </span>arbiter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ArbiterHandle {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.arbiter_handle
     }
 
-    <span class="doccomment">/// Check if there is a System registered on the current thread.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_registered</span>() -&gt; <span class="ident">bool</span> {
-        <span class="ident">CURRENT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">sys</span><span class="op">|</span> <span class="ident">sys</span>.<span class="ident">borrow</span>().<span class="ident">is_some</span>())
+    <span class="doccomment">/// Check if there is a System registered on the current thread.
+    </span><span class="kw">pub fn </span>is_registered() -&gt; bool {
+        CURRENT.with(|sys| sys.borrow().is_some())
     }
 
-    <span class="doccomment">/// Register given system on current thread.</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_current</span>(<span class="ident">sys</span>: <span class="ident">System</span>) {
-        <span class="ident">CURRENT</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> {
-            <span class="kw-2">*</span><span class="ident">cell</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sys</span>);
+    <span class="doccomment">/// Register given system on current thread.
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>set_current(sys: System) {
+        CURRENT.with(|cell| {
+            <span class="kw-2">*</span>cell.borrow_mut() = <span class="prelude-val">Some</span>(sys);
         })
     }
 
-    <span class="doccomment">/// Numeric system identifier.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Useful when using multiple Systems.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">id</span>
+    <span class="doccomment">/// Numeric system identifier.
+    ///
+    /// Useful when using multiple Systems.
+    </span><span class="kw">pub fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.id
     }
 
-    <span class="doccomment">/// Stop the system (with code 0).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">stop_with_code</span>(<span class="number">0</span>)
+    <span class="doccomment">/// Stop the system (with code 0).
+    </span><span class="kw">pub fn </span>stop(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.stop_with_code(<span class="number">0</span>)
     }
 
-    <span class="doccomment">/// Stop the system with a given exit code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop_with_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="ident">i32</span>) {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sys_tx</span>.<span class="ident">send</span>(<span class="ident">SystemCommand::Exit</span>(<span class="ident">code</span>));
+    <span class="doccomment">/// Stop the system with a given exit code.
+    </span><span class="kw">pub fn </span>stop_with_code(<span class="kw-2">&amp;</span><span class="self">self</span>, code: i32) {
+        <span class="kw">let _ </span>= <span class="self">self</span>.sys_tx.send(SystemCommand::Exit(code));
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">tx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">mpsc::UnboundedSender</span><span class="op">&lt;</span><span class="ident">SystemCommand</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sys_tx</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>tx(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>mpsc::UnboundedSender&lt;SystemCommand&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.sys_tx
     }
 }
 
-<span class="doccomment">/// Runner that keeps a [System]&#39;s event loop alive until stop message is received.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-uring&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;A SystemRunner does nothing unless `run` is called.&quot;</span>]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SystemRunner</span> {
-    <span class="ident">rt</span>: <span class="ident"><span class="kw">crate</span>::runtime::Runtime</span>,
-    <span class="ident">stop_rx</span>: <span class="ident">oneshot::Receiver</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Runner that keeps a [System]&#39;s event loop alive until stop message is received.
+</span><span class="attribute">#[cfg(not(feature = <span class="string">&quot;io-uring&quot;</span>))]
+#[must_use = <span class="string">&quot;A SystemRunner does nothing unless `run` is called.&quot;</span>]
+#[derive(Debug)]
+</span><span class="kw">pub struct </span>SystemRunner {
+    rt: <span class="kw">crate</span>::runtime::Runtime,
+    stop_rx: oneshot::Receiver&lt;i32&gt;,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-uring&quot;</span>))]</span>
-<span class="kw">impl</span> <span class="ident">SystemRunner</span> {
-    <span class="doccomment">/// Starts event loop and will return once [System] is [stopped](System::stop).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">exit_code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">run_with_code</span>()<span class="question-mark">?</span>;
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;io-uring&quot;</span>))]
+</span><span class="kw">impl </span>SystemRunner {
+    <span class="doccomment">/// Starts event loop and will return once [System] is [stopped](System::stop).
+    </span><span class="kw">pub fn </span>run(<span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">let </span>exit_code = <span class="self">self</span>.run_with_code()<span class="question-mark">?</span>;
 
-        <span class="kw">match</span> <span class="ident">exit_code</span> {
-            <span class="number">0</span> =&gt; <span class="prelude-val">Ok</span>(()),
-            <span class="ident">nonzero</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-                <span class="ident">io::ErrorKind::Other</span>,
-                <span class="macro">format!</span>(<span class="string">&quot;Non-zero exit code: {}&quot;</span>, <span class="ident">nonzero</span>),
+        <span class="kw">match </span>exit_code {
+            <span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>(()),
+            nonzero =&gt; <span class="prelude-val">Err</span>(io::Error::new(
+                io::ErrorKind::Other,
+                <span class="macro">format!</span>(<span class="string">&quot;Non-zero exit code: {}&quot;</span>, nonzero),
             )),
         }
     }
 
-    <span class="doccomment">/// Runs the event loop until [stopped](System::stop_with_code), returning the exit code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_with_code</span>(<span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">SystemRunner</span> { <span class="ident">rt</span>, <span class="ident">stop_rx</span>, .. } <span class="op">=</span> <span class="self">self</span>;
+    <span class="doccomment">/// Runs the event loop until [stopped](System::stop_with_code), returning the exit code.
+    </span><span class="kw">pub fn </span>run_with_code(<span class="self">self</span>) -&gt; io::Result&lt;i32&gt; {
+        <span class="kw">let </span>SystemRunner { rt, stop_rx, .. } = <span class="self">self</span>;
 
-        <span class="comment">// run loop</span>
-        <span class="ident">rt</span>.<span class="ident">block_on</span>(<span class="ident">stop_rx</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::Other</span>, <span class="ident">err</span>))
+        <span class="comment">// run loop
+        </span>rt.block_on(stop_rx)
+            .map_err(|err| io::Error::new(io::ErrorKind::Other, err))
     }
 
-    <span class="doccomment">/// Runs the provided future, blocking the current thread until the future completes.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Future</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fut</span>: <span class="ident">F</span>) -&gt; <span class="ident">F::Output</span> {
-        <span class="self">self</span>.<span class="ident">rt</span>.<span class="ident">block_on</span>(<span class="ident">fut</span>)
+    <span class="doccomment">/// Runs the provided future, blocking the current thread until the future completes.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>block_on&lt;F: Future&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, fut: F) -&gt; F::Output {
+        <span class="self">self</span>.rt.block_on(fut)
     }
 }
 
-<span class="doccomment">/// Runner that keeps a [System]&#39;s event loop alive until stop message is received.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-uring&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;A SystemRunner does nothing unless `run` is called.&quot;</span>]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SystemRunner</span>;
+<span class="doccomment">/// Runner that keeps a [System]&#39;s event loop alive until stop message is received.
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;io-uring&quot;</span>)]
+#[must_use = <span class="string">&quot;A SystemRunner does nothing unless `run` is called.&quot;</span>]
+#[derive(Debug)]
+</span><span class="kw">pub struct </span>SystemRunner;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;io-uring&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">SystemRunner</span> {
-    <span class="doccomment">/// Starts event loop and will return once [System] is [stopped](System::stop).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="attribute">#[cfg(feature = <span class="string">&quot;io-uring&quot;</span>)]
+</span><span class="kw">impl </span>SystemRunner {
+    <span class="doccomment">/// Starts event loop and will return once [System] is [stopped](System::stop).
+    </span><span class="kw">pub fn </span>run(<span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;SystemRunner::run is not implemented for io-uring feature yet&quot;</span>);
     }
 
-    <span class="doccomment">/// Runs the event loop until [stopped](System::stop_with_code), returning the exit code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_with_code</span>(<span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Runs the event loop until [stopped](System::stop_with_code), returning the exit code.
+    </span><span class="kw">pub fn </span>run_with_code(<span class="self">self</span>) -&gt; io::Result&lt;i32&gt; {
         <span class="macro">unimplemented!</span>(
-            <span class="string">&quot;SystemRunner::run_with_code is not implemented for io-uring feature yet&quot;</span>
-        );
+            <span class="string">&quot;SystemRunner::run_with_code is not implemented for io-uring feature yet&quot;
+        </span>);
     }
 
-    <span class="doccomment">/// Runs the provided future, blocking the current thread until the future completes.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Future</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fut</span>: <span class="ident">F</span>) -&gt; <span class="ident">F::Output</span> {
-        <span class="ident">tokio_uring::start</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> (<span class="ident">stop_tx</span>, <span class="ident">stop_rx</span>) <span class="op">=</span> <span class="ident">oneshot::channel</span>();
-            <span class="kw">let</span> (<span class="ident">sys_tx</span>, <span class="ident">sys_rx</span>) <span class="op">=</span> <span class="ident">mpsc::unbounded_channel</span>();
+    <span class="doccomment">/// Runs the provided future, blocking the current thread until the future completes.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>block_on&lt;F: Future&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, fut: F) -&gt; F::Output {
+        tokio_uring::start(<span class="kw">async move </span>{
+            <span class="kw">let </span>(stop_tx, stop_rx) = oneshot::channel();
+            <span class="kw">let </span>(sys_tx, sys_rx) = mpsc::unbounded_channel();
 
-            <span class="kw">let</span> <span class="ident">sys_arbiter</span> <span class="op">=</span> <span class="ident">Arbiter::in_new_system</span>();
-            <span class="kw">let</span> <span class="ident">system</span> <span class="op">=</span> <span class="ident">System::construct</span>(<span class="ident">sys_tx</span>, <span class="ident">sys_arbiter</span>.<span class="ident">clone</span>());
+            <span class="kw">let </span>sys_arbiter = Arbiter::in_new_system();
+            <span class="kw">let </span>system = System::construct(sys_tx, sys_arbiter.clone());
 
-            <span class="ident">system</span>
-                .<span class="ident">tx</span>()
-                .<span class="ident">send</span>(<span class="ident">SystemCommand::RegisterArbiter</span>(<span class="ident">usize::MAX</span>, <span class="ident">sys_arbiter</span>))
-                .<span class="ident">unwrap</span>();
+            system
+                .tx()
+                .send(SystemCommand::RegisterArbiter(usize::MAX, sys_arbiter))
+                .unwrap();
 
-            <span class="comment">// init background system arbiter</span>
-            <span class="kw">let</span> <span class="ident">sys_ctrl</span> <span class="op">=</span> <span class="ident">SystemController::new</span>(<span class="ident">sys_rx</span>, <span class="ident">stop_tx</span>);
-            <span class="ident">tokio_uring::spawn</span>(<span class="ident">sys_ctrl</span>);
+            <span class="comment">// init background system arbiter
+            </span><span class="kw">let </span>sys_ctrl = SystemController::new(sys_rx, stop_tx);
+            tokio_uring::spawn(sys_ctrl);
 
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">fut</span>.<span class="kw">await</span>;
-            <span class="ident">drop</span>(<span class="ident">stop_rx</span>);
-            <span class="ident">res</span>
+            <span class="kw">let </span>res = fut.<span class="kw">await</span>;
+            drop(stop_rx);
+            res
         })
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">SystemCommand</span> {
-    <span class="ident">Exit</span>(<span class="ident">i32</span>),
-    <span class="ident">RegisterArbiter</span>(<span class="ident">usize</span>, <span class="ident">ArbiterHandle</span>),
-    <span class="ident">DeregisterArbiter</span>(<span class="ident">usize</span>),
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>SystemCommand {
+    Exit(i32),
+    RegisterArbiter(usize, ArbiterHandle),
+    DeregisterArbiter(usize),
 }
 
-<span class="doccomment">/// There is one `SystemController` per [System]. It runs in the background, keeping track of</span>
-<span class="doccomment">/// [Arbiter]s and is able to distribute a system-wide stop command.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">SystemController</span> {
-    <span class="ident">stop_tx</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">cmd_rx</span>: <span class="ident">mpsc::UnboundedReceiver</span><span class="op">&lt;</span><span class="ident">SystemCommand</span><span class="op">&gt;</span>,
-    <span class="ident">arbiters</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ArbiterHandle</span><span class="op">&gt;</span>,
+<span class="doccomment">/// There is one `SystemController` per [System]. It runs in the background, keeping track of
+/// [Arbiter]s and is able to distribute a system-wide stop command.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SystemController {
+    stop_tx: <span class="prelude-ty">Option</span>&lt;oneshot::Sender&lt;i32&gt;&gt;,
+    cmd_rx: mpsc::UnboundedReceiver&lt;SystemCommand&gt;,
+    arbiters: HashMap&lt;usize, ArbiterHandle&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SystemController</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">cmd_rx</span>: <span class="ident">mpsc::UnboundedReceiver</span><span class="op">&lt;</span><span class="ident">SystemCommand</span><span class="op">&gt;</span>,
-        <span class="ident">stop_tx</span>: <span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="ident">SystemController</span> {
-            <span class="ident">cmd_rx</span>,
-            <span class="ident">stop_tx</span>: <span class="prelude-val">Some</span>(<span class="ident">stop_tx</span>),
-            <span class="ident">arbiters</span>: <span class="ident">HashMap::with_capacity</span>(<span class="number">4</span>),
+<span class="kw">impl </span>SystemController {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        cmd_rx: mpsc::UnboundedReceiver&lt;SystemCommand&gt;,
+        stop_tx: oneshot::Sender&lt;i32&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        SystemController {
+            cmd_rx,
+            stop_tx: <span class="prelude-val">Some</span>(stop_tx),
+            arbiters: HashMap::with_capacity(<span class="number">4</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">SystemController</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
+<span class="kw">impl </span>Future <span class="kw">for </span>SystemController {
+    <span class="kw">type </span>Output = ();
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="comment">// process all items currently buffered in channel</span>
-        <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">cmd_rx</span>).<span class="ident">poll_recv</span>(<span class="ident">cx</span>)) {
-                <span class="comment">// channel closed; no more messages can be received</span>
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(()),
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="comment">// process all items currently buffered in channel
+        </span><span class="kw">loop </span>{
+            <span class="kw">match </span><span class="macro">ready!</span>(Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.cmd_rx).poll_recv(cx)) {
+                <span class="comment">// channel closed; no more messages can be received
+                </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span>Poll::Ready(()),
 
-                <span class="comment">// process system command</span>
-                <span class="prelude-val">Some</span>(<span class="ident">cmd</span>) =&gt; <span class="kw">match</span> <span class="ident">cmd</span> {
-                    <span class="ident">SystemCommand::Exit</span>(<span class="ident">code</span>) =&gt; {
-                        <span class="comment">// stop all arbiters</span>
-                        <span class="kw">for</span> <span class="ident">arb</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">arbiters</span>.<span class="ident">values</span>() {
-                            <span class="ident">arb</span>.<span class="ident">stop</span>();
+                <span class="comment">// process system command
+                </span><span class="prelude-val">Some</span>(cmd) =&gt; <span class="kw">match </span>cmd {
+                    SystemCommand::Exit(code) =&gt; {
+                        <span class="comment">// stop all arbiters
+                        </span><span class="kw">for </span>arb <span class="kw">in </span><span class="self">self</span>.arbiters.values() {
+                            arb.stop();
                         }
 
-                        <span class="comment">// stop event loop</span>
-                        <span class="comment">// will only fire once</span>
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop_tx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">stop_tx</span>.<span class="ident">take</span>() {
-                            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">stop_tx</span>.<span class="ident">send</span>(<span class="ident">code</span>);
+                        <span class="comment">// stop event loop
+                        // will only fire once
+                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(stop_tx) = <span class="self">self</span>.stop_tx.take() {
+                            <span class="kw">let _ </span>= stop_tx.send(code);
                         }
                     }
 
-                    <span class="ident">SystemCommand::RegisterArbiter</span>(<span class="ident">id</span>, <span class="ident">arb</span>) =&gt; {
-                        <span class="self">self</span>.<span class="ident">arbiters</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">arb</span>);
+                    SystemCommand::RegisterArbiter(id, arb) =&gt; {
+                        <span class="self">self</span>.arbiters.insert(id, arb);
                     }
 
-                    <span class="ident">SystemCommand::DeregisterArbiter</span>(<span class="ident">id</span>) =&gt; {
-                        <span class="self">self</span>.<span class="ident">arbiters</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
+                    SystemCommand::DeregisterArbiter(id) =&gt; {
+                        <span class="self">self</span>.arbiters.remove(<span class="kw-2">&amp;</span>id);
                     }
                 },
             }
@@ -649,4 +649,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_rt" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_rt" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

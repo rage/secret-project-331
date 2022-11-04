@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/iana-time-zone-0.1.51/src/ffi_utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ffi_utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../iana_time_zone/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../iana_time_zone/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../iana_time_zone/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/iana-time-zone-0.1.51/src/ffi_utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ffi_utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../iana_time_zone/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../iana_time_zone/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../iana_time_zone/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -47,54 +47,54 @@
 <span id="47">47</span>
 <span id="48">48</span>
 <span id="49">49</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Cross platform FFI helpers.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Cross platform FFI helpers.
 
-<span class="kw">use</span> <span class="ident">std::ffi::CStr</span>;
+</span><span class="kw">use </span>std::ffi::CStr;
 
-<span class="comment">// The system property named &#39;persist.sys.timezone&#39; contains the name of the</span>
-<span class="comment">// current timezone.</span>
-<span class="comment">//</span>
-<span class="comment">// From https://android.googlesource.com/platform/bionic/+/gingerbread-release/libc/docs/OVERVIEW.TXT#79:</span>
-<span class="comment">//</span>
-<span class="comment">// &gt; The name of the current timezone is taken from the TZ environment variable,</span>
-<span class="comment">// &gt; if defined. Otherwise, the system property named &#39;persist.sys.timezone&#39; is</span>
-<span class="comment">// &gt; checked instead.</span>
-<span class="kw">const</span> <span class="ident">ANDROID_TIMEZONE_PROPERTY_NAME</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;persist.sys.timezone\0&quot;</span>;
+<span class="comment">// The system property named &#39;persist.sys.timezone&#39; contains the name of the
+// current timezone.
+//
+// From https://android.googlesource.com/platform/bionic/+/gingerbread-release/libc/docs/OVERVIEW.TXT#79:
+//
+// &gt; The name of the current timezone is taken from the TZ environment variable,
+// &gt; if defined. Otherwise, the system property named &#39;persist.sys.timezone&#39; is
+// &gt; checked instead.
+</span><span class="kw">const </span>ANDROID_TIMEZONE_PROPERTY_NAME: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;persist.sys.timezone\0&quot;</span>;
 
-<span class="doccomment">/// Return a [`CStr`] to access the timezone from an Android system properties</span>
-<span class="doccomment">/// environment.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">android_timezone_property_name</span>() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">CStr</span> {
-    <span class="comment">// In tests or debug mode, opt into extra runtime checks.</span>
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">any</span>(<span class="ident">test</span>, <span class="ident">debug_assertions</span>)) {
-        <span class="kw">return</span> <span class="ident">CStr::from_bytes_with_nul</span>(<span class="ident">ANDROID_TIMEZONE_PROPERTY_NAME</span>).<span class="ident">unwrap</span>();
+<span class="doccomment">/// Return a [`CStr`] to access the timezone from an Android system properties
+/// environment.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>android_timezone_property_name() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>CStr {
+    <span class="comment">// In tests or debug mode, opt into extra runtime checks.
+    </span><span class="kw">if </span><span class="macro">cfg!</span>(any(test, debug_assertions)) {
+        <span class="kw">return </span>CStr::from_bytes_with_nul(ANDROID_TIMEZONE_PROPERTY_NAME).unwrap();
     }
 
-    <span class="comment">// SAFETY: the key is NUL-terminated and there are no other NULs, this</span>
-    <span class="comment">// invariant is checked in tests.</span>
-    <span class="kw">unsafe</span> { <span class="ident">CStr::from_bytes_with_nul_unchecked</span>(<span class="ident">ANDROID_TIMEZONE_PROPERTY_NAME</span>) }
+    <span class="comment">// SAFETY: the key is NUL-terminated and there are no other NULs, this
+    // invariant is checked in tests.
+    </span><span class="kw">unsafe </span>{ CStr::from_bytes_with_nul_unchecked(ANDROID_TIMEZONE_PROPERTY_NAME) }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std::ffi::CStr</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::ffi::CStr;
 
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">android_timezone_property_name</span>, <span class="ident">ANDROID_TIMEZONE_PROPERTY_NAME</span>};
+    <span class="kw">use super</span>::{android_timezone_property_name, ANDROID_TIMEZONE_PROPERTY_NAME};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_android_timezone_property_name_is_valid_cstr</span>() {
-        <span class="ident">CStr::from_bytes_with_nul</span>(<span class="ident">ANDROID_TIMEZONE_PROPERTY_NAME</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_android_timezone_property_name_is_valid_cstr() {
+        CStr::from_bytes_with_nul(ANDROID_TIMEZONE_PROPERTY_NAME).unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">invalid_property_name</span> <span class="op">=</span> <span class="ident">ANDROID_TIMEZONE_PROPERTY_NAME</span>.<span class="ident">to_owned</span>();
-        <span class="ident">invalid_property_name</span>.<span class="ident">push</span>(<span class="string">b&#39;\0&#39;</span>);
-        <span class="ident">CStr::from_bytes_with_nul</span>(<span class="kw-2">&amp;</span><span class="ident">invalid_property_name</span>).<span class="ident">unwrap_err</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>invalid_property_name = ANDROID_TIMEZONE_PROPERTY_NAME.to_owned();
+        invalid_property_name.push(<span class="string">b&#39;\0&#39;</span>);
+        CStr::from_bytes_with_nul(<span class="kw-2">&amp;</span>invalid_property_name).unwrap_err();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_android_timezone_property_name_getter</span>() {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">android_timezone_property_name</span>().<span class="ident">to_bytes_with_nul</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">key</span>, <span class="ident">ANDROID_TIMEZONE_PROPERTY_NAME</span>);
-        <span class="ident">std::str::from_utf8</span>(<span class="ident">key</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_android_timezone_property_name_getter() {
+        <span class="kw">let </span>key = android_timezone_property_name().to_bytes_with_nul();
+        <span class="macro">assert_eq!</span>(key, ANDROID_TIMEZONE_PROPERTY_NAME);
+        std::str::from_utf8(key).unwrap();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="iana_time_zone" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="iana_time_zone" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/derives/row.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>row.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-macros-0.6.2/src/derives/row.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>row.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_macros/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_macros/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -200,207 +200,207 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Span</span>, <span class="ident">TokenStream</span>};
-<span class="kw">use</span> <span class="ident">quote::quote</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{
-    <span class="ident">parse_quote</span>, <span class="ident">punctuated::Punctuated</span>, <span class="ident">token::Comma</span>, <span class="ident">Data</span>, <span class="ident">DataStruct</span>, <span class="ident">DeriveInput</span>, <span class="ident">Expr</span>, <span class="ident">Field</span>,
-    <span class="ident">Fields</span>, <span class="ident">FieldsNamed</span>, <span class="ident">FieldsUnnamed</span>, <span class="ident">Lifetime</span>, <span class="ident">Stmt</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>proc_macro2::{Span, TokenStream};
+<span class="kw">use </span>quote::quote;
+<span class="kw">use </span>syn::{
+    parse_quote, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput, Expr, Field,
+    Fields, FieldsNamed, FieldsUnnamed, Lifetime, Stmt,
 };
 
-<span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">attributes</span>::{<span class="ident">parse_child_attributes</span>, <span class="ident">parse_container_attributes</span>},
-    <span class="ident">rename_all</span>,
+<span class="kw">use super</span>::{
+    attributes::{parse_child_attributes, parse_container_attributes},
+    rename_all,
 };
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand_derive_from_row</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">data</span> {
-        <span class="ident">Data::Struct</span>(<span class="ident">DataStruct</span> {
-            <span class="ident">fields</span>: <span class="ident">Fields::Named</span>(<span class="ident">FieldsNamed</span> { <span class="ident">named</span>, .. }),
+<span class="kw">pub fn </span>expand_derive_from_row(input: <span class="kw-2">&amp;</span>DeriveInput) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">match </span><span class="kw-2">&amp;</span>input.data {
+        Data::Struct(DataStruct {
+            fields: Fields::Named(FieldsNamed { named, .. }),
             ..
-        }) =&gt; <span class="ident">expand_derive_from_row_struct</span>(<span class="ident">input</span>, <span class="ident">named</span>),
+        }) =&gt; expand_derive_from_row_struct(input, named),
 
-        <span class="ident">Data::Struct</span>(<span class="ident">DataStruct</span> {
-            <span class="ident">fields</span>: <span class="ident">Fields::Unnamed</span>(<span class="ident">FieldsUnnamed</span> { <span class="ident">unnamed</span>, .. }),
+        Data::Struct(DataStruct {
+            fields: Fields::Unnamed(FieldsUnnamed { unnamed, .. }),
             ..
-        }) =&gt; <span class="ident">expand_derive_from_row_struct_unnamed</span>(<span class="ident">input</span>, <span class="ident">unnamed</span>),
+        }) =&gt; expand_derive_from_row_struct_unnamed(input, unnamed),
 
-        <span class="ident">Data::Struct</span>(<span class="ident">DataStruct</span> {
-            <span class="ident">fields</span>: <span class="ident">Fields::Unit</span>,
+        Data::Struct(DataStruct {
+            fields: Fields::Unit,
             ..
-        }) =&gt; <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-            <span class="ident">input</span>,
+        }) =&gt; <span class="prelude-val">Err</span>(syn::Error::new_spanned(
+            input,
             <span class="string">&quot;unit structs are not supported&quot;</span>,
         )),
 
-        <span class="ident">Data::Enum</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(<span class="ident">input</span>, <span class="string">&quot;enums are not supported&quot;</span>)),
+        Data::Enum(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(syn::Error::new_spanned(input, <span class="string">&quot;enums are not supported&quot;</span>)),
 
-        <span class="ident">Data::Union</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(<span class="ident">input</span>, <span class="string">&quot;unions are not supported&quot;</span>)),
+        Data::Union(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(syn::Error::new_spanned(input, <span class="string">&quot;unions are not supported&quot;</span>)),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">expand_derive_from_row_struct</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Field</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
+<span class="kw">fn </span>expand_derive_from_row_struct(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    fields: <span class="kw-2">&amp;</span>Punctuated&lt;Field, Comma&gt;,
+) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
 
-    <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">generics</span>;
+    <span class="kw">let </span>generics = <span class="kw-2">&amp;</span>input.generics;
 
-    <span class="kw">let</span> (<span class="ident">lifetime</span>, <span class="ident">provided</span>) <span class="op">=</span> <span class="ident">generics</span>
-        .<span class="ident">lifetimes</span>()
-        .<span class="ident">next</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">def</span><span class="op">|</span> (<span class="ident">def</span>.<span class="ident">lifetime</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>))
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> (<span class="ident">Lifetime::new</span>(<span class="string">&quot;&#39;a&quot;</span>, <span class="ident">Span::call_site</span>()), <span class="bool-val">true</span>));
+    <span class="kw">let </span>(lifetime, provided) = generics
+        .lifetimes()
+        .next()
+        .map(|def| (def.lifetime.clone(), <span class="bool-val">false</span>))
+        .unwrap_or_else(|| (Lifetime::new(<span class="string">&quot;&#39;a&quot;</span>, Span::call_site()), <span class="bool-val">true</span>));
 
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ty_generics</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
+    <span class="kw">let </span>(<span class="kw">_</span>, ty_generics, <span class="kw">_</span>) = generics.split_for_impl();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">clone</span>();
-    <span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="macro">parse_quote!</span>(<span class="ident">R</span>: <span class="ident">::sqlx::Row</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>generics = generics.clone();
+    generics.params.insert(<span class="number">0</span>, <span class="macro">parse_quote!</span>(R: ::sqlx::Row));
 
-    <span class="kw">if</span> <span class="ident">provided</span> {
-        <span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="macro">parse_quote!</span>(#<span class="ident">lifetime</span>));
+    <span class="kw">if </span>provided {
+        generics.params.insert(<span class="number">0</span>, <span class="macro">parse_quote!</span>(#lifetime));
     }
 
-    <span class="kw">let</span> <span class="ident">predicates</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">generics</span>.<span class="ident">make_where_clause</span>().<span class="ident">predicates</span>;
+    <span class="kw">let </span>predicates = <span class="kw-2">&amp;mut </span>generics.make_where_clause().predicates;
 
-    <span class="ident">predicates</span>.<span class="ident">push</span>(<span class="macro">parse_quote!</span>(<span class="kw-2">&amp;</span>#<span class="ident">lifetime</span> <span class="ident">::std::primitive::str</span>: <span class="ident">::sqlx::ColumnIndex</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>));
+    predicates.push(<span class="macro">parse_quote!</span>(<span class="kw-2">&amp;</span>#lifetime ::std::primitive::str: ::sqlx::ColumnIndex&lt;R&gt;));
 
-    <span class="kw">let</span> <span class="ident">container_attributes</span> <span class="op">=</span> <span class="ident">parse_container_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>container_attributes = parse_container_attributes(<span class="kw-2">&amp;</span>input.attrs)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">reads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">fields</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Stmt</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">parse_child_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">attrs</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>;
+    <span class="kw">let </span>reads: Vec&lt;Stmt&gt; = fields
+        .iter()
+        .filter_map(|field| -&gt; <span class="prelude-ty">Option</span>&lt;Stmt&gt; {
+            <span class="kw">let </span>id = <span class="kw-2">&amp;</span>field.ident.as_ref()<span class="question-mark">?</span>;
+            <span class="kw">let </span>attributes = parse_child_attributes(<span class="kw-2">&amp;</span>field.attrs).unwrap();
+            <span class="kw">let </span>ty = <span class="kw-2">&amp;</span>field.ty;
 
-            <span class="kw">let</span> <span class="ident">expr</span>: <span class="ident">Expr</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">attributes</span>.<span class="ident">flatten</span>, <span class="ident">attributes</span>.<span class="ident">try_from</span>) {
+            <span class="kw">let </span>expr: Expr = <span class="kw">match </span>(attributes.flatten, attributes.try_from) {
                 (<span class="bool-val">true</span>, <span class="prelude-val">None</span>) =&gt; {
-                    <span class="ident">predicates</span>.<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">ty</span>: <span class="ident">::sqlx::FromRow</span><span class="op">&lt;</span>#<span class="ident">lifetime</span>, <span class="ident">R</span><span class="op">&gt;</span>));
-                    <span class="macro">parse_quote!</span>(<span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::sqlx::FromRow</span><span class="op">&lt;</span>#<span class="ident">lifetime</span>, <span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_row</span>(<span class="ident">row</span>))
+                    predicates.push(<span class="macro">parse_quote!</span>(#ty: ::sqlx::FromRow&lt;#lifetime, R&gt;));
+                    <span class="macro">parse_quote!</span>(&lt;#ty <span class="kw">as </span>::sqlx::FromRow&lt;#lifetime, R&gt;&gt;::from_row(row))
                 }
                 (<span class="bool-val">false</span>, <span class="prelude-val">None</span>) =&gt; {
-                    <span class="ident">predicates</span>
-                        .<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">ty</span>: <span class="ident">::sqlx::decode::Decode</span><span class="op">&lt;</span>#<span class="ident">lifetime</span>, <span class="ident">R::Database</span><span class="op">&gt;</span>));
-                    <span class="ident">predicates</span>.<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">ty</span>: <span class="ident">::sqlx::types::Type</span><span class="op">&lt;</span><span class="ident">R::Database</span><span class="op">&gt;</span>));
+                    predicates
+                        .push(<span class="macro">parse_quote!</span>(#ty: ::sqlx::decode::Decode&lt;#lifetime, R::Database&gt;));
+                    predicates.push(<span class="macro">parse_quote!</span>(#ty: ::sqlx::types::Type&lt;R::Database&gt;));
 
-                    <span class="kw">let</span> <span class="ident">id_s</span> <span class="op">=</span> <span class="ident">attributes</span>
-                        .<span class="ident">rename</span>
-                        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>.<span class="ident">to_string</span>().<span class="ident">trim_start_matches</span>(<span class="string">&quot;r#&quot;</span>).<span class="ident">to_owned</span>()))
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">container_attributes</span>.<span class="ident">rename_all</span> {
-                            <span class="prelude-val">Some</span>(<span class="ident">pattern</span>) =&gt; <span class="ident">rename_all</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>, <span class="ident">pattern</span>),
-                            <span class="prelude-val">None</span> =&gt; <span class="ident">s</span>,
+                    <span class="kw">let </span>id_s = attributes
+                        .rename
+                        .or_else(|| <span class="prelude-val">Some</span>(id.to_string().trim_start_matches(<span class="string">&quot;r#&quot;</span>).to_owned()))
+                        .map(|s| <span class="kw">match </span>container_attributes.rename_all {
+                            <span class="prelude-val">Some</span>(pattern) =&gt; rename_all(<span class="kw-2">&amp;</span>s, pattern),
+                            <span class="prelude-val">None </span>=&gt; s,
                         })
-                        .<span class="ident">unwrap</span>();
-                    <span class="macro">parse_quote!</span>(<span class="ident">row</span>.<span class="ident">try_get</span>(#<span class="ident">id_s</span>))
+                        .unwrap();
+                    <span class="macro">parse_quote!</span>(row.try_get(#id_s))
                 }
-                (<span class="bool-val">true</span>,<span class="prelude-val">Some</span>(<span class="ident">try_from</span>)) =&gt; {
-                    <span class="ident">predicates</span>.<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">try_from</span>: <span class="ident">::sqlx::FromRow</span><span class="op">&lt;</span>#<span class="ident">lifetime</span>, <span class="ident">R</span><span class="op">&gt;</span>));
-                    <span class="macro">parse_quote!</span>(<span class="op">&lt;</span>#<span class="ident">try_from</span> <span class="kw">as</span> <span class="ident">::sqlx::FromRow</span><span class="op">&lt;</span>#<span class="ident">lifetime</span>, <span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_row</span>(<span class="ident">row</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::std::convert::TryFrom</span>::<span class="op">&lt;</span>#<span class="ident">try_from</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">v</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">::sqlx::Error::ColumnNotFound</span>(<span class="string">&quot;FromRow: try_from failed&quot;</span>.<span class="ident">to_string</span>())))) 
+                (<span class="bool-val">true</span>,<span class="prelude-val">Some</span>(try_from)) =&gt; {
+                    predicates.push(<span class="macro">parse_quote!</span>(#try_from: ::sqlx::FromRow&lt;#lifetime, R&gt;));
+                    <span class="macro">parse_quote!</span>(&lt;#try_from <span class="kw">as </span>::sqlx::FromRow&lt;#lifetime, R&gt;&gt;::from_row(row).and_then(|v| &lt;#ty <span class="kw">as </span>::std::convert::TryFrom::&lt;#try_from&gt;&gt;::try_from(v).map_err(|e| ::sqlx::Error::ColumnNotFound(<span class="string">&quot;FromRow: try_from failed&quot;</span>.to_string())))) 
                 }
-                (<span class="bool-val">false</span>,<span class="prelude-val">Some</span>(<span class="ident">try_from</span>)) =&gt; {
-                    <span class="ident">predicates</span>
-                        .<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">try_from</span>: <span class="ident">::sqlx::decode::Decode</span><span class="op">&lt;</span>#<span class="ident">lifetime</span>, <span class="ident">R::Database</span><span class="op">&gt;</span>));
-                    <span class="ident">predicates</span>.<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">try_from</span>: <span class="ident">::sqlx::types::Type</span><span class="op">&lt;</span><span class="ident">R::Database</span><span class="op">&gt;</span>)); 
+                (<span class="bool-val">false</span>,<span class="prelude-val">Some</span>(try_from)) =&gt; {
+                    predicates
+                        .push(<span class="macro">parse_quote!</span>(#try_from: ::sqlx::decode::Decode&lt;#lifetime, R::Database&gt;));
+                    predicates.push(<span class="macro">parse_quote!</span>(#try_from: ::sqlx::types::Type&lt;R::Database&gt;)); 
 
-                    <span class="kw">let</span> <span class="ident">id_s</span> <span class="op">=</span> <span class="ident">attributes</span>
-                        .<span class="ident">rename</span>
-                        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>.<span class="ident">to_string</span>().<span class="ident">trim_start_matches</span>(<span class="string">&quot;r#&quot;</span>).<span class="ident">to_owned</span>()))
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">container_attributes</span>.<span class="ident">rename_all</span> {
-                            <span class="prelude-val">Some</span>(<span class="ident">pattern</span>) =&gt; <span class="ident">rename_all</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>, <span class="ident">pattern</span>),
-                            <span class="prelude-val">None</span> =&gt; <span class="ident">s</span>,
+                    <span class="kw">let </span>id_s = attributes
+                        .rename
+                        .or_else(|| <span class="prelude-val">Some</span>(id.to_string().trim_start_matches(<span class="string">&quot;r#&quot;</span>).to_owned()))
+                        .map(|s| <span class="kw">match </span>container_attributes.rename_all {
+                            <span class="prelude-val">Some</span>(pattern) =&gt; rename_all(<span class="kw-2">&amp;</span>s, pattern),
+                            <span class="prelude-val">None </span>=&gt; s,
                         })
-                        .<span class="ident">unwrap</span>();
-                    <span class="macro">parse_quote!</span>(<span class="ident">row</span>.<span class="ident">try_get</span>(#<span class="ident">id_s</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::std::convert::TryFrom</span>::<span class="op">&lt;</span>#<span class="ident">try_from</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">v</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">::sqlx::Error::ColumnNotFound</span>(<span class="string">&quot;FromRow: try_from failed&quot;</span>.<span class="ident">to_string</span>()))))
+                        .unwrap();
+                    <span class="macro">parse_quote!</span>(row.try_get(#id_s).and_then(|v| &lt;#ty <span class="kw">as </span>::std::convert::TryFrom::&lt;#try_from&gt;&gt;::try_from(v).map_err(|e| ::sqlx::Error::ColumnNotFound(<span class="string">&quot;FromRow: try_from failed&quot;</span>.to_string()))))
                 }
             };
 
-            <span class="kw">if</span> <span class="ident">attributes</span>.<span class="ident">default</span> {
-                <span class="prelude-val">Some</span>(<span class="macro">parse_quote!</span>(<span class="kw">let</span> #<span class="ident">id</span>: #<span class="ident">ty</span> <span class="op">=</span> #<span class="ident">expr</span>.<span class="ident">or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">e</span> {
-                <span class="ident">::sqlx::Error::ColumnNotFound</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="ident">::std::result::Result::Ok</span>(<span class="ident">Default::default</span>())
+            <span class="kw">if </span>attributes.default {
+                <span class="prelude-val">Some</span>(<span class="macro">parse_quote!</span>(<span class="kw">let </span>#id: #ty = #expr.or_else(|e| <span class="kw">match </span>e {
+                ::sqlx::Error::ColumnNotFound(<span class="kw">_</span>) =&gt; {
+                    ::std::result::Result::Ok(Default::default())
                 },
-                <span class="ident">e</span> =&gt; <span class="ident">::std::result::Result::Err</span>(<span class="ident">e</span>)
+                e =&gt; ::std::result::Result::Err(e)
             })<span class="question-mark">?</span>;))
-            } <span class="kw">else</span> {
+            } <span class="kw">else </span>{
                 <span class="prelude-val">Some</span>(<span class="macro">parse_quote!</span>(
-                    <span class="kw">let</span> #<span class="ident">id</span>: #<span class="ident">ty</span> <span class="op">=</span> #<span class="ident">expr</span><span class="question-mark">?</span>;
+                    <span class="kw">let </span>#id: #ty = #expr<span class="question-mark">?</span>;
                 ))
             }
         })
-        .<span class="ident">collect</span>();
+        .collect();
 
-    <span class="kw">let</span> (<span class="ident">impl_generics</span>, <span class="kw">_</span>, <span class="ident">where_clause</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
+    <span class="kw">let </span>(impl_generics, <span class="kw">_</span>, where_clause) = generics.split_for_impl();
 
-    <span class="kw">let</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">fields</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ident</span>);
+    <span class="kw">let </span>names = fields.iter().map(|field| <span class="kw-2">&amp;</span>field.ident);
 
     <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
-        <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-        <span class="kw">impl</span> #<span class="ident">impl_generics</span> <span class="ident">::sqlx::FromRow</span><span class="op">&lt;</span>#<span class="ident">lifetime</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> #<span class="ident">ty_generics</span> #<span class="ident">where_clause</span> {
-            <span class="kw">fn</span> <span class="ident">from_row</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span>#<span class="ident">lifetime</span> <span class="ident">R</span>) -&gt; <span class="ident">::sqlx::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-                #(#<span class="ident">reads</span>)<span class="op">*</span>
+        <span class="attribute">#[automatically_derived]
+        </span><span class="kw">impl </span>#impl_generics ::sqlx::FromRow&lt;#lifetime, R&gt; <span class="kw">for </span>#ident #ty_generics #where_clause {
+            <span class="kw">fn </span>from_row(row: <span class="kw-2">&amp;</span>#lifetime R) -&gt; ::sqlx::Result&lt;<span class="self">Self</span>&gt; {
+                #(#reads)*
 
-                <span class="ident">::std::result::Result::Ok</span>(#<span class="ident">ident</span> {
-                    #(#<span class="ident">names</span>),<span class="op">*</span>
+                ::std::result::Result::Ok(#ident {
+                    #(#names),*
                 })
             }
         }
     ))
 }
 
-<span class="kw">fn</span> <span class="ident">expand_derive_from_row_struct_unnamed</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">fields</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Field</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
+<span class="kw">fn </span>expand_derive_from_row_struct_unnamed(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    fields: <span class="kw-2">&amp;</span>Punctuated&lt;Field, Comma&gt;,
+) -&gt; syn::Result&lt;TokenStream&gt; {
+    <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
 
-    <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">generics</span>;
+    <span class="kw">let </span>generics = <span class="kw-2">&amp;</span>input.generics;
 
-    <span class="kw">let</span> (<span class="ident">lifetime</span>, <span class="ident">provided</span>) <span class="op">=</span> <span class="ident">generics</span>
-        .<span class="ident">lifetimes</span>()
-        .<span class="ident">next</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">def</span><span class="op">|</span> (<span class="ident">def</span>.<span class="ident">lifetime</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>))
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> (<span class="ident">Lifetime::new</span>(<span class="string">&quot;&#39;a&quot;</span>, <span class="ident">Span::call_site</span>()), <span class="bool-val">true</span>));
+    <span class="kw">let </span>(lifetime, provided) = generics
+        .lifetimes()
+        .next()
+        .map(|def| (def.lifetime.clone(), <span class="bool-val">false</span>))
+        .unwrap_or_else(|| (Lifetime::new(<span class="string">&quot;&#39;a&quot;</span>, Span::call_site()), <span class="bool-val">true</span>));
 
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ty_generics</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
+    <span class="kw">let </span>(<span class="kw">_</span>, ty_generics, <span class="kw">_</span>) = generics.split_for_impl();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">clone</span>();
-    <span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="macro">parse_quote!</span>(<span class="ident">R</span>: <span class="ident">::sqlx::Row</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>generics = generics.clone();
+    generics.params.insert(<span class="number">0</span>, <span class="macro">parse_quote!</span>(R: ::sqlx::Row));
 
-    <span class="kw">if</span> <span class="ident">provided</span> {
-        <span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="macro">parse_quote!</span>(#<span class="ident">lifetime</span>));
+    <span class="kw">if </span>provided {
+        generics.params.insert(<span class="number">0</span>, <span class="macro">parse_quote!</span>(#lifetime));
     }
 
-    <span class="kw">let</span> <span class="ident">predicates</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">generics</span>.<span class="ident">make_where_clause</span>().<span class="ident">predicates</span>;
+    <span class="kw">let </span>predicates = <span class="kw-2">&amp;mut </span>generics.make_where_clause().predicates;
 
-    <span class="ident">predicates</span>.<span class="ident">push</span>(<span class="macro">parse_quote!</span>(
-        <span class="ident">::std::primitive::usize</span>: <span class="ident">::sqlx::ColumnIndex</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
+    predicates.push(<span class="macro">parse_quote!</span>(
+        ::std::primitive::usize: ::sqlx::ColumnIndex&lt;R&gt;
     ));
 
-    <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="ident">fields</span> {
-        <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>;
+    <span class="kw">for </span>field <span class="kw">in </span>fields {
+        <span class="kw">let </span>ty = <span class="kw-2">&amp;</span>field.ty;
 
-        <span class="ident">predicates</span>.<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">ty</span>: <span class="ident">::sqlx::decode::Decode</span><span class="op">&lt;</span>#<span class="ident">lifetime</span>, <span class="ident">R::Database</span><span class="op">&gt;</span>));
-        <span class="ident">predicates</span>.<span class="ident">push</span>(<span class="macro">parse_quote!</span>(#<span class="ident">ty</span>: <span class="ident">::sqlx::types::Type</span><span class="op">&lt;</span><span class="ident">R::Database</span><span class="op">&gt;</span>));
+        predicates.push(<span class="macro">parse_quote!</span>(#ty: ::sqlx::decode::Decode&lt;#lifetime, R::Database&gt;));
+        predicates.push(<span class="macro">parse_quote!</span>(#ty: ::sqlx::types::Type&lt;R::Database&gt;));
     }
 
-    <span class="kw">let</span> (<span class="ident">impl_generics</span>, <span class="kw">_</span>, <span class="ident">where_clause</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
+    <span class="kw">let </span>(impl_generics, <span class="kw">_</span>, where_clause) = generics.split_for_impl();
 
-    <span class="kw">let</span> <span class="ident">gets</span> <span class="op">=</span> <span class="ident">fields</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">enumerate</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="macro">quote!</span>(<span class="ident">row</span>.<span class="ident">try_get</span>(#<span class="ident">idx</span>)<span class="question-mark">?</span>));
+    <span class="kw">let </span>gets = fields
+        .iter()
+        .enumerate()
+        .map(|(idx, <span class="kw">_</span>)| <span class="macro">quote!</span>(row.try_get(#idx)<span class="question-mark">?</span>));
 
     <span class="prelude-val">Ok</span>(<span class="macro">quote!</span>(
-        <span class="attribute">#[<span class="ident">automatically_derived</span>]</span>
-        <span class="kw">impl</span> #<span class="ident">impl_generics</span> <span class="ident">::sqlx::FromRow</span><span class="op">&lt;</span>#<span class="ident">lifetime</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> #<span class="ident">ty_generics</span> #<span class="ident">where_clause</span> {
-            <span class="kw">fn</span> <span class="ident">from_row</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span>#<span class="ident">lifetime</span> <span class="ident">R</span>) -&gt; <span class="ident">::sqlx::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-                <span class="ident">::std::result::Result::Ok</span>(#<span class="ident">ident</span> (
-                    #(#<span class="ident">gets</span>),<span class="op">*</span>
+        <span class="attribute">#[automatically_derived]
+        </span><span class="kw">impl </span>#impl_generics ::sqlx::FromRow&lt;#lifetime, R&gt; <span class="kw">for </span>#ident #ty_generics #where_clause {
+            <span class="kw">fn </span>from_row(row: <span class="kw-2">&amp;</span>#lifetime R) -&gt; ::sqlx::Result&lt;<span class="self">Self</span>&gt; {
+                ::std::result::Result::Ok(#ident (
+                    #(#gets),*
                 ))
             }
         }
     ))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_macros" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

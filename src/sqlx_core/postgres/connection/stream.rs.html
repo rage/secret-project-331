@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -250,257 +250,257 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
-<span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
+<span class="kw">use </span>std::ops::{Deref, DerefMut};
+<span class="kw">use </span>std::str::FromStr;
 
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">Bytes</span>};
-<span class="kw">use</span> <span class="ident">futures_channel::mpsc::UnboundedSender</span>;
-<span class="kw">use</span> <span class="ident">futures_util::SinkExt</span>;
-<span class="kw">use</span> <span class="ident">log::Level</span>;
+<span class="kw">use </span>bytes::{Buf, Bytes};
+<span class="kw">use </span>futures_channel::mpsc::UnboundedSender;
+<span class="kw">use </span>futures_util::SinkExt;
+<span class="kw">use </span>log::Level;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io</span>::{<span class="ident">BufStream</span>, <span class="ident">Decode</span>, <span class="ident">Encode</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::net</span>::{<span class="ident">MaybeTlsStream</span>, <span class="ident">Socket</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::message</span>::{<span class="ident">Message</span>, <span class="ident">MessageFormat</span>, <span class="ident">Notice</span>, <span class="ident">Notification</span>, <span class="ident">ParameterStatus</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgConnectOptions</span>, <span class="ident">PgDatabaseError</span>, <span class="ident">PgSeverity</span>};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::io::{BufStream, Decode, Encode};
+<span class="kw">use </span><span class="kw">crate</span>::net::{MaybeTlsStream, Socket};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::message::{Message, MessageFormat, Notice, Notification, ParameterStatus};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{PgConnectOptions, PgDatabaseError, PgSeverity};
 
-<span class="comment">// the stream is a separate type from the connection to uphold the invariant where an instantiated</span>
-<span class="comment">// [PgConnection] is a **valid** connection to postgres</span>
+<span class="comment">// the stream is a separate type from the connection to uphold the invariant where an instantiated
+// [PgConnection] is a **valid** connection to postgres
 
-<span class="comment">// when a new connection is asked for, we work directly on the [PgStream] type until the</span>
-<span class="comment">// connection is fully established</span>
+// when a new connection is asked for, we work directly on the [PgStream] type until the
+// connection is fully established
 
-<span class="comment">// in other words, `self` in any PgConnection method is a live connection to postgres that</span>
-<span class="comment">// is fully prepared to receive queries</span>
+// in other words, `self` in any PgConnection method is a live connection to postgres that
+// is fully prepared to receive queries
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgStream</span> {
-    <span class="ident">inner</span>: <span class="ident">BufStream</span><span class="op">&lt;</span><span class="ident">MaybeTlsStream</span><span class="op">&lt;</span><span class="ident">Socket</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+</span><span class="kw">pub struct </span>PgStream {
+    inner: BufStream&lt;MaybeTlsStream&lt;Socket&gt;&gt;,
 
-    <span class="comment">// buffer of unreceived notification messages from `PUBLISH`</span>
-    <span class="comment">// this is set when creating a PgListener and only written to if that listener is</span>
-    <span class="comment">// re-used for query execution in-between receiving messages</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">notifications</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">Notification</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// buffer of unreceived notification messages from `PUBLISH`
+    // this is set when creating a PgListener and only written to if that listener is
+    // re-used for query execution in-between receiving messages
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) notifications: <span class="prelude-ty">Option</span>&lt;UnboundedSender&lt;Notification&gt;&gt;,
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">parameter_statuses</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) parameter_statuses: BTreeMap&lt;String, String&gt;,
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">server_version_num</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) server_version_num: <span class="prelude-ty">Option</span>&lt;u32&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">PgStream</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">PgConnectOptions</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">options</span>.<span class="ident">fetch_socket</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) =&gt; <span class="ident">Socket::connect_uds</span>(<span class="ident">path</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="ident">Socket::connect_tcp</span>(<span class="kw-2">&amp;</span><span class="ident">options</span>.<span class="ident">host</span>, <span class="ident">options</span>.<span class="ident">port</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+<span class="kw">impl </span>PgStream {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>connect(options: <span class="kw-2">&amp;</span>PgConnectOptions) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="kw">let </span>socket = <span class="kw">match </span>options.fetch_socket() {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) =&gt; Socket::connect_uds(path).<span class="kw">await</span><span class="question-mark">?</span>,
+            <span class="prelude-val">None </span>=&gt; Socket::connect_tcp(<span class="kw-2">&amp;</span>options.host, options.port).<span class="kw">await</span><span class="question-mark">?</span>,
         };
 
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">BufStream::new</span>(<span class="ident">MaybeTlsStream::Raw</span>(<span class="ident">socket</span>));
+        <span class="kw">let </span>inner = BufStream::new(MaybeTlsStream::Raw(socket));
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">inner</span>,
-            <span class="ident">notifications</span>: <span class="prelude-val">None</span>,
-            <span class="ident">parameter_statuses</span>: <span class="ident">BTreeMap::default</span>(),
-            <span class="ident">server_version_num</span>: <span class="prelude-val">None</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            inner,
+            notifications: <span class="prelude-val">None</span>,
+            parameter_statuses: BTreeMap::default(),
+            server_version_num: <span class="prelude-val">None</span>,
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send</span><span class="op">&lt;</span><span class="lifetime">&#39;en</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">message</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;en</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>send&lt;<span class="lifetime">&#39;en</span>, T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: T) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    <span class="kw">where
+        </span>T: Encode&lt;<span class="lifetime">&#39;en</span>&gt;,
     {
-        <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">message</span>);
-        <span class="self">self</span>.<span class="ident">flush</span>().<span class="kw">await</span>
-    }
+        <span class="self">self</span>.write(message);
+        <span class="self">self</span>.flush().<span class="kw">await
+    </span>}
 
-    <span class="comment">// Expect a specific type and format</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv_expect</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">format</span>: <span class="ident">MessageFormat</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recv</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Expect a specific type and format
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>recv_expect&lt;<span class="lifetime">&#39;de</span>, T: Decode&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        format: MessageFormat,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt; {
+        <span class="kw">let </span>message = <span class="self">self</span>.recv().<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="ident">message</span>.<span class="ident">format</span> <span class="op">!</span><span class="op">=</span> <span class="ident">format</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
+        <span class="kw">if </span>message.format != format {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
                 <span class="string">&quot;expecting {:?} but received {:?}&quot;</span>,
-                <span class="ident">format</span>,
-                <span class="ident">message</span>.<span class="ident">format</span>
+                format,
+                message.format
             ));
         }
 
-        <span class="ident">message</span>.<span class="ident">decode</span>()
+        message.decode()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv_unchecked</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="comment">// all packets in postgres start with a 5-byte header</span>
-        <span class="comment">// this header contains the message type and the total length of the message</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">header</span>: <span class="ident">Bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">read</span>(<span class="number">5</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>recv_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Message, Error&gt; {
+        <span class="comment">// all packets in postgres start with a 5-byte header
+        // this header contains the message type and the total length of the message
+        </span><span class="kw">let </span><span class="kw-2">mut </span>header: Bytes = <span class="self">self</span>.inner.read(<span class="number">5</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">MessageFormat::try_from_u8</span>(<span class="ident">header</span>.<span class="ident">get_u8</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> (<span class="ident">header</span>.<span class="ident">get_u32</span>() <span class="op">-</span> <span class="number">4</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="kw">let </span>format = MessageFormat::try_from_u8(header.get_u8())<span class="question-mark">?</span>;
+        <span class="kw">let </span>size = (header.get_u32() - <span class="number">4</span>) <span class="kw">as </span>usize;
 
-        <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">read</span>(<span class="ident">size</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>contents = <span class="self">self</span>.inner.read(size).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Message</span> { <span class="ident">format</span>, <span class="ident">contents</span> })
+        <span class="prelude-val">Ok</span>(Message { format, contents })
     }
 
-    <span class="comment">// Get the next message from the server</span>
-    <span class="comment">// May wait for more data from the server</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recv_unchecked</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Get the next message from the server
+    // May wait for more data from the server
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>recv(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Message, Error&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>message = <span class="self">self</span>.recv_unchecked().<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">format</span> {
-                <span class="ident">MessageFormat::ErrorResponse</span> =&gt; {
-                    <span class="comment">// An error returned from the database server.</span>
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PgDatabaseError</span>(<span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>).<span class="ident">into</span>());
+            <span class="kw">match </span>message.format {
+                MessageFormat::ErrorResponse =&gt; {
+                    <span class="comment">// An error returned from the database server.
+                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(PgDatabaseError(message.decode()<span class="question-mark">?</span>).into());
                 }
 
-                <span class="ident">MessageFormat::NotificationResponse</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">buffer</span>) <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">notifications</span> {
-                        <span class="kw">let</span> <span class="ident">notification</span>: <span class="ident">Notification</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
-                        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">buffer</span>.<span class="ident">send</span>(<span class="ident">notification</span>).<span class="kw">await</span>;
+                MessageFormat::NotificationResponse =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(buffer) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.notifications {
+                        <span class="kw">let </span>notification: Notification = message.decode()<span class="question-mark">?</span>;
+                        <span class="kw">let _ </span>= buffer.send(notification).<span class="kw">await</span>;
 
                         <span class="kw">continue</span>;
                     }
                 }
 
-                <span class="ident">MessageFormat::ParameterStatus</span> =&gt; {
-                    <span class="comment">// informs the frontend about the current (initial)</span>
-                    <span class="comment">// setting of backend parameters</span>
+                MessageFormat::ParameterStatus =&gt; {
+                    <span class="comment">// informs the frontend about the current (initial)
+                    // setting of backend parameters
 
-                    <span class="kw">let</span> <span class="ident">ParameterStatus</span> { <span class="ident">name</span>, <span class="ident">value</span> } <span class="op">=</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
-                    <span class="comment">// TODO: handle `client_encoding`, `DateStyle` change</span>
+                    </span><span class="kw">let </span>ParameterStatus { name, value } = message.decode()<span class="question-mark">?</span>;
+                    <span class="comment">// TODO: handle `client_encoding`, `DateStyle` change
 
-                    <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">as_str</span>() {
-                        <span class="string">&quot;server_version&quot;</span> =&gt; {
-                            <span class="self">self</span>.<span class="ident">server_version_num</span> <span class="op">=</span> <span class="ident">parse_server_version</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>);
+                    </span><span class="kw">match </span>name.as_str() {
+                        <span class="string">&quot;server_version&quot; </span>=&gt; {
+                            <span class="self">self</span>.server_version_num = parse_server_version(<span class="kw-2">&amp;</span>value);
                         }
-                        <span class="kw">_</span> =&gt; {
-                            <span class="self">self</span>.<span class="ident">parameter_statuses</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">value</span>);
+                        <span class="kw">_ </span>=&gt; {
+                            <span class="self">self</span>.parameter_statuses.insert(name, value);
                         }
                     }
 
                     <span class="kw">continue</span>;
                 }
 
-                <span class="ident">MessageFormat::NoticeResponse</span> =&gt; {
-                    <span class="comment">// do we need this to be more configurable?</span>
-                    <span class="comment">// if you are reading this comment and think so, open an issue</span>
+                MessageFormat::NoticeResponse =&gt; {
+                    <span class="comment">// do we need this to be more configurable?
+                    // if you are reading this comment and think so, open an issue
 
-                    <span class="kw">let</span> <span class="ident">notice</span>: <span class="ident">Notice</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
+                    </span><span class="kw">let </span>notice: Notice = message.decode()<span class="question-mark">?</span>;
 
-                    <span class="kw">let</span> <span class="ident">lvl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">notice</span>.<span class="ident">severity</span>() {
-                        <span class="ident">PgSeverity::Fatal</span> <span class="op">|</span> <span class="ident">PgSeverity::Panic</span> <span class="op">|</span> <span class="ident">PgSeverity::Error</span> =&gt; <span class="ident">Level::Error</span>,
-                        <span class="ident">PgSeverity::Warning</span> =&gt; <span class="ident">Level::Warn</span>,
-                        <span class="ident">PgSeverity::Notice</span> =&gt; <span class="ident">Level::Info</span>,
-                        <span class="ident">PgSeverity::Debug</span> =&gt; <span class="ident">Level::Debug</span>,
-                        <span class="ident">PgSeverity::Info</span> =&gt; <span class="ident">Level::Trace</span>,
-                        <span class="ident">PgSeverity::Log</span> =&gt; <span class="ident">Level::Trace</span>,
+                    <span class="kw">let </span>lvl = <span class="kw">match </span>notice.severity() {
+                        PgSeverity::Fatal | PgSeverity::Panic | PgSeverity::Error =&gt; Level::Error,
+                        PgSeverity::Warning =&gt; Level::Warn,
+                        PgSeverity::Notice =&gt; Level::Info,
+                        PgSeverity::Debug =&gt; Level::Debug,
+                        PgSeverity::Info =&gt; Level::Trace,
+                        PgSeverity::Log =&gt; Level::Trace,
                     };
 
-                    <span class="kw">if</span> <span class="macro">log::log_enabled!</span>(<span class="ident">target</span>: <span class="string">&quot;sqlx::postgres::notice&quot;</span>, <span class="ident">lvl</span>) {
-                        <span class="ident">log::logger</span>().<span class="ident">log</span>(
-                            <span class="kw-2">&amp;</span><span class="ident">log::Record::builder</span>()
-                                .<span class="ident">args</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">notice</span>.<span class="ident">message</span>()))
-                                .<span class="ident">level</span>(<span class="ident">lvl</span>)
-                                .<span class="ident">module_path_static</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;sqlx::postgres::notice&quot;</span>))
-                                .<span class="ident">target</span>(<span class="string">&quot;sqlx::postgres::notice&quot;</span>)
-                                .<span class="ident">file_static</span>(<span class="prelude-val">Some</span>(<span class="macro">file!</span>()))
-                                .<span class="ident">line</span>(<span class="prelude-val">Some</span>(<span class="macro">line!</span>()))
-                                .<span class="ident">build</span>(),
+                    <span class="kw">if </span><span class="macro">log::log_enabled!</span>(target: <span class="string">&quot;sqlx::postgres::notice&quot;</span>, lvl) {
+                        log::logger().log(
+                            <span class="kw-2">&amp;</span>log::Record::builder()
+                                .args(<span class="macro">format_args!</span>(<span class="string">&quot;{}&quot;</span>, notice.message()))
+                                .level(lvl)
+                                .module_path_static(<span class="prelude-val">Some</span>(<span class="string">&quot;sqlx::postgres::notice&quot;</span>))
+                                .target(<span class="string">&quot;sqlx::postgres::notice&quot;</span>)
+                                .file_static(<span class="prelude-val">Some</span>(<span class="macro">file!</span>()))
+                                .line(<span class="prelude-val">Some</span>(<span class="macro">line!</span>()))
+                                .build(),
                         );
                     }
 
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">_</span> =&gt; {}
+                <span class="kw">_ </span>=&gt; {}
             }
 
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">message</span>);
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(message);
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">PgStream</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">BufStream</span><span class="op">&lt;</span><span class="ident">MaybeTlsStream</span><span class="op">&lt;</span><span class="ident">Socket</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>Deref <span class="kw">for </span>PgStream {
+    <span class="kw">type </span>Target = BufStream&lt;MaybeTlsStream&lt;Socket&gt;&gt;;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.inner
     }
 }
 
-<span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">PgStream</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>
+<span class="kw">impl </span>DerefMut <span class="kw">for </span>PgStream {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner
     }
 }
 
-<span class="comment">// reference:</span>
-<span class="comment">// https://github.com/postgres/postgres/blob/6feebcb6b44631c3dc435e971bd80c2dd218a5ab/src/interfaces/libpq/fe-exec.c#L1030-L1065</span>
-<span class="kw">fn</span> <span class="ident">parse_server_version</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="number">3</span>);
+<span class="comment">// reference:
+// https://github.com/postgres/postgres/blob/6feebcb6b44631c3dc435e971bd80c2dd218a5ab/src/interfaces/libpq/fe-exec.c#L1030-L1065
+</span><span class="kw">fn </span>parse_server_version(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>parts = Vec::&lt;u32&gt;::with_capacity(<span class="number">3</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chs</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">char_indices</span>().<span class="ident">peekable</span>();
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">i</span>, <span class="ident">ch</span>)) <span class="op">=</span> <span class="ident">chs</span>.<span class="ident">next</span>() {
-        <span class="kw">match</span> <span class="ident">ch</span> {
-            <span class="string">&#39;.&#39;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">u32::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">from</span>..<span class="ident">i</span>]) {
-                    <span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">num</span>);
-                    <span class="ident">from</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>;
-                } <span class="kw">else</span> {
+    <span class="kw">let </span><span class="kw-2">mut </span>from = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>chs = s.char_indices().peekable();
+    <span class="kw">while let </span><span class="prelude-val">Some</span>((i, ch)) = chs.next() {
+        <span class="kw">match </span>ch {
+            <span class="string">&#39;.&#39; </span>=&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = u32::from_str(<span class="kw-2">&amp;</span>s[from..i]) {
+                    parts.push(num);
+                    from = i + <span class="number">1</span>;
+                } <span class="kw">else </span>{
                     <span class="kw">break</span>;
                 }
             }
-            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">ch</span>.<span class="ident">is_digit</span>(<span class="number">10</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">chs</span>.<span class="ident">peek</span>().<span class="ident">is_none</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">u32::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">from</span>..]) {
-                        <span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">num</span>);
+            <span class="kw">_ if </span>ch.is_digit(<span class="number">10</span>) =&gt; {
+                <span class="kw">if </span>chs.peek().is_none() {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = u32::from_str(<span class="kw-2">&amp;</span>s[from..]) {
+                        parts.push(num);
                     }
                     <span class="kw">break</span>;
                 }
             }
-            <span class="kw">_</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">u32::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">from</span>..<span class="ident">i</span>]) {
-                    <span class="ident">parts</span>.<span class="ident">push</span>(<span class="ident">num</span>);
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = u32::from_str(<span class="kw-2">&amp;</span>s[from..i]) {
+                    parts.push(num);
                 }
                 <span class="kw">break</span>;
             }
         };
     }
 
-    <span class="kw">let</span> <span class="ident">version_num</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">as_slice</span>() {
-        [<span class="ident">major</span>, <span class="ident">minor</span>, <span class="ident">rev</span>] =&gt; (<span class="number">100</span> <span class="op">*</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span>) <span class="op">*</span> <span class="number">100</span> <span class="op">+</span> <span class="ident">rev</span>,
-        [<span class="ident">major</span>, <span class="ident">minor</span>] <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">major</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">10</span> =&gt; <span class="number">100</span> <span class="op">*</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span>,
-        [<span class="ident">major</span>, <span class="ident">minor</span>] =&gt; (<span class="number">100</span> <span class="op">*</span> <span class="ident">major</span> <span class="op">+</span> <span class="ident">minor</span>) <span class="op">*</span> <span class="number">100</span>,
-        [<span class="ident">major</span>] =&gt; <span class="number">100</span> <span class="op">*</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">major</span>,
-        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+    <span class="kw">let </span>version_num = <span class="kw">match </span>parts.as_slice() {
+        [major, minor, rev] =&gt; (<span class="number">100 </span>* major + minor) * <span class="number">100 </span>+ rev,
+        [major, minor] <span class="kw">if </span><span class="kw-2">*</span>major &gt;= <span class="number">10 </span>=&gt; <span class="number">100 </span>* <span class="number">100 </span>* major + minor,
+        [major, minor] =&gt; (<span class="number">100 </span>* major + minor) * <span class="number">100</span>,
+        [major] =&gt; <span class="number">100 </span>* <span class="number">100 </span>* major,
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
     };
 
-    <span class="prelude-val">Some</span>(<span class="ident">version_num</span>)
+    <span class="prelude-val">Some</span>(version_num)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::parse_server_version</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::parse_server_version;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_server_version_num</span>() {
-        <span class="comment">// old style</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">parse_server_version</span>(<span class="string">&quot;9.6.1&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">90601</span>));
-        <span class="comment">// new style</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">parse_server_version</span>(<span class="string">&quot;10.1&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">100001</span>));
-        <span class="comment">// old style without minor version</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">parse_server_version</span>(<span class="string">&quot;9.6devel&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">90600</span>));
-        <span class="comment">// new style without minor version, e.g.  */</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">parse_server_version</span>(<span class="string">&quot;10devel&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">100000</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">parse_server_version</span>(<span class="string">&quot;13devel87&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">130000</span>));
-        <span class="comment">// unknown</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">parse_server_version</span>(<span class="string">&quot;unknown&quot;</span>), <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_server_version_num() {
+        <span class="comment">// old style
+        </span><span class="macro">assert_eq!</span>(parse_server_version(<span class="string">&quot;9.6.1&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">90601</span>));
+        <span class="comment">// new style
+        </span><span class="macro">assert_eq!</span>(parse_server_version(<span class="string">&quot;10.1&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">100001</span>));
+        <span class="comment">// old style without minor version
+        </span><span class="macro">assert_eq!</span>(parse_server_version(<span class="string">&quot;9.6devel&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">90600</span>));
+        <span class="comment">// new style without minor version, e.g.  */
+        </span><span class="macro">assert_eq!</span>(parse_server_version(<span class="string">&quot;10devel&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">100000</span>));
+        <span class="macro">assert_eq!</span>(parse_server_version(<span class="string">&quot;13devel87&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">130000</span>));
+        <span class="comment">// unknown
+        </span><span class="macro">assert_eq!</span>(parse_server_version(<span class="string">&quot;unknown&quot;</span>), <span class="prelude-val">None</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/encoding.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encoding.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/encoding.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encoding.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -91,98 +91,98 @@
 <span id="91">91</span>
 <span id="92">92</span>
 <span id="93">93</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde::ser::Serialize</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>serde::ser::Serialize;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::algorithms::AlgorithmFamily</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::crypto</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>::{<span class="ident">new_error</span>, <span class="ident">ErrorKind</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::header::Header</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pem::decoder::PemEncodedKey</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::serialization::b64_encode_part</span>;
+<span class="kw">use </span><span class="kw">crate</span>::algorithms::AlgorithmFamily;
+<span class="kw">use </span><span class="kw">crate</span>::crypto;
+<span class="kw">use </span><span class="kw">crate</span>::errors::{new_error, ErrorKind, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::header::Header;
+<span class="kw">use </span><span class="kw">crate</span>::pem::decoder::PemEncodedKey;
+<span class="kw">use </span><span class="kw">crate</span>::serialization::b64_encode_part;
 
-<span class="doccomment">/// A key to encode a JWT with. Can be a secret, a PEM-encoded key or a DER-encoded key.</span>
-<span class="doccomment">/// This key can be re-used so make sure you only initialize it once if you can for better performance</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EncodingKey</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">family</span>: <span class="ident">AlgorithmFamily</span>,
-    <span class="ident">content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A key to encode a JWT with. Can be a secret, a PEM-encoded key or a DER-encoded key.
+/// This key can be re-used so make sure you only initialize it once if you can for better performance
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>EncodingKey {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) family: AlgorithmFamily,
+    content: Vec&lt;u8&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">EncodingKey</span> {
-    <span class="doccomment">/// If you&#39;re using a HMAC secret that is not base64, use that.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_secret</span>(<span class="ident">secret</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="ident">EncodingKey</span> { <span class="ident">family</span>: <span class="ident">AlgorithmFamily::Hmac</span>, <span class="ident">content</span>: <span class="ident">secret</span>.<span class="ident">to_vec</span>() }
+<span class="kw">impl </span>EncodingKey {
+    <span class="doccomment">/// If you&#39;re using a HMAC secret that is not base64, use that.
+    </span><span class="kw">pub fn </span>from_secret(secret: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        EncodingKey { family: AlgorithmFamily::Hmac, content: secret.to_vec() }
     }
 
-    <span class="doccomment">/// If you have a base64 HMAC secret, use that.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_base64_secret</span>(<span class="ident">secret</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">base64::decode</span>(<span class="kw-2">&amp;</span><span class="ident">secret</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">EncodingKey</span> { <span class="ident">family</span>: <span class="ident">AlgorithmFamily::Hmac</span>, <span class="ident">content</span>: <span class="ident">out</span> })
+    <span class="doccomment">/// If you have a base64 HMAC secret, use that.
+    </span><span class="kw">pub fn </span>from_base64_secret(secret: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>out = base64::decode(<span class="kw-2">&amp;</span>secret)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(EncodingKey { family: AlgorithmFamily::Hmac, content: out })
     }
 
-    <span class="doccomment">/// If you are loading a RSA key from a .pem file.</span>
-    <span class="doccomment">/// This errors if the key is not a valid RSA key.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rsa_pem</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pem_key</span> <span class="op">=</span> <span class="ident">PemEncodedKey::new</span>(<span class="ident">key</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">pem_key</span>.<span class="ident">as_rsa_key</span>()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">EncodingKey</span> { <span class="ident">family</span>: <span class="ident">AlgorithmFamily::Rsa</span>, <span class="ident">content</span>: <span class="ident">content</span>.<span class="ident">to_vec</span>() })
+    <span class="doccomment">/// If you are loading a RSA key from a .pem file.
+    /// This errors if the key is not a valid RSA key.
+    </span><span class="kw">pub fn </span>from_rsa_pem(key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>pem_key = PemEncodedKey::new(key)<span class="question-mark">?</span>;
+        <span class="kw">let </span>content = pem_key.as_rsa_key()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(EncodingKey { family: AlgorithmFamily::Rsa, content: content.to_vec() })
     }
 
-    <span class="doccomment">/// If you are loading a ECDSA key from a .pem file</span>
-    <span class="doccomment">/// This errors if the key is not a valid private EC key</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_ec_pem</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pem_key</span> <span class="op">=</span> <span class="ident">PemEncodedKey::new</span>(<span class="ident">key</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">pem_key</span>.<span class="ident">as_ec_private_key</span>()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">EncodingKey</span> { <span class="ident">family</span>: <span class="ident">AlgorithmFamily::Ec</span>, <span class="ident">content</span>: <span class="ident">content</span>.<span class="ident">to_vec</span>() })
+    <span class="doccomment">/// If you are loading a ECDSA key from a .pem file
+    /// This errors if the key is not a valid private EC key
+    </span><span class="kw">pub fn </span>from_ec_pem(key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>pem_key = PemEncodedKey::new(key)<span class="question-mark">?</span>;
+        <span class="kw">let </span>content = pem_key.as_ec_private_key()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(EncodingKey { family: AlgorithmFamily::Ec, content: content.to_vec() })
     }
 
-    <span class="doccomment">/// If you know what you&#39;re doing and have the DER-encoded key, for RSA only</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rsa_der</span>(<span class="ident">der</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="ident">EncodingKey</span> { <span class="ident">family</span>: <span class="ident">AlgorithmFamily::Rsa</span>, <span class="ident">content</span>: <span class="ident">der</span>.<span class="ident">to_vec</span>() }
+    <span class="doccomment">/// If you know what you&#39;re doing and have the DER-encoded key, for RSA only
+    </span><span class="kw">pub fn </span>from_rsa_der(der: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        EncodingKey { family: AlgorithmFamily::Rsa, content: der.to_vec() }
     }
 
-    <span class="doccomment">/// If you know what you&#39;re doing and have the DER-encoded key, for ECDSA</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_ec_der</span>(<span class="ident">der</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="ident">EncodingKey</span> { <span class="ident">family</span>: <span class="ident">AlgorithmFamily::Ec</span>, <span class="ident">content</span>: <span class="ident">der</span>.<span class="ident">to_vec</span>() }
+    <span class="doccomment">/// If you know what you&#39;re doing and have the DER-encoded key, for ECDSA
+    </span><span class="kw">pub fn </span>from_ec_der(der: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        EncodingKey { family: AlgorithmFamily::Ec, content: der.to_vec() }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">inner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">content</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.content
     }
 }
 
-<span class="doccomment">/// Encode the header and claims given and sign the payload using the algorithm from the header and the key.</span>
-<span class="doccomment">/// If the algorithm given is RSA or EC, the key needs to be in the PEM format.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use serde::{Deserialize, Serialize};</span>
-<span class="doccomment">/// use jsonwebtoken::{encode, Algorithm, Header, EncodingKey};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Debug, Serialize, Deserialize)]</span>
-<span class="doccomment">/// struct Claims {</span>
-<span class="doccomment">///    sub: String,</span>
-<span class="doccomment">///    company: String</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let my_claims = Claims {</span>
-<span class="doccomment">///     sub: &quot;b@b.com&quot;.to_owned(),</span>
-<span class="doccomment">///     company: &quot;ACME&quot;.to_owned()</span>
-<span class="doccomment">/// };</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // my_claims is a struct that implements Serialize</span>
-<span class="doccomment">/// // This will create a JWT using HS256 as algorithm</span>
-<span class="doccomment">/// let token = encode(&amp;Header::default(), &amp;my_claims, &amp;EncodingKey::from_secret(&quot;secret&quot;.as_ref())).unwrap();</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span>(<span class="ident">header</span>: <span class="kw-2">&amp;</span><span class="ident">Header</span>, <span class="ident">claims</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">EncodingKey</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">family</span> <span class="op">!</span><span class="op">=</span> <span class="ident">header</span>.<span class="ident">alg</span>.<span class="ident">family</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidAlgorithm</span>));
+<span class="doccomment">/// Encode the header and claims given and sign the payload using the algorithm from the header and the key.
+/// If the algorithm given is RSA or EC, the key needs to be in the PEM format.
+///
+/// ```rust
+/// use serde::{Deserialize, Serialize};
+/// use jsonwebtoken::{encode, Algorithm, Header, EncodingKey};
+///
+/// #[derive(Debug, Serialize, Deserialize)]
+/// struct Claims {
+///    sub: String,
+///    company: String
+/// }
+///
+/// let my_claims = Claims {
+///     sub: &quot;b@b.com&quot;.to_owned(),
+///     company: &quot;ACME&quot;.to_owned()
+/// };
+///
+/// // my_claims is a struct that implements Serialize
+/// // This will create a JWT using HS256 as algorithm
+/// let token = encode(&amp;Header::default(), &amp;my_claims, &amp;EncodingKey::from_secret(&quot;secret&quot;.as_ref())).unwrap();
+/// ```
+</span><span class="kw">pub fn </span>encode&lt;T: Serialize&gt;(header: <span class="kw-2">&amp;</span>Header, claims: <span class="kw-2">&amp;</span>T, key: <span class="kw-2">&amp;</span>EncodingKey) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="kw">if </span>key.family != header.alg.family() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidAlgorithm));
     }
-    <span class="kw">let</span> <span class="ident">encoded_header</span> <span class="op">=</span> <span class="ident">b64_encode_part</span>(<span class="kw-2">&amp;</span><span class="ident">header</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">encoded_claims</span> <span class="op">=</span> <span class="ident">b64_encode_part</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> [<span class="ident">encoded_header</span>.<span class="ident">as_ref</span>(), <span class="ident">encoded_claims</span>.<span class="ident">as_ref</span>()].<span class="ident">join</span>(<span class="string">&quot;.&quot;</span>);
-    <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">crypto::sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">message</span>, <span class="ident">key</span>, <span class="ident">header</span>.<span class="ident">alg</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>encoded_header = b64_encode_part(<span class="kw-2">&amp;</span>header)<span class="question-mark">?</span>;
+    <span class="kw">let </span>encoded_claims = b64_encode_part(<span class="kw-2">&amp;</span>claims)<span class="question-mark">?</span>;
+    <span class="kw">let </span>message = [encoded_header.as_ref(), encoded_claims.as_ref()].join(<span class="string">&quot;.&quot;</span>);
+    <span class="kw">let </span>signature = crypto::sign(<span class="kw-2">&amp;*</span>message, key, header.alg)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>([<span class="ident">message</span>, <span class="ident">signature</span>].<span class="ident">join</span>(<span class="string">&quot;.&quot;</span>))
+    <span class="prelude-val">Ok</span>([message, signature].join(<span class="string">&quot;.&quot;</span>))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

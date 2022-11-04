@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/error/internal.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>internal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/error/internal.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>internal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -316,321 +316,321 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cell::RefCell</span>, <span class="ident">fmt</span>, <span class="ident">io::Write</span> <span class="kw">as</span> <span class="kw">_</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, fmt, io::Write <span class="kw">as _</span>};
 
-<span class="kw">use</span> <span class="ident">actix_http</span>::{
-    <span class="ident">body::BoxBody</span>,
-    <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">TryIntoHeaderValue</span> <span class="kw">as</span> <span class="kw">_</span>},
-    <span class="ident">StatusCode</span>,
+<span class="kw">use </span>actix_http::{
+    body::BoxBody,
+    header::{<span class="self">self</span>, TryIntoHeaderValue <span class="kw">as _</span>},
+    StatusCode,
 };
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">BufMut</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">BytesMut</span>};
+<span class="kw">use </span>bytes::{BufMut <span class="kw">as _</span>, BytesMut};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Error</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>, <span class="ident">Responder</span>, <span class="ident">ResponseError</span>};
+<span class="kw">use crate</span>::{Error, HttpRequest, HttpResponse, Responder, ResponseError};
 
-<span class="doccomment">/// Wraps errors to alter the generated response status code.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In following example, the `io::Error` is wrapped into `ErrorBadRequest` which will generate a</span>
-<span class="doccomment">/// response with the 400 Bad Request status code instead of the usual status code generated by</span>
-<span class="doccomment">/// an `io::Error`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use std::io;</span>
-<span class="doccomment">/// # use actix_web::{error, HttpRequest};</span>
-<span class="doccomment">/// async fn handler_error() -&gt; Result&lt;String, actix_web::Error&gt; {</span>
-<span class="doccomment">///     let err = io::Error::new(io::ErrorKind::Other, &quot;error&quot;);</span>
-<span class="doccomment">///     Err(error::ErrorBadRequest(err))</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InternalError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">cause</span>: <span class="ident">T</span>,
-    <span class="ident">status</span>: <span class="ident">InternalErrorType</span>,
+<span class="doccomment">/// Wraps errors to alter the generated response status code.
+///
+/// In following example, the `io::Error` is wrapped into `ErrorBadRequest` which will generate a
+/// response with the 400 Bad Request status code instead of the usual status code generated by
+/// an `io::Error`.
+///
+/// # Examples
+/// ```
+/// # use std::io;
+/// # use actix_web::{error, HttpRequest};
+/// async fn handler_error() -&gt; Result&lt;String, actix_web::Error&gt; {
+///     let err = io::Error::new(io::ErrorKind::Other, &quot;error&quot;);
+///     Err(error::ErrorBadRequest(err))
+/// }
+/// ```
+</span><span class="kw">pub struct </span>InternalError&lt;T&gt; {
+    cause: T,
+    status: InternalErrorType,
 }
 
-<span class="kw">enum</span> <span class="ident">InternalErrorType</span> {
-    <span class="ident">Status</span>(<span class="ident">StatusCode</span>),
-    <span class="ident">Response</span>(<span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HttpResponse</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+<span class="kw">enum </span>InternalErrorType {
+    Status(StatusCode),
+    Response(RefCell&lt;<span class="prelude-ty">Option</span>&lt;HttpResponse&gt;&gt;),
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">InternalError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Constructs an `InternalError` with given status code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">cause</span>: <span class="ident">T</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">InternalError</span> {
-            <span class="ident">cause</span>,
-            <span class="ident">status</span>: <span class="ident">InternalErrorType::Status</span>(<span class="ident">status</span>),
+<span class="kw">impl</span>&lt;T&gt; InternalError&lt;T&gt; {
+    <span class="doccomment">/// Constructs an `InternalError` with given status code.
+    </span><span class="kw">pub fn </span>new(cause: T, status: StatusCode) -&gt; <span class="self">Self </span>{
+        InternalError {
+            cause,
+            status: InternalErrorType::Status(status),
         }
     }
 
-    <span class="doccomment">/// Constructs an `InternalError` with pre-defined response.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_response</span>(<span class="ident">cause</span>: <span class="ident">T</span>, <span class="ident">response</span>: <span class="ident">HttpResponse</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">InternalError</span> {
-            <span class="ident">cause</span>,
-            <span class="ident">status</span>: <span class="ident">InternalErrorType::Response</span>(<span class="ident">RefCell::new</span>(<span class="prelude-val">Some</span>(<span class="ident">response</span>))),
+    <span class="doccomment">/// Constructs an `InternalError` with pre-defined response.
+    </span><span class="kw">pub fn </span>from_response(cause: T, response: HttpResponse) -&gt; <span class="self">Self </span>{
+        InternalError {
+            cause,
+            status: InternalErrorType::Response(RefCell::new(<span class="prelude-val">Some</span>(response))),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Debug</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">InternalError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="ident">cause</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
+<span class="kw">impl</span>&lt;T: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>InternalError&lt;T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="self">self</span>.cause.fmt(f)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Display</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">InternalError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="ident">cause</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
+<span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>InternalError&lt;T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="self">self</span>.cause.fmt(f)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">InternalError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">fmt::Debug</span> <span class="op">+</span> <span class="ident">fmt::Display</span>,
+<span class="kw">impl</span>&lt;T&gt; ResponseError <span class="kw">for </span>InternalError&lt;T&gt;
+<span class="kw">where
+    </span>T: fmt::Debug + fmt::Display,
 {
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">status</span> {
-            <span class="ident">InternalErrorType::Status</span>(<span class="ident">st</span>) =&gt; <span class="ident">st</span>,
-            <span class="ident">InternalErrorType::Response</span>(<span class="kw-2">ref</span> <span class="ident">resp</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">resp</span>) <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">borrow</span>().<span class="ident">as_ref</span>() {
-                    <span class="ident">resp</span>.<span class="ident">head</span>().<span class="ident">status</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        <span class="kw">match </span><span class="self">self</span>.status {
+            InternalErrorType::Status(st) =&gt; st,
+            InternalErrorType::Response(<span class="kw-2">ref </span>resp) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(resp) = resp.borrow().as_ref() {
+                    resp.head().status
+                } <span class="kw">else </span>{
+                    StatusCode::INTERNAL_SERVER_ERROR
                 }
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">error_response</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">status</span> {
-            <span class="ident">InternalErrorType::Status</span>(<span class="ident">status</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::new</span>(<span class="ident">status</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>().<span class="ident">writer</span>();
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">write!</span>(<span class="ident">buf</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>);
+    <span class="kw">fn </span>error_response(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HttpResponse {
+        <span class="kw">match </span><span class="self">self</span>.status {
+            InternalErrorType::Status(status) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>res = HttpResponse::new(status);
+                <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::new().writer();
+                <span class="kw">let _ </span>= <span class="macro">write!</span>(buf, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>);
 
-                <span class="kw">let</span> <span class="ident">mime</span> <span class="op">=</span> <span class="ident">mime::TEXT_PLAIN_UTF_8</span>.<span class="ident">try_into_value</span>().<span class="ident">unwrap</span>();
-                <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">mime</span>);
+                <span class="kw">let </span>mime = mime::TEXT_PLAIN_UTF_8.try_into_value().unwrap();
+                res.headers_mut().insert(header::CONTENT_TYPE, mime);
 
-                <span class="ident">res</span>.<span class="ident">set_body</span>(<span class="ident">BoxBody::new</span>(<span class="ident">buf</span>.<span class="ident">into_inner</span>()))
+                res.set_body(BoxBody::new(buf.into_inner()))
             }
 
-            <span class="ident">InternalErrorType::Response</span>(<span class="kw-2">ref</span> <span class="ident">resp</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">resp</span>) <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">borrow_mut</span>().<span class="ident">take</span>() {
-                    <span class="ident">resp</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">HttpResponse::new</span>(<span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>)
+            InternalErrorType::Response(<span class="kw-2">ref </span>resp) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(resp) = resp.borrow_mut().take() {
+                    resp
+                } <span class="kw">else </span>{
+                    HttpResponse::new(StatusCode::INTERNAL_SERVER_ERROR)
                 }
             }
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="ident">InternalError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">fmt::Debug</span> <span class="op">+</span> <span class="ident">fmt::Display</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T&gt; Responder <span class="kw">for </span>InternalError&lt;T&gt;
+<span class="kw">where
+    </span>T: fmt::Debug + fmt::Display + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">BoxBody</span>;
+    <span class="kw">type </span>Body = BoxBody;
 
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="ident">HttpResponse::from_error</span>(<span class="self">self</span>)
+    <span class="kw">fn </span>respond_to(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        HttpResponse::from_error(<span class="self">self</span>)
     }
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">error_helper</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">status</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;Helper function that wraps any error and generates a `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">status</span>), <span class="string">&quot;` response.&quot;</span>)]</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">err</span>: <span class="ident">T</span>) -&gt; <span class="ident">Error</span>
-        <span class="kw">where</span>
-            <span class="ident">T</span>: <span class="ident">fmt::Debug</span> <span class="op">+</span> <span class="ident">fmt::Display</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="macro">macro_rules! </span>error_helper {
+    (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$status</span>:ident) =&gt; {
+        <span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;Helper function that wraps any error and generates a `&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$status</span>), <span class="string">&quot;` response.&quot;</span>)]
+        #[allow(non_snake_case)]
+        </span><span class="kw">pub fn </span><span class="macro-nonterminal">$name</span>&lt;T&gt;(err: T) -&gt; Error
+        <span class="kw">where
+            </span>T: fmt::Debug + fmt::Display + <span class="lifetime">&#39;static</span>,
         {
-            <span class="ident">InternalError::new</span>(<span class="ident">err</span>, <span class="ident">StatusCode</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">status</span>).<span class="ident">into</span>()
+            InternalError::new(err, StatusCode::<span class="macro-nonterminal">$status</span>).into()
         }
     };
 }
 
-<span class="macro">error_helper!</span>(<span class="ident">ErrorBadRequest</span>, <span class="ident">BAD_REQUEST</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorUnauthorized</span>, <span class="ident">UNAUTHORIZED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorPaymentRequired</span>, <span class="ident">PAYMENT_REQUIRED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorForbidden</span>, <span class="ident">FORBIDDEN</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorNotFound</span>, <span class="ident">NOT_FOUND</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorMethodNotAllowed</span>, <span class="ident">METHOD_NOT_ALLOWED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorNotAcceptable</span>, <span class="ident">NOT_ACCEPTABLE</span>);
+<span class="macro">error_helper!</span>(ErrorBadRequest, BAD_REQUEST);
+<span class="macro">error_helper!</span>(ErrorUnauthorized, UNAUTHORIZED);
+<span class="macro">error_helper!</span>(ErrorPaymentRequired, PAYMENT_REQUIRED);
+<span class="macro">error_helper!</span>(ErrorForbidden, FORBIDDEN);
+<span class="macro">error_helper!</span>(ErrorNotFound, NOT_FOUND);
+<span class="macro">error_helper!</span>(ErrorMethodNotAllowed, METHOD_NOT_ALLOWED);
+<span class="macro">error_helper!</span>(ErrorNotAcceptable, NOT_ACCEPTABLE);
 <span class="macro">error_helper!</span>(
-    <span class="ident">ErrorProxyAuthenticationRequired</span>,
-    <span class="ident">PROXY_AUTHENTICATION_REQUIRED</span>
+    ErrorProxyAuthenticationRequired,
+    PROXY_AUTHENTICATION_REQUIRED
 );
-<span class="macro">error_helper!</span>(<span class="ident">ErrorRequestTimeout</span>, <span class="ident">REQUEST_TIMEOUT</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorConflict</span>, <span class="ident">CONFLICT</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorGone</span>, <span class="ident">GONE</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorLengthRequired</span>, <span class="ident">LENGTH_REQUIRED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorPayloadTooLarge</span>, <span class="ident">PAYLOAD_TOO_LARGE</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorUriTooLong</span>, <span class="ident">URI_TOO_LONG</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorUnsupportedMediaType</span>, <span class="ident">UNSUPPORTED_MEDIA_TYPE</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorRangeNotSatisfiable</span>, <span class="ident">RANGE_NOT_SATISFIABLE</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorImATeapot</span>, <span class="ident">IM_A_TEAPOT</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorMisdirectedRequest</span>, <span class="ident">MISDIRECTED_REQUEST</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorUnprocessableEntity</span>, <span class="ident">UNPROCESSABLE_ENTITY</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorLocked</span>, <span class="ident">LOCKED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorFailedDependency</span>, <span class="ident">FAILED_DEPENDENCY</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorUpgradeRequired</span>, <span class="ident">UPGRADE_REQUIRED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorPreconditionFailed</span>, <span class="ident">PRECONDITION_FAILED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorPreconditionRequired</span>, <span class="ident">PRECONDITION_REQUIRED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorTooManyRequests</span>, <span class="ident">TOO_MANY_REQUESTS</span>);
+<span class="macro">error_helper!</span>(ErrorRequestTimeout, REQUEST_TIMEOUT);
+<span class="macro">error_helper!</span>(ErrorConflict, CONFLICT);
+<span class="macro">error_helper!</span>(ErrorGone, GONE);
+<span class="macro">error_helper!</span>(ErrorLengthRequired, LENGTH_REQUIRED);
+<span class="macro">error_helper!</span>(ErrorPayloadTooLarge, PAYLOAD_TOO_LARGE);
+<span class="macro">error_helper!</span>(ErrorUriTooLong, URI_TOO_LONG);
+<span class="macro">error_helper!</span>(ErrorUnsupportedMediaType, UNSUPPORTED_MEDIA_TYPE);
+<span class="macro">error_helper!</span>(ErrorRangeNotSatisfiable, RANGE_NOT_SATISFIABLE);
+<span class="macro">error_helper!</span>(ErrorImATeapot, IM_A_TEAPOT);
+<span class="macro">error_helper!</span>(ErrorMisdirectedRequest, MISDIRECTED_REQUEST);
+<span class="macro">error_helper!</span>(ErrorUnprocessableEntity, UNPROCESSABLE_ENTITY);
+<span class="macro">error_helper!</span>(ErrorLocked, LOCKED);
+<span class="macro">error_helper!</span>(ErrorFailedDependency, FAILED_DEPENDENCY);
+<span class="macro">error_helper!</span>(ErrorUpgradeRequired, UPGRADE_REQUIRED);
+<span class="macro">error_helper!</span>(ErrorPreconditionFailed, PRECONDITION_FAILED);
+<span class="macro">error_helper!</span>(ErrorPreconditionRequired, PRECONDITION_REQUIRED);
+<span class="macro">error_helper!</span>(ErrorTooManyRequests, TOO_MANY_REQUESTS);
 <span class="macro">error_helper!</span>(
-    <span class="ident">ErrorRequestHeaderFieldsTooLarge</span>,
-    <span class="ident">REQUEST_HEADER_FIELDS_TOO_LARGE</span>
+    ErrorRequestHeaderFieldsTooLarge,
+    REQUEST_HEADER_FIELDS_TOO_LARGE
 );
 <span class="macro">error_helper!</span>(
-    <span class="ident">ErrorUnavailableForLegalReasons</span>,
-    <span class="ident">UNAVAILABLE_FOR_LEGAL_REASONS</span>
+    ErrorUnavailableForLegalReasons,
+    UNAVAILABLE_FOR_LEGAL_REASONS
 );
-<span class="macro">error_helper!</span>(<span class="ident">ErrorExpectationFailed</span>, <span class="ident">EXPECTATION_FAILED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorInternalServerError</span>, <span class="ident">INTERNAL_SERVER_ERROR</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorNotImplemented</span>, <span class="ident">NOT_IMPLEMENTED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorBadGateway</span>, <span class="ident">BAD_GATEWAY</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorServiceUnavailable</span>, <span class="ident">SERVICE_UNAVAILABLE</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorGatewayTimeout</span>, <span class="ident">GATEWAY_TIMEOUT</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorHttpVersionNotSupported</span>, <span class="ident">HTTP_VERSION_NOT_SUPPORTED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorVariantAlsoNegotiates</span>, <span class="ident">VARIANT_ALSO_NEGOTIATES</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorInsufficientStorage</span>, <span class="ident">INSUFFICIENT_STORAGE</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorLoopDetected</span>, <span class="ident">LOOP_DETECTED</span>);
-<span class="macro">error_helper!</span>(<span class="ident">ErrorNotExtended</span>, <span class="ident">NOT_EXTENDED</span>);
+<span class="macro">error_helper!</span>(ErrorExpectationFailed, EXPECTATION_FAILED);
+<span class="macro">error_helper!</span>(ErrorInternalServerError, INTERNAL_SERVER_ERROR);
+<span class="macro">error_helper!</span>(ErrorNotImplemented, NOT_IMPLEMENTED);
+<span class="macro">error_helper!</span>(ErrorBadGateway, BAD_GATEWAY);
+<span class="macro">error_helper!</span>(ErrorServiceUnavailable, SERVICE_UNAVAILABLE);
+<span class="macro">error_helper!</span>(ErrorGatewayTimeout, GATEWAY_TIMEOUT);
+<span class="macro">error_helper!</span>(ErrorHttpVersionNotSupported, HTTP_VERSION_NOT_SUPPORTED);
+<span class="macro">error_helper!</span>(ErrorVariantAlsoNegotiates, VARIANT_ALSO_NEGOTIATES);
+<span class="macro">error_helper!</span>(ErrorInsufficientStorage, INSUFFICIENT_STORAGE);
+<span class="macro">error_helper!</span>(ErrorLoopDetected, LOOP_DETECTED);
+<span class="macro">error_helper!</span>(ErrorNotExtended, NOT_EXTENDED);
 <span class="macro">error_helper!</span>(
-    <span class="ident">ErrorNetworkAuthenticationRequired</span>,
-    <span class="ident">NETWORK_AUTHENTICATION_REQUIRED</span>
+    ErrorNetworkAuthenticationRequired,
+    NETWORK_AUTHENTICATION_REQUIRED
 );
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_http::error::ParseError</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_http::error::ParseError;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_internal_error</span>() {
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">InternalError::from_response</span>(<span class="ident">ParseError::Method</span>, <span class="ident">HttpResponse::Ok</span>().<span class="ident">finish</span>());
-        <span class="kw">let</span> <span class="ident">resp</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">error_response</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_internal_error() {
+        <span class="kw">let </span>err = InternalError::from_response(ParseError::Method, HttpResponse::Ok().finish());
+        <span class="kw">let </span>resp: HttpResponse = err.error_response();
+        <span class="macro">assert_eq!</span>(resp.status(), StatusCode::OK);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_error_helpers</span>() {
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorBadRequest</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_REQUEST</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_error_helpers() {
+        <span class="kw">let </span>res: HttpResponse = ErrorBadRequest(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::BAD_REQUEST);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorUnauthorized</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::UNAUTHORIZED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorUnauthorized(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::UNAUTHORIZED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorPaymentRequired</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::PAYMENT_REQUIRED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorPaymentRequired(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::PAYMENT_REQUIRED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorForbidden</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::FORBIDDEN</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorForbidden(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::FORBIDDEN);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorNotFound</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::NOT_FOUND</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorNotFound(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_FOUND);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorMethodNotAllowed</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::METHOD_NOT_ALLOWED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorMethodNotAllowed(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::METHOD_NOT_ALLOWED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorNotAcceptable</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::NOT_ACCEPTABLE</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorNotAcceptable(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_ACCEPTABLE);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorProxyAuthenticationRequired</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::PROXY_AUTHENTICATION_REQUIRED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorProxyAuthenticationRequired(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::PROXY_AUTHENTICATION_REQUIRED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorRequestTimeout</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::REQUEST_TIMEOUT</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorRequestTimeout(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::REQUEST_TIMEOUT);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorConflict</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::CONFLICT</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorConflict(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::CONFLICT);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorGone</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::GONE</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorGone(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::GONE);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorLengthRequired</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::LENGTH_REQUIRED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorLengthRequired(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::LENGTH_REQUIRED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorPreconditionFailed</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::PRECONDITION_FAILED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorPreconditionFailed(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::PRECONDITION_FAILED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorPayloadTooLarge</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::PAYLOAD_TOO_LARGE</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorPayloadTooLarge(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::PAYLOAD_TOO_LARGE);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorUriTooLong</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::URI_TOO_LONG</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorUriTooLong(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::URI_TOO_LONG);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorUnsupportedMediaType</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::UNSUPPORTED_MEDIA_TYPE</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorUnsupportedMediaType(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::UNSUPPORTED_MEDIA_TYPE);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorRangeNotSatisfiable</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::RANGE_NOT_SATISFIABLE</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorRangeNotSatisfiable(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::RANGE_NOT_SATISFIABLE);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorExpectationFailed</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::EXPECTATION_FAILED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorExpectationFailed(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::EXPECTATION_FAILED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorImATeapot</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::IM_A_TEAPOT</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorImATeapot(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::IM_A_TEAPOT);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorMisdirectedRequest</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::MISDIRECTED_REQUEST</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorMisdirectedRequest(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::MISDIRECTED_REQUEST);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorUnprocessableEntity</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::UNPROCESSABLE_ENTITY</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorUnprocessableEntity(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::UNPROCESSABLE_ENTITY);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorLocked</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::LOCKED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorLocked(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::LOCKED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorFailedDependency</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::FAILED_DEPENDENCY</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorFailedDependency(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::FAILED_DEPENDENCY);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorUpgradeRequired</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::UPGRADE_REQUIRED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorUpgradeRequired(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::UPGRADE_REQUIRED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorPreconditionRequired</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::PRECONDITION_REQUIRED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorPreconditionRequired(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::PRECONDITION_REQUIRED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorTooManyRequests</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::TOO_MANY_REQUESTS</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorTooManyRequests(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::TOO_MANY_REQUESTS);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorRequestHeaderFieldsTooLarge</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::REQUEST_HEADER_FIELDS_TOO_LARGE</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorRequestHeaderFieldsTooLarge(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::REQUEST_HEADER_FIELDS_TOO_LARGE);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorUnavailableForLegalReasons</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::UNAVAILABLE_FOR_LEGAL_REASONS</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorUnavailableForLegalReasons(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::UNAVAILABLE_FOR_LEGAL_REASONS);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorInternalServerError</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorInternalServerError(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::INTERNAL_SERVER_ERROR);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorNotImplemented</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::NOT_IMPLEMENTED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorNotImplemented(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_IMPLEMENTED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorBadGateway</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::BAD_GATEWAY</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorBadGateway(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::BAD_GATEWAY);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorServiceUnavailable</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::SERVICE_UNAVAILABLE</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorServiceUnavailable(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::SERVICE_UNAVAILABLE);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorGatewayTimeout</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::GATEWAY_TIMEOUT</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorGatewayTimeout(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::GATEWAY_TIMEOUT);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorHttpVersionNotSupported</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::HTTP_VERSION_NOT_SUPPORTED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorHttpVersionNotSupported(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::HTTP_VERSION_NOT_SUPPORTED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorVariantAlsoNegotiates</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::VARIANT_ALSO_NEGOTIATES</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorVariantAlsoNegotiates(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::VARIANT_ALSO_NEGOTIATES);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorInsufficientStorage</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::INSUFFICIENT_STORAGE</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorInsufficientStorage(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::INSUFFICIENT_STORAGE);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorLoopDetected</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::LOOP_DETECTED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorLoopDetected(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::LOOP_DETECTED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorNotExtended</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::NOT_EXTENDED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorNotExtended(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::NOT_EXTENDED);
 
-        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">HttpResponse</span> <span class="op">=</span> <span class="ident">ErrorNetworkAuthenticationRequired</span>(<span class="string">&quot;err&quot;</span>).<span class="ident">into</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::NETWORK_AUTHENTICATION_REQUIRED</span>);
+        <span class="kw">let </span>res: HttpResponse = ErrorNetworkAuthenticationRequired(<span class="string">&quot;err&quot;</span>).into();
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::NETWORK_AUTHENTICATION_REQUIRED);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

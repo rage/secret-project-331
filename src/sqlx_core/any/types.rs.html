@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/any/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/any/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -193,200 +193,200 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Conversions between Rust and standard **SQL** types.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Types</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | SQL type(s)                                          |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `bool`                                | BOOLEAN                                              |</span>
-<span class="doccomment">//! | `i16`                                 | SMALLINT                                             |</span>
-<span class="doccomment">//! | `i32`                                 | INT                                                  |</span>
-<span class="doccomment">//! | `i64`                                 | BIGINT                                               |</span>
-<span class="doccomment">//! | `f32`                                 | FLOAT                                                |</span>
-<span class="doccomment">//! | `f64`                                 | DOUBLE                                               |</span>
-<span class="doccomment">//! | `&amp;str`, [`String`]                    | VARCHAR, CHAR, TEXT                                  |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Nullable</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! In addition, `Option&lt;T&gt;` is supported where `T` implements `Type`. An `Option&lt;T&gt;` represents</span>
-<span class="doccomment">//! a potentially `NULL` value from SQL.</span>
-<span class="doccomment">//!</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Conversions between Rust and standard **SQL** types.
+//!
+//! # Types
+//!
+//! | Rust type                             | SQL type(s)                                          |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `bool`                                | BOOLEAN                                              |
+//! | `i16`                                 | SMALLINT                                             |
+//! | `i32`                                 | INT                                                  |
+//! | `i64`                                 | BIGINT                                               |
+//! | `f32`                                 | FLOAT                                                |
+//! | `f64`                                 | DOUBLE                                               |
+//! | `&amp;str`, [`String`]                    | VARCHAR, CHAR, TEXT                                  |
+//!
+//! # Nullable
+//!
+//! In addition, `Option&lt;T&gt;` is supported where `T` implements `Type`. An `Option&lt;T&gt;` represents
+//! a potentially `NULL` value from SQL.
+//!
 
-<span class="comment">// Type</span>
+</span><span class="comment">// Type
 
-<span class="macro">impl_any_type!</span>(<span class="ident">bool</span>);
+</span><span class="macro">impl_any_type!</span>(bool);
 
-<span class="macro">impl_any_type!</span>(<span class="ident">i16</span>);
-<span class="macro">impl_any_type!</span>(<span class="ident">i32</span>);
-<span class="macro">impl_any_type!</span>(<span class="ident">i64</span>);
+<span class="macro">impl_any_type!</span>(i16);
+<span class="macro">impl_any_type!</span>(i32);
+<span class="macro">impl_any_type!</span>(i64);
 
-<span class="macro">impl_any_type!</span>(<span class="ident">f32</span>);
-<span class="macro">impl_any_type!</span>(<span class="ident">f64</span>);
+<span class="macro">impl_any_type!</span>(f32);
+<span class="macro">impl_any_type!</span>(f64);
 
-<span class="macro">impl_any_type!</span>(<span class="ident">str</span>);
-<span class="macro">impl_any_type!</span>(<span class="ident">String</span>);
+<span class="macro">impl_any_type!</span>(str);
+<span class="macro">impl_any_type!</span>(String);
 
-<span class="comment">// Encode</span>
+<span class="comment">// Encode
 
-<span class="macro">impl_any_encode!</span>(<span class="ident">bool</span>);
+</span><span class="macro">impl_any_encode!</span>(bool);
 
-<span class="macro">impl_any_encode!</span>(<span class="ident">i16</span>);
-<span class="macro">impl_any_encode!</span>(<span class="ident">i32</span>);
-<span class="macro">impl_any_encode!</span>(<span class="ident">i64</span>);
+<span class="macro">impl_any_encode!</span>(i16);
+<span class="macro">impl_any_encode!</span>(i32);
+<span class="macro">impl_any_encode!</span>(i64);
 
-<span class="macro">impl_any_encode!</span>(<span class="ident">f32</span>);
-<span class="macro">impl_any_encode!</span>(<span class="ident">f64</span>);
+<span class="macro">impl_any_encode!</span>(f32);
+<span class="macro">impl_any_encode!</span>(f64);
 
-<span class="macro">impl_any_encode!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>);
-<span class="macro">impl_any_encode!</span>(<span class="ident">String</span>);
+<span class="macro">impl_any_encode!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str);
+<span class="macro">impl_any_encode!</span>(String);
 
-<span class="comment">// Decode</span>
+<span class="comment">// Decode
 
-<span class="macro">impl_any_decode!</span>(<span class="ident">bool</span>);
+</span><span class="macro">impl_any_decode!</span>(bool);
 
-<span class="macro">impl_any_decode!</span>(<span class="ident">i16</span>);
-<span class="macro">impl_any_decode!</span>(<span class="ident">i32</span>);
-<span class="macro">impl_any_decode!</span>(<span class="ident">i64</span>);
+<span class="macro">impl_any_decode!</span>(i16);
+<span class="macro">impl_any_decode!</span>(i32);
+<span class="macro">impl_any_decode!</span>(i64);
 
-<span class="macro">impl_any_decode!</span>(<span class="ident">f32</span>);
-<span class="macro">impl_any_decode!</span>(<span class="ident">f64</span>);
+<span class="macro">impl_any_decode!</span>(f32);
+<span class="macro">impl_any_decode!</span>(f64);
 
-<span class="macro">impl_any_decode!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">str</span>);
-<span class="macro">impl_any_decode!</span>(<span class="ident">String</span>);
+<span class="macro">impl_any_decode!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>str);
+<span class="macro">impl_any_decode!</span>(String);
 
-<span class="comment">// Conversions for Blob SQL types</span>
-<span class="comment">// Type</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_type!</span>([<span class="ident">u8</span>]);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_type!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>);
+<span class="comment">// Conversions for Blob SQL types
+// Type
+</span><span class="attribute">#[cfg(all(
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_type!</span>([u8]);
+<span class="attribute">#[cfg(all(
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_type!</span>(Vec&lt;u8&gt;);
 
-<span class="comment">// Encode</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_encode!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> [<span class="ident">u8</span>]);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_encode!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>);
+<span class="comment">// Encode
+</span><span class="attribute">#[cfg(all(
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_encode!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>[u8]);
+<span class="attribute">#[cfg(all(
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_encode!</span>(Vec&lt;u8&gt;);
 
-<span class="comment">// Decode</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_decode!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> [<span class="ident">u8</span>]);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_decode!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>);
+<span class="comment">// Decode
+</span><span class="attribute">#[cfg(all(
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_decode!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>[u8]);
+<span class="attribute">#[cfg(all(
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_decode!</span>(Vec&lt;u8&gt;);
 
-<span class="comment">// Conversions for Time SQL types</span>
-<span class="comment">// Type</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_type!</span>(<span class="ident">chrono::NaiveDate</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_type!</span>(<span class="ident">chrono::NaiveTime</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_type!</span>(<span class="ident">chrono::NaiveDateTime</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_type!</span>(<span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::offset::Utc</span><span class="op">&gt;</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_type!</span>(<span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::offset::Local</span><span class="op">&gt;</span>);
+<span class="comment">// Conversions for Time SQL types
+// Type
+</span><span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_type!</span>(chrono::NaiveDate);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_type!</span>(chrono::NaiveTime);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_type!</span>(chrono::NaiveDateTime);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_type!</span>(chrono::DateTime&lt;chrono::offset::Utc&gt;);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_type!</span>(chrono::DateTime&lt;chrono::offset::Local&gt;);
 
-<span class="comment">// Encode</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_encode!</span>(<span class="ident">chrono::NaiveDate</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_encode!</span>(<span class="ident">chrono::NaiveTime</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_encode!</span>(<span class="ident">chrono::NaiveDateTime</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_encode!</span>(<span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::offset::Utc</span><span class="op">&gt;</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_encode!</span>(<span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::offset::Local</span><span class="op">&gt;</span>);
+<span class="comment">// Encode
+</span><span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_encode!</span>(chrono::NaiveDate);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_encode!</span>(chrono::NaiveTime);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_encode!</span>(chrono::NaiveDateTime);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_encode!</span>(chrono::DateTime&lt;chrono::offset::Utc&gt;);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_encode!</span>(chrono::DateTime&lt;chrono::offset::Local&gt;);
 
-<span class="comment">// Decode</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_decode!</span>(<span class="ident">chrono::NaiveDate</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_decode!</span>(<span class="ident">chrono::NaiveTime</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_decode!</span>(<span class="ident">chrono::NaiveDateTime</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_decode!</span>(<span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::offset::Utc</span><span class="op">&gt;</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>,
-    <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>),
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)
-))]</span>
-<span class="macro">impl_any_decode!</span>(<span class="ident">chrono::DateTime</span><span class="op">&lt;</span><span class="ident">chrono::offset::Local</span><span class="op">&gt;</span>);
+<span class="comment">// Decode
+</span><span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_decode!</span>(chrono::NaiveDate);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_decode!</span>(chrono::NaiveTime);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_decode!</span>(chrono::NaiveDateTime);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_decode!</span>(chrono::DateTime&lt;chrono::offset::Utc&gt;);
+<span class="attribute">#[cfg(all(
+    feature = <span class="string">&quot;chrono&quot;</span>,
+    any(feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;postgres&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>),
+    not(feature = <span class="string">&quot;mssql&quot;</span>)
+))]
+</span><span class="macro">impl_any_decode!</span>(chrono::DateTime&lt;chrono::offset::Local&gt;);
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

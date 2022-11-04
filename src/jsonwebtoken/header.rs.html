@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/header.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>header.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/header.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>header.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -73,80 +73,80 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::algorithms::Algorithm</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors::Result</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::serialization::b64_decode</span>;
+<span class="kw">use </span><span class="kw">crate</span>::algorithms::Algorithm;
+<span class="kw">use </span><span class="kw">crate</span>::errors::Result;
+<span class="kw">use </span><span class="kw">crate</span>::serialization::b64_decode;
 
-<span class="doccomment">/// A basic JWT header, the alg defaults to HS256 and typ is automatically</span>
-<span class="doccomment">/// set to `JWT`. All the other fields are optional.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Header</span> {
-    <span class="doccomment">/// The type of JWS: it can only be &quot;JWT&quot; here</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC7515#4.1.9](https://tools.ietf.org/html/rfc7515#section-4.1.9).</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">typ</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The algorithm used</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC7515#4.1.1](https://tools.ietf.org/html/rfc7515#section-4.1.1).</span>
-    <span class="kw">pub</span> <span class="ident">alg</span>: <span class="ident">Algorithm</span>,
-    <span class="doccomment">/// Content type</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC7519#5.2](https://tools.ietf.org/html/rfc7519#section-5.2).</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">cty</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// JSON Key URL</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC7515#4.1.2](https://tools.ietf.org/html/rfc7515#section-4.1.2).</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">jku</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Key ID</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC7515#4.1.4](https://tools.ietf.org/html/rfc7515#section-4.1.4).</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">kid</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// X.509 URL</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC7515#4.1.5](https://tools.ietf.org/html/rfc7515#section-4.1.5).</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">x5u</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// X.509 certificate thumbprint</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC7515#4.1.7](https://tools.ietf.org/html/rfc7515#section-4.1.7).</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">x5t</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A basic JWT header, the alg defaults to HS256 and typ is automatically
+/// set to `JWT`. All the other fields are optional.
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Hash, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Header {
+    <span class="doccomment">/// The type of JWS: it can only be &quot;JWT&quot; here
+    ///
+    /// Defined in [RFC7515#4.1.9](https://tools.ietf.org/html/rfc7515#section-4.1.9).
+    </span><span class="attribute">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>typ: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// The algorithm used
+    ///
+    /// Defined in [RFC7515#4.1.1](https://tools.ietf.org/html/rfc7515#section-4.1.1).
+    </span><span class="kw">pub </span>alg: Algorithm,
+    <span class="doccomment">/// Content type
+    ///
+    /// Defined in [RFC7519#5.2](https://tools.ietf.org/html/rfc7519#section-5.2).
+    </span><span class="attribute">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>cty: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// JSON Key URL
+    ///
+    /// Defined in [RFC7515#4.1.2](https://tools.ietf.org/html/rfc7515#section-4.1.2).
+    </span><span class="attribute">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>jku: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Key ID
+    ///
+    /// Defined in [RFC7515#4.1.4](https://tools.ietf.org/html/rfc7515#section-4.1.4).
+    </span><span class="attribute">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>kid: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// X.509 URL
+    ///
+    /// Defined in [RFC7515#4.1.5](https://tools.ietf.org/html/rfc7515#section-4.1.5).
+    </span><span class="attribute">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>x5u: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// X.509 certificate thumbprint
+    ///
+    /// Defined in [RFC7515#4.1.7](https://tools.ietf.org/html/rfc7515#section-4.1.7).
+    </span><span class="attribute">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span><span class="kw">pub </span>x5t: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Header</span> {
-    <span class="doccomment">/// Returns a JWT header with the algorithm given</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">algorithm</span>: <span class="ident">Algorithm</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Header</span> {
-            <span class="ident">typ</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;JWT&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">alg</span>: <span class="ident">algorithm</span>,
-            <span class="ident">cty</span>: <span class="prelude-val">None</span>,
-            <span class="ident">jku</span>: <span class="prelude-val">None</span>,
-            <span class="ident">kid</span>: <span class="prelude-val">None</span>,
-            <span class="ident">x5u</span>: <span class="prelude-val">None</span>,
-            <span class="ident">x5t</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>Header {
+    <span class="doccomment">/// Returns a JWT header with the algorithm given
+    </span><span class="kw">pub fn </span>new(algorithm: Algorithm) -&gt; <span class="self">Self </span>{
+        Header {
+            typ: <span class="prelude-val">Some</span>(<span class="string">&quot;JWT&quot;</span>.to_string()),
+            alg: algorithm,
+            cty: <span class="prelude-val">None</span>,
+            jku: <span class="prelude-val">None</span>,
+            kid: <span class="prelude-val">None</span>,
+            x5u: <span class="prelude-val">None</span>,
+            x5t: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Converts an encoded part into the Header struct if possible</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_encoded</span>(<span class="ident">encoded_part</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">b64_decode</span>(<span class="ident">encoded_part</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">decoded</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Converts an encoded part into the Header struct if possible
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_encoded(encoded_part: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>decoded = b64_decode(encoded_part)<span class="question-mark">?</span>;
+        <span class="kw">let </span>s = String::from_utf8(decoded)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>)<span class="question-mark">?</span>)
+        <span class="prelude-val">Ok</span>(serde_json::from_str(<span class="kw-2">&amp;</span>s)<span class="question-mark">?</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Header</span> {
-    <span class="doccomment">/// Returns a JWT header using the default Algorithm, HS256</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Header::new</span>(<span class="ident">Algorithm::default</span>())
+<span class="kw">impl </span>Default <span class="kw">for </span>Header {
+    <span class="doccomment">/// Returns a JWT header using the default Algorithm, HS256
+    </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        Header::new(Algorithm::default())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

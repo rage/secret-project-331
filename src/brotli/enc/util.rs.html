@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/util.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/util.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -4541,38 +4541,38 @@
 <span id="4541">4541</span>
 <span id="4542">4542</span>
 <span id="4543">4543</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">use</span> <span class="ident">core</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;float64&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">floatX</span> <span class="op">=</span> <span class="ident">f64</span>;
+</pre><pre class="rust"><code><span class="attribute">#![allow(dead_code)]
+</span><span class="kw">use </span>core;
+<span class="attribute">#[cfg(feature=<span class="string">&quot;float64&quot;</span>)]
+</span><span class="kw">pub type </span>floatX = f64;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;float64&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">floatX</span> <span class="op">=</span> <span class="ident">f32</span>;
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;float64&quot;</span>))]
+</span><span class="kw">pub type </span>floatX = f32;
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_max_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
-    <span class="ident">core::cmp::max</span>(<span class="ident">a</span>, <span class="ident">b</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>brotli_max_uint32_t(a: u32, b: u32) -&gt; u32 {
+    core::cmp::max(a, b)
 }
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_min_uint32_t</span>(<span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
-    <span class="ident">core::cmp::min</span>(<span class="ident">a</span>, <span class="ident">b</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>brotli_min_uint32_t(a: u32, b: u32) -&gt; u32 {
+    core::cmp::min(a, b)
 }
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_min_size_t</span>(<span class="ident">a</span>: <span class="ident">usize</span>, <span class="ident">b</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-  <span class="ident">core::cmp::min</span>(<span class="ident">a</span>,<span class="ident">b</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>brotli_min_size_t(a: usize, b: usize) -&gt; usize {
+  core::cmp::min(a,b)
 }
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_max_size_t</span>(<span class="ident">a</span>: <span class="ident">usize</span>, <span class="ident">b</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-  <span class="ident">core::cmp::max</span>(<span class="ident">a</span>,<span class="ident">b</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>brotli_max_size_t(a: usize, b: usize) -&gt; usize {
+  core::cmp::max(a,b)
 }
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">brotli_max_uint8_t</span>(<span class="ident">a</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>) -&gt; <span class="ident">u8</span> {
-    <span class="ident">core::cmp::max</span>(<span class="ident">a</span>,<span class="ident">b</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>brotli_max_uint8_t(a: u8, b: u8) -&gt; u8 {
+    core::cmp::max(a,b)
 }
 
 
 
-<span class="kw">static</span> <span class="ident">kLog2Table</span>: [<span class="ident">f32</span>; <span class="number">256</span>] <span class="op">=</span> [<span class="number">0.0000000000000000</span>,
+<span class="kw">static </span>kLog2Table: [f32; <span class="number">256</span>] = [<span class="number">0.0000000000000000</span>,
   <span class="number">0.0000000000000000</span>,
   <span class="number">1.0000000000000000</span>,
   <span class="number">1.5849625007211563</span>,
@@ -4829,164 +4829,164 @@
   <span class="number">7.9886846867721664</span>,
   <span class="number">7.9943534368588578</span>];
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2u16</span>(<span class="ident">v</span>: <span class="ident">u16</span>) -&gt; <span class="ident">floatX</span> {
-    <span class="ident">log64k</span>[<span class="ident">v</span> <span class="kw">as</span> <span class="ident">usize</span>]
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>FastLog2u16(v: u16) -&gt; floatX {
+    log64k[v <span class="kw">as </span>usize]
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
-    <span class="kw">if</span> <span class="ident">v</span> <span class="op">&lt;</span> <span class="number">256</span> {
-        <span class="kw">return</span> <span class="ident">kLog2Table</span>[<span class="ident">v</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> <span class="ident">floatX</span>;
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+#[inline(always)]
+</span><span class="kw">pub fn </span>FastLog2(v: u64) -&gt; floatX {
+    <span class="kw">if </span>v &lt; <span class="number">256 </span>{
+        <span class="kw">return </span>kLog2Table[v <span class="kw">as </span>usize] <span class="kw">as </span>floatX;
     }
-    (<span class="ident">v</span> <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">log2</span>() <span class="kw">as</span> <span class="ident">floatX</span>
+    (v <span class="kw">as </span>f32).log2() <span class="kw">as </span>floatX
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
-  <span class="kw">if</span> <span class="ident">v</span> <span class="op">&lt;</span> <span class="number">256</span> {
-    <span class="kw">return</span> <span class="ident">kLog2Table</span>[<span class="ident">v</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> <span class="ident">floatX</span>;
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+#[inline(always)]
+</span><span class="kw">pub fn </span>FastLog2(v: u64) -&gt; floatX {
+  <span class="kw">if </span>v &lt; <span class="number">256 </span>{
+    <span class="kw">return </span>kLog2Table[v <span class="kw">as </span>usize] <span class="kw">as </span>floatX;
   }
-  <span class="ident">FastLog2u64</span>(<span class="ident">v</span>)
+  FastLog2u64(v)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2f64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
-    <span class="kw">if</span> <span class="ident">v</span> <span class="op">&lt;</span> <span class="number">256</span> {
-        <span class="kw">return</span> <span class="ident">kLog2Table</span>[<span class="ident">v</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> <span class="ident">floatX</span>;
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+#[inline(always)]
+</span><span class="kw">pub fn </span>FastLog2f64(v: u64) -&gt; floatX {
+    <span class="kw">if </span>v &lt; <span class="number">256 </span>{
+        <span class="kw">return </span>kLog2Table[v <span class="kw">as </span>usize] <span class="kw">as </span>floatX;
     }
-    (<span class="ident">v</span> <span class="kw">as</span> <span class="ident">floatX</span>).<span class="ident">log2</span>()
+    (v <span class="kw">as </span>floatX).log2()
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2f64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
-    <span class="ident">FastLog2</span>(<span class="ident">v</span>) <span class="kw">as</span> <span class="ident">floatX</span>
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+#[inline(always)]
+</span><span class="kw">pub fn </span>FastLog2f64(v: u64) -&gt; floatX {
+    FastLog2(v) <span class="kw">as </span>floatX
 }
 
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2u64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">floatX</span> {
-  <span class="kw">let</span> <span class="ident">bsr_8</span> <span class="op">=</span> <span class="number">56i8</span> <span class="op">-</span> <span class="ident">v</span>.<span class="ident">leading_zeros</span>() <span class="kw">as</span> <span class="ident">i8</span>;
-  <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">bsr_8</span> <span class="op">&amp;</span> <span class="op">-</span>((<span class="ident">bsr_8</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">i8</span>);
-  <span class="ident">offset</span> <span class="kw">as</span> <span class="ident">floatX</span> <span class="op">+</span> <span class="ident">kLog2Table</span>[(<span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> (<span class="ident">floatX</span>)
+<span class="attribute">#[inline]
+</span><span class="kw">pub fn </span>FastLog2u64(v: u64) -&gt; floatX {
+  <span class="kw">let </span>bsr_8 = <span class="number">56i8 </span>- v.leading_zeros() <span class="kw">as </span>i8;
+  <span class="kw">let </span>offset = bsr_8 &amp; -((bsr_8 &gt;= <span class="number">0</span>) <span class="kw">as </span>i8);
+  offset <span class="kw">as </span>floatX + kLog2Table[(v &gt;&gt; offset) <span class="kw">as </span>u8 <span class="kw">as </span>usize] <span class="kw">as </span>(floatX)
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastLog2u32</span>(<span class="ident">v</span>: <span class="ident">i32</span>) -&gt; <span class="ident">floatX</span> {
-  <span class="kw">let</span> <span class="ident">bsr_8</span> <span class="op">=</span> <span class="number">24i8</span> <span class="op">-</span> <span class="ident">v</span>.<span class="ident">leading_zeros</span>() <span class="kw">as</span> <span class="ident">i8</span>;
-  <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">bsr_8</span> <span class="op">&amp;</span> <span class="op">-</span>((<span class="ident">bsr_8</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">i8</span>);
-  <span class="ident">offset</span> <span class="kw">as</span> <span class="ident">floatX</span> <span class="op">+</span> <span class="ident">kLog2Table</span>[(<span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> (<span class="ident">floatX</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>FastLog2u32(v: i32) -&gt; floatX {
+  <span class="kw">let </span>bsr_8 = <span class="number">24i8 </span>- v.leading_zeros() <span class="kw">as </span>i8;
+  <span class="kw">let </span>offset = bsr_8 &amp; -((bsr_8 &gt;= <span class="number">0</span>) <span class="kw">as </span>i8);
+  offset <span class="kw">as </span>floatX + kLog2Table[(v &gt;&gt; offset) <span class="kw">as </span>u8 <span class="kw">as </span>usize] <span class="kw">as </span>(floatX)
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">xFastLog2u16</span>(<span class="ident">v</span>: <span class="ident">u16</span>) -&gt; <span class="ident">floatX</span> {
-  <span class="kw">let</span> <span class="ident">bsr_8</span> <span class="op">=</span> <span class="number">8i8</span> <span class="op">-</span> <span class="ident">v</span>.<span class="ident">leading_zeros</span>() <span class="kw">as</span> <span class="ident">i8</span>;
-  <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> (<span class="ident">bsr_8</span> <span class="op">&amp;</span> <span class="op">-</span>((<span class="ident">bsr_8</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span>) <span class="kw">as</span> <span class="ident">i8</span>));
-  <span class="ident">offset</span> <span class="kw">as</span> <span class="ident">floatX</span> <span class="op">+</span> <span class="ident">kLog2Table</span>[(<span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="kw">as</span> <span class="ident">usize</span>] <span class="kw">as</span> (<span class="ident">floatX</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>xFastLog2u16(v: u16) -&gt; floatX {
+  <span class="kw">let </span>bsr_8 = <span class="number">8i8 </span>- v.leading_zeros() <span class="kw">as </span>i8;
+  <span class="kw">let </span>offset = (bsr_8 &amp; -((bsr_8 &gt;= <span class="number">0</span>) <span class="kw">as </span>i8));
+  offset <span class="kw">as </span>floatX + kLog2Table[(v &gt;&gt; offset) <span class="kw">as </span>u8 <span class="kw">as </span>usize] <span class="kw">as </span>(floatX)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastPow2</span>(<span class="ident">v</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>) -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span> {
-  <span class="kw">return</span> (<span class="number">2</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>).<span class="ident">powf</span>(<span class="ident">v</span>);
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+#[inline(always)]
+</span><span class="kw">pub fn </span>FastPow2(v: <span class="kw">super</span>::util::floatX) -&gt; <span class="kw">super</span>::util::floatX {
+  <span class="kw">return </span>(<span class="number">2 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX).powf(v);
 }
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">FastPow2</span>(<span class="ident">v</span>: <span class="ident"><span class="kw">super</span>::util::floatX</span>) -&gt; <span class="ident"><span class="kw">super</span>::util::floatX</span> {
-   <span class="macro">assert!</span>(<span class="ident">v</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>);
-   <span class="kw">let</span> <span class="ident">round_down</span> <span class="op">=</span> <span class="ident">v</span> <span class="kw">as</span> <span class="ident">i32</span>;
-   <span class="kw">let</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="ident">v</span> <span class="op">-</span> <span class="ident">round_down</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>;
-   <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">1</span> <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>;
-   <span class="comment">// (1 + (x/n) * ln2) ^ n </span>
-   <span class="comment">// let n = 8</span>
-   <span class="ident">x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">remainder</span> <span class="op">*</span> (<span class="number">0.693147180559945309417232121458</span> <span class="op">/</span> <span class="number">256.0</span>) <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span>;
-   <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x</span>;
-   <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x</span>;
-   <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x</span>;
-   <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x</span>;
-   <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x</span>;
-   <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x</span>;
-   <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x</span>;
-   <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x</span>;
-   <span class="kw">return</span> (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">round_down</span>) <span class="kw">as</span> <span class="ident"><span class="kw">super</span>::util::floatX</span> <span class="op">*</span> <span class="ident">x</span>;
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+#[inline(always)]
+</span><span class="kw">pub fn </span>FastPow2(v: <span class="kw">super</span>::util::floatX) -&gt; <span class="kw">super</span>::util::floatX {
+   <span class="macro">assert!</span>(v &gt;= <span class="number">0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX);
+   <span class="kw">let </span>round_down = v <span class="kw">as </span>i32;
+   <span class="kw">let </span>remainder = v - round_down <span class="kw">as </span><span class="kw">super</span>::util::floatX;
+   <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">1 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX;
+   <span class="comment">// (1 + (x/n) * ln2) ^ n 
+   // let n = 8
+   </span>x += remainder * (<span class="number">0.693147180559945309417232121458 </span>/ <span class="number">256.0</span>) <span class="kw">as </span><span class="kw">super</span>::util::floatX;
+   x <span class="kw-2">*</span>= x;
+   x <span class="kw-2">*</span>= x;
+   x <span class="kw-2">*</span>= x;
+   x <span class="kw-2">*</span>= x;
+   x <span class="kw-2">*</span>= x;
+   x <span class="kw-2">*</span>= x;
+   x <span class="kw-2">*</span>= x;
+   x <span class="kw-2">*</span>= x;
+   <span class="kw">return </span>(<span class="number">1 </span>&lt;&lt; round_down) <span class="kw">as </span><span class="kw">super</span>::util::floatX * x;
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Log2FloorNonZero</span>(<span class="ident">v</span>: <span class="ident">u64</span>) -&gt; <span class="ident">u32</span> {
-  (<span class="number">63u32</span> <span class="op">^</span> <span class="ident">v</span>.<span class="ident">leading_zeros</span>()) <span class="kw">as</span> <span class="ident">u32</span>
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>Log2FloorNonZero(v: u64) -&gt; u32 {
+  (<span class="number">63u32 </span>^ v.leading_zeros()) <span class="kw">as </span>u32
 }
 
-<span class="kw">mod</span> <span class="ident">test</span> {
-  <span class="kw">fn</span> <span class="ident">baseline_log2_floor_non_zero</span>(<span class="kw-2">mut</span> <span class="ident">n</span>:<span class="ident">u64</span>) -&gt; <span class="ident">u32</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0u32</span>;
-    <span class="kw">while</span> {
-        <span class="ident">n</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1i32</span>;
-        <span class="ident">n</span>
-    } <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-      <span class="ident">result</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span> <span class="kw">as</span> (<span class="ident">u32</span>));
+<span class="kw">mod </span>test {
+  <span class="kw">fn </span>baseline_log2_floor_non_zero(<span class="kw-2">mut </span>n:u64) -&gt; u32 {
+    <span class="kw">let </span><span class="kw-2">mut </span>result: u32 = <span class="number">0u32</span>;
+    <span class="kw">while </span>{
+        n = n &gt;&gt; <span class="number">1i32</span>;
+        n
+    } != <span class="number">0 </span>{
+      result = result.wrapping_add(<span class="number">1 </span><span class="kw">as </span>(u32));
     }
-    <span class="ident">result</span>
+    result
   }
 
-  <span class="attribute">#[<span class="ident">test</span>]</span>
-  <span class="kw">fn</span> <span class="ident">log2floor_non_zero_works</span>(){
-    <span class="kw">let</span> <span class="ident">examples</span> <span class="op">=</span> [<span class="number">4u64</span>, <span class="number">254u64</span>, <span class="number">256u64</span>,
+  <span class="attribute">#[test]
+  </span><span class="kw">fn </span>log2floor_non_zero_works(){
+    <span class="kw">let </span>examples = [<span class="number">4u64</span>, <span class="number">254u64</span>, <span class="number">256u64</span>,
                   <span class="number">1428u64</span>, <span class="number">25412509u64</span>, <span class="number">21350891256u64</span>,
                   <span class="number">65536u64</span>, <span class="number">1258912591u64</span>, <span class="number">60968101u64</span>,
                   <span class="number">1u64</span>, <span class="number">12589125190825u64</span>, <span class="number">105912059215091u64</span>,
                   <span class="number">0u64</span>];
-    <span class="kw">for</span> <span class="ident">example</span> <span class="kw">in</span> <span class="ident">examples</span>.<span class="ident">iter</span>() {
-      <span class="kw">let</span> <span class="ident">fast_version</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::Log2FloorNonZero</span>(<span class="kw-2">*</span><span class="ident">example</span>);
-      <span class="kw">let</span> <span class="ident">baseline_version</span> <span class="op">=</span> <span class="ident">baseline_log2_floor_non_zero</span>(<span class="kw-2">*</span><span class="ident">example</span>);
-      <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">example</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> { <span class="comment">// make sure we don&#39;t panic when computing...but don&#39;t care about result</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">fast_version</span>,
-                 <span class="ident">baseline_version</span>);
+    <span class="kw">for </span>example <span class="kw">in </span>examples.iter() {
+      <span class="kw">let </span>fast_version = <span class="kw">super</span>::Log2FloorNonZero(<span class="kw-2">*</span>example);
+      <span class="kw">let </span>baseline_version = baseline_log2_floor_non_zero(<span class="kw-2">*</span>example);
+      <span class="kw">if </span><span class="kw-2">*</span>example != <span class="number">0 </span>{ <span class="comment">// make sure we don&#39;t panic when computing...but don&#39;t care about result
+        </span><span class="macro">assert_eq!</span>(fast_version,
+                 baseline_version);
       }
     }
   }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_eq</span>(<span class="ident">a</span> : <span class="ident">f64</span>, <span class="ident">b</span>: <span class="ident">f64</span>, <span class="ident">tol</span>: <span class="ident">f64</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t0</span> <span class="op">=</span> <span class="ident">a</span> <span class="op">-</span> <span class="ident">b</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">b</span> <span class="op">-</span> <span class="ident">a</span>;
-    <span class="kw">if</span> <span class="ident">t0</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
-       <span class="ident">t0</span> <span class="op">=</span> <span class="op">-</span><span class="ident">t0</span>;
+<span class="kw">pub fn </span>approx_eq(a : f64, b: f64, tol: f64) {
+    <span class="kw">let </span><span class="kw-2">mut </span>t0 = a - b;
+    <span class="kw">let </span><span class="kw-2">mut </span>t1 = b - a;
+    <span class="kw">if </span>t0 &lt; <span class="number">0.0 </span>{
+       t0 = -t0;
     }
-    <span class="kw">if</span> <span class="ident">t1</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
-       <span class="ident">t1</span> <span class="op">=</span> <span class="op">-</span><span class="ident">t1</span>;
+    <span class="kw">if </span>t1 &lt; <span class="number">0.0 </span>{
+       t1 = -t1;
     }
-    <span class="kw">if</span> (<span class="op">!</span>(<span class="ident">t1</span> <span class="op">&lt;</span> <span class="ident">tol</span>)) {
-       <span class="macro">assert_eq!</span>(<span class="ident">a</span>, <span class="ident">b</span>);
+    <span class="kw">if </span>(!(t1 &lt; tol)) {
+       <span class="macro">assert_eq!</span>(a, b);
     }
-    <span class="kw">if</span> (<span class="op">!</span>(<span class="ident">t0</span> <span class="op">&lt;</span> <span class="ident">tol</span>)) {
-       <span class="macro">assert_eq!</span>(<span class="ident">a</span>, <span class="ident">b</span>);
+    <span class="kw">if </span>(!(t0 &lt; tol)) {
+       <span class="macro">assert_eq!</span>(a, b);
     }
 }
-  <span class="attribute">#[<span class="ident">test</span>]</span>
-  <span class="kw">fn</span> <span class="ident">fast_log2_works</span>(){
-    <span class="kw">let</span> <span class="ident">examples</span> <span class="op">=</span> [<span class="number">4u64</span>, <span class="number">254u64</span>, <span class="number">256u64</span>,
+  <span class="attribute">#[test]
+  </span><span class="kw">fn </span>fast_log2_works(){
+    <span class="kw">let </span>examples = [<span class="number">4u64</span>, <span class="number">254u64</span>, <span class="number">256u64</span>,
                   <span class="number">1428u64</span>, <span class="number">25412509u64</span>, <span class="number">21350891256u64</span>,
                   <span class="number">65536u64</span>, <span class="number">1258912591u64</span>, <span class="number">60968101u64</span>,
                   <span class="number">1u64</span>, <span class="number">12589125190825u64</span>, <span class="number">105912059215091u64</span>,
                   <span class="number">0u64</span>];
-    <span class="kw">let</span> <span class="ident">tol</span> <span class="op">=</span> [<span class="number">0.00001</span>, <span class="number">0.0001</span>, <span class="number">0.0001</span>, <span class="number">0.005</span>, <span class="number">0.007</span>, <span class="number">0.008</span>, <span class="number">0.01</span>, <span class="number">0.01</span>, <span class="number">0.01</span>, <span class="number">0.000001</span>, <span class="number">0.01</span>, <span class="number">0.01</span>, <span class="number">0.0001</span>];
-    <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">example</span>) <span class="kw">in</span> <span class="ident">examples</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-      <span class="kw">let</span> <span class="ident">fast_version</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::FastLog2</span>(<span class="kw-2">*</span><span class="ident">example</span>);
-      <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">example</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> { <span class="comment">// make sure we don&#39;t panic when computing...but don&#39;t care about result</span>
-        <span class="kw">let</span> <span class="ident">baseline_version</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">example</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">log2</span>();
-        <span class="ident">approx_eq</span>(<span class="ident">fast_version</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="ident">baseline_version</span>, <span class="ident">tol</span>[<span class="ident">index</span>]);
-      } <span class="kw">else</span> {
-        <span class="comment">//assert_eq!(fast_version as f64, 0.0 as f64);</span>
-      }
+    <span class="kw">let </span>tol = [<span class="number">0.00001</span>, <span class="number">0.0001</span>, <span class="number">0.0001</span>, <span class="number">0.005</span>, <span class="number">0.007</span>, <span class="number">0.008</span>, <span class="number">0.01</span>, <span class="number">0.01</span>, <span class="number">0.01</span>, <span class="number">0.000001</span>, <span class="number">0.01</span>, <span class="number">0.01</span>, <span class="number">0.0001</span>];
+    <span class="kw">for </span>(index, example) <span class="kw">in </span>examples.iter().enumerate() {
+      <span class="kw">let </span>fast_version = <span class="kw">super</span>::FastLog2(<span class="kw-2">*</span>example);
+      <span class="kw">if </span><span class="kw-2">*</span>example != <span class="number">0 </span>{ <span class="comment">// make sure we don&#39;t panic when computing...but don&#39;t care about result
+        </span><span class="kw">let </span>baseline_version = (<span class="kw-2">*</span>example <span class="kw">as </span>f64).log2();
+        approx_eq(fast_version <span class="kw">as </span>f64, baseline_version, tol[index]);
+      } <span class="kw">else </span>{
+        <span class="comment">//assert_eq!(fast_version as f64, 0.0 as f64);
+      </span>}
     }
   }
 }
 
 
-<span class="kw">static</span> <span class="ident">log64k</span> : [<span class="ident">floatX</span>; <span class="number">65536</span>] <span class="op">=</span> [
+<span class="kw">static </span>log64k : [floatX; <span class="number">65536</span>] = [
     <span class="number">0.0</span>,<span class="number">0.0</span>,<span class="number">1.0</span>,<span class="number">1.58496250072</span>,<span class="number">2.0</span>,<span class="number">2.32192809489</span>,<span class="number">2.58496250072</span>,<span class="number">2.80735492206</span>,<span class="number">3.0</span>,<span class="number">3.16992500144</span>,<span class="number">3.32192809489</span>,<span class="number">3.45943161864</span>,<span class="number">3.58496250072</span>,<span class="number">3.70043971814</span>,<span class="number">3.80735492206</span>,<span class="number">3.90689059561</span>,
 <span class="number">4.0</span>,<span class="number">4.08746284125</span>,<span class="number">4.16992500144</span>,<span class="number">4.24792751344</span>,<span class="number">4.32192809489</span>,<span class="number">4.39231742278</span>,<span class="number">4.45943161864</span>,<span class="number">4.52356195606</span>,<span class="number">4.58496250072</span>,<span class="number">4.64385618977</span>,<span class="number">4.70043971814</span>,<span class="number">4.75488750216</span>,<span class="number">4.80735492206</span>,<span class="number">4.85798099513</span>,<span class="number">4.90689059561</span>,<span class="number">4.95419631039</span>,
 <span class="number">5.0</span>,<span class="number">5.04439411936</span>,<span class="number">5.08746284125</span>,<span class="number">5.12928301694</span>,<span class="number">5.16992500144</span>,<span class="number">5.20945336563</span>,<span class="number">5.24792751344</span>,<span class="number">5.28540221886</span>,<span class="number">5.32192809489</span>,<span class="number">5.35755200462</span>,<span class="number">5.39231742278</span>,<span class="number">5.4262647547</span>,<span class="number">5.45943161864</span>,<span class="number">5.49185309633</span>,<span class="number">5.52356195606</span>,<span class="number">5.55458885168</span>,
@@ -9082,7 +9082,7 @@
 <span class="number">15.9985904297</span>,<span class="number">15.9986124649</span>,<span class="number">15.9986344997</span>,<span class="number">15.9986565341</span>,<span class="number">15.9986785682</span>,<span class="number">15.998700602</span>,<span class="number">15.9987226355</span>,<span class="number">15.9987446686</span>,<span class="number">15.9987667014</span>,<span class="number">15.9987887338</span>,<span class="number">15.9988107659</span>,<span class="number">15.9988327977</span>,<span class="number">15.9988548291</span>,<span class="number">15.9988768602</span>,<span class="number">15.9988988909</span>,<span class="number">15.9989209214</span>,
 <span class="number">15.9989429514</span>,<span class="number">15.9989649812</span>,<span class="number">15.9989870106</span>,<span class="number">15.9990090397</span>,<span class="number">15.9990310684</span>,<span class="number">15.9990530968</span>,<span class="number">15.9990751249</span>,<span class="number">15.9990971526</span>,<span class="number">15.99911918</span>,<span class="number">15.9991412071</span>,<span class="number">15.9991632338</span>,<span class="number">15.9991852602</span>,<span class="number">15.9992072862</span>,<span class="number">15.9992293119</span>,<span class="number">15.9992513373</span>,<span class="number">15.9992733623</span>,
 <span class="number">15.999295387</span>,<span class="number">15.9993174114</span>,<span class="number">15.9993394354</span>,<span class="number">15.9993614591</span>,<span class="number">15.9993834825</span>,<span class="number">15.9994055055</span>,<span class="number">15.9994275282</span>,<span class="number">15.9994495505</span>,<span class="number">15.9994715725</span>,<span class="number">15.9994935942</span>,<span class="number">15.9995156155</span>,<span class="number">15.9995376366</span>,<span class="number">15.9995596572</span>,<span class="number">15.9995816776</span>,<span class="number">15.9996036975</span>,<span class="number">15.9996257172</span>,
-<span class="number">15.9996477365</span>,<span class="number">15.9996697555</span>,<span class="number">15.9996917742</span>,<span class="number">15.9997137925</span>,<span class="number">15.9997358105</span>,<span class="number">15.9997578281</span>,<span class="number">15.9997798454</span>,<span class="number">15.9998018624</span>,<span class="number">15.999823879</span>,<span class="number">15.9998458953</span>,<span class="number">15.9998679113</span>,<span class="number">15.9998899269</span>,<span class="number">15.9999119422</span>,<span class="number">15.9999339572</span>,<span class="number">15.9999559718</span>,<span class="number">15.9999779861</span>
-];
+<span class="number">15.9996477365</span>,<span class="number">15.9996697555</span>,<span class="number">15.9996917742</span>,<span class="number">15.9997137925</span>,<span class="number">15.9997358105</span>,<span class="number">15.9997578281</span>,<span class="number">15.9997798454</span>,<span class="number">15.9998018624</span>,<span class="number">15.999823879</span>,<span class="number">15.9998458953</span>,<span class="number">15.9998679113</span>,<span class="number">15.9998899269</span>,<span class="number">15.9999119422</span>,<span class="number">15.9999339572</span>,<span class="number">15.9999559718</span>,<span class="number">15.9999779861
+</span>];
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

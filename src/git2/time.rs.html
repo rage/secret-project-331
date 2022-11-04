@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -125,132 +125,132 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cmp::Ordering;
 
-<span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_char</span>, <span class="ident">c_int</span>};
+<span class="kw">use </span>libc::{c_char, c_int};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::raw</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util::Binding</span>;
+<span class="kw">use </span><span class="kw">crate</span>::raw;
+<span class="kw">use </span><span class="kw">crate</span>::util::Binding;
 
-<span class="doccomment">/// Time in a signature</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Time</span> {
-    <span class="ident">raw</span>: <span class="ident">raw::git_time</span>,
+<span class="doccomment">/// Time in a signature
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+</span><span class="kw">pub struct </span>Time {
+    raw: raw::git_time,
 }
 
-<span class="doccomment">/// Time structure used in a git index entry.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IndexTime</span> {
-    <span class="ident">raw</span>: <span class="ident">raw::git_index_time</span>,
+<span class="doccomment">/// Time structure used in a git index entry.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+</span><span class="kw">pub struct </span>IndexTime {
+    raw: raw::git_index_time,
 }
 
-<span class="kw">impl</span> <span class="ident">Time</span> {
-    <span class="doccomment">/// Creates a new time structure from its components.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">time</span>: <span class="ident">i64</span>, <span class="ident">offset</span>: <span class="ident">i32</span>) -&gt; <span class="ident">Time</span> {
-        <span class="kw">unsafe</span> {
-            <span class="ident">Binding::from_raw</span>(<span class="ident">raw::git_time</span> {
-                <span class="ident">time</span>: <span class="ident">time</span> <span class="kw">as</span> <span class="ident">raw::git_time_t</span>,
-                <span class="ident">offset</span>: <span class="ident">offset</span> <span class="kw">as</span> <span class="ident">c_int</span>,
-                <span class="ident">sign</span>: <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="number">0</span> { <span class="string">&#39;-&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;+&#39;</span> } <span class="kw">as</span> <span class="ident">c_char</span>,
+<span class="kw">impl </span>Time {
+    <span class="doccomment">/// Creates a new time structure from its components.
+    </span><span class="kw">pub fn </span>new(time: i64, offset: i32) -&gt; Time {
+        <span class="kw">unsafe </span>{
+            Binding::from_raw(raw::git_time {
+                time: time <span class="kw">as </span>raw::git_time_t,
+                offset: offset <span class="kw">as </span>c_int,
+                sign: <span class="kw">if </span>offset &lt; <span class="number">0 </span>{ <span class="string">&#39;-&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;+&#39; </span>} <span class="kw">as </span>c_char,
             })
         }
     }
 
-    <span class="doccomment">/// Return the time, in seconds, from epoch</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seconds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i64</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">time</span> <span class="kw">as</span> <span class="ident">i64</span>
+    <span class="doccomment">/// Return the time, in seconds, from epoch
+    </span><span class="kw">pub fn </span>seconds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64 {
+        <span class="self">self</span>.raw.time <span class="kw">as </span>i64
     }
 
-    <span class="doccomment">/// Return the timezone offset, in minutes</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset_minutes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">i32</span>
+    <span class="doccomment">/// Return the timezone offset, in minutes
+    </span><span class="kw">pub fn </span>offset_minutes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.raw.offset <span class="kw">as </span>i32
     }
 
-    <span class="doccomment">/// Return whether the offset was positive or negative. Primarily useful</span>
-    <span class="doccomment">/// in case the offset is specified as a negative zero.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sign</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">char</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">sign</span> <span class="kw">as</span> <span class="ident">u8</span> <span class="kw">as</span> <span class="ident">char</span>
+    <span class="doccomment">/// Return whether the offset was positive or negative. Primarily useful
+    /// in case the offset is specified as a negative zero.
+    </span><span class="kw">pub fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; char {
+        <span class="self">self</span>.raw.sign <span class="kw">as </span>u8 <span class="kw">as </span>char
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Time</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
+<span class="kw">impl </span>PartialOrd <span class="kw">for </span>Time {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Time) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Time</span>) -&gt; <span class="ident">Ordering</span> {
-        (<span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">time</span>, <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">offset</span>).<span class="ident">cmp</span>(<span class="kw-2">&amp;</span>(<span class="ident">other</span>.<span class="ident">raw</span>.<span class="ident">time</span>, <span class="ident">other</span>.<span class="ident">raw</span>.<span class="ident">offset</span>))
+<span class="kw">impl </span>Ord <span class="kw">for </span>Time {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Time) -&gt; Ordering {
+        (<span class="self">self</span>.raw.time, <span class="self">self</span>.raw.offset).cmp(<span class="kw-2">&amp;</span>(other.raw.time, other.raw.offset))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Binding</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">type</span> <span class="ident">Raw</span> <span class="op">=</span> <span class="ident">raw::git_time</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">raw</span>: <span class="ident">raw::git_time</span>) -&gt; <span class="ident">Time</span> {
-        <span class="ident">Time</span> { <span class="ident">raw</span> }
+<span class="kw">impl </span>Binding <span class="kw">for </span>Time {
+    <span class="kw">type </span>Raw = raw::git_time;
+    <span class="kw">unsafe fn </span>from_raw(raw: raw::git_time) -&gt; Time {
+        Time { raw }
     }
-    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_time</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>
+    <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_time {
+        <span class="self">self</span>.raw
     }
 }
 
-<span class="kw">impl</span> <span class="ident">IndexTime</span> {
-    <span class="doccomment">/// Creates a new time structure from its components.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">seconds</span>: <span class="ident">i32</span>, <span class="ident">nanoseconds</span>: <span class="ident">u32</span>) -&gt; <span class="ident">IndexTime</span> {
-        <span class="kw">unsafe</span> {
-            <span class="ident">Binding::from_raw</span>(<span class="ident">raw::git_index_time</span> {
-                <span class="ident">seconds</span>,
-                <span class="ident">nanoseconds</span>,
+<span class="kw">impl </span>IndexTime {
+    <span class="doccomment">/// Creates a new time structure from its components.
+    </span><span class="kw">pub fn </span>new(seconds: i32, nanoseconds: u32) -&gt; IndexTime {
+        <span class="kw">unsafe </span>{
+            Binding::from_raw(raw::git_index_time {
+                seconds,
+                nanoseconds,
             })
         }
     }
 
-    <span class="doccomment">/// Returns the number of seconds in the second component of this time.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seconds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">seconds</span>
+    <span class="doccomment">/// Returns the number of seconds in the second component of this time.
+    </span><span class="kw">pub fn </span>seconds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="self">self</span>.raw.seconds
     }
-    <span class="doccomment">/// Returns the nanosecond component of this time.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nanoseconds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">nanoseconds</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Binding</span> <span class="kw">for</span> <span class="ident">IndexTime</span> {
-    <span class="kw">type</span> <span class="ident">Raw</span> <span class="op">=</span> <span class="ident">raw::git_index_time</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">raw</span>: <span class="ident">raw::git_index_time</span>) -&gt; <span class="ident">IndexTime</span> {
-        <span class="ident">IndexTime</span> { <span class="ident">raw</span> }
-    }
-    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">raw::git_index_time</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>
+    <span class="doccomment">/// Returns the nanosecond component of this time.
+    </span><span class="kw">pub fn </span>nanoseconds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.raw.nanoseconds
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">IndexTime</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">IndexTime</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
+<span class="kw">impl </span>Binding <span class="kw">for </span>IndexTime {
+    <span class="kw">type </span>Raw = raw::git_index_time;
+    <span class="kw">unsafe fn </span>from_raw(raw: raw::git_index_time) -&gt; IndexTime {
+        IndexTime { raw }
+    }
+    <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; raw::git_index_time {
+        <span class="self">self</span>.raw
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">IndexTime</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">IndexTime</span>) -&gt; <span class="ident">Ordering</span> {
-        <span class="kw">let</span> <span class="ident">me</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">seconds</span>, <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">nanoseconds</span>);
-        <span class="kw">let</span> <span class="ident">other</span> <span class="op">=</span> (<span class="ident">other</span>.<span class="ident">raw</span>.<span class="ident">seconds</span>, <span class="ident">other</span>.<span class="ident">raw</span>.<span class="ident">nanoseconds</span>);
-        <span class="ident">me</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>)
+<span class="kw">impl </span>PartialOrd <span class="kw">for </span>IndexTime {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>IndexTime) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Time</span>;
+<span class="kw">impl </span>Ord <span class="kw">for </span>IndexTime {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>IndexTime) -&gt; Ordering {
+        <span class="kw">let </span>me = (<span class="self">self</span>.raw.seconds, <span class="self">self</span>.raw.nanoseconds);
+        <span class="kw">let </span>other = (other.raw.seconds, other.raw.nanoseconds);
+        me.cmp(<span class="kw-2">&amp;</span>other)
+    }
+}
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">smoke</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">Time::new</span>(<span class="number">1608839587</span>, <span class="op">-</span><span class="number">300</span>).<span class="ident">seconds</span>(), <span class="number">1608839587</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">Time::new</span>(<span class="number">1608839587</span>, <span class="op">-</span><span class="number">300</span>).<span class="ident">offset_minutes</span>(), <span class="op">-</span><span class="number">300</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">Time::new</span>(<span class="number">1608839587</span>, <span class="op">-</span><span class="number">300</span>).<span class="ident">sign</span>(), <span class="string">&#39;-&#39;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">Time::new</span>(<span class="number">1608839587</span>, <span class="number">300</span>).<span class="ident">sign</span>(), <span class="string">&#39;+&#39;</span>);
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">crate</span>::Time;
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>smoke() {
+        <span class="macro">assert_eq!</span>(Time::new(<span class="number">1608839587</span>, -<span class="number">300</span>).seconds(), <span class="number">1608839587</span>);
+        <span class="macro">assert_eq!</span>(Time::new(<span class="number">1608839587</span>, -<span class="number">300</span>).offset_minutes(), -<span class="number">300</span>);
+        <span class="macro">assert_eq!</span>(Time::new(<span class="number">1608839587</span>, -<span class="number">300</span>).sign(), <span class="string">&#39;-&#39;</span>);
+        <span class="macro">assert_eq!</span>(Time::new(<span class="number">1608839587</span>, <span class="number">300</span>).sign(), <span class="string">&#39;+&#39;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

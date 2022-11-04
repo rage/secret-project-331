@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.8.1/src/ni/aes192.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>aes192.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../aes/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.8.1/src/ni/aes192.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>aes192.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../aes/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../aes/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -197,202 +197,202 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">arch</span>::<span class="kw-2">*</span>, <span class="ident">utils</span>::<span class="kw-2">*</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Block</span>, <span class="ident">Block8</span>};
-<span class="kw">use</span> <span class="ident">cipher::inout::InOut</span>;
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">mem</span>, <span class="ident">ptr</span>};
+</pre><pre class="rust"><code><span class="kw">use super</span>::{arch::<span class="kw-2">*</span>, utils::<span class="kw-2">*</span>};
+<span class="kw">use crate</span>::{Block, Block8};
+<span class="kw">use </span>cipher::inout::InOut;
+<span class="kw">use </span>core::{mem, ptr};
 
-<span class="doccomment">/// AES-192 round keys</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type</span> <span class="ident">RoundKeys</span> <span class="op">=</span> [<span class="ident">__m128i</span>; <span class="number">13</span>];
+<span class="doccomment">/// AES-192 round keys
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>RoundKeys = [__m128i; <span class="number">13</span>];
 
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">encrypt1</span>(<span class="ident">keys</span>: <span class="kw-2">&amp;</span><span class="ident">RoundKeys</span>, <span class="ident">block</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> (<span class="ident">in_ptr</span>, <span class="ident">out_ptr</span>) <span class="op">=</span> <span class="ident">block</span>.<span class="ident">into_raw</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_loadu_si128</span>(<span class="ident">in_ptr</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">__m128i</span>);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_xor_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">0</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">1</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">2</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">3</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">4</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">5</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">6</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">7</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">8</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">9</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">10</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenc_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">11</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesenclast_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">12</span>]);
-    <span class="ident">_mm_storeu_si128</span>(<span class="ident">out_ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">__m128i</span>, <span class="ident">b</span>);
+<span class="attribute">#[inline]
+#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>encrypt1(keys: <span class="kw-2">&amp;</span>RoundKeys, block: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&gt;) {
+    <span class="kw">let </span>(in_ptr, out_ptr) = block.into_raw();
+    <span class="kw">let </span><span class="kw-2">mut </span>b = _mm_loadu_si128(in_ptr <span class="kw">as </span><span class="kw-2">*const </span>__m128i);
+    b = _mm_xor_si128(b, keys[<span class="number">0</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">1</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">2</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">3</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">4</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">5</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">6</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">7</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">8</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">9</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">10</span>]);
+    b = _mm_aesenc_si128(b, keys[<span class="number">11</span>]);
+    b = _mm_aesenclast_si128(b, keys[<span class="number">12</span>]);
+    _mm_storeu_si128(out_ptr <span class="kw">as </span><span class="kw-2">*mut </span>__m128i, b);
 }
 
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">encrypt8</span>(<span class="ident">keys</span>: <span class="kw-2">&amp;</span><span class="ident">RoundKeys</span>, <span class="ident">blocks</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block8</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> (<span class="ident">in_ptr</span>, <span class="ident">out_ptr</span>) <span class="op">=</span> <span class="ident">blocks</span>.<span class="ident">into_raw</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">load8</span>(<span class="ident">in_ptr</span>);
-    <span class="ident">xor8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">0</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">1</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">2</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">3</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">4</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">5</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">6</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">7</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">8</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">9</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">10</span>]);
-    <span class="ident">aesenc8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">11</span>]);
-    <span class="ident">aesenclast8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">12</span>]);
-    <span class="ident">store8</span>(<span class="ident">out_ptr</span>, <span class="ident">b</span>);
+<span class="attribute">#[inline]
+#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>encrypt8(keys: <span class="kw-2">&amp;</span>RoundKeys, blocks: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block8&gt;) {
+    <span class="kw">let </span>(in_ptr, out_ptr) = blocks.into_raw();
+    <span class="kw">let </span><span class="kw-2">mut </span>b = load8(in_ptr);
+    xor8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">0</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">1</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">2</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">3</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">4</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">5</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">6</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">7</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">8</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">9</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">10</span>]);
+    aesenc8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">11</span>]);
+    aesenclast8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">12</span>]);
+    store8(out_ptr, b);
 }
 
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">decrypt1</span>(<span class="ident">keys</span>: <span class="kw-2">&amp;</span><span class="ident">RoundKeys</span>, <span class="ident">block</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> (<span class="ident">in_ptr</span>, <span class="ident">out_ptr</span>) <span class="op">=</span> <span class="ident">block</span>.<span class="ident">into_raw</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_loadu_si128</span>(<span class="ident">in_ptr</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">__m128i</span>);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_xor_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">12</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">11</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">10</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">9</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">8</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">7</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">6</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">5</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">4</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">3</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">2</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdec_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">1</span>]);
-    <span class="ident">b</span> <span class="op">=</span> <span class="ident">_mm_aesdeclast_si128</span>(<span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">0</span>]);
-    <span class="ident">_mm_storeu_si128</span>(<span class="ident">out_ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">__m128i</span>, <span class="ident">b</span>);
+<span class="attribute">#[inline]
+#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>decrypt1(keys: <span class="kw-2">&amp;</span>RoundKeys, block: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&gt;) {
+    <span class="kw">let </span>(in_ptr, out_ptr) = block.into_raw();
+    <span class="kw">let </span><span class="kw-2">mut </span>b = _mm_loadu_si128(in_ptr <span class="kw">as </span><span class="kw-2">*const </span>__m128i);
+    b = _mm_xor_si128(b, keys[<span class="number">12</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">11</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">10</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">9</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">8</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">7</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">6</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">5</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">4</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">3</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">2</span>]);
+    b = _mm_aesdec_si128(b, keys[<span class="number">1</span>]);
+    b = _mm_aesdeclast_si128(b, keys[<span class="number">0</span>]);
+    _mm_storeu_si128(out_ptr <span class="kw">as </span><span class="kw-2">*mut </span>__m128i, b);
 }
 
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">decrypt8</span>(<span class="ident">keys</span>: <span class="kw-2">&amp;</span><span class="ident">RoundKeys</span>, <span class="ident">blocks</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block8</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> (<span class="ident">in_ptr</span>, <span class="ident">out_ptr</span>) <span class="op">=</span> <span class="ident">blocks</span>.<span class="ident">into_raw</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">load8</span>(<span class="ident">in_ptr</span>);
-    <span class="ident">xor8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">12</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">11</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">10</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">9</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">8</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">7</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">6</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">5</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">4</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">3</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">2</span>]);
-    <span class="ident">aesdec8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">1</span>]);
-    <span class="ident">aesdeclast8</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>, <span class="ident">keys</span>[<span class="number">0</span>]);
-    <span class="ident">store8</span>(<span class="ident">out_ptr</span>, <span class="ident">b</span>);
+<span class="attribute">#[inline]
+#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>decrypt8(keys: <span class="kw-2">&amp;</span>RoundKeys, blocks: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block8&gt;) {
+    <span class="kw">let </span>(in_ptr, out_ptr) = blocks.into_raw();
+    <span class="kw">let </span><span class="kw-2">mut </span>b = load8(in_ptr);
+    xor8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">12</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">11</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">10</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">9</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">8</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">7</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">6</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">5</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">4</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">3</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">2</span>]);
+    aesdec8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">1</span>]);
+    aesdeclast8(<span class="kw-2">&amp;mut </span>b, keys[<span class="number">0</span>]);
+    store8(out_ptr, b);
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">expand_round</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t1</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t3</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">round</span>:<span class="ident">expr</span>) =&gt; {{
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t1</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t1</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t2</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t3</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t3</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t4</span>;
+<span class="macro">macro_rules! </span>expand_round {
+    (<span class="macro-nonterminal">$t1</span>:expr, <span class="macro-nonterminal">$t3</span>:expr, <span class="macro-nonterminal">$round</span>:expr) =&gt; {{
+        <span class="kw">let </span><span class="kw-2">mut </span>t1 = <span class="macro-nonterminal">$t1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>t2;
+        <span class="kw">let </span><span class="kw-2">mut </span>t3 = <span class="macro-nonterminal">$t3</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>t4;
 
-        <span class="ident">t2</span> <span class="op">=</span> <span class="ident">_mm_aeskeygenassist_si128</span>(<span class="ident">t3</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">round</span>);
-        <span class="ident">t2</span> <span class="op">=</span> <span class="ident">_mm_shuffle_epi32</span>(<span class="ident">t2</span>, <span class="number">0x55</span>);
-        <span class="ident">t4</span> <span class="op">=</span> <span class="ident">_mm_slli_si128</span>(<span class="ident">t1</span>, <span class="number">0x4</span>);
-        <span class="ident">t1</span> <span class="op">=</span> <span class="ident">_mm_xor_si128</span>(<span class="ident">t1</span>, <span class="ident">t4</span>);
-        <span class="ident">t4</span> <span class="op">=</span> <span class="ident">_mm_slli_si128</span>(<span class="ident">t4</span>, <span class="number">0x4</span>);
-        <span class="ident">t1</span> <span class="op">=</span> <span class="ident">_mm_xor_si128</span>(<span class="ident">t1</span>, <span class="ident">t4</span>);
-        <span class="ident">t4</span> <span class="op">=</span> <span class="ident">_mm_slli_si128</span>(<span class="ident">t4</span>, <span class="number">0x4</span>);
-        <span class="ident">t1</span> <span class="op">=</span> <span class="ident">_mm_xor_si128</span>(<span class="ident">t1</span>, <span class="ident">t4</span>);
-        <span class="ident">t1</span> <span class="op">=</span> <span class="ident">_mm_xor_si128</span>(<span class="ident">t1</span>, <span class="ident">t2</span>);
-        <span class="ident">t2</span> <span class="op">=</span> <span class="ident">_mm_shuffle_epi32</span>(<span class="ident">t1</span>, <span class="number">0xff</span>);
-        <span class="ident">t4</span> <span class="op">=</span> <span class="ident">_mm_slli_si128</span>(<span class="ident">t3</span>, <span class="number">0x4</span>);
-        <span class="ident">t3</span> <span class="op">=</span> <span class="ident">_mm_xor_si128</span>(<span class="ident">t3</span>, <span class="ident">t4</span>);
-        <span class="ident">t3</span> <span class="op">=</span> <span class="ident">_mm_xor_si128</span>(<span class="ident">t3</span>, <span class="ident">t2</span>);
+        t2 = _mm_aeskeygenassist_si128(t3, <span class="macro-nonterminal">$round</span>);
+        t2 = _mm_shuffle_epi32(t2, <span class="number">0x55</span>);
+        t4 = _mm_slli_si128(t1, <span class="number">0x4</span>);
+        t1 = _mm_xor_si128(t1, t4);
+        t4 = _mm_slli_si128(t4, <span class="number">0x4</span>);
+        t1 = _mm_xor_si128(t1, t4);
+        t4 = _mm_slli_si128(t4, <span class="number">0x4</span>);
+        t1 = _mm_xor_si128(t1, t4);
+        t1 = _mm_xor_si128(t1, t2);
+        t2 = _mm_shuffle_epi32(t1, <span class="number">0xff</span>);
+        t4 = _mm_slli_si128(t3, <span class="number">0x4</span>);
+        t3 = _mm_xor_si128(t3, t4);
+        t3 = _mm_xor_si128(t3, t2);
 
-        (<span class="ident">t1</span>, <span class="ident">t3</span>)
+        (t1, t3)
     }};
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">shuffle</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imm</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="ident">mem::transmute</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">__m128i</span><span class="op">&gt;</span>(<span class="ident">_mm_shuffle_pd</span>(<span class="ident">mem::transmute</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>), <span class="ident">mem::transmute</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">imm</span>))
+<span class="macro">macro_rules! </span>shuffle {
+    (<span class="macro-nonterminal">$a</span>:expr, <span class="macro-nonterminal">$b</span>:expr, <span class="macro-nonterminal">$imm</span>:expr) =&gt; {
+        mem::transmute::&lt;<span class="kw">_</span>, __m128i&gt;(_mm_shuffle_pd(mem::transmute(<span class="macro-nonterminal">$a</span>), mem::transmute(<span class="macro-nonterminal">$b</span>), <span class="macro-nonterminal">$imm</span>))
     };
 }
 
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">expand_key</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">24</span>]) -&gt; <span class="ident">RoundKeys</span> {
-    <span class="comment">// SAFETY: `RoundKeys` is a `[__m128i; 13]` which can be initialized</span>
-    <span class="comment">// with all zeroes.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">keys</span>: <span class="ident">RoundKeys</span> <span class="op">=</span> <span class="ident">mem::zeroed</span>();
-    <span class="comment">// we are being extra pedantic here to remove out-of-bound access.</span>
-    <span class="comment">// this should be optimized out into movups, movsd sequence</span>
-    <span class="comment">// note that unaligned load MUST be used here, even though we read</span>
-    <span class="comment">// from the array (compiler missoptimizes aligned load)</span>
-    <span class="kw">let</span> (<span class="ident">k0</span>, <span class="ident">k1l</span>) <span class="op">=</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">32</span>];
-        <span class="ident">ptr::write</span>(<span class="ident">t</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">u8</span>; <span class="number">24</span>], <span class="kw-2">*</span><span class="ident">key</span>);
+<span class="attribute">#[inline]
+#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>expand_key(key: <span class="kw-2">&amp;</span>[u8; <span class="number">24</span>]) -&gt; RoundKeys {
+    <span class="comment">// SAFETY: `RoundKeys` is a `[__m128i; 13]` which can be initialized
+    // with all zeroes.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>keys: RoundKeys = mem::zeroed();
+    <span class="comment">// we are being extra pedantic here to remove out-of-bound access.
+    // this should be optimized out into movups, movsd sequence
+    // note that unaligned load MUST be used here, even though we read
+    // from the array (compiler missoptimizes aligned load)
+    </span><span class="kw">let </span>(k0, k1l) = {
+        <span class="kw">let </span><span class="kw-2">mut </span>t = [<span class="number">0u8</span>; <span class="number">32</span>];
+        ptr::write(t.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>[u8; <span class="number">24</span>], <span class="kw-2">*</span>key);
 
         (
-            <span class="ident">_mm_loadu_si128</span>(<span class="ident">t</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">__m128i</span>),
-            <span class="ident">_mm_loadu_si128</span>(<span class="ident">t</span>.<span class="ident">as_ptr</span>().<span class="ident">offset</span>(<span class="number">16</span>) <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">__m128i</span>),
+            _mm_loadu_si128(t.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>__m128i),
+            _mm_loadu_si128(t.as_ptr().offset(<span class="number">16</span>) <span class="kw">as </span><span class="kw-2">*const </span>__m128i),
         )
     };
 
-    <span class="ident">keys</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">k0</span>;
+    keys[<span class="number">0</span>] = k0;
 
-    <span class="kw">let</span> (<span class="ident">k1_2</span>, <span class="ident">k2r</span>) <span class="op">=</span> <span class="macro">expand_round!</span>(<span class="ident">k0</span>, <span class="ident">k1l</span>, <span class="number">0x01</span>);
-    <span class="ident">keys</span>[<span class="number">1</span>] <span class="op">=</span> <span class="macro">shuffle!</span>(<span class="ident">k1l</span>, <span class="ident">k1_2</span>, <span class="number">0</span>);
-    <span class="ident">keys</span>[<span class="number">2</span>] <span class="op">=</span> <span class="macro">shuffle!</span>(<span class="ident">k1_2</span>, <span class="ident">k2r</span>, <span class="number">1</span>);
+    <span class="kw">let </span>(k1_2, k2r) = <span class="macro">expand_round!</span>(k0, k1l, <span class="number">0x01</span>);
+    keys[<span class="number">1</span>] = <span class="macro">shuffle!</span>(k1l, k1_2, <span class="number">0</span>);
+    keys[<span class="number">2</span>] = <span class="macro">shuffle!</span>(k1_2, k2r, <span class="number">1</span>);
 
-    <span class="kw">let</span> (<span class="ident">k3</span>, <span class="ident">k4l</span>) <span class="op">=</span> <span class="macro">expand_round!</span>(<span class="ident">k1_2</span>, <span class="ident">k2r</span>, <span class="number">0x02</span>);
-    <span class="ident">keys</span>[<span class="number">3</span>] <span class="op">=</span> <span class="ident">k3</span>;
+    <span class="kw">let </span>(k3, k4l) = <span class="macro">expand_round!</span>(k1_2, k2r, <span class="number">0x02</span>);
+    keys[<span class="number">3</span>] = k3;
 
-    <span class="kw">let</span> (<span class="ident">k4_5</span>, <span class="ident">k5r</span>) <span class="op">=</span> <span class="macro">expand_round!</span>(<span class="ident">k3</span>, <span class="ident">k4l</span>, <span class="number">0x04</span>);
-    <span class="kw">let</span> <span class="ident">k4</span> <span class="op">=</span> <span class="macro">shuffle!</span>(<span class="ident">k4l</span>, <span class="ident">k4_5</span>, <span class="number">0</span>);
-    <span class="kw">let</span> <span class="ident">k5</span> <span class="op">=</span> <span class="macro">shuffle!</span>(<span class="ident">k4_5</span>, <span class="ident">k5r</span>, <span class="number">1</span>);
-    <span class="ident">keys</span>[<span class="number">4</span>] <span class="op">=</span> <span class="ident">k4</span>;
-    <span class="ident">keys</span>[<span class="number">5</span>] <span class="op">=</span> <span class="ident">k5</span>;
+    <span class="kw">let </span>(k4_5, k5r) = <span class="macro">expand_round!</span>(k3, k4l, <span class="number">0x04</span>);
+    <span class="kw">let </span>k4 = <span class="macro">shuffle!</span>(k4l, k4_5, <span class="number">0</span>);
+    <span class="kw">let </span>k5 = <span class="macro">shuffle!</span>(k4_5, k5r, <span class="number">1</span>);
+    keys[<span class="number">4</span>] = k4;
+    keys[<span class="number">5</span>] = k5;
 
-    <span class="kw">let</span> (<span class="ident">k6</span>, <span class="ident">k7l</span>) <span class="op">=</span> <span class="macro">expand_round!</span>(<span class="ident">k4_5</span>, <span class="ident">k5r</span>, <span class="number">0x08</span>);
-    <span class="ident">keys</span>[<span class="number">6</span>] <span class="op">=</span> <span class="ident">k6</span>;
+    <span class="kw">let </span>(k6, k7l) = <span class="macro">expand_round!</span>(k4_5, k5r, <span class="number">0x08</span>);
+    keys[<span class="number">6</span>] = k6;
 
-    <span class="kw">let</span> (<span class="ident">k7_8</span>, <span class="ident">k8r</span>) <span class="op">=</span> <span class="macro">expand_round!</span>(<span class="ident">k6</span>, <span class="ident">k7l</span>, <span class="number">0x10</span>);
-    <span class="ident">keys</span>[<span class="number">7</span>] <span class="op">=</span> <span class="macro">shuffle!</span>(<span class="ident">k7l</span>, <span class="ident">k7_8</span>, <span class="number">0</span>);
-    <span class="ident">keys</span>[<span class="number">8</span>] <span class="op">=</span> <span class="macro">shuffle!</span>(<span class="ident">k7_8</span>, <span class="ident">k8r</span>, <span class="number">1</span>);
+    <span class="kw">let </span>(k7_8, k8r) = <span class="macro">expand_round!</span>(k6, k7l, <span class="number">0x10</span>);
+    keys[<span class="number">7</span>] = <span class="macro">shuffle!</span>(k7l, k7_8, <span class="number">0</span>);
+    keys[<span class="number">8</span>] = <span class="macro">shuffle!</span>(k7_8, k8r, <span class="number">1</span>);
 
-    <span class="kw">let</span> (<span class="ident">k9</span>, <span class="ident">k10l</span>) <span class="op">=</span> <span class="macro">expand_round!</span>(<span class="ident">k7_8</span>, <span class="ident">k8r</span>, <span class="number">0x20</span>);
-    <span class="ident">keys</span>[<span class="number">9</span>] <span class="op">=</span> <span class="ident">k9</span>;
+    <span class="kw">let </span>(k9, k10l) = <span class="macro">expand_round!</span>(k7_8, k8r, <span class="number">0x20</span>);
+    keys[<span class="number">9</span>] = k9;
 
-    <span class="kw">let</span> (<span class="ident">k10_11</span>, <span class="ident">k11r</span>) <span class="op">=</span> <span class="macro">expand_round!</span>(<span class="ident">k9</span>, <span class="ident">k10l</span>, <span class="number">0x40</span>);
-    <span class="ident">keys</span>[<span class="number">10</span>] <span class="op">=</span> <span class="macro">shuffle!</span>(<span class="ident">k10l</span>, <span class="ident">k10_11</span>, <span class="number">0</span>);
-    <span class="ident">keys</span>[<span class="number">11</span>] <span class="op">=</span> <span class="macro">shuffle!</span>(<span class="ident">k10_11</span>, <span class="ident">k11r</span>, <span class="number">1</span>);
+    <span class="kw">let </span>(k10_11, k11r) = <span class="macro">expand_round!</span>(k9, k10l, <span class="number">0x40</span>);
+    keys[<span class="number">10</span>] = <span class="macro">shuffle!</span>(k10l, k10_11, <span class="number">0</span>);
+    keys[<span class="number">11</span>] = <span class="macro">shuffle!</span>(k10_11, k11r, <span class="number">1</span>);
 
-    <span class="kw">let</span> (<span class="ident">k12</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="macro">expand_round!</span>(<span class="ident">k10_11</span>, <span class="ident">k11r</span>, <span class="number">0x80</span>);
-    <span class="ident">keys</span>[<span class="number">12</span>] <span class="op">=</span> <span class="ident">k12</span>;
+    <span class="kw">let </span>(k12, <span class="kw">_</span>) = <span class="macro">expand_round!</span>(k10_11, k11r, <span class="number">0x80</span>);
+    keys[<span class="number">12</span>] = k12;
 
-    <span class="ident">keys</span>
+    keys
 }
 
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="attribute">#[<span class="ident">target_feature</span>(<span class="ident">enable</span> <span class="op">=</span> <span class="string">&quot;aes&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">inv_expanded_keys</span>(<span class="ident">keys</span>: <span class="kw-2">&amp;</span><span class="ident">RoundKeys</span>) -&gt; <span class="ident">RoundKeys</span> {
+<span class="attribute">#[inline]
+#[target_feature(enable = <span class="string">&quot;aes&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">unsafe fn </span>inv_expanded_keys(keys: <span class="kw-2">&amp;</span>RoundKeys) -&gt; RoundKeys {
     [
-        <span class="ident">keys</span>[<span class="number">0</span>],
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">1</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">2</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">3</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">4</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">5</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">6</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">7</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">8</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">9</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">10</span>]),
-        <span class="ident">_mm_aesimc_si128</span>(<span class="ident">keys</span>[<span class="number">11</span>]),
-        <span class="ident">keys</span>[<span class="number">12</span>],
+        keys[<span class="number">0</span>],
+        _mm_aesimc_si128(keys[<span class="number">1</span>]),
+        _mm_aesimc_si128(keys[<span class="number">2</span>]),
+        _mm_aesimc_si128(keys[<span class="number">3</span>]),
+        _mm_aesimc_si128(keys[<span class="number">4</span>]),
+        _mm_aesimc_si128(keys[<span class="number">5</span>]),
+        _mm_aesimc_si128(keys[<span class="number">6</span>]),
+        _mm_aesimc_si128(keys[<span class="number">7</span>]),
+        _mm_aesimc_si128(keys[<span class="number">8</span>]),
+        _mm_aesimc_si128(keys[<span class="number">9</span>]),
+        _mm_aesimc_si128(keys[<span class="number">10</span>]),
+        _mm_aesimc_si128(keys[<span class="number">11</span>]),
+        keys[<span class="number">12</span>],
     ]
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="aes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="aes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

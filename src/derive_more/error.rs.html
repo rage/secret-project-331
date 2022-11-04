@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/derive_more-0.99.17/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../derive_more/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/derive_more-0.99.17/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../derive_more/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -437,444 +437,444 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span>;
-<span class="kw">use</span> <span class="ident">quote::quote</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>proc_macro2::TokenStream;
+<span class="kw">use </span>quote::quote;
+<span class="kw">use </span>syn::{spanned::Spanned <span class="kw">as _</span>, Error, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils</span>::{
-    <span class="self">self</span>, <span class="ident">AttrParams</span>, <span class="ident">DeriveType</span>, <span class="ident">FullMetaInfo</span>, <span class="ident">HashSet</span>, <span class="ident">MetaInfo</span>, <span class="ident">MultiFieldData</span>,
-    <span class="ident">State</span>,
+<span class="kw">use </span><span class="kw">crate</span>::utils::{
+    <span class="self">self</span>, AttrParams, DeriveType, FullMetaInfo, HashSet, MetaInfo, MultiFieldData,
+    State,
 };
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">syn::DeriveInput</span>,
-    <span class="ident">trait_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">syn::DeriveInput</span> {
-        <span class="ident">ident</span>, <span class="ident">generics</span>, ..
-    } <span class="op">=</span> <span class="ident">input</span>;
+<span class="kw">pub fn </span>expand(
+    input: <span class="kw-2">&amp;</span>syn::DeriveInput,
+    trait_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream&gt; {
+    <span class="kw">let </span>syn::DeriveInput {
+        ident, generics, ..
+    } = input;
 
-    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::with_attr_params</span>(
-        <span class="ident">input</span>,
-        <span class="ident">trait_name</span>,
-        <span class="macro">quote!</span>(<span class="ident">::std::error</span>),
-        <span class="ident">trait_name</span>.<span class="ident">to_lowercase</span>(),
-        <span class="ident">allowed_attr_params</span>(),
+    <span class="kw">let </span>state = State::with_attr_params(
+        input,
+        trait_name,
+        <span class="macro">quote!</span>(::std::error),
+        trait_name.to_lowercase(),
+        allowed_attr_params(),
     )<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">type_params</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">generics</span>
-        .<span class="ident">params</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">generic</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">generic</span> {
-            <span class="ident">syn::GenericParam::Type</span>(<span class="ident">ty</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ty</span>.<span class="ident">ident</span>.<span class="ident">clone</span>()),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">let </span>type_params: HashSet&lt;<span class="kw">_</span>&gt; = generics
+        .params
+        .iter()
+        .filter_map(|generic| <span class="kw">match </span>generic {
+            syn::GenericParam::Type(ty) =&gt; <span class="prelude-val">Some</span>(ty.ident.clone()),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         })
-        .<span class="ident">collect</span>();
+        .collect();
 
-    <span class="kw">let</span> (<span class="ident">bounds</span>, <span class="ident">source</span>, <span class="ident">backtrace</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">state</span>.<span class="ident">derive_type</span> {
-        <span class="ident">DeriveType::Named</span> <span class="op">|</span> <span class="ident">DeriveType::Unnamed</span> =&gt; <span class="ident">render_struct</span>(<span class="kw-2">&amp;</span><span class="ident">type_params</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>)<span class="question-mark">?</span>,
-        <span class="ident">DeriveType::Enum</span> =&gt; <span class="ident">render_enum</span>(<span class="kw-2">&amp;</span><span class="ident">type_params</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>)<span class="question-mark">?</span>,
+    <span class="kw">let </span>(bounds, source, backtrace) = <span class="kw">match </span>state.derive_type {
+        DeriveType::Named | DeriveType::Unnamed =&gt; render_struct(<span class="kw-2">&amp;</span>type_params, <span class="kw-2">&amp;</span>state)<span class="question-mark">?</span>,
+        DeriveType::Enum =&gt; render_enum(<span class="kw-2">&amp;</span>type_params, <span class="kw-2">&amp;</span>state)<span class="question-mark">?</span>,
     };
 
-    <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">source</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">source</span><span class="op">|</span> {
-        <span class="macro">quote!</span> {
-            <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">::std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
-                #<span class="ident">source</span>
+    <span class="kw">let </span>source = source.map(|source| {
+        <span class="macro">quote! </span>{
+            <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>::std::error::Error + <span class="lifetime">&#39;static</span>)&gt; {
+                #source
             }
         }
     });
 
-    <span class="kw">let</span> <span class="ident">backtrace</span> <span class="op">=</span> <span class="ident">backtrace</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">backtrace</span><span class="op">|</span> {
-        <span class="macro">quote!</span> {
-            <span class="kw">fn</span> <span class="ident">backtrace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">::std::backtrace::Backtrace</span><span class="op">&gt;</span> {
-                #<span class="ident">backtrace</span>
+    <span class="kw">let </span>backtrace = backtrace.map(|backtrace| {
+        <span class="macro">quote! </span>{
+            <span class="kw">fn </span>backtrace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>::std::backtrace::Backtrace&gt; {
+                #backtrace
             }
         }
     });
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">clone</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>generics = generics.clone();
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">type_params</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">let</span> <span class="ident">generic_parameters</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">iter</span>();
-        <span class="ident">generics</span> <span class="op">=</span> <span class="ident">utils::add_extra_where_clauses</span>(
-            <span class="kw-2">&amp;</span><span class="ident">generics</span>,
-            <span class="macro">quote!</span> {
-                <span class="kw">where</span>
-                    #<span class="ident">ident</span><span class="op">&lt;</span>#(#<span class="ident">generic_parameters</span>),<span class="kw-2">*</span><span class="op">&gt;</span>: <span class="ident">::std::fmt::Debug</span> <span class="op">+</span> <span class="ident">::std::fmt::Display</span>
+    <span class="kw">if </span>!type_params.is_empty() {
+        <span class="kw">let </span>generic_parameters = generics.params.iter();
+        generics = utils::add_extra_where_clauses(
+            <span class="kw-2">&amp;</span>generics,
+            <span class="macro">quote! </span>{
+                <span class="kw">where
+                    </span>#ident&lt;#(#generic_parameters),<span class="kw-2">*</span>&gt;: ::std::fmt::Debug + ::std::fmt::Display
             },
         );
     }
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">bounds</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">iter</span>();
-        <span class="ident">generics</span> <span class="op">=</span> <span class="ident">utils::add_extra_where_clauses</span>(
-            <span class="kw-2">&amp;</span><span class="ident">generics</span>,
-            <span class="macro">quote!</span> {
-                <span class="kw">where</span>
-                    #(#<span class="ident">bounds</span>: <span class="ident">::std::fmt::Debug</span> <span class="op">+</span> <span class="ident">::std::fmt::Display</span> <span class="op">+</span> <span class="ident">::std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>),<span class="op">*</span>
+    <span class="kw">if </span>!bounds.is_empty() {
+        <span class="kw">let </span>bounds = bounds.iter();
+        generics = utils::add_extra_where_clauses(
+            <span class="kw-2">&amp;</span>generics,
+            <span class="macro">quote! </span>{
+                <span class="kw">where
+                    </span>#(#bounds: ::std::fmt::Debug + ::std::fmt::Display + ::std::error::Error + <span class="lifetime">&#39;static</span>),*
             },
         );
     }
 
-    <span class="kw">let</span> (<span class="ident">impl_generics</span>, <span class="ident">ty_generics</span>, <span class="ident">where_clause</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
+    <span class="kw">let </span>(impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    <span class="kw">let</span> <span class="ident">render</span> <span class="op">=</span> <span class="macro">quote!</span> {
-        <span class="ident">impl</span>#<span class="ident">impl_generics</span> <span class="ident">::std::error::Error</span> <span class="kw">for</span> #<span class="ident">ident</span>#<span class="ident">ty_generics</span> #<span class="ident">where_clause</span> {
-            #<span class="ident">source</span>
-            #<span class="ident">backtrace</span>
+    <span class="kw">let </span>render = <span class="macro">quote! </span>{
+        impl#impl_generics ::std::error::Error <span class="kw">for </span>#ident#ty_generics #where_clause {
+            #source
+            #backtrace
         }
     };
 
-    <span class="prelude-val">Ok</span>(<span class="ident">render</span>)
+    <span class="prelude-val">Ok</span>(render)
 }
 
-<span class="kw">fn</span> <span class="ident">render_struct</span>(
-    <span class="ident">type_params</span>: <span class="kw-2">&amp;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::Ident</span><span class="op">&gt;</span>,
-    <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">State</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">parsed_fields</span> <span class="op">=</span> <span class="ident">parse_fields</span>(<span class="ident">type_params</span>, <span class="ident">state</span>)<span class="question-mark">?</span>;
+<span class="kw">fn </span>render_struct(
+    type_params: <span class="kw-2">&amp;</span>HashSet&lt;syn::Ident&gt;,
+    state: <span class="kw-2">&amp;</span>State,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(HashSet&lt;syn::Type&gt;, <span class="prelude-ty">Option</span>&lt;TokenStream&gt;, <span class="prelude-ty">Option</span>&lt;TokenStream&gt;)&gt; {
+    <span class="kw">let </span>parsed_fields = parse_fields(type_params, state)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">parsed_fields</span>.<span class="ident">render_source_as_struct</span>();
-    <span class="kw">let</span> <span class="ident">backtrace</span> <span class="op">=</span> <span class="ident">parsed_fields</span>.<span class="ident">render_backtrace_as_struct</span>();
+    <span class="kw">let </span>source = parsed_fields.render_source_as_struct();
+    <span class="kw">let </span>backtrace = parsed_fields.render_backtrace_as_struct();
 
-    <span class="prelude-val">Ok</span>((<span class="ident">parsed_fields</span>.<span class="ident">bounds</span>, <span class="ident">source</span>, <span class="ident">backtrace</span>))
+    <span class="prelude-val">Ok</span>((parsed_fields.bounds, source, backtrace))
 }
 
-<span class="kw">fn</span> <span class="ident">render_enum</span>(
-    <span class="ident">type_params</span>: <span class="kw-2">&amp;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::Ident</span><span class="op">&gt;</span>,
-    <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">State</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">HashSet::default</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">source_match_arms</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backtrace_match_arms</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">fn </span>render_enum(
+    type_params: <span class="kw-2">&amp;</span>HashSet&lt;syn::Ident&gt;,
+    state: <span class="kw-2">&amp;</span>State,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(HashSet&lt;syn::Type&gt;, <span class="prelude-ty">Option</span>&lt;TokenStream&gt;, <span class="prelude-ty">Option</span>&lt;TokenStream&gt;)&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>bounds = HashSet::default();
+    <span class="kw">let </span><span class="kw-2">mut </span>source_match_arms = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>backtrace_match_arms = Vec::new();
 
-    <span class="kw">for</span> <span class="ident">variant</span> <span class="kw">in</span> <span class="ident">state</span>.<span class="ident">enabled_variant_data</span>().<span class="ident">variants</span> {
-        <span class="kw">let</span> <span class="ident">default_info</span> <span class="op">=</span> <span class="ident">FullMetaInfo</span> {
-            <span class="ident">enabled</span>: <span class="bool-val">true</span>,
-            ..<span class="ident">FullMetaInfo::default</span>()
+    <span class="kw">for </span>variant <span class="kw">in </span>state.enabled_variant_data().variants {
+        <span class="kw">let </span>default_info = FullMetaInfo {
+            enabled: <span class="bool-val">true</span>,
+            ..FullMetaInfo::default()
         };
 
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::from_variant</span>(
-            <span class="ident">state</span>.<span class="ident">input</span>,
-            <span class="ident">state</span>.<span class="ident">trait_name</span>,
-            <span class="ident">state</span>.<span class="ident">trait_module</span>.<span class="ident">clone</span>(),
-            <span class="ident">state</span>.<span class="ident">trait_attr</span>.<span class="ident">clone</span>(),
-            <span class="ident">allowed_attr_params</span>(),
-            <span class="ident">variant</span>,
-            <span class="ident">default_info</span>,
+        <span class="kw">let </span>state = State::from_variant(
+            state.input,
+            state.trait_name,
+            state.trait_module.clone(),
+            state.trait_attr.clone(),
+            allowed_attr_params(),
+            variant,
+            default_info,
         )<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">parsed_fields</span> <span class="op">=</span> <span class="ident">parse_fields</span>(<span class="ident">type_params</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>parsed_fields = parse_fields(type_params, <span class="kw-2">&amp;</span>state)<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expr</span>) <span class="op">=</span> <span class="ident">parsed_fields</span>.<span class="ident">render_source_as_enum_variant_match_arm</span>() {
-            <span class="ident">source_match_arms</span>.<span class="ident">push</span>(<span class="ident">expr</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(expr) = parsed_fields.render_source_as_enum_variant_match_arm() {
+            source_match_arms.push(expr);
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expr</span>) <span class="op">=</span> <span class="ident">parsed_fields</span>.<span class="ident">render_backtrace_as_enum_variant_match_arm</span>() {
-            <span class="ident">backtrace_match_arms</span>.<span class="ident">push</span>(<span class="ident">expr</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(expr) = parsed_fields.render_backtrace_as_enum_variant_match_arm() {
+            backtrace_match_arms.push(expr);
         }
 
-        <span class="ident">bounds</span>.<span class="ident">extend</span>(<span class="ident">parsed_fields</span>.<span class="ident">bounds</span>.<span class="ident">into_iter</span>());
+        bounds.extend(parsed_fields.bounds.into_iter());
     }
 
-    <span class="kw">let</span> <span class="ident">render</span> <span class="op">=</span> <span class="op">|</span><span class="ident">match_arms</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span><span class="op">|</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">match_arms</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">match_arms</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">state</span>.<span class="ident">variants</span>.<span class="ident">len</span>() {
-            <span class="ident">match_arms</span>.<span class="ident">push</span>(<span class="macro">quote!</span>(<span class="kw">_</span> =&gt; <span class="prelude-val">None</span>));
+    <span class="kw">let </span>render = |match_arms: <span class="kw-2">&amp;mut </span>Vec&lt;TokenStream&gt;| {
+        <span class="kw">if </span>!match_arms.is_empty() &amp;&amp; match_arms.len() &lt; state.variants.len() {
+            match_arms.push(<span class="macro">quote!</span>(<span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>));
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">match_arms</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="macro">quote!</span> {
-                <span class="kw">match</span> <span class="self">self</span> {
-                    #(#<span class="ident">match_arms</span>),<span class="op">*</span>
+        <span class="kw">if </span>!match_arms.is_empty() {
+            <span class="kw">let </span>expr = <span class="macro">quote! </span>{
+                <span class="kw">match </span><span class="self">self </span>{
+                    #(#match_arms),*
                 }
             };
 
-            <span class="prelude-val">Some</span>(<span class="ident">expr</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+            <span class="prelude-val">Some</span>(expr)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     };
 
-    <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">render</span>(<span class="kw-2">&amp;mut</span> <span class="ident">source_match_arms</span>);
-    <span class="kw">let</span> <span class="ident">backtrace</span> <span class="op">=</span> <span class="ident">render</span>(<span class="kw-2">&amp;mut</span> <span class="ident">backtrace_match_arms</span>);
+    <span class="kw">let </span>source = render(<span class="kw-2">&amp;mut </span>source_match_arms);
+    <span class="kw">let </span>backtrace = render(<span class="kw-2">&amp;mut </span>backtrace_match_arms);
 
-    <span class="prelude-val">Ok</span>((<span class="ident">bounds</span>, <span class="ident">source</span>, <span class="ident">backtrace</span>))
+    <span class="prelude-val">Ok</span>((bounds, source, backtrace))
 }
 
-<span class="kw">fn</span> <span class="ident">allowed_attr_params</span>() -&gt; <span class="ident">AttrParams</span> {
-    <span class="ident">AttrParams</span> {
-        <span class="ident">enum_</span>: <span class="macro">vec!</span>[<span class="string">&quot;ignore&quot;</span>],
-        <span class="ident">struct_</span>: <span class="macro">vec!</span>[<span class="string">&quot;ignore&quot;</span>],
-        <span class="ident">variant</span>: <span class="macro">vec!</span>[<span class="string">&quot;ignore&quot;</span>],
-        <span class="ident">field</span>: <span class="macro">vec!</span>[<span class="string">&quot;ignore&quot;</span>, <span class="string">&quot;source&quot;</span>, <span class="string">&quot;backtrace&quot;</span>],
+<span class="kw">fn </span>allowed_attr_params() -&gt; AttrParams {
+    AttrParams {
+        enum_: <span class="macro">vec!</span>[<span class="string">&quot;ignore&quot;</span>],
+        struct_: <span class="macro">vec!</span>[<span class="string">&quot;ignore&quot;</span>],
+        variant: <span class="macro">vec!</span>[<span class="string">&quot;ignore&quot;</span>],
+        field: <span class="macro">vec!</span>[<span class="string">&quot;ignore&quot;</span>, <span class="string">&quot;source&quot;</span>, <span class="string">&quot;backtrace&quot;</span>],
     }
 }
 
-<span class="kw">struct</span> <span class="ident">ParsedFields</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span> {
-    <span class="ident">data</span>: <span class="ident">MultiFieldData</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span>,
-    <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">backtrace</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">bounds</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>ParsedFields&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt; {
+    data: MultiFieldData&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt;,
+    source: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    backtrace: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    bounds: HashSet&lt;syn::Type&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span> <span class="ident">ParsedFields</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">data</span>: <span class="ident">MultiFieldData</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">data</span>,
-            <span class="ident">source</span>: <span class="prelude-val">None</span>,
-            <span class="ident">backtrace</span>: <span class="prelude-val">None</span>,
-            <span class="ident">bounds</span>: <span class="ident">HashSet::default</span>(),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt; ParsedFields&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt; {
+    <span class="kw">fn </span>new(data: MultiFieldData&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            data,
+            source: <span class="prelude-val">None</span>,
+            backtrace: <span class="prelude-val">None</span>,
+            bounds: HashSet::default(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span> <span class="ident">ParsedFields</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">render_source_as_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">source</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>.<span class="ident">members</span>[<span class="ident">source</span>];
-        <span class="prelude-val">Some</span>(<span class="ident">render_some</span>(<span class="macro">quote!</span>(<span class="kw-2">&amp;</span>#<span class="ident">ident</span>)))
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt; ParsedFields&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt; {
+    <span class="kw">fn </span>render_source_as_struct(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TokenStream&gt; {
+        <span class="kw">let </span>source = <span class="self">self</span>.source<span class="question-mark">?</span>;
+        <span class="kw">let </span>ident = <span class="kw-2">&amp;</span><span class="self">self</span>.data.members[source];
+        <span class="prelude-val">Some</span>(render_some(<span class="macro">quote!</span>(<span class="kw-2">&amp;</span>#ident)))
     }
 
-    <span class="kw">fn</span> <span class="ident">render_source_as_enum_variant_match_arm</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">source</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">pattern</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">matcher</span>(<span class="kw-2">&amp;</span>[<span class="ident">source</span>], <span class="kw-2">&amp;</span>[<span class="macro">quote!</span>(<span class="ident">source</span>)]);
-        <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">render_some</span>(<span class="macro">quote!</span>(<span class="ident">source</span>));
-        <span class="prelude-val">Some</span>(<span class="macro">quote!</span>(#<span class="ident">pattern</span> =&gt; #<span class="ident">expr</span>))
+    <span class="kw">fn </span>render_source_as_enum_variant_match_arm(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TokenStream&gt; {
+        <span class="kw">let </span>source = <span class="self">self</span>.source<span class="question-mark">?</span>;
+        <span class="kw">let </span>pattern = <span class="self">self</span>.data.matcher(<span class="kw-2">&amp;</span>[source], <span class="kw-2">&amp;</span>[<span class="macro">quote!</span>(source)]);
+        <span class="kw">let </span>expr = render_some(<span class="macro">quote!</span>(source));
+        <span class="prelude-val">Some</span>(<span class="macro">quote!</span>(#pattern =&gt; #expr))
     }
 
-    <span class="kw">fn</span> <span class="ident">render_backtrace_as_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">backtrace</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">backtrace</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">backtrace_expr</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>.<span class="ident">members</span>[<span class="ident">backtrace</span>];
-        <span class="prelude-val">Some</span>(<span class="macro">quote!</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>#<span class="ident">backtrace_expr</span>)))
+    <span class="kw">fn </span>render_backtrace_as_struct(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TokenStream&gt; {
+        <span class="kw">let </span>backtrace = <span class="self">self</span>.backtrace<span class="question-mark">?</span>;
+        <span class="kw">let </span>backtrace_expr = <span class="kw-2">&amp;</span><span class="self">self</span>.data.members[backtrace];
+        <span class="prelude-val">Some</span>(<span class="macro">quote!</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>#backtrace_expr)))
     }
 
-    <span class="kw">fn</span> <span class="ident">render_backtrace_as_enum_variant_match_arm</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TokenStream</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">backtrace</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">backtrace</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">pattern</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">matcher</span>(<span class="kw-2">&amp;</span>[<span class="ident">backtrace</span>], <span class="kw-2">&amp;</span>[<span class="macro">quote!</span>(<span class="ident">backtrace</span>)]);
-        <span class="prelude-val">Some</span>(<span class="macro">quote!</span>(#<span class="ident">pattern</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">backtrace</span>)))
+    <span class="kw">fn </span>render_backtrace_as_enum_variant_match_arm(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;TokenStream&gt; {
+        <span class="kw">let </span>backtrace = <span class="self">self</span>.backtrace<span class="question-mark">?</span>;
+        <span class="kw">let </span>pattern = <span class="self">self</span>.data.matcher(<span class="kw-2">&amp;</span>[backtrace], <span class="kw-2">&amp;</span>[<span class="macro">quote!</span>(backtrace)]);
+        <span class="prelude-val">Some</span>(<span class="macro">quote!</span>(#pattern =&gt; <span class="prelude-val">Some</span>(backtrace)))
     }
 }
 
-<span class="kw">fn</span> <span class="ident">render_some</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">expr</span>: <span class="ident">T</span>) -&gt; <span class="ident">TokenStream</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">quote::ToTokens</span>,
+<span class="kw">fn </span>render_some&lt;T&gt;(expr: T) -&gt; TokenStream
+<span class="kw">where
+    </span>T: quote::ToTokens,
 {
-    <span class="macro">quote!</span>(<span class="prelude-val">Some</span>(#<span class="ident">expr</span> <span class="kw">as</span> <span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">::std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)))
+    <span class="macro">quote!</span>(<span class="prelude-val">Some</span>(#expr <span class="kw">as </span><span class="kw-2">&amp;</span>(<span class="kw">dyn </span>::std::error::Error + <span class="lifetime">&#39;static</span>)))
 }
 
-<span class="kw">fn</span> <span class="ident">parse_fields</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span>(
-    <span class="ident">type_params</span>: <span class="kw-2">&amp;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::Ident</span><span class="op">&gt;</span>,
-    <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;state</span> <span class="ident">State</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParsedFields</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parsed_fields</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">state</span>.<span class="ident">derive_type</span> {
-        <span class="ident">DeriveType::Named</span> =&gt; {
-            <span class="ident">parse_fields_impl</span>(<span class="ident">state</span>, <span class="op">|</span><span class="ident">attr</span>, <span class="ident">field</span>, <span class="kw">_</span><span class="op">|</span> {
-                <span class="comment">// Unwrapping is safe, cause fields in named struct</span>
-                <span class="comment">// always have an ident</span>
-                <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
+<span class="kw">fn </span>parse_fields&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt;(
+    type_params: <span class="kw-2">&amp;</span>HashSet&lt;syn::Ident&gt;,
+    state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;state </span>State&lt;<span class="lifetime">&#39;input</span>&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ParsedFields&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>parsed_fields = <span class="kw">match </span>state.derive_type {
+        DeriveType::Named =&gt; {
+            parse_fields_impl(state, |attr, field, <span class="kw">_</span>| {
+                <span class="comment">// Unwrapping is safe, cause fields in named struct
+                // always have an ident
+                </span><span class="kw">let </span>ident = field.ident.as_ref().unwrap();
 
-                <span class="kw">match</span> <span class="ident">attr</span> {
-                    <span class="string">&quot;source&quot;</span> =&gt; <span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;source&quot;</span>,
-                    <span class="string">&quot;backtrace&quot;</span> =&gt; {
-                        <span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;backtrace&quot;</span>
-                            <span class="op">|</span><span class="op">|</span> <span class="ident">is_type_path_ends_with_segment</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>, <span class="string">&quot;Backtrace&quot;</span>)
+                <span class="kw">match </span>attr {
+                    <span class="string">&quot;source&quot; </span>=&gt; ident == <span class="string">&quot;source&quot;</span>,
+                    <span class="string">&quot;backtrace&quot; </span>=&gt; {
+                        ident == <span class="string">&quot;backtrace&quot;
+                            </span>|| is_type_path_ends_with_segment(<span class="kw-2">&amp;</span>field.ty, <span class="string">&quot;Backtrace&quot;</span>)
                     }
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
             })
         }
 
-        <span class="ident">DeriveType::Unnamed</span> =&gt; {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parsed_fields</span> <span class="op">=</span>
-                <span class="ident">parse_fields_impl</span>(<span class="ident">state</span>, <span class="op">|</span><span class="ident">attr</span>, <span class="ident">field</span>, <span class="ident">len</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">attr</span> {
-                    <span class="string">&quot;source&quot;</span> =&gt; {
-                        <span class="ident">len</span> <span class="op">==</span> <span class="number">1</span>
-                            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_type_path_ends_with_segment</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>, <span class="string">&quot;Backtrace&quot;</span>)
+        DeriveType::Unnamed =&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>parsed_fields =
+                parse_fields_impl(state, |attr, field, len| <span class="kw">match </span>attr {
+                    <span class="string">&quot;source&quot; </span>=&gt; {
+                        len == <span class="number">1
+                            </span>&amp;&amp; !is_type_path_ends_with_segment(<span class="kw-2">&amp;</span>field.ty, <span class="string">&quot;Backtrace&quot;</span>)
                     }
-                    <span class="string">&quot;backtrace&quot;</span> =&gt; {
-                        <span class="ident">is_type_path_ends_with_segment</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>, <span class="string">&quot;Backtrace&quot;</span>)
+                    <span class="string">&quot;backtrace&quot; </span>=&gt; {
+                        is_type_path_ends_with_segment(<span class="kw-2">&amp;</span>field.ty, <span class="string">&quot;Backtrace&quot;</span>)
                     }
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 })<span class="question-mark">?</span>;
 
-            <span class="ident">parsed_fields</span>.<span class="ident">source</span> <span class="op">=</span> <span class="ident">parsed_fields</span>
-                .<span class="ident">source</span>
-                .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">infer_source_field</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">fields</span>, <span class="kw-2">&amp;</span><span class="ident">parsed_fields</span>));
+            parsed_fields.source = parsed_fields
+                .source
+                .or_else(|| infer_source_field(<span class="kw-2">&amp;</span>state.fields, <span class="kw-2">&amp;</span>parsed_fields));
 
-            <span class="prelude-val">Ok</span>(<span class="ident">parsed_fields</span>)
+            <span class="prelude-val">Ok</span>(parsed_fields)
         }
 
-        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
     }<span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>) <span class="op">=</span> <span class="ident">parsed_fields</span>.<span class="ident">source</span> {
-        <span class="ident">add_bound_if_type_parameter_used_in_type</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">parsed_fields</span>.<span class="ident">bounds</span>,
-            <span class="ident">type_params</span>,
-            <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">fields</span>[<span class="ident">source</span>].<span class="ident">ty</span>,
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(source) = parsed_fields.source {
+        add_bound_if_type_parameter_used_in_type(
+            <span class="kw-2">&amp;mut </span>parsed_fields.bounds,
+            type_params,
+            <span class="kw-2">&amp;</span>state.fields[source].ty,
         );
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">parsed_fields</span>)
+    <span class="prelude-val">Ok</span>(parsed_fields)
 }
 
-<span class="doccomment">/// Checks if `ty` is [`syn::Type::Path`] and ends with segment matching `tail`</span>
-<span class="doccomment">/// and doesn&#39;t contain any generic parameters.</span>
-<span class="kw">fn</span> <span class="ident">is_type_path_ends_with_segment</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>, <span class="ident">tail</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ty</span> {
-        <span class="ident">syn::Type::Path</span>(<span class="ident">ty</span>) =&gt; <span class="ident">ty</span>,
-        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+<span class="doccomment">/// Checks if `ty` is [`syn::Type::Path`] and ends with segment matching `tail`
+/// and doesn&#39;t contain any generic parameters.
+</span><span class="kw">fn </span>is_type_path_ends_with_segment(ty: <span class="kw-2">&amp;</span>syn::Type, tail: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    <span class="kw">let </span>ty = <span class="kw">match </span>ty {
+        syn::Type::Path(ty) =&gt; ty,
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
     };
 
-    <span class="comment">// Unwrapping is safe, cause &#39;syn::TypePath.path.segments&#39;</span>
-    <span class="comment">// have to have at least one segment</span>
-    <span class="kw">let</span> <span class="ident">segment</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>();
+    <span class="comment">// Unwrapping is safe, cause &#39;syn::TypePath.path.segments&#39;
+    // have to have at least one segment
+    </span><span class="kw">let </span>segment = ty.path.segments.last().unwrap();
 
-    <span class="kw">match</span> <span class="ident">segment</span>.<span class="ident">arguments</span> {
-        <span class="ident">syn::PathArguments::None</span> =&gt; (),
-        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+    <span class="kw">match </span>segment.arguments {
+        syn::PathArguments::None =&gt; (),
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
     };
 
-    <span class="ident">segment</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="ident">tail</span>
+    segment.ident == tail
 }
 
-<span class="kw">fn</span> <span class="ident">infer_source_field</span>(
-    <span class="ident">fields</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">syn::Field</span>],
-    <span class="ident">parsed_fields</span>: <span class="kw-2">&amp;</span><span class="ident">ParsedFields</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="comment">// if we have exactly two fields</span>
-    <span class="kw">if</span> <span class="ident">fields</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>infer_source_field(
+    fields: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>syn::Field],
+    parsed_fields: <span class="kw-2">&amp;</span>ParsedFields,
+) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+    <span class="comment">// if we have exactly two fields
+    </span><span class="kw">if </span>fields.len() != <span class="number">2 </span>{
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// no source field was specified/inferred</span>
-    <span class="kw">if</span> <span class="ident">parsed_fields</span>.<span class="ident">source</span>.<span class="ident">is_some</span>() {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="comment">// no source field was specified/inferred
+    </span><span class="kw">if </span>parsed_fields.source.is_some() {
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// but one of the fields was specified/inferred as backtrace field</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">backtrace</span>) <span class="op">=</span> <span class="ident">parsed_fields</span>.<span class="ident">backtrace</span> {
-        <span class="comment">// then infer *other field* as source field</span>
-        <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> (<span class="ident">backtrace</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">%</span> <span class="number">2</span>;
-        <span class="comment">// unless it was explicitly marked as non-source</span>
-        <span class="kw">if</span> <span class="ident">parsed_fields</span>.<span class="ident">data</span>.<span class="ident">infos</span>[<span class="ident">source</span>].<span class="ident">info</span>.<span class="ident">source</span> <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>);
+    <span class="comment">// but one of the fields was specified/inferred as backtrace field
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(backtrace) = parsed_fields.backtrace {
+        <span class="comment">// then infer *other field* as source field
+        </span><span class="kw">let </span>source = (backtrace + <span class="number">1</span>) % <span class="number">2</span>;
+        <span class="comment">// unless it was explicitly marked as non-source
+        </span><span class="kw">if </span>parsed_fields.data.infos[source].info.source != <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(source);
         }
     }
 
-    <span class="prelude-val">None</span>
-}
+    <span class="prelude-val">None
+</span>}
 
-<span class="kw">fn</span> <span class="ident">parse_fields_impl</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>, <span class="ident">P</span><span class="op">&gt;</span>(
-    <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;state</span> <span class="ident">State</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span><span class="op">&gt;</span>,
-    <span class="ident">is_valid_default_field_for_attr</span>: <span class="ident">P</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParsedFields</span><span class="op">&lt;</span><span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">P</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">syn::Field</span>, <span class="ident">usize</span>) -&gt; <span class="ident">bool</span>,
+<span class="kw">fn </span>parse_fields_impl&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>, P&gt;(
+    state: <span class="kw-2">&amp;</span><span class="lifetime">&#39;state </span>State&lt;<span class="lifetime">&#39;input</span>&gt;,
+    is_valid_default_field_for_attr: P,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ParsedFields&lt;<span class="lifetime">&#39;input</span>, <span class="lifetime">&#39;state</span>&gt;&gt;
+<span class="kw">where
+    </span>P: Fn(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>syn::Field, usize) -&gt; bool,
 {
-    <span class="kw">let</span> <span class="ident">MultiFieldData</span> { <span class="ident">fields</span>, <span class="ident">infos</span>, .. } <span class="op">=</span> <span class="ident">state</span>.<span class="ident">enabled_fields_data</span>();
+    <span class="kw">let </span>MultiFieldData { fields, infos, .. } = state.enabled_fields_data();
 
-    <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">fields</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">zip</span>(<span class="ident">infos</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">info</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">info</span>.<span class="ident">info</span>))
-        .<span class="ident">enumerate</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">index</span>, (<span class="ident">field</span>, <span class="ident">info</span>))<span class="op">|</span> (<span class="ident">index</span>, <span class="kw-2">*</span><span class="ident">field</span>, <span class="ident">info</span>));
+    <span class="kw">let </span>iter = fields
+        .iter()
+        .zip(infos.iter().map(|info| <span class="kw-2">&amp;</span>info.info))
+        .enumerate()
+        .map(|(index, (field, info))| (index, <span class="kw-2">*</span>field, info));
 
-    <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">parse_field_impl</span>(
-        <span class="kw-2">&amp;</span><span class="ident">is_valid_default_field_for_attr</span>,
-        <span class="ident">state</span>.<span class="ident">fields</span>.<span class="ident">len</span>(),
-        <span class="ident">iter</span>.<span class="ident">clone</span>(),
+    <span class="kw">let </span>source = parse_field_impl(
+        <span class="kw-2">&amp;</span>is_valid_default_field_for_attr,
+        state.fields.len(),
+        iter.clone(),
         <span class="string">&quot;source&quot;</span>,
-        <span class="op">|</span><span class="ident">info</span><span class="op">|</span> <span class="ident">info</span>.<span class="ident">source</span>,
+        |info| info.source,
     )<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">backtrace</span> <span class="op">=</span> <span class="ident">parse_field_impl</span>(
-        <span class="kw-2">&amp;</span><span class="ident">is_valid_default_field_for_attr</span>,
-        <span class="ident">state</span>.<span class="ident">fields</span>.<span class="ident">len</span>(),
-        <span class="ident">iter</span>.<span class="ident">clone</span>(),
+    <span class="kw">let </span>backtrace = parse_field_impl(
+        <span class="kw-2">&amp;</span>is_valid_default_field_for_attr,
+        state.fields.len(),
+        iter.clone(),
         <span class="string">&quot;backtrace&quot;</span>,
-        <span class="op">|</span><span class="ident">info</span><span class="op">|</span> <span class="ident">info</span>.<span class="ident">backtrace</span>,
+        |info| info.backtrace,
     )<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parsed_fields</span> <span class="op">=</span> <span class="ident">ParsedFields::new</span>(<span class="ident">state</span>.<span class="ident">enabled_fields_data</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>parsed_fields = ParsedFields::new(state.enabled_fields_data());
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">index</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">source</span> {
-        <span class="ident">parsed_fields</span>.<span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>((index, <span class="kw">_</span>, <span class="kw">_</span>)) = source {
+        parsed_fields.source = <span class="prelude-val">Some</span>(index);
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">index</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">backtrace</span> {
-        <span class="ident">parsed_fields</span>.<span class="ident">backtrace</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>((index, <span class="kw">_</span>, <span class="kw">_</span>)) = backtrace {
+        parsed_fields.backtrace = <span class="prelude-val">Some</span>(index);
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">parsed_fields</span>)
+    <span class="prelude-val">Ok</span>(parsed_fields)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_field_impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>, <span class="ident">V</span><span class="op">&gt;</span>(
-    <span class="ident">is_valid_default_field_for_attr</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>,
-    <span class="ident">len</span>: <span class="ident">usize</span>,
-    <span class="ident">iter</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Field</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MetaInfo</span>)<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">attr</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">value</span>: <span class="ident">V</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Field</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MetaInfo</span>)<span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">P</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">syn::Field</span>, <span class="ident">usize</span>) -&gt; <span class="ident">bool</span>,
-    <span class="ident">V</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">MetaInfo</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
+<span class="kw">fn </span>parse_field_impl&lt;<span class="lifetime">&#39;a</span>, P, V&gt;(
+    is_valid_default_field_for_attr: <span class="kw-2">&amp;</span>P,
+    len: usize,
+    iter: <span class="kw">impl </span>Iterator&lt;Item = (usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Field, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MetaInfo)&gt; + Clone,
+    attr: <span class="kw-2">&amp;</span>str,
+    value: V,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Field, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MetaInfo)&gt;&gt;
+<span class="kw">where
+    </span>P: Fn(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>syn::Field, usize) -&gt; bool,
+    V: Fn(<span class="kw-2">&amp;</span>MetaInfo) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt;,
 {
-    <span class="kw">let</span> <span class="ident">explicit_fields</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">clone</span>().<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">info</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">value</span>(<span class="ident">info</span>) {
+    <span class="kw">let </span>explicit_fields = iter.clone().filter(|(<span class="kw">_</span>, <span class="kw">_</span>, info)| <span class="kw">match </span>value(info) {
         <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) =&gt; <span class="bool-val">true</span>,
-        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
     });
 
-    <span class="kw">let</span> <span class="ident">inferred_fields</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">field</span>, <span class="ident">info</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">value</span>(<span class="ident">info</span>) {
-        <span class="prelude-val">None</span> =&gt; <span class="ident">is_valid_default_field_for_attr</span>(<span class="ident">attr</span>, <span class="ident">field</span>, <span class="ident">len</span>),
-        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+    <span class="kw">let </span>inferred_fields = iter.filter(|(<span class="kw">_</span>, field, info)| <span class="kw">match </span>value(info) {
+        <span class="prelude-val">None </span>=&gt; is_valid_default_field_for_attr(attr, field, len),
+        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
     });
 
-    <span class="kw">let</span> <span class="ident">field</span> <span class="op">=</span> <span class="ident">assert_iter_contains_zero_or_one_item</span>(
-        <span class="ident">explicit_fields</span>,
+    <span class="kw">let </span>field = assert_iter_contains_zero_or_one_item(
+        explicit_fields,
         <span class="kw-2">&amp;</span><span class="macro">format!</span>(
             <span class="string">&quot;Multiple `{}` attributes specified. \
              Single attribute per struct/enum variant allowed.&quot;</span>,
-            <span class="ident">attr</span>
+            attr
         ),
     )<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">field</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span> {
-        <span class="ident">field</span> @ <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="ident">field</span>,
-        <span class="prelude-val">None</span> =&gt; <span class="ident">assert_iter_contains_zero_or_one_item</span>(
-            <span class="ident">inferred_fields</span>,
+    <span class="kw">let </span>field = <span class="kw">match </span>field {
+        field @ <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; field,
+        <span class="prelude-val">None </span>=&gt; assert_iter_contains_zero_or_one_item(
+            inferred_fields,
             <span class="string">&quot;Conflicting fields found. Consider specifying some \
              `#[error(...)]` attributes to resolve conflict.&quot;</span>,
         )<span class="question-mark">?</span>,
     };
 
-    <span class="prelude-val">Ok</span>(<span class="ident">field</span>)
+    <span class="prelude-val">Ok</span>(field)
 }
 
-<span class="kw">fn</span> <span class="ident">assert_iter_contains_zero_or_one_item</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="kw-2">mut</span> <span class="ident">iter</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Field</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MetaInfo</span>)<span class="op">&gt;</span>,
-    <span class="ident">error_msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Field</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MetaInfo</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">item</span>) =&gt; <span class="ident">item</span>,
-        <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+<span class="kw">fn </span>assert_iter_contains_zero_or_one_item&lt;<span class="lifetime">&#39;a</span>&gt;(
+    <span class="kw-2">mut </span>iter: <span class="kw">impl </span>Iterator&lt;Item = (usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Field, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MetaInfo)&gt;,
+    error_msg: <span class="kw-2">&amp;</span>str,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Field, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MetaInfo)&gt;&gt; {
+    <span class="kw">let </span>item = <span class="kw">match </span>iter.next() {
+        <span class="prelude-val">Some</span>(item) =&gt; item,
+        <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
     };
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">field</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::new</span>(<span class="ident">field</span>.<span class="ident">span</span>(), <span class="ident">error_msg</span>));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, field, <span class="kw">_</span>)) = iter.next() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new(field.span(), error_msg));
     }
 
-    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">item</span>))
+    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(item))
 }
 
-<span class="kw">fn</span> <span class="ident">add_bound_if_type_parameter_used_in_type</span>(
-    <span class="ident">bounds</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>,
-    <span class="ident">type_params</span>: <span class="kw-2">&amp;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">syn::Ident</span><span class="op">&gt;</span>,
-    <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>,
+<span class="kw">fn </span>add_bound_if_type_parameter_used_in_type(
+    bounds: <span class="kw-2">&amp;mut </span>HashSet&lt;syn::Type&gt;,
+    type_params: <span class="kw-2">&amp;</span>HashSet&lt;syn::Ident&gt;,
+    ty: <span class="kw-2">&amp;</span>syn::Type,
 ) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ty</span>) <span class="op">=</span> <span class="ident">utils::get_if_type_parameter_used_in_type</span>(<span class="ident">type_params</span>, <span class="ident">ty</span>) {
-        <span class="ident">bounds</span>.<span class="ident">insert</span>(<span class="ident">ty</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(ty) = utils::get_if_type_parameter_used_in_type(type_params, ty) {
+        bounds.insert(ty);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="derive_more" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="derive_more" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

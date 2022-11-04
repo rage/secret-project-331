@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/test/test_utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>test_utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/test/test_utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>test_utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -505,510 +505,510 @@
 <span id="503">503</span>
 <span id="504">504</span>
 <span id="505">505</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
 
-<span class="kw">use</span> <span class="ident">actix_http::Request</span>;
-<span class="kw">use</span> <span class="ident">actix_service::IntoServiceFactory</span>;
-<span class="kw">use</span> <span class="ident">serde::de::DeserializeOwned</span>;
+<span class="kw">use </span>actix_http::Request;
+<span class="kw">use </span>actix_service::IntoServiceFactory;
+<span class="kw">use </span>serde::de::DeserializeOwned;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="self">self</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">config::AppConfig</span>,
-    <span class="ident">dev</span>::{<span class="ident">Service</span>, <span class="ident">ServiceFactory</span>},
-    <span class="ident">service::ServiceResponse</span>,
-    <span class="ident">web::Bytes</span>,
-    <span class="ident">Error</span>,
+<span class="kw">use crate</span>::{
+    body::{<span class="self">self</span>, MessageBody},
+    config::AppConfig,
+    dev::{Service, ServiceFactory},
+    service::ServiceResponse,
+    web::Bytes,
+    Error,
 };
 
-<span class="doccomment">/// Initialize service from application builder instance.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_service::Service;</span>
-<span class="doccomment">/// use actix_web::{test, web, App, HttpResponse, http::StatusCode};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[actix_web::test]</span>
-<span class="doccomment">/// async fn test_init_service() {</span>
-<span class="doccomment">///     let app = test::init_service(</span>
-<span class="doccomment">///         App::new()</span>
-<span class="doccomment">///             .service(web::resource(&quot;/test&quot;).to(|| async { &quot;OK&quot; }))</span>
-<span class="doccomment">///     ).await;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     // Create request object</span>
-<span class="doccomment">///     let req = test::TestRequest::with_uri(&quot;/test&quot;).to_request();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     // Execute application</span>
-<span class="doccomment">///     let res = app.call(req).await.unwrap();</span>
-<span class="doccomment">///     assert_eq!(res.status(), StatusCode::OK);</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// Panics if service initialization returns an error.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">init_service</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">E</span><span class="op">&gt;</span>(
-    <span class="ident">app</span>: <span class="ident">R</span>,
-) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">R</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> <span class="ident">AppConfig</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>,
-    <span class="ident">S::InitError</span>: <span class="ident">std::fmt::Debug</span>,
+<span class="doccomment">/// Initialize service from application builder instance.
+///
+/// # Examples
+/// ```
+/// use actix_service::Service;
+/// use actix_web::{test, web, App, HttpResponse, http::StatusCode};
+///
+/// #[actix_web::test]
+/// async fn test_init_service() {
+///     let app = test::init_service(
+///         App::new()
+///             .service(web::resource(&quot;/test&quot;).to(|| async { &quot;OK&quot; }))
+///     ).await;
+///
+///     // Create request object
+///     let req = test::TestRequest::with_uri(&quot;/test&quot;).to_request();
+///
+///     // Execute application
+///     let res = app.call(req).await.unwrap();
+///     assert_eq!(res.status(), StatusCode::OK);
+/// }
+/// ```
+///
+/// # Panics
+/// Panics if service initialization returns an error.
+</span><span class="kw">pub async fn </span>init_service&lt;R, S, B, E&gt;(
+    app: R,
+) -&gt; <span class="kw">impl </span>Service&lt;Request, Response = ServiceResponse&lt;B&gt;, Error = E&gt;
+<span class="kw">where
+    </span>R: IntoServiceFactory&lt;S, Request&gt;,
+    S: ServiceFactory&lt;Request, Config = AppConfig, Response = ServiceResponse&lt;B&gt;, Error = E&gt;,
+    S::InitError: std::fmt::Debug,
 {
-    <span class="ident">try_init_service</span>(<span class="ident">app</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;service initialization failed&quot;</span>)
+    try_init_service(app)
+        .<span class="kw">await
+        </span>.expect(<span class="string">&quot;service initialization failed&quot;</span>)
 }
 
-<span class="doccomment">/// Fallible version of [`init_service`] that allows testing initialization errors.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_init_service</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">E</span><span class="op">&gt;</span>(
-    <span class="ident">app</span>: <span class="ident">R</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">S::InitError</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">R</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> <span class="ident">AppConfig</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>,
-    <span class="ident">S::InitError</span>: <span class="ident">std::fmt::Debug</span>,
+<span class="doccomment">/// Fallible version of [`init_service`] that allows testing initialization errors.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>try_init_service&lt;R, S, B, E&gt;(
+    app: R,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw">impl </span>Service&lt;Request, Response = ServiceResponse&lt;B&gt;, Error = E&gt;, S::InitError&gt;
+<span class="kw">where
+    </span>R: IntoServiceFactory&lt;S, Request&gt;,
+    S: ServiceFactory&lt;Request, Config = AppConfig, Response = ServiceResponse&lt;B&gt;, Error = E&gt;,
+    S::InitError: std::fmt::Debug,
 {
-    <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">into_factory</span>();
-    <span class="ident">srv</span>.<span class="ident">new_service</span>(<span class="ident">AppConfig::default</span>()).<span class="kw">await</span>
+    <span class="kw">let </span>srv = app.into_factory();
+    srv.new_service(AppConfig::default()).<span class="kw">await
+</span>}
+
+<span class="doccomment">/// Calls service and waits for response future completion.
+///
+/// # Examples
+/// ```
+/// use actix_web::{test, web, App, HttpResponse, http::StatusCode};
+///
+/// #[actix_web::test]
+/// async fn test_response() {
+///     let app = test::init_service(
+///         App::new()
+///             .service(web::resource(&quot;/test&quot;).to(|| async {
+///                 HttpResponse::Ok()
+///             }))
+///     ).await;
+///
+///     // Create request object
+///     let req = test::TestRequest::with_uri(&quot;/test&quot;).to_request();
+///
+///     // Call application
+///     let res = test::call_service(&amp;app, req).await;
+///     assert_eq!(res.status(), StatusCode::OK);
+/// }
+/// ```
+///
+/// # Panics
+/// Panics if service call returns error. To handle errors use `app.call(req)`.
+</span><span class="kw">pub async fn </span>call_service&lt;S, R, B, E&gt;(app: <span class="kw-2">&amp;</span>S, req: R) -&gt; S::Response
+<span class="kw">where
+    </span>S: Service&lt;R, Response = ServiceResponse&lt;B&gt;, Error = E&gt;,
+    E: std::fmt::Debug,
+{
+    app.call(req)
+        .<span class="kw">await
+        </span>.expect(<span class="string">&quot;test service call returned error&quot;</span>)
 }
 
-<span class="doccomment">/// Calls service and waits for response future completion.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{test, web, App, HttpResponse, http::StatusCode};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[actix_web::test]</span>
-<span class="doccomment">/// async fn test_response() {</span>
-<span class="doccomment">///     let app = test::init_service(</span>
-<span class="doccomment">///         App::new()</span>
-<span class="doccomment">///             .service(web::resource(&quot;/test&quot;).to(|| async {</span>
-<span class="doccomment">///                 HttpResponse::Ok()</span>
-<span class="doccomment">///             }))</span>
-<span class="doccomment">///     ).await;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     // Create request object</span>
-<span class="doccomment">///     let req = test::TestRequest::with_uri(&quot;/test&quot;).to_request();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     // Call application</span>
-<span class="doccomment">///     let res = test::call_service(&amp;app, req).await;</span>
-<span class="doccomment">///     assert_eq!(res.status(), StatusCode::OK);</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// Panics if service call returns error. To handle errors use `app.call(req)`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">call_service</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">R</span>, <span class="ident">B</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">R</span>) -&gt; <span class="ident">S::Response</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span>,
-    <span class="ident">E</span>: <span class="ident">std::fmt::Debug</span>,
+<span class="doccomment">/// Helper function that returns a response body of a TestRequest
+///
+/// # Examples
+/// ```
+/// use actix_web::{test, web, App, HttpResponse, http::header};
+/// use bytes::Bytes;
+///
+/// #[actix_web::test]
+/// async fn test_index() {
+///     let app = test::init_service(
+///         App::new().service(
+///             web::resource(&quot;/index.html&quot;)
+///                 .route(web::post().to(|| async {
+///                     HttpResponse::Ok().body(&quot;welcome!&quot;)
+///                 })))
+///     ).await;
+///
+///     let req = test::TestRequest::post()
+///         .uri(&quot;/index.html&quot;)
+///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)
+///         .to_request();
+///
+///     let result = test::call_and_read_body(&amp;app, req).await;
+///     assert_eq!(result, Bytes::from_static(b&quot;welcome!&quot;));
+/// }
+/// ```
+///
+/// # Panics
+/// Panics if:
+/// - service call returns error;
+/// - body yields an error while it is being read.
+</span><span class="kw">pub async fn </span>call_and_read_body&lt;S, B&gt;(app: <span class="kw-2">&amp;</span>S, req: Request) -&gt; Bytes
+<span class="kw">where
+    </span>S: Service&lt;Request, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
+    B: MessageBody,
 {
-    <span class="ident">app</span>.<span class="ident">call</span>(<span class="ident">req</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;test service call returned error&quot;</span>)
+    <span class="kw">let </span>res = call_service(app, req).<span class="kw">await</span>;
+    read_body(res).<span class="kw">await
+</span>}
+
+<span class="attribute">#[doc(hidden)]
+#[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `call_and_read_body`.&quot;</span>)]
+</span><span class="kw">pub async fn </span>read_response&lt;S, B&gt;(app: <span class="kw-2">&amp;</span>S, req: Request) -&gt; Bytes
+<span class="kw">where
+    </span>S: Service&lt;Request, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
+    B: MessageBody,
+{
+    <span class="kw">let </span>res = call_service(app, req).<span class="kw">await</span>;
+    read_body(res).<span class="kw">await
+</span>}
+
+<span class="doccomment">/// Helper function that returns a response body of a ServiceResponse.
+///
+/// # Examples
+/// ```
+/// use actix_web::{test, web, App, HttpResponse, http::header};
+/// use bytes::Bytes;
+///
+/// #[actix_web::test]
+/// async fn test_index() {
+///     let app = test::init_service(
+///         App::new().service(
+///             web::resource(&quot;/index.html&quot;)
+///                 .route(web::post().to(|| async {
+///                     HttpResponse::Ok().body(&quot;welcome!&quot;)
+///                 })))
+///     ).await;
+///
+///     let req = test::TestRequest::post()
+///         .uri(&quot;/index.html&quot;)
+///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)
+///         .to_request();
+///
+///     let res = test::call_service(&amp;app, req).await;
+///     let result = test::read_body(res).await;
+///     assert_eq!(result, Bytes::from_static(b&quot;welcome!&quot;));
+/// }
+/// ```
+///
+/// # Panics
+/// Panics if body yields an error while it is being read.
+</span><span class="kw">pub async fn </span>read_body&lt;B&gt;(res: ServiceResponse&lt;B&gt;) -&gt; Bytes
+<span class="kw">where
+    </span>B: MessageBody,
+{
+    <span class="kw">let </span>body = res.into_body();
+    body::to_bytes(body)
+        .<span class="kw">await
+        </span>.map_err(Into::&lt;Box&lt;<span class="kw">dyn </span>StdError&gt;&gt;::into)
+        .expect(<span class="string">&quot;error reading test response body&quot;</span>)
 }
 
-<span class="doccomment">/// Helper function that returns a response body of a TestRequest</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{test, web, App, HttpResponse, http::header};</span>
-<span class="doccomment">/// use bytes::Bytes;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[actix_web::test]</span>
-<span class="doccomment">/// async fn test_index() {</span>
-<span class="doccomment">///     let app = test::init_service(</span>
-<span class="doccomment">///         App::new().service(</span>
-<span class="doccomment">///             web::resource(&quot;/index.html&quot;)</span>
-<span class="doccomment">///                 .route(web::post().to(|| async {</span>
-<span class="doccomment">///                     HttpResponse::Ok().body(&quot;welcome!&quot;)</span>
-<span class="doccomment">///                 })))</span>
-<span class="doccomment">///     ).await;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let req = test::TestRequest::post()</span>
-<span class="doccomment">///         .uri(&quot;/index.html&quot;)</span>
-<span class="doccomment">///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)</span>
-<span class="doccomment">///         .to_request();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let result = test::call_and_read_body(&amp;app, req).await;</span>
-<span class="doccomment">///     assert_eq!(result, Bytes::from_static(b&quot;welcome!&quot;));</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// Panics if:</span>
-<span class="doccomment">/// - service call returns error;</span>
-<span class="doccomment">/// - body yields an error while it is being read.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">call_and_read_body</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">Request</span>) -&gt; <span class="ident">Bytes</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+<span class="doccomment">/// Helper function that returns a deserialized response body of a ServiceResponse.
+///
+/// # Examples
+/// ```
+/// use actix_web::{App, test, web, HttpResponse, http::header};
+/// use serde::{Serialize, Deserialize};
+///
+/// #[derive(Serialize, Deserialize)]
+/// pub struct Person {
+///     id: String,
+///     name: String,
+/// }
+///
+/// #[actix_web::test]
+/// async fn test_post_person() {
+///     let app = test::init_service(
+///         App::new().service(
+///             web::resource(&quot;/people&quot;)
+///                 .route(web::post().to(|person: web::Json&lt;Person&gt;| async {
+///                     HttpResponse::Ok()
+///                         .json(person)})
+///                     ))
+///     ).await;
+///
+///     let payload = r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#.as_bytes();
+///
+///     let res = test::TestRequest::post()
+///         .uri(&quot;/people&quot;)
+///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)
+///         .set_payload(payload)
+///         .send_request(&amp;mut app)
+///         .await;
+///
+///     assert!(res.status().is_success());
+///
+///     let result: Person = test::read_body_json(res).await;
+/// }
+/// ```
+///
+/// # Panics
+/// Panics if:
+/// - body yields an error while it is being read;
+/// - received body is not a valid JSON representation of `T`.
+</span><span class="kw">pub async fn </span>read_body_json&lt;T, B&gt;(res: ServiceResponse&lt;B&gt;) -&gt; T
+<span class="kw">where
+    </span>B: MessageBody,
+    T: DeserializeOwned,
 {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-    <span class="ident">read_body</span>(<span class="ident">res</span>).<span class="kw">await</span>
-}
+    <span class="kw">let </span>body = read_body(res).<span class="kw">await</span>;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Renamed to `call_and_read_body`.&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_response</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">Request</span>) -&gt; <span class="ident">Bytes</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-{
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-    <span class="ident">read_body</span>(<span class="ident">res</span>).<span class="kw">await</span>
-}
-
-<span class="doccomment">/// Helper function that returns a response body of a ServiceResponse.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{test, web, App, HttpResponse, http::header};</span>
-<span class="doccomment">/// use bytes::Bytes;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[actix_web::test]</span>
-<span class="doccomment">/// async fn test_index() {</span>
-<span class="doccomment">///     let app = test::init_service(</span>
-<span class="doccomment">///         App::new().service(</span>
-<span class="doccomment">///             web::resource(&quot;/index.html&quot;)</span>
-<span class="doccomment">///                 .route(web::post().to(|| async {</span>
-<span class="doccomment">///                     HttpResponse::Ok().body(&quot;welcome!&quot;)</span>
-<span class="doccomment">///                 })))</span>
-<span class="doccomment">///     ).await;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let req = test::TestRequest::post()</span>
-<span class="doccomment">///         .uri(&quot;/index.html&quot;)</span>
-<span class="doccomment">///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)</span>
-<span class="doccomment">///         .to_request();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let res = test::call_service(&amp;app, req).await;</span>
-<span class="doccomment">///     let result = test::read_body(res).await;</span>
-<span class="doccomment">///     assert_eq!(result, Bytes::from_static(b&quot;welcome!&quot;));</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// Panics if body yields an error while it is being read.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_body</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="ident">Bytes</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-{
-    <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">into_body</span>();
-    <span class="ident">body::to_bytes</span>(<span class="ident">body</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::into</span>)
-        .<span class="ident">expect</span>(<span class="string">&quot;error reading test response body&quot;</span>)
-}
-
-<span class="doccomment">/// Helper function that returns a deserialized response body of a ServiceResponse.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{App, test, web, HttpResponse, http::header};</span>
-<span class="doccomment">/// use serde::{Serialize, Deserialize};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Serialize, Deserialize)]</span>
-<span class="doccomment">/// pub struct Person {</span>
-<span class="doccomment">///     id: String,</span>
-<span class="doccomment">///     name: String,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[actix_web::test]</span>
-<span class="doccomment">/// async fn test_post_person() {</span>
-<span class="doccomment">///     let app = test::init_service(</span>
-<span class="doccomment">///         App::new().service(</span>
-<span class="doccomment">///             web::resource(&quot;/people&quot;)</span>
-<span class="doccomment">///                 .route(web::post().to(|person: web::Json&lt;Person&gt;| async {</span>
-<span class="doccomment">///                     HttpResponse::Ok()</span>
-<span class="doccomment">///                         .json(person)})</span>
-<span class="doccomment">///                     ))</span>
-<span class="doccomment">///     ).await;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let payload = r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#.as_bytes();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let res = test::TestRequest::post()</span>
-<span class="doccomment">///         .uri(&quot;/people&quot;)</span>
-<span class="doccomment">///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)</span>
-<span class="doccomment">///         .set_payload(payload)</span>
-<span class="doccomment">///         .send_request(&amp;mut app)</span>
-<span class="doccomment">///         .await;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     assert!(res.status().is_success());</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let result: Person = test::read_body_json(res).await;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// Panics if:</span>
-<span class="doccomment">/// - body yields an error while it is being read;</span>
-<span class="doccomment">/// - received body is not a valid JSON representation of `T`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_body_json</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>) -&gt; <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">T</span>: <span class="ident">DeserializeOwned</span>,
-{
-    <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">read_body</span>(<span class="ident">res</span>).<span class="kw">await</span>;
-
-    <span class="ident">serde_json::from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+    serde_json::from_slice(<span class="kw-2">&amp;</span>body).unwrap_or_else(|err| {
         <span class="macro">panic!</span>(
             <span class="string">&quot;could not deserialize body into a {}\nerr: {}\nbody: {:?}&quot;</span>,
-            <span class="ident">std::any::type_name</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
-            <span class="ident">err</span>,
-            <span class="ident">body</span>,
+            std::any::type_name::&lt;T&gt;(),
+            err,
+            body,
         )
     })
 }
 
-<span class="doccomment">/// Helper function that returns a deserialized response body of a TestRequest</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{App, test, web, HttpResponse, http::header};</span>
-<span class="doccomment">/// use serde::{Serialize, Deserialize};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Serialize, Deserialize)]</span>
-<span class="doccomment">/// pub struct Person {</span>
-<span class="doccomment">///     id: String,</span>
-<span class="doccomment">///     name: String</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[actix_web::test]</span>
-<span class="doccomment">/// async fn test_add_person() {</span>
-<span class="doccomment">///     let app = test::init_service(</span>
-<span class="doccomment">///         App::new().service(</span>
-<span class="doccomment">///             web::resource(&quot;/people&quot;)</span>
-<span class="doccomment">///                 .route(web::post().to(|person: web::Json&lt;Person&gt;| async {</span>
-<span class="doccomment">///                     HttpResponse::Ok()</span>
-<span class="doccomment">///                         .json(person)})</span>
-<span class="doccomment">///                     ))</span>
-<span class="doccomment">///     ).await;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let payload = r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#.as_bytes();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let req = test::TestRequest::post()</span>
-<span class="doccomment">///         .uri(&quot;/people&quot;)</span>
-<span class="doccomment">///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)</span>
-<span class="doccomment">///         .set_payload(payload)</span>
-<span class="doccomment">///         .to_request();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let result: Person = test::call_and_read_body_json(&amp;mut app, req).await;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// Panics if:</span>
-<span class="doccomment">/// - service call returns an error body yields an error while it is being read;</span>
-<span class="doccomment">/// - body yields an error while it is being read;</span>
-<span class="doccomment">/// - received body is not a valid JSON representation of `T`.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">call_and_read_body_json</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">Request</span>) -&gt; <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">T</span>: <span class="ident">DeserializeOwned</span>,
+<span class="doccomment">/// Helper function that returns a deserialized response body of a TestRequest
+///
+/// # Examples
+/// ```
+/// use actix_web::{App, test, web, HttpResponse, http::header};
+/// use serde::{Serialize, Deserialize};
+///
+/// #[derive(Serialize, Deserialize)]
+/// pub struct Person {
+///     id: String,
+///     name: String
+/// }
+///
+/// #[actix_web::test]
+/// async fn test_add_person() {
+///     let app = test::init_service(
+///         App::new().service(
+///             web::resource(&quot;/people&quot;)
+///                 .route(web::post().to(|person: web::Json&lt;Person&gt;| async {
+///                     HttpResponse::Ok()
+///                         .json(person)})
+///                     ))
+///     ).await;
+///
+///     let payload = r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#.as_bytes();
+///
+///     let req = test::TestRequest::post()
+///         .uri(&quot;/people&quot;)
+///         .header(header::CONTENT_TYPE, &quot;application/json&quot;)
+///         .set_payload(payload)
+///         .to_request();
+///
+///     let result: Person = test::call_and_read_body_json(&amp;mut app, req).await;
+/// }
+/// ```
+///
+/// # Panics
+/// Panics if:
+/// - service call returns an error body yields an error while it is being read;
+/// - body yields an error while it is being read;
+/// - received body is not a valid JSON representation of `T`.
+</span><span class="kw">pub async fn </span>call_and_read_body_json&lt;S, B, T&gt;(app: <span class="kw-2">&amp;</span>S, req: Request) -&gt; T
+<span class="kw">where
+    </span>S: Service&lt;Request, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
+    B: MessageBody,
+    T: DeserializeOwned,
 {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">call_service</span>(<span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-    <span class="ident">read_body_json</span>(<span class="ident">res</span>).<span class="kw">await</span>
-}
+    <span class="kw">let </span>res = call_service(app, req).<span class="kw">await</span>;
+    read_body_json(res).<span class="kw">await
+</span>}
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Renamed to `call_and_read_body_json`.&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_response_json</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">S</span>, <span class="ident">req</span>: <span class="ident">Request</span>) -&gt; <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">T</span>: <span class="ident">DeserializeOwned</span>,
+<span class="attribute">#[doc(hidden)]
+#[deprecated(since = <span class="string">&quot;4.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `call_and_read_body_json`.&quot;</span>)]
+</span><span class="kw">pub async fn </span>read_response_json&lt;S, B, T&gt;(app: <span class="kw-2">&amp;</span>S, req: Request) -&gt; T
+<span class="kw">where
+    </span>S: Service&lt;Request, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
+    B: MessageBody,
+    T: DeserializeOwned,
 {
-    <span class="ident">call_and_read_body_json</span>(<span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>
-}
+    call_and_read_body_json(app, req).<span class="kw">await
+</span>}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
 
-    <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+    <span class="kw">use </span>serde::{Deserialize, Serialize};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">dev::ServiceRequest</span>, <span class="ident">http::header</span>, <span class="ident">test::TestRequest</span>, <span class="ident">web</span>, <span class="ident">App</span>, <span class="ident">HttpMessage</span>,
-        <span class="ident">HttpResponse</span>,
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{
+        dev::ServiceRequest, http::header, test::TestRequest, web, App, HttpMessage,
+        HttpResponse,
     };
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_request_methods</span>() {
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">init_service</span>(
-            <span class="ident">App::new</span>().<span class="ident">service</span>(
-                <span class="ident">web::resource</span>(<span class="string">&quot;/index.html&quot;</span>)
-                    .<span class="ident">route</span>(<span class="ident">web::put</span>().<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">body</span>(<span class="string">&quot;put!&quot;</span>)))
-                    .<span class="ident">route</span>(<span class="ident">web::patch</span>().<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">body</span>(<span class="string">&quot;patch!&quot;</span>)))
-                    .<span class="ident">route</span>(<span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">body</span>(<span class="string">&quot;delete!&quot;</span>))),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_request_methods() {
+        <span class="kw">let </span>app = init_service(
+            App::new().service(
+                web::resource(<span class="string">&quot;/index.html&quot;</span>)
+                    .route(web::put().to(|| HttpResponse::Ok().body(<span class="string">&quot;put!&quot;</span>)))
+                    .route(web::patch().to(|| HttpResponse::Ok().body(<span class="string">&quot;patch!&quot;</span>)))
+                    .route(web::delete().to(|| HttpResponse::Ok().body(<span class="string">&quot;delete!&quot;</span>))),
             ),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">put_req</span> <span class="op">=</span> <span class="ident">TestRequest::put</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/index.html&quot;</span>)
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/json&quot;</span>))
-            .<span class="ident">to_request</span>();
+        <span class="kw">let </span>put_req = TestRequest::put()
+            .uri(<span class="string">&quot;/index.html&quot;</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .to_request();
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">call_and_read_body</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">put_req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">result</span>, <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;put!&quot;</span>));
+        <span class="kw">let </span>result = call_and_read_body(<span class="kw-2">&amp;</span>app, put_req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b&quot;put!&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">patch_req</span> <span class="op">=</span> <span class="ident">TestRequest::patch</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/index.html&quot;</span>)
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/json&quot;</span>))
-            .<span class="ident">to_request</span>();
+        <span class="kw">let </span>patch_req = TestRequest::patch()
+            .uri(<span class="string">&quot;/index.html&quot;</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .to_request();
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">call_and_read_body</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">patch_req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">result</span>, <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;patch!&quot;</span>));
+        <span class="kw">let </span>result = call_and_read_body(<span class="kw-2">&amp;</span>app, patch_req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b&quot;patch!&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">delete_req</span> <span class="op">=</span> <span class="ident">TestRequest::delete</span>().<span class="ident">uri</span>(<span class="string">&quot;/index.html&quot;</span>).<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">call_and_read_body</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">delete_req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">result</span>, <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;delete!&quot;</span>));
+        <span class="kw">let </span>delete_req = TestRequest::delete().uri(<span class="string">&quot;/index.html&quot;</span>).to_request();
+        <span class="kw">let </span>result = call_and_read_body(<span class="kw-2">&amp;</span>app, delete_req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b&quot;delete!&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Person</span> {
-        <span class="ident">id</span>: <span class="ident">String</span>,
-        <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="attribute">#[derive(Serialize, Deserialize)]
+    </span><span class="kw">pub struct </span>Person {
+        id: String,
+        name: String,
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_response_json</span>() {
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App::new</span>().<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/people&quot;</span>).<span class="ident">route</span>(
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="op">|</span><span class="ident">person</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Person</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">json</span>(<span class="ident">person</span>)),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_response_json() {
+        <span class="kw">let </span>app = init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
         )))
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="string">r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#</span>.<span class="ident">as_bytes</span>();
+        <span class="kw">let </span>payload = <span class="string">r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#</span>.as_bytes();
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::post</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/people&quot;</span>)
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/json&quot;</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">payload</span>)
-            .<span class="ident">to_request</span>();
+        <span class="kw">let </span>req = TestRequest::post()
+            .uri(<span class="string">&quot;/people&quot;</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .set_payload(payload)
+            .to_request();
 
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">Person</span> <span class="op">=</span> <span class="ident">call_and_read_body_json</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>.<span class="ident">id</span>, <span class="string">&quot;12345&quot;</span>);
+        <span class="kw">let </span>result: Person = call_and_read_body_json(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.id, <span class="string">&quot;12345&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_body_json</span>() {
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App::new</span>().<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/people&quot;</span>).<span class="ident">route</span>(
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="op">|</span><span class="ident">person</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Person</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">json</span>(<span class="ident">person</span>)),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_body_json() {
+        <span class="kw">let </span>app = init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
         )))
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="string">r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#</span>.<span class="ident">as_bytes</span>();
+        <span class="kw">let </span>payload = <span class="string">r#&quot;{&quot;id&quot;:&quot;12345&quot;,&quot;name&quot;:&quot;User name&quot;}&quot;#</span>.as_bytes();
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">TestRequest::post</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/people&quot;</span>)
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/json&quot;</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">payload</span>)
-            .<span class="ident">send_request</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>)
+        <span class="kw">let </span>res = TestRequest::post()
+            .uri(<span class="string">&quot;/people&quot;</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .set_payload(payload)
+            .send_request(<span class="kw-2">&amp;</span>app)
             .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">Person</span> <span class="op">=</span> <span class="ident">read_body_json</span>(<span class="ident">res</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>.<span class="ident">name</span>, <span class="string">&quot;User name&quot;</span>);
+        <span class="kw">let </span>result: Person = read_body_json(res).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.name, <span class="string">&quot;User name&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_request_response_form</span>() {
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App::new</span>().<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/people&quot;</span>).<span class="ident">route</span>(
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="op">|</span><span class="ident">person</span>: <span class="ident">web::Form</span><span class="op">&lt;</span><span class="ident">Person</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">json</span>(<span class="ident">person</span>)),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_request_response_form() {
+        <span class="kw">let </span>app = init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            web::post().to(|person: web::Form&lt;Person&gt;| HttpResponse::Ok().json(person)),
         )))
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="ident">Person</span> {
-            <span class="ident">id</span>: <span class="string">&quot;12345&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">name</span>: <span class="string">&quot;User name&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span>payload = Person {
+            id: <span class="string">&quot;12345&quot;</span>.to_string(),
+            name: <span class="string">&quot;User name&quot;</span>.to_string(),
         };
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::post</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/people&quot;</span>)
-            .<span class="ident">set_form</span>(<span class="kw-2">&amp;</span><span class="ident">payload</span>)
-            .<span class="ident">to_request</span>();
+        <span class="kw">let </span>req = TestRequest::post()
+            .uri(<span class="string">&quot;/people&quot;</span>)
+            .set_form(<span class="kw-2">&amp;</span>payload)
+            .to_request();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">content_type</span>(), <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">Person</span> <span class="op">=</span> <span class="ident">call_and_read_body_json</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>.<span class="ident">id</span>, <span class="string">&quot;12345&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>.<span class="ident">name</span>, <span class="string">&quot;User name&quot;</span>);
+        <span class="kw">let </span>result: Person = call_and_read_body_json(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.id, <span class="string">&quot;12345&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.name, <span class="string">&quot;User name&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_response</span>() {
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">init_service</span>(
-            <span class="ident">App::new</span>().<span class="ident">service</span>(
-                <span class="ident">web::resource</span>(<span class="string">&quot;/index.html&quot;</span>)
-                    .<span class="ident">route</span>(<span class="ident">web::post</span>().<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">body</span>(<span class="string">&quot;welcome!&quot;</span>))),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_response() {
+        <span class="kw">let </span>app = init_service(
+            App::new().service(
+                web::resource(<span class="string">&quot;/index.html&quot;</span>)
+                    .route(web::post().to(|| HttpResponse::Ok().body(<span class="string">&quot;welcome!&quot;</span>))),
             ),
         )
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::post</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/index.html&quot;</span>)
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/json&quot;</span>))
-            .<span class="ident">to_request</span>();
+        <span class="kw">let </span>req = TestRequest::post()
+            .uri(<span class="string">&quot;/index.html&quot;</span>)
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/json&quot;</span>))
+            .to_request();
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">call_and_read_body</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">result</span>, <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;welcome!&quot;</span>));
+        <span class="kw">let </span>result = call_and_read_body(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(result, Bytes::from_static(<span class="string">b&quot;welcome!&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_request_response_json</span>() {
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">init_service</span>(<span class="ident">App::new</span>().<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/people&quot;</span>).<span class="ident">route</span>(
-            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="op">|</span><span class="ident">person</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Person</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">json</span>(<span class="ident">person</span>)),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_request_response_json() {
+        <span class="kw">let </span>app = init_service(App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+            web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
         )))
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="ident">Person</span> {
-            <span class="ident">id</span>: <span class="string">&quot;12345&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">name</span>: <span class="string">&quot;User name&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span>payload = Person {
+            id: <span class="string">&quot;12345&quot;</span>.to_string(),
+            name: <span class="string">&quot;User name&quot;</span>.to_string(),
         };
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::post</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/people&quot;</span>)
-            .<span class="ident">set_json</span>(<span class="kw-2">&amp;</span><span class="ident">payload</span>)
-            .<span class="ident">to_request</span>();
+        <span class="kw">let </span>req = TestRequest::post()
+            .uri(<span class="string">&quot;/people&quot;</span>)
+            .set_json(<span class="kw-2">&amp;</span>payload)
+            .to_request();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">content_type</span>(), <span class="string">&quot;application/json&quot;</span>);
+        <span class="macro">assert_eq!</span>(req.content_type(), <span class="string">&quot;application/json&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">Person</span> <span class="op">=</span> <span class="ident">call_and_read_body_json</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>.<span class="ident">id</span>, <span class="string">&quot;12345&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>.<span class="ident">name</span>, <span class="string">&quot;User name&quot;</span>);
+        <span class="kw">let </span>result: Person = call_and_read_body_json(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.id, <span class="string">&quot;12345&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>result.name, <span class="string">&quot;User name&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">return_opaque_types</span>() {
-        <span class="kw">fn</span> <span class="ident">test_app</span>() -&gt; <span class="ident">App</span><span class="op">&lt;</span>
-            <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-                <span class="ident">ServiceRequest</span>,
-                <span class="ident">Config</span> <span class="op">=</span> (),
-                <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">MessageBody</span><span class="op">&gt;</span>,
-                <span class="ident">Error</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Error</span>,
-                <span class="ident">InitError</span> <span class="op">=</span> (),
-            <span class="op">&gt;</span>,
-        <span class="op">&gt;</span> {
-            <span class="ident">App::new</span>().<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/people&quot;</span>).<span class="ident">route</span>(
-                <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="op">|</span><span class="ident">person</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Person</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">json</span>(<span class="ident">person</span>)),
+    <span class="attribute">#[actix_rt::test]
+    #[allow(dead_code)]
+    </span><span class="kw">async fn </span>return_opaque_types() {
+        <span class="kw">fn </span>test_app() -&gt; App&lt;
+            <span class="kw">impl </span>ServiceFactory&lt;
+                ServiceRequest,
+                Config = (),
+                Response = ServiceResponse&lt;<span class="kw">impl </span>MessageBody&gt;,
+                Error = <span class="kw">crate</span>::Error,
+                InitError = (),
+            &gt;,
+        &gt; {
+            App::new().service(web::resource(<span class="string">&quot;/people&quot;</span>).route(
+                web::post().to(|person: web::Json&lt;Person&gt;| HttpResponse::Ok().json(person)),
             ))
         }
 
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_service</span>(
-        ) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">MessageBody</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span>
+        <span class="kw">async fn </span>test_service(
+        ) -&gt; <span class="kw">impl </span>Service&lt;Request, Response = ServiceResponse&lt;<span class="kw">impl </span>MessageBody&gt;, Error = <span class="kw">crate</span>::Error&gt;
         {
-            <span class="ident">init_service</span>(<span class="ident">test_app</span>()).<span class="kw">await</span>
-        }
+            init_service(test_app()).<span class="kw">await
+        </span>}
 
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">compile_test</span>(<span class="kw-2">mut</span> <span class="ident">req</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>) {
-            <span class="kw">let</span> <span class="ident">svc</span> <span class="op">=</span> <span class="ident">test_service</span>().<span class="kw">await</span>;
-            <span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">svc</span>, <span class="ident">req</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>()).<span class="kw">await</span>;
-            <span class="ident">call_and_read_body</span>(<span class="kw-2">&amp;</span><span class="ident">svc</span>, <span class="ident">req</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>()).<span class="kw">await</span>;
-            <span class="ident">read_body</span>(<span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">svc</span>, <span class="ident">req</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>()).<span class="kw">await</span>).<span class="kw">await</span>;
-            <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">call_and_read_body_json</span>(<span class="kw-2">&amp;</span><span class="ident">svc</span>, <span class="ident">req</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>()).<span class="kw">await</span>;
-            <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">read_body_json</span>(<span class="ident">call_service</span>(<span class="kw-2">&amp;</span><span class="ident">svc</span>, <span class="ident">req</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>()).<span class="kw">await</span>).<span class="kw">await</span>;
+        <span class="kw">async fn </span>compile_test(<span class="kw-2">mut </span>req: Vec&lt;Request&gt;) {
+            <span class="kw">let </span>svc = test_service().<span class="kw">await</span>;
+            call_service(<span class="kw-2">&amp;</span>svc, req.pop().unwrap()).<span class="kw">await</span>;
+            call_and_read_body(<span class="kw-2">&amp;</span>svc, req.pop().unwrap()).<span class="kw">await</span>;
+            read_body(call_service(<span class="kw-2">&amp;</span>svc, req.pop().unwrap()).<span class="kw">await</span>).<span class="kw">await</span>;
+            <span class="kw">let _</span>: String = call_and_read_body_json(<span class="kw-2">&amp;</span>svc, req.pop().unwrap()).<span class="kw">await</span>;
+            <span class="kw">let _</span>: String = read_body_json(call_service(<span class="kw-2">&amp;</span>svc, req.pop().unwrap()).<span class="kw">await</span>).<span class="kw">await</span>;
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

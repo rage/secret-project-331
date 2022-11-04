@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/inout-0.1.3/src/inout.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inout.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../inout/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../inout/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/inout-0.1.3/src/inout.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inout.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../inout/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../inout/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../inout/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -174,179 +174,179 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::InOutBuf</span>;
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">marker::PhantomData</span>, <span class="ident">ptr</span>};
-<span class="kw">use</span> <span class="ident">generic_array</span>::{<span class="ident">ArrayLength</span>, <span class="ident">GenericArray</span>};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::InOutBuf;
+<span class="kw">use </span>core::{marker::PhantomData, ptr};
+<span class="kw">use </span>generic_array::{ArrayLength, GenericArray};
 
-<span class="doccomment">/// Custom pointer type which contains one immutable (input) and one mutable</span>
-<span class="doccomment">/// (output) pointer, which are either equal or non-overlapping.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">in_ptr</span>: <span class="kw-2">*const</span> <span class="ident">T</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">out_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">T</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">_pd</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;inp</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// Custom pointer type which contains one immutable (input) and one mutable
+/// (output) pointer, which are either equal or non-overlapping.
+</span><span class="kw">pub struct </span>InOut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) in_ptr: <span class="kw-2">*const </span>T,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) out_ptr: <span class="kw-2">*mut </span>T,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) _pd: PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;inp </span>T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Reborrow `self`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reborrow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">Self</span> {
-            <span class="ident">in_ptr</span>: <span class="self">self</span>.<span class="ident">in_ptr</span>,
-            <span class="ident">out_ptr</span>: <span class="self">self</span>.<span class="ident">out_ptr</span>,
-            <span class="ident">_pd</span>: <span class="ident">PhantomData</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T&gt; InOut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T&gt; {
+    <span class="doccomment">/// Reborrow `self`.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>reborrow&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; InOut&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>, T&gt; {
+        <span class="self">Self </span>{
+            in_ptr: <span class="self">self</span>.in_ptr,
+            out_ptr: <span class="self">self</span>.out_ptr,
+            _pd: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Get immutable reference to the input value.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_in</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> {
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">in_ptr</span> }
+    <span class="doccomment">/// Get immutable reference to the input value.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>get_in&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>T {
+        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.in_ptr }
     }
 
-    <span class="doccomment">/// Get mutable reference to the output value.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_out</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span> {
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">out_ptr</span> }
+    <span class="doccomment">/// Get mutable reference to the output value.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>get_out&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T {
+        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.out_ptr }
     }
 
-    <span class="doccomment">/// Convert `self` to a pair of raw input and output pointers.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_raw</span>(<span class="self">self</span>) -&gt; (<span class="kw-2">*const</span> <span class="ident">T</span>, <span class="kw-2">*mut</span> <span class="ident">T</span>) {
-        (<span class="self">self</span>.<span class="ident">in_ptr</span>, <span class="self">self</span>.<span class="ident">out_ptr</span>)
+    <span class="doccomment">/// Convert `self` to a pair of raw input and output pointers.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>into_raw(<span class="self">self</span>) -&gt; (<span class="kw-2">*const </span>T, <span class="kw-2">*mut </span>T) {
+        (<span class="self">self</span>.in_ptr, <span class="self">self</span>.out_ptr)
     }
 
-    <span class="doccomment">/// Create `InOut` from raw input and output pointers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety</span>
-    <span class="doccomment">/// Behavior is undefined if any of the following conditions are violated:</span>
-    <span class="doccomment">/// - `in_ptr` must point to a properly initialized value of type `T` and</span>
-    <span class="doccomment">/// must be valid for reads.</span>
-    <span class="doccomment">/// - `out_ptr` must point to a properly initialized value of type `T` and</span>
-    <span class="doccomment">/// must be valid for both reads and writes.</span>
-    <span class="doccomment">/// - `in_ptr` and `out_ptr` must be either equal or non-overlapping.</span>
-    <span class="doccomment">/// - If `in_ptr` and `out_ptr` are equal, then the memory referenced by</span>
-    <span class="doccomment">/// them must not be accessed through any other pointer (not derived from</span>
-    <span class="doccomment">/// the return value) for the duration of lifetime &#39;a. Both read and write</span>
-    <span class="doccomment">/// accesses are forbidden.</span>
-    <span class="doccomment">/// - If `in_ptr` and `out_ptr` are not equal, then the memory referenced by</span>
-    <span class="doccomment">/// `out_ptr` must not be accessed through any other pointer (not derived from</span>
-    <span class="doccomment">/// the return value) for the duration of lifetime `&#39;a`. Both read and write</span>
-    <span class="doccomment">/// accesses are forbidden. The memory referenced by `in_ptr` must not be</span>
-    <span class="doccomment">/// mutated for the duration of lifetime `&#39;a`, except inside an `UnsafeCell`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">in_ptr</span>: <span class="kw-2">*const</span> <span class="ident">T</span>, <span class="ident">out_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">T</span>) -&gt; <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">Self</span> {
-            <span class="ident">in_ptr</span>,
-            <span class="ident">out_ptr</span>,
-            <span class="ident">_pd</span>: <span class="ident">PhantomData</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Clone input value and return it.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clone_in</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">T</span> {
-        <span class="kw">unsafe</span> { (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">in_ptr</span>).<span class="ident">clone</span>() }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">val</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>;
-        <span class="self">Self</span> {
-            <span class="ident">in_ptr</span>: <span class="ident">p</span>,
-            <span class="ident">out_ptr</span>: <span class="ident">p</span>,
-            <span class="ident">_pd</span>: <span class="ident">PhantomData</span>,
+    <span class="doccomment">/// Create `InOut` from raw input and output pointers.
+    ///
+    /// # Safety
+    /// Behavior is undefined if any of the following conditions are violated:
+    /// - `in_ptr` must point to a properly initialized value of type `T` and
+    /// must be valid for reads.
+    /// - `out_ptr` must point to a properly initialized value of type `T` and
+    /// must be valid for both reads and writes.
+    /// - `in_ptr` and `out_ptr` must be either equal or non-overlapping.
+    /// - If `in_ptr` and `out_ptr` are equal, then the memory referenced by
+    /// them must not be accessed through any other pointer (not derived from
+    /// the return value) for the duration of lifetime &#39;a. Both read and write
+    /// accesses are forbidden.
+    /// - If `in_ptr` and `out_ptr` are not equal, then the memory referenced by
+    /// `out_ptr` must not be accessed through any other pointer (not derived from
+    /// the return value) for the duration of lifetime `&#39;a`. Both read and write
+    /// accesses are forbidden. The memory referenced by `in_ptr` must not be
+    /// mutated for the duration of lifetime `&#39;a`, except inside an `UnsafeCell`.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub unsafe fn </span>from_raw(in_ptr: <span class="kw-2">*const </span>T, out_ptr: <span class="kw-2">*mut </span>T) -&gt; InOut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T&gt; {
+        <span class="self">Self </span>{
+            in_ptr,
+            out_ptr,
+            _pd: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;inp</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">in_val</span>, <span class="ident">out_val</span>): (<span class="kw-2">&amp;</span><span class="lifetime">&#39;inp</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> <span class="kw-2">mut</span> <span class="ident">T</span>)) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">in_ptr</span>: <span class="ident">in_val</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span>,
-            <span class="ident">out_ptr</span>: <span class="ident">out_val</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>,
-            <span class="ident">_pd</span>: <span class="ident">Default::default</span>(),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T: Clone&gt; InOut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T&gt; {
+    <span class="doccomment">/// Clone input value and return it.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>clone_in(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; T {
+        <span class="kw">unsafe </span>{ (<span class="kw-2">&amp;*</span><span class="self">self</span>.in_ptr).clone() }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T&gt; <span class="kw">for </span>InOut&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>from(val: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>T) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>p = val <span class="kw">as </span><span class="kw-2">*mut </span>T;
+        <span class="self">Self </span>{
+            in_ptr: p,
+            out_ptr: p,
+            _pd: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span>, <span class="ident">N</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns `InOut` for the given position.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// If `pos` greater or equal to array length.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">usize</span>) -&gt; <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="macro">assert!</span>(<span class="ident">pos</span> <span class="op">&lt;</span> <span class="ident">N::USIZE</span>);
-        <span class="kw">unsafe</span> {
-            <span class="ident">InOut</span> {
-                <span class="ident">in_ptr</span>: (<span class="self">self</span>.<span class="ident">in_ptr</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span>).<span class="ident">add</span>(<span class="ident">pos</span>),
-                <span class="ident">out_ptr</span>: (<span class="self">self</span>.<span class="ident">out_ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>).<span class="ident">add</span>(<span class="ident">pos</span>),
-                <span class="ident">_pd</span>: <span class="ident">PhantomData</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T&gt; From&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;inp </span>T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T)&gt; <span class="kw">for </span>InOut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>from((in_val, out_val): (<span class="kw-2">&amp;</span><span class="lifetime">&#39;inp </span>T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span><span class="kw-2">mut </span>T)) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            in_ptr: in_val <span class="kw">as </span><span class="kw-2">*const </span>T,
+            out_ptr: out_val <span class="kw">as </span><span class="kw-2">*mut </span>T,
+            _pd: Default::default(),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T, N: ArrayLength&lt;T&gt;&gt; InOut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, GenericArray&lt;T, N&gt;&gt; {
+    <span class="doccomment">/// Returns `InOut` for the given position.
+    ///
+    /// # Panics
+    /// If `pos` greater or equal to array length.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>get&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>, pos: usize) -&gt; InOut&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;a</span>, T&gt; {
+        <span class="macro">assert!</span>(pos &lt; N::USIZE);
+        <span class="kw">unsafe </span>{
+            InOut {
+                in_ptr: (<span class="self">self</span>.in_ptr <span class="kw">as </span><span class="kw-2">*const </span>T).add(pos),
+                out_ptr: (<span class="self">self</span>.out_ptr <span class="kw">as </span><span class="kw-2">*mut </span>T).add(pos),
+                _pd: PhantomData,
             }
         }
     }
 
-    <span class="doccomment">/// Convert `InOut` array to `InOutBuf`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_buf</span>(<span class="self">self</span>) -&gt; <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">InOutBuf</span> {
-            <span class="ident">in_ptr</span>: <span class="self">self</span>.<span class="ident">in_ptr</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span>,
-            <span class="ident">out_ptr</span>: <span class="self">self</span>.<span class="ident">out_ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>,
-            <span class="ident">len</span>: <span class="ident">N::USIZE</span>,
-            <span class="ident">_pd</span>: <span class="ident">PhantomData</span>,
+    <span class="doccomment">/// Convert `InOut` array to `InOutBuf`.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>into_buf(<span class="self">self</span>) -&gt; InOutBuf&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, T&gt; {
+        InOutBuf {
+            in_ptr: <span class="self">self</span>.in_ptr <span class="kw">as </span><span class="kw-2">*const </span>T,
+            out_ptr: <span class="self">self</span>.out_ptr <span class="kw">as </span><span class="kw-2">*mut </span>T,
+            len: N::USIZE,
+            _pd: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">N</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">N</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// XOR `data` with values behind the input slice and write</span>
-    <span class="doccomment">/// result to the output slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// If `data` length is not equal to the buffer length.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::needless_range_loop</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">xor_in2out</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">N</span><span class="op">&gt;</span>) {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">ptr::read</span>(<span class="self">self</span>.<span class="ident">in_ptr</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">GenericArray</span>::<span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">N</span><span class="op">&gt;</span><span class="ident">::default</span>();
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">N::USIZE</span> {
-                <span class="ident">temp</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">input</span>[<span class="ident">i</span>] <span class="op">^</span> <span class="ident">data</span>[<span class="ident">i</span>];
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, N: ArrayLength&lt;u8&gt;&gt; InOut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, GenericArray&lt;u8, N&gt;&gt; {
+    <span class="doccomment">/// XOR `data` with values behind the input slice and write
+    /// result to the output slice.
+    ///
+    /// # Panics
+    /// If `data` length is not equal to the buffer length.
+    </span><span class="attribute">#[inline(always)]
+    #[allow(clippy::needless_range_loop)]
+    </span><span class="kw">pub fn </span>xor_in2out(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>GenericArray&lt;u8, N&gt;) {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>input = ptr::read(<span class="self">self</span>.in_ptr);
+            <span class="kw">let </span><span class="kw-2">mut </span>temp = GenericArray::&lt;u8, N&gt;::default();
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..N::USIZE {
+                temp[i] = input[i] ^ data[i];
             }
-            <span class="ident">ptr::write</span>(<span class="self">self</span>.<span class="ident">out_ptr</span>, <span class="ident">temp</span>);
+            ptr::write(<span class="self">self</span>.out_ptr, temp);
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">N</span>, <span class="ident">M</span><span class="op">&gt;</span> <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">M</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    <span class="ident">M</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">N</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, N, M&gt; InOut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, GenericArray&lt;GenericArray&lt;u8, N&gt;, M&gt;&gt;
+<span class="kw">where
+    </span>N: ArrayLength&lt;u8&gt;,
+    M: ArrayLength&lt;GenericArray&lt;u8, N&gt;&gt;,
 {
-    <span class="doccomment">/// XOR `data` with values behind the input slice and write</span>
-    <span class="doccomment">/// result to the output slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// If `data` length is not equal to the buffer length.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::needless_range_loop</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">xor_in2out</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">M</span><span class="op">&gt;</span>) {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">ptr::read</span>(<span class="self">self</span>.<span class="ident">in_ptr</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">GenericArray</span>::<span class="op">&lt;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">M</span><span class="op">&gt;</span><span class="ident">::default</span>();
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">M::USIZE</span> {
-                <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">N::USIZE</span> {
-                    <span class="ident">temp</span>[<span class="ident">i</span>][<span class="ident">j</span>] <span class="op">=</span> <span class="ident">input</span>[<span class="ident">i</span>][<span class="ident">j</span>] <span class="op">^</span> <span class="ident">data</span>[<span class="ident">i</span>][<span class="ident">j</span>];
+    <span class="doccomment">/// XOR `data` with values behind the input slice and write
+    /// result to the output slice.
+    ///
+    /// # Panics
+    /// If `data` length is not equal to the buffer length.
+    </span><span class="attribute">#[inline(always)]
+    #[allow(clippy::needless_range_loop)]
+    </span><span class="kw">pub fn </span>xor_in2out(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>GenericArray&lt;GenericArray&lt;u8, N&gt;, M&gt;) {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>input = ptr::read(<span class="self">self</span>.in_ptr);
+            <span class="kw">let </span><span class="kw-2">mut </span>temp = GenericArray::&lt;GenericArray&lt;u8, N&gt;, M&gt;::default();
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..M::USIZE {
+                <span class="kw">for </span>j <span class="kw">in </span><span class="number">0</span>..N::USIZE {
+                    temp[i][j] = input[i][j] ^ data[i][j];
                 }
             }
-            <span class="ident">ptr::write</span>(<span class="self">self</span>.<span class="ident">out_ptr</span>, <span class="ident">temp</span>);
+            ptr::write(<span class="self">self</span>.out_ptr, temp);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="inout" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="inout" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

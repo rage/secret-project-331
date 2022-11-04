@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/ffi/broccoli.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>broccoli.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/ffi/broccoli.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>broccoli.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -133,140 +133,140 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">core</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">brotli_decompressor::ffi::interface</span>::{
-  <span class="ident">c_void</span>
+</pre><pre class="rust"><code><span class="kw">use </span>core;
+<span class="kw">pub use </span>brotli_decompressor::ffi::interface::{
+  c_void
 };
-<span class="kw">use</span> <span class="ident">brotli_decompressor::ffi</span>::{
-  <span class="ident">slice_from_raw_parts_or_nil</span>,
-  <span class="ident">slice_from_raw_parts_or_nil_mut</span>,
+<span class="kw">use </span>brotli_decompressor::ffi::{
+  slice_from_raw_parts_or_nil,
+  slice_from_raw_parts_or_nil_mut,
 };
-<span class="kw">use</span> <span class="ident">concat::BroCatli</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">concat::BroCatliResult</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">BroccoliResult</span> <span class="op">=</span> <span class="ident">BroCatliResult</span>;
-<span class="comment">// a tool to concatenate brotli files together</span>
+<span class="kw">use </span>concat::BroCatli;
+<span class="kw">pub use </span>concat::BroCatliResult;
+<span class="kw">pub type </span>BroccoliResult = BroCatliResult;
+<span class="comment">// a tool to concatenate brotli files together
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BroccoliState</span> {
-    <span class="ident">more_data</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-    <span class="ident">current_data</span>: [<span class="ident">u8</span>;<span class="number">120</span>],
+</span><span class="attribute">#[repr(C)]
+</span><span class="kw">pub struct </span>BroccoliState {
+    more_data: <span class="kw-2">*mut </span>c_void,
+    current_data: [u8;<span class="number">120</span>],
 }
 
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">BroccoliState</span> {
-  <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BroccoliState</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cd</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">120</span>];
-    <span class="ident">cd</span>.<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current_data</span>[..]);
-    <span class="ident">BroccoliState</span>{
-      <span class="ident">more_data</span>:<span class="self">self</span>.<span class="ident">more_data</span>,
-      <span class="ident">current_data</span>:<span class="ident">cd</span>,
+<span class="kw">impl </span>Clone <span class="kw">for </span>BroccoliState {
+  <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BroccoliState {
+    <span class="kw">let </span><span class="kw-2">mut </span>cd = [<span class="number">0u8</span>; <span class="number">120</span>];
+    cd.clone_from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.current_data[..]);
+    BroccoliState{
+      more_data:<span class="self">self</span>.more_data,
+      current_data:cd,
     }
   }
 }
 
-<span class="kw">impl</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">BroccoliState</span>{}
+<span class="kw">impl </span>Copy <span class="kw">for </span>BroccoliState{}
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">BroccoliState</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">BroccoliState</span> {
-        <span class="ident">BroCatli::new</span>().<span class="ident">into</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>BroccoliState {
+    <span class="kw">fn </span>default() -&gt; BroccoliState {
+        BroCatli::new().into()
     }
 }
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BroCatli</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BroccoliState</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">data</span>: <span class="ident">BroCatli</span>) -&gt; <span class="ident">BroccoliState</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">120</span>];
-        <span class="ident">data</span>.<span class="ident">serialize_to_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buffer</span>[..]).<span class="ident">unwrap</span>();
-        <span class="ident">BroccoliState</span>{
-            <span class="ident">more_data</span>: <span class="ident">core::ptr::null_mut</span>(),
-            <span class="ident">current_data</span>:<span class="ident">buffer</span>,
+<span class="kw">impl </span>From&lt;BroCatli&gt; <span class="kw">for </span>BroccoliState {
+    <span class="kw">fn </span>from(data: BroCatli) -&gt; BroccoliState {
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer = [<span class="number">0u8</span>; <span class="number">120</span>];
+        data.serialize_to_buffer(<span class="kw-2">&amp;mut </span>buffer[..]).unwrap();
+        BroccoliState{
+            more_data: core::ptr::null_mut(),
+            current_data:buffer,
         }
     }
 }
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">BroCatli</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BroccoliState</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">BroCatli</span> {
-        <span class="ident">BroCatli::deserialize_from_buffer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current_data</span>[..]).<span class="ident">unwrap</span>()
+<span class="kw">impl </span>Into&lt;BroCatli&gt; <span class="kw">for </span>BroccoliState {
+    <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; BroCatli {
+        BroCatli::deserialize_from_buffer(<span class="kw-2">&amp;</span><span class="self">self</span>.current_data[..]).unwrap()
     }
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BroccoliCreateInstance</span>() -&gt; <span class="ident">BroccoliState</span> {
-    <span class="ident">BroCatli::new</span>().<span class="ident">into</span>()
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub extern fn </span>BroccoliCreateInstance() -&gt; BroccoliState {
+    BroCatli::new().into()
 }
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BroccoliCreateInstanceWithWindowSize</span>(<span class="ident">window_size</span>: <span class="ident">u8</span>) -&gt; <span class="ident">BroccoliState</span> {
-    <span class="ident">BroCatli::new_with_window_size</span>(<span class="ident">window_size</span>).<span class="ident">into</span>()
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub extern fn </span>BroccoliCreateInstanceWithWindowSize(window_size: u8) -&gt; BroccoliState {
+    BroCatli::new_with_window_size(window_size).into()
 }
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BroccoliDestroyInstance</span>(<span class="ident">_state</span>: <span class="ident">BroccoliState</span>) {
-}
-
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BroccoliNewBrotliFile</span>(<span class="ident">state</span>: <span class="kw-2">*mut</span> <span class="ident">BroccoliState</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bro_catli</span>: <span class="ident">BroCatli</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">state</span>).<span class="ident">into</span>();
-    <span class="ident">bro_catli</span>.<span class="ident">new_brotli_file</span>();
-    <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span> <span class="ident">BroccoliState::from</span>(<span class="ident">bro_catli</span>);
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub extern fn </span>BroccoliDestroyInstance(_state: BroccoliState) {
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BroccoliConcatStream</span>(
-  <span class="ident">state</span>: <span class="kw-2">*mut</span> <span class="ident">BroccoliState</span>,
-  <span class="ident">available_in</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-  <span class="ident">input_buf_ptr</span>: <span class="kw-2">*mut</span><span class="kw-2">*const</span> <span class="ident">u8</span>,
-  <span class="ident">available_out</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-  <span class="ident">output_buf_ptr</span>: <span class="kw-2">*mut</span><span class="kw-2">*mut</span> <span class="ident">u8</span>) -&gt; <span class="ident">BroccoliResult</span> {
-  <span class="kw">let</span> <span class="ident">input_buf</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="kw-2">*</span><span class="ident">input_buf_ptr</span>, <span class="kw-2">*</span><span class="ident">available_in</span>);
-  <span class="kw">let</span> <span class="ident">output_buf</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="kw-2">*</span><span class="ident">output_buf_ptr</span>, <span class="kw-2">*</span><span class="ident">available_out</span>);
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bro_catli</span>: <span class="ident">BroCatli</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">state</span>).<span class="ident">into</span>();
-  <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">bro_catli</span>.<span class="ident">stream</span>(<span class="ident">input_buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">input_offset</span>, <span class="ident">output_buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">output_offset</span>);
-  <span class="kw-2">*</span><span class="ident">input_buf_ptr</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">input_buf_ptr</span>).<span class="ident">offset</span>(<span class="ident">input_offset</span> <span class="kw">as</span> <span class="ident">isize</span>);
-  <span class="kw-2">*</span><span class="ident">output_buf_ptr</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">output_buf_ptr</span>).<span class="ident">offset</span>(<span class="ident">output_offset</span> <span class="kw">as</span> <span class="ident">isize</span>);
-  <span class="kw-2">*</span><span class="ident">available_in</span> <span class="op">-</span><span class="op">=</span> <span class="ident">input_offset</span>;
-  <span class="kw-2">*</span><span class="ident">available_out</span> <span class="op">-</span><span class="op">=</span> <span class="ident">output_offset</span>;
-  <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span> <span class="ident">BroccoliState::from</span>(<span class="ident">bro_catli</span>);
-  <span class="ident">ret</span>
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BroccoliNewBrotliFile(state: <span class="kw-2">*mut </span>BroccoliState) {
+    <span class="kw">let </span><span class="kw-2">mut </span>bro_catli: BroCatli = (<span class="kw-2">*</span>state).into();
+    bro_catli.new_brotli_file();
+    <span class="kw-2">*</span>state = BroccoliState::from(bro_catli);
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BroccoliConcatStreaming</span>(
-  <span class="ident">state</span>: <span class="kw-2">*mut</span> <span class="ident">BroccoliState</span>,
-  <span class="ident">available_in</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-  <span class="kw-2">mut</span> <span class="ident">input_buf</span>: <span class="kw-2">*const</span> <span class="ident">u8</span>,
-  <span class="ident">available_out</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-  <span class="kw-2">mut</span> <span class="ident">output_buf</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>) -&gt; <span class="ident">BroccoliResult</span> {
-  <span class="ident">BroccoliConcatStream</span>(
-    <span class="ident">state</span>,
-    <span class="ident">available_in</span>,
-    <span class="kw-2">&amp;mut</span> <span class="ident">input_buf</span>,
-    <span class="ident">available_out</span>,
-    <span class="kw-2">&amp;mut</span> <span class="ident">output_buf</span>)
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BroccoliConcatStream(
+  state: <span class="kw-2">*mut </span>BroccoliState,
+  available_in: <span class="kw-2">*mut </span>usize,
+  input_buf_ptr: <span class="kw-2">*mut*const </span>u8,
+  available_out: <span class="kw-2">*mut </span>usize,
+  output_buf_ptr: <span class="kw-2">*mut*mut </span>u8) -&gt; BroccoliResult {
+  <span class="kw">let </span>input_buf = slice_from_raw_parts_or_nil(<span class="kw-2">*</span>input_buf_ptr, <span class="kw-2">*</span>available_in);
+  <span class="kw">let </span>output_buf = slice_from_raw_parts_or_nil_mut(<span class="kw-2">*</span>output_buf_ptr, <span class="kw-2">*</span>available_out);
+  <span class="kw">let </span><span class="kw-2">mut </span>input_offset = <span class="number">0usize</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>output_offset = <span class="number">0usize</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>bro_catli: BroCatli = (<span class="kw-2">*</span>state).into();
+  <span class="kw">let </span>ret = bro_catli.stream(input_buf, <span class="kw-2">&amp;mut </span>input_offset, output_buf, <span class="kw-2">&amp;mut </span>output_offset);
+  <span class="kw-2">*</span>input_buf_ptr = (<span class="kw-2">*</span>input_buf_ptr).offset(input_offset <span class="kw">as </span>isize);
+  <span class="kw-2">*</span>output_buf_ptr = (<span class="kw-2">*</span>output_buf_ptr).offset(output_offset <span class="kw">as </span>isize);
+  <span class="kw-2">*</span>available_in -= input_offset;
+  <span class="kw-2">*</span>available_out -= output_offset;
+  <span class="kw-2">*</span>state = BroccoliState::from(bro_catli);
+  ret
+}
+
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BroccoliConcatStreaming(
+  state: <span class="kw-2">*mut </span>BroccoliState,
+  available_in: <span class="kw-2">*mut </span>usize,
+  <span class="kw-2">mut </span>input_buf: <span class="kw-2">*const </span>u8,
+  available_out: <span class="kw-2">*mut </span>usize,
+  <span class="kw-2">mut </span>output_buf: <span class="kw-2">*mut </span>u8) -&gt; BroccoliResult {
+  BroccoliConcatStream(
+    state,
+    available_in,
+    <span class="kw-2">&amp;mut </span>input_buf,
+    available_out,
+    <span class="kw-2">&amp;mut </span>output_buf)
       
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BroccoliConcatFinish</span>(
-  <span class="ident">state</span>: <span class="kw-2">*mut</span> <span class="ident">BroccoliState</span>,
-  <span class="ident">available_out</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-  <span class="ident">output_buf_ptr</span>: <span class="kw-2">*mut</span><span class="kw-2">*mut</span> <span class="ident">u8</span>) -&gt; <span class="ident">BroCatliResult</span> {
-  <span class="kw">let</span> <span class="ident">output_buf</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="kw-2">*</span><span class="ident">output_buf_ptr</span>, <span class="kw-2">*</span><span class="ident">available_out</span>);
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bro_catli</span>: <span class="ident">BroCatli</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">state</span>).<span class="ident">into</span>();
-  <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">bro_catli</span>.<span class="ident">finish</span>(<span class="ident">output_buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">output_offset</span>);
-  <span class="kw-2">*</span><span class="ident">output_buf_ptr</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">output_buf_ptr</span>).<span class="ident">offset</span>(<span class="ident">output_offset</span> <span class="kw">as</span> <span class="ident">isize</span>);
-  <span class="kw-2">*</span><span class="ident">available_out</span> <span class="op">-</span><span class="op">=</span> <span class="ident">output_offset</span>;
-  <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span> <span class="ident">BroccoliState::from</span>(<span class="ident">bro_catli</span>);
-  <span class="ident">ret</span>
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BroccoliConcatFinish(
+  state: <span class="kw-2">*mut </span>BroccoliState,
+  available_out: <span class="kw-2">*mut </span>usize,
+  output_buf_ptr: <span class="kw-2">*mut*mut </span>u8) -&gt; BroCatliResult {
+  <span class="kw">let </span>output_buf = slice_from_raw_parts_or_nil_mut(<span class="kw-2">*</span>output_buf_ptr, <span class="kw-2">*</span>available_out);
+  <span class="kw">let </span><span class="kw-2">mut </span>output_offset = <span class="number">0usize</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>bro_catli: BroCatli = (<span class="kw-2">*</span>state).into();
+  <span class="kw">let </span>ret = bro_catli.finish(output_buf, <span class="kw-2">&amp;mut </span>output_offset);
+  <span class="kw-2">*</span>output_buf_ptr = (<span class="kw-2">*</span>output_buf_ptr).offset(output_offset <span class="kw">as </span>isize);
+  <span class="kw-2">*</span>available_out -= output_offset;
+  <span class="kw-2">*</span>state = BroccoliState::from(bro_catli);
+  ret
 }
 
-<span class="comment">// exactly the same as BrotliConcatFinish but without the indirect</span>
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BroccoliConcatFinished</span>(
-  <span class="ident">state</span>: <span class="kw-2">*mut</span> <span class="ident">BroccoliState</span>,
-  <span class="ident">available_out</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-  <span class="kw-2">mut</span> <span class="ident">output_buf</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>) -&gt; <span class="ident">BroCatliResult</span> {
-  <span class="ident">BroccoliConcatFinish</span>(
-    <span class="ident">state</span>,
-    <span class="ident">available_out</span>,
-    <span class="kw-2">&amp;mut</span> <span class="ident">output_buf</span>)
+<span class="comment">// exactly the same as BrotliConcatFinish but without the indirect
+</span><span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BroccoliConcatFinished(
+  state: <span class="kw-2">*mut </span>BroccoliState,
+  available_out: <span class="kw-2">*mut </span>usize,
+  <span class="kw-2">mut </span>output_buf: <span class="kw-2">*mut </span>u8) -&gt; BroCatliResult {
+  BroccoliConcatFinish(
+    state,
+    available_out,
+    <span class="kw-2">&amp;mut </span>output_buf)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

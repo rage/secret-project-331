@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cookie-0.16.1/src/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cookie/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cookie-0.16.1/src/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cookie/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -244,251 +244,251 @@
 <span id="244">244</span>
 <span id="245">245</span>
 <span id="246">246</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Cookie</span>, <span class="ident">SameSite</span>, <span class="ident">Expiration</span>};
+<span class="kw">use crate</span>::{Cookie, SameSite, Expiration};
 
-<span class="doccomment">/// Structure that follows the builder pattern for building `Cookie` structs.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// To construct a cookie:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   1. Call [`Cookie::build`] to start building.</span>
-<span class="doccomment">///   2. Use any of the builder methods to set fields in the cookie.</span>
-<span class="doccomment">///   3. Call [`CookieBuilder::finish()`] to retrieve the built cookie.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # extern crate cookie;</span>
-<span class="doccomment">/// use cookie::Cookie;</span>
-<span class="doccomment">/// use cookie::time::Duration;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # fn main() {</span>
-<span class="doccomment">/// let cookie: Cookie = Cookie::build(&quot;name&quot;, &quot;value&quot;)</span>
-<span class="doccomment">///     .domain(&quot;www.rust-lang.org&quot;)</span>
-<span class="doccomment">///     .path(&quot;/&quot;)</span>
-<span class="doccomment">///     .secure(true)</span>
-<span class="doccomment">///     .http_only(true)</span>
-<span class="doccomment">///     .max_age(Duration::days(1))</span>
-<span class="doccomment">///     .finish();</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CookieBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The cookie being built.</span>
-    <span class="ident">cookie</span>: <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Structure that follows the builder pattern for building `Cookie` structs.
+///
+/// To construct a cookie:
+///
+///   1. Call [`Cookie::build`] to start building.
+///   2. Use any of the builder methods to set fields in the cookie.
+///   3. Call [`CookieBuilder::finish()`] to retrieve the built cookie.
+///
+/// # Example
+///
+/// ```rust
+/// # extern crate cookie;
+/// use cookie::Cookie;
+/// use cookie::time::Duration;
+///
+/// # fn main() {
+/// let cookie: Cookie = Cookie::build(&quot;name&quot;, &quot;value&quot;)
+///     .domain(&quot;www.rust-lang.org&quot;)
+///     .path(&quot;/&quot;)
+///     .secure(true)
+///     .http_only(true)
+///     .max_age(Duration::days(1))
+///     .finish();
+/// # }
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>CookieBuilder&lt;<span class="lifetime">&#39;c</span>&gt; {
+    <span class="doccomment">/// The cookie being built.
+    </span>cookie: Cookie&lt;<span class="lifetime">&#39;c</span>&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">CookieBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new `CookieBuilder` instance from the given name and value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method is typically called indirectly via [`Cookie::build()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Cookie;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;).finish();</span>
-    <span class="doccomment">/// assert_eq!(c.name_value(), (&quot;foo&quot;, &quot;bar&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="ident">N</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
-        <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-              <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>&gt; CookieBuilder&lt;<span class="lifetime">&#39;c</span>&gt; {
+    <span class="doccomment">/// Creates a new `CookieBuilder` instance from the given name and value.
+    ///
+    /// This method is typically called indirectly via [`Cookie::build()`].
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Cookie;
+    ///
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;).finish();
+    /// assert_eq!(c.name_value(), (&quot;foo&quot;, &quot;bar&quot;));
+    /// ```
+    </span><span class="kw">pub fn </span>new&lt;N, V&gt;(name: N, value: V) -&gt; <span class="self">Self
+        </span><span class="kw">where </span>N: Into&lt;Cow&lt;<span class="lifetime">&#39;c</span>, str&gt;&gt;,
+              V: Into&lt;Cow&lt;<span class="lifetime">&#39;c</span>, str&gt;&gt;
     {
-        <span class="ident">CookieBuilder</span> { <span class="ident">cookie</span>: <span class="ident">Cookie::new</span>(<span class="ident">name</span>, <span class="ident">value</span>) }
+        CookieBuilder { cookie: Cookie::new(name, value) }
     }
 
-    <span class="doccomment">/// Sets the `expires` field in the cookie being built.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # extern crate cookie;</span>
-    <span class="doccomment">/// use cookie::{Cookie, Expiration};</span>
-    <span class="doccomment">/// use cookie::time::OffsetDateTime;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # fn main() {</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .expires(OffsetDateTime::now_utc())</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(c.expires().is_some());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .expires(None)</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(c.expires(), Some(Expiration::Session));</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expires</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expiration</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">when</span>: <span class="ident">E</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">set_expires</span>(<span class="ident">when</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the `expires` field in the cookie being built.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate cookie;
+    /// use cookie::{Cookie, Expiration};
+    /// use cookie::time::OffsetDateTime;
+    ///
+    /// # fn main() {
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .expires(OffsetDateTime::now_utc())
+    ///     .finish();
+    ///
+    /// assert!(c.expires().is_some());
+    ///
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .expires(None)
+    ///     .finish();
+    ///
+    /// assert_eq!(c.expires(), Some(Expiration::Session));
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>expires&lt;E: Into&lt;Expiration&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, when: E) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.cookie.set_expires(when);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the `max_age` field in the cookie being built.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # extern crate cookie;</span>
-    <span class="doccomment">/// use cookie::Cookie;</span>
-    <span class="doccomment">/// use cookie::time::Duration;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # fn main() {</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .max_age(Duration::minutes(30))</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(c.max_age(), Some(Duration::seconds(30 * 60)));</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_age</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">time::Duration</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">set_max_age</span>(<span class="ident">value</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the `max_age` field in the cookie being built.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate cookie;
+    /// use cookie::Cookie;
+    /// use cookie::time::Duration;
+    ///
+    /// # fn main() {
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .max_age(Duration::minutes(30))
+    ///     .finish();
+    ///
+    /// assert_eq!(c.max_age(), Some(Duration::seconds(30 * 60)));
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>max_age(<span class="kw-2">mut </span><span class="self">self</span>, value: time::Duration) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.cookie.set_max_age(value);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the `domain` field in the cookie being built.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Cookie;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .domain(&quot;www.rust-lang.org&quot;)</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(c.domain(), Some(&quot;www.rust-lang.org&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">domain</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">set_domain</span>(<span class="ident">value</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the `domain` field in the cookie being built.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Cookie;
+    ///
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .domain(&quot;www.rust-lang.org&quot;)
+    ///     .finish();
+    ///
+    /// assert_eq!(c.domain(), Some(&quot;www.rust-lang.org&quot;));
+    /// ```
+    </span><span class="kw">pub fn </span>domain&lt;D: Into&lt;Cow&lt;<span class="lifetime">&#39;c</span>, str&gt;&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, value: D) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.cookie.set_domain(value);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the `path` field in the cookie being built.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Cookie;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .path(&quot;/&quot;)</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(c.path(), Some(&quot;/&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="ident">P</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">set_path</span>(<span class="ident">path</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the `path` field in the cookie being built.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Cookie;
+    ///
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .path(&quot;/&quot;)
+    ///     .finish();
+    ///
+    /// assert_eq!(c.path(), Some(&quot;/&quot;));
+    /// ```
+    </span><span class="kw">pub fn </span>path&lt;P: Into&lt;Cow&lt;<span class="lifetime">&#39;c</span>, str&gt;&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, path: P) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.cookie.set_path(path);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the `secure` field in the cookie being built.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Cookie;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .secure(true)</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(c.secure(), Some(true));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secure</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">set_secure</span>(<span class="ident">value</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the `secure` field in the cookie being built.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Cookie;
+    ///
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .secure(true)
+    ///     .finish();
+    ///
+    /// assert_eq!(c.secure(), Some(true));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>secure(<span class="kw-2">mut </span><span class="self">self</span>, value: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.cookie.set_secure(value);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the `http_only` field in the cookie being built.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Cookie;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .http_only(true)</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(c.http_only(), Some(true));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http_only</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">set_http_only</span>(<span class="ident">value</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the `http_only` field in the cookie being built.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Cookie;
+    ///
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .http_only(true)
+    ///     .finish();
+    ///
+    /// assert_eq!(c.http_only(), Some(true));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>http_only(<span class="kw-2">mut </span><span class="self">self</span>, value: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.cookie.set_http_only(value);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the `same_site` field in the cookie being built.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::{Cookie, SameSite};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .same_site(SameSite::Strict)</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(c.same_site(), Some(SameSite::Strict));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">same_site</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">SameSite</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">set_same_site</span>(<span class="ident">value</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the `same_site` field in the cookie being built.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::{Cookie, SameSite};
+    ///
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .same_site(SameSite::Strict)
+    ///     .finish();
+    ///
+    /// assert_eq!(c.same_site(), Some(SameSite::Strict));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>same_site(<span class="kw-2">mut </span><span class="self">self</span>, value: SameSite) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.cookie.set_same_site(value);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Makes the cookie being built &#39;permanent&#39; by extending its expiration and</span>
-    <span class="doccomment">/// max age 20 years into the future.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # extern crate cookie;</span>
-    <span class="doccomment">/// use cookie::Cookie;</span>
-    <span class="doccomment">/// use cookie::time::Duration;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # fn main() {</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .permanent()</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(c.max_age(), Some(Duration::days(365 * 20)));</span>
-    <span class="doccomment">/// # assert!(c.expires().is_some());</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">permanent</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">make_permanent</span>();
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Makes the cookie being built &#39;permanent&#39; by extending its expiration and
+    /// max age 20 years into the future.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate cookie;
+    /// use cookie::Cookie;
+    /// use cookie::time::Duration;
+    ///
+    /// # fn main() {
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .permanent()
+    ///     .finish();
+    ///
+    /// assert_eq!(c.max_age(), Some(Duration::days(365 * 20)));
+    /// # assert!(c.expires().is_some());
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>permanent(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.cookie.make_permanent();
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Finishes building and returns the built `Cookie`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::Cookie;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)</span>
-    <span class="doccomment">///     .domain(&quot;crates.io&quot;)</span>
-    <span class="doccomment">///     .path(&quot;/&quot;)</span>
-    <span class="doccomment">///     .finish();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(c.name_value(), (&quot;foo&quot;, &quot;bar&quot;));</span>
-    <span class="doccomment">/// assert_eq!(c.domain(), Some(&quot;crates.io&quot;));</span>
-    <span class="doccomment">/// assert_eq!(c.path(), Some(&quot;/&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) -&gt; <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">cookie</span>
+    <span class="doccomment">/// Finishes building and returns the built `Cookie`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::Cookie;
+    ///
+    /// let c = Cookie::build(&quot;foo&quot;, &quot;bar&quot;)
+    ///     .domain(&quot;crates.io&quot;)
+    ///     .path(&quot;/&quot;)
+    ///     .finish();
+    ///
+    /// assert_eq!(c.name_value(), (&quot;foo&quot;, &quot;bar&quot;));
+    /// assert_eq!(c.domain(), Some(&quot;crates.io&quot;));
+    /// assert_eq!(c.path(), Some(&quot;/&quot;));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>finish(<span class="self">self</span>) -&gt; Cookie&lt;<span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.cookie
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cookie" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cookie" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

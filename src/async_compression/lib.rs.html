@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../async_compression/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/async-compression-0.3.15/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../async_compression/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../async_compression/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -258,265 +258,265 @@
 <span id="258">258</span>
 <span id="259">259</span>
 <span id="260">260</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Adaptors between compression crates and Rust&#39;s modern asynchronous IO types.</span>
-<span class="doccomment">//!</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Adaptors between compression crates and Rust&#39;s modern asynchronous IO types.
+//!
 
-<span class="doccomment">//! # Feature Organization</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This crate is divided up along two axes, which can each be individually selected via Cargo</span>
-<span class="doccomment">//! features.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! All features are disabled by default, you should enable just the ones you need from the lists</span>
-<span class="doccomment">//! below.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! If you want to pull in everything there are three group features defined:</span>
-<span class="doccomment">//!</span>
+//! # Feature Organization
+//!
+//! This crate is divided up along two axes, which can each be individually selected via Cargo
+//! features.
+//!
+//! All features are disabled by default, you should enable just the ones you need from the lists
+//! below.
+//!
+//! If you want to pull in everything there are three group features defined:
+//!
 
-<span class="doccomment">//!  Feature | Does</span>
-<span class="doccomment">//! ---------|------</span>
-<span class="doccomment">//!  `all`   | Activates all implementations and algorithms.</span>
-<span class="doccomment">//!  `all-implementations` | Activates all implementations, needs to be paired with a selection of algorithms</span>
-<span class="doccomment">//!  `all-algorithms` | Activates all algorithms, needs to be paired with a selection of implementations</span>
-<span class="doccomment">//!</span>
+//!  Feature | Does
+//! ---------|------
+//!  `all`   | Activates all implementations and algorithms.
+//!  `all-implementations` | Activates all implementations, needs to be paired with a selection of algorithms
+//!  `all-algorithms` | Activates all algorithms, needs to be paired with a selection of implementations
+//!
 
-<span class="doccomment">//! ## IO implementation</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The first division is which underlying asynchronous IO trait will be wrapped, these are</span>
-<span class="doccomment">//! available as separate features that have corresponding top-level modules:</span>
-<span class="doccomment">//!</span>
+//! ## IO implementation
+//!
+//! The first division is which underlying asynchronous IO trait will be wrapped, these are
+//! available as separate features that have corresponding top-level modules:
+//!
 
-<span class="doccomment">//!  Feature | Type</span>
-<span class="doccomment">//! ---------|------</span>
-<span class="comment">// TODO: Kill rustfmt on this section, `#![rustfmt::skip::attributes(cfg_attr)]` should do it, but</span>
-<span class="comment">// that&#39;s unstable</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;futures-io&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;[`futures-io`](crate::futures) | [`futures::io::AsyncBufRead`](futures_io::AsyncBufRead), [`futures::io::AsyncWrite`](futures_io::AsyncWrite)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;futures-io&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`futures-io` (*inactive*) | `futures::io::AsyncBufRead`, `futures::io::AsyncWrite`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;futures-bufread&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`futures-bufread` | (*deprecated*, use `futures-io`)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;futures-write&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`futures-write` | (*deprecated*, use `futures-io`)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;[`stream`] | (*deprecated*, see [`async-compression:stream`](crate::stream) docs for migration)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`stream` (*inactive*) | (*deprecated*, see `async-compression::stream` docs for migration)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-02&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;[`tokio-02`](crate::tokio_02) | [`tokio::io::AsyncBufRead`](::tokio_02::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio_02::io::AsyncWrite)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-02&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`tokio-02` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-03&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;[`tokio-03`](crate::tokio_03) | [`tokio::io::AsyncBufRead`](::tokio_03::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio_03::io::AsyncWrite)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-03&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`tokio-03` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;[`tokio`](crate::tokio) | [`tokio::io::AsyncBufRead`](::tokio::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio::io::AsyncWrite)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`tokio` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`&quot;</span>
-)]</span>
-<span class="doccomment">//!</span>
+//!  Feature | Type
+//! ---------|------
+</span><span class="comment">// TODO: Kill rustfmt on this section, `#![rustfmt::skip::attributes(cfg_attr)]` should do it, but
+// that&#39;s unstable
+</span><span class="attribute">#![cfg_attr(
+    feature = <span class="string">&quot;futures-io&quot;</span>,
+    doc = <span class="string">&quot;[`futures-io`](crate::futures) | [`futures::io::AsyncBufRead`](futures_io::AsyncBufRead), [`futures::io::AsyncWrite`](futures_io::AsyncWrite)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;futures-io&quot;</span>),
+    doc = <span class="string">&quot;`futures-io` (*inactive*) | `futures::io::AsyncBufRead`, `futures::io::AsyncWrite`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;futures-bufread&quot;</span>,
+    doc = <span class="string">&quot;`futures-bufread` | (*deprecated*, use `futures-io`)&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;futures-write&quot;</span>,
+    doc = <span class="string">&quot;`futures-write` | (*deprecated*, use `futures-io`)&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;stream&quot;</span>,
+    doc = <span class="string">&quot;[`stream`] | (*deprecated*, see [`async-compression:stream`](crate::stream) docs for migration)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;stream&quot;</span>),
+    doc = <span class="string">&quot;`stream` (*inactive*) | (*deprecated*, see `async-compression::stream` docs for migration)&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;tokio-02&quot;</span>,
+    doc = <span class="string">&quot;[`tokio-02`](crate::tokio_02) | [`tokio::io::AsyncBufRead`](::tokio_02::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio_02::io::AsyncWrite)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;tokio-02&quot;</span>),
+    doc = <span class="string">&quot;`tokio-02` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;tokio-03&quot;</span>,
+    doc = <span class="string">&quot;[`tokio-03`](crate::tokio_03) | [`tokio::io::AsyncBufRead`](::tokio_03::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio_03::io::AsyncWrite)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;tokio-03&quot;</span>),
+    doc = <span class="string">&quot;`tokio-03` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;tokio&quot;</span>,
+    doc = <span class="string">&quot;[`tokio`](crate::tokio) | [`tokio::io::AsyncBufRead`](::tokio::io::AsyncBufRead), [`tokio::io::AsyncWrite`](::tokio::io::AsyncWrite)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;tokio&quot;</span>),
+    doc = <span class="string">&quot;`tokio` (*inactive*) | `tokio::io::AsyncBufRead`, `tokio::io::AsyncWrite`&quot;
+</span>)]
+</span><span class="doccomment">//!
 
-<span class="doccomment">//! ## Compression algorithm</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The second division is which compression schemes to support, there are currently a few</span>
-<span class="doccomment">//! available choices, these determine which types will be available inside the above modules:</span>
-<span class="doccomment">//!</span>
+//! ## Compression algorithm
+//!
+//! The second division is which compression schemes to support, there are currently a few
+//! available choices, these determine which types will be available inside the above modules:
+//!
 
-<span class="doccomment">//!  Feature | Types</span>
-<span class="doccomment">//! ---------|------</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`brotli` | [`BrotliEncoder`](?search=BrotliEncoder), [`BrotliDecoder`](?search=BrotliDecoder)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`brotli` (*inactive*) | `BrotliEncoder`, `BrotliDecoder`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bzip2&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`bzip2` | [`BzEncoder`](?search=BzEncoder), [`BzDecoder`](?search=BzDecoder)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bzip2&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`bzip2` (*inactive*) | `BzEncoder`, `BzDecoder`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`deflate` | [`DeflateEncoder`](?search=DeflateEncoder), [`DeflateDecoder`](?search=DeflateDecoder)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deflate&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`deflate` (*inactive*) | `DeflateEncoder`, `DeflateDecoder`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gzip&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`gzip` | [`GzipEncoder`](?search=GzipEncoder), [`GzipDecoder`](?search=GzipDecoder)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gzip&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`gzip` (*inactive*) | `GzipEncoder`, `GzipDecoder`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;lzma&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`lzma` | [`LzmaEncoder`](?search=LzmaEncoder), [`LzmaDecoder`](?search=LzmaDecoder)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;lzma&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`lzma` (*inactive*) | `LzmaEncoder`, `LzmaDecoder`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xz&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`xz` | [`XzEncoder`](?search=XzEncoder), [`XzDecoder`](?search=XzDecoder)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xz&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`xz` (*inactive*) | `XzEncoder`, `XzDecoder`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zlib&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`zlib` | [`ZlibEncoder`](?search=ZlibEncoder), [`ZlibDecoder`](?search=ZlibDecoder)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zlib&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`zlib` (*inactive*) | `ZlibEncoder`, `ZlibDecoder`&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zstd&quot;</span>,
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`zstd` | [`ZstdEncoder`](?search=ZstdEncoder), [`ZstdDecoder`](?search=ZstdDecoder)&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(
-    <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zstd&quot;</span>),
-    <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;`zstd` (*inactive*) | `ZstdEncoder`, `ZstdDecoder`&quot;</span>
-)]</span>
-<span class="doccomment">//!</span>
+//!  Feature | Types
+//! ---------|------
+</span><span class="attribute">#![cfg_attr(
+    feature = <span class="string">&quot;brotli&quot;</span>,
+    doc = <span class="string">&quot;`brotli` | [`BrotliEncoder`](?search=BrotliEncoder), [`BrotliDecoder`](?search=BrotliDecoder)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;brotli&quot;</span>),
+    doc = <span class="string">&quot;`brotli` (*inactive*) | `BrotliEncoder`, `BrotliDecoder`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;bzip2&quot;</span>,
+    doc = <span class="string">&quot;`bzip2` | [`BzEncoder`](?search=BzEncoder), [`BzDecoder`](?search=BzDecoder)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;bzip2&quot;</span>),
+    doc = <span class="string">&quot;`bzip2` (*inactive*) | `BzEncoder`, `BzDecoder`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;deflate&quot;</span>,
+    doc = <span class="string">&quot;`deflate` | [`DeflateEncoder`](?search=DeflateEncoder), [`DeflateDecoder`](?search=DeflateDecoder)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;deflate&quot;</span>),
+    doc = <span class="string">&quot;`deflate` (*inactive*) | `DeflateEncoder`, `DeflateDecoder`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;gzip&quot;</span>,
+    doc = <span class="string">&quot;`gzip` | [`GzipEncoder`](?search=GzipEncoder), [`GzipDecoder`](?search=GzipDecoder)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;gzip&quot;</span>),
+    doc = <span class="string">&quot;`gzip` (*inactive*) | `GzipEncoder`, `GzipDecoder`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;lzma&quot;</span>,
+    doc = <span class="string">&quot;`lzma` | [`LzmaEncoder`](?search=LzmaEncoder), [`LzmaDecoder`](?search=LzmaDecoder)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;lzma&quot;</span>),
+    doc = <span class="string">&quot;`lzma` (*inactive*) | `LzmaEncoder`, `LzmaDecoder`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;xz&quot;</span>,
+    doc = <span class="string">&quot;`xz` | [`XzEncoder`](?search=XzEncoder), [`XzDecoder`](?search=XzDecoder)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;xz&quot;</span>),
+    doc = <span class="string">&quot;`xz` (*inactive*) | `XzEncoder`, `XzDecoder`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;zlib&quot;</span>,
+    doc = <span class="string">&quot;`zlib` | [`ZlibEncoder`](?search=ZlibEncoder), [`ZlibDecoder`](?search=ZlibDecoder)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;zlib&quot;</span>),
+    doc = <span class="string">&quot;`zlib` (*inactive*) | `ZlibEncoder`, `ZlibDecoder`&quot;
+</span>)]
+#![cfg_attr(
+    feature = <span class="string">&quot;zstd&quot;</span>,
+    doc = <span class="string">&quot;`zstd` | [`ZstdEncoder`](?search=ZstdEncoder), [`ZstdDecoder`](?search=ZstdDecoder)&quot;
+</span>)]
+#![cfg_attr(
+    not(feature = <span class="string">&quot;zstd&quot;</span>),
+    doc = <span class="string">&quot;`zstd` (*inactive*) | `ZstdEncoder`, `ZstdDecoder`&quot;
+</span>)]
+</span><span class="doccomment">//!
 
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
-<span class="attribute">#![<span class="ident">warn</span>(
-    <span class="ident">missing_docs</span>,
-    <span class="ident">rust_2018_idioms</span>,
-    <span class="ident">missing_copy_implementations</span>,
-    <span class="ident">missing_debug_implementations</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">all</span>), <span class="ident">allow</span>(<span class="ident">unused</span>))]</span>
+</span><span class="attribute">#![cfg_attr(docsrs, feature(doc_cfg))]
+#![warn(
+    missing_docs,
+    rust_2018_idioms,
+    missing_copy_implementations,
+    missing_debug_implementations
+)]
+#![cfg_attr(not(all), allow(unused))]
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">mod</span> <span class="ident">macros</span>;
-<span class="kw">mod</span> <span class="ident">codec</span>;
+#[macro_use]
+</span><span class="kw">mod </span>macros;
+<span class="kw">mod </span>codec;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;futures-io&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;futures-io&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">futures</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;stream&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">stream</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tokio</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-02&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-02&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tokio_02</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-03&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-03&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tokio_03</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;futures-io&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;futures-io&quot;</span>)))]
+</span><span class="kw">pub mod </span>futures;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;stream&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;stream&quot;</span>)))]
+</span><span class="kw">pub mod </span>stream;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;tokio&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio&quot;</span>)))]
+</span><span class="kw">pub mod </span>tokio;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;tokio-02&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio-02&quot;</span>)))]
+</span><span class="kw">pub mod </span>tokio_02;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;tokio-03&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;tokio-03&quot;</span>)))]
+</span><span class="kw">pub mod </span>tokio_03;
 
-<span class="kw">mod</span> <span class="ident">unshared</span>;
-<span class="kw">mod</span> <span class="ident">util</span>;
+<span class="kw">mod </span>unshared;
+<span class="kw">mod </span>util;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">brotli::enc::backward_references::BrotliEncoderParams</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;brotli&quot;</span>)]
+</span><span class="kw">use </span>brotli::enc::backward_references::BrotliEncoderParams;
 
-<span class="doccomment">/// Level of compression data should be compressed with.</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Level</span> {
-    <span class="doccomment">/// Fastest quality of compression, usually produces bigger size.</span>
-    <span class="ident">Fastest</span>,
-    <span class="doccomment">/// Best quality of compression, usually produces the smallest size.</span>
-    <span class="ident">Best</span>,
-    <span class="doccomment">/// Default quality of compression defined by the selected compression algorithm.</span>
-    <span class="ident">Default</span>,
-    <span class="doccomment">/// Precise quality based on the underlying compression algorithms&#39;</span>
-    <span class="doccomment">/// qualities. The interpretation of this depends on the algorithm chosen</span>
-    <span class="doccomment">/// and the specific implementation backing it.</span>
-    <span class="doccomment">/// Qualities are implicitly clamped to the algorithm&#39;s maximum.</span>
-    <span class="ident">Precise</span>(<span class="ident">u32</span>),
+<span class="doccomment">/// Level of compression data should be compressed with.
+</span><span class="attribute">#[non_exhaustive]
+#[derive(Clone, Copy, Debug)]
+</span><span class="kw">pub enum </span>Level {
+    <span class="doccomment">/// Fastest quality of compression, usually produces bigger size.
+    </span>Fastest,
+    <span class="doccomment">/// Best quality of compression, usually produces the smallest size.
+    </span>Best,
+    <span class="doccomment">/// Default quality of compression defined by the selected compression algorithm.
+    </span>Default,
+    <span class="doccomment">/// Precise quality based on the underlying compression algorithms&#39;
+    /// qualities. The interpretation of this depends on the algorithm chosen
+    /// and the specific implementation backing it.
+    /// Qualities are implicitly clamped to the algorithm&#39;s maximum.
+    </span>Precise(u32),
 }
 
-<span class="kw">impl</span> <span class="ident">Level</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;brotli&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_brotli</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">params</span>: <span class="ident">BrotliEncoderParams</span>) -&gt; <span class="ident">BrotliEncoderParams</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="number">0</span>,
-            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="number">11</span>,
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">params</span>.<span class="ident">quality</span> <span class="op">=</span> <span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">11</span>) <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; (),
+<span class="kw">impl </span>Level {
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;brotli&quot;</span>)]
+    </span><span class="kw">fn </span>into_brotli(<span class="self">self</span>, <span class="kw-2">mut </span>params: BrotliEncoderParams) -&gt; BrotliEncoderParams {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Fastest =&gt; params.quality = <span class="number">0</span>,
+            <span class="self">Self</span>::Best =&gt; params.quality = <span class="number">11</span>,
+            <span class="self">Self</span>::Precise(quality) =&gt; params.quality = quality.min(<span class="number">11</span>) <span class="kw">as </span>i32,
+            <span class="self">Self</span>::Default =&gt; (),
         }
 
-        <span class="ident">params</span>
+        params
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bzip2&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_bzip2</span>(<span class="self">self</span>) -&gt; <span class="ident">bzip2::Compression</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="ident">bzip2::Compression::fast</span>(),
-            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="ident">bzip2::Compression::best</span>(),
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">bzip2::Compression::new</span>(<span class="ident">quality</span>.<span class="ident">max</span>(<span class="number">1</span>).<span class="ident">min</span>(<span class="number">9</span>)),
-            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; <span class="ident">bzip2::Compression::default</span>(),
-        }
-    }
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;flate2&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_flate2</span>(<span class="self">self</span>) -&gt; <span class="ident">flate2::Compression</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="ident">flate2::Compression::fast</span>(),
-            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="ident">flate2::Compression::best</span>(),
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">flate2::Compression::new</span>(<span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">10</span>)),
-            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; <span class="ident">flate2::Compression::default</span>(),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;bzip2&quot;</span>)]
+    </span><span class="kw">fn </span>into_bzip2(<span class="self">self</span>) -&gt; bzip2::Compression {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Fastest =&gt; bzip2::Compression::fast(),
+            <span class="self">Self</span>::Best =&gt; bzip2::Compression::best(),
+            <span class="self">Self</span>::Precise(quality) =&gt; bzip2::Compression::new(quality.max(<span class="number">1</span>).min(<span class="number">9</span>)),
+            <span class="self">Self</span>::Default =&gt; bzip2::Compression::default(),
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zstd&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_zstd</span>(<span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="number">1</span>,
-            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="number">21</span>,
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">21</span>) <span class="kw">as</span> <span class="ident">i32</span>,
-            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; <span class="ident">libzstd::DEFAULT_COMPRESSION_LEVEL</span>,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;flate2&quot;</span>)]
+    </span><span class="kw">fn </span>into_flate2(<span class="self">self</span>) -&gt; flate2::Compression {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Fastest =&gt; flate2::Compression::fast(),
+            <span class="self">Self</span>::Best =&gt; flate2::Compression::best(),
+            <span class="self">Self</span>::Precise(quality) =&gt; flate2::Compression::new(quality.min(<span class="number">10</span>)),
+            <span class="self">Self</span>::Default =&gt; flate2::Compression::default(),
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xz2&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_xz2</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Fastest</span> =&gt; <span class="number">0</span>,
-            <span class="ident"><span class="self">Self</span>::Best</span> =&gt; <span class="number">9</span>,
-            <span class="ident"><span class="self">Self</span>::Precise</span>(<span class="ident">quality</span>) =&gt; <span class="ident">quality</span>.<span class="ident">min</span>(<span class="number">9</span>),
-            <span class="ident"><span class="self">Self</span>::Default</span> =&gt; <span class="number">5</span>,
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;zstd&quot;</span>)]
+    </span><span class="kw">fn </span>into_zstd(<span class="self">self</span>) -&gt; i32 {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Fastest =&gt; <span class="number">1</span>,
+            <span class="self">Self</span>::Best =&gt; <span class="number">21</span>,
+            <span class="self">Self</span>::Precise(quality) =&gt; quality.min(<span class="number">21</span>) <span class="kw">as </span>i32,
+            <span class="self">Self</span>::Default =&gt; libzstd::DEFAULT_COMPRESSION_LEVEL,
+        }
+    }
+
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;xz2&quot;</span>)]
+    </span><span class="kw">fn </span>into_xz2(<span class="self">self</span>) -&gt; u32 {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Fastest =&gt; <span class="number">0</span>,
+            <span class="self">Self</span>::Best =&gt; <span class="number">9</span>,
+            <span class="self">Self</span>::Precise(quality) =&gt; quality.min(<span class="number">9</span>),
+            <span class="self">Self</span>::Default =&gt; <span class="number">5</span>,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_compression" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

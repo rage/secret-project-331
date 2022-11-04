@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/client/object.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>object.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/client/object.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>object.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -588,595 +588,595 @@
 <span id="588">588</span>
 <span id="589">589</span>
 <span id="590">590</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">stream</span>, <span class="ident">Stream</span>, <span class="ident">TryStream</span>};
-<span class="kw">use</span> <span class="ident">reqwest::StatusCode</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>futures_util::{stream, Stream, TryStream};
+<span class="kw">use </span>reqwest::StatusCode;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error::GoogleResponse</span>,
-    <span class="ident">object</span>::{<span class="ident">percent_encode</span>, <span class="ident">ComposeRequest</span>, <span class="ident">ObjectList</span>, <span class="ident">RewriteResponse</span>, <span class="ident">SizedByteStream</span>},
-    <span class="ident">ListRequest</span>, <span class="ident">Object</span>,
+<span class="kw">use crate</span>::{
+    error::GoogleResponse,
+    object::{percent_encode, ComposeRequest, ObjectList, RewriteResponse, SizedByteStream},
+    ListRequest, Object,
 };
 
-<span class="comment">// Object uploads has its own url for some reason</span>
-<span class="kw">const</span> <span class="ident">BASE_URL</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;https://storage.googleapis.com/upload/storage/v1/b&quot;</span>;
+<span class="comment">// Object uploads has its own url for some reason
+</span><span class="kw">const </span>BASE_URL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;https://storage.googleapis.com/upload/storage/v1/b&quot;</span>;
 
-<span class="doccomment">/// Operations on [`Object`](Object)s.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ObjectClient</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident"><span class="kw">super</span>::Client</span>);
+<span class="doccomment">/// Operations on [`Object`](Object)s.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>ObjectClient&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">super</span>::Client);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ObjectClient</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Create a new object.</span>
-    <span class="doccomment">/// Upload a file as that is loaded in memory to google cloud storage, where it will be</span>
-    <span class="doccomment">/// interpreted according to the mime type you specified.</span>
-    <span class="doccomment">/// ## Example</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// # fn read_cute_cat(_in: &amp;str) -&gt; Vec&lt;u8&gt; { vec![0, 1] }</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Object;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let file: Vec&lt;u8&gt; = read_cute_cat(&quot;cat.png&quot;);</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// client.object().create(&quot;cat-photos&quot;, file, &quot;recently read cat.png&quot;, &quot;image/png&quot;).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>(
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ObjectClient&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Create a new object.
+    /// Upload a file as that is loaded in memory to google cloud storage, where it will be
+    /// interpreted according to the mime type you specified.
+    /// ## Example
+    /// ```rust,no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// # fn read_cute_cat(_in: &amp;str) -&gt; Vec&lt;u8&gt; { vec![0, 1] }
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Object;
+    ///
+    /// let file: Vec&lt;u8&gt; = read_cute_cat(&quot;cat.png&quot;);
+    /// let client = Client::default();
+    /// client.object().create(&quot;cat-photos&quot;, file, &quot;recently read cat.png&quot;, &quot;image/png&quot;).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>create(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">file</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-        <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">reqwest::header</span>::{<span class="ident">CONTENT_LENGTH</span>, <span class="ident">CONTENT_TYPE</span>};
+        bucket: <span class="kw-2">&amp;</span>str,
+        file: Vec&lt;u8&gt;,
+        filename: <span class="kw-2">&amp;</span>str,
+        mime_type: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;Object&gt; {
+        <span class="kw">use </span>reqwest::header::{CONTENT_LENGTH, CONTENT_TYPE};
 
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(
+        <span class="kw">let </span>url = <span class="kw-2">&amp;</span><span class="macro">format!</span>(
             <span class="string">&quot;{}/{}/o?uploadType=media&amp;name={}&quot;</span>,
-            <span class="ident">BASE_URL</span>,
-            <span class="ident">percent_encode</span>(<span class="ident">bucket</span>),
-            <span class="ident">percent_encode</span>(<span class="ident">filename</span>),
+            BASE_URL,
+            percent_encode(bucket),
+            percent_encode(filename),
         );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime_type</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>);
-        <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="ident">file</span>.<span class="ident">len</span>().<span class="ident">to_string</span>().<span class="ident">parse</span>()<span class="question-mark">?</span>);
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">post</span>(<span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="ident">headers</span>)
-            .<span class="ident">body</span>(<span class="ident">file</span>)
-            .<span class="ident">send</span>()
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = <span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>;
+        headers.insert(CONTENT_TYPE, mime_type.parse()<span class="question-mark">?</span>);
+        headers.insert(CONTENT_LENGTH, file.len().to_string().parse()<span class="question-mark">?</span>);
+        <span class="kw">let </span>response = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .post(url)
+            .headers(headers)
+            .body(file)
+            .send()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">response</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="number">200</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">response</span>.<span class="ident">text</span>().<span class="kw">await</span><span class="question-mark">?</span>)<span class="question-mark">?</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::new</span>(<span class="kw-2">&amp;</span><span class="ident">response</span>.<span class="ident">text</span>().<span class="kw">await</span><span class="question-mark">?</span>))
+        <span class="kw">if </span>response.status() == <span class="number">200 </span>{
+            <span class="prelude-val">Ok</span>(serde_json::from_str(<span class="kw-2">&amp;</span>response.text().<span class="kw">await</span><span class="question-mark">?</span>)<span class="question-mark">?</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new(<span class="kw-2">&amp;</span>response.text().<span class="kw">await</span><span class="question-mark">?</span>))
         }
     }
 
-    <span class="doccomment">/// Create a new object. This works in the same way as `ObjectClient::create`, except it does not need</span>
-    <span class="doccomment">/// to load the entire file in ram.</span>
-    <span class="doccomment">/// ## Example</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Object;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let file = reqwest::Client::new()</span>
-    <span class="doccomment">///     .get(&quot;https://my_domain.rs/nice_cat_photo.png&quot;)</span>
-    <span class="doccomment">///     .send()</span>
-    <span class="doccomment">///     .await?</span>
-    <span class="doccomment">///     .bytes_stream();</span>
-    <span class="doccomment">/// client.object().create_streamed(&quot;cat-photos&quot;, file, 10, &quot;recently read cat.png&quot;, &quot;image/png&quot;).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_streamed</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Create a new object. This works in the same way as `ObjectClient::create`, except it does not need
+    /// to load the entire file in ram.
+    /// ## Example
+    /// ```rust,no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Object;
+    ///
+    /// let client = Client::default();
+    /// let file = reqwest::Client::new()
+    ///     .get(&quot;https://my_domain.rs/nice_cat_photo.png&quot;)
+    ///     .send()
+    ///     .await?
+    ///     .bytes_stream();
+    /// client.object().create_streamed(&quot;cat-photos&quot;, file, 10, &quot;recently read cat.png&quot;, &quot;image/png&quot;).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>create_streamed&lt;S&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">stream</span>: <span class="ident">S</span>,
-        <span class="ident">length</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">mime_type</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">TryStream</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">bytes::Bytes</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">S::Ok</span><span class="op">&gt;</span>,
+        bucket: <span class="kw-2">&amp;</span>str,
+        stream: S,
+        length: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;u64&gt;&gt;,
+        filename: <span class="kw-2">&amp;</span>str,
+        mime_type: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;Object&gt;
+    <span class="kw">where
+        </span>S: TryStream + Send + Sync + <span class="lifetime">&#39;static</span>,
+        S::Error: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
+        bytes::Bytes: From&lt;S::Ok&gt;,
     {
-        <span class="kw">use</span> <span class="ident">reqwest::header</span>::{<span class="ident">CONTENT_LENGTH</span>, <span class="ident">CONTENT_TYPE</span>};
+        <span class="kw">use </span>reqwest::header::{CONTENT_LENGTH, CONTENT_TYPE};
 
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(
+        <span class="kw">let </span>url = <span class="kw-2">&amp;</span><span class="macro">format!</span>(
             <span class="string">&quot;{}/{}/o?uploadType=media&amp;name={}&quot;</span>,
-            <span class="ident">BASE_URL</span>,
-            <span class="ident">percent_encode</span>(<span class="ident">bucket</span>),
-            <span class="ident">percent_encode</span>(<span class="ident">filename</span>),
+            BASE_URL,
+            percent_encode(bucket),
+            percent_encode(filename),
         );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">CONTENT_TYPE</span>, <span class="ident">mime_type</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">length</span>) <span class="op">=</span> <span class="ident">length</span>.<span class="ident">into</span>() {
-            <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="ident">length</span>.<span class="ident">into</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = <span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>;
+        headers.insert(CONTENT_TYPE, mime_type.parse()<span class="question-mark">?</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(length) = length.into() {
+            headers.insert(CONTENT_LENGTH, length.into());
         }
 
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">reqwest::Body::wrap_stream</span>(<span class="ident">stream</span>);
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">post</span>(<span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="ident">headers</span>)
-            .<span class="ident">body</span>(<span class="ident">body</span>)
-            .<span class="ident">send</span>()
+        <span class="kw">let </span>body = reqwest::Body::wrap_stream(stream);
+        <span class="kw">let </span>response = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .post(url)
+            .headers(headers)
+            .body(body)
+            .send()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">response</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="number">200</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">response</span>.<span class="ident">text</span>().<span class="kw">await</span><span class="question-mark">?</span>)<span class="question-mark">?</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::new</span>(<span class="kw-2">&amp;</span><span class="ident">response</span>.<span class="ident">text</span>().<span class="kw">await</span><span class="question-mark">?</span>))
+        <span class="kw">if </span>response.status() == <span class="number">200 </span>{
+            <span class="prelude-val">Ok</span>(serde_json::from_str(<span class="kw-2">&amp;</span>response.text().<span class="kw">await</span><span class="question-mark">?</span>)<span class="question-mark">?</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new(<span class="kw-2">&amp;</span>response.text().<span class="kw">await</span><span class="question-mark">?</span>))
         }
     }
 
-    <span class="doccomment">/// Obtain a list of objects within this Bucket.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::{Object, ListRequest};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let all_objects = client.object().list(&quot;my_bucket&quot;, ListRequest::default()).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>(
+    <span class="doccomment">/// Obtain a list of objects within this Bucket.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::{Object, ListRequest};
+    ///
+    /// let client = Client::default();
+    /// let all_objects = client.object().list(&quot;my_bucket&quot;, ListRequest::default()).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>list(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-        <span class="ident">list_request</span>: <span class="ident">ListRequest</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ObjectList</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="kw">enum</span> <span class="ident">ListState</span> {
-            <span class="ident">Start</span>(<span class="ident">ListRequest</span>),
-            <span class="ident">HasMore</span>(<span class="ident">ListRequest</span>),
-            <span class="ident">Done</span>,
+        bucket: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        list_request: ListRequest,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw">impl </span>Stream&lt;Item = <span class="kw">crate</span>::Result&lt;ObjectList&gt;&gt; + <span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">enum </span>ListState {
+            Start(ListRequest),
+            HasMore(ListRequest),
+            Done,
         }
-        <span class="kw">use</span> <span class="ident">ListState</span>::<span class="kw-2">*</span>;
-        <span class="kw">impl</span> <span class="ident">ListState</span> {
-            <span class="kw">fn</span> <span class="ident">into_has_more</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ListState</span><span class="op">&gt;</span> {
-                <span class="kw">match</span> <span class="self">self</span> {
-                    <span class="ident">Start</span>(<span class="ident">req</span>) <span class="op">|</span> <span class="ident">HasMore</span>(<span class="ident">req</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">HasMore</span>(<span class="ident">req</span>)),
-                    <span class="ident">Done</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="kw">use </span>ListState::<span class="kw-2">*</span>;
+        <span class="kw">impl </span>ListState {
+            <span class="kw">fn </span>into_has_more(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ListState&gt; {
+                <span class="kw">match </span><span class="self">self </span>{
+                    Start(req) | HasMore(req) =&gt; <span class="prelude-val">Some</span>(HasMore(req)),
+                    Done =&gt; <span class="prelude-val">None</span>,
                 }
             }
 
-            <span class="kw">fn</span> <span class="ident">req_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">ListRequest</span><span class="op">&gt;</span> {
-                <span class="kw">match</span> <span class="self">self</span> {
-                    <span class="ident">Start</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) <span class="op">|</span> <span class="ident">HasMore</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">req</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">req</span>),
-                    <span class="ident">Done</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="kw">fn </span>req_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ListRequest&gt; {
+                <span class="kw">match </span><span class="self">self </span>{
+                    Start(<span class="kw-2">ref mut </span>req) | HasMore(<span class="kw-2">ref mut </span>req) =&gt; <span class="prelude-val">Some</span>(req),
+                    Done =&gt; <span class="prelude-val">None</span>,
                 }
             }
         }
 
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
+        <span class="kw">let </span>client = <span class="self">self</span>.<span class="number">0</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">stream::unfold</span>(
-            <span class="ident">ListState::Start</span>(<span class="ident">list_request</span>),
-            <span class="kw">move</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">state</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/o&quot;</span>, <span class="ident"><span class="kw">crate</span>::BASE_URL</span>, <span class="ident">percent_encode</span>(<span class="ident">bucket</span>));
-                <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">client</span>.<span class="ident">get_headers</span>().<span class="kw">await</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">h</span>) =&gt; <span class="ident">h</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(<span class="ident">e</span>), <span class="ident">state</span>)),
+        <span class="prelude-val">Ok</span>(stream::unfold(
+            ListState::Start(list_request),
+            <span class="kw">move </span>|<span class="kw-2">mut </span>state| <span class="kw">async move </span>{
+                <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/o&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(bucket));
+                <span class="kw">let </span>headers = <span class="kw">match </span>client.get_headers().<span class="kw">await </span>{
+                    <span class="prelude-val">Ok</span>(h) =&gt; h,
+                    <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(e), state)),
                 };
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">req_mut</span>()<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">max_results</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="number">0</span>) {
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                <span class="kw">let </span>req = state.req_mut()<span class="question-mark">?</span>;
+                <span class="kw">if </span>req.max_results == <span class="prelude-val">Some</span>(<span class="number">0</span>) {
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
 
-                <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">client</span>
-                    .<span class="ident">client</span>
-                    .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-                    .<span class="ident">query</span>(<span class="ident">req</span>)
-                    .<span class="ident">headers</span>(<span class="ident">headers</span>)
-                    .<span class="ident">send</span>()
+                <span class="kw">let </span>response = client
+                    .client
+                    .get(<span class="kw-2">&amp;</span>url)
+                    .query(req)
+                    .headers(headers)
+                    .send()
                     .<span class="kw">await</span>;
 
-                <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">response</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">r</span>) <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="number">200</span> =&gt; <span class="ident">r</span>,
-                    <span class="prelude-val">Ok</span>(<span class="ident">r</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">r</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::error::GoogleErrorResponse</span><span class="op">&gt;</span>().<span class="kw">await</span> {
-                            <span class="prelude-val">Ok</span>(<span class="ident">err_res</span>) =&gt; <span class="ident">err_res</span>.<span class="ident">into</span>(),
-                            <span class="prelude-val">Err</span>(<span class="ident">serde_err</span>) =&gt; <span class="ident">serde_err</span>.<span class="ident">into</span>(),
+                <span class="kw">let </span>response = <span class="kw">match </span>response {
+                    <span class="prelude-val">Ok</span>(r) <span class="kw">if </span>r.status() == <span class="number">200 </span>=&gt; r,
+                    <span class="prelude-val">Ok</span>(r) =&gt; {
+                        <span class="kw">let </span>e = <span class="kw">match </span>r.json::&lt;<span class="kw">crate</span>::error::GoogleErrorResponse&gt;().<span class="kw">await </span>{
+                            <span class="prelude-val">Ok</span>(err_res) =&gt; err_res.into(),
+                            <span class="prelude-val">Err</span>(serde_err) =&gt; serde_err.into(),
                         };
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(<span class="ident">e</span>), <span class="ident">state</span>));
+                        <span class="kw">return </span><span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(e), state));
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()), <span class="ident">state</span>)),
+                    <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(e.into()), state)),
                 };
 
-                <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">ObjectList</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">response</span>.<span class="ident">json</span>().<span class="kw">await</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">json</span>) =&gt; <span class="ident">json</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()), <span class="ident">state</span>)),
+                <span class="kw">let </span>result: GoogleResponse&lt;ObjectList&gt; = <span class="kw">match </span>response.json().<span class="kw">await </span>{
+                    <span class="prelude-val">Ok</span>(json) =&gt; json,
+                    <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(e.into()), state)),
                 };
 
-                <span class="kw">let</span> <span class="ident">response_body</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">result</span> {
-                    <span class="ident">GoogleResponse::Success</span>(<span class="ident">success</span>) =&gt; <span class="ident">success</span>,
-                    <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()), <span class="ident">state</span>)),
+                <span class="kw">let </span>response_body = <span class="kw">match </span>result {
+                    GoogleResponse::Success(success) =&gt; success,
+                    GoogleResponse::Error(e) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>((<span class="prelude-val">Err</span>(e.into()), state)),
                 };
 
-                <span class="kw">let</span> <span class="ident">next_state</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">page_token</span>) <span class="op">=</span> <span class="ident">response_body</span>.<span class="ident">next_page_token</span> {
-                    <span class="ident">req</span>.<span class="ident">page_token</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">page_token</span>.<span class="ident">clone</span>());
-                    <span class="ident">req</span>.<span class="ident">max_results</span> <span class="op">=</span> <span class="ident">req</span>
-                        .<span class="ident">max_results</span>
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">rem</span><span class="op">|</span> <span class="ident">rem</span>.<span class="ident">saturating_sub</span>(<span class="ident">response_body</span>.<span class="ident">items</span>.<span class="ident">len</span>()));
-                    <span class="ident">state</span>.<span class="ident">into_has_more</span>()<span class="question-mark">?</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">Done</span>
+                <span class="kw">let </span>next_state = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>page_token) = response_body.next_page_token {
+                    req.page_token = <span class="prelude-val">Some</span>(page_token.clone());
+                    req.max_results = req
+                        .max_results
+                        .map(|rem| rem.saturating_sub(response_body.items.len()));
+                    state.into_has_more()<span class="question-mark">?
+                </span>} <span class="kw">else </span>{
+                    Done
                 };
 
-                <span class="prelude-val">Some</span>((<span class="prelude-val">Ok</span>(<span class="ident">response_body</span>), <span class="ident">next_state</span>))
+                <span class="prelude-val">Some</span>((<span class="prelude-val">Ok</span>(response_body), next_state))
             },
         ))
     }
 
-    <span class="doccomment">/// Obtains a single object with the specified name in the specified bucket.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Object;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let object = client.object().read(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="doccomment">/// Obtains a single object with the specified name in the specified bucket.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Object;
+    ///
+    /// let client = Client::default();
+    /// let object = client.object().read(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>read(<span class="kw-2">&amp;</span><span class="self">self</span>, bucket: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Object&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/b/{}/o/{}&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident">percent_encode</span>(<span class="ident">bucket</span>),
-            <span class="ident">percent_encode</span>(<span class="ident">file_name</span>),
+            <span class="kw">crate</span>::BASE_URL,
+            percent_encode(bucket),
+            percent_encode(file_name),
         );
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+        <span class="kw">let </span>result: GoogleResponse&lt;Object&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .get(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Download the content of the object with the specified name in the specified bucket.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Object;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let bytes = client.object().download(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="doccomment">/// Download the content of the object with the specified name in the specified bucket.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Object;
+    ///
+    /// let client = Client::default();
+    /// let bytes = client.object().download(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>download(<span class="kw-2">&amp;</span><span class="self">self</span>, bucket: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/b/{}/o/{}?alt=media&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident">percent_encode</span>(<span class="ident">bucket</span>),
-            <span class="ident">percent_encode</span>(<span class="ident">file_name</span>),
+            <span class="kw">crate</span>::BASE_URL,
+            percent_encode(bucket),
+            percent_encode(file_name),
         );
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
+        <span class="kw">let </span>resp = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .get(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">resp</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="ident">StatusCode::NOT_FOUND</span> {
-            <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::Other</span>(<span class="ident">resp</span>.<span class="ident">text</span>().<span class="kw">await</span><span class="question-mark">?</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">resp</span>.<span class="ident">error_for_status</span>()<span class="question-mark">?</span>.<span class="ident">bytes</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">to_vec</span>())
+        <span class="kw">if </span>resp.status() == StatusCode::NOT_FOUND {
+            <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Other(resp.text().<span class="kw">await</span><span class="question-mark">?</span>))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(resp.error_for_status()<span class="question-mark">?</span>.bytes().<span class="kw">await</span><span class="question-mark">?</span>.to_vec())
         }
     }
 
-    <span class="doccomment">/// Download the content of the object with the specified name in the specified bucket, without</span>
-    <span class="doccomment">/// allocating the whole file into a vector.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Object;</span>
-    <span class="doccomment">/// use futures_util::stream::StreamExt;</span>
-    <span class="doccomment">/// use tokio::fs::File;</span>
-    <span class="doccomment">/// use tokio::io::{AsyncWriteExt, BufWriter};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let mut stream = client.object().download_streamed(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;</span>
-    <span class="doccomment">/// let mut file = BufWriter::new(File::create(&quot;file.png&quot;).await.unwrap());</span>
-    <span class="doccomment">/// while let Some(byte) = stream.next().await {</span>
-    <span class="doccomment">///     file.write_all(&amp;[byte.unwrap()]).await.unwrap();</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// file.flush().await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_streamed</span>(
+    <span class="doccomment">/// Download the content of the object with the specified name in the specified bucket, without
+    /// allocating the whole file into a vector.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Object;
+    /// use futures_util::stream::StreamExt;
+    /// use tokio::fs::File;
+    /// use tokio::io::{AsyncWriteExt, BufWriter};
+    ///
+    /// let client = Client::default();
+    /// let mut stream = client.object().download_streamed(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
+    /// let mut file = BufWriter::new(File::create(&quot;file.png&quot;).await.unwrap());
+    /// while let Some(byte) = stream.next().await {
+    ///     file.write_all(&amp;[byte.unwrap()]).await.unwrap();
+    /// }
+    /// file.flush().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>download_streamed(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Unpin</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">StreamExt</span>, <span class="ident">TryStreamExt</span>};
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+        bucket: <span class="kw-2">&amp;</span>str,
+        file_name: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw">impl </span>Stream&lt;Item = <span class="kw">crate</span>::Result&lt;u8&gt;&gt; + Unpin&gt; {
+        <span class="kw">use </span>futures_util::{StreamExt, TryStreamExt};
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/b/{}/o/{}?alt=media&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident">percent_encode</span>(<span class="ident">bucket</span>),
-            <span class="ident">percent_encode</span>(<span class="ident">file_name</span>),
+            <span class="kw">crate</span>::BASE_URL,
+            percent_encode(bucket),
+            percent_encode(file_name),
         );
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">error_for_status</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">content_length</span>();
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">response</span>
-            .<span class="ident">bytes_stream</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">chunk</span><span class="op">|</span> <span class="ident">chunk</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">futures_util::stream::iter</span>(<span class="ident">c</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="prelude-val">Ok</span>))))
-            .<span class="ident">try_flatten</span>();
-        <span class="prelude-val">Ok</span>(<span class="ident">SizedByteStream::new</span>(<span class="ident">bytes</span>, <span class="ident">size</span>))
+        <span class="kw">let </span>response = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .get(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.error_for_status()<span class="question-mark">?</span>;
+        <span class="kw">let </span>size = response.content_length();
+        <span class="kw">let </span>bytes = response
+            .bytes_stream()
+            .map(|chunk| chunk.map(|c| futures_util::stream::iter(c.into_iter().map(<span class="prelude-val">Ok</span>))))
+            .try_flatten();
+        <span class="prelude-val">Ok</span>(SizedByteStream::new(bytes, size))
     }
 
-    <span class="doccomment">/// Updates a single object with the specified name in the specified bucket with the new</span>
-    <span class="doccomment">/// information in `object`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that if the `name` or `bucket` fields are changed, the object will not be found.</span>
-    <span class="doccomment">/// See [`rewrite`] or [`copy`] for similar operations.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Object;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let mut object = client.object().read(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;</span>
-    <span class="doccomment">/// object.content_type = Some(&quot;application/xml&quot;.to_string());</span>
-    <span class="doccomment">/// client.object().update(&amp;object).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="doccomment">/// Updates a single object with the specified name in the specified bucket with the new
+    /// information in `object`.
+    ///
+    /// Note that if the `name` or `bucket` fields are changed, the object will not be found.
+    /// See [`rewrite`] or [`copy`] for similar operations.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Object;
+    ///
+    /// let client = Client::default();
+    /// let mut object = client.object().read(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
+    /// object.content_type = Some(&quot;application/xml&quot;.to_string());
+    /// client.object().update(&amp;object).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>, object: <span class="kw-2">&amp;</span>Object) -&gt; <span class="kw">crate</span>::Result&lt;Object&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/b/{}/o/{}&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">object</span>.<span class="ident">bucket</span>),
-            <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">object</span>.<span class="ident">name</span>),
+            <span class="kw">crate</span>::BASE_URL,
+            percent_encode(<span class="kw-2">&amp;</span>object.bucket),
+            percent_encode(<span class="kw-2">&amp;</span>object.name),
         );
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">object</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+        <span class="kw">let </span>result: GoogleResponse&lt;Object&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .put(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .json(<span class="kw-2">&amp;</span>object)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Deletes a single object with the specified name in the specified bucket.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Object;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// client.object().delete(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">file_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="doccomment">/// Deletes a single object with the specified name in the specified bucket.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Object;
+    ///
+    /// let client = Client::default();
+    /// client.object().delete(&quot;my_bucket&quot;, &quot;path/to/my/file.png&quot;).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>delete(<span class="kw-2">&amp;</span><span class="self">self</span>, bucket: <span class="kw-2">&amp;</span>str, file_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/b/{}/o/{}&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident">percent_encode</span>(<span class="ident">bucket</span>),
-            <span class="ident">percent_encode</span>(<span class="ident">file_name</span>),
+            <span class="kw">crate</span>::BASE_URL,
+            percent_encode(bucket),
+            percent_encode(file_name),
         );
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
+        <span class="kw">let </span>response = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .delete(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">response</span>.<span class="ident">status</span>().<span class="ident">is_success</span>() {
+        <span class="kw">if </span>response.status().is_success() {
             <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::Google</span>(<span class="ident">response</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Google(response.json().<span class="kw">await</span><span class="question-mark">?</span>))
         }
     }
 
-    <span class="doccomment">/// Concatenates the contents of multiple objects into one.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::object::{Object, ComposeRequest, SourceObject};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;</span>
-    <span class="doccomment">/// let obj2 = client.object().read(&quot;my_bucket&quot;, &quot;file2&quot;).await?;</span>
-    <span class="doccomment">/// let compose_request = ComposeRequest {</span>
-    <span class="doccomment">///     kind: &quot;storage#composeRequest&quot;.to_string(),</span>
-    <span class="doccomment">///     source_objects: vec![</span>
-    <span class="doccomment">///         SourceObject {</span>
-    <span class="doccomment">///             name: obj1.name.clone(),</span>
-    <span class="doccomment">///             generation: None,</span>
-    <span class="doccomment">///             object_preconditions: None,</span>
-    <span class="doccomment">///         },</span>
-    <span class="doccomment">///         SourceObject {</span>
-    <span class="doccomment">///             name: obj2.name.clone(),</span>
-    <span class="doccomment">///             generation: None,</span>
-    <span class="doccomment">///             object_preconditions: None,</span>
-    <span class="doccomment">///         },</span>
-    <span class="doccomment">///     ],</span>
-    <span class="doccomment">///     destination: None,</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// let obj3 = client.object().compose(&quot;my_bucket&quot;, &amp;compose_request, &quot;test-concatted-file&quot;).await?;</span>
-    <span class="doccomment">/// // obj3 is now a file with the content of obj1 and obj2 concatted together.</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">compose</span>(
+    <span class="doccomment">/// Concatenates the contents of multiple objects into one.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::object::{Object, ComposeRequest, SourceObject};
+    ///
+    /// let client = Client::default();
+    /// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
+    /// let obj2 = client.object().read(&quot;my_bucket&quot;, &quot;file2&quot;).await?;
+    /// let compose_request = ComposeRequest {
+    ///     kind: &quot;storage#composeRequest&quot;.to_string(),
+    ///     source_objects: vec![
+    ///         SourceObject {
+    ///             name: obj1.name.clone(),
+    ///             generation: None,
+    ///             object_preconditions: None,
+    ///         },
+    ///         SourceObject {
+    ///             name: obj2.name.clone(),
+    ///             generation: None,
+    ///             object_preconditions: None,
+    ///         },
+    ///     ],
+    ///     destination: None,
+    /// };
+    /// let obj3 = client.object().compose(&quot;my_bucket&quot;, &amp;compose_request, &quot;test-concatted-file&quot;).await?;
+    /// // obj3 is now a file with the content of obj1 and obj2 concatted together.
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>compose(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">ComposeRequest</span>,
-        <span class="ident">destination_object</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+        bucket: <span class="kw-2">&amp;</span>str,
+        req: <span class="kw-2">&amp;</span>ComposeRequest,
+        destination_object: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;Object&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/b/{}/o/{}/compose&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident">percent_encode</span>(<span class="ident">bucket</span>),
-            <span class="ident">percent_encode</span>(<span class="ident">destination_object</span>)
+            <span class="kw">crate</span>::BASE_URL,
+            percent_encode(bucket),
+            percent_encode(destination_object)
         );
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">json</span>(<span class="ident">req</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+        <span class="kw">let </span>result: GoogleResponse&lt;Object&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .post(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .json(req)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Copy this object to the target bucket and path.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::object::{Object, ComposeRequest};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;</span>
-    <span class="doccomment">/// let obj2 = client.object().copy(&amp;obj1, &quot;my_other_bucket&quot;, &quot;file2&quot;).await?;</span>
-    <span class="doccomment">/// // obj2 is now a copy of obj1.</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">copy</span>(
+    <span class="doccomment">/// Copy this object to the target bucket and path.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::object::{Object, ComposeRequest};
+    ///
+    /// let client = Client::default();
+    /// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
+    /// let obj2 = client.object().copy(&amp;obj1, &quot;my_other_bucket&quot;, &quot;file2&quot;).await?;
+    /// // obj2 is now a copy of obj1.
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>copy(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>,
-        <span class="ident">destination_bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">reqwest::header::CONTENT_LENGTH</span>;
+        object: <span class="kw-2">&amp;</span>Object,
+        destination_bucket: <span class="kw-2">&amp;</span>str,
+        path: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;Object&gt; {
+        <span class="kw">use </span>reqwest::header::CONTENT_LENGTH;
 
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{base}/b/{sBucket}/o/{sObject}/copyTo/b/{dBucket}/o/{dObject}&quot;</span>,
-            <span class="ident">base</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident">sBucket</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">object</span>.<span class="ident">bucket</span>),
-            <span class="ident">sObject</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">object</span>.<span class="ident">name</span>),
-            <span class="ident">dBucket</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="ident">destination_bucket</span>),
-            <span class="ident">dObject</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="ident">path</span>),
+            base = <span class="kw">crate</span>::BASE_URL,
+            sBucket = percent_encode(<span class="kw-2">&amp;</span>object.bucket),
+            sObject = percent_encode(<span class="kw-2">&amp;</span>object.name),
+            dBucket = percent_encode(destination_bucket),
+            dObject = percent_encode(path),
         );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>);
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="ident">headers</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = <span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>;
+        headers.insert(CONTENT_LENGTH, <span class="string">&quot;0&quot;</span>.parse()<span class="question-mark">?</span>);
+        <span class="kw">let </span>result: GoogleResponse&lt;Object&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .post(<span class="kw-2">&amp;</span>url)
+            .headers(headers)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Moves a file from the current location to the target bucket and path.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ## Limitations</span>
-    <span class="doccomment">/// This function does not yet support rewriting objects to another</span>
-    <span class="doccomment">/// * Geographical Location,</span>
-    <span class="doccomment">/// * Encryption,</span>
-    <span class="doccomment">/// * Storage class.</span>
-    <span class="doccomment">/// These limitations mean that for now, the rewrite and the copy methods do the same thing.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::object::Object;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;</span>
-    <span class="doccomment">/// let obj2 = client.object().rewrite(&amp;obj1, &quot;my_other_bucket&quot;, &quot;file2&quot;).await?;</span>
-    <span class="doccomment">/// // obj2 is now a copy of obj1.</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">rewrite</span>(
+    <span class="doccomment">/// Moves a file from the current location to the target bucket and path.
+    ///
+    /// ## Limitations
+    /// This function does not yet support rewriting objects to another
+    /// * Geographical Location,
+    /// * Encryption,
+    /// * Storage class.
+    /// These limitations mean that for now, the rewrite and the copy methods do the same thing.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::object::Object;
+    ///
+    /// let client = Client::default();
+    /// let obj1 = client.object().read(&quot;my_bucket&quot;, &quot;file1&quot;).await?;
+    /// let obj2 = client.object().rewrite(&amp;obj1, &quot;my_other_bucket&quot;, &quot;file2&quot;).await?;
+    /// // obj2 is now a copy of obj1.
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>rewrite(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>,
-        <span class="ident">destination_bucket</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">reqwest::header::CONTENT_LENGTH</span>;
+        object: <span class="kw-2">&amp;</span>Object,
+        destination_bucket: <span class="kw-2">&amp;</span>str,
+        path: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;Object&gt; {
+        <span class="kw">use </span>reqwest::header::CONTENT_LENGTH;
 
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{base}/b/{sBucket}/o/{sObject}/rewriteTo/b/{dBucket}/o/{dObject}&quot;</span>,
-            <span class="ident">base</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident">sBucket</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">object</span>.<span class="ident">bucket</span>),
-            <span class="ident">sObject</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">object</span>.<span class="ident">name</span>),
-            <span class="ident">dBucket</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="ident">destination_bucket</span>),
-            <span class="ident">dObject</span> <span class="op">=</span> <span class="ident">percent_encode</span>(<span class="ident">path</span>),
+            base = <span class="kw">crate</span>::BASE_URL,
+            sBucket = percent_encode(<span class="kw-2">&amp;</span>object.bucket),
+            sObject = percent_encode(<span class="kw-2">&amp;</span>object.name),
+            dBucket = percent_encode(destination_bucket),
+            dObject = percent_encode(path),
         );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">CONTENT_LENGTH</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>);
-        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="ident">headers</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">text</span>()
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = <span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>;
+        headers.insert(CONTENT_LENGTH, <span class="string">&quot;0&quot;</span>.parse()<span class="question-mark">?</span>);
+        <span class="kw">let </span>s = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .post(<span class="kw-2">&amp;</span>url)
+            .headers(headers)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.text()
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">RewriteResponse</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>).<span class="ident">unwrap</span>();
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">resource</span>)
-        <span class="comment">// match result {</span>
-        <span class="comment">// GoogleResponse::Success(s) =&gt; Ok(s.resource),</span>
-        <span class="comment">// GoogleResponse::Error(e) =&gt; Err(e.into()),</span>
-        <span class="comment">// }</span>
-    }
+        <span class="kw">let </span>result: RewriteResponse = serde_json::from_str(<span class="kw-2">&amp;</span>s).unwrap();
+        <span class="prelude-val">Ok</span>(result.resource)
+        <span class="comment">// match result {
+        // GoogleResponse::Success(s) =&gt; Ok(s.resource),
+        // GoogleResponse::Error(e) =&gt; Err(e.into()),
+        // }
+    </span>}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

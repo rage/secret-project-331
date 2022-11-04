@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/url_to_oembed_endpoint.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>url_to_oembed_endpoint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_utils/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/url_to_oembed_endpoint.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>url_to_oembed_endpoint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_utils/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -219,226 +219,226 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">percent_encoding</span>::{<span class="ident">percent_decode_str</span>, <span class="ident">utf8_percent_encode</span>, <span class="ident">NON_ALPHANUMERIC</span>};
-<span class="kw">use</span> <span class="ident">url::Url</span>;
+<span class="kw">use </span>percent_encoding::{percent_decode_str, utf8_percent_encode, NON_ALPHANUMERIC};
+<span class="kw">use </span>url::Url;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+</span><span class="kw">use </span>ts_rs::TS;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OEmbedResponse</span> {
-    <span class="kw">pub</span> <span class="ident">author_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">author_url</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">html</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">provider_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">provider_url</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">version</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>OEmbedResponse {
+    <span class="kw">pub </span>author_name: String,
+    <span class="kw">pub </span>author_url: String,
+    <span class="kw">pub </span>html: String,
+    <span class="kw">pub </span>provider_name: String,
+    <span class="kw">pub </span>provider_url: String,
+    <span class="kw">pub </span>title: String,
+    <span class="kw">pub </span>version: String,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OEmbedRequest</span> {
-    <span class="kw">pub</span> <span class="ident">url</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Deserialize, Debug)]
+</span><span class="kw">pub struct </span>OEmbedRequest {
+    <span class="kw">pub </span>url: String,
 }
 
-<span class="comment">// https://github.com/WordPress/wordpress-develop/blob/master/src/wp-includes/class-wp-oembed.php</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url_to_oembed_endpoint</span>(<span class="ident">url</span>: <span class="ident">String</span>, <span class="ident">base_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">parsed_url</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="ident">url</span>.<span class="ident">as_str</span>())<span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">host</span>) <span class="op">=</span> <span class="ident">parsed_url</span>.<span class="ident">host_str</span>() {
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;youtu.be&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;youtube.com&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+<span class="comment">// https://github.com/WordPress/wordpress-develop/blob/master/src/wp-includes/class-wp-oembed.php
+</span><span class="kw">pub fn </span>url_to_oembed_endpoint(url: String, base_url: <span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; UtilResult&lt;Url&gt; {
+    <span class="kw">let </span>parsed_url = Url::parse(url.as_str())<span class="question-mark">?</span>;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(host) = parsed_url.host_str() {
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;youtu.be&quot;</span>) || host.ends_with(<span class="string">&quot;youtube.com&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://www.youtube.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;twitter.com&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;twitter.com&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://publish.twitter.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;maxwidth=780&amp;maxheight=440&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;maxwidth=780&amp;maxheight=440&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;soundcloud.com&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;soundcloud.com&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://soundcloud.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;open.spotify.com&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;play.spotify.com&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;open.spotify.com&quot;</span>) || host.ends_with(<span class="string">&quot;play.spotify.com&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://embed.spotify.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;height=335&amp;width=780&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;height=335&amp;width=780&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;flickr.com&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;flic.kr&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;flickr.com&quot;</span>) || host.ends_with(<span class="string">&quot;flic.kr&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://www.flickr.com/services/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=780&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&amp;maxwidth=780&amp;maxheight=780&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;vimeo.com&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;vimeo.com&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://vimeo.com/api/oembed.json&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;maxwidth=780&amp;maxheight=440&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;maxwidth=780&amp;maxheight=440&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;menti.com&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;mentimeter.com&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;menti.com&quot;</span>) || host.ends_with(<span class="string">&quot;mentimeter.com&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(
                     <span class="string">&quot;{}/api/v0/cms/gutenberg/oembed/mentimeter&quot;</span>,
-                    <span class="ident">base_url</span>.<span class="ident">unwrap</span>()
+                    base_url.unwrap()
                 ),
                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(
                     <span class="string">&quot;url={}&quot;</span>,
-                    <span class="ident">utf8_percent_encode</span>(<span class="ident">url</span>.<span class="ident">as_str</span>(), <span class="ident">NON_ALPHANUMERIC</span>)
+                    utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
                 ),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;imgur.com&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;imgur.com&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://api.imgur.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;maxwidth=780&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;maxwidth=780&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;reddit.com&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;reddit.com&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://www.reddit.com/oembed&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;slideshare.net&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;slideshare.net&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://www.slideshare.net/api/oembed/2&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;ted.com&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;ted.com&quot;</span>) {
+            <span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://www.ted.com/services/v1/oembed.json&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&quot;</span>, url),
             );
         }
-        <span class="kw">if</span> <span class="ident">host</span>.<span class="ident">ends_with</span>(<span class="string">&quot;tumblr.com&quot;</span>) {
-            <span class="comment">// Old tumblr api, v2 is latest, but WP uses 1.0</span>
-            <span class="kw">return</span> <span class="ident">oembed_url_builder</span>(
+        <span class="kw">if </span>host.ends_with(<span class="string">&quot;tumblr.com&quot;</span>) {
+            <span class="comment">// Old tumblr api, v2 is latest, but WP uses 1.0
+            </span><span class="kw">return </span>oembed_url_builder(
                 <span class="string">&quot;https://www.tumblr.com/oembed/1.0&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, <span class="ident">url</span>),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, url),
             );
         }
-        <span class="prelude-val">Err</span>(<span class="ident">UtilError::new</span>(
-            <span class="ident">UtilErrorType::Other</span>,
-            <span class="string">&quot;Link not supported for embedding.&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="prelude-val">Err</span>(UtilError::new(
+            UtilErrorType::Other,
+            <span class="string">&quot;Link not supported for embedding.&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ))
-    } <span class="kw">else</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">UtilError::new</span>(
-            <span class="ident">UtilErrorType::Other</span>,
-            <span class="string">&quot;Failed to parse host from URL.&quot;</span>.<span class="ident">to_string</span>(),
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Err</span>(UtilError::new(
+            UtilErrorType::Other,
+            <span class="string">&quot;Failed to parse host from URL.&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ))
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mentimeter_oembed_response_builder</span>(
-    <span class="ident">url</span>: <span class="ident">String</span>,
-    <span class="ident">base_url</span>: <span class="ident">String</span>,
-) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">OEmbedResponse</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parsed_url</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="ident">url</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap</span>();
-    <span class="comment">// Get the height and title params</span>
-    <span class="kw">let</span> <span class="ident">params</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">parsed_url</span>.<span class="ident">query_pairs</span>().<span class="ident">into_owned</span>().<span class="ident">collect</span>();
-    <span class="comment">// We want to remove the query params so that the iframe src url doesn&#39;t have them</span>
-    <span class="ident">parsed_url</span>.<span class="ident">set_query</span>(<span class="prelude-val">None</span>);
-    <span class="kw">let</span> <span class="ident">decoded_title</span> <span class="op">=</span> <span class="ident">percent_decode_str</span>(
-        <span class="ident">params</span>
-            .<span class="ident">get</span>(<span class="string">&quot;title&quot;</span>)
-            .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="string">&quot;Mentimeter%20embed&quot;</span>.<span class="ident">to_string</span>()),
+<span class="kw">pub fn </span>mentimeter_oembed_response_builder(
+    url: String,
+    base_url: String,
+) -&gt; UtilResult&lt;OEmbedResponse&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>parsed_url = Url::parse(url.as_str()).unwrap();
+    <span class="comment">// Get the height and title params
+    </span><span class="kw">let </span>params: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = parsed_url.query_pairs().into_owned().collect();
+    <span class="comment">// We want to remove the query params so that the iframe src url doesn&#39;t have them
+    </span>parsed_url.set_query(<span class="prelude-val">None</span>);
+    <span class="kw">let </span>decoded_title = percent_decode_str(
+        params
+            .get(<span class="string">&quot;title&quot;</span>)
+            .unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;Mentimeter%20embed&quot;</span>.to_string()),
     )
-    .<span class="ident">decode_utf8</span>()
-    .<span class="ident">expect</span>(<span class="string">&quot;Decoding title or default value for menti embed failed&quot;</span>)
-    .<span class="ident">to_string</span>();
+    .decode_utf8()
+    .expect(<span class="string">&quot;Decoding title or default value for menti embed failed&quot;</span>)
+    .to_string();
 
-    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">OEmbedResponse</span> {
-        <span class="ident">author_name</span>: <span class="string">&quot;Mooc.fi&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">author_url</span>: <span class="ident">base_url</span>,
-        <span class="ident">html</span>: <span class="macro">format!</span>(
+    <span class="kw">let </span>response = OEmbedResponse {
+        author_name: <span class="string">&quot;Mooc.fi&quot;</span>.to_string(),
+        author_url: base_url,
+        html: <span class="macro">format!</span>(
             <span class="string">&quot;&lt;iframe src={} style=&#39;width: 99%;&#39; height={:?} title={:?}&gt;&lt;/iframe&gt;&quot;</span>,
-            <span class="ident">parsed_url</span>,
-            <span class="ident">params</span>.<span class="ident">get</span>(<span class="string">&quot;height&quot;</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="string">&quot;500&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">decoded_title</span>
+            parsed_url,
+            params.get(<span class="string">&quot;height&quot;</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="string">&quot;500&quot;</span>.to_string()),
+            decoded_title
         ),
-        <span class="ident">provider_name</span>: <span class="string">&quot;mentimeter&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">provider_url</span>: <span class="ident">parsed_url</span>
-            .<span class="ident">host_str</span>()
-            .<span class="ident">unwrap_or</span>(<span class="string">&quot;https://www.mentimeter.com&quot;</span>)
-            .<span class="ident">to_string</span>(),
-        <span class="ident">title</span>: <span class="ident">decoded_title</span>,
-        <span class="ident">version</span>: <span class="string">&quot;1.0&quot;</span>.<span class="ident">to_string</span>(),
+        provider_name: <span class="string">&quot;mentimeter&quot;</span>.to_string(),
+        provider_url: parsed_url
+            .host_str()
+            .unwrap_or(<span class="string">&quot;https://www.mentimeter.com&quot;</span>)
+            .to_string(),
+        title: decoded_title,
+        version: <span class="string">&quot;1.0&quot;</span>.to_string(),
     };
-    <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
+    <span class="prelude-val">Ok</span>(response)
 }
 
-<span class="kw">fn</span> <span class="ident">oembed_url_builder</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">query_params</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">UtilResult</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpoint_url</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
-    <span class="ident">endpoint_url</span>.<span class="ident">set_query</span>(<span class="prelude-val">Some</span>(<span class="ident">query_params</span>));
-    <span class="prelude-val">Ok</span>(<span class="ident">endpoint_url</span>)
+<span class="kw">fn </span>oembed_url_builder(url: <span class="kw-2">&amp;</span>str, query_params: <span class="kw-2">&amp;</span>str) -&gt; UtilResult&lt;Url&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>endpoint_url = Url::parse(url)<span class="question-mark">?</span>;
+    endpoint_url.set_query(<span class="prelude-val">Some</span>(query_params));
+    <span class="prelude-val">Ok</span>(endpoint_url)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">url::Url</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>url::Url;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">works_with_youtu_be</span>() {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>works_with_youtu_be() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">url_to_oembed_endpoint</span>(<span class="string">&quot;https://youtu.be/dQw4w9WgXcQ&quot;</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Url::parse</span>(
-                <span class="string">&quot;https://www.youtube.com/oembed?url=https://youtu.be/dQw4w9WgXcQ&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>
-            )
-            .<span class="ident">unwrap</span>()
+            url_to_oembed_endpoint(<span class="string">&quot;https://youtu.be/dQw4w9WgXcQ&quot;</span>.to_string(), <span class="prelude-val">None</span>).unwrap(),
+            Url::parse(
+                <span class="string">&quot;https://www.youtube.com/oembed?url=https://youtu.be/dQw4w9WgXcQ&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;
+            </span>)
+            .unwrap()
         )
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">works_with_youtube_com</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>works_with_youtube_com() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">url_to_oembed_endpoint</span>(<span class="string">&quot;https://www.youtube.com/watch?v=dQw4w9WgXcQ&quot;</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>)
-                .<span class="ident">unwrap</span>(),
-            <span class="ident">Url::parse</span>(<span class="string">&quot;https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>).<span class="ident">unwrap</span>()
+            url_to_oembed_endpoint(<span class="string">&quot;https://www.youtube.com/watch?v=dQw4w9WgXcQ&quot;</span>.to_string(), <span class="prelude-val">None</span>)
+                .unwrap(),
+            Url::parse(<span class="string">&quot;https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>).unwrap()
         )
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">works_with_youtube_com_playlist</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>works_with_youtube_com_playlist() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">url_to_oembed_endpoint</span>(
-                <span class="string">&quot;https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1&quot;</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>
-            )
-            .<span class="ident">unwrap</span>(),
-            <span class="ident">Url::parse</span>(<span class="string">&quot;https://www.youtube.com/oembed?url=https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>).<span class="ident">unwrap</span>()
+            url_to_oembed_endpoint(
+                <span class="string">&quot;https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1&quot;</span>.to_string(), <span class="prelude-val">None
+            </span>)
+            .unwrap(),
+            Url::parse(<span class="string">&quot;https://www.youtube.com/oembed?url=https://www.youtube.com/playlist?list=gYLqDMMh1GEbHf-Q1&amp;format=json&amp;maxwidth=780&amp;maxheight=440&quot;</span>).unwrap()
         )
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">works_with_open_spotify_com</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">url_to_oembed_endpoint</span>(
-            <span class="string">&quot;http://open.spotify.com/track/298gs9ATwKlQR&quot;</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>
-        )
-        .<span class="ident">unwrap</span>(),
-        <span class="ident">Url::parse</span>(<span class="string">&quot;https://embed.spotify.com/oembed?url=http://open.spotify.com/track/298gs9ATwKlQR&amp;format=json&amp;height=335&amp;width=780&quot;</span>).<span class="ident">unwrap</span>())
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>works_with_open_spotify_com() {
+        <span class="macro">assert_eq!</span>(url_to_oembed_endpoint(
+            <span class="string">&quot;http://open.spotify.com/track/298gs9ATwKlQR&quot;</span>.to_string(), <span class="prelude-val">None
+        </span>)
+        .unwrap(),
+        Url::parse(<span class="string">&quot;https://embed.spotify.com/oembed?url=http://open.spotify.com/track/298gs9ATwKlQR&amp;format=json&amp;height=335&amp;width=780&quot;</span>).unwrap())
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">works_with_flic_kr_com</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>works_with_flic_kr_com() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">url_to_oembed_endpoint</span>(<span class="string">&quot;https://flic.kr/p/2jJ&quot;</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Url::parse</span>(
-                <span class="string">&quot;https://www.flickr.com/services/oembed?url=https://flic.kr/p/2jJ&amp;format=json&amp;maxwidth=780&amp;maxheight=780&quot;</span>
-            ).<span class="ident">unwrap</span>()
+            url_to_oembed_endpoint(<span class="string">&quot;https://flic.kr/p/2jJ&quot;</span>.to_string(), <span class="prelude-val">None</span>).unwrap(),
+            Url::parse(
+                <span class="string">&quot;https://www.flickr.com/services/oembed?url=https://flic.kr/p/2jJ&amp;format=json&amp;maxwidth=780&amp;maxheight=780&quot;
+            </span>).unwrap()
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

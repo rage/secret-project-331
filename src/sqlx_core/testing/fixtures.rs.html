@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/testing/fixtures.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fixtures.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/testing/fixtures.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fixtures.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -278,285 +278,285 @@
 <span id="278">278</span>
 <span id="279">279</span>
 <span id="280">280</span>
-</pre><pre class="rust"><code><span class="doccomment">//! TODO: automatic test fixture capture</span>
+</pre><pre class="rust"><code><span class="doccomment">//! TODO: automatic test fixture capture
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database</span>::{<span class="ident">Database</span>, <span class="ident">HasArguments</span>};
+</span><span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasArguments};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_builder::QueryBuilder</span>;
+<span class="kw">use </span><span class="kw">crate</span>::query_builder::QueryBuilder;
 
-<span class="kw">use</span> <span class="ident">indexmap::set::IndexSet</span>;
-<span class="kw">use</span> <span class="ident">std::cmp</span>;
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+<span class="kw">use </span>indexmap::set::IndexSet;
+<span class="kw">use </span>std::cmp;
+<span class="kw">use </span>std::collections::{BTreeMap, HashMap};
+<span class="kw">use </span>std::marker::PhantomData;
+<span class="kw">use </span>std::sync::Arc;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">FixtureError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>;
+<span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T, E = FixtureError&gt; = std::result::Result&lt;T, E&gt;;
 
-<span class="doccomment">/// A snapshot of the current state of the database.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Can be used to generate an `INSERT` fixture for populating an empty database,</span>
-<span class="doccomment">/// or in the future it may be possible to generate a fixture from the difference between</span>
-<span class="doccomment">/// two snapshots.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FixtureSnapshot</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="ident">tables</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TableName</span>, <span class="ident">Table</span><span class="op">&gt;</span>,
-    <span class="ident">db</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A snapshot of the current state of the database.
+///
+/// Can be used to generate an `INSERT` fixture for populating an empty database,
+/// or in the future it may be possible to generate a fixture from the difference between
+/// two snapshots.
+</span><span class="kw">pub struct </span>FixtureSnapshot&lt;DB&gt; {
+    tables: BTreeMap&lt;TableName, Table&gt;,
+    db: PhantomData&lt;DB&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">thiserror::Error</span>)]</span>
-<span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;could not create fixture: {0}&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FixtureError</span>(<span class="ident">String</span>);
+<span class="attribute">#[derive(Debug, thiserror::Error)]
+#[error(<span class="string">&quot;could not create fixture: {0}&quot;</span>)]
+</span><span class="kw">pub struct </span>FixtureError(String);
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Fixture</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="ident">ops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FixtureOp</span><span class="op">&gt;</span>,
-    <span class="ident">db</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Fixture&lt;DB&gt; {
+    ops: Vec&lt;FixtureOp&gt;,
+    db: PhantomData&lt;DB&gt;,
 }
 
-<span class="kw">enum</span> <span class="ident">FixtureOp</span> {
-    <span class="ident">Insert</span> {
-        <span class="ident">table</span>: <span class="ident">TableName</span>,
-        <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ColumnName</span><span class="op">&gt;</span>,
-        <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">enum </span>FixtureOp {
+    Insert {
+        table: TableName,
+        columns: Vec&lt;ColumnName&gt;,
+        rows: Vec&lt;Vec&lt;Value&gt;&gt;,
     },
-    <span class="comment">// TODO: handle updates and deletes by diffing two snapshots</span>
+    <span class="comment">// TODO: handle updates and deletes by diffing two snapshots
+</span>}
+
+<span class="kw">type </span>TableName = Arc&lt;str&gt;;
+<span class="kw">type </span>ColumnName = Arc&lt;str&gt;;
+<span class="kw">type </span>Value = String;
+
+<span class="kw">struct </span>Table {
+    name: TableName,
+    columns: IndexSet&lt;ColumnName&gt;,
+    rows: Vec&lt;Vec&lt;Value&gt;&gt;,
+    foreign_keys: HashMap&lt;ColumnName, (TableName, ColumnName)&gt;,
 }
 
-<span class="kw">type</span> <span class="ident">TableName</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>;
-<span class="kw">type</span> <span class="ident">ColumnName</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>;
-<span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">String</span>;
-
-<span class="kw">struct</span> <span class="ident">Table</span> {
-    <span class="ident">name</span>: <span class="ident">TableName</span>,
-    <span class="ident">columns</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="ident">ColumnName</span><span class="op">&gt;</span>,
-    <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">foreign_keys</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">ColumnName</span>, (<span class="ident">TableName</span>, <span class="ident">ColumnName</span>)<span class="op">&gt;</span>,
-}
-
-<span class="macro">macro_rules!</span> <span class="ident">fixture_assert</span> (
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">cond</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>:<span class="ident">literal</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="kw">if</span> <span class="op">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">cond</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">FixtureError</span>(<span class="macro">format!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>)))
+<span class="macro">macro_rules! </span>fixture_assert (
+    (<span class="macro-nonterminal">$cond</span>:expr, <span class="macro-nonterminal">$msg</span>:literal $(<span class="macro-nonterminal">$arg</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="kw">if </span>!(<span class="macro-nonterminal">$cond</span>) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(FixtureError(<span class="macro">format!</span>(<span class="macro-nonterminal">$msg </span>$(<span class="macro-nonterminal">$arg</span>)<span class="kw-2">*</span>)))
         }
     }
 );
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">FixtureSnapshot</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Generate a fixture to reproduce this snapshot from an empty database using `INSERT`s.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this doesn&#39;t take into account any triggers that might modify the data before</span>
-    <span class="doccomment">/// it&#39;s stored.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `INSERT` statements are ordered on a best-effort basis to satisfy any foreign key</span>
-    <span class="doccomment">/// constraints (data from tables with no foreign keys are inserted first, then the tables</span>
-    <span class="doccomment">/// that reference those tables, and so on).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If a cycle in foreign-key constraints is detected, this returns with an error.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">additive_fixture</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Fixture</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">visit_order</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">calculate_visit_order</span>()<span class="question-mark">?</span>;
+<span class="kw">impl</span>&lt;DB: Database&gt; FixtureSnapshot&lt;DB&gt; {
+    <span class="doccomment">/// Generate a fixture to reproduce this snapshot from an empty database using `INSERT`s.
+    ///
+    /// Note that this doesn&#39;t take into account any triggers that might modify the data before
+    /// it&#39;s stored.
+    ///
+    /// The `INSERT` statements are ordered on a best-effort basis to satisfy any foreign key
+    /// constraints (data from tables with no foreign keys are inserted first, then the tables
+    /// that reference those tables, and so on).
+    ///
+    /// If a cycle in foreign-key constraints is detected, this returns with an error.
+    </span><span class="kw">pub fn </span>additive_fixture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Fixture&lt;DB&gt;&gt; {
+        <span class="kw">let </span>visit_order = <span class="self">self</span>.calculate_visit_order()<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ops</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>ops = Vec::new();
 
-        <span class="kw">for</span> <span class="ident">table_name</span> <span class="kw">in</span> <span class="ident">visit_order</span> {
-            <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tables</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">table_name</span>).<span class="ident">unwrap</span>();
+        <span class="kw">for </span>table_name <span class="kw">in </span>visit_order {
+            <span class="kw">let </span>table = <span class="self">self</span>.tables.get(<span class="kw-2">&amp;</span>table_name).unwrap();
 
-            <span class="ident">ops</span>.<span class="ident">push</span>(<span class="ident">FixtureOp::Insert</span> {
-                <span class="ident">table</span>: <span class="ident">table_name</span>,
-                <span class="ident">columns</span>: <span class="ident">table</span>.<span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
-                <span class="ident">rows</span>: <span class="ident">table</span>.<span class="ident">rows</span>.<span class="ident">clone</span>(),
+            ops.push(FixtureOp::Insert {
+                table: table_name,
+                columns: table.columns.iter().cloned().collect(),
+                rows: table.rows.clone(),
             });
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Fixture</span> { <span class="ident">ops</span>, <span class="ident">db</span>: <span class="self">self</span>.<span class="ident">db</span> })
+        <span class="prelude-val">Ok</span>(Fixture { ops, db: <span class="self">self</span>.db })
     }
 
-    <span class="doccomment">/// Determine an order for outputting `INSERTS` for each table by calculating the max</span>
-    <span class="doccomment">/// length of all its foreign key chains.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This should hopefully ensure that there are no foreign-key errors.</span>
-    <span class="kw">fn</span> <span class="ident">calculate_visit_order</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TableName</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table_depths</span> <span class="op">=</span> <span class="ident">HashMap::with_capacity</span>(<span class="self">self</span>.<span class="ident">tables</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited_set</span> <span class="op">=</span> <span class="ident">IndexSet::with_capacity</span>(<span class="self">self</span>.<span class="ident">tables</span>.<span class="ident">len</span>());
+    <span class="doccomment">/// Determine an order for outputting `INSERTS` for each table by calculating the max
+    /// length of all its foreign key chains.
+    ///
+    /// This should hopefully ensure that there are no foreign-key errors.
+    </span><span class="kw">fn </span>calculate_visit_order(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;TableName&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>table_depths = HashMap::with_capacity(<span class="self">self</span>.tables.len());
+        <span class="kw">let </span><span class="kw-2">mut </span>visited_set = IndexSet::with_capacity(<span class="self">self</span>.tables.len());
 
-        <span class="kw">for</span> <span class="ident">table</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">tables</span>.<span class="ident">values</span>() {
-            <span class="ident">foreign_key_depth</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tables</span>, <span class="ident">table</span>, <span class="kw-2">&amp;mut</span> <span class="ident">table_depths</span>, <span class="kw-2">&amp;mut</span> <span class="ident">visited_set</span>)<span class="question-mark">?</span>;
-            <span class="ident">visited_set</span>.<span class="ident">clear</span>();
+        <span class="kw">for </span>table <span class="kw">in </span><span class="self">self</span>.tables.values() {
+            foreign_key_depth(<span class="kw-2">&amp;</span><span class="self">self</span>.tables, table, <span class="kw-2">&amp;mut </span>table_depths, <span class="kw-2">&amp;mut </span>visited_set)<span class="question-mark">?</span>;
+            visited_set.clear();
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TableName</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">table_depths</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
-        <span class="ident">table_names</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">table_depths</span>.<span class="ident">get</span>(<span class="ident">name</span>).<span class="ident">unwrap</span>());
-        <span class="prelude-val">Ok</span>(<span class="ident">table_names</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>table_names: Vec&lt;TableName&gt; = table_depths.keys().cloned().collect();
+        table_names.sort_by_key(|name| table_depths.get(name).unwrap());
+        <span class="prelude-val">Ok</span>(table_names)
     }
 }
 
-<span class="doccomment">/// Implements `ToString` but not `Display` because it uses [`QueryBuilder`] internally,</span>
-<span class="doccomment">/// which appends to an internal string.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">ToString</span> <span class="kw">for</span> <span class="ident">Fixture</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span>: <span class="ident">Default</span>,
+<span class="doccomment">/// Implements `ToString` but not `Display` because it uses [`QueryBuilder`] internally,
+/// which appends to an internal string.
+</span><span class="kw">impl</span>&lt;DB: Database&gt; ToString <span class="kw">for </span>Fixture&lt;DB&gt;
+<span class="kw">where
+    for</span>&lt;<span class="lifetime">&#39;a</span>&gt; &lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;a</span>&gt;&gt;::Arguments: Default,
 {
-    <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">QueryBuilder</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="string">&quot;&quot;</span>);
+    <span class="kw">fn </span>to_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>query = QueryBuilder::&lt;DB&gt;::new(<span class="string">&quot;&quot;</span>);
 
-        <span class="kw">for</span> <span class="ident">op</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ops</span> {
-            <span class="kw">match</span> <span class="ident">op</span> {
-                <span class="ident">FixtureOp::Insert</span> {
-                    <span class="ident">table</span>,
-                    <span class="ident">columns</span>,
-                    <span class="ident">rows</span>,
+        <span class="kw">for </span>op <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.ops {
+            <span class="kw">match </span>op {
+                FixtureOp::Insert {
+                    table,
+                    columns,
+                    rows,
                 } =&gt; {
-                    <span class="comment">// Sanity check, empty tables shouldn&#39;t appear in snapshots anyway.</span>
-                    <span class="kw">if</span> <span class="ident">columns</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">rows</span>.<span class="ident">is_empty</span>() {
+                    <span class="comment">// Sanity check, empty tables shouldn&#39;t appear in snapshots anyway.
+                    </span><span class="kw">if </span>columns.is_empty() || rows.is_empty() {
                         <span class="kw">continue</span>;
                     }
 
-                    <span class="ident">query</span>.<span class="ident">push</span>(<span class="macro">format_args!</span>(<span class="string">&quot;INSERT INTO {} (&quot;</span>, <span class="ident">table</span>));
+                    query.push(<span class="macro">format_args!</span>(<span class="string">&quot;INSERT INTO {} (&quot;</span>, table));
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">separated</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">separated</span>(<span class="string">&quot;, &quot;</span>);
+                    <span class="kw">let </span><span class="kw-2">mut </span>separated = query.separated(<span class="string">&quot;, &quot;</span>);
 
-                    <span class="kw">for</span> <span class="ident">column</span> <span class="kw">in</span> <span class="ident">columns</span> {
-                        <span class="ident">separated</span>.<span class="ident">push</span>(<span class="ident">column</span>);
+                    <span class="kw">for </span>column <span class="kw">in </span>columns {
+                        separated.push(column);
                     }
 
-                    <span class="ident">query</span>.<span class="ident">push</span>(<span class="string">&quot;)\n&quot;</span>);
+                    query.push(<span class="string">&quot;)\n&quot;</span>);
 
-                    <span class="ident">query</span>.<span class="ident">push_values</span>(<span class="ident">rows</span>, <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">separated</span>, <span class="ident">row</span><span class="op">|</span> {
-                        <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="ident">row</span> {
-                            <span class="ident">separated</span>.<span class="ident">push</span>(<span class="ident">value</span>);
+                    query.push_values(rows, |<span class="kw-2">mut </span>separated, row| {
+                        <span class="kw">for </span>value <span class="kw">in </span>row {
+                            separated.push(value);
                         }
                     });
 
-                    <span class="ident">query</span>.<span class="ident">push</span>(<span class="string">&quot;;\n&quot;</span>);
+                    query.push(<span class="string">&quot;;\n&quot;</span>);
                 }
             }
         }
 
-        <span class="ident">query</span>.<span class="ident">into_sql</span>()
+        query.into_sql()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">foreign_key_depth</span>(
-    <span class="ident">tables</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TableName</span>, <span class="ident">Table</span><span class="op">&gt;</span>,
-    <span class="ident">table</span>: <span class="kw-2">&amp;</span><span class="ident">Table</span>,
-    <span class="ident">depths</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">TableName</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">visited_set</span>: <span class="kw-2">&amp;mut</span> <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="ident">TableName</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">depth</span>) <span class="op">=</span> <span class="ident">depths</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">table</span>.<span class="ident">name</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">depth</span>);
+<span class="kw">fn </span>foreign_key_depth(
+    tables: <span class="kw-2">&amp;</span>BTreeMap&lt;TableName, Table&gt;,
+    table: <span class="kw-2">&amp;</span>Table,
+    depths: <span class="kw-2">&amp;mut </span>HashMap&lt;TableName, usize&gt;,
+    visited_set: <span class="kw-2">&amp;mut </span>IndexSet&lt;TableName&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>depth) = depths.get(<span class="kw-2">&amp;</span>table.name) {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(depth);
     }
 
-    <span class="comment">// This keeps us from looping forever.</span>
-    <span class="macro">fixture_assert!</span>(
-        <span class="ident">visited_set</span>.<span class="ident">insert</span>(<span class="ident">table</span>.<span class="ident">name</span>.<span class="ident">clone</span>()),
+    <span class="comment">// This keeps us from looping forever.
+    </span><span class="macro">fixture_assert!</span>(
+        visited_set.insert(table.name.clone()),
         <span class="string">&quot;foreign key cycle detected: {:?} -&gt; {:?}&quot;</span>,
-        <span class="ident">visited_set</span>,
-        <span class="ident">table</span>.<span class="ident">name</span>
+        visited_set,
+        table.name
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">refdepth</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>refdepth = <span class="number">0</span>;
 
-    <span class="kw">for</span> (<span class="ident">colname</span>, (<span class="ident">refname</span>, <span class="ident">refcol</span>)) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">table</span>.<span class="ident">foreign_keys</span> {
-        <span class="kw">let</span> <span class="ident">referenced</span> <span class="op">=</span> <span class="ident">tables</span>.<span class="ident">get</span>(<span class="ident">refname</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">FixtureError</span>(<span class="macro">format!</span>(
+    <span class="kw">for </span>(colname, (refname, refcol)) <span class="kw">in </span><span class="kw-2">&amp;</span>table.foreign_keys {
+        <span class="kw">let </span>referenced = tables.get(refname).ok_or_else(|| {
+            FixtureError(<span class="macro">format!</span>(
                 <span class="string">&quot;table {:?} in foreign key `{}.{} references {}.{}` does not exist&quot;</span>,
-                <span class="ident">refname</span>, <span class="ident">table</span>.<span class="ident">name</span>, <span class="ident">colname</span>, <span class="ident">refname</span>, <span class="ident">refcol</span>
+                refname, table.name, colname, refname, refcol
             ))
         })<span class="question-mark">?</span>;
 
-        <span class="ident">refdepth</span> <span class="op">=</span> <span class="ident">cmp::max</span>(
-            <span class="ident">refdepth</span>,
-            <span class="ident">foreign_key_depth</span>(<span class="ident">tables</span>, <span class="ident">referenced</span>, <span class="ident">depths</span>, <span class="ident">visited_set</span>)<span class="question-mark">?</span>,
+        refdepth = cmp::max(
+            refdepth,
+            foreign_key_depth(tables, referenced, depths, visited_set)<span class="question-mark">?</span>,
         );
     }
 
-    <span class="kw">let</span> <span class="ident">depth</span> <span class="op">=</span> <span class="ident">refdepth</span> <span class="op">+</span> <span class="number">1</span>;
+    <span class="kw">let </span>depth = refdepth + <span class="number">1</span>;
 
-    <span class="ident">depths</span>.<span class="ident">insert</span>(<span class="ident">table</span>.<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">depth</span>);
+    depths.insert(table.name.clone(), depth);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">depth</span>)
+    <span class="prelude-val">Ok</span>(depth)
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">test_additive_fixture</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::Postgres</span>;
+<span class="attribute">#[test]
+#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+</span><span class="kw">fn </span>test_additive_fixture() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">use </span><span class="kw">crate</span>::postgres::Postgres;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snapshot</span> <span class="op">=</span> <span class="ident">FixtureSnapshot</span> {
-        <span class="ident">tables</span>: <span class="ident">BTreeMap::new</span>(),
-        <span class="ident">db</span>: <span class="ident">PhantomData</span>::<span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>snapshot = FixtureSnapshot {
+        tables: BTreeMap::new(),
+        db: PhantomData::&lt;Postgres&gt;,
     };
 
-    <span class="ident">snapshot</span>.<span class="ident">tables</span>.<span class="ident">insert</span>(
-        <span class="string">&quot;foo&quot;</span>.<span class="ident">into</span>(),
-        <span class="ident">Table</span> {
-            <span class="ident">name</span>: <span class="string">&quot;foo&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">columns</span>: [<span class="string">&quot;foo_id&quot;</span>, <span class="string">&quot;foo_a&quot;</span>, <span class="string">&quot;foo_b&quot;</span>]
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="ident">Arc</span>::<span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="ident">::from</span>)
-                .<span class="ident">collect</span>(),
-            <span class="ident">rows</span>: <span class="macro">vec!</span>[<span class="macro">vec!</span>[<span class="string">&quot;1&quot;</span>.<span class="ident">into</span>(), <span class="string">&quot;&#39;asdf&#39;&quot;</span>.<span class="ident">into</span>(), <span class="string">&quot;true&quot;</span>.<span class="ident">into</span>()]],
-            <span class="ident">foreign_keys</span>: <span class="ident">HashMap::new</span>(),
+    snapshot.tables.insert(
+        <span class="string">&quot;foo&quot;</span>.into(),
+        Table {
+            name: <span class="string">&quot;foo&quot;</span>.into(),
+            columns: [<span class="string">&quot;foo_id&quot;</span>, <span class="string">&quot;foo_a&quot;</span>, <span class="string">&quot;foo_b&quot;</span>]
+                .into_iter()
+                .map(Arc::&lt;str&gt;::from)
+                .collect(),
+            rows: <span class="macro">vec!</span>[<span class="macro">vec!</span>[<span class="string">&quot;1&quot;</span>.into(), <span class="string">&quot;&#39;asdf&#39;&quot;</span>.into(), <span class="string">&quot;true&quot;</span>.into()]],
+            foreign_keys: HashMap::new(),
         },
     );
 
-    <span class="comment">// foreign-keyed to `foo`</span>
-    <span class="comment">// since `tables` is a `BTreeMap` we would expect a naive algorithm to visit this first.</span>
-    <span class="ident">snapshot</span>.<span class="ident">tables</span>.<span class="ident">insert</span>(
-        <span class="string">&quot;bar&quot;</span>.<span class="ident">into</span>(),
-        <span class="ident">Table</span> {
-            <span class="ident">name</span>: <span class="string">&quot;bar&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">columns</span>: [<span class="string">&quot;bar_id&quot;</span>, <span class="string">&quot;foo_id&quot;</span>, <span class="string">&quot;bar_a&quot;</span>, <span class="string">&quot;bar_b&quot;</span>]
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="ident">Arc</span>::<span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="ident">::from</span>)
-                .<span class="ident">collect</span>(),
-            <span class="ident">rows</span>: <span class="macro">vec!</span>[<span class="macro">vec!</span>[
-                <span class="string">&quot;1234&quot;</span>.<span class="ident">into</span>(),
-                <span class="string">&quot;1&quot;</span>.<span class="ident">into</span>(),
-                <span class="string">&quot;&#39;2022-07-22 23:27:48.775113301+00:00&#39;&quot;</span>.<span class="ident">into</span>(),
-                <span class="string">&quot;3.14&quot;</span>.<span class="ident">into</span>(),
+    <span class="comment">// foreign-keyed to `foo`
+    // since `tables` is a `BTreeMap` we would expect a naive algorithm to visit this first.
+    </span>snapshot.tables.insert(
+        <span class="string">&quot;bar&quot;</span>.into(),
+        Table {
+            name: <span class="string">&quot;bar&quot;</span>.into(),
+            columns: [<span class="string">&quot;bar_id&quot;</span>, <span class="string">&quot;foo_id&quot;</span>, <span class="string">&quot;bar_a&quot;</span>, <span class="string">&quot;bar_b&quot;</span>]
+                .into_iter()
+                .map(Arc::&lt;str&gt;::from)
+                .collect(),
+            rows: <span class="macro">vec!</span>[<span class="macro">vec!</span>[
+                <span class="string">&quot;1234&quot;</span>.into(),
+                <span class="string">&quot;1&quot;</span>.into(),
+                <span class="string">&quot;&#39;2022-07-22 23:27:48.775113301+00:00&#39;&quot;</span>.into(),
+                <span class="string">&quot;3.14&quot;</span>.into(),
             ]],
-            <span class="ident">foreign_keys</span>: [(<span class="string">&quot;foo_id&quot;</span>.<span class="ident">into</span>(), (<span class="string">&quot;foo&quot;</span>.<span class="ident">into</span>(), <span class="string">&quot;foo_id&quot;</span>.<span class="ident">into</span>()))]
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">collect</span>(),
+            foreign_keys: [(<span class="string">&quot;foo_id&quot;</span>.into(), (<span class="string">&quot;foo&quot;</span>.into(), <span class="string">&quot;foo_id&quot;</span>.into()))]
+                .into_iter()
+                .collect(),
         },
     );
 
-    <span class="comment">// foreign-keyed to both `foo` and `bar`</span>
-    <span class="ident">snapshot</span>.<span class="ident">tables</span>.<span class="ident">insert</span>(
-        <span class="string">&quot;baz&quot;</span>.<span class="ident">into</span>(),
-        <span class="ident">Table</span> {
-            <span class="ident">name</span>: <span class="string">&quot;baz&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">columns</span>: [<span class="string">&quot;baz_id&quot;</span>, <span class="string">&quot;bar_id&quot;</span>, <span class="string">&quot;foo_id&quot;</span>, <span class="string">&quot;baz_a&quot;</span>, <span class="string">&quot;baz_b&quot;</span>]
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="ident">Arc</span>::<span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="ident">::from</span>)
-                .<span class="ident">collect</span>(),
-            <span class="ident">rows</span>: <span class="macro">vec!</span>[<span class="macro">vec!</span>[
-                <span class="string">&quot;5678&quot;</span>.<span class="ident">into</span>(),
-                <span class="string">&quot;1234&quot;</span>.<span class="ident">into</span>(),
-                <span class="string">&quot;1&quot;</span>.<span class="ident">into</span>(),
-                <span class="string">&quot;&#39;2022-07-22 23:27:48.775113301+00:00&#39;&quot;</span>.<span class="ident">into</span>(),
-                <span class="string">&quot;3.14&quot;</span>.<span class="ident">into</span>(),
+    <span class="comment">// foreign-keyed to both `foo` and `bar`
+    </span>snapshot.tables.insert(
+        <span class="string">&quot;baz&quot;</span>.into(),
+        Table {
+            name: <span class="string">&quot;baz&quot;</span>.into(),
+            columns: [<span class="string">&quot;baz_id&quot;</span>, <span class="string">&quot;bar_id&quot;</span>, <span class="string">&quot;foo_id&quot;</span>, <span class="string">&quot;baz_a&quot;</span>, <span class="string">&quot;baz_b&quot;</span>]
+                .into_iter()
+                .map(Arc::&lt;str&gt;::from)
+                .collect(),
+            rows: <span class="macro">vec!</span>[<span class="macro">vec!</span>[
+                <span class="string">&quot;5678&quot;</span>.into(),
+                <span class="string">&quot;1234&quot;</span>.into(),
+                <span class="string">&quot;1&quot;</span>.into(),
+                <span class="string">&quot;&#39;2022-07-22 23:27:48.775113301+00:00&#39;&quot;</span>.into(),
+                <span class="string">&quot;3.14&quot;</span>.into(),
             ]],
-            <span class="ident">foreign_keys</span>: [
-                (<span class="string">&quot;foo_id&quot;</span>.<span class="ident">into</span>(), (<span class="string">&quot;foo&quot;</span>.<span class="ident">into</span>(), <span class="string">&quot;foo_id&quot;</span>.<span class="ident">into</span>())),
-                (<span class="string">&quot;bar_id&quot;</span>.<span class="ident">into</span>(), (<span class="string">&quot;bar&quot;</span>.<span class="ident">into</span>(), <span class="string">&quot;bar_id&quot;</span>.<span class="ident">into</span>())),
+            foreign_keys: [
+                (<span class="string">&quot;foo_id&quot;</span>.into(), (<span class="string">&quot;foo&quot;</span>.into(), <span class="string">&quot;foo_id&quot;</span>.into())),
+                (<span class="string">&quot;bar_id&quot;</span>.into(), (<span class="string">&quot;bar&quot;</span>.into(), <span class="string">&quot;bar_id&quot;</span>.into())),
             ]
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">collect</span>(),
+            .into_iter()
+            .collect(),
         },
     );
 
-    <span class="kw">let</span> <span class="ident">fixture</span> <span class="op">=</span> <span class="ident">snapshot</span>.<span class="ident">additive_fixture</span>()<span class="question-mark">?</span>;
+    <span class="kw">let </span>fixture = snapshot.additive_fixture()<span class="question-mark">?</span>;
 
     <span class="macro">assert_eq!</span>(
-        <span class="ident">fixture</span>.<span class="ident">to_string</span>(),
+        fixture.to_string(),
         <span class="string">&quot;INSERT INTO foo (foo_id, foo_a, foo_b)\n\
          VALUES (1, &#39;asdf&#39;, true);\n\
          INSERT INTO bar (bar_id, foo_id, bar_a, bar_b)\n\
          VALUES (1234, 1, &#39;2022-07-22 23:27:48.775113301+00:00&#39;, 3.14);\n\
          INSERT INTO baz (baz_id, bar_id, foo_id, baz_a, baz_b)\n\
-         VALUES (5678, 1234, 1, &#39;2022-07-22 23:27:48.775113301+00:00&#39;, 3.14);\n&quot;</span>
-    );
+         VALUES (5678, 1234, 1, &#39;2022-07-22 23:27:48.775113301+00:00&#39;, 3.14);\n&quot;
+    </span>);
 
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/options/parse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/options/parse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -232,239 +232,239 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::PgConnectOptions</span>;
-<span class="kw">use</span> <span class="ident">percent_encoding::percent_decode_str</span>;
-<span class="kw">use</span> <span class="ident">std::net::IpAddr</span>;
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
-<span class="kw">use</span> <span class="ident">url::Url</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::PgConnectOptions;
+<span class="kw">use </span>percent_encoding::percent_decode_str;
+<span class="kw">use </span>std::net::IpAddr;
+<span class="kw">use </span>std::str::FromStr;
+<span class="kw">use </span>url::Url;
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">PgConnectOptions</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>PgConnectOptions {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= Error;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span>: <span class="ident">Url</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">Error::config</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="kw">let </span>url: Url = s.parse().map_err(Error::config)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new_without_pgpass</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>options = <span class="self">Self</span>::new_without_pgpass();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">host</span>) <span class="op">=</span> <span class="ident">url</span>.<span class="ident">host_str</span>() {
-            <span class="kw">let</span> <span class="ident">host_decoded</span> <span class="op">=</span> <span class="ident">percent_decode_str</span>(<span class="ident">host</span>);
-            <span class="ident">options</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">host_decoded</span>.<span class="ident">clone</span>().<span class="ident">next</span>() {
-                <span class="prelude-val">Some</span>(<span class="string">b&#39;/&#39;</span>) =&gt; <span class="ident">options</span>.<span class="ident">socket</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">host_decoded</span>.<span class="ident">decode_utf8</span>().<span class="ident">map_err</span>(<span class="ident">Error::config</span>)<span class="question-mark">?</span>),
-                <span class="kw">_</span> =&gt; <span class="ident">options</span>.<span class="ident">host</span>(<span class="ident">host</span>),
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(host) = url.host_str() {
+            <span class="kw">let </span>host_decoded = percent_decode_str(host);
+            options = <span class="kw">match </span>host_decoded.clone().next() {
+                <span class="prelude-val">Some</span>(<span class="string">b&#39;/&#39;</span>) =&gt; options.socket(<span class="kw-2">&amp;*</span>host_decoded.decode_utf8().map_err(Error::config)<span class="question-mark">?</span>),
+                <span class="kw">_ </span>=&gt; options.host(host),
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">port</span>) <span class="op">=</span> <span class="ident">url</span>.<span class="ident">port</span>() {
-            <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">port</span>(<span class="ident">port</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(port) = url.port() {
+            options = options.port(port);
         }
 
-        <span class="kw">let</span> <span class="ident">username</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">username</span>();
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">username</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">username</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">percent_decode_str</span>(<span class="ident">username</span>)
-                    .<span class="ident">decode_utf8</span>()
-                    .<span class="ident">map_err</span>(<span class="ident">Error::config</span>)<span class="question-mark">?</span>,
+        <span class="kw">let </span>username = url.username();
+        <span class="kw">if </span>!username.is_empty() {
+            options = options.username(
+                <span class="kw-2">&amp;*</span>percent_decode_str(username)
+                    .decode_utf8()
+                    .map_err(Error::config)<span class="question-mark">?</span>,
             );
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">password</span>) <span class="op">=</span> <span class="ident">url</span>.<span class="ident">password</span>() {
-            <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">password</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">percent_decode_str</span>(<span class="ident">password</span>)
-                    .<span class="ident">decode_utf8</span>()
-                    .<span class="ident">map_err</span>(<span class="ident">Error::config</span>)<span class="question-mark">?</span>,
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(password) = url.password() {
+            options = options.password(
+                <span class="kw-2">&amp;*</span>percent_decode_str(password)
+                    .decode_utf8()
+                    .map_err(Error::config)<span class="question-mark">?</span>,
             );
         }
 
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">path</span>().<span class="ident">trim_start_matches</span>(<span class="string">&#39;/&#39;</span>);
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">path</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">database</span>(<span class="ident">path</span>);
+        <span class="kw">let </span>path = url.path().trim_start_matches(<span class="string">&#39;/&#39;</span>);
+        <span class="kw">if </span>!path.is_empty() {
+            options = options.database(path);
         }
 
-        <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">url</span>.<span class="ident">query_pairs</span>().<span class="ident">into_iter</span>() {
-            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">key</span> {
-                <span class="string">&quot;sslmode&quot;</span> <span class="op">|</span> <span class="string">&quot;ssl-mode&quot;</span> =&gt; {
-                    <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">ssl_mode</span>(<span class="ident">value</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">Error::config</span>)<span class="question-mark">?</span>);
+        <span class="kw">for </span>(key, value) <span class="kw">in </span>url.query_pairs().into_iter() {
+            <span class="kw">match </span><span class="kw-2">&amp;*</span>key {
+                <span class="string">&quot;sslmode&quot; </span>| <span class="string">&quot;ssl-mode&quot; </span>=&gt; {
+                    options = options.ssl_mode(value.parse().map_err(Error::config)<span class="question-mark">?</span>);
                 }
 
-                <span class="string">&quot;sslrootcert&quot;</span> <span class="op">|</span> <span class="string">&quot;ssl-root-cert&quot;</span> <span class="op">|</span> <span class="string">&quot;ssl-ca&quot;</span> =&gt; {
-                    <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">ssl_root_cert</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>);
+                <span class="string">&quot;sslrootcert&quot; </span>| <span class="string">&quot;ssl-root-cert&quot; </span>| <span class="string">&quot;ssl-ca&quot; </span>=&gt; {
+                    options = options.ssl_root_cert(<span class="kw-2">&amp;*</span>value);
                 }
 
-                <span class="string">&quot;statement-cache-capacity&quot;</span> =&gt; {
-                    <span class="ident">options</span> <span class="op">=</span>
-                        <span class="ident">options</span>.<span class="ident">statement_cache_capacity</span>(<span class="ident">value</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">Error::config</span>)<span class="question-mark">?</span>);
+                <span class="string">&quot;statement-cache-capacity&quot; </span>=&gt; {
+                    options =
+                        options.statement_cache_capacity(value.parse().map_err(Error::config)<span class="question-mark">?</span>);
                 }
 
-                <span class="string">&quot;host&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="string">&quot;/&quot;</span>) {
-                        <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">socket</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>);
+                <span class="string">&quot;host&quot; </span>=&gt; {
+                    <span class="kw">if </span>value.starts_with(<span class="string">&quot;/&quot;</span>) {
+                        options = options.socket(<span class="kw-2">&amp;*</span>value);
+                    } <span class="kw">else </span>{
+                        options = options.host(<span class="kw-2">&amp;*</span>value);
                     }
                 }
 
-                <span class="string">&quot;hostaddr&quot;</span> =&gt; {
-                    <span class="ident">value</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="ident">Error::config</span>)<span class="question-mark">?</span>;
-                    <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>)
+                <span class="string">&quot;hostaddr&quot; </span>=&gt; {
+                    value.parse::&lt;IpAddr&gt;().map_err(Error::config)<span class="question-mark">?</span>;
+                    options = options.host(<span class="kw-2">&amp;*</span>value)
                 }
 
-                <span class="string">&quot;port&quot;</span> =&gt; <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">port</span>(<span class="ident">value</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">Error::config</span>)<span class="question-mark">?</span>),
+                <span class="string">&quot;port&quot; </span>=&gt; options = options.port(value.parse().map_err(Error::config)<span class="question-mark">?</span>),
 
-                <span class="string">&quot;dbname&quot;</span> =&gt; <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">database</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>),
+                <span class="string">&quot;dbname&quot; </span>=&gt; options = options.database(<span class="kw-2">&amp;*</span>value),
 
-                <span class="string">&quot;user&quot;</span> =&gt; <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">username</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>),
+                <span class="string">&quot;user&quot; </span>=&gt; options = options.username(<span class="kw-2">&amp;*</span>value),
 
-                <span class="string">&quot;password&quot;</span> =&gt; <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">password</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>),
+                <span class="string">&quot;password&quot; </span>=&gt; options = options.password(<span class="kw-2">&amp;*</span>value),
 
-                <span class="string">&quot;application_name&quot;</span> =&gt; <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">application_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>),
+                <span class="string">&quot;application_name&quot; </span>=&gt; options = options.application_name(<span class="kw-2">&amp;*</span>value),
 
-                <span class="string">&quot;options&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">options</span>) <span class="op">=</span> <span class="ident">options</span>.<span class="ident">options</span>.<span class="ident">as_mut</span>() {
-                        <span class="ident">options</span>.<span class="ident">push</span>(<span class="string">&#39; &#39;</span>);
-                        <span class="ident">options</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">options</span>.<span class="ident">options</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">to_string</span>());
+                <span class="string">&quot;options&quot; </span>=&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(options) = options.options.as_mut() {
+                        options.push(<span class="string">&#39; &#39;</span>);
+                        options.push_str(<span class="kw-2">&amp;*</span>value);
+                    } <span class="kw">else </span>{
+                        options.options = <span class="prelude-val">Some</span>(value.to_string());
                     }
                 }
 
-                <span class="ident">k</span> <span class="kw">if</span> <span class="ident">k</span>.<span class="ident">starts_with</span>(<span class="string">&quot;options[&quot;</span>) =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">key</span>) <span class="op">=</span> <span class="ident">k</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;options[&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">strip_suffix</span>(<span class="string">&#39;]&#39;</span>) {
-                        <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">options</span>([(<span class="ident">key</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">value</span>)]);
+                k <span class="kw">if </span>k.starts_with(<span class="string">&quot;options[&quot;</span>) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = k.strip_prefix(<span class="string">&quot;options[&quot;</span>).unwrap().strip_suffix(<span class="string">&#39;]&#39;</span>) {
+                        options = options.options([(key, <span class="kw-2">&amp;*</span>value)]);
                     }
                 }
 
-                <span class="kw">_</span> =&gt; <span class="macro">log::warn!</span>(<span class="string">&quot;ignoring unrecognized connect parameter: {}={}&quot;</span>, <span class="ident">key</span>, <span class="ident">value</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">log::warn!</span>(<span class="string">&quot;ignoring unrecognized connect parameter: {}={}&quot;</span>, key, value),
             }
         }
 
-        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">apply_pgpass</span>();
+        <span class="kw">let </span>options = options.apply_pgpass();
 
-        <span class="prelude-val">Ok</span>(<span class="ident">options</span>)
+        <span class="prelude-val">Ok</span>(options)
     }
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_socket_correctly_from_parameter</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?host=/var/run/postgres/&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_socket_correctly_from_parameter() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?host=/var/run/postgres/&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;/var/run/postgres/&quot;</span>.<span class="ident">into</span>()), <span class="ident">opts</span>.<span class="ident">socket</span>);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;/var/run/postgres/&quot;</span>.into()), opts.socket);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_host_correctly_from_parameter</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?host=google.database.com&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_host_correctly_from_parameter() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?host=google.database.com&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">opts</span>.<span class="ident">socket</span>);
-    <span class="macro">assert_eq!</span>(<span class="string">&quot;google.database.com&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">host</span>);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, opts.socket);
+    <span class="macro">assert_eq!</span>(<span class="string">&quot;google.database.com&quot;</span>, <span class="kw-2">&amp;</span>opts.host);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_hostaddr_correctly_from_parameter</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?hostaddr=8.8.8.8&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_hostaddr_correctly_from_parameter() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?hostaddr=8.8.8.8&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">opts</span>.<span class="ident">socket</span>);
-    <span class="macro">assert_eq!</span>(<span class="string">&quot;8.8.8.8&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">host</span>);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, opts.socket);
+    <span class="macro">assert_eq!</span>(<span class="string">&quot;8.8.8.8&quot;</span>, <span class="kw-2">&amp;</span>opts.host);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_port_correctly_from_parameter</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?port=1234&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_port_correctly_from_parameter() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?port=1234&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">opts</span>.<span class="ident">socket</span>);
-    <span class="macro">assert_eq!</span>(<span class="number">1234</span>, <span class="ident">opts</span>.<span class="ident">port</span>);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, opts.socket);
+    <span class="macro">assert_eq!</span>(<span class="number">1234</span>, opts.port);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_dbname_correctly_from_parameter</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?dbname=some_db&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_dbname_correctly_from_parameter() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?dbname=some_db&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">opts</span>.<span class="ident">socket</span>);
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;some_db&quot;</span>), <span class="ident">opts</span>.<span class="ident">database</span>.<span class="ident">as_deref</span>());
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, opts.socket);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;some_db&quot;</span>), opts.database.as_deref());
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_user_correctly_from_parameter</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?user=some_user&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_user_correctly_from_parameter() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?user=some_user&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">opts</span>.<span class="ident">socket</span>);
-    <span class="macro">assert_eq!</span>(<span class="string">&quot;some_user&quot;</span>, <span class="ident">opts</span>.<span class="ident">username</span>);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, opts.socket);
+    <span class="macro">assert_eq!</span>(<span class="string">&quot;some_user&quot;</span>, opts.username);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_password_correctly_from_parameter</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?password=some_pass&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_password_correctly_from_parameter() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?password=some_pass&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">opts</span>.<span class="ident">socket</span>);
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;some_pass&quot;</span>), <span class="ident">opts</span>.<span class="ident">password</span>.<span class="ident">as_deref</span>());
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, opts.socket);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;some_pass&quot;</span>), opts.password.as_deref());
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_application_name_correctly_from_parameter</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?application_name=some_name&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_application_name_correctly_from_parameter() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?application_name=some_name&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;some_name&quot;</span>), <span class="ident">opts</span>.<span class="ident">application_name</span>.<span class="ident">as_deref</span>());
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;some_name&quot;</span>), opts.application_name.as_deref());
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_username_with_at_sign_correctly</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres://user@hostname:password@hostname:5432/database&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_username_with_at_sign_correctly() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres://user@hostname:password@hostname:5432/database&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="string">&quot;user@hostname&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">username</span>);
+    <span class="macro">assert_eq!</span>(<span class="string">&quot;user@hostname&quot;</span>, <span class="kw-2">&amp;</span>opts.username);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_password_with_non_ascii_chars_correctly</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres://username:p@ssw0rd@hostname:5432/database&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_password_with_non_ascii_chars_correctly() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres://username:p@ssw0rd@hostname:5432/database&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;p@ssw0rd&quot;</span>.<span class="ident">into</span>()), <span class="ident">opts</span>.<span class="ident">password</span>);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;p@ssw0rd&quot;</span>.into()), opts.password);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_socket_correctly_percent_encoded</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres://%2Fvar%2Flib%2Fpostgres/database&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_socket_correctly_percent_encoded() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres://%2Fvar%2Flib%2Fpostgres/database&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;/var/lib/postgres/&quot;</span>.<span class="ident">into</span>()), <span class="ident">opts</span>.<span class="ident">socket</span>);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;/var/lib/postgres/&quot;</span>.into()), opts.socket);
 }
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_socket_correctly_with_username_percent_encoded</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres://some_user@%2Fvar%2Flib%2Fpostgres/database&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_socket_correctly_with_username_percent_encoded() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres://some_user@%2Fvar%2Flib%2Fpostgres/database&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
-    <span class="macro">assert_eq!</span>(<span class="string">&quot;some_user&quot;</span>, <span class="ident">opts</span>.<span class="ident">username</span>);
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;/var/lib/postgres/&quot;</span>.<span class="ident">into</span>()), <span class="ident">opts</span>.<span class="ident">socket</span>);
-    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;database&quot;</span>), <span class="ident">opts</span>.<span class="ident">database</span>.<span class="ident">as_deref</span>());
+    <span class="macro">assert_eq!</span>(<span class="string">&quot;some_user&quot;</span>, opts.username);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;/var/lib/postgres/&quot;</span>.into()), opts.socket);
+    <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;database&quot;</span>), opts.database.as_deref());
 }
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_libpq_options_correctly</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?options=-c%20synchronous_commit%3Doff%20--search_path%3Dpostgres&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_libpq_options_correctly() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?options=-c%20synchronous_commit%3Doff%20--search_path%3Dpostgres&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
     <span class="macro">assert_eq!</span>(
-        <span class="prelude-val">Some</span>(<span class="string">&quot;-c synchronous_commit=off --search_path=postgres&quot;</span>.<span class="ident">into</span>()),
-        <span class="ident">opts</span>.<span class="ident">options</span>
+        <span class="prelude-val">Some</span>(<span class="string">&quot;-c synchronous_commit=off --search_path=postgres&quot;</span>.into()),
+        opts.options
     );
 }
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">it_parses_sqlx_options_correctly</span>() {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;postgres:///?options[synchronous_commit]=off&amp;options[search_path]=postgres&quot;</span>;
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>it_parses_sqlx_options_correctly() {
+    <span class="kw">let </span>url = <span class="string">&quot;postgres:///?options[synchronous_commit]=off&amp;options[search_path]=postgres&quot;</span>;
+    <span class="kw">let </span>opts = PgConnectOptions::from_str(url).unwrap();
 
     <span class="macro">assert_eq!</span>(
-        <span class="prelude-val">Some</span>(<span class="string">&quot;-c synchronous_commit=off -c search_path=postgres&quot;</span>.<span class="ident">into</span>()),
-        <span class="ident">opts</span>.<span class="ident">options</span>
+        <span class="prelude-val">Some</span>(<span class="string">&quot;-c synchronous_commit=off -c search_path=postgres&quot;</span>.into()),
+        opts.options
     );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

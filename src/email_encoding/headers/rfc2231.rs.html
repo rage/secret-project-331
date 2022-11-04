@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/email-encoding-0.1.3/src/headers/rfc2231.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rfc2231.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../email_encoding/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../email_encoding/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../email_encoding/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/email-encoding-0.1.3/src/headers/rfc2231.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rfc2231.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../email_encoding/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../email_encoding/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../email_encoding/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -342,349 +342,349 @@
 <span id="342">342</span>
 <span id="343">343</span>
 <span id="344">344</span>
-</pre><pre class="rust"><code><span class="doccomment">//! [RFC 2231] encoder.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [RFC 2231]: https://datatracker.ietf.org/doc/html/rfc2231</span>
+</pre><pre class="rust"><code><span class="doccomment">//! [RFC 2231] encoder.
+//!
+//! [RFC 2231]: https://datatracker.ietf.org/doc/html/rfc2231
 
-<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
+</span><span class="kw">use </span>std::fmt::{<span class="self">self</span>, Write};
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">hex_encoding</span>, <span class="ident">utils</span>, <span class="ident">EmailWriter</span>, <span class="ident">MAX_LINE_LEN</span>};
+<span class="kw">use super</span>::{hex_encoding, utils, EmailWriter, MAX_LINE_LEN};
 
-<span class="doccomment">/// Encode a string via RFC 2231.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use email_encoding::headers::writer::EmailWriter;</span>
-<span class="doccomment">/// # fn main() -&gt; std::fmt::Result {</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     let input = &quot;invoice.pdf&quot;;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let mut output = String::new();</span>
-<span class="doccomment">///     let mut writer = EmailWriter::new(&amp;mut output, 0, false);</span>
-<span class="doccomment">///     email_encoding::headers::rfc2231::encode(&quot;filename&quot;, input, &amp;mut writer)?;</span>
-<span class="doccomment">///     assert_eq!(output, &quot;filename=\&quot;invoice.pdf\&quot;&quot;);</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     let input = &quot;invoice_2022_06_04_letshaveaverylongfilenamewhynotemailcanhandleit.pdf&quot;;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let mut output = String::new();</span>
-<span class="doccomment">///     let mut writer = EmailWriter::new(&amp;mut output, 0, false);</span>
-<span class="doccomment">///     email_encoding::headers::rfc2231::encode(&quot;filename&quot;, input, &amp;mut writer)?;</span>
-<span class="doccomment">///     assert_eq!(</span>
-<span class="doccomment">///         output,</span>
-<span class="doccomment">///         concat!(</span>
-<span class="doccomment">///             &quot;\r\n&quot;,</span>
-<span class="doccomment">///             &quot; filename*0=\&quot;invoice_2022_06_04_letshaveaverylongfilenamewhynotemailcanha\&quot;;\r\n&quot;,</span>
-<span class="doccomment">///             &quot; filename*1=\&quot;ndleit.pdf\&quot;&quot;</span>
-<span class="doccomment">///         )</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     let input = &quot;faktúra.pdf&quot;;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     let mut output = String::new();</span>
-<span class="doccomment">///     let mut writer = EmailWriter::new(&amp;mut output, 0, false);</span>
-<span class="doccomment">///     email_encoding::headers::rfc2231::encode(&quot;filename&quot;, input, &amp;mut writer)?;</span>
-<span class="doccomment">///     assert_eq!(</span>
-<span class="doccomment">///         output,</span>
-<span class="doccomment">///         concat!(</span>
-<span class="doccomment">///             &quot;\r\n&quot;,</span>
-<span class="doccomment">///             &quot; filename*0*=utf-8&#39;&#39;fakt%C3%BAra.pdf&quot;</span>
-<span class="doccomment">///         )</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">mut</span> <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">w</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EmailWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="doccomment">/// Encode a string via RFC 2231.
+///
+/// # Examples
+///
+/// ```rust
+/// # use email_encoding::headers::writer::EmailWriter;
+/// # fn main() -&gt; std::fmt::Result {
+/// {
+///     let input = &quot;invoice.pdf&quot;;
+///
+///     let mut output = String::new();
+///     let mut writer = EmailWriter::new(&amp;mut output, 0, false);
+///     email_encoding::headers::rfc2231::encode(&quot;filename&quot;, input, &amp;mut writer)?;
+///     assert_eq!(output, &quot;filename=\&quot;invoice.pdf\&quot;&quot;);
+/// }
+///
+/// {
+///     let input = &quot;invoice_2022_06_04_letshaveaverylongfilenamewhynotemailcanhandleit.pdf&quot;;
+///
+///     let mut output = String::new();
+///     let mut writer = EmailWriter::new(&amp;mut output, 0, false);
+///     email_encoding::headers::rfc2231::encode(&quot;filename&quot;, input, &amp;mut writer)?;
+///     assert_eq!(
+///         output,
+///         concat!(
+///             &quot;\r\n&quot;,
+///             &quot; filename*0=\&quot;invoice_2022_06_04_letshaveaverylongfilenamewhynotemailcanha\&quot;;\r\n&quot;,
+///             &quot; filename*1=\&quot;ndleit.pdf\&quot;&quot;
+///         )
+///     );
+/// }
+///
+/// {
+///     let input = &quot;faktúra.pdf&quot;;
+///
+///     let mut output = String::new();
+///     let mut writer = EmailWriter::new(&amp;mut output, 0, false);
+///     email_encoding::headers::rfc2231::encode(&quot;filename&quot;, input, &amp;mut writer)?;
+///     assert_eq!(
+///         output,
+///         concat!(
+///             &quot;\r\n&quot;,
+///             &quot; filename*0*=utf-8&#39;&#39;fakt%C3%BAra.pdf&quot;
+///         )
+///     );
+/// }
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="kw">pub fn </span>encode(key: <span class="kw-2">&amp;</span>str, <span class="kw-2">mut </span>value: <span class="kw-2">&amp;</span>str, w: <span class="kw-2">&amp;mut </span>EmailWriter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
     <span class="macro">assert!</span>(
-        <span class="ident">utils::str_is_ascii_alphanumeric</span>(<span class="ident">key</span>),
-        <span class="string">&quot;`key` must only be composed of ascii alphanumeric chars&quot;</span>
-    );
+        utils::str_is_ascii_alphanumeric(key),
+        <span class="string">&quot;`key` must only be composed of ascii alphanumeric chars&quot;
+    </span>);
     <span class="macro">assert!</span>(
-        <span class="ident">key</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="string">&quot;*12*=utf-8&#39;&#39;;&quot;</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">MAX_LINE_LEN</span>,
-        <span class="string">&quot;`key` must not be too long to cause the encoder to overflow the max line length&quot;</span>
-    );
+        key.len() + <span class="string">&quot;*12*=utf-8&#39;&#39;;&quot;</span>.len() &lt; MAX_LINE_LEN,
+        <span class="string">&quot;`key` must not be too long to cause the encoder to overflow the max line length&quot;
+    </span>);
 
-    <span class="kw">if</span> <span class="ident">utils::str_is_ascii_printable</span>(<span class="ident">value</span>) {
-        <span class="comment">// Can be written normally (Parameter Value Continuations)</span>
+    <span class="kw">if </span>utils::str_is_ascii_printable(value) {
+        <span class="comment">// Can be written normally (Parameter Value Continuations)
 
-        <span class="kw">let</span> <span class="ident">quoted_plain_combined_len</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="string">&quot;=\&quot;&quot;</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">value</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="string">&quot;\&quot;\r\n&quot;</span>.<span class="ident">len</span>();
-        <span class="kw">if</span> <span class="ident">w</span>.<span class="ident">line_len</span>() <span class="op">+</span> <span class="ident">quoted_plain_combined_len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_LINE_LEN</span> {
-            <span class="comment">// Fits line</span>
+        </span><span class="kw">let </span>quoted_plain_combined_len = key.len() + <span class="string">&quot;=\&quot;&quot;</span>.len() + value.len() + <span class="string">&quot;\&quot;\r\n&quot;</span>.len();
+        <span class="kw">if </span>w.line_len() + quoted_plain_combined_len &lt;= MAX_LINE_LEN {
+            <span class="comment">// Fits line
 
-            <span class="ident">w</span>.<span class="ident">write_str</span>(<span class="ident">key</span>)<span class="question-mark">?</span>;
+            </span>w.write_str(key)<span class="question-mark">?</span>;
 
-            <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;=&#39;</span>)<span class="question-mark">?</span>;
+            w.write_char(<span class="string">&#39;=&#39;</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
-            <span class="ident">utils::write_escaped</span>(<span class="ident">value</span>, <span class="ident">w</span>)<span class="question-mark">?</span>;
-            <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
-        } <span class="kw">else</span> {
-            <span class="comment">// Doesn&#39;t fit line</span>
+            w.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
+            utils::write_escaped(value, w)<span class="question-mark">?</span>;
+            w.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
+        } <span class="kw">else </span>{
+            <span class="comment">// Doesn&#39;t fit line
 
-            <span class="ident">w</span>.<span class="ident">new_line</span>()<span class="question-mark">?</span>;
+            </span>w.new_line()<span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0_usize</span>;
-            <span class="kw">loop</span> {
-                <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot; {}*{}=\&quot;&quot;</span>, <span class="ident">key</span>, <span class="ident">i</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0_usize</span>;
+            <span class="kw">loop </span>{
+                <span class="macro">write!</span>(w, <span class="string">&quot; {}*{}=\&quot;&quot;</span>, key, i)<span class="question-mark">?</span>;
 
-                <span class="kw">let</span> <span class="ident">remaining_len</span> <span class="op">=</span> <span class="ident">MAX_LINE_LEN</span> <span class="op">-</span> <span class="ident">w</span>.<span class="ident">line_len</span>() <span class="op">-</span> <span class="string">&quot;\&quot;\r\n&quot;</span>.<span class="ident">len</span>();
+                <span class="kw">let </span>remaining_len = MAX_LINE_LEN - w.line_len() - <span class="string">&quot;\&quot;\r\n&quot;</span>.len();
 
-                <span class="kw">let</span> <span class="ident">value_</span> <span class="op">=</span>
-                    <span class="ident">utils::truncate_to_char_boundary</span>(<span class="ident">value</span>, <span class="ident">remaining_len</span>.<span class="ident">min</span>(<span class="ident">value</span>.<span class="ident">len</span>()));
-                <span class="ident">value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">value</span>[<span class="ident">value_</span>.<span class="ident">len</span>()..];
+                <span class="kw">let </span>value_ =
+                    utils::truncate_to_char_boundary(value, remaining_len.min(value.len()));
+                value = <span class="kw-2">&amp;</span>value[value_.len()..];
 
-                <span class="ident">utils::write_escaped</span>(<span class="ident">value_</span>, <span class="ident">w</span>)<span class="question-mark">?</span>;
+                utils::write_escaped(value_, w)<span class="question-mark">?</span>;
 
-                <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
+                w.write_char(<span class="string">&#39;&quot;&#39;</span>)<span class="question-mark">?</span>;
 
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">value</span>.<span class="ident">is_empty</span>() {
-                    <span class="comment">// End of line</span>
-                    <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;;&#39;</span>)<span class="question-mark">?</span>;
-                    <span class="ident">w</span>.<span class="ident">new_line</span>()<span class="question-mark">?</span>;
-                } <span class="kw">else</span> {
-                    <span class="comment">// End of value</span>
-                    <span class="kw">break</span>;
+                <span class="kw">if </span>!value.is_empty() {
+                    <span class="comment">// End of line
+                    </span>w.write_char(<span class="string">&#39;;&#39;</span>)<span class="question-mark">?</span>;
+                    w.new_line()<span class="question-mark">?</span>;
+                } <span class="kw">else </span>{
+                    <span class="comment">// End of value
+                    </span><span class="kw">break</span>;
                 }
 
-                <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                i += <span class="number">1</span>;
             }
         }
-    } <span class="kw">else</span> {
-        <span class="comment">// Needs encoding (Parameter Value Character Set and Language Information)</span>
+    } <span class="kw">else </span>{
+        <span class="comment">// Needs encoding (Parameter Value Character Set and Language Information)
 
-        <span class="ident">w</span>.<span class="ident">new_line</span>()<span class="question-mark">?</span>;
+        </span>w.new_line()<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0_usize</span>;
-        <span class="kw">loop</span> {
-            <span class="macro">write!</span>(<span class="ident">w</span>, <span class="string">&quot; {}*{}*=&quot;</span>, <span class="ident">key</span>, <span class="ident">i</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0_usize</span>;
+        <span class="kw">loop </span>{
+            <span class="macro">write!</span>(w, <span class="string">&quot; {}*{}*=&quot;</span>, key, i)<span class="question-mark">?</span>;
 
-            <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="ident">w</span>.<span class="ident">write_str</span>(<span class="string">&quot;utf-8&#39;&#39;&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">if </span>i == <span class="number">0 </span>{
+                w.write_str(<span class="string">&quot;utf-8&#39;&#39;&quot;</span>)<span class="question-mark">?</span>;
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chars</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">chars</span>();
-            <span class="kw">while</span> <span class="ident">w</span>.<span class="ident">line_len</span>() <span class="op">&lt;</span> <span class="ident">MAX_LINE_LEN</span> <span class="op">-</span> <span class="string">&quot;=xx=xx=xx=xx;\r\n&quot;</span>.<span class="ident">len</span>() {
-                <span class="kw">match</span> <span class="ident">chars</span>.<span class="ident">next</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">c</span>) =&gt; {
-                        <span class="ident">hex_encoding::percent_encode_char</span>(<span class="ident">w</span>, <span class="ident">c</span>)<span class="question-mark">?</span>;
-                        <span class="ident">value</span> <span class="op">=</span> <span class="ident">chars</span>.<span class="ident">as_str</span>();
+            <span class="kw">let </span><span class="kw-2">mut </span>chars = value.chars();
+            <span class="kw">while </span>w.line_len() &lt; MAX_LINE_LEN - <span class="string">&quot;=xx=xx=xx=xx;\r\n&quot;</span>.len() {
+                <span class="kw">match </span>chars.next() {
+                    <span class="prelude-val">Some</span>(c) =&gt; {
+                        hex_encoding::percent_encode_char(w, c)<span class="question-mark">?</span>;
+                        value = chars.as_str();
                     }
-                    <span class="prelude-val">None</span> =&gt; {
+                    <span class="prelude-val">None </span>=&gt; {
                         <span class="kw">break</span>;
                     }
                 }
             }
 
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">value</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// End of line</span>
-                <span class="ident">w</span>.<span class="ident">write_char</span>(<span class="string">&#39;;&#39;</span>)<span class="question-mark">?</span>;
-                <span class="ident">w</span>.<span class="ident">new_line</span>()<span class="question-mark">?</span>;
-            } <span class="kw">else</span> {
-                <span class="comment">// End of value</span>
-                <span class="kw">break</span>;
+            <span class="kw">if </span>!value.is_empty() {
+                <span class="comment">// End of line
+                </span>w.write_char(<span class="string">&#39;;&#39;</span>)<span class="question-mark">?</span>;
+                w.new_line()<span class="question-mark">?</span>;
+            } <span class="kw">else </span>{
+                <span class="comment">// End of value
+                </span><span class="kw">break</span>;
             }
 
-            <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            i += <span class="number">1</span>;
         }
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>pretty_assertions::assert_eq;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">empty</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="number">1</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>empty() {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.to_string();
+        <span class="kw">let </span>line_len = <span class="number">1</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="ident">line_len</span>, <span class="bool-val">true</span>);
-        <span class="ident">encode</span>(<span class="string">&quot;filename&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">w</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="bool-val">true</span>);
+        encode(<span class="string">&quot;filename&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">s</span>, <span class="macro">concat!</span>(<span class="string">&quot;Content-Disposition: attachment; filename=\&quot;\&quot;&quot;</span>));
+        <span class="macro">assert_eq!</span>(s, <span class="macro">concat!</span>(<span class="string">&quot;Content-Disposition: attachment; filename=\&quot;\&quot;&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parameter</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="number">1</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parameter() {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.to_string();
+        <span class="kw">let </span>line_len = <span class="number">1</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="ident">line_len</span>, <span class="bool-val">true</span>);
-        <span class="ident">encode</span>(<span class="string">&quot;filename&quot;</span>, <span class="string">&quot;duck.txt&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">w</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="bool-val">true</span>);
+        encode(<span class="string">&quot;filename&quot;</span>, <span class="string">&quot;duck.txt&quot;</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">s</span>,
+            s,
             <span class="macro">concat!</span>(<span class="string">&quot;Content-Disposition: attachment; filename=\&quot;duck.txt\&quot;&quot;</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parameter_to_escape</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="number">1</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parameter_to_escape() {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.to_string();
+        <span class="kw">let </span>line_len = <span class="number">1</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="ident">line_len</span>, <span class="bool-val">true</span>);
-        <span class="ident">encode</span>(<span class="string">&quot;filename&quot;</span>, <span class="string">&quot;du\&quot;ck\\.txt&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">w</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="bool-val">true</span>);
+        encode(<span class="string">&quot;filename&quot;</span>, <span class="string">&quot;du\&quot;ck\\.txt&quot;</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">s</span>,
+            s,
             <span class="macro">concat!</span>(<span class="string">&quot;Content-Disposition: attachment; filename=\&quot;du\\\&quot;ck\\\\.txt\&quot;&quot;</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parameter_long</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parameter_long() {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.to_string();
+        <span class="kw">let </span>line_len = s.len();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="ident">line_len</span>, <span class="bool-val">true</span>);
-        <span class="ident">encode</span>(
+        <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="bool-val">true</span>);
+        encode(
             <span class="string">&quot;filename&quot;</span>,
             <span class="string">&quot;a-fairly-long-filename-just-to-see-what-happens-when-we-encode-it-will-the-client-be-able-to-handle-it.txt&quot;</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">w</span>,
+            <span class="kw-2">&amp;mut </span>w,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">s</span>,
+            s,
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Disposition: attachment;\r\n&quot;</span>,
                 <span class="string">&quot; filename*0=\&quot;a-fairly-long-filename-just-to-see-what-happens-when-we-enco\&quot;;\r\n&quot;</span>,
-                <span class="string">&quot; filename*1=\&quot;de-it-will-the-client-be-able-to-handle-it.txt\&quot;&quot;</span>
-            )
+                <span class="string">&quot; filename*1=\&quot;de-it-will-the-client-be-able-to-handle-it.txt\&quot;&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parameter_special</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parameter_special() {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.to_string();
+        <span class="kw">let </span>line_len = s.len();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="ident">line_len</span>, <span class="bool-val">true</span>);
-        <span class="ident">encode</span>(<span class="string">&quot;filename&quot;</span>, <span class="string">&quot;caffè.txt&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">w</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="bool-val">true</span>);
+        encode(<span class="string">&quot;filename&quot;</span>, <span class="string">&quot;caffè.txt&quot;</span>, <span class="kw-2">&amp;mut </span>w).unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">s</span>,
+            s,
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Disposition: attachment;\r\n&quot;</span>,
-                <span class="string">&quot; filename*0*=utf-8&#39;&#39;caff%C3%A8.txt&quot;</span>
-            )
+                <span class="string">&quot; filename*0*=utf-8&#39;&#39;caff%C3%A8.txt&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parameter_special_long</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parameter_special_long() {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.to_string();
+        <span class="kw">let </span>line_len = s.len();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="ident">line_len</span>, <span class="bool-val">true</span>);
-        <span class="ident">encode</span>(
+        <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="bool-val">true</span>);
+        encode(
             <span class="string">&quot;filename&quot;</span>,
             <span class="string">&quot;testing-to-see-what-happens-when-📕📕📕📕📕📕📕📕📕📕📕-are-placed-on-the-boundary.txt&quot;</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">w</span>,
+            <span class="kw-2">&amp;mut </span>w,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">s</span>,
+            s,
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Disposition: attachment;\r\n&quot;</span>,
                 <span class="string">&quot; filename*0*=utf-8&#39;&#39;testing-to-see-what-happens-when-%F0%9F%93%95;\r\n&quot;</span>,
                 <span class="string">&quot; filename*1*=%F0%9F%93%95%F0%9F%93%95%F0%9F%93%95%F0%9F%93%95;\r\n&quot;</span>,
                 <span class="string">&quot; filename*2*=%F0%9F%93%95%F0%9F%93%95%F0%9F%93%95%F0%9F%93%95;\r\n&quot;</span>,
                 <span class="string">&quot; filename*3*=%F0%9F%93%95%F0%9F%93%95-are-placed-on-the-bound;\r\n&quot;</span>,
-                <span class="string">&quot; filename*4*=ary.txt&quot;</span>
-            )
+                <span class="string">&quot; filename*4*=ary.txt&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parameter_special_long_part2</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parameter_special_long_part2() {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.to_string();
+        <span class="kw">let </span>line_len = s.len();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>, <span class="ident">line_len</span>, <span class="bool-val">true</span>);
-        <span class="ident">encode</span>(
+        <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>s, line_len, <span class="bool-val">true</span>);
+        encode(
             <span class="string">&quot;filename&quot;</span>,
             <span class="string">&quot;testing-to-see-what-happens-when-books-are-placed-in-the-second-part-📕📕📕📕📕📕📕📕📕📕📕.txt&quot;</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">w</span>,
+            <span class="kw-2">&amp;mut </span>w,
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">s</span>,
+            s,
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Content-Disposition: attachment;\r\n&quot;</span>,
                 <span class="string">&quot; filename*0*=utf-8&#39;&#39;testing-to-see-what-happens-when-books-ar;\r\n&quot;</span>,
                 <span class="string">&quot; filename*1*=e-placed-in-the-second-part-%F0%9F%93%95%F0%9F%93%95;\r\n&quot;</span>,
                 <span class="string">&quot; filename*2*=%F0%9F%93%95%F0%9F%93%95%F0%9F%93%95%F0%9F%93%95;\r\n&quot;</span>,
                 <span class="string">&quot; filename*3*=%F0%9F%93%95%F0%9F%93%95%F0%9F%93%95%F0%9F%93%95;\r\n&quot;</span>,
-                <span class="string">&quot; filename*4*=%F0%9F%93%95.txt&quot;</span>
-            )
+                <span class="string">&quot; filename*4*=%F0%9F%93%95.txt&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parameter_dont_split_on_hex_boundary</span>() {
-        <span class="kw">let</span> <span class="ident">base_header</span> <span class="op">=</span> <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="ident">base_header</span>.<span class="ident">len</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parameter_dont_split_on_hex_boundary() {
+        <span class="kw">let </span>base_header = <span class="string">&quot;Content-Disposition: attachment;&quot;</span>.to_string();
+        <span class="kw">let </span>line_len = base_header.len();
 
-        <span class="kw">for</span> <span class="ident">start_offset</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>, <span class="string">&quot;x&quot;</span>, <span class="string">&quot;xx&quot;</span>, <span class="string">&quot;xxx&quot;</span>] {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filename</span> <span class="op">=</span> <span class="ident">start_offset</span>.<span class="ident">to_string</span>();
+        <span class="kw">for </span>start_offset <span class="kw">in </span><span class="kw-2">&amp;</span>[<span class="string">&quot;&quot;</span>, <span class="string">&quot;x&quot;</span>, <span class="string">&quot;xx&quot;</span>, <span class="string">&quot;xxx&quot;</span>] {
+            <span class="kw">let </span><span class="kw-2">mut </span>filename = start_offset.to_string();
 
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="number">256</span> {
-                <span class="comment">// &#39;Ü&#39; results in two hex chars %C3%9C</span>
-                <span class="ident">filename</span>.<span class="ident">push</span>(<span class="string">&#39;Ü&#39;</span>);
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..<span class="number">256 </span>{
+                <span class="comment">// &#39;Ü&#39; results in two hex chars %C3%9C
+                </span>filename.push(<span class="string">&#39;Ü&#39;</span>);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">base_header</span>.<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>, <span class="ident">line_len</span>, <span class="bool-val">true</span>);
-                <span class="ident">encode</span>(<span class="string">&quot;filename&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">filename</span>, <span class="kw-2">&amp;mut</span> <span class="ident">w</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let </span><span class="kw-2">mut </span>output = base_header.clone();
+                <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>output, line_len, <span class="bool-val">true</span>);
+                encode(<span class="string">&quot;filename&quot;</span>, <span class="kw-2">&amp;</span>filename, <span class="kw-2">&amp;mut </span>w).unwrap();
 
-                <span class="comment">// look for all hex encoded chars</span>
-                <span class="kw">let</span> <span class="ident">output_len</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">len</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_hex_count</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="kw">for</span> (<span class="ident">percent_sign_idx</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">output</span>.<span class="ident">match_indices</span>(<span class="string">&#39;%&#39;</span>) {
-                    <span class="macro">assert!</span>(<span class="ident">percent_sign_idx</span> <span class="op">+</span> <span class="number">3</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">output_len</span>);
+                <span class="comment">// look for all hex encoded chars
+                </span><span class="kw">let </span>output_len = output.len();
+                <span class="kw">let </span><span class="kw-2">mut </span>found_hex_count = <span class="number">0</span>;
+                <span class="kw">for </span>(percent_sign_idx, <span class="kw">_</span>) <span class="kw">in </span>output.match_indices(<span class="string">&#39;%&#39;</span>) {
+                    <span class="macro">assert!</span>(percent_sign_idx + <span class="number">3 </span>&lt;= output_len);
 
-                    <span class="comment">// verify we get the expected hex sequence for an &#39;Ü&#39;</span>
-                    <span class="kw">let</span> <span class="ident">must_be_hex</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[<span class="ident">percent_sign_idx</span> <span class="op">+</span> <span class="number">1</span>..<span class="ident">percent_sign_idx</span> <span class="op">+</span> <span class="number">3</span>];
+                    <span class="comment">// verify we get the expected hex sequence for an &#39;Ü&#39;
+                    </span><span class="kw">let </span>must_be_hex = <span class="kw-2">&amp;</span>output[percent_sign_idx + <span class="number">1</span>..percent_sign_idx + <span class="number">3</span>];
                     <span class="macro">assert!</span>(
-                        <span class="ident">must_be_hex</span> <span class="op">==</span> <span class="string">&quot;C3&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">must_be_hex</span> <span class="op">==</span> <span class="string">&quot;9C&quot;</span>,
+                        must_be_hex == <span class="string">&quot;C3&quot; </span>|| must_be_hex == <span class="string">&quot;9C&quot;</span>,
                         <span class="string">&quot;unexpected hex char: {}&quot;</span>,
-                        <span class="ident">must_be_hex</span>
+                        must_be_hex
                     );
-                    <span class="ident">found_hex_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    found_hex_count += <span class="number">1</span>;
                 }
-                <span class="comment">// verify the number of hex encoded chars adds up</span>
-                <span class="kw">let</span> <span class="ident">number_of_chars_in_hex</span> <span class="op">=</span> <span class="number">2</span>;
-                <span class="macro">assert_eq!</span>(<span class="ident">found_hex_count</span>, <span class="ident">i</span> <span class="op">*</span> <span class="ident">number_of_chars_in_hex</span>);
+                <span class="comment">// verify the number of hex encoded chars adds up
+                </span><span class="kw">let </span>number_of_chars_in_hex = <span class="number">2</span>;
+                <span class="macro">assert_eq!</span>(found_hex_count, i * number_of_chars_in_hex);
 
-                <span class="comment">// verify max line length</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_newline_pos</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="kw">for</span> (<span class="ident">newline_idx</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">output</span>.<span class="ident">match_indices</span>(<span class="string">&quot;\r\n&quot;</span>) {
-                    <span class="kw">let</span> <span class="ident">line_length</span> <span class="op">=</span> <span class="ident">newline_idx</span> <span class="op">-</span> <span class="ident">last_newline_pos</span>;
+                <span class="comment">// verify max line length
+                </span><span class="kw">let </span><span class="kw-2">mut </span>last_newline_pos = <span class="number">0</span>;
+                <span class="kw">for </span>(newline_idx, <span class="kw">_</span>) <span class="kw">in </span>output.match_indices(<span class="string">&quot;\r\n&quot;</span>) {
+                    <span class="kw">let </span>line_length = newline_idx - last_newline_pos;
                     <span class="macro">assert!</span>(
-                        <span class="ident">line_length</span> <span class="op">&lt;</span> <span class="ident">MAX_LINE_LEN</span>,
+                        line_length &lt; MAX_LINE_LEN,
                         <span class="string">&quot;expected line length exceeded: {} &gt; {}&quot;</span>,
-                        <span class="ident">line_length</span>,
-                        <span class="ident">MAX_LINE_LEN</span>
+                        line_length,
+                        MAX_LINE_LEN
                     );
-                    <span class="ident">last_newline_pos</span> <span class="op">=</span> <span class="ident">newline_idx</span>;
+                    last_newline_pos = newline_idx;
                 }
-                <span class="comment">// ensure there was at least one newline</span>
-                <span class="macro">assert_ne!</span>(<span class="number">0</span>, <span class="ident">last_newline_pos</span>);
+                <span class="comment">// ensure there was at least one newline
+                </span><span class="macro">assert_ne!</span>(<span class="number">0</span>, last_newline_pos);
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="email_encoding" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="email_encoding" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

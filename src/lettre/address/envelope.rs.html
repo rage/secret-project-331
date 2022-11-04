@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/address/envelope.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>envelope.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/address/envelope.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>envelope.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -142,147 +142,147 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Address</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message::header</span>::{<span class="self">self</span>, <span class="ident">Headers</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message</span>::{<span class="ident">Mailbox</span>, <span class="ident">Mailboxes</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::Address;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;builder&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::message::header::{<span class="self">self</span>, Headers};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;builder&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::message::{Mailbox, Mailboxes};
+<span class="kw">use </span><span class="kw">crate</span>::Error;
 
-<span class="doccomment">/// Simple email envelope representation</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// We only accept mailboxes, and do not support source routes (as per RFC).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Envelope</span> {
-    <span class="doccomment">/// The envelope recipient&#39;s addresses</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This can not be empty.</span>
-    <span class="ident">forward_path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Address</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The envelope sender address</span>
-    <span class="ident">reverse_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Address</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Simple email envelope representation
+///
+/// We only accept mailboxes, and do not support source routes (as per RFC).
+</span><span class="attribute">#[derive(PartialEq, Eq, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub struct </span>Envelope {
+    <span class="doccomment">/// The envelope recipient&#39;s addresses
+    ///
+    /// This can not be empty.
+    </span>forward_path: Vec&lt;Address&gt;,
+    <span class="doccomment">/// The envelope sender address
+    </span>reverse_path: <span class="prelude-ty">Option</span>&lt;Address&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Envelope</span> {
-    <span class="doccomment">/// Creates a new envelope, which may fail if `to` is empty.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use lettre::address::{Address, Envelope};</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let sender = &quot;sender@email.com&quot;.parse::&lt;Address&gt;()?;</span>
-    <span class="doccomment">/// let recipients = vec![&quot;to@email.com&quot;.parse::&lt;Address&gt;()?];</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let envelope = Envelope::new(Some(sender), recipients);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `to` has no elements in it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Address</span><span class="op">&gt;</span>, <span class="ident">to</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Address</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Envelope</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">to</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::MissingTo</span>);
+<span class="kw">impl </span>Envelope {
+    <span class="doccomment">/// Creates a new envelope, which may fail if `to` is empty.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use lettre::address::{Address, Envelope};
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let sender = &quot;sender@email.com&quot;.parse::&lt;Address&gt;()?;
+    /// let recipients = vec![&quot;to@email.com&quot;.parse::&lt;Address&gt;()?];
+    ///
+    /// let envelope = Envelope::new(Some(sender), recipients);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// If `to` has no elements in it.
+    </span><span class="kw">pub fn </span>new(from: <span class="prelude-ty">Option</span>&lt;Address&gt;, to: Vec&lt;Address&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Envelope, Error&gt; {
+        <span class="kw">if </span>to.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::MissingTo);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">Envelope</span> {
-            <span class="ident">forward_path</span>: <span class="ident">to</span>,
-            <span class="ident">reverse_path</span>: <span class="ident">from</span>,
+        <span class="prelude-val">Ok</span>(Envelope {
+            forward_path: to,
+            reverse_path: from,
         })
     }
 
-    <span class="doccomment">/// Gets the destination addresses of the envelope.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use lettre::address::{Address, Envelope};</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let sender = &quot;from@email.com&quot;.parse::&lt;Address&gt;()?;</span>
-    <span class="doccomment">/// let recipients = vec![&quot;to@email.com&quot;.parse::&lt;Address&gt;()?];</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let envelope = Envelope::new(Some(sender), recipients.clone())?;</span>
-    <span class="doccomment">/// assert_eq!(envelope.to(), recipients.as_slice());</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">Address</span>] {
-        <span class="self">self</span>.<span class="ident">forward_path</span>.<span class="ident">as_slice</span>()
+    <span class="doccomment">/// Gets the destination addresses of the envelope.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use lettre::address::{Address, Envelope};
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let sender = &quot;from@email.com&quot;.parse::&lt;Address&gt;()?;
+    /// let recipients = vec![&quot;to@email.com&quot;.parse::&lt;Address&gt;()?];
+    ///
+    /// let envelope = Envelope::new(Some(sender), recipients.clone())?;
+    /// assert_eq!(envelope.to(), recipients.as_slice());
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>to(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Address] {
+        <span class="self">self</span>.forward_path.as_slice()
     }
 
-    <span class="doccomment">/// Gets the sender of the envelope.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use lettre::address::{Address, Envelope};</span>
-    <span class="doccomment">/// # use std::error::Error;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-    <span class="doccomment">/// let sender = &quot;from@email.com&quot;.parse::&lt;Address&gt;()?;</span>
-    <span class="doccomment">/// let recipients = vec![&quot;to@email.com&quot;.parse::&lt;Address&gt;()?];</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let envelope = Envelope::new(Some(sender), recipients.clone())?;</span>
-    <span class="doccomment">/// assert!(envelope.from().is_some());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let senderless = Envelope::new(None, recipients.clone())?;</span>
-    <span class="doccomment">/// assert!(senderless.from().is_none());</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Address</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">reverse_path</span>.<span class="ident">as_ref</span>()
+    <span class="doccomment">/// Gets the sender of the envelope.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use lettre::address::{Address, Envelope};
+    /// # use std::error::Error;
+    /// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+    /// let sender = &quot;from@email.com&quot;.parse::&lt;Address&gt;()?;
+    /// let recipients = vec![&quot;to@email.com&quot;.parse::&lt;Address&gt;()?];
+    ///
+    /// let envelope = Envelope::new(Some(sender), recipients.clone())?;
+    /// assert!(envelope.from().is_some());
+    ///
+    /// let senderless = Envelope::new(None, recipients.clone())?;
+    /// assert!(senderless.from().is_none());
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>from(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Address&gt; {
+        <span class="self">self</span>.reverse_path.as_ref()
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;smtp-transport&quot;</span>)]</span>
-    <span class="doccomment">/// Check if any of the addresses in the envelope contains non-ascii chars</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">has_non_ascii_addresses</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">reverse_path</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">chain</span>(<span class="self">self</span>.<span class="ident">forward_path</span>.<span class="ident">iter</span>())
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="op">!</span><span class="ident">a</span>.<span class="ident">is_ascii</span>())
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;smtp-transport&quot;</span>)]
+    </span><span class="doccomment">/// Check if any of the addresses in the envelope contains non-ascii chars
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>has_non_ascii_addresses(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.reverse_path
+            .iter()
+            .chain(<span class="self">self</span>.forward_path.iter())
+            .any(|a| !a.is_ascii())
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;builder&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Headers</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Envelope</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;builder&quot;</span>)]
+</span><span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>Headers&gt; <span class="kw">for </span>Envelope {
+    <span class="kw">type </span>Error = Error;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">headers</span>: <span class="kw-2">&amp;</span><span class="ident">Headers</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">header::Sender</span><span class="op">&gt;</span>() {
-            <span class="comment">// If there is a Sender, use it</span>
-            <span class="prelude-val">Some</span>(<span class="ident">sender</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Mailbox::from</span>(<span class="ident">sender</span>).<span class="ident">email</span>),
-            <span class="comment">// ... else try From</span>
-            <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">header::From</span><span class="op">&gt;</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">header::From</span>(<span class="ident">a</span>)) =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">into</span>();
-                    <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::TooManyFrom</span>);
+    <span class="kw">fn </span>try_from(headers: <span class="kw-2">&amp;</span>Headers) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>from = <span class="kw">match </span>headers.get::&lt;header::Sender&gt;() {
+            <span class="comment">// If there is a Sender, use it
+            </span><span class="prelude-val">Some</span>(sender) =&gt; <span class="prelude-val">Some</span>(Mailbox::from(sender).email),
+            <span class="comment">// ... else try From
+            </span><span class="prelude-val">None </span>=&gt; <span class="kw">match </span>headers.get::&lt;header::From&gt;() {
+                <span class="prelude-val">Some</span>(header::From(a)) =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>from: Vec&lt;Mailbox&gt; = a.into();
+                    <span class="kw">if </span>from.len() &gt; <span class="number">1 </span>{
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::TooManyFrom);
                     }
-                    <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">pop</span>().<span class="ident">expect</span>(<span class="string">&quot;From header has 1 Mailbox&quot;</span>);
-                    <span class="prelude-val">Some</span>(<span class="ident">from</span>.<span class="ident">email</span>)
+                    <span class="kw">let </span>from = from.pop().expect(<span class="string">&quot;From header has 1 Mailbox&quot;</span>);
+                    <span class="prelude-val">Some</span>(from.email)
                 }
-                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
             },
         };
 
-        <span class="kw">fn</span> <span class="ident">add_addresses_from_mailboxes</span>(
-            <span class="ident">addresses</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Address</span><span class="op">&gt;</span>,
-            <span class="ident">mailboxes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mailboxes</span><span class="op">&gt;</span>,
+        <span class="kw">fn </span>add_addresses_from_mailboxes(
+            addresses: <span class="kw-2">&amp;mut </span>Vec&lt;Address&gt;,
+            mailboxes: <span class="prelude-ty">Option</span>&lt;Mailboxes&gt;,
         ) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mailboxes</span>) <span class="op">=</span> <span class="ident">mailboxes</span> {
-                <span class="ident">addresses</span>.<span class="ident">extend</span>(<span class="ident">mailboxes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">mb</span><span class="op">|</span> <span class="ident">mb</span>.<span class="ident">email</span>));
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(mailboxes) = mailboxes {
+                addresses.extend(mailboxes.into_iter().map(|mb| mb.email));
             }
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">to</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="ident">add_addresses_from_mailboxes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">to</span>, <span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">header::To</span><span class="op">&gt;</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">h</span><span class="op">|</span> <span class="ident">h</span>.<span class="number">0</span>));
-        <span class="ident">add_addresses_from_mailboxes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">to</span>, <span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">header::Cc</span><span class="op">&gt;</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">h</span><span class="op">|</span> <span class="ident">h</span>.<span class="number">0</span>));
-        <span class="ident">add_addresses_from_mailboxes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">to</span>, <span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">header::Bcc</span><span class="op">&gt;</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">h</span><span class="op">|</span> <span class="ident">h</span>.<span class="number">0</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>to = <span class="macro">vec!</span>[];
+        add_addresses_from_mailboxes(<span class="kw-2">&amp;mut </span>to, headers.get::&lt;header::To&gt;().map(|h| h.<span class="number">0</span>));
+        add_addresses_from_mailboxes(<span class="kw-2">&amp;mut </span>to, headers.get::&lt;header::Cc&gt;().map(|h| h.<span class="number">0</span>));
+        add_addresses_from_mailboxes(<span class="kw-2">&amp;mut </span>to, headers.get::&lt;header::Bcc&gt;().map(|h| h.<span class="number">0</span>));
 
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">from</span>, <span class="ident">to</span>)
+        <span class="self">Self</span>::new(from, to)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

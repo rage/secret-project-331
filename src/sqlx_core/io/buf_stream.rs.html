@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/io/buf_stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>buf_stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/io/buf_stream.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>buf_stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -159,166 +159,166 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(dead_code)]
 
-<span class="kw">use</span> <span class="ident">std::io</span>;
-<span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
+</span><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::ops::{Deref, DerefMut};
 
-<span class="kw">use</span> <span class="ident">bytes::BytesMut</span>;
-<span class="kw">use</span> <span class="ident">sqlx_rt</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncReadExt</span>, <span class="ident">AsyncWrite</span>};
+<span class="kw">use </span>bytes::BytesMut;
+<span class="kw">use </span>sqlx_rt::{AsyncRead, AsyncReadExt, AsyncWrite};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io::write_and_flush::WriteAndFlush</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io</span>::{<span class="ident">decode::Decode</span>, <span class="ident">encode::Encode</span>};
-<span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::io::write_and_flush::WriteAndFlush;
+<span class="kw">use </span><span class="kw">crate</span>::io::{decode::Decode, encode::Encode};
+<span class="kw">use </span>std::io::Cursor;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BufStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+<span class="kw">pub struct </span>BufStream&lt;S&gt;
+<span class="kw">where
+    </span>S: AsyncRead + AsyncWrite + Unpin,
 {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">stream</span>: <span class="ident">S</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) stream: S,
 
-    <span class="comment">// writes with `write` to the underlying stream are buffered</span>
-    <span class="comment">// this can be flushed with `flush`</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">wbuf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+    <span class="comment">// writes with `write` to the underlying stream are buffered
+    // this can be flushed with `flush`
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) wbuf: Vec&lt;u8&gt;,
 
-    <span class="comment">// we read into the read buffer using 100% safe code</span>
-    <span class="ident">rbuf</span>: <span class="ident">BytesMut</span>,
+    <span class="comment">// we read into the read buffer using 100% safe code
+    </span>rbuf: BytesMut,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">BufStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+<span class="kw">impl</span>&lt;S&gt; BufStream&lt;S&gt;
+<span class="kw">where
+    </span>S: AsyncRead + AsyncWrite + Unpin,
 {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">stream</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">stream</span>,
-            <span class="ident">wbuf</span>: <span class="ident">Vec::with_capacity</span>(<span class="number">512</span>),
-            <span class="ident">rbuf</span>: <span class="ident">BytesMut::with_capacity</span>(<span class="number">4096</span>),
+    <span class="kw">pub fn </span>new(stream: S) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            stream,
+            wbuf: Vec::with_capacity(<span class="number">512</span>),
+            rbuf: BytesMut::with_capacity(<span class="number">4096</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write</span><span class="op">&lt;</span><span class="lifetime">&#39;en</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>)
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;en</span>, ()<span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>write&lt;<span class="lifetime">&#39;en</span>, T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T)
+    <span class="kw">where
+        </span>T: Encode&lt;<span class="lifetime">&#39;en</span>, ()&gt;,
     {
-        <span class="self">self</span>.<span class="ident">write_with</span>(<span class="ident">value</span>, ())
+        <span class="self">self</span>.write_with(value, ())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_with</span><span class="op">&lt;</span><span class="lifetime">&#39;en</span>, <span class="ident">T</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">context</span>: <span class="ident">C</span>)
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;en</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>write_with&lt;<span class="lifetime">&#39;en</span>, T, C&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T, context: C)
+    <span class="kw">where
+        </span>T: Encode&lt;<span class="lifetime">&#39;en</span>, C&gt;,
     {
-        <span class="ident">value</span>.<span class="ident">encode_with</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wbuf</span>, <span class="ident">context</span>);
+        value.encode_with(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wbuf, context);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">WriteAndFlush</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="ident">WriteAndFlush</span> {
-            <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">stream</span>,
-            <span class="ident">buf</span>: <span class="ident">Cursor::new</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">wbuf</span>),
+    <span class="kw">pub fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; WriteAndFlush&lt;<span class="lifetime">&#39;_</span>, S&gt; {
+        WriteAndFlush {
+            stream: <span class="kw-2">&amp;mut </span><span class="self">self</span>.stream,
+            buf: Cursor::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.wbuf),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cnt</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, ()<span class="op">&gt;</span>,
+    <span class="kw">pub async fn </span>read&lt;<span class="lifetime">&#39;de</span>, T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cnt: usize) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt;
+    <span class="kw">where
+        </span>T: Decode&lt;<span class="lifetime">&#39;de</span>, ()&gt;,
     {
-        <span class="self">self</span>.<span class="ident">read_with</span>(<span class="ident">cnt</span>, ()).<span class="kw">await</span>
-    }
+        <span class="self">self</span>.read_with(cnt, ()).<span class="kw">await
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_with</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cnt</span>: <span class="ident">usize</span>, <span class="ident">context</span>: <span class="ident">C</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    <span class="kw">pub async fn </span>read_with&lt;<span class="lifetime">&#39;de</span>, T, C&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cnt: usize, context: C) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt;
+    <span class="kw">where
+        </span>T: Decode&lt;<span class="lifetime">&#39;de</span>, C&gt;,
     {
-        <span class="ident">T::decode_with</span>(<span class="self">self</span>.<span class="ident">read_raw</span>(<span class="ident">cnt</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">freeze</span>(), <span class="ident">context</span>)
+        T::decode_with(<span class="self">self</span>.read_raw(cnt).<span class="kw">await</span><span class="question-mark">?</span>.freeze(), context)
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_raw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cnt</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BytesMut</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">read_raw_into</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">stream</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">rbuf</span>, <span class="ident">cnt</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rbuf</span>.<span class="ident">split_to</span>(<span class="ident">cnt</span>);
+    <span class="kw">pub async fn </span>read_raw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cnt: usize) -&gt; <span class="prelude-ty">Result</span>&lt;BytesMut, Error&gt; {
+        read_raw_into(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stream, <span class="kw-2">&amp;mut </span><span class="self">self</span>.rbuf, cnt).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>buf = <span class="self">self</span>.rbuf.split_to(cnt);
 
-        <span class="prelude-val">Ok</span>(<span class="ident">buf</span>)
+        <span class="prelude-val">Ok</span>(buf)
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_raw_into</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>, <span class="ident">cnt</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">read_raw_into</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">stream</span>, <span class="ident">buf</span>, <span class="ident">cnt</span>).<span class="kw">await</span>
-    }
+    <span class="kw">pub async fn </span>read_raw_into(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>BytesMut, cnt: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        read_raw_into(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stream, buf, cnt).<span class="kw">await
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">BufStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+<span class="kw">impl</span>&lt;S&gt; Deref <span class="kw">for </span>BufStream&lt;S&gt;
+<span class="kw">where
+    </span>S: AsyncRead + AsyncWrite + Unpin,
 {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">S</span>;
+    <span class="kw">type </span>Target = S;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stream</span>
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.stream
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">BufStream</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+<span class="kw">impl</span>&lt;S&gt; DerefMut <span class="kw">for </span>BufStream&lt;S&gt;
+<span class="kw">where
+    </span>S: AsyncRead + AsyncWrite + Unpin,
 {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">stream</span>
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.stream
     }
 }
 
-<span class="comment">// Holds a buffer which has been temporarily extended, so that</span>
-<span class="comment">// we can read into it. Automatically shrinks the buffer back</span>
-<span class="comment">// down if the read is cancelled.</span>
-<span class="kw">struct</span> <span class="ident">BufTruncator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">BytesMut</span>,
-    <span class="ident">filled_len</span>: <span class="ident">usize</span>,
+<span class="comment">// Holds a buffer which has been temporarily extended, so that
+// we can read into it. Automatically shrinks the buffer back
+// down if the read is cancelled.
+</span><span class="kw">struct </span>BufTruncator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BytesMut,
+    filled_len: usize,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">BufTruncator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">filled_len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>();
-        <span class="self">Self</span> { <span class="ident">buf</span>, <span class="ident">filled_len</span> }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BufTruncator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>new(buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>BytesMut) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>filled_len = buf.len();
+        <span class="self">Self </span>{ buf, filled_len }
     }
-    <span class="kw">fn</span> <span class="ident">reserve</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">space</span>: <span class="ident">usize</span>) {
-        <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">resize</span>(<span class="self">self</span>.<span class="ident">filled_len</span> <span class="op">+</span> <span class="ident">space</span>, <span class="number">0</span>);
+    <span class="kw">fn </span>reserve(<span class="kw-2">&amp;mut </span><span class="self">self</span>, space: usize) {
+        <span class="self">self</span>.buf.resize(<span class="self">self</span>.filled_len + space, <span class="number">0</span>);
     }
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">Unpin</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buf</span>[<span class="self">self</span>.<span class="ident">filled_len</span>..]).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">filled_len</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">n</span>)
+    <span class="kw">async fn </span>read&lt;S: AsyncRead + Unpin&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: <span class="kw-2">&amp;mut </span>S) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
+        <span class="kw">let </span>n = stream.read(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buf[<span class="self">self</span>.filled_len..]).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="self">self</span>.filled_len += n;
+        <span class="prelude-val">Ok</span>(n)
     }
-    <span class="kw">fn</span> <span class="ident">is_full</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">filled_len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">len</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">BufTruncator</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">truncate</span>(<span class="self">self</span>.<span class="ident">filled_len</span>);
+    <span class="kw">fn </span>is_full(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.filled_len &gt;= <span class="self">self</span>.buf.len()
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_raw_into</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">Unpin</span><span class="op">&gt;</span>(
-    <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="ident">S</span>,
-    <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>,
-    <span class="ident">cnt</span>: <span class="ident">usize</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BufTruncator::new</span>(<span class="ident">buf</span>);
-    <span class="ident">buf</span>.<span class="ident">reserve</span>(<span class="ident">cnt</span>);
+<span class="kw">impl </span>Drop <span class="kw">for </span>BufTruncator&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.buf.truncate(<span class="self">self</span>.filled_len);
+    }
+}
 
-    <span class="kw">while</span> <span class="op">!</span><span class="ident">buf</span>.<span class="ident">is_full</span>() {
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">read</span>(<span class="ident">stream</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">async fn </span>read_raw_into&lt;S: AsyncRead + Unpin&gt;(
+    stream: <span class="kw-2">&amp;mut </span>S,
+    buf: <span class="kw-2">&amp;mut </span>BytesMut,
+    cnt: usize,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = BufTruncator::new(buf);
+    buf.reserve(cnt);
 
-        <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="comment">// a zero read when we had space in the read buffer</span>
-            <span class="comment">// should be treated as an EOF</span>
+    <span class="kw">while </span>!buf.is_full() {
+        <span class="kw">let </span>n = buf.read(stream).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="comment">// and an unexpected EOF means the server told us to go away</span>
+        <span class="kw">if </span>n == <span class="number">0 </span>{
+            <span class="comment">// a zero read when we had space in the read buffer
+            // should be treated as an EOF
 
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::from</span>(<span class="ident">io::ErrorKind::ConnectionAborted</span>).<span class="ident">into</span>());
+            // and an unexpected EOF means the server told us to go away
+
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::from(io::ErrorKind::ConnectionAborted).into());
         }
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

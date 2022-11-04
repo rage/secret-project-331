@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cookie-0.16.1/src/secure/private.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>private.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cookie/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cookie-0.16.1/src/secure/private.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>private.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cookie/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -262,269 +262,269 @@
 <span id="262">262</span>
 <span id="263">263</span>
 <span id="264">264</span>
-</pre><pre class="rust"><code><span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">aes_gcm</span>;
+</pre><pre class="rust"><code><span class="kw">extern crate </span>aes_gcm;
 
-<span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
-<span class="kw">use</span> <span class="ident">std::borrow</span>::{<span class="ident">Borrow</span>, <span class="ident">BorrowMut</span>};
+<span class="kw">use </span>std::convert::TryInto;
+<span class="kw">use </span>std::borrow::{Borrow, BorrowMut};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::secure</span>::{<span class="ident">base64</span>, <span class="ident">rand</span>, <span class="ident">Key</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Cookie</span>, <span class="ident">CookieJar</span>};
+<span class="kw">use </span><span class="kw">crate</span>::secure::{base64, rand, Key};
+<span class="kw">use crate</span>::{Cookie, CookieJar};
 
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::aes_gcm::aead</span>::{<span class="ident">generic_array::GenericArray</span>, <span class="ident">Aead</span>, <span class="ident">AeadInPlace</span>, <span class="ident">KeyInit</span>, <span class="ident">Payload</span>};
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::aes_gcm::Aes256Gcm</span>;
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::rand::RngCore</span>;
+<span class="kw">use </span><span class="self">self</span>::aes_gcm::aead::{generic_array::GenericArray, Aead, AeadInPlace, KeyInit, Payload};
+<span class="kw">use </span><span class="self">self</span>::aes_gcm::Aes256Gcm;
+<span class="kw">use </span><span class="self">self</span>::rand::RngCore;
 
-<span class="comment">// Keep these in sync, and keep the key len synced with the `private` docs as</span>
-<span class="comment">// well as the `KEYS_INFO` const in secure::Key.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">NONCE_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">12</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">TAG_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">KEY_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">32</span>;
+<span class="comment">// Keep these in sync, and keep the key len synced with the `private` docs as
+// well as the `KEYS_INFO` const in secure::Key.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>NONCE_LEN: usize = <span class="number">12</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>TAG_LEN: usize = <span class="number">16</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>KEY_LEN: usize = <span class="number">32</span>;
 
-<span class="doccomment">/// A child cookie jar that provides authenticated encryption for its cookies.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A _private_ child jar signs and encrypts all the cookies added to it and</span>
-<span class="doccomment">/// verifies and decrypts cookies retrieved from it. Any cookies stored in a</span>
-<span class="doccomment">/// `PrivateJar` are simultaneously assured confidentiality, integrity, and</span>
-<span class="doccomment">/// authenticity. In other words, clients cannot discover nor tamper with the</span>
-<span class="doccomment">/// contents of a cookie, nor can they fabricate cookie data.</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">nightly</span>, <span class="ident">doc</span>), <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;private&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrivateJar</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span> {
-    <span class="ident">parent</span>: <span class="ident">J</span>,
-    <span class="ident">key</span>: [<span class="ident">u8</span>; <span class="ident">KEY_LEN</span>]
+<span class="doccomment">/// A child cookie jar that provides authenticated encryption for its cookies.
+///
+/// A _private_ child jar signs and encrypts all the cookies added to it and
+/// verifies and decrypts cookies retrieved from it. Any cookies stored in a
+/// `PrivateJar` are simultaneously assured confidentiality, integrity, and
+/// authenticity. In other words, clients cannot discover nor tamper with the
+/// contents of a cookie, nor can they fabricate cookie data.
+</span><span class="attribute">#[cfg_attr(all(nightly, doc), doc(cfg(feature = <span class="string">&quot;private&quot;</span>)))]
+</span><span class="kw">pub struct </span>PrivateJar&lt;J&gt; {
+    parent: J,
+    key: [u8; KEY_LEN]
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span> <span class="ident">PrivateJar</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new child `PrivateJar` with parent `parent` and key `key`.</span>
-    <span class="doccomment">/// This method is typically called indirectly via the `signed` method of</span>
-    <span class="doccomment">/// `CookieJar`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">parent</span>: <span class="ident">J</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">PrivateJar</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span> {
-        <span class="ident">PrivateJar</span> { <span class="ident">parent</span>, <span class="ident">key</span>: <span class="ident">key</span>.<span class="ident">encryption</span>().<span class="ident">try_into</span>().<span class="ident">expect</span>(<span class="string">&quot;enc key len&quot;</span>) }
+<span class="kw">impl</span>&lt;J&gt; PrivateJar&lt;J&gt; {
+    <span class="doccomment">/// Creates a new child `PrivateJar` with parent `parent` and key `key`.
+    /// This method is typically called indirectly via the `signed` method of
+    /// `CookieJar`.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(parent: J, key: <span class="kw-2">&amp;</span>Key) -&gt; PrivateJar&lt;J&gt; {
+        PrivateJar { parent, key: key.encryption().try_into().expect(<span class="string">&quot;enc key len&quot;</span>) }
     }
 
-    <span class="doccomment">/// Encrypts the cookie&#39;s value with authenticated encryption providing</span>
-    <span class="doccomment">/// confidentiality, integrity, and authenticity.</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_cookie</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cookie</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Cookie</span>) {
-        <span class="comment">// Create a vec to hold the [nonce | cookie value | tag].</span>
-        <span class="kw">let</span> <span class="ident">cookie_val</span> <span class="op">=</span> <span class="ident">cookie</span>.<span class="ident">value</span>().<span class="ident">as_bytes</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">NONCE_LEN</span> <span class="op">+</span> <span class="ident">cookie_val</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">TAG_LEN</span>];
+    <span class="doccomment">/// Encrypts the cookie&#39;s value with authenticated encryption providing
+    /// confidentiality, integrity, and authenticity.
+    </span><span class="kw">fn </span>encrypt_cookie(<span class="kw-2">&amp;</span><span class="self">self</span>, cookie: <span class="kw-2">&amp;mut </span>Cookie) {
+        <span class="comment">// Create a vec to hold the [nonce | cookie value | tag].
+        </span><span class="kw">let </span>cookie_val = cookie.value().as_bytes();
+        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[<span class="number">0</span>; NONCE_LEN + cookie_val.len() + TAG_LEN];
 
-        <span class="comment">// Split data into three: nonce, input/output, tag. Copy input.</span>
-        <span class="kw">let</span> (<span class="ident">nonce</span>, <span class="ident">in_out</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">split_at_mut</span>(<span class="ident">NONCE_LEN</span>);
-        <span class="kw">let</span> (<span class="ident">in_out</span>, <span class="ident">tag</span>) <span class="op">=</span> <span class="ident">in_out</span>.<span class="ident">split_at_mut</span>(<span class="ident">cookie_val</span>.<span class="ident">len</span>());
-        <span class="ident">in_out</span>.<span class="ident">copy_from_slice</span>(<span class="ident">cookie_val</span>);
+        <span class="comment">// Split data into three: nonce, input/output, tag. Copy input.
+        </span><span class="kw">let </span>(nonce, in_out) = data.split_at_mut(NONCE_LEN);
+        <span class="kw">let </span>(in_out, tag) = in_out.split_at_mut(cookie_val.len());
+        in_out.copy_from_slice(cookie_val);
 
-        <span class="comment">// Fill nonce piece with random data.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident"><span class="self">self</span>::rand::thread_rng</span>();
-        <span class="ident">rng</span>.<span class="ident">try_fill_bytes</span>(<span class="ident">nonce</span>).<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t random fill nonce&quot;</span>);
-        <span class="kw">let</span> <span class="ident">nonce</span> <span class="op">=</span> <span class="ident">GenericArray::clone_from_slice</span>(<span class="ident">nonce</span>);
+        <span class="comment">// Fill nonce piece with random data.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="self">self</span>::rand::thread_rng();
+        rng.try_fill_bytes(nonce).expect(<span class="string">&quot;couldn&#39;t random fill nonce&quot;</span>);
+        <span class="kw">let </span>nonce = GenericArray::clone_from_slice(nonce);
 
-        <span class="comment">// Perform the actual sealing operation, using the cookie&#39;s name as</span>
-        <span class="comment">// associated data to prevent value swapping.</span>
-        <span class="kw">let</span> <span class="ident">aad</span> <span class="op">=</span> <span class="ident">cookie</span>.<span class="ident">name</span>().<span class="ident">as_bytes</span>();
-        <span class="kw">let</span> <span class="ident">aead</span> <span class="op">=</span> <span class="ident">Aes256Gcm::new</span>(<span class="ident">GenericArray::from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span>));
-        <span class="kw">let</span> <span class="ident">aad_tag</span> <span class="op">=</span> <span class="ident">aead</span>.<span class="ident">encrypt_in_place_detached</span>(<span class="kw-2">&amp;</span><span class="ident">nonce</span>, <span class="ident">aad</span>, <span class="ident">in_out</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;encryption failure!&quot;</span>);
+        <span class="comment">// Perform the actual sealing operation, using the cookie&#39;s name as
+        // associated data to prevent value swapping.
+        </span><span class="kw">let </span>aad = cookie.name().as_bytes();
+        <span class="kw">let </span>aead = Aes256Gcm::new(GenericArray::from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.key));
+        <span class="kw">let </span>aad_tag = aead.encrypt_in_place_detached(<span class="kw-2">&amp;</span>nonce, aad, in_out)
+            .expect(<span class="string">&quot;encryption failure!&quot;</span>);
 
-        <span class="comment">// Copy the tag into the tag piece.</span>
-        <span class="ident">tag</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">aad_tag</span>);
+        <span class="comment">// Copy the tag into the tag piece.
+        </span>tag.copy_from_slice(<span class="kw-2">&amp;</span>aad_tag);
 
-        <span class="comment">// Base64 encode [nonce | encrypted value | tag].</span>
-        <span class="ident">cookie</span>.<span class="ident">set_value</span>(<span class="ident">base64::encode</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>));
+        <span class="comment">// Base64 encode [nonce | encrypted value | tag].
+        </span>cookie.set_value(base64::encode(<span class="kw-2">&amp;</span>data));
     }
 
-    <span class="doccomment">/// Given a sealed value `str` and a key name `name`, where the nonce is</span>
-    <span class="doccomment">/// prepended to the original value and then both are Base64 encoded,</span>
-    <span class="doccomment">/// verifies and decrypts the sealed value and returns it. If there&#39;s a</span>
-    <span class="doccomment">/// problem, returns an `Err` with a string describing the issue.</span>
-    <span class="kw">fn</span> <span class="ident">unseal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">base64::decode</span>(<span class="ident">value</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;bad base64 value&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">NONCE_LEN</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;length of decoded data is &lt;= NONCE_LEN&quot;</span>);
+    <span class="doccomment">/// Given a sealed value `str` and a key name `name`, where the nonce is
+    /// prepended to the original value and then both are Base64 encoded,
+    /// verifies and decrypts the sealed value and returns it. If there&#39;s a
+    /// problem, returns an `Err` with a string describing the issue.
+    </span><span class="kw">fn </span>unseal(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+        <span class="kw">let </span>data = base64::decode(value).map_err(|<span class="kw">_</span>| <span class="string">&quot;bad base64 value&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">if </span>data.len() &lt;= NONCE_LEN {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">&quot;length of decoded data is &lt;= NONCE_LEN&quot;</span>);
         }
 
-        <span class="kw">let</span> (<span class="ident">nonce</span>, <span class="ident">cipher</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">split_at</span>(<span class="ident">NONCE_LEN</span>);
-        <span class="kw">let</span> <span class="ident">payload</span> <span class="op">=</span> <span class="ident">Payload</span> { <span class="ident">msg</span>: <span class="ident">cipher</span>, <span class="ident">aad</span>: <span class="ident">name</span>.<span class="ident">as_bytes</span>() };
+        <span class="kw">let </span>(nonce, cipher) = data.split_at(NONCE_LEN);
+        <span class="kw">let </span>payload = Payload { msg: cipher, aad: name.as_bytes() };
 
-        <span class="kw">let</span> <span class="ident">aead</span> <span class="op">=</span> <span class="ident">Aes256Gcm::new</span>(<span class="ident">GenericArray::from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span>));
-        <span class="ident">aead</span>.<span class="ident">decrypt</span>(<span class="ident">GenericArray::from_slice</span>(<span class="ident">nonce</span>), <span class="ident">payload</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;invalid key/nonce/value: bad seal&quot;</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">String::from_utf8</span>(<span class="ident">s</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;bad unsealed utf8&quot;</span>))
+        <span class="kw">let </span>aead = Aes256Gcm::new(GenericArray::from_slice(<span class="kw-2">&amp;</span><span class="self">self</span>.key));
+        aead.decrypt(GenericArray::from_slice(nonce), payload)
+            .map_err(|<span class="kw">_</span>| <span class="string">&quot;invalid key/nonce/value: bad seal&quot;</span>)
+            .and_then(|s| String::from_utf8(s).map_err(|<span class="kw">_</span>| <span class="string">&quot;bad unsealed utf8&quot;</span>))
     }
 
-    <span class="doccomment">/// Authenticates and decrypts `cookie`, returning the plaintext version if</span>
-    <span class="doccomment">/// decryption succeeds or `None` otherwise. Authenticatation and decryption</span>
-    <span class="doccomment">/// _always_ succeeds if `cookie` was generated by a `PrivateJar` with the</span>
-    <span class="doccomment">/// same key as `self`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::{CookieJar, Cookie, Key};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::generate();</span>
-    <span class="doccomment">/// let mut jar = CookieJar::new();</span>
-    <span class="doccomment">/// assert!(jar.private(&amp;key).get(&quot;name&quot;).is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// jar.private_mut(&amp;key).add(Cookie::new(&quot;name&quot;, &quot;value&quot;));</span>
-    <span class="doccomment">/// assert_eq!(jar.private(&amp;key).get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let plain = jar.get(&quot;name&quot;).cloned().unwrap();</span>
-    <span class="doccomment">/// assert_ne!(plain.value(), &quot;value&quot;);</span>
-    <span class="doccomment">/// let decrypted = jar.private(&amp;key).decrypt(plain).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(decrypted.value(), &quot;value&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let plain = Cookie::new(&quot;plaintext&quot;, &quot;hello&quot;);</span>
-    <span class="doccomment">/// assert!(jar.private(&amp;key).decrypt(plain).is_none());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decrypt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">cookie</span>: <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unseal</span>(<span class="ident">cookie</span>.<span class="ident">name</span>(), <span class="ident">cookie</span>.<span class="ident">value</span>()) {
-            <span class="ident">cookie</span>.<span class="ident">set_value</span>(<span class="ident">value</span>);
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">cookie</span>);
+    <span class="doccomment">/// Authenticates and decrypts `cookie`, returning the plaintext version if
+    /// decryption succeeds or `None` otherwise. Authenticatation and decryption
+    /// _always_ succeeds if `cookie` was generated by a `PrivateJar` with the
+    /// same key as `self`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::{CookieJar, Cookie, Key};
+    ///
+    /// let key = Key::generate();
+    /// let mut jar = CookieJar::new();
+    /// assert!(jar.private(&amp;key).get(&quot;name&quot;).is_none());
+    ///
+    /// jar.private_mut(&amp;key).add(Cookie::new(&quot;name&quot;, &quot;value&quot;));
+    /// assert_eq!(jar.private(&amp;key).get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);
+    ///
+    /// let plain = jar.get(&quot;name&quot;).cloned().unwrap();
+    /// assert_ne!(plain.value(), &quot;value&quot;);
+    /// let decrypted = jar.private(&amp;key).decrypt(plain).unwrap();
+    /// assert_eq!(decrypted.value(), &quot;value&quot;);
+    ///
+    /// let plain = Cookie::new(&quot;plaintext&quot;, &quot;hello&quot;);
+    /// assert!(jar.private(&amp;key).decrypt(plain).is_none());
+    /// ```
+    </span><span class="kw">pub fn </span>decrypt(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>cookie: Cookie&lt;<span class="lifetime">&#39;static</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">&#39;static</span>&gt;&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(value) = <span class="self">self</span>.unseal(cookie.name(), cookie.value()) {
+            cookie.set_value(value);
+            <span class="kw">return </span><span class="prelude-val">Some</span>(cookie);
         }
 
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+}
+
+<span class="kw">impl</span>&lt;J: Borrow&lt;CookieJar&gt;&gt; PrivateJar&lt;J&gt; {
+    <span class="doccomment">/// Returns a reference to the `Cookie` inside this jar with the name `name`
+    /// and authenticates and decrypts the cookie&#39;s value, returning a `Cookie`
+    /// with the decrypted value. If the cookie cannot be found, or the cookie
+    /// fails to authenticate or decrypt, `None` is returned.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::{CookieJar, Cookie, Key};
+    ///
+    /// let key = Key::generate();
+    /// let jar = CookieJar::new();
+    /// assert!(jar.private(&amp;key).get(&quot;name&quot;).is_none());
+    ///
+    /// let mut jar = jar;
+    /// let mut private_jar = jar.private_mut(&amp;key);
+    /// private_jar.add(Cookie::new(&quot;name&quot;, &quot;value&quot;));
+    /// assert_eq!(private_jar.get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Cookie&lt;<span class="lifetime">&#39;static</span>&gt;&gt; {
+        <span class="self">self</span>.parent.borrow().get(name).and_then(|c| <span class="self">self</span>.decrypt(c.clone()))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">J</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">CookieJar</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PrivateJar</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns a reference to the `Cookie` inside this jar with the name `name`</span>
-    <span class="doccomment">/// and authenticates and decrypts the cookie&#39;s value, returning a `Cookie`</span>
-    <span class="doccomment">/// with the decrypted value. If the cookie cannot be found, or the cookie</span>
-    <span class="doccomment">/// fails to authenticate or decrypt, `None` is returned.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::{CookieJar, Cookie, Key};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::generate();</span>
-    <span class="doccomment">/// let jar = CookieJar::new();</span>
-    <span class="doccomment">/// assert!(jar.private(&amp;key).get(&quot;name&quot;).is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut jar = jar;</span>
-    <span class="doccomment">/// let mut private_jar = jar.private_mut(&amp;key);</span>
-    <span class="doccomment">/// private_jar.add(Cookie::new(&quot;name&quot;, &quot;value&quot;));</span>
-    <span class="doccomment">/// assert_eq!(private_jar.get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">borrow</span>().<span class="ident">get</span>(<span class="ident">name</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">decrypt</span>(<span class="ident">c</span>.<span class="ident">clone</span>()))
+<span class="kw">impl</span>&lt;J: BorrowMut&lt;CookieJar&gt;&gt; PrivateJar&lt;J&gt; {
+    <span class="doccomment">/// Adds `cookie` to the parent jar. The cookie&#39;s value is encrypted with
+    /// authenticated encryption assuring confidentiality, integrity, and
+    /// authenticity.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::{CookieJar, Cookie, Key};
+    ///
+    /// let key = Key::generate();
+    /// let mut jar = CookieJar::new();
+    /// jar.private_mut(&amp;key).add(Cookie::new(&quot;name&quot;, &quot;value&quot;));
+    ///
+    /// assert_ne!(jar.get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);
+    /// assert_eq!(jar.private(&amp;key).get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>cookie: Cookie&lt;<span class="lifetime">&#39;static</span>&gt;) {
+        <span class="self">self</span>.encrypt_cookie(<span class="kw-2">&amp;mut </span>cookie);
+        <span class="self">self</span>.parent.borrow_mut().add(cookie);
+    }
+
+    <span class="doccomment">/// Adds an &quot;original&quot; `cookie` to parent jar. The cookie&#39;s value is
+    /// encrypted with authenticated encryption assuring confidentiality,
+    /// integrity, and authenticity. Adding an original cookie does not affect
+    /// the [`CookieJar::delta()`] computation. This method is intended to be
+    /// used to seed the cookie jar with cookies received from a client&#39;s HTTP
+    /// message.
+    ///
+    /// For accurate `delta` computations, this method should not be called
+    /// after calling `remove`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::{CookieJar, Cookie, Key};
+    ///
+    /// let key = Key::generate();
+    /// let mut jar = CookieJar::new();
+    /// jar.private_mut(&amp;key).add_original(Cookie::new(&quot;name&quot;, &quot;value&quot;));
+    ///
+    /// assert_eq!(jar.iter().count(), 1);
+    /// assert_eq!(jar.delta().count(), 0);
+    /// ```
+    </span><span class="kw">pub fn </span>add_original(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>cookie: Cookie&lt;<span class="lifetime">&#39;static</span>&gt;) {
+        <span class="self">self</span>.encrypt_cookie(<span class="kw-2">&amp;mut </span>cookie);
+        <span class="self">self</span>.parent.borrow_mut().add_original(cookie);
+    }
+
+    <span class="doccomment">/// Removes `cookie` from the parent jar.
+    ///
+    /// For correct removal, the passed in `cookie` must contain the same `path`
+    /// and `domain` as the cookie that was initially set.
+    ///
+    /// This is identical to [`CookieJar::remove()`]. See the method&#39;s
+    /// documentation for more details.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use cookie::{CookieJar, Cookie, Key};
+    ///
+    /// let key = Key::generate();
+    /// let mut jar = CookieJar::new();
+    /// let mut private_jar = jar.private_mut(&amp;key);
+    ///
+    /// private_jar.add(Cookie::new(&quot;name&quot;, &quot;value&quot;));
+    /// assert!(private_jar.get(&quot;name&quot;).is_some());
+    ///
+    /// private_jar.remove(Cookie::named(&quot;name&quot;));
+    /// assert!(private_jar.get(&quot;name&quot;).is_none());
+    /// ```
+    </span><span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cookie: Cookie&lt;<span class="lifetime">&#39;static</span>&gt;) {
+        <span class="self">self</span>.parent.borrow_mut().remove(cookie);
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">J</span>: <span class="ident">BorrowMut</span><span class="op">&lt;</span><span class="ident">CookieJar</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PrivateJar</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Adds `cookie` to the parent jar. The cookie&#39;s value is encrypted with</span>
-    <span class="doccomment">/// authenticated encryption assuring confidentiality, integrity, and</span>
-    <span class="doccomment">/// authenticity.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::{CookieJar, Cookie, Key};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::generate();</span>
-    <span class="doccomment">/// let mut jar = CookieJar::new();</span>
-    <span class="doccomment">/// jar.private_mut(&amp;key).add(Cookie::new(&quot;name&quot;, &quot;value&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_ne!(jar.get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);</span>
-    <span class="doccomment">/// assert_eq!(jar.private(&amp;key).get(&quot;name&quot;).unwrap().value(), &quot;value&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">cookie</span>: <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">encrypt_cookie</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cookie</span>);
-        <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">borrow_mut</span>().<span class="ident">add</span>(<span class="ident">cookie</span>);
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use crate</span>::{CookieJar, Cookie, Key};
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>simple() {
+        <span class="kw">let </span>key = Key::generate();
+        <span class="kw">let </span><span class="kw-2">mut </span>jar = CookieJar::new();
+        <span class="macro">assert_simple_behaviour!</span>(jar, jar.private_mut(<span class="kw-2">&amp;</span>key));
     }
 
-    <span class="doccomment">/// Adds an &quot;original&quot; `cookie` to parent jar. The cookie&#39;s value is</span>
-    <span class="doccomment">/// encrypted with authenticated encryption assuring confidentiality,</span>
-    <span class="doccomment">/// integrity, and authenticity. Adding an original cookie does not affect</span>
-    <span class="doccomment">/// the [`CookieJar::delta()`] computation. This method is intended to be</span>
-    <span class="doccomment">/// used to seed the cookie jar with cookies received from a client&#39;s HTTP</span>
-    <span class="doccomment">/// message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For accurate `delta` computations, this method should not be called</span>
-    <span class="doccomment">/// after calling `remove`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::{CookieJar, Cookie, Key};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::generate();</span>
-    <span class="doccomment">/// let mut jar = CookieJar::new();</span>
-    <span class="doccomment">/// jar.private_mut(&amp;key).add_original(Cookie::new(&quot;name&quot;, &quot;value&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(jar.iter().count(), 1);</span>
-    <span class="doccomment">/// assert_eq!(jar.delta().count(), 0);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_original</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">cookie</span>: <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">encrypt_cookie</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cookie</span>);
-        <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">borrow_mut</span>().<span class="ident">add_original</span>(<span class="ident">cookie</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>secure() {
+        <span class="kw">let </span>key = Key::generate();
+        <span class="kw">let </span><span class="kw-2">mut </span>jar = CookieJar::new();
+        <span class="macro">assert_secure_behaviour!</span>(jar, jar.private_mut(<span class="kw-2">&amp;</span>key));
     }
 
-    <span class="doccomment">/// Removes `cookie` from the parent jar.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For correct removal, the passed in `cookie` must contain the same `path`</span>
-    <span class="doccomment">/// and `domain` as the cookie that was initially set.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is identical to [`CookieJar::remove()`]. See the method&#39;s</span>
-    <span class="doccomment">/// documentation for more details.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use cookie::{CookieJar, Cookie, Key};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let key = Key::generate();</span>
-    <span class="doccomment">/// let mut jar = CookieJar::new();</span>
-    <span class="doccomment">/// let mut private_jar = jar.private_mut(&amp;key);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// private_jar.add(Cookie::new(&quot;name&quot;, &quot;value&quot;));</span>
-    <span class="doccomment">/// assert!(private_jar.get(&quot;name&quot;).is_some());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// private_jar.remove(Cookie::named(&quot;name&quot;));</span>
-    <span class="doccomment">/// assert!(private_jar.get(&quot;name&quot;).is_none());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cookie</span>: <span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">parent</span>.<span class="ident">borrow_mut</span>().<span class="ident">remove</span>(<span class="ident">cookie</span>);
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CookieJar</span>, <span class="ident">Cookie</span>, <span class="ident">Key</span>};
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">simple</span>() {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::generate</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jar</span> <span class="op">=</span> <span class="ident">CookieJar::new</span>();
-        <span class="macro">assert_simple_behaviour!</span>(<span class="ident">jar</span>, <span class="ident">jar</span>.<span class="ident">private_mut</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>));
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">secure</span>() {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::generate</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jar</span> <span class="op">=</span> <span class="ident">CookieJar::new</span>();
-        <span class="macro">assert_secure_behaviour!</span>(<span class="ident">jar</span>, <span class="ident">jar</span>.<span class="ident">private_mut</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>));
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">roundtrip</span>() {
-        <span class="comment">// Secret is SHA-256 hash of &#39;Super secret!&#39; passed through HKDF-SHA256.</span>
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::from</span>(<span class="kw-2">&amp;</span>[<span class="number">89</span>, <span class="number">202</span>, <span class="number">200</span>, <span class="number">125</span>, <span class="number">230</span>, <span class="number">90</span>, <span class="number">197</span>, <span class="number">245</span>, <span class="number">166</span>, <span class="number">249</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>roundtrip() {
+        <span class="comment">// Secret is SHA-256 hash of &#39;Super secret!&#39; passed through HKDF-SHA256.
+        </span><span class="kw">let </span>key = Key::from(<span class="kw-2">&amp;</span>[<span class="number">89</span>, <span class="number">202</span>, <span class="number">200</span>, <span class="number">125</span>, <span class="number">230</span>, <span class="number">90</span>, <span class="number">197</span>, <span class="number">245</span>, <span class="number">166</span>, <span class="number">249</span>,
             <span class="number">34</span>, <span class="number">169</span>, <span class="number">135</span>, <span class="number">31</span>, <span class="number">20</span>, <span class="number">197</span>, <span class="number">94</span>, <span class="number">154</span>, <span class="number">254</span>, <span class="number">79</span>, <span class="number">60</span>, <span class="number">26</span>, <span class="number">8</span>, <span class="number">143</span>, <span class="number">254</span>,
             <span class="number">24</span>, <span class="number">116</span>, <span class="number">138</span>, <span class="number">92</span>, <span class="number">225</span>, <span class="number">159</span>, <span class="number">60</span>, <span class="number">157</span>, <span class="number">41</span>, <span class="number">135</span>, <span class="number">129</span>, <span class="number">31</span>, <span class="number">226</span>, <span class="number">196</span>, <span class="number">16</span>,
             <span class="number">198</span>, <span class="number">168</span>, <span class="number">134</span>, <span class="number">4</span>, <span class="number">42</span>, <span class="number">1</span>, <span class="number">196</span>, <span class="number">24</span>, <span class="number">57</span>, <span class="number">103</span>, <span class="number">241</span>, <span class="number">147</span>, <span class="number">201</span>, <span class="number">185</span>, <span class="number">233</span>,
             <span class="number">10</span>, <span class="number">180</span>, <span class="number">170</span>, <span class="number">187</span>, <span class="number">89</span>, <span class="number">252</span>, <span class="number">137</span>, <span class="number">110</span>, <span class="number">107</span>]);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jar</span> <span class="op">=</span> <span class="ident">CookieJar::new</span>();
-        <span class="ident">jar</span>.<span class="ident">add</span>(<span class="ident">Cookie::new</span>(<span class="string">&quot;encrypted_with_ring014&quot;</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>jar = CookieJar::new();
+        jar.add(Cookie::new(<span class="string">&quot;encrypted_with_ring014&quot;</span>,
                 <span class="string">&quot;lObeZJorGVyeSWUA8khTO/8UCzFVBY9g0MGU6/J3NN1R5x11dn2JIA==&quot;</span>));
-        <span class="ident">jar</span>.<span class="ident">add</span>(<span class="ident">Cookie::new</span>(<span class="string">&quot;encrypted_with_ring016&quot;</span>,
+        jar.add(Cookie::new(<span class="string">&quot;encrypted_with_ring016&quot;</span>,
                 <span class="string">&quot;SU1ujceILyMBg3fReqRmA9HUtAIoSPZceOM/CUpObROHEujXIjonkA==&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">private</span> <span class="op">=</span> <span class="ident">jar</span>.<span class="ident">private</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">private</span>.<span class="ident">get</span>(<span class="string">&quot;encrypted_with_ring014&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">value</span>(), <span class="string">&quot;Tamper-proof&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">private</span>.<span class="ident">get</span>(<span class="string">&quot;encrypted_with_ring016&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">value</span>(), <span class="string">&quot;Tamper-proof&quot;</span>);
+        <span class="kw">let </span>private = jar.private(<span class="kw-2">&amp;</span>key);
+        <span class="macro">assert_eq!</span>(private.get(<span class="string">&quot;encrypted_with_ring014&quot;</span>).unwrap().value(), <span class="string">&quot;Tamper-proof&quot;</span>);
+        <span class="macro">assert_eq!</span>(private.get(<span class="string">&quot;encrypted_with_ring016&quot;</span>).unwrap().value(), <span class="string">&quot;Tamper-proof&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cookie" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cookie" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

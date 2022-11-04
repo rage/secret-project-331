@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/huffman/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli_decompressor/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/huffman/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli_decompressor/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -469,141 +469,141 @@
 <span id="469">469</span>
 <span id="470">470</span>
 <span id="471">471</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span>;
-<span class="kw">use</span> <span class="ident">::core</span>;
-<span class="kw">use</span> <span class="ident">alloc</span>;
-<span class="kw">use</span> <span class="ident">alloc::Allocator</span>;
-<span class="kw">use</span> <span class="ident">alloc::SliceWrapper</span>;
-<span class="kw">use</span> <span class="ident">alloc::SliceWrapperMut</span>;
-<span class="kw">use</span> <span class="ident">core::default::Default</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">15</span>;
+</pre><pre class="rust"><code><span class="attribute">#![allow(non_snake_case)]
+#![allow(non_upper_case_globals)]
+</span><span class="kw">mod </span>tests;
+<span class="kw">use </span>::core;
+<span class="kw">use </span>alloc;
+<span class="kw">use </span>alloc::Allocator;
+<span class="kw">use </span>alloc::SliceWrapper;
+<span class="kw">use </span>alloc::SliceWrapperMut;
+<span class="kw">use </span>core::default::Default;
+<span class="kw">pub const </span>BROTLI_HUFFMAN_MAX_CODE_LENGTH: usize = <span class="number">15</span>;
 
-<span class="comment">// For current format this constant equals to kNumInsertAndCopyCodes</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTHS_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">704</span>;
+<span class="comment">// For current format this constant equals to kNumInsertAndCopyCodes
+</span><span class="kw">pub const </span>BROTLI_HUFFMAN_MAX_CODE_LENGTHS_SIZE: usize = <span class="number">704</span>;
 
-<span class="comment">// Maximum possible Huffman table size for an alphabet size of (index * 32),</span>
-<span class="comment">// max code length 15 and root table bits 8.</span>
-<span class="comment">// pub const kMaxHuffmanTableSize : [u16;23] = [</span>
-<span class="comment">// 256, 402, 436, 468, 500, 534, 566, 598, 630, 662, 694, 726, 758, 790, 822,</span>
-<span class="comment">// 854, 886, 920, 952, 984, 1016, 1048, 1080, 1112, 1144,1176,1208,1240,272,</span>
-<span class="comment">// 1304, 1336, 1368, 1400, 1432, 1464, 1496, 1528];</span>
-<span class="comment">// pub const BROTLI_HUFFMAN_MAX_SIZE_26 : u32 = 396;</span>
-<span class="comment">// pub const BROTLI_HUFFMAN_MAX_SIZE_258 : u32 = 632;</span>
-<span class="comment">// pub const BROTLI_HUFFMAN_MAX_SIZE_272 : u32 = 646;</span>
-<span class="comment">//</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BROTLI_HUFFMAN_MAX_TABLE_SIZE</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1080</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">5</span>;
+<span class="comment">// Maximum possible Huffman table size for an alphabet size of (index * 32),
+// max code length 15 and root table bits 8.
+// pub const kMaxHuffmanTableSize : [u16;23] = [
+// 256, 402, 436, 468, 500, 534, 566, 598, 630, 662, 694, 726, 758, 790, 822,
+// 854, 886, 920, 952, 984, 1016, 1048, 1080, 1112, 1144,1176,1208,1240,272,
+// 1304, 1336, 1368, 1400, 1432, 1464, 1496, 1528];
+// pub const BROTLI_HUFFMAN_MAX_SIZE_26 : u32 = 396;
+// pub const BROTLI_HUFFMAN_MAX_SIZE_258 : u32 = 632;
+// pub const BROTLI_HUFFMAN_MAX_SIZE_272 : u32 = 646;
+//
+</span><span class="kw">pub const </span>BROTLI_HUFFMAN_MAX_TABLE_SIZE: u32 = <span class="number">1080</span>;
+<span class="kw">pub const </span>BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH: u32 = <span class="number">5</span>;
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HuffmanCode</span> {
-  <span class="kw">pub</span> <span class="ident">value</span>: <span class="ident">u16</span>, <span class="comment">// symbol value or table offset</span>
-  <span class="kw">pub</span> <span class="ident">bits</span>: <span class="ident">u8</span>, <span class="comment">// number of bits used for this symbol</span>
-}
+<span class="attribute">#[repr(C)]
+#[derive(PartialEq, Copy, Clone, Debug)]
+</span><span class="kw">pub struct </span>HuffmanCode {
+  <span class="kw">pub </span>value: u16, <span class="comment">// symbol value or table offset
+  </span><span class="kw">pub </span>bits: u8, <span class="comment">// number of bits used for this symbol
+</span>}
 
-<span class="kw">impl</span> <span class="ident">HuffmanCode</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
-    <span class="self">self</span>.<span class="ident">value</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">value</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">bits</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">bits</span>
+<span class="kw">impl </span>HuffmanCode {
+  <span class="kw">pub fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+    <span class="self">self</span>.value == other.value &amp;&amp; <span class="self">self</span>.bits == other.bits
   }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HuffmanCode</span> {
-  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-    <span class="ident">HuffmanCode</span> {
-      <span class="ident">value</span>: <span class="number">0</span>,
-      <span class="ident">bits</span>: <span class="number">0</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>HuffmanCode {
+  <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+    HuffmanCode {
+      value: <span class="number">0</span>,
+      bits: <span class="number">0</span>,
     }
   }
 }
 
-<span class="comment">// Contains a collection of Huffman trees with the same alphabet size.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HuffmanTreeGroup</span><span class="op">&lt;</span><span class="ident">Alloc32</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">AllocHC</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="ident">htrees</span>: <span class="ident">Alloc32::AllocatedMemory</span>,
-  <span class="kw">pub</span> <span class="ident">codes</span>: <span class="ident">AllocHC::AllocatedMemory</span>,
-  <span class="kw">pub</span> <span class="ident">alphabet_size</span>: <span class="ident">u16</span>,
-  <span class="kw">pub</span> <span class="ident">max_symbol</span>: <span class="ident">u16</span>,
-  <span class="kw">pub</span> <span class="ident">num_htrees</span>: <span class="ident">u16</span>,
+<span class="comment">// Contains a collection of Huffman trees with the same alphabet size.
+</span><span class="kw">pub struct </span>HuffmanTreeGroup&lt;Alloc32: Allocator&lt;u32&gt;, AllocHC: Allocator&lt;HuffmanCode&gt;&gt; {
+  <span class="kw">pub </span>htrees: Alloc32::AllocatedMemory,
+  <span class="kw">pub </span>codes: AllocHC::AllocatedMemory,
+  <span class="kw">pub </span>alphabet_size: u16,
+  <span class="kw">pub </span>max_symbol: u16,
+  <span class="kw">pub </span>num_htrees: u16,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AllocU32</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-     <span class="ident">AllocHC</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span> <span class="ident">HuffmanTreeGroup</span><span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init</span>(<span class="self">self</span> : <span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="kw-2">mut</span> <span class="ident">alloc_u32</span> : <span class="kw-2">&amp;mut</span> <span class="ident">AllocU32</span>, <span class="kw-2">mut</span> <span class="ident">alloc_hc</span> : <span class="kw-2">&amp;mut</span> <span class="ident">AllocHC</span>,
-                <span class="ident">alphabet_size</span> : <span class="ident">u16</span>, <span class="ident">max_symbol</span>: <span class="ident">u16</span>, <span class="ident">ntrees</span> : <span class="ident">u16</span>) {
-        <span class="self">self</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="ident">alloc_u32</span>, <span class="kw-2">&amp;mut</span> <span class="ident">alloc_hc</span>);
-        <span class="self">self</span>.<span class="ident">alphabet_size</span> <span class="op">=</span> <span class="ident">alphabet_size</span>;
-        <span class="self">self</span>.<span class="ident">max_symbol</span> <span class="op">=</span> <span class="ident">max_symbol</span>;
-        <span class="self">self</span>.<span class="ident">num_htrees</span> <span class="op">=</span> <span class="ident">ntrees</span>;
-        <span class="kw">let</span> <span class="ident">nt</span> <span class="op">=</span> <span class="ident">ntrees</span> <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">htrees</span>,
-                           <span class="ident">alloc_u32</span>.<span class="ident">alloc_cell</span>(<span class="ident">nt</span>));
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">codes</span>,
-                           <span class="ident">alloc_hc</span>.<span class="ident">alloc_cell</span>(<span class="ident">nt</span> <span class="op">*</span> <span class="ident">BROTLI_HUFFMAN_MAX_TABLE_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>));
+<span class="kw">impl</span>&lt;AllocU32 : alloc::Allocator&lt;u32&gt;,
+     AllocHC : alloc::Allocator&lt;HuffmanCode&gt; &gt; HuffmanTreeGroup&lt;AllocU32, AllocHC&gt; {
+    <span class="kw">pub fn </span>init(<span class="self">self </span>: <span class="kw-2">&amp;mut </span><span class="self">Self</span>, <span class="kw-2">mut </span>alloc_u32 : <span class="kw-2">&amp;mut </span>AllocU32, <span class="kw-2">mut </span>alloc_hc : <span class="kw-2">&amp;mut </span>AllocHC,
+                alphabet_size : u16, max_symbol: u16, ntrees : u16) {
+        <span class="self">self</span>.reset(<span class="kw-2">&amp;mut </span>alloc_u32, <span class="kw-2">&amp;mut </span>alloc_hc);
+        <span class="self">self</span>.alphabet_size = alphabet_size;
+        <span class="self">self</span>.max_symbol = max_symbol;
+        <span class="self">self</span>.num_htrees = ntrees;
+        <span class="kw">let </span>nt = ntrees <span class="kw">as </span>usize;
+        <span class="kw">let _ </span>= core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.htrees,
+                           alloc_u32.alloc_cell(nt));
+        <span class="kw">let _ </span>= core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.codes,
+                           alloc_hc.alloc_cell(nt * BROTLI_HUFFMAN_MAX_TABLE_SIZE <span class="kw">as </span>usize));
     }
 
-<span class="comment">//  pub fn get_tree_mut&lt;&#39;a&gt;(self :&amp;&#39;a mut Self, index : u32, mut tree_out : &amp;&#39;a mut [HuffmanCode]) {</span>
-<span class="comment">//        let start : usize = fast!((self.htrees)[index as usize]) as usize;</span>
-<span class="comment">//        let _ = core::mem::replace(&amp;mut tree_out, fast_mut!((self.codes.slice_mut())[start;]));</span>
-<span class="comment">//    }</span>
-<span class="comment">//    pub fn get_tree&lt;&#39;a&gt;(self :&amp;&#39;a Self, index : u32, mut tree_out : &amp;&#39;a [HuffmanCode]) {</span>
-<span class="comment">//        let start : usize = fast!((self.htrees)[index as usize]) as usize;</span>
-<span class="comment">//        let _ = core::mem::replace(&amp;mut tree_out, fast_slice!((self.codes)[start;]));</span>
-<span class="comment">//    }</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_tree_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span> : <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanCode</span>] {
-        <span class="kw">let</span> <span class="ident">start</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="macro">fast_slice!</span>((<span class="self">self</span>.<span class="ident">htrees</span>)[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="macro">fast_mut!</span>((<span class="self">self</span>.<span class="ident">codes</span>.<span class="ident">slice_mut</span>())[<span class="ident">start</span>;])
+<span class="comment">//  pub fn get_tree_mut&lt;&#39;a&gt;(self :&amp;&#39;a mut Self, index : u32, mut tree_out : &amp;&#39;a mut [HuffmanCode]) {
+//        let start : usize = fast!((self.htrees)[index as usize]) as usize;
+//        let _ = core::mem::replace(&amp;mut tree_out, fast_mut!((self.codes.slice_mut())[start;]));
+//    }
+//    pub fn get_tree&lt;&#39;a&gt;(self :&amp;&#39;a Self, index : u32, mut tree_out : &amp;&#39;a [HuffmanCode]) {
+//        let start : usize = fast!((self.htrees)[index as usize]) as usize;
+//        let _ = core::mem::replace(&amp;mut tree_out, fast_slice!((self.codes)[start;]));
+//    }
+    </span><span class="attribute">#[allow(dead_code)]
+    </span><span class="kw">pub fn </span>get_tree_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index : u32) -&gt; <span class="kw-2">&amp;mut </span>[HuffmanCode] {
+        <span class="kw">let </span>start : usize = <span class="macro">fast_slice!</span>((<span class="self">self</span>.htrees)[index <span class="kw">as </span>usize]) <span class="kw">as </span>usize;
+        <span class="macro">fast_mut!</span>((<span class="self">self</span>.codes.slice_mut())[start;])
     }
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_tree</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span> : <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">HuffmanCode</span>] {
-        <span class="kw">let</span> <span class="ident">start</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="macro">fast_slice!</span>((<span class="self">self</span>.<span class="ident">htrees</span>)[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="macro">fast_slice!</span>((<span class="self">self</span>.<span class="ident">codes</span>)[<span class="ident">start</span>;])
+    <span class="attribute">#[allow(dead_code)]
+    </span><span class="kw">pub fn </span>get_tree(<span class="kw-2">&amp;</span><span class="self">self</span>, index : u32) -&gt; <span class="kw-2">&amp;</span>[HuffmanCode] {
+        <span class="kw">let </span>start : usize = <span class="macro">fast_slice!</span>((<span class="self">self</span>.htrees)[index <span class="kw">as </span>usize]) <span class="kw">as </span>usize;
+        <span class="macro">fast_slice!</span>((<span class="self">self</span>.codes)[start;])
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="self">self</span> : <span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="ident">alloc_u32</span> : <span class="kw-2">&amp;mut</span> <span class="ident">AllocU32</span>, <span class="ident">alloc_hc</span> : <span class="kw-2">&amp;mut</span> <span class="ident">AllocHC</span>) {
-        <span class="ident">alloc_u32</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">htrees</span>,
-                                               <span class="ident">AllocU32::AllocatedMemory::default</span>()));
-        <span class="ident">alloc_hc</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">codes</span>,
-                                              <span class="ident">AllocHC::AllocatedMemory::default</span>()));
+    <span class="kw">pub fn </span>reset(<span class="self">self </span>: <span class="kw-2">&amp;mut </span><span class="self">Self</span>, alloc_u32 : <span class="kw-2">&amp;mut </span>AllocU32, alloc_hc : <span class="kw-2">&amp;mut </span>AllocHC) {
+        alloc_u32.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.htrees,
+                                               AllocU32::AllocatedMemory::default()));
+        alloc_hc.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.codes,
+                                              AllocHC::AllocatedMemory::default()));
 
-<span class="comment">// for mut iter in self.htrees[0..self.num_htrees as usize].iter_mut() {</span>
-<span class="comment">//    if iter.slice().len() &gt; 0 {</span>
-<span class="comment">//        alloc_hc.free_cell(core::mem::replace(&amp;mut iter,</span>
-<span class="comment">//                                              AllocHC::AllocatedMemory::default()));</span>
-<span class="comment">//    }</span>
-<span class="comment">// }</span>
+<span class="comment">// for mut iter in self.htrees[0..self.num_htrees as usize].iter_mut() {
+//    if iter.slice().len() &gt; 0 {
+//        alloc_hc.free_cell(core::mem::replace(&amp;mut iter,
+//                                              AllocHC::AllocatedMemory::default()));
+//    }
+// }
 
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_hgroup_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<span class="kw-2">&amp;</span>[<span class="ident">HuffmanCode</span>]; <span class="number">256</span>] {
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> : [<span class="kw-2">&amp;</span>[<span class="ident">HuffmanCode</span>]; <span class="number">256</span>] <span class="op">=</span> [<span class="kw-2">&amp;</span>[]; <span class="number">256</span>];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-      <span class="kw">for</span> <span class="ident">htree</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">htrees</span>.<span class="ident">slice</span>() {
-          <span class="ident">ret</span>[<span class="ident">index</span>] <span class="op">=</span> <span class="macro">fast_slice!</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">codes</span>)[<span class="kw-2">*</span><span class="ident">htree</span> <span class="kw">as</span> <span class="ident">usize</span> ; ]);
-          <span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    </span>}
+    <span class="kw">pub fn </span>build_hgroup_cache(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<span class="kw-2">&amp;</span>[HuffmanCode]; <span class="number">256</span>] {
+      <span class="kw">let </span><span class="kw-2">mut </span>ret : [<span class="kw-2">&amp;</span>[HuffmanCode]; <span class="number">256</span>] = [<span class="kw-2">&amp;</span>[]; <span class="number">256</span>];
+      <span class="kw">let </span><span class="kw-2">mut </span>index : usize = <span class="number">0</span>;
+      <span class="kw">for </span>htree <span class="kw">in </span><span class="self">self</span>.htrees.slice() {
+          ret[index] = <span class="macro">fast_slice!</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.codes)[<span class="kw-2">*</span>htree <span class="kw">as </span>usize ; ]);
+          index += <span class="number">1</span>;
       }
-      <span class="ident">ret</span>
+      ret
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AllocU32</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-     <span class="ident">AllocHC</span> : <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HuffmanTreeGroup</span><span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">HuffmanTreeGroup</span>::<span class="op">&lt;</span><span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span> {
-          <span class="ident">htrees</span> : <span class="ident">AllocU32::AllocatedMemory::default</span>(),
-          <span class="ident">codes</span> : <span class="ident">AllocHC::AllocatedMemory::default</span>(),
-          <span class="ident">max_symbol</span>: <span class="number">0</span>,
-          <span class="ident">alphabet_size</span> : <span class="number">0</span>,
-          <span class="ident">num_htrees</span> : <span class="number">0</span>,
+<span class="kw">impl</span>&lt;AllocU32 : alloc::Allocator&lt;u32&gt;,
+     AllocHC : alloc::Allocator&lt;HuffmanCode&gt; &gt; Default <span class="kw">for </span>HuffmanTreeGroup&lt;AllocU32, AllocHC&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        HuffmanTreeGroup::&lt;AllocU32, AllocHC&gt; {
+          htrees : AllocU32::AllocatedMemory::default(),
+          codes : AllocHC::AllocatedMemory::default(),
+          max_symbol: <span class="number">0</span>,
+          alphabet_size : <span class="number">0</span>,
+          num_htrees : <span class="number">0</span>,
         }
     }
 }
 
 
 
-<span class="kw">const</span> <span class="ident">BROTLI_REVERSE_BITS_MAX</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">8</span>;
+<span class="kw">const </span>BROTLI_REVERSE_BITS_MAX: usize = <span class="number">8</span>;
 
-<span class="kw">const</span> <span class="ident">BROTLI_REVERSE_BITS_BASE</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">const</span> <span class="ident">kReverseBits</span>: [<span class="ident">u8</span>; (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">BROTLI_REVERSE_BITS_MAX</span>)] <span class="op">=</span>
+<span class="kw">const </span>BROTLI_REVERSE_BITS_BASE: u8 = <span class="number">0</span>;
+<span class="kw">const </span>kReverseBits: [u8; (<span class="number">1 </span>&lt;&lt; BROTLI_REVERSE_BITS_MAX)] =
   [<span class="number">0x00</span>, <span class="number">0x80</span>, <span class="number">0x40</span>, <span class="number">0xC0</span>, <span class="number">0x20</span>, <span class="number">0xA0</span>, <span class="number">0x60</span>, <span class="number">0xE0</span>, <span class="number">0x10</span>, <span class="number">0x90</span>, <span class="number">0x50</span>, <span class="number">0xD0</span>, <span class="number">0x30</span>, <span class="number">0xB0</span>, <span class="number">0x70</span>, <span class="number">0xF0</span>,
    <span class="number">0x08</span>, <span class="number">0x88</span>, <span class="number">0x48</span>, <span class="number">0xC8</span>, <span class="number">0x28</span>, <span class="number">0xA8</span>, <span class="number">0x68</span>, <span class="number">0xE8</span>, <span class="number">0x18</span>, <span class="number">0x98</span>, <span class="number">0x58</span>, <span class="number">0xD8</span>, <span class="number">0x38</span>, <span class="number">0xB8</span>, <span class="number">0x78</span>, <span class="number">0xF8</span>,
    <span class="number">0x04</span>, <span class="number">0x84</span>, <span class="number">0x44</span>, <span class="number">0xC4</span>, <span class="number">0x24</span>, <span class="number">0xA4</span>, <span class="number">0x64</span>, <span class="number">0xE4</span>, <span class="number">0x14</span>, <span class="number">0x94</span>, <span class="number">0x54</span>, <span class="number">0xD4</span>, <span class="number">0x34</span>, <span class="number">0xB4</span>, <span class="number">0x74</span>, <span class="number">0xF4</span>,
@@ -621,324 +621,324 @@
    <span class="number">0x07</span>, <span class="number">0x87</span>, <span class="number">0x47</span>, <span class="number">0xC7</span>, <span class="number">0x27</span>, <span class="number">0xA7</span>, <span class="number">0x67</span>, <span class="number">0xE7</span>, <span class="number">0x17</span>, <span class="number">0x97</span>, <span class="number">0x57</span>, <span class="number">0xD7</span>, <span class="number">0x37</span>, <span class="number">0xB7</span>, <span class="number">0x77</span>, <span class="number">0xF7</span>,
    <span class="number">0x0F</span>, <span class="number">0x8F</span>, <span class="number">0x4F</span>, <span class="number">0xCF</span>, <span class="number">0x2F</span>, <span class="number">0xAF</span>, <span class="number">0x6F</span>, <span class="number">0xEF</span>, <span class="number">0x1F</span>, <span class="number">0x9F</span>, <span class="number">0x5F</span>, <span class="number">0xDF</span>, <span class="number">0x3F</span>, <span class="number">0xBF</span>, <span class="number">0x7F</span>, <span class="number">0xFF</span>];
 
-<span class="kw">const</span> <span class="ident">BROTLI_REVERSE_BITS_LOWEST</span>: <span class="ident">u32</span> <span class="op">=</span>
-  (<span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">BROTLI_REVERSE_BITS_MAX</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">-</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">BROTLI_REVERSE_BITS_BASE</span> <span class="kw">as</span> <span class="ident">u32</span>));
+<span class="kw">const </span>BROTLI_REVERSE_BITS_LOWEST: u32 =
+  (<span class="number">1u32 </span>&lt;&lt; (BROTLI_REVERSE_BITS_MAX <span class="kw">as </span>u32 - <span class="number">1 </span>+ BROTLI_REVERSE_BITS_BASE <span class="kw">as </span>u32));
 
-<span class="comment">// Returns reverse(num &gt;&gt; BROTLI_REVERSE_BITS_BASE, BROTLI_REVERSE_BITS_MAX),</span>
-<span class="comment">// where reverse(value, len) is the bit-wise reversal of the len least</span>
-<span class="comment">// significant bits of value.</span>
-<span class="kw">fn</span> <span class="ident">BrotliReverseBits</span>(<span class="ident">num</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
-  <span class="macro">fast!</span>((<span class="ident">kReverseBits</span>)[<span class="ident">num</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">u32</span>
+<span class="comment">// Returns reverse(num &gt;&gt; BROTLI_REVERSE_BITS_BASE, BROTLI_REVERSE_BITS_MAX),
+// where reverse(value, len) is the bit-wise reversal of the len least
+// significant bits of value.
+</span><span class="kw">fn </span>BrotliReverseBits(num: u32) -&gt; u32 {
+  <span class="macro">fast!</span>((kReverseBits)[num <span class="kw">as </span>usize]) <span class="kw">as </span>u32
 }
 
-<span class="comment">// Stores code in table[0], table[step], table[2*step], ..., table[end]</span>
-<span class="comment">// Assumes that end is an integer multiple of step</span>
-<span class="kw">fn</span> <span class="ident">ReplicateValue</span>(<span class="ident">table</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanCode</span>],
-                  <span class="ident">offset</span>: <span class="ident">u32</span>,
-                  <span class="ident">step</span>: <span class="ident">i32</span>,
-                  <span class="kw-2">mut</span> <span class="ident">end</span>: <span class="ident">i32</span>,
-                  <span class="ident">code</span>: <span class="ident">HuffmanCode</span>) {
-  <span class="kw">loop</span> {
-    <span class="ident">end</span> <span class="op">-</span><span class="op">=</span> <span class="ident">step</span>;
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">end</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span> <span class="ident">code</span>;
-    <span class="kw">if</span> <span class="ident">end</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {
+<span class="comment">// Stores code in table[0], table[step], table[2*step], ..., table[end]
+// Assumes that end is an integer multiple of step
+</span><span class="kw">fn </span>ReplicateValue(table: <span class="kw-2">&amp;mut </span>[HuffmanCode],
+                  offset: u32,
+                  step: i32,
+                  <span class="kw-2">mut </span>end: i32,
+                  code: HuffmanCode) {
+  <span class="kw">loop </span>{
+    end -= step;
+    <span class="macro">fast_mut!</span>((table)[offset <span class="kw">as </span>usize + end <span class="kw">as </span>usize]) = code;
+    <span class="kw">if </span>end &lt;= <span class="number">0 </span>{
       <span class="kw">break</span>;
     }
   }
 }
 
-<span class="comment">// Returns the table width of the next 2nd level table. count is the histogram</span>
-<span class="comment">// of bit lengths for the remaining symbols, len is the code length of the next</span>
-<span class="comment">// processed symbol</span>
-<span class="kw">fn</span> <span class="ident">NextTableBitSize</span>(<span class="ident">count</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>], <span class="kw-2">mut</span> <span class="ident">len</span>: <span class="ident">i32</span>, <span class="ident">root_bits</span>: <span class="ident">i32</span>) -&gt; <span class="ident">i32</span> {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">left</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="ident">root_bits</span>);
-  <span class="kw">while</span> <span class="ident">len</span> <span class="op">&lt;</span> <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">i32</span> {
-    <span class="ident">left</span> <span class="op">-</span><span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">count</span>)[<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">i32</span>;
-    <span class="kw">if</span> <span class="ident">left</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {
+<span class="comment">// Returns the table width of the next 2nd level table. count is the histogram
+// of bit lengths for the remaining symbols, len is the code length of the next
+// processed symbol
+</span><span class="kw">fn </span>NextTableBitSize(count: <span class="kw-2">&amp;</span>[u16], <span class="kw-2">mut </span>len: i32, root_bits: i32) -&gt; i32 {
+  <span class="kw">let </span><span class="kw-2">mut </span>left: i32 = <span class="number">1 </span>&lt;&lt; (len - root_bits);
+  <span class="kw">while </span>len &lt; BROTLI_HUFFMAN_MAX_CODE_LENGTH <span class="kw">as </span>i32 {
+    left -= <span class="macro">fast!</span>((count)[len <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
+    <span class="kw">if </span>left &lt;= <span class="number">0 </span>{
       <span class="kw">break</span>;
     }
-    <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">left</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span>;
+    len += <span class="number">1</span>;
+    left &lt;&lt;= <span class="number">1</span>;
   }
-  <span class="ident">len</span> <span class="op">-</span> <span class="ident">root_bits</span>
+  len - root_bits
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliBuildCodeLengthsHuffmanTable</span>(<span class="kw-2">mut</span> <span class="ident">table</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanCode</span>],
-                                          <span class="ident">code_lengths</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-                                          <span class="ident">count</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>]) {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sorted</span>: [<span class="ident">i32</span>; <span class="number">18</span>] <span class="op">=</span> <span class="macro">fast_uninitialized!</span>[<span class="number">18</span>];     <span class="comment">/* symbols sorted by code length */</span>
-  <span class="comment">// offsets in sorted table for each length</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span>: [<span class="ident">i32</span>; (<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH</span> <span class="op">+</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">=</span>
-    <span class="macro">fast_uninitialized!</span>[(<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH</span> <span class="op">+</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">usize</span>];
-  <span class="macro">assert!</span>(<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">BROTLI_REVERSE_BITS_MAX</span> <span class="kw">as</span> <span class="ident">usize</span>);
+<span class="kw">pub fn </span>BrotliBuildCodeLengthsHuffmanTable(<span class="kw-2">mut </span>table: <span class="kw-2">&amp;mut </span>[HuffmanCode],
+                                          code_lengths: <span class="kw-2">&amp;</span>[u8],
+                                          count: <span class="kw-2">&amp;</span>[u16]) {
+  <span class="kw">let </span><span class="kw-2">mut </span>sorted: [i32; <span class="number">18</span>] = <span class="macro">fast_uninitialized!</span>[<span class="number">18</span>];     <span class="comment">/* symbols sorted by code length */
+  // offsets in sorted table for each length
+  </span><span class="kw">let </span><span class="kw-2">mut </span>offset: [i32; (BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH + <span class="number">1</span>) <span class="kw">as </span>usize] =
+    <span class="macro">fast_uninitialized!</span>[(BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH + <span class="number">1</span>) <span class="kw">as </span>usize];
+  <span class="macro">assert!</span>(BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH <span class="kw">as </span>usize &lt;= BROTLI_REVERSE_BITS_MAX <span class="kw">as </span>usize);
 
-  <span class="comment">// generate offsets into sorted symbol table by code length</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">symbol</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;         <span class="comment">/* symbol index in original or sorted table */</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bits</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span>;
-  <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH</span> {
-    <span class="ident">symbol</span> <span class="op">+</span><span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">count</span>)[<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">i32</span>;
-    <span class="macro">fast_mut!</span>((<span class="ident">offset</span>)[<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span> <span class="ident">symbol</span>;
-    <span class="ident">bits</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+  <span class="comment">// generate offsets into sorted symbol table by code length
+  </span><span class="kw">let </span><span class="kw-2">mut </span>symbol: i32 = -<span class="number">1</span>;         <span class="comment">/* symbol index in original or sorted table */
+  </span><span class="kw">let </span><span class="kw-2">mut </span>bits: i32 = <span class="number">1</span>;
+  <span class="kw">for _ in </span><span class="number">0</span>..BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH {
+    symbol += <span class="macro">fast!</span>((count)[bits <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
+    <span class="macro">fast_mut!</span>((offset)[bits <span class="kw">as </span>usize]) = symbol;
+    bits += <span class="number">1</span>;
   }
-  <span class="comment">// Symbols with code length 0 are placed after all other symbols.</span>
-  <span class="macro">fast_mut!</span>((<span class="ident">offset</span>)[<span class="number">0</span>]) <span class="op">=</span> <span class="number">17</span>;
+  <span class="comment">// Symbols with code length 0 are placed after all other symbols.
+  </span><span class="macro">fast_mut!</span>((offset)[<span class="number">0</span>]) = <span class="number">17</span>;
 
-  <span class="comment">// sort symbols by length, by symbol order within each length</span>
-  <span class="ident">symbol</span> <span class="op">=</span> <span class="number">18</span>;
-  <span class="kw">loop</span> {
-    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">6</span> {
-      <span class="ident">symbol</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-      <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">offset</span>)[<span class="macro">fast_inner!</span>((<span class="ident">code_lengths</span>)[<span class="ident">symbol</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">usize</span>]);
-      <span class="macro">fast_mut!</span>((<span class="ident">offset</span>)[<span class="macro">fast_inner!</span>((<span class="ident">code_lengths</span>)[<span class="ident">symbol</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-      <span class="macro">fast_mut!</span>((<span class="ident">sorted</span>)[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span> <span class="ident">symbol</span>;
+  <span class="comment">// sort symbols by length, by symbol order within each length
+  </span>symbol = <span class="number">18</span>;
+  <span class="kw">loop </span>{
+    <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">6 </span>{
+      symbol -= <span class="number">1</span>;
+      <span class="kw">let </span>index = <span class="macro">fast!</span>((offset)[<span class="macro">fast_inner!</span>((code_lengths)[symbol <span class="kw">as </span>usize]) <span class="kw">as </span>usize]);
+      <span class="macro">fast_mut!</span>((offset)[<span class="macro">fast_inner!</span>((code_lengths)[symbol <span class="kw">as </span>usize]) <span class="kw">as </span>usize]) -= <span class="number">1</span>;
+      <span class="macro">fast_mut!</span>((sorted)[index <span class="kw">as </span>usize]) = symbol;
     }
-    <span class="kw">if</span> <span class="ident">symbol</span> <span class="op">==</span> <span class="number">0</span> {
+    <span class="kw">if </span>symbol == <span class="number">0 </span>{
       <span class="kw">break</span>;
     }
   }
 
-  <span class="kw">const</span> <span class="ident">table_size</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH</span>;
+  <span class="kw">const </span>table_size: i32 = <span class="number">1 </span>&lt;&lt; BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH;
 
-  <span class="comment">// Special case: all symbols but one have 0 code length.</span>
-  <span class="kw">if</span> <span class="macro">fast!</span>((<span class="ident">offset</span>)[<span class="number">0</span>]) <span class="op">==</span> <span class="number">0</span> {
-    <span class="kw">let</span> <span class="ident">code</span>: <span class="ident">HuffmanCode</span> <span class="op">=</span> <span class="ident">HuffmanCode</span> {
-      <span class="ident">bits</span>: <span class="number">0</span>,
-      <span class="ident">value</span>: <span class="macro">fast!</span>((<span class="ident">sorted</span>)[<span class="number">0</span>]) <span class="kw">as</span> <span class="ident">u16</span>,
+  <span class="comment">// Special case: all symbols but one have 0 code length.
+  </span><span class="kw">if </span><span class="macro">fast!</span>((offset)[<span class="number">0</span>]) == <span class="number">0 </span>{
+    <span class="kw">let </span>code: HuffmanCode = HuffmanCode {
+      bits: <span class="number">0</span>,
+      value: <span class="macro">fast!</span>((sorted)[<span class="number">0</span>]) <span class="kw">as </span>u16,
     };
-    <span class="kw">for</span> <span class="ident">val</span> <span class="kw">in</span> <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span> ; <span class="ident">table_size</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">iter_mut</span>() {
-      <span class="kw-2">*</span><span class="ident">val</span> <span class="op">=</span> <span class="ident">code</span>;
+    <span class="kw">for </span>val <span class="kw">in </span><span class="macro">fast_mut!</span>((table)[<span class="number">0 </span>; table_size <span class="kw">as </span>usize]).iter_mut() {
+      <span class="kw-2">*</span>val = code;
     }
     <span class="kw">return</span>;
   }
 
-  <span class="comment">// fill in table</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>; <span class="comment">/* prefix code */</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key_step</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">BROTLI_REVERSE_BITS_LOWEST</span>; <span class="comment">/* prefix code addend */</span>
-  <span class="ident">symbol</span> <span class="op">=</span> <span class="number">0</span>;
-  <span class="ident">bits</span> <span class="op">=</span> <span class="number">1</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">step</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">2</span>;
-  <span class="kw">loop</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">code</span>: <span class="ident">HuffmanCode</span> <span class="op">=</span> <span class="ident">HuffmanCode</span> {
-      <span class="ident">bits</span>: (<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">u8</span>),
-      <span class="ident">value</span>: <span class="number">0</span>,
+  <span class="comment">// fill in table
+  </span><span class="kw">let </span><span class="kw-2">mut </span>key: u32 = <span class="number">0</span>; <span class="comment">/* prefix code */
+  </span><span class="kw">let </span><span class="kw-2">mut </span>key_step: u32 = BROTLI_REVERSE_BITS_LOWEST; <span class="comment">/* prefix code addend */
+  </span>symbol = <span class="number">0</span>;
+  bits = <span class="number">1</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>step: i32 = <span class="number">2</span>;
+  <span class="kw">loop </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>code: HuffmanCode = HuffmanCode {
+      bits: (bits <span class="kw">as </span>u8),
+      value: <span class="number">0</span>,
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bits_count</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">count</span>)[<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">i32</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>bits_count: i32 = <span class="macro">fast!</span>((count)[bits <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
 
-    <span class="kw">while</span> <span class="ident">bits_count</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-      <span class="ident">code</span>.<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">sorted</span>)[<span class="ident">symbol</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">u16</span>;
-      <span class="ident">symbol</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-      <span class="ident">ReplicateValue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">table</span>, <span class="ident">BrotliReverseBits</span>(<span class="ident">key</span>), <span class="ident">step</span>, <span class="ident">table_size</span>, <span class="ident">code</span>);
-      <span class="ident">key</span> <span class="op">+</span><span class="op">=</span> <span class="ident">key_step</span>;
-      <span class="ident">bits_count</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">while </span>bits_count != <span class="number">0 </span>{
+      code.value = <span class="macro">fast!</span>((sorted)[symbol <span class="kw">as </span>usize]) <span class="kw">as </span>u16;
+      symbol += <span class="number">1</span>;
+      ReplicateValue(<span class="kw-2">&amp;mut </span>table, BrotliReverseBits(key), step, table_size, code);
+      key += key_step;
+      bits_count -= <span class="number">1</span>;
     }
-    <span class="ident">step</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">key_step</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">bits</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">if</span> <span class="op">!</span>(<span class="ident">bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">i32</span>) {
+    step &lt;&lt;= <span class="number">1</span>;
+    key_step &gt;&gt;= <span class="number">1</span>;
+    bits += <span class="number">1</span>;
+    <span class="kw">if </span>!(bits &lt;= BROTLI_HUFFMAN_MAX_CODE_LENGTH_CODE_LENGTH <span class="kw">as </span>i32) {
       <span class="kw">break</span>;
     }
   }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliBuildHuffmanTable</span>(<span class="kw-2">mut</span> <span class="ident">root_table</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanCode</span>],
-                               <span class="ident">root_bits</span>: <span class="ident">i32</span>,
-                               <span class="ident">symbol_lists</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
-                               <span class="ident">symbol_lists_offset</span>: <span class="ident">usize</span>, <span class="comment">/* need negative-index to symbol_lists */</span>
-                               <span class="ident">count</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>])
-                               -&gt; <span class="ident">u32</span> {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">code</span>: <span class="ident">HuffmanCode</span> <span class="op">=</span> <span class="ident">HuffmanCode</span> {
-    <span class="ident">bits</span>: <span class="number">0</span>,
-    <span class="ident">value</span>: <span class="number">0</span>,
-  };       <span class="comment">/* current table entry */</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_length</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
+<span class="kw">pub fn </span>BrotliBuildHuffmanTable(<span class="kw-2">mut </span>root_table: <span class="kw-2">&amp;mut </span>[HuffmanCode],
+                               root_bits: i32,
+                               symbol_lists: <span class="kw-2">&amp;</span>[u16],
+                               symbol_lists_offset: usize, <span class="comment">/* need negative-index to symbol_lists */
+                               </span>count: <span class="kw-2">&amp;mut </span>[u16])
+                               -&gt; u32 {
+  <span class="kw">let </span><span class="kw-2">mut </span>code: HuffmanCode = HuffmanCode {
+    bits: <span class="number">0</span>,
+    value: <span class="number">0</span>,
+  };       <span class="comment">/* current table entry */
+  </span><span class="kw">let </span><span class="kw-2">mut </span>max_length: i32 = -<span class="number">1</span>;
 
-  <span class="macro">assert!</span>(<span class="ident">root_bits</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">BROTLI_REVERSE_BITS_MAX</span> <span class="kw">as</span> <span class="ident">isize</span>);
-  <span class="macro">assert!</span>(<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">-</span> <span class="ident">root_bits</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">&lt;</span><span class="op">=</span>
-          <span class="ident">BROTLI_REVERSE_BITS_MAX</span> <span class="kw">as</span> <span class="ident">isize</span>);
+  <span class="macro">assert!</span>(root_bits <span class="kw">as </span>isize &lt;= BROTLI_REVERSE_BITS_MAX <span class="kw">as </span>isize);
+  <span class="macro">assert!</span>(BROTLI_HUFFMAN_MAX_CODE_LENGTH <span class="kw">as </span>isize - root_bits <span class="kw">as </span>isize &lt;=
+          BROTLI_REVERSE_BITS_MAX <span class="kw">as </span>isize);
 
-  <span class="kw">while</span> <span class="macro">fast!</span>((<span class="ident">symbol_lists</span>)[((<span class="ident">symbol_lists_offset</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">max_length</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">==</span>
-        <span class="number">0xFFFF</span> {
-    <span class="ident">max_length</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+  <span class="kw">while </span><span class="macro">fast!</span>((symbol_lists)[((symbol_lists_offset <span class="kw">as </span>isize) + max_length <span class="kw">as </span>isize) <span class="kw">as </span>usize]) ==
+        <span class="number">0xFFFF </span>{
+    max_length -= <span class="number">1</span>;
   }
-  <span class="ident">max_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="number">1</span>;
+  max_length += BROTLI_HUFFMAN_MAX_CODE_LENGTH <span class="kw">as </span>i32 + <span class="number">1</span>;
 
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table_free_offset</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table_bits</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">root_bits</span>;      <span class="comment">/* key length of current table */</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table_size</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">table_bits</span>;<span class="comment">/* size of current table */</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_size</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">table_size</span>;     <span class="comment">/* sum of root table size and 2nd level table sizes */</span>
+  <span class="kw">let </span><span class="kw-2">mut </span>table_free_offset: u32 = <span class="number">0</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>table_bits: i32 = root_bits;      <span class="comment">/* key length of current table */
+  </span><span class="kw">let </span><span class="kw-2">mut </span>table_size: i32 = <span class="number">1 </span>&lt;&lt; table_bits;<span class="comment">/* size of current table */
+  </span><span class="kw">let </span><span class="kw-2">mut </span>total_size: i32 = table_size;     <span class="comment">/* sum of root table size and 2nd level table sizes */
 
-  <span class="comment">// fill in root table</span>
-  <span class="comment">// let&#39;s reduce the table size to a smaller size if possible, and</span>
-  <span class="comment">// create the repetitions by memcpy if possible in the coming loop</span>
-  <span class="kw">if</span> <span class="ident">table_bits</span> <span class="op">&gt;</span> <span class="ident">max_length</span> {
-    <span class="ident">table_bits</span> <span class="op">=</span> <span class="ident">max_length</span>;
-    <span class="ident">table_size</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">table_bits</span>;
+  // fill in root table
+  // let&#39;s reduce the table size to a smaller size if possible, and
+  // create the repetitions by memcpy if possible in the coming loop
+  </span><span class="kw">if </span>table_bits &gt; max_length {
+    table_bits = max_length;
+    table_size = <span class="number">1 </span>&lt;&lt; table_bits;
   }
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>; <span class="comment">/* prefix code */</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key_step</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">BROTLI_REVERSE_BITS_LOWEST</span>; <span class="comment">/* prefix code addend */</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bits</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">1</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">step</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">2</span>; <span class="comment">/* step size to replicate values in current table */</span>
-  <span class="kw">loop</span> {
-    <span class="ident">code</span>.<span class="ident">bits</span> <span class="op">=</span> <span class="ident">bits</span> <span class="kw">as</span> <span class="ident">u8</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">symbol</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">bits</span> <span class="op">-</span> (<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="number">1</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bits_count</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">count</span>)[<span class="ident">bits</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">i32</span>;
-    <span class="kw">while</span> <span class="ident">bits_count</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-      <span class="ident">symbol</span> <span class="op">=</span>
-        <span class="macro">fast!</span>((<span class="ident">symbol_lists</span>)[(<span class="ident">symbol_lists_offset</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="ident">symbol</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">i32</span>;
-      <span class="ident">code</span>.<span class="ident">value</span> <span class="op">=</span> <span class="ident">symbol</span> <span class="kw">as</span> <span class="ident">u16</span>;
-      <span class="ident">ReplicateValue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">root_table</span>,
-                     <span class="ident">table_free_offset</span> <span class="op">+</span> <span class="ident">BrotliReverseBits</span>(<span class="ident">key</span>),
-                     <span class="ident">step</span>,
-                     <span class="ident">table_size</span>,
-                     <span class="ident">code</span>);
-      <span class="ident">key</span> <span class="op">+</span><span class="op">=</span> <span class="ident">key_step</span>;
-      <span class="ident">bits_count</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>key: u32 = <span class="number">0</span>; <span class="comment">/* prefix code */
+  </span><span class="kw">let </span><span class="kw-2">mut </span>key_step: u32 = BROTLI_REVERSE_BITS_LOWEST; <span class="comment">/* prefix code addend */
+  </span><span class="kw">let </span><span class="kw-2">mut </span>bits: i32 = <span class="number">1</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>step: i32 = <span class="number">2</span>; <span class="comment">/* step size to replicate values in current table */
+  </span><span class="kw">loop </span>{
+    code.bits = bits <span class="kw">as </span>u8;
+    <span class="kw">let </span><span class="kw-2">mut </span>symbol: i32 = bits - (BROTLI_HUFFMAN_MAX_CODE_LENGTH <span class="kw">as </span>i32 + <span class="number">1</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>bits_count: i32 = <span class="macro">fast!</span>((count)[bits <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
+    <span class="kw">while </span>bits_count != <span class="number">0 </span>{
+      symbol =
+        <span class="macro">fast!</span>((symbol_lists)[(symbol_lists_offset <span class="kw">as </span>isize + symbol <span class="kw">as </span>isize) <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
+      code.value = symbol <span class="kw">as </span>u16;
+      ReplicateValue(<span class="kw-2">&amp;mut </span>root_table,
+                     table_free_offset + BrotliReverseBits(key),
+                     step,
+                     table_size,
+                     code);
+      key += key_step;
+      bits_count -= <span class="number">1</span>;
     }
-    <span class="ident">step</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">key_step</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">bits</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">if</span> <span class="op">!</span>(<span class="ident">bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">table_bits</span>) {
+    step &lt;&lt;= <span class="number">1</span>;
+    key_step &gt;&gt;= <span class="number">1</span>;
+    bits += <span class="number">1</span>;
+    <span class="kw">if </span>!(bits &lt;= table_bits) {
       <span class="kw">break</span>;
     }
   }
 
-  <span class="comment">// if root_bits != table_bits we only created one fraction of the</span>
-  <span class="comment">// table, and we need to replicate it now.</span>
-  <span class="kw">while</span> <span class="ident">total_size</span> <span class="op">!</span><span class="op">=</span> <span class="ident">table_size</span> {
-    <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">table_size</span> {
-      <span class="comment">// FIXME: did I get this right?</span>
-      <span class="macro">fast_mut!</span>((<span class="ident">root_table</span>)[<span class="ident">table_free_offset</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">table_size</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span>
-        <span class="macro">fast!</span>((<span class="ident">root_table</span>)[<span class="ident">table_free_offset</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]);
+  <span class="comment">// if root_bits != table_bits we only created one fraction of the
+  // table, and we need to replicate it now.
+  </span><span class="kw">while </span>total_size != table_size {
+    <span class="kw">for </span>index <span class="kw">in </span><span class="number">0</span>..table_size {
+      <span class="comment">// FIXME: did I get this right?
+      </span><span class="macro">fast_mut!</span>((root_table)[table_free_offset <span class="kw">as </span>usize + table_size <span class="kw">as </span>usize + index <span class="kw">as </span>usize]) =
+        <span class="macro">fast!</span>((root_table)[table_free_offset <span class="kw">as </span>usize + index <span class="kw">as </span>usize]);
     }
-    <span class="ident">table_size</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span>;
+    table_size &lt;&lt;= <span class="number">1</span>;
   }
 
-  <span class="comment">// fill in 2nd level tables and add pointers to root table</span>
-  <span class="ident">key_step</span> <span class="op">=</span> <span class="ident">BROTLI_REVERSE_BITS_LOWEST</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="ident">root_bits</span> <span class="op">-</span> <span class="number">1</span>);
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sub_key</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">BROTLI_REVERSE_BITS_LOWEST</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>;       <span class="comment">/* 2nd level table prefix code */</span>
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sub_key_step</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">BROTLI_REVERSE_BITS_LOWEST</span>;   <span class="comment">/* 2nd level table prefix code addend */</span>
+  <span class="comment">// fill in 2nd level tables and add pointers to root table
+  </span>key_step = BROTLI_REVERSE_BITS_LOWEST &gt;&gt; (root_bits - <span class="number">1</span>);
+  <span class="kw">let </span><span class="kw-2">mut </span>sub_key: u32 = BROTLI_REVERSE_BITS_LOWEST &lt;&lt; <span class="number">1</span>;       <span class="comment">/* 2nd level table prefix code */
+  </span><span class="kw">let </span><span class="kw-2">mut </span>sub_key_step: u32 = BROTLI_REVERSE_BITS_LOWEST;   <span class="comment">/* 2nd level table prefix code addend */
 
-  <span class="ident">step</span> <span class="op">=</span> <span class="number">2</span>;
+  </span>step = <span class="number">2</span>;
 
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">root_bits</span> <span class="op">+</span> <span class="number">1</span>; <span class="comment">/* current code length */</span>
-  <span class="kw">while</span> <span class="ident">len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">max_length</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">symbol</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">len</span> <span class="op">-</span> (<span class="ident">BROTLI_HUFFMAN_MAX_CODE_LENGTH</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="number">1</span>);
-    <span class="kw">while</span> <span class="macro">fast!</span>((<span class="ident">count</span>)[<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-      <span class="kw">if</span> <span class="ident">sub_key</span> <span class="op">==</span> (<span class="ident">BROTLI_REVERSE_BITS_LOWEST</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1u32</span>) {
-        <span class="ident">table_free_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">table_size</span> <span class="kw">as</span> <span class="ident">u32</span>;
-        <span class="ident">table_bits</span> <span class="op">=</span> <span class="ident">NextTableBitSize</span>(<span class="ident">count</span>, <span class="ident">len</span>, <span class="ident">root_bits</span>);
-        <span class="ident">table_size</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">table_bits</span>;
-        <span class="ident">total_size</span> <span class="op">+</span><span class="op">=</span> <span class="ident">table_size</span>;
-        <span class="ident">sub_key</span> <span class="op">=</span> <span class="ident">BrotliReverseBits</span>(<span class="ident">key</span>);
-        <span class="ident">key</span> <span class="op">+</span><span class="op">=</span> <span class="ident">key_step</span>;
-        <span class="macro">fast_mut!</span>((<span class="ident">root_table</span>)[<span class="ident">sub_key</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">bits</span> <span class="op">=</span> (<span class="ident">table_bits</span> <span class="op">+</span> <span class="ident">root_bits</span>) <span class="kw">as</span> <span class="ident">u8</span>;
-        <span class="macro">fast_mut!</span>((<span class="ident">root_table</span>)[<span class="ident">sub_key</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">value</span> <span class="op">=</span>
-          ((<span class="ident">table_free_offset</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">-</span> <span class="ident">sub_key</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="kw">as</span> <span class="ident">u16</span>;
-        <span class="ident">sub_key</span> <span class="op">=</span> <span class="number">0</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>len: i32 = root_bits + <span class="number">1</span>; <span class="comment">/* current code length */
+  </span><span class="kw">while </span>len &lt;= max_length {
+    <span class="kw">let </span><span class="kw-2">mut </span>symbol: i32 = len - (BROTLI_HUFFMAN_MAX_CODE_LENGTH <span class="kw">as </span>i32 + <span class="number">1</span>);
+    <span class="kw">while </span><span class="macro">fast!</span>((count)[len <span class="kw">as </span>usize]) != <span class="number">0 </span>{
+      <span class="kw">if </span>sub_key == (BROTLI_REVERSE_BITS_LOWEST &lt;&lt; <span class="number">1u32</span>) {
+        table_free_offset += table_size <span class="kw">as </span>u32;
+        table_bits = NextTableBitSize(count, len, root_bits);
+        table_size = <span class="number">1 </span>&lt;&lt; table_bits;
+        total_size += table_size;
+        sub_key = BrotliReverseBits(key);
+        key += key_step;
+        <span class="macro">fast_mut!</span>((root_table)[sub_key <span class="kw">as </span>usize]).bits = (table_bits + root_bits) <span class="kw">as </span>u8;
+        <span class="macro">fast_mut!</span>((root_table)[sub_key <span class="kw">as </span>usize]).value =
+          ((table_free_offset <span class="kw">as </span>usize) - sub_key <span class="kw">as </span>usize) <span class="kw">as </span>u16;
+        sub_key = <span class="number">0</span>;
       }
-      <span class="ident">code</span>.<span class="ident">bits</span> <span class="op">=</span> (<span class="ident">len</span> <span class="op">-</span> <span class="ident">root_bits</span>) <span class="kw">as</span> <span class="ident">u8</span>;
-      <span class="ident">symbol</span> <span class="op">=</span>
-        <span class="macro">fast!</span>((<span class="ident">symbol_lists</span>)[(<span class="ident">symbol_lists_offset</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="ident">symbol</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">i32</span>;
-      <span class="ident">code</span>.<span class="ident">value</span> <span class="op">=</span> <span class="ident">symbol</span> <span class="kw">as</span> <span class="ident">u16</span>;
-      <span class="ident">ReplicateValue</span>(<span class="kw-2">&amp;mut</span> <span class="ident">root_table</span>,
-                     <span class="ident">table_free_offset</span> <span class="op">+</span> <span class="ident">BrotliReverseBits</span>(<span class="ident">sub_key</span>),
-                     <span class="ident">step</span>,
-                     <span class="ident">table_size</span>,
-                     <span class="ident">code</span>);
-      <span class="ident">sub_key</span> <span class="op">+</span><span class="op">=</span> <span class="ident">sub_key_step</span>;
-      <span class="macro">fast_mut!</span>((<span class="ident">count</span>)[<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+      code.bits = (len - root_bits) <span class="kw">as </span>u8;
+      symbol =
+        <span class="macro">fast!</span>((symbol_lists)[(symbol_lists_offset <span class="kw">as </span>isize + symbol <span class="kw">as </span>isize) <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
+      code.value = symbol <span class="kw">as </span>u16;
+      ReplicateValue(<span class="kw-2">&amp;mut </span>root_table,
+                     table_free_offset + BrotliReverseBits(sub_key),
+                     step,
+                     table_size,
+                     code);
+      sub_key += sub_key_step;
+      <span class="macro">fast_mut!</span>((count)[len <span class="kw">as </span>usize]) -= <span class="number">1</span>;
     }
-    <span class="ident">step</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">sub_key_step</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>
-  }
-  <span class="ident">total_size</span> <span class="kw">as</span> <span class="ident">u32</span>
+    step &lt;&lt;= <span class="number">1</span>;
+    sub_key_step &gt;&gt;= <span class="number">1</span>;
+    len += <span class="number">1
+  </span>}
+  total_size <span class="kw">as </span>u32
 }
 
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliBuildSimpleHuffmanTable</span>(<span class="ident">table</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HuffmanCode</span>],
-                                     <span class="ident">root_bits</span>: <span class="ident">i32</span>,
-                                     <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
-                                     <span class="ident">num_symbols</span>: <span class="ident">u32</span>)
-                                     -&gt; <span class="ident">u32</span> {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table_size</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1</span>;
-  <span class="kw">let</span> <span class="ident">goal_size</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">root_bits</span>;
-  <span class="macro">assert!</span>(<span class="ident">num_symbols</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">4</span>);
-  <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">0</span> {
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]);
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">1</span> {
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">if</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]) <span class="op">&gt;</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]) {
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]);
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]);
-    } <span class="kw">else</span> {
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]);
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]);
+<span class="kw">pub fn </span>BrotliBuildSimpleHuffmanTable(table: <span class="kw-2">&amp;mut </span>[HuffmanCode],
+                                     root_bits: i32,
+                                     val: <span class="kw-2">&amp;</span>[u16],
+                                     num_symbols: u32)
+                                     -&gt; u32 {
+  <span class="kw">let </span><span class="kw-2">mut </span>table_size: u32 = <span class="number">1</span>;
+  <span class="kw">let </span>goal_size: u32 = <span class="number">1u32 </span>&lt;&lt; root_bits;
+  <span class="macro">assert!</span>(num_symbols &lt;= <span class="number">4</span>);
+  <span class="kw">if </span>num_symbols == <span class="number">0 </span>{
+    <span class="macro">fast_mut!</span>((table)[<span class="number">0</span>]).bits = <span class="number">0</span>;
+    <span class="macro">fast_mut!</span>((table)[<span class="number">0</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">0</span>]);
+  } <span class="kw">else if </span>num_symbols == <span class="number">1 </span>{
+    <span class="macro">fast_mut!</span>((table)[<span class="number">0</span>]).bits = <span class="number">1</span>;
+    <span class="macro">fast_mut!</span>((table)[<span class="number">1</span>]).bits = <span class="number">1</span>;
+    <span class="kw">if </span><span class="macro">fast!</span>((val)[<span class="number">1</span>]) &gt; <span class="macro">fast!</span>((val)[<span class="number">0</span>]) {
+      <span class="macro">fast_mut!</span>((table)[<span class="number">0</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">0</span>]);
+      <span class="macro">fast_mut!</span>((table)[<span class="number">1</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">1</span>]);
+    } <span class="kw">else </span>{
+      <span class="macro">fast_mut!</span>((table)[<span class="number">0</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">1</span>]);
+      <span class="macro">fast_mut!</span>((table)[<span class="number">1</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">0</span>]);
     }
-    <span class="ident">table_size</span> <span class="op">=</span> <span class="number">2</span>;
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">2</span> {
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]);
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">2</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">2</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]);
-    <span class="kw">if</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">2</span>]) <span class="op">&gt;</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]) {
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]);
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">3</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">2</span>]);
-    } <span class="kw">else</span> {
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">2</span>]);
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">3</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]);
+    table_size = <span class="number">2</span>;
+  } <span class="kw">else if </span>num_symbols == <span class="number">2 </span>{
+    <span class="macro">fast_mut!</span>((table)[<span class="number">0</span>]).bits = <span class="number">1</span>;
+    <span class="macro">fast_mut!</span>((table)[<span class="number">0</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">0</span>]);
+    <span class="macro">fast_mut!</span>((table)[<span class="number">2</span>]).bits = <span class="number">1</span>;
+    <span class="macro">fast_mut!</span>((table)[<span class="number">2</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">0</span>]);
+    <span class="kw">if </span><span class="macro">fast!</span>((val)[<span class="number">2</span>]) &gt; <span class="macro">fast!</span>((val)[<span class="number">1</span>]) {
+      <span class="macro">fast_mut!</span>((table)[<span class="number">1</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">1</span>]);
+      <span class="macro">fast_mut!</span>((table)[<span class="number">3</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">2</span>]);
+    } <span class="kw">else </span>{
+      <span class="macro">fast_mut!</span>((table)[<span class="number">1</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">2</span>]);
+      <span class="macro">fast_mut!</span>((table)[<span class="number">3</span>]).value = <span class="macro">fast!</span>((val)[<span class="number">1</span>]);
     }
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">2</span>;
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">3</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">2</span>;
-    <span class="ident">table_size</span> <span class="op">=</span> <span class="number">4</span>;
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">3</span> {
-    <span class="kw">let</span> <span class="ident">last</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">val</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">3</span> { <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">3</span>]) } <span class="kw">else</span> { <span class="number">65535</span> };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mval</span>: [<span class="ident">u16</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">2</span>]), <span class="ident">last</span>];
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">3</span> {
-      <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>..<span class="number">4</span> {
-        <span class="kw">if</span> <span class="ident">mval</span>[<span class="ident">k</span>] <span class="op">&lt;</span> <span class="ident">mval</span>[<span class="ident">i</span>] {
-          <span class="ident">mval</span>.<span class="ident">swap</span>(<span class="ident">k</span>, <span class="ident">i</span>);
+    <span class="macro">fast_mut!</span>((table)[<span class="number">1</span>]).bits = <span class="number">2</span>;
+    <span class="macro">fast_mut!</span>((table)[<span class="number">3</span>]).bits = <span class="number">2</span>;
+    table_size = <span class="number">4</span>;
+  } <span class="kw">else if </span>num_symbols == <span class="number">3 </span>{
+    <span class="kw">let </span>last: u16 = <span class="kw">if </span>val.len() &gt; <span class="number">3 </span>{ <span class="macro">fast!</span>((val)[<span class="number">3</span>]) } <span class="kw">else </span>{ <span class="number">65535 </span>};
+    <span class="kw">let </span><span class="kw-2">mut </span>mval: [u16; <span class="number">4</span>] = [<span class="macro">fast!</span>((val)[<span class="number">0</span>]), <span class="macro">fast!</span>((val)[<span class="number">1</span>]), <span class="macro">fast!</span>((val)[<span class="number">2</span>]), last];
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">3 </span>{
+      <span class="kw">for </span>k <span class="kw">in </span>i + <span class="number">1</span>..<span class="number">4 </span>{
+        <span class="kw">if </span>mval[k] &lt; mval[i] {
+          mval.swap(k, i);
         }
       }
     }
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="ident">i</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">2</span>;
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">4 </span>{
+      <span class="macro">fast_mut!</span>((table)[i]).bits = <span class="number">2</span>;
     }
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">0</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">0</span>];
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">2</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">1</span>];
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">2</span>];
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">3</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">3</span>];
-    <span class="ident">table_size</span> <span class="op">=</span> <span class="number">4</span>;
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_symbols</span> <span class="op">==</span> <span class="number">4</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mval</span>: [<span class="ident">u16</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">0</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">1</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">2</span>]), <span class="macro">fast!</span>((<span class="ident">val</span>)[<span class="number">3</span>])];
-    <span class="kw">if</span> <span class="ident">mval</span>[<span class="number">3</span>] <span class="op">&lt;</span> <span class="ident">mval</span>[<span class="number">2</span>] {
-      <span class="ident">mval</span>.<span class="ident">swap</span>(<span class="number">3</span>, <span class="number">2</span>)
+    <span class="macro">fast_mut!</span>((table)[<span class="number">0</span>]).value = mval[<span class="number">0</span>];
+    <span class="macro">fast_mut!</span>((table)[<span class="number">2</span>]).value = mval[<span class="number">1</span>];
+    <span class="macro">fast_mut!</span>((table)[<span class="number">1</span>]).value = mval[<span class="number">2</span>];
+    <span class="macro">fast_mut!</span>((table)[<span class="number">3</span>]).value = mval[<span class="number">3</span>];
+    table_size = <span class="number">4</span>;
+  } <span class="kw">else if </span>num_symbols == <span class="number">4 </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>mval: [u16; <span class="number">4</span>] = [<span class="macro">fast!</span>((val)[<span class="number">0</span>]), <span class="macro">fast!</span>((val)[<span class="number">1</span>]), <span class="macro">fast!</span>((val)[<span class="number">2</span>]), <span class="macro">fast!</span>((val)[<span class="number">3</span>])];
+    <span class="kw">if </span>mval[<span class="number">3</span>] &lt; mval[<span class="number">2</span>] {
+      mval.swap(<span class="number">3</span>, <span class="number">2</span>)
     }
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">7</span> {
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="ident">i</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">0</span>];
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="ident">i</span>]).<span class="ident">bits</span> <span class="op">=</span> (<span class="number">1</span> <span class="op">+</span> (<span class="ident">i</span> <span class="op">&amp;</span> <span class="number">1</span>)) <span class="kw">as</span> <span class="ident">u8</span>;
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">7 </span>{
+      <span class="macro">fast_mut!</span>((table)[i]).value = mval[<span class="number">0</span>];
+      <span class="macro">fast_mut!</span>((table)[i]).bits = (<span class="number">1 </span>+ (i &amp; <span class="number">1</span>)) <span class="kw">as </span>u8;
     }
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">1</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">1</span>];
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">3</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">2</span>];
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">5</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">1</span>];
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">7</span>]).<span class="ident">value</span> <span class="op">=</span> <span class="ident">mval</span>[<span class="number">3</span>];
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">3</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">3</span>;
-    <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[<span class="number">7</span>]).<span class="ident">bits</span> <span class="op">=</span> <span class="number">3</span>;
-    <span class="ident">table_size</span> <span class="op">=</span> <span class="number">8</span>;
-  } <span class="kw">else</span> {
+    <span class="macro">fast_mut!</span>((table)[<span class="number">1</span>]).value = mval[<span class="number">1</span>];
+    <span class="macro">fast_mut!</span>((table)[<span class="number">3</span>]).value = mval[<span class="number">2</span>];
+    <span class="macro">fast_mut!</span>((table)[<span class="number">5</span>]).value = mval[<span class="number">1</span>];
+    <span class="macro">fast_mut!</span>((table)[<span class="number">7</span>]).value = mval[<span class="number">3</span>];
+    <span class="macro">fast_mut!</span>((table)[<span class="number">3</span>]).bits = <span class="number">3</span>;
+    <span class="macro">fast_mut!</span>((table)[<span class="number">7</span>]).bits = <span class="number">3</span>;
+    table_size = <span class="number">8</span>;
+  } <span class="kw">else </span>{
     <span class="macro">assert!</span>(<span class="bool-val">false</span>);
   }
-  <span class="kw">while</span> <span class="ident">table_size</span> <span class="op">!</span><span class="op">=</span> <span class="ident">goal_size</span> {
-    <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">table_size</span> {
-      <span class="macro">fast_mut!</span>((<span class="ident">table</span>)[(<span class="ident">table_size</span> <span class="op">+</span> <span class="ident">index</span>) <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span> <span class="macro">fast!</span>((<span class="ident">table</span>)[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]);
+  <span class="kw">while </span>table_size != goal_size {
+    <span class="kw">for </span>index <span class="kw">in </span><span class="number">0</span>..table_size {
+      <span class="macro">fast_mut!</span>((table)[(table_size + index) <span class="kw">as </span>usize]) = <span class="macro">fast!</span>((table)[index <span class="kw">as </span>usize]);
     }
-    <span class="ident">table_size</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span>;
+    table_size &lt;&lt;= <span class="number">1</span>;
   }
-  <span class="ident">goal_size</span>
+  goal_size
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

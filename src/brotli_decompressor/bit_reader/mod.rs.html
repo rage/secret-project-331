@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/bit_reader/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli_decompressor/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/bit_reader/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli_decompressor/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -640,647 +640,647 @@
 <span id="640">640</span>
 <span id="641">641</span>
 <span id="642">642</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="kw">use</span> <span class="ident">core::default::Default</span>;
-<span class="macro">macro_rules!</span> <span class="ident">xprintln</span> (
-  (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> : <span class="ident">expr</span>) =&gt; ();
-  (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span> : <span class="ident">expr</span>) =&gt; ();
-  (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span> : <span class="ident">expr</span>) =&gt; ();
-  (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">d</span> : <span class="ident">expr</span>) =&gt; ();
-  (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">d</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span> : <span class="ident">expr</span>) =&gt; ();
-  (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">d</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span> : <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">f</span> : <span class="ident">expr</span>) =&gt; ();
+</pre><pre class="rust"><code><span class="attribute">#![allow(non_snake_case)]
+</span><span class="kw">use </span>core::default::Default;
+<span class="macro">macro_rules! </span>xprintln (
+  (<span class="macro-nonterminal">$a </span>: expr) =&gt; ();
+  (<span class="macro-nonterminal">$a </span>: expr, <span class="macro-nonterminal">$b </span>: expr) =&gt; ();
+  (<span class="macro-nonterminal">$a </span>: expr, <span class="macro-nonterminal">$b </span>: expr, <span class="macro-nonterminal">$c </span>: expr) =&gt; ();
+  (<span class="macro-nonterminal">$a </span>: expr, <span class="macro-nonterminal">$b </span>: expr, <span class="macro-nonterminal">$c </span>: expr, <span class="macro-nonterminal">$d </span>: expr) =&gt; ();
+  (<span class="macro-nonterminal">$a </span>: expr, <span class="macro-nonterminal">$b </span>: expr, <span class="macro-nonterminal">$c </span>: expr, <span class="macro-nonterminal">$d </span>: expr, <span class="macro-nonterminal">$e </span>: expr) =&gt; ();
+  (<span class="macro-nonterminal">$a </span>: expr, <span class="macro-nonterminal">$b </span>: expr, <span class="macro-nonterminal">$c </span>: expr, <span class="macro-nonterminal">$d </span>: expr, <span class="macro-nonterminal">$e </span>: expr, <span class="macro-nonterminal">$f </span>: expr) =&gt; ();
 );
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BROTLI_SHORT_FILL_BIT_WINDOW_READ</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">4</span>;
+<span class="kw">pub const </span>BROTLI_SHORT_FILL_BIT_WINDOW_READ: u32 = <span class="number">4</span>;
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">reg_t</span> <span class="op">=</span> <span class="ident">u64</span>;
+<span class="attribute">#[allow(non_camel_case_types)]
+</span><span class="kw">pub type </span>reg_t = u64;
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
-<span class="kw">const</span> <span class="ident">kBitMask</span>: [<span class="ident">u32</span>; <span class="number">33</span>] <span class="op">=</span>
+<span class="attribute">#[allow(non_upper_case_globals)]
+</span><span class="kw">const </span>kBitMask: [u32; <span class="number">33</span>] =
   [<span class="number">0x0000</span>, <span class="number">0x00000001</span>, <span class="number">0x00000003</span>, <span class="number">0x00000007</span>, <span class="number">0x0000000F</span>, <span class="number">0x0000001F</span>, <span class="number">0x0000003F</span>, <span class="number">0x0000007F</span>,
    <span class="number">0x000000FF</span>, <span class="number">0x000001FF</span>, <span class="number">0x000003FF</span>, <span class="number">0x000007FF</span>, <span class="number">0x00000FFF</span>, <span class="number">0x00001FFF</span>, <span class="number">0x00003FFF</span>, <span class="number">0x00007FFF</span>,
    <span class="number">0x0000FFFF</span>, <span class="number">0x0001FFFF</span>, <span class="number">0x0003FFFF</span>, <span class="number">0x0007FFFF</span>, <span class="number">0x000FFFFF</span>, <span class="number">0x001FFFFF</span>, <span class="number">0x003FFFFF</span>, <span class="number">0x007FFFFF</span>,
    <span class="number">0x00FFFFFF</span>, <span class="number">0x01FFFFFF</span>, <span class="number">0x03FFFFFF</span>, <span class="number">0x07FFFFFF</span>, <span class="number">0x0FFFFFFF</span>, <span class="number">0x1FFFFFFF</span>, <span class="number">0x3FFFFFFF</span>, <span class="number">0x7FFFFFFF</span>,
    <span class="number">0xFFFFFFFF</span>];
 
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BitMask</span>(<span class="ident">n</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
-  <span class="kw">if</span> <span class="bool-val">false</span> {
-    <span class="comment">// Masking with this expression turns to a single</span>
-    <span class="comment">// &quot;Unsigned Bit Field Extract&quot; UBFX instruction on ARM.</span>
-    <span class="op">!</span>((<span class="number">0xffffffffu32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">n</span>)
-  } <span class="kw">else</span> {
-    <span class="macro">fast!</span>((<span class="ident">kBitMask</span>)[<span class="ident">n</span> <span class="kw">as</span> <span class="ident">usize</span>])
+<span class="attribute">#[inline]
+</span><span class="kw">pub fn </span>BitMask(n: u32) -&gt; u32 {
+  <span class="kw">if </span><span class="bool-val">false </span>{
+    <span class="comment">// Masking with this expression turns to a single
+    // &quot;Unsigned Bit Field Extract&quot; UBFX instruction on ARM.
+    </span>!((<span class="number">0xffffffffu32</span>) &lt;&lt; n)
+  } <span class="kw">else </span>{
+    <span class="macro">fast!</span>((kBitMask)[n <span class="kw">as </span>usize])
   }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrotliBitReader</span> {
-  <span class="kw">pub</span> <span class="ident">val_</span>: <span class="ident">reg_t</span>, <span class="comment">// pre-fetched bits</span>
-  <span class="kw">pub</span> <span class="ident">bit_pos_</span>: <span class="ident">u32</span>, <span class="comment">// current bit-reading position in val_</span>
-  <span class="kw">pub</span> <span class="ident">next_in</span>: <span class="ident">u32</span>, <span class="comment">// the byte we&#39;re reading from</span>
-  <span class="kw">pub</span> <span class="ident">avail_in</span>: <span class="ident">u32</span>,
+<span class="kw">pub struct </span>BrotliBitReader {
+  <span class="kw">pub </span>val_: reg_t, <span class="comment">// pre-fetched bits
+  </span><span class="kw">pub </span>bit_pos_: u32, <span class="comment">// current bit-reading position in val_
+  </span><span class="kw">pub </span>next_in: u32, <span class="comment">// the byte we&#39;re reading from
+  </span><span class="kw">pub </span>avail_in: u32,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">BrotliBitReader</span> {
-  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-    <span class="ident">BrotliBitReader</span> {
-      <span class="ident">val_</span>: <span class="number">0</span>,
-      <span class="ident">bit_pos_</span>: <span class="number">0</span>,
-      <span class="ident">next_in</span>: <span class="number">0</span>,
-      <span class="ident">avail_in</span>: <span class="number">0</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>BrotliBitReader {
+  <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+    BrotliBitReader {
+      val_: <span class="number">0</span>,
+      bit_pos_: <span class="number">0</span>,
+      next_in: <span class="number">0</span>,
+      avail_in: <span class="number">0</span>,
     }
   }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrotliBitReaderState</span> {
-  <span class="kw">pub</span> <span class="ident">val_</span>: <span class="ident">reg_t</span>, <span class="comment">// pre-fetched bits</span>
-  <span class="kw">pub</span> <span class="ident">bit_pos_</span>: <span class="ident">u32</span>, <span class="comment">// current bit-reading position in val_</span>
-  <span class="kw">pub</span> <span class="ident">next_in</span>: <span class="ident">u32</span>, <span class="comment">// the byte we&#39;re reading from</span>
-  <span class="kw">pub</span> <span class="ident">avail_in</span>: <span class="ident">u32</span>,
+<span class="kw">pub struct </span>BrotliBitReaderState {
+  <span class="kw">pub </span>val_: reg_t, <span class="comment">// pre-fetched bits
+  </span><span class="kw">pub </span>bit_pos_: u32, <span class="comment">// current bit-reading position in val_
+  </span><span class="kw">pub </span>next_in: u32, <span class="comment">// the byte we&#39;re reading from
+  </span><span class="kw">pub </span>avail_in: u32,
 }
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">BrotliBitReaderState</span> {
-  <span class="attribute">#[<span class="ident">inline</span>]</span>
-  <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-    <span class="ident">BrotliBitReaderState</span> {
-      <span class="ident">val_</span>: <span class="number">0</span>,
-      <span class="ident">bit_pos_</span>: <span class="number">0</span>,
-      <span class="ident">next_in</span>: <span class="number">0</span>,
-      <span class="ident">avail_in</span>: <span class="number">0</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>BrotliBitReaderState {
+  <span class="attribute">#[inline]
+  </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+    BrotliBitReaderState {
+      val_: <span class="number">0</span>,
+      bit_pos_: <span class="number">0</span>,
+      next_in: <span class="number">0</span>,
+      avail_in: <span class="number">0</span>,
     }
   }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliBitReaderSaveState</span>(<span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliBitReader</span>) -&gt; <span class="ident">BrotliBitReaderState</span> {
-  <span class="ident">BrotliBitReaderState</span> {
-    <span class="ident">val_</span>: <span class="ident">from</span>.<span class="ident">val_</span>,
-    <span class="ident">bit_pos_</span>: <span class="ident">from</span>.<span class="ident">bit_pos_</span>,
-    <span class="ident">next_in</span>: <span class="ident">from</span>.<span class="ident">next_in</span>,
-    <span class="ident">avail_in</span>: <span class="ident">from</span>.<span class="ident">avail_in</span>,
+<span class="kw">pub fn </span>BrotliBitReaderSaveState(from: <span class="kw-2">&amp;</span>BrotliBitReader) -&gt; BrotliBitReaderState {
+  BrotliBitReaderState {
+    val_: from.val_,
+    bit_pos_: from.bit_pos_,
+    next_in: from.next_in,
+    avail_in: from.avail_in,
   }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliBitReaderRestoreState</span>(<span class="ident">to</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliBitReaderState</span>) {
-  <span class="ident">to</span>.<span class="ident">val_</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">val_</span>;
-  <span class="ident">to</span>.<span class="ident">bit_pos_</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">bit_pos_</span>;
-  <span class="ident">to</span>.<span class="ident">next_in</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">next_in</span>;
-  <span class="ident">to</span>.<span class="ident">avail_in</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">avail_in</span>;
+<span class="kw">pub fn </span>BrotliBitReaderRestoreState(to: <span class="kw-2">&amp;mut </span>BrotliBitReader, from: <span class="kw-2">&amp;</span>BrotliBitReaderState) {
+  to.val_ = from.val_;
+  to.bit_pos_ = from.bit_pos_;
+  to.next_in = from.next_in;
+  to.avail_in = from.avail_in;
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliGetAvailableBits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliBitReader</span>) -&gt; <span class="ident">u32</span> {
-  ((<span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">reg_t</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>) <span class="op">-</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span>
+<span class="kw">pub fn </span>BrotliGetAvailableBits(br: <span class="kw-2">&amp;</span>BrotliBitReader) -&gt; u32 {
+  ((::core::mem::size_of::&lt;reg_t&gt;() <span class="kw">as </span>u32) &lt;&lt; <span class="number">3</span>) - br.bit_pos_
 }
 
-<span class="comment">// Returns amount of unread bytes the bit reader still has buffered from the</span>
-<span class="comment">// BrotliInput, including whole bytes in br-&gt;val_.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliGetRemainingBytes</span>(<span class="ident">br</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliBitReader</span>) -&gt; <span class="ident">u32</span> {
-  <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">+</span> (<span class="ident">BrotliGetAvailableBits</span>(<span class="ident">br</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>)
+<span class="comment">// Returns amount of unread bytes the bit reader still has buffered from the
+// BrotliInput, including whole bytes in br-&gt;val_.
+</span><span class="kw">pub fn </span>BrotliGetRemainingBytes(br: <span class="kw-2">&amp;</span>BrotliBitReader) -&gt; u32 {
+  br.avail_in + (BrotliGetAvailableBits(br) &gt;&gt; <span class="number">3</span>)
 }
 
-<span class="comment">// Checks if there is at least num bytes left in the input ringbuffer (excluding</span>
-<span class="comment">// the bits remaining in br-&gt;val_).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliCheckInputAmount</span>(<span class="ident">br</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliBitReader</span>, <span class="ident">num</span>: <span class="ident">u32</span>) -&gt; <span class="ident">bool</span> {
-  <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">num</span>
-}
-
-
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">BrotliLoad16LE</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">next_in_u32</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u16</span> {
-  <span class="kw">let</span> <span class="ident">next_in</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">next_in_u32</span> <span class="kw">as</span> <span class="ident">usize</span>;
-  (<span class="macro">fast!</span>((<span class="ident">input</span>)[<span class="ident">next_in</span>]) <span class="kw">as</span> <span class="ident">u16</span>) <span class="op">|</span> ((<span class="macro">fast!</span>((<span class="ident">input</span>)[<span class="ident">next_in</span> <span class="op">+</span> <span class="number">1</span>]) <span class="kw">as</span> <span class="ident">u16</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>)
+<span class="comment">// Checks if there is at least num bytes left in the input ringbuffer (excluding
+// the bits remaining in br-&gt;val_).
+</span><span class="kw">pub fn </span>BrotliCheckInputAmount(br: <span class="kw-2">&amp;</span>BrotliBitReader, num: u32) -&gt; bool {
+  br.avail_in &gt;= num
 }
 
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">BrotliLoad32LE</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">next_in_u32</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
-  <span class="kw">let</span> <span class="ident">next_in</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">next_in_u32</span> <span class="kw">as</span> <span class="ident">usize</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">four_byte</span>: [<span class="ident">u8</span>; <span class="number">4</span>] <span class="op">=</span> <span class="macro">fast_uninitialized!</span>[<span class="number">4</span>];
-  <span class="ident">four_byte</span>.<span class="ident">clone_from_slice</span>(<span class="macro">fast!</span>((<span class="ident">input</span>)[<span class="ident">next_in</span> ; <span class="ident">next_in</span> <span class="op">+</span> <span class="number">4</span>]));
-  (<span class="ident">four_byte</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">|</span> ((<span class="ident">four_byte</span>[<span class="number">1</span>] <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>) <span class="op">|</span> ((<span class="ident">four_byte</span>[<span class="number">2</span>] <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>) <span class="op">|</span>
-      ((<span class="ident">four_byte</span>[<span class="number">3</span>] <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">24</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>BrotliLoad16LE(input: <span class="kw-2">&amp;</span>[u8], next_in_u32: u32) -&gt; u16 {
+  <span class="kw">let </span>next_in: usize = next_in_u32 <span class="kw">as </span>usize;
+  (<span class="macro">fast!</span>((input)[next_in]) <span class="kw">as </span>u16) | ((<span class="macro">fast!</span>((input)[next_in + <span class="number">1</span>]) <span class="kw">as </span>u16) &lt;&lt; <span class="number">8</span>)
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">BrotliLoad64LE</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">next_in_u32</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u64</span> {
-  <span class="kw">let</span> <span class="ident">next_in</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">next_in_u32</span> <span class="kw">as</span> <span class="ident">usize</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">eight_byte</span>: [<span class="ident">u8</span>; <span class="number">8</span>] <span class="op">=</span> <span class="macro">fast_uninitialized!</span>[<span class="number">8</span>];
-  <span class="ident">eight_byte</span>.<span class="ident">clone_from_slice</span>(<span class="macro">fast!</span>((<span class="ident">input</span>)[<span class="ident">next_in</span> ; <span class="ident">next_in</span> <span class="op">+</span> <span class="number">8</span>]));
 
-  (<span class="ident">eight_byte</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">|</span> ((<span class="ident">eight_byte</span>[<span class="number">1</span>] <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>) <span class="op">|</span> ((<span class="ident">eight_byte</span>[<span class="number">2</span>] <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>) <span class="op">|</span>
-      ((<span class="ident">eight_byte</span>[<span class="number">3</span>] <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">24</span>) <span class="op">|</span>
-      ((<span class="ident">eight_byte</span>[<span class="number">4</span>] <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>) <span class="op">|</span> ((<span class="ident">eight_byte</span>[<span class="number">5</span>] <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">40</span>) <span class="op">|</span>
-      ((<span class="ident">eight_byte</span>[<span class="number">6</span>] <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">48</span>) <span class="op">|</span> ((<span class="ident">eight_byte</span>[<span class="number">7</span>] <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">56</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>BrotliLoad32LE(input: <span class="kw-2">&amp;</span>[u8], next_in_u32: u32) -&gt; u32 {
+  <span class="kw">let </span>next_in: usize = next_in_u32 <span class="kw">as </span>usize;
+  <span class="kw">let </span><span class="kw-2">mut </span>four_byte: [u8; <span class="number">4</span>] = <span class="macro">fast_uninitialized!</span>[<span class="number">4</span>];
+  four_byte.clone_from_slice(<span class="macro">fast!</span>((input)[next_in ; next_in + <span class="number">4</span>]));
+  (four_byte[<span class="number">0</span>] <span class="kw">as </span>u32) | ((four_byte[<span class="number">1</span>] <span class="kw">as </span>u32) &lt;&lt; <span class="number">8</span>) | ((four_byte[<span class="number">2</span>] <span class="kw">as </span>u32) &lt;&lt; <span class="number">16</span>) |
+      ((four_byte[<span class="number">3</span>] <span class="kw">as </span>u32) &lt;&lt; <span class="number">24</span>)
 }
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BROTLI_ALIGNED_READ</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliFillBitWindow</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">n_bits</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
-  <span class="kw">if</span> <span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">reg_t</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">8</span> {
-    <span class="kw">if</span> (<span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">8</span>) {
-      <span class="kw">if</span> (<span class="ident">BROTLI_ALIGNED_READ</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">56</span>) {
-        <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">56</span>;
-        <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">56</span>;  <span class="comment">// here same as -= 56 because of the if condition</span>
-        <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> <span class="ident">BrotliLoad64LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>;
-        <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="number">7</span>;
-        <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">7</span>;
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>BrotliLoad64LE(input: <span class="kw-2">&amp;</span>[u8], next_in_u32: u32) -&gt; u64 {
+  <span class="kw">let </span>next_in: usize = next_in_u32 <span class="kw">as </span>usize;
+  <span class="kw">let </span><span class="kw-2">mut </span>eight_byte: [u8; <span class="number">8</span>] = <span class="macro">fast_uninitialized!</span>[<span class="number">8</span>];
+  eight_byte.clone_from_slice(<span class="macro">fast!</span>((input)[next_in ; next_in + <span class="number">8</span>]));
+
+  (eight_byte[<span class="number">0</span>] <span class="kw">as </span>u64) | ((eight_byte[<span class="number">1</span>] <span class="kw">as </span>u64) &lt;&lt; <span class="number">8</span>) | ((eight_byte[<span class="number">2</span>] <span class="kw">as </span>u64) &lt;&lt; <span class="number">16</span>) |
+      ((eight_byte[<span class="number">3</span>] <span class="kw">as </span>u64) &lt;&lt; <span class="number">24</span>) |
+      ((eight_byte[<span class="number">4</span>] <span class="kw">as </span>u64) &lt;&lt; <span class="number">32</span>) | ((eight_byte[<span class="number">5</span>] <span class="kw">as </span>u64) &lt;&lt; <span class="number">40</span>) |
+      ((eight_byte[<span class="number">6</span>] <span class="kw">as </span>u64) &lt;&lt; <span class="number">48</span>) | ((eight_byte[<span class="number">7</span>] <span class="kw">as </span>u64) &lt;&lt; <span class="number">56</span>)
+}
+<span class="kw">pub const </span>BROTLI_ALIGNED_READ: u8 = <span class="number">0</span>;
+
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>BrotliFillBitWindow(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, n_bits: u32, input: <span class="kw-2">&amp;</span>[u8]) {
+  <span class="kw">if </span>::core::mem::size_of::&lt;reg_t&gt;() == <span class="number">8 </span>{
+    <span class="kw">if </span>(n_bits &lt;= <span class="number">8</span>) {
+      <span class="kw">if </span>(BROTLI_ALIGNED_READ == <span class="number">0 </span>&amp;&amp; br.bit_pos_ &gt;= <span class="number">56</span>) {
+        br.val_ &gt;&gt;= <span class="number">56</span>;
+        br.bit_pos_ ^= <span class="number">56</span>;  <span class="comment">// here same as -= 56 because of the if condition
+        </span>br.val_ |= BrotliLoad64LE(input, br.next_in) &lt;&lt; <span class="number">8</span>;
+        br.avail_in -= <span class="number">7</span>;
+        br.next_in += <span class="number">7</span>;
       }
-    } <span class="kw">else</span> <span class="kw">if</span> (<span class="ident">BROTLI_ALIGNED_READ</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">16</span>) {
-      <span class="kw">if</span> (<span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">48</span>) {
-        <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">48</span>;
-        <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">48</span>;  <span class="comment">// here same as -= 48 because of the if condition</span>
-        <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> <span class="ident">BrotliLoad64LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>;
-        <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="number">6</span>;
-        <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">6</span>;
+    } <span class="kw">else if </span>(BROTLI_ALIGNED_READ == <span class="number">0 </span>&amp;&amp; n_bits &lt;= <span class="number">16</span>) {
+      <span class="kw">if </span>(br.bit_pos_ &gt;= <span class="number">48</span>) {
+        br.val_ &gt;&gt;= <span class="number">48</span>;
+        br.bit_pos_ ^= <span class="number">48</span>;  <span class="comment">// here same as -= 48 because of the if condition
+        </span>br.val_ |= BrotliLoad64LE(input, br.next_in) &lt;&lt; <span class="number">16</span>;
+        br.avail_in -= <span class="number">6</span>;
+        br.next_in += <span class="number">6</span>;
       }
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">32</span> {
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">32</span>;
-      <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">32</span>;  <span class="comment">/* here same as -= 32 because of the if condition */</span>
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> (<span class="ident">BrotliLoad32LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="kw">as</span> <span class="ident">reg_t</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>;
-      <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="ident">BROTLI_SHORT_FILL_BIT_WINDOW_READ</span>;
-      <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="ident">BROTLI_SHORT_FILL_BIT_WINDOW_READ</span>;
+    } <span class="kw">else if </span>br.bit_pos_ &gt;= <span class="number">32 </span>{
+      br.val_ &gt;&gt;= <span class="number">32</span>;
+      br.bit_pos_ ^= <span class="number">32</span>;  <span class="comment">/* here same as -= 32 because of the if condition */
+      </span>br.val_ |= (BrotliLoad32LE(input, br.next_in) <span class="kw">as </span>reg_t) &lt;&lt; <span class="number">32</span>;
+      br.avail_in -= BROTLI_SHORT_FILL_BIT_WINDOW_READ;
+      br.next_in += BROTLI_SHORT_FILL_BIT_WINDOW_READ;
     }
-  } <span class="kw">else</span> <span class="kw">if</span> (<span class="ident">BROTLI_ALIGNED_READ</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> (<span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">8</span>)) {
-    <span class="kw">if</span> (<span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span>) {
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span>;
-      <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">24</span>;  <span class="comment">// here same as -= 24 because of the if condition</span>
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> (<span class="ident">BrotliLoad32LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u64</span>;
-      <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="number">3</span>;
-      <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">3</span>;
+  } <span class="kw">else if </span>(BROTLI_ALIGNED_READ == <span class="number">0 </span>&amp;&amp; (n_bits &lt;= <span class="number">8</span>)) {
+    <span class="kw">if </span>(br.bit_pos_ &gt;= <span class="number">24</span>) {
+      br.val_ &gt;&gt;= <span class="number">24</span>;
+      br.bit_pos_ ^= <span class="number">24</span>;  <span class="comment">// here same as -= 24 because of the if condition
+      </span>br.val_ |= (BrotliLoad32LE(input, br.next_in) &lt;&lt; <span class="number">8</span>) <span class="kw">as </span>u64;
+      br.avail_in -= <span class="number">3</span>;
+      br.next_in += <span class="number">3</span>;
     }
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">16</span> {
-    <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">16</span>;
-    <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">16</span>;  <span class="comment">/* here same as -= 16 because of the if condition */</span>
-    <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> (<span class="ident">BrotliLoad16LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="kw">as</span> <span class="ident">reg_t</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>;
-    <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="ident">BROTLI_SHORT_FILL_BIT_WINDOW_READ</span>;
-    <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="ident">BROTLI_SHORT_FILL_BIT_WINDOW_READ</span>;
+  } <span class="kw">else if </span>br.bit_pos_ &gt;= <span class="number">16 </span>{
+    br.val_ &gt;&gt;= <span class="number">16</span>;
+    br.bit_pos_ ^= <span class="number">16</span>;  <span class="comment">/* here same as -= 16 because of the if condition */
+    </span>br.val_ |= (BrotliLoad16LE(input, br.next_in) <span class="kw">as </span>reg_t) &lt;&lt; <span class="number">16</span>;
+    br.avail_in -= BROTLI_SHORT_FILL_BIT_WINDOW_READ;
+    br.next_in += BROTLI_SHORT_FILL_BIT_WINDOW_READ;
   }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">BrotliFillBitWindowCompileTimeNbits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">n_bits</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
-  <span class="kw">if</span> <span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">reg_t</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">8</span> {
-    <span class="kw">if</span> <span class="ident">BROTLI_ALIGNED_READ</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">8</span> {
-      <span class="comment">// !BROTLI_ALIGNED_READ &amp;&amp; IS_CONSTANT(n_bits) &amp;&amp; (n_bits &lt;= 8)) {</span>
-      <span class="kw">if</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">56</span> {
-        <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">56</span>;
-        <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">56</span>;  <span class="comment">/* here same as -= 56 because of the if condition */</span>
-        <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> <span class="ident">BrotliLoad64LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>;
-        <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="number">7</span>;
-        <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">7</span>;
+<span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>BrotliFillBitWindowCompileTimeNbits(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, n_bits: u32, input: <span class="kw-2">&amp;</span>[u8]) {
+  <span class="kw">if </span>::core::mem::size_of::&lt;reg_t&gt;() == <span class="number">8 </span>{
+    <span class="kw">if </span>BROTLI_ALIGNED_READ == <span class="number">0 </span>&amp;&amp; n_bits &lt;= <span class="number">8 </span>{
+      <span class="comment">// !BROTLI_ALIGNED_READ &amp;&amp; IS_CONSTANT(n_bits) &amp;&amp; (n_bits &lt;= 8)) {
+      </span><span class="kw">if </span>br.bit_pos_ &gt;= <span class="number">56 </span>{
+        br.val_ &gt;&gt;= <span class="number">56</span>;
+        br.bit_pos_ ^= <span class="number">56</span>;  <span class="comment">/* here same as -= 56 because of the if condition */
+        </span>br.val_ |= BrotliLoad64LE(input, br.next_in) &lt;&lt; <span class="number">8</span>;
+        br.avail_in -= <span class="number">7</span>;
+        br.next_in += <span class="number">7</span>;
       }
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">BROTLI_ALIGNED_READ</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">16</span> {
-      <span class="comment">// (!BROTLI_ALIGNED_READ &amp;&amp; IS_CONSTANT(n_bits) &amp;&amp; (n_bits &lt;= 16)) {</span>
-      <span class="kw">if</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">48</span> {
-        <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">48</span>;
-        <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">48</span>;  <span class="comment">/* here same as -= 48 because of the if condition */</span>
-        <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> <span class="ident">BrotliLoad64LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>;
-        <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="number">6</span>;
-        <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">6</span>;
+    } <span class="kw">else if </span>BROTLI_ALIGNED_READ == <span class="number">0 </span>&amp;&amp; n_bits &lt;= <span class="number">16 </span>{
+      <span class="comment">// (!BROTLI_ALIGNED_READ &amp;&amp; IS_CONSTANT(n_bits) &amp;&amp; (n_bits &lt;= 16)) {
+      </span><span class="kw">if </span>br.bit_pos_ &gt;= <span class="number">48 </span>{
+        br.val_ &gt;&gt;= <span class="number">48</span>;
+        br.bit_pos_ ^= <span class="number">48</span>;  <span class="comment">/* here same as -= 48 because of the if condition */
+        </span>br.val_ |= BrotliLoad64LE(input, br.next_in) &lt;&lt; <span class="number">16</span>;
+        br.avail_in -= <span class="number">6</span>;
+        br.next_in += <span class="number">6</span>;
       }
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">32</span> {
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">32</span>;
-      <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">32</span>;  <span class="comment">/* here same as -= 32 because of the if condition */</span>
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> (<span class="ident">BrotliLoad32LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="kw">as</span> <span class="ident">reg_t</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>;
-      <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="ident">BROTLI_SHORT_FILL_BIT_WINDOW_READ</span>;
-      <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="ident">BROTLI_SHORT_FILL_BIT_WINDOW_READ</span>;
+    } <span class="kw">else if </span>br.bit_pos_ &gt;= <span class="number">32 </span>{
+      br.val_ &gt;&gt;= <span class="number">32</span>;
+      br.bit_pos_ ^= <span class="number">32</span>;  <span class="comment">/* here same as -= 32 because of the if condition */
+      </span>br.val_ |= (BrotliLoad32LE(input, br.next_in) <span class="kw">as </span>reg_t) &lt;&lt; <span class="number">32</span>;
+      br.avail_in -= BROTLI_SHORT_FILL_BIT_WINDOW_READ;
+      br.next_in += BROTLI_SHORT_FILL_BIT_WINDOW_READ;
     }
-  } <span class="kw">else</span> <span class="kw">if</span>
-      <span class="comment">// BROTLI_ALIGNED_READ == false &amp;&amp;</span>
-      <span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">8</span> {
-    <span class="comment">// !BROTLI_ALIGNED_READ &amp;&amp; IS_CONSTANT(n_bits) &amp;&amp; (n_bits &lt;= 8)) {</span>
-    <span class="kw">if</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span> {
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span>;
-      <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">24</span>;  <span class="comment">/* here same as -= 24 because of the if condition */</span>
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> (<span class="ident">BrotliLoad32LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="kw">as</span> <span class="ident">reg_t</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>;
-      <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="number">3</span>;
-      <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">3</span>;
+  } <span class="kw">else if
+      </span><span class="comment">// BROTLI_ALIGNED_READ == false &amp;&amp;
+      </span>n_bits &lt;= <span class="number">8 </span>{
+    <span class="comment">// !BROTLI_ALIGNED_READ &amp;&amp; IS_CONSTANT(n_bits) &amp;&amp; (n_bits &lt;= 8)) {
+    </span><span class="kw">if </span>br.bit_pos_ &gt;= <span class="number">24 </span>{
+      br.val_ &gt;&gt;= <span class="number">24</span>;
+      br.bit_pos_ ^= <span class="number">24</span>;  <span class="comment">/* here same as -= 24 because of the if condition */
+      </span>br.val_ |= (BrotliLoad32LE(input, br.next_in) <span class="kw">as </span>reg_t) &lt;&lt; <span class="number">8</span>;
+      br.avail_in -= <span class="number">3</span>;
+      br.next_in += <span class="number">3</span>;
     }
-  } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">16</span> {
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">16</span>;
-      <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">^</span><span class="op">=</span> <span class="number">16</span>;  <span class="comment">/* here same as -= 16 because of the if condition */</span>
-      <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> (<span class="ident">BrotliLoad16LE</span>(<span class="ident">input</span>, <span class="ident">br</span>.<span class="ident">next_in</span>) <span class="kw">as</span> <span class="ident">reg_t</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>;
-      <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="ident">BROTLI_SHORT_FILL_BIT_WINDOW_READ</span>;
-      <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="ident">BROTLI_SHORT_FILL_BIT_WINDOW_READ</span>;
+  } <span class="kw">else if </span>br.bit_pos_ &gt;= <span class="number">16 </span>{
+      br.val_ &gt;&gt;= <span class="number">16</span>;
+      br.bit_pos_ ^= <span class="number">16</span>;  <span class="comment">/* here same as -= 16 because of the if condition */
+      </span>br.val_ |= (BrotliLoad16LE(input, br.next_in) <span class="kw">as </span>reg_t) &lt;&lt; <span class="number">16</span>;
+      br.avail_in -= BROTLI_SHORT_FILL_BIT_WINDOW_READ;
+      br.next_in += BROTLI_SHORT_FILL_BIT_WINDOW_READ;
   }
 }
 
-<span class="comment">// Mosltly like BrotliFillBitWindow, but guarantees only 16 bits and reads no</span>
-<span class="comment">// more than BROTLI_SHORT_FILL_BIT_WINDOW_READ bytes of input.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliFillBitWindow16</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
-  <span class="ident">BrotliFillBitWindowCompileTimeNbits</span>(<span class="ident">br</span>, <span class="number">17</span>, <span class="ident">input</span>);
+<span class="comment">// Mosltly like BrotliFillBitWindow, but guarantees only 16 bits and reads no
+// more than BROTLI_SHORT_FILL_BIT_WINDOW_READ bytes of input.
+</span><span class="kw">pub fn </span>BrotliFillBitWindow16(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, input: <span class="kw-2">&amp;</span>[u8]) {
+  BrotliFillBitWindowCompileTimeNbits(br, <span class="number">17</span>, input);
 }
 
-<span class="comment">// Pulls one byte of input to accumulator.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliPullByte</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
-  <span class="kw">if</span> <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">==</span> <span class="number">0</span> {
-    <span class="kw">return</span> <span class="bool-val">false</span>;
+<span class="comment">// Pulls one byte of input to accumulator.
+</span><span class="kw">pub fn </span>BrotliPullByte(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, input: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
+  <span class="kw">if </span>br.avail_in == <span class="number">0 </span>{
+    <span class="kw">return </span><span class="bool-val">false</span>;
   }
-  <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">8</span>;
-  <span class="kw">if</span> <span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">reg_t</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">8</span> {
-    <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> (<span class="macro">fast!</span>((<span class="ident">input</span>)[<span class="ident">br</span>.<span class="ident">next_in</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">reg_t</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">56</span>;
-  } <span class="kw">else</span> {
-    <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">|</span><span class="op">=</span> (<span class="macro">fast!</span>((<span class="ident">input</span>)[<span class="ident">br</span>.<span class="ident">next_in</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">reg_t</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">24</span>;
+  br.val_ &gt;&gt;= <span class="number">8</span>;
+  <span class="kw">if </span>::core::mem::size_of::&lt;reg_t&gt;() == <span class="number">8 </span>{
+    br.val_ |= (<span class="macro">fast!</span>((input)[br.next_in <span class="kw">as </span>usize]) <span class="kw">as </span>reg_t) &lt;&lt; <span class="number">56</span>;
+  } <span class="kw">else </span>{
+    br.val_ |= (<span class="macro">fast!</span>((input)[br.next_in <span class="kw">as </span>usize]) <span class="kw">as </span>reg_t) &lt;&lt; <span class="number">24</span>;
   }
-  <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">-</span><span class="op">=</span> <span class="number">8</span>;
-  <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-  <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-  <span class="bool-val">true</span>
+  br.bit_pos_ -= <span class="number">8</span>;
+  br.avail_in -= <span class="number">1</span>;
+  br.next_in += <span class="number">1</span>;
+  <span class="bool-val">true
+</span>}
+
+<span class="comment">// Returns currently available bits.
+// The number of valid bits could be calclulated by BrotliGetAvailableBits.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>BrotliGetBitsUnmasked(br: <span class="kw-2">&amp;</span>BrotliBitReader) -&gt; reg_t {
+  br.val_ &gt;&gt; br.bit_pos_
 }
 
-<span class="comment">// Returns currently available bits.</span>
-<span class="comment">// The number of valid bits could be calclulated by BrotliGetAvailableBits.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliGetBitsUnmasked</span>(<span class="ident">br</span>: <span class="kw-2">&amp;</span><span class="ident">BrotliBitReader</span>) -&gt; <span class="ident">reg_t</span> {
-  <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">br</span>.<span class="ident">bit_pos_</span>
+<span class="comment">// Like BrotliGetBits, but does not mask the result.
+// The result contains at least 16 valid bits.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>BrotliGet16BitsUnmasked(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, input: <span class="kw-2">&amp;</span>[u8]) -&gt; u32 {
+  BrotliFillBitWindowCompileTimeNbits(br, <span class="number">16</span>, input);
+  (BrotliGetBitsUnmasked(br) &amp; (<span class="number">0xffffffffu32 </span><span class="kw">as </span>reg_t)) <span class="kw">as </span>u32
 }
 
-<span class="comment">// Like BrotliGetBits, but does not mask the result.</span>
-<span class="comment">// The result contains at least 16 valid bits.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliGet16BitsUnmasked</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">u32</span> {
-  <span class="ident">BrotliFillBitWindowCompileTimeNbits</span>(<span class="ident">br</span>, <span class="number">16</span>, <span class="ident">input</span>);
-  (<span class="ident">BrotliGetBitsUnmasked</span>(<span class="ident">br</span>) <span class="op">&amp;</span> (<span class="number">0xffffffffu32</span> <span class="kw">as</span> <span class="ident">reg_t</span>)) <span class="kw">as</span> <span class="ident">u32</span>
+<span class="comment">// Returns the specified number of bits from br without advancing bit pos.
+</span><span class="kw">pub fn </span>BrotliGetBits(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, n_bits: u32, input: <span class="kw-2">&amp;</span>[u8]) -&gt; u32 {
+  BrotliFillBitWindow(br, n_bits, input);
+  (BrotliGetBitsUnmasked(br) <span class="kw">as </span>u32) &amp; BitMask(n_bits)
 }
 
-<span class="comment">// Returns the specified number of bits from br without advancing bit pos.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliGetBits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">n_bits</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">u32</span> {
-  <span class="ident">BrotliFillBitWindow</span>(<span class="ident">br</span>, <span class="ident">n_bits</span>, <span class="ident">input</span>);
-  (<span class="ident">BrotliGetBitsUnmasked</span>(<span class="ident">br</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&amp;</span> <span class="ident">BitMask</span>(<span class="ident">n_bits</span>)
+<span class="comment">// Returns the specified number of bits from br without advancing bit pos.
+</span><span class="attribute">#[allow (dead_code)]
+</span><span class="kw">pub fn </span>BrotliGetConstantNBits(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, n_bits: u32, input: <span class="kw-2">&amp;</span>[u8]) -&gt; u32 {
+  BrotliFillBitWindowCompileTimeNbits(br, n_bits, input);
+  (BrotliGetBitsUnmasked(br) <span class="kw">as </span>u32) &amp; BitMask(n_bits)
 }
 
-<span class="comment">// Returns the specified number of bits from br without advancing bit pos.</span>
-<span class="attribute">#[<span class="ident">allow</span> (<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliGetConstantNBits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">n_bits</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">u32</span> {
-  <span class="ident">BrotliFillBitWindowCompileTimeNbits</span>(<span class="ident">br</span>, <span class="ident">n_bits</span>, <span class="ident">input</span>);
-  (<span class="ident">BrotliGetBitsUnmasked</span>(<span class="ident">br</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&amp;</span> <span class="ident">BitMask</span>(<span class="ident">n_bits</span>)
-}
-
-<span class="comment">// Tries to peek the specified amount of bits. Returns 0, if there is not</span>
-<span class="comment">// enough input.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliSafeGetBits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>,
-                         <span class="ident">n_bits</span>: <span class="ident">u32</span>,
-                         <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u32</span>,
-                         <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>])
-                         -&gt; <span class="ident">bool</span> {
-  <span class="kw">while</span> <span class="ident">BrotliGetAvailableBits</span>(<span class="ident">br</span>) <span class="op">&lt;</span> <span class="ident">n_bits</span> {
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">BrotliPullByte</span>(<span class="ident">br</span>, <span class="ident">input</span>) {
-      <span class="kw">return</span> <span class="bool-val">false</span>;
-    }
-  }
-  <span class="kw-2">*</span><span class="ident">val</span> <span class="op">=</span> (<span class="ident">BrotliGetBitsUnmasked</span>(<span class="ident">br</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&amp;</span> <span class="ident">BitMask</span>(<span class="ident">n_bits</span>);
-  <span class="bool-val">true</span>
-}
-
-<span class="comment">// Advances the bit pos by n_bits.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliDropBits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">n_bits</span>: <span class="ident">u32</span>) {
-  <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n_bits</span>;
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliBitReaderUnload</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>) {
-  <span class="kw">let</span> <span class="ident">unused_bytes</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">BrotliGetAvailableBits</span>(<span class="ident">br</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>;
-  <span class="kw">let</span> <span class="ident">unused_bits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">unused_bytes</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>;
-  <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">+</span><span class="op">=</span> <span class="ident">unused_bytes</span>;
-  <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">-</span><span class="op">=</span> <span class="ident">unused_bytes</span>;
-  <span class="kw">if</span> <span class="ident">unused_bits</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">==</span> (<span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">reg_t</span><span class="op">&gt;</span>() <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>) {
-    <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">=</span> <span class="number">0</span>;
-  } <span class="kw">else</span> {
-    <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">=</span> <span class="ident">unused_bits</span>;
-  }
-  <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">+</span><span class="op">=</span> <span class="ident">unused_bits</span>;
-}
-
-<span class="comment">// Reads the specified number of bits from br and advances the bit pos.</span>
-<span class="comment">// Precondition: accumulator MUST contain at least n_bits.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliTakeBits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">n_bits</span>: <span class="ident">u32</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u32</span>) {
-  <span class="kw-2">*</span><span class="ident">val</span> <span class="op">=</span> (<span class="ident">BrotliGetBitsUnmasked</span>(<span class="ident">br</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&amp;</span> <span class="ident">BitMask</span>(<span class="ident">n_bits</span>);
-  <span class="comment">// if true {</span>
-  <span class="macro">xprintln!</span>(<span class="string">&quot;[BrotliReadBits]  {:?} {:?} {:?} val: {:x}\n&quot;</span>,
-           <span class="ident">br</span>.<span class="ident">avail_in</span>, <span class="ident">br</span>.<span class="ident">bit_pos_</span>, <span class="ident">n_bits</span>, <span class="kw-2">*</span><span class="ident">val</span>);
-  <span class="comment">// }</span>
-  <span class="ident">BrotliDropBits</span>(<span class="ident">br</span>, <span class="ident">n_bits</span>);
-}
-
-<span class="comment">// Reads the specified number of bits from br and advances the bit pos.</span>
-<span class="comment">// Assumes that there is enough input to perform BrotliFillBitWindow.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliReadBits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">n_bits</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">u32</span> {
-  <span class="kw">if</span> <span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">reg_t</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">8</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">16</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="ident">BrotliFillBitWindow</span>(<span class="ident">br</span>, <span class="ident">n_bits</span>, <span class="ident">input</span>);
-    <span class="ident">BrotliTakeBits</span>(<span class="ident">br</span>, <span class="ident">n_bits</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>);
-    <span class="ident">val</span>
-  } <span class="kw">else</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low_val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high_val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="ident">BrotliFillBitWindowCompileTimeNbits</span>(<span class="ident">br</span>, <span class="number">16</span>, <span class="ident">input</span>);
-    <span class="ident">BrotliTakeBits</span>(<span class="ident">br</span>, <span class="number">16</span>, <span class="kw-2">&amp;mut</span> <span class="ident">low_val</span>);
-    <span class="ident">BrotliFillBitWindowCompileTimeNbits</span>(<span class="ident">br</span>, <span class="number">8</span>, <span class="ident">input</span>);
-    <span class="ident">BrotliTakeBits</span>(<span class="ident">br</span>, <span class="ident">n_bits</span> <span class="op">-</span> <span class="number">16</span>, <span class="kw-2">&amp;mut</span> <span class="ident">high_val</span>);
-    <span class="ident">low_val</span> <span class="op">|</span> (<span class="ident">high_val</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>)
-  }
-}
-
-<span class="comment">// Reads the specified number of bits from br and advances the bit pos.</span>
-<span class="comment">// Assumes that there is enough input to perform BrotliFillBitWindow.</span>
-<span class="attribute">#[<span class="ident">allow</span> (<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliReadConstantNBits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">n_bits</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">u32</span> {
-  <span class="kw">if</span> <span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">reg_t</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">8</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">n_bits</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">16</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="ident">BrotliFillBitWindowCompileTimeNbits</span>(<span class="ident">br</span>, <span class="ident">n_bits</span>, <span class="ident">input</span>);
-    <span class="ident">BrotliTakeBits</span>(<span class="ident">br</span>, <span class="ident">n_bits</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>);
-    <span class="ident">val</span>
-  } <span class="kw">else</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low_val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high_val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="ident">BrotliFillBitWindowCompileTimeNbits</span>(<span class="ident">br</span>, <span class="number">16</span>, <span class="ident">input</span>);
-    <span class="ident">BrotliTakeBits</span>(<span class="ident">br</span>, <span class="number">16</span>, <span class="kw-2">&amp;mut</span> <span class="ident">low_val</span>);
-    <span class="ident">BrotliFillBitWindowCompileTimeNbits</span>(<span class="ident">br</span>, <span class="number">8</span>, <span class="ident">input</span>);
-    <span class="ident">BrotliTakeBits</span>(<span class="ident">br</span>, <span class="ident">n_bits</span> <span class="op">-</span> <span class="number">16</span>, <span class="kw-2">&amp;mut</span> <span class="ident">high_val</span>);
-    <span class="ident">low_val</span> <span class="op">|</span> (<span class="ident">high_val</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>)
-  }
-}
-
-<span class="comment">// Tries to read the specified amount of bits. Returns 0, if there is not</span>
-<span class="comment">// enough input. n_bits MUST be positive.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliSafeReadBits</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>,
-                          <span class="ident">n_bits</span>: <span class="ident">u32</span>,
-                          <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="ident">u32</span>,
-                          <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>])
-                          -&gt; <span class="ident">bool</span> {
-  <span class="kw">while</span> <span class="ident">BrotliGetAvailableBits</span>(<span class="ident">br</span>) <span class="op">&lt;</span> <span class="ident">n_bits</span> {
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">BrotliPullByte</span>(<span class="ident">br</span>, <span class="ident">input</span>) {
-      <span class="kw">return</span> <span class="bool-val">false</span>;
+<span class="comment">// Tries to peek the specified amount of bits. Returns 0, if there is not
+// enough input.
+</span><span class="kw">pub fn </span>BrotliSafeGetBits(br: <span class="kw-2">&amp;mut </span>BrotliBitReader,
+                         n_bits: u32,
+                         val: <span class="kw-2">&amp;mut </span>u32,
+                         input: <span class="kw-2">&amp;</span>[u8])
+                         -&gt; bool {
+  <span class="kw">while </span>BrotliGetAvailableBits(br) &lt; n_bits {
+    <span class="kw">if </span>!BrotliPullByte(br, input) {
+      <span class="kw">return </span><span class="bool-val">false</span>;
     }
   }
-  <span class="ident">BrotliTakeBits</span>(<span class="ident">br</span>, <span class="ident">n_bits</span>, <span class="ident">val</span>);
-  <span class="bool-val">true</span>
+  <span class="kw-2">*</span>val = (BrotliGetBitsUnmasked(br) <span class="kw">as </span>u32) &amp; BitMask(n_bits);
+  <span class="bool-val">true
+</span>}
+
+<span class="comment">// Advances the bit pos by n_bits.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>BrotliDropBits(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, n_bits: u32) {
+  br.bit_pos_ += n_bits;
 }
 
-<span class="comment">// Advances the bit reader position to the next byte boundary and verifies</span>
-<span class="comment">// that any skipped bits are set to zero.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliJumpToByteBoundary</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>) -&gt; <span class="ident">bool</span> {
-  <span class="kw">let</span> <span class="ident">pad_bits_count</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">BrotliGetAvailableBits</span>(<span class="ident">br</span>) <span class="op">&amp;</span> <span class="number">0x7</span>;
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pad_bits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-  <span class="kw">if</span> <span class="ident">pad_bits_count</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-    <span class="ident">BrotliTakeBits</span>(<span class="ident">br</span>, <span class="ident">pad_bits_count</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pad_bits</span>);
+<span class="kw">pub fn </span>BrotliBitReaderUnload(br: <span class="kw-2">&amp;mut </span>BrotliBitReader) {
+  <span class="kw">let </span>unused_bytes: u32 = BrotliGetAvailableBits(br) &gt;&gt; <span class="number">3</span>;
+  <span class="kw">let </span>unused_bits: u32 = unused_bytes &lt;&lt; <span class="number">3</span>;
+  br.avail_in += unused_bytes;
+  br.next_in -= unused_bytes;
+  <span class="kw">if </span>unused_bits <span class="kw">as </span>usize == (::core::mem::size_of::&lt;reg_t&gt;() &lt;&lt; <span class="number">3</span>) {
+    br.val_ = <span class="number">0</span>;
+  } <span class="kw">else </span>{
+    br.val_ &lt;&lt;= unused_bits;
   }
-  <span class="ident">pad_bits</span> <span class="op">==</span> <span class="number">0</span>
+  br.bit_pos_ += unused_bits;
 }
 
-<span class="comment">// Peeks a byte at specified offset.</span>
-<span class="comment">// Precondition: bit reader is parked to a byte boundary.</span>
-<span class="comment">// Returns -1 if operation is not feasible.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliPeekByte</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="kw-2">mut</span> <span class="ident">offset</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">i32</span> {
-  <span class="kw">let</span> <span class="ident">available_bits</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">BrotliGetAvailableBits</span>(<span class="ident">br</span>);
-  <span class="kw">let</span> <span class="ident">bytes_left</span>: <span class="ident">u32</span> <span class="op">=</span> (<span class="ident">available_bits</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>);
-  <span class="macro">assert!</span>((<span class="ident">available_bits</span> <span class="op">&amp;</span> <span class="number">7</span>) <span class="op">==</span> <span class="number">0</span>);
-  <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="ident">bytes_left</span> {
-    <span class="kw">return</span> ((<span class="ident">BrotliGetBitsUnmasked</span>(<span class="ident">br</span>) <span class="op">&gt;</span><span class="op">&gt;</span> ((<span class="ident">offset</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>)) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&amp;</span> <span class="number">0xFF</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-  }
-  <span class="ident">offset</span> <span class="op">-</span><span class="op">=</span> <span class="ident">bytes_left</span>;
-  <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="ident">br</span>.<span class="ident">avail_in</span> {
-    <span class="kw">return</span> <span class="macro">fast!</span>((<span class="ident">input</span>)[<span class="ident">br</span>.<span class="ident">next_in</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">offset</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="kw">as</span> <span class="ident">i32</span>;
-  }
-  <span class="op">-</span><span class="number">1</span>
+<span class="comment">// Reads the specified number of bits from br and advances the bit pos.
+// Precondition: accumulator MUST contain at least n_bits.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>BrotliTakeBits(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, n_bits: u32, val: <span class="kw-2">&amp;mut </span>u32) {
+  <span class="kw-2">*</span>val = (BrotliGetBitsUnmasked(br) <span class="kw">as </span>u32) &amp; BitMask(n_bits);
+  <span class="comment">// if true {
+  </span><span class="macro">xprintln!</span>(<span class="string">&quot;[BrotliReadBits]  {:?} {:?} {:?} val: {:x}\n&quot;</span>,
+           br.avail_in, br.bit_pos_, n_bits, <span class="kw-2">*</span>val);
+  <span class="comment">// }
+  </span>BrotliDropBits(br, n_bits);
 }
 
-<span class="comment">// Copies remaining input bytes stored in the bit reader to the output. Value</span>
-<span class="comment">// num may not be larger than BrotliGetRemainingBytes. The bit reader must be</span>
-<span class="comment">// warmed up again after this.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliCopyBytes</span>(<span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>], <span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="kw-2">mut</span> <span class="ident">num</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
-  <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-  <span class="kw">while</span> <span class="ident">BrotliGetAvailableBits</span>(<span class="ident">br</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="number">8</span> <span class="op">&amp;&amp;</span> <span class="ident">num</span> <span class="op">&gt;</span> <span class="number">0</span> {
-    <span class="macro">fast_mut!</span>((<span class="ident">dest</span>)[<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span> <span class="ident">BrotliGetBitsUnmasked</span>(<span class="ident">br</span>) <span class="kw">as</span> <span class="ident">u8</span>;
-    <span class="ident">BrotliDropBits</span>(<span class="ident">br</span>, <span class="number">8</span>);
-    <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-    <span class="ident">num</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+<span class="comment">// Reads the specified number of bits from br and advances the bit pos.
+// Assumes that there is enough input to perform BrotliFillBitWindow.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>BrotliReadBits(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, n_bits: u32, input: <span class="kw-2">&amp;</span>[u8]) -&gt; u32 {
+  <span class="kw">if </span>::core::mem::size_of::&lt;reg_t&gt;() == <span class="number">8 </span>|| (n_bits &lt;= <span class="number">16</span>) {
+    <span class="kw">let </span><span class="kw-2">mut </span>val: u32 = <span class="number">0</span>;
+    BrotliFillBitWindow(br, n_bits, input);
+    BrotliTakeBits(br, n_bits, <span class="kw-2">&amp;mut </span>val);
+    val
+  } <span class="kw">else </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>low_val: u32 = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>high_val: u32 = <span class="number">0</span>;
+    BrotliFillBitWindowCompileTimeNbits(br, <span class="number">16</span>, input);
+    BrotliTakeBits(br, <span class="number">16</span>, <span class="kw-2">&amp;mut </span>low_val);
+    BrotliFillBitWindowCompileTimeNbits(br, <span class="number">8</span>, input);
+    BrotliTakeBits(br, n_bits - <span class="number">16</span>, <span class="kw-2">&amp;mut </span>high_val);
+    low_val | (high_val &lt;&lt; <span class="number">16</span>)
   }
-  <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num</span> {
-    <span class="macro">fast_mut!</span>((<span class="ident">dest</span>)[<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]) <span class="op">=</span>
-      <span class="macro">fast!</span>((<span class="ident">input</span>)[<span class="ident">br</span>.<span class="ident">next_in</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]);
-  }
-  <span class="ident">br</span>.<span class="ident">avail_in</span> <span class="op">-</span><span class="op">=</span> <span class="ident">num</span>;
-  <span class="ident">br</span>.<span class="ident">next_in</span> <span class="op">+</span><span class="op">=</span> <span class="ident">num</span>;
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliInitBitReader</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>) {
-  <span class="ident">br</span>.<span class="ident">val_</span> <span class="op">=</span> <span class="number">0</span>;
-  <span class="ident">br</span>.<span class="ident">bit_pos_</span> <span class="op">=</span> (<span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">reg_t</span><span class="op">&gt;</span>() <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">u32</span>;
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">BrotliWarmupBitReader</span>(<span class="ident">br</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliBitReader</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
-  <span class="kw">let</span> <span class="ident">_aligned_read_mask</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="ident">::core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">reg_t</span><span class="op">&gt;</span>() <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1</span>) <span class="op">-</span> <span class="number">1</span>;
-  <span class="comment">// Fixing alignment after unaligned BrotliFillWindow would result accumulator</span>
-  <span class="comment">// overflow. If unalignment is caused by BrotliSafeReadBits, then there is</span>
-  <span class="comment">// enough space in accumulator to fix aligment.</span>
-  <span class="kw">if</span> <span class="ident">BrotliGetAvailableBits</span>(<span class="ident">br</span>) <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">BrotliPullByte</span>(<span class="ident">br</span>, <span class="ident">input</span>) {
-    <span class="kw">return</span> <span class="bool-val">false</span>;
+<span class="comment">// Reads the specified number of bits from br and advances the bit pos.
+// Assumes that there is enough input to perform BrotliFillBitWindow.
+</span><span class="attribute">#[allow (dead_code)]
+</span><span class="kw">pub fn </span>BrotliReadConstantNBits(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, n_bits: u32, input: <span class="kw-2">&amp;</span>[u8]) -&gt; u32 {
+  <span class="kw">if </span>::core::mem::size_of::&lt;reg_t&gt;() == <span class="number">8 </span>|| (n_bits &lt;= <span class="number">16</span>) {
+    <span class="kw">let </span><span class="kw-2">mut </span>val: u32 = <span class="number">0</span>;
+    BrotliFillBitWindowCompileTimeNbits(br, n_bits, input);
+    BrotliTakeBits(br, n_bits, <span class="kw-2">&amp;mut </span>val);
+    val
+  } <span class="kw">else </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>low_val: u32 = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>high_val: u32 = <span class="number">0</span>;
+    BrotliFillBitWindowCompileTimeNbits(br, <span class="number">16</span>, input);
+    BrotliTakeBits(br, <span class="number">16</span>, <span class="kw-2">&amp;mut </span>low_val);
+    BrotliFillBitWindowCompileTimeNbits(br, <span class="number">8</span>, input);
+    BrotliTakeBits(br, n_bits - <span class="number">16</span>, <span class="kw-2">&amp;mut </span>high_val);
+    low_val | (high_val &lt;&lt; <span class="number">16</span>)
   }
-  <span class="comment">// we can&#39;t tell about alignment yet</span>
-  <span class="comment">// while (((size_t)br-&gt;next_in) &amp; aligned_read_mask) != 0 {</span>
-  <span class="comment">// if !BrotliPullByte(br) {</span>
-  <span class="comment">// If we consumed all the input, we don&#39;t care about the alignment. */</span>
-  <span class="comment">// return true;</span>
-  <span class="comment">// }</span>
-  <span class="comment">// }</span>
-  <span class="comment">//</span>
-  <span class="bool-val">true</span>
 }
 
+<span class="comment">// Tries to read the specified amount of bits. Returns 0, if there is not
+// enough input. n_bits MUST be positive.
+</span><span class="kw">pub fn </span>BrotliSafeReadBits(br: <span class="kw-2">&amp;mut </span>BrotliBitReader,
+                          n_bits: u32,
+                          val: <span class="kw-2">&amp;mut </span>u32,
+                          input: <span class="kw-2">&amp;</span>[u8])
+                          -&gt; bool {
+  <span class="kw">while </span>BrotliGetAvailableBits(br) &lt; n_bits {
+    <span class="kw">if </span>!BrotliPullByte(br, input) {
+      <span class="kw">return </span><span class="bool-val">false</span>;
+    }
+  }
+  BrotliTakeBits(br, n_bits, val);
+  <span class="bool-val">true
+</span>}
+
+<span class="comment">// Advances the bit reader position to the next byte boundary and verifies
+// that any skipped bits are set to zero.
+</span><span class="kw">pub fn </span>BrotliJumpToByteBoundary(br: <span class="kw-2">&amp;mut </span>BrotliBitReader) -&gt; bool {
+  <span class="kw">let </span>pad_bits_count: u32 = BrotliGetAvailableBits(br) &amp; <span class="number">0x7</span>;
+  <span class="kw">let </span><span class="kw-2">mut </span>pad_bits: u32 = <span class="number">0</span>;
+  <span class="kw">if </span>pad_bits_count != <span class="number">0 </span>{
+    BrotliTakeBits(br, pad_bits_count, <span class="kw-2">&amp;mut </span>pad_bits);
+  }
+  pad_bits == <span class="number">0
+</span>}
+
+<span class="comment">// Peeks a byte at specified offset.
+// Precondition: bit reader is parked to a byte boundary.
+// Returns -1 if operation is not feasible.
+</span><span class="attribute">#[allow(dead_code)]
+</span><span class="kw">pub fn </span>BrotliPeekByte(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, <span class="kw-2">mut </span>offset: u32, input: <span class="kw-2">&amp;</span>[u8]) -&gt; i32 {
+  <span class="kw">let </span>available_bits: u32 = BrotliGetAvailableBits(br);
+  <span class="kw">let </span>bytes_left: u32 = (available_bits &gt;&gt; <span class="number">3</span>);
+  <span class="macro">assert!</span>((available_bits &amp; <span class="number">7</span>) == <span class="number">0</span>);
+  <span class="kw">if </span>offset &lt; bytes_left {
+    <span class="kw">return </span>((BrotliGetBitsUnmasked(br) &gt;&gt; ((offset &lt;&lt; <span class="number">3</span>)) <span class="kw">as </span>u32) &amp; <span class="number">0xFF</span>) <span class="kw">as </span>i32;
+  }
+  offset -= bytes_left;
+  <span class="kw">if </span>offset &lt; br.avail_in {
+    <span class="kw">return </span><span class="macro">fast!</span>((input)[br.next_in <span class="kw">as </span>usize + offset <span class="kw">as </span>usize]) <span class="kw">as </span>i32;
+  }
+  -<span class="number">1
+</span>}
+
+<span class="comment">// Copies remaining input bytes stored in the bit reader to the output. Value
+// num may not be larger than BrotliGetRemainingBytes. The bit reader must be
+// warmed up again after this.
+</span><span class="kw">pub fn </span>BrotliCopyBytes(dest: <span class="kw-2">&amp;mut </span>[u8], br: <span class="kw-2">&amp;mut </span>BrotliBitReader, <span class="kw-2">mut </span>num: u32, input: <span class="kw-2">&amp;</span>[u8]) {
+  <span class="kw">let </span><span class="kw-2">mut </span>offset: u32 = <span class="number">0</span>;
+  <span class="kw">while </span>BrotliGetAvailableBits(br) &gt;= <span class="number">8 </span>&amp;&amp; num &gt; <span class="number">0 </span>{
+    <span class="macro">fast_mut!</span>((dest)[offset <span class="kw">as </span>usize]) = BrotliGetBitsUnmasked(br) <span class="kw">as </span>u8;
+    BrotliDropBits(br, <span class="number">8</span>);
+    offset += <span class="number">1</span>;
+    num -= <span class="number">1</span>;
+  }
+  <span class="kw">for </span>index <span class="kw">in </span><span class="number">0</span>..num {
+    <span class="macro">fast_mut!</span>((dest)[offset <span class="kw">as </span>usize + index <span class="kw">as </span>usize]) =
+      <span class="macro">fast!</span>((input)[br.next_in <span class="kw">as </span>usize + index <span class="kw">as </span>usize]);
+  }
+  br.avail_in -= num;
+  br.next_in += num;
+}
+
+<span class="kw">pub fn </span>BrotliInitBitReader(br: <span class="kw-2">&amp;mut </span>BrotliBitReader) {
+  br.val_ = <span class="number">0</span>;
+  br.bit_pos_ = (::core::mem::size_of::&lt;reg_t&gt;() &lt;&lt; <span class="number">3</span>) <span class="kw">as </span>u32;
+}
+
+<span class="kw">pub fn </span>BrotliWarmupBitReader(br: <span class="kw-2">&amp;mut </span>BrotliBitReader, input: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
+  <span class="kw">let </span>_aligned_read_mask: usize = (::core::mem::size_of::&lt;reg_t&gt;() &gt;&gt; <span class="number">1</span>) - <span class="number">1</span>;
+  <span class="comment">// Fixing alignment after unaligned BrotliFillWindow would result accumulator
+  // overflow. If unalignment is caused by BrotliSafeReadBits, then there is
+  // enough space in accumulator to fix aligment.
+  </span><span class="kw">if </span>BrotliGetAvailableBits(br) == <span class="number">0 </span>&amp;&amp; !BrotliPullByte(br, input) {
+    <span class="kw">return </span><span class="bool-val">false</span>;
+  }
+  <span class="comment">// we can&#39;t tell about alignment yet
+  // while (((size_t)br-&gt;next_in) &amp; aligned_read_mask) != 0 {
+  // if !BrotliPullByte(br) {
+  // If we consumed all the input, we don&#39;t care about the alignment. */
+  // return true;
+  // }
+  // }
+  //
+  </span><span class="bool-val">true
+</span>}
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-  <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-  <span class="attribute">#[<span class="ident">test</span>]</span>
-  <span class="kw">fn</span> <span class="ident">warmup_works</span>() {
-    <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">37</span>] <span class="op">=</span> [<span class="number">0xde</span>, <span class="number">0xad</span>, <span class="number">0xbe</span>, <span class="number">0xef</span> <span class="comment">/* 4 bytes garbage at beginning */</span>, <span class="number">0x21</span>,
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+  <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+  <span class="attribute">#[test]
+  </span><span class="kw">fn </span>warmup_works() {
+    <span class="kw">let </span>data: [u8; <span class="number">37</span>] = [<span class="number">0xde</span>, <span class="number">0xad</span>, <span class="number">0xbe</span>, <span class="number">0xef </span><span class="comment">/* 4 bytes garbage at beginning */</span>, <span class="number">0x21</span>,
                           <span class="number">0xfd</span>, <span class="number">0xff</span>, <span class="number">0x87</span>, <span class="number">0x03</span>, <span class="number">0x6c</span>, <span class="number">0x63</span>, <span class="number">0x90</span>, <span class="number">0xde</span>, <span class="number">0xe9</span>, <span class="number">0x36</span>, <span class="number">0x04</span>, <span class="number">0xf8</span>,
                           <span class="number">0x89</span>, <span class="number">0xb4</span>, <span class="number">0x4d</span>, <span class="number">0x57</span>, <span class="number">0x96</span>, <span class="number">0x51</span>, <span class="number">0x0a</span>, <span class="number">0x54</span>, <span class="number">0xb7</span>, <span class="number">0x54</span>, <span class="number">0xee</span>, <span class="number">0xf4</span>,
-                          <span class="number">0xdc</span>, <span class="number">0xa0</span>, <span class="number">0x05</span>, <span class="number">0x9b</span>, <span class="number">0xd2</span>, <span class="number">0x2b</span>, <span class="number">0x30</span>, <span class="number">0x8f</span>]; <span class="comment">// 33 b goods</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-      <span class="ident">val_</span>: <span class="number">0x0</span>,
-      <span class="ident">bit_pos_</span>: <span class="number">64</span>,
-      <span class="ident">avail_in</span>: <span class="number">33</span>,
-      <span class="ident">next_in</span>: <span class="number">4</span>,
+                          <span class="number">0xdc</span>, <span class="number">0xa0</span>, <span class="number">0x05</span>, <span class="number">0x9b</span>, <span class="number">0xd2</span>, <span class="number">0x2b</span>, <span class="number">0x30</span>, <span class="number">0x8f</span>]; <span class="comment">// 33 b goods
+    </span><span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+      val_: <span class="number">0x0</span>,
+      bit_pos_: <span class="number">64</span>,
+      avail_in: <span class="number">33</span>,
+      next_in: <span class="number">4</span>,
     };
-    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliWarmupBitReader</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-    <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="bool-val">true</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">val_</span>, <span class="number">0x2100000000000000</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">56</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">32</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">5</span>);
+    <span class="kw">let </span>ret = BrotliWarmupBitReader(<span class="kw-2">&amp;mut </span>bit_reader, <span class="kw-2">&amp;</span>data[..]);
+    <span class="macro">assert_eq!</span>(ret, <span class="bool-val">true</span>);
+    <span class="macro">assert_eq!</span>(bit_reader.val_, <span class="number">0x2100000000000000</span>);
+    <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">56</span>);
+    <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">32</span>);
+    <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">5</span>);
   }
-  <span class="attribute">#[<span class="ident">test</span>]</span>
-  <span class="kw">fn</span> <span class="ident">warmup_errcheck</span>() {
-    <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">3</span>] <span class="op">=</span> [<span class="number">0xde</span>, <span class="number">0xad</span>, <span class="number">0xeb</span>]; <span class="comment">// 3 bytes garbage at beginning</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-      <span class="ident">val_</span>: <span class="number">0x86e884e1ffff577b</span>,
-      <span class="ident">bit_pos_</span>: <span class="number">64</span>,
-      <span class="ident">avail_in</span>: <span class="number">0</span>,
-      <span class="ident">next_in</span>: <span class="number">3</span>,
+  <span class="attribute">#[test]
+  </span><span class="kw">fn </span>warmup_errcheck() {
+    <span class="kw">let </span>data: [u8; <span class="number">3</span>] = [<span class="number">0xde</span>, <span class="number">0xad</span>, <span class="number">0xeb</span>]; <span class="comment">// 3 bytes garbage at beginning
+    </span><span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+      val_: <span class="number">0x86e884e1ffff577b</span>,
+      bit_pos_: <span class="number">64</span>,
+      avail_in: <span class="number">0</span>,
+      next_in: <span class="number">3</span>,
     };
-    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliWarmupBitReader</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-    <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="bool-val">false</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">val_</span>, <span class="number">0x86e884e1ffff577b</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">64</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">0</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">3</span>);
+    <span class="kw">let </span>ret = BrotliWarmupBitReader(<span class="kw-2">&amp;mut </span>bit_reader, <span class="kw-2">&amp;</span>data[..]);
+    <span class="macro">assert_eq!</span>(ret, <span class="bool-val">false</span>);
+    <span class="macro">assert_eq!</span>(bit_reader.val_, <span class="number">0x86e884e1ffff577b</span>);
+    <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">64</span>);
+    <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">0</span>);
+    <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">3</span>);
   }
-  <span class="attribute">#[<span class="ident">test</span>]</span>
-  <span class="kw">fn</span> <span class="ident">safe_read_tests</span>() {
+  <span class="attribute">#[test]
+  </span><span class="kw">fn </span>safe_read_tests() {
     {
-      <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">12</span>] <span class="op">=</span> [<span class="number">0x50</span>, <span class="number">0x3b</span>, <span class="number">0xbb</span>, <span class="number">0x5e</span>, <span class="number">0xc5</span>, <span class="number">0x96</span>, <span class="number">0x81</span>, <span class="number">0xb7</span>, <span class="number">0x52</span>, <span class="number">0x89</span>, <span class="number">0xea</span>, <span class="number">0x3d</span>];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-        <span class="ident">val_</span>: <span class="number">0xe1e56a736e04fbf5</span>,
-        <span class="ident">bit_pos_</span>: <span class="number">6</span>,
-        <span class="ident">avail_in</span>: <span class="number">12</span>,
-        <span class="ident">next_in</span>: <span class="number">0</span>,
+      <span class="kw">let </span>data: [u8; <span class="number">12</span>] = [<span class="number">0x50</span>, <span class="number">0x3b</span>, <span class="number">0xbb</span>, <span class="number">0x5e</span>, <span class="number">0xc5</span>, <span class="number">0x96</span>, <span class="number">0x81</span>, <span class="number">0xb7</span>, <span class="number">0x52</span>, <span class="number">0x89</span>, <span class="number">0xea</span>, <span class="number">0x3d</span>];
+      <span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+        val_: <span class="number">0xe1e56a736e04fbf5</span>,
+        bit_pos_: <span class="number">6</span>,
+        avail_in: <span class="number">12</span>,
+        next_in: <span class="number">0</span>,
       };
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-      <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliSafeReadBits</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="number">7</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-      <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="bool-val">true</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">val</span>, <span class="number">0x6f</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">12</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">0</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">13</span>);
+      <span class="kw">let </span><span class="kw-2">mut </span>val: u32 = <span class="number">0</span>;
+      <span class="kw">let </span>ret = BrotliSafeReadBits(<span class="kw-2">&amp;mut </span>bit_reader, <span class="number">7</span>, <span class="kw-2">&amp;mut </span>val, <span class="kw-2">&amp;</span>data[..]);
+      <span class="macro">assert_eq!</span>(ret, <span class="bool-val">true</span>);
+      <span class="macro">assert_eq!</span>(val, <span class="number">0x6f</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">12</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">0</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">13</span>);
     }
     {
-      <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">7</span>] <span class="op">=</span> [<span class="number">0xba</span>, <span class="number">0xd0</span>, <span class="number">0xf0</span>, <span class="number">0x0d</span>, <span class="number">0xc8</span>, <span class="number">0xcd</span>, <span class="number">0xcc</span>];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-        <span class="ident">val_</span>: <span class="number">0x17f115ae26916f0</span>,
-        <span class="ident">bit_pos_</span>: <span class="number">57</span>,
-        <span class="ident">avail_in</span>: <span class="number">3</span>,
-        <span class="ident">next_in</span>: <span class="number">4</span>,
+      <span class="kw">let </span>data: [u8; <span class="number">7</span>] = [<span class="number">0xba</span>, <span class="number">0xd0</span>, <span class="number">0xf0</span>, <span class="number">0x0d</span>, <span class="number">0xc8</span>, <span class="number">0xcd</span>, <span class="number">0xcc</span>];
+      <span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+        val_: <span class="number">0x17f115ae26916f0</span>,
+        bit_pos_: <span class="number">57</span>,
+        avail_in: <span class="number">3</span>,
+        next_in: <span class="number">4</span>,
       };
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-      <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliSafeReadBits</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="number">15</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-      <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="bool-val">true</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">val</span>, <span class="number">0x6400</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">2</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">5</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">64</span>);
+      <span class="kw">let </span><span class="kw-2">mut </span>val: u32 = <span class="number">0</span>;
+      <span class="kw">let </span>ret = BrotliSafeReadBits(<span class="kw-2">&amp;mut </span>bit_reader, <span class="number">15</span>, <span class="kw-2">&amp;mut </span>val, <span class="kw-2">&amp;</span>data[..]);
+      <span class="macro">assert_eq!</span>(ret, <span class="bool-val">true</span>);
+      <span class="macro">assert_eq!</span>(val, <span class="number">0x6400</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">2</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">5</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">64</span>);
     }
     {
-      <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="number">0xee</span>, <span class="number">0xee</span>, <span class="number">0xf0</span>, <span class="number">0xd5</span>];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-        <span class="ident">val_</span>: <span class="number">0x5f43f252c027e447</span>,
-        <span class="ident">bit_pos_</span>: <span class="number">53</span>,
-        <span class="ident">avail_in</span>: <span class="number">2</span>,
-        <span class="ident">next_in</span>: <span class="number">2</span>,
+      <span class="kw">let </span>data: [u8; <span class="number">4</span>] = [<span class="number">0xee</span>, <span class="number">0xee</span>, <span class="number">0xf0</span>, <span class="number">0xd5</span>];
+      <span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+        val_: <span class="number">0x5f43f252c027e447</span>,
+        bit_pos_: <span class="number">53</span>,
+        avail_in: <span class="number">2</span>,
+        next_in: <span class="number">2</span>,
       };
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-      <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliSafeReadBits</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="number">14</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-      <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="bool-val">true</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">1</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">3</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">59</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">val_</span>, <span class="number">0xf05f43f252c027e4</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">val</span>, <span class="number">0x2fa</span>);
+      <span class="kw">let </span><span class="kw-2">mut </span>val: u32 = <span class="number">0</span>;
+      <span class="kw">let </span>ret = BrotliSafeReadBits(<span class="kw-2">&amp;mut </span>bit_reader, <span class="number">14</span>, <span class="kw-2">&amp;mut </span>val, <span class="kw-2">&amp;</span>data[..]);
+      <span class="macro">assert_eq!</span>(ret, <span class="bool-val">true</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">1</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">3</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">59</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.val_, <span class="number">0xf05f43f252c027e4</span>);
+      <span class="macro">assert_eq!</span>(val, <span class="number">0x2fa</span>);
     }
     {
-      <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="number">0xee</span>, <span class="number">0xee</span>, <span class="number">0xf0</span>, <span class="number">0xd5</span>];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-        <span class="ident">val_</span>: <span class="number">0x2f902339697460</span>,
-        <span class="ident">bit_pos_</span>: <span class="number">57</span>,
-        <span class="ident">avail_in</span>: <span class="number">0</span>,
-        <span class="ident">next_in</span>: <span class="number">4</span>,
+      <span class="kw">let </span>data: [u8; <span class="number">4</span>] = [<span class="number">0xee</span>, <span class="number">0xee</span>, <span class="number">0xf0</span>, <span class="number">0xd5</span>];
+      <span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+        val_: <span class="number">0x2f902339697460</span>,
+        bit_pos_: <span class="number">57</span>,
+        avail_in: <span class="number">0</span>,
+        next_in: <span class="number">4</span>,
       };
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0x74eca3f0</span>;
-      <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliSafeReadBits</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="number">14</span>, <span class="kw-2">&amp;mut</span> <span class="ident">val</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-      <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="bool-val">false</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">0</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">4</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">57</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">val_</span>, <span class="number">0x2f902339697460</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">val</span>, <span class="number">0x74eca3f0</span>);
+      <span class="kw">let </span><span class="kw-2">mut </span>val: u32 = <span class="number">0x74eca3f0</span>;
+      <span class="kw">let </span>ret = BrotliSafeReadBits(<span class="kw-2">&amp;mut </span>bit_reader, <span class="number">14</span>, <span class="kw-2">&amp;mut </span>val, <span class="kw-2">&amp;</span>data[..]);
+      <span class="macro">assert_eq!</span>(ret, <span class="bool-val">false</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">0</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">4</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">57</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.val_, <span class="number">0x2f902339697460</span>);
+      <span class="macro">assert_eq!</span>(val, <span class="number">0x74eca3f0</span>);
     }
   }
-  <span class="attribute">#[<span class="ident">test</span>]</span>
-  <span class="kw">fn</span> <span class="ident">bit_read_tests</span>() {
+  <span class="attribute">#[test]
+  </span><span class="kw">fn </span>bit_read_tests() {
     {
-      <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">32</span>] <span class="op">=</span> [<span class="number">0xba</span>, <span class="number">0xaa</span>, <span class="number">0xad</span>, <span class="number">0xdd</span>, <span class="number">0x57</span>, <span class="number">0x5c</span>, <span class="number">0xd9</span>, <span class="number">0xa3</span>, <span class="number">0x3e</span>, <span class="number">0xb3</span>, <span class="number">0x77</span>,
+      <span class="kw">let </span>data: [u8; <span class="number">32</span>] = [<span class="number">0xba</span>, <span class="number">0xaa</span>, <span class="number">0xad</span>, <span class="number">0xdd</span>, <span class="number">0x57</span>, <span class="number">0x5c</span>, <span class="number">0xd9</span>, <span class="number">0xa3</span>, <span class="number">0x3e</span>, <span class="number">0xb3</span>, <span class="number">0x77</span>,
                             <span class="number">0xe7</span>, <span class="number">0xa0</span>, <span class="number">0x1e</span>, <span class="number">0x09</span>, <span class="number">0xd3</span>, <span class="number">0x12</span>, <span class="number">0xa1</span>, <span class="number">0x3f</span>, <span class="number">0xb8</span>, <span class="number">0x7e</span>, <span class="number">0x5a</span>,
                             <span class="number">0x06</span>, <span class="number">0x86</span>, <span class="number">0xe5</span>, <span class="number">0x36</span>, <span class="number">0xef</span>, <span class="number">0x9c</span>, <span class="number">0x9f</span>, <span class="number">0x6d</span>, <span class="number">0x9b</span>, <span class="number">0xcc</span>];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-        <span class="ident">val_</span>: <span class="number">0xf5917f07daaaeabb</span>,
-        <span class="ident">bit_pos_</span>: <span class="number">33</span>,
-        <span class="ident">avail_in</span>: <span class="number">29</span>,
-        <span class="ident">next_in</span>: <span class="number">3</span>,
+      <span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+        val_: <span class="number">0xf5917f07daaaeabb</span>,
+        bit_pos_: <span class="number">33</span>,
+        avail_in: <span class="number">29</span>,
+        next_in: <span class="number">3</span>,
       };
-      <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliReadBits</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="number">8</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-      <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="number">0x83</span>);
-      <span class="kw">if</span> <span class="ident"><span class="kw">super</span>::BROTLI_ALIGNED_READ</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">41</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">29</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">3</span>);
+      <span class="kw">let </span>ret = BrotliReadBits(<span class="kw-2">&amp;mut </span>bit_reader, <span class="number">8</span>, <span class="kw-2">&amp;</span>data[..]);
+      <span class="macro">assert_eq!</span>(ret, <span class="number">0x83</span>);
+      <span class="kw">if </span><span class="kw">super</span>::BROTLI_ALIGNED_READ == <span class="number">0 </span>{
+        <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">41</span>);
+        <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">29</span>);
+        <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">3</span>);
 
-      } <span class="kw">else</span> {
-        <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">9</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">25</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">7</span>);
+      } <span class="kw">else </span>{
+        <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">9</span>);
+        <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">25</span>);
+        <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">7</span>);
       }
     }
     {
-      <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">28</span>] <span class="op">=</span> [<span class="number">0xba</span>, <span class="number">0xaa</span>, <span class="number">0xaa</span>, <span class="number">0xad</span>, <span class="number">0x74</span>, <span class="number">0x40</span>, <span class="number">0x8e</span>, <span class="number">0xee</span>, <span class="number">0xd2</span>, <span class="number">0x38</span>, <span class="number">0xf1</span>,
+      <span class="kw">let </span>data: [u8; <span class="number">28</span>] = [<span class="number">0xba</span>, <span class="number">0xaa</span>, <span class="number">0xaa</span>, <span class="number">0xad</span>, <span class="number">0x74</span>, <span class="number">0x40</span>, <span class="number">0x8e</span>, <span class="number">0xee</span>, <span class="number">0xd2</span>, <span class="number">0x38</span>, <span class="number">0xf1</span>,
                             <span class="number">0xf4</span>, <span class="number">0xf8</span>, <span class="number">0x1d</span>, <span class="number">0x9f</span>, <span class="number">0x24</span>, <span class="number">0x48</span>, <span class="number">0x1e</span>, <span class="number">0x82</span>, <span class="number">0xce</span>, <span class="number">0x48</span>, <span class="number">0x88</span>,
                             <span class="number">0xd7</span>, <span class="number">0x25</span>, <span class="number">0x74</span>, <span class="number">0xaf</span>, <span class="number">0xe3</span>, <span class="number">0xea</span>];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-        <span class="ident">val_</span>: <span class="number">0x27e33b2440d3feaf</span>,
-        <span class="ident">bit_pos_</span>: <span class="number">18</span>,
-        <span class="ident">avail_in</span>: <span class="number">24</span>,
-        <span class="ident">next_in</span>: <span class="number">4</span>,
+      <span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+        val_: <span class="number">0x27e33b2440d3feaf</span>,
+        bit_pos_: <span class="number">18</span>,
+        avail_in: <span class="number">24</span>,
+        next_in: <span class="number">4</span>,
       };
-      <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliReadBits</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="number">15</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-      <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="number">0x1034</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">33</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">24</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">4</span>);
+      <span class="kw">let </span>ret = BrotliReadBits(<span class="kw-2">&amp;mut </span>bit_reader, <span class="number">15</span>, <span class="kw-2">&amp;</span>data[..]);
+      <span class="macro">assert_eq!</span>(ret, <span class="number">0x1034</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">33</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">24</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">4</span>);
     }
   }
-  <span class="attribute">#[<span class="ident">test</span>]</span>
-  <span class="kw">fn</span> <span class="ident">const_fill_bit_window_tests</span>() {
+  <span class="attribute">#[test]
+  </span><span class="kw">fn </span>const_fill_bit_window_tests() {
     {
-      <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">36</span>] <span class="op">=</span> [<span class="number">0xff</span>, <span class="number">0x9a</span>, <span class="number">0xa0</span>, <span class="number">0xde</span>, <span class="number">0x50</span>, <span class="number">0x99</span>, <span class="number">0x67</span>, <span class="number">0x67</span>, <span class="number">0x69</span>, <span class="number">0x87</span>, <span class="number">0x0e</span>,
+      <span class="kw">let </span>data: [u8; <span class="number">36</span>] = [<span class="number">0xff</span>, <span class="number">0x9a</span>, <span class="number">0xa0</span>, <span class="number">0xde</span>, <span class="number">0x50</span>, <span class="number">0x99</span>, <span class="number">0x67</span>, <span class="number">0x67</span>, <span class="number">0x69</span>, <span class="number">0x87</span>, <span class="number">0x0e</span>,
                             <span class="number">0x69</span>, <span class="number">0xeb</span>, <span class="number">0x6a</span>, <span class="number">0xd1</span>, <span class="number">0x56</span>, <span class="number">0xc0</span>, <span class="number">0x32</span>, <span class="number">0x96</span>, <span class="number">0xed</span>, <span class="number">0x78</span>, <span class="number">0x0e</span>,
                             <span class="number">0x19</span>, <span class="number">0xdd</span>, <span class="number">0x0b</span>, <span class="number">0xe8</span>, <span class="number">0xf8</span>, <span class="number">0x33</span>, <span class="number">0x9f</span>, <span class="number">0xe0</span>, <span class="number">0x69</span>, <span class="number">0x55</span>, <span class="number">0x59</span>,
                             <span class="number">0x3f</span>, <span class="number">0x5d</span>, <span class="number">0xc8</span>];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-        <span class="ident">val_</span>: <span class="number">0xb3fc441e0181dc4</span>,
-        <span class="ident">bit_pos_</span>: <span class="number">59</span>,
-        <span class="ident">avail_in</span>: <span class="number">33</span>,
-        <span class="ident">next_in</span>: <span class="number">1</span>,
+      <span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+        val_: <span class="number">0xb3fc441e0181dc4</span>,
+        bit_pos_: <span class="number">59</span>,
+        avail_in: <span class="number">33</span>,
+        next_in: <span class="number">1</span>,
       };
-      <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliReadConstantNBits</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="number">4</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-      <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="number">0x1</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">7</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">26</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">8</span>);
+      <span class="kw">let </span>ret = BrotliReadConstantNBits(<span class="kw-2">&amp;mut </span>bit_reader, <span class="number">4</span>, <span class="kw-2">&amp;</span>data[..]);
+      <span class="macro">assert_eq!</span>(ret, <span class="number">0x1</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">7</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">26</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">8</span>);
     }
     {
-      <span class="kw">let</span> <span class="ident">data</span>: [<span class="ident">u8</span>; <span class="number">67</span>] <span class="op">=</span> [<span class="number">0xf0</span>, <span class="number">0x0d</span>, <span class="number">0x7e</span>, <span class="number">0x18</span>, <span class="number">0x70</span>, <span class="number">0x1c</span>, <span class="number">0x18</span>, <span class="number">0x57</span>, <span class="number">0xbd</span>, <span class="number">0x73</span>, <span class="number">0x47</span>,
+      <span class="kw">let </span>data: [u8; <span class="number">67</span>] = [<span class="number">0xf0</span>, <span class="number">0x0d</span>, <span class="number">0x7e</span>, <span class="number">0x18</span>, <span class="number">0x70</span>, <span class="number">0x1c</span>, <span class="number">0x18</span>, <span class="number">0x57</span>, <span class="number">0xbd</span>, <span class="number">0x73</span>, <span class="number">0x47</span>,
                             <span class="number">0xc1</span>, <span class="number">0xb4</span>, <span class="number">0xf7</span>, <span class="number">0xe2</span>, <span class="number">0xbe</span>, <span class="number">0x17</span>, <span class="number">0x6e</span>, <span class="number">0x26</span>, <span class="number">0x01</span>, <span class="number">0xb2</span>, <span class="number">0xd5</span>,
                             <span class="number">0x55</span>, <span class="number">0xd8</span>, <span class="number">0x68</span>, <span class="number">0x1b</span>, <span class="number">0xc2</span>, <span class="number">0x87</span>, <span class="number">0xb4</span>, <span class="number">0xb1</span>, <span class="number">0xd9</span>, <span class="number">0x42</span>, <span class="number">0xac</span>,
                             <span class="number">0x0d</span>, <span class="number">0x67</span>, <span class="number">0xb1</span>, <span class="number">0x93</span>, <span class="number">0x54</span>, <span class="number">0x49</span>, <span class="number">0xa4</span>, <span class="number">0x69</span>, <span class="number">0xf8</span>, <span class="number">0x16</span>, <span class="number">0x0e</span>,
                             <span class="number">0x61</span>, <span class="number">0xb3</span>, <span class="number">0xdb</span>, <span class="number">0x98</span>, <span class="number">0xbb</span>, <span class="number">0xeb</span>, <span class="number">0xfa</span>, <span class="number">0xcb</span>, <span class="number">0x14</span>, <span class="number">0xcd</span>, <span class="number">0x68</span>,
                             <span class="number">0x77</span>, <span class="number">0xa1</span>, <span class="number">0x33</span>, <span class="number">0x6c</span>, <span class="number">0x49</span>, <span class="number">0xfa</span>, <span class="number">0x35</span>, <span class="number">0xbb</span>, <span class="number">0xeb</span>, <span class="number">0xee</span>, <span class="number">0x7b</span>, <span class="number">0xae</span>];
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bit_reader</span> <span class="op">=</span> <span class="ident">BrotliBitReader</span> {
-        <span class="ident">val_</span>: <span class="number">0x655b1fe0dd6f1e78</span>,
-        <span class="ident">bit_pos_</span>: <span class="number">63</span>,
-        <span class="ident">avail_in</span>: <span class="number">65</span>,
-        <span class="ident">next_in</span>: <span class="number">2</span>,
+      <span class="kw">let </span><span class="kw-2">mut </span>bit_reader = BrotliBitReader {
+        val_: <span class="number">0x655b1fe0dd6f1e78</span>,
+        bit_pos_: <span class="number">63</span>,
+        avail_in: <span class="number">65</span>,
+        next_in: <span class="number">2</span>,
       };
-      <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliGet16BitsUnmasked</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bit_reader</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>[..]);
-      <span class="macro">assert_eq!</span>(<span class="ident">ret</span>, <span class="number">0x38e030fc</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">bit_pos_</span>, <span class="number">15</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">avail_in</span>, <span class="number">59</span>);
-      <span class="macro">assert_eq!</span>(<span class="ident">bit_reader</span>.<span class="ident">next_in</span>, <span class="number">8</span>);
+      <span class="kw">let </span>ret = BrotliGet16BitsUnmasked(<span class="kw-2">&amp;mut </span>bit_reader, <span class="kw-2">&amp;</span>data[..]);
+      <span class="macro">assert_eq!</span>(ret, <span class="number">0x38e030fc</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.bit_pos_, <span class="number">15</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.avail_in, <span class="number">59</span>);
+      <span class="macro">assert_eq!</span>(bit_reader.next_in, <span class="number">8</span>);
     }
   }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

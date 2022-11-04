@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/cms/gutenberg.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gutenberg.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/cms/gutenberg.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gutenberg.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -183,28 +183,28 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">headless_lms_utils::url_to_oembed_endpoint</span>::{
-    <span class="ident">mentimeter_oembed_response_builder</span>, <span class="ident">url_to_oembed_endpoint</span>, <span class="ident">OEmbedRequest</span>, <span class="ident">OEmbedResponse</span>,
+<span class="kw">use </span>headless_lms_utils::url_to_oembed_endpoint::{
+    mentimeter_oembed_response_builder, url_to_oembed_endpoint, OEmbedRequest, OEmbedResponse,
 };
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ThemeSupports</span> {
-    <span class="kw">pub</span> <span class="ident">responsive_embeds</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Deserialize, Serialize)]
+#[serde(rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+</span><span class="kw">pub struct </span>ThemeSupports {
+    <span class="kw">pub </span>responsive_embeds: bool,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ThemeResponse</span> {
-    <span class="kw">pub</span> <span class="ident">theme_supports</span>: <span class="ident">ThemeSupports</span>,
+<span class="attribute">#[derive(Deserialize, Serialize)]
+</span><span class="kw">pub struct </span>ThemeResponse {
+    <span class="kw">pub </span>theme_supports: ThemeSupports,
 }
 
-<span class="comment">// Needed for Spotify oembed, should be fetched from env?</span>
-<span class="kw">static</span> <span class="ident">APP_USER_AGENT</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;moocfi&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;0.1.0&quot;</span>,);
+<span class="comment">// Needed for Spotify oembed, should be fetched from env?
+</span><span class="kw">static </span>APP_USER_AGENT: <span class="kw-2">&amp;</span>str = <span class="macro">concat!</span>(<span class="string">&quot;moocfi&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;0.1.0&quot;</span>,);
 
 <span class="doccomment">/**
 GET `/api/v0/cms/gutenberg/oembed/preview?url=https%3A%2F%2Fyoutube.com%2Fwatch%3Fv%3D123123123` - Fetch oembed response from correct provider.
@@ -237,61 +237,61 @@ Response:
 }
 
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_oembed_data_from_provider</span>(
-    <span class="ident">query_params</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">OEmbedRequest</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">endpoint</span> <span class="op">=</span> <span class="ident">url_to_oembed_endpoint</span>(
-        <span class="ident">query_params</span>.<span class="ident">url</span>.<span class="ident">to_string</span>(),
-        <span class="prelude-val">Some</span>(<span class="ident">app_conf</span>.<span class="ident">base_url</span>.<span class="ident">to_string</span>()),
+*/
+</span><span class="attribute">#[instrument(skip(pool, app_conf))]
+</span><span class="kw">async fn </span>get_oembed_data_from_provider(
+    query_params: web::Query&lt;OEmbedRequest&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;serde_json::Value&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>endpoint = url_to_oembed_endpoint(
+        query_params.url.to_string(),
+        <span class="prelude-val">Some</span>(app_conf.base_url.to_string()),
     )<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">reqwest::Client::builder</span>()
-        .<span class="ident">user_agent</span>(<span class="ident">APP_USER_AGENT</span>)
-        .<span class="ident">build</span>()
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">oe</span><span class="op">|</span> <span class="macro">anyhow::anyhow!</span>(<span class="ident">oe</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>
-        .<span class="ident">get</span>(<span class="ident">endpoint</span>)
-        .<span class="ident">timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">120</span>))
-        .<span class="ident">send</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">oe</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::BadRequest</span>,
-                <span class="ident">oe</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">oe</span>.<span class="ident">into</span>()),
+    <span class="kw">let </span>client = reqwest::Client::builder()
+        .user_agent(APP_USER_AGENT)
+        .build()
+        .map_err(|oe| <span class="macro">anyhow::anyhow!</span>(oe.to_string()))<span class="question-mark">?</span>;
+    <span class="kw">let </span>res = client
+        .get(endpoint)
+        .timeout(Duration::from_secs(<span class="number">120</span>))
+        .send()
+        .<span class="kw">await
+        </span>.map_err(|oe| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                oe.to_string(),
+                <span class="prelude-val">Some</span>(oe.into()),
             )
         })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">status</span>();
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">status</span>.<span class="ident">is_success</span>() {
-        <span class="kw">let</span> <span class="ident">response_url</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">url</span>().<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">text</span>().<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">oe</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::BadRequest</span>,
-                <span class="ident">oe</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">oe</span>.<span class="ident">into</span>()),
+    <span class="kw">let </span>status = res.status();
+    <span class="kw">if </span>!status.is_success() {
+        <span class="kw">let </span>response_url = res.url().to_string();
+        <span class="kw">let </span>body = res.text().<span class="kw">await</span>.map_err(|oe| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                oe.to_string(),
+                <span class="prelude-val">Some</span>(oe.into()),
             )
         })<span class="question-mark">?</span>;
-        <span class="macro">warn!</span>(<span class="ident">url</span><span class="op">=</span><span class="question-mark">?</span><span class="ident">response_url</span>, <span class="ident">status</span><span class="op">=</span><span class="question-mark">?</span><span class="ident">status</span>, <span class="ident">body</span><span class="op">=</span><span class="question-mark">?</span><span class="ident">body</span>, <span class="string">&quot;Could not fetch oembed data from provider&quot;</span>);
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="string">&quot;Could not fetch oembed data from provider&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="macro">warn!</span>(url=<span class="question-mark">?</span>response_url, status=<span class="question-mark">?</span>status, body=<span class="question-mark">?</span>body, <span class="string">&quot;Could not fetch oembed data from provider&quot;</span>);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Could not fetch oembed data from provider&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>().<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">oe</span><span class="op">|</span> {
-        <span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="ident">oe</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">oe</span>.<span class="ident">into</span>()),
+    <span class="kw">let </span>res = res.json::&lt;serde_json::Value&gt;().<span class="kw">await</span>.map_err(|oe| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            oe.to_string(),
+            <span class="prelude-val">Some</span>(oe.into()),
         )
     })<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
+    token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
@@ -319,35 +319,35 @@ Response:
 }
 
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_theme_settings</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ThemeResponse</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">ThemeResponse</span> {
-        <span class="ident">theme_supports</span>: <span class="ident">ThemeSupports</span> {
-            <span class="ident">responsive_embeds</span>: <span class="bool-val">true</span>,
+*/
+</span><span class="attribute">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_theme_settings(
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;ThemeResponse&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>response = ThemeResponse {
+        theme_supports: ThemeSupports {
+            responsive_embeds: <span class="bool-val">true</span>,
         },
     };
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">response</span>))
+    token.authorized_ok(web::Json(response))
 }
 
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_mentimeter_oembed_data</span>(
-    <span class="ident">query_params</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">OEmbedRequest</span><span class="op">&gt;</span>,
-    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">OEmbedResponse</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">query_params</span>.<span class="ident">url</span>.<span class="ident">to_string</span>();
-    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">mentimeter_oembed_response_builder</span>(<span class="ident">url</span>, <span class="ident">app_conf</span>.<span class="ident">base_url</span>.<span class="ident">to_string</span>())<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">response</span>))
+<span class="attribute">#[generated_doc]
+#[instrument(skip(app_conf))]
+</span><span class="kw">async fn </span>get_mentimeter_oembed_data(
+    query_params: web::Query&lt;OEmbedRequest&gt;,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;OEmbedResponse&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::View, <span class="prelude-val">Some</span>(user.id), Res::AnyCourse).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>url = query_params.url.to_string();
+    <span class="kw">let </span>response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(response))
 }
 
 <span class="doccomment">/**
@@ -356,17 +356,17 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(
+*/
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(
         <span class="string">&quot;/oembed/preview&quot;</span>,
-        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_oembed_data_from_provider</span>),
+        web::get().to(get_oembed_data_from_provider),
     )
-    .<span class="ident">route</span>(<span class="string">&quot;/themes&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_theme_settings</span>))
-    .<span class="ident">route</span>(
+    .route(<span class="string">&quot;/themes&quot;</span>, web::get().to(get_theme_settings))
+    .route(
         <span class="string">&quot;/oembed/mentimeter&quot;</span>,
-        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_mentimeter_oembed_data</span>),
+        web::get().to(get_mentimeter_oembed_data),
     );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

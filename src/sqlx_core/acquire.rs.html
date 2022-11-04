@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/acquire.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>acquire.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/acquire.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>acquire.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -175,182 +175,182 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::Database</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool</span>::{<span class="ident">MaybePoolConnection</span>, <span class="ident">Pool</span>, <span class="ident">PoolConnection</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transaction::Transaction</span>;
-<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::database::Database;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::pool::{MaybePoolConnection, Pool, PoolConnection};
+<span class="kw">use </span><span class="kw">crate</span>::transaction::Transaction;
+<span class="kw">use </span>futures_core::future::BoxFuture;
+<span class="kw">use </span>std::ops::{Deref, DerefMut};
 
-<span class="doccomment">/// Acquire connections or transactions from a database in a generic way.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If you want to accept generic database connections that implement</span>
-<span class="doccomment">/// [`Acquire`] which then allows you to [`acquire`][`Acquire::acquire`] a</span>
-<span class="doccomment">/// connection or [`begin`][`Acquire::begin`] a transaction, then you can do it</span>
-<span class="doccomment">/// like that:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use sqlx::{Acquire, postgres::Postgres, error::BoxDynError};</span>
-<span class="doccomment">/// # #[cfg(any(postgres_9_6, postgres_14))]</span>
-<span class="doccomment">/// async fn run_query&lt;&#39;a, A&gt;(conn: A) -&gt; Result&lt;(), BoxDynError&gt;</span>
-<span class="doccomment">/// where</span>
-<span class="doccomment">///     A: Acquire&lt;&#39;a, Database = Postgres&gt;,</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     let mut conn = conn.acquire().await?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     sqlx::query!(&quot;SELECT 1 as v&quot;).fetch_one(&amp;mut *conn).await?;</span>
-<span class="doccomment">///     sqlx::query!(&quot;SELECT 2 as v&quot;).fetch_one(&amp;mut *conn).await?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     Ok(())</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If you run into a lifetime error about &quot;implementation of `sqlx::Acquire` is</span>
-<span class="doccomment">/// not general enough&quot;, the [workaround] looks like this:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use std::future::Future;</span>
-<span class="doccomment">/// # use sqlx::{Acquire, postgres::Postgres, error::BoxDynError};</span>
-<span class="doccomment">/// # #[cfg(any(postgres_9_6, postgres_14))]</span>
-<span class="doccomment">/// fn run_query&lt;&#39;a, &#39;c, A&gt;(conn: A) -&gt; impl Future&lt;Output = Result&lt;(), BoxDynError&gt;&gt; + Send + &#39;a</span>
-<span class="doccomment">/// where</span>
-<span class="doccomment">///     A: Acquire&lt;&#39;c, Database = Postgres&gt; + Send + &#39;a,</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     async move {</span>
-<span class="doccomment">///         let mut conn = conn.acquire().await?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         sqlx::query!(&quot;SELECT 1 as v&quot;).fetch_one(&amp;mut *conn).await?;</span>
-<span class="doccomment">///         sqlx::query!(&quot;SELECT 2 as v&quot;).fetch_one(&amp;mut *conn).await?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         Ok(())</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// However, if you really just want to accept both, a transaction or a</span>
-<span class="doccomment">/// connection as an argument to a function, then it&#39;s easier to just accept a</span>
-<span class="doccomment">/// mutable reference to a database connection like so:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use sqlx::{postgres::PgConnection, error::BoxDynError};</span>
-<span class="doccomment">/// # #[cfg(any(postgres_9_6, postgres_14))]</span>
-<span class="doccomment">/// async fn run_query(conn: &amp;mut PgConnection) -&gt; Result&lt;(), BoxDynError&gt; {</span>
-<span class="doccomment">///     sqlx::query!(&quot;SELECT 1 as v&quot;).fetch_one(&amp;mut *conn).await?;</span>
-<span class="doccomment">///     sqlx::query!(&quot;SELECT 2 as v&quot;).fetch_one(&amp;mut *conn).await?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     Ok(())</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The downside of this approach is that you have to `acquire` a connection</span>
-<span class="doccomment">/// from a pool first and can&#39;t directly pass the pool as argument.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [workaround]: https://github.com/launchbadge/sqlx/issues/1015#issuecomment-767787777</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Acquire</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// Acquire connections or transactions from a database in a generic way.
+///
+/// If you want to accept generic database connections that implement
+/// [`Acquire`] which then allows you to [`acquire`][`Acquire::acquire`] a
+/// connection or [`begin`][`Acquire::begin`] a transaction, then you can do it
+/// like that:
+///
+/// ```rust
+/// # use sqlx::{Acquire, postgres::Postgres, error::BoxDynError};
+/// # #[cfg(any(postgres_9_6, postgres_14))]
+/// async fn run_query&lt;&#39;a, A&gt;(conn: A) -&gt; Result&lt;(), BoxDynError&gt;
+/// where
+///     A: Acquire&lt;&#39;a, Database = Postgres&gt;,
+/// {
+///     let mut conn = conn.acquire().await?;
+///
+///     sqlx::query!(&quot;SELECT 1 as v&quot;).fetch_one(&amp;mut *conn).await?;
+///     sqlx::query!(&quot;SELECT 2 as v&quot;).fetch_one(&amp;mut *conn).await?;
+///
+///     Ok(())
+/// }
+/// ```
+///
+/// If you run into a lifetime error about &quot;implementation of `sqlx::Acquire` is
+/// not general enough&quot;, the [workaround] looks like this:
+///
+/// ```rust
+/// # use std::future::Future;
+/// # use sqlx::{Acquire, postgres::Postgres, error::BoxDynError};
+/// # #[cfg(any(postgres_9_6, postgres_14))]
+/// fn run_query&lt;&#39;a, &#39;c, A&gt;(conn: A) -&gt; impl Future&lt;Output = Result&lt;(), BoxDynError&gt;&gt; + Send + &#39;a
+/// where
+///     A: Acquire&lt;&#39;c, Database = Postgres&gt; + Send + &#39;a,
+/// {
+///     async move {
+///         let mut conn = conn.acquire().await?;
+///
+///         sqlx::query!(&quot;SELECT 1 as v&quot;).fetch_one(&amp;mut *conn).await?;
+///         sqlx::query!(&quot;SELECT 2 as v&quot;).fetch_one(&amp;mut *conn).await?;
+///
+///         Ok(())
+///     }
+/// }
+/// ```
+///
+/// However, if you really just want to accept both, a transaction or a
+/// connection as an argument to a function, then it&#39;s easier to just accept a
+/// mutable reference to a database connection like so:
+///
+/// ```rust
+/// # use sqlx::{postgres::PgConnection, error::BoxDynError};
+/// # #[cfg(any(postgres_9_6, postgres_14))]
+/// async fn run_query(conn: &amp;mut PgConnection) -&gt; Result&lt;(), BoxDynError&gt; {
+///     sqlx::query!(&quot;SELECT 1 as v&quot;).fetch_one(&amp;mut *conn).await?;
+///     sqlx::query!(&quot;SELECT 2 as v&quot;).fetch_one(&amp;mut *conn).await?;
+///
+///     Ok(())
+/// }
+/// ```
+///
+/// The downside of this approach is that you have to `acquire` a connection
+/// from a pool first and can&#39;t directly pass the pool as argument.
+///
+/// [workaround]: https://github.com/launchbadge/sqlx/issues/1015#issuecomment-767787777
+</span><span class="kw">pub trait </span>Acquire&lt;<span class="lifetime">&#39;c</span>&gt; {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="kw">type</span> <span class="ident">Connection</span>: <span class="ident">Deref</span><span class="op">&lt;</span><span class="ident">Target</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Connection</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">DerefMut</span> <span class="op">+</span> <span class="ident">Send</span>;
+    <span class="kw">type </span>Connection: Deref&lt;Target = &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Connection&gt; + DerefMut + Send;
 
-    <span class="kw">fn</span> <span class="ident">acquire</span>(<span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Connection</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>acquire(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">begin</span>(<span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>begin(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;c</span>, <span class="self">Self</span>::Database&gt;, Error&gt;&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Acquire</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="ident">DB</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, DB: Database&gt; Acquire&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>Pool&lt;DB&gt; {
+    <span class="kw">type </span>Database = DB;
 
-    <span class="kw">type</span> <span class="ident">Connection</span> <span class="op">=</span> <span class="ident">PoolConnection</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Connection = PoolConnection&lt;DB&gt;;
 
-    <span class="kw">fn</span> <span class="ident">acquire</span>(<span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Connection</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="self">self</span>.<span class="ident">acquire</span>())
+    <span class="kw">fn </span>acquire(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, Error&gt;&gt; {
+        Box::pin(<span class="self">self</span>.acquire())
     }
 
-    <span class="kw">fn</span> <span class="ident">begin</span>(<span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">acquire</span>();
+    <span class="kw">fn </span>begin(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;a</span>, DB&gt;, Error&gt;&gt; {
+        <span class="kw">let </span>conn = <span class="self">self</span>.acquire();
 
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="ident">Transaction::begin</span>(<span class="ident">MaybePoolConnection::PoolConnection</span>(<span class="ident">conn</span>.<span class="kw">await</span><span class="question-mark">?</span>)).<span class="kw">await</span>
-        })
+        Box::pin(<span class="kw">async move </span>{
+            Transaction::begin(MaybePoolConnection::PoolConnection(conn.<span class="kw">await</span><span class="question-mark">?</span>)).<span class="kw">await
+        </span>})
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_macros</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">impl_acquire</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::acquire::Acquire</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C</span> {
-            <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span>;
+<span class="attribute">#[allow(unused_macros)]
+</span><span class="macro">macro_rules! </span>impl_acquire {
+    (<span class="macro-nonterminal">$DB</span>:ident, <span class="macro-nonterminal">$C</span>:ident) =&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw">crate</span>::acquire::Acquire&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span><span class="macro-nonterminal">$C </span>{
+            <span class="kw">type </span>Database = <span class="macro-nonterminal">$DB</span>;
 
-            <span class="kw">type</span> <span class="ident">Connection</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::database::Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>;
+            <span class="kw">type </span>Connection = <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>&lt;<span class="macro-nonterminal">$DB </span><span class="kw">as </span><span class="kw">crate</span>::database::Database&gt;::Connection;
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">acquire</span>(
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>acquire(
                 <span class="self">self</span>,
-            ) -&gt; <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Connection</span>, <span class="ident"><span class="kw">crate</span>::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+            ) -&gt; futures_core::future::BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, <span class="kw">crate</span>::error::Error&gt;&gt;
             {
-                <span class="ident">Box::pin</span>(<span class="ident">futures_util::future::ok</span>(<span class="self">self</span>))
+                Box::pin(futures_util::future::ok(<span class="self">self</span>))
             }
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">begin</span>(
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>begin(
                 <span class="self">self</span>,
-            ) -&gt; <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span>
+            ) -&gt; futures_core::future::BoxFuture&lt;
                 <span class="lifetime">&#39;c</span>,
-                <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::transaction::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span><span class="op">&gt;</span>, <span class="ident"><span class="kw">crate</span>::error::Error</span><span class="op">&gt;</span>,
-            <span class="op">&gt;</span> {
-                <span class="ident"><span class="kw">crate</span>::transaction::Transaction::begin</span>(<span class="self">self</span>)
+                <span class="prelude-ty">Result</span>&lt;<span class="kw">crate</span>::transaction::Transaction&lt;<span class="lifetime">&#39;c</span>, <span class="macro-nonterminal">$DB</span>&gt;, <span class="kw">crate</span>::error::Error&gt;,
+            &gt; {
+                <span class="kw">crate</span>::transaction::Transaction::begin(<span class="self">self</span>)
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::acquire::Acquire</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::pool::PoolConnection</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span><span class="op">&gt;</span> {
-            <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span>;
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw">crate</span>::acquire::Acquire&lt;<span class="lifetime">&#39;c</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span><span class="kw">crate</span>::pool::PoolConnection&lt;<span class="macro-nonterminal">$DB</span>&gt; {
+            <span class="kw">type </span>Database = <span class="macro-nonterminal">$DB</span>;
 
-            <span class="kw">type</span> <span class="ident">Connection</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::database::Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>;
+            <span class="kw">type </span>Connection = <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span><span class="kw-2">mut </span>&lt;<span class="macro-nonterminal">$DB </span><span class="kw">as </span><span class="kw">crate</span>::database::Database&gt;::Connection;
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">acquire</span>(
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>acquire(
                 <span class="self">self</span>,
-            ) -&gt; <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Connection</span>, <span class="ident"><span class="kw">crate</span>::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+            ) -&gt; futures_core::future::BoxFuture&lt;<span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, <span class="kw">crate</span>::error::Error&gt;&gt;
             {
-                <span class="ident">Box::pin</span>(<span class="ident">futures_util::future::ok</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>))
+                Box::pin(futures_util::future::ok(<span class="kw-2">&amp;mut **</span><span class="self">self</span>))
             }
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">begin</span>(
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>begin(
                 <span class="self">self</span>,
-            ) -&gt; <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span>
+            ) -&gt; futures_core::future::BoxFuture&lt;
                 <span class="lifetime">&#39;c</span>,
-                <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::transaction::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span><span class="op">&gt;</span>, <span class="ident"><span class="kw">crate</span>::error::Error</span><span class="op">&gt;</span>,
-            <span class="op">&gt;</span> {
-                <span class="ident"><span class="kw">crate</span>::transaction::Transaction::begin</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>)
+                <span class="prelude-ty">Result</span>&lt;<span class="kw">crate</span>::transaction::Transaction&lt;<span class="lifetime">&#39;c</span>, <span class="macro-nonterminal">$DB</span>&gt;, <span class="kw">crate</span>::error::Error&gt;,
+            &gt; {
+                <span class="kw">crate</span>::transaction::Transaction::begin(<span class="kw-2">&amp;mut **</span><span class="self">self</span>)
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="lifetime">&#39;t</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::acquire::Acquire</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span><span class="op">&gt;</span>
-            <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;t</span> <span class="kw-2">mut</span> <span class="ident"><span class="kw">crate</span>::transaction::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span><span class="op">&gt;</span>
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>, <span class="lifetime">&#39;t</span>&gt; <span class="kw">crate</span>::acquire::Acquire&lt;<span class="lifetime">&#39;t</span>&gt;
+            <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span><span class="kw">crate</span>::transaction::Transaction&lt;<span class="lifetime">&#39;c</span>, <span class="macro-nonterminal">$DB</span>&gt;
         {
-            <span class="kw">type</span> <span class="ident">Database</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span>;
+            <span class="kw">type </span>Database = <span class="macro-nonterminal">$DB</span>;
 
-            <span class="kw">type</span> <span class="ident">Connection</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;t</span> <span class="kw-2">mut</span> <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::database::Database</span><span class="op">&gt;</span><span class="ident">::Connection</span>;
+            <span class="kw">type </span>Connection = <span class="kw-2">&amp;</span><span class="lifetime">&#39;t </span><span class="kw-2">mut </span>&lt;<span class="macro-nonterminal">$DB </span><span class="kw">as </span><span class="kw">crate</span>::database::Database&gt;::Connection;
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">acquire</span>(
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>acquire(
                 <span class="self">self</span>,
-            ) -&gt; <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Connection</span>, <span class="ident"><span class="kw">crate</span>::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+            ) -&gt; futures_core::future::BoxFuture&lt;<span class="lifetime">&#39;t</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Connection, <span class="kw">crate</span>::error::Error&gt;&gt;
             {
-                <span class="ident">Box::pin</span>(<span class="ident">futures_util::future::ok</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>))
+                Box::pin(futures_util::future::ok(<span class="kw-2">&amp;mut **</span><span class="self">self</span>))
             }
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">begin</span>(
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>begin(
                 <span class="self">self</span>,
-            ) -&gt; <span class="ident">futures_core::future::BoxFuture</span><span class="op">&lt;</span>
+            ) -&gt; futures_core::future::BoxFuture&lt;
                 <span class="lifetime">&#39;t</span>,
-                <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::transaction::Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DB</span><span class="op">&gt;</span>, <span class="ident"><span class="kw">crate</span>::error::Error</span><span class="op">&gt;</span>,
-            <span class="op">&gt;</span> {
-                <span class="ident"><span class="kw">crate</span>::transaction::Transaction::begin</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>)
+                <span class="prelude-ty">Result</span>&lt;<span class="kw">crate</span>::transaction::Transaction&lt;<span class="lifetime">&#39;t</span>, <span class="macro-nonterminal">$DB</span>&gt;, <span class="kw">crate</span>::error::Error&gt;,
+            &gt; {
+                <span class="kw">crate</span>::transaction::Transaction::begin(<span class="kw-2">&amp;mut **</span><span class="self">self</span>)
             }
         }
     };
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -427,432 +427,432 @@
 <span id="425">425</span>
 <span id="426">426</span>
 <span id="427">427</span>
-</pre><pre class="rust"><code><span class="doccomment">//! ESMTP features</span>
+</pre><pre class="rust"><code><span class="doccomment">//! ESMTP features
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">collections::HashSet</span>,
-    <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>},
-    <span class="ident">net</span>::{<span class="ident">Ipv4Addr</span>, <span class="ident">Ipv6Addr</span>},
-    <span class="ident">result::Result</span>,
+</span><span class="kw">use </span>std::{
+    collections::HashSet,
+    fmt::{<span class="self">self</span>, Display, Formatter},
+    net::{Ipv4Addr, Ipv6Addr},
+    result::Result,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp</span>::{
-    <span class="ident">authentication::Mechanism</span>,
-    <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">Error</span>},
-    <span class="ident">response::Response</span>,
-    <span class="ident">util::XText</span>,
+<span class="kw">use </span><span class="kw">crate</span>::transport::smtp::{
+    authentication::Mechanism,
+    error::{<span class="self">self</span>, Error},
+    response::Response,
+    util::XText,
 };
 
-<span class="doccomment">/// Client identifier, the parameter to `EHLO`</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ClientId</span> {
-    <span class="doccomment">/// A fully-qualified domain name</span>
-    <span class="ident">Domain</span>(<span class="ident">String</span>),
-    <span class="doccomment">/// An IPv4 address</span>
-    <span class="ident">Ipv4</span>(<span class="ident">Ipv4Addr</span>),
-    <span class="doccomment">/// An IPv6 address</span>
-    <span class="ident">Ipv6</span>(<span class="ident">Ipv6Addr</span>),
+<span class="doccomment">/// Client identifier, the parameter to `EHLO`
+</span><span class="attribute">#[derive(PartialEq, Eq, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>ClientId {
+    <span class="doccomment">/// A fully-qualified domain name
+    </span>Domain(String),
+    <span class="doccomment">/// An IPv4 address
+    </span>Ipv4(Ipv4Addr),
+    <span class="doccomment">/// An IPv6 address
+    </span>Ipv6(Ipv6Addr),
 }
 
-<span class="kw">const</span> <span class="ident">LOCALHOST_CLIENT</span>: <span class="ident">ClientId</span> <span class="op">=</span> <span class="ident">ClientId::Ipv4</span>(<span class="ident">Ipv4Addr::new</span>(<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>));
+<span class="kw">const </span>LOCALHOST_CLIENT: ClientId = ClientId::Ipv4(Ipv4Addr::new(<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>));
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ClientId</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="comment">// https://tools.ietf.org/html/rfc5321#section-4.1.4</span>
-        <span class="comment">//</span>
-        <span class="comment">// The SMTP client MUST, if possible, ensure that the domain parameter</span>
-        <span class="comment">// to the EHLO command is a primary host name as specified for this</span>
-        <span class="comment">// command in Section 2.3.5.  If this is not possible (e.g., when the</span>
-        <span class="comment">// client&#39;s address is dynamically assigned and the client does not have</span>
-        <span class="comment">// an obvious name), an address literal SHOULD be substituted for the</span>
-        <span class="comment">// domain name.</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hostname&quot;</span>)]</span>
-        {
-            <span class="ident">hostname::get</span>()
-                .<span class="ident">ok</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into_string</span>().<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::Domain</span>).<span class="ident">ok</span>())
-                .<span class="ident">unwrap_or</span>(<span class="ident">LOCALHOST_CLIENT</span>)
+<span class="kw">impl </span>Default <span class="kw">for </span>ClientId {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="comment">// https://tools.ietf.org/html/rfc5321#section-4.1.4
+        //
+        // The SMTP client MUST, if possible, ensure that the domain parameter
+        // to the EHLO command is a primary host name as specified for this
+        // command in Section 2.3.5.  If this is not possible (e.g., when the
+        // client&#39;s address is dynamically assigned and the client does not have
+        // an obvious name), an address literal SHOULD be substituted for the
+        // domain name.
+        </span><span class="attribute">#[cfg(feature = <span class="string">&quot;hostname&quot;</span>)]
+        </span>{
+            hostname::get()
+                .ok()
+                .and_then(|s| s.into_string().map(<span class="self">Self</span>::Domain).ok())
+                .unwrap_or(LOCALHOST_CLIENT)
         }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hostname&quot;</span>))]</span>
-        <span class="ident">LOCALHOST_CLIENT</span>
+        <span class="attribute">#[cfg(not(feature = <span class="string">&quot;hostname&quot;</span>))]
+        </span>LOCALHOST_CLIENT
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">ClientId</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Domain</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">value</span>),
-            <span class="ident"><span class="self">Self</span>::Ipv4</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[{}]&quot;</span>, <span class="ident">value</span>),
-            <span class="ident"><span class="self">Self</span>::Ipv6</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[IPv6:{}]&quot;</span>, <span class="ident">value</span>),
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ClientId</span> {
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.10.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Please use ClientId::Domain(domain) instead&quot;</span>)]</span>
-    <span class="doccomment">/// Creates a new `ClientId` from a fully qualified domain name</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">domain</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Domain</span>(<span class="ident">domain</span>)
-    }
-}
-
-<span class="doccomment">/// Supported ESMTP keywords</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Extension</span> {
-    <span class="doccomment">/// 8BITMIME keyword</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC 6152](https://tools.ietf.org/html/rfc6152)</span>
-    <span class="ident">EightBitMime</span>,
-    <span class="doccomment">/// SMTPUTF8 keyword</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC 6531](https://tools.ietf.org/html/rfc6531)</span>
-    <span class="ident">SmtpUtfEight</span>,
-    <span class="doccomment">/// STARTTLS keyword</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC 2487](https://tools.ietf.org/html/rfc2487)</span>
-    <span class="ident">StartTls</span>,
-    <span class="doccomment">/// AUTH mechanism</span>
-    <span class="ident">Authentication</span>(<span class="ident">Mechanism</span>),
-}
-
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Extension</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Extension::EightBitMime</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;8BITMIME&quot;</span>),
-            <span class="ident">Extension::SmtpUtfEight</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;SMTPUTF8&quot;</span>),
-            <span class="ident">Extension::StartTls</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;STARTTLS&quot;</span>),
-            <span class="ident">Extension::Authentication</span>(<span class="kw-2">ref</span> <span class="ident">mechanism</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AUTH {}&quot;</span>, <span class="ident">mechanism</span>),
+<span class="kw">impl </span>Display <span class="kw">for </span>ClientId {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            <span class="self">Self</span>::Domain(<span class="kw-2">ref </span>value) =&gt; f.write_str(value),
+            <span class="self">Self</span>::Ipv4(<span class="kw-2">ref </span>value) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;[{}]&quot;</span>, value),
+            <span class="self">Self</span>::Ipv6(<span class="kw-2">ref </span>value) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;[IPv6:{}]&quot;</span>, value),
         }
     }
 }
 
-<span class="doccomment">/// Contains information about an SMTP server</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Default</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ServerInfo</span> {
-    <span class="doccomment">/// Server name</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The name given in the server banner</span>
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// ESMTP features supported by the server</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It contains the features supported by the server and known by the `Extension` module.</span>
-    <span class="ident">features</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">Extension</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>ClientId {
+    <span class="attribute">#[doc(hidden)]
+    #[deprecated(since = <span class="string">&quot;0.10.0&quot;</span>, note = <span class="string">&quot;Please use ClientId::Domain(domain) instead&quot;</span>)]
+    </span><span class="doccomment">/// Creates a new `ClientId` from a fully qualified domain name
+    </span><span class="kw">pub fn </span>new(domain: String) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Domain(domain)
+    }
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">ServerInfo</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> <span class="ident">features</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">features</span>.<span class="ident">is_empty</span>() {
-            <span class="string">&quot;no supported features&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.<span class="ident">features</span>)
+<span class="doccomment">/// Supported ESMTP keywords
+</span><span class="attribute">#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>Extension {
+    <span class="doccomment">/// 8BITMIME keyword
+    ///
+    /// Defined in [RFC 6152](https://tools.ietf.org/html/rfc6152)
+    </span>EightBitMime,
+    <span class="doccomment">/// SMTPUTF8 keyword
+    ///
+    /// Defined in [RFC 6531](https://tools.ietf.org/html/rfc6531)
+    </span>SmtpUtfEight,
+    <span class="doccomment">/// STARTTLS keyword
+    ///
+    /// Defined in [RFC 2487](https://tools.ietf.org/html/rfc2487)
+    </span>StartTls,
+    <span class="doccomment">/// AUTH mechanism
+    </span>Authentication(Mechanism),
+}
+
+<span class="kw">impl </span>Display <span class="kw">for </span>Extension {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            Extension::EightBitMime =&gt; f.write_str(<span class="string">&quot;8BITMIME&quot;</span>),
+            Extension::SmtpUtfEight =&gt; f.write_str(<span class="string">&quot;SMTPUTF8&quot;</span>),
+            Extension::StartTls =&gt; f.write_str(<span class="string">&quot;STARTTLS&quot;</span>),
+            Extension::Authentication(<span class="kw-2">ref </span>mechanism) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;AUTH {}&quot;</span>, mechanism),
+        }
+    }
+}
+
+<span class="doccomment">/// Contains information about an SMTP server
+</span><span class="attribute">#[derive(Clone, Debug, Eq, PartialEq, Default)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub struct </span>ServerInfo {
+    <span class="doccomment">/// Server name
+    ///
+    /// The name given in the server banner
+    </span>name: String,
+    <span class="doccomment">/// ESMTP features supported by the server
+    ///
+    /// It contains the features supported by the server and known by the `Extension` module.
+    </span>features: HashSet&lt;Extension&gt;,
+}
+
+<span class="kw">impl </span>Display <span class="kw">for </span>ServerInfo {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span>features = <span class="kw">if </span><span class="self">self</span>.features.is_empty() {
+            <span class="string">&quot;no supported features&quot;</span>.to_string()
+        } <span class="kw">else </span>{
+            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.features)
         };
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{} with {}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>, <span class="ident">features</span>)
+        <span class="macro">write!</span>(f, <span class="string">&quot;{} with {}&quot;</span>, <span class="self">self</span>.name, features)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ServerInfo</span> {
-    <span class="doccomment">/// Parses a EHLO response to create a `ServerInfo`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_response</span>(<span class="ident">response</span>: <span class="kw-2">&amp;</span><span class="ident">Response</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServerInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">response</span>.<span class="ident">first_word</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">name</span>) =&gt; <span class="ident">name</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error::response</span>(<span class="string">&quot;Could not read server name&quot;</span>)),
+<span class="kw">impl </span>ServerInfo {
+    <span class="doccomment">/// Parses a EHLO response to create a `ServerInfo`
+    </span><span class="kw">pub fn </span>from_response(response: <span class="kw-2">&amp;</span>Response) -&gt; <span class="prelude-ty">Result</span>&lt;ServerInfo, Error&gt; {
+        <span class="kw">let </span>name = <span class="kw">match </span>response.first_word() {
+            <span class="prelude-val">Some</span>(name) =&gt; name,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(error::response(<span class="string">&quot;Could not read server name&quot;</span>)),
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">Extension</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>features: HashSet&lt;Extension&gt; = HashSet::new();
 
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">response</span>.<span class="ident">message</span>() {
-            <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">is_empty</span>() {
+        <span class="kw">for </span>line <span class="kw">in </span>response.message() {
+            <span class="kw">if </span>line.is_empty() {
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">split</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">split_whitespace</span>();
-            <span class="kw">match</span> <span class="ident">split</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>() {
-                <span class="string">&quot;8BITMIME&quot;</span> =&gt; {
-                    <span class="ident">features</span>.<span class="ident">insert</span>(<span class="ident">Extension::EightBitMime</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>split = line.split_whitespace();
+            <span class="kw">match </span>split.next().unwrap() {
+                <span class="string">&quot;8BITMIME&quot; </span>=&gt; {
+                    features.insert(Extension::EightBitMime);
                 }
-                <span class="string">&quot;SMTPUTF8&quot;</span> =&gt; {
-                    <span class="ident">features</span>.<span class="ident">insert</span>(<span class="ident">Extension::SmtpUtfEight</span>);
+                <span class="string">&quot;SMTPUTF8&quot; </span>=&gt; {
+                    features.insert(Extension::SmtpUtfEight);
                 }
-                <span class="string">&quot;STARTTLS&quot;</span> =&gt; {
-                    <span class="ident">features</span>.<span class="ident">insert</span>(<span class="ident">Extension::StartTls</span>);
+                <span class="string">&quot;STARTTLS&quot; </span>=&gt; {
+                    features.insert(Extension::StartTls);
                 }
-                <span class="string">&quot;AUTH&quot;</span> =&gt; {
-                    <span class="kw">for</span> <span class="ident">mechanism</span> <span class="kw">in</span> <span class="ident">split</span> {
-                        <span class="kw">match</span> <span class="ident">mechanism</span> {
-                            <span class="string">&quot;PLAIN&quot;</span> =&gt; {
-                                <span class="ident">features</span>.<span class="ident">insert</span>(<span class="ident">Extension::Authentication</span>(<span class="ident">Mechanism::Plain</span>));
+                <span class="string">&quot;AUTH&quot; </span>=&gt; {
+                    <span class="kw">for </span>mechanism <span class="kw">in </span>split {
+                        <span class="kw">match </span>mechanism {
+                            <span class="string">&quot;PLAIN&quot; </span>=&gt; {
+                                features.insert(Extension::Authentication(Mechanism::Plain));
                             }
-                            <span class="string">&quot;LOGIN&quot;</span> =&gt; {
-                                <span class="ident">features</span>.<span class="ident">insert</span>(<span class="ident">Extension::Authentication</span>(<span class="ident">Mechanism::Login</span>));
+                            <span class="string">&quot;LOGIN&quot; </span>=&gt; {
+                                features.insert(Extension::Authentication(Mechanism::Login));
                             }
-                            <span class="string">&quot;XOAUTH2&quot;</span> =&gt; {
-                                <span class="ident">features</span>.<span class="ident">insert</span>(<span class="ident">Extension::Authentication</span>(<span class="ident">Mechanism::Xoauth2</span>));
+                            <span class="string">&quot;XOAUTH2&quot; </span>=&gt; {
+                                features.insert(Extension::Authentication(Mechanism::Xoauth2));
                             }
-                            <span class="kw">_</span> =&gt; (),
+                            <span class="kw">_ </span>=&gt; (),
                         }
                     }
                 }
-                <span class="kw">_</span> =&gt; (),
+                <span class="kw">_ </span>=&gt; (),
             };
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">ServerInfo</span> {
-            <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
-            <span class="ident">features</span>,
+        <span class="prelude-val">Ok</span>(ServerInfo {
+            name: name.to_string(),
+            features,
         })
     }
 
-    <span class="doccomment">/// Checks if the server supports an ESMTP feature</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">supports_feature</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">keyword</span>: <span class="ident">Extension</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">features</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">keyword</span>)
+    <span class="doccomment">/// Checks if the server supports an ESMTP feature
+    </span><span class="kw">pub fn </span>supports_feature(<span class="kw-2">&amp;</span><span class="self">self</span>, keyword: Extension) -&gt; bool {
+        <span class="self">self</span>.features.contains(<span class="kw-2">&amp;</span>keyword)
     }
 
-    <span class="doccomment">/// Checks if the server supports an ESMTP feature</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">supports_auth_mechanism</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mechanism</span>: <span class="ident">Mechanism</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">features</span>
-            .<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">Extension::Authentication</span>(<span class="ident">mechanism</span>))
+    <span class="doccomment">/// Checks if the server supports an ESMTP feature
+    </span><span class="kw">pub fn </span>supports_auth_mechanism(<span class="kw-2">&amp;</span><span class="self">self</span>, mechanism: Mechanism) -&gt; bool {
+        <span class="self">self</span>.features
+            .contains(<span class="kw-2">&amp;</span>Extension::Authentication(mechanism))
     }
 
-    <span class="doccomment">/// Gets a compatible mechanism from list</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_auth_mechanism</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mechanisms</span>: <span class="kw-2">&amp;</span>[<span class="ident">Mechanism</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Mechanism</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">mechanism</span> <span class="kw">in</span> <span class="ident">mechanisms</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">supports_auth_mechanism</span>(<span class="kw-2">*</span><span class="ident">mechanism</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">mechanism</span>);
+    <span class="doccomment">/// Gets a compatible mechanism from list
+    </span><span class="kw">pub fn </span>get_auth_mechanism(<span class="kw-2">&amp;</span><span class="self">self</span>, mechanisms: <span class="kw-2">&amp;</span>[Mechanism]) -&gt; <span class="prelude-ty">Option</span>&lt;Mechanism&gt; {
+        <span class="kw">for </span>mechanism <span class="kw">in </span>mechanisms {
+            <span class="kw">if </span><span class="self">self</span>.supports_auth_mechanism(<span class="kw-2">*</span>mechanism) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="kw-2">*</span>mechanism);
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="doccomment">/// The name given in the server banner</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">as_ref</span>()
+    <span class="doccomment">/// The name given in the server banner
+    </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="self">self</span>.name.as_ref()
     }
 }
 
-<span class="doccomment">/// A `MAIL FROM` extension parameter</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MailParameter</span> {
-    <span class="doccomment">/// `BODY` parameter</span>
-    <span class="ident">Body</span>(<span class="ident">MailBodyParameter</span>),
-    <span class="doccomment">/// `SIZE` parameter</span>
-    <span class="ident">Size</span>(<span class="ident">usize</span>),
-    <span class="doccomment">/// `SMTPUTF8` parameter</span>
-    <span class="ident">SmtpUtfEight</span>,
-    <span class="doccomment">/// Custom parameter</span>
-    <span class="ident">Other</span> {
-        <span class="doccomment">/// Parameter keyword</span>
-        <span class="ident">keyword</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// Parameter value</span>
-        <span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A `MAIL FROM` extension parameter
+</span><span class="attribute">#[derive(PartialEq, Eq, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub enum </span>MailParameter {
+    <span class="doccomment">/// `BODY` parameter
+    </span>Body(MailBodyParameter),
+    <span class="doccomment">/// `SIZE` parameter
+    </span>Size(usize),
+    <span class="doccomment">/// `SMTPUTF8` parameter
+    </span>SmtpUtfEight,
+    <span class="doccomment">/// Custom parameter
+    </span>Other {
+        <span class="doccomment">/// Parameter keyword
+        </span>keyword: String,
+        <span class="doccomment">/// Parameter value
+        </span>value: <span class="prelude-ty">Option</span>&lt;String&gt;,
     },
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">MailParameter</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MailParameter::Body</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;BODY={}&quot;</span>, <span class="ident">value</span>),
-            <span class="ident">MailParameter::Size</span>(<span class="ident">size</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;SIZE={}&quot;</span>, <span class="ident">size</span>),
-            <span class="ident">MailParameter::SmtpUtfEight</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;SMTPUTF8&quot;</span>),
-            <span class="ident">MailParameter::Other</span> {
-                <span class="kw-2">ref</span> <span class="ident">keyword</span>,
-                <span class="ident">value</span>: <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">value</span>),
-            } =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}={}&quot;</span>, <span class="ident">keyword</span>, <span class="ident">XText</span>(<span class="ident">value</span>)),
-            <span class="ident">MailParameter::Other</span> {
-                <span class="kw-2">ref</span> <span class="ident">keyword</span>,
-                <span class="ident">value</span>: <span class="prelude-val">None</span>,
-            } =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">keyword</span>),
+<span class="kw">impl </span>Display <span class="kw">for </span>MailParameter {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MailParameter::Body(<span class="kw-2">ref </span>value) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;BODY={}&quot;</span>, value),
+            MailParameter::Size(size) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;SIZE={}&quot;</span>, size),
+            MailParameter::SmtpUtfEight =&gt; f.write_str(<span class="string">&quot;SMTPUTF8&quot;</span>),
+            MailParameter::Other {
+                <span class="kw-2">ref </span>keyword,
+                value: <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>value),
+            } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}={}&quot;</span>, keyword, XText(value)),
+            MailParameter::Other {
+                <span class="kw-2">ref </span>keyword,
+                value: <span class="prelude-val">None</span>,
+            } =&gt; f.write_str(keyword),
         }
     }
 }
 
-<span class="doccomment">/// Values for the `BODY` parameter to `MAIL FROM`</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Copy</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MailBodyParameter</span> {
-    <span class="doccomment">/// `7BIT`</span>
-    <span class="ident">SevenBit</span>,
-    <span class="doccomment">/// `8BITMIME`</span>
-    <span class="ident">EightBitMime</span>,
+<span class="doccomment">/// Values for the `BODY` parameter to `MAIL FROM`
+</span><span class="attribute">#[derive(PartialEq, Eq, Clone, Debug, Copy)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub enum </span>MailBodyParameter {
+    <span class="doccomment">/// `7BIT`
+    </span>SevenBit,
+    <span class="doccomment">/// `8BITMIME`
+    </span>EightBitMime,
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">MailBodyParameter</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MailBodyParameter::SevenBit</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;7BIT&quot;</span>),
-            <span class="ident">MailBodyParameter::EightBitMime</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;8BITMIME&quot;</span>),
+<span class="kw">impl </span>Display <span class="kw">for </span>MailBodyParameter {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MailBodyParameter::SevenBit =&gt; f.write_str(<span class="string">&quot;7BIT&quot;</span>),
+            MailBodyParameter::EightBitMime =&gt; f.write_str(<span class="string">&quot;8BITMIME&quot;</span>),
         }
     }
 }
 
-<span class="doccomment">/// A `RCPT TO` extension parameter</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RcptParameter</span> {
-    <span class="doccomment">/// Custom parameter</span>
-    <span class="ident">Other</span> {
-        <span class="doccomment">/// Parameter keyword</span>
-        <span class="ident">keyword</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// Parameter value</span>
-        <span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A `RCPT TO` extension parameter
+</span><span class="attribute">#[derive(PartialEq, Eq, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub enum </span>RcptParameter {
+    <span class="doccomment">/// Custom parameter
+    </span>Other {
+        <span class="doccomment">/// Parameter keyword
+        </span>keyword: String,
+        <span class="doccomment">/// Parameter value
+        </span>value: <span class="prelude-ty">Option</span>&lt;String&gt;,
     },
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">RcptParameter</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">RcptParameter::Other</span> {
-                <span class="kw-2">ref</span> <span class="ident">keyword</span>,
-                <span class="ident">value</span>: <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">value</span>),
-            } =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}={}&quot;</span>, <span class="ident">keyword</span>, <span class="ident">XText</span>(<span class="ident">value</span>)),
-            <span class="ident">RcptParameter::Other</span> {
-                <span class="kw-2">ref</span> <span class="ident">keyword</span>,
-                <span class="ident">value</span>: <span class="prelude-val">None</span>,
-            } =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">keyword</span>),
+<span class="kw">impl </span>Display <span class="kw">for </span>RcptParameter {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            RcptParameter::Other {
+                <span class="kw-2">ref </span>keyword,
+                value: <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>value),
+            } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}={}&quot;</span>, keyword, XText(value)),
+            RcptParameter::Other {
+                <span class="kw-2">ref </span>keyword,
+                value: <span class="prelude-val">None</span>,
+            } =&gt; f.write_str(keyword),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
 
-    <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+    <span class="kw">use </span>std::collections::HashSet;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp</span>::{
-        <span class="ident">authentication::Mechanism</span>,
-        <span class="ident">response</span>::{<span class="ident">Category</span>, <span class="ident">Code</span>, <span class="ident">Detail</span>, <span class="ident">Response</span>, <span class="ident">Severity</span>},
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::transport::smtp::{
+        authentication::Mechanism,
+        response::{Category, Code, Detail, Response, Severity},
     };
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_clientid_fmt</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_clientid_fmt() {
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">ClientId::Domain</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>())),
-            <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>()
+            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, ClientId::Domain(<span class="string">&quot;test&quot;</span>.to_string())),
+            <span class="string">&quot;test&quot;</span>.to_string()
         );
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">LOCALHOST_CLIENT</span>), <span class="string">&quot;[127.0.0.1]&quot;</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, LOCALHOST_CLIENT), <span class="string">&quot;[127.0.0.1]&quot;</span>.to_string());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_extension_fmt</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_extension_fmt() {
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Extension::EightBitMime</span>),
-            <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>()
+            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Extension::EightBitMime),
+            <span class="string">&quot;8BITMIME&quot;</span>.to_string()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Extension::Authentication</span>(<span class="ident">Mechanism::Plain</span>)),
-            <span class="string">&quot;AUTH PLAIN&quot;</span>.<span class="ident">to_string</span>()
+            <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Extension::Authentication(Mechanism::Plain)),
+            <span class="string">&quot;AUTH PLAIN&quot;</span>.to_string()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_serverinfo_fmt</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">eightbitmime</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="macro">assert!</span>(<span class="ident">eightbitmime</span>.<span class="ident">insert</span>(<span class="ident">Extension::EightBitMime</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_serverinfo_fmt() {
+        <span class="kw">let </span><span class="kw-2">mut </span>eightbitmime = HashSet::new();
+        <span class="macro">assert!</span>(eightbitmime.insert(Extension::EightBitMime));
 
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">ServerInfo</span> {
-                    <span class="ident">name</span>: <span class="string">&quot;name&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">features</span>: <span class="ident">eightbitmime</span>,
+                ServerInfo {
+                    name: <span class="string">&quot;name&quot;</span>.to_string(),
+                    features: eightbitmime,
                 }
             ),
-            <span class="string">&quot;name with {EightBitMime}&quot;</span>.<span class="ident">to_string</span>()
+            <span class="string">&quot;name with {EightBitMime}&quot;</span>.to_string()
         );
 
-        <span class="kw">let</span> <span class="ident">empty</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+        <span class="kw">let </span>empty = HashSet::new();
 
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">ServerInfo</span> {
-                    <span class="ident">name</span>: <span class="string">&quot;name&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">features</span>: <span class="ident">empty</span>,
+                ServerInfo {
+                    name: <span class="string">&quot;name&quot;</span>.to_string(),
+                    features: empty,
                 }
             ),
-            <span class="string">&quot;name with no supported features&quot;</span>.<span class="ident">to_string</span>()
+            <span class="string">&quot;name with no supported features&quot;</span>.to_string()
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">plain</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="macro">assert!</span>(<span class="ident">plain</span>.<span class="ident">insert</span>(<span class="ident">Extension::Authentication</span>(<span class="ident">Mechanism::Plain</span>)));
+        <span class="kw">let </span><span class="kw-2">mut </span>plain = HashSet::new();
+        <span class="macro">assert!</span>(plain.insert(Extension::Authentication(Mechanism::Plain)));
 
         <span class="macro">assert_eq!</span>(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}&quot;</span>,
-                <span class="ident">ServerInfo</span> {
-                    <span class="ident">name</span>: <span class="string">&quot;name&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">features</span>: <span class="ident">plain</span>,
+                ServerInfo {
+                    name: <span class="string">&quot;name&quot;</span>.to_string(),
+                    features: plain,
                 }
             ),
-            <span class="string">&quot;name with {Authentication(Plain)}&quot;</span>.<span class="ident">to_string</span>()
+            <span class="string">&quot;name with {Authentication(Plain)}&quot;</span>.to_string()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_serverinfo</span>() {
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">Response::new</span>(
-            <span class="ident">Code::new</span>(
-                <span class="ident">Severity::PositiveCompletion</span>,
-                <span class="ident">Category::Unspecified4</span>,
-                <span class="ident">Detail::One</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_serverinfo() {
+        <span class="kw">let </span>response = Response::new(
+            Code::new(
+                Severity::PositiveCompletion,
+                Category::Unspecified4,
+                Detail::One,
             ),
             <span class="macro">vec!</span>[
-                <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;me&quot;</span>.to_string(),
+                <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
             ],
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="macro">assert!</span>(<span class="ident">features</span>.<span class="ident">insert</span>(<span class="ident">Extension::EightBitMime</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>features = HashSet::new();
+        <span class="macro">assert!</span>(features.insert(Extension::EightBitMime));
 
-        <span class="kw">let</span> <span class="ident">server_info</span> <span class="op">=</span> <span class="ident">ServerInfo</span> {
-            <span class="ident">name</span>: <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">features</span>,
+        <span class="kw">let </span>server_info = ServerInfo {
+            name: <span class="string">&quot;me&quot;</span>.to_string(),
+            features,
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">ServerInfo::from_response</span>(<span class="kw-2">&amp;</span><span class="ident">response</span>).<span class="ident">unwrap</span>(), <span class="ident">server_info</span>);
+        <span class="macro">assert_eq!</span>(ServerInfo::from_response(<span class="kw-2">&amp;</span>response).unwrap(), server_info);
 
-        <span class="macro">assert!</span>(<span class="ident">server_info</span>.<span class="ident">supports_feature</span>(<span class="ident">Extension::EightBitMime</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">server_info</span>.<span class="ident">supports_feature</span>(<span class="ident">Extension::StartTls</span>));
+        <span class="macro">assert!</span>(server_info.supports_feature(Extension::EightBitMime));
+        <span class="macro">assert!</span>(!server_info.supports_feature(Extension::StartTls));
 
-        <span class="kw">let</span> <span class="ident">response2</span> <span class="op">=</span> <span class="ident">Response::new</span>(
-            <span class="ident">Code::new</span>(
-                <span class="ident">Severity::PositiveCompletion</span>,
-                <span class="ident">Category::Unspecified4</span>,
-                <span class="ident">Detail::One</span>,
+        <span class="kw">let </span>response2 = Response::new(
+            Code::new(
+                Severity::PositiveCompletion,
+                Category::Unspecified4,
+                Detail::One,
             ),
             <span class="macro">vec!</span>[
-                <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;AUTH PLAIN CRAM-MD5 XOAUTH2 OTHER&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;me&quot;</span>.to_string(),
+                <span class="string">&quot;AUTH PLAIN CRAM-MD5 XOAUTH2 OTHER&quot;</span>.to_string(),
+                <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
             ],
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features2</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="macro">assert!</span>(<span class="ident">features2</span>.<span class="ident">insert</span>(<span class="ident">Extension::EightBitMime</span>));
-        <span class="macro">assert!</span>(<span class="ident">features2</span>.<span class="ident">insert</span>(<span class="ident">Extension::Authentication</span>(<span class="ident">Mechanism::Plain</span>),));
-        <span class="macro">assert!</span>(<span class="ident">features2</span>.<span class="ident">insert</span>(<span class="ident">Extension::Authentication</span>(<span class="ident">Mechanism::Xoauth2</span>),));
+        <span class="kw">let </span><span class="kw-2">mut </span>features2 = HashSet::new();
+        <span class="macro">assert!</span>(features2.insert(Extension::EightBitMime));
+        <span class="macro">assert!</span>(features2.insert(Extension::Authentication(Mechanism::Plain),));
+        <span class="macro">assert!</span>(features2.insert(Extension::Authentication(Mechanism::Xoauth2),));
 
-        <span class="kw">let</span> <span class="ident">server_info2</span> <span class="op">=</span> <span class="ident">ServerInfo</span> {
-            <span class="ident">name</span>: <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">features</span>: <span class="ident">features2</span>,
+        <span class="kw">let </span>server_info2 = ServerInfo {
+            name: <span class="string">&quot;me&quot;</span>.to_string(),
+            features: features2,
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">ServerInfo::from_response</span>(<span class="kw-2">&amp;</span><span class="ident">response2</span>).<span class="ident">unwrap</span>(), <span class="ident">server_info2</span>);
+        <span class="macro">assert_eq!</span>(ServerInfo::from_response(<span class="kw-2">&amp;</span>response2).unwrap(), server_info2);
 
-        <span class="macro">assert!</span>(<span class="ident">server_info2</span>.<span class="ident">supports_feature</span>(<span class="ident">Extension::EightBitMime</span>));
-        <span class="macro">assert!</span>(<span class="ident">server_info2</span>.<span class="ident">supports_auth_mechanism</span>(<span class="ident">Mechanism::Plain</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">server_info2</span>.<span class="ident">supports_feature</span>(<span class="ident">Extension::StartTls</span>));
+        <span class="macro">assert!</span>(server_info2.supports_feature(Extension::EightBitMime));
+        <span class="macro">assert!</span>(server_info2.supports_auth_mechanism(Mechanism::Plain));
+        <span class="macro">assert!</span>(!server_info2.supports_feature(Extension::StartTls));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

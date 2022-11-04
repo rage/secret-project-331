@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tar-0.4.38/src/archive.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>archive.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../tar/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../tar/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../tar/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tar-0.4.38/src/archive.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>archive.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../tar/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../tar/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../tar/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -575,497 +575,497 @@
 <span id="575">575</span>
 <span id="576">576</span>
 <span id="577">577</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
-<span class="kw">use</span> <span class="ident">std::cmp</span>;
-<span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
-<span class="kw">use</span> <span class="ident">std::fs</span>;
-<span class="kw">use</span> <span class="ident">std::io::prelude</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">SeekFrom</span>};
-<span class="kw">use</span> <span class="ident">std::marker</span>;
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::{Cell, RefCell};
+<span class="kw">use </span>std::cmp;
+<span class="kw">use </span>std::convert::TryFrom;
+<span class="kw">use </span>std::fs;
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::io::{<span class="self">self</span>, SeekFrom};
+<span class="kw">use </span>std::marker;
+<span class="kw">use </span>std::path::Path;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::entry</span>::{<span class="ident">EntryFields</span>, <span class="ident">EntryIo</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::TarError</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::other</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pax::pax_extensions_size</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Entry</span>, <span class="ident">GnuExtSparseHeader</span>, <span class="ident">GnuSparseHeader</span>, <span class="ident">Header</span>};
+<span class="kw">use </span><span class="kw">crate</span>::entry::{EntryFields, EntryIo};
+<span class="kw">use </span><span class="kw">crate</span>::error::TarError;
+<span class="kw">use </span><span class="kw">crate</span>::other;
+<span class="kw">use </span><span class="kw">crate</span>::pax::pax_extensions_size;
+<span class="kw">use crate</span>::{Entry, GnuExtSparseHeader, GnuSparseHeader, Header};
 
-<span class="doccomment">/// A top-level representation of an archive file.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This archive can have an entry added to it and it can be iterated over.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Read</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">ArchiveInner</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A top-level representation of an archive file.
+///
+/// This archive can have an entry added to it and it can be iterated over.
+</span><span class="kw">pub struct </span>Archive&lt;R: <span class="question-mark">?</span>Sized + Read&gt; {
+    inner: ArchiveInner&lt;R&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ArchiveInner</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> {
-    <span class="ident">pos</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-    <span class="ident">unpack_xattrs</span>: <span class="ident">bool</span>,
-    <span class="ident">preserve_permissions</span>: <span class="ident">bool</span>,
-    <span class="ident">preserve_mtime</span>: <span class="ident">bool</span>,
-    <span class="ident">overwrite</span>: <span class="ident">bool</span>,
-    <span class="ident">ignore_zeros</span>: <span class="ident">bool</span>,
-    <span class="ident">obj</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>ArchiveInner&lt;R: <span class="question-mark">?</span>Sized&gt; {
+    pos: Cell&lt;u64&gt;,
+    unpack_xattrs: bool,
+    preserve_permissions: bool,
+    preserve_mtime: bool,
+    overwrite: bool,
+    ignore_zeros: bool,
+    obj: RefCell&lt;R&gt;,
 }
 
-<span class="doccomment">/// An iterator over the entries of an archive.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Entries</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Read</span><span class="op">&gt;</span> {
-    <span class="ident">fields</span>: <span class="ident">EntriesFields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">_ignored</span>: <span class="ident">marker::PhantomData</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An iterator over the entries of an archive.
+</span><span class="kw">pub struct </span>Entries&lt;<span class="lifetime">&#39;a</span>, R: <span class="lifetime">&#39;a </span>+ Read&gt; {
+    fields: EntriesFields&lt;<span class="lifetime">&#39;a</span>&gt;,
+    _ignored: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Archive&lt;R&gt;&gt;,
 }
 
-<span class="kw">trait</span> <span class="ident">SeekRead</span>: <span class="ident">Read</span> <span class="op">+</span> <span class="ident">Seek</span> {}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Read</span> <span class="op">+</span> <span class="ident">Seek</span><span class="op">&gt;</span> <span class="ident">SeekRead</span> <span class="kw">for</span> <span class="ident">R</span> {}
+<span class="kw">trait </span>SeekRead: Read + Seek {}
+<span class="kw">impl</span>&lt;R: Read + Seek&gt; SeekRead <span class="kw">for </span>R {}
 
-<span class="kw">struct</span> <span class="ident">EntriesFields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">archive</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Read</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">seekable_archive</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SeekRead</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">next</span>: <span class="ident">u64</span>,
-    <span class="ident">done</span>: <span class="ident">bool</span>,
-    <span class="ident">raw</span>: <span class="ident">bool</span>,
+<span class="kw">struct </span>EntriesFields&lt;<span class="lifetime">&#39;a</span>&gt; {
+    archive: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Archive&lt;<span class="kw">dyn </span>Read + <span class="lifetime">&#39;a</span>&gt;,
+    seekable_archive: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Archive&lt;<span class="kw">dyn </span>SeekRead + <span class="lifetime">&#39;a</span>&gt;&gt;,
+    next: u64,
+    done: bool,
+    raw: bool,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Create a new archive with the underlying object as the reader.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">obj</span>: <span class="ident">R</span>) -&gt; <span class="ident">Archive</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="ident">Archive</span> {
-            <span class="ident">inner</span>: <span class="ident">ArchiveInner</span> {
-                <span class="ident">unpack_xattrs</span>: <span class="bool-val">false</span>,
-                <span class="ident">preserve_permissions</span>: <span class="bool-val">false</span>,
-                <span class="ident">preserve_mtime</span>: <span class="bool-val">true</span>,
-                <span class="ident">overwrite</span>: <span class="bool-val">true</span>,
-                <span class="ident">ignore_zeros</span>: <span class="bool-val">false</span>,
-                <span class="ident">obj</span>: <span class="ident">RefCell::new</span>(<span class="ident">obj</span>),
-                <span class="ident">pos</span>: <span class="ident">Cell::new</span>(<span class="number">0</span>),
+<span class="kw">impl</span>&lt;R: Read&gt; Archive&lt;R&gt; {
+    <span class="doccomment">/// Create a new archive with the underlying object as the reader.
+    </span><span class="kw">pub fn </span>new(obj: R) -&gt; Archive&lt;R&gt; {
+        Archive {
+            inner: ArchiveInner {
+                unpack_xattrs: <span class="bool-val">false</span>,
+                preserve_permissions: <span class="bool-val">false</span>,
+                preserve_mtime: <span class="bool-val">true</span>,
+                overwrite: <span class="bool-val">true</span>,
+                ignore_zeros: <span class="bool-val">false</span>,
+                obj: RefCell::new(obj),
+                pos: Cell::new(<span class="number">0</span>),
             },
         }
     }
 
-    <span class="doccomment">/// Unwrap this archive, returning the underlying object.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">R</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">obj</span>.<span class="ident">into_inner</span>()
+    <span class="doccomment">/// Unwrap this archive, returning the underlying object.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; R {
+        <span class="self">self</span>.inner.obj.into_inner()
     }
 
-    <span class="doccomment">/// Construct an iterator over the entries in this archive.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that care must be taken to consider each entry within an archive in</span>
-    <span class="doccomment">/// sequence. If entries are processed out of sequence (from what the</span>
-    <span class="doccomment">/// iterator returns), then the contents read for each entry may be</span>
-    <span class="doccomment">/// corrupted.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">entries</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Entries</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">me</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Read</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">me</span>.<span class="ident">_entries</span>(<span class="prelude-val">None</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">fields</span><span class="op">|</span> <span class="ident">Entries</span> {
-            <span class="ident">fields</span>: <span class="ident">fields</span>,
-            <span class="ident">_ignored</span>: <span class="ident">marker::PhantomData</span>,
+    <span class="doccomment">/// Construct an iterator over the entries in this archive.
+    ///
+    /// Note that care must be taken to consider each entry within an archive in
+    /// sequence. If entries are processed out of sequence (from what the
+    /// iterator returns), then the contents read for each entry may be
+    /// corrupted.
+    </span><span class="kw">pub fn </span>entries(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;Entries&lt;R&gt;&gt; {
+        <span class="kw">let </span>me: <span class="kw-2">&amp;mut </span>Archive&lt;<span class="kw">dyn </span>Read&gt; = <span class="self">self</span>;
+        me._entries(<span class="prelude-val">None</span>).map(|fields| Entries {
+            fields: fields,
+            _ignored: marker::PhantomData,
         })
     }
 
-    <span class="doccomment">/// Unpacks the contents tarball into the specified `dst`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function will iterate over the entire contents of this tarball,</span>
-    <span class="doccomment">/// extracting each file in turn to the location specified by the entry&#39;s</span>
-    <span class="doccomment">/// path name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This operation is relatively sensitive in that it will not write files</span>
-    <span class="doccomment">/// outside of the path specified by `dst`. Files in the archive which have</span>
-    <span class="doccomment">/// a &#39;..&#39; in their path are skipped during the unpacking process.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// use std::fs::File;</span>
-    <span class="doccomment">/// use tar::Archive;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut ar = Archive::new(File::open(&quot;foo.tar&quot;).unwrap());</span>
-    <span class="doccomment">/// ar.unpack(&quot;foo&quot;).unwrap();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unpack</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="ident">P</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">me</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Read</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">me</span>.<span class="ident">_unpack</span>(<span class="ident">dst</span>.<span class="ident">as_ref</span>())
+    <span class="doccomment">/// Unpacks the contents tarball into the specified `dst`.
+    ///
+    /// This function will iterate over the entire contents of this tarball,
+    /// extracting each file in turn to the location specified by the entry&#39;s
+    /// path name.
+    ///
+    /// This operation is relatively sensitive in that it will not write files
+    /// outside of the path specified by `dst`. Files in the archive which have
+    /// a &#39;..&#39; in their path are skipped during the unpacking process.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use std::fs::File;
+    /// use tar::Archive;
+    ///
+    /// let mut ar = Archive::new(File::open(&quot;foo.tar&quot;).unwrap());
+    /// ar.unpack(&quot;foo&quot;).unwrap();
+    /// ```
+    </span><span class="kw">pub fn </span>unpack&lt;P: AsRef&lt;Path&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: P) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">let </span>me: <span class="kw-2">&amp;mut </span>Archive&lt;<span class="kw">dyn </span>Read&gt; = <span class="self">self</span>;
+        me._unpack(dst.as_ref())
     }
 
-    <span class="doccomment">/// Indicate whether extended file attributes (xattrs on Unix) are preserved</span>
-    <span class="doccomment">/// when unpacking this archive.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This flag is disabled by default and is currently only implemented on</span>
-    <span class="doccomment">/// Unix using xattr support. This may eventually be implemented for</span>
-    <span class="doccomment">/// Windows, however, if other archive implementations are found which do</span>
-    <span class="doccomment">/// this as well.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_unpack_xattrs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">unpack_xattrs</span>: <span class="ident">bool</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">unpack_xattrs</span> <span class="op">=</span> <span class="ident">unpack_xattrs</span>;
+    <span class="doccomment">/// Indicate whether extended file attributes (xattrs on Unix) are preserved
+    /// when unpacking this archive.
+    ///
+    /// This flag is disabled by default and is currently only implemented on
+    /// Unix using xattr support. This may eventually be implemented for
+    /// Windows, however, if other archive implementations are found which do
+    /// this as well.
+    </span><span class="kw">pub fn </span>set_unpack_xattrs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, unpack_xattrs: bool) {
+        <span class="self">self</span>.inner.unpack_xattrs = unpack_xattrs;
     }
 
-    <span class="doccomment">/// Indicate whether extended permissions (like suid on Unix) are preserved</span>
-    <span class="doccomment">/// when unpacking this entry.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This flag is disabled by default and is currently only implemented on</span>
-    <span class="doccomment">/// Unix.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_preserve_permissions</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">preserve</span>: <span class="ident">bool</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">preserve_permissions</span> <span class="op">=</span> <span class="ident">preserve</span>;
+    <span class="doccomment">/// Indicate whether extended permissions (like suid on Unix) are preserved
+    /// when unpacking this entry.
+    ///
+    /// This flag is disabled by default and is currently only implemented on
+    /// Unix.
+    </span><span class="kw">pub fn </span>set_preserve_permissions(<span class="kw-2">&amp;mut </span><span class="self">self</span>, preserve: bool) {
+        <span class="self">self</span>.inner.preserve_permissions = preserve;
     }
 
-    <span class="doccomment">/// Indicate whether files and symlinks should be overwritten on extraction.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_overwrite</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">overwrite</span>: <span class="ident">bool</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">overwrite</span> <span class="op">=</span> <span class="ident">overwrite</span>;
+    <span class="doccomment">/// Indicate whether files and symlinks should be overwritten on extraction.
+    </span><span class="kw">pub fn </span>set_overwrite(<span class="kw-2">&amp;mut </span><span class="self">self</span>, overwrite: bool) {
+        <span class="self">self</span>.inner.overwrite = overwrite;
     }
 
-    <span class="doccomment">/// Indicate whether access time information is preserved when unpacking</span>
-    <span class="doccomment">/// this entry.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This flag is enabled by default.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_preserve_mtime</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">preserve</span>: <span class="ident">bool</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">preserve_mtime</span> <span class="op">=</span> <span class="ident">preserve</span>;
+    <span class="doccomment">/// Indicate whether access time information is preserved when unpacking
+    /// this entry.
+    ///
+    /// This flag is enabled by default.
+    </span><span class="kw">pub fn </span>set_preserve_mtime(<span class="kw-2">&amp;mut </span><span class="self">self</span>, preserve: bool) {
+        <span class="self">self</span>.inner.preserve_mtime = preserve;
     }
 
-    <span class="doccomment">/// Ignore zeroed headers, which would otherwise indicate to the archive that it has no more</span>
-    <span class="doccomment">/// entries.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This can be used in case multiple tar archives have been concatenated together.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_ignore_zeros</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ignore_zeros</span>: <span class="ident">bool</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">ignore_zeros</span> <span class="op">=</span> <span class="ident">ignore_zeros</span>;
+    <span class="doccomment">/// Ignore zeroed headers, which would otherwise indicate to the archive that it has no more
+    /// entries.
+    ///
+    /// This can be used in case multiple tar archives have been concatenated together.
+    </span><span class="kw">pub fn </span>set_ignore_zeros(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ignore_zeros: bool) {
+        <span class="self">self</span>.inner.ignore_zeros = ignore_zeros;
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Seek</span> <span class="op">+</span> <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Construct an iterator over the entries in this archive for a seekable</span>
-    <span class="doccomment">/// reader. Seek will be used to efficiently skip over file contents.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that care must be taken to consider each entry within an archive in</span>
-    <span class="doccomment">/// sequence. If entries are processed out of sequence (from what the</span>
-    <span class="doccomment">/// iterator returns), then the contents read for each entry may be</span>
-    <span class="doccomment">/// corrupted.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">entries_with_seek</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Entries</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">me</span>: <span class="kw-2">&amp;</span><span class="ident">Archive</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Read</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="kw">let</span> <span class="ident">me_seekable</span>: <span class="kw-2">&amp;</span><span class="ident">Archive</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SeekRead</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">me</span>.<span class="ident">_entries</span>(<span class="prelude-val">Some</span>(<span class="ident">me_seekable</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="ident">fields</span><span class="op">|</span> <span class="ident">Entries</span> {
-            <span class="ident">fields</span>: <span class="ident">fields</span>,
-            <span class="ident">_ignored</span>: <span class="ident">marker::PhantomData</span>,
+<span class="kw">impl</span>&lt;R: Seek + Read&gt; Archive&lt;R&gt; {
+    <span class="doccomment">/// Construct an iterator over the entries in this archive for a seekable
+    /// reader. Seek will be used to efficiently skip over file contents.
+    ///
+    /// Note that care must be taken to consider each entry within an archive in
+    /// sequence. If entries are processed out of sequence (from what the
+    /// iterator returns), then the contents read for each entry may be
+    /// corrupted.
+    </span><span class="kw">pub fn </span>entries_with_seek(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;Entries&lt;R&gt;&gt; {
+        <span class="kw">let </span>me: <span class="kw-2">&amp;</span>Archive&lt;<span class="kw">dyn </span>Read&gt; = <span class="self">self</span>;
+        <span class="kw">let </span>me_seekable: <span class="kw-2">&amp;</span>Archive&lt;<span class="kw">dyn </span>SeekRead&gt; = <span class="self">self</span>;
+        me._entries(<span class="prelude-val">Some</span>(me_seekable)).map(|fields| Entries {
+            fields: fields,
+            _ignored: marker::PhantomData,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Read</span> <span class="op">+</span> <span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">_entries</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
-        <span class="ident">seekable_archive</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Archive</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SeekRead</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">EntriesFields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">pos</span>.<span class="ident">get</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(
+<span class="kw">impl </span>Archive&lt;<span class="kw">dyn </span>Read + <span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>_entries&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        seekable_archive: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Archive&lt;<span class="kw">dyn </span>SeekRead + <span class="lifetime">&#39;a</span>&gt;&gt;,
+    ) -&gt; io::Result&lt;EntriesFields&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.inner.pos.get() != <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(other(
                 <span class="string">&quot;cannot call entries unless archive is at \
                  position 0&quot;</span>,
             ));
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">EntriesFields</span> {
-            <span class="ident">archive</span>: <span class="self">self</span>,
-            <span class="ident">seekable_archive</span>,
-            <span class="ident">done</span>: <span class="bool-val">false</span>,
-            <span class="ident">next</span>: <span class="number">0</span>,
-            <span class="ident">raw</span>: <span class="bool-val">false</span>,
+        <span class="prelude-val">Ok</span>(EntriesFields {
+            archive: <span class="self">self</span>,
+            seekable_archive,
+            done: <span class="bool-val">false</span>,
+            next: <span class="number">0</span>,
+            raw: <span class="bool-val">false</span>,
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">_unpack</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">dst</span>.<span class="ident">symlink_metadata</span>().<span class="ident">is_err</span>() {
-            <span class="ident">fs::create_dir_all</span>(<span class="kw-2">&amp;</span><span class="ident">dst</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">TarError::new</span>(<span class="macro">format!</span>(<span class="string">&quot;failed to create `{}`&quot;</span>, <span class="ident">dst</span>.<span class="ident">display</span>()), <span class="ident">e</span>))<span class="question-mark">?</span>;
+    <span class="kw">fn </span>_unpack(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dst: <span class="kw-2">&amp;</span>Path) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">if </span>dst.symlink_metadata().is_err() {
+            fs::create_dir_all(<span class="kw-2">&amp;</span>dst)
+                .map_err(|e| TarError::new(<span class="macro">format!</span>(<span class="string">&quot;failed to create `{}`&quot;</span>, dst.display()), e))<span class="question-mark">?</span>;
         }
 
-        <span class="comment">// Canonicalizing the dst directory will prepend the path with &#39;\\?\&#39;</span>
-        <span class="comment">// on windows which will allow windows APIs to treat the path as an</span>
-        <span class="comment">// extended-length path with a 32,767 character limit. Otherwise all</span>
-        <span class="comment">// unpacked paths over 260 characters will fail on creation with a</span>
-        <span class="comment">// NotFound exception.</span>
-        <span class="kw">let</span> <span class="ident">dst</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">dst</span>.<span class="ident">canonicalize</span>().<span class="ident">unwrap_or</span>(<span class="ident">dst</span>.<span class="ident">to_path_buf</span>());
+        <span class="comment">// Canonicalizing the dst directory will prepend the path with &#39;\\?\&#39;
+        // on windows which will allow windows APIs to treat the path as an
+        // extended-length path with a 32,767 character limit. Otherwise all
+        // unpacked paths over 260 characters will fail on creation with a
+        // NotFound exception.
+        </span><span class="kw">let </span>dst = <span class="kw-2">&amp;</span>dst.canonicalize().unwrap_or(dst.to_path_buf());
 
-        <span class="comment">// Delay any directory entries until the end (they will be created if needed by</span>
-        <span class="comment">// descendants), to ensure that directory permissions do not interfer with descendant</span>
-        <span class="comment">// extraction.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">directories</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">entry</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">_entries</span>(<span class="prelude-val">None</span>)<span class="question-mark">?</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">TarError::new</span>(<span class="string">&quot;failed to iterate over archive&quot;</span>, <span class="ident">e</span>))<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="ident">file</span>.<span class="ident">header</span>().<span class="ident">entry_type</span>() <span class="op">==</span> <span class="ident"><span class="kw">crate</span>::EntryType::Directory</span> {
-                <span class="ident">directories</span>.<span class="ident">push</span>(<span class="ident">file</span>);
-            } <span class="kw">else</span> {
-                <span class="ident">file</span>.<span class="ident">unpack_in</span>(<span class="ident">dst</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Delay any directory entries until the end (they will be created if needed by
+        // descendants), to ensure that directory permissions do not interfer with descendant
+        // extraction.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>directories = Vec::new();
+        <span class="kw">for </span>entry <span class="kw">in </span><span class="self">self</span>._entries(<span class="prelude-val">None</span>)<span class="question-mark">? </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>file = entry.map_err(|e| TarError::new(<span class="string">&quot;failed to iterate over archive&quot;</span>, e))<span class="question-mark">?</span>;
+            <span class="kw">if </span>file.header().entry_type() == <span class="kw">crate</span>::EntryType::Directory {
+                directories.push(file);
+            } <span class="kw">else </span>{
+                file.unpack_in(dst)<span class="question-mark">?</span>;
             }
         }
-        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">dir</span> <span class="kw">in</span> <span class="ident">directories</span> {
-            <span class="ident">dir</span>.<span class="ident">unpack_in</span>(<span class="ident">dst</span>)<span class="question-mark">?</span>;
+        <span class="kw">for </span><span class="kw-2">mut </span>dir <span class="kw">in </span>directories {
+            dir.unpack_in(dst)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Entries</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Indicates whether this iterator will return raw entries or not.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the raw list of entries are returned, then no preprocessing happens</span>
-    <span class="doccomment">/// on account of this library, for example taking into account GNU long name</span>
-    <span class="doccomment">/// or long link archive members. Raw iteration is disabled by default.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw</span>(<span class="self">self</span>, <span class="ident">raw</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Entries</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="ident">Entries</span> {
-            <span class="ident">fields</span>: <span class="ident">EntriesFields</span> {
-                <span class="ident">raw</span>: <span class="ident">raw</span>,
-                ..<span class="self">self</span>.<span class="ident">fields</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, R: Read&gt; Entries&lt;<span class="lifetime">&#39;a</span>, R&gt; {
+    <span class="doccomment">/// Indicates whether this iterator will return raw entries or not.
+    ///
+    /// If the raw list of entries are returned, then no preprocessing happens
+    /// on account of this library, for example taking into account GNU long name
+    /// or long link archive members. Raw iteration is disabled by default.
+    </span><span class="kw">pub fn </span>raw(<span class="self">self</span>, raw: bool) -&gt; Entries&lt;<span class="lifetime">&#39;a</span>, R&gt; {
+        Entries {
+            fields: EntriesFields {
+                raw: raw,
+                ..<span class="self">self</span>.fields
             },
-            <span class="ident">_ignored</span>: <span class="ident">marker::PhantomData</span>,
+            _ignored: marker::PhantomData,
         }
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Entries</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, R: Read&gt; Iterator <span class="kw">for </span>Entries&lt;<span class="lifetime">&#39;a</span>, R&gt; {
+    <span class="kw">type </span>Item = io::Result&lt;Entry&lt;<span class="lifetime">&#39;a</span>, R&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">fields</span>
-            .<span class="ident">next</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="ident">result</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">EntryFields::from</span>(<span class="ident">e</span>).<span class="ident">into_entry</span>()))
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;io::Result&lt;Entry&lt;<span class="lifetime">&#39;a</span>, R&gt;&gt;&gt; {
+        <span class="self">self</span>.fields
+            .next()
+            .map(|result| result.map(|e| EntryFields::from(e).into_entry()))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">EntriesFields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">next_entry_raw</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">pax_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">io::Empty</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Header::new_old</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">header_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>;
-        <span class="kw">loop</span> {
-            <span class="comment">// Seek to the start of the next header in the archive</span>
-            <span class="kw">let</span> <span class="ident">delta</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>.<span class="ident">pos</span>.<span class="ident">get</span>();
-            <span class="self">self</span>.<span class="ident">skip</span>(<span class="ident">delta</span>)<span class="question-mark">?</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; EntriesFields&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>next_entry_raw(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        pax_size: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+    ) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;Entry&lt;<span class="lifetime">&#39;a</span>, io::Empty&gt;&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>header = Header::new_old();
+        <span class="kw">let </span><span class="kw-2">mut </span>header_pos = <span class="self">self</span>.next;
+        <span class="kw">loop </span>{
+            <span class="comment">// Seek to the start of the next header in the archive
+            </span><span class="kw">let </span>delta = <span class="self">self</span>.next - <span class="self">self</span>.archive.inner.pos.get();
+            <span class="self">self</span>.skip(delta)<span class="question-mark">?</span>;
 
-            <span class="comment">// EOF is an indicator that we are at the end of the archive.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">try_read_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>, <span class="ident">header</span>.<span class="ident">as_mut_bytes</span>())<span class="question-mark">?</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            <span class="comment">// EOF is an indicator that we are at the end of the archive.
+            </span><span class="kw">if </span>!try_read_all(<span class="kw-2">&amp;mut &amp;</span><span class="self">self</span>.archive.inner, header.as_mut_bytes())<span class="question-mark">? </span>{
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
             }
 
-            <span class="comment">// If a header is not all zeros, we have another valid header.</span>
-            <span class="comment">// Otherwise, check if we are ignoring zeros and continue, or break as if this is the</span>
-            <span class="comment">// end of the archive.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">header</span>.<span class="ident">as_bytes</span>().<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">==</span> <span class="number">0</span>) {
-                <span class="self">self</span>.<span class="ident">next</span> <span class="op">+</span><span class="op">=</span> <span class="number">512</span>;
+            <span class="comment">// If a header is not all zeros, we have another valid header.
+            // Otherwise, check if we are ignoring zeros and continue, or break as if this is the
+            // end of the archive.
+            </span><span class="kw">if </span>!header.as_bytes().iter().all(|i| <span class="kw-2">*</span>i == <span class="number">0</span>) {
+                <span class="self">self</span>.next += <span class="number">512</span>;
                 <span class="kw">break</span>;
             }
 
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>.<span class="ident">ignore_zeros</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            <span class="kw">if </span>!<span class="self">self</span>.archive.inner.ignore_zeros {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
             }
-            <span class="self">self</span>.<span class="ident">next</span> <span class="op">+</span><span class="op">=</span> <span class="number">512</span>;
-            <span class="ident">header_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>;
+            <span class="self">self</span>.next += <span class="number">512</span>;
+            header_pos = <span class="self">self</span>.next;
         }
 
-        <span class="comment">// Make sure the checksum is ok</span>
-        <span class="kw">let</span> <span class="ident">sum</span> <span class="op">=</span> <span class="ident">header</span>.<span class="ident">as_bytes</span>()[..<span class="number">148</span>]
-            .<span class="ident">iter</span>()
-            .<span class="ident">chain</span>(<span class="kw-2">&amp;</span><span class="ident">header</span>.<span class="ident">as_bytes</span>()[<span class="number">156</span>..])
-            .<span class="ident">fold</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span> <span class="op">+</span> (<span class="kw-2">*</span><span class="ident">b</span> <span class="kw">as</span> <span class="ident">u32</span>))
-            <span class="op">+</span> <span class="number">8</span> <span class="op">*</span> <span class="number">32</span>;
-        <span class="kw">let</span> <span class="ident">cksum</span> <span class="op">=</span> <span class="ident">header</span>.<span class="ident">cksum</span>()<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">sum</span> <span class="op">!</span><span class="op">=</span> <span class="ident">cksum</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(<span class="string">&quot;archive header checksum mismatch&quot;</span>));
+        <span class="comment">// Make sure the checksum is ok
+        </span><span class="kw">let </span>sum = header.as_bytes()[..<span class="number">148</span>]
+            .iter()
+            .chain(<span class="kw-2">&amp;</span>header.as_bytes()[<span class="number">156</span>..])
+            .fold(<span class="number">0</span>, |a, b| a + (<span class="kw-2">*</span>b <span class="kw">as </span>u32))
+            + <span class="number">8 </span>* <span class="number">32</span>;
+        <span class="kw">let </span>cksum = header.cksum()<span class="question-mark">?</span>;
+        <span class="kw">if </span>sum != cksum {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(other(<span class="string">&quot;archive header checksum mismatch&quot;</span>));
         }
 
-        <span class="kw">let</span> <span class="ident">file_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">header</span>.<span class="ident">entry_size</span>()<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pax_size</span>) <span class="op">=</span> <span class="ident">pax_size</span> {
-                <span class="ident">size</span> <span class="op">=</span> <span class="ident">pax_size</span>;
+        <span class="kw">let </span>file_pos = <span class="self">self</span>.next;
+        <span class="kw">let </span><span class="kw-2">mut </span>size = header.entry_size()<span class="question-mark">?</span>;
+        <span class="kw">if </span>size == <span class="number">0 </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pax_size) = pax_size {
+                size = pax_size;
             }
         }
-        <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">EntryFields</span> {
-            <span class="ident">size</span>: <span class="ident">size</span>,
-            <span class="ident">header_pos</span>: <span class="ident">header_pos</span>,
-            <span class="ident">file_pos</span>: <span class="ident">file_pos</span>,
-            <span class="ident">data</span>: <span class="macro">vec!</span>[<span class="ident">EntryIo::Data</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>).<span class="ident">take</span>(<span class="ident">size</span>))],
-            <span class="ident">header</span>: <span class="ident">header</span>,
-            <span class="ident">long_pathname</span>: <span class="prelude-val">None</span>,
-            <span class="ident">long_linkname</span>: <span class="prelude-val">None</span>,
-            <span class="ident">pax_extensions</span>: <span class="prelude-val">None</span>,
-            <span class="ident">unpack_xattrs</span>: <span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>.<span class="ident">unpack_xattrs</span>,
-            <span class="ident">preserve_permissions</span>: <span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>.<span class="ident">preserve_permissions</span>,
-            <span class="ident">preserve_mtime</span>: <span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>.<span class="ident">preserve_mtime</span>,
-            <span class="ident">overwrite</span>: <span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>.<span class="ident">overwrite</span>,
+        <span class="kw">let </span>ret = EntryFields {
+            size: size,
+            header_pos: header_pos,
+            file_pos: file_pos,
+            data: <span class="macro">vec!</span>[EntryIo::Data((<span class="kw-2">&amp;</span><span class="self">self</span>.archive.inner).take(size))],
+            header: header,
+            long_pathname: <span class="prelude-val">None</span>,
+            long_linkname: <span class="prelude-val">None</span>,
+            pax_extensions: <span class="prelude-val">None</span>,
+            unpack_xattrs: <span class="self">self</span>.archive.inner.unpack_xattrs,
+            preserve_permissions: <span class="self">self</span>.archive.inner.preserve_permissions,
+            preserve_mtime: <span class="self">self</span>.archive.inner.preserve_mtime,
+            overwrite: <span class="self">self</span>.archive.inner.overwrite,
         };
 
-        <span class="comment">// Store where the next entry is, rounding up by 512 bytes (the size of</span>
-        <span class="comment">// a header);</span>
-        <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">size</span>
-            .<span class="ident">checked_add</span>(<span class="number">511</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">other</span>(<span class="string">&quot;size overflow&quot;</span>))<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">next</span>
-            .<span class="ident">checked_add</span>(<span class="ident">size</span> <span class="op">&amp;</span> <span class="op">!</span>(<span class="number">512</span> <span class="op">-</span> <span class="number">1</span>))
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">other</span>(<span class="string">&quot;size overflow&quot;</span>))<span class="question-mark">?</span>;
+        <span class="comment">// Store where the next entry is, rounding up by 512 bytes (the size of
+        // a header);
+        </span><span class="kw">let </span>size = size
+            .checked_add(<span class="number">511</span>)
+            .ok_or_else(|| other(<span class="string">&quot;size overflow&quot;</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span>.next = <span class="self">self
+            </span>.next
+            .checked_add(size &amp; !(<span class="number">512 </span>- <span class="number">1</span>))
+            .ok_or_else(|| other(<span class="string">&quot;size overflow&quot;</span>))<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">ret</span>.<span class="ident">into_entry</span>()))
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ret.into_entry()))
     }
 
-    <span class="kw">fn</span> <span class="ident">next_entry</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">io::Empty</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">raw</span> {
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">next_entry_raw</span>(<span class="prelude-val">None</span>);
+    <span class="kw">fn </span>next_entry(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;Entry&lt;<span class="lifetime">&#39;a</span>, io::Empty&gt;&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.raw {
+            <span class="kw">return </span><span class="self">self</span>.next_entry_raw(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gnu_longname</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gnu_longlink</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pax_extensions</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pax_size</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">processed</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">loop</span> {
-            <span class="ident">processed</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">next_entry_raw</span>(<span class="ident">pax_size</span>)<span class="question-mark">?</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">entry</span>) =&gt; <span class="ident">entry</span>,
-                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">processed</span> <span class="op">&gt;</span> <span class="number">1</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(
+        <span class="kw">let </span><span class="kw-2">mut </span>gnu_longname = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>gnu_longlink = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>pax_extensions = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>pax_size = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>processed = <span class="number">0</span>;
+        <span class="kw">loop </span>{
+            processed += <span class="number">1</span>;
+            <span class="kw">let </span>entry = <span class="kw">match </span><span class="self">self</span>.next_entry_raw(pax_size)<span class="question-mark">? </span>{
+                <span class="prelude-val">Some</span>(entry) =&gt; entry,
+                <span class="prelude-val">None </span><span class="kw">if </span>processed &gt; <span class="number">1 </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(other(
                         <span class="string">&quot;members found describing a future member \
                          but no future member found&quot;</span>,
                     ));
                 }
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             };
 
-            <span class="kw">let</span> <span class="ident">is_recognized_header</span> <span class="op">=</span>
-                <span class="ident">entry</span>.<span class="ident">header</span>().<span class="ident">as_gnu</span>().<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">entry</span>.<span class="ident">header</span>().<span class="ident">as_ustar</span>().<span class="ident">is_some</span>();
+            <span class="kw">let </span>is_recognized_header =
+                entry.header().as_gnu().is_some() || entry.header().as_ustar().is_some();
 
-            <span class="kw">if</span> <span class="ident">is_recognized_header</span> <span class="op">&amp;&amp;</span> <span class="ident">entry</span>.<span class="ident">header</span>().<span class="ident">entry_type</span>().<span class="ident">is_gnu_longname</span>() {
-                <span class="kw">if</span> <span class="ident">gnu_longname</span>.<span class="ident">is_some</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(
+            <span class="kw">if </span>is_recognized_header &amp;&amp; entry.header().entry_type().is_gnu_longname() {
+                <span class="kw">if </span>gnu_longname.is_some() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(other(
                         <span class="string">&quot;two long name entries describing \
                          the same member&quot;</span>,
                     ));
                 }
-                <span class="ident">gnu_longname</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">EntryFields::from</span>(<span class="ident">entry</span>).<span class="ident">read_all</span>()<span class="question-mark">?</span>);
+                gnu_longname = <span class="prelude-val">Some</span>(EntryFields::from(entry).read_all()<span class="question-mark">?</span>);
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">if</span> <span class="ident">is_recognized_header</span> <span class="op">&amp;&amp;</span> <span class="ident">entry</span>.<span class="ident">header</span>().<span class="ident">entry_type</span>().<span class="ident">is_gnu_longlink</span>() {
-                <span class="kw">if</span> <span class="ident">gnu_longlink</span>.<span class="ident">is_some</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(
+            <span class="kw">if </span>is_recognized_header &amp;&amp; entry.header().entry_type().is_gnu_longlink() {
+                <span class="kw">if </span>gnu_longlink.is_some() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(other(
                         <span class="string">&quot;two long name entries describing \
                          the same member&quot;</span>,
                     ));
                 }
-                <span class="ident">gnu_longlink</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">EntryFields::from</span>(<span class="ident">entry</span>).<span class="ident">read_all</span>()<span class="question-mark">?</span>);
+                gnu_longlink = <span class="prelude-val">Some</span>(EntryFields::from(entry).read_all()<span class="question-mark">?</span>);
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">if</span> <span class="ident">is_recognized_header</span> <span class="op">&amp;&amp;</span> <span class="ident">entry</span>.<span class="ident">header</span>().<span class="ident">entry_type</span>().<span class="ident">is_pax_local_extensions</span>() {
-                <span class="kw">if</span> <span class="ident">pax_extensions</span>.<span class="ident">is_some</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(
+            <span class="kw">if </span>is_recognized_header &amp;&amp; entry.header().entry_type().is_pax_local_extensions() {
+                <span class="kw">if </span>pax_extensions.is_some() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(other(
                         <span class="string">&quot;two pax extensions entries describing \
                          the same member&quot;</span>,
                     ));
                 }
-                <span class="ident">pax_extensions</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">EntryFields::from</span>(<span class="ident">entry</span>).<span class="ident">read_all</span>()<span class="question-mark">?</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pax_extensions_ref</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">pax_extensions</span> {
-                    <span class="ident">pax_size</span> <span class="op">=</span> <span class="ident">pax_extensions_size</span>(<span class="ident">pax_extensions_ref</span>);
+                pax_extensions = <span class="prelude-val">Some</span>(EntryFields::from(entry).read_all()<span class="question-mark">?</span>);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(pax_extensions_ref) = <span class="kw-2">&amp;</span>pax_extensions {
+                    pax_size = pax_extensions_size(pax_extensions_ref);
                 }
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">EntryFields::from</span>(<span class="ident">entry</span>);
-            <span class="ident">fields</span>.<span class="ident">long_pathname</span> <span class="op">=</span> <span class="ident">gnu_longname</span>;
-            <span class="ident">fields</span>.<span class="ident">long_linkname</span> <span class="op">=</span> <span class="ident">gnu_longlink</span>;
-            <span class="ident">fields</span>.<span class="ident">pax_extensions</span> <span class="op">=</span> <span class="ident">pax_extensions</span>;
-            <span class="self">self</span>.<span class="ident">parse_sparse_header</span>(<span class="kw-2">&amp;mut</span> <span class="ident">fields</span>)<span class="question-mark">?</span>;
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">fields</span>.<span class="ident">into_entry</span>()));
+            <span class="kw">let </span><span class="kw-2">mut </span>fields = EntryFields::from(entry);
+            fields.long_pathname = gnu_longname;
+            fields.long_linkname = gnu_longlink;
+            fields.pax_extensions = pax_extensions;
+            <span class="self">self</span>.parse_sparse_header(<span class="kw-2">&amp;mut </span>fields)<span class="question-mark">?</span>;
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(fields.into_entry()));
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_sparse_header</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">entry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EntryFields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">entry</span>.<span class="ident">header</span>.<span class="ident">entry_type</span>().<span class="ident">is_gnu_sparse</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    <span class="kw">fn </span>parse_sparse_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entry: <span class="kw-2">&amp;mut </span>EntryFields&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">if </span>!entry.header.entry_type().is_gnu_sparse() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
-        <span class="kw">let</span> <span class="ident">gnu</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">entry</span>.<span class="ident">header</span>.<span class="ident">as_gnu</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">gnu</span>) =&gt; <span class="ident">gnu</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(<span class="string">&quot;sparse entry type listed but not GNU header&quot;</span>)),
+        <span class="kw">let </span>gnu = <span class="kw">match </span>entry.header.as_gnu() {
+            <span class="prelude-val">Some</span>(gnu) =&gt; gnu,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(other(<span class="string">&quot;sparse entry type listed but not GNU header&quot;</span>)),
         };
 
-        <span class="comment">// Sparse files are represented internally as a list of blocks that are</span>
-        <span class="comment">// read. Blocks are either a bunch of 0&#39;s or they&#39;re data from the</span>
-        <span class="comment">// underlying archive.</span>
-        <span class="comment">//</span>
-        <span class="comment">// Blocks of a sparse file are described by the `GnuSparseHeader`</span>
-        <span class="comment">// structure, some of which are contained in `GnuHeader` but some of</span>
-        <span class="comment">// which may also be contained after the first header in further</span>
-        <span class="comment">// headers.</span>
-        <span class="comment">//</span>
-        <span class="comment">// We read off all the blocks here and use the `add_block` function to</span>
-        <span class="comment">// incrementally add them to the list of I/O block (in `entry.data`).</span>
-        <span class="comment">// The `add_block` function also validates that each chunk comes after</span>
-        <span class="comment">// the previous, we don&#39;t overrun the end of the file, and each block is</span>
-        <span class="comment">// aligned to a 512-byte boundary in the archive itself.</span>
-        <span class="comment">//</span>
-        <span class="comment">// At the end we verify that the sparse file size (`Header::size`) is</span>
-        <span class="comment">// the same as the current offset (described by the list of blocks) as</span>
-        <span class="comment">// well as the amount of data read equals the size of the entry</span>
-        <span class="comment">// (`Header::entry_size`).</span>
-        <span class="ident">entry</span>.<span class="ident">data</span>.<span class="ident">truncate</span>(<span class="number">0</span>);
+        <span class="comment">// Sparse files are represented internally as a list of blocks that are
+        // read. Blocks are either a bunch of 0&#39;s or they&#39;re data from the
+        // underlying archive.
+        //
+        // Blocks of a sparse file are described by the `GnuSparseHeader`
+        // structure, some of which are contained in `GnuHeader` but some of
+        // which may also be contained after the first header in further
+        // headers.
+        //
+        // We read off all the blocks here and use the `add_block` function to
+        // incrementally add them to the list of I/O block (in `entry.data`).
+        // The `add_block` function also validates that each chunk comes after
+        // the previous, we don&#39;t overrun the end of the file, and each block is
+        // aligned to a 512-byte boundary in the archive itself.
+        //
+        // At the end we verify that the sparse file size (`Header::size`) is
+        // the same as the current offset (described by the list of blocks) as
+        // well as the amount of data read equals the size of the entry
+        // (`Header::entry_size`).
+        </span>entry.data.truncate(<span class="number">0</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cur</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remaining</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">size</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>cur = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>remaining = entry.size;
         {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">entry</span>.<span class="ident">data</span>;
-            <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>;
-            <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">size</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">add_block</span> <span class="op">=</span> <span class="op">|</span><span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">GnuSparseHeader</span><span class="op">|</span> -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">block</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            <span class="kw">let </span>data = <span class="kw-2">&amp;mut </span>entry.data;
+            <span class="kw">let </span>reader = <span class="kw-2">&amp;</span><span class="self">self</span>.archive.inner;
+            <span class="kw">let </span>size = entry.size;
+            <span class="kw">let </span><span class="kw-2">mut </span>add_block = |block: <span class="kw-2">&amp;</span>GnuSparseHeader| -&gt; io::Result&lt;<span class="kw">_</span>&gt; {
+                <span class="kw">if </span>block.is_empty() {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 }
-                <span class="kw">let</span> <span class="ident">off</span> <span class="op">=</span> <span class="ident">block</span>.<span class="ident">offset</span>()<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">block</span>.<span class="ident">length</span>()<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="ident">len</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> (<span class="ident">size</span> <span class="op">-</span> <span class="ident">remaining</span>) <span class="op">%</span> <span class="number">512</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(
+                <span class="kw">let </span>off = block.offset()<span class="question-mark">?</span>;
+                <span class="kw">let </span>len = block.length()<span class="question-mark">?</span>;
+                <span class="kw">if </span>len != <span class="number">0 </span>&amp;&amp; (size - remaining) % <span class="number">512 </span>!= <span class="number">0 </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(other(
                         <span class="string">&quot;previous block in sparse file was not \
                          aligned to 512-byte boundary&quot;</span>,
                     ));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">off</span> <span class="op">&lt;</span> <span class="ident">cur</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(
+                } <span class="kw">else if </span>off &lt; cur {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(other(
                         <span class="string">&quot;out of order or overlapping sparse \
                          blocks&quot;</span>,
                     ));
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cur</span> <span class="op">&lt;</span> <span class="ident">off</span> {
-                    <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">io::repeat</span>(<span class="number">0</span>).<span class="ident">take</span>(<span class="ident">off</span> <span class="op">-</span> <span class="ident">cur</span>);
-                    <span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">EntryIo::Pad</span>(<span class="ident">block</span>));
+                } <span class="kw">else if </span>cur &lt; off {
+                    <span class="kw">let </span>block = io::repeat(<span class="number">0</span>).take(off - cur);
+                    data.push(EntryIo::Pad(block));
                 }
-                <span class="ident">cur</span> <span class="op">=</span> <span class="ident">off</span>
-                    .<span class="ident">checked_add</span>(<span class="ident">len</span>)
-                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">other</span>(<span class="string">&quot;more bytes listed in sparse file than u64 can hold&quot;</span>))<span class="question-mark">?</span>;
-                <span class="ident">remaining</span> <span class="op">=</span> <span class="ident">remaining</span>.<span class="ident">checked_sub</span>(<span class="ident">len</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">other</span>(
+                cur = off
+                    .checked_add(len)
+                    .ok_or_else(|| other(<span class="string">&quot;more bytes listed in sparse file than u64 can hold&quot;</span>))<span class="question-mark">?</span>;
+                remaining = remaining.checked_sub(len).ok_or_else(|| {
+                    other(
                         <span class="string">&quot;sparse file consumed more data than the header \
                          listed&quot;</span>,
                     )
                 })<span class="question-mark">?</span>;
-                <span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">EntryIo::Data</span>(<span class="ident">reader</span>.<span class="ident">take</span>(<span class="ident">len</span>)));
+                data.push(EntryIo::Data(reader.take(len)));
                 <span class="prelude-val">Ok</span>(())
             };
-            <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">gnu</span>.<span class="ident">sparse</span>.<span class="ident">iter</span>() {
-                <span class="ident">add_block</span>(<span class="ident">block</span>)<span class="question-mark">?</span>
-            }
-            <span class="kw">if</span> <span class="ident">gnu</span>.<span class="ident">is_extended</span>() {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ext</span> <span class="op">=</span> <span class="ident">GnuExtSparseHeader::new</span>();
-                <span class="ident">ext</span>.<span class="ident">isextended</span>[<span class="number">0</span>] <span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">while</span> <span class="ident">ext</span>.<span class="ident">is_extended</span>() {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">try_read_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>, <span class="ident">ext</span>.<span class="ident">as_mut_bytes</span>())<span class="question-mark">?</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(<span class="string">&quot;failed to read extension&quot;</span>));
+            <span class="kw">for </span>block <span class="kw">in </span>gnu.sparse.iter() {
+                add_block(block)<span class="question-mark">?
+            </span>}
+            <span class="kw">if </span>gnu.is_extended() {
+                <span class="kw">let </span><span class="kw-2">mut </span>ext = GnuExtSparseHeader::new();
+                ext.isextended[<span class="number">0</span>] = <span class="number">1</span>;
+                <span class="kw">while </span>ext.is_extended() {
+                    <span class="kw">if </span>!try_read_all(<span class="kw-2">&amp;mut &amp;</span><span class="self">self</span>.archive.inner, ext.as_mut_bytes())<span class="question-mark">? </span>{
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(other(<span class="string">&quot;failed to read extension&quot;</span>));
                     }
 
-                    <span class="self">self</span>.<span class="ident">next</span> <span class="op">+</span><span class="op">=</span> <span class="number">512</span>;
-                    <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">ext</span>.<span class="ident">sparse</span>.<span class="ident">iter</span>() {
-                        <span class="ident">add_block</span>(<span class="ident">block</span>)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.next += <span class="number">512</span>;
+                    <span class="kw">for </span>block <span class="kw">in </span>ext.sparse.iter() {
+                        add_block(block)<span class="question-mark">?</span>;
                     }
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">cur</span> <span class="op">!</span><span class="op">=</span> <span class="ident">gnu</span>.<span class="ident">real_size</span>()<span class="question-mark">?</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(
+        <span class="kw">if </span>cur != gnu.real_size()<span class="question-mark">? </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(other(
                 <span class="string">&quot;mismatch in sparse file chunks and \
                  size in header&quot;</span>,
             ));
         }
-        <span class="ident">entry</span>.<span class="ident">size</span> <span class="op">=</span> <span class="ident">cur</span>;
-        <span class="kw">if</span> <span class="ident">remaining</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(
+        entry.size = cur;
+        <span class="kw">if </span>remaining &gt; <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(other(
                 <span class="string">&quot;mismatch in sparse file chunks and \
                  entry size in header&quot;</span>,
             ));
@@ -1073,84 +1073,84 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">skip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">amt</span>: <span class="ident">u64</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">seekable_archive</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">seekable_archive</span> {
-            <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">io::SeekFrom::Current</span>(
-                <span class="ident">i64::try_from</span>(<span class="ident">amt</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">other</span>(<span class="string">&quot;seek position out of bounds&quot;</span>))<span class="question-mark">?</span>,
+    <span class="kw">fn </span>skip(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>amt: u64) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(seekable_archive) = <span class="self">self</span>.seekable_archive {
+            <span class="kw">let </span>pos = io::SeekFrom::Current(
+                i64::try_from(amt).map_err(|<span class="kw">_</span>| other(<span class="string">&quot;seek position out of bounds&quot;</span>))<span class="question-mark">?</span>,
             );
-            (<span class="kw-2">&amp;</span><span class="ident">seekable_archive</span>.<span class="ident">inner</span>).<span class="ident">seek</span>(<span class="ident">pos</span>)<span class="question-mark">?</span>;
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">4096</span> <span class="op">*</span> <span class="number">8</span>];
-            <span class="kw">while</span> <span class="ident">amt</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">amt</span>, <span class="ident">buf</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
-                <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">archive</span>.<span class="ident">inner</span>).<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[..<span class="ident">n</span> <span class="kw">as</span> <span class="ident">usize</span>])<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(<span class="string">&quot;unexpected EOF during skip&quot;</span>));
+            (<span class="kw-2">&amp;</span>seekable_archive.inner).seek(pos)<span class="question-mark">?</span>;
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0u8</span>; <span class="number">4096 </span>* <span class="number">8</span>];
+            <span class="kw">while </span>amt &gt; <span class="number">0 </span>{
+                <span class="kw">let </span>n = cmp::min(amt, buf.len() <span class="kw">as </span>u64);
+                <span class="kw">let </span>n = (<span class="kw-2">&amp;</span><span class="self">self</span>.archive.inner).read(<span class="kw-2">&amp;mut </span>buf[..n <span class="kw">as </span>usize])<span class="question-mark">?</span>;
+                <span class="kw">if </span>n == <span class="number">0 </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(other(<span class="string">&quot;unexpected EOF during skip&quot;</span>));
                 }
-                <span class="ident">amt</span> <span class="op">-</span><span class="op">=</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u64</span>;
+                amt -= n <span class="kw">as </span>u64;
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">EntriesFields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">io::Empty</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>EntriesFields&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = io::Result&lt;Entry&lt;<span class="lifetime">&#39;a</span>, io::Empty&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Entry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">io::Empty</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">done</span> {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">next_entry</span>() {
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">e</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">e</span>)),
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;io::Result&lt;Entry&lt;<span class="lifetime">&#39;a</span>, io::Empty&gt;&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.done {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="kw">match </span><span class="self">self</span>.next_entry() {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(e)) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(e)),
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="prelude-val">None</span>
-                }
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))
+                    <span class="self">self</span>.done = <span class="bool-val">true</span>;
+                    <span class="prelude-val">None
+                </span>}
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    <span class="self">self</span>.done = <span class="bool-val">true</span>;
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e))
                 }
             }
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Read</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ArchiveInner</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">into</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">obj</span>.<span class="ident">borrow_mut</span>().<span class="ident">read</span>(<span class="ident">into</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">pos</span>.<span class="ident">set</span>(<span class="self">self</span>.<span class="ident">pos</span>.<span class="ident">get</span>() <span class="op">+</span> <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u64</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">i</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, R: <span class="question-mark">?</span>Sized + Read&gt; Read <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ArchiveInner&lt;R&gt; {
+    <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, into: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="kw">let </span>i = <span class="self">self</span>.obj.borrow_mut().read(into)<span class="question-mark">?</span>;
+        <span class="self">self</span>.pos.set(<span class="self">self</span>.pos.get() + i <span class="kw">as </span>u64);
+        <span class="prelude-val">Ok</span>(i)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Seek</span><span class="op">&gt;</span> <span class="ident">Seek</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ArchiveInner</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">SeekFrom</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">obj</span>.<span class="ident">borrow_mut</span>().<span class="ident">seek</span>(<span class="ident">pos</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">pos</span>.<span class="ident">set</span>(<span class="ident">pos</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">pos</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, R: <span class="question-mark">?</span>Sized + Seek&gt; Seek <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ArchiveInner&lt;R&gt; {
+    <span class="kw">fn </span>seek(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pos: SeekFrom) -&gt; io::Result&lt;u64&gt; {
+        <span class="kw">let </span>pos = <span class="self">self</span>.obj.borrow_mut().seek(pos)<span class="question-mark">?</span>;
+        <span class="self">self</span>.pos.set(pos);
+        <span class="prelude-val">Ok</span>(pos)
     }
 }
 
-<span class="doccomment">/// Try to fill the buffer from the reader.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the reader reaches its end before filling the buffer at all, returns `false`.</span>
-<span class="doccomment">/// Otherwise returns `true`.</span>
-<span class="kw">fn</span> <span class="ident">try_read_all</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span>(<span class="ident">r</span>: <span class="kw-2">&amp;mut</span> <span class="ident">R</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">read</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">while</span> <span class="ident">read</span> <span class="op">&lt;</span> <span class="ident">buf</span>.<span class="ident">len</span>() {
-        <span class="kw">match</span> <span class="ident">r</span>.<span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>[<span class="ident">read</span>..])<span class="question-mark">?</span> {
-            <span class="number">0</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">read</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+<span class="doccomment">/// Try to fill the buffer from the reader.
+///
+/// If the reader reaches its end before filling the buffer at all, returns `false`.
+/// Otherwise returns `true`.
+</span><span class="kw">fn </span>try_read_all&lt;R: Read&gt;(r: <span class="kw-2">&amp;mut </span>R, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;bool&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>read = <span class="number">0</span>;
+    <span class="kw">while </span>read &lt; buf.len() {
+        <span class="kw">match </span>r.read(<span class="kw-2">&amp;mut </span>buf[read..])<span class="question-mark">? </span>{
+            <span class="number">0 </span>=&gt; {
+                <span class="kw">if </span>read == <span class="number">0 </span>{
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
                 }
 
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">other</span>(<span class="string">&quot;failed to read entire block&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(other(<span class="string">&quot;failed to read entire block&quot;</span>));
             }
-            <span class="ident">n</span> =&gt; <span class="ident">read</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>,
+            n =&gt; read += n,
         }
     }
     <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tar" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tar" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

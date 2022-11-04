@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/if_match.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>if_match.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/if_match.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>if_match.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -68,73 +68,73 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">common_header</span>, <span class="ident">EntityTag</span>, <span class="ident">IF_MATCH</span>};
+</pre><pre class="rust"><code><span class="kw">use super</span>::{common_header, EntityTag, IF_MATCH};
 
-<span class="macro">common_header!</span> {
-    <span class="doccomment">/// `If-Match` header, defined</span>
-    <span class="doccomment">/// in [RFC 7232 §3.1](https://datatracker.ietf.org/doc/html/rfc7232#section-3.1)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `If-Match` header field makes the request method conditional on</span>
-    <span class="doccomment">/// the recipient origin server either having at least one current</span>
-    <span class="doccomment">/// representation of the target resource, when the field-value is &quot;*&quot;,</span>
-    <span class="doccomment">/// or having a current representation of the target resource that has an</span>
-    <span class="doccomment">/// entity-tag matching a member of the list of entity-tags provided in</span>
-    <span class="doccomment">/// the field-value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// An origin server MUST use the strong comparison function when</span>
-    <span class="doccomment">/// comparing entity-tags for `If-Match`, since the client</span>
-    <span class="doccomment">/// intends this precondition to prevent the method from being applied if</span>
-    <span class="doccomment">/// there have been any changes to the representation data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # ABNF</span>
-    <span class="doccomment">/// ```plain</span>
-    <span class="doccomment">/// If-Match = &quot;*&quot; / 1#entity-tag</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example Values</span>
-    <span class="doccomment">/// * `&quot;xyzzy&quot;`</span>
-    <span class="doccomment">/// * &quot;xyzzy&quot;, &quot;r2d2xxxx&quot;, &quot;c3piozzzz&quot;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::IfMatch;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// builder.insert_header(IfMatch::Any);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::{IfMatch, EntityTag};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// builder.insert_header(</span>
-    <span class="doccomment">///     IfMatch::Items(vec![</span>
-    <span class="doccomment">///         EntityTag::new(false, &quot;xyzzy&quot;.to_owned()),</span>
-    <span class="doccomment">///         EntityTag::new(false, &quot;foobar&quot;.to_owned()),</span>
-    <span class="doccomment">///         EntityTag::new(false, &quot;bazquux&quot;.to_owned()),</span>
-    <span class="doccomment">///     ])</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    (<span class="ident">IfMatch</span>, <span class="ident">IF_MATCH</span>) =&gt; {<span class="ident">Any</span> <span class="op">/</span> (<span class="ident">EntityTag</span>)<span class="op">+</span>}
+<span class="macro">common_header! </span>{
+    <span class="doccomment">/// `If-Match` header, defined
+    /// in [RFC 7232 §3.1](https://datatracker.ietf.org/doc/html/rfc7232#section-3.1)
+    ///
+    /// The `If-Match` header field makes the request method conditional on
+    /// the recipient origin server either having at least one current
+    /// representation of the target resource, when the field-value is &quot;*&quot;,
+    /// or having a current representation of the target resource that has an
+    /// entity-tag matching a member of the list of entity-tags provided in
+    /// the field-value.
+    ///
+    /// An origin server MUST use the strong comparison function when
+    /// comparing entity-tags for `If-Match`, since the client
+    /// intends this precondition to prevent the method from being applied if
+    /// there have been any changes to the representation data.
+    ///
+    /// # ABNF
+    /// ```plain
+    /// If-Match = &quot;*&quot; / 1#entity-tag
+    /// ```
+    ///
+    /// # Example Values
+    /// * `&quot;xyzzy&quot;`
+    /// * &quot;xyzzy&quot;, &quot;r2d2xxxx&quot;, &quot;c3piozzzz&quot;
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::HttpResponse;
+    /// use actix_web::http::header::IfMatch;
+    ///
+    /// let mut builder = HttpResponse::Ok();
+    /// builder.insert_header(IfMatch::Any);
+    /// ```
+    ///
+    /// ```
+    /// use actix_web::HttpResponse;
+    /// use actix_web::http::header::{IfMatch, EntityTag};
+    ///
+    /// let mut builder = HttpResponse::Ok();
+    /// builder.insert_header(
+    ///     IfMatch::Items(vec![
+    ///         EntityTag::new(false, &quot;xyzzy&quot;.to_owned()),
+    ///         EntityTag::new(false, &quot;foobar&quot;.to_owned()),
+    ///         EntityTag::new(false, &quot;bazquux&quot;.to_owned()),
+    ///     ])
+    /// );
+    /// ```
+    </span>(IfMatch, IF_MATCH) =&gt; {Any / (EntityTag)+}
 
-    <span class="ident">test_parse_and_format</span> {
+    test_parse_and_format {
         <span class="macro">crate::http::header::common_header_test!</span>(
-            <span class="ident">test1</span>,
+            test1,
             <span class="macro">vec!</span>[<span class="string">b&quot;\&quot;xyzzy\&quot;&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">HeaderField::Items</span>(
-                <span class="macro">vec!</span>[<span class="ident">EntityTag::new_strong</span>(<span class="string">&quot;xyzzy&quot;</span>.<span class="ident">to_owned</span>())])));
+            <span class="prelude-val">Some</span>(HeaderField::Items(
+                <span class="macro">vec!</span>[EntityTag::new_strong(<span class="string">&quot;xyzzy&quot;</span>.to_owned())])));
 
         <span class="macro">crate::http::header::common_header_test!</span>(
-            <span class="ident">test2</span>,
+            test2,
             <span class="macro">vec!</span>[<span class="string">b&quot;\&quot;xyzzy\&quot;, \&quot;r2d2xxxx\&quot;, \&quot;c3piozzzz\&quot;&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">HeaderField::Items</span>(
-                <span class="macro">vec!</span>[<span class="ident">EntityTag::new_strong</span>(<span class="string">&quot;xyzzy&quot;</span>.<span class="ident">to_owned</span>()),
-                     <span class="ident">EntityTag::new_strong</span>(<span class="string">&quot;r2d2xxxx&quot;</span>.<span class="ident">to_owned</span>()),
-                     <span class="ident">EntityTag::new_strong</span>(<span class="string">&quot;c3piozzzz&quot;</span>.<span class="ident">to_owned</span>())])));
-        <span class="macro">crate::http::header::common_header_test!</span>(<span class="ident">test3</span>, <span class="macro">vec!</span>[<span class="string">b&quot;*&quot;</span>], <span class="prelude-val">Some</span>(<span class="ident">IfMatch::Any</span>));
+            <span class="prelude-val">Some</span>(HeaderField::Items(
+                <span class="macro">vec!</span>[EntityTag::new_strong(<span class="string">&quot;xyzzy&quot;</span>.to_owned()),
+                     EntityTag::new_strong(<span class="string">&quot;r2d2xxxx&quot;</span>.to_owned()),
+                     EntityTag::new_strong(<span class="string">&quot;c3piozzzz&quot;</span>.to_owned())])));
+        <span class="macro">crate::http::header::common_header_test!</span>(test3, <span class="macro">vec!</span>[<span class="string">b&quot;*&quot;</span>], <span class="prelude-val">Some</span>(IfMatch::Any));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

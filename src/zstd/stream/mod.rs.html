@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/stream/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../zstd/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/zstd-0.11.2+zstd.1.5.2/src/stream/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../zstd/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../zstd/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -217,219 +217,219 @@
 <span id="217">217</span>
 <span id="218">218</span>
 <span id="219">219</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Compress and decompress Zstd streams.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Zstd streams are the main way to compress and decompress data.</span>
-<span class="doccomment">//! They are compatible with the `zstd` command-line tool.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This module provides both `Read` and `Write` interfaces to compressing and</span>
-<span class="doccomment">//! decompressing.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Compress and decompress Zstd streams.
+//!
+//! Zstd streams are the main way to compress and decompress data.
+//! They are compatible with the `zstd` command-line tool.
+//!
+//! This module provides both `Read` and `Write` interfaces to compressing and
+//! decompressing.
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">read</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">write</span>;
+</span><span class="kw">pub mod </span>read;
+<span class="kw">pub mod </span>write;
 
-<span class="kw">mod</span> <span class="ident">functions</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">zio</span>;
+<span class="kw">mod </span>functions;
+<span class="kw">pub mod </span>zio;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">raw</span>;
+<span class="kw">pub mod </span>raw;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::functions</span>::{<span class="ident">copy_decode</span>, <span class="ident">copy_encode</span>, <span class="ident">decode_all</span>, <span class="ident">encode_all</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::read::Decoder</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::write</span>::{<span class="ident">AutoFinishEncoder</span>, <span class="ident">Encoder</span>};
+<span class="kw">pub use </span><span class="self">self</span>::functions::{copy_decode, copy_encode, decode_all, encode_all};
+<span class="kw">pub use </span><span class="self">self</span>::read::Decoder;
+<span class="kw">pub use </span><span class="self">self</span>::write::{AutoFinishEncoder, Encoder};
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="doccomment">/// Common functions for the decoder, both in read and write mode.</span>
-<span class="macro">macro_rules!</span> <span class="ident">decoder_parameters</span> {
+<span class="attribute">#[doc(hidden)]
+#[macro_export]
+</span><span class="doccomment">/// Common functions for the decoder, both in read and write mode.
+</span><span class="macro">macro_rules! </span>decoder_parameters {
     () =&gt; {
-        <span class="doccomment">/// Sets the maximum back-reference distance.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// The actual maximum distance is going to be `2^log_distance`.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// This will need to at least match the value set when compressing.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_log_max</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">log_distance</span>: <span class="ident">u32</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">set_parameter</span>(<span class="ident">zstd_safe::DParameter::WindowLogMax</span>(
-                <span class="ident">log_distance</span>,
+        <span class="doccomment">/// Sets the maximum back-reference distance.
+        ///
+        /// The actual maximum distance is going to be `2^log_distance`.
+        ///
+        /// This will need to at least match the value set when compressing.
+        </span><span class="kw">pub fn </span>window_log_max(<span class="kw-2">&amp;mut </span><span class="self">self</span>, log_distance: u32) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.set_parameter(zstd_safe::DParameter::WindowLogMax(
+                log_distance,
             ))
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental&quot;</span>)]</span>
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;doc-cfg&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental&quot;</span>)))]</span>
-        <span class="doccomment">/// Enables or disabled expecting the 4-byte magic header</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Only available with the `experimental` feature.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// This will need to match the settings used when compressing.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_magicbytes</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">include_magicbytes</span>: <span class="ident">bool</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">set_parameter</span>(<span class="ident">zstd_safe::DParameter::Format</span>(
-                <span class="kw">if</span> <span class="ident">include_magicbytes</span> {
-                    <span class="ident">zstd_safe::FrameFormat::One</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">zstd_safe::FrameFormat::Magicless</span>
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+        </span><span class="doccomment">/// Enables or disabled expecting the 4-byte magic header
+        ///
+        /// Only available with the `experimental` feature.
+        ///
+        /// This will need to match the settings used when compressing.
+        </span><span class="kw">pub fn </span>include_magicbytes(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            include_magicbytes: bool,
+        ) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.set_parameter(zstd_safe::DParameter::Format(
+                <span class="kw">if </span>include_magicbytes {
+                    zstd_safe::FrameFormat::One
+                } <span class="kw">else </span>{
+                    zstd_safe::FrameFormat::Magicless
                 },
             ))
         }
     };
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="doccomment">/// Common functions for the decoder, both in read and write mode.</span>
-<span class="macro">macro_rules!</span> <span class="ident">decoder_common</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="doccomment">/// Sets a decompression parameter on the decompression stream.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_parameter</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">parameter</span>: <span class="ident">zstd_safe::DParameter</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>.<span class="ident">operation_mut</span>().<span class="ident">set_parameter</span>(<span class="ident">parameter</span>)
+<span class="attribute">#[doc(hidden)]
+#[macro_export]
+</span><span class="doccomment">/// Common functions for the decoder, both in read and write mode.
+</span><span class="macro">macro_rules! </span>decoder_common {
+    (<span class="macro-nonterminal">$readwrite</span>:ident) =&gt; {
+        <span class="doccomment">/// Sets a decompression parameter on the decompression stream.
+        </span><span class="kw">pub fn </span>set_parameter(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            parameter: zstd_safe::DParameter,
+        ) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.<span class="macro-nonterminal">$readwrite</span>.operation_mut().set_parameter(parameter)
         }
 
         <span class="macro-nonterminal">$</span><span class="macro">crate::decoder_parameters!</span>();
     };
 }
 
-<span class="attribute">#[<span class="macro-nonterminal">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="doccomment">/// Parameter-setters for the encoder. Relies on a `set_parameter` method.</span>
-<span class="macro">macro_rules!</span> <span class="ident">encoder_parameters</span> {
+<span class="attribute">#[<span class="macro-nonterminal">doc</span>(hidden)]
+#[macro_export]
+</span><span class="doccomment">/// Parameter-setters for the encoder. Relies on a `set_parameter` method.
+</span><span class="macro">macro_rules! </span>encoder_parameters {
     () =&gt; {
-        <span class="doccomment">/// Controls whether zstd should include a content checksum at the end</span>
-        <span class="doccomment">/// of each frame.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_checksum</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">include_checksum</span>: <span class="ident">bool</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">set_parameter</span>(<span class="ident">zstd_safe::CParameter::ChecksumFlag</span>(
-                <span class="ident">include_checksum</span>,
+        <span class="doccomment">/// Controls whether zstd should include a content checksum at the end
+        /// of each frame.
+        </span><span class="kw">pub fn </span>include_checksum(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            include_checksum: bool,
+        ) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.set_parameter(zstd_safe::CParameter::ChecksumFlag(
+                include_checksum,
             ))
         }
 
-        <span class="doccomment">/// Enables multithreaded compression</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// * If `n_workers == 0` (default), then multithreaded will be</span>
-        <span class="doccomment">///   disabled.</span>
-        <span class="doccomment">/// * If `n_workers &gt;= 1`, then compression will be done in separate</span>
-        <span class="doccomment">///   threads.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// So even `n_workers = 1` may increase performance by separating</span>
-        <span class="doccomment">/// IO and compression.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Note: This is only available if the `zstdmt` cargo feature is activated.</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zstdmt&quot;</span>)]</span>
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;doc-cfg&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;zstdmt&quot;</span>)))]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multithread</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">n_workers</span>: <span class="ident">u32</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">set_parameter</span>(<span class="ident">zstd_safe::CParameter::NbWorkers</span>(<span class="ident">n_workers</span>))
+        <span class="doccomment">/// Enables multithreaded compression
+        ///
+        /// * If `n_workers == 0` (default), then multithreaded will be
+        ///   disabled.
+        /// * If `n_workers &gt;= 1`, then compression will be done in separate
+        ///   threads.
+        ///
+        /// So even `n_workers = 1` may increase performance by separating
+        /// IO and compression.
+        ///
+        /// Note: This is only available if the `zstdmt` cargo feature is activated.
+        </span><span class="attribute">#[cfg(feature = <span class="string">&quot;zstdmt&quot;</span>)]
+        #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;zstdmt&quot;</span>)))]
+        </span><span class="kw">pub fn </span>multithread(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n_workers: u32) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.set_parameter(zstd_safe::CParameter::NbWorkers(n_workers))
         }
 
-        <span class="doccomment">/// Enables or disables storing of the dict id.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Defaults to true. If false, the behaviour of decoding with a wrong</span>
-        <span class="doccomment">/// dictionary is undefined.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_dictid</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">include_dictid</span>: <span class="ident">bool</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">set_parameter</span>(<span class="ident">zstd_safe::CParameter::DictIdFlag</span>(
-                <span class="ident">include_dictid</span>,
+        <span class="doccomment">/// Enables or disables storing of the dict id.
+        ///
+        /// Defaults to true. If false, the behaviour of decoding with a wrong
+        /// dictionary is undefined.
+        </span><span class="kw">pub fn </span>include_dictid(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            include_dictid: bool,
+        ) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.set_parameter(zstd_safe::CParameter::DictIdFlag(
+                include_dictid,
             ))
         }
 
-        <span class="doccomment">/// Enables or disabled storing of the contentsize.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Note that this only has an effect if the size is given with `set_pledged_src_size`.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_contentsize</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">include_contentsize</span>: <span class="ident">bool</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">set_parameter</span>(<span class="ident">zstd_safe::CParameter::ContentSizeFlag</span>(
-                <span class="ident">include_contentsize</span>,
+        <span class="doccomment">/// Enables or disabled storing of the contentsize.
+        ///
+        /// Note that this only has an effect if the size is given with `set_pledged_src_size`.
+        </span><span class="kw">pub fn </span>include_contentsize(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            include_contentsize: bool,
+        ) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.set_parameter(zstd_safe::CParameter::ContentSizeFlag(
+                include_contentsize,
             ))
         }
-        <span class="doccomment">/// Enables or disables long-distance matching</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">long_distance_matching</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">long_distance_matching</span>: <span class="ident">bool</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">set_parameter</span>(
-                <span class="ident">zstd_safe::CParameter::EnableLongDistanceMatching</span>(
-                    <span class="ident">long_distance_matching</span>,
+        <span class="doccomment">/// Enables or disables long-distance matching
+        </span><span class="kw">pub fn </span>long_distance_matching(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            long_distance_matching: bool,
+        ) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.set_parameter(
+                zstd_safe::CParameter::EnableLongDistanceMatching(
+                    long_distance_matching,
                 ),
             )
         }
 
-        <span class="doccomment">/// Sets the maximum back-reference distance.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// The actual maximum distance is going to be `2^log_distance`.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Note that decompression will need to use at least the same setting.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_log</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">log_distance</span>: <span class="ident">u32</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">set_parameter</span>(<span class="ident">zstd_safe::CParameter::WindowLog</span>(<span class="ident">log_distance</span>))
+        <span class="doccomment">/// Sets the maximum back-reference distance.
+        ///
+        /// The actual maximum distance is going to be `2^log_distance`.
+        ///
+        /// Note that decompression will need to use at least the same setting.
+        </span><span class="kw">pub fn </span>window_log(<span class="kw-2">&amp;mut </span><span class="self">self</span>, log_distance: u32) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.set_parameter(zstd_safe::CParameter::WindowLog(log_distance))
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental&quot;</span>)]</span>
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;doc-cfg&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental&quot;</span>)))]</span>
-        <span class="doccomment">/// Enables or disable the magic bytes at the beginning of each frame.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// If disabled, include_magicbytes must also be called on the decoder.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Only available with the `experimental` feature.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Note that decompression will need to use the same setting.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">include_magicbytes</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">include_magicbytes</span>: <span class="ident">bool</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">set_parameter</span>(<span class="ident">zstd_safe::CParameter::Format</span>(
-                <span class="kw">if</span> <span class="ident">include_magicbytes</span> {
-                    <span class="ident">zstd_safe::FrameFormat::One</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">zstd_safe::FrameFormat::Magicless</span>
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;experimental&quot;</span>)]
+        #[cfg_attr(feature = <span class="string">&quot;doc-cfg&quot;</span>, doc(cfg(feature = <span class="string">&quot;experimental&quot;</span>)))]
+        </span><span class="doccomment">/// Enables or disable the magic bytes at the beginning of each frame.
+        ///
+        /// If disabled, include_magicbytes must also be called on the decoder.
+        ///
+        /// Only available with the `experimental` feature.
+        ///
+        /// Note that decompression will need to use the same setting.
+        </span><span class="kw">pub fn </span>include_magicbytes(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            include_magicbytes: bool,
+        ) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.set_parameter(zstd_safe::CParameter::Format(
+                <span class="kw">if </span>include_magicbytes {
+                    zstd_safe::FrameFormat::One
+                } <span class="kw">else </span>{
+                    zstd_safe::FrameFormat::Magicless
                 },
             ))
         }
     };
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="doccomment">/// Common functions for the encoder, both in read and write mode.</span>
-<span class="macro">macro_rules!</span> <span class="ident">encoder_common</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="doccomment">/// Sets the given zstd compression parameter.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_parameter</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">parameter</span>: <span class="ident">zstd_safe::CParameter</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>.<span class="ident">operation_mut</span>().<span class="ident">set_parameter</span>(<span class="ident">parameter</span>)
+<span class="attribute">#[doc(hidden)]
+#[macro_export]
+</span><span class="doccomment">/// Common functions for the encoder, both in read and write mode.
+</span><span class="macro">macro_rules! </span>encoder_common {
+    (<span class="macro-nonterminal">$readwrite</span>:ident) =&gt; {
+        <span class="doccomment">/// Sets the given zstd compression parameter.
+        </span><span class="kw">pub fn </span>set_parameter(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            parameter: zstd_safe::CParameter,
+        ) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.<span class="macro-nonterminal">$readwrite</span>.operation_mut().set_parameter(parameter)
         }
 
-        <span class="doccomment">/// Sets the expected size of the input.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// This affects the compression effectiveness.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// It is an error to give an incorrect size (an error will be returned when closing the</span>
-        <span class="doccomment">/// stream if the size does not match what was pledged).</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Giving a `None` size means the size is unknown (this is the default).</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_pledged_src_size</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-            <span class="kw">match</span> <span class="ident">size</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">size</span>) =&gt; {
-                    <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>.<span class="ident">operation_mut</span>().<span class="ident">set_pledged_src_size</span>(<span class="ident">size</span>)
+        <span class="doccomment">/// Sets the expected size of the input.
+        ///
+        /// This affects the compression effectiveness.
+        ///
+        /// It is an error to give an incorrect size (an error will be returned when closing the
+        /// stream if the size does not match what was pledged).
+        ///
+        /// Giving a `None` size means the size is unknown (this is the default).
+        </span><span class="kw">pub fn </span>set_pledged_src_size(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            size: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+        ) -&gt; io::Result&lt;()&gt; {
+            <span class="kw">match </span>size {
+                <span class="prelude-val">Some</span>(size) =&gt; {
+                    <span class="self">self</span>.<span class="macro-nonterminal">$readwrite</span>.operation_mut().set_pledged_src_size(size)
                 }
-                <span class="prelude-val">None</span> =&gt; <span class="self">self</span>
-                    .<span class="macro-nonterminal">$</span><span class="macro-nonterminal">readwrite</span>
-                    .<span class="ident">operation_mut</span>()
-                    .<span class="ident">set_pledged_src_size</span>(<span class="ident">zstd_safe::CONTENTSIZE_UNKNOWN</span>),
+                <span class="prelude-val">None </span>=&gt; <span class="self">self
+                    </span>.<span class="macro-nonterminal">$readwrite
+                    </span>.operation_mut()
+                    .set_pledged_src_size(zstd_safe::CONTENTSIZE_UNKNOWN),
             }
         }
 
@@ -437,4 +437,4 @@
     };
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="zstd" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

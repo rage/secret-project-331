@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/crypto/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../jsonwebtoken/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/crypto/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../jsonwebtoken/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -96,103 +96,103 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">ring::constant_time::verify_slices_are_equal</span>;
-<span class="kw">use</span> <span class="ident">ring</span>::{<span class="ident">hmac</span>, <span class="ident">signature</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>ring::constant_time::verify_slices_are_equal;
+<span class="kw">use </span>ring::{hmac, signature};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::algorithms::Algorithm</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::decoding</span>::{<span class="ident">DecodingKey</span>, <span class="ident">DecodingKeyKind</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encoding::EncodingKey</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors::Result</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::serialization</span>::{<span class="ident">b64_decode</span>, <span class="ident">b64_encode</span>};
+<span class="kw">use </span><span class="kw">crate</span>::algorithms::Algorithm;
+<span class="kw">use </span><span class="kw">crate</span>::decoding::{DecodingKey, DecodingKeyKind};
+<span class="kw">use </span><span class="kw">crate</span>::encoding::EncodingKey;
+<span class="kw">use </span><span class="kw">crate</span>::errors::Result;
+<span class="kw">use </span><span class="kw">crate</span>::serialization::{b64_decode, b64_encode};
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">ecdsa</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">rsa</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>ecdsa;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>rsa;
 
-<span class="doccomment">/// The actual HS signing + encoding</span>
-<span class="doccomment">/// Could be in its own file to match RSA/EC but it&#39;s 2 lines...</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">sign_hmac</span>(<span class="ident">alg</span>: <span class="ident">hmac::Algorithm</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">digest</span> <span class="op">=</span> <span class="ident">hmac::sign</span>(<span class="kw-2">&amp;</span><span class="ident">hmac::Key::new</span>(<span class="ident">alg</span>, <span class="ident">key</span>), <span class="ident">message</span>.<span class="ident">as_bytes</span>());
-    <span class="prelude-val">Ok</span>(<span class="ident">b64_encode</span>(<span class="ident">digest</span>.<span class="ident">as_ref</span>()))
+<span class="doccomment">/// The actual HS signing + encoding
+/// Could be in its own file to match RSA/EC but it&#39;s 2 lines...
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sign_hmac(alg: hmac::Algorithm, key: <span class="kw-2">&amp;</span>[u8], message: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="kw">let </span>digest = hmac::sign(<span class="kw-2">&amp;</span>hmac::Key::new(alg, key), message.as_bytes());
+    <span class="prelude-val">Ok</span>(b64_encode(digest.as_ref()))
 }
 
-<span class="doccomment">/// Take the payload of a JWT, sign it using the algorithm given and return</span>
-<span class="doccomment">/// the base64 url safe encoded of the result.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If you just want to encode a JWT, use `encode` instead.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sign</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">EncodingKey</span>, <span class="ident">algorithm</span>: <span class="ident">Algorithm</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">algorithm</span> {
-        <span class="ident">Algorithm::HS256</span> =&gt; <span class="ident">sign_hmac</span>(<span class="ident">hmac::HMAC_SHA256</span>, <span class="ident">key</span>.<span class="ident">inner</span>(), <span class="ident">message</span>),
-        <span class="ident">Algorithm::HS384</span> =&gt; <span class="ident">sign_hmac</span>(<span class="ident">hmac::HMAC_SHA384</span>, <span class="ident">key</span>.<span class="ident">inner</span>(), <span class="ident">message</span>),
-        <span class="ident">Algorithm::HS512</span> =&gt; <span class="ident">sign_hmac</span>(<span class="ident">hmac::HMAC_SHA512</span>, <span class="ident">key</span>.<span class="ident">inner</span>(), <span class="ident">message</span>),
+<span class="doccomment">/// Take the payload of a JWT, sign it using the algorithm given and return
+/// the base64 url safe encoded of the result.
+///
+/// If you just want to encode a JWT, use `encode` instead.
+</span><span class="kw">pub fn </span>sign(message: <span class="kw-2">&amp;</span>str, key: <span class="kw-2">&amp;</span>EncodingKey, algorithm: Algorithm) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="kw">match </span>algorithm {
+        Algorithm::HS256 =&gt; sign_hmac(hmac::HMAC_SHA256, key.inner(), message),
+        Algorithm::HS384 =&gt; sign_hmac(hmac::HMAC_SHA384, key.inner(), message),
+        Algorithm::HS512 =&gt; sign_hmac(hmac::HMAC_SHA512, key.inner(), message),
 
-        <span class="ident">Algorithm::ES256</span> <span class="op">|</span> <span class="ident">Algorithm::ES384</span> =&gt; {
-            <span class="ident">ecdsa::sign</span>(<span class="ident">ecdsa::alg_to_ec_signing</span>(<span class="ident">algorithm</span>), <span class="ident">key</span>.<span class="ident">inner</span>(), <span class="ident">message</span>)
+        Algorithm::ES256 | Algorithm::ES384 =&gt; {
+            ecdsa::sign(ecdsa::alg_to_ec_signing(algorithm), key.inner(), message)
         }
 
-        <span class="ident">Algorithm::RS256</span>
-        <span class="op">|</span> <span class="ident">Algorithm::RS384</span>
-        <span class="op">|</span> <span class="ident">Algorithm::RS512</span>
-        <span class="op">|</span> <span class="ident">Algorithm::PS256</span>
-        <span class="op">|</span> <span class="ident">Algorithm::PS384</span>
-        <span class="op">|</span> <span class="ident">Algorithm::PS512</span> =&gt; <span class="ident">rsa::sign</span>(<span class="ident">rsa::alg_to_rsa_signing</span>(<span class="ident">algorithm</span>), <span class="ident">key</span>.<span class="ident">inner</span>(), <span class="ident">message</span>),
+        Algorithm::RS256
+        | Algorithm::RS384
+        | Algorithm::RS512
+        | Algorithm::PS256
+        | Algorithm::PS384
+        | Algorithm::PS512 =&gt; rsa::sign(rsa::alg_to_rsa_signing(algorithm), key.inner(), message),
     }
 }
 
-<span class="doccomment">/// See Ring docs for more details</span>
-<span class="kw">fn</span> <span class="ident">verify_ring</span>(
-    <span class="ident">alg</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw">dyn</span> <span class="ident">signature::VerificationAlgorithm</span>,
-    <span class="ident">signature</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">signature_bytes</span> <span class="op">=</span> <span class="ident">b64_decode</span>(<span class="ident">signature</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">public_key</span> <span class="op">=</span> <span class="ident">signature::UnparsedPublicKey::new</span>(<span class="ident">alg</span>, <span class="ident">key</span>);
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">public_key</span>.<span class="ident">verify</span>(<span class="ident">message</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="ident">signature_bytes</span>);
+<span class="doccomment">/// See Ring docs for more details
+</span><span class="kw">fn </span>verify_ring(
+    alg: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw">dyn </span>signature::VerificationAlgorithm,
+    signature: <span class="kw-2">&amp;</span>str,
+    message: <span class="kw-2">&amp;</span>str,
+    key: <span class="kw-2">&amp;</span>[u8],
+) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+    <span class="kw">let </span>signature_bytes = b64_decode(signature)<span class="question-mark">?</span>;
+    <span class="kw">let </span>public_key = signature::UnparsedPublicKey::new(alg, key);
+    <span class="kw">let </span>res = public_key.verify(message.as_bytes(), <span class="kw-2">&amp;</span>signature_bytes);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>())
+    <span class="prelude-val">Ok</span>(res.is_ok())
 }
 
-<span class="doccomment">/// Compares the signature given with a re-computed signature for HMAC or using the public key</span>
-<span class="doccomment">/// for RSA/EC.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If you just want to decode a JWT, use `decode` instead.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `signature` is the signature part of a jwt (text after the second &#39;.&#39;)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `message` is base64(header) + &quot;.&quot; + base64(claims)</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify</span>(
-    <span class="ident">signature</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">DecodingKey</span>,
-    <span class="ident">algorithm</span>: <span class="ident">Algorithm</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">algorithm</span> {
-        <span class="ident">Algorithm::HS256</span> <span class="op">|</span> <span class="ident">Algorithm::HS384</span> <span class="op">|</span> <span class="ident">Algorithm::HS512</span> =&gt; {
-            <span class="comment">// we just re-sign the message with the key and compare if they are equal</span>
-            <span class="kw">let</span> <span class="ident">signed</span> <span class="op">=</span> <span class="ident">sign</span>(<span class="ident">message</span>, <span class="kw-2">&amp;</span><span class="ident">EncodingKey::from_secret</span>(<span class="ident">key</span>.<span class="ident">as_bytes</span>()), <span class="ident">algorithm</span>)<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="ident">verify_slices_are_equal</span>(<span class="ident">signature</span>.<span class="ident">as_ref</span>(), <span class="ident">signed</span>.<span class="ident">as_ref</span>()).<span class="ident">is_ok</span>())
+<span class="doccomment">/// Compares the signature given with a re-computed signature for HMAC or using the public key
+/// for RSA/EC.
+///
+/// If you just want to decode a JWT, use `decode` instead.
+///
+/// `signature` is the signature part of a jwt (text after the second &#39;.&#39;)
+///
+/// `message` is base64(header) + &quot;.&quot; + base64(claims)
+</span><span class="kw">pub fn </span>verify(
+    signature: <span class="kw-2">&amp;</span>str,
+    message: <span class="kw-2">&amp;</span>str,
+    key: <span class="kw-2">&amp;</span>DecodingKey,
+    algorithm: Algorithm,
+) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+    <span class="kw">match </span>algorithm {
+        Algorithm::HS256 | Algorithm::HS384 | Algorithm::HS512 =&gt; {
+            <span class="comment">// we just re-sign the message with the key and compare if they are equal
+            </span><span class="kw">let </span>signed = sign(message, <span class="kw-2">&amp;</span>EncodingKey::from_secret(key.as_bytes()), algorithm)<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(verify_slices_are_equal(signature.as_ref(), signed.as_ref()).is_ok())
         }
-        <span class="ident">Algorithm::ES256</span> <span class="op">|</span> <span class="ident">Algorithm::ES384</span> =&gt; <span class="ident">verify_ring</span>(
-            <span class="ident">ecdsa::alg_to_ec_verification</span>(<span class="ident">algorithm</span>),
-            <span class="ident">signature</span>,
-            <span class="ident">message</span>,
-            <span class="ident">key</span>.<span class="ident">as_bytes</span>(),
+        Algorithm::ES256 | Algorithm::ES384 =&gt; verify_ring(
+            ecdsa::alg_to_ec_verification(algorithm),
+            signature,
+            message,
+            key.as_bytes(),
         ),
-        <span class="ident">Algorithm::RS256</span>
-        <span class="op">|</span> <span class="ident">Algorithm::RS384</span>
-        <span class="op">|</span> <span class="ident">Algorithm::RS512</span>
-        <span class="op">|</span> <span class="ident">Algorithm::PS256</span>
-        <span class="op">|</span> <span class="ident">Algorithm::PS384</span>
-        <span class="op">|</span> <span class="ident">Algorithm::PS512</span> =&gt; {
-            <span class="kw">let</span> <span class="ident">alg</span> <span class="op">=</span> <span class="ident">rsa::alg_to_rsa_parameters</span>(<span class="ident">algorithm</span>);
-            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">kind</span> {
-                <span class="ident">DecodingKeyKind::SecretOrDer</span>(<span class="ident">bytes</span>) =&gt; <span class="ident">verify_ring</span>(<span class="ident">alg</span>, <span class="ident">signature</span>, <span class="ident">message</span>, <span class="ident">bytes</span>),
-                <span class="ident">DecodingKeyKind::RsaModulusExponent</span> { <span class="ident">n</span>, <span class="ident">e</span> } =&gt; {
-                    <span class="ident">rsa::verify_from_components</span>(<span class="ident">alg</span>, <span class="ident">signature</span>, <span class="ident">message</span>, (<span class="ident">n</span>, <span class="ident">e</span>))
+        Algorithm::RS256
+        | Algorithm::RS384
+        | Algorithm::RS512
+        | Algorithm::PS256
+        | Algorithm::PS384
+        | Algorithm::PS512 =&gt; {
+            <span class="kw">let </span>alg = rsa::alg_to_rsa_parameters(algorithm);
+            <span class="kw">match </span><span class="kw-2">&amp;</span>key.kind {
+                DecodingKeyKind::SecretOrDer(bytes) =&gt; verify_ring(alg, signature, message, bytes),
+                DecodingKeyKind::RsaModulusExponent { n, e } =&gt; {
+                    rsa::verify_from_components(alg, signature, message, (n, e))
                 }
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

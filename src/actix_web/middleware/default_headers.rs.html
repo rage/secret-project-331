@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/default_headers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>default_headers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/default_headers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>default_headers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -261,266 +261,266 @@
 <span id="259">259</span>
 <span id="260">260</span>
 <span id="261">261</span>
-</pre><pre class="rust"><code><span class="doccomment">//! For middleware documentation, see [`DefaultHeaders`].</span>
+</pre><pre class="rust"><code><span class="doccomment">//! For middleware documentation, see [`DefaultHeaders`].
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">convert::TryFrom</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">rc::Rc</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>std::{
+    convert::TryFrom,
+    future::Future,
+    marker::PhantomData,
+    pin::Pin,
+    rc::Rc,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">actix_http::error::HttpError</span>;
-<span class="kw">use</span> <span class="ident">actix_utils::future</span>::{<span class="ident">ready</span>, <span class="ident">Ready</span>};
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>actix_http::error::HttpError;
+<span class="kw">use </span>actix_utils::future::{ready, Ready};
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">dev</span>::{<span class="ident">Service</span>, <span class="ident">Transform</span>},
-    <span class="ident">http::header</span>::{<span class="ident">HeaderMap</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">TryIntoHeaderPair</span>, <span class="ident">CONTENT_TYPE</span>},
-    <span class="ident">service</span>::{<span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>},
-    <span class="ident">Error</span>,
+<span class="kw">use crate</span>::{
+    dev::{Service, Transform},
+    http::header::{HeaderMap, HeaderName, HeaderValue, TryIntoHeaderPair, CONTENT_TYPE},
+    service::{ServiceRequest, ServiceResponse},
+    Error,
 };
 
-<span class="doccomment">/// Middleware for setting default response headers.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Headers with the same key that are already set in a response will *not* be overwritten.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, http, middleware, App, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new()</span>
-<span class="doccomment">///     .wrap(middleware::DefaultHeaders::new().add((&quot;X-Version&quot;, &quot;0.2&quot;)))</span>
-<span class="doccomment">///     .service(</span>
-<span class="doccomment">///         web::resource(&quot;/test&quot;)</span>
-<span class="doccomment">///             .route(web::get().to(|| HttpResponse::Ok()))</span>
-<span class="doccomment">///             .route(web::method(http::Method::HEAD).to(|| HttpResponse::MethodNotAllowed()))</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DefaultHeaders</span> {
-    <span class="ident">inner</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Middleware for setting default response headers.
+///
+/// Headers with the same key that are already set in a response will *not* be overwritten.
+///
+/// # Examples
+/// ```
+/// use actix_web::{web, http, middleware, App, HttpResponse};
+///
+/// let app = App::new()
+///     .wrap(middleware::DefaultHeaders::new().add((&quot;X-Version&quot;, &quot;0.2&quot;)))
+///     .service(
+///         web::resource(&quot;/test&quot;)
+///             .route(web::get().to(|| HttpResponse::Ok()))
+///             .route(web::method(http::Method::HEAD).to(|| HttpResponse::MethodNotAllowed()))
+///     );
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone, Default)]
+</span><span class="kw">pub struct </span>DefaultHeaders {
+    inner: Rc&lt;Inner&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Inner</span> {
-    <span class="ident">headers</span>: <span class="ident">HeaderMap</span>,
+<span class="attribute">#[derive(Debug, Default)]
+</span><span class="kw">struct </span>Inner {
+    headers: HeaderMap,
 }
 
-<span class="kw">impl</span> <span class="ident">DefaultHeaders</span> {
-    <span class="doccomment">/// Constructs an empty `DefaultHeaders` middleware.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">DefaultHeaders</span> {
-        <span class="ident">DefaultHeaders::default</span>()
+<span class="kw">impl </span>DefaultHeaders {
+    <span class="doccomment">/// Constructs an empty `DefaultHeaders` middleware.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>new() -&gt; DefaultHeaders {
+        DefaultHeaders::default()
     }
 
-    <span class="doccomment">/// Adds a header to the default set.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics when resolved header name or value is invalid.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::should_implement_trait</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="kw">impl</span> <span class="ident">TryIntoHeaderPair</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// standard header terminology `insert` or `append` for this method would make the behavior</span>
-        <span class="comment">// of this middleware less obvious since it only adds the headers if they are not present</span>
+    <span class="doccomment">/// Adds a header to the default set.
+    ///
+    /// # Panics
+    /// Panics when resolved header name or value is invalid.
+    </span><span class="attribute">#[allow(clippy::should_implement_trait)]
+    </span><span class="kw">pub fn </span>add(<span class="kw-2">mut </span><span class="self">self</span>, header: <span class="kw">impl </span>TryIntoHeaderPair) -&gt; <span class="self">Self </span>{
+        <span class="comment">// standard header terminology `insert` or `append` for this method would make the behavior
+        // of this middleware less obvious since it only adds the headers if they are not present
 
-        <span class="kw">match</span> <span class="ident">header</span>.<span class="ident">try_into_pair</span>() {
-            <span class="prelude-val">Ok</span>((<span class="ident">key</span>, <span class="ident">value</span>)) =&gt; <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;All default headers must be added before cloning.&quot;</span>)
-                .<span class="ident">headers</span>
-                .<span class="ident">append</span>(<span class="ident">key</span>, <span class="ident">value</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Invalid header: {}&quot;</span>, <span class="ident">err</span>.<span class="ident">into</span>()),
+        </span><span class="kw">match </span>header.try_into_pair() {
+            <span class="prelude-val">Ok</span>((key, value)) =&gt; Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner)
+                .expect(<span class="string">&quot;All default headers must be added before cloning.&quot;</span>)
+                .headers
+                .append(key, value),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Invalid header: {}&quot;</span>, err.into()),
         }
 
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(
-        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;4.0.0&quot;</span>,
-        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer `.add((key, value))`. Will be removed in v5.&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">HeaderName</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">HeaderName</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">HttpError</span><span class="op">&gt;</span>,
-        <span class="ident">HeaderValue</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>,
-        <span class="op">&lt;</span><span class="ident">HeaderValue</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">HttpError</span><span class="op">&gt;</span>,
+    <span class="attribute">#[doc(hidden)]
+    #[deprecated(
+        since = <span class="string">&quot;4.0.0&quot;</span>,
+        note = <span class="string">&quot;Prefer `.add((key, value))`. Will be removed in v5.&quot;
+    </span>)]
+    </span><span class="kw">pub fn </span>header&lt;K, V&gt;(<span class="self">self</span>, key: K, value: V) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>HeaderName: TryFrom&lt;K&gt;,
+        &lt;HeaderName <span class="kw">as </span>TryFrom&lt;K&gt;&gt;::Error: Into&lt;HttpError&gt;,
+        HeaderValue: TryFrom&lt;V&gt;,
+        &lt;HeaderValue <span class="kw">as </span>TryFrom&lt;V&gt;&gt;::Error: Into&lt;HttpError&gt;,
     {
-        <span class="self">self</span>.<span class="ident">add</span>((
-            <span class="ident">HeaderName::try_from</span>(<span class="ident">key</span>)
-                .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;Invalid header name&quot;</span>),
-            <span class="ident">HeaderValue::try_from</span>(<span class="ident">value</span>)
-                .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;Invalid header value&quot;</span>),
+        <span class="self">self</span>.add((
+            HeaderName::try_from(key)
+                .map_err(Into::into)
+                .expect(<span class="string">&quot;Invalid header name&quot;</span>),
+            HeaderValue::try_from(value)
+                .map_err(Into::into)
+                .expect(<span class="string">&quot;Invalid header value&quot;</span>),
         ))
     }
 
-    <span class="doccomment">/// Adds a default *Content-Type* header if response does not contain one.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Default is `application/octet-stream`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_content_type</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::declare_interior_mutable_const</span>)]</span>
-        <span class="kw">const</span> <span class="ident">HV_MIME</span>: <span class="ident">HeaderValue</span> <span class="op">=</span> <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/octet-stream&quot;</span>);
-        <span class="self">self</span>.<span class="ident">add</span>((<span class="ident">CONTENT_TYPE</span>, <span class="ident">HV_MIME</span>))
+    <span class="doccomment">/// Adds a default *Content-Type* header if response does not contain one.
+    ///
+    /// Default is `application/octet-stream`.
+    </span><span class="kw">pub fn </span>add_content_type(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="attribute">#[allow(clippy::declare_interior_mutable_const)]
+        </span><span class="kw">const </span>HV_MIME: HeaderValue = HeaderValue::from_static(<span class="string">&quot;application/octet-stream&quot;</span>);
+        <span class="self">self</span>.add((CONTENT_TYPE, HV_MIME))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DefaultHeaders</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;S, B&gt; Transform&lt;S, ServiceRequest&gt; <span class="kw">for </span>DefaultHeaders
+<span class="kw">where
+    </span>S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
+    S::Future: <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Transform</span> <span class="op">=</span> <span class="ident">DefaultHeadersMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Transform</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ServiceResponse&lt;B&gt;;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Transform = DefaultHeadersMiddleware&lt;S&gt;;
+    <span class="kw">type </span>InitError = ();
+    <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Transform, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident">ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">DefaultHeadersMiddleware</span> {
-            <span class="ident">service</span>,
-            <span class="ident">inner</span>: <span class="ident">Rc::clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>),
+    <span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; <span class="self">Self</span>::Future {
+        ready(<span class="prelude-val">Ok</span>(DefaultHeadersMiddleware {
+            service,
+            inner: Rc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.inner),
         }))
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DefaultHeadersMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">service</span>: <span class="ident">S</span>,
-    <span class="ident">inner</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>DefaultHeadersMiddleware&lt;S&gt; {
+    service: S,
+    inner: Rc&lt;Inner&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DefaultHeadersMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;S, B&gt; Service&lt;ServiceRequest&gt; <span class="kw">for </span>DefaultHeadersMiddleware&lt;S&gt;
+<span class="kw">where
+    </span>S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
+    S::Future: <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">DefaultHeaderFuture</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ServiceResponse&lt;B&gt;;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Future = DefaultHeaderFuture&lt;S, B&gt;;
 
-    <span class="macro">actix_service::forward_ready!</span>(<span class="ident">service</span>);
+    <span class="macro">actix_service::forward_ready!</span>(service);
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: ServiceRequest) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>inner = <span class="self">self</span>.inner.clone();
+        <span class="kw">let </span>fut = <span class="self">self</span>.service.call(req);
 
-        <span class="ident">DefaultHeaderFuture</span> {
-            <span class="ident">fut</span>,
-            <span class="ident">inner</span>,
-            <span class="ident">_body</span>: <span class="ident">PhantomData</span>,
+        DefaultHeaderFuture {
+            fut,
+            inner,
+            _body: PhantomData,
         }
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DefaultHeaderFuture</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">fut</span>: <span class="ident">S::Future</span>,
-        <span class="ident">inner</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span>,
-        <span class="ident">_body</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>DefaultHeaderFuture&lt;S: Service&lt;ServiceRequest&gt;, B&gt; {
+        <span class="attribute">#[pin]
+        </span>fut: S::Future,
+        inner: Rc&lt;Inner&gt;,
+        _body: PhantomData&lt;B&gt;,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">DefaultHeaderFuture</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, B&gt; Future <span class="kw">for </span>DefaultHeaderFuture&lt;S, B&gt;
+<span class="kw">where
+    </span>S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">S::Future</span> <span class="kw">as</span> <span class="ident">Future</span><span class="op">&gt;</span><span class="ident">::Output</span>;
+    <span class="kw">type </span>Output = &lt;S::Future <span class="kw">as </span>Future&gt;::Output;
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::borrow_interior_mutable_const</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+    <span class="attribute">#[allow(clippy::borrow_interior_mutable_const)]
+    </span><span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
+        <span class="kw">let </span><span class="kw-2">mut </span>res = <span class="macro">ready!</span>(this.fut.poll(cx))<span class="question-mark">?</span>;
 
-        <span class="comment">// set response headers</span>
-        <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">headers</span>.<span class="ident">iter</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">contains_key</span>(<span class="ident">key</span>) {
-                <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="ident">value</span>.<span class="ident">clone</span>());
+        <span class="comment">// set response headers
+        </span><span class="kw">for </span>(key, value) <span class="kw">in </span>this.inner.headers.iter() {
+            <span class="kw">if </span>!res.headers().contains_key(key) {
+                res.headers_mut().insert(key.clone(), value.clone());
             }
         }
 
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">res</span>))
+        Poll::Ready(<span class="prelude-val">Ok</span>(res))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_service::IntoService</span>;
-    <span class="kw">use</span> <span class="ident">actix_utils::future::ok</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_service::IntoService;
+    <span class="kw">use </span>actix_utils::future::ok;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">dev::ServiceRequest</span>,
-        <span class="ident">http::header::CONTENT_TYPE</span>,
-        <span class="ident">test</span>::{<span class="self">self</span>, <span class="ident">TestRequest</span>},
-        <span class="ident">HttpResponse</span>,
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{
+        dev::ServiceRequest,
+        http::header::CONTENT_TYPE,
+        test::{<span class="self">self</span>, TestRequest},
+        HttpResponse,
     };
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">adding_default_headers</span>() {
-        <span class="kw">let</span> <span class="ident">mw</span> <span class="op">=</span> <span class="ident">DefaultHeaders::new</span>()
-            .<span class="ident">add</span>((<span class="string">&quot;X-TEST&quot;</span>, <span class="string">&quot;0001&quot;</span>))
-            .<span class="ident">add</span>((<span class="string">&quot;X-TEST-TWO&quot;</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;123&quot;</span>)))
-            .<span class="ident">new_transform</span>(<span class="ident">test::ok_service</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>adding_default_headers() {
+        <span class="kw">let </span>mw = DefaultHeaders::new()
+            .add((<span class="string">&quot;X-TEST&quot;</span>, <span class="string">&quot;0001&quot;</span>))
+            .add((<span class="string">&quot;X-TEST-TWO&quot;</span>, HeaderValue::from_static(<span class="string">&quot;123&quot;</span>)))
+            .new_transform(test::ok_service())
+            .<span class="kw">await
+            </span>.unwrap();
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">mw</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="string">&quot;x-test&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;0001&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="string">&quot;x-test-two&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;123&quot;</span>);
+        <span class="kw">let </span>req = TestRequest::default().to_srv_request();
+        <span class="kw">let </span>res = mw.call(req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(res.headers().get(<span class="string">&quot;x-test&quot;</span>).unwrap(), <span class="string">&quot;0001&quot;</span>);
+        <span class="macro">assert_eq!</span>(res.headers().get(<span class="string">&quot;x-test-two&quot;</span>).unwrap(), <span class="string">&quot;123&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">no_override_existing</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>();
-        <span class="kw">let</span> <span class="ident">srv</span> <span class="op">=</span> <span class="op">|</span><span class="ident">req</span>: <span class="ident">ServiceRequest</span><span class="op">|</span> {
-            <span class="ident">ok</span>(<span class="ident">req</span>.<span class="ident">into_response</span>(
-                <span class="ident">HttpResponse::Ok</span>()
-                    .<span class="ident">insert_header</span>((<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;0002&quot;</span>))
-                    .<span class="ident">finish</span>(),
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>no_override_existing() {
+        <span class="kw">let </span>req = TestRequest::default().to_srv_request();
+        <span class="kw">let </span>srv = |req: ServiceRequest| {
+            ok(req.into_response(
+                HttpResponse::Ok()
+                    .insert_header((CONTENT_TYPE, <span class="string">&quot;0002&quot;</span>))
+                    .finish(),
             ))
         };
-        <span class="kw">let</span> <span class="ident">mw</span> <span class="op">=</span> <span class="ident">DefaultHeaders::new</span>()
-            .<span class="ident">add</span>((<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;0001&quot;</span>))
-            .<span class="ident">new_transform</span>(<span class="ident">srv</span>.<span class="ident">into_service</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">mw</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;0002&quot;</span>);
+        <span class="kw">let </span>mw = DefaultHeaders::new()
+            .add((CONTENT_TYPE, <span class="string">&quot;0001&quot;</span>))
+            .new_transform(srv.into_service())
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="kw">let </span>resp = mw.call(req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(resp.headers().get(CONTENT_TYPE).unwrap(), <span class="string">&quot;0002&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">adding_content_type</span>() {
-        <span class="kw">let</span> <span class="ident">mw</span> <span class="op">=</span> <span class="ident">DefaultHeaders::new</span>()
-            .<span class="ident">add_content_type</span>()
-            .<span class="ident">new_transform</span>(<span class="ident">test::ok_service</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>adding_content_type() {
+        <span class="kw">let </span>mw = DefaultHeaders::new()
+            .add_content_type()
+            .new_transform(test::ok_service())
+            .<span class="kw">await
+            </span>.unwrap();
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">to_srv_request</span>();
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">mw</span>.<span class="ident">call</span>(<span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>req = TestRequest::default().to_srv_request();
+        <span class="kw">let </span>resp = mw.call(req).<span class="kw">await</span>.unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;application/octet-stream&quot;</span>
-        );
+            resp.headers().get(CONTENT_TYPE).unwrap(),
+            <span class="string">&quot;application/octet-stream&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">invalid_header_name</span>() {
-        <span class="ident">DefaultHeaders::new</span>().<span class="ident">add</span>((<span class="string">&quot;:&quot;</span>, <span class="string">&quot;hello&quot;</span>));
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>invalid_header_name() {
+        DefaultHeaders::new().add((<span class="string">&quot;:&quot;</span>, <span class="string">&quot;hello&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
-    <span class="kw">fn</span> <span class="ident">invalid_header_value</span>() {
-        <span class="ident">DefaultHeaders::new</span>().<span class="ident">add</span>((<span class="string">&quot;x-test&quot;</span>, <span class="string">&quot;\n&quot;</span>));
+    <span class="attribute">#[test]
+    #[should_panic]
+    </span><span class="kw">fn </span>invalid_header_value() {
+        DefaultHeaders::new().add((<span class="string">&quot;x-test&quot;</span>, <span class="string">&quot;\n&quot;</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

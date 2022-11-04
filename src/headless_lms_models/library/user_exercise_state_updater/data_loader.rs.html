@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/user_exercise_state_updater/data_loader.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>data_loader.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/library/user_exercise_state_updater/data_loader.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>data_loader.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_models/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -313,220 +313,220 @@
 <span id="313">313</span>
 <span id="314">314</span>
 <span id="315">315</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exercise_slide_submissions::ExerciseSlideSubmission</span>,
-    <span class="ident">exercises::Exercise</span>,
-    <span class="ident">peer_review_configs</span>::{<span class="self">self</span>, <span class="ident">PeerReviewConfig</span>},
-    <span class="ident">peer_review_question_submissions::PeerReviewQuestionSubmission</span>,
-    <span class="ident">peer_review_queue_entries::PeerReviewQueueEntry</span>,
-    <span class="ident">peer_review_submissions</span>::{<span class="self">self</span>, <span class="ident">PeerReviewSubmission</span>},
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">teacher_grading_decisions</span>::{<span class="self">self</span>, <span class="ident">TeacherGradingDecision</span>},
-    <span class="ident">user_exercise_slide_states</span>::{<span class="self">self</span>, <span class="ident">UserExerciseSlideStateGradingSummary</span>},
-    <span class="ident">user_exercise_states::UserExerciseState</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    exercise_slide_submissions::ExerciseSlideSubmission,
+    exercises::Exercise,
+    peer_review_configs::{<span class="self">self</span>, PeerReviewConfig},
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_queue_entries::PeerReviewQueueEntry,
+    peer_review_submissions::{<span class="self">self</span>, PeerReviewSubmission},
+    prelude::<span class="kw-2">*</span>,
+    teacher_grading_decisions::{<span class="self">self</span>, TeacherGradingDecision},
+    user_exercise_slide_states::{<span class="self">self</span>, UserExerciseSlideStateGradingSummary},
+    user_exercise_states::UserExerciseState,
 };
 
-<span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredData</span>,
-    <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation</span>,
-    <span class="ident">UserExerciseStateUpdateRequiredData</span>, <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span>,
+<span class="kw">use super</span>::{
+    UserExerciseStateUpdateAlreadyLoadedRequiredData,
+    UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation,
+    UserExerciseStateUpdateRequiredData, UserExerciseStateUpdateRequiredDataPeerReviewInformation,
 };
 
-<span class="doccomment">/// Returns an object with all dependencies for the user_exercise_state update loaded. Either uses a preloaded value from already_loaded_internal_dependencies or fetches the necessary information from the database.</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_required_data</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">already_loaded_internal_dependencies</span>: <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredData</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseStateUpdateRequiredData</span><span class="op">&gt;</span> {
+<span class="doccomment">/// Returns an object with all dependencies for the user_exercise_state update loaded. Either uses a preloaded value from already_loaded_internal_dependencies or fetches the necessary information from the database.
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>load_required_data(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_state_id: Uuid,
+    already_loaded_internal_dependencies: UserExerciseStateUpdateAlreadyLoadedRequiredData,
+) -&gt; ModelResult&lt;UserExerciseStateUpdateRequiredData&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;Loading required data for user_exercise_state update&quot;</span>);
-    <span class="kw">let</span> <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredData</span> {
-        <span class="ident">exercise</span>,
-        <span class="ident">current_user_exercise_state</span>,
-        <span class="ident">peer_review_information</span>,
-        <span class="ident">latest_teacher_grading_decision</span>,
-        <span class="ident">user_exercise_slide_state_grading_summary</span>,
-    } <span class="op">=</span> <span class="ident">already_loaded_internal_dependencies</span>;
+    <span class="kw">let </span>UserExerciseStateUpdateAlreadyLoadedRequiredData {
+        exercise,
+        current_user_exercise_state,
+        peer_review_information,
+        latest_teacher_grading_decision,
+        user_exercise_slide_state_grading_summary,
+    } = already_loaded_internal_dependencies;
 
-    <span class="kw">let</span> <span class="ident">loaded_user_exercise_state</span> <span class="op">=</span>
-        <span class="ident">load_current_user_exercise_state</span>(<span class="ident">conn</span>, <span class="ident">current_user_exercise_state</span>, <span class="ident">user_exercise_state_id</span>)
+    <span class="kw">let </span>loaded_user_exercise_state =
+        load_current_user_exercise_state(conn, current_user_exercise_state, user_exercise_state_id)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">loaded_exercise</span> <span class="op">=</span> <span class="ident">load_exercise</span>(<span class="ident">conn</span>, <span class="ident">exercise</span>, <span class="kw-2">&amp;</span><span class="ident">loaded_user_exercise_state</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>loaded_exercise = load_exercise(conn, exercise, <span class="kw-2">&amp;</span>loaded_user_exercise_state).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">UserExerciseStateUpdateRequiredData</span> {
-        <span class="ident">peer_review_information</span>: <span class="ident">load_peer_review_information</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">peer_review_information</span>,
-            <span class="kw-2">&amp;</span><span class="ident">loaded_user_exercise_state</span>,
-            <span class="kw-2">&amp;</span><span class="ident">loaded_exercise</span>,
+    <span class="prelude-val">Ok</span>(UserExerciseStateUpdateRequiredData {
+        peer_review_information: load_peer_review_information(
+            conn,
+            peer_review_information,
+            <span class="kw-2">&amp;</span>loaded_user_exercise_state,
+            <span class="kw-2">&amp;</span>loaded_exercise,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">exercise</span>: <span class="ident">loaded_exercise</span>,
-        <span class="ident">latest_teacher_grading_decision</span>: <span class="ident">load_latest_teacher_grading_decision</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">latest_teacher_grading_decision</span>,
-            <span class="kw-2">&amp;</span><span class="ident">loaded_user_exercise_state</span>,
+        exercise: loaded_exercise,
+        latest_teacher_grading_decision: load_latest_teacher_grading_decision(
+            conn,
+            latest_teacher_grading_decision,
+            <span class="kw-2">&amp;</span>loaded_user_exercise_state,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">user_exercise_slide_state_grading_summary</span>: <span class="ident">load_user_exercise_slide_state_grading_summary</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">user_exercise_slide_state_grading_summary</span>,
-            <span class="kw-2">&amp;</span><span class="ident">loaded_user_exercise_state</span>,
+        user_exercise_slide_state_grading_summary: load_user_exercise_slide_state_grading_summary(
+            conn,
+            user_exercise_slide_state_grading_summary,
+            <span class="kw-2">&amp;</span>loaded_user_exercise_state,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">current_user_exercise_state</span>: <span class="ident">loaded_user_exercise_state</span>,
+        current_user_exercise_state: loaded_user_exercise_state,
     })
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_user_exercise_slide_state_grading_summary</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_slide_state_grading_summary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseSlideStateGradingSummary</span><span class="op">&gt;</span>,
-    <span class="ident">loaded_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseSlideStateGradingSummary</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_exercise_slide_state_grading_summary</span>) <span class="op">=</span>
-        <span class="ident">user_exercise_slide_state_grading_summary</span>
+<span class="kw">async fn </span>load_user_exercise_slide_state_grading_summary(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_slide_state_grading_summary: <span class="prelude-ty">Option</span>&lt;UserExerciseSlideStateGradingSummary&gt;,
+    loaded_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
+) -&gt; ModelResult&lt;UserExerciseSlideStateGradingSummary&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(user_exercise_slide_state_grading_summary) =
+        user_exercise_slide_state_grading_summary
     {
         <span class="macro">info!</span>(<span class="string">&quot;Using already loaded user exercise slide state grading summary&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">user_exercise_slide_state_grading_summary</span>)
-    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(user_exercise_slide_state_grading_summary)
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Loading user exercise slide state grading summary&quot;</span>);
-        <span class="ident">user_exercise_slide_states::get_grading_summary_by_user_exercise_state_id</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">loaded_user_exercise_state</span>.<span class="ident">id</span>,
+        user_exercise_slide_states::get_grading_summary_by_user_exercise_state_id(
+            conn,
+            loaded_user_exercise_state.id,
         )
-        .<span class="kw">await</span>
-    }
+        .<span class="kw">await
+    </span>}
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_latest_teacher_grading_decision</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">latest_teacher_grading_decision</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TeacherGradingDecision</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">loaded_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TeacherGradingDecision</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">latest_teacher_grading_decision</span>) <span class="op">=</span> <span class="ident">latest_teacher_grading_decision</span> {
+<span class="kw">async fn </span>load_latest_teacher_grading_decision(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    latest_teacher_grading_decision: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;TeacherGradingDecision&gt;&gt;,
+    loaded_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;TeacherGradingDecision&gt;&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(latest_teacher_grading_decision) = latest_teacher_grading_decision {
         <span class="macro">info!</span>(<span class="string">&quot;Using already loaded latest teacher grading decision&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">latest_teacher_grading_decision</span>)
-    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(latest_teacher_grading_decision)
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Loading latest teacher grading decision&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id</span>(<span class="ident">conn</span>, <span class="ident">loaded_user_exercise_state</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+        <span class="prelude-val">Ok</span>(teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id(conn, loaded_user_exercise_state.id).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_current_user_exercise_state</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">already_loaded_user_exercise_state</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_exercise_state</span>) <span class="op">=</span> <span class="ident">already_loaded_user_exercise_state</span> {
+<span class="kw">async fn </span>load_current_user_exercise_state(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    already_loaded_user_exercise_state: <span class="prelude-ty">Option</span>&lt;UserExerciseState&gt;,
+    user_exercise_state_id: Uuid,
+) -&gt; ModelResult&lt;UserExerciseState&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(user_exercise_state) = already_loaded_user_exercise_state {
         <span class="macro">info!</span>(<span class="string">&quot;Using already loaded user exercise state&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">user_exercise_state</span>)
-    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(user_exercise_state)
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Loading user exercise state&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="kw">crate</span>::user_exercise_states::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">user_exercise_state_id</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+        <span class="prelude-val">Ok</span>(<span class="kw">crate</span>::user_exercise_states::get_by_id(conn, user_exercise_state_id).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_exercise</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">already_loaded_exercise</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span>,
-    <span class="ident">current_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exercise</span>) <span class="op">=</span> <span class="ident">already_loaded_exercise</span> {
+<span class="kw">async fn </span>load_exercise(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    already_loaded_exercise: <span class="prelude-ty">Option</span>&lt;Exercise&gt;,
+    current_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
+) -&gt; ModelResult&lt;Exercise&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(exercise) = already_loaded_exercise {
         <span class="macro">info!</span>(<span class="string">&quot;Using already loaded exercise&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">exercise</span>)
-    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(exercise)
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Loading exercise&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="kw">crate</span>::exercises::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">current_user_exercise_state</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+        <span class="prelude-val">Ok</span>(<span class="kw">crate</span>::exercises::get_by_id(conn, current_user_exercise_state.exercise_id).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_peer_review_information</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">already_loaded_peer_review_information</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
-        <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation</span>,
-    <span class="op">&gt;</span>,
-    <span class="ident">loaded_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
-    <span class="ident">loaded_exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">async fn </span>load_peer_review_information(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    already_loaded_peer_review_information: <span class="prelude-ty">Option</span>&lt;
+        UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation,
+    &gt;,
+    loaded_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
+    loaded_exercise: <span class="kw-2">&amp;</span>Exercise,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;UserExerciseStateUpdateRequiredDataPeerReviewInformation&gt;&gt; {
     <span class="macro">info!</span>(<span class="string">&quot;Loading peer review information&quot;</span>);
-    <span class="kw">if</span> <span class="ident">loaded_exercise</span>.<span class="ident">needs_peer_review</span> {
+    <span class="kw">if </span>loaded_exercise.needs_peer_review {
         <span class="macro">info!</span>(<span class="string">&quot;Exercise needs peer review&quot;</span>);
-        <span class="comment">// Destruct the contents of already_loaded_peer_review_information so that we can use the fields of the parent struct independently</span>
-        <span class="kw">let</span> <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation</span> {
-            <span class="ident">given_peer_review_submissions</span>,
-            <span class="ident">latest_exercise_slide_submission</span>,
-            <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>,
-            <span class="ident">peer_review_queue_entry</span>,
-            <span class="ident">peer_review_config</span>,
-        } <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">already_loaded_peer_review_information</span>) <span class="op">=</span>
-            <span class="ident">already_loaded_peer_review_information</span>
+        <span class="comment">// Destruct the contents of already_loaded_peer_review_information so that we can use the fields of the parent struct independently
+        </span><span class="kw">let </span>UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
+            given_peer_review_submissions,
+            latest_exercise_slide_submission,
+            latest_exercise_slide_submission_received_peer_review_question_submissions,
+            peer_review_queue_entry,
+            peer_review_config,
+        } = <span class="kw">if let </span><span class="prelude-val">Some</span>(already_loaded_peer_review_information) =
+            already_loaded_peer_review_information
         {
-            <span class="ident">already_loaded_peer_review_information</span>
-        } <span class="kw">else</span> {
-            <span class="ident">Default::default</span>()
+            already_loaded_peer_review_information
+        } <span class="kw">else </span>{
+            Default::default()
         };
 
-        <span class="kw">let</span> <span class="ident">loaded_latest_exercise_slide_submission</span> <span class="op">=</span> <span class="ident">load_latest_exercise_slide_submission</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">latest_exercise_slide_submission</span>,
-            <span class="ident">loaded_user_exercise_state</span>,
+        <span class="kw">let </span>loaded_latest_exercise_slide_submission = load_latest_exercise_slide_submission(
+            conn,
+            latest_exercise_slide_submission,
+            loaded_user_exercise_state,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(
-            <span class="ident">UserExerciseStateUpdateRequiredDataPeerReviewInformation</span> {
-                <span class="ident">given_peer_review_submissions</span>: <span class="ident">load_given_peer_review_submissions</span>(
-                    <span class="ident">conn</span>,
-                    <span class="ident">given_peer_review_submissions</span>,
-                    <span class="ident">loaded_user_exercise_state</span>,
+            UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+                given_peer_review_submissions: load_given_peer_review_submissions(
+                    conn,
+                    given_peer_review_submissions,
+                    loaded_user_exercise_state,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>,
-                <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>:
-                    <span class="ident">load_latest_exercise_slide_submission_received_peer_review_question_submissions</span>(
-                        <span class="ident">conn</span>,
-                        <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>,
-                        <span class="ident">loaded_latest_exercise_slide_submission</span>.<span class="ident">id</span>,
+                latest_exercise_slide_submission_received_peer_review_question_submissions:
+                    load_latest_exercise_slide_submission_received_peer_review_question_submissions(
+                        conn,
+                        latest_exercise_slide_submission_received_peer_review_question_submissions,
+                        loaded_latest_exercise_slide_submission.id,
                     )
                     .<span class="kw">await</span><span class="question-mark">?</span>,
-                <span class="ident">peer_review_queue_entry</span>: <span class="ident">load_peer_review_queue_entry</span>(
-                    <span class="ident">conn</span>,
-                    <span class="ident">peer_review_queue_entry</span>,
-                    <span class="ident">loaded_latest_exercise_slide_submission</span>.<span class="ident">id</span>,
-                    <span class="ident">loaded_user_exercise_state</span>,
+                peer_review_queue_entry: load_peer_review_queue_entry(
+                    conn,
+                    peer_review_queue_entry,
+                    loaded_latest_exercise_slide_submission.id,
+                    loaded_user_exercise_state,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>,
-                <span class="ident">peer_review_config</span>: <span class="ident">load_peer_review_config</span>(
-                    <span class="ident">conn</span>,
-                    <span class="ident">peer_review_config</span>,
-                    <span class="ident">loaded_exercise</span>,
+                peer_review_config: load_peer_review_config(
+                    conn,
+                    peer_review_config,
+                    loaded_exercise,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>,
             },
         ))
-    } <span class="kw">else</span> {
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Exercise does not need peer review&quot;</span>);
-        <span class="comment">// Peer review disabled for the exercise, no need to load any information related to peer reviews.</span>
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+        <span class="comment">// Peer review disabled for the exercise, no need to load any information related to peer reviews.
+        </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_peer_review_config</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">already_loaded_peer_review_config</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::peer_review_configs::PeerReviewConfig</span><span class="op">&gt;</span>,
-    <span class="ident">loaded_exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prc</span>) <span class="op">=</span> <span class="ident">already_loaded_peer_review_config</span> {
+<span class="kw">async fn </span>load_peer_review_config(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    already_loaded_peer_review_config: <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::peer_review_configs::PeerReviewConfig&gt;,
+    loaded_exercise: <span class="kw-2">&amp;</span>Exercise,
+) -&gt; ModelResult&lt;PeerReviewConfig&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(prc) = already_loaded_peer_review_config {
         <span class="macro">info!</span>(<span class="string">&quot;Using already loaded peer review config&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">prc</span>)
-    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(prc)
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Loading peer review config&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">peer_review_configs::get_by_exercise_or_course_id</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">loaded_exercise</span>,
-            <span class="ident">loaded_exercise</span>.<span class="ident">course_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::InvalidRequest</span>,
-                    <span class="string">&quot;Peer reviews work only on courses (and not, for example, on exams)&quot;</span>
-                        .<span class="ident">to_string</span>(),
+        <span class="prelude-val">Ok</span>(peer_review_configs::get_by_exercise_or_course_id(
+            conn,
+            loaded_exercise,
+            loaded_exercise.course_id.ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    <span class="string">&quot;Peer reviews work only on courses (and not, for example, on exams)&quot;
+                        </span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>,
@@ -535,98 +535,98 @@
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_peer_review_queue_entry</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">already_loaded_peer_review_queue_entry</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">latest_exercise_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">loaded_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prqe</span>) <span class="op">=</span> <span class="ident">already_loaded_peer_review_queue_entry</span> {
+<span class="kw">async fn </span>load_peer_review_queue_entry(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    already_loaded_peer_review_queue_entry: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;&gt;,
+    latest_exercise_submission_id: Uuid,
+    loaded_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(prqe) = already_loaded_peer_review_queue_entry {
         <span class="macro">info!</span>(<span class="string">&quot;Using already loaded peer review queue entry&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">prqe</span>)
-    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(prqe)
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Loading peer review queue entry&quot;</span>);
-        <span class="kw">let</span> <span class="ident">course_instance_id</span> <span class="op">=</span>
-            <span class="ident">loaded_user_exercise_state</span>
-                .<span class="ident">course_instance_id</span>
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">ModelError::new</span>(
-                        <span class="ident">ModelErrorType::InvalidRequest</span>,
-                        <span class="string">&quot;Peer reviews work only on courses (and not, for example, on exams)&quot;</span>
-                            .<span class="ident">to_string</span>(),
+        <span class="kw">let </span>course_instance_id =
+            loaded_user_exercise_state
+                .course_instance_id
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::InvalidRequest,
+                        <span class="string">&quot;Peer reviews work only on courses (and not, for example, on exams)&quot;
+                            </span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;
-        <span class="comment">// The result is optinal because not all answers are in the peer review queue yet. For example, we don&#39;t place any answers to the queue if their giver has not given enough peer reviews.</span>
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="kw">crate</span>::peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids</span>(<span class="ident">conn</span>, <span class="ident">latest_exercise_submission_id</span>, <span class="ident">course_instance_id</span> ).<span class="kw">await</span><span class="question-mark">?</span>)
+        <span class="comment">// The result is optinal because not all answers are in the peer review queue yet. For example, we don&#39;t place any answers to the queue if their giver has not given enough peer reviews.
+        </span><span class="prelude-val">Ok</span>(<span class="kw">crate</span>::peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids(conn, latest_exercise_submission_id, course_instance_id ).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_latest_exercise_slide_submission_received_peer_review_question_submissions</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
-        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestionSubmission</span><span class="op">&gt;</span>,
-    <span class="op">&gt;</span>,
-    <span class="ident">latest_exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestionSubmission</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>) <span class="op">=</span>
-        <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>
+<span class="kw">async fn </span>load_latest_exercise_slide_submission_received_peer_review_question_submissions(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    latest_exercise_slide_submission_received_peer_review_question_submissions: <span class="prelude-ty">Option</span>&lt;
+        Vec&lt;PeerReviewQuestionSubmission&gt;,
+    &gt;,
+    latest_exercise_slide_submission_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewQuestionSubmission&gt;&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(latest_exercise_slide_submission_received_peer_review_question_submissions) =
+        latest_exercise_slide_submission_received_peer_review_question_submissions
     {
         <span class="macro">info!</span>(<span class="string">&quot;Using already loaded latest exercise slide submission received peer review question submissions&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>)
-    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(latest_exercise_slide_submission_received_peer_review_question_submissions)
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Loading latest exercise slide submission received peer review question submissions&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="kw">crate</span>::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission</span>(<span class="ident">conn</span>, <span class="ident">latest_exercise_slide_submission_id</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+        <span class="prelude-val">Ok</span>(<span class="kw">crate</span>::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, latest_exercise_slide_submission_id).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_latest_exercise_slide_submission</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">already_loaded_latest_exercise_slide_submission</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmission</span><span class="op">&gt;</span>,
-    <span class="ident">loaded_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmission</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">latest_exercise_slide_submission</span>) <span class="op">=</span> <span class="ident">already_loaded_latest_exercise_slide_submission</span>
+<span class="kw">async fn </span>load_latest_exercise_slide_submission(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    already_loaded_latest_exercise_slide_submission: <span class="prelude-ty">Option</span>&lt;ExerciseSlideSubmission&gt;,
+    loaded_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
+) -&gt; ModelResult&lt;ExerciseSlideSubmission&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(latest_exercise_slide_submission) = already_loaded_latest_exercise_slide_submission
     {
         <span class="macro">info!</span>(<span class="string">&quot;Using already loaded latest exercise slide submission&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">latest_exercise_slide_submission</span>)
-    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(latest_exercise_slide_submission)
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Loading latest exercise slide submission&quot;</span>);
-        <span class="kw">let</span> <span class="ident">selected_exercise_slide_id</span> <span class="op">=</span> <span class="ident">loaded_user_exercise_state</span>.<span class="ident">selected_exercise_slide_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::new</span>(<span class="ident">ModelErrorType::PreconditionFailed</span>, <span class="string">&quot;No selected exercise slide id found: presumably the user has not answered the exercise.&quot;</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>))<span class="question-mark">?</span>;
-        <span class="comment">// Received peer reviews are only considered for the latest submission.</span>
-        <span class="kw">let</span> <span class="ident">latest_exercise_slide_submission</span> <span class="op">=</span>
-            <span class="ident"><span class="kw">crate</span>::exercise_slide_submissions::get_users_latest_exercise_slide_submission</span>(
-                <span class="ident">conn</span>,
-                <span class="ident">selected_exercise_slide_id</span>,
-                <span class="ident">loaded_user_exercise_state</span>.<span class="ident">user_id</span>,
+        <span class="kw">let </span>selected_exercise_slide_id = loaded_user_exercise_state.selected_exercise_slide_id.ok_or_else(|| ModelError::new(ModelErrorType::PreconditionFailed, <span class="string">&quot;No selected exercise slide id found: presumably the user has not answered the exercise.&quot;</span>.to_string(), <span class="prelude-val">None</span>))<span class="question-mark">?</span>;
+        <span class="comment">// Received peer reviews are only considered for the latest submission.
+        </span><span class="kw">let </span>latest_exercise_slide_submission =
+            <span class="kw">crate</span>::exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+                conn,
+                selected_exercise_slide_id,
+                loaded_user_exercise_state.user_id,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">latest_exercise_slide_submission</span>)
+        <span class="prelude-val">Ok</span>(latest_exercise_slide_submission)
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_given_peer_review_submissions</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">already_loaded_given_peer_review_submissions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewSubmission</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">loaded_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewSubmission</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">given_peer_review_submissions</span>) <span class="op">=</span> <span class="ident">already_loaded_given_peer_review_submissions</span> {
+<span class="kw">async fn </span>load_given_peer_review_submissions(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    already_loaded_given_peer_review_submissions: <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerReviewSubmission&gt;&gt;,
+    loaded_user_exercise_state: <span class="kw-2">&amp;</span>UserExerciseState,
+) -&gt; ModelResult&lt;Vec&lt;PeerReviewSubmission&gt;&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(given_peer_review_submissions) = already_loaded_given_peer_review_submissions {
         <span class="macro">info!</span>(<span class="string">&quot;Using already loaded given peer review submissions&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">given_peer_review_submissions</span>)
-    } <span class="kw">else</span> {
+        <span class="prelude-val">Ok</span>(given_peer_review_submissions)
+    } <span class="kw">else </span>{
         <span class="macro">info!</span>(<span class="string">&quot;Loading given peer review submissions&quot;</span>);
-        <span class="kw">let</span> <span class="ident">course_instance_id</span> <span class="op">=</span>
-            <span class="ident">loaded_user_exercise_state</span>
-                .<span class="ident">course_instance_id</span>
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">ModelError::new</span>(
-                        <span class="ident">ModelErrorType::InvalidRequest</span>,
-                        <span class="string">&quot;Peer reviews work only on courses (and not, for example, on exams)&quot;</span>
-                            .<span class="ident">to_string</span>(),
+        <span class="kw">let </span>course_instance_id =
+            loaded_user_exercise_state
+                .course_instance_id
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::InvalidRequest,
+                        <span class="string">&quot;Peer reviews work only on courses (and not, for example, on exams)&quot;
+                            </span>.to_string(),
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">peer_review_submissions::get_peer_reviews_given_by_user_and_course_instance_and_exercise</span>(<span class="ident">conn</span>, <span class="ident">loaded_user_exercise_state</span>.<span class="ident">user_id</span>, <span class="ident">course_instance_id</span>, <span class="ident">loaded_user_exercise_state</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+        <span class="prelude-val">Ok</span>(peer_review_submissions::get_peer_reviews_given_by_user_and_course_instance_and_exercise(conn, loaded_user_exercise_state.user_id, course_instance_id, loaded_user_exercise_state.exercise_id).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

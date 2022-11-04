@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/body/message_body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>message_body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/body/message_body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>message_body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -610,615 +610,615 @@
 <span id="608">608</span>
 <span id="609">609</span>
 <span id="610">610</span>
-</pre><pre class="rust"><code><span class="doccomment">//! [`MessageBody`] trait and foreign implementations.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! [`MessageBody`] trait and foreign implementations.
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">convert::Infallible</span>,
-    <span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>,
-    <span class="ident">mem</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>std::{
+    convert::Infallible,
+    error::Error <span class="kw">as </span>StdError,
+    mem,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>bytes::{Bytes, BytesMut};
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BodySize</span>, <span class="ident">BoxBody</span>};
+<span class="kw">use super</span>::{BodySize, BoxBody};
 
-<span class="doccomment">/// An interface for types that can be used as a response body.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// It is not usually necessary to create custom body types, this trait is already [implemented for</span>
-<span class="doccomment">/// a large number of sensible body types](#foreign-impls) including:</span>
-<span class="doccomment">/// - Empty body: `()`</span>
-<span class="doccomment">/// - Text-based: `String`, `&amp;&#39;static str`, [`ByteString`](https://docs.rs/bytestring/1).</span>
-<span class="doccomment">/// - Byte-based: `Bytes`, `BytesMut`, `Vec&lt;u8&gt;`, `&amp;&#39;static [u8]`;</span>
-<span class="doccomment">/// - Streams: [`BodyStream`](super::BodyStream), [`SizedStream`](super::SizedStream)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use std::convert::Infallible;</span>
-<span class="doccomment">/// # use std::task::{Poll, Context};</span>
-<span class="doccomment">/// # use std::pin::Pin;</span>
-<span class="doccomment">/// # use bytes::Bytes;</span>
-<span class="doccomment">/// # use actix_http::body::{BodySize, MessageBody};</span>
-<span class="doccomment">/// struct Repeat {</span>
-<span class="doccomment">///     chunk: String,</span>
-<span class="doccomment">///     n_times: usize,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// impl MessageBody for Repeat {</span>
-<span class="doccomment">///     type Error = Infallible;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     fn size(&amp;self) -&gt; BodySize {</span>
-<span class="doccomment">///         BodySize::Sized((self.chunk.len() * self.n_times) as u64)</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     fn poll_next(</span>
-<span class="doccomment">///         self: Pin&lt;&amp;mut Self&gt;,</span>
-<span class="doccomment">///         _cx: &amp;mut Context&lt;&#39;_&gt;,</span>
-<span class="doccomment">///     ) -&gt; Poll&lt;Option&lt;Result&lt;Bytes, Self::Error&gt;&gt;&gt; {</span>
-<span class="doccomment">///         let payload_string = self.chunk.repeat(self.n_times);</span>
-<span class="doccomment">///         let payload_bytes = Bytes::from(payload_string);</span>
-<span class="doccomment">///         Poll::Ready(Some(Ok(payload_bytes)))</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MessageBody</span> {
-    <span class="doccomment">/// The type of error that will be returned if streaming body fails.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Since it is not appropriate to generate a response mid-stream, it only requires `Error` for</span>
-    <span class="doccomment">/// internal use and logging.</span>
-    <span class="kw">type</span> <span class="ident">Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="doccomment">/// An interface for types that can be used as a response body.
+///
+/// It is not usually necessary to create custom body types, this trait is already [implemented for
+/// a large number of sensible body types](#foreign-impls) including:
+/// - Empty body: `()`
+/// - Text-based: `String`, `&amp;&#39;static str`, [`ByteString`](https://docs.rs/bytestring/1).
+/// - Byte-based: `Bytes`, `BytesMut`, `Vec&lt;u8&gt;`, `&amp;&#39;static [u8]`;
+/// - Streams: [`BodyStream`](super::BodyStream), [`SizedStream`](super::SizedStream)
+///
+/// # Examples
+/// ```
+/// # use std::convert::Infallible;
+/// # use std::task::{Poll, Context};
+/// # use std::pin::Pin;
+/// # use bytes::Bytes;
+/// # use actix_http::body::{BodySize, MessageBody};
+/// struct Repeat {
+///     chunk: String,
+///     n_times: usize,
+/// }
+///
+/// impl MessageBody for Repeat {
+///     type Error = Infallible;
+///
+///     fn size(&amp;self) -&gt; BodySize {
+///         BodySize::Sized((self.chunk.len() * self.n_times) as u64)
+///     }
+///
+///     fn poll_next(
+///         self: Pin&lt;&amp;mut Self&gt;,
+///         _cx: &amp;mut Context&lt;&#39;_&gt;,
+///     ) -&gt; Poll&lt;Option&lt;Result&lt;Bytes, Self::Error&gt;&gt;&gt; {
+///         let payload_string = self.chunk.repeat(self.n_times);
+///         let payload_bytes = Bytes::from(payload_string);
+///         Poll::Ready(Some(Ok(payload_bytes)))
+///     }
+/// }
+/// ```
+</span><span class="kw">pub trait </span>MessageBody {
+    <span class="doccomment">/// The type of error that will be returned if streaming body fails.
+    ///
+    /// Since it is not appropriate to generate a response mid-stream, it only requires `Error` for
+    /// internal use and logging.
+    </span><span class="kw">type </span>Error: Into&lt;Box&lt;<span class="kw">dyn </span>StdError&gt;&gt;;
 
-    <span class="doccomment">/// Body size hint.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If [`BodySize::None`] is returned, optimizations that skip reading the body are allowed.</span>
-    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span>;
+    <span class="doccomment">/// Body size hint.
+    ///
+    /// If [`BodySize::None`] is returned, optimizations that skip reading the body are allowed.
+    </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize;
 
-    <span class="doccomment">/// Attempt to pull out the next chunk of body bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Return Value</span>
-    <span class="doccomment">/// Similar to the `Stream` interface, there are several possible return values, each indicating</span>
-    <span class="doccomment">/// a distinct state:</span>
-    <span class="doccomment">/// - `Poll::Pending` means that this body&#39;s next chunk is not ready yet. Implementations must</span>
-    <span class="doccomment">///   ensure that the current task will be notified when the next chunk may be ready.</span>
-    <span class="doccomment">/// - `Poll::Ready(Some(val))` means that the body has successfully produced a chunk, `val`,</span>
-    <span class="doccomment">///   and may produce further values on subsequent `poll_next` calls.</span>
-    <span class="doccomment">/// - `Poll::Ready(None)` means that the body is complete, and `poll_next` should not be</span>
-    <span class="doccomment">///   invoked again.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Once a body is complete (i.e., `poll_next` returned `Ready(None)`), calling its `poll_next`</span>
-    <span class="doccomment">/// method again may panic, block forever, or cause other kinds of problems; this trait places</span>
-    <span class="doccomment">/// no requirements on the effects of such a call. However, as the `poll_next` method is not</span>
-    <span class="doccomment">/// marked unsafe, Rust’s usual rules apply: calls must never cause UB, regardless of its state.</span>
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(
-        <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Attempt to pull out the next chunk of body bytes.
+    ///
+    /// # Return Value
+    /// Similar to the `Stream` interface, there are several possible return values, each indicating
+    /// a distinct state:
+    /// - `Poll::Pending` means that this body&#39;s next chunk is not ready yet. Implementations must
+    ///   ensure that the current task will be notified when the next chunk may be ready.
+    /// - `Poll::Ready(Some(val))` means that the body has successfully produced a chunk, `val`,
+    ///   and may produce further values on subsequent `poll_next` calls.
+    /// - `Poll::Ready(None)` means that the body is complete, and `poll_next` should not be
+    ///   invoked again.
+    ///
+    /// # Panics
+    /// Once a body is complete (i.e., `poll_next` returned `Ready(None)`), calling its `poll_next`
+    /// method again may panic, block forever, or cause other kinds of problems; this trait places
+    /// no requirements on the effects of such a call. However, as the `poll_next` method is not
+    /// marked unsafe, Rust’s usual rules apply: calls must never cause UB, regardless of its state.
+    </span><span class="kw">fn </span>poll_next(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt;;
 
-    <span class="doccomment">/// Try to convert into the complete chunk of body bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Override this method if the complete body can be trivially extracted. This is useful for</span>
-    <span class="doccomment">/// optimizations where `poll_next` calls can be avoided.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Body types with [`BodySize::None`] are allowed to return empty `Bytes`. Although, if calling</span>
-    <span class="doccomment">/// this method, it is recommended to check `size` first and return early.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// The default implementation will error and return the original type back to the caller for</span>
-    <span class="doccomment">/// further use.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="doccomment">/// Try to convert into the complete chunk of body bytes.
+    ///
+    /// Override this method if the complete body can be trivially extracted. This is useful for
+    /// optimizations where `poll_next` calls can be avoided.
+    ///
+    /// Body types with [`BodySize::None`] are allowed to return empty `Bytes`. Although, if calling
+    /// this method, it is recommended to check `size` first and return early.
+    ///
+    /// # Errors
+    /// The default implementation will error and return the original type back to the caller for
+    /// further use.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
         <span class="prelude-val">Err</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Wraps this body into a `BoxBody`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// No-op when called on a `BoxBody`, meaning there is no risk of double boxing when calling</span>
-    <span class="doccomment">/// this on a generic `MessageBody`. Prefer this over [`BoxBody::new`] when a boxed body</span>
-    <span class="doccomment">/// is required.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">boxed</span>(<span class="self">self</span>) -&gt; <span class="ident">BoxBody</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Wraps this body into a `BoxBody`.
+    ///
+    /// No-op when called on a `BoxBody`, meaning there is no risk of double boxing when calling
+    /// this on a generic `MessageBody`. Prefer this over [`BoxBody::new`] when a boxed body
+    /// is required.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>boxed(<span class="self">self</span>) -&gt; BoxBody
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized + <span class="lifetime">&#39;static</span>,
     {
-        <span class="ident">BoxBody::new</span>(<span class="self">self</span>)
+        BoxBody::new(<span class="self">self</span>)
     }
 }
 
-<span class="kw">mod</span> <span class="ident">foreign_impls</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="kw">mod </span>foreign_impls {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">Infallible</span> {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
+    <span class="kw">impl </span>MessageBody <span class="kw">for </span>Infallible {
+        <span class="kw">type </span>Error = Infallible;
 
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {}
+        <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{}
         }
 
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">_cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {}
-        }
-    }
-
-    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> () {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
-
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="ident">BodySize::Sized</span>(<span class="number">0</span>)
-        }
-
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">_cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-        }
-
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Bytes::new</span>())
+        <span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{}
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
+    <span class="kw">impl </span>MessageBody <span class="kw">for </span>() {
+        <span class="kw">type </span>Error = Infallible;
+
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            BodySize::Sized(<span class="number">0</span>)
+        }
+
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            Poll::Ready(<span class="prelude-val">None</span>)
+        }
+
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
+            <span class="prelude-val">Ok</span>(Bytes::new())
+        }
+    }
+
+    <span class="kw">impl</span>&lt;B&gt; MessageBody <span class="kw">for </span>Box&lt;B&gt;
+    <span class="kw">where
+        </span>B: MessageBody + Unpin + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">B::Error</span>;
+        <span class="kw">type </span>Error = B::Error;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">size</span>()
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            <span class="self">self</span>.as_ref().size()
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="ident">Pin::new</span>(<span class="self">self</span>.<span class="ident">get_mut</span>().<span class="ident">as_mut</span>()).<span class="ident">poll_next</span>(<span class="ident">cx</span>)
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            Pin::new(<span class="self">self</span>.get_mut().as_mut()).poll_next(cx)
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
+    <span class="kw">impl</span>&lt;B&gt; MessageBody <span class="kw">for </span>Pin&lt;Box&lt;B&gt;&gt;
+    <span class="kw">where
+        </span>B: MessageBody + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">B::Error</span>;
+        <span class="kw">type </span>Error = B::Error;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">size</span>()
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            <span class="self">self</span>.as_ref().size()
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">get_mut</span>().<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>)
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            <span class="self">self</span>.get_mut().as_mut().poll_next(cx)
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>] {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
+    <span class="kw">impl </span>MessageBody <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8] {
+        <span class="kw">type </span>Error = Infallible;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="ident">BodySize::Sized</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            BodySize::Sized(<span class="self">self</span>.len() <span class="kw">as </span>u64)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">_cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">Bytes::from_static</span>(<span class="ident">mem::take</span>(<span class="self">self</span>.<span class="ident">get_mut</span>())))))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            <span class="kw">if </span><span class="self">self</span>.is_empty() {
+                Poll::Ready(<span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Bytes::from_static(mem::take(<span class="self">self</span>.get_mut())))))
             }
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Bytes::from_static</span>(<span class="self">self</span>))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
+            <span class="prelude-val">Ok</span>(Bytes::from_static(<span class="self">self</span>))
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">Bytes</span> {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
+    <span class="kw">impl </span>MessageBody <span class="kw">for </span>Bytes {
+        <span class="kw">type </span>Error = Infallible;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="ident">BodySize::Sized</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            BodySize::Sized(<span class="self">self</span>.len() <span class="kw">as </span>u64)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">_cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">mem::take</span>(<span class="self">self</span>.<span class="ident">get_mut</span>()))))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            <span class="kw">if </span><span class="self">self</span>.is_empty() {
+                Poll::Ready(<span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(mem::take(<span class="self">self</span>.get_mut()))))
             }
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
             <span class="prelude-val">Ok</span>(<span class="self">self</span>)
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">BytesMut</span> {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
+    <span class="kw">impl </span>MessageBody <span class="kw">for </span>BytesMut {
+        <span class="kw">type </span>Error = Infallible;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="ident">BodySize::Sized</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            BodySize::Sized(<span class="self">self</span>.len() <span class="kw">as </span>u64)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">_cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">mem::take</span>(<span class="self">self</span>.<span class="ident">get_mut</span>()).<span class="ident">freeze</span>())))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            <span class="kw">if </span><span class="self">self</span>.is_empty() {
+                Poll::Ready(<span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(mem::take(<span class="self">self</span>.get_mut()).freeze())))
             }
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">freeze</span>())
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.freeze())
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
+    <span class="kw">impl </span>MessageBody <span class="kw">for </span>Vec&lt;u8&gt; {
+        <span class="kw">type </span>Error = Infallible;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="ident">BodySize::Sized</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            BodySize::Sized(<span class="self">self</span>.len() <span class="kw">as </span>u64)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">_cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">mem::take</span>(<span class="self">self</span>.<span class="ident">get_mut</span>()).<span class="ident">into</span>())))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            <span class="kw">if </span><span class="self">self</span>.is_empty() {
+                Poll::Ready(<span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(mem::take(<span class="self">self</span>.get_mut()).into())))
             }
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Bytes::from</span>(<span class="self">self</span>))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
+            <span class="prelude-val">Ok</span>(Bytes::from(<span class="self">self</span>))
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
+    <span class="kw">impl </span>MessageBody <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">type </span>Error = Infallible;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="ident">BodySize::Sized</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            BodySize::Sized(<span class="self">self</span>.len() <span class="kw">as </span>u64)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">_cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">mem::take</span>(<span class="self">self</span>.<span class="ident">get_mut</span>());
-                <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Bytes::from_static</span>(<span class="ident">string</span>.<span class="ident">as_bytes</span>());
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            <span class="kw">if </span><span class="self">self</span>.is_empty() {
+                Poll::Ready(<span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>string = mem::take(<span class="self">self</span>.get_mut());
+                <span class="kw">let </span>bytes = Bytes::from_static(string.as_bytes());
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)))
             }
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Bytes::from_static</span>(<span class="self">self</span>.<span class="ident">as_bytes</span>()))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
+            <span class="prelude-val">Ok</span>(Bytes::from_static(<span class="self">self</span>.as_bytes()))
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">String</span> {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
+    <span class="kw">impl </span>MessageBody <span class="kw">for </span>String {
+        <span class="kw">type </span>Error = Infallible;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="ident">BodySize::Sized</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            BodySize::Sized(<span class="self">self</span>.len() <span class="kw">as </span>u64)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">_cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>)
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">mem::take</span>(<span class="self">self</span>.<span class="ident">get_mut</span>());
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">Bytes::from</span>(<span class="ident">string</span>))))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            <span class="kw">if </span><span class="self">self</span>.is_empty() {
+                Poll::Ready(<span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>string = mem::take(<span class="self">self</span>.get_mut());
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Bytes::from(string))))
             }
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Bytes::from</span>(<span class="self">self</span>))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
+            <span class="prelude-val">Ok</span>(Bytes::from(<span class="self">self</span>))
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">bytestring::ByteString</span> {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
+    <span class="kw">impl </span>MessageBody <span class="kw">for </span>bytestring::ByteString {
+        <span class="kw">type </span>Error = Infallible;
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-            <span class="ident">BodySize::Sized</span>(<span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+            BodySize::Sized(<span class="self">self</span>.len() <span class="kw">as </span>u64)
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(
-            <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-            <span class="ident">_cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">mem::take</span>(<span class="self">self</span>.<span class="ident">get_mut</span>());
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">string</span>.<span class="ident">into_bytes</span>())))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>poll_next(
+            <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+            _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+            <span class="kw">let </span>string = mem::take(<span class="self">self</span>.get_mut());
+            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(string.into_bytes())))
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">into_bytes</span>())
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.into_bytes())
         }
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">MessageBodyMapErr</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">body</span>: <span class="ident">B</span>,
-        <span class="ident">mapper</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>MessageBodyMapErr&lt;B, F&gt; {
+        <span class="attribute">#[pin]
+        </span>body: B,
+        mapper: <span class="prelude-ty">Option</span>&lt;F&gt;,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">MessageBodyMapErr</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">B::Error</span>) -&gt; <span class="ident">E</span>,
+<span class="kw">impl</span>&lt;B, F, E&gt; MessageBodyMapErr&lt;B, F&gt;
+<span class="kw">where
+    </span>B: MessageBody,
+    F: FnOnce(B::Error) -&gt; E,
 {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">body</span>: <span class="ident">B</span>, <span class="ident">mapper</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">body</span>,
-            <span class="ident">mapper</span>: <span class="prelude-val">Some</span>(<span class="ident">mapper</span>),
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(body: B, mapper: F) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            body,
+            mapper: <span class="prelude-val">Some</span>(mapper),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">MessageBodyMapErr</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">B::Error</span>) -&gt; <span class="ident">E</span>,
-    <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;B, F, E&gt; MessageBody <span class="kw">for </span>MessageBodyMapErr&lt;B, F&gt;
+<span class="kw">where
+    </span>B: MessageBody,
+    F: FnOnce(B::Error) -&gt; E,
+    E: Into&lt;Box&lt;<span class="kw">dyn </span>StdError&gt;&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">E</span>;
+    <span class="kw">type </span>Error = E;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-        <span class="self">self</span>.<span class="ident">body</span>.<span class="ident">size</span>()
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+        <span class="self">self</span>.body.size()
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
+    <span class="kw">fn </span>poll_next(
+        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.as_mut().project();
 
-        <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">body</span>.<span class="ident">poll_next</span>(<span class="ident">cx</span>)) {
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>().<span class="ident">mapper</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">mapped_err</span> <span class="op">=</span> (<span class="ident">f</span>)(<span class="ident">err</span>);
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">mapped_err</span>)))
+        <span class="kw">match </span><span class="macro">ready!</span>(this.body.poll_next(cx)) {
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; {
+                <span class="kw">let </span>f = <span class="self">self</span>.as_mut().project().mapper.take().unwrap();
+                <span class="kw">let </span>mapped_err = (f)(err);
+                Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(mapped_err)))
             }
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">val</span>)) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">val</span>))),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(val)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(val))),
+            <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="self">Self</span> { <span class="ident">body</span>, <span class="ident">mapper</span> } <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">body</span>.<span class="ident">try_into_bytes</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">body</span><span class="op">|</span> <span class="self">Self</span> { <span class="ident">body</span>, <span class="ident">mapper</span> })
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
+        <span class="kw">let </span><span class="self">Self </span>{ body, mapper } = <span class="self">self</span>;
+        body.try_into_bytes().map_err(|body| <span class="self">Self </span>{ body, mapper })
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_rt::pin</span>;
-    <span class="kw">use</span> <span class="ident">actix_utils::future::poll_fn</span>;
-    <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_rt::pin;
+    <span class="kw">use </span>actix_utils::future::poll_fn;
+    <span class="kw">use </span>bytes::{Bytes, BytesMut};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::body</span>::{<span class="self">self</span>, <span class="ident">EitherBody</span>};
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::body::{<span class="self">self</span>, EitherBody};
 
-    <span class="macro">macro_rules!</span> <span class="ident">assert_poll_next</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pin</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">exp</span>:<span class="ident">expr</span>) =&gt; {
+    <span class="macro">macro_rules! </span>assert_poll_next {
+        (<span class="macro-nonterminal">$pin</span>:expr, <span class="macro-nonterminal">$exp</span>:expr) =&gt; {
             <span class="macro">assert_eq!</span>(
-                <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pin</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>))
-                    .<span class="kw">await</span>
-                    .<span class="ident">unwrap</span>() <span class="comment">// unwrap option</span>
-                    .<span class="ident">unwrap</span>(), <span class="comment">// unwrap result</span>
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">exp</span>
-            );
+                poll_fn(|cx| <span class="macro-nonterminal">$pin</span>.as_mut().poll_next(cx))
+                    .<span class="kw">await
+                    </span>.unwrap() <span class="comment">// unwrap option
+                    </span>.unwrap(), <span class="comment">// unwrap result
+                </span><span class="macro-nonterminal">$exp
+            </span>);
         };
     }
 
-    <span class="macro">macro_rules!</span> <span class="ident">assert_poll_next_none</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pin</span>:<span class="ident">expr</span>) =&gt; {
-            <span class="macro">assert!</span>(<span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pin</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>)).<span class="kw">await</span>.<span class="ident">is_none</span>());
+    <span class="macro">macro_rules! </span>assert_poll_next_none {
+        (<span class="macro-nonterminal">$pin</span>:expr) =&gt; {
+            <span class="macro">assert!</span>(poll_fn(|cx| <span class="macro-nonterminal">$pin</span>.as_mut().poll_next(cx)).<span class="kw">await</span>.is_none());
         };
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">boxing_equivalence</span>() {
-        <span class="macro">assert_eq!</span>(().<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(().<span class="ident">size</span>(), <span class="ident">Box::new</span>(()).<span class="ident">size</span>());
-        <span class="macro">assert_eq!</span>(().<span class="ident">size</span>(), <span class="ident">Box::pin</span>(()).<span class="ident">size</span>());
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>boxing_equivalence() {
+        <span class="macro">assert_eq!</span>(().size(), BodySize::Sized(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(().size(), Box::new(()).size());
+        <span class="macro">assert_eq!</span>(().size(), Box::pin(()).size());
 
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">Box::new</span>(());
-        <span class="macro">pin!</span>(<span class="ident">pl</span>);
-        <span class="macro">assert_poll_next_none!</span>(<span class="ident">pl</span>);
+        <span class="kw">let </span>pl = Box::new(());
+        <span class="macro">pin!</span>(pl);
+        <span class="macro">assert_poll_next_none!</span>(pl);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">Box::pin</span>(());
-        <span class="macro">assert_poll_next_none!</span>(<span class="ident">pl</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>pl = Box::pin(());
+        <span class="macro">assert_poll_next_none!</span>(pl);
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::let_unit_value</span>)]</span>
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_unit</span>() {
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> ();
-        <span class="macro">assert_eq!</span>(<span class="ident">pl</span>.<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">0</span>));
-        <span class="macro">pin!</span>(<span class="ident">pl</span>);
-        <span class="macro">assert_poll_next_none!</span>(<span class="ident">pl</span>);
+    <span class="attribute">#[allow(clippy::let_unit_value)]
+    #[actix_rt::test]
+    </span><span class="kw">async fn </span>test_unit() {
+        <span class="kw">let </span>pl = ();
+        <span class="macro">assert_eq!</span>(pl.size(), BodySize::Sized(<span class="number">0</span>));
+        <span class="macro">pin!</span>(pl);
+        <span class="macro">assert_poll_next_none!</span>(pl);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_static_str</span>() {
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;&quot;</span>.<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">4</span>));
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_static_str() {
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;&quot;</span>.size(), BodySize::Sized(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;test&quot;</span>.size(), BodySize::Sized(<span class="number">4</span>));
 
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>;
-        <span class="macro">pin!</span>(<span class="ident">pl</span>);
-        <span class="macro">assert_poll_next!</span>(<span class="ident">pl</span>, <span class="ident">Bytes::from</span>(<span class="string">&quot;test&quot;</span>));
+        <span class="kw">let </span>pl = <span class="string">&quot;test&quot;</span>;
+        <span class="macro">pin!</span>(pl);
+        <span class="macro">assert_poll_next!</span>(pl, Bytes::from(<span class="string">&quot;test&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_static_bytes</span>() {
-        <span class="macro">assert_eq!</span>(<span class="string">b&quot;&quot;</span>.<span class="ident">as_ref</span>().<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">b&quot;test&quot;</span>.<span class="ident">as_ref</span>().<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">4</span>));
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_static_bytes() {
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;&quot;</span>.as_ref().size(), BodySize::Sized(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;test&quot;</span>.as_ref().size(), BodySize::Sized(<span class="number">4</span>));
 
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="string">b&quot;test&quot;</span>.<span class="ident">as_ref</span>();
-        <span class="macro">pin!</span>(<span class="ident">pl</span>);
-        <span class="macro">assert_poll_next!</span>(<span class="ident">pl</span>, <span class="ident">Bytes::from</span>(<span class="string">&quot;test&quot;</span>));
+        <span class="kw">let </span>pl = <span class="string">b&quot;test&quot;</span>.as_ref();
+        <span class="macro">pin!</span>(pl);
+        <span class="macro">assert_poll_next!</span>(pl, Bytes::from(<span class="string">&quot;test&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_vec</span>() {
-        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">0</span>].<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">Vec::from</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">4</span>));
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_vec() {
+        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">0</span>].size(), BodySize::Sized(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(Vec::from(<span class="string">&quot;test&quot;</span>).size(), BodySize::Sized(<span class="number">4</span>));
 
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">Vec::from</span>(<span class="string">&quot;test&quot;</span>);
-        <span class="macro">pin!</span>(<span class="ident">pl</span>);
-        <span class="macro">assert_poll_next!</span>(<span class="ident">pl</span>, <span class="ident">Bytes::from</span>(<span class="string">&quot;test&quot;</span>));
+        <span class="kw">let </span>pl = Vec::from(<span class="string">&quot;test&quot;</span>);
+        <span class="macro">pin!</span>(pl);
+        <span class="macro">assert_poll_next!</span>(pl, Bytes::from(<span class="string">&quot;test&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_bytes</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">Bytes::new</span>().<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>).<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">4</span>));
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_bytes() {
+        <span class="macro">assert_eq!</span>(Bytes::new().size(), BodySize::Sized(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(Bytes::from_static(<span class="string">b&quot;test&quot;</span>).size(), BodySize::Sized(<span class="number">4</span>));
 
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>);
-        <span class="macro">pin!</span>(<span class="ident">pl</span>);
-        <span class="macro">assert_poll_next!</span>(<span class="ident">pl</span>, <span class="ident">Bytes::from</span>(<span class="string">&quot;test&quot;</span>));
+        <span class="kw">let </span>pl = Bytes::from_static(<span class="string">b&quot;test&quot;</span>);
+        <span class="macro">pin!</span>(pl);
+        <span class="macro">assert_poll_next!</span>(pl, Bytes::from(<span class="string">&quot;test&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_bytes_mut</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">BytesMut::new</span>().<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">BytesMut::from</span>(<span class="string">b&quot;test&quot;</span>.<span class="ident">as_ref</span>()).<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">4</span>));
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_bytes_mut() {
+        <span class="macro">assert_eq!</span>(BytesMut::new().size(), BodySize::Sized(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(BytesMut::from(<span class="string">b&quot;test&quot;</span>.as_ref()).size(), BodySize::Sized(<span class="number">4</span>));
 
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">BytesMut::from</span>(<span class="string">&quot;test&quot;</span>);
-        <span class="macro">pin!</span>(<span class="ident">pl</span>);
-        <span class="macro">assert_poll_next!</span>(<span class="ident">pl</span>, <span class="ident">Bytes::from</span>(<span class="string">&quot;test&quot;</span>));
+        <span class="kw">let </span>pl = BytesMut::from(<span class="string">&quot;test&quot;</span>);
+        <span class="macro">pin!</span>(pl);
+        <span class="macro">assert_poll_next!</span>(pl, Bytes::from(<span class="string">&quot;test&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_string</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">String::new</span>().<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">to_owned</span>().<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">4</span>));
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_string() {
+        <span class="macro">assert_eq!</span>(String::new().size(), BodySize::Sized(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">&quot;test&quot;</span>.to_owned().size(), BodySize::Sized(<span class="number">4</span>));
 
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_owned</span>();
-        <span class="macro">pin!</span>(<span class="ident">pl</span>);
-        <span class="macro">assert_poll_next!</span>(<span class="ident">pl</span>, <span class="ident">Bytes::from</span>(<span class="string">&quot;test&quot;</span>));
+        <span class="kw">let </span>pl = <span class="string">&quot;test&quot;</span>.to_owned();
+        <span class="macro">pin!</span>(pl);
+        <span class="macro">assert_poll_next!</span>(pl, Bytes::from(<span class="string">&quot;test&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">complete_body_combinators</span>() {
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">BoxBody::new</span>(<span class="ident">body</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">EitherBody</span>::<span class="op">&lt;</span><span class="kw">_</span>, ()<span class="op">&gt;</span><span class="ident">::left</span>(<span class="ident">body</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">EitherBody</span>::<span class="op">&lt;</span>(), <span class="kw">_</span><span class="op">&gt;</span><span class="ident">::right</span>(<span class="ident">body</span>);
-        <span class="comment">// Do not support try_into_bytes:</span>
-        <span class="comment">// let body = Box::new(body);</span>
-        <span class="comment">// let body = Box::pin(body);</span>
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>complete_body_combinators() {
+        <span class="kw">let </span>body = Bytes::from_static(<span class="string">b&quot;test&quot;</span>);
+        <span class="kw">let </span>body = BoxBody::new(body);
+        <span class="kw">let </span>body = EitherBody::&lt;<span class="kw">_</span>, ()&gt;::left(body);
+        <span class="kw">let </span>body = EitherBody::&lt;(), <span class="kw">_</span>&gt;::right(body);
+        <span class="comment">// Do not support try_into_bytes:
+        // let body = Box::new(body);
+        // let body = Box::pin(body);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">body</span>.<span class="ident">try_into_bytes</span>().<span class="ident">unwrap</span>(), <span class="ident">Bytes::from</span>(<span class="string">&quot;test&quot;</span>));
+        </span><span class="macro">assert_eq!</span>(body.try_into_bytes().unwrap(), Bytes::from(<span class="string">&quot;test&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">complete_body_combinators_poll</span>() {
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;test&quot;</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">BoxBody::new</span>(<span class="ident">body</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">EitherBody</span>::<span class="op">&lt;</span><span class="kw">_</span>, ()<span class="op">&gt;</span><span class="ident">::left</span>(<span class="ident">body</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">EitherBody</span>::<span class="op">&lt;</span>(), <span class="kw">_</span><span class="op">&gt;</span><span class="ident">::right</span>(<span class="ident">body</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">body</span>;
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>complete_body_combinators_poll() {
+        <span class="kw">let </span>body = Bytes::from_static(<span class="string">b&quot;test&quot;</span>);
+        <span class="kw">let </span>body = BoxBody::new(body);
+        <span class="kw">let </span>body = EitherBody::&lt;<span class="kw">_</span>, ()&gt;::left(body);
+        <span class="kw">let </span>body = EitherBody::&lt;(), <span class="kw">_</span>&gt;::right(body);
+        <span class="kw">let </span><span class="kw-2">mut </span>body = body;
 
-        <span class="macro">assert_eq!</span>(<span class="ident">body</span>.<span class="ident">size</span>(), <span class="ident">BodySize::Sized</span>(<span class="number">4</span>));
-        <span class="macro">assert_poll_next!</span>(<span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">body</span>), <span class="ident">Bytes::from</span>(<span class="string">&quot;test&quot;</span>));
-        <span class="macro">assert_poll_next_none!</span>(<span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">body</span>));
+        <span class="macro">assert_eq!</span>(body.size(), BodySize::Sized(<span class="number">4</span>));
+        <span class="macro">assert_poll_next!</span>(Pin::new(<span class="kw-2">&amp;mut </span>body), Bytes::from(<span class="string">&quot;test&quot;</span>));
+        <span class="macro">assert_poll_next_none!</span>(Pin::new(<span class="kw-2">&amp;mut </span>body));
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">none_body_combinators</span>() {
-        <span class="kw">fn</span> <span class="ident">none_body</span>() -&gt; <span class="ident">BoxBody</span> {
-            <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">body::None</span>;
-            <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">BoxBody::new</span>(<span class="ident">body</span>);
-            <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">EitherBody</span>::<span class="op">&lt;</span><span class="kw">_</span>, ()<span class="op">&gt;</span><span class="ident">::left</span>(<span class="ident">body</span>);
-            <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">EitherBody</span>::<span class="op">&lt;</span>(), <span class="kw">_</span><span class="op">&gt;</span><span class="ident">::right</span>(<span class="ident">body</span>);
-            <span class="ident">body</span>.<span class="ident">boxed</span>()
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>none_body_combinators() {
+        <span class="kw">fn </span>none_body() -&gt; BoxBody {
+            <span class="kw">let </span>body = body::None;
+            <span class="kw">let </span>body = BoxBody::new(body);
+            <span class="kw">let </span>body = EitherBody::&lt;<span class="kw">_</span>, ()&gt;::left(body);
+            <span class="kw">let </span>body = EitherBody::&lt;(), <span class="kw">_</span>&gt;::right(body);
+            body.boxed()
         }
 
-        <span class="macro">assert_eq!</span>(<span class="ident">none_body</span>().<span class="ident">size</span>(), <span class="ident">BodySize::None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">none_body</span>().<span class="ident">try_into_bytes</span>().<span class="ident">unwrap</span>(), <span class="ident">Bytes::new</span>());
-        <span class="macro">assert_poll_next_none!</span>(<span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">none_body</span>()));
+        <span class="macro">assert_eq!</span>(none_body().size(), BodySize::None);
+        <span class="macro">assert_eq!</span>(none_body().try_into_bytes().unwrap(), Bytes::new());
+        <span class="macro">assert_poll_next_none!</span>(Pin::new(<span class="kw-2">&amp;mut </span>none_body()));
     }
 
-    <span class="comment">// down-casting used to be done with a method on MessageBody trait</span>
-    <span class="comment">// test is kept to demonstrate equivalence of Any trait</span>
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_body_casting</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;hello cast&quot;</span>);
-        <span class="comment">// let mut resp_body: &amp;mut dyn MessageBody&lt;Error = Error&gt; = &amp;mut body;</span>
-        <span class="kw">let</span> <span class="ident">resp_body</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">std::any::Any</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">body</span>;
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">resp_body</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">body</span>, <span class="string">&quot;hello cast&quot;</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">resp_body</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="ident">body</span>.<span class="ident">push</span>(<span class="string">&#39;!&#39;</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">resp_body</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">body</span>, <span class="string">&quot;hello cast!&quot;</span>);
-        <span class="kw">let</span> <span class="ident">not_body</span> <span class="op">=</span> <span class="ident">resp_body</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>();
-        <span class="macro">assert!</span>(<span class="ident">not_body</span>.<span class="ident">is_none</span>());
+    <span class="comment">// down-casting used to be done with a method on MessageBody trait
+    // test is kept to demonstrate equivalence of Any trait
+    </span><span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_body_casting() {
+        <span class="kw">let </span><span class="kw-2">mut </span>body = String::from(<span class="string">&quot;hello cast&quot;</span>);
+        <span class="comment">// let mut resp_body: &amp;mut dyn MessageBody&lt;Error = Error&gt; = &amp;mut body;
+        </span><span class="kw">let </span>resp_body: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>std::any::Any = <span class="kw-2">&amp;mut </span>body;
+        <span class="kw">let </span>body = resp_body.downcast_ref::&lt;String&gt;().unwrap();
+        <span class="macro">assert_eq!</span>(body, <span class="string">&quot;hello cast&quot;</span>);
+        <span class="kw">let </span>body = <span class="kw-2">&amp;mut </span>resp_body.downcast_mut::&lt;String&gt;().unwrap();
+        body.push(<span class="string">&#39;!&#39;</span>);
+        <span class="kw">let </span>body = resp_body.downcast_ref::&lt;String&gt;().unwrap();
+        <span class="macro">assert_eq!</span>(body, <span class="string">&quot;hello cast!&quot;</span>);
+        <span class="kw">let </span>not_body = resp_body.downcast_ref::&lt;()&gt;();
+        <span class="macro">assert!</span>(not_body.is_none());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/client/bucket.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bucket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/client/bucket.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bucket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -366,373 +366,373 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">bucket</span>::{<span class="ident">IamPolicy</span>, <span class="ident">TestIamPermission</span>},
-    <span class="ident">error::GoogleResponse</span>,
-    <span class="ident">object::percent_encode</span>,
-    <span class="ident">resources::common::ListResponse</span>,
-    <span class="ident">Bucket</span>, <span class="ident">NewBucket</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    bucket::{IamPolicy, TestIamPermission},
+    error::GoogleResponse,
+    object::percent_encode,
+    resources::common::ListResponse,
+    Bucket, NewBucket,
 };
 
-<span class="doccomment">/// Operations on [`Bucket`]()s.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BucketClient</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident"><span class="kw">super</span>::Client</span>);
+<span class="doccomment">/// Operations on [`Bucket`]()s.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>BucketClient&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">super</span>::Client);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">BucketClient</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new `Bucket`. There are many options that you can provide for creating a new</span>
-    <span class="doccomment">/// bucket, so the `NewBucket` resource contains all of them. Note that `NewBucket` implements</span>
-    <span class="doccomment">/// `Default`, so you don&#39;t have to specify the fields you&#39;re not using. And error is returned</span>
-    <span class="doccomment">/// if that bucket name is already taken.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::bucket::{Bucket, NewBucket};</span>
-    <span class="doccomment">/// use cloud_storage::bucket::{Location, MultiRegion};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let new_bucket = NewBucket {</span>
-    <span class="doccomment">///    name: &quot;cloud-storage-rs-doc-1&quot;.to_string(), // this is the only mandatory field</span>
-    <span class="doccomment">///    location: Location::Multi(MultiRegion::Eu),</span>
-    <span class="doccomment">///    ..Default::default()</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// let bucket = client.bucket().create(&amp;new_bucket).await?;</span>
-    <span class="doccomment">/// # client.bucket().delete(bucket).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">new_bucket</span>: <span class="kw-2">&amp;</span><span class="ident">NewBucket</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Bucket</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="ident"><span class="kw">crate</span>::BASE_URL</span>);
-        <span class="kw">let</span> <span class="ident">project</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>;
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> [(<span class="string">&quot;project&quot;</span>, <span class="ident">project</span>)];
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">Bucket</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>)
-            .<span class="ident">json</span>(<span class="ident">new_bucket</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; BucketClient&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Creates a new `Bucket`. There are many options that you can provide for creating a new
+    /// bucket, so the `NewBucket` resource contains all of them. Note that `NewBucket` implements
+    /// `Default`, so you don&#39;t have to specify the fields you&#39;re not using. And error is returned
+    /// if that bucket name is already taken.
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::bucket::{Bucket, NewBucket};
+    /// use cloud_storage::bucket::{Location, MultiRegion};
+    ///
+    /// let client = Client::default();
+    /// let new_bucket = NewBucket {
+    ///    name: &quot;cloud-storage-rs-doc-1&quot;.to_string(), // this is the only mandatory field
+    ///    location: Location::Multi(MultiRegion::Eu),
+    ///    ..Default::default()
+    /// };
+    /// let bucket = client.bucket().create(&amp;new_bucket).await?;
+    /// # client.bucket().delete(bucket).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>create(<span class="kw-2">&amp;</span><span class="self">self</span>, new_bucket: <span class="kw-2">&amp;</span>NewBucket) -&gt; <span class="kw">crate</span>::Result&lt;Bucket&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="kw">crate</span>::BASE_URL);
+        <span class="kw">let </span>project = <span class="kw-2">&amp;</span><span class="kw">crate</span>::SERVICE_ACCOUNT.project_id;
+        <span class="kw">let </span>query = [(<span class="string">&quot;project&quot;</span>, project)];
+        <span class="kw">let </span>result: GoogleResponse&lt;Bucket&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .post(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .query(<span class="kw-2">&amp;</span>query)
+            .json(new_bucket)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Returns all `Bucket`s within this project.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Note</span>
-    <span class="doccomment">/// When using incorrect permissions, this function fails silently and returns an empty list.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Bucket;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let buckets = client.bucket().list().await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Bucket</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">dbg!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="ident"><span class="kw">crate</span>::BASE_URL</span>));
-        <span class="kw">let</span> <span class="ident">project</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::SERVICE_ACCOUNT</span>.<span class="ident">project_id</span>;
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> [(<span class="string">&quot;project&quot;</span>, <span class="ident">project</span>)];
+    <span class="doccomment">/// Returns all `Bucket`s within this project.
+    ///
+    /// ### Note
+    /// When using incorrect permissions, this function fails silently and returns an empty list.
+    ///
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Bucket;
+    ///
+    /// let client = Client::default();
+    /// let buckets = client.bucket().list().await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>list(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;Bucket&gt;&gt; {
+        <span class="kw">let </span>url = <span class="macro">dbg!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/b/&quot;</span>, <span class="kw">crate</span>::BASE_URL));
+        <span class="kw">let </span>project = <span class="kw-2">&amp;</span><span class="kw">crate</span>::SERVICE_ACCOUNT.project_id;
+        <span class="kw">let </span>query = [(<span class="string">&quot;project&quot;</span>, project)];
         <span class="macro">dbg!</span>(
-            <span class="self">self</span>.<span class="number">0</span>
-                .<span class="ident">client</span>
-                .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-                .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-                .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>)
-                .<span class="ident">send</span>()
-                .<span class="kw">await</span><span class="question-mark">?</span>
-                .<span class="ident">text</span>()
-                .<span class="kw">await</span>
-        )<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">ListResponse</span><span class="op">&lt;</span><span class="ident">Bucket</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+            <span class="self">self</span>.<span class="number">0
+                </span>.client
+                .get(<span class="kw-2">&amp;</span>url)
+                .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+                .query(<span class="kw-2">&amp;</span>query)
+                .send()
+                .<span class="kw">await</span><span class="question-mark">?
+                </span>.text()
+                .<span class="kw">await
+        </span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>result: GoogleResponse&lt;ListResponse&lt;Bucket&gt;&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .get(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .query(<span class="kw-2">&amp;</span>query)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">items</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s.items),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Returns a single `Bucket` by its name. If the Bucket does not exist, an error is returned.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Bucket;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// # use cloud_storage::bucket::NewBucket;</span>
-    <span class="doccomment">/// # let new_bucket = NewBucket {</span>
-    <span class="doccomment">/// #   name: &quot;cloud-storage-rs-doc-2&quot;.to_string(),</span>
-    <span class="doccomment">/// #    ..Default::default()</span>
-    <span class="doccomment">/// # };</span>
-    <span class="doccomment">/// # let _ = client.bucket().create(&amp;new_bucket).await?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let bucket = client.bucket().read(&quot;cloud-storage-rs-doc-2&quot;).await?;</span>
-    <span class="doccomment">/// # client.bucket().delete(bucket).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Bucket</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="ident"><span class="kw">crate</span>::BASE_URL</span>, <span class="ident">percent_encode</span>(<span class="ident">name</span>),);
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">Bucket</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+    <span class="doccomment">/// Returns a single `Bucket` by its name. If the Bucket does not exist, an error is returned.
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Bucket;
+    ///
+    /// let client = Client::default();
+    /// # use cloud_storage::bucket::NewBucket;
+    /// # let new_bucket = NewBucket {
+    /// #   name: &quot;cloud-storage-rs-doc-2&quot;.to_string(),
+    /// #    ..Default::default()
+    /// # };
+    /// # let _ = client.bucket().create(&amp;new_bucket).await?;
+    ///
+    /// let bucket = client.bucket().read(&quot;cloud-storage-rs-doc-2&quot;).await?;
+    /// # client.bucket().delete(bucket).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>read(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">crate</span>::Result&lt;Bucket&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(name),);
+        <span class="kw">let </span>result: GoogleResponse&lt;Bucket&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .get(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Update an existing `Bucket`. If you declare you bucket as mutable, you can edit its fields.</span>
-    <span class="doccomment">/// You can then flush your changes to Google Cloud Storage using this method.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::bucket::{Bucket, RetentionPolicy};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// # use cloud_storage::bucket::NewBucket;</span>
-    <span class="doccomment">/// # let new_bucket = NewBucket {</span>
-    <span class="doccomment">/// #   name: &quot;cloud-storage-rs-doc-3&quot;.to_string(),</span>
-    <span class="doccomment">/// #    ..Default::default()</span>
-    <span class="doccomment">/// # };</span>
-    <span class="doccomment">/// # let _ = client.bucket().create(&amp;new_bucket).await?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut bucket = client.bucket().read(&quot;cloud-storage-rs-doc-3&quot;).await?;</span>
-    <span class="doccomment">/// bucket.retention_policy = Some(RetentionPolicy {</span>
-    <span class="doccomment">///     retention_period: 50,</span>
-    <span class="doccomment">///     effective_time: chrono::Utc::now() + chrono::Duration::seconds(50),</span>
-    <span class="doccomment">///     is_locked: Some(false),</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">/// client.bucket().update(&amp;bucket).await?;</span>
-    <span class="doccomment">/// # client.bucket().delete(bucket).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">Bucket</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Bucket</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="ident"><span class="kw">crate</span>::BASE_URL</span>, <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>),);
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">Bucket</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">json</span>(<span class="ident">bucket</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+    <span class="doccomment">/// Update an existing `Bucket`. If you declare you bucket as mutable, you can edit its fields.
+    /// You can then flush your changes to Google Cloud Storage using this method.
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::bucket::{Bucket, RetentionPolicy};
+    ///
+    /// let client = Client::default();
+    /// # use cloud_storage::bucket::NewBucket;
+    /// # let new_bucket = NewBucket {
+    /// #   name: &quot;cloud-storage-rs-doc-3&quot;.to_string(),
+    /// #    ..Default::default()
+    /// # };
+    /// # let _ = client.bucket().create(&amp;new_bucket).await?;
+    ///
+    /// let mut bucket = client.bucket().read(&quot;cloud-storage-rs-doc-3&quot;).await?;
+    /// bucket.retention_policy = Some(RetentionPolicy {
+    ///     retention_period: 50,
+    ///     effective_time: chrono::Utc::now() + chrono::Duration::seconds(50),
+    ///     is_locked: Some(false),
+    /// });
+    /// client.bucket().update(&amp;bucket).await?;
+    /// # client.bucket().delete(bucket).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>update(<span class="kw-2">&amp;</span><span class="self">self</span>, bucket: <span class="kw-2">&amp;</span>Bucket) -&gt; <span class="kw">crate</span>::Result&lt;Bucket&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name),);
+        <span class="kw">let </span>result: GoogleResponse&lt;Bucket&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .put(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .json(bucket)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Delete an existing `Bucket`. This permanently removes a bucket from Google Cloud Storage.</span>
-    <span class="doccomment">/// An error is returned when you don&#39;t have sufficient permissions, or when the</span>
-    <span class="doccomment">/// `retention_policy` prevents you from deleting your Bucket.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Bucket;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// # use cloud_storage::bucket::NewBucket;</span>
-    <span class="doccomment">/// # let new_bucket = NewBucket {</span>
-    <span class="doccomment">/// #   name: &quot;unnecessary-bucket&quot;.to_string(),</span>
-    <span class="doccomment">/// #    ..Default::default()</span>
-    <span class="doccomment">/// # };</span>
-    <span class="doccomment">/// # let _ = client.bucket().create(&amp;new_bucket).await?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let bucket = client.bucket().read(&quot;unnecessary-bucket&quot;).await?;</span>
-    <span class="doccomment">/// client.bucket().delete(bucket).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bucket</span>: <span class="ident">Bucket</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="ident"><span class="kw">crate</span>::BASE_URL</span>, <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>));
-        <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
+    <span class="doccomment">/// Delete an existing `Bucket`. This permanently removes a bucket from Google Cloud Storage.
+    /// An error is returned when you don&#39;t have sufficient permissions, or when the
+    /// `retention_policy` prevents you from deleting your Bucket.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Bucket;
+    ///
+    /// let client = Client::default();
+    /// # use cloud_storage::bucket::NewBucket;
+    /// # let new_bucket = NewBucket {
+    /// #   name: &quot;unnecessary-bucket&quot;.to_string(),
+    /// #    ..Default::default()
+    /// # };
+    /// # let _ = client.bucket().create(&amp;new_bucket).await?;
+    ///
+    /// let bucket = client.bucket().read(&quot;unnecessary-bucket&quot;).await?;
+    /// client.bucket().delete(bucket).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>delete(<span class="kw-2">&amp;</span><span class="self">self</span>, bucket: Bucket) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name));
+        <span class="kw">let </span>response = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .delete(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">response</span>.<span class="ident">status</span>().<span class="ident">is_success</span>() {
+        <span class="kw">if </span>response.status().is_success() {
             <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::Google</span>(<span class="ident">response</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Google(response.json().<span class="kw">await</span><span class="question-mark">?</span>))
         }
     }
 
-    <span class="doccomment">/// Returns the [IAM Policy](https://cloud.google.com/iam/docs/) for this bucket.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Bucket;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// # use cloud_storage::bucket::NewBucket;</span>
-    <span class="doccomment">/// # let new_bucket = NewBucket {</span>
-    <span class="doccomment">/// #   name: &quot;cloud-storage-rs-doc-4&quot;.to_string(),</span>
-    <span class="doccomment">/// #    ..Default::default()</span>
-    <span class="doccomment">/// # };</span>
-    <span class="doccomment">/// # let _ = client.bucket().create(&amp;new_bucket).await?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let bucket = client.bucket().read(&quot;cloud-storage-rs-doc-4&quot;).await?;</span>
-    <span class="doccomment">/// let policy = client.bucket().get_iam_policy(&amp;bucket).await?;</span>
-    <span class="doccomment">/// # client.bucket().delete(bucket).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_iam_policy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">Bucket</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="ident"><span class="kw">crate</span>::BASE_URL</span>, <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>));
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+    <span class="doccomment">/// Returns the [IAM Policy](https://cloud.google.com/iam/docs/) for this bucket.
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Bucket;
+    ///
+    /// let client = Client::default();
+    /// # use cloud_storage::bucket::NewBucket;
+    /// # let new_bucket = NewBucket {
+    /// #   name: &quot;cloud-storage-rs-doc-4&quot;.to_string(),
+    /// #    ..Default::default()
+    /// # };
+    /// # let _ = client.bucket().create(&amp;new_bucket).await?;
+    ///
+    /// let bucket = client.bucket().read(&quot;cloud-storage-rs-doc-4&quot;).await?;
+    /// let policy = client.bucket().get_iam_policy(&amp;bucket).await?;
+    /// # client.bucket().delete(bucket).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>get_iam_policy(<span class="kw-2">&amp;</span><span class="self">self</span>, bucket: <span class="kw-2">&amp;</span>Bucket) -&gt; <span class="kw">crate</span>::Result&lt;IamPolicy&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name));
+        <span class="kw">let </span>result: GoogleResponse&lt;IamPolicy&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .get(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Updates the [IAM Policy](https://cloud.google.com/iam/docs/) for this bucket.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Bucket;</span>
-    <span class="doccomment">/// use cloud_storage::bucket::{IamPolicy, Binding, IamRole, StandardIamRole, Entity};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// # use cloud_storage::bucket::NewBucket;</span>
-    <span class="doccomment">/// # let new_bucket = NewBucket {</span>
-    <span class="doccomment">/// #   name: &quot;cloud-storage-rs-doc-5&quot;.to_string(),</span>
-    <span class="doccomment">/// #    ..Default::default()</span>
-    <span class="doccomment">/// # };</span>
-    <span class="doccomment">/// # let _ = client.bucket().create(&amp;new_bucket).await?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let bucket = client.bucket().read(&quot;cloud-storage-rs-doc-5&quot;).await?;</span>
-    <span class="doccomment">/// let iam_policy = IamPolicy {</span>
-    <span class="doccomment">///     version: 1,</span>
-    <span class="doccomment">///     bindings: vec![</span>
-    <span class="doccomment">///         Binding {</span>
-    <span class="doccomment">///             role: IamRole::Standard(StandardIamRole::ObjectViewer),</span>
-    <span class="doccomment">///             members: vec![&quot;allUsers&quot;.to_string()],</span>
-    <span class="doccomment">///             condition: None,</span>
-    <span class="doccomment">///         }</span>
-    <span class="doccomment">///     ],</span>
-    <span class="doccomment">///     ..Default::default()</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// let policy = client.bucket().set_iam_policy(&amp;bucket, &amp;iam_policy).await?;</span>
-    <span class="doccomment">/// # client.bucket().delete(bucket).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_iam_policy</span>(
+    <span class="doccomment">/// Updates the [IAM Policy](https://cloud.google.com/iam/docs/) for this bucket.
+    /// ### Example
+    /// ```
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Bucket;
+    /// use cloud_storage::bucket::{IamPolicy, Binding, IamRole, StandardIamRole, Entity};
+    ///
+    /// let client = Client::default();
+    /// # use cloud_storage::bucket::NewBucket;
+    /// # let new_bucket = NewBucket {
+    /// #   name: &quot;cloud-storage-rs-doc-5&quot;.to_string(),
+    /// #    ..Default::default()
+    /// # };
+    /// # let _ = client.bucket().create(&amp;new_bucket).await?;
+    ///
+    /// let bucket = client.bucket().read(&quot;cloud-storage-rs-doc-5&quot;).await?;
+    /// let iam_policy = IamPolicy {
+    ///     version: 1,
+    ///     bindings: vec![
+    ///         Binding {
+    ///             role: IamRole::Standard(StandardIamRole::ObjectViewer),
+    ///             members: vec![&quot;allUsers&quot;.to_string()],
+    ///             condition: None,
+    ///         }
+    ///     ],
+    ///     ..Default::default()
+    /// };
+    /// let policy = client.bucket().set_iam_policy(&amp;bucket, &amp;iam_policy).await?;
+    /// # client.bucket().delete(bucket).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>set_iam_policy(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">Bucket</span>,
-        <span class="ident">iam</span>: <span class="kw-2">&amp;</span><span class="ident">IamPolicy</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="ident"><span class="kw">crate</span>::BASE_URL</span>, <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>));
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">IamPolicy</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">json</span>(<span class="ident">iam</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+        bucket: <span class="kw-2">&amp;</span>Bucket,
+        iam: <span class="kw-2">&amp;</span>IamPolicy,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;IamPolicy&gt; {
+        <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/b/{}/iam&quot;</span>, <span class="kw">crate</span>::BASE_URL, percent_encode(<span class="kw-2">&amp;</span>bucket.name));
+        <span class="kw">let </span>result: GoogleResponse&lt;IamPolicy&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .put(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .json(iam)
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 
-    <span class="doccomment">/// Checks whether the user provided in the service account has this permission.</span>
-    <span class="doccomment">/// ### Example</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # #[tokio::main]</span>
-    <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use cloud_storage::Client;</span>
-    <span class="doccomment">/// use cloud_storage::Bucket;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let client = Client::default();</span>
-    <span class="doccomment">/// let bucket = client.bucket().read(&quot;my-bucket&quot;).await?;</span>
-    <span class="doccomment">/// client.bucket().test_iam_permission(&amp;bucket, &quot;storage.buckets.get&quot;).await?;</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_iam_permission</span>(
+    <span class="doccomment">/// Checks whether the user provided in the service account has this permission.
+    /// ### Example
+    /// ```no_run
+    /// # #[tokio::main]
+    /// # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    /// use cloud_storage::Client;
+    /// use cloud_storage::Bucket;
+    ///
+    /// let client = Client::default();
+    /// let bucket = client.bucket().read(&quot;my-bucket&quot;).await?;
+    /// client.bucket().test_iam_permission(&amp;bucket, &quot;storage.buckets.get&quot;).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>test_iam_permission(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">bucket</span>: <span class="kw-2">&amp;</span><span class="ident">Bucket</span>,
-        <span class="ident">permission</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">TestIamPermission</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">permission</span> <span class="op">==</span> <span class="string">&quot;storage.buckets.list&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">permission</span> <span class="op">==</span> <span class="string">&quot;storage.buckets.create&quot;</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::new</span>(
+        bucket: <span class="kw-2">&amp;</span>Bucket,
+        permission: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;TestIamPermission&gt; {
+        <span class="kw">if </span>permission == <span class="string">&quot;storage.buckets.list&quot; </span>|| permission == <span class="string">&quot;storage.buckets.create&quot; </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new(
                 <span class="string">&quot;tested permission must not be `storage.buckets.list` or `storage.buckets.create`&quot;</span>,
             ));
         }
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;{}/b/{}/iam/testPermissions&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::BASE_URL</span>,
-            <span class="ident">percent_encode</span>(<span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">name</span>)
+            <span class="kw">crate</span>::BASE_URL,
+            percent_encode(<span class="kw-2">&amp;</span>bucket.name)
         );
-        <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">GoogleResponse</span><span class="op">&lt;</span><span class="ident">TestIamPermission</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="number">0</span>
-            .<span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
-            .<span class="ident">headers</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_headers</span>().<span class="kw">await</span><span class="question-mark">?</span>)
-            .<span class="ident">query</span>(<span class="kw-2">&amp;</span>[(<span class="string">&quot;permissions&quot;</span>, <span class="ident">permission</span>)])
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">json</span>()
+        <span class="kw">let </span>result: GoogleResponse&lt;TestIamPermission&gt; = <span class="self">self
+            </span>.<span class="number">0
+            </span>.client
+            .get(<span class="kw-2">&amp;</span>url)
+            .headers(<span class="self">self</span>.<span class="number">0</span>.get_headers().<span class="kw">await</span><span class="question-mark">?</span>)
+            .query(<span class="kw-2">&amp;</span>[(<span class="string">&quot;permissions&quot;</span>, permission)])
+            .send()
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.json()
             .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="ident">GoogleResponse::Success</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>),
-            <span class="ident">GoogleResponse::Error</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
+        <span class="kw">match </span>result {
+            GoogleResponse::Success(s) =&gt; <span class="prelude-val">Ok</span>(s),
+            GoogleResponse::Error(e) =&gt; <span class="prelude-val">Err</span>(e.into()),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

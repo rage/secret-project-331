@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/body/either.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>either.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/body/either.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>either.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -122,127 +122,127 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BodySize</span>, <span class="ident">BoxBody</span>, <span class="ident">MessageBody</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error</span>;
+<span class="kw">use super</span>::{BodySize, BoxBody, MessageBody};
+<span class="kw">use </span><span class="kw">crate</span>::Error;
 
-<span class="macro">pin_project!</span> {
-    <span class="doccomment">/// An &quot;either&quot; type specialized for body types.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It is common, in middleware especially, to conditionally return an inner service&#39;s unknown/</span>
-    <span class="doccomment">/// generic body `B` type or return early with a new response. This type&#39;s &quot;right&quot; variant</span>
-    <span class="doccomment">/// defaults to `BoxBody` since error responses are the common case.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For example, middleware will often have `type Response = ServiceResponse&lt;EitherBody&lt;B&gt;&gt;`.</span>
-    <span class="doccomment">/// This means that the inner service&#39;s response body type maps to the `Left` variant and the</span>
-    <span class="doccomment">/// middleware&#39;s own error responses use the default `Right` variant of `BoxBody`. Of course,</span>
-    <span class="doccomment">/// there&#39;s no reason it couldn&#39;t use `EitherBody&lt;B, String&gt;` instead if its alternative</span>
-    <span class="doccomment">/// responses have a known type.</span>
-    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">EitherBodyProj</span>]</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span> <span class="op">=</span> <span class="ident">BoxBody</span><span class="op">&gt;</span> {
-        <span class="doccomment">/// A body of type `L`.</span>
-        <span class="ident">Left</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">body</span>: <span class="ident">L</span> },
+<span class="macro">pin_project! </span>{
+    <span class="doccomment">/// An &quot;either&quot; type specialized for body types.
+    ///
+    /// It is common, in middleware especially, to conditionally return an inner service&#39;s unknown/
+    /// generic body `B` type or return early with a new response. This type&#39;s &quot;right&quot; variant
+    /// defaults to `BoxBody` since error responses are the common case.
+    ///
+    /// For example, middleware will often have `type Response = ServiceResponse&lt;EitherBody&lt;B&gt;&gt;`.
+    /// This means that the inner service&#39;s response body type maps to the `Left` variant and the
+    /// middleware&#39;s own error responses use the default `Right` variant of `BoxBody`. Of course,
+    /// there&#39;s no reason it couldn&#39;t use `EitherBody&lt;B, String&gt;` instead if its alternative
+    /// responses have a known type.
+    </span><span class="attribute">#[project = EitherBodyProj]
+    #[derive(Debug, Clone)]
+    </span><span class="kw">pub enum </span>EitherBody&lt;L, R = BoxBody&gt; {
+        <span class="doccomment">/// A body of type `L`.
+        </span>Left { <span class="attribute">#[pin] </span>body: L },
 
-        <span class="doccomment">/// A body of type `R`.</span>
-        <span class="ident">Right</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">body</span>: <span class="ident">R</span> },
+        <span class="doccomment">/// A body of type `R`.
+        </span>Right { <span class="attribute">#[pin] </span>body: R },
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">L</span><span class="op">&gt;</span> <span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">BoxBody</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates new `EitherBody` left variant with a boxed right variant.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the expected `R` type will be inferred and is not `BoxBody` then use the</span>
-    <span class="doccomment">/// [`left`](Self::left) constructor instead.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">body</span>: <span class="ident">L</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Left</span> { <span class="ident">body</span> }
+<span class="kw">impl</span>&lt;L&gt; EitherBody&lt;L, BoxBody&gt; {
+    <span class="doccomment">/// Creates new `EitherBody` left variant with a boxed right variant.
+    ///
+    /// If the expected `R` type will be inferred and is not `BoxBody` then use the
+    /// [`left`](Self::left) constructor instead.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>new(body: L) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Left { body }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates new `EitherBody` using left variant.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left</span>(<span class="ident">body</span>: <span class="ident">L</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Left</span> { <span class="ident">body</span> }
+<span class="kw">impl</span>&lt;L, R&gt; EitherBody&lt;L, R&gt; {
+    <span class="doccomment">/// Creates new `EitherBody` using left variant.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>left(body: L) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Left { body }
     }
 
-    <span class="doccomment">/// Creates new `EitherBody` using right variant.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">right</span>(<span class="ident">body</span>: <span class="ident">R</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Right</span> { <span class="ident">body</span> }
+    <span class="doccomment">/// Creates new `EitherBody` using right variant.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>right(body: R) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Right { body }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">MessageBody</span> <span class="kw">for</span> <span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">L</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">R</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;L, R&gt; MessageBody <span class="kw">for </span>EitherBody&lt;L, R&gt;
+<span class="kw">where
+    </span>L: MessageBody + <span class="lifetime">&#39;static</span>,
+    R: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+    <span class="kw">type </span>Error = Error;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BodySize</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EitherBody::Left</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>.<span class="ident">size</span>(),
-            <span class="ident">EitherBody::Right</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>.<span class="ident">size</span>(),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BodySize {
+        <span class="kw">match </span><span class="self">self </span>{
+            EitherBody::Left { body } =&gt; body.size(),
+            EitherBody::Right { body } =&gt; body.size(),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(
-        <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">project</span>() {
-            <span class="ident">EitherBodyProj::Left</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>
-                .<span class="ident">poll_next</span>(<span class="ident">cx</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">Error::new_body</span>().<span class="ident">with_cause</span>(<span class="ident">err</span>)),
-            <span class="ident">EitherBodyProj::Right</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>
-                .<span class="ident">poll_next</span>(<span class="ident">cx</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">Error::new_body</span>().<span class="ident">with_cause</span>(<span class="ident">err</span>)),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>poll_next(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        <span class="kw">match </span><span class="self">self</span>.project() {
+            EitherBodyProj::Left { body } =&gt; body
+                .poll_next(cx)
+                .map_err(|err| Error::new_body().with_cause(err)),
+            EitherBodyProj::Right { body } =&gt; body
+                .poll_next(cx)
+                .map_err(|err| Error::new_body().with_cause(err)),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_into_bytes</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EitherBody::Left</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>
-                .<span class="ident">try_into_bytes</span>()
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">body</span><span class="op">|</span> <span class="ident">EitherBody::Left</span> { <span class="ident">body</span> }),
-            <span class="ident">EitherBody::Right</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>
-                .<span class="ident">try_into_bytes</span>()
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">body</span><span class="op">|</span> <span class="ident">EitherBody::Right</span> { <span class="ident">body</span> }),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_into_bytes(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, <span class="self">Self</span>&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            EitherBody::Left { body } =&gt; body
+                .try_into_bytes()
+                .map_err(|body| EitherBody::Left { body }),
+            EitherBody::Right { body } =&gt; body
+                .try_into_bytes()
+                .map_err(|body| EitherBody::Right { body }),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">boxed</span>(<span class="self">self</span>) -&gt; <span class="ident">BoxBody</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EitherBody::Left</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>.<span class="ident">boxed</span>(),
-            <span class="ident">EitherBody::Right</span> { <span class="ident">body</span> } =&gt; <span class="ident">body</span>.<span class="ident">boxed</span>(),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>boxed(<span class="self">self</span>) -&gt; BoxBody {
+        <span class="kw">match </span><span class="self">self </span>{
+            EitherBody::Left { body } =&gt; body.boxed(),
+            EitherBody::Right { body } =&gt; body.boxed(),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">type_parameter_inference</span>() {
-        <span class="kw">let</span> <span class="ident">_body</span>: <span class="ident">EitherBody</span><span class="op">&lt;</span>(), <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">EitherBody::new</span>(());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>type_parameter_inference() {
+        <span class="kw">let </span>_body: EitherBody&lt;(), <span class="kw">_</span>&gt; = EitherBody::new(());
 
-        <span class="kw">let</span> <span class="ident">_body</span>: <span class="ident">EitherBody</span><span class="op">&lt;</span><span class="kw">_</span>, ()<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">EitherBody::left</span>(());
-        <span class="kw">let</span> <span class="ident">_body</span>: <span class="ident">EitherBody</span><span class="op">&lt;</span>(), <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">EitherBody::right</span>(());
+        <span class="kw">let </span>_body: EitherBody&lt;<span class="kw">_</span>, ()&gt; = EitherBody::left(());
+        <span class="kw">let </span>_body: EitherBody&lt;(), <span class="kw">_</span>&gt; = EitherBody::right(());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

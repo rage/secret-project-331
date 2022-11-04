@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cloud_storage/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cloud_storage/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -218,225 +218,225 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
-</pre><pre class="rust"><code><span class="doccomment">//! This crate aims to simplify interacting with the Google Cloud Storage JSON API. Use it until</span>
-<span class="doccomment">//! Google releases a Cloud Storage Client Library for Rust. Shoutout to</span>
-<span class="doccomment">//! [MyEmma](https://myemma.io/) for funding this free and open source project.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Google Cloud Storage is a product by Google that allows for cheap file storage, with a</span>
-<span class="doccomment">//! relatively sophisticated API. The idea is that storage happens in `Bucket`s, which are</span>
-<span class="doccomment">//! filesystems with a globally unique name. You can make as many of these `Bucket`s as you like!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This project talks to Google using a `Service Account`. A service account is an account that you</span>
-<span class="doccomment">//! must create in the [cloud storage console](https://console.cloud.google.com/). When the account</span>
-<span class="doccomment">//! is created, you can download the file `service-account-********.json`. Store this file somewhere</span>
-<span class="doccomment">//! on your machine, and place the path to this file in the environment parameter `SERVICE_ACCOUNT`.</span>
-<span class="doccomment">//! Environment parameters declared in the `.env` file are also registered. The service account can</span>
-<span class="doccomment">//! then be granted `Roles` in the cloud storage console. The roles required for this project to</span>
-<span class="doccomment">//! function are `Service Account Token Creator` and `Storage Object Admin`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Quickstart</span>
-<span class="doccomment">//! Add the following line to your `Cargo.toml`</span>
-<span class="doccomment">//! ```toml</span>
-<span class="doccomment">//! [dependencies]</span>
-<span class="doccomment">//! cloud-storage = &quot;0.10&quot;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! The two most important concepts are [Buckets](bucket/struct.Bucket.html), which represent</span>
-<span class="doccomment">//! file systems, and [Objects](object/struct.Object.html), which represent files.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Examples:</span>
-<span class="doccomment">//! Creating a new Bucket in Google Cloud Storage:</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! # use cloud_storage::{Client, Bucket, NewBucket};</span>
-<span class="doccomment">//! # #[tokio::main]</span>
-<span class="doccomment">//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">//! let client = Client::default();</span>
-<span class="doccomment">//! let bucket = client.bucket().create(&amp;NewBucket {</span>
-<span class="doccomment">//!     name: &quot;doctest-bucket&quot;.to_string(),</span>
-<span class="doccomment">//!     ..Default::default()</span>
-<span class="doccomment">//! }).await?;</span>
-<span class="doccomment">//! # client.bucket().delete(bucket).await?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! Connecting to an existing Bucket in Google Cloud Storage:</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use cloud_storage::{Client, Bucket};</span>
-<span class="doccomment">//! # #[tokio::main]</span>
-<span class="doccomment">//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">//! let client = Client::default();</span>
-<span class="doccomment">//! let bucket = client.bucket().read(&quot;mybucket&quot;).await?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! Read a file from disk and store it on googles server:</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! # use cloud_storage::{Client, Object};</span>
-<span class="doccomment">//! # use std::fs::File;</span>
-<span class="doccomment">//! # use std::io::Read;</span>
-<span class="doccomment">//! # #[tokio::main]</span>
-<span class="doccomment">//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">//! let mut bytes: Vec&lt;u8&gt; = Vec::new();</span>
-<span class="doccomment">//! for byte in File::open(&quot;myfile.txt&quot;)?.bytes() {</span>
-<span class="doccomment">//!     bytes.push(byte?)</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! let client = Client::default();</span>
-<span class="doccomment">//! client.object().create(&quot;mybucket&quot;, bytes, &quot;myfile.txt&quot;, &quot;text/plain&quot;).await?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! Renaming/moving a file</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! # use cloud_storage::{Client, Object};</span>
-<span class="doccomment">//! # #[tokio::main]</span>
-<span class="doccomment">//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">//! let client = Client::default();</span>
-<span class="doccomment">//! let mut object = client.object().read(&quot;mybucket&quot;, &quot;myfile&quot;).await?;</span>
-<span class="doccomment">//! object.content_type = Some(&quot;application/xml&quot;.to_string());</span>
-<span class="doccomment">//! client.object().update(&amp;object).await?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! Removing a file</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! # use cloud_storage::{Client, Object};</span>
-<span class="doccomment">//! # #[tokio::main]</span>
-<span class="doccomment">//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">//! let client = Client::default();</span>
-<span class="doccomment">//! client.object().delete(&quot;mybucket&quot;, &quot;myfile&quot;).await?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>, <span class="ident">missing_docs</span>)]</span>
+</pre><pre class="rust"><code><span class="doccomment">//! This crate aims to simplify interacting with the Google Cloud Storage JSON API. Use it until
+//! Google releases a Cloud Storage Client Library for Rust. Shoutout to
+//! [MyEmma](https://myemma.io/) for funding this free and open source project.
+//!
+//! Google Cloud Storage is a product by Google that allows for cheap file storage, with a
+//! relatively sophisticated API. The idea is that storage happens in `Bucket`s, which are
+//! filesystems with a globally unique name. You can make as many of these `Bucket`s as you like!
+//!
+//! This project talks to Google using a `Service Account`. A service account is an account that you
+//! must create in the [cloud storage console](https://console.cloud.google.com/). When the account
+//! is created, you can download the file `service-account-********.json`. Store this file somewhere
+//! on your machine, and place the path to this file in the environment parameter `SERVICE_ACCOUNT`.
+//! Environment parameters declared in the `.env` file are also registered. The service account can
+//! then be granted `Roles` in the cloud storage console. The roles required for this project to
+//! function are `Service Account Token Creator` and `Storage Object Admin`.
+//!
+//! # Quickstart
+//! Add the following line to your `Cargo.toml`
+//! ```toml
+//! [dependencies]
+//! cloud-storage = &quot;0.10&quot;
+//! ```
+//! The two most important concepts are [Buckets](bucket/struct.Bucket.html), which represent
+//! file systems, and [Objects](object/struct.Object.html), which represent files.
+//!
+//! ## Examples:
+//! Creating a new Bucket in Google Cloud Storage:
+//! ```rust
+//! # use cloud_storage::{Client, Bucket, NewBucket};
+//! # #[tokio::main]
+//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! let client = Client::default();
+//! let bucket = client.bucket().create(&amp;NewBucket {
+//!     name: &quot;doctest-bucket&quot;.to_string(),
+//!     ..Default::default()
+//! }).await?;
+//! # client.bucket().delete(bucket).await?;
+//! # Ok(())
+//! # }
+//! ```
+//! Connecting to an existing Bucket in Google Cloud Storage:
+//! ```no_run
+//! # use cloud_storage::{Client, Bucket};
+//! # #[tokio::main]
+//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! let client = Client::default();
+//! let bucket = client.bucket().read(&quot;mybucket&quot;).await?;
+//! # Ok(())
+//! # }
+//! ```
+//! Read a file from disk and store it on googles server:
+//! ```rust,no_run
+//! # use cloud_storage::{Client, Object};
+//! # use std::fs::File;
+//! # use std::io::Read;
+//! # #[tokio::main]
+//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! let mut bytes: Vec&lt;u8&gt; = Vec::new();
+//! for byte in File::open(&quot;myfile.txt&quot;)?.bytes() {
+//!     bytes.push(byte?)
+//! }
+//! let client = Client::default();
+//! client.object().create(&quot;mybucket&quot;, bytes, &quot;myfile.txt&quot;, &quot;text/plain&quot;).await?;
+//! # Ok(())
+//! # }
+//! ```
+//! Renaming/moving a file
+//! ```rust,no_run
+//! # use cloud_storage::{Client, Object};
+//! # #[tokio::main]
+//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! let client = Client::default();
+//! let mut object = client.object().read(&quot;mybucket&quot;, &quot;myfile&quot;).await?;
+//! object.content_type = Some(&quot;application/xml&quot;.to_string());
+//! client.object().update(&amp;object).await?;
+//! # Ok(())
+//! # }
+//! ```
+//! Removing a file
+//! ```rust,no_run
+//! # use cloud_storage::{Client, Object};
+//! # #[tokio::main]
+//! # async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! let client = Client::default();
+//! client.object().delete(&quot;mybucket&quot;, &quot;myfile&quot;).await?;
+//! # Ok(())
+//! # }
+//! ```
+</span><span class="attribute">#![forbid(unsafe_code, missing_docs)]
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">client</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">sync</span>;
+</span><span class="kw">pub mod </span>client;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sync&quot;</span>)]
+</span><span class="kw">pub mod </span>sync;
 
-<span class="kw">mod</span> <span class="ident">download_options</span>;
-<span class="kw">mod</span> <span class="ident">error</span>;
-<span class="doccomment">/// Contains objects as represented by Google, to be used for serialization and deserialization.</span>
-<span class="kw">mod</span> <span class="ident">resources</span>;
-<span class="kw">mod</span> <span class="ident">token</span>;
+<span class="kw">mod </span>download_options;
+<span class="kw">mod </span>error;
+<span class="doccomment">/// Contains objects as represented by Google, to be used for serialization and deserialization.
+</span><span class="kw">mod </span>resources;
+<span class="kw">mod </span>token;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::resources::service_account::ServiceAccount</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">client::Client</span>,
-    <span class="ident">error</span>::<span class="kw-2">*</span>,
-    <span class="ident">resources</span>::{
-        <span class="ident">bucket</span>::{<span class="ident">Bucket</span>, <span class="ident">NewBucket</span>},
-        <span class="ident">object</span>::{<span class="ident">ListRequest</span>, <span class="ident">Object</span>},
+<span class="kw">use </span><span class="kw">crate</span>::resources::service_account::ServiceAccount;
+<span class="kw">pub use crate</span>::{
+    client::Client,
+    error::<span class="kw-2">*</span>,
+    resources::{
+        bucket::{Bucket, NewBucket},
+        object::{ListRequest, Object},
         <span class="kw-2">*</span>,
     },
-    <span class="ident">token</span>::{<span class="ident">Token</span>, <span class="ident">TokenCache</span>},
+    token::{Token, TokenCache},
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">download_options::DownloadOptions</span>;
-<span class="kw">use</span> <span class="ident">tokio::sync::Mutex</span>;
+<span class="kw">pub use </span>download_options::DownloadOptions;
+<span class="kw">use </span>tokio::sync::Mutex;
 
-<span class="macro">lazy_static::lazy_static!</span> {
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">IAM_TOKEN_CACHE</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex::new</span>(<span class="ident">Token::new</span>(
-        <span class="string">&quot;https://www.googleapis.com/auth/iam&quot;</span>
-    ));
+<span class="macro">lazy_static::lazy_static! </span>{
+    <span class="kw">static </span><span class="kw-2">ref </span>IAM_TOKEN_CACHE: Mutex&lt;Token&gt; = Mutex::new(Token::new(
+        <span class="string">&quot;https://www.googleapis.com/auth/iam&quot;
+    </span>));
 
-    <span class="doccomment">/// The struct is the parsed service account json file. It is publicly exported to enable easier</span>
-    <span class="doccomment">/// debugging of which service account is currently used. It is of the type</span>
-    <span class="doccomment">/// [ServiceAccount](service_account/struct.ServiceAccount.html).</span>
-    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">SERVICE_ACCOUNT</span>: <span class="ident">ServiceAccount</span> <span class="op">=</span> <span class="ident">ServiceAccount::get</span>();
+    <span class="doccomment">/// The struct is the parsed service account json file. It is publicly exported to enable easier
+    /// debugging of which service account is currently used. It is of the type
+    /// [ServiceAccount](service_account/struct.ServiceAccount.html).
+    </span><span class="kw">pub static </span><span class="kw-2">ref </span>SERVICE_ACCOUNT: ServiceAccount = ServiceAccount::get();
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>)]</span>
-<span class="macro">lazy_static::lazy_static!</span> {
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CLOUD_CLIENT</span>: <span class="ident">client::Client</span> <span class="op">=</span> <span class="ident">client::Client::default</span>();
+<span class="attribute">#[cfg(feature = <span class="string">&quot;global-client&quot;</span>)]
+</span><span class="macro">lazy_static::lazy_static! </span>{
+    <span class="kw">static </span><span class="kw-2">ref </span>CLOUD_CLIENT: client::Client = client::Client::default();
 }
 
-<span class="doccomment">/// A type alias where the error is set to be `cloud_storage::Error`.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A type alias where the error is set to be `cloud_storage::Error`.
+</span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, <span class="kw">crate</span>::Error&gt;;
 
-<span class="kw">const</span> <span class="ident">BASE_URL</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;https://storage.googleapis.com/storage/v1&quot;</span>;
+<span class="kw">const </span>BASE_URL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;https://storage.googleapis.com/storage/v1&quot;</span>;
 
-<span class="kw">fn</span> <span class="ident">from_str</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">std::str::FromStr</span>,
-    <span class="ident">T::Err</span>: <span class="ident">std::fmt::Display</span>,
-    <span class="ident">D</span>: <span class="ident">serde::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="kw">fn </span>from_str&lt;<span class="lifetime">&#39;de</span>, T, D&gt;(deserializer: D) -&gt; std::result::Result&lt;T, D::Error&gt;
+<span class="kw">where
+    </span>T: std::str::FromStr,
+    T::Err: std::fmt::Display,
+    D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
 {
-    <span class="kw">use</span> <span class="ident">serde::de::Deserialize</span>;
-    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::deserialize</span>(<span class="ident">deserializer</span>)<span class="question-mark">?</span>;
-    <span class="ident">T::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>).<span class="ident">map_err</span>(<span class="ident">serde::de::Error::custom</span>)
+    <span class="kw">use </span>serde::de::Deserialize;
+    <span class="kw">let </span>s = String::deserialize(deserializer)<span class="question-mark">?</span>;
+    T::from_str(<span class="kw-2">&amp;</span>s).map_err(serde::de::Error::custom)
 }
 
-<span class="kw">fn</span> <span class="ident">from_str_opt</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">std::str::FromStr</span>,
-    <span class="ident">T::Err</span>: <span class="ident">std::fmt::Display</span>,
-    <span class="ident">D</span>: <span class="ident">serde::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="kw">fn </span>from_str_opt&lt;<span class="lifetime">&#39;de</span>, T, D&gt;(deserializer: D) -&gt; std::result::Result&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, D::Error&gt;
+<span class="kw">where
+    </span>T: std::str::FromStr,
+    T::Err: std::fmt::Display,
+    D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
 {
-    <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">serde::Deserialize::deserialize</span>(<span class="ident">deserializer</span>);
-    <span class="kw">match</span> <span class="ident">s</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">serde_json::Value::String</span>(<span class="ident">s</span>)) =&gt; <span class="ident">T::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>)
-            .<span class="ident">map_err</span>(<span class="ident">serde::de::Error::custom</span>)
-            .<span class="ident">map</span>(<span class="ident">Option::from</span>),
-        <span class="prelude-val">Ok</span>(<span class="ident">serde_json::Value::Number</span>(<span class="ident">num</span>)) =&gt; <span class="ident">T::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">num</span>.<span class="ident">to_string</span>())
-            .<span class="ident">map_err</span>(<span class="ident">serde::de::Error::custom</span>)
-            .<span class="ident">map</span>(<span class="ident">Option::from</span>),
-        <span class="prelude-val">Ok</span>(<span class="ident">_value</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">serde::de::Error::custom</span>(<span class="string">&quot;Incorrect type&quot;</span>)),
+    <span class="kw">let </span>s: std::result::Result&lt;serde_json::Value, <span class="kw">_</span>&gt; =
+        serde::Deserialize::deserialize(deserializer);
+    <span class="kw">match </span>s {
+        <span class="prelude-val">Ok</span>(serde_json::Value::String(s)) =&gt; T::from_str(<span class="kw-2">&amp;</span>s)
+            .map_err(serde::de::Error::custom)
+            .map(Option::from),
+        <span class="prelude-val">Ok</span>(serde_json::Value::Number(num)) =&gt; T::from_str(<span class="kw-2">&amp;</span>num.to_string())
+            .map_err(serde::de::Error::custom)
+            .map(Option::from),
+        <span class="prelude-val">Ok</span>(_value) =&gt; <span class="prelude-val">Err</span>(serde::de::Error::custom(<span class="string">&quot;Incorrect type&quot;</span>)),
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">read_test_bucket_sync</span>() -&gt; <span class="ident">Bucket</span> {
-    <span class="ident"><span class="kw">crate</span>::runtime</span>().<span class="ident">unwrap</span>().<span class="ident">block_on</span>(<span class="ident">read_test_bucket</span>())
+<span class="attribute">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+</span><span class="kw">fn </span>read_test_bucket_sync() -&gt; Bucket {
+    <span class="kw">crate</span>::runtime().unwrap().block_on(read_test_bucket())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_test_bucket</span>() -&gt; <span class="ident">Bucket</span> {
-    <span class="ident">dotenv::dotenv</span>().<span class="ident">ok</span>();
-    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;TEST_BUCKET&quot;</span>).<span class="ident">unwrap</span>();
-    <span class="kw">match</span> <span class="ident">Bucket::read</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>).<span class="kw">await</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">bucket</span>) =&gt; <span class="ident">bucket</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">_not_found</span>) =&gt; <span class="ident">Bucket::create</span>(<span class="kw-2">&amp;</span><span class="ident">NewBucket</span> {
-            <span class="ident">name</span>,
-            ..<span class="ident">NewBucket::default</span>()
+<span class="attribute">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>))]
+</span><span class="kw">async fn </span>read_test_bucket() -&gt; Bucket {
+    dotenv::dotenv().ok();
+    <span class="kw">let </span>name = std::env::var(<span class="string">&quot;TEST_BUCKET&quot;</span>).unwrap();
+    <span class="kw">match </span>Bucket::read(<span class="kw-2">&amp;</span>name).<span class="kw">await </span>{
+        <span class="prelude-val">Ok</span>(bucket) =&gt; bucket,
+        <span class="prelude-val">Err</span>(_not_found) =&gt; Bucket::create(<span class="kw-2">&amp;</span>NewBucket {
+            name,
+            ..NewBucket::default()
         })
-        .<span class="kw">await</span>
-        .<span class="ident">unwrap</span>(),
+        .<span class="kw">await
+        </span>.unwrap(),
     }
 }
 
-<span class="comment">// since all tests run in parallel, we need to make sure we do not create multiple buckets with</span>
-<span class="comment">// the same name in each test.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">create_test_bucket_sync</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Bucket</span> {
-    <span class="ident"><span class="kw">crate</span>::runtime</span>().<span class="ident">unwrap</span>().<span class="ident">block_on</span>(<span class="ident">create_test_bucket</span>(<span class="ident">name</span>))
+<span class="comment">// since all tests run in parallel, we need to make sure we do not create multiple buckets with
+// the same name in each test.
+</span><span class="attribute">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>, feature = <span class="string">&quot;sync&quot;</span>))]
+</span><span class="kw">fn </span>create_test_bucket_sync(name: <span class="kw-2">&amp;</span>str) -&gt; Bucket {
+    <span class="kw">crate</span>::runtime().unwrap().block_on(create_test_bucket(name))
 }
 
-<span class="comment">// since all tests run in parallel, we need to make sure we do not create multiple buckets with</span>
-<span class="comment">// the same name in each test.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;global-client&quot;</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_test_bucket</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Bucket</span> {
-    <span class="ident">std::thread::sleep</span>(<span class="ident">std::time::Duration::from_millis</span>(<span class="number">1500</span>)); <span class="comment">// avoid getting rate limited</span>
+<span class="comment">// since all tests run in parallel, we need to make sure we do not create multiple buckets with
+// the same name in each test.
+</span><span class="attribute">#[cfg(all(test, feature = <span class="string">&quot;global-client&quot;</span>))]
+</span><span class="kw">async fn </span>create_test_bucket(name: <span class="kw-2">&amp;</span>str) -&gt; Bucket {
+    std::thread::sleep(std::time::Duration::from_millis(<span class="number">1500</span>)); <span class="comment">// avoid getting rate limited
 
-    <span class="ident">dotenv::dotenv</span>().<span class="ident">ok</span>();
-    <span class="kw">let</span> <span class="ident">base_name</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;TEST_BUCKET&quot;</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, <span class="ident">base_name</span>, <span class="ident">name</span>);
-    <span class="kw">let</span> <span class="ident">new_bucket</span> <span class="op">=</span> <span class="ident">NewBucket</span> {
-        <span class="ident">name</span>,
-        ..<span class="ident">NewBucket::default</span>()
+    </span>dotenv::dotenv().ok();
+    <span class="kw">let </span>base_name = std::env::var(<span class="string">&quot;TEST_BUCKET&quot;</span>).unwrap();
+    <span class="kw">let </span>name = <span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, base_name, name);
+    <span class="kw">let </span>new_bucket = NewBucket {
+        name,
+        ..NewBucket::default()
     };
-    <span class="kw">match</span> <span class="ident">Bucket::create</span>(<span class="kw-2">&amp;</span><span class="ident">new_bucket</span>).<span class="kw">await</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">bucket</span>) =&gt; <span class="ident">bucket</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">_alread_exists</span>) =&gt; <span class="ident">Bucket::read</span>(<span class="kw-2">&amp;</span><span class="ident">new_bucket</span>.<span class="ident">name</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>(),
+    <span class="kw">match </span>Bucket::create(<span class="kw-2">&amp;</span>new_bucket).<span class="kw">await </span>{
+        <span class="prelude-val">Ok</span>(bucket) =&gt; bucket,
+        <span class="prelude-val">Err</span>(_alread_exists) =&gt; Bucket::read(<span class="kw-2">&amp;</span>new_bucket.name).<span class="kw">await</span>.unwrap(),
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sync&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">runtime</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">tokio::runtime::Runtime</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Ok</span>(<span class="ident">tokio::runtime::Builder::new_current_thread</span>()
-        .<span class="ident">thread_name</span>(<span class="string">&quot;cloud-storage-worker&quot;</span>)
-        .<span class="ident">enable_time</span>()
-        .<span class="ident">enable_io</span>()
-        .<span class="ident">build</span>()<span class="question-mark">?</span>)
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sync&quot;</span>)]
+</span><span class="kw">fn </span>runtime() -&gt; <span class="prelude-ty">Result</span>&lt;tokio::runtime::Runtime&gt; {
+    <span class="prelude-val">Ok</span>(tokio::runtime::Builder::new_current_thread()
+        .thread_name(<span class="string">&quot;cloud-storage-worker&quot;</span>)
+        .enable_time()
+        .enable_io()
+        .build()<span class="question-mark">?</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/pool/sync_impl.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>sync_impl.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/pool/sync_impl.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>sync_impl.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -259,264 +259,264 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>},
-    <span class="ident">mem</span>,
-    <span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>},
-    <span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>, <span class="ident">TryLockError</span>},
-    <span class="ident">thread</span>,
-    <span class="ident">time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    fmt::{<span class="self">self</span>, Debug},
+    mem,
+    ops::{Deref, DerefMut},
+    sync::{Arc, Mutex, TryLockError},
+    thread,
+    time::{Duration, Instant},
 };
 
-<span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="kw">super</span>::{<span class="ident">client::SmtpConnection</span>, <span class="ident">Error</span>},
-    <span class="ident">PoolConfig</span>,
+<span class="kw">use super</span>::{
+    <span class="kw">super</span>::{client::SmtpConnection, Error},
+    PoolConfig,
 };
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp::transport::SmtpClient</span>;
+<span class="kw">use </span><span class="kw">crate</span>::transport::smtp::transport::SmtpClient;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pool</span> {
-    <span class="ident">config</span>: <span class="ident">PoolConfig</span>,
-    <span class="ident">connections</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedConnection</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">client</span>: <span class="ident">SmtpClient</span>,
+<span class="kw">pub struct </span>Pool {
+    config: PoolConfig,
+    connections: Mutex&lt;Vec&lt;ParkedConnection&gt;&gt;,
+    client: SmtpClient,
 }
 
-<span class="kw">struct</span> <span class="ident">ParkedConnection</span> {
-    <span class="ident">conn</span>: <span class="ident">SmtpConnection</span>,
-    <span class="ident">since</span>: <span class="ident">Instant</span>,
+<span class="kw">struct </span>ParkedConnection {
+    conn: SmtpConnection,
+    since: Instant,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PooledConnection</span> {
-    <span class="ident">conn</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SmtpConnection</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>PooledConnection {
+    conn: <span class="prelude-ty">Option</span>&lt;SmtpConnection&gt;,
+    pool: Arc&lt;Pool&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Pool</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">config</span>: <span class="ident">PoolConfig</span>, <span class="ident">client</span>: <span class="ident">SmtpClient</span>) -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="self">Self</span> {
-            <span class="ident">config</span>,
-            <span class="ident">connections</span>: <span class="ident">Mutex::new</span>(<span class="ident">Vec::new</span>()),
-            <span class="ident">client</span>,
+<span class="kw">impl </span>Pool {
+    <span class="kw">pub fn </span>new(config: PoolConfig, client: SmtpClient) -&gt; Arc&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>pool = Arc::new(<span class="self">Self </span>{
+            config,
+            connections: Mutex::new(Vec::new()),
+            client,
         });
 
         {
-            <span class="kw">let</span> <span class="ident">pool_</span> <span class="op">=</span> <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>);
+            <span class="kw">let </span>pool_ = Arc::clone(<span class="kw-2">&amp;</span>pool);
 
-            <span class="kw">let</span> <span class="ident">min_idle</span> <span class="op">=</span> <span class="ident">pool_</span>.<span class="ident">config</span>.<span class="ident">min_idle</span>;
-            <span class="kw">let</span> <span class="ident">idle_timeout</span> <span class="op">=</span> <span class="ident">pool_</span>.<span class="ident">config</span>.<span class="ident">idle_timeout</span>;
-            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Arc::downgrade</span>(<span class="kw-2">&amp;</span><span class="ident">pool_</span>);
+            <span class="kw">let </span>min_idle = pool_.config.min_idle;
+            <span class="kw">let </span>idle_timeout = pool_.config.idle_timeout;
+            <span class="kw">let </span>pool = Arc::downgrade(<span class="kw-2">&amp;</span>pool_);
 
-            <span class="ident">thread::Builder::new</span>()
-                .<span class="ident">name</span>(<span class="string">&quot;lettre-connection-pool&quot;</span>.<span class="ident">into</span>())
-                .<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-                    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pool</span>) <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">upgrade</span>() {
-                        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                        <span class="macro">tracing::trace!</span>(<span class="string">&quot;running cleanup tasks&quot;</span>);
+            thread::Builder::new()
+                .name(<span class="string">&quot;lettre-connection-pool&quot;</span>.into())
+                .spawn(<span class="kw">move </span>|| {
+                    <span class="kw">while let </span><span class="prelude-val">Some</span>(pool) = pool.upgrade() {
+                        <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                        </span><span class="macro">tracing::trace!</span>(<span class="string">&quot;running cleanup tasks&quot;</span>);
 
-                        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::needless_collect</span>)]</span>
-                        <span class="kw">let</span> (<span class="ident">count</span>, <span class="ident">dropped</span>) <span class="op">=</span> {
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connections</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">connections</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
+                        <span class="attribute">#[allow(clippy::needless_collect)]
+                        </span><span class="kw">let </span>(count, dropped) = {
+                            <span class="kw">let </span><span class="kw-2">mut </span>connections = pool.connections.lock().unwrap();
 
-                            <span class="kw">let</span> <span class="ident">to_drop</span> <span class="op">=</span> <span class="ident">connections</span>
-                                .<span class="ident">iter</span>()
-                                .<span class="ident">enumerate</span>()
-                                .<span class="ident">rev</span>()
-                                .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">conn</span>)<span class="op">|</span> <span class="ident">conn</span>.<span class="ident">idle_duration</span>() <span class="op">&gt;</span> <span class="ident">idle_timeout</span>)
-                                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span>)
-                                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-                            <span class="kw">let</span> <span class="ident">dropped</span> <span class="op">=</span> <span class="ident">to_drop</span>
-                                .<span class="ident">into_iter</span>()
-                                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">connections</span>.<span class="ident">remove</span>(<span class="ident">i</span>))
-                                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+                            <span class="kw">let </span>to_drop = connections
+                                .iter()
+                                .enumerate()
+                                .rev()
+                                .filter(|(<span class="kw">_</span>, conn)| conn.idle_duration() &gt; idle_timeout)
+                                .map(|(i, <span class="kw">_</span>)| i)
+                                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                            <span class="kw">let </span>dropped = to_drop
+                                .into_iter()
+                                .map(|i| connections.remove(i))
+                                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-                            (<span class="ident">connections</span>.<span class="ident">len</span>(), <span class="ident">dropped</span>)
+                            (connections.len(), dropped)
                         };
 
-                        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">created</span> <span class="op">=</span> <span class="number">0</span>;
-                        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="ident">count</span>..<span class="op">=</span>(<span class="ident">min_idle</span> <span class="kw">as</span> <span class="ident">usize</span>) {
-                            <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pool</span>.<span class="ident">client</span>.<span class="ident">connection</span>() {
-                                <span class="prelude-val">Ok</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>,
-                                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                                    <span class="macro">tracing::warn!</span>(<span class="string">&quot;couldn&#39;t create idle connection {}&quot;</span>, <span class="ident">err</span>);
-                                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>))]</span>
-                                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">err</span>;
+                        <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                        </span><span class="kw">let </span><span class="kw-2">mut </span>created = <span class="number">0</span>;
+                        <span class="kw">for _ in </span>count..=(min_idle <span class="kw">as </span>usize) {
+                            <span class="kw">let </span>conn = <span class="kw">match </span>pool.client.connection() {
+                                <span class="prelude-val">Ok</span>(conn) =&gt; conn,
+                                <span class="prelude-val">Err</span>(err) =&gt; {
+                                    <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                                    </span><span class="macro">tracing::warn!</span>(<span class="string">&quot;couldn&#39;t create idle connection {}&quot;</span>, err);
+                                    <span class="attribute">#[cfg(not(feature = <span class="string">&quot;tracing&quot;</span>))]
+                                    </span><span class="kw">let _ </span>= err;
 
                                     <span class="kw">break</span>;
                                 }
                             };
 
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connections</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">connections</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-                            <span class="ident">connections</span>.<span class="ident">push</span>(<span class="ident">ParkedConnection::park</span>(<span class="ident">conn</span>));
+                            <span class="kw">let </span><span class="kw-2">mut </span>connections = pool.connections.lock().unwrap();
+                            connections.push(ParkedConnection::park(conn));
 
-                            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                            {
-                                <span class="ident">created</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                            <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                            </span>{
+                                created += <span class="number">1</span>;
                             }
                         }
 
-                        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                        <span class="kw">if</span> <span class="ident">created</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                            <span class="macro">tracing::debug!</span>(<span class="string">&quot;created {} idle connections&quot;</span>, <span class="ident">created</span>);
+                        <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                        </span><span class="kw">if </span>created &gt; <span class="number">0 </span>{
+                            <span class="macro">tracing::debug!</span>(<span class="string">&quot;created {} idle connections&quot;</span>, created);
                         }
 
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">dropped</span>.<span class="ident">is_empty</span>() {
-                            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                            <span class="macro">tracing::debug!</span>(<span class="string">&quot;dropped {} idle connections&quot;</span>, <span class="ident">dropped</span>.<span class="ident">len</span>());
+                        <span class="kw">if </span>!dropped.is_empty() {
+                            <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                            </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;dropped {} idle connections&quot;</span>, dropped.len());
 
-                            <span class="kw">for</span> <span class="ident">conn</span> <span class="kw">in</span> <span class="ident">dropped</span> {
-                                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">unpark</span>();
-                                <span class="ident">conn</span>.<span class="ident">abort</span>();
+                            <span class="kw">for </span>conn <span class="kw">in </span>dropped {
+                                <span class="kw">let </span><span class="kw-2">mut </span>conn = conn.unpark();
+                                conn.abort();
                             }
                         }
 
-                        <span class="ident">thread::sleep</span>(<span class="ident">idle_timeout</span>);
+                        thread::sleep(idle_timeout);
                     }
                 })
-                .<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t spawn the Pool thread&quot;</span>);
+                .expect(<span class="string">&quot;couldn&#39;t spawn the Pool thread&quot;</span>);
         }
 
-        <span class="ident">pool</span>
+        pool
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PooledConnection</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connections</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">connections</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-                <span class="ident">connections</span>.<span class="ident">pop</span>()
+    <span class="kw">pub fn </span>connection(<span class="self">self</span>: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;PooledConnection, Error&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>conn = {
+                <span class="kw">let </span><span class="kw-2">mut </span>connections = <span class="self">self</span>.connections.lock().unwrap();
+                connections.pop()
             };
 
-            <span class="kw">match</span> <span class="ident">conn</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">conn</span>) =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">unpark</span>();
+            <span class="kw">match </span>conn {
+                <span class="prelude-val">Some</span>(conn) =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>conn = conn.unpark();
 
-                    <span class="comment">// TODO: handle the client try another connection if this one isn&#39;t good</span>
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">conn</span>.<span class="ident">test_connected</span>() {
-                        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                        <span class="macro">tracing::debug!</span>(<span class="string">&quot;dropping a broken connection&quot;</span>);
+                    <span class="comment">// TODO: handle the client try another connection if this one isn&#39;t good
+                    </span><span class="kw">if </span>!conn.test_connected() {
+                        <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                        </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;dropping a broken connection&quot;</span>);
 
-                        <span class="ident">conn</span>.<span class="ident">abort</span>();
+                        conn.abort();
                         <span class="kw">continue</span>;
                     }
 
-                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                    <span class="macro">tracing::debug!</span>(<span class="string">&quot;reusing a pooled connection&quot;</span>);
+                    <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                    </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;reusing a pooled connection&quot;</span>);
 
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PooledConnection::wrap</span>(<span class="ident">conn</span>, <span class="ident">Arc::clone</span>(<span class="self">self</span>)));
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(PooledConnection::wrap(conn, Arc::clone(<span class="self">self</span>)));
                 }
-                <span class="prelude-val">None</span> =&gt; {
-                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-                    <span class="macro">tracing::debug!</span>(<span class="string">&quot;creating a new connection&quot;</span>);
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+                    </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;creating a new connection&quot;</span>);
 
-                    <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">connection</span>()<span class="question-mark">?</span>;
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PooledConnection::wrap</span>(<span class="ident">conn</span>, <span class="ident">Arc::clone</span>(<span class="self">self</span>)));
+                    <span class="kw">let </span>conn = <span class="self">self</span>.client.connection()<span class="question-mark">?</span>;
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(PooledConnection::wrap(conn, Arc::clone(<span class="self">self</span>)));
                 }
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">recycle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">conn</span>: <span class="ident">SmtpConnection</span>) {
-        <span class="kw">if</span> <span class="ident">conn</span>.<span class="ident">has_broken</span>() {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-            <span class="macro">tracing::debug!</span>(<span class="string">&quot;dropping a broken connection instead of recycling it&quot;</span>);
+    <span class="kw">fn </span>recycle(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>conn: SmtpConnection) {
+        <span class="kw">if </span>conn.has_broken() {
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+            </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;dropping a broken connection instead of recycling it&quot;</span>);
 
-            <span class="ident">conn</span>.<span class="ident">abort</span>();
-            <span class="ident">drop</span>(<span class="ident">conn</span>);
-        } <span class="kw">else</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-            <span class="macro">tracing::debug!</span>(<span class="string">&quot;recycling connection&quot;</span>);
+            conn.abort();
+            drop(conn);
+        } <span class="kw">else </span>{
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+            </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;recycling connection&quot;</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connections</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">connections</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">connections</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">max_size</span> <span class="kw">as</span> <span class="ident">usize</span> {
-                <span class="ident">drop</span>(<span class="ident">connections</span>);
-                <span class="ident">conn</span>.<span class="ident">abort</span>();
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">ParkedConnection::park</span>(<span class="ident">conn</span>);
-                <span class="ident">connections</span>.<span class="ident">push</span>(<span class="ident">conn</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>connections = <span class="self">self</span>.connections.lock().unwrap();
+            <span class="kw">if </span>connections.len() &gt;= <span class="self">self</span>.config.max_size <span class="kw">as </span>usize {
+                drop(connections);
+                conn.abort();
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>conn = ParkedConnection::park(conn);
+                connections.push(conn);
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Pool</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Pool&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;config&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>)
-            .<span class="ident">field</span>(
+<span class="kw">impl </span>Debug <span class="kw">for </span>Pool {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;Pool&quot;</span>)
+            .field(<span class="string">&quot;config&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.config)
+            .field(
                 <span class="string">&quot;connections&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="kw">match</span> <span class="self">self</span>.<span class="ident">connections</span>.<span class="ident">try_lock</span>() {
-                    <span class="prelude-val">Ok</span>(<span class="ident">connections</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} connections&quot;</span>, <span class="ident">connections</span>.<span class="ident">len</span>()),
+                <span class="kw-2">&amp;</span><span class="kw">match </span><span class="self">self</span>.connections.try_lock() {
+                    <span class="prelude-val">Ok</span>(connections) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{} connections&quot;</span>, connections.len()),
 
-                    <span class="prelude-val">Err</span>(<span class="ident">TryLockError::WouldBlock</span>) =&gt; <span class="string">&quot;LOCKED&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="prelude-val">Err</span>(<span class="ident">TryLockError::Poisoned</span>(<span class="kw">_</span>)) =&gt; <span class="string">&quot;POISONED&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="prelude-val">Err</span>(TryLockError::WouldBlock) =&gt; <span class="string">&quot;LOCKED&quot;</span>.to_string(),
+                    <span class="prelude-val">Err</span>(TryLockError::Poisoned(<span class="kw">_</span>)) =&gt; <span class="string">&quot;POISONED&quot;</span>.to_string(),
                 },
             )
-            .<span class="ident">field</span>(<span class="string">&quot;client&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client</span>)
-            .<span class="ident">finish</span>()
+            .field(<span class="string">&quot;client&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.client)
+            .finish()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Pool</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing&quot;</span>)]</span>
-        <span class="macro">tracing::debug!</span>(<span class="string">&quot;dropping Pool&quot;</span>);
+<span class="kw">impl </span>Drop <span class="kw">for </span>Pool {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;tracing&quot;</span>)]
+        </span><span class="macro">tracing::debug!</span>(<span class="string">&quot;dropping Pool&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">connections</span> <span class="op">=</span> <span class="ident">mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">connections</span>.<span class="ident">get_mut</span>().<span class="ident">unwrap</span>());
-        <span class="kw">for</span> <span class="ident">conn</span> <span class="kw">in</span> <span class="ident">connections</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">unpark</span>();
-            <span class="ident">conn</span>.<span class="ident">abort</span>();
+        <span class="kw">let </span>connections = mem::take(<span class="kw-2">&amp;mut *</span><span class="self">self</span>.connections.get_mut().unwrap());
+        <span class="kw">for </span>conn <span class="kw">in </span>connections {
+            <span class="kw">let </span><span class="kw-2">mut </span>conn = conn.unpark();
+            conn.abort();
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ParkedConnection</span> {
-    <span class="kw">fn</span> <span class="ident">park</span>(<span class="ident">conn</span>: <span class="ident">SmtpConnection</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">conn</span>,
-            <span class="ident">since</span>: <span class="ident">Instant::now</span>(),
+<span class="kw">impl </span>ParkedConnection {
+    <span class="kw">fn </span>park(conn: SmtpConnection) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            conn,
+            since: Instant::now(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">idle_duration</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="self">self</span>.<span class="ident">since</span>.<span class="ident">elapsed</span>()
+    <span class="kw">fn </span>idle_duration(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Duration {
+        <span class="self">self</span>.since.elapsed()
     }
 
-    <span class="kw">fn</span> <span class="ident">unpark</span>(<span class="self">self</span>) -&gt; <span class="ident">SmtpConnection</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>
+    <span class="kw">fn </span>unpark(<span class="self">self</span>) -&gt; SmtpConnection {
+        <span class="self">self</span>.conn
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PooledConnection</span> {
-    <span class="kw">fn</span> <span class="ident">wrap</span>(<span class="ident">conn</span>: <span class="ident">SmtpConnection</span>, <span class="ident">pool</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">conn</span>: <span class="prelude-val">Some</span>(<span class="ident">conn</span>),
-            <span class="ident">pool</span>,
+<span class="kw">impl </span>PooledConnection {
+    <span class="kw">fn </span>wrap(conn: SmtpConnection, pool: Arc&lt;Pool&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            conn: <span class="prelude-val">Some</span>(conn),
+            pool,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">PooledConnection</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">SmtpConnection</span>;
+<span class="kw">impl </span>Deref <span class="kw">for </span>PooledConnection {
+    <span class="kw">type </span>Target = SmtpConnection;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">as_ref</span>().<span class="ident">expect</span>(<span class="string">&quot;conn hasn&#39;t been dropped yet&quot;</span>)
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.conn.as_ref().expect(<span class="string">&quot;conn hasn&#39;t been dropped yet&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">PooledConnection</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">as_mut</span>().<span class="ident">expect</span>(<span class="string">&quot;conn hasn&#39;t been dropped yet&quot;</span>)
+<span class="kw">impl </span>DerefMut <span class="kw">for </span>PooledConnection {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.conn.as_mut().expect(<span class="string">&quot;conn hasn&#39;t been dropped yet&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">PooledConnection</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">conn</span>
-            .<span class="ident">take</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;SmtpConnection hasn&#39;t been taken yet&quot;</span>);
-        <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">recycle</span>(<span class="ident">conn</span>);
+<span class="kw">impl </span>Drop <span class="kw">for </span>PooledConnection {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>conn = <span class="self">self
+            </span>.conn
+            .take()
+            .expect(<span class="string">&quot;SmtpConnection hasn&#39;t been taken yet&quot;</span>);
+        <span class="self">self</span>.pool.recycle(conn);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

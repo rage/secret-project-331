@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/derive_more-0.99.17/src/not_like.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>not_like.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../derive_more/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/derive_more-0.99.17/src/not_like.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>not_like.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../derive_more/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../derive_more/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -164,171 +164,171 @@
 <span id="164">164</span>
 <span id="165">165</span>
 <span id="166">166</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils</span>::{
-    <span class="ident">add_extra_type_param_bound_op_output</span>, <span class="ident">named_to_vec</span>, <span class="ident">unnamed_to_vec</span>,
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::utils::{
+    add_extra_type_param_bound_op_output, named_to_vec, unnamed_to_vec,
 };
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Span</span>, <span class="ident">TokenStream</span>};
-<span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">quote</span>, <span class="ident">ToTokens</span>};
-<span class="kw">use</span> <span class="ident">std::iter</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">Data</span>, <span class="ident">DataEnum</span>, <span class="ident">DeriveInput</span>, <span class="ident">Field</span>, <span class="ident">Fields</span>, <span class="ident">Ident</span>, <span class="ident">Index</span>};
+<span class="kw">use </span>proc_macro2::{Span, TokenStream};
+<span class="kw">use </span>quote::{quote, ToTokens};
+<span class="kw">use </span>std::iter;
+<span class="kw">use </span>syn::{Data, DataEnum, DeriveInput, Field, Fields, Ident, Index};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expand</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>, <span class="ident">trait_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="ident">Ident::new</span>(<span class="ident">trait_name</span>, <span class="ident">Span::call_site</span>());
-    <span class="kw">let</span> <span class="ident">method_name</span> <span class="op">=</span> <span class="ident">trait_name</span>.<span class="ident">to_lowercase</span>();
-    <span class="kw">let</span> <span class="ident">method_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="ident">method_name</span>, <span class="ident">Span::call_site</span>());
-    <span class="kw">let</span> <span class="ident">input_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
+<span class="kw">pub fn </span>expand(input: <span class="kw-2">&amp;</span>DeriveInput, trait_name: <span class="kw-2">&amp;</span>str) -&gt; TokenStream {
+    <span class="kw">let </span>trait_ident = Ident::new(trait_name, Span::call_site());
+    <span class="kw">let </span>method_name = trait_name.to_lowercase();
+    <span class="kw">let </span>method_ident = <span class="kw-2">&amp;</span>Ident::new(<span class="kw-2">&amp;</span>method_name, Span::call_site());
+    <span class="kw">let </span>input_type = <span class="kw-2">&amp;</span>input.ident;
 
-    <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">add_extra_type_param_bound_op_output</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">generics</span>, <span class="kw-2">&amp;</span><span class="ident">trait_ident</span>);
-    <span class="kw">let</span> (<span class="ident">impl_generics</span>, <span class="ident">ty_generics</span>, <span class="ident">where_clause</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
+    <span class="kw">let </span>generics = add_extra_type_param_bound_op_output(<span class="kw-2">&amp;</span>input.generics, <span class="kw-2">&amp;</span>trait_ident);
+    <span class="kw">let </span>(impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    <span class="kw">let</span> (<span class="ident">output_type</span>, <span class="ident">block</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">data</span> {
-        <span class="ident">Data::Struct</span>(<span class="kw-2">ref</span> <span class="ident">data_struct</span>) =&gt; <span class="kw">match</span> <span class="ident">data_struct</span>.<span class="ident">fields</span> {
-            <span class="ident">Fields::Unnamed</span>(<span class="kw-2">ref</span> <span class="ident">fields</span>) =&gt; (
-                <span class="macro">quote!</span>(#<span class="ident">input_type</span>#<span class="ident">ty_generics</span>),
-                <span class="ident">tuple_content</span>(<span class="ident">input_type</span>, <span class="kw-2">&amp;</span><span class="ident">unnamed_to_vec</span>(<span class="ident">fields</span>), <span class="ident">method_ident</span>),
+    <span class="kw">let </span>(output_type, block) = <span class="kw">match </span>input.data {
+        Data::Struct(<span class="kw-2">ref </span>data_struct) =&gt; <span class="kw">match </span>data_struct.fields {
+            Fields::Unnamed(<span class="kw-2">ref </span>fields) =&gt; (
+                <span class="macro">quote!</span>(#input_type#ty_generics),
+                tuple_content(input_type, <span class="kw-2">&amp;</span>unnamed_to_vec(fields), method_ident),
             ),
-            <span class="ident">Fields::Named</span>(<span class="kw-2">ref</span> <span class="ident">fields</span>) =&gt; (
-                <span class="macro">quote!</span>(#<span class="ident">input_type</span>#<span class="ident">ty_generics</span>),
-                <span class="ident">struct_content</span>(<span class="ident">input_type</span>, <span class="kw-2">&amp;</span><span class="ident">named_to_vec</span>(<span class="ident">fields</span>), <span class="ident">method_ident</span>),
+            Fields::Named(<span class="kw-2">ref </span>fields) =&gt; (
+                <span class="macro">quote!</span>(#input_type#ty_generics),
+                struct_content(input_type, <span class="kw-2">&amp;</span>named_to_vec(fields), method_ident),
             ),
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unit structs cannot use derive({})&quot;</span>, <span class="ident">trait_name</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unit structs cannot use derive({})&quot;</span>, trait_name),
         },
-        <span class="ident">Data::Enum</span>(<span class="kw-2">ref</span> <span class="ident">data_enum</span>) =&gt; {
-            <span class="ident">enum_output_type_and_content</span>(<span class="ident">input</span>, <span class="ident">data_enum</span>, <span class="ident">method_ident</span>)
+        Data::Enum(<span class="kw-2">ref </span>data_enum) =&gt; {
+            enum_output_type_and_content(input, data_enum, method_ident)
         }
 
-        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Only structs and enums can use derive({})&quot;</span>, <span class="ident">trait_name</span>),
+        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Only structs and enums can use derive({})&quot;</span>, trait_name),
     };
 
     <span class="macro">quote!</span>(
-        <span class="ident">impl</span>#<span class="ident">impl_generics</span> <span class="ident">::core::ops</span>::#<span class="ident">trait_ident</span> <span class="kw">for</span> #<span class="ident">input_type</span>#<span class="ident">ty_generics</span> #<span class="ident">where_clause</span> {
-            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> #<span class="ident">output_type</span>;
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> #<span class="ident">method_ident</span>(<span class="self">self</span>) -&gt; #<span class="ident">output_type</span> {
-                #<span class="ident">block</span>
+        impl#impl_generics ::core::ops::#trait_ident <span class="kw">for </span>#input_type#ty_generics #where_clause {
+            <span class="kw">type </span>Output = #output_type;
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>#method_ident(<span class="self">self</span>) -&gt; #output_type {
+                #block
             }
         }
     )
 }
 
-<span class="kw">fn</span> <span class="ident">tuple_content</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToTokens</span><span class="op">&gt;</span>(
-    <span class="ident">input_type</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>,
-    <span class="ident">fields</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">Field</span>],
-    <span class="ident">method_ident</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
-) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exprs</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>tuple_content&lt;T: ToTokens&gt;(
+    input_type: <span class="kw-2">&amp;</span>T,
+    fields: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>Field],
+    method_ident: <span class="kw-2">&amp;</span>Ident,
+) -&gt; TokenStream {
+    <span class="kw">let </span><span class="kw-2">mut </span>exprs = <span class="macro">vec!</span>[];
 
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">fields</span>.<span class="ident">len</span>() {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">Index::from</span>(<span class="ident">i</span>);
-        <span class="comment">// generates `self.0.add()`</span>
-        <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="macro">quote!</span>(<span class="self">self</span>.#<span class="ident">i</span>.#<span class="ident">method_ident</span>());
-        <span class="ident">exprs</span>.<span class="ident">push</span>(<span class="ident">expr</span>);
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..fields.len() {
+        <span class="kw">let </span>i = Index::from(i);
+        <span class="comment">// generates `self.0.add()`
+        </span><span class="kw">let </span>expr = <span class="macro">quote!</span>(<span class="self">self</span>.#i.#method_ident());
+        exprs.push(expr);
     }
 
-    <span class="macro">quote!</span>(#<span class="ident">input_type</span>(#(#<span class="ident">exprs</span>),<span class="kw-2">*</span>))
+    <span class="macro">quote!</span>(#input_type(#(#exprs),<span class="kw-2">*</span>))
 }
 
-<span class="kw">fn</span> <span class="ident">struct_content</span>(
-    <span class="ident">input_type</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
-    <span class="ident">fields</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">Field</span>],
-    <span class="ident">method_ident</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
-) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exprs</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>struct_content(
+    input_type: <span class="kw-2">&amp;</span>Ident,
+    fields: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>Field],
+    method_ident: <span class="kw-2">&amp;</span>Ident,
+) -&gt; TokenStream {
+    <span class="kw">let </span><span class="kw-2">mut </span>exprs = <span class="macro">vec!</span>[];
 
-    <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="ident">fields</span> {
-        <span class="comment">// It&#39;s safe to unwrap because struct fields always have an identifier</span>
-        <span class="kw">let</span> <span class="ident">field_id</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>();
-        <span class="comment">// generates `x: self.x.not()`</span>
-        <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="macro">quote!</span>(#<span class="ident">field_id</span>: <span class="self">self</span>.#<span class="ident">field_id</span>.#<span class="ident">method_ident</span>());
-        <span class="ident">exprs</span>.<span class="ident">push</span>(<span class="ident">expr</span>)
+    <span class="kw">for </span>field <span class="kw">in </span>fields {
+        <span class="comment">// It&#39;s safe to unwrap because struct fields always have an identifier
+        </span><span class="kw">let </span>field_id = field.ident.as_ref();
+        <span class="comment">// generates `x: self.x.not()`
+        </span><span class="kw">let </span>expr = <span class="macro">quote!</span>(#field_id: <span class="self">self</span>.#field_id.#method_ident());
+        exprs.push(expr)
     }
 
-    <span class="macro">quote!</span>(#<span class="ident">input_type</span>{#(#<span class="ident">exprs</span>),<span class="kw-2">*</span>})
+    <span class="macro">quote!</span>(#input_type{#(#exprs),<span class="kw-2">*</span>})
 }
 
-<span class="kw">fn</span> <span class="ident">enum_output_type_and_content</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DeriveInput</span>,
-    <span class="ident">data_enum</span>: <span class="kw-2">&amp;</span><span class="ident">DataEnum</span>,
-    <span class="ident">method_ident</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
-) -&gt; (<span class="ident">TokenStream</span>, <span class="ident">TokenStream</span>) {
-    <span class="kw">let</span> <span class="ident">input_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ident</span>;
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">ty_generics</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">method_iter</span> <span class="op">=</span> <span class="ident">iter::repeat</span>(<span class="ident">method_ident</span>);
-    <span class="comment">// If the enum contains unit types that means it can error.</span>
-    <span class="kw">let</span> <span class="ident">has_unit_type</span> <span class="op">=</span> <span class="ident">data_enum</span>.<span class="ident">variants</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">fields</span> <span class="op">==</span> <span class="ident">Fields::Unit</span>);
+<span class="kw">fn </span>enum_output_type_and_content(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
+    data_enum: <span class="kw-2">&amp;</span>DataEnum,
+    method_ident: <span class="kw-2">&amp;</span>Ident,
+) -&gt; (TokenStream, TokenStream) {
+    <span class="kw">let </span>input_type = <span class="kw-2">&amp;</span>input.ident;
+    <span class="kw">let </span>(<span class="kw">_</span>, ty_generics, <span class="kw">_</span>) = input.generics.split_for_impl();
+    <span class="kw">let </span><span class="kw-2">mut </span>matches = <span class="macro">vec!</span>[];
+    <span class="kw">let </span><span class="kw-2">mut </span>method_iter = iter::repeat(method_ident);
+    <span class="comment">// If the enum contains unit types that means it can error.
+    </span><span class="kw">let </span>has_unit_type = data_enum.variants.iter().any(|v| v.fields == Fields::Unit);
 
-    <span class="kw">for</span> <span class="ident">variant</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">data_enum</span>.<span class="ident">variants</span> {
-        <span class="kw">let</span> <span class="ident">subtype</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">ident</span>;
-        <span class="kw">let</span> <span class="ident">subtype</span> <span class="op">=</span> <span class="macro">quote!</span>(#<span class="ident">input_type</span>::#<span class="ident">subtype</span>);
+    <span class="kw">for </span>variant <span class="kw">in </span><span class="kw-2">&amp;</span>data_enum.variants {
+        <span class="kw">let </span>subtype = <span class="kw-2">&amp;</span>variant.ident;
+        <span class="kw">let </span>subtype = <span class="macro">quote!</span>(#input_type::#subtype);
 
-        <span class="kw">match</span> <span class="ident">variant</span>.<span class="ident">fields</span> {
-            <span class="ident">Fields::Unnamed</span>(<span class="kw-2">ref</span> <span class="ident">fields</span>) =&gt; {
-                <span class="comment">// The patern that is outputted should look like this:</span>
-                <span class="comment">// (Subtype(vars)) =&gt; Ok(TypePath(exprs))</span>
-                <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">unnamed_to_vec</span>(<span class="ident">fields</span>).<span class="ident">len</span>();
-                <span class="kw">let</span> <span class="ident">vars</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span>(<span class="number">0</span>..<span class="ident">size</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;__{}&quot;</span>, <span class="ident">i</span>), <span class="ident">Span::call_site</span>()))
-                    .<span class="ident">collect</span>();
-                <span class="kw">let</span> <span class="ident">method_iter</span> <span class="op">=</span> <span class="ident">method_iter</span>.<span class="ident">by_ref</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">quote!</span>(#<span class="ident">subtype</span>(#(#<span class="ident">vars</span>.#<span class="ident">method_iter</span>()),<span class="kw-2">*</span>));
-                <span class="kw">if</span> <span class="ident">has_unit_type</span> {
-                    <span class="ident">body</span> <span class="op">=</span> <span class="macro">quote!</span>(<span class="ident">::core::result::Result::Ok</span>(#<span class="ident">body</span>))
+        <span class="kw">match </span>variant.fields {
+            Fields::Unnamed(<span class="kw-2">ref </span>fields) =&gt; {
+                <span class="comment">// The patern that is outputted should look like this:
+                // (Subtype(vars)) =&gt; Ok(TypePath(exprs))
+                </span><span class="kw">let </span>size = unnamed_to_vec(fields).len();
+                <span class="kw">let </span>vars: <span class="kw-2">&amp;</span>Vec&lt;<span class="kw">_</span>&gt; = <span class="kw-2">&amp;</span>(<span class="number">0</span>..size)
+                    .map(|i| Ident::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;__{}&quot;</span>, i), Span::call_site()))
+                    .collect();
+                <span class="kw">let </span>method_iter = method_iter.by_ref();
+                <span class="kw">let </span><span class="kw-2">mut </span>body = <span class="macro">quote!</span>(#subtype(#(#vars.#method_iter()),<span class="kw-2">*</span>));
+                <span class="kw">if </span>has_unit_type {
+                    body = <span class="macro">quote!</span>(::core::result::Result::Ok(#body))
                 }
-                <span class="kw">let</span> <span class="ident">matcher</span> <span class="op">=</span> <span class="macro">quote!</span> {
-                    #<span class="ident">subtype</span>(#(#<span class="ident">vars</span>),<span class="kw-2">*</span>) =&gt; {
-                        #<span class="ident">body</span>
+                <span class="kw">let </span>matcher = <span class="macro">quote! </span>{
+                    #subtype(#(#vars),<span class="kw-2">*</span>) =&gt; {
+                        #body
                     }
                 };
-                <span class="ident">matches</span>.<span class="ident">push</span>(<span class="ident">matcher</span>);
+                matches.push(matcher);
             }
-            <span class="ident">Fields::Named</span>(<span class="kw-2">ref</span> <span class="ident">fields</span>) =&gt; {
-                <span class="comment">// The patern that is outputted should look like this:</span>
-                <span class="comment">// (Subtype{a: __l_a, ...} =&gt; {</span>
-                <span class="comment">//     Ok(Subtype{a: __l_a.neg(__r_a), ...})</span>
-                <span class="comment">// }</span>
-                <span class="kw">let</span> <span class="ident">field_vec</span> <span class="op">=</span> <span class="ident">named_to_vec</span>(<span class="ident">fields</span>);
-                <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">field_vec</span>.<span class="ident">len</span>();
-                <span class="kw">let</span> <span class="ident">field_names</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field_vec</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>())
-                    .<span class="ident">collect</span>();
-                <span class="kw">let</span> <span class="ident">vars</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span>(<span class="number">0</span>..<span class="ident">size</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;__{}&quot;</span>, <span class="ident">i</span>), <span class="ident">Span::call_site</span>()))
-                    .<span class="ident">collect</span>();
-                <span class="kw">let</span> <span class="ident">method_iter</span> <span class="op">=</span> <span class="ident">method_iter</span>.<span class="ident">by_ref</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span>
-                    <span class="macro">quote!</span>(#<span class="ident">subtype</span>{#(#<span class="ident">field_names</span>: #<span class="ident">vars</span>.#<span class="ident">method_iter</span>()),<span class="kw-2">*</span>});
-                <span class="kw">if</span> <span class="ident">has_unit_type</span> {
-                    <span class="ident">body</span> <span class="op">=</span> <span class="macro">quote!</span>(<span class="ident">::core::result::Result::Ok</span>(#<span class="ident">body</span>))
+            Fields::Named(<span class="kw-2">ref </span>fields) =&gt; {
+                <span class="comment">// The patern that is outputted should look like this:
+                // (Subtype{a: __l_a, ...} =&gt; {
+                //     Ok(Subtype{a: __l_a.neg(__r_a), ...})
+                // }
+                </span><span class="kw">let </span>field_vec = named_to_vec(fields);
+                <span class="kw">let </span>size = field_vec.len();
+                <span class="kw">let </span>field_names: <span class="kw-2">&amp;</span>Vec&lt;<span class="kw">_</span>&gt; = <span class="kw-2">&amp;</span>field_vec
+                    .iter()
+                    .map(|f| f.ident.as_ref().unwrap())
+                    .collect();
+                <span class="kw">let </span>vars: <span class="kw-2">&amp;</span>Vec&lt;<span class="kw">_</span>&gt; = <span class="kw-2">&amp;</span>(<span class="number">0</span>..size)
+                    .map(|i| Ident::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;__{}&quot;</span>, i), Span::call_site()))
+                    .collect();
+                <span class="kw">let </span>method_iter = method_iter.by_ref();
+                <span class="kw">let </span><span class="kw-2">mut </span>body =
+                    <span class="macro">quote!</span>(#subtype{#(#field_names: #vars.#method_iter()),<span class="kw-2">*</span>});
+                <span class="kw">if </span>has_unit_type {
+                    body = <span class="macro">quote!</span>(::core::result::Result::Ok(#body))
                 }
-                <span class="kw">let</span> <span class="ident">matcher</span> <span class="op">=</span> <span class="macro">quote!</span> {
-                    #<span class="ident">subtype</span>{#(#<span class="ident">field_names</span>: #<span class="ident">vars</span>),<span class="kw-2">*</span>} =&gt; {
-                        #<span class="ident">body</span>
+                <span class="kw">let </span>matcher = <span class="macro">quote! </span>{
+                    #subtype{#(#field_names: #vars),<span class="kw-2">*</span>} =&gt; {
+                        #body
                     }
                 };
-                <span class="ident">matches</span>.<span class="ident">push</span>(<span class="ident">matcher</span>);
+                matches.push(matcher);
             }
-            <span class="ident">Fields::Unit</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Cannot {}() unit variants&quot;</span>, <span class="ident">method_ident</span>);
-                <span class="ident">matches</span>.<span class="ident">push</span>(<span class="macro">quote!</span>(#<span class="ident">subtype</span> =&gt; <span class="ident">::core::result::Result::Err</span>(#<span class="ident">message</span>)));
+            Fields::Unit =&gt; {
+                <span class="kw">let </span>message = <span class="macro">format!</span>(<span class="string">&quot;Cannot {}() unit variants&quot;</span>, method_ident);
+                matches.push(<span class="macro">quote!</span>(#subtype =&gt; ::core::result::Result::Err(#message)));
             }
         }
     }
 
-    <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="macro">quote!</span>(
-        <span class="kw">match</span> <span class="self">self</span> {
-            #(#<span class="ident">matches</span>),<span class="op">*</span>
+    <span class="kw">let </span>body = <span class="macro">quote!</span>(
+        <span class="kw">match </span><span class="self">self </span>{
+            #(#matches),*
         }
     );
 
-    <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">has_unit_type</span> {
-        <span class="macro">quote!</span>(<span class="ident">::core::result::Result</span><span class="op">&lt;</span>#<span class="ident">input_type</span>#<span class="ident">ty_generics</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>)
-    } <span class="kw">else</span> {
-        <span class="macro">quote!</span>(#<span class="ident">input_type</span>#<span class="ident">ty_generics</span>)
+    <span class="kw">let </span>output_type = <span class="kw">if </span>has_unit_type {
+        <span class="macro">quote!</span>(::core::result::Result&lt;#input_type#ty_generics, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;)
+    } <span class="kw">else </span>{
+        <span class="macro">quote!</span>(#input_type#ty_generics)
     };
 
-    (<span class="ident">output_type</span>, <span class="ident">body</span>)
+    (output_type, body)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="derive_more" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="derive_more" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

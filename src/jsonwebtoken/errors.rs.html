@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/errors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>errors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/errors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>errors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -172,179 +172,179 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::result</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::result;
 
-<span class="doccomment">/// A crate private constructor for `Error`.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_error</span>(<span class="ident">kind</span>: <span class="ident">ErrorKind</span>) -&gt; <span class="ident">Error</span> {
-    <span class="ident">Error</span>(<span class="ident">Box::new</span>(<span class="ident">kind</span>))
+<span class="doccomment">/// A crate private constructor for `Error`.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_error(kind: ErrorKind) -&gt; Error {
+    Error(Box::new(kind))
 }
 
-<span class="doccomment">/// A type alias for `Result&lt;T, jsonwebtoken::Error&gt;`.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A type alias for `Result&lt;T, jsonwebtoken::Error&gt;`.
+</span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = result::Result&lt;T, Error&gt;;
 
-<span class="doccomment">/// An error that can occur when encoding/decoding JWTs</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Error</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">ErrorKind</span><span class="op">&gt;</span>);
+<span class="doccomment">/// An error that can occur when encoding/decoding JWTs
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Error(Box&lt;ErrorKind&gt;);
 
-<span class="kw">impl</span> <span class="ident">Error</span> {
-    <span class="doccomment">/// Return the specific type of this error.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ErrorKind</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-    }
+<span class="kw">impl </span>Error {
+    <span class="doccomment">/// Return the specific type of this error.
+    </span><span class="kw">pub fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ErrorKind {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Unwrap this error into its underlying type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_kind</span>(<span class="self">self</span>) -&gt; <span class="ident">ErrorKind</span> {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="doccomment">/// Unwrap this error into its underlying type.
+    </span><span class="kw">pub fn </span>into_kind(<span class="self">self</span>) -&gt; ErrorKind {
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="doccomment">/// The specific type of an error.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ErrorKind</span> {
-    <span class="doccomment">/// When a token doesn&#39;t have a valid JWT shape</span>
-    <span class="ident">InvalidToken</span>,
-    <span class="doccomment">/// When the signature doesn&#39;t match</span>
-    <span class="ident">InvalidSignature</span>,
-    <span class="doccomment">/// When the secret given is not a valid ECDSA key</span>
-    <span class="ident">InvalidEcdsaKey</span>,
-    <span class="doccomment">/// When the secret given is not a valid RSA key</span>
-    <span class="ident">InvalidRsaKey</span>,
-    <span class="doccomment">/// When the algorithm from string doesn&#39;t match the one passed to `from_str`</span>
-    <span class="ident">InvalidAlgorithmName</span>,
-    <span class="doccomment">/// When a key is provided with an invalid format</span>
-    <span class="ident">InvalidKeyFormat</span>,
+<span class="doccomment">/// The specific type of an error.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>ErrorKind {
+    <span class="doccomment">/// When a token doesn&#39;t have a valid JWT shape
+    </span>InvalidToken,
+    <span class="doccomment">/// When the signature doesn&#39;t match
+    </span>InvalidSignature,
+    <span class="doccomment">/// When the secret given is not a valid ECDSA key
+    </span>InvalidEcdsaKey,
+    <span class="doccomment">/// When the secret given is not a valid RSA key
+    </span>InvalidRsaKey,
+    <span class="doccomment">/// When the algorithm from string doesn&#39;t match the one passed to `from_str`
+    </span>InvalidAlgorithmName,
+    <span class="doccomment">/// When a key is provided with an invalid format
+    </span>InvalidKeyFormat,
 
-    <span class="comment">// Validation errors</span>
-    <span class="doccomment">/// When a token’s `exp` claim indicates that it has expired</span>
-    <span class="ident">ExpiredSignature</span>,
-    <span class="doccomment">/// When a token’s `iss` claim does not match the expected issuer</span>
-    <span class="ident">InvalidIssuer</span>,
-    <span class="doccomment">/// When a token’s `aud` claim does not match one of the expected audience values</span>
-    <span class="ident">InvalidAudience</span>,
-    <span class="doccomment">/// When a token’s `aud` claim does not match one of the expected audience values</span>
-    <span class="ident">InvalidSubject</span>,
-    <span class="doccomment">/// When a token’s nbf claim represents a time in the future</span>
-    <span class="ident">ImmatureSignature</span>,
-    <span class="doccomment">/// When the algorithm in the header doesn&#39;t match the one passed to `decode` or the encoding/decoding key</span>
-    <span class="doccomment">/// used doesn&#39;t match the alg requested</span>
-    <span class="ident">InvalidAlgorithm</span>,
+    <span class="comment">// Validation errors
+    </span><span class="doccomment">/// When a token’s `exp` claim indicates that it has expired
+    </span>ExpiredSignature,
+    <span class="doccomment">/// When a token’s `iss` claim does not match the expected issuer
+    </span>InvalidIssuer,
+    <span class="doccomment">/// When a token’s `aud` claim does not match one of the expected audience values
+    </span>InvalidAudience,
+    <span class="doccomment">/// When a token’s `aud` claim does not match one of the expected audience values
+    </span>InvalidSubject,
+    <span class="doccomment">/// When a token’s nbf claim represents a time in the future
+    </span>ImmatureSignature,
+    <span class="doccomment">/// When the algorithm in the header doesn&#39;t match the one passed to `decode` or the encoding/decoding key
+    /// used doesn&#39;t match the alg requested
+    </span>InvalidAlgorithm,
 
-    <span class="comment">// 3rd party errors</span>
-    <span class="doccomment">/// An error happened when decoding some base64 text</span>
-    <span class="ident">Base64</span>(<span class="ident">base64::DecodeError</span>),
-    <span class="doccomment">/// An error happened while serializing/deserializing JSON</span>
-    <span class="ident">Json</span>(<span class="ident">serde_json::Error</span>),
-    <span class="doccomment">/// Some of the text was invalid UTF-8</span>
-    <span class="ident">Utf8</span>(<span class="ident">::std::string::FromUtf8Error</span>),
-    <span class="doccomment">/// Something unspecified went wrong with crypto</span>
-    <span class="ident">Crypto</span>(<span class="ident">::ring::error::Unspecified</span>),
+    <span class="comment">// 3rd party errors
+    </span><span class="doccomment">/// An error happened when decoding some base64 text
+    </span>Base64(base64::DecodeError),
+    <span class="doccomment">/// An error happened while serializing/deserializing JSON
+    </span>Json(serde_json::Error),
+    <span class="doccomment">/// Some of the text was invalid UTF-8
+    </span>Utf8(::std::string::FromUtf8Error),
+    <span class="doccomment">/// Something unspecified went wrong with crypto
+    </span>Crypto(::ring::error::Unspecified),
 
-    <span class="doccomment">/// Hints that destructuring should not be exhaustive.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This enum may grow additional variants, so this makes sure clients</span>
-    <span class="doccomment">/// don&#39;t count on exhaustive matching. (Otherwise, adding a new variant</span>
-    <span class="doccomment">/// could break existing code.)</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="ident">__Nonexhaustive</span>,
+    <span class="doccomment">/// Hints that destructuring should not be exhaustive.
+    ///
+    /// This enum may grow additional variants, so this makes sure clients
+    /// don&#39;t count on exhaustive matching. (Otherwise, adding a new variant
+    /// could break existing code.)
+    </span><span class="attribute">#[doc(hidden)]
+    </span>__Nonexhaustive,
 }
 
-<span class="kw">impl</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">ErrorKind::InvalidToken</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::InvalidSignature</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::InvalidEcdsaKey</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::InvalidRsaKey</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::ExpiredSignature</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::InvalidIssuer</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::InvalidAudience</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::InvalidSubject</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::ImmatureSignature</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::InvalidAlgorithm</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::InvalidAlgorithmName</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::InvalidKeyFormat</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">ErrorKind::Base64</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-            <span class="ident">ErrorKind::Json</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-            <span class="ident">ErrorKind::Utf8</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-            <span class="ident">ErrorKind::Crypto</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-            <span class="ident">ErrorKind::__Nonexhaustive</span> =&gt; <span class="prelude-val">None</span>,
+<span class="kw">impl </span>StdError <span class="kw">for </span>Error {
+    <span class="kw">fn </span>cause(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>StdError&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self</span>.<span class="number">0 </span>{
+            ErrorKind::InvalidToken =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::InvalidSignature =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::InvalidEcdsaKey =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::InvalidRsaKey =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::ExpiredSignature =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::InvalidIssuer =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::InvalidAudience =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::InvalidSubject =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::ImmatureSignature =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::InvalidAlgorithm =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::InvalidAlgorithmName =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::InvalidKeyFormat =&gt; <span class="prelude-val">None</span>,
+            ErrorKind::Base64(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Some</span>(err),
+            ErrorKind::Json(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Some</span>(err),
+            ErrorKind::Utf8(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Some</span>(err),
+            ErrorKind::Crypto(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Some</span>(err),
+            ErrorKind::__Nonexhaustive =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">ErrorKind::InvalidToken</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::InvalidSignature</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::InvalidEcdsaKey</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::InvalidRsaKey</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::ExpiredSignature</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::InvalidIssuer</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::InvalidAudience</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::InvalidSubject</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::ImmatureSignature</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::InvalidAlgorithm</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::InvalidKeyFormat</span>
-            <span class="op">|</span> <span class="ident">ErrorKind::InvalidAlgorithmName</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>),
-            <span class="ident">ErrorKind::Json</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;JSON error: {}&quot;</span>, <span class="ident">err</span>),
-            <span class="ident">ErrorKind::Utf8</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UTF-8 error: {}&quot;</span>, <span class="ident">err</span>),
-            <span class="ident">ErrorKind::Crypto</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Crypto error: {}&quot;</span>, <span class="ident">err</span>),
-            <span class="ident">ErrorKind::Base64</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Base64 error: {}&quot;</span>, <span class="ident">err</span>),
-            <span class="ident">ErrorKind::__Nonexhaustive</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Unknown error&quot;</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self</span>.<span class="number">0 </span>{
+            ErrorKind::InvalidToken
+            | ErrorKind::InvalidSignature
+            | ErrorKind::InvalidEcdsaKey
+            | ErrorKind::InvalidRsaKey
+            | ErrorKind::ExpiredSignature
+            | ErrorKind::InvalidIssuer
+            | ErrorKind::InvalidAudience
+            | ErrorKind::InvalidSubject
+            | ErrorKind::ImmatureSignature
+            | ErrorKind::InvalidAlgorithm
+            | ErrorKind::InvalidKeyFormat
+            | ErrorKind::InvalidAlgorithmName =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>),
+            ErrorKind::Json(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;JSON error: {}&quot;</span>, err),
+            ErrorKind::Utf8(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;UTF-8 error: {}&quot;</span>, err),
+            ErrorKind::Crypto(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Crypto error: {}&quot;</span>, err),
+            ErrorKind::Base64(<span class="kw-2">ref </span>err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Base64 error: {}&quot;</span>, err),
+            ErrorKind::__Nonexhaustive =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Unknown error&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">base64::DecodeError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">base64::DecodeError</span>) -&gt; <span class="ident">Error</span> {
-        <span class="ident">new_error</span>(<span class="ident">ErrorKind::Base64</span>(<span class="ident">err</span>))
+<span class="kw">impl </span>From&lt;base64::DecodeError&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: base64::DecodeError) -&gt; Error {
+        new_error(ErrorKind::Base64(err))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">serde_json::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">serde_json::Error</span>) -&gt; <span class="ident">Error</span> {
-        <span class="ident">new_error</span>(<span class="ident">ErrorKind::Json</span>(<span class="ident">err</span>))
+<span class="kw">impl </span>From&lt;serde_json::Error&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: serde_json::Error) -&gt; Error {
+        new_error(ErrorKind::Json(err))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">::std::string::FromUtf8Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">::std::string::FromUtf8Error</span>) -&gt; <span class="ident">Error</span> {
-        <span class="ident">new_error</span>(<span class="ident">ErrorKind::Utf8</span>(<span class="ident">err</span>))
+<span class="kw">impl </span>From&lt;::std::string::FromUtf8Error&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: ::std::string::FromUtf8Error) -&gt; Error {
+        new_error(ErrorKind::Utf8(err))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">::ring::error::Unspecified</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">::ring::error::Unspecified</span>) -&gt; <span class="ident">Error</span> {
-        <span class="ident">new_error</span>(<span class="ident">ErrorKind::Crypto</span>(<span class="ident">err</span>))
+<span class="kw">impl </span>From&lt;::ring::error::Unspecified&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: ::ring::error::Unspecified) -&gt; Error {
+        new_error(ErrorKind::Crypto(err))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">::ring::error::KeyRejected</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_err</span>: <span class="ident">::ring::error::KeyRejected</span>) -&gt; <span class="ident">Error</span> {
-        <span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidEcdsaKey</span>)
+<span class="kw">impl </span>From&lt;::ring::error::KeyRejected&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(_err: ::ring::error::KeyRejected) -&gt; Error {
+        new_error(ErrorKind::InvalidEcdsaKey)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ErrorKind</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">kind</span>: <span class="ident">ErrorKind</span>) -&gt; <span class="ident">Error</span> {
-        <span class="ident">new_error</span>(<span class="ident">kind</span>)
+<span class="kw">impl </span>From&lt;ErrorKind&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(kind: ErrorKind) -&gt; Error {
+        new_error(kind)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_error_rendering</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_error_rendering() {
         <span class="macro">assert_eq!</span>(
             <span class="string">&quot;InvalidAlgorithmName&quot;</span>,
-            <span class="ident">Error::from</span>(<span class="ident">ErrorKind::InvalidAlgorithmName</span>).<span class="ident">to_string</span>()
+            Error::from(ErrorKind::InvalidAlgorithmName).to_string()
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

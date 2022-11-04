@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/blame.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>blame.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/blame.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>blame.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -348,355 +348,355 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util</span>::{<span class="self">self</span>, <span class="ident">Binding</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">raw</span>, <span class="ident">signature</span>, <span class="ident">Oid</span>, <span class="ident">Repository</span>, <span class="ident">Signature</span>};
-<span class="kw">use</span> <span class="ident">std::marker</span>;
-<span class="kw">use</span> <span class="ident">std::mem</span>;
-<span class="kw">use</span> <span class="ident">std::ops::Range</span>;
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::util::{<span class="self">self</span>, Binding};
+<span class="kw">use crate</span>::{raw, signature, Oid, Repository, Signature};
+<span class="kw">use </span>std::marker;
+<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::ops::Range;
+<span class="kw">use </span>std::path::Path;
 
-<span class="doccomment">/// Opaque structure to hold blame results.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Blame</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_blame</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;repo</span> <span class="ident">Repository</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Opaque structure to hold blame results.
+</span><span class="kw">pub struct </span>Blame&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    raw: <span class="kw-2">*mut </span>raw::git_blame,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;repo </span>Repository&gt;,
 }
 
-<span class="doccomment">/// Structure that represents a blame hunk.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> {
-    <span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_blame_hunk</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;blame</span> <span class="ident">raw::git_blame</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Structure that represents a blame hunk.
+</span><span class="kw">pub struct </span>BlameHunk&lt;<span class="lifetime">&#39;blame</span>&gt; {
+    raw: <span class="kw-2">*mut </span>raw::git_blame_hunk,
+    _marker: marker::PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;blame </span>raw::git_blame&gt;,
 }
 
-<span class="doccomment">/// Blame options</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BlameOptions</span> {
-    <span class="ident">raw</span>: <span class="ident">raw::git_blame_options</span>,
+<span class="doccomment">/// Blame options
+</span><span class="kw">pub struct </span>BlameOptions {
+    raw: raw::git_blame_options,
 }
 
-<span class="doccomment">/// An iterator over the hunks in a blame.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BlameIter</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> {
-    <span class="ident">range</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">blame</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;blame</span> <span class="ident">Blame</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An iterator over the hunks in a blame.
+</span><span class="kw">pub struct </span>BlameIter&lt;<span class="lifetime">&#39;blame</span>&gt; {
+    range: Range&lt;usize&gt;,
+    blame: <span class="kw-2">&amp;</span><span class="lifetime">&#39;blame </span>Blame&lt;<span class="lifetime">&#39;blame</span>&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Blame</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Gets the number of hunks that exist in the blame structure.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">unsafe</span> { <span class="ident">raw::git_blame_get_hunk_count</span>(<span class="self">self</span>.<span class="ident">raw</span>) <span class="kw">as</span> <span class="ident">usize</span> }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Blame&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="doccomment">/// Gets the number of hunks that exist in the blame structure.
+    </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">unsafe </span>{ raw::git_blame_get_hunk_count(<span class="self">self</span>.raw) <span class="kw">as </span>usize }
     }
 
-    <span class="doccomment">/// Return `true` is there is no hunk in the blame structure.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span>
-    }
+    <span class="doccomment">/// Return `true` is there is no hunk in the blame structure.
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() == <span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Gets the blame hunk at the given index.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">raw::git_blame_get_hunk_byindex</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">index</span> <span class="kw">as</span> <span class="ident">u32</span>);
-            <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
-                <span class="prelude-val">None</span>
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">BlameHunk::from_raw_const</span>(<span class="ident">ptr</span>))
+    <span class="doccomment">/// Gets the blame hunk at the given index.
+    </span><span class="kw">pub fn </span>get_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;BlameHunk&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>ptr = raw::git_blame_get_hunk_byindex(<span class="self">self</span>.raw(), index <span class="kw">as </span>u32);
+            <span class="kw">if </span>ptr.is_null() {
+                <span class="prelude-val">None
+            </span>} <span class="kw">else </span>{
+                <span class="prelude-val">Some</span>(BlameHunk::from_raw_const(ptr))
             }
         }
     }
 
-    <span class="doccomment">/// Gets the hunk that relates to the given line number in the newest</span>
-    <span class="doccomment">/// commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lineno</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">raw::git_blame_get_hunk_byline</span>(<span class="self">self</span>.<span class="ident">raw</span>(), <span class="ident">lineno</span>);
-            <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
-                <span class="prelude-val">None</span>
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">BlameHunk::from_raw_const</span>(<span class="ident">ptr</span>))
+    <span class="doccomment">/// Gets the hunk that relates to the given line number in the newest
+    /// commit.
+    </span><span class="kw">pub fn </span>get_line(<span class="kw-2">&amp;</span><span class="self">self</span>, lineno: usize) -&gt; <span class="prelude-ty">Option</span>&lt;BlameHunk&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>ptr = raw::git_blame_get_hunk_byline(<span class="self">self</span>.raw(), lineno);
+            <span class="kw">if </span>ptr.is_null() {
+                <span class="prelude-val">None
+            </span>} <span class="kw">else </span>{
+                <span class="prelude-val">Some</span>(BlameHunk::from_raw_const(ptr))
             }
         }
     }
 
-    <span class="doccomment">/// Returns an iterator over the hunks in this blame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BlameIter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">BlameIter</span> {
-            <span class="ident">range</span>: <span class="number">0</span>..<span class="self">self</span>.<span class="ident">len</span>(),
-            <span class="ident">blame</span>: <span class="self">self</span>,
+    <span class="doccomment">/// Returns an iterator over the hunks in this blame.
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BlameIter&lt;<span class="lifetime">&#39;_</span>&gt; {
+        BlameIter {
+            range: <span class="number">0</span>..<span class="self">self</span>.len(),
+            blame: <span class="self">self</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> <span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> {
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw_const</span>(<span class="ident">raw</span>: <span class="kw-2">*const</span> <span class="ident">raw::git_blame_hunk</span>) -&gt; <span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> {
-        <span class="ident">BlameHunk</span> {
-            <span class="ident">raw</span>: <span class="ident">raw</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">raw::git_blame_hunk</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;blame</span>&gt; BlameHunk&lt;<span class="lifetime">&#39;blame</span>&gt; {
+    <span class="kw">unsafe fn </span>from_raw_const(raw: <span class="kw-2">*const </span>raw::git_blame_hunk) -&gt; BlameHunk&lt;<span class="lifetime">&#39;blame</span>&gt; {
+        BlameHunk {
+            raw: raw <span class="kw">as </span><span class="kw-2">*mut </span>raw::git_blame_hunk,
+            _marker: marker::PhantomData,
         }
     }
 
-    <span class="doccomment">/// Returns OID of the commit where this line was last changed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">final_commit_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Oid</span> {
-        <span class="kw">unsafe</span> { <span class="ident">Oid::from_raw</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>).<span class="ident">final_commit_id</span>) }
+    <span class="doccomment">/// Returns OID of the commit where this line was last changed
+    </span><span class="kw">pub fn </span>final_commit_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Oid {
+        <span class="kw">unsafe </span>{ Oid::from_raw(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw).final_commit_id) }
     }
 
-    <span class="doccomment">/// Returns signature of the commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">final_signature</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Signature</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">signature::from_raw_const</span>(<span class="self">self</span>, (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>).<span class="ident">final_signature</span>) }
+    <span class="doccomment">/// Returns signature of the commit.
+    </span><span class="kw">pub fn </span>final_signature(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Signature&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">unsafe </span>{ signature::from_raw_const(<span class="self">self</span>, (<span class="kw-2">*</span><span class="self">self</span>.raw).final_signature) }
     }
 
-    <span class="doccomment">/// Returns line number where this hunk begins.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that the start line is counting from 1.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">final_start_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>).<span class="ident">final_start_line_number</span> }
+    <span class="doccomment">/// Returns line number where this hunk begins.
+    ///
+    /// Note that the start line is counting from 1.
+    </span><span class="kw">pub fn </span>final_start_line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).final_start_line_number }
     }
 
-    <span class="doccomment">/// Returns the OID of the commit where this hunk was found.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This will usually be the same as `final_commit_id`,</span>
-    <span class="doccomment">/// except when `BlameOptions::track_copies_any_commit_copies` has been</span>
-    <span class="doccomment">/// turned on</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">orig_commit_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Oid</span> {
-        <span class="kw">unsafe</span> { <span class="ident">Oid::from_raw</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>).<span class="ident">orig_commit_id</span>) }
+    <span class="doccomment">/// Returns the OID of the commit where this hunk was found.
+    ///
+    /// This will usually be the same as `final_commit_id`,
+    /// except when `BlameOptions::track_copies_any_commit_copies` has been
+    /// turned on
+    </span><span class="kw">pub fn </span>orig_commit_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Oid {
+        <span class="kw">unsafe </span>{ Oid::from_raw(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.raw).orig_commit_id) }
     }
 
-    <span class="doccomment">/// Returns signature of the commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">orig_signature</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Signature</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">signature::from_raw_const</span>(<span class="self">self</span>, (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>).<span class="ident">orig_signature</span>) }
+    <span class="doccomment">/// Returns signature of the commit.
+    </span><span class="kw">pub fn </span>orig_signature(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Signature&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">unsafe </span>{ signature::from_raw_const(<span class="self">self</span>, (<span class="kw-2">*</span><span class="self">self</span>.raw).orig_signature) }
     }
 
-    <span class="doccomment">/// Returns line number where this hunk begins.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that the start line is counting from 1.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">orig_start_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>).<span class="ident">orig_start_line_number</span> }
+    <span class="doccomment">/// Returns line number where this hunk begins.
+    ///
+    /// Note that the start line is counting from 1.
+    </span><span class="kw">pub fn </span>orig_start_line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).orig_start_line_number }
     }
 
-    <span class="doccomment">/// Returns path to the file where this hunk originated.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: `None` could be returned for non-unicode paths on Windows.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Path</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::opt_bytes</span>(<span class="self">self</span>, (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>).<span class="ident">orig_path</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">util::bytes2path</span>(<span class="ident">bytes</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            }
+    <span class="doccomment">/// Returns path to the file where this hunk originated.
+    ///
+    /// Note: `None` could be returned for non-unicode paths on Windows.
+    </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(bytes) = <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, (<span class="kw-2">*</span><span class="self">self</span>.raw).orig_path) {
+                <span class="prelude-val">Some</span>(util::bytes2path(bytes))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         }
     }
 
-    <span class="doccomment">/// Tests whether this hunk has been tracked to a boundary commit</span>
-    <span class="doccomment">/// (the root, or the commit specified in git_blame_options.oldest_commit).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_boundary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>).<span class="ident">boundary</span> <span class="op">==</span> <span class="number">1</span> }
+    <span class="doccomment">/// Tests whether this hunk has been tracked to a boundary commit
+    /// (the root, or the commit specified in git_blame_options.oldest_commit).
+    </span><span class="kw">pub fn </span>is_boundary(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).boundary == <span class="number">1 </span>}
     }
 
-    <span class="doccomment">/// Returns number of lines in this hunk.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lines_in_hunk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>).<span class="ident">lines_in_hunk</span> <span class="kw">as</span> <span class="ident">usize</span> }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">BlameOptions</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>()
+    <span class="doccomment">/// Returns number of lines in this hunk.
+    </span><span class="kw">pub fn </span>lines_in_hunk(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">unsafe </span>{ (<span class="kw-2">*</span><span class="self">self</span>.raw).lines_in_hunk <span class="kw">as </span>usize }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">BlameOptions</span> {
-    <span class="doccomment">/// Initialize options</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">BlameOptions</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw</span>: <span class="ident">raw::git_blame_options</span> <span class="op">=</span> <span class="ident">mem::zeroed</span>();
+<span class="kw">impl </span>Default <span class="kw">for </span>BlameOptions {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
+
+<span class="kw">impl </span>BlameOptions {
+    <span class="doccomment">/// Initialize options
+    </span><span class="kw">pub fn </span>new() -&gt; BlameOptions {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>raw: raw::git_blame_options = mem::zeroed();
             <span class="macro">assert_eq!</span>(
-                <span class="ident">raw::git_blame_init_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">raw</span>, <span class="ident">raw::GIT_BLAME_OPTIONS_VERSION</span>),
-                <span class="number">0</span>
-            );
+                raw::git_blame_init_options(<span class="kw-2">&amp;mut </span>raw, raw::GIT_BLAME_OPTIONS_VERSION),
+                <span class="number">0
+            </span>);
 
-            <span class="ident">Binding::from_raw</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>)
+            Binding::from_raw(<span class="kw-2">&amp;</span>raw <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*mut </span><span class="kw">_</span>)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">flag</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">u32</span>, <span class="ident">val</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="kw">if</span> <span class="ident">val</span> {
-            <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">flags</span> <span class="op">|</span><span class="op">=</span> <span class="ident">opt</span>;
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">flags</span> <span class="op">&amp;=</span> <span class="op">!</span><span class="ident">opt</span>;
+    <span class="kw">fn </span>flag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opt: u32, val: bool) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="kw">if </span>val {
+            <span class="self">self</span>.raw.flags |= opt;
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.raw.flags &amp;= !opt;
         }
-        <span class="self">self</span>
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Track lines that have moved within a file.
+    </span><span class="kw">pub fn </span>track_copies_same_file(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opt: bool) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="self">self</span>.flag(raw::GIT_BLAME_TRACK_COPIES_SAME_FILE, opt)
     }
 
-    <span class="doccomment">/// Track lines that have moved within a file.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">track_copies_same_file</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="self">self</span>.<span class="ident">flag</span>(<span class="ident">raw::GIT_BLAME_TRACK_COPIES_SAME_FILE</span>, <span class="ident">opt</span>)
+    <span class="doccomment">/// Track lines that have moved across files in the same commit.
+    </span><span class="kw">pub fn </span>track_copies_same_commit_moves(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opt: bool) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="self">self</span>.flag(raw::GIT_BLAME_TRACK_COPIES_SAME_COMMIT_MOVES, opt)
     }
 
-    <span class="doccomment">/// Track lines that have moved across files in the same commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">track_copies_same_commit_moves</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="self">self</span>.<span class="ident">flag</span>(<span class="ident">raw::GIT_BLAME_TRACK_COPIES_SAME_COMMIT_MOVES</span>, <span class="ident">opt</span>)
+    <span class="doccomment">/// Track lines that have been copied from another file that exists
+    /// in the same commit.
+    </span><span class="kw">pub fn </span>track_copies_same_commit_copies(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opt: bool) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="self">self</span>.flag(raw::GIT_BLAME_TRACK_COPIES_SAME_COMMIT_COPIES, opt)
     }
 
-    <span class="doccomment">/// Track lines that have been copied from another file that exists</span>
-    <span class="doccomment">/// in the same commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">track_copies_same_commit_copies</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="self">self</span>.<span class="ident">flag</span>(<span class="ident">raw::GIT_BLAME_TRACK_COPIES_SAME_COMMIT_COPIES</span>, <span class="ident">opt</span>)
+    <span class="doccomment">/// Track lines that have been copied from another file that exists
+    /// in any commit.
+    </span><span class="kw">pub fn </span>track_copies_any_commit_copies(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opt: bool) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="self">self</span>.flag(raw::GIT_BLAME_TRACK_COPIES_ANY_COMMIT_COPIES, opt)
     }
 
-    <span class="doccomment">/// Track lines that have been copied from another file that exists</span>
-    <span class="doccomment">/// in any commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">track_copies_any_commit_copies</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="self">self</span>.<span class="ident">flag</span>(<span class="ident">raw::GIT_BLAME_TRACK_COPIES_ANY_COMMIT_COPIES</span>, <span class="ident">opt</span>)
+    <span class="doccomment">/// Restrict the search of commits to those reachable following only
+    /// the first parents.
+    </span><span class="kw">pub fn </span>first_parent(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opt: bool) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="self">self</span>.flag(raw::GIT_BLAME_FIRST_PARENT, opt)
     }
 
-    <span class="doccomment">/// Restrict the search of commits to those reachable following only</span>
-    <span class="doccomment">/// the first parents.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_parent</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="self">self</span>.<span class="ident">flag</span>(<span class="ident">raw::GIT_BLAME_FIRST_PARENT</span>, <span class="ident">opt</span>)
+    <span class="doccomment">/// Use mailmap file to map author and committer names and email addresses
+    /// to canonical real names and email addresses. The mailmap will be read
+    /// from the working directory, or HEAD in a bare repository.
+    </span><span class="kw">pub fn </span>use_mailmap(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opt: bool) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="self">self</span>.flag(raw::GIT_BLAME_USE_MAILMAP, opt)
     }
 
-    <span class="doccomment">/// Use mailmap file to map author and committer names and email addresses</span>
-    <span class="doccomment">/// to canonical real names and email addresses. The mailmap will be read</span>
-    <span class="doccomment">/// from the working directory, or HEAD in a bare repository.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_mailmap</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="self">self</span>.<span class="ident">flag</span>(<span class="ident">raw::GIT_BLAME_USE_MAILMAP</span>, <span class="ident">opt</span>)
+    <span class="doccomment">/// Ignore whitespace differences.
+    </span><span class="kw">pub fn </span>ignore_whitespace(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opt: bool) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="self">self</span>.flag(raw::GIT_BLAME_IGNORE_WHITESPACE, opt)
     }
 
-    <span class="doccomment">/// Ignore whitespace differences.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ignore_whitespace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="self">self</span>.<span class="ident">flag</span>(<span class="ident">raw::GIT_BLAME_IGNORE_WHITESPACE</span>, <span class="ident">opt</span>)
-    }
-
-    <span class="doccomment">/// Setter for the id of the newest commit to consider.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">newest_commit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">Oid</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">newest_commit</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">id</span>.<span class="ident">raw</span>();
+    <span class="doccomment">/// Setter for the id of the newest commit to consider.
+    </span><span class="kw">pub fn </span>newest_commit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: Oid) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.raw.newest_commit = <span class="kw-2">*</span>id.raw();
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Setter for the id of the oldest commit to consider.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">oldest_commit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">Oid</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">oldest_commit</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">id</span>.<span class="ident">raw</span>();
+    <span class="doccomment">/// Setter for the id of the oldest commit to consider.
+    </span><span class="kw">pub fn </span>oldest_commit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: Oid) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.raw.oldest_commit = <span class="kw-2">*</span>id.raw();
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// The first line in the file to blame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">lineno</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">min_line</span> <span class="op">=</span> <span class="ident">lineno</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// The first line in the file to blame.
+    </span><span class="kw">pub fn </span>min_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lineno: usize) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="self">self</span>.raw.min_line = lineno;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// The last line in the file to blame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">lineno</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">BlameOptions</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">max_line</span> <span class="op">=</span> <span class="ident">lineno</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// The last line in the file to blame.
+    </span><span class="kw">pub fn </span>max_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lineno: usize) -&gt; <span class="kw-2">&amp;mut </span>BlameOptions {
+        <span class="self">self</span>.raw.max_line = lineno;
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Binding</span> <span class="kw">for</span> <span class="ident">Blame</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Raw</span> <span class="op">=</span> <span class="kw-2">*mut</span> <span class="ident">raw::git_blame</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Blame&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_blame;
 
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_blame</span>) -&gt; <span class="ident">Blame</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-        <span class="ident">Blame</span> {
-            <span class="ident">raw</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span>,
-        }
-    }
-
-    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">raw::git_blame</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Blame</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">unsafe</span> { <span class="ident">raw::git_blame_free</span>(<span class="self">self</span>.<span class="ident">raw</span>) }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> <span class="ident">Binding</span> <span class="kw">for</span> <span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Raw</span> <span class="op">=</span> <span class="kw-2">*mut</span> <span class="ident">raw::git_blame_hunk</span>;
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_blame_hunk</span>) -&gt; <span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> {
-        <span class="ident">BlameHunk</span> {
-            <span class="ident">raw</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span>,
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_blame) -&gt; Blame&lt;<span class="lifetime">&#39;repo</span>&gt; {
+        Blame {
+            raw,
+            _marker: marker::PhantomData,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">raw::git_blame_hunk</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>
+    <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>raw::git_blame {
+        <span class="self">self</span>.raw
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Binding</span> <span class="kw">for</span> <span class="ident">BlameOptions</span> {
-    <span class="kw">type</span> <span class="ident">Raw</span> <span class="op">=</span> <span class="kw-2">*mut</span> <span class="ident">raw::git_blame_options</span>;
-
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">opts</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_blame_options</span>) -&gt; <span class="ident">BlameOptions</span> {
-        <span class="ident">BlameOptions</span> { <span class="ident">raw</span>: <span class="kw-2">*</span><span class="ident">opts</span> }
-    }
-
-    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">raw::git_blame_options</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">raw</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Blame&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">unsafe </span>{ raw::git_blame_free(<span class="self">self</span>.raw) }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">BlameIter</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">range</span>.<span class="ident">next</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">blame</span>.<span class="ident">get_index</span>(<span class="ident">i</span>))
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;blame</span>&gt; Binding <span class="kw">for </span>BlameHunk&lt;<span class="lifetime">&#39;blame</span>&gt; {
+    <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_blame_hunk;
+
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_blame_hunk) -&gt; BlameHunk&lt;<span class="lifetime">&#39;blame</span>&gt; {
+        BlameHunk {
+            raw,
+            _marker: marker::PhantomData,
+        }
     }
 
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">range</span>.<span class="ident">size_hint</span>()
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">BlameIter</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BlameHunk</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">range</span>.<span class="ident">next_back</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">blame</span>.<span class="ident">get_index</span>(<span class="ident">i</span>))
+    <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>raw::git_blame_hunk {
+        <span class="self">self</span>.raw
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">BlameIter</span><span class="op">&lt;</span><span class="lifetime">&#39;blame</span><span class="op">&gt;</span> {}
+<span class="kw">impl </span>Binding <span class="kw">for </span>BlameOptions {
+    <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_blame_options;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std::fs</span>::{<span class="self">self</span>, <span class="ident">File</span>};
-    <span class="kw">use</span> <span class="ident">std::path::Path</span>;
+    <span class="kw">unsafe fn </span>from_raw(opts: <span class="kw-2">*mut </span>raw::git_blame_options) -&gt; BlameOptions {
+        BlameOptions { raw: <span class="kw-2">*</span>opts }
+    }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">smoke</span>() {
-        <span class="kw">let</span> (<span class="ident">_td</span>, <span class="ident">repo</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::test::repo_init</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">index</span>().<span class="ident">unwrap</span>();
+    <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>raw::git_blame_options {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.raw <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*mut </span><span class="kw">_
+    </span>}
+}
 
-        <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">workdir</span>().<span class="ident">unwrap</span>();
-        <span class="ident">fs::create_dir</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>.<span class="ident">join</span>(<span class="string">&quot;foo&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">File::create</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>.<span class="ident">join</span>(<span class="string">&quot;foo/bar&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="ident">index</span>.<span class="ident">add_path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;foo/bar&quot;</span>)).<span class="ident">unwrap</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;blame</span>&gt; Iterator <span class="kw">for </span>BlameIter&lt;<span class="lifetime">&#39;blame</span>&gt; {
+    <span class="kw">type </span>Item = BlameHunk&lt;<span class="lifetime">&#39;blame</span>&gt;;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;BlameHunk&lt;<span class="lifetime">&#39;blame</span>&gt;&gt; {
+        <span class="self">self</span>.range.next().and_then(|i| <span class="self">self</span>.blame.get_index(i))
+    }
 
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">index</span>.<span class="ident">write_tree</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_tree</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">signature</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">refname_to_id</span>(<span class="string">&quot;HEAD&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_commit</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">commit</span> <span class="op">=</span> <span class="ident">repo</span>
-            .<span class="ident">commit</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">sig</span>, <span class="kw-2">&amp;</span><span class="ident">sig</span>, <span class="string">&quot;commit&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">tree</span>, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">parent</span>])
-            .<span class="ident">unwrap</span>();
+    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="self">self</span>.range.size_hint()
+    }
+}
 
-        <span class="kw">let</span> <span class="ident">blame</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">blame_file</span>(<span class="ident">Path::new</span>(<span class="string">&quot;foo/bar&quot;</span>), <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;blame</span>&gt; DoubleEndedIterator <span class="kw">for </span>BlameIter&lt;<span class="lifetime">&#39;blame</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;BlameHunk&lt;<span class="lifetime">&#39;blame</span>&gt;&gt; {
+        <span class="self">self</span>.range.next_back().and_then(|i| <span class="self">self</span>.blame.get_index(i))
+    }
+}
 
-        <span class="macro">assert_eq!</span>(<span class="ident">blame</span>.<span class="ident">len</span>(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">blame</span>.<span class="ident">iter</span>().<span class="ident">count</span>(), <span class="number">1</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;blame</span>&gt; ExactSizeIterator <span class="kw">for </span>BlameIter&lt;<span class="lifetime">&#39;blame</span>&gt; {}
 
-        <span class="kw">let</span> <span class="ident">hunk</span> <span class="op">=</span> <span class="ident">blame</span>.<span class="ident">get_index</span>(<span class="number">0</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">hunk</span>.<span class="ident">final_commit_id</span>(), <span class="ident">commit</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">hunk</span>.<span class="ident">final_signature</span>().<span class="ident">name</span>(), <span class="ident">sig</span>.<span class="ident">name</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">hunk</span>.<span class="ident">final_signature</span>().<span class="ident">email</span>(), <span class="ident">sig</span>.<span class="ident">email</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">hunk</span>.<span class="ident">final_start_line</span>(), <span class="number">1</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">hunk</span>.<span class="ident">path</span>(), <span class="prelude-val">Some</span>(<span class="ident">Path::new</span>(<span class="string">&quot;foo/bar&quot;</span>)));
-        <span class="macro">assert_eq!</span>(<span class="ident">hunk</span>.<span class="ident">lines_in_hunk</span>(), <span class="number">0</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">hunk</span>.<span class="ident">is_boundary</span>())
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::fs::{<span class="self">self</span>, File};
+    <span class="kw">use </span>std::path::Path;
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>smoke() {
+        <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
+        <span class="kw">let </span><span class="kw-2">mut </span>index = repo.index().unwrap();
+
+        <span class="kw">let </span>root = repo.workdir().unwrap();
+        fs::create_dir(<span class="kw-2">&amp;</span>root.join(<span class="string">&quot;foo&quot;</span>)).unwrap();
+        File::create(<span class="kw-2">&amp;</span>root.join(<span class="string">&quot;foo/bar&quot;</span>)).unwrap();
+        index.add_path(Path::new(<span class="string">&quot;foo/bar&quot;</span>)).unwrap();
+
+        <span class="kw">let </span>id = index.write_tree().unwrap();
+        <span class="kw">let </span>tree = repo.find_tree(id).unwrap();
+        <span class="kw">let </span>sig = repo.signature().unwrap();
+        <span class="kw">let </span>id = repo.refname_to_id(<span class="string">&quot;HEAD&quot;</span>).unwrap();
+        <span class="kw">let </span>parent = repo.find_commit(id).unwrap();
+        <span class="kw">let </span>commit = repo
+            .commit(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">&quot;commit&quot;</span>, <span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>parent])
+            .unwrap();
+
+        <span class="kw">let </span>blame = repo.blame_file(Path::new(<span class="string">&quot;foo/bar&quot;</span>), <span class="prelude-val">None</span>).unwrap();
+
+        <span class="macro">assert_eq!</span>(blame.len(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(blame.iter().count(), <span class="number">1</span>);
+
+        <span class="kw">let </span>hunk = blame.get_index(<span class="number">0</span>).unwrap();
+        <span class="macro">assert_eq!</span>(hunk.final_commit_id(), commit);
+        <span class="macro">assert_eq!</span>(hunk.final_signature().name(), sig.name());
+        <span class="macro">assert_eq!</span>(hunk.final_signature().email(), sig.email());
+        <span class="macro">assert_eq!</span>(hunk.final_start_line(), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(hunk.path(), <span class="prelude-val">Some</span>(Path::new(<span class="string">&quot;foo/bar&quot;</span>)));
+        <span class="macro">assert_eq!</span>(hunk.lines_in_hunk(), <span class="number">0</span>);
+        <span class="macro">assert!</span>(!hunk.is_boundary())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/from_row.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>from_row.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/from_row.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>from_row.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -381,388 +381,388 @@
 <span id="381">381</span>
 <span id="382">382</span>
 <span id="383">383</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::row::Row</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::row::Row;
 
-<span class="doccomment">/// A record that can be built from a row returned by the database.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In order to use [`query_as`](crate::query_as) the output type must implement `FromRow`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Derivable</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait can be derived by SQLx for any struct. The generated implementation</span>
-<span class="doccomment">/// will consist of a sequence of calls to [`Row::try_get`] using the name from each</span>
-<span class="doccomment">/// struct field.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::FromRow)]</span>
-<span class="doccomment">/// struct User {</span>
-<span class="doccomment">///     id: i32,</span>
-<span class="doccomment">///     name: String,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Field attributes</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Several attributes can be specified to customize how each column in a row is read:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #### `rename`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When the name of a field in Rust does not match the name of its corresponding column,</span>
-<span class="doccomment">/// you can use the `rename` attribute to specify the name that the field has in the row.</span>
-<span class="doccomment">/// For example:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::FromRow)]</span>
-<span class="doccomment">/// struct User {</span>
-<span class="doccomment">///     id: i32,</span>
-<span class="doccomment">///     name: String,</span>
-<span class="doccomment">///     #[sqlx(rename = &quot;description&quot;)]</span>
-<span class="doccomment">///     about_me: String</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Given a query such as:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```sql</span>
-<span class="doccomment">/// SELECT id, name, description FROM users;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// will read the content of the column `description` into the field `about_me`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #### `rename_all`</span>
-<span class="doccomment">/// By default, field names are expected verbatim (with the exception of the raw identifier prefix `r#`, if present).</span>
-<span class="doccomment">/// Placed at the struct level, this attribute changes how the field name is mapped to its SQL column name:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::FromRow)]</span>
-<span class="doccomment">/// #[sqlx(rename_all = &quot;camelCase&quot;)]</span>
-<span class="doccomment">/// struct UserPost {</span>
-<span class="doccomment">///     id: i32,</span>
-<span class="doccomment">///     // remapped to &quot;userId&quot;</span>
-<span class="doccomment">///     user_id: i32,</span>
-<span class="doccomment">///     contents: String</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The supported values are `snake_case` (available if you have non-snake-case field names for some</span>
-<span class="doccomment">/// reason), `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase`, `SCREAMING_SNAKE_CASE` and `kebab-case`.</span>
-<span class="doccomment">/// The styling of each option is intended to be an example of its behavior.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #### `default`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When your struct contains a field that is not present in your query,</span>
-<span class="doccomment">/// if the field type has an implementation for [`Default`],</span>
-<span class="doccomment">/// you can use the `default` attribute to assign the default value to said field.</span>
-<span class="doccomment">/// For example:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::FromRow)]</span>
-<span class="doccomment">/// struct User {</span>
-<span class="doccomment">///     id: i32,</span>
-<span class="doccomment">///     name: String,</span>
-<span class="doccomment">///     #[sqlx(default)]</span>
-<span class="doccomment">///     location: Option&lt;String&gt;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Given a query such as:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```sql</span>
-<span class="doccomment">/// SELECT id, name FROM users;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// will set the value of the field `location` to the default value of `Option&lt;String&gt;`,</span>
-<span class="doccomment">/// which is `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### `flatten`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If you want to handle a field that implements [`FromRow`],</span>
-<span class="doccomment">/// you can use the `flatten` attribute to specify that you want</span>
-<span class="doccomment">/// it to use [`FromRow`] for parsing rather than the usual method.</span>
-<span class="doccomment">/// For example:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::FromRow)]</span>
-<span class="doccomment">/// struct Address {</span>
-<span class="doccomment">///     country: String,</span>
-<span class="doccomment">///     city: String,</span>
-<span class="doccomment">///     road: String,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(sqlx::FromRow)]</span>
-<span class="doccomment">/// struct User {</span>
-<span class="doccomment">///     id: i32,</span>
-<span class="doccomment">///     name: String,</span>
-<span class="doccomment">///     #[sqlx(flatten)]</span>
-<span class="doccomment">///     address: Address,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// Given a query such as:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```sql</span>
-<span class="doccomment">/// SELECT id, name, country, city, road FROM users;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This field is compatible with the `default` attribute.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Manual implementation</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can also implement the [`FromRow`] trait by hand. This can be useful if you</span>
-<span class="doccomment">/// have a struct with a field that needs manual decoding:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// use sqlx::{FromRow, sqlite::SqliteRow, sqlx::Row};</span>
-<span class="doccomment">/// struct MyCustomType {</span>
-<span class="doccomment">///     custom: String,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// struct Foo {</span>
-<span class="doccomment">///     bar: MyCustomType,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// impl FromRow&lt;&#39;_, SqliteRow&gt; for Foo {</span>
-<span class="doccomment">///     fn from_row(row: &amp;SqliteRow) -&gt; sqlx::Result&lt;Self&gt; {</span>
-<span class="doccomment">///         Ok(Self {</span>
-<span class="doccomment">///             bar: MyCustomType {</span>
-<span class="doccomment">///                 custom: row.try_get(&quot;custom&quot;)?</span>
-<span class="doccomment">///             }</span>
-<span class="doccomment">///         })</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #### `try_from`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When your struct contains a field whose type is not matched with the database type,</span>
-<span class="doccomment">/// if the field type has an implementation [`TryFrom`] for the database type,</span>
-<span class="doccomment">/// you can use the `try_from` attribute to convert the database type to the field type.</span>
-<span class="doccomment">/// For example:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust,ignore</span>
-<span class="doccomment">/// #[derive(sqlx::FromRow)]</span>
-<span class="doccomment">/// struct User {</span>
-<span class="doccomment">///     id: i32,</span>
-<span class="doccomment">///     name: String,</span>
-<span class="doccomment">///     #[sqlx(try_from = &quot;i64&quot;)]</span>
-<span class="doccomment">///     bigIntInMySql: u64</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Given a query such as:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```sql</span>
-<span class="doccomment">/// SELECT id, name, bigIntInMySql FROM users;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In MySql, `BigInt` type matches `i64`, but you can convert it to `u64` by `try_from`.</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">R</span>: <span class="ident">Row</span><span class="op">&gt;</span>: <span class="ident">Sized</span> {
-    <span class="kw">fn</span> <span class="ident">from_row</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">R</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A record that can be built from a row returned by the database.
+///
+/// In order to use [`query_as`](crate::query_as) the output type must implement `FromRow`.
+///
+/// ## Derivable
+///
+/// This trait can be derived by SQLx for any struct. The generated implementation
+/// will consist of a sequence of calls to [`Row::try_get`] using the name from each
+/// struct field.
+///
+/// ```rust,ignore
+/// #[derive(sqlx::FromRow)]
+/// struct User {
+///     id: i32,
+///     name: String,
+/// }
+/// ```
+///
+/// ### Field attributes
+///
+/// Several attributes can be specified to customize how each column in a row is read:
+///
+/// #### `rename`
+///
+/// When the name of a field in Rust does not match the name of its corresponding column,
+/// you can use the `rename` attribute to specify the name that the field has in the row.
+/// For example:
+///
+/// ```rust,ignore
+/// #[derive(sqlx::FromRow)]
+/// struct User {
+///     id: i32,
+///     name: String,
+///     #[sqlx(rename = &quot;description&quot;)]
+///     about_me: String
+/// }
+/// ```
+///
+/// Given a query such as:
+///
+/// ```sql
+/// SELECT id, name, description FROM users;
+/// ```
+///
+/// will read the content of the column `description` into the field `about_me`.
+///
+/// #### `rename_all`
+/// By default, field names are expected verbatim (with the exception of the raw identifier prefix `r#`, if present).
+/// Placed at the struct level, this attribute changes how the field name is mapped to its SQL column name:
+///
+/// ```rust,ignore
+/// #[derive(sqlx::FromRow)]
+/// #[sqlx(rename_all = &quot;camelCase&quot;)]
+/// struct UserPost {
+///     id: i32,
+///     // remapped to &quot;userId&quot;
+///     user_id: i32,
+///     contents: String
+/// }
+/// ```
+///
+/// The supported values are `snake_case` (available if you have non-snake-case field names for some
+/// reason), `lowercase`, `UPPERCASE`, `camelCase`, `PascalCase`, `SCREAMING_SNAKE_CASE` and `kebab-case`.
+/// The styling of each option is intended to be an example of its behavior.
+///
+/// #### `default`
+///
+/// When your struct contains a field that is not present in your query,
+/// if the field type has an implementation for [`Default`],
+/// you can use the `default` attribute to assign the default value to said field.
+/// For example:
+///
+/// ```rust,ignore
+/// #[derive(sqlx::FromRow)]
+/// struct User {
+///     id: i32,
+///     name: String,
+///     #[sqlx(default)]
+///     location: Option&lt;String&gt;
+/// }
+/// ```
+///
+/// Given a query such as:
+///
+/// ```sql
+/// SELECT id, name FROM users;
+/// ```
+///
+/// will set the value of the field `location` to the default value of `Option&lt;String&gt;`,
+/// which is `None`.
+///
+/// ### `flatten`
+///
+/// If you want to handle a field that implements [`FromRow`],
+/// you can use the `flatten` attribute to specify that you want
+/// it to use [`FromRow`] for parsing rather than the usual method.
+/// For example:
+///
+/// ```rust,ignore
+/// #[derive(sqlx::FromRow)]
+/// struct Address {
+///     country: String,
+///     city: String,
+///     road: String,
+/// }
+///
+/// #[derive(sqlx::FromRow)]
+/// struct User {
+///     id: i32,
+///     name: String,
+///     #[sqlx(flatten)]
+///     address: Address,
+/// }
+/// ```
+/// Given a query such as:
+///
+/// ```sql
+/// SELECT id, name, country, city, road FROM users;
+/// ```
+///
+/// This field is compatible with the `default` attribute.
+///
+/// ## Manual implementation
+///
+/// You can also implement the [`FromRow`] trait by hand. This can be useful if you
+/// have a struct with a field that needs manual decoding:
+///
+///
+/// ```rust,ignore
+/// use sqlx::{FromRow, sqlite::SqliteRow, sqlx::Row};
+/// struct MyCustomType {
+///     custom: String,
+/// }
+///
+/// struct Foo {
+///     bar: MyCustomType,
+/// }
+///
+/// impl FromRow&lt;&#39;_, SqliteRow&gt; for Foo {
+///     fn from_row(row: &amp;SqliteRow) -&gt; sqlx::Result&lt;Self&gt; {
+///         Ok(Self {
+///             bar: MyCustomType {
+///                 custom: row.try_get(&quot;custom&quot;)?
+///             }
+///         })
+///     }
+/// }
+/// ```
+///
+/// #### `try_from`
+///
+/// When your struct contains a field whose type is not matched with the database type,
+/// if the field type has an implementation [`TryFrom`] for the database type,
+/// you can use the `try_from` attribute to convert the database type to the field type.
+/// For example:
+///
+/// ```rust,ignore
+/// #[derive(sqlx::FromRow)]
+/// struct User {
+///     id: i32,
+///     name: String,
+///     #[sqlx(try_from = &quot;i64&quot;)]
+///     bigIntInMySql: u64
+/// }
+/// ```
+///
+/// Given a query such as:
+///
+/// ```sql
+/// SELECT id, name, bigIntInMySql FROM users;
+/// ```
+///
+/// In MySql, `BigInt` type matches `i64`, but you can convert it to `u64` by `try_from`.
+///
+</span><span class="kw">pub trait </span>FromRow&lt;<span class="lifetime">&#39;r</span>, R: Row&gt;: Sized {
+    <span class="kw">fn </span>from_row(row: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;;
 }
 
-<span class="comment">// implement FromRow for tuples of types that implement Decode</span>
-<span class="comment">// up to tuples of 9 values</span>
+<span class="comment">// implement FromRow for tuples of types that implement Decode
+// up to tuples of 9 values
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_from_row_for_tuple</span> {
-    ($( (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">idx</span>:<span class="ident">tt</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ident</span> );<span class="op">+</span>;) =&gt; {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">R</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span><span class="op">&gt;</span> <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>)
-        <span class="kw">where</span>
-            <span class="ident">R</span>: <span class="ident">Row</span>,
-            <span class="ident">usize</span>: <span class="ident"><span class="kw">crate</span>::column::ColumnIndex</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
-            $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident"><span class="kw">crate</span>::decode::Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">R::Database</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident"><span class="kw">crate</span>::types::Type</span><span class="op">&lt;</span><span class="ident">R::Database</span><span class="op">&gt;</span>,)<span class="op">+</span>
+</span><span class="macro">macro_rules! </span>impl_from_row_for_tuple {
+    ($( (<span class="macro-nonterminal">$idx</span>:tt) -&gt; <span class="macro-nonterminal">$T</span>:ident );+;) =&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, R, $(<span class="macro-nonterminal">$T</span>,)+&gt; FromRow&lt;<span class="lifetime">&#39;r</span>, R&gt; <span class="kw">for </span>($(<span class="macro-nonterminal">$T</span>,)+)
+        <span class="kw">where
+            </span>R: Row,
+            usize: <span class="kw">crate</span>::column::ColumnIndex&lt;R&gt;,
+            $(<span class="macro-nonterminal">$T</span>: <span class="kw">crate</span>::decode::Decode&lt;<span class="lifetime">&#39;r</span>, R::Database&gt; + <span class="kw">crate</span>::types::Type&lt;R::Database&gt;,)+
         {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">from_row</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="ident">R</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Ok</span>(($(<span class="ident">row</span>.<span class="ident">try_get</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">idx</span> <span class="kw">as</span> <span class="ident">usize</span>)<span class="question-mark">?</span>,)<span class="op">+</span>))
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>from_row(row: <span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span>R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+                <span class="prelude-val">Ok</span>(($(row.try_get(<span class="macro-nonterminal">$idx </span><span class="kw">as </span>usize)<span class="question-mark">?</span>,)+))
             }
         }
     };
 }
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
+    (<span class="number">0</span>) -&gt; T1;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
-    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
+    (<span class="number">7</span>) -&gt; T8;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
-    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
-    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
+    (<span class="number">7</span>) -&gt; T8;
+    (<span class="number">8</span>) -&gt; T9;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
-    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
-    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
-    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
+    (<span class="number">7</span>) -&gt; T8;
+    (<span class="number">8</span>) -&gt; T9;
+    (<span class="number">9</span>) -&gt; T10;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
-    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
-    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
-    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
-    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
+    (<span class="number">7</span>) -&gt; T8;
+    (<span class="number">8</span>) -&gt; T9;
+    (<span class="number">9</span>) -&gt; T10;
+    (<span class="number">10</span>) -&gt; T11;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
-    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
-    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
-    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
-    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
-    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
+    (<span class="number">7</span>) -&gt; T8;
+    (<span class="number">8</span>) -&gt; T9;
+    (<span class="number">9</span>) -&gt; T10;
+    (<span class="number">10</span>) -&gt; T11;
+    (<span class="number">11</span>) -&gt; T12;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
-    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
-    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
-    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
-    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
-    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
-    (<span class="number">12</span>) -&gt; <span class="ident">T13</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
+    (<span class="number">7</span>) -&gt; T8;
+    (<span class="number">8</span>) -&gt; T9;
+    (<span class="number">9</span>) -&gt; T10;
+    (<span class="number">10</span>) -&gt; T11;
+    (<span class="number">11</span>) -&gt; T12;
+    (<span class="number">12</span>) -&gt; T13;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
-    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
-    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
-    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
-    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
-    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
-    (<span class="number">12</span>) -&gt; <span class="ident">T13</span>;
-    (<span class="number">13</span>) -&gt; <span class="ident">T14</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
+    (<span class="number">7</span>) -&gt; T8;
+    (<span class="number">8</span>) -&gt; T9;
+    (<span class="number">9</span>) -&gt; T10;
+    (<span class="number">10</span>) -&gt; T11;
+    (<span class="number">11</span>) -&gt; T12;
+    (<span class="number">12</span>) -&gt; T13;
+    (<span class="number">13</span>) -&gt; T14;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
-    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
-    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
-    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
-    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
-    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
-    (<span class="number">12</span>) -&gt; <span class="ident">T13</span>;
-    (<span class="number">13</span>) -&gt; <span class="ident">T14</span>;
-    (<span class="number">14</span>) -&gt; <span class="ident">T15</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
+    (<span class="number">7</span>) -&gt; T8;
+    (<span class="number">8</span>) -&gt; T9;
+    (<span class="number">9</span>) -&gt; T10;
+    (<span class="number">10</span>) -&gt; T11;
+    (<span class="number">11</span>) -&gt; T12;
+    (<span class="number">12</span>) -&gt; T13;
+    (<span class="number">13</span>) -&gt; T14;
+    (<span class="number">14</span>) -&gt; T15;
 );
 
 <span class="macro">impl_from_row_for_tuple!</span>(
-    (<span class="number">0</span>) -&gt; <span class="ident">T1</span>;
-    (<span class="number">1</span>) -&gt; <span class="ident">T2</span>;
-    (<span class="number">2</span>) -&gt; <span class="ident">T3</span>;
-    (<span class="number">3</span>) -&gt; <span class="ident">T4</span>;
-    (<span class="number">4</span>) -&gt; <span class="ident">T5</span>;
-    (<span class="number">5</span>) -&gt; <span class="ident">T6</span>;
-    (<span class="number">6</span>) -&gt; <span class="ident">T7</span>;
-    (<span class="number">7</span>) -&gt; <span class="ident">T8</span>;
-    (<span class="number">8</span>) -&gt; <span class="ident">T9</span>;
-    (<span class="number">9</span>) -&gt; <span class="ident">T10</span>;
-    (<span class="number">10</span>) -&gt; <span class="ident">T11</span>;
-    (<span class="number">11</span>) -&gt; <span class="ident">T12</span>;
-    (<span class="number">12</span>) -&gt; <span class="ident">T13</span>;
-    (<span class="number">13</span>) -&gt; <span class="ident">T14</span>;
-    (<span class="number">14</span>) -&gt; <span class="ident">T15</span>;
-    (<span class="number">15</span>) -&gt; <span class="ident">T16</span>;
+    (<span class="number">0</span>) -&gt; T1;
+    (<span class="number">1</span>) -&gt; T2;
+    (<span class="number">2</span>) -&gt; T3;
+    (<span class="number">3</span>) -&gt; T4;
+    (<span class="number">4</span>) -&gt; T5;
+    (<span class="number">5</span>) -&gt; T6;
+    (<span class="number">6</span>) -&gt; T7;
+    (<span class="number">7</span>) -&gt; T8;
+    (<span class="number">8</span>) -&gt; T9;
+    (<span class="number">9</span>) -&gt; T10;
+    (<span class="number">10</span>) -&gt; T11;
+    (<span class="number">11</span>) -&gt; T12;
+    (<span class="number">12</span>) -&gt; T13;
+    (<span class="number">13</span>) -&gt; T14;
+    (<span class="number">14</span>) -&gt; T15;
+    (<span class="number">15</span>) -&gt; T16;
 );
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/socket.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>socket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/socket.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>socket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_server/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -273,278 +273,278 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
-</pre><pre class="rust"><code><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">std::net</span>::{
-    <span class="ident">SocketAddr</span> <span class="kw">as</span> <span class="ident">StdSocketAddr</span>, <span class="ident">TcpListener</span> <span class="kw">as</span> <span class="ident">StdTcpListener</span>, <span class="ident">ToSocketAddrs</span>,
+</pre><pre class="rust"><code><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>std::net::{
+    SocketAddr <span class="kw">as </span>StdSocketAddr, TcpListener <span class="kw">as </span>StdTcpListener, ToSocketAddrs,
 };
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">io</span>};
+<span class="kw">use </span>std::{fmt, io};
 
-<span class="kw">use</span> <span class="ident">actix_rt::net::TcpStream</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">mio::net::TcpListener</span> <span class="kw">as</span> <span class="ident">MioTcpListener</span>;
-<span class="kw">use</span> <span class="ident">mio</span>::{<span class="ident">event::Source</span>, <span class="ident">Interest</span>, <span class="ident">Registry</span>, <span class="ident">Token</span>};
+<span class="kw">use </span>actix_rt::net::TcpStream;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>mio::net::TcpListener <span class="kw">as </span>MioTcpListener;
+<span class="kw">use </span>mio::{event::Source, Interest, Registry, Token};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> {
-    <span class="ident">mio::net::UnixListener</span> <span class="kw">as</span> <span class="ident">MioUnixListener</span>,
-    <span class="ident">std::os::unix::net::UnixListener</span> <span class="kw">as</span> <span class="ident">StdUnixListener</span>,
+<span class="attribute">#[cfg(unix)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>{
+    mio::net::UnixListener <span class="kw">as </span>MioUnixListener,
+    std::os::unix::net::UnixListener <span class="kw">as </span>StdUnixListener,
 };
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">MioListener</span> {
-    <span class="ident">Tcp</span>(<span class="ident">MioTcpListener</span>),
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="ident">Uds</span>(<span class="ident">MioUnixListener</span>),
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>MioListener {
+    Tcp(MioTcpListener),
+    <span class="attribute">#[cfg(unix)]
+    </span>Uds(MioUnixListener),
 }
 
-<span class="kw">impl</span> <span class="ident">MioListener</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">local_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SocketAddr</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MioListener::Tcp</span>(<span class="kw-2">ref</span> <span class="ident">lst</span>) =&gt; <span class="ident">lst</span>
-                .<span class="ident">local_addr</span>()
-                .<span class="ident">map</span>(<span class="ident">SocketAddr::Tcp</span>)
-                .<span class="ident">unwrap_or</span>(<span class="ident">SocketAddr::Unknown</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">MioListener::Uds</span>(<span class="kw-2">ref</span> <span class="ident">lst</span>) =&gt; <span class="ident">lst</span>
-                .<span class="ident">local_addr</span>()
-                .<span class="ident">map</span>(<span class="ident">SocketAddr::Uds</span>)
-                .<span class="ident">unwrap_or</span>(<span class="ident">SocketAddr::Unknown</span>),
+<span class="kw">impl </span>MioListener {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>local_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SocketAddr {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MioListener::Tcp(<span class="kw-2">ref </span>lst) =&gt; lst
+                .local_addr()
+                .map(SocketAddr::Tcp)
+                .unwrap_or(SocketAddr::Unknown),
+            <span class="attribute">#[cfg(unix)]
+            </span>MioListener::Uds(<span class="kw-2">ref </span>lst) =&gt; lst
+                .local_addr()
+                .map(SocketAddr::Uds)
+                .unwrap_or(SocketAddr::Unknown),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">accept</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">MioStream</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MioListener::Tcp</span>(<span class="kw-2">ref</span> <span class="ident">lst</span>) =&gt; <span class="ident">lst</span>.<span class="ident">accept</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">stream</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">MioStream::Tcp</span>(<span class="ident">stream</span>)),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">MioListener::Uds</span>(<span class="kw-2">ref</span> <span class="ident">lst</span>) =&gt; <span class="ident">lst</span>.<span class="ident">accept</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">stream</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">MioStream::Uds</span>(<span class="ident">stream</span>)),
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>accept(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;MioStream&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MioListener::Tcp(<span class="kw-2">ref </span>lst) =&gt; lst.accept().map(|(stream, <span class="kw">_</span>)| MioStream::Tcp(stream)),
+            <span class="attribute">#[cfg(unix)]
+            </span>MioListener::Uds(<span class="kw-2">ref </span>lst) =&gt; lst.accept().map(|(stream, <span class="kw">_</span>)| MioStream::Uds(stream)),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Source</span> <span class="kw">for</span> <span class="ident">MioListener</span> {
-    <span class="kw">fn</span> <span class="ident">register</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="ident">Registry</span>,
-        <span class="ident">token</span>: <span class="ident">Token</span>,
-        <span class="ident">interests</span>: <span class="ident">Interest</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MioListener::Tcp</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lst</span>) =&gt; <span class="ident">lst</span>.<span class="ident">register</span>(<span class="ident">registry</span>, <span class="ident">token</span>, <span class="ident">interests</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">MioListener::Uds</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lst</span>) =&gt; <span class="ident">lst</span>.<span class="ident">register</span>(<span class="ident">registry</span>, <span class="ident">token</span>, <span class="ident">interests</span>),
+<span class="kw">impl </span>Source <span class="kw">for </span>MioListener {
+    <span class="kw">fn </span>register(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        registry: <span class="kw-2">&amp;</span>Registry,
+        token: Token,
+        interests: Interest,
+    ) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MioListener::Tcp(<span class="kw-2">ref mut </span>lst) =&gt; lst.register(registry, token, interests),
+            <span class="attribute">#[cfg(unix)]
+            </span>MioListener::Uds(<span class="kw-2">ref mut </span>lst) =&gt; lst.register(registry, token, interests),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reregister</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="ident">Registry</span>,
-        <span class="ident">token</span>: <span class="ident">Token</span>,
-        <span class="ident">interests</span>: <span class="ident">Interest</span>,
-    ) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MioListener::Tcp</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lst</span>) =&gt; <span class="ident">lst</span>.<span class="ident">reregister</span>(<span class="ident">registry</span>, <span class="ident">token</span>, <span class="ident">interests</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">MioListener::Uds</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lst</span>) =&gt; <span class="ident">lst</span>.<span class="ident">reregister</span>(<span class="ident">registry</span>, <span class="ident">token</span>, <span class="ident">interests</span>),
+    <span class="kw">fn </span>reregister(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        registry: <span class="kw-2">&amp;</span>Registry,
+        token: Token,
+        interests: Interest,
+    ) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MioListener::Tcp(<span class="kw-2">ref mut </span>lst) =&gt; lst.reregister(registry, token, interests),
+            <span class="attribute">#[cfg(unix)]
+            </span>MioListener::Uds(<span class="kw-2">ref mut </span>lst) =&gt; lst.reregister(registry, token, interests),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">deregister</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="ident">Registry</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MioListener::Tcp</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lst</span>) =&gt; <span class="ident">lst</span>.<span class="ident">deregister</span>(<span class="ident">registry</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">MioListener::Uds</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lst</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">lst</span>.<span class="ident">deregister</span>(<span class="ident">registry</span>);
+    <span class="kw">fn </span>deregister(<span class="kw-2">&amp;mut </span><span class="self">self</span>, registry: <span class="kw-2">&amp;</span>Registry) -&gt; io::Result&lt;()&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MioListener::Tcp(<span class="kw-2">ref mut </span>lst) =&gt; lst.deregister(registry),
+            <span class="attribute">#[cfg(unix)]
+            </span>MioListener::Uds(<span class="kw-2">ref mut </span>lst) =&gt; {
+                <span class="kw">let </span>res = lst.deregister(registry);
 
-                <span class="comment">// cleanup file path</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">addr</span>) <span class="op">=</span> <span class="ident">lst</span>.<span class="ident">local_addr</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">addr</span>.<span class="ident">as_pathname</span>() {
-                        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">std::fs::remove_file</span>(<span class="ident">path</span>);
+                <span class="comment">// cleanup file path
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(addr) = lst.local_addr() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = addr.as_pathname() {
+                        <span class="kw">let _ </span>= std::fs::remove_file(path);
                     }
                 }
-                <span class="ident">res</span>
+                res
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">StdTcpListener</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MioListener</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">lst</span>: <span class="ident">StdTcpListener</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">MioListener::Tcp</span>(<span class="ident">MioTcpListener::from_std</span>(<span class="ident">lst</span>))
+<span class="kw">impl </span>From&lt;StdTcpListener&gt; <span class="kw">for </span>MioListener {
+    <span class="kw">fn </span>from(lst: StdTcpListener) -&gt; <span class="self">Self </span>{
+        MioListener::Tcp(MioTcpListener::from_std(lst))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">StdUnixListener</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MioListener</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">lst</span>: <span class="ident">StdUnixListener</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">MioListener::Uds</span>(<span class="ident">MioUnixListener::from_std</span>(<span class="ident">lst</span>))
+<span class="attribute">#[cfg(unix)]
+</span><span class="kw">impl </span>From&lt;StdUnixListener&gt; <span class="kw">for </span>MioListener {
+    <span class="kw">fn </span>from(lst: StdUnixListener) -&gt; <span class="self">Self </span>{
+        MioListener::Uds(MioUnixListener::from_std(lst))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">MioListener</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MioListener::Tcp</span>(<span class="kw-2">ref</span> <span class="ident">lst</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">lst</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>))]</span>
-            <span class="ident">MioListener::Uds</span>(<span class="kw-2">ref</span> <span class="ident">lst</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">lst</span>),
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>MioListener {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MioListener::Tcp(<span class="kw-2">ref </span>lst) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, lst),
+            <span class="attribute">#[cfg(all(unix))]
+            </span>MioListener::Uds(<span class="kw-2">ref </span>lst) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, lst),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">MioListener</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">MioListener::Tcp</span>(<span class="kw-2">ref</span> <span class="ident">lst</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">lst</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">MioListener::Uds</span>(<span class="kw-2">ref</span> <span class="ident">lst</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">lst</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>MioListener {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            MioListener::Tcp(<span class="kw-2">ref </span>lst) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, lst),
+            <span class="attribute">#[cfg(unix)]
+            </span>MioListener::Uds(<span class="kw-2">ref </span>lst) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, lst),
         }
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">SocketAddr</span> {
-    <span class="ident">Unknown</span>,
-    <span class="ident">Tcp</span>(<span class="ident">StdSocketAddr</span>),
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="ident">Uds</span>(<span class="ident">mio::net::SocketAddr</span>),
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>SocketAddr {
+    Unknown,
+    Tcp(StdSocketAddr),
+    <span class="attribute">#[cfg(unix)]
+    </span>Uds(mio::net::SocketAddr),
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">SocketAddr</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Unknown</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Unknown SocketAddr&quot;</span>),
-            <span class="ident"><span class="self">Self</span>::Tcp</span>(<span class="kw-2">ref</span> <span class="ident">addr</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">addr</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Uds</span>(<span class="kw-2">ref</span> <span class="ident">addr</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">addr</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>SocketAddr {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            <span class="self">Self</span>::Unknown =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Unknown SocketAddr&quot;</span>),
+            <span class="self">Self</span>::Tcp(<span class="kw-2">ref </span>addr) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, addr),
+            <span class="attribute">#[cfg(unix)]
+            </span><span class="self">Self</span>::Uds(<span class="kw-2">ref </span>addr) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, addr),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">SocketAddr</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Unknown</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Unknown SocketAddr&quot;</span>),
-            <span class="ident"><span class="self">Self</span>::Tcp</span>(<span class="kw-2">ref</span> <span class="ident">addr</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">addr</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Uds</span>(<span class="kw-2">ref</span> <span class="ident">addr</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">addr</span>),
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>SocketAddr {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            <span class="self">Self</span>::Unknown =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Unknown SocketAddr&quot;</span>),
+            <span class="self">Self</span>::Tcp(<span class="kw-2">ref </span>addr) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, addr),
+            <span class="attribute">#[cfg(unix)]
+            </span><span class="self">Self</span>::Uds(<span class="kw-2">ref </span>addr) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:?}&quot;</span>, addr),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MioStream</span> {
-    <span class="ident">Tcp</span>(<span class="ident">mio::net::TcpStream</span>),
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="ident">Uds</span>(<span class="ident">mio::net::UnixStream</span>),
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>MioStream {
+    Tcp(mio::net::TcpStream),
+    <span class="attribute">#[cfg(unix)]
+    </span>Uds(mio::net::UnixStream),
 }
 
-<span class="doccomment">/// Helper trait for converting a Mio stream into a Tokio stream.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromStream</span>: <span class="ident">Sized</span> {
-    <span class="kw">fn</span> <span class="ident">from_mio</span>(<span class="ident">sock</span>: <span class="ident">MioStream</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Helper trait for converting a Mio stream into a Tokio stream.
+</span><span class="kw">pub trait </span>FromStream: Sized {
+    <span class="kw">fn </span>from_mio(sock: MioStream) -&gt; io::Result&lt;<span class="self">Self</span>&gt;;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
-<span class="kw">mod</span> <span class="ident">win_impl</span> {
-    <span class="kw">use</span> <span class="ident">std::os::windows::io</span>::{<span class="ident">FromRawSocket</span>, <span class="ident">IntoRawSocket</span>};
+<span class="attribute">#[cfg(windows)]
+</span><span class="kw">mod </span>win_impl {
+    <span class="kw">use </span>std::os::windows::io::{FromRawSocket, IntoRawSocket};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="comment">// TODO: This is a workaround and we need an efficient way to convert between Mio and Tokio stream</span>
-    <span class="kw">impl</span> <span class="ident">FromStream</span> <span class="kw">for</span> <span class="ident">TcpStream</span> {
-        <span class="kw">fn</span> <span class="ident">from_mio</span>(<span class="ident">sock</span>: <span class="ident">MioStream</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="kw">match</span> <span class="ident">sock</span> {
-                <span class="ident">MioStream::Tcp</span>(<span class="ident">mio</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">IntoRawSocket::into_raw_socket</span>(<span class="ident">mio</span>);
-                    <span class="comment">// SAFETY: This is an in-place conversion from Mio stream to Tokio stream.</span>
-                    <span class="ident">TcpStream::from_std</span>(<span class="kw">unsafe</span> { <span class="ident">FromRawSocket::from_raw_socket</span>(<span class="ident">raw</span>) })
+    <span class="comment">// TODO: This is a workaround and we need an efficient way to convert between Mio and Tokio stream
+    </span><span class="kw">impl </span>FromStream <span class="kw">for </span>TcpStream {
+        <span class="kw">fn </span>from_mio(sock: MioStream) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">match </span>sock {
+                MioStream::Tcp(mio) =&gt; {
+                    <span class="kw">let </span>raw = IntoRawSocket::into_raw_socket(mio);
+                    <span class="comment">// SAFETY: This is an in-place conversion from Mio stream to Tokio stream.
+                    </span>TcpStream::from_std(<span class="kw">unsafe </span>{ FromRawSocket::from_raw_socket(raw) })
                 }
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-<span class="kw">mod</span> <span class="ident">unix_impl</span> {
-    <span class="kw">use</span> <span class="ident">std::os::unix::io</span>::{<span class="ident">FromRawFd</span>, <span class="ident">IntoRawFd</span>};
+<span class="attribute">#[cfg(unix)]
+</span><span class="kw">mod </span>unix_impl {
+    <span class="kw">use </span>std::os::unix::io::{FromRawFd, IntoRawFd};
 
-    <span class="kw">use</span> <span class="ident">actix_rt::net::UnixStream</span>;
+    <span class="kw">use </span>actix_rt::net::UnixStream;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="comment">// HACK: This is a workaround and we need an efficient way to convert between Mio and Tokio stream</span>
-    <span class="kw">impl</span> <span class="ident">FromStream</span> <span class="kw">for</span> <span class="ident">TcpStream</span> {
-        <span class="kw">fn</span> <span class="ident">from_mio</span>(<span class="ident">sock</span>: <span class="ident">MioStream</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="kw">match</span> <span class="ident">sock</span> {
-                <span class="ident">MioStream::Tcp</span>(<span class="ident">mio</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">IntoRawFd::into_raw_fd</span>(<span class="ident">mio</span>);
-                    <span class="comment">// SAFETY: This is an in-place conversion from Mio stream to Tokio stream.</span>
-                    <span class="ident">TcpStream::from_std</span>(<span class="kw">unsafe</span> { <span class="ident">FromRawFd::from_raw_fd</span>(<span class="ident">raw</span>) })
+    <span class="comment">// HACK: This is a workaround and we need an efficient way to convert between Mio and Tokio stream
+    </span><span class="kw">impl </span>FromStream <span class="kw">for </span>TcpStream {
+        <span class="kw">fn </span>from_mio(sock: MioStream) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">match </span>sock {
+                MioStream::Tcp(mio) =&gt; {
+                    <span class="kw">let </span>raw = IntoRawFd::into_raw_fd(mio);
+                    <span class="comment">// SAFETY: This is an in-place conversion from Mio stream to Tokio stream.
+                    </span>TcpStream::from_std(<span class="kw">unsafe </span>{ FromRawFd::from_raw_fd(raw) })
                 }
-                <span class="ident">MioStream::Uds</span>(<span class="kw">_</span>) =&gt; {
+                MioStream::Uds(<span class="kw">_</span>) =&gt; {
                     <span class="macro">panic!</span>(<span class="string">&quot;Should not happen, bug in server impl&quot;</span>);
                 }
             }
         }
     }
 
-    <span class="comment">// HACK: This is a workaround and we need an efficient way to convert between Mio and Tokio stream</span>
-    <span class="kw">impl</span> <span class="ident">FromStream</span> <span class="kw">for</span> <span class="ident">UnixStream</span> {
-        <span class="kw">fn</span> <span class="ident">from_mio</span>(<span class="ident">sock</span>: <span class="ident">MioStream</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="kw">match</span> <span class="ident">sock</span> {
-                <span class="ident">MioStream::Tcp</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Should not happen, bug in server impl&quot;</span>),
-                <span class="ident">MioStream::Uds</span>(<span class="ident">mio</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">IntoRawFd::into_raw_fd</span>(<span class="ident">mio</span>);
-                    <span class="comment">// SAFETY: This is an in-place conversion from Mio stream to Tokio stream.</span>
-                    <span class="ident">UnixStream::from_std</span>(<span class="kw">unsafe</span> { <span class="ident">FromRawFd::from_raw_fd</span>(<span class="ident">raw</span>) })
+    <span class="comment">// HACK: This is a workaround and we need an efficient way to convert between Mio and Tokio stream
+    </span><span class="kw">impl </span>FromStream <span class="kw">for </span>UnixStream {
+        <span class="kw">fn </span>from_mio(sock: MioStream) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">match </span>sock {
+                MioStream::Tcp(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Should not happen, bug in server impl&quot;</span>),
+                MioStream::Uds(mio) =&gt; {
+                    <span class="kw">let </span>raw = IntoRawFd::into_raw_fd(mio);
+                    <span class="comment">// SAFETY: This is an in-place conversion from Mio stream to Tokio stream.
+                    </span>UnixStream::from_std(<span class="kw">unsafe </span>{ FromRawFd::from_raw_fd(raw) })
                 }
             }
         }
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">create_mio_tcp_listener</span>(
-    <span class="ident">addr</span>: <span class="ident">StdSocketAddr</span>,
-    <span class="ident">backlog</span>: <span class="ident">u32</span>,
-) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">MioTcpListener</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">socket2</span>::{<span class="ident">Domain</span>, <span class="ident">Protocol</span>, <span class="ident">Socket</span>, <span class="ident">Type</span>};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>create_mio_tcp_listener(
+    addr: StdSocketAddr,
+    backlog: u32,
+) -&gt; io::Result&lt;MioTcpListener&gt; {
+    <span class="kw">use </span>socket2::{Domain, Protocol, Socket, Type};
 
-    <span class="kw">let</span> <span class="ident">socket</span> <span class="op">=</span> <span class="ident">Socket::new</span>(<span class="ident">Domain::for_address</span>(<span class="ident">addr</span>), <span class="ident">Type::STREAM</span>, <span class="prelude-val">Some</span>(<span class="ident">Protocol::TCP</span>))<span class="question-mark">?</span>;
+    <span class="kw">let </span>socket = Socket::new(Domain::for_address(addr), Type::STREAM, <span class="prelude-val">Some</span>(Protocol::TCP))<span class="question-mark">?</span>;
 
-    <span class="ident">socket</span>.<span class="ident">set_reuse_address</span>(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
-    <span class="ident">socket</span>.<span class="ident">set_nonblocking</span>(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
-    <span class="ident">socket</span>.<span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="ident">addr</span>.<span class="ident">into</span>())<span class="question-mark">?</span>;
-    <span class="ident">socket</span>.<span class="ident">listen</span>(<span class="ident">backlog</span> <span class="kw">as</span> <span class="ident">i32</span>)<span class="question-mark">?</span>;
+    socket.set_reuse_address(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
+    socket.set_nonblocking(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
+    socket.bind(<span class="kw-2">&amp;</span>addr.into())<span class="question-mark">?</span>;
+    socket.listen(backlog <span class="kw">as </span>i32)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">MioTcpListener::from_std</span>(<span class="ident">StdTcpListener::from</span>(<span class="ident">socket</span>)))
+    <span class="prelude-val">Ok</span>(MioTcpListener::from_std(StdTcpListener::from(socket)))
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">socket_addr</span>() {
-        <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">SocketAddr::Tcp</span>(<span class="string">&quot;127.0.0.1:8080&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
-        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">addr</span>).<span class="ident">contains</span>(<span class="string">&quot;127.0.0.1:8080&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">addr</span>), <span class="string">&quot;127.0.0.1:8080&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>socket_addr() {
+        <span class="kw">let </span>addr = SocketAddr::Tcp(<span class="string">&quot;127.0.0.1:8080&quot;</span>.parse().unwrap());
+        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, addr).contains(<span class="string">&quot;127.0.0.1:8080&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, addr), <span class="string">&quot;127.0.0.1:8080&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">addr</span>: <span class="ident">StdSocketAddr</span> <span class="op">=</span> <span class="string">&quot;127.0.0.1:0&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">lst</span> <span class="op">=</span> <span class="ident">create_mio_tcp_listener</span>(<span class="ident">addr</span>, <span class="number">128</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">lst</span> <span class="op">=</span> <span class="ident">MioListener::Tcp</span>(<span class="ident">lst</span>);
-        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">lst</span>).<span class="ident">contains</span>(<span class="string">&quot;TcpListener&quot;</span>));
-        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">lst</span>).<span class="ident">contains</span>(<span class="string">&quot;127.0.0.1&quot;</span>));
+        <span class="kw">let </span>addr: StdSocketAddr = <span class="string">&quot;127.0.0.1:0&quot;</span>.parse().unwrap();
+        <span class="kw">let </span>lst = create_mio_tcp_listener(addr, <span class="number">128</span>).unwrap();
+        <span class="kw">let </span>lst = MioListener::Tcp(lst);
+        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, lst).contains(<span class="string">&quot;TcpListener&quot;</span>));
+        <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, lst).contains(<span class="string">&quot;127.0.0.1&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">uds</span>() {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">std::fs::remove_file</span>(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">socket</span>) <span class="op">=</span> <span class="ident">MioUnixListener::bind</span>(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">socket</span>.<span class="ident">local_addr</span>().<span class="ident">expect</span>(<span class="string">&quot;Couldn&#39;t get local address&quot;</span>);
-            <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">SocketAddr::Uds</span>(<span class="ident">addr</span>);
-            <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">a</span>).<span class="ident">contains</span>(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>));
-            <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">a</span>).<span class="ident">contains</span>(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>));
+    <span class="attribute">#[test]
+    #[cfg(unix)]
+    </span><span class="kw">fn </span>uds() {
+        <span class="kw">let _ </span>= std::fs::remove_file(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>);
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(socket) = MioUnixListener::bind(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>) {
+            <span class="kw">let </span>addr = socket.local_addr().expect(<span class="string">&quot;Couldn&#39;t get local address&quot;</span>);
+            <span class="kw">let </span>a = SocketAddr::Uds(addr);
+            <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, a).contains(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>));
+            <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, a).contains(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>));
 
-            <span class="kw">let</span> <span class="ident">lst</span> <span class="op">=</span> <span class="ident">MioListener::Uds</span>(<span class="ident">socket</span>);
-            <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">lst</span>).<span class="ident">contains</span>(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>));
-            <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">lst</span>).<span class="ident">contains</span>(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>));
+            <span class="kw">let </span>lst = MioListener::Uds(socket);
+            <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, lst).contains(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>));
+            <span class="macro">assert!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, lst).contains(<span class="string">&quot;/tmp/sock.xxxxx&quot;</span>));
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

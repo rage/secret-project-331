@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/header/mailbox.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mailbox.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/header/mailbox.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mailbox.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -328,110 +328,110 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">email_encoding::headers::EmailWriter</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>email_encoding::headers::EmailWriter;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Header</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">message::mailbox</span>::{<span class="ident">Mailbox</span>, <span class="ident">Mailboxes</span>},
-    <span class="ident">BoxError</span>,
+<span class="kw">use super</span>::{Header, HeaderName, HeaderValue};
+<span class="kw">use crate</span>::{
+    message::mailbox::{Mailbox, Mailboxes},
+    BoxError,
 };
 
-<span class="doccomment">/// Header which can contains multiple mailboxes</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MailboxesHeader</span> {
-    <span class="kw">fn</span> <span class="ident">join_mailboxes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>);
+<span class="doccomment">/// Header which can contains multiple mailboxes
+</span><span class="kw">pub trait </span>MailboxesHeader {
+    <span class="kw">fn </span>join_mailboxes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>);
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">mailbox_header</span> {
-    ($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">meta</span>]</span>)<span class="kw-2">*</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">header_name</span>: <span class="ident">expr</span>)) =&gt; {
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span>(<span class="ident">Mailbox</span>);
+<span class="macro">macro_rules! </span>mailbox_header {
+    ($(<span class="attribute">#[<span class="macro-nonterminal">$doc</span>:meta]</span>)<span class="kw-2">*</span>(<span class="macro-nonterminal">$type_name</span>: ident, <span class="macro-nonterminal">$header_name</span>: expr)) =&gt; {
+        $(<span class="attribute">#[<span class="macro-nonterminal">$doc</span>]</span>)*
+        <span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$type_name</span>(Mailbox);
 
-        <span class="kw">impl</span> <span class="ident">Header</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span> {
-            <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span> {
-                <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">header_name</span>)
+        <span class="kw">impl </span>Header <span class="kw">for </span><span class="macro-nonterminal">$type_name </span>{
+            <span class="kw">fn </span>name() -&gt; HeaderName {
+                HeaderName::new_from_ascii_str(<span class="macro-nonterminal">$header_name</span>)
             }
 
-            <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxError</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">mailbox</span>: <span class="ident">Mailbox</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
-                <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">mailbox</span>))
+            <span class="kw">fn </span>parse(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxError&gt; {
+                <span class="kw">let </span>mailbox: Mailbox = s.parse()<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(<span class="self">Self</span>(mailbox))
             }
 
-            <span class="kw">fn</span> <span class="ident">display</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HeaderValue</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded_value</span> <span class="op">=</span> <span class="ident">String::new</span>();
-                <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">header_name</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="string">&quot;: &quot;</span>.<span class="ident">len</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">encoded_value</span>, <span class="ident">line_len</span>, <span class="bool-val">false</span>);
-                <span class="self">self</span>.<span class="number">0</span>.<span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">w</span>).<span class="ident">expect</span>(<span class="string">&quot;writing `Mailbox` returned an error&quot;</span>);
+            <span class="kw">fn </span>display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HeaderValue {
+                <span class="kw">let </span><span class="kw-2">mut </span>encoded_value = String::new();
+                <span class="kw">let </span>line_len = <span class="macro-nonterminal">$header_name</span>.len() + <span class="string">&quot;: &quot;</span>.len();
+                <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>encoded_value, line_len, <span class="bool-val">false</span>);
+                <span class="self">self</span>.<span class="number">0</span>.encode(<span class="kw-2">&amp;mut </span>w).expect(<span class="string">&quot;writing `Mailbox` returned an error&quot;</span>);
 
-                <span class="ident">HeaderValue::dangerous_new_pre_encoded</span>(<span class="ident"><span class="self">Self</span>::name</span>(), <span class="self">self</span>.<span class="number">0</span>.<span class="ident">to_string</span>(), <span class="ident">encoded_value</span>)
-            }
-        }
-
-        <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">mailbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span>(<span class="ident">mailbox</span>)
+                HeaderValue::dangerous_new_pre_encoded(<span class="self">Self</span>::name(), <span class="self">self</span>.<span class="number">0</span>.to_string(), encoded_value)
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Mailbox</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">this</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span>) -&gt; <span class="ident">Mailbox</span> {
-                <span class="ident">this</span>.<span class="number">0</span>
+        <span class="kw">impl </span>std::convert::From&lt;Mailbox&gt; <span class="kw">for </span><span class="macro-nonterminal">$type_name </span>{
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>from(mailbox: Mailbox) -&gt; <span class="self">Self </span>{
+                <span class="self">Self</span>(mailbox)
             }
+        }
+
+        <span class="kw">impl </span>std::convert::From&lt;<span class="macro-nonterminal">$type_name</span>&gt; <span class="kw">for </span>Mailbox {
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>from(this: <span class="macro-nonterminal">$type_name</span>) -&gt; Mailbox {
+                this.<span class="number">0
+            </span>}
         }
     };
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">mailboxes_header</span> {
-    ($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">meta</span>]</span>)<span class="kw-2">*</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">header_name</span>: <span class="ident">expr</span>)) =&gt; {
-        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span>)<span class="op">*</span>
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">Mailboxes</span>);
+<span class="macro">macro_rules! </span>mailboxes_header {
+    ($(<span class="attribute">#[<span class="macro-nonterminal">$doc</span>:meta]</span>)<span class="kw-2">*</span>(<span class="macro-nonterminal">$type_name</span>: ident, <span class="macro-nonterminal">$header_name</span>: expr)) =&gt; {
+        $(<span class="attribute">#[<span class="macro-nonterminal">$doc</span>]</span>)*
+        <span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$type_name</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) Mailboxes);
 
-        <span class="kw">impl</span> <span class="ident">MailboxesHeader</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span> {
-            <span class="kw">fn</span> <span class="ident">join_mailboxes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) {
-                <span class="self">self</span>.<span class="number">0</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="number">0</span>);
+        <span class="kw">impl </span>MailboxesHeader <span class="kw">for </span><span class="macro-nonterminal">$type_name </span>{
+            <span class="kw">fn </span>join_mailboxes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>) {
+                <span class="self">self</span>.<span class="number">0</span>.extend(other.<span class="number">0</span>);
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">Header</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span> {
-            <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span> {
-                <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">header_name</span>)
+        <span class="kw">impl </span>Header <span class="kw">for </span><span class="macro-nonterminal">$type_name </span>{
+            <span class="kw">fn </span>name() -&gt; HeaderName {
+                HeaderName::new_from_ascii_str(<span class="macro-nonterminal">$header_name</span>)
             }
 
-            <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxError</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">mailbox</span>: <span class="ident">Mailboxes</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
-                <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">mailbox</span>))
+            <span class="kw">fn </span>parse(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxError&gt; {
+                <span class="kw">let </span>mailbox: Mailboxes = s.parse()<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(<span class="self">Self</span>(mailbox))
             }
 
-            <span class="kw">fn</span> <span class="ident">display</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HeaderValue</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoded_value</span> <span class="op">=</span> <span class="ident">String::new</span>();
-                <span class="kw">let</span> <span class="ident">line_len</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">header_name</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="string">&quot;: &quot;</span>.<span class="ident">len</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">EmailWriter::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">encoded_value</span>, <span class="ident">line_len</span>, <span class="bool-val">false</span>);
-                <span class="self">self</span>.<span class="number">0</span>.<span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">w</span>).<span class="ident">expect</span>(<span class="string">&quot;writing `Mailboxes` returned an error&quot;</span>);
+            <span class="kw">fn </span>display(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HeaderValue {
+                <span class="kw">let </span><span class="kw-2">mut </span>encoded_value = String::new();
+                <span class="kw">let </span>line_len = <span class="macro-nonterminal">$header_name</span>.len() + <span class="string">&quot;: &quot;</span>.len();
+                <span class="kw">let </span><span class="kw-2">mut </span>w = EmailWriter::new(<span class="kw-2">&amp;mut </span>encoded_value, line_len, <span class="bool-val">false</span>);
+                <span class="self">self</span>.<span class="number">0</span>.encode(<span class="kw-2">&amp;mut </span>w).expect(<span class="string">&quot;writing `Mailboxes` returned an error&quot;</span>);
 
-                <span class="ident">HeaderValue::dangerous_new_pre_encoded</span>(<span class="ident"><span class="self">Self</span>::name</span>(), <span class="self">self</span>.<span class="number">0</span>.<span class="ident">to_string</span>(), <span class="ident">encoded_value</span>)
-            }
-        }
-
-        <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">Mailboxes</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">mailboxes</span>: <span class="ident">Mailboxes</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span>(<span class="ident">mailboxes</span>)
+                HeaderValue::dangerous_new_pre_encoded(<span class="self">Self</span>::name(), <span class="self">self</span>.<span class="number">0</span>.to_string(), encoded_value)
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Mailboxes</span> {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">this</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">type_name</span>) -&gt; <span class="ident">Mailboxes</span> {
-                <span class="ident">this</span>.<span class="number">0</span>
+        <span class="kw">impl </span>std::convert::From&lt;Mailboxes&gt; <span class="kw">for </span><span class="macro-nonterminal">$type_name </span>{
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>from(mailboxes: Mailboxes) -&gt; <span class="self">Self </span>{
+                <span class="self">Self</span>(mailboxes)
             }
+        }
+
+        <span class="kw">impl </span>std::convert::From&lt;<span class="macro-nonterminal">$type_name</span>&gt; <span class="kw">for </span>Mailboxes {
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>from(this: <span class="macro-nonterminal">$type_name</span>) -&gt; Mailboxes {
+                this.<span class="number">0
+            </span>}
         }
     };
 }
 
-<span class="macro">mailbox_header!</span> {
+<span class="macro">mailbox_header! </span>{
     <span class="doccomment">/**
 
     `Sender` header
@@ -441,220 +441,220 @@
     ```no_test
     header::Sender(&quot;Mr. Sender &lt;sender@example.com&gt;&quot;.parse().unwrap())
     ```
-     */</span>
-    (<span class="ident">Sender</span>, <span class="string">&quot;Sender&quot;</span>)
+     */
+    </span>(Sender, <span class="string">&quot;Sender&quot;</span>)
 }
 
-<span class="macro">mailboxes_header!</span> {
+<span class="macro">mailboxes_header! </span>{
     <span class="doccomment">/**
 
     `From` header
 
     This header contains [`Mailboxes`][self::Mailboxes].
 
-     */</span>
-    (<span class="ident">From</span>, <span class="string">&quot;From&quot;</span>)
+     */
+    </span>(From, <span class="string">&quot;From&quot;</span>)
 }
 
-<span class="macro">mailboxes_header!</span> {
+<span class="macro">mailboxes_header! </span>{
     <span class="doccomment">/**
 
     `Reply-To` header
 
     This header contains [`Mailboxes`][self::Mailboxes].
 
-     */</span>
-    (<span class="ident">ReplyTo</span>, <span class="string">&quot;Reply-To&quot;</span>)
+     */
+    </span>(ReplyTo, <span class="string">&quot;Reply-To&quot;</span>)
 }
 
-<span class="macro">mailboxes_header!</span> {
+<span class="macro">mailboxes_header! </span>{
     <span class="doccomment">/**
 
     `To` header
 
     This header contains [`Mailboxes`][self::Mailboxes].
 
-     */</span>
-    (<span class="ident">To</span>, <span class="string">&quot;To&quot;</span>)
+     */
+    </span>(To, <span class="string">&quot;To&quot;</span>)
 }
 
-<span class="macro">mailboxes_header!</span> {
+<span class="macro">mailboxes_header! </span>{
     <span class="doccomment">/**
 
     `Cc` header
 
     This header contains [`Mailboxes`][self::Mailboxes].
 
-     */</span>
-    (<span class="ident">Cc</span>, <span class="string">&quot;Cc&quot;</span>)
+     */
+    </span>(Cc, <span class="string">&quot;Cc&quot;</span>)
 }
 
-<span class="macro">mailboxes_header!</span> {
+<span class="macro">mailboxes_header! </span>{
     <span class="doccomment">/**
 
     `Bcc` header
 
     This header contains [`Mailboxes`][self::Mailboxes].
 
-     */</span>
-    (<span class="ident">Bcc</span>, <span class="string">&quot;Bcc&quot;</span>)
+     */
+    </span>(Bcc, <span class="string">&quot;Bcc&quot;</span>)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>pretty_assertions::assert_eq;
 
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">From</span>, <span class="ident">Mailbox</span>, <span class="ident">Mailboxes</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::message::header</span>::{<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">Headers</span>};
+    <span class="kw">use super</span>::{From, Mailbox, Mailboxes};
+    <span class="kw">use </span><span class="kw">crate</span>::message::header::{HeaderName, HeaderValue, Headers};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_single_without_name</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">Mailboxes::new</span>().<span class="ident">with</span>(<span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>format_single_without_name() {
+        <span class="kw">let </span>from = Mailboxes::new().with(<span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">From</span>(<span class="ident">from</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.set(From(from));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">to_string</span>(), <span class="string">&quot;From: kayo@example.com\r\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(headers.to_string(), <span class="string">&quot;From: kayo@example.com\r\n&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_single_with_name</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">Mailboxes::new</span>().<span class="ident">with</span>(<span class="string">&quot;Kayo &lt;kayo@example.com&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>format_single_with_name() {
+        <span class="kw">let </span>from = Mailboxes::new().with(<span class="string">&quot;Kayo &lt;kayo@example.com&gt;&quot;</span>.parse().unwrap());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">From</span>(<span class="ident">from</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.set(From(from));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">to_string</span>(), <span class="string">&quot;From: Kayo &lt;kayo@example.com&gt;\r\n&quot;</span>);
+        <span class="macro">assert_eq!</span>(headers.to_string(), <span class="string">&quot;From: Kayo &lt;kayo@example.com&gt;\r\n&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_multi_without_name</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">Mailboxes::new</span>()
-            .<span class="ident">with</span>(<span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">with</span>(<span class="string">&quot;pony@domain.tld&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>format_multi_without_name() {
+        <span class="kw">let </span>from = Mailboxes::new()
+            .with(<span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap())
+            .with(<span class="string">&quot;pony@domain.tld&quot;</span>.parse().unwrap());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">From</span>(<span class="ident">from</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.set(From(from));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">headers</span>.<span class="ident">to_string</span>(),
-            <span class="string">&quot;From: kayo@example.com, pony@domain.tld\r\n&quot;</span>
-        );
+            headers.to_string(),
+            <span class="string">&quot;From: kayo@example.com, pony@domain.tld\r\n&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_multi_with_name</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="string">&quot;Kayo &lt;kayo@example.com&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-            <span class="string">&quot;Pony P. &lt;pony@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>format_multi_with_name() {
+        <span class="kw">let </span>from = <span class="macro">vec!</span>[
+            <span class="string">&quot;Kayo &lt;kayo@example.com&gt;&quot;</span>.parse().unwrap(),
+            <span class="string">&quot;Pony P. &lt;pony@domain.tld&gt;&quot;</span>.parse().unwrap(),
         ];
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">From</span>(<span class="ident">from</span>.<span class="ident">into</span>()));
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.set(From(from.into()));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">headers</span>.<span class="ident">to_string</span>(),
-            <span class="string">&quot;From: Kayo &lt;kayo@example.com&gt;, \&quot;Pony P.\&quot; &lt;pony@domain.tld&gt;\r\n&quot;</span>
-        );
+            headers.to_string(),
+            <span class="string">&quot;From: Kayo &lt;kayo@example.com&gt;, \&quot;Pony P.\&quot; &lt;pony@domain.tld&gt;\r\n&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">format_single_with_utf8_name</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;Кайо &lt;kayo@example.com&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()];
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>format_single_with_utf8_name() {
+        <span class="kw">let </span>from = <span class="macro">vec!</span>[<span class="string">&quot;Кайо &lt;kayo@example.com&gt;&quot;</span>.parse().unwrap()];
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">From</span>(<span class="ident">from</span>.<span class="ident">into</span>()));
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.set(From(from.into()));
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">headers</span>.<span class="ident">to_string</span>(),
-            <span class="string">&quot;From: =?utf-8?b?0JrQsNC50L4=?= &lt;kayo@example.com&gt;\r\n&quot;</span>
-        );
+            headers.to_string(),
+            <span class="string">&quot;From: =?utf-8?b?0JrQsNC50L4=?= &lt;kayo@example.com&gt;\r\n&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_single_without_name</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()].<span class="ident">into</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_single_without_name() {
+        <span class="kw">let </span>from = <span class="macro">vec!</span>[<span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap()].into();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;From&quot;</span>),
-            <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;From&quot;</span>),
+            <span class="string">&quot;kayo@example.com&quot;</span>.to_string(),
         ));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">From</span><span class="op">&gt;</span>(), <span class="prelude-val">Some</span>(<span class="ident">From</span>(<span class="ident">from</span>)));
+        <span class="macro">assert_eq!</span>(headers.get::&lt;From&gt;(), <span class="prelude-val">Some</span>(From(from)));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_single_with_name</span>() {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;K. &lt;kayo@example.com&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()].<span class="ident">into</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_single_with_name() {
+        <span class="kw">let </span>from = <span class="macro">vec!</span>[<span class="string">&quot;K. &lt;kayo@example.com&gt;&quot;</span>.parse().unwrap()].into();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;From&quot;</span>),
-            <span class="string">&quot;K. &lt;kayo@example.com&gt;&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;From&quot;</span>),
+            <span class="string">&quot;K. &lt;kayo@example.com&gt;&quot;</span>.to_string(),
         ));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">From</span><span class="op">&gt;</span>(), <span class="prelude-val">Some</span>(<span class="ident">From</span>(<span class="ident">from</span>)));
+        <span class="macro">assert_eq!</span>(headers.get::&lt;From&gt;(), <span class="prelude-val">Some</span>(From(from)));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_multi_without_name</span>() {
-        <span class="kw">let</span> <span class="ident">from</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-            <span class="string">&quot;pony@domain.tld&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_multi_without_name() {
+        <span class="kw">let </span>from: Vec&lt;Mailbox&gt; = <span class="macro">vec!</span>[
+            <span class="string">&quot;kayo@example.com&quot;</span>.parse().unwrap(),
+            <span class="string">&quot;pony@domain.tld&quot;</span>.parse().unwrap(),
         ];
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;From&quot;</span>),
-            <span class="string">&quot;kayo@example.com, pony@domain.tld&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;From&quot;</span>),
+            <span class="string">&quot;kayo@example.com, pony@domain.tld&quot;</span>.to_string(),
         ));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">From</span><span class="op">&gt;</span>(), <span class="prelude-val">Some</span>(<span class="ident">From</span>(<span class="ident">from</span>.<span class="ident">into</span>())));
+        <span class="macro">assert_eq!</span>(headers.get::&lt;From&gt;(), <span class="prelude-val">Some</span>(From(from.into())));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_multi_with_name</span>() {
-        <span class="kw">let</span> <span class="ident">from</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="string">&quot;K. &lt;kayo@example.com&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-            <span class="string">&quot;Pony P. &lt;pony@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_multi_with_name() {
+        <span class="kw">let </span>from: Vec&lt;Mailbox&gt; = <span class="macro">vec!</span>[
+            <span class="string">&quot;K. &lt;kayo@example.com&gt;&quot;</span>.parse().unwrap(),
+            <span class="string">&quot;Pony P. &lt;pony@domain.tld&gt;&quot;</span>.parse().unwrap(),
         ];
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;From&quot;</span>),
-            <span class="string">&quot;K. &lt;kayo@example.com&gt;, Pony P. &lt;pony@domain.tld&gt;&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;From&quot;</span>),
+            <span class="string">&quot;K. &lt;kayo@example.com&gt;, Pony P. &lt;pony@domain.tld&gt;&quot;</span>.to_string(),
         ));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">From</span><span class="op">&gt;</span>(), <span class="prelude-val">Some</span>(<span class="ident">From</span>(<span class="ident">from</span>.<span class="ident">into</span>())));
+        <span class="macro">assert_eq!</span>(headers.get::&lt;From&gt;(), <span class="prelude-val">Some</span>(From(from.into())));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_multi_with_name_containing_comma</span>() {
-        <span class="kw">let</span> <span class="ident">from</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mailbox</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="string">&quot;Test, test &lt;1@example.com&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-            <span class="string">&quot;Test2, test2 &lt;2@example.com&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_multi_with_name_containing_comma() {
+        <span class="kw">let </span>from: Vec&lt;Mailbox&gt; = <span class="macro">vec!</span>[
+            <span class="string">&quot;Test, test &lt;1@example.com&gt;&quot;</span>.parse().unwrap(),
+            <span class="string">&quot;Test2, test2 &lt;2@example.com&gt;&quot;</span>.parse().unwrap(),
         ];
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;From&quot;</span>),
-            <span class="string">&quot;Test, test &lt;1@example.com&gt;, Test2, test2 &lt;2@example.com&gt;&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;From&quot;</span>),
+            <span class="string">&quot;Test, test &lt;1@example.com&gt;, Test2, test2 &lt;2@example.com&gt;&quot;</span>.to_string(),
         ));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">From</span><span class="op">&gt;</span>(), <span class="prelude-val">Some</span>(<span class="ident">From</span>(<span class="ident">from</span>.<span class="ident">into</span>())));
+        <span class="macro">assert_eq!</span>(headers.get::&lt;From&gt;(), <span class="prelude-val">Some</span>(From(from.into())));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse_multi_with_name_containing_comma_last_broken</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span> <span class="op">=</span> <span class="ident">Headers::new</span>();
-        <span class="ident">headers</span>.<span class="ident">insert_raw</span>(<span class="ident">HeaderValue::new</span>(
-            <span class="ident">HeaderName::new_from_ascii_str</span>(<span class="string">&quot;From&quot;</span>),
-            <span class="string">&quot;Test, test &lt;1@example.com&gt;, Test2, test2&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse_multi_with_name_containing_comma_last_broken() {
+        <span class="kw">let </span><span class="kw-2">mut </span>headers = Headers::new();
+        headers.insert_raw(HeaderValue::new(
+            HeaderName::new_from_ascii_str(<span class="string">&quot;From&quot;</span>),
+            <span class="string">&quot;Test, test &lt;1@example.com&gt;, Test2, test2&quot;</span>.to_string(),
         ));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">From</span><span class="op">&gt;</span>(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(headers.get::&lt;From&gt;(), <span class="prelude-val">None</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

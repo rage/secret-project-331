@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/email_deliver.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>email_deliver.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/programs/email_deliver.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>email_deliver.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -99,106 +99,106 @@
 <span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">time::Duration</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{env, time::Duration};
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">FutureExt</span>, <span class="ident">StreamExt</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_models::email_deliveries</span>::{<span class="ident">fetch_emails</span>, <span class="ident">mark_as_sent</span>, <span class="ident">save_err_to_email</span>, <span class="ident">Email</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_utils::email_processor</span>::{<span class="self">self</span>, <span class="ident">EmailGutenbergBlock</span>};
-<span class="kw">use</span> <span class="ident">lettre</span>::{
-    <span class="ident">message</span>::{<span class="ident">header</span>, <span class="ident">MultiPart</span>, <span class="ident">SinglePart</span>},
-    <span class="ident">Message</span>, <span class="ident">SmtpTransport</span>, <span class="ident">Transport</span>,
+<span class="kw">use </span>anyhow::{Context, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>futures::{FutureExt, StreamExt};
+<span class="kw">use </span>headless_lms_models::email_deliveries::{fetch_emails, mark_as_sent, save_err_to_email, Email};
+<span class="kw">use </span>headless_lms_utils::email_processor::{<span class="self">self</span>, EmailGutenbergBlock};
+<span class="kw">use </span>lettre::{
+    message::{header, MultiPart, SinglePart},
+    Message, SmtpTransport, Transport,
 };
-<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
-<span class="kw">use</span> <span class="ident">sqlx::PgPool</span>;
+<span class="kw">use </span>once_cell::sync::Lazy;
+<span class="kw">use </span>sqlx::PgPool;
 
-<span class="kw">const</span> <span class="ident">BATCH_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">100</span>;
+<span class="kw">const </span>BATCH_SIZE: usize = <span class="number">100</span>;
 
-<span class="kw">static</span> <span class="ident">MOOCFI_EMAIL</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">env::var</span>(<span class="string">&quot;MOOCFI_EMAIL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;No moocfi email found in the env variables.&quot;</span>));
-<span class="kw">static</span> <span class="ident">EMAIL_RELAY</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">env::var</span>(<span class="string">&quot;EMAIL_RELAY&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;No email relay found in the env variables.&quot;</span>));
-<span class="kw">static</span> <span class="ident">DB_URL</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">env::var</span>(<span class="string">&quot;DATABASE_URL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;No db url found in the env variables.&quot;</span>));
+<span class="kw">static </span>MOOCFI_EMAIL: Lazy&lt;String&gt; =
+    Lazy::new(|| env::var(<span class="string">&quot;MOOCFI_EMAIL&quot;</span>).expect(<span class="string">&quot;No moocfi email found in the env variables.&quot;</span>));
+<span class="kw">static </span>EMAIL_RELAY: Lazy&lt;String&gt; =
+    Lazy::new(|| env::var(<span class="string">&quot;EMAIL_RELAY&quot;</span>).expect(<span class="string">&quot;No email relay found in the env variables.&quot;</span>));
+<span class="kw">static </span>DB_URL: Lazy&lt;String&gt; =
+    Lazy::new(|| env::var(<span class="string">&quot;DATABASE_URL&quot;</span>).expect(<span class="string">&quot;No db url found in the env variables.&quot;</span>));
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">mail_sender</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="ident">tracing_subscriber::fmt</span>().<span class="ident">init</span>();
-    <span class="ident">dotenv::dotenv</span>().<span class="ident">ok</span>();
+<span class="kw">pub async fn </span>mail_sender() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    tracing_subscriber::fmt().init();
+    dotenv::dotenv().ok();
 
-    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">PgPool::connect</span>(<span class="kw-2">&amp;</span><span class="ident">DB_URL</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>pool = PgPool::connect(<span class="kw-2">&amp;</span>DB_URL).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">emails</span> <span class="op">=</span> <span class="ident">fetch_emails</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">mailer</span> <span class="op">=</span> <span class="ident">SmtpTransport::relay</span>(<span class="kw-2">&amp;</span><span class="ident">EMAIL_RELAY</span>)<span class="question-mark">?</span>.<span class="ident">build</span>();
+    <span class="kw">let </span>emails = fetch_emails(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>mailer = SmtpTransport::relay(<span class="kw-2">&amp;</span>EMAIL_RELAY)<span class="question-mark">?</span>.build();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">futures</span> <span class="op">=</span> <span class="ident">tokio_stream::iter</span>(<span class="ident">emails</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">email</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">email_id</span> <span class="op">=</span> <span class="ident">email</span>.<span class="ident">id</span>;
-            <span class="ident">send_message</span>(<span class="ident">email</span>, <span class="kw-2">&amp;</span><span class="ident">mailer</span>, <span class="ident">pool</span>.<span class="ident">clone</span>()).<span class="ident">inspect</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">r</span> {
-                    <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to send email {}: {}&quot;</span>, <span class="ident">email_id</span>, <span class="ident">err</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>futures = tokio_stream::iter(emails)
+        .map(|email| {
+            <span class="kw">let </span>email_id = email.id;
+            send_message(email, <span class="kw-2">&amp;</span>mailer, pool.clone()).inspect(<span class="kw">move </span>|r| {
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = r {
+                    <span class="macro">tracing::error!</span>(<span class="string">&quot;Failed to send email {}: {}&quot;</span>, email_id, err)
                 }
             })
         })
-        .<span class="ident">buffer_unordered</span>(<span class="ident">BATCH_SIZE</span>);
+        .buffer_unordered(BATCH_SIZE);
 
-    <span class="kw">while</span> <span class="ident">futures</span>.<span class="ident">next</span>().<span class="kw">await</span>.<span class="ident">is_some</span>() {}
+    <span class="kw">while </span>futures.next().<span class="kw">await</span>.is_some() {}
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_message</span>(<span class="ident">email</span>: <span class="ident">Email</span>, <span class="ident">mailer</span>: <span class="kw-2">&amp;</span><span class="ident">SmtpTransport</span>, <span class="ident">pool</span>: <span class="ident">PgPool</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">email_block</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EmailGutenbergBlock</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">serde_json::from_value</span>(<span class="ident">email</span>.<span class="ident">body</span>.<span class="ident">context</span>(<span class="string">&quot;No body&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>send_message(email: Email, mailer: <span class="kw-2">&amp;</span>SmtpTransport, pool: PgPool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>email_block: Vec&lt;EmailGutenbergBlock&gt; =
+        serde_json::from_value(email.body.context(<span class="string">&quot;No body&quot;</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">msg_as_plaintext</span> <span class="op">=</span> <span class="ident">email_processor::process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">email_block</span>);
-    <span class="kw">let</span> <span class="ident">msg_as_html</span> <span class="op">=</span> <span class="ident">email_processor::process_content_to_html</span>(<span class="kw-2">&amp;</span><span class="ident">email_block</span>);
+    <span class="kw">let </span>msg_as_plaintext = email_processor::process_content_to_plaintext(<span class="kw-2">&amp;</span>email_block);
+    <span class="kw">let </span>msg_as_html = email_processor::process_content_to_html(<span class="kw-2">&amp;</span>email_block);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">email_to</span> <span class="op">=</span> <span class="ident">email</span>.<span class="ident">to</span>;
-    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
-        .<span class="ident">from</span>(<span class="ident">MOOCFI_EMAIL</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>)
-        .<span class="ident">to</span>(<span class="ident">email</span>
-            .<span class="ident">to</span>
-            .<span class="ident">to_string</span>()
-            .<span class="ident">parse</span>()
-            .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Invalid address: {}&quot;</span>, <span class="ident">email_to</span>))<span class="question-mark">?</span>)
-        .<span class="ident">subject</span>(<span class="ident">email</span>.<span class="ident">subject</span>.<span class="ident">context</span>(<span class="string">&quot;No subject&quot;</span>)<span class="question-mark">?</span>)
-        .<span class="ident">multipart</span>(
-            <span class="ident">MultiPart::alternative</span>()
-                .<span class="ident">singlepart</span>(
-                    <span class="ident">SinglePart::builder</span>()
-                        .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_PLAIN</span>)
-                        .<span class="ident">body</span>(<span class="ident">msg_as_plaintext</span>),
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>email_to = email.to;
+    <span class="kw">let </span>msg = Message::builder()
+        .from(MOOCFI_EMAIL.parse()<span class="question-mark">?</span>)
+        .to(email
+            .to
+            .to_string()
+            .parse()
+            .with_context(|| <span class="macro">format!</span>(<span class="string">&quot;Invalid address: {}&quot;</span>, email_to))<span class="question-mark">?</span>)
+        .subject(email.subject.context(<span class="string">&quot;No subject&quot;</span>)<span class="question-mark">?</span>)
+        .multipart(
+            MultiPart::alternative()
+                .singlepart(
+                    SinglePart::builder()
+                        .header(header::ContentType::TEXT_PLAIN)
+                        .body(msg_as_plaintext),
                 )
-                .<span class="ident">singlepart</span>(
-                    <span class="ident">SinglePart::builder</span>()
-                        .<span class="ident">header</span>(<span class="ident">header::ContentType::TEXT_HTML</span>)
-                        .<span class="ident">body</span>(<span class="ident">msg_as_html</span>),
+                .singlepart(
+                    SinglePart::builder()
+                        .header(header::ContentType::TEXT_HTML)
+                        .body(msg_as_html),
                 ),
         )
-        <span class="comment">// should never fail</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;Failed to build email&quot;</span>);
+        <span class="comment">// should never fail
+        </span>.expect(<span class="string">&quot;Failed to build email&quot;</span>);
 
-    <span class="kw">match</span> <span class="ident">mailer</span>.<span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>) {
-        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="ident">mark_as_sent</span>(<span class="ident">email</span>.<span class="ident">id</span>, <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">context</span>(<span class="string">&quot;Couldn&#39;t mark as sent&quot;</span>)<span class="question-mark">?</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">save_err_to_email</span>(<span class="ident">email</span>.<span class="ident">id</span>, <span class="ident">err</span>, <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">context</span>(<span class="string">&quot;Couldn&#39;t save sent err to db&quot;</span>)<span class="question-mark">?</span>,
+    <span class="kw">match </span>mailer.send(<span class="kw-2">&amp;</span>msg) {
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; mark_as_sent(email.id, <span class="kw-2">&amp;mut </span>conn)
+            .<span class="kw">await
+            </span>.context(<span class="string">&quot;Couldn&#39;t mark as sent&quot;</span>)<span class="question-mark">?</span>,
+        <span class="prelude-val">Err</span>(err) =&gt; save_err_to_email(email.id, err, <span class="kw-2">&amp;mut </span>conn)
+            .<span class="kw">await
+            </span>.context(<span class="string">&quot;Couldn&#39;t save sent err to db&quot;</span>)<span class="question-mark">?</span>,
     };
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">interval</span> <span class="op">=</span> <span class="ident">tokio::time::interval</span>(<span class="ident">Duration::from_secs</span>(<span class="number">10</span>));
-    <span class="kw">loop</span> {
-        <span class="ident">interval</span>.<span class="ident">tick</span>().<span class="kw">await</span>;
-        <span class="ident">mail_sender</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">pub async fn </span>main() -&gt; anyhow::Result&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>interval = tokio::time::interval(Duration::from_secs(<span class="number">10</span>));
+    <span class="kw">loop </span>{
+        interval.tick().<span class="kw">await</span>;
+        mail_sender().<span class="kw">await</span><span class="question-mark">?</span>;
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

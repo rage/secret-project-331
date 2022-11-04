@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/types/lquery.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lquery.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/types/lquery.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lquery.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -311,318 +311,318 @@
 <span id="311">311</span>
 <span id="312">312</span>
 <span id="313">313</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::decode::Decode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encode</span>::{<span class="ident">Encode</span>, <span class="ident">IsNull</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::BoxDynError</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgArgumentBuffer</span>, <span class="ident">PgTypeInfo</span>, <span class="ident">PgValueFormat</span>, <span class="ident">PgValueRef</span>, <span class="ident">Postgres</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
-<span class="kw">use</span> <span class="ident">bitflags::bitflags</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>};
-<span class="kw">use</span> <span class="ident">std::io::Write</span>;
-<span class="kw">use</span> <span class="ident">std::ops::Deref</span>;
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::decode::Decode;
+<span class="kw">use </span><span class="kw">crate</span>::encode::{Encode, IsNull};
+<span class="kw">use </span><span class="kw">crate</span>::error::BoxDynError;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{PgArgumentBuffer, PgTypeInfo, PgValueFormat, PgValueRef, Postgres};
+<span class="kw">use </span><span class="kw">crate</span>::types::Type;
+<span class="kw">use </span>bitflags::bitflags;
+<span class="kw">use </span>std::fmt::{<span class="self">self</span>, Display, Formatter};
+<span class="kw">use </span>std::io::Write;
+<span class="kw">use </span>std::ops::Deref;
+<span class="kw">use </span>std::str::FromStr;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::ltree</span>::{<span class="ident">PgLTreeLabel</span>, <span class="ident">PgLTreeParseError</span>};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::types::ltree::{PgLTreeLabel, PgLTreeParseError};
 
-<span class="doccomment">/// Represents lquery specific errors</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">thiserror::Error</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PgLQueryParseError</span> {
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;lquery cannot be empty&quot;</span>)]</span>
-    <span class="ident">EmptyString</span>,
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;unexpected character in lquery&quot;</span>)]</span>
-    <span class="ident">UnexpectedCharacter</span>,
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;error parsing integer: {0}&quot;</span>)]</span>
-    <span class="ident">ParseIntError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">std::num::ParseIntError</span>),
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;error parsing integer: {0}&quot;</span>)]</span>
-    <span class="ident">LTreeParrseError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">PgLTreeParseError</span>),
-    <span class="doccomment">/// LQuery version not supported</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;lquery version not supported&quot;</span>)]</span>
-    <span class="ident">InvalidLqueryVersion</span>,
+<span class="doccomment">/// Represents lquery specific errors
+</span><span class="attribute">#[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>PgLQueryParseError {
+    <span class="attribute">#[error(<span class="string">&quot;lquery cannot be empty&quot;</span>)]
+    </span>EmptyString,
+    <span class="attribute">#[error(<span class="string">&quot;unexpected character in lquery&quot;</span>)]
+    </span>UnexpectedCharacter,
+    <span class="attribute">#[error(<span class="string">&quot;error parsing integer: {0}&quot;</span>)]
+    </span>ParseIntError(<span class="attribute">#[from] </span>std::num::ParseIntError),
+    <span class="attribute">#[error(<span class="string">&quot;error parsing integer: {0}&quot;</span>)]
+    </span>LTreeParrseError(<span class="attribute">#[from] </span>PgLTreeParseError),
+    <span class="doccomment">/// LQuery version not supported
+    </span><span class="attribute">#[error(<span class="string">&quot;lquery version not supported&quot;</span>)]
+    </span>InvalidLqueryVersion,
 }
 
-<span class="doccomment">/// Container for a Label Tree Query (`lquery`) in Postgres.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See https://www.postgresql.org/docs/current/ltree.html</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Note: Requires Postgres 13+</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This integration requires that the `lquery` type support the binary format in the Postgres</span>
-<span class="doccomment">/// wire protocol, which only became available in Postgres 13.</span>
-<span class="doccomment">/// ([Postgres 13.0 Release Notes, Additional Modules][https://www.postgresql.org/docs/13/release-13.html#id-1.11.6.11.5.14])</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Ideally, SQLx&#39;s Postgres driver should support falling back to text format for types</span>
-<span class="doccomment">/// which don&#39;t have `typsend` and `typrecv` entries in `pg_type`, but that work still needs</span>
-<span class="doccomment">/// to be done.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Note: Extension Required</span>
-<span class="doccomment">/// The `ltree` extension is not enabled by default in Postgres. You will need to do so explicitly:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// CREATE EXTENSION IF NOT EXISTS &quot;ltree&quot;;</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgLQuery</span> {
-    <span class="ident">levels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgLQueryLevel</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Container for a Label Tree Query (`lquery`) in Postgres.
+///
+/// See https://www.postgresql.org/docs/current/ltree.html
+///
+/// ### Note: Requires Postgres 13+
+///
+/// This integration requires that the `lquery` type support the binary format in the Postgres
+/// wire protocol, which only became available in Postgres 13.
+/// ([Postgres 13.0 Release Notes, Additional Modules][https://www.postgresql.org/docs/13/release-13.html#id-1.11.6.11.5.14])
+///
+/// Ideally, SQLx&#39;s Postgres driver should support falling back to text format for types
+/// which don&#39;t have `typsend` and `typrecv` entries in `pg_type`, but that work still needs
+/// to be done.
+///
+/// ### Note: Extension Required
+/// The `ltree` extension is not enabled by default in Postgres. You will need to do so explicitly:
+///
+/// ```ignore
+/// CREATE EXTENSION IF NOT EXISTS &quot;ltree&quot;;
+/// ```
+</span><span class="attribute">#[derive(Clone, Debug, Default, PartialEq)]
+</span><span class="kw">pub struct </span>PgLQuery {
+    levels: Vec&lt;PgLQueryLevel&gt;,
 }
 
-<span class="comment">// TODO: maybe a QueryBuilder pattern would be nice here</span>
-<span class="kw">impl</span> <span class="ident">PgLQuery</span> {
-    <span class="doccomment">/// creates default/empty lquery</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::default</span>()
+<span class="comment">// TODO: maybe a QueryBuilder pattern would be nice here
+</span><span class="kw">impl </span>PgLQuery {
+    <span class="doccomment">/// creates default/empty lquery
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::default()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">levels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgLQueryLevel</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">levels</span> }
+    <span class="kw">pub fn </span>from(levels: Vec&lt;PgLQueryLevel&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ levels }
     }
 
-    <span class="doccomment">/// push a query level</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">level</span>: <span class="ident">PgLQueryLevel</span>) {
-        <span class="self">self</span>.<span class="ident">levels</span>.<span class="ident">push</span>(<span class="ident">level</span>);
+    <span class="doccomment">/// push a query level
+    </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, level: PgLQueryLevel) {
+        <span class="self">self</span>.levels.push(level);
     }
 
-    <span class="doccomment">/// pop a query level</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PgLQueryLevel</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">levels</span>.<span class="ident">pop</span>()
+    <span class="doccomment">/// pop a query level
+    </span><span class="kw">pub fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PgLQueryLevel&gt; {
+        <span class="self">self</span>.levels.pop()
     }
 
-    <span class="doccomment">/// creates lquery from an iterator with checking labels</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_iter</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">levels</span>: <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">PgLQueryParseError</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">S</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// creates lquery from an iterator with checking labels
+    </span><span class="kw">pub fn </span>from_iter&lt;I, S&gt;(levels: I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PgLQueryParseError&gt;
+    <span class="kw">where
+        </span>S: Into&lt;String&gt;,
+        I: IntoIterator&lt;Item = S&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lquery</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::default</span>();
-        <span class="kw">for</span> <span class="ident">level</span> <span class="kw">in</span> <span class="ident">levels</span> {
-            <span class="ident">lquery</span>.<span class="ident">push</span>(<span class="ident">PgLQueryLevel::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">into</span>())<span class="question-mark">?</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>lquery = <span class="self">Self</span>::default();
+        <span class="kw">for </span>level <span class="kw">in </span>levels {
+            lquery.push(PgLQueryLevel::from_str(<span class="kw-2">&amp;</span>level.into())<span class="question-mark">?</span>);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">lquery</span>)
+        <span class="prelude-val">Ok</span>(lquery)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="ident">PgLQuery</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">PgLQueryLevel</span>;
-    <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">std::vec::IntoIter</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>IntoIterator <span class="kw">for </span>PgLQuery {
+    <span class="kw">type </span>Item = PgLQueryLevel;
+    <span class="kw">type </span>IntoIter = std::vec::IntoIter&lt;<span class="self">Self</span>::Item&gt;;
 
-    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::IntoIter</span> {
-        <span class="self">self</span>.<span class="ident">levels</span>.<span class="ident">into_iter</span>()
+    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        <span class="self">self</span>.levels.into_iter()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">PgLQuery</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">PgLQueryParseError</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>PgLQuery {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= PgLQueryParseError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">levels</span>: <span class="ident">s</span>
-                .<span class="ident">split</span>(<span class="string">&#39;.&#39;</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">PgLQueryLevel::from_str</span>(<span class="ident">s</span>))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>,
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            levels: s
+                .split(<span class="string">&#39;.&#39;</span>)
+                .map(|s| PgLQueryLevel::from_str(s))
+                .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>, <span class="self">Self</span>::Err&gt;&gt;()<span class="question-mark">?</span>,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">PgLQuery</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">levels</span>.<span class="ident">iter</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">label</span>)<span class="question-mark">?</span>;
-            <span class="kw">for</span> <span class="ident">label</span> <span class="kw">in</span> <span class="ident">iter</span> {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{}&quot;</span>, <span class="ident">label</span>)<span class="question-mark">?</span>;
+<span class="kw">impl </span>Display <span class="kw">for </span>PgLQuery {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.levels.iter();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(label) = iter.next() {
+            <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, label)<span class="question-mark">?</span>;
+            <span class="kw">for </span>label <span class="kw">in </span>iter {
+                <span class="macro">write!</span>(f, <span class="string">&quot;.{}&quot;</span>, label)<span class="question-mark">?</span>;
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">PgLQuery</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> [<span class="ident">PgLQueryLevel</span>];
+<span class="kw">impl </span>Deref <span class="kw">for </span>PgLQuery {
+    <span class="kw">type </span>Target = [PgLQueryLevel];
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">levels</span>
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.levels
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgLQuery</span> {
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">PgTypeInfo</span> {
-        <span class="comment">// Since `ltree` is enabled by an extension, it does not have a stable OID.</span>
-        <span class="ident">PgTypeInfo::with_name</span>(<span class="string">&quot;lquery&quot;</span>)
+<span class="kw">impl </span>Type&lt;Postgres&gt; <span class="kw">for </span>PgLQuery {
+    <span class="kw">fn </span>type_info() -&gt; PgTypeInfo {
+        <span class="comment">// Since `ltree` is enabled by an extension, it does not have a stable OID.
+        </span>PgTypeInfo::with_name(<span class="string">&quot;lquery&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgLQuery</span> {
-    <span class="kw">fn</span> <span class="ident">encode_by_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgArgumentBuffer</span>) -&gt; <span class="ident">IsNull</span> {
-        <span class="ident">buf</span>.<span class="ident">extend</span>(<span class="number">1i8</span>.<span class="ident">to_le_bytes</span>());
-        <span class="macro">write!</span>(<span class="ident">buf</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Display implementation panicked while writing to PgArgumentBuffer&quot;</span>);
+<span class="kw">impl </span>Encode&lt;<span class="lifetime">&#39;_</span>, Postgres&gt; <span class="kw">for </span>PgLQuery {
+    <span class="kw">fn </span>encode_by_ref(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>PgArgumentBuffer) -&gt; IsNull {
+        buf.extend(<span class="number">1i8</span>.to_le_bytes());
+        <span class="macro">write!</span>(buf, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>)
+            .expect(<span class="string">&quot;Display implementation panicked while writing to PgArgumentBuffer&quot;</span>);
 
-        <span class="ident">IsNull::No</span>
+        IsNull::No
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">Postgres</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PgLQuery</span> {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="ident">PgValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">format</span>() {
-            <span class="ident">PgValueFormat::Binary</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_bytes</span>()<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">i8::from_le_bytes</span>([<span class="ident">bytes</span>[<span class="number">0</span>]; <span class="number">1</span>]);
-                <span class="kw">if</span> <span class="ident">version</span> <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Box::new</span>(<span class="ident">PgLQueryParseError::InvalidLqueryVersion</span>));
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>&gt; Decode&lt;<span class="lifetime">&#39;r</span>, Postgres&gt; <span class="kw">for </span>PgLQuery {
+    <span class="kw">fn </span>decode(value: PgValueRef&lt;<span class="lifetime">&#39;r</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxDynError&gt; {
+        <span class="kw">match </span>value.format() {
+            PgValueFormat::Binary =&gt; {
+                <span class="kw">let </span>bytes = value.as_bytes()<span class="question-mark">?</span>;
+                <span class="kw">let </span>version = i8::from_le_bytes([bytes[<span class="number">0</span>]; <span class="number">1</span>]);
+                <span class="kw">if </span>version != <span class="number">1 </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Box::new(PgLQueryParseError::InvalidLqueryVersion));
                 }
-                <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from_str</span>(<span class="ident">std::str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="number">1</span>..])<span class="question-mark">?</span>)<span class="question-mark">?</span>)
+                <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_str(std::str::from_utf8(<span class="kw-2">&amp;</span>bytes[<span class="number">1</span>..])<span class="question-mark">?</span>)<span class="question-mark">?</span>)
             }
-            <span class="ident">PgValueFormat::Text</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from_str</span>(<span class="ident">value</span>.<span class="ident">as_str</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>),
+            PgValueFormat::Text =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_str(value.as_str()<span class="question-mark">?</span>)<span class="question-mark">?</span>),
         }
     }
 }
 
-<span class="macro">bitflags!</span> {
-    <span class="doccomment">/// Modifiers that can be set to non-star labels</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgLQueryVariantFlag</span>: <span class="ident">u16</span> {
-        <span class="doccomment">/// * - Match any label with this prefix, for example foo* matches foobar</span>
-        <span class="kw">const</span> <span class="ident">ANY_END</span> <span class="op">=</span> <span class="number">0x01</span>;
-        <span class="doccomment">/// @ - Match case-insensitively, for example a@ matches A</span>
-        <span class="kw">const</span> <span class="ident">IN_CASE</span> <span class="op">=</span> <span class="number">0x02</span>;
-        <span class="doccomment">/// % - Match initial underscore-separated words</span>
-        <span class="kw">const</span> <span class="ident">SUBLEXEME</span> <span class="op">=</span> <span class="number">0x04</span>;
+<span class="macro">bitflags! </span>{
+    <span class="doccomment">/// Modifiers that can be set to non-star labels
+    </span><span class="kw">pub struct </span>PgLQueryVariantFlag: u16 {
+        <span class="doccomment">/// * - Match any label with this prefix, for example foo* matches foobar
+        </span><span class="kw">const </span>ANY_END = <span class="number">0x01</span>;
+        <span class="doccomment">/// @ - Match case-insensitively, for example a@ matches A
+        </span><span class="kw">const </span>IN_CASE = <span class="number">0x02</span>;
+        <span class="doccomment">/// % - Match initial underscore-separated words
+        </span><span class="kw">const </span>SUBLEXEME = <span class="number">0x04</span>;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">PgLQueryVariantFlag</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">contains</span>(<span class="ident">PgLQueryVariantFlag::ANY_END</span>) {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*&quot;</span>)<span class="question-mark">?</span>;
+<span class="kw">impl </span>Display <span class="kw">for </span>PgLQueryVariantFlag {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">if </span><span class="self">self</span>.contains(PgLQueryVariantFlag::ANY_END) {
+            <span class="macro">write!</span>(f, <span class="string">&quot;*&quot;</span>)<span class="question-mark">?</span>;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">contains</span>(<span class="ident">PgLQueryVariantFlag::IN_CASE</span>) {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;@&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">if </span><span class="self">self</span>.contains(PgLQueryVariantFlag::IN_CASE) {
+            <span class="macro">write!</span>(f, <span class="string">&quot;@&quot;</span>)<span class="question-mark">?</span>;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">contains</span>(<span class="ident">PgLQueryVariantFlag::SUBLEXEME</span>) {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;%&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">if </span><span class="self">self</span>.contains(PgLQueryVariantFlag::SUBLEXEME) {
+            <span class="macro">write!</span>(f, <span class="string">&quot;%&quot;</span>)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgLQueryVariant</span> {
-    <span class="ident">label</span>: <span class="ident">PgLTreeLabel</span>,
-    <span class="ident">modifiers</span>: <span class="ident">PgLQueryVariantFlag</span>,
+<span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>PgLQueryVariant {
+    label: PgLTreeLabel,
+    modifiers: PgLQueryVariantFlag,
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">PgLQueryVariant</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.<span class="ident">label</span>, <span class="self">self</span>.<span class="ident">modifiers</span>)
+<span class="kw">impl </span>Display <span class="kw">for </span>PgLQueryVariant {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}{}&quot;</span>, <span class="self">self</span>.label, <span class="self">self</span>.modifiers)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PgLQueryLevel</span> {
-    <span class="doccomment">/// match any label (*) with optional at least / at most numbers</span>
-    <span class="ident">Star</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// match any of specified labels with optional flags</span>
-    <span class="ident">NonStar</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgLQueryVariant</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// match none of specified labels with optional flags</span>
-    <span class="ident">NotNonStar</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PgLQueryVariant</span><span class="op">&gt;</span>),
+<span class="attribute">#[derive(Clone, Debug, PartialEq)]
+</span><span class="kw">pub enum </span>PgLQueryLevel {
+    <span class="doccomment">/// match any label (*) with optional at least / at most numbers
+    </span>Star(<span class="prelude-ty">Option</span>&lt;u16&gt;, <span class="prelude-ty">Option</span>&lt;u16&gt;),
+    <span class="doccomment">/// match any of specified labels with optional flags
+    </span>NonStar(Vec&lt;PgLQueryVariant&gt;),
+    <span class="doccomment">/// match none of specified labels with optional flags
+    </span>NotNonStar(Vec&lt;PgLQueryVariant&gt;),
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">PgLQueryLevel</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">PgLQueryParseError</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>PgLQueryLevel {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= PgLQueryParseError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">as_bytes</span>();
-        <span class="kw">if</span> <span class="ident">bytes</span>.<span class="ident">is_empty</span>() {
-            <span class="prelude-val">Err</span>(<span class="ident">PgLQueryParseError::EmptyString</span>)
-        } <span class="kw">else</span> {
-            <span class="kw">match</span> <span class="ident">bytes</span>[<span class="number">0</span>] {
-                <span class="string">b&#39;*&#39;</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-                        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">s</span>[<span class="number">2</span>..<span class="ident">s</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>].<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-                        <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">len</span>() {
-                            <span class="number">1</span> =&gt; {
-                                <span class="kw">let</span> <span class="ident">number</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>()<span class="question-mark">?</span>;
-                                <span class="prelude-val">Ok</span>(<span class="ident">PgLQueryLevel::Star</span>(<span class="prelude-val">Some</span>(<span class="ident">number</span>), <span class="prelude-val">Some</span>(<span class="ident">number</span>)))
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">let </span>bytes = s.as_bytes();
+        <span class="kw">if </span>bytes.is_empty() {
+            <span class="prelude-val">Err</span>(PgLQueryParseError::EmptyString)
+        } <span class="kw">else </span>{
+            <span class="kw">match </span>bytes[<span class="number">0</span>] {
+                <span class="string">b&#39;*&#39; </span>=&gt; {
+                    <span class="kw">if </span>bytes.len() &gt; <span class="number">1 </span>{
+                        <span class="kw">let </span>parts = s[<span class="number">2</span>..s.len() - <span class="number">1</span>].split(<span class="string">&#39;,&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                        <span class="kw">match </span>parts.len() {
+                            <span class="number">1 </span>=&gt; {
+                                <span class="kw">let </span>number = parts[<span class="number">0</span>].parse()<span class="question-mark">?</span>;
+                                <span class="prelude-val">Ok</span>(PgLQueryLevel::Star(<span class="prelude-val">Some</span>(number), <span class="prelude-val">Some</span>(number)))
                             }
-                            <span class="number">2</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">PgLQueryLevel::Star</span>(
-                                <span class="prelude-val">Some</span>(<span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>()<span class="question-mark">?</span>),
-                                <span class="prelude-val">Some</span>(<span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">parse</span>()<span class="question-mark">?</span>),
+                            <span class="number">2 </span>=&gt; <span class="prelude-val">Ok</span>(PgLQueryLevel::Star(
+                                <span class="prelude-val">Some</span>(parts[<span class="number">0</span>].parse()<span class="question-mark">?</span>),
+                                <span class="prelude-val">Some</span>(parts[<span class="number">1</span>].parse()<span class="question-mark">?</span>),
                             )),
-                            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">PgLQueryParseError::UnexpectedCharacter</span>),
+                            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(PgLQueryParseError::UnexpectedCharacter),
                         }
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">Ok</span>(<span class="ident">PgLQueryLevel::Star</span>(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>))
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">Ok</span>(PgLQueryLevel::Star(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>))
                     }
                 }
-                <span class="string">b&#39;!&#39;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">PgLQueryLevel::NotNonStar</span>(
-                    <span class="ident">s</span>[<span class="number">1</span>..]
-                        .<span class="ident">split</span>(<span class="string">&#39;|&#39;</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">PgLQueryVariant::from_str</span>(<span class="ident">s</span>))
-                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="ident">PgLQueryParseError</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>,
+                <span class="string">b&#39;!&#39; </span>=&gt; <span class="prelude-val">Ok</span>(PgLQueryLevel::NotNonStar(
+                    s[<span class="number">1</span>..]
+                        .split(<span class="string">&#39;|&#39;</span>)
+                        .map(|s| PgLQueryVariant::from_str(s))
+                        .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, PgLQueryParseError&gt;&gt;()<span class="question-mark">?</span>,
                 )),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">PgLQueryLevel::NonStar</span>(
-                    <span class="ident">s</span>.<span class="ident">split</span>(<span class="string">&#39;|&#39;</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">PgLQueryVariant::from_str</span>(<span class="ident">s</span>))
-                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="ident">PgLQueryParseError</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>,
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(PgLQueryLevel::NonStar(
+                    s.split(<span class="string">&#39;|&#39;</span>)
+                        .map(|s| PgLQueryVariant::from_str(s))
+                        .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, PgLQueryParseError&gt;&gt;()<span class="question-mark">?</span>,
                 )),
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">PgLQueryVariant</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">PgLQueryParseError</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>PgLQueryVariant {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= PgLQueryParseError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label_length</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rev_iter</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">bytes</span>().<span class="ident">rev</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modifiers</span> <span class="op">=</span> <span class="ident">PgLQueryVariantFlag</span> { <span class="ident">bits</span>: <span class="number">0</span> };
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>label_length = s.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>rev_iter = s.bytes().rev();
+        <span class="kw">let </span><span class="kw-2">mut </span>modifiers = PgLQueryVariantFlag { bits: <span class="number">0 </span>};
 
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">rev_iter</span>.<span class="ident">next</span>() {
-            <span class="kw">match</span> <span class="ident">b</span> {
-                <span class="string">b&#39;@&#39;</span> =&gt; <span class="ident">modifiers</span>.<span class="ident">insert</span>(<span class="ident">PgLQueryVariantFlag::IN_CASE</span>),
-                <span class="string">b&#39;*&#39;</span> =&gt; <span class="ident">modifiers</span>.<span class="ident">insert</span>(<span class="ident">PgLQueryVariantFlag::ANY_END</span>),
-                <span class="string">b&#39;%&#39;</span> =&gt; <span class="ident">modifiers</span>.<span class="ident">insert</span>(<span class="ident">PgLQueryVariantFlag::SUBLEXEME</span>),
-                <span class="kw">_</span> =&gt; <span class="kw">break</span>,
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(b) = rev_iter.next() {
+            <span class="kw">match </span>b {
+                <span class="string">b&#39;@&#39; </span>=&gt; modifiers.insert(PgLQueryVariantFlag::IN_CASE),
+                <span class="string">b&#39;*&#39; </span>=&gt; modifiers.insert(PgLQueryVariantFlag::ANY_END),
+                <span class="string">b&#39;%&#39; </span>=&gt; modifiers.insert(PgLQueryVariantFlag::SUBLEXEME),
+                <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
             }
-            <span class="ident">label_length</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+            label_length -= <span class="number">1</span>;
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">PgLQueryVariant</span> {
-            <span class="ident">label</span>: <span class="ident">PgLTreeLabel::new</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="number">0</span>..<span class="ident">label_length</span>])<span class="question-mark">?</span>,
-            <span class="ident">modifiers</span>,
+        <span class="prelude-val">Ok</span>(PgLQueryVariant {
+            label: PgLTreeLabel::new(<span class="kw-2">&amp;</span>s[<span class="number">0</span>..label_length])<span class="question-mark">?</span>,
+            modifiers,
         })
     }
 }
 
-<span class="kw">fn</span> <span class="ident">write_variants</span>(<span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">variants</span>: <span class="kw-2">&amp;</span>[<span class="ident">PgLQueryVariant</span>], <span class="ident">not</span>: <span class="ident">bool</span>) -&gt; <span class="ident">fmt::Result</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">variants</span>.<span class="ident">iter</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">variant</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}{}&quot;</span>, <span class="kw">if</span> <span class="ident">not</span> { <span class="string">&quot;!&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;&quot;</span> }, <span class="ident">variant</span>)<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">variant</span> <span class="kw">in</span> <span class="ident">iter</span> {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.{}&quot;</span>, <span class="ident">variant</span>)<span class="question-mark">?</span>;
+<span class="kw">fn </span>write_variants(f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;, variants: <span class="kw-2">&amp;</span>[PgLQueryVariant], not: bool) -&gt; fmt::Result {
+    <span class="kw">let </span><span class="kw-2">mut </span>iter = variants.iter();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(variant) = iter.next() {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}{}&quot;</span>, <span class="kw">if </span>not { <span class="string">&quot;!&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;&quot; </span>}, variant)<span class="question-mark">?</span>;
+        <span class="kw">for </span>variant <span class="kw">in </span>iter {
+            <span class="macro">write!</span>(f, <span class="string">&quot;.{}&quot;</span>, variant)<span class="question-mark">?</span>;
         }
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">PgLQueryLevel</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PgLQueryLevel::Star</span>(<span class="prelude-val">Some</span>(<span class="ident">at_least</span>), <span class="prelude-val">Some</span>(<span class="ident">at_most</span>)) =&gt; {
-                <span class="kw">if</span> <span class="ident">at_least</span> <span class="op">==</span> <span class="ident">at_most</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*{{{}}}&quot;</span>, <span class="ident">at_least</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*{{{},{}}}&quot;</span>, <span class="ident">at_least</span>, <span class="ident">at_most</span>)
+<span class="kw">impl </span>Display <span class="kw">for </span>PgLQueryLevel {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            PgLQueryLevel::Star(<span class="prelude-val">Some</span>(at_least), <span class="prelude-val">Some</span>(at_most)) =&gt; {
+                <span class="kw">if </span>at_least == at_most {
+                    <span class="macro">write!</span>(f, <span class="string">&quot;*{{{}}}&quot;</span>, at_least)
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(f, <span class="string">&quot;*{{{},{}}}&quot;</span>, at_least, at_most)
                 }
             }
-            <span class="ident">PgLQueryLevel::Star</span>(<span class="prelude-val">Some</span>(<span class="ident">at_least</span>), <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*{{{},}}&quot;</span>, <span class="ident">at_least</span>),
-            <span class="ident">PgLQueryLevel::Star</span>(<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="ident">at_most</span>)) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*{{,{}}}&quot;</span>, <span class="ident">at_most</span>),
-            <span class="ident">PgLQueryLevel::Star</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*&quot;</span>),
-            <span class="ident">PgLQueryLevel::NonStar</span>(<span class="ident">variants</span>) =&gt; <span class="ident">write_variants</span>(<span class="ident">f</span>, <span class="kw-2">&amp;</span><span class="ident">variants</span>, <span class="bool-val">false</span>),
-            <span class="ident">PgLQueryLevel::NotNonStar</span>(<span class="ident">variants</span>) =&gt; <span class="ident">write_variants</span>(<span class="ident">f</span>, <span class="kw-2">&amp;</span><span class="ident">variants</span>, <span class="bool-val">true</span>),
+            PgLQueryLevel::Star(<span class="prelude-val">Some</span>(at_least), <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;*{{{},}}&quot;</span>, at_least),
+            PgLQueryLevel::Star(<span class="kw">_</span>, <span class="prelude-val">Some</span>(at_most)) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;*{{,{}}}&quot;</span>, at_most),
+            PgLQueryLevel::Star(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;*&quot;</span>),
+            PgLQueryLevel::NonStar(variants) =&gt; write_variants(f, <span class="kw-2">&amp;</span>variants, <span class="bool-val">false</span>),
+            PgLQueryLevel::NotNonStar(variants) =&gt; write_variants(f, <span class="kw-2">&amp;</span>variants, <span class="bool-val">true</span>),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/ws/codec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>codec.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/ws/codec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>codec.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -301,306 +301,306 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_codec</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>};
-<span class="kw">use</span> <span class="ident">bitflags::bitflags</span>;
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
-<span class="kw">use</span> <span class="ident">bytestring::ByteString</span>;
-<span class="kw">use</span> <span class="ident">tracing::error</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>actix_codec::{Decoder, Encoder};
+<span class="kw">use </span>bitflags::bitflags;
+<span class="kw">use </span>bytes::{Bytes, BytesMut};
+<span class="kw">use </span>bytestring::ByteString;
+<span class="kw">use </span>tracing::error;
 
-<span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">frame::Parser</span>,
-    <span class="ident">proto</span>::{<span class="ident">CloseReason</span>, <span class="ident">OpCode</span>},
-    <span class="ident">ProtocolError</span>,
+<span class="kw">use super</span>::{
+    frame::Parser,
+    proto::{CloseReason, OpCode},
+    ProtocolError,
 };
 
-<span class="doccomment">/// A WebSocket message.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Message</span> {
-    <span class="doccomment">/// Text message.</span>
-    <span class="ident">Text</span>(<span class="ident">ByteString</span>),
+<span class="doccomment">/// A WebSocket message.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>Message {
+    <span class="doccomment">/// Text message.
+    </span>Text(ByteString),
 
-    <span class="doccomment">/// Binary message.</span>
-    <span class="ident">Binary</span>(<span class="ident">Bytes</span>),
+    <span class="doccomment">/// Binary message.
+    </span>Binary(Bytes),
 
-    <span class="doccomment">/// Continuation.</span>
-    <span class="ident">Continuation</span>(<span class="ident">Item</span>),
+    <span class="doccomment">/// Continuation.
+    </span>Continuation(Item),
 
-    <span class="doccomment">/// Ping message.</span>
-    <span class="ident">Ping</span>(<span class="ident">Bytes</span>),
+    <span class="doccomment">/// Ping message.
+    </span>Ping(Bytes),
 
-    <span class="doccomment">/// Pong message.</span>
-    <span class="ident">Pong</span>(<span class="ident">Bytes</span>),
+    <span class="doccomment">/// Pong message.
+    </span>Pong(Bytes),
 
-    <span class="doccomment">/// Close message with optional reason.</span>
-    <span class="ident">Close</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CloseReason</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Close message with optional reason.
+    </span>Close(<span class="prelude-ty">Option</span>&lt;CloseReason&gt;),
 
-    <span class="doccomment">/// No-op. Useful for low-level services.</span>
-    <span class="ident">Nop</span>,
+    <span class="doccomment">/// No-op. Useful for low-level services.
+    </span>Nop,
 }
 
-<span class="doccomment">/// A WebSocket frame.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Frame</span> {
-    <span class="doccomment">/// Text frame. Note that the codec does not validate UTF-8 encoding.</span>
-    <span class="ident">Text</span>(<span class="ident">Bytes</span>),
+<span class="doccomment">/// A WebSocket frame.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>Frame {
+    <span class="doccomment">/// Text frame. Note that the codec does not validate UTF-8 encoding.
+    </span>Text(Bytes),
 
-    <span class="doccomment">/// Binary frame.</span>
-    <span class="ident">Binary</span>(<span class="ident">Bytes</span>),
+    <span class="doccomment">/// Binary frame.
+    </span>Binary(Bytes),
 
-    <span class="doccomment">/// Continuation.</span>
-    <span class="ident">Continuation</span>(<span class="ident">Item</span>),
+    <span class="doccomment">/// Continuation.
+    </span>Continuation(Item),
 
-    <span class="doccomment">/// Ping message.</span>
-    <span class="ident">Ping</span>(<span class="ident">Bytes</span>),
+    <span class="doccomment">/// Ping message.
+    </span>Ping(Bytes),
 
-    <span class="doccomment">/// Pong message.</span>
-    <span class="ident">Pong</span>(<span class="ident">Bytes</span>),
+    <span class="doccomment">/// Pong message.
+    </span>Pong(Bytes),
 
-    <span class="doccomment">/// Close message with optional reason.</span>
-    <span class="ident">Close</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CloseReason</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Close message with optional reason.
+    </span>Close(<span class="prelude-ty">Option</span>&lt;CloseReason&gt;),
 }
 
-<span class="doccomment">/// A WebSocket continuation item.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Item</span> {
-    <span class="ident">FirstText</span>(<span class="ident">Bytes</span>),
-    <span class="ident">FirstBinary</span>(<span class="ident">Bytes</span>),
-    <span class="ident">Continue</span>(<span class="ident">Bytes</span>),
-    <span class="ident">Last</span>(<span class="ident">Bytes</span>),
+<span class="doccomment">/// A WebSocket continuation item.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>Item {
+    FirstText(Bytes),
+    FirstBinary(Bytes),
+    Continue(Bytes),
+    Last(Bytes),
 }
 
-<span class="doccomment">/// WebSocket protocol codec.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Codec</span> {
-    <span class="ident">flags</span>: <span class="ident">Flags</span>,
-    <span class="ident">max_size</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// WebSocket protocol codec.
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>Codec {
+    flags: Flags,
+    max_size: usize,
 }
 
-<span class="macro">bitflags!</span> {
-    <span class="kw">struct</span> <span class="ident">Flags</span>: <span class="ident">u8</span> {
-        <span class="kw">const</span> <span class="ident">SERVER</span>         <span class="op">=</span> <span class="number">0b0000_0001</span>;
-        <span class="kw">const</span> <span class="ident">CONTINUATION</span>   <span class="op">=</span> <span class="number">0b0000_0010</span>;
-        <span class="kw">const</span> <span class="ident">W_CONTINUATION</span> <span class="op">=</span> <span class="number">0b0000_0100</span>;
+<span class="macro">bitflags! </span>{
+    <span class="kw">struct </span>Flags: u8 {
+        <span class="kw">const </span>SERVER         = <span class="number">0b0000_0001</span>;
+        <span class="kw">const </span>CONTINUATION   = <span class="number">0b0000_0010</span>;
+        <span class="kw">const </span>W_CONTINUATION = <span class="number">0b0000_0100</span>;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Codec</span> {
-    <span class="doccomment">/// Create new WebSocket frames decoder.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Codec</span> {
-        <span class="ident">Codec</span> {
-            <span class="ident">max_size</span>: <span class="number">65_536</span>,
-            <span class="ident">flags</span>: <span class="ident">Flags::SERVER</span>,
+<span class="kw">impl </span>Codec {
+    <span class="doccomment">/// Create new WebSocket frames decoder.
+    </span><span class="kw">pub const fn </span>new() -&gt; Codec {
+        Codec {
+            max_size: <span class="number">65_536</span>,
+            flags: Flags::SERVER,
         }
     }
 
-    <span class="doccomment">/// Set max frame size.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default max size is set to 64KiB.</span>
-    <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;This returns the a new Codec, without modifying the original.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">max_size</span> <span class="op">=</span> <span class="ident">size</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set max frame size.
+    ///
+    /// By default max size is set to 64KiB.
+    </span><span class="attribute">#[must_use = <span class="string">&quot;This returns the a new Codec, without modifying the original.&quot;</span>]
+    </span><span class="kw">pub fn </span>max_size(<span class="kw-2">mut </span><span class="self">self</span>, size: usize) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.max_size = size;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set decoder to client mode.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default decoder works in server mode.</span>
-    <span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;This returns the a new Codec, without modifying the original.&quot;</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::SERVER</span>);
-        <span class="self">self</span>
+    <span class="doccomment">/// Set decoder to client mode.
+    ///
+    /// By default decoder works in server mode.
+    </span><span class="attribute">#[must_use = <span class="string">&quot;This returns the a new Codec, without modifying the original.&quot;</span>]
+    </span><span class="kw">pub fn </span>client_mode(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.flags.remove(Flags::SERVER);
+        <span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>Codec {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Codec</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>()
-    }
-}
+<span class="kw">impl </span>Encoder&lt;Message&gt; <span class="kw">for </span>Codec {
+    <span class="kw">type </span>Error = ProtocolError;
 
-<span class="kw">impl</span> <span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">Message</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Codec</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ProtocolError</span>;
-
-    <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="ident">Message</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">item</span> {
-            <span class="ident">Message::Text</span>(<span class="ident">txt</span>) =&gt; <span class="ident">Parser::write_message</span>(
-                <span class="ident">dst</span>,
-                <span class="ident">txt</span>,
-                <span class="ident">OpCode::Text</span>,
+    <span class="kw">fn </span>encode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: Message, dst: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span>item {
+            Message::Text(txt) =&gt; Parser::write_message(
+                dst,
+                txt,
+                OpCode::Text,
                 <span class="bool-val">true</span>,
-                <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
+                !<span class="self">self</span>.flags.contains(Flags::SERVER),
             ),
-            <span class="ident">Message::Binary</span>(<span class="ident">bin</span>) =&gt; <span class="ident">Parser::write_message</span>(
-                <span class="ident">dst</span>,
-                <span class="ident">bin</span>,
-                <span class="ident">OpCode::Binary</span>,
+            Message::Binary(bin) =&gt; Parser::write_message(
+                dst,
+                bin,
+                OpCode::Binary,
                 <span class="bool-val">true</span>,
-                <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
+                !<span class="self">self</span>.flags.contains(Flags::SERVER),
             ),
-            <span class="ident">Message::Ping</span>(<span class="ident">txt</span>) =&gt; <span class="ident">Parser::write_message</span>(
-                <span class="ident">dst</span>,
-                <span class="ident">txt</span>,
-                <span class="ident">OpCode::Ping</span>,
+            Message::Ping(txt) =&gt; Parser::write_message(
+                dst,
+                txt,
+                OpCode::Ping,
                 <span class="bool-val">true</span>,
-                <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
+                !<span class="self">self</span>.flags.contains(Flags::SERVER),
             ),
-            <span class="ident">Message::Pong</span>(<span class="ident">txt</span>) =&gt; <span class="ident">Parser::write_message</span>(
-                <span class="ident">dst</span>,
-                <span class="ident">txt</span>,
-                <span class="ident">OpCode::Pong</span>,
+            Message::Pong(txt) =&gt; Parser::write_message(
+                dst,
+                txt,
+                OpCode::Pong,
                 <span class="bool-val">true</span>,
-                <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
+                !<span class="self">self</span>.flags.contains(Flags::SERVER),
             ),
-            <span class="ident">Message::Close</span>(<span class="ident">reason</span>) =&gt; {
-                <span class="ident">Parser::write_close</span>(<span class="ident">dst</span>, <span class="ident">reason</span>, <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>))
+            Message::Close(reason) =&gt; {
+                Parser::write_close(dst, reason, !<span class="self">self</span>.flags.contains(Flags::SERVER))
             }
-            <span class="ident">Message::Continuation</span>(<span class="ident">cont</span>) =&gt; <span class="kw">match</span> <span class="ident">cont</span> {
-                <span class="ident">Item::FirstText</span>(<span class="ident">data</span>) =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::W_CONTINUATION</span>) {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationStarted</span>);
-                    } <span class="kw">else</span> {
-                        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::W_CONTINUATION</span>);
-                        <span class="ident">Parser::write_message</span>(
-                            <span class="ident">dst</span>,
-                            <span class="kw-2">&amp;</span><span class="ident">data</span>[..],
-                            <span class="ident">OpCode::Text</span>,
+            Message::Continuation(cont) =&gt; <span class="kw">match </span>cont {
+                Item::FirstText(data) =&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::W_CONTINUATION) {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(ProtocolError::ContinuationStarted);
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.flags.insert(Flags::W_CONTINUATION);
+                        Parser::write_message(
+                            dst,
+                            <span class="kw-2">&amp;</span>data[..],
+                            OpCode::Text,
                             <span class="bool-val">false</span>,
-                            <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
+                            !<span class="self">self</span>.flags.contains(Flags::SERVER),
                         )
                     }
                 }
-                <span class="ident">Item::FirstBinary</span>(<span class="ident">data</span>) =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::W_CONTINUATION</span>) {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationStarted</span>);
-                    } <span class="kw">else</span> {
-                        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::W_CONTINUATION</span>);
-                        <span class="ident">Parser::write_message</span>(
-                            <span class="ident">dst</span>,
-                            <span class="kw-2">&amp;</span><span class="ident">data</span>[..],
-                            <span class="ident">OpCode::Binary</span>,
+                Item::FirstBinary(data) =&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::W_CONTINUATION) {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(ProtocolError::ContinuationStarted);
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.flags.insert(Flags::W_CONTINUATION);
+                        Parser::write_message(
+                            dst,
+                            <span class="kw-2">&amp;</span>data[..],
+                            OpCode::Binary,
                             <span class="bool-val">false</span>,
-                            <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
+                            !<span class="self">self</span>.flags.contains(Flags::SERVER),
                         )
                     }
                 }
-                <span class="ident">Item::Continue</span>(<span class="ident">data</span>) =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::W_CONTINUATION</span>) {
-                        <span class="ident">Parser::write_message</span>(
-                            <span class="ident">dst</span>,
-                            <span class="kw-2">&amp;</span><span class="ident">data</span>[..],
-                            <span class="ident">OpCode::Continue</span>,
+                Item::Continue(data) =&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::W_CONTINUATION) {
+                        Parser::write_message(
+                            dst,
+                            <span class="kw-2">&amp;</span>data[..],
+                            OpCode::Continue,
                             <span class="bool-val">false</span>,
-                            <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
+                            !<span class="self">self</span>.flags.contains(Flags::SERVER),
                         )
-                    } <span class="kw">else</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationNotStarted</span>);
+                    } <span class="kw">else </span>{
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(ProtocolError::ContinuationNotStarted);
                     }
                 }
-                <span class="ident">Item::Last</span>(<span class="ident">data</span>) =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::W_CONTINUATION</span>) {
-                        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::W_CONTINUATION</span>);
-                        <span class="ident">Parser::write_message</span>(
-                            <span class="ident">dst</span>,
-                            <span class="kw-2">&amp;</span><span class="ident">data</span>[..],
-                            <span class="ident">OpCode::Continue</span>,
+                Item::Last(data) =&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::W_CONTINUATION) {
+                        <span class="self">self</span>.flags.remove(Flags::W_CONTINUATION);
+                        Parser::write_message(
+                            dst,
+                            <span class="kw-2">&amp;</span>data[..],
+                            OpCode::Continue,
                             <span class="bool-val">true</span>,
-                            <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>),
+                            !<span class="self">self</span>.flags.contains(Flags::SERVER),
                         )
-                    } <span class="kw">else</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationNotStarted</span>);
+                    } <span class="kw">else </span>{
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(ProtocolError::ContinuationNotStarted);
                     }
                 }
             },
-            <span class="ident">Message::Nop</span> =&gt; {}
+            Message::Nop =&gt; {}
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Decoder</span> <span class="kw">for</span> <span class="ident">Codec</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Frame</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ProtocolError</span>;
+<span class="kw">impl </span>Decoder <span class="kw">for </span>Codec {
+    <span class="kw">type </span>Item = Frame;
+    <span class="kw">type </span>Error = ProtocolError;
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BytesMut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">Parser::parse</span>(<span class="ident">src</span>, <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SERVER</span>), <span class="self">self</span>.<span class="ident">max_size</span>) {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((<span class="ident">finished</span>, <span class="ident">opcode</span>, <span class="ident">payload</span>))) =&gt; {
-                <span class="comment">// continuation is not supported</span>
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">finished</span> {
-                    <span class="kw">return</span> <span class="kw">match</span> <span class="ident">opcode</span> {
-                        <span class="ident">OpCode::Continue</span> =&gt; {
-                            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTINUATION</span>) {
-                                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Continuation</span>(<span class="ident">Item::Continue</span>(
-                                    <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, src: <span class="kw-2">&amp;mut </span>BytesMut) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span>Parser::parse(src, <span class="self">self</span>.flags.contains(Flags::SERVER), <span class="self">self</span>.max_size) {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((finished, opcode, payload))) =&gt; {
+                <span class="comment">// continuation is not supported
+                </span><span class="kw">if </span>!finished {
+                    <span class="kw">return match </span>opcode {
+                        OpCode::Continue =&gt; {
+                            <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::CONTINUATION) {
+                                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Continuation(Item::Continue(
+                                    payload.map(|pl| pl.freeze()).unwrap_or_else(Bytes::new),
                                 ))))
-                            } <span class="kw">else</span> {
-                                <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationNotStarted</span>)
+                            } <span class="kw">else </span>{
+                                <span class="prelude-val">Err</span>(ProtocolError::ContinuationNotStarted)
                             }
                         }
-                        <span class="ident">OpCode::Binary</span> =&gt; {
-                            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTINUATION</span>) {
-                                <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CONTINUATION</span>);
-                                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Continuation</span>(<span class="ident">Item::FirstBinary</span>(
-                                    <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
+                        OpCode::Binary =&gt; {
+                            <span class="kw">if </span>!<span class="self">self</span>.flags.contains(Flags::CONTINUATION) {
+                                <span class="self">self</span>.flags.insert(Flags::CONTINUATION);
+                                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Continuation(Item::FirstBinary(
+                                    payload.map(|pl| pl.freeze()).unwrap_or_else(Bytes::new),
                                 ))))
-                            } <span class="kw">else</span> {
-                                <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationStarted</span>)
+                            } <span class="kw">else </span>{
+                                <span class="prelude-val">Err</span>(ProtocolError::ContinuationStarted)
                             }
                         }
-                        <span class="ident">OpCode::Text</span> =&gt; {
-                            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTINUATION</span>) {
-                                <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CONTINUATION</span>);
-                                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Continuation</span>(<span class="ident">Item::FirstText</span>(
-                                    <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
+                        OpCode::Text =&gt; {
+                            <span class="kw">if </span>!<span class="self">self</span>.flags.contains(Flags::CONTINUATION) {
+                                <span class="self">self</span>.flags.insert(Flags::CONTINUATION);
+                                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Continuation(Item::FirstText(
+                                    payload.map(|pl| pl.freeze()).unwrap_or_else(Bytes::new),
                                 ))))
-                            } <span class="kw">else</span> {
-                                <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationStarted</span>)
+                            } <span class="kw">else </span>{
+                                <span class="prelude-val">Err</span>(ProtocolError::ContinuationStarted)
                             }
                         }
-                        <span class="kw">_</span> =&gt; {
-                            <span class="macro">error!</span>(<span class="string">&quot;Unfinished fragment {:?}&quot;</span>, <span class="ident">opcode</span>);
-                            <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationFragment</span>(<span class="ident">opcode</span>))
+                        <span class="kw">_ </span>=&gt; {
+                            <span class="macro">error!</span>(<span class="string">&quot;Unfinished fragment {:?}&quot;</span>, opcode);
+                            <span class="prelude-val">Err</span>(ProtocolError::ContinuationFragment(opcode))
                         }
                     };
                 }
 
-                <span class="kw">match</span> <span class="ident">opcode</span> {
-                    <span class="ident">OpCode::Continue</span> =&gt; {
-                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTINUATION</span>) {
-                            <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::CONTINUATION</span>);
-                            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Continuation</span>(<span class="ident">Item::Last</span>(
-                                <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
+                <span class="kw">match </span>opcode {
+                    OpCode::Continue =&gt; {
+                        <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::CONTINUATION) {
+                            <span class="self">self</span>.flags.remove(Flags::CONTINUATION);
+                            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Continuation(Item::Last(
+                                payload.map(|pl| pl.freeze()).unwrap_or_else(Bytes::new),
                             ))))
-                        } <span class="kw">else</span> {
-                            <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::ContinuationNotStarted</span>)
+                        } <span class="kw">else </span>{
+                            <span class="prelude-val">Err</span>(ProtocolError::ContinuationNotStarted)
                         }
                     }
-                    <span class="ident">OpCode::Bad</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ProtocolError::BadOpCode</span>),
-                    <span class="ident">OpCode::Close</span> =&gt; {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">payload</span> {
-                            <span class="kw">let</span> <span class="ident">close_reason</span> <span class="op">=</span> <span class="ident">Parser::parse_close_payload</span>(<span class="ident">pl</span>);
-                            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Close</span>(<span class="ident">close_reason</span>)))
-                        } <span class="kw">else</span> {
-                            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Close</span>(<span class="prelude-val">None</span>)))
+                    OpCode::Bad =&gt; <span class="prelude-val">Err</span>(ProtocolError::BadOpCode),
+                    OpCode::Close =&gt; {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pl) = payload {
+                            <span class="kw">let </span>close_reason = Parser::parse_close_payload(pl);
+                            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Close(close_reason)))
+                        } <span class="kw">else </span>{
+                            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Close(<span class="prelude-val">None</span>)))
                         }
                     }
-                    <span class="ident">OpCode::Ping</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Ping</span>(
-                        <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
+                    OpCode::Ping =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Ping(
+                        payload.map(|pl| pl.freeze()).unwrap_or_else(Bytes::new),
                     ))),
-                    <span class="ident">OpCode::Pong</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Pong</span>(
-                        <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
+                    OpCode::Pong =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Pong(
+                        payload.map(|pl| pl.freeze()).unwrap_or_else(Bytes::new),
                     ))),
-                    <span class="ident">OpCode::Binary</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Binary</span>(
-                        <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
+                    OpCode::Binary =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Binary(
+                        payload.map(|pl| pl.freeze()).unwrap_or_else(Bytes::new),
                     ))),
-                    <span class="ident">OpCode::Text</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Frame::Text</span>(
-                        <span class="ident">payload</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">freeze</span>()).<span class="ident">unwrap_or_else</span>(<span class="ident">Bytes::new</span>),
+                    OpCode::Text =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Frame::Text(
+                        payload.map(|pl| pl.freeze()).unwrap_or_else(Bytes::new),
                     ))),
                 }
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

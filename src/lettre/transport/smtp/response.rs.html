@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -584,589 +584,589 @@
 <span id="582">582</span>
 <span id="583">583</span>
 <span id="584">584</span>
-</pre><pre class="rust"><code><span class="doccomment">//! SMTP response, containing a mandatory return code and an optional text</span>
-<span class="doccomment">//! message</span>
+</pre><pre class="rust"><code><span class="doccomment">//! SMTP response, containing a mandatory return code and an optional text
+//! message
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">fmt</span>::{<span class="ident">Display</span>, <span class="ident">Formatter</span>, <span class="prelude-ty">Result</span>},
-    <span class="ident">result</span>,
-    <span class="ident">str::FromStr</span>,
-    <span class="ident">string::ToString</span>,
+</span><span class="kw">use </span>std::{
+    fmt::{Display, Formatter, <span class="prelude-ty">Result</span>},
+    result,
+    str::FromStr,
+    string::ToString,
 };
 
-<span class="kw">use</span> <span class="ident">nom</span>::{
-    <span class="ident">branch::alt</span>,
-    <span class="ident">bytes::streaming</span>::{<span class="ident">tag</span>, <span class="ident">take_until</span>},
-    <span class="ident">combinator</span>::{<span class="ident">complete</span>, <span class="ident">map</span>},
-    <span class="ident">multi::many0</span>,
-    <span class="ident">sequence</span>::{<span class="ident">preceded</span>, <span class="ident">tuple</span>},
-    <span class="ident">IResult</span>,
+<span class="kw">use </span>nom::{
+    branch::alt,
+    bytes::streaming::{tag, take_until},
+    combinator::{complete, map},
+    multi::many0,
+    sequence::{preceded, tuple},
+    IResult,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp</span>::{<span class="ident">error</span>, <span class="ident">Error</span>};
+<span class="kw">use </span><span class="kw">crate</span>::transport::smtp::{error, Error};
 
-<span class="doccomment">/// First digit indicates severity</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Severity</span> {
-    <span class="doccomment">/// 2yx</span>
-    <span class="ident">PositiveCompletion</span> <span class="op">=</span> <span class="number">2</span>,
-    <span class="doccomment">/// 3yz</span>
-    <span class="ident">PositiveIntermediate</span> <span class="op">=</span> <span class="number">3</span>,
-    <span class="doccomment">/// 4yz</span>
-    <span class="ident">TransientNegativeCompletion</span> <span class="op">=</span> <span class="number">4</span>,
-    <span class="doccomment">/// 5yz</span>
-    <span class="ident">PermanentNegativeCompletion</span> <span class="op">=</span> <span class="number">5</span>,
+<span class="doccomment">/// First digit indicates severity
+</span><span class="attribute">#[derive(PartialEq, Eq, Copy, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub enum </span>Severity {
+    <span class="doccomment">/// 2yx
+    </span>PositiveCompletion = <span class="number">2</span>,
+    <span class="doccomment">/// 3yz
+    </span>PositiveIntermediate = <span class="number">3</span>,
+    <span class="doccomment">/// 4yz
+    </span>TransientNegativeCompletion = <span class="number">4</span>,
+    <span class="doccomment">/// 5yz
+    </span>PermanentNegativeCompletion = <span class="number">5</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Severity</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u8</span>)
+<span class="kw">impl </span>Display <span class="kw">for </span>Severity {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u8)
     }
 }
 
-<span class="doccomment">/// Second digit</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Category</span> {
-    <span class="doccomment">/// x0z</span>
-    <span class="ident">Syntax</span> <span class="op">=</span> <span class="number">0</span>,
-    <span class="doccomment">/// x1z</span>
-    <span class="ident">Information</span> <span class="op">=</span> <span class="number">1</span>,
-    <span class="doccomment">/// x2z</span>
-    <span class="ident">Connections</span> <span class="op">=</span> <span class="number">2</span>,
-    <span class="doccomment">/// x3z</span>
-    <span class="ident">Unspecified3</span> <span class="op">=</span> <span class="number">3</span>,
-    <span class="doccomment">/// x4z</span>
-    <span class="ident">Unspecified4</span> <span class="op">=</span> <span class="number">4</span>,
-    <span class="doccomment">/// x5z</span>
-    <span class="ident">MailSystem</span> <span class="op">=</span> <span class="number">5</span>,
+<span class="doccomment">/// Second digit
+</span><span class="attribute">#[derive(PartialEq, Eq, Copy, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub enum </span>Category {
+    <span class="doccomment">/// x0z
+    </span>Syntax = <span class="number">0</span>,
+    <span class="doccomment">/// x1z
+    </span>Information = <span class="number">1</span>,
+    <span class="doccomment">/// x2z
+    </span>Connections = <span class="number">2</span>,
+    <span class="doccomment">/// x3z
+    </span>Unspecified3 = <span class="number">3</span>,
+    <span class="doccomment">/// x4z
+    </span>Unspecified4 = <span class="number">4</span>,
+    <span class="doccomment">/// x5z
+    </span>MailSystem = <span class="number">5</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Category</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u8</span>)
+<span class="kw">impl </span>Display <span class="kw">for </span>Category {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u8)
     }
 }
 
-<span class="doccomment">/// The detail digit of a response code (third digit)</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Detail</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">Zero</span> <span class="op">=</span> <span class="number">0</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">One</span> <span class="op">=</span> <span class="number">1</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">Two</span> <span class="op">=</span> <span class="number">2</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">Three</span> <span class="op">=</span> <span class="number">3</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">Four</span> <span class="op">=</span> <span class="number">4</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">Five</span> <span class="op">=</span> <span class="number">5</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">Six</span> <span class="op">=</span> <span class="number">6</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">Seven</span> <span class="op">=</span> <span class="number">7</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">Eight</span> <span class="op">=</span> <span class="number">8</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-    <span class="ident">Nine</span> <span class="op">=</span> <span class="number">9</span>,
+<span class="doccomment">/// The detail digit of a response code (third digit)
+</span><span class="attribute">#[derive(PartialEq, Eq, Copy, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub enum </span>Detail {
+    <span class="attribute">#[allow(missing_docs)]
+    </span>Zero = <span class="number">0</span>,
+    <span class="attribute">#[allow(missing_docs)]
+    </span>One = <span class="number">1</span>,
+    <span class="attribute">#[allow(missing_docs)]
+    </span>Two = <span class="number">2</span>,
+    <span class="attribute">#[allow(missing_docs)]
+    </span>Three = <span class="number">3</span>,
+    <span class="attribute">#[allow(missing_docs)]
+    </span>Four = <span class="number">4</span>,
+    <span class="attribute">#[allow(missing_docs)]
+    </span>Five = <span class="number">5</span>,
+    <span class="attribute">#[allow(missing_docs)]
+    </span>Six = <span class="number">6</span>,
+    <span class="attribute">#[allow(missing_docs)]
+    </span>Seven = <span class="number">7</span>,
+    <span class="attribute">#[allow(missing_docs)]
+    </span>Eight = <span class="number">8</span>,
+    <span class="attribute">#[allow(missing_docs)]
+    </span>Nine = <span class="number">9</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Detail</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u8</span>)
+<span class="kw">impl </span>Display <span class="kw">for </span>Detail {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw-2">*</span><span class="self">self </span><span class="kw">as </span>u8)
     }
 }
 
-<span class="doccomment">/// Represents a 3 digit SMTP response code</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Code</span> {
-    <span class="doccomment">/// First digit of the response code</span>
-    <span class="kw">pub</span> <span class="ident">severity</span>: <span class="ident">Severity</span>,
-    <span class="doccomment">/// Second digit of the response code</span>
-    <span class="kw">pub</span> <span class="ident">category</span>: <span class="ident">Category</span>,
-    <span class="doccomment">/// Third digit</span>
-    <span class="kw">pub</span> <span class="ident">detail</span>: <span class="ident">Detail</span>,
+<span class="doccomment">/// Represents a 3 digit SMTP response code
+</span><span class="attribute">#[derive(PartialEq, Eq, Copy, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub struct </span>Code {
+    <span class="doccomment">/// First digit of the response code
+    </span><span class="kw">pub </span>severity: Severity,
+    <span class="doccomment">/// Second digit of the response code
+    </span><span class="kw">pub </span>category: Category,
+    <span class="doccomment">/// Third digit
+    </span><span class="kw">pub </span>detail: Detail,
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Code</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}{}{}&quot;</span>, <span class="self">self</span>.<span class="ident">severity</span>, <span class="self">self</span>.<span class="ident">category</span>, <span class="self">self</span>.<span class="ident">detail</span>)
+<span class="kw">impl </span>Display <span class="kw">for </span>Code {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}{}{}&quot;</span>, <span class="self">self</span>.severity, <span class="self">self</span>.category, <span class="self">self</span>.detail)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Code</span> {
-    <span class="doccomment">/// Creates a new `Code` structure</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">severity</span>: <span class="ident">Severity</span>, <span class="ident">category</span>: <span class="ident">Category</span>, <span class="ident">detail</span>: <span class="ident">Detail</span>) -&gt; <span class="ident">Code</span> {
-        <span class="ident">Code</span> {
-            <span class="ident">severity</span>,
-            <span class="ident">category</span>,
-            <span class="ident">detail</span>,
+<span class="kw">impl </span>Code {
+    <span class="doccomment">/// Creates a new `Code` structure
+    </span><span class="kw">pub fn </span>new(severity: Severity, category: Category, detail: Detail) -&gt; Code {
+        Code {
+            severity,
+            category,
+            detail,
         }
     }
 
-    <span class="doccomment">/// Tells if the response is positive</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_positive</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="doccomment">/// Tells if the response is positive
+    </span><span class="kw">pub fn </span>is_positive(<span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
-            <span class="self">self</span>.<span class="ident">severity</span>,
-            <span class="ident">Severity::PositiveCompletion</span> <span class="op">|</span> <span class="ident">Severity::PositiveIntermediate</span>
+            <span class="self">self</span>.severity,
+            Severity::PositiveCompletion | Severity::PositiveIntermediate
         )
     }
 }
 
-<span class="doccomment">/// Contains an SMTP reply, with separated code and message</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The text message is optional, only the code is mandatory</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Response</span> {
-    <span class="doccomment">/// Response code</span>
-    <span class="ident">code</span>: <span class="ident">Code</span>,
-    <span class="doccomment">/// Server response string (optional)</span>
-    <span class="doccomment">/// Handle multiline responses</span>
-    <span class="ident">message</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Contains an SMTP reply, with separated code and message
+///
+/// The text message is optional, only the code is mandatory
+</span><span class="attribute">#[derive(PartialEq, Eq, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;serde&quot;</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub struct </span>Response {
+    <span class="doccomment">/// Response code
+    </span>code: Code,
+    <span class="doccomment">/// Server response string (optional)
+    /// Handle multiline responses
+    </span>message: Vec&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Response</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>Response {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= Error;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">result::Result</span><span class="op">&lt;</span><span class="ident">Response</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">parse_response</span>(<span class="ident">s</span>)
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="ident">r</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">error::response</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Response</span> {
-    <span class="doccomment">/// Creates a new `Response`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">code</span>: <span class="ident">Code</span>, <span class="ident">message</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">Response</span> {
-        <span class="ident">Response</span> { <span class="ident">code</span>, <span class="ident">message</span> }
-    }
-
-    <span class="doccomment">/// Tells if the response is positive</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_positive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">code</span>.<span class="ident">is_positive</span>()
-    }
-
-    <span class="doccomment">/// Tests code equality</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">code</span>: <span class="ident">u16</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">code</span>.<span class="ident">to_string</span>() <span class="op">==</span> <span class="ident">code</span>.<span class="ident">to_string</span>()
-    }
-
-    <span class="doccomment">/// Returns only the first word of the message if possible</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_word</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">message</span>
-            .<span class="ident">first</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">line</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">split_whitespace</span>().<span class="ident">next</span>())
-    }
-
-    <span class="doccomment">/// Returns only the line of the message if possible</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">first</span>().<span class="ident">map</span>(<span class="ident">String::as_str</span>)
-    }
-
-    <span class="doccomment">/// Response code</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Code</span> {
-        <span class="self">self</span>.<span class="ident">code</span>
-    }
-
-    <span class="doccomment">/// Server response string (array of lines)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">String::as_str</span>)
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; result::Result&lt;Response, Error&gt; {
+        parse_response(s)
+            .map(|(<span class="kw">_</span>, r)| r)
+            .map_err(|e| error::response(e.to_string()))
     }
 }
 
-<span class="comment">// Parsers (originally from tokio-smtp)</span>
+<span class="kw">impl </span>Response {
+    <span class="doccomment">/// Creates a new `Response`
+    </span><span class="kw">pub fn </span>new(code: Code, message: Vec&lt;String&gt;) -&gt; Response {
+        Response { code, message }
+    }
 
-<span class="kw">fn</span> <span class="ident">parse_code</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Code</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">severity</span>) <span class="op">=</span> <span class="ident">parse_severity</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">category</span>) <span class="op">=</span> <span class="ident">parse_category</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">detail</span>) <span class="op">=</span> <span class="ident">parse_detail</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Tells if the response is positive
+    </span><span class="kw">pub fn </span>is_positive(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.code.is_positive()
+    }
+
+    <span class="doccomment">/// Tests code equality
+    </span><span class="kw">pub fn </span>has_code(<span class="kw-2">&amp;</span><span class="self">self</span>, code: u16) -&gt; bool {
+        <span class="self">self</span>.code.to_string() == code.to_string()
+    }
+
+    <span class="doccomment">/// Returns only the first word of the message if possible
+    </span><span class="kw">pub fn </span>first_word(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.message
+            .first()
+            .and_then(|line| line.split_whitespace().next())
+    }
+
+    <span class="doccomment">/// Returns only the line of the message if possible
+    </span><span class="kw">pub fn </span>first_line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.message.first().map(String::as_str)
+    }
+
+    <span class="doccomment">/// Response code
+    </span><span class="kw">pub fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Code {
+        <span class="self">self</span>.code
+    }
+
+    <span class="doccomment">/// Server response string (array of lines)
+    </span><span class="kw">pub fn </span>message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.message.iter().map(String::as_str)
+    }
+}
+
+<span class="comment">// Parsers (originally from tokio-smtp)
+
+</span><span class="kw">fn </span>parse_code(i: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Code&gt; {
+    <span class="kw">let </span>(i, severity) = parse_severity(i)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(i, category) = parse_category(i)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(i, detail) = parse_detail(i)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>((
-        <span class="ident">i</span>,
-        <span class="ident">Code</span> {
-            <span class="ident">severity</span>,
-            <span class="ident">category</span>,
-            <span class="ident">detail</span>,
+        i,
+        Code {
+            severity,
+            category,
+            detail,
         },
     ))
 }
 
-<span class="kw">fn</span> <span class="ident">parse_severity</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Severity</span><span class="op">&gt;</span> {
-    <span class="ident">alt</span>((
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;2&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Severity::PositiveCompletion</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;3&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Severity::PositiveIntermediate</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;4&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Severity::TransientNegativeCompletion</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;5&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Severity::PermanentNegativeCompletion</span>),
-    ))(<span class="ident">i</span>)
+<span class="kw">fn </span>parse_severity(i: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Severity&gt; {
+    alt((
+        map(tag(<span class="string">&quot;2&quot;</span>), |<span class="kw">_</span>| Severity::PositiveCompletion),
+        map(tag(<span class="string">&quot;3&quot;</span>), |<span class="kw">_</span>| Severity::PositiveIntermediate),
+        map(tag(<span class="string">&quot;4&quot;</span>), |<span class="kw">_</span>| Severity::TransientNegativeCompletion),
+        map(tag(<span class="string">&quot;5&quot;</span>), |<span class="kw">_</span>| Severity::PermanentNegativeCompletion),
+    ))(i)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_category</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Category</span><span class="op">&gt;</span> {
-    <span class="ident">alt</span>((
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;0&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Category::Syntax</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;1&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Category::Information</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;2&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Category::Connections</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;3&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Category::Unspecified3</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;4&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Category::Unspecified4</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;5&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Category::MailSystem</span>),
-    ))(<span class="ident">i</span>)
+<span class="kw">fn </span>parse_category(i: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Category&gt; {
+    alt((
+        map(tag(<span class="string">&quot;0&quot;</span>), |<span class="kw">_</span>| Category::Syntax),
+        map(tag(<span class="string">&quot;1&quot;</span>), |<span class="kw">_</span>| Category::Information),
+        map(tag(<span class="string">&quot;2&quot;</span>), |<span class="kw">_</span>| Category::Connections),
+        map(tag(<span class="string">&quot;3&quot;</span>), |<span class="kw">_</span>| Category::Unspecified3),
+        map(tag(<span class="string">&quot;4&quot;</span>), |<span class="kw">_</span>| Category::Unspecified4),
+        map(tag(<span class="string">&quot;5&quot;</span>), |<span class="kw">_</span>| Category::MailSystem),
+    ))(i)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_detail</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Detail</span><span class="op">&gt;</span> {
-    <span class="ident">alt</span>((
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;0&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Zero</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;1&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::One</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;2&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Two</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;3&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Three</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;4&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Four</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;5&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Five</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;6&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Six</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;7&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Seven</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;8&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Eight</span>),
-        <span class="ident">map</span>(<span class="ident">tag</span>(<span class="string">&quot;9&quot;</span>), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Detail::Nine</span>),
-    ))(<span class="ident">i</span>)
+<span class="kw">fn </span>parse_detail(i: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Detail&gt; {
+    alt((
+        map(tag(<span class="string">&quot;0&quot;</span>), |<span class="kw">_</span>| Detail::Zero),
+        map(tag(<span class="string">&quot;1&quot;</span>), |<span class="kw">_</span>| Detail::One),
+        map(tag(<span class="string">&quot;2&quot;</span>), |<span class="kw">_</span>| Detail::Two),
+        map(tag(<span class="string">&quot;3&quot;</span>), |<span class="kw">_</span>| Detail::Three),
+        map(tag(<span class="string">&quot;4&quot;</span>), |<span class="kw">_</span>| Detail::Four),
+        map(tag(<span class="string">&quot;5&quot;</span>), |<span class="kw">_</span>| Detail::Five),
+        map(tag(<span class="string">&quot;6&quot;</span>), |<span class="kw">_</span>| Detail::Six),
+        map(tag(<span class="string">&quot;7&quot;</span>), |<span class="kw">_</span>| Detail::Seven),
+        map(tag(<span class="string">&quot;8&quot;</span>), |<span class="kw">_</span>| Detail::Eight),
+        map(tag(<span class="string">&quot;9&quot;</span>), |<span class="kw">_</span>| Detail::Nine),
+    ))(i)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_response</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Response</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">lines</span>) <span class="op">=</span> <span class="ident">many0</span>(<span class="ident">tuple</span>((
-        <span class="ident">parse_code</span>,
-        <span class="ident">preceded</span>(<span class="ident">tag</span>(<span class="string">&quot;-&quot;</span>), <span class="ident">take_until</span>(<span class="string">&quot;\r\n&quot;</span>)),
-        <span class="ident">tag</span>(<span class="string">&quot;\r\n&quot;</span>),
-    )))(<span class="ident">i</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">i</span>, (<span class="ident">last_code</span>, <span class="ident">last_line</span>)) <span class="op">=</span>
-        <span class="ident">tuple</span>((<span class="ident">parse_code</span>, <span class="ident">preceded</span>(<span class="ident">tag</span>(<span class="string">&quot; &quot;</span>), <span class="ident">take_until</span>(<span class="string">&quot;\r\n&quot;</span>))))(<span class="ident">i</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">complete</span>(<span class="ident">tag</span>(<span class="string">&quot;\r\n&quot;</span>))(<span class="ident">i</span>)<span class="question-mark">?</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_response(i: <span class="kw-2">&amp;</span>str) -&gt; IResult&lt;<span class="kw-2">&amp;</span>str, Response&gt; {
+    <span class="kw">let </span>(i, lines) = many0(tuple((
+        parse_code,
+        preceded(tag(<span class="string">&quot;-&quot;</span>), take_until(<span class="string">&quot;\r\n&quot;</span>)),
+        tag(<span class="string">&quot;\r\n&quot;</span>),
+    )))(i)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(i, (last_code, last_line)) =
+        tuple((parse_code, preceded(tag(<span class="string">&quot; &quot;</span>), take_until(<span class="string">&quot;\r\n&quot;</span>))))(i)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(i, <span class="kw">_</span>) = complete(tag(<span class="string">&quot;\r\n&quot;</span>))(i)<span class="question-mark">?</span>;
 
-    <span class="comment">// Check that all codes are equal.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">lines</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">code</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">code</span> <span class="op">==</span> <span class="ident">last_code</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Failure</span>(<span class="ident">nom::error::Error::new</span>(
+    <span class="comment">// Check that all codes are equal.
+    </span><span class="kw">if </span>!lines.iter().all(|<span class="kw-2">&amp;</span>(code, <span class="kw">_</span>, <span class="kw">_</span>)| code == last_code) {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(nom::Err::Failure(nom::error::Error::new(
             <span class="string">&quot;&quot;</span>,
-            <span class="ident">nom::error::ErrorKind::Not</span>,
+            nom::error::ErrorKind::Not,
         )));
     }
 
-    <span class="comment">// Extract text from lines, and append last line.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">lines</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">text</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">text</span>.<span class="ident">into</span>()).<span class="ident">collect</span>();
-    <span class="ident">lines</span>.<span class="ident">push</span>(<span class="ident">last_line</span>.<span class="ident">into</span>());
+    <span class="comment">// Extract text from lines, and append last line.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>lines: Vec&lt;String&gt; = lines.into_iter().map(|(<span class="kw">_</span>, text, <span class="kw">_</span>)| text.into()).collect();
+    lines.push(last_line.into());
 
     <span class="prelude-val">Ok</span>((
-        <span class="ident">i</span>,
-        <span class="ident">Response</span> {
-            <span class="ident">code</span>: <span class="ident">last_code</span>,
-            <span class="ident">message</span>: <span class="ident">lines</span>,
+        i,
+        Response {
+            code: last_code,
+            message: lines,
         },
     ))
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_severity_fmt</span>() {
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Severity::PositiveCompletion</span>), <span class="string">&quot;2&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_severity_fmt() {
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Severity::PositiveCompletion), <span class="string">&quot;2&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_category_fmt</span>() {
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Category::Unspecified4</span>), <span class="string">&quot;4&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_category_fmt() {
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, Category::Unspecified4), <span class="string">&quot;4&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_code_new</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_code_new() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Code::new</span>(
-                <span class="ident">Severity::TransientNegativeCompletion</span>,
-                <span class="ident">Category::Connections</span>,
-                <span class="ident">Detail::Zero</span>,
+            Code::new(
+                Severity::TransientNegativeCompletion,
+                Category::Connections,
+                Detail::Zero,
             ),
-            <span class="ident">Code</span> {
-                <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                <span class="ident">category</span>: <span class="ident">Category::Connections</span>,
-                <span class="ident">detail</span>: <span class="ident">Detail::Zero</span>,
+            Code {
+                severity: Severity::TransientNegativeCompletion,
+                category: Category::Connections,
+                detail: Detail::Zero,
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_code_display</span>() {
-        <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">Code</span> {
-            <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-            <span class="ident">category</span>: <span class="ident">Category::Connections</span>,
-            <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_code_display() {
+        <span class="kw">let </span>code = Code {
+            severity: Severity::TransientNegativeCompletion,
+            category: Category::Connections,
+            detail: Detail::One,
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">code</span>.<span class="ident">to_string</span>(), <span class="string">&quot;421&quot;</span>);
+        <span class="macro">assert_eq!</span>(code.to_string(), <span class="string">&quot;421&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_response_from_str</span>() {
-        <span class="kw">let</span> <span class="ident">raw_response</span> <span class="op">=</span> <span class="string">&quot;250-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250 AUTH PLAIN CRAM-MD5\r\n&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_response_from_str() {
+        <span class="kw">let </span>raw_response = <span class="string">&quot;250-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250 AUTH PLAIN CRAM-MD5\r\n&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">raw_response</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">Response</span> {
-                <span class="ident">code</span>: <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::PositiveCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::Zero</span>,
+            raw_response.parse::&lt;Response&gt;().unwrap(),
+            Response {
+                code: Code {
+                    severity: Severity::PositiveCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::Zero,
                 },
-                <span class="ident">message</span>: <span class="macro">vec!</span>[
-                    <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;AUTH PLAIN CRAM-MD5&quot;</span>.<span class="ident">to_string</span>(),
+                message: <span class="macro">vec!</span>[
+                    <span class="string">&quot;me&quot;</span>.to_string(),
+                    <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                    <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
+                    <span class="string">&quot;AUTH PLAIN CRAM-MD5&quot;</span>.to_string(),
                 ],
             }
         );
 
-        <span class="kw">let</span> <span class="ident">wrong_code</span> <span class="op">=</span> <span class="string">&quot;2506-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250 AUTH PLAIN CRAM-MD5\r\n&quot;</span>;
-        <span class="macro">assert!</span>(<span class="ident">wrong_code</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span>().<span class="ident">is_err</span>());
+        <span class="kw">let </span>wrong_code = <span class="string">&quot;2506-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250 AUTH PLAIN CRAM-MD5\r\n&quot;</span>;
+        <span class="macro">assert!</span>(wrong_code.parse::&lt;Response&gt;().is_err());
 
-        <span class="kw">let</span> <span class="ident">wrong_end</span> <span class="op">=</span> <span class="string">&quot;250-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250-AUTH PLAIN CRAM-MD5\r\n&quot;</span>;
-        <span class="macro">assert!</span>(<span class="ident">wrong_end</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span>().<span class="ident">is_err</span>());
+        <span class="kw">let </span>wrong_end = <span class="string">&quot;250-me\r\n250-8BITMIME\r\n250-SIZE 42\r\n250-AUTH PLAIN CRAM-MD5\r\n&quot;</span>;
+        <span class="macro">assert!</span>(wrong_end.parse::&lt;Response&gt;().is_err());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_response_is_positive</span>() {
-        <span class="macro">assert!</span>(<span class="ident">Response::new</span>(
-            <span class="ident">Code</span> {
-                <span class="ident">severity</span>: <span class="ident">Severity::PositiveCompletion</span>,
-                <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                <span class="ident">detail</span>: <span class="ident">Detail::Zero</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_response_is_positive() {
+        <span class="macro">assert!</span>(Response::new(
+            Code {
+                severity: Severity::PositiveCompletion,
+                category: Category::MailSystem,
+                detail: Detail::Zero,
             },
             <span class="macro">vec!</span>[
-                <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;me&quot;</span>.to_string(),
+                <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
             ],
         )
-        .<span class="ident">is_positive</span>());
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Response::new</span>(
-            <span class="ident">Code</span> {
-                <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                <span class="ident">detail</span>: <span class="ident">Detail::Zero</span>,
+        .is_positive());
+        <span class="macro">assert!</span>(!Response::new(
+            Code {
+                severity: Severity::TransientNegativeCompletion,
+                category: Category::MailSystem,
+                detail: Detail::Zero,
             },
             <span class="macro">vec!</span>[
-                <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;me&quot;</span>.to_string(),
+                <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
             ],
         )
-        .<span class="ident">is_positive</span>());
+        .is_positive());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_response_has_code</span>() {
-        <span class="macro">assert!</span>(<span class="ident">Response::new</span>(
-            <span class="ident">Code</span> {
-                <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_response_has_code() {
+        <span class="macro">assert!</span>(Response::new(
+            Code {
+                severity: Severity::TransientNegativeCompletion,
+                category: Category::MailSystem,
+                detail: Detail::One,
             },
             <span class="macro">vec!</span>[
-                <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;me&quot;</span>.to_string(),
+                <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
             ],
         )
-        .<span class="ident">has_code</span>(<span class="number">451</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Response::new</span>(
-            <span class="ident">Code</span> {
-                <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+        .has_code(<span class="number">451</span>));
+        <span class="macro">assert!</span>(!Response::new(
+            Code {
+                severity: Severity::TransientNegativeCompletion,
+                category: Category::MailSystem,
+                detail: Detail::One,
             },
             <span class="macro">vec!</span>[
-                <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;me&quot;</span>.to_string(),
+                <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
             ],
         )
-        .<span class="ident">has_code</span>(<span class="number">251</span>));
+        .has_code(<span class="number">251</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_response_first_word</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_response_first_word() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;me&quot;</span>.to_string(),
+                    <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                    <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
                 ],
             )
-            .<span class="ident">first_word</span>(),
+            .first_word(),
             <span class="prelude-val">Some</span>(<span class="string">&quot;me&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;me mo&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;me mo&quot;</span>.to_string(),
+                    <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                    <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
                 ],
             )
-            .<span class="ident">first_word</span>(),
+            .first_word(),
             <span class="prelude-val">Some</span>(<span class="string">&quot;me&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
                 <span class="macro">vec!</span>[],
             )
-            .<span class="ident">first_word</span>(),
-            <span class="prelude-val">None</span>
-        );
+            .first_word(),
+            <span class="prelude-val">None
+        </span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot; &quot;</span>.<span class="ident">to_string</span>()],
+                <span class="macro">vec!</span>[<span class="string">&quot; &quot;</span>.to_string()],
             )
-            .<span class="ident">first_word</span>(),
-            <span class="prelude-val">None</span>
-        );
+            .first_word(),
+            <span class="prelude-val">None
+        </span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;  &quot;</span>.<span class="ident">to_string</span>()],
+                <span class="macro">vec!</span>[<span class="string">&quot;  &quot;</span>.to_string()],
             )
-            .<span class="ident">first_word</span>(),
-            <span class="prelude-val">None</span>
-        );
+            .first_word(),
+            <span class="prelude-val">None
+        </span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()],
+                <span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>.to_string()],
             )
-            .<span class="ident">first_word</span>(),
-            <span class="prelude-val">None</span>
-        );
+            .first_word(),
+            <span class="prelude-val">None
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_response_incomplete</span>() {
-        <span class="kw">let</span> <span class="ident">raw_response</span> <span class="op">=</span> <span class="string">&quot;250-smtp.example.org\r\n&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_response</span>(<span class="ident">raw_response</span>);
-        <span class="kw">match</span> <span class="ident">res</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Incomplete</span>(<span class="kw">_</span>)) =&gt; {}
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected incomplete response, got {:?}&quot;</span>, <span class="ident">res</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_response_incomplete() {
+        <span class="kw">let </span>raw_response = <span class="string">&quot;250-smtp.example.org\r\n&quot;</span>;
+        <span class="kw">let </span>res = parse_response(raw_response);
+        <span class="kw">match </span>res {
+            <span class="prelude-val">Err</span>(nom::Err::Incomplete(<span class="kw">_</span>)) =&gt; {}
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Expected incomplete response, got {:?}&quot;</span>, res),
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_response_first_line</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_response_first_line() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;me&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;me&quot;</span>.to_string(),
+                    <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                    <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
                 ],
             )
-            .<span class="ident">first_line</span>(),
+            .first_line(),
             <span class="prelude-val">Some</span>(<span class="string">&quot;me&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;me mo&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;8BITMIME&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;SIZE 42&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;me mo&quot;</span>.to_string(),
+                    <span class="string">&quot;8BITMIME&quot;</span>.to_string(),
+                    <span class="string">&quot;SIZE 42&quot;</span>.to_string(),
                 ],
             )
-            .<span class="ident">first_line</span>(),
+            .first_line(),
             <span class="prelude-val">Some</span>(<span class="string">&quot;me mo&quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
                 <span class="macro">vec!</span>[],
             )
-            .<span class="ident">first_line</span>(),
-            <span class="prelude-val">None</span>
-        );
+            .first_line(),
+            <span class="prelude-val">None
+        </span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot; &quot;</span>.<span class="ident">to_string</span>()],
+                <span class="macro">vec!</span>[<span class="string">&quot; &quot;</span>.to_string()],
             )
-            .<span class="ident">first_line</span>(),
+            .first_line(),
             <span class="prelude-val">Some</span>(<span class="string">&quot; &quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;  &quot;</span>.<span class="ident">to_string</span>()],
+                <span class="macro">vec!</span>[<span class="string">&quot;  &quot;</span>.to_string()],
             )
-            .<span class="ident">first_line</span>(),
+            .first_line(),
             <span class="prelude-val">Some</span>(<span class="string">&quot;  &quot;</span>)
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Response::new</span>(
-                <span class="ident">Code</span> {
-                    <span class="ident">severity</span>: <span class="ident">Severity::TransientNegativeCompletion</span>,
-                    <span class="ident">category</span>: <span class="ident">Category::MailSystem</span>,
-                    <span class="ident">detail</span>: <span class="ident">Detail::One</span>,
+            Response::new(
+                Code {
+                    severity: Severity::TransientNegativeCompletion,
+                    category: Category::MailSystem,
+                    detail: Detail::One,
                 },
-                <span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()],
+                <span class="macro">vec!</span>[<span class="string">&quot;&quot;</span>.to_string()],
             )
-            .<span class="ident">first_line</span>(),
+            .first_line(),
             <span class="prelude-val">Some</span>(<span class="string">&quot;&quot;</span>)
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/commit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>commit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/git2-0.15.0/src/commit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>commit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../git2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../git2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -466,473 +466,473 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">libc</span>;
-<span class="kw">use</span> <span class="ident">std::marker</span>;
-<span class="kw">use</span> <span class="ident">std::mem</span>;
-<span class="kw">use</span> <span class="ident">std::ops::Range</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
-<span class="kw">use</span> <span class="ident">std::str</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>libc;
+<span class="kw">use </span>std::marker;
+<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::ops::Range;
+<span class="kw">use </span>std::ptr;
+<span class="kw">use </span>std::str;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util::Binding</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">raw</span>, <span class="ident">signature</span>, <span class="ident">Buf</span>, <span class="ident">Error</span>, <span class="ident">IntoCString</span>, <span class="ident">Mailmap</span>, <span class="ident">Object</span>, <span class="ident">Oid</span>, <span class="ident">Signature</span>, <span class="ident">Time</span>, <span class="ident">Tree</span>};
+<span class="kw">use </span><span class="kw">crate</span>::util::Binding;
+<span class="kw">use crate</span>::{raw, signature, Buf, Error, IntoCString, Mailmap, Object, Oid, Signature, Time, Tree};
 
-<span class="doccomment">/// A structure to represent a git [commit][1]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [1]: http://git-scm.com/book/en/Git-Internals-Git-Objects</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_commit</span>,
-    <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A structure to represent a git [commit][1]
+///
+/// [1]: http://git-scm.com/book/en/Git-Internals-Git-Objects
+</span><span class="kw">pub struct </span>Commit&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    raw: <span class="kw-2">*mut </span>raw::git_commit,
+    _marker: marker::PhantomData&lt;Object&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;,
 }
 
-<span class="doccomment">/// An iterator over the parent commits of a commit.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Aborts iteration when a commit cannot be found</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Parents</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span>, <span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="ident">range</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">commit</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;commit</span> <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An iterator over the parent commits of a commit.
+///
+/// Aborts iteration when a commit cannot be found
+</span><span class="kw">pub struct </span>Parents&lt;<span class="lifetime">&#39;commit</span>, <span class="lifetime">&#39;repo</span>&gt; {
+    range: Range&lt;usize&gt;,
+    commit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;commit </span>Commit&lt;<span class="lifetime">&#39;repo</span>&gt;,
 }
 
-<span class="doccomment">/// An iterator over the parent commits&#39; ids of a commit.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Aborts iteration when a commit cannot be found</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ParentIds</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span><span class="op">&gt;</span> {
-    <span class="ident">range</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">commit</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;commit</span> <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An iterator over the parent commits&#39; ids of a commit.
+///
+/// Aborts iteration when a commit cannot be found
+</span><span class="kw">pub struct </span>ParentIds&lt;<span class="lifetime">&#39;commit</span>&gt; {
+    range: Range&lt;usize&gt;,
+    commit: <span class="kw-2">&amp;</span><span class="lifetime">&#39;commit </span>Commit&lt;<span class="lifetime">&#39;commit</span>&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Get the id (SHA1) of a repository commit</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Oid</span> {
-        <span class="kw">unsafe</span> { <span class="ident">Binding::from_raw</span>(<span class="ident">raw::git_commit_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>)) }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Commit&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="doccomment">/// Get the id (SHA1) of a repository commit
+    </span><span class="kw">pub fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Oid {
+        <span class="kw">unsafe </span>{ Binding::from_raw(raw::git_commit_id(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the id of the tree pointed to by this commit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// No attempts are made to fetch an object from the ODB.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tree_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Oid</span> {
-        <span class="kw">unsafe</span> { <span class="ident">Binding::from_raw</span>(<span class="ident">raw::git_commit_tree_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>)) }
+    <span class="doccomment">/// Get the id of the tree pointed to by this commit.
+    ///
+    /// No attempts are made to fetch an object from the ODB.
+    </span><span class="kw">pub fn </span>tree_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Oid {
+        <span class="kw">unsafe </span>{ Binding::from_raw(raw::git_commit_tree_id(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the tree pointed to by a commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tree</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">unsafe</span> {
-            <span class="macro">try_call!</span>(<span class="ident">raw::git_commit_tree</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ret</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>));
-            <span class="prelude-val">Ok</span>(<span class="ident">Binding::from_raw</span>(<span class="ident">ret</span>))
+    <span class="doccomment">/// Get the tree pointed to by a commit.
+    </span><span class="kw">pub fn </span>tree(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Tree&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_commit_tree(<span class="kw-2">&amp;mut </span>ret, <span class="kw-2">&amp;*</span><span class="self">self</span>.raw));
+            <span class="prelude-val">Ok</span>(Binding::from_raw(ret))
         }
     }
 
-    <span class="doccomment">/// Get access to the underlying raw pointer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">raw::git_commit</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>
+    <span class="doccomment">/// Get access to the underlying raw pointer.
+    </span><span class="kw">pub fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>raw::git_commit {
+        <span class="self">self</span>.raw
     }
 
-    <span class="doccomment">/// Get the full message of a commit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned message will be slightly prettified by removing any</span>
-    <span class="doccomment">/// potential leading newlines.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `None` will be returned if the message is not valid utf-8</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="ident">str::from_utf8</span>(<span class="self">self</span>.<span class="ident">message_bytes</span>()).<span class="ident">ok</span>()
+    <span class="doccomment">/// Get the full message of a commit.
+    ///
+    /// The returned message will be slightly prettified by removing any
+    /// potential leading newlines.
+    ///
+    /// `None` will be returned if the message is not valid utf-8
+    </span><span class="kw">pub fn </span>message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        str::from_utf8(<span class="self">self</span>.message_bytes()).ok()
     }
 
-    <span class="doccomment">/// Get the full message of a commit as a byte slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned message will be slightly prettified by removing any</span>
-    <span class="doccomment">/// potential leading newlines.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::opt_bytes</span>(<span class="self">self</span>, <span class="ident">raw::git_commit_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>)).<span class="ident">unwrap</span>() }
+    <span class="doccomment">/// Get the full message of a commit as a byte slice.
+    ///
+    /// The returned message will be slightly prettified by removing any
+    /// potential leading newlines.
+    </span><span class="kw">pub fn </span>message_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_commit_message(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)).unwrap() }
     }
 
-    <span class="doccomment">/// Get the encoding for the message of a commit, as a string representing a</span>
-    <span class="doccomment">/// standard encoding name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `None` will be returned if the encoding is not known</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message_encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::opt_bytes</span>(<span class="self">self</span>, <span class="ident">raw::git_commit_message_encoding</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>)) };
-        <span class="ident">bytes</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">str::from_utf8</span>(<span class="ident">b</span>).<span class="ident">ok</span>())
+    <span class="doccomment">/// Get the encoding for the message of a commit, as a string representing a
+    /// standard encoding name.
+    ///
+    /// `None` will be returned if the encoding is not known
+    </span><span class="kw">pub fn </span>message_encoding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="kw">let </span>bytes = <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_commit_message_encoding(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)) };
+        bytes.and_then(|b| str::from_utf8(b).ok())
     }
 
-    <span class="doccomment">/// Get the full raw message of a commit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `None` will be returned if the message is not valid utf-8</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="ident">str::from_utf8</span>(<span class="self">self</span>.<span class="ident">message_raw_bytes</span>()).<span class="ident">ok</span>()
+    <span class="doccomment">/// Get the full raw message of a commit.
+    ///
+    /// `None` will be returned if the message is not valid utf-8
+    </span><span class="kw">pub fn </span>message_raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        str::from_utf8(<span class="self">self</span>.message_raw_bytes()).ok()
     }
 
-    <span class="doccomment">/// Get the full raw message of a commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message_raw_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::opt_bytes</span>(<span class="self">self</span>, <span class="ident">raw::git_commit_message_raw</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>)).<span class="ident">unwrap</span>() }
+    <span class="doccomment">/// Get the full raw message of a commit.
+    </span><span class="kw">pub fn </span>message_raw_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_commit_message_raw(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)).unwrap() }
     }
 
-    <span class="doccomment">/// Get the full raw text of the commit header.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `None` will be returned if the message is not valid utf-8</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_header</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="ident">str::from_utf8</span>(<span class="self">self</span>.<span class="ident">raw_header_bytes</span>()).<span class="ident">ok</span>()
+    <span class="doccomment">/// Get the full raw text of the commit header.
+    ///
+    /// `None` will be returned if the message is not valid utf-8
+    </span><span class="kw">pub fn </span>raw_header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        str::from_utf8(<span class="self">self</span>.raw_header_bytes()).ok()
     }
 
-    <span class="doccomment">/// Get an arbitrary header field.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header_field_bytes</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoCString</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">field</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Buf</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Buf::new</span>();
-        <span class="kw">let</span> <span class="ident">raw_field</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">into_c_string</span>()<span class="question-mark">?</span>;
-        <span class="kw">unsafe</span> {
-            <span class="macro">try_call!</span>(<span class="ident">raw::git_commit_header_field</span>(
-                <span class="ident">buf</span>.<span class="ident">raw</span>(),
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>,
-                <span class="ident">raw_field</span>
+    <span class="doccomment">/// Get an arbitrary header field.
+    </span><span class="kw">pub fn </span>header_field_bytes&lt;T: IntoCString&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, field: T) -&gt; <span class="prelude-ty">Result</span>&lt;Buf, Error&gt; {
+        <span class="kw">let </span>buf = Buf::new();
+        <span class="kw">let </span>raw_field = field.into_c_string()<span class="question-mark">?</span>;
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_commit_header_field(
+                buf.raw(),
+                <span class="kw-2">&amp;*</span><span class="self">self</span>.raw,
+                raw_field
             ));
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">buf</span>)
+        <span class="prelude-val">Ok</span>(buf)
     }
 
-    <span class="doccomment">/// Get the full raw text of the commit header.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_header_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::opt_bytes</span>(<span class="self">self</span>, <span class="ident">raw::git_commit_raw_header</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>)).<span class="ident">unwrap</span>() }
+    <span class="doccomment">/// Get the full raw text of the commit header.
+    </span><span class="kw">pub fn </span>raw_header_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_commit_raw_header(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw)).unwrap() }
     }
 
-    <span class="doccomment">/// Get the short &quot;summary&quot; of the git commit message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned message is the summary of the commit, comprising the first</span>
-    <span class="doccomment">/// paragraph of the message with whitespace trimmed and squashed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `None` may be returned if an error occurs or if the summary is not valid</span>
-    <span class="doccomment">/// utf-8.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">summary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">summary_bytes</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">str::from_utf8</span>(<span class="ident">s</span>).<span class="ident">ok</span>())
+    <span class="doccomment">/// Get the short &quot;summary&quot; of the git commit message.
+    ///
+    /// The returned message is the summary of the commit, comprising the first
+    /// paragraph of the message with whitespace trimmed and squashed.
+    ///
+    /// `None` may be returned if an error occurs or if the summary is not valid
+    /// utf-8.
+    </span><span class="kw">pub fn </span>summary(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.summary_bytes().and_then(|s| str::from_utf8(s).ok())
     }
 
-    <span class="doccomment">/// Get the short &quot;summary&quot; of the git commit message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned message is the summary of the commit, comprising the first</span>
-    <span class="doccomment">/// paragraph of the message with whitespace trimmed and squashed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `None` may be returned if an error occurs</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">summary_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::opt_bytes</span>(<span class="self">self</span>, <span class="ident">raw::git_commit_summary</span>(<span class="self">self</span>.<span class="ident">raw</span>)) }
+    <span class="doccomment">/// Get the short &quot;summary&quot; of the git commit message.
+    ///
+    /// The returned message is the summary of the commit, comprising the first
+    /// paragraph of the message with whitespace trimmed and squashed.
+    ///
+    /// `None` may be returned if an error occurs
+    </span><span class="kw">pub fn </span>summary_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+        <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_commit_summary(<span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the long &quot;body&quot; of the git commit message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned message is the body of the commit, comprising everything</span>
-    <span class="doccomment">/// but the first paragraph of the message. Leading and trailing whitespaces</span>
-    <span class="doccomment">/// are trimmed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `None` may be returned if an error occurs or if the summary is not valid</span>
-    <span class="doccomment">/// utf-8.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">body_bytes</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">str::from_utf8</span>(<span class="ident">s</span>).<span class="ident">ok</span>())
+    <span class="doccomment">/// Get the long &quot;body&quot; of the git commit message.
+    ///
+    /// The returned message is the body of the commit, comprising everything
+    /// but the first paragraph of the message. Leading and trailing whitespaces
+    /// are trimmed.
+    ///
+    /// `None` may be returned if an error occurs or if the summary is not valid
+    /// utf-8.
+    </span><span class="kw">pub fn </span>body(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.body_bytes().and_then(|s| str::from_utf8(s).ok())
     }
 
-    <span class="doccomment">/// Get the long &quot;body&quot; of the git commit message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned message is the body of the commit, comprising everything</span>
-    <span class="doccomment">/// but the first paragraph of the message. Leading and trailing whitespaces</span>
-    <span class="doccomment">/// are trimmed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `None` may be returned if an error occurs.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident"><span class="kw">crate</span>::opt_bytes</span>(<span class="self">self</span>, <span class="ident">raw::git_commit_body</span>(<span class="self">self</span>.<span class="ident">raw</span>)) }
+    <span class="doccomment">/// Get the long &quot;body&quot; of the git commit message.
+    ///
+    /// The returned message is the body of the commit, comprising everything
+    /// but the first paragraph of the message. Leading and trailing whitespaces
+    /// are trimmed.
+    ///
+    /// `None` may be returned if an error occurs.
+    </span><span class="kw">pub fn </span>body_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+        <span class="kw">unsafe </span>{ <span class="kw">crate</span>::opt_bytes(<span class="self">self</span>, raw::git_commit_body(<span class="self">self</span>.raw)) }
     }
 
-    <span class="doccomment">/// Get the commit time (i.e. committer time) of a commit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The first element of the tuple is the time, in seconds, since the epoch.</span>
-    <span class="doccomment">/// The second element is the offset, in minutes, of the time zone of the</span>
-    <span class="doccomment">/// committer&#39;s preferred time zone.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Time</span> {
-        <span class="kw">unsafe</span> {
-            <span class="ident">Time::new</span>(
-                <span class="ident">raw::git_commit_time</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>) <span class="kw">as</span> <span class="ident">i64</span>,
-                <span class="ident">raw::git_commit_time_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>) <span class="kw">as</span> <span class="ident">i32</span>,
+    <span class="doccomment">/// Get the commit time (i.e. committer time) of a commit.
+    ///
+    /// The first element of the tuple is the time, in seconds, since the epoch.
+    /// The second element is the offset, in minutes, of the time zone of the
+    /// committer&#39;s preferred time zone.
+    </span><span class="kw">pub fn </span>time(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Time {
+        <span class="kw">unsafe </span>{
+            Time::new(
+                raw::git_commit_time(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) <span class="kw">as </span>i64,
+                raw::git_commit_time_offset(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) <span class="kw">as </span>i32,
             )
         }
     }
 
-    <span class="doccomment">/// Creates a new iterator over the parents of this commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parents</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="ident">Parents</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-        <span class="ident">Parents</span> {
-            <span class="ident">range</span>: <span class="number">0</span>..<span class="self">self</span>.<span class="ident">parent_count</span>(),
-            <span class="ident">commit</span>: <span class="self">self</span>,
+    <span class="doccomment">/// Creates a new iterator over the parents of this commit.
+    </span><span class="kw">pub fn </span>parents&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; Parents&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;repo</span>&gt; {
+        Parents {
+            range: <span class="number">0</span>..<span class="self">self</span>.parent_count(),
+            commit: <span class="self">self</span>,
         }
     }
 
-    <span class="doccomment">/// Creates a new iterator over the parents of this commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parent_ids</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ParentIds</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">ParentIds</span> {
-            <span class="ident">range</span>: <span class="number">0</span>..<span class="self">self</span>.<span class="ident">parent_count</span>(),
-            <span class="ident">commit</span>: <span class="self">self</span>,
+    <span class="doccomment">/// Creates a new iterator over the parents of this commit.
+    </span><span class="kw">pub fn </span>parent_ids(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ParentIds&lt;<span class="lifetime">&#39;_</span>&gt; {
+        ParentIds {
+            range: <span class="number">0</span>..<span class="self">self</span>.parent_count(),
+            commit: <span class="self">self</span>,
         }
     }
 
-    <span class="doccomment">/// Get the author of this commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">author</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Signature</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">raw::git_commit_author</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>);
-            <span class="ident">signature::from_raw_const</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
+    <span class="doccomment">/// Get the author of this commit.
+    </span><span class="kw">pub fn </span>author(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Signature&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>ptr = raw::git_commit_author(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw);
+            signature::from_raw_const(<span class="self">self</span>, ptr)
         }
     }
 
-    <span class="doccomment">/// Get the author of this commit, using the mailmap to map names and email</span>
-    <span class="doccomment">/// addresses to canonical real names and email addresses.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">author_with_mailmap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mailmap</span>: <span class="kw-2">&amp;</span><span class="ident">Mailmap</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Signature</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">unsafe</span> {
-            <span class="macro">try_call!</span>(<span class="ident">raw::git_commit_author_with_mailmap</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">ret</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">mailmap</span>.<span class="ident">raw</span>()
+    <span class="doccomment">/// Get the author of this commit, using the mailmap to map names and email
+    /// addresses to canonical real names and email addresses.
+    </span><span class="kw">pub fn </span>author_with_mailmap(<span class="kw-2">&amp;</span><span class="self">self</span>, mailmap: <span class="kw-2">&amp;</span>Mailmap) -&gt; <span class="prelude-ty">Result</span>&lt;Signature&lt;<span class="lifetime">&#39;static</span>&gt;, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_commit_author_with_mailmap(
+                <span class="kw-2">&amp;mut </span>ret,
+                <span class="kw-2">&amp;*</span><span class="self">self</span>.raw,
+                <span class="kw-2">&amp;*</span>mailmap.raw()
             ));
-            <span class="prelude-val">Ok</span>(<span class="ident">Binding::from_raw</span>(<span class="ident">ret</span>))
+            <span class="prelude-val">Ok</span>(Binding::from_raw(ret))
         }
     }
 
-    <span class="doccomment">/// Get the committer of this commit.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">committer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Signature</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">raw::git_commit_committer</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>);
-            <span class="ident">signature::from_raw_const</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
+    <span class="doccomment">/// Get the committer of this commit.
+    </span><span class="kw">pub fn </span>committer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Signature&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>ptr = raw::git_commit_committer(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw);
+            signature::from_raw_const(<span class="self">self</span>, ptr)
         }
     }
 
-    <span class="doccomment">/// Get the committer of this commit, using the mailmap to map names and email</span>
-    <span class="doccomment">/// addresses to canonical real names and email addresses.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">committer_with_mailmap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mailmap</span>: <span class="kw-2">&amp;</span><span class="ident">Mailmap</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Signature</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-        <span class="kw">unsafe</span> {
-            <span class="macro">try_call!</span>(<span class="ident">raw::git_commit_committer_with_mailmap</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">ret</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">mailmap</span>.<span class="ident">raw</span>()
+    <span class="doccomment">/// Get the committer of this commit, using the mailmap to map names and email
+    /// addresses to canonical real names and email addresses.
+    </span><span class="kw">pub fn </span>committer_with_mailmap(<span class="kw-2">&amp;</span><span class="self">self</span>, mailmap: <span class="kw-2">&amp;</span>Mailmap) -&gt; <span class="prelude-ty">Result</span>&lt;Signature&lt;<span class="lifetime">&#39;static</span>&gt;, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = ptr::null_mut();
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_commit_committer_with_mailmap(
+                <span class="kw-2">&amp;mut </span>ret,
+                <span class="kw-2">&amp;*</span><span class="self">self</span>.raw,
+                <span class="kw-2">&amp;*</span>mailmap.raw()
             ));
-            <span class="prelude-val">Ok</span>(<span class="ident">Binding::from_raw</span>(<span class="ident">ret</span>))
+            <span class="prelude-val">Ok</span>(Binding::from_raw(ret))
         }
     }
 
-    <span class="doccomment">/// Amend this existing commit with all non-`None` values</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This creates a new commit that is exactly the same as the old commit,</span>
-    <span class="doccomment">/// except that any non-`None` values will be updated. The new commit has</span>
-    <span class="doccomment">/// the same parents as the old commit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For information about `update_ref`, see [`Repository::commit`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Repository::commit`]: struct.Repository.html#method.commit</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">amend</span>(
+    <span class="doccomment">/// Amend this existing commit with all non-`None` values
+    ///
+    /// This creates a new commit that is exactly the same as the old commit,
+    /// except that any non-`None` values will be updated. The new commit has
+    /// the same parents as the old commit.
+    ///
+    /// For information about `update_ref`, see [`Repository::commit`].
+    ///
+    /// [`Repository::commit`]: struct.Repository.html#method.commit
+    </span><span class="kw">pub fn </span>amend(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">update_ref</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-        <span class="ident">author</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Signature</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">committer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Signature</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">message_encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-        <span class="ident">message</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>,
-        <span class="ident">tree</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Tree</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Oid</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">raw::git_oid</span> {
-            <span class="ident">id</span>: [<span class="number">0</span>; <span class="ident">raw::GIT_OID_RAWSZ</span>],
+        update_ref: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+        author: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        committer: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Signature&lt;<span class="lifetime">&#39;_</span>&gt;&gt;,
+        message_encoding: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+        message: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;,
+        tree: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">&#39;repo</span>&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>raw = raw::git_oid {
+            id: [<span class="number">0</span>; raw::GIT_OID_RAWSZ],
         };
-        <span class="kw">let</span> <span class="ident">update_ref</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::opt_cstr</span>(<span class="ident">update_ref</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::opt_cstr</span>(<span class="ident">message_encoding</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::opt_cstr</span>(<span class="ident">message</span>)<span class="question-mark">?</span>;
-        <span class="kw">unsafe</span> {
-            <span class="macro">try_call!</span>(<span class="ident">raw::git_commit_amend</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">raw</span>,
-                <span class="self">self</span>.<span class="ident">raw</span>(),
-                <span class="ident">update_ref</span>,
-                <span class="ident">author</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">raw</span>()),
-                <span class="ident">committer</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">raw</span>()),
-                <span class="ident">encoding</span>,
-                <span class="ident">message</span>,
-                <span class="ident">tree</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">raw</span>())
+        <span class="kw">let </span>update_ref = <span class="kw">crate</span>::opt_cstr(update_ref)<span class="question-mark">?</span>;
+        <span class="kw">let </span>encoding = <span class="kw">crate</span>::opt_cstr(message_encoding)<span class="question-mark">?</span>;
+        <span class="kw">let </span>message = <span class="kw">crate</span>::opt_cstr(message)<span class="question-mark">?</span>;
+        <span class="kw">unsafe </span>{
+            <span class="macro">try_call!</span>(raw::git_commit_amend(
+                <span class="kw-2">&amp;mut </span>raw,
+                <span class="self">self</span>.raw(),
+                update_ref,
+                author.map(|s| s.raw()),
+                committer.map(|s| s.raw()),
+                encoding,
+                message,
+                tree.map(|t| t.raw())
             ));
-            <span class="prelude-val">Ok</span>(<span class="ident">Binding::from_raw</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span>))
+            <span class="prelude-val">Ok</span>(Binding::from_raw(<span class="kw-2">&amp;</span>raw <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>))
         }
     }
 
-    <span class="doccomment">/// Get the number of parents of this commit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use the `parents` iterator to return an iterator over all parents.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parent_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">unsafe</span> { <span class="ident">raw::git_commit_parentcount</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>) <span class="kw">as</span> <span class="ident">usize</span> }
+    <span class="doccomment">/// Get the number of parents of this commit.
+    ///
+    /// Use the `parents` iterator to return an iterator over all parents.
+    </span><span class="kw">pub fn </span>parent_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">unsafe </span>{ raw::git_commit_parentcount(<span class="kw-2">&amp;*</span><span class="self">self</span>.raw) <span class="kw">as </span>usize }
     }
 
-    <span class="doccomment">/// Get the specified parent of the commit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use the `parents` iterator to return an iterator over all parents.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
-            <span class="macro">try_call!</span>(<span class="ident">raw::git_commit_parent</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">raw</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">raw</span>,
-                <span class="ident">i</span> <span class="kw">as</span> <span class="ident">libc::c_uint</span>
+    <span class="doccomment">/// Get the specified parent of the commit.
+    ///
+    /// Use the `parents` iterator to return an iterator over all parents.
+    </span><span class="kw">pub fn </span>parent(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Commit&lt;<span class="lifetime">&#39;repo</span>&gt;, Error&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>raw = ptr::null_mut();
+            <span class="macro">try_call!</span>(raw::git_commit_parent(
+                <span class="kw-2">&amp;mut </span>raw,
+                <span class="kw-2">&amp;*</span><span class="self">self</span>.raw,
+                i <span class="kw">as </span>libc::c_uint
             ));
-            <span class="prelude-val">Ok</span>(<span class="ident">Binding::from_raw</span>(<span class="ident">raw</span>))
+            <span class="prelude-val">Ok</span>(Binding::from_raw(raw))
         }
     }
 
-    <span class="doccomment">/// Get the specified parent id of the commit.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is different from `parent`, which will attempt to load the</span>
-    <span class="doccomment">/// parent commit from the ODB.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use the `parent_ids` iterator to return an iterator over all parents.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parent_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Oid</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">raw::git_commit_parent_id</span>(<span class="self">self</span>.<span class="ident">raw</span>, <span class="ident">i</span> <span class="kw">as</span> <span class="ident">libc::c_uint</span>);
-            <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">is_null</span>() {
-                <span class="prelude-val">Err</span>(<span class="ident">Error::from_str</span>(<span class="string">&quot;parent index out of bounds&quot;</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">Binding::from_raw</span>(<span class="ident">id</span>))
+    <span class="doccomment">/// Get the specified parent id of the commit.
+    ///
+    /// This is different from `parent`, which will attempt to load the
+    /// parent commit from the ODB.
+    ///
+    /// Use the `parent_ids` iterator to return an iterator over all parents.
+    </span><span class="kw">pub fn </span>parent_id(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>id = raw::git_commit_parent_id(<span class="self">self</span>.raw, i <span class="kw">as </span>libc::c_uint);
+            <span class="kw">if </span>id.is_null() {
+                <span class="prelude-val">Err</span>(Error::from_str(<span class="string">&quot;parent index out of bounds&quot;</span>))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Ok</span>(Binding::from_raw(id))
             }
         }
     }
 
-    <span class="doccomment">/// Casts this Commit to be usable as an `Object`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span>) }
+    <span class="doccomment">/// Casts this Commit to be usable as an `Object`
+    </span><span class="kw">pub fn </span>as_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span>(<span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*const </span>Object&lt;<span class="lifetime">&#39;repo</span>&gt;) }
     }
 
-    <span class="doccomment">/// Consumes Commit to be returned as an `Object`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_object</span>(<span class="self">self</span>) -&gt; <span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq!</span>(<span class="ident">mem::size_of_val</span>(<span class="kw-2">&amp;</span><span class="self">self</span>), <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Object</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>());
-        <span class="kw">unsafe</span> { <span class="ident">mem::transmute</span>(<span class="self">self</span>) }
+    <span class="doccomment">/// Consumes Commit to be returned as an `Object`
+    </span><span class="kw">pub fn </span>into_object(<span class="self">self</span>) -&gt; Object&lt;<span class="lifetime">&#39;repo</span>&gt; {
+        <span class="macro">assert_eq!</span>(mem::size_of_val(<span class="kw-2">&amp;</span><span class="self">self</span>), mem::size_of::&lt;Object&lt;<span class="lifetime">&#39;_</span>&gt;&gt;());
+        <span class="kw">unsafe </span>{ mem::transmute(<span class="self">self</span>) }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Binding</span> <span class="kw">for</span> <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Raw</span> <span class="op">=</span> <span class="kw-2">*mut</span> <span class="ident">raw::git_commit</span>;
-    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">raw</span>: <span class="kw-2">*mut</span> <span class="ident">raw::git_commit</span>) -&gt; <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-        <span class="ident">Commit</span> {
-            <span class="ident">raw</span>,
-            <span class="ident">_marker</span>: <span class="ident">marker::PhantomData</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Binding <span class="kw">for </span>Commit&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">type </span>Raw = <span class="kw-2">*mut </span>raw::git_commit;
+    <span class="kw">unsafe fn </span>from_raw(raw: <span class="kw-2">*mut </span>raw::git_commit) -&gt; Commit&lt;<span class="lifetime">&#39;repo</span>&gt; {
+        Commit {
+            raw,
+            _marker: marker::PhantomData,
         }
     }
-    <span class="kw">fn</span> <span class="ident">raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">raw::git_commit</span> {
-        <span class="self">self</span>.<span class="ident">raw</span>
+    <span class="kw">fn </span>raw(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>raw::git_commit {
+        <span class="self">self</span>.raw
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">std::fmt::Debug</span> <span class="kw">for</span> <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std::fmt::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ds</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Commit&quot;</span>);
-        <span class="ident">ds</span>.<span class="ident">field</span>(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>());
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">summary</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">summary</span>() {
-            <span class="ident">ds</span>.<span class="ident">field</span>(<span class="string">&quot;summary&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">summary</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; std::fmt::Debug <span class="kw">for </span>Commit&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::fmt::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ds = f.debug_struct(<span class="string">&quot;Commit&quot;</span>);
+        ds.field(<span class="string">&quot;id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.id());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(summary) = <span class="self">self</span>.summary() {
+            ds.field(<span class="string">&quot;summary&quot;</span>, <span class="kw-2">&amp;</span>summary);
         }
-        <span class="ident">ds</span>.<span class="ident">finish</span>()
+        ds.finish()
     }
 }
 
-<span class="doccomment">/// Aborts iteration when a commit cannot be found</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;commit</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Parents</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span>, <span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">range</span>.<span class="ident">next</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">commit</span>.<span class="ident">parent</span>(<span class="ident">i</span>).<span class="ident">ok</span>())
+<span class="doccomment">/// Aborts iteration when a commit cannot be found
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;commit</span>&gt; Iterator <span class="kw">for </span>Parents&lt;<span class="lifetime">&#39;commit</span>, <span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">type </span>Item = Commit&lt;<span class="lifetime">&#39;repo</span>&gt;;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Commit&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+        <span class="self">self</span>.range.next().and_then(|i| <span class="self">self</span>.commit.parent(i).ok())
     }
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">range</span>.<span class="ident">size_hint</span>()
-    }
-}
-
-<span class="doccomment">/// Aborts iteration when a commit cannot be found</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;commit</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">Parents</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span>, <span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">range</span>
-            .<span class="ident">next_back</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">commit</span>.<span class="ident">parent</span>(<span class="ident">i</span>).<span class="ident">ok</span>())
+    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="self">self</span>.range.size_hint()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;commit</span><span class="op">&gt;</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">Parents</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span>, <span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {}
-
-<span class="doccomment">/// Aborts iteration when a commit cannot be found</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">ParentIds</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Oid</span>;
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Oid</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">range</span>
-            .<span class="ident">next</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">commit</span>.<span class="ident">parent_id</span>(<span class="ident">i</span>).<span class="ident">ok</span>())
-    }
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">range</span>.<span class="ident">size_hint</span>()
+<span class="doccomment">/// Aborts iteration when a commit cannot be found
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;commit</span>&gt; DoubleEndedIterator <span class="kw">for </span>Parents&lt;<span class="lifetime">&#39;commit</span>, <span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Commit&lt;<span class="lifetime">&#39;repo</span>&gt;&gt; {
+        <span class="self">self</span>.range
+            .next_back()
+            .and_then(|i| <span class="self">self</span>.commit.parent(i).ok())
     }
 }
 
-<span class="doccomment">/// Aborts iteration when a commit cannot be found</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">ParentIds</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Oid</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">range</span>
-            .<span class="ident">next_back</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">commit</span>.<span class="ident">parent_id</span>(<span class="ident">i</span>).<span class="ident">ok</span>())
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>, <span class="lifetime">&#39;commit</span>&gt; ExactSizeIterator <span class="kw">for </span>Parents&lt;<span class="lifetime">&#39;commit</span>, <span class="lifetime">&#39;repo</span>&gt; {}
+
+<span class="doccomment">/// Aborts iteration when a commit cannot be found
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;commit</span>&gt; Iterator <span class="kw">for </span>ParentIds&lt;<span class="lifetime">&#39;commit</span>&gt; {
+    <span class="kw">type </span>Item = Oid;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Oid&gt; {
+        <span class="self">self</span>.range
+            .next()
+            .and_then(|i| <span class="self">self</span>.commit.parent_id(i).ok())
+    }
+    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="self">self</span>.range.size_hint()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span><span class="op">&gt;</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">ParentIds</span><span class="op">&lt;</span><span class="lifetime">&#39;commit</span><span class="op">&gt;</span> {}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">as_object</span>().<span class="ident">clone</span>().<span class="ident">into_commit</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>()
+<span class="doccomment">/// Aborts iteration when a commit cannot be found
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;commit</span>&gt; DoubleEndedIterator <span class="kw">for </span>ParentIds&lt;<span class="lifetime">&#39;commit</span>&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Oid&gt; {
+        <span class="self">self</span>.range
+            .next_back()
+            .and_then(|i| <span class="self">self</span>.commit.parent_id(i).ok())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Commit</span><span class="op">&lt;</span><span class="lifetime">&#39;repo</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">unsafe</span> { <span class="ident">raw::git_commit_free</span>(<span class="self">self</span>.<span class="ident">raw</span>) }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;commit</span>&gt; ExactSizeIterator <span class="kw">for </span>ParentIds&lt;<span class="lifetime">&#39;commit</span>&gt; {}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Clone <span class="kw">for </span>Commit&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.as_object().clone().into_commit().ok().unwrap()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">smoke</span>() {
-        <span class="kw">let</span> (<span class="ident">_td</span>, <span class="ident">repo</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::test::repo_init</span>();
-        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">head</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">head</span>.<span class="ident">target</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">commit</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_commit</span>(<span class="ident">target</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">commit</span>.<span class="ident">message</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;initial\n\nbody&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">commit</span>.<span class="ident">body</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;body&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">commit</span>.<span class="ident">id</span>(), <span class="ident">target</span>);
-        <span class="ident">commit</span>.<span class="ident">message_raw</span>().<span class="ident">unwrap</span>();
-        <span class="ident">commit</span>.<span class="ident">raw_header</span>().<span class="ident">unwrap</span>();
-        <span class="ident">commit</span>.<span class="ident">message_encoding</span>();
-        <span class="ident">commit</span>.<span class="ident">summary</span>().<span class="ident">unwrap</span>();
-        <span class="ident">commit</span>.<span class="ident">body</span>().<span class="ident">unwrap</span>();
-        <span class="ident">commit</span>.<span class="ident">tree_id</span>();
-        <span class="ident">commit</span>.<span class="ident">tree</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">commit</span>.<span class="ident">parents</span>().<span class="ident">count</span>(), <span class="number">0</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;repo</span>&gt; Drop <span class="kw">for </span>Commit&lt;<span class="lifetime">&#39;repo</span>&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">unsafe </span>{ raw::git_commit_free(<span class="self">self</span>.raw) }
+    }
+}
 
-        <span class="kw">let</span> <span class="ident">tree_header_bytes</span> <span class="op">=</span> <span class="ident">commit</span>.<span class="ident">header_field_bytes</span>(<span class="string">&quot;tree&quot;</span>).<span class="ident">unwrap</span>();
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>smoke() {
+        <span class="kw">let </span>(_td, repo) = <span class="kw">crate</span>::test::repo_init();
+        <span class="kw">let </span>head = repo.head().unwrap();
+        <span class="kw">let </span>target = head.target().unwrap();
+        <span class="kw">let </span>commit = repo.find_commit(target).unwrap();
+        <span class="macro">assert_eq!</span>(commit.message(), <span class="prelude-val">Some</span>(<span class="string">&quot;initial\n\nbody&quot;</span>));
+        <span class="macro">assert_eq!</span>(commit.body(), <span class="prelude-val">Some</span>(<span class="string">&quot;body&quot;</span>));
+        <span class="macro">assert_eq!</span>(commit.id(), target);
+        commit.message_raw().unwrap();
+        commit.raw_header().unwrap();
+        commit.message_encoding();
+        commit.summary().unwrap();
+        commit.body().unwrap();
+        commit.tree_id();
+        commit.tree().unwrap();
+        <span class="macro">assert_eq!</span>(commit.parents().count(), <span class="number">0</span>);
+
+        <span class="kw">let </span>tree_header_bytes = commit.header_field_bytes(<span class="string">&quot;tree&quot;</span>).unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident"><span class="kw">crate</span>::Oid::from_str</span>(<span class="ident">tree_header_bytes</span>.<span class="ident">as_str</span>().<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>(),
-            <span class="ident">commit</span>.<span class="ident">tree_id</span>()
+            <span class="kw">crate</span>::Oid::from_str(tree_header_bytes.as_str().unwrap()).unwrap(),
+            commit.tree_id()
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">commit</span>.<span class="ident">author</span>().<span class="ident">name</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;name&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">commit</span>.<span class="ident">author</span>().<span class="ident">email</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;email&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">commit</span>.<span class="ident">committer</span>().<span class="ident">name</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;name&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">commit</span>.<span class="ident">committer</span>().<span class="ident">email</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;email&quot;</span>));
+        <span class="macro">assert_eq!</span>(commit.author().name(), <span class="prelude-val">Some</span>(<span class="string">&quot;name&quot;</span>));
+        <span class="macro">assert_eq!</span>(commit.author().email(), <span class="prelude-val">Some</span>(<span class="string">&quot;email&quot;</span>));
+        <span class="macro">assert_eq!</span>(commit.committer().name(), <span class="prelude-val">Some</span>(<span class="string">&quot;name&quot;</span>));
+        <span class="macro">assert_eq!</span>(commit.committer().email(), <span class="prelude-val">Some</span>(<span class="string">&quot;email&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">signature</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_tree</span>(<span class="ident">commit</span>.<span class="ident">tree_id</span>()).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">repo</span>
-            .<span class="ident">commit</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">sig</span>, <span class="kw-2">&amp;</span><span class="ident">sig</span>, <span class="string">&quot;bar&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">tree</span>, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">commit</span>])
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_commit</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>sig = repo.signature().unwrap();
+        <span class="kw">let </span>tree = repo.find_tree(commit.tree_id()).unwrap();
+        <span class="kw">let </span>id = repo
+            .commit(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="kw-2">&amp;</span>sig, <span class="kw-2">&amp;</span>sig, <span class="string">&quot;bar&quot;</span>, <span class="kw-2">&amp;</span>tree, <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>commit])
+            .unwrap();
+        <span class="kw">let </span>head = repo.find_commit(id).unwrap();
 
-        <span class="kw">let</span> <span class="ident">new_head</span> <span class="op">=</span> <span class="ident">head</span>
-            .<span class="ident">amend</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;new message&quot;</span>), <span class="prelude-val">None</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">new_head</span> <span class="op">=</span> <span class="ident">repo</span>.<span class="ident">find_commit</span>(<span class="ident">new_head</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">new_head</span>.<span class="ident">message</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;new message&quot;</span>));
-        <span class="ident">new_head</span>.<span class="ident">into_object</span>();
+        <span class="kw">let </span>new_head = head
+            .amend(<span class="prelude-val">Some</span>(<span class="string">&quot;HEAD&quot;</span>), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;new message&quot;</span>), <span class="prelude-val">None</span>)
+            .unwrap();
+        <span class="kw">let </span>new_head = repo.find_commit(new_head).unwrap();
+        <span class="macro">assert_eq!</span>(new_head.message(), <span class="prelude-val">Some</span>(<span class="string">&quot;new message&quot;</span>));
+        new_head.into_object();
 
-        <span class="ident">repo</span>.<span class="ident">find_object</span>(<span class="ident">target</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>().<span class="ident">as_commit</span>().<span class="ident">unwrap</span>();
-        <span class="ident">repo</span>.<span class="ident">find_object</span>(<span class="ident">target</span>, <span class="prelude-val">None</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">into_commit</span>()
-            .<span class="ident">ok</span>()
-            .<span class="ident">unwrap</span>();
+        repo.find_object(target, <span class="prelude-val">None</span>).unwrap().as_commit().unwrap();
+        repo.find_object(target, <span class="prelude-val">None</span>)
+            .unwrap()
+            .into_commit()
+            .ok()
+            .unwrap();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="git2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

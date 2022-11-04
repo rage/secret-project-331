@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/waker_queue.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>waker_queue.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-server-2.1.1/src/waker_queue.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>waker_queue.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_server/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_server/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -84,89 +84,89 @@
 <span id="82">82</span>
 <span id="83">83</span>
 <span id="84">84</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">collections::VecDeque</span>,
-    <span class="ident">ops::Deref</span>,
-    <span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>, <span class="ident">MutexGuard</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    collections::VecDeque,
+    ops::Deref,
+    sync::{Arc, Mutex, MutexGuard},
 };
 
-<span class="kw">use</span> <span class="ident">mio</span>::{<span class="ident">Registry</span>, <span class="ident">Token</span> <span class="kw">as</span> <span class="ident">MioToken</span>, <span class="ident">Waker</span>};
+<span class="kw">use </span>mio::{Registry, Token <span class="kw">as </span>MioToken, Waker};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::worker::WorkerHandleAccept</span>;
+<span class="kw">use </span><span class="kw">crate</span>::worker::WorkerHandleAccept;
 
-<span class="doccomment">/// Waker token for `mio::Poll` instance.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">WAKER_TOKEN</span>: <span class="ident">MioToken</span> <span class="op">=</span> <span class="ident">MioToken</span>(<span class="ident">usize::MAX</span>);
+<span class="doccomment">/// Waker token for `mio::Poll` instance.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>WAKER_TOKEN: MioToken = MioToken(usize::MAX);
 
-<span class="doccomment">/// `mio::Waker` with a queue for waking up the `Accept`&#39;s `Poll` and contains the `WakerInterest`</span>
-<span class="doccomment">/// the `Poll` would want to look into.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">WakerQueue</span>(<span class="ident">Arc</span><span class="op">&lt;</span>(<span class="ident">Waker</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">WakerInterest</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span>);
+<span class="doccomment">/// `mio::Waker` with a queue for waking up the `Accept`&#39;s `Poll` and contains the `WakerInterest`
+/// the `Poll` would want to look into.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>WakerQueue(Arc&lt;(Waker, Mutex&lt;VecDeque&lt;WakerInterest&gt;&gt;)&gt;);
 
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">WakerQueue</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>())
+<span class="kw">impl </span>Clone <span class="kw">for </span>WakerQueue {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(<span class="self">self</span>.<span class="number">0</span>.clone())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">WakerQueue</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> (<span class="ident">Waker</span>, <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">WakerInterest</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+<span class="kw">impl </span>Deref <span class="kw">for </span>WakerQueue {
+    <span class="kw">type </span>Target = (Waker, Mutex&lt;VecDeque&lt;WakerInterest&gt;&gt;);
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">deref</span>()
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.<span class="number">0</span>.deref()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">WakerQueue</span> {
-    <span class="doccomment">/// Construct a waker queue with given `Poll`&#39;s `Registry` and capacity.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A fixed `WAKER_TOKEN` is used to identify the wake interest and the `Poll` needs to match</span>
-    <span class="doccomment">/// event&#39;s token for it to properly handle `WakerInterest`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="ident">Registry</span>) -&gt; <span class="ident">std::io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> <span class="ident">Waker::new</span>(<span class="ident">registry</span>, <span class="ident">WAKER_TOKEN</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">queue</span> <span class="op">=</span> <span class="ident">Mutex::new</span>(<span class="ident">VecDeque::with_capacity</span>(<span class="number">16</span>));
+<span class="kw">impl </span>WakerQueue {
+    <span class="doccomment">/// Construct a waker queue with given `Poll`&#39;s `Registry` and capacity.
+    ///
+    /// A fixed `WAKER_TOKEN` is used to identify the wake interest and the `Poll` needs to match
+    /// event&#39;s token for it to properly handle `WakerInterest`.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(registry: <span class="kw-2">&amp;</span>Registry) -&gt; std::io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>waker = Waker::new(registry, WAKER_TOKEN)<span class="question-mark">?</span>;
+        <span class="kw">let </span>queue = Mutex::new(VecDeque::with_capacity(<span class="number">16</span>));
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">Arc::new</span>((<span class="ident">waker</span>, <span class="ident">queue</span>))))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(Arc::new((waker, queue))))
     }
 
-    <span class="doccomment">/// Push a new interest to the queue and wake up the accept poll afterwards.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">wake</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">interest</span>: <span class="ident">WakerInterest</span>) {
-        <span class="kw">let</span> (<span class="ident">waker</span>, <span class="ident">queue</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">deref</span>();
+    <span class="doccomment">/// Push a new interest to the queue and wake up the accept poll afterwards.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>wake(<span class="kw-2">&amp;</span><span class="self">self</span>, interest: WakerInterest) {
+        <span class="kw">let </span>(waker, queue) = <span class="self">self</span>.deref();
 
-        <span class="ident">queue</span>
-            .<span class="ident">lock</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;Failed to lock WakerQueue&quot;</span>)
-            .<span class="ident">push_back</span>(<span class="ident">interest</span>);
+        queue
+            .lock()
+            .expect(<span class="string">&quot;Failed to lock WakerQueue&quot;</span>)
+            .push_back(interest);
 
-        <span class="ident">waker</span>
-            .<span class="ident">wake</span>()
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;can not wake up Accept Poll: {}&quot;</span>, <span class="ident">e</span>));
+        waker
+            .wake()
+            .unwrap_or_else(|e| <span class="macro">panic!</span>(<span class="string">&quot;can not wake up Accept Poll: {}&quot;</span>, e));
     }
 
-    <span class="doccomment">/// Get a MutexGuard of the waker queue.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">guard</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">MutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">WakerInterest</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">deref</span>().<span class="number">1</span>.<span class="ident">lock</span>().<span class="ident">expect</span>(<span class="string">&quot;Failed to lock WakerQueue&quot;</span>)
+    <span class="doccomment">/// Get a MutexGuard of the waker queue.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>guard(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MutexGuard&lt;<span class="lifetime">&#39;_</span>, VecDeque&lt;WakerInterest&gt;&gt; {
+        <span class="self">self</span>.deref().<span class="number">1</span>.lock().expect(<span class="string">&quot;Failed to lock WakerQueue&quot;</span>)
     }
 
-    <span class="doccomment">/// Reset the waker queue so it does not grow infinitely.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">reset</span>(<span class="ident">queue</span>: <span class="kw-2">&amp;mut</span> <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">WakerInterest</span><span class="op">&gt;</span>) {
-        <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="ident">VecDeque</span>::<span class="op">&lt;</span><span class="ident">WakerInterest</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="number">16</span>), <span class="ident">queue</span>);
+    <span class="doccomment">/// Reset the waker queue so it does not grow infinitely.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reset(queue: <span class="kw-2">&amp;mut </span>VecDeque&lt;WakerInterest&gt;) {
+        std::mem::swap(<span class="kw-2">&amp;mut </span>VecDeque::&lt;WakerInterest&gt;::with_capacity(<span class="number">16</span>), queue);
     }
 }
 
-<span class="doccomment">/// Types of interests we would look into when `Accept`&#39;s `Poll` is waked up by waker.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// These interests should not be confused with `mio::Interest` and mostly not I/O related</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">WakerInterest</span> {
-    <span class="doccomment">/// `WorkerAvailable` is an interest from `Worker` notifying `Accept` there is a worker</span>
-    <span class="doccomment">/// available and can accept new tasks.</span>
-    <span class="ident">WorkerAvailable</span>(<span class="ident">usize</span>),
-    <span class="doccomment">/// `Pause`, `Resume`, `Stop` Interest are from `ServerBuilder` future. It listens to</span>
-    <span class="doccomment">/// `ServerCommand` and notify `Accept` to do exactly these tasks.</span>
-    <span class="ident">Pause</span>,
-    <span class="ident">Resume</span>,
-    <span class="ident">Stop</span>,
-    <span class="doccomment">/// `Worker` is an interest that is triggered after a worker faults. This is determined by</span>
-    <span class="doccomment">/// trying to send work to it. `Accept` would be waked up and add the new `WorkerHandleAccept`.</span>
-    <span class="ident">Worker</span>(<span class="ident">WorkerHandleAccept</span>),
+<span class="doccomment">/// Types of interests we would look into when `Accept`&#39;s `Poll` is waked up by waker.
+///
+/// These interests should not be confused with `mio::Interest` and mostly not I/O related
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>WakerInterest {
+    <span class="doccomment">/// `WorkerAvailable` is an interest from `Worker` notifying `Accept` there is a worker
+    /// available and can accept new tasks.
+    </span>WorkerAvailable(usize),
+    <span class="doccomment">/// `Pause`, `Resume`, `Stop` Interest are from `ServerBuilder` future. It listens to
+    /// `ServerCommand` and notify `Accept` to do exactly these tasks.
+    </span>Pause,
+    Resume,
+    Stop,
+    <span class="doccomment">/// `Worker` is an interest that is triggered after a worker faults. This is determined by
+    /// trying to send work to it. `Accept` would be waked up and add the new `WorkerHandleAccept`.
+    </span>Worker(WorkerHandleAccept),
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

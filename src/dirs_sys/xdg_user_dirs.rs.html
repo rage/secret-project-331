@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dirs-sys-0.3.7/src/xdg_user_dirs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>xdg_user_dirs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dirs_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dirs_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dirs_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dirs-sys-0.3.7/src/xdg_user_dirs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>xdg_user_dirs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dirs_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dirs_sys/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dirs_sys/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -250,226 +250,226 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
-<span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
-<span class="kw">use</span> <span class="ident">std::fs</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">Read</span>};
-<span class="kw">use</span> <span class="ident">std::os::unix::ffi::OsStringExt</span>;
-<span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
-<span class="kw">use</span> <span class="ident">std::str</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::ffi::OsString;
+<span class="kw">use </span>std::fs;
+<span class="kw">use </span>std::io::{<span class="self">self</span>, Read};
+<span class="kw">use </span>std::os::unix::ffi::OsStringExt;
+<span class="kw">use </span>std::path::{Path, PathBuf};
+<span class="kw">use </span>std::str;
 
-<span class="doccomment">/// Returns all XDG user directories obtained from $(XDG_CONFIG_HOME)/user-dirs.dirs.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>(<span class="ident">home_dir_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">user_dir_file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">read_all</span>(<span class="ident">user_dir_file_path</span>).<span class="ident">unwrap_or</span>(<span class="ident">Vec::new</span>());
-    <span class="ident">parse_user_dirs</span>(<span class="ident">home_dir_path</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">bytes</span>)
+<span class="doccomment">/// Returns all XDG user directories obtained from $(XDG_CONFIG_HOME)/user-dirs.dirs.
+</span><span class="kw">pub fn </span>all(home_dir_path: <span class="kw-2">&amp;</span>Path, user_dir_file_path: <span class="kw-2">&amp;</span>Path) -&gt; HashMap&lt;String, PathBuf&gt; {
+    <span class="kw">let </span>bytes = read_all(user_dir_file_path).unwrap_or(Vec::new());
+    parse_user_dirs(home_dir_path, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>bytes)
 }
 
-<span class="doccomment">/// Returns a single XDG user directory obtained from $(XDG_CONFIG_HOME)/user-dirs.dirs.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">single</span>(<span class="ident">home_dir_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">user_dir_file_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">user_dir_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">read_all</span>(<span class="ident">user_dir_file_path</span>).<span class="ident">unwrap_or</span>(<span class="ident">Vec::new</span>());
-    <span class="ident">parse_user_dirs</span>(<span class="ident">home_dir_path</span>, <span class="prelude-val">Some</span>(<span class="ident">user_dir_name</span>), <span class="kw-2">&amp;</span><span class="ident">bytes</span>)
+<span class="doccomment">/// Returns a single XDG user directory obtained from $(XDG_CONFIG_HOME)/user-dirs.dirs.
+</span><span class="kw">pub fn </span>single(home_dir_path: <span class="kw-2">&amp;</span>Path, user_dir_file_path: <span class="kw-2">&amp;</span>Path, user_dir_name: <span class="kw-2">&amp;</span>str) -&gt; HashMap&lt;String, PathBuf&gt; {
+    <span class="kw">let </span>bytes = read_all(user_dir_file_path).unwrap_or(Vec::new());
+    parse_user_dirs(home_dir_path, <span class="prelude-val">Some</span>(user_dir_name), <span class="kw-2">&amp;</span>bytes)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_user_dirs</span>(<span class="ident">home_dir</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">user_dir</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_dirs</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+<span class="kw">fn </span>parse_user_dirs(home_dir: <span class="kw-2">&amp;</span>Path, user_dir: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; HashMap&lt;String, PathBuf&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>user_dirs = HashMap::new();
 
-    <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">bytes</span>.<span class="ident">split</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;\n&#39;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_dir_found</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> (<span class="ident">key</span>, <span class="ident">value</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">split_once</span>(<span class="ident">line</span>, <span class="string">b&#39;=&#39;</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">kv</span>) =&gt; <span class="ident">kv</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="kw">continue</span>,
+    <span class="kw">for </span>line <span class="kw">in </span>bytes.split(|b| <span class="kw-2">*</span>b == <span class="string">b&#39;\n&#39;</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>single_dir_found = <span class="bool-val">false</span>;
+        <span class="kw">let </span>(key, value) = <span class="kw">match </span>split_once(line, <span class="string">b&#39;=&#39;</span>) {
+            <span class="prelude-val">Some</span>(kv) =&gt; kv,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">continue</span>,
         };
 
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">trim_blank</span>(<span class="ident">key</span>);
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">key</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;XDG_&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">key</span>.<span class="ident">ends_with</span>(<span class="string">b&quot;_DIR&quot;</span>) {
-            <span class="kw">match</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>[<span class="number">4</span>..<span class="ident">key</span>.<span class="ident">len</span>()<span class="op">-</span><span class="number">4</span>]) {
-                <span class="prelude-val">Ok</span>(<span class="ident">key</span>) =&gt;
-                    <span class="kw">if</span> <span class="ident">user_dir</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">option_contains</span>(<span class="ident">user_dir</span>, <span class="ident">key</span>) {
-                        <span class="ident">single_dir_found</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="ident">key</span>
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">user_dir</span>.<span class="ident">is_none</span>() {
-                        <span class="ident">key</span>
-                    } <span class="kw">else</span> {
-                        <span class="kw">continue</span>
-                    },
+        <span class="kw">let </span>key = trim_blank(key);
+        <span class="kw">let </span>key = <span class="kw">if </span>key.starts_with(<span class="string">b&quot;XDG_&quot;</span>) &amp;&amp; key.ends_with(<span class="string">b&quot;_DIR&quot;</span>) {
+            <span class="kw">match </span>str::from_utf8(<span class="kw-2">&amp;</span>key[<span class="number">4</span>..key.len()-<span class="number">4</span>]) {
+                <span class="prelude-val">Ok</span>(key) =&gt;
+                    <span class="kw">if </span>user_dir.is_some() &amp;&amp; option_contains(user_dir, key) {
+                        single_dir_found = <span class="bool-val">true</span>;
+                        key
+                    } <span class="kw">else if </span>user_dir.is_none() {
+                        key
+                    } <span class="kw">else </span>{
+                        <span class="kw">continue
+                    </span>},
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>)  =&gt; <span class="kw">continue</span>,
             }
-        } <span class="kw">else</span> {
-            <span class="kw">continue</span>
+        } <span class="kw">else </span>{
+            <span class="kw">continue
+        </span>};
+
+        <span class="comment">// xdg-user-dirs-update uses double quotes and we don&#39;t support anything else.
+        </span><span class="kw">let </span>value = trim_blank(value);
+        <span class="kw">let </span><span class="kw-2">mut </span>value = <span class="kw">if </span>value.starts_with(<span class="string">b&quot;\&quot;&quot;</span>) &amp;&amp; value.ends_with(<span class="string">b&quot;\&quot;&quot;</span>) {
+            <span class="kw-2">&amp;</span>value[<span class="number">1</span>..value.len()-<span class="number">1</span>]
+        } <span class="kw">else </span>{
+            <span class="kw">continue
+        </span>};
+
+        <span class="comment">// Path should be either relative to the home directory or absolute.
+        </span><span class="kw">let </span>is_relative = <span class="kw">if </span>value == <span class="string">b&quot;$HOME/&quot; </span>{
+            <span class="comment">// &quot;Note: To disable a directory, point it to the homedir.&quot;
+            // Source: https://www.freedesktop.org/wiki/Software/xdg-user-dirs/
+            // Additionally directory is reassigned to homedir when removed.
+            </span><span class="kw">continue
+        </span>} <span class="kw">else if </span>value.starts_with(<span class="string">b&quot;$HOME/&quot;</span>) {
+            value = <span class="kw-2">&amp;</span>value[<span class="string">b&quot;$HOME/&quot;</span>.len()..];
+            <span class="bool-val">true
+        </span>} <span class="kw">else if </span>value.starts_with(<span class="string">b&quot;/&quot;</span>) {
+            <span class="bool-val">false
+        </span>} <span class="kw">else </span>{
+            <span class="kw">continue
+        </span>};
+
+        <span class="kw">let </span>value = OsString::from_vec(shell_unescape(value));
+
+        <span class="kw">let </span>path = <span class="kw">if </span>is_relative {
+            <span class="kw">let </span><span class="kw-2">mut </span>path = PathBuf::from(<span class="kw-2">&amp;</span>home_dir);
+            path.push(value);
+            path
+        } <span class="kw">else </span>{
+            PathBuf::from(value)
         };
 
-        <span class="comment">// xdg-user-dirs-update uses double quotes and we don&#39;t support anything else.</span>
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">trim_blank</span>(<span class="ident">value</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\&quot;&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">value</span>.<span class="ident">ends_with</span>(<span class="string">b&quot;\&quot;&quot;</span>) {
-            <span class="kw-2">&amp;</span><span class="ident">value</span>[<span class="number">1</span>..<span class="ident">value</span>.<span class="ident">len</span>()<span class="op">-</span><span class="number">1</span>]
-        } <span class="kw">else</span> {
-            <span class="kw">continue</span>
-        };
-
-        <span class="comment">// Path should be either relative to the home directory or absolute.</span>
-        <span class="kw">let</span> <span class="ident">is_relative</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">value</span> <span class="op">==</span> <span class="string">b&quot;$HOME/&quot;</span> {
-            <span class="comment">// &quot;Note: To disable a directory, point it to the homedir.&quot;</span>
-            <span class="comment">// Source: https://www.freedesktop.org/wiki/Software/xdg-user-dirs/</span>
-            <span class="comment">// Additionally directory is reassigned to homedir when removed.</span>
-            <span class="kw">continue</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;$HOME/&quot;</span>) {
-            <span class="ident">value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">value</span>[<span class="string">b&quot;$HOME/&quot;</span>.<span class="ident">len</span>()..];
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;/&quot;</span>) {
-            <span class="bool-val">false</span>
-        } <span class="kw">else</span> {
-            <span class="kw">continue</span>
-        };
-
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">OsString::from_vec</span>(<span class="ident">shell_unescape</span>(<span class="ident">value</span>));
-
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_relative</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="kw-2">&amp;</span><span class="ident">home_dir</span>);
-            <span class="ident">path</span>.<span class="ident">push</span>(<span class="ident">value</span>);
-            <span class="ident">path</span>
-        } <span class="kw">else</span> {
-            <span class="ident">PathBuf::from</span>(<span class="ident">value</span>)
-        };
-
-        <span class="ident">user_dirs</span>.<span class="ident">insert</span>(<span class="ident">key</span>.<span class="ident">to_owned</span>(), <span class="ident">path</span>);
-        <span class="kw">if</span> <span class="ident">single_dir_found</span> {
+        user_dirs.insert(key.to_owned(), path);
+        <span class="kw">if </span>single_dir_found {
             <span class="kw">break</span>;
         }
     }
 
-    <span class="ident">user_dirs</span>
+    user_dirs
 }
 
-<span class="doccomment">/// Reads the entire contents of a file into a byte vector.</span>
-<span class="kw">fn</span> <span class="ident">read_all</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">fs::File::open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">1024</span>);
-    <span class="ident">file</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)
+<span class="doccomment">/// Reads the entire contents of a file into a byte vector.
+</span><span class="kw">fn </span>read_all(path: <span class="kw-2">&amp;</span>Path) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>file = fs::File::open(path)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>bytes = Vec::with_capacity(<span class="number">1024</span>);
+    file.read_to_end(<span class="kw-2">&amp;mut </span>bytes)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(bytes)
 }
 
-<span class="doccomment">/// Returns bytes before and after first occurrence of separator.</span>
-<span class="kw">fn</span> <span class="ident">split_once</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">separator</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>])<span class="op">&gt;</span> {
-    <span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">==</span> <span class="ident">separator</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-        (<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..<span class="ident">i</span>], <span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">i</span><span class="op">+</span><span class="number">1</span>..])
+<span class="doccomment">/// Returns bytes before and after first occurrence of separator.
+</span><span class="kw">fn </span>split_once(bytes: <span class="kw-2">&amp;</span>[u8], separator: u8) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>[u8], <span class="kw-2">&amp;</span>[u8])&gt; {
+    bytes.iter().position(|b| <span class="kw-2">*</span>b == separator).map(|i| {
+        (<span class="kw-2">&amp;</span>bytes[..i], <span class="kw-2">&amp;</span>bytes[i+<span class="number">1</span>..])
     })
 }
 
-<span class="doccomment">/// Returns a slice with leading and trailing &lt;blank&gt; characters removed.</span>
-<span class="kw">fn</span> <span class="ident">trim_blank</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-    <span class="comment">// Trim leading &lt;blank&gt; characters.</span>
-    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">take_while</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;\t&#39;</span>).<span class="ident">count</span>();
-    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">i</span>..];
+<span class="doccomment">/// Returns a slice with leading and trailing &lt;blank&gt; characters removed.
+</span><span class="kw">fn </span>trim_blank(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;</span>[u8] {
+    <span class="comment">// Trim leading &lt;blank&gt; characters.
+    </span><span class="kw">let </span>i = bytes.iter().cloned().take_while(|b| <span class="kw-2">*</span>b == <span class="string">b&#39; &#39; </span>|| <span class="kw-2">*</span>b == <span class="string">b&#39;\t&#39;</span>).count();
+    <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>bytes[i..];
 
-    <span class="comment">// Trim trailing &lt;blank&gt; characters.</span>
-    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">rev</span>().<span class="ident">take_while</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;\t&#39;</span>).<span class="ident">count</span>();
-    <span class="kw-2">&amp;</span><span class="ident">bytes</span>[..<span class="ident">bytes</span>.<span class="ident">len</span>()<span class="op">-</span><span class="ident">i</span>]
+    <span class="comment">// Trim trailing &lt;blank&gt; characters.
+    </span><span class="kw">let </span>i = bytes.iter().cloned().rev().take_while(|b| <span class="kw-2">*</span>b == <span class="string">b&#39; &#39; </span>|| <span class="kw-2">*</span>b == <span class="string">b&#39;\t&#39;</span>).count();
+    <span class="kw-2">&amp;</span>bytes[..bytes.len()-i]
 }
 
-<span class="doccomment">/// Unescape bytes escaped with POSIX shell double-quotes rules (as used by xdg-user-dirs-update).</span>
-<span class="kw">fn</span> <span class="ident">shell_unescape</span>(<span class="ident">escaped</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="comment">// We assume that byte string was created by xdg-user-dirs-update which</span>
-    <span class="comment">// escapes all characters that might potentially have special meaning,</span>
-    <span class="comment">// so there is no need to check if backslash is actually followed by</span>
-    <span class="comment">// $ ` &quot; \ or a &lt;newline&gt;.</span>
+<span class="doccomment">/// Unescape bytes escaped with POSIX shell double-quotes rules (as used by xdg-user-dirs-update).
+</span><span class="kw">fn </span>shell_unescape(escaped: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt; {
+    <span class="comment">// We assume that byte string was created by xdg-user-dirs-update which
+    // escapes all characters that might potentially have special meaning,
+    // so there is no need to check if backslash is actually followed by
+    // $ ` &quot; \ or a &lt;newline&gt;.
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unescaped</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">escaped</span>.<span class="ident">len</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">escaped</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>();
+    </span><span class="kw">let </span><span class="kw-2">mut </span>unescaped: Vec&lt;u8&gt; = Vec::with_capacity(escaped.len());
+    <span class="kw">let </span><span class="kw-2">mut </span>i = escaped.iter().cloned();
 
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">i</span>.<span class="ident">next</span>() {
-        <span class="kw">if</span> <span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;\\&#39;</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">i</span>.<span class="ident">next</span>() {
-                <span class="ident">unescaped</span>.<span class="ident">push</span>(<span class="ident">b</span>);
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(b) = i.next() {
+        <span class="kw">if </span>b == <span class="string">b&#39;\\&#39; </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(b) = i.next() {
+                unescaped.push(b);
             }
-        } <span class="kw">else</span> {
-            <span class="ident">unescaped</span>.<span class="ident">push</span>(<span class="ident">b</span>);
+        } <span class="kw">else </span>{
+            unescaped.push(b);
         }
     }
 
-    <span class="ident">unescaped</span>
+    unescaped
 }
 
-<span class="kw">fn</span> <span class="ident">option_contains</span><span class="op">&lt;</span><span class="ident">T</span> : <span class="ident">PartialEq</span><span class="op">&gt;</span>(<span class="ident">option</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">match</span> <span class="ident">option</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span> <span class="op">==</span> <span class="ident">value</span>,
-        <span class="prelude-val">None</span> =&gt; <span class="bool-val">false</span>
-    }
+<span class="kw">fn </span>option_contains&lt;T : PartialEq&gt;(option: <span class="prelude-ty">Option</span>&lt;T&gt;, value: T) -&gt; bool {
+    <span class="kw">match </span>option {
+        <span class="prelude-val">Some</span>(val) =&gt; val == value,
+        <span class="prelude-val">None </span>=&gt; <span class="bool-val">false
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
-    <span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">trim_blank</span>, <span class="ident">shell_unescape</span>, <span class="ident">split_once</span>, <span class="ident">parse_user_dirs</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::collections::HashMap;
+    <span class="kw">use </span>std::path::{Path, PathBuf};
+    <span class="kw">use super</span>::{trim_blank, shell_unescape, split_once, parse_user_dirs};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_trim_blank</span>() {
-        <span class="macro">assert_eq!</span>(<span class="string">b&quot;x&quot;</span>, <span class="ident">trim_blank</span>(<span class="string">b&quot;x&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">b&quot;&quot;</span>, <span class="ident">trim_blank</span>(<span class="string">b&quot; \t  &quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">b&quot;hello there&quot;</span>, <span class="ident">trim_blank</span>(<span class="string">b&quot; \t hello there \t &quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="string">b&quot;\r\n&quot;</span>, <span class="ident">trim_blank</span>(<span class="string">b&quot;\r\n&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_trim_blank() {
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;x&quot;</span>, trim_blank(<span class="string">b&quot;x&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;&quot;</span>, trim_blank(<span class="string">b&quot; \t  &quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;hello there&quot;</span>, trim_blank(<span class="string">b&quot; \t hello there \t &quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;\r\n&quot;</span>, trim_blank(<span class="string">b&quot;\r\n&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_split_once</span>() {
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">split_once</span>(<span class="string">b&quot;a b c&quot;</span>, <span class="string">b&#39;=&#39;</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="string">b&quot;before&quot;</span>.<span class="ident">as_ref</span>(), <span class="string">b&quot;after&quot;</span>.<span class="ident">as_ref</span>())), <span class="ident">split_once</span>(<span class="string">b&quot;before=after&quot;</span>, <span class="string">b&#39;=&#39;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_split_once() {
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, split_once(<span class="string">b&quot;a b c&quot;</span>, <span class="string">b&#39;=&#39;</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="string">b&quot;before&quot;</span>.as_ref(), <span class="string">b&quot;after&quot;</span>.as_ref())), split_once(<span class="string">b&quot;before=after&quot;</span>, <span class="string">b&#39;=&#39;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_shell_unescape</span>() {
-        <span class="macro">assert_eq!</span>(<span class="string">b&quot;abc&quot;</span>, <span class="ident">shell_unescape</span>(<span class="string">b&quot;abc&quot;</span>).<span class="ident">as_slice</span>());
-        <span class="macro">assert_eq!</span>(<span class="string">b&quot;x\\y$z`&quot;</span>, <span class="ident">shell_unescape</span>(<span class="string">b&quot;x\\\\y\\$z\\`&quot;</span>).<span class="ident">as_slice</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_shell_unescape() {
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;abc&quot;</span>, shell_unescape(<span class="string">b&quot;abc&quot;</span>).as_slice());
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;x\\y$z`&quot;</span>, shell_unescape(<span class="string">b&quot;x\\\\y\\$z\\`&quot;</span>).as_slice());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_empty</span>() {
-        <span class="macro">assert_eq!</span>(<span class="ident">HashMap::new</span>(), <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/root/&quot;</span>), <span class="prelude-val">None</span>, <span class="string">b&quot;&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">HashMap::new</span>(), <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/root/&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), <span class="string">b&quot;&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_empty() {
+        <span class="macro">assert_eq!</span>(HashMap::new(), parse_user_dirs(Path::new(<span class="string">&quot;/root/&quot;</span>), <span class="prelude-val">None</span>, <span class="string">b&quot;&quot;</span>));
+        <span class="macro">assert_eq!</span>(HashMap::new(), parse_user_dirs(Path::new(<span class="string">&quot;/root/&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), <span class="string">b&quot;&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_absolute_path_is_accepted</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dirs</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="ident">dirs</span>.<span class="ident">insert</span>(<span class="string">&quot;MUSIC&quot;</span>.<span class="ident">to_owned</span>(), <span class="ident">PathBuf::from</span>(<span class="string">&quot;/media/music&quot;</span>));
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="string">br#&quot;XDG_MUSIC_DIR=&quot;/media/music&quot;&quot;#</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">None</span>, <span class="ident">bytes</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), <span class="ident">bytes</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_absolute_path_is_accepted() {
+        <span class="kw">let </span><span class="kw-2">mut </span>dirs = HashMap::new();
+        dirs.insert(<span class="string">&quot;MUSIC&quot;</span>.to_owned(), PathBuf::from(<span class="string">&quot;/media/music&quot;</span>));
+        <span class="kw">let </span>bytes = <span class="string">br#&quot;XDG_MUSIC_DIR=&quot;/media/music&quot;&quot;#</span>;
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">None</span>, bytes));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), bytes));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_relative_path_is_rejected</span>() {
-        <span class="kw">let</span> <span class="ident">dirs</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="string">br#&quot;XDG_MUSIC_DIR=&quot;music&quot;&quot;#</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">None</span>, <span class="ident">bytes</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), <span class="ident">bytes</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_relative_path_is_rejected() {
+        <span class="kw">let </span>dirs = HashMap::new();
+        <span class="kw">let </span>bytes = <span class="string">br#&quot;XDG_MUSIC_DIR=&quot;music&quot;&quot;#</span>;
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">None</span>, bytes));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), bytes));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_relative_to_home</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dirs</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="ident">dirs</span>.<span class="ident">insert</span>(<span class="string">&quot;MUSIC&quot;</span>.<span class="ident">to_owned</span>(), <span class="ident">PathBuf::from</span>(<span class="string">&quot;/home/john/Music&quot;</span>));
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="string">br#&quot;XDG_MUSIC_DIR=&quot;$HOME/Music&quot;&quot;#</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">None</span>, <span class="ident">bytes</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), <span class="ident">bytes</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_relative_to_home() {
+        <span class="kw">let </span><span class="kw-2">mut </span>dirs = HashMap::new();
+        dirs.insert(<span class="string">&quot;MUSIC&quot;</span>.to_owned(), PathBuf::from(<span class="string">&quot;/home/john/Music&quot;</span>));
+        <span class="kw">let </span>bytes = <span class="string">br#&quot;XDG_MUSIC_DIR=&quot;$HOME/Music&quot;&quot;#</span>;
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">None</span>, bytes));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), bytes));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_disabled_directory</span>() {
-        <span class="kw">let</span> <span class="ident">dirs</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="string">br#&quot;XDG_MUSIC_DIR=&quot;$HOME/&quot;&quot;#</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">None</span>, <span class="ident">bytes</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), <span class="ident">bytes</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_disabled_directory() {
+        <span class="kw">let </span>dirs = HashMap::new();
+        <span class="kw">let </span>bytes = <span class="string">br#&quot;XDG_MUSIC_DIR=&quot;$HOME/&quot;&quot;#</span>;
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">None</span>, bytes));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/john&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;MUSIC&quot;</span>), bytes));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_user_dirs</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dirs</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">PathBuf</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="ident">dirs</span>.<span class="ident">insert</span>(<span class="string">&quot;DESKTOP&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">PathBuf::from</span>(<span class="string">&quot;/home/bob/Desktop&quot;</span>));
-        <span class="ident">dirs</span>.<span class="ident">insert</span>(<span class="string">&quot;DOWNLOAD&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">PathBuf::from</span>(<span class="string">&quot;/home/bob/Downloads&quot;</span>));
-        <span class="ident">dirs</span>.<span class="ident">insert</span>(<span class="string">&quot;PICTURES&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">PathBuf::from</span>(<span class="string">&quot;/home/eve/pics&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_user_dirs() {
+        <span class="kw">let </span><span class="kw-2">mut </span>dirs: HashMap&lt;String, PathBuf&gt; = HashMap::new();
+        dirs.insert(<span class="string">&quot;DESKTOP&quot;</span>.to_string(), PathBuf::from(<span class="string">&quot;/home/bob/Desktop&quot;</span>));
+        dirs.insert(<span class="string">&quot;DOWNLOAD&quot;</span>.to_string(), PathBuf::from(<span class="string">&quot;/home/bob/Downloads&quot;</span>));
+        dirs.insert(<span class="string">&quot;PICTURES&quot;</span>.to_string(), PathBuf::from(<span class="string">&quot;/home/eve/pics&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="string">br#&quot;
+        <span class="kw">let </span>bytes = <span class="string">br#&quot;
 # This file is written by xdg-user-dirs-update
 # If you want to change or add directories, just edit the line you&#39;re
 # interested in. All local changes will be retained on the next run.
@@ -485,22 +485,22 @@ XDG_PICTURES_DIR=&quot;/home/eve/pics&quot;
 XDG_VIDEOS_DIR=&quot;$HOxyzME/Videos&quot;
 &quot;#</span>;
 
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">None</span>, <span class="ident">bytes</span>));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">None</span>, bytes));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dirs</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">PathBuf</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="ident">dirs</span>.<span class="ident">insert</span>(<span class="string">&quot;DESKTOP&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">PathBuf::from</span>(<span class="string">&quot;/home/bob/Desktop&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;DESKTOP&quot;</span>), <span class="ident">bytes</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>dirs: HashMap&lt;String, PathBuf&gt; = HashMap::new();
+        dirs.insert(<span class="string">&quot;DESKTOP&quot;</span>.to_string(), PathBuf::from(<span class="string">&quot;/home/bob/Desktop&quot;</span>));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;DESKTOP&quot;</span>), bytes));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dirs</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">PathBuf</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="ident">dirs</span>.<span class="ident">insert</span>(<span class="string">&quot;PICTURES&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">PathBuf::from</span>(<span class="string">&quot;/home/eve/pics&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;PICTURES&quot;</span>), <span class="ident">bytes</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>dirs: HashMap&lt;String, PathBuf&gt; = HashMap::new();
+        dirs.insert(<span class="string">&quot;PICTURES&quot;</span>.to_string(), PathBuf::from(<span class="string">&quot;/home/eve/pics&quot;</span>));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;PICTURES&quot;</span>), bytes));
 
-        <span class="kw">let</span> <span class="ident">dirs</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">PathBuf</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;TEMPLATES&quot;</span>), <span class="ident">bytes</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;PUBLICSHARE&quot;</span>), <span class="ident">bytes</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;DOCUMENTS&quot;</span>), <span class="ident">bytes</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">dirs</span>, <span class="ident">parse_user_dirs</span>(<span class="ident">Path::new</span>(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;VIDEOS&quot;</span>), <span class="ident">bytes</span>));
+        <span class="kw">let </span>dirs: HashMap&lt;String, PathBuf&gt; = HashMap::new();
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;TEMPLATES&quot;</span>), bytes));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;PUBLICSHARE&quot;</span>), bytes));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;DOCUMENTS&quot;</span>), bytes));
+        <span class="macro">assert_eq!</span>(dirs, parse_user_dirs(Path::new(<span class="string">&quot;/home/bob&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;VIDEOS&quot;</span>), bytes));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dirs_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dirs_sys" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

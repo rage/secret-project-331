@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_exercise_slide_states.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user_exercise_slide_states.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/user_exercise_slide_states.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>user_exercise_slide_states.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -411,33 +411,33 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exercises::GradingProgress</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{exercises::GradingProgress, prelude::<span class="kw-2">*</span>};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseSlideState</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
+<span class="attribute">#[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>UserExerciseSlideState {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>exercise_slide_id: Uuid,
+    <span class="kw">pub </span>user_exercise_state_id: Uuid,
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>grading_progress: GradingProgress,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
+<span class="kw">pub struct </span>UserExerciseSlideStateGradingSummary {
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>grading_progress: GradingProgress,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    user_exercise_state_id: Uuid,
+    exercise_slide_id: Uuid,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO user_exercise_slide_states (
     id,
@@ -448,19 +448,19 @@ INSERT INTO user_exercise_slide_states (
 VALUES ($1, $2, $3, $4)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">exercise_slide_id</span>,
-        <span class="ident">user_exercise_state_id</span>,
-        <span class="ident">GradingProgress::NotReady</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
+        pkey_policy.into_uuid(),
+        exercise_slide_id,
+        user_exercise_state_id,
+        GradingProgress::NotReady <span class="kw">as </span>GradingProgress,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseSlideState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseSlideState</span>,
+<span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;UserExerciseSlideState&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseSlideState,
         <span class="string">r#&quot;
 SELECT id,
   created_at,
@@ -474,20 +474,20 @@ FROM user_exercise_slide_states
 WHERE id = $1
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_unique_index</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserExerciseSlideState</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseSlideState</span>,
+<span class="kw">pub async fn </span>get_by_unique_index(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_state_id: Uuid,
+    exercise_slide_id: Uuid,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;UserExerciseSlideState&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseSlideState,
         <span class="string">r#&quot;
 SELECT id,
   created_at,
@@ -502,20 +502,20 @@ WHERE user_exercise_state_id = $1
   AND exercise_slide_id = $2
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">user_exercise_state_id</span>,
-        <span class="ident">exercise_slide_id</span>,
+        user_exercise_state_id,
+        exercise_slide_id,
     )
-    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .fetch_optional(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_by_user_exercise_state_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserExerciseSlideState</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseSlideState</span>,
+<span class="kw">pub async fn </span>get_all_by_user_exercise_state_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_state_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;UserExerciseSlideState&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        UserExerciseSlideState,
         <span class="string">r#&quot;
 SELECT id,
   created_at,
@@ -529,39 +529,39 @@ FROM user_exercise_slide_states
 WHERE user_exercise_state_id = $1
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">user_exercise_state_id</span>
+        user_exercise_state_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_insert_by_unique_index</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseSlideState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">user_exercise_slide_state</span> <span class="op">=</span>
-        <span class="ident">get_by_unique_index</span>(<span class="ident">conn</span>, <span class="ident">user_exercise_state_id</span>, <span class="ident">exercise_slide_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_exercise_slide_state</span>) <span class="op">=</span> <span class="ident">user_exercise_slide_state</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">user_exercise_slide_state</span>)
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">insert</span>(
-            <span class="ident">conn</span>,
-            <span class="ident">PKeyPolicy::Generate</span>,
-            <span class="ident">user_exercise_state_id</span>,
-            <span class="ident">exercise_slide_id</span>,
+<span class="kw">pub async fn </span>get_or_insert_by_unique_index(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_state_id: Uuid,
+    exercise_slide_id: Uuid,
+) -&gt; ModelResult&lt;UserExerciseSlideState&gt; {
+    <span class="kw">let </span>user_exercise_slide_state =
+        get_by_unique_index(conn, user_exercise_state_id, exercise_slide_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(user_exercise_slide_state) = user_exercise_slide_state {
+        <span class="prelude-val">Ok</span>(user_exercise_slide_state)
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>id = insert(
+            conn,
+            PKeyPolicy::Generate,
+            user_exercise_state_id,
+            exercise_slide_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">get_by_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span>
-    }
+        get_by_id(conn, id).<span class="kw">await
+    </span>}
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseSlideStateGradingSummary</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_grading_summary_by_user_exercise_state_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_exercise_state_id: Uuid,
+) -&gt; ModelResult&lt;UserExerciseSlideStateGradingSummary&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT score_given,
   grading_progress AS &quot;grading_progress: GradingProgress&quot;
@@ -569,32 +569,32 @@ FROM user_exercise_slide_states
 WHERE user_exercise_state_id = $1
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">user_exercise_state_id</span>,
+        user_exercise_state_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">total_score_given</span> <span class="op">=</span> <span class="ident">res</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">score_given</span>)
-        .<span class="ident">reduce</span>(<span class="op">|</span><span class="ident">acc</span>, <span class="ident">next</span><span class="op">|</span> <span class="ident">acc</span> <span class="op">+</span> <span class="ident">next</span>);
-    <span class="kw">let</span> <span class="ident">least_significant_grading_progress</span> <span class="op">=</span> <span class="ident">res</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">grading_progress</span>)
-        .<span class="ident">min</span>()
-        .<span class="ident">unwrap_or</span>(<span class="ident">GradingProgress::NotReady</span>);
-    <span class="prelude-val">Ok</span>(<span class="ident">UserExerciseSlideStateGradingSummary</span> {
-        <span class="ident">score_given</span>: <span class="ident">total_score_given</span>,
-        <span class="ident">grading_progress</span>: <span class="ident">least_significant_grading_progress</span>,
+    <span class="kw">let </span>total_score_given = res
+        .iter()
+        .filter_map(|x| x.score_given)
+        .reduce(|acc, next| acc + next);
+    <span class="kw">let </span>least_significant_grading_progress = res
+        .iter()
+        .map(|x| x.grading_progress)
+        .min()
+        .unwrap_or(GradingProgress::NotReady);
+    <span class="prelude-val">Ok</span>(UserExerciseSlideStateGradingSummary {
+        score_given: total_score_given,
+        grading_progress: least_significant_grading_progress,
     })
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>update(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    grading_progress: GradingProgress,
+) -&gt; ModelResult&lt;u64&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE user_exercise_slide_states
 SET score_given = $1,
@@ -602,227 +602,227 @@ SET score_given = $1,
 WHERE id = $3
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">score_given</span>,
-        <span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
-        <span class="ident">id</span>,
+        score_given,
+        grading_progress <span class="kw">as </span>GradingProgress,
+        id,
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">rows_affected</span>())
+    <span class="prelude-val">Ok</span>(res.rows_affected())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>delete(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE user_exercise_slide_states
 SET deleted_at = now()
 WHERE id = $1
 RETURNING id
     &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test_helper::<span class="kw-2">*</span>;
 
-    <span class="kw">mod</span> <span class="ident">get_grading_summary_by_user_exercise_state_id</span> {
-        <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_approx_eq</span>;
+    <span class="kw">mod </span>get_grading_summary_by_user_exercise_state_id {
+        <span class="kw">use </span>headless_lms_utils::numbers::f32_approx_eq;
 
-        <span class="kw">use</span> <span class="kw">crate</span>::{
-            <span class="ident">chapters</span>, <span class="ident">chapters::NewChapter</span>, <span class="ident">exercise_slides</span>, <span class="ident">exercises</span>, <span class="ident">pages</span>,
-            <span class="ident">pages::NewCoursePage</span>, <span class="ident">user_exercise_states</span>,
+        <span class="kw">use crate</span>::{
+            chapters, chapters::NewChapter, exercise_slides, exercises, pages,
+            pages::NewCoursePage, user_exercise_states,
         };
 
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">initial_values</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>);
-            <span class="kw">let</span> (<span class="ident">user_exercise_state_id</span>, <span class="ident">slide_1</span>, <span class="ident">slide_2</span>, <span class="ident">slide_3</span>) <span class="op">=</span>
-                <span class="ident">create_test_data</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-            <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state_id</span>,
-                <span class="ident">slide_1</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>initial_values() {
+            <span class="macro">insert_data!</span>(:tx);
+            <span class="kw">let </span>(user_exercise_state_id, slide_1, slide_2, slide_3) =
+                create_test_data(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>.unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_1,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state_id</span>,
-                <span class="ident">slide_2</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_2,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state_id</span>,
-                <span class="ident">slide_3</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_3,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+            .<span class="kw">await
+            </span>.unwrap();
 
-            <span class="kw">let</span> <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                <span class="ident">score_given</span>,
-                <span class="ident">grading_progress</span>,
-            } <span class="op">=</span> <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">user_exercise_state_id</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">score_given</span>, <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">grading_progress</span>, <span class="ident">GradingProgress::NotReady</span>);
+            <span class="kw">let </span>UserExerciseSlideStateGradingSummary {
+                score_given,
+                grading_progress,
+            } = get_grading_summary_by_user_exercise_state_id(tx.as_mut(), user_exercise_state_id)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert_eq!</span>(score_given, <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(grading_progress, GradingProgress::NotReady);
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">single_task</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>);
-            <span class="kw">let</span> (<span class="ident">user_exercise_state_id</span>, <span class="ident">slide_1</span>, <span class="ident">slide_2</span>, <span class="ident">slide_3</span>) <span class="op">=</span>
-                <span class="ident">create_test_data</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-            <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state_id</span>,
-                <span class="ident">slide_1</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>single_task() {
+            <span class="macro">insert_data!</span>(:tx);
+            <span class="kw">let </span>(user_exercise_state_id, slide_1, slide_2, slide_3) =
+                create_test_data(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>.unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_1,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state_id</span>,
-                <span class="ident">slide_2</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_2,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">id_3</span> <span class="op">=</span> <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state_id</span>,
-                <span class="ident">slide_3</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>id_3 = insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_3,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">update</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">id_3</span>, <span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="ident">GradingProgress::FullyGraded</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
+            .<span class="kw">await
+            </span>.unwrap();
+            update(tx.as_mut(), id_3, <span class="prelude-val">Some</span>(<span class="number">1.0</span>), GradingProgress::FullyGraded)
+                .<span class="kw">await
+                </span>.unwrap();
 
-            <span class="kw">let</span> <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                <span class="ident">score_given</span>,
-                <span class="ident">grading_progress</span>,
-            } <span class="op">=</span> <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">user_exercise_state_id</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="ident">score_given</span>.<span class="ident">unwrap</span>(), <span class="number">1.0</span>));
-            <span class="macro">assert_eq!</span>(<span class="ident">grading_progress</span>, <span class="ident">GradingProgress::NotReady</span>);
+            <span class="kw">let </span>UserExerciseSlideStateGradingSummary {
+                score_given,
+                grading_progress,
+            } = get_grading_summary_by_user_exercise_state_id(tx.as_mut(), user_exercise_state_id)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert!</span>(f32_approx_eq(score_given.unwrap(), <span class="number">1.0</span>));
+            <span class="macro">assert_eq!</span>(grading_progress, GradingProgress::NotReady);
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">all_tasks</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>);
-            <span class="kw">let</span> (<span class="ident">user_exercise_state_id</span>, <span class="ident">slide_1</span>, <span class="ident">slide_2</span>, <span class="ident">slide_3</span>) <span class="op">=</span>
-                <span class="ident">create_test_data</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">id_1</span> <span class="op">=</span> <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state_id</span>,
-                <span class="ident">slide_1</span>,
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>all_tasks() {
+            <span class="macro">insert_data!</span>(:tx);
+            <span class="kw">let </span>(user_exercise_state_id, slide_1, slide_2, slide_3) =
+                create_test_data(<span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span>.unwrap();
+            <span class="kw">let </span>id_1 = insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_1,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">update</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">id_1</span>, <span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="ident">GradingProgress::FullyGraded</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">id_2</span> <span class="op">=</span> <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state_id</span>,
-                <span class="ident">slide_2</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            update(tx.as_mut(), id_1, <span class="prelude-val">Some</span>(<span class="number">1.0</span>), GradingProgress::FullyGraded)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>id_2 = insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_2,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">update</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">id_2</span>, <span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="ident">GradingProgress::FullyGraded</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">id_3</span> <span class="op">=</span> <span class="ident">insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">user_exercise_state_id</span>,
-                <span class="ident">slide_3</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            update(tx.as_mut(), id_2, <span class="prelude-val">Some</span>(<span class="number">1.0</span>), GradingProgress::FullyGraded)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="kw">let </span>id_3 = insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state_id,
+                slide_3,
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="ident">update</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">id_3</span>, <span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="ident">GradingProgress::FullyGraded</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
+            .<span class="kw">await
+            </span>.unwrap();
+            update(tx.as_mut(), id_3, <span class="prelude-val">Some</span>(<span class="number">1.0</span>), GradingProgress::FullyGraded)
+                .<span class="kw">await
+                </span>.unwrap();
 
-            <span class="kw">let</span> <span class="ident">UserExerciseSlideStateGradingSummary</span> {
-                <span class="ident">score_given</span>,
-                <span class="ident">grading_progress</span>,
-            } <span class="op">=</span> <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">user_exercise_state_id</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="ident">score_given</span>.<span class="ident">unwrap</span>(), <span class="number">3.0</span>));
-            <span class="macro">assert_eq!</span>(<span class="ident">grading_progress</span>, <span class="ident">GradingProgress::FullyGraded</span>);
+            <span class="kw">let </span>UserExerciseSlideStateGradingSummary {
+                score_given,
+                grading_progress,
+            } = get_grading_summary_by_user_exercise_state_id(tx.as_mut(), user_exercise_state_id)
+                .<span class="kw">await
+                </span>.unwrap();
+            <span class="macro">assert!</span>(f32_approx_eq(score_given.unwrap(), <span class="number">3.0</span>));
+            <span class="macro">assert_eq!</span>(grading_progress, GradingProgress::FullyGraded);
         }
 
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_test_data</span>(<span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Tx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>, <span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span> {
-            <span class="macro">insert_data!</span>(<span class="ident">tx</span>: <span class="ident">tx</span>; :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>);
-            <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="kw-2">&amp;</span><span class="ident">NewChapter</span> {
-                    <span class="ident">name</span>: <span class="string">&quot;chapter&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">color</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;#065853&quot;</span>.<span class="ident">to_string</span>()),
-                    <span class="ident">course_id</span>: <span class="ident">course</span>,
-                    <span class="ident">chapter_number</span>: <span class="number">1</span>,
-                    <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_module</span>.<span class="ident">id</span>),
+        <span class="kw">async fn </span>create_test_data(tx: <span class="kw-2">&amp;mut </span>Tx&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; ModelResult&lt;(Uuid, Uuid, Uuid, Uuid)&gt; {
+            <span class="macro">insert_data!</span>(tx: tx; :user, :org, :course, :instance, :course_module);
+            <span class="kw">let </span>chapter_id = chapters::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                <span class="kw-2">&amp;</span>NewChapter {
+                    name: <span class="string">&quot;chapter&quot;</span>.to_string(),
+                    color: <span class="prelude-val">Some</span>(<span class="string">&quot;#065853&quot;</span>.to_string()),
+                    course_id: course,
+                    chapter_number: <span class="number">1</span>,
+                    front_page_id: <span class="prelude-val">None</span>,
+                    opens_at: <span class="prelude-val">None</span>,
+                    deadline: <span class="prelude-val">None</span>,
+                    course_module_id: <span class="prelude-val">Some</span>(course_module.id),
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> (<span class="ident">page_id</span>, <span class="ident">_history</span>) <span class="op">=</span> <span class="ident">pages::insert_course_page</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">NewCoursePage::new</span>(<span class="ident">course</span>, <span class="number">1</span>, <span class="string">&quot;/test&quot;</span>, <span class="string">&quot;test&quot;</span>),
-                <span class="ident">user</span>,
+            <span class="kw">let </span>(page_id, _history) = pages::insert_course_page(
+                tx.as_mut(),
+                <span class="kw-2">&amp;</span>NewCoursePage::new(course, <span class="number">1</span>, <span class="string">&quot;/test&quot;</span>, <span class="string">&quot;test&quot;</span>),
+                user,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">exercise_id</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Generate</span>,
-                <span class="ident">course</span>,
+            <span class="kw">let </span>exercise_id = exercises::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course,
                 <span class="string">&quot;course&quot;</span>,
-                <span class="ident">page_id</span>,
-                <span class="ident">chapter_id</span>,
+                page_id,
+                chapter_id,
                 <span class="number">1</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">slide_1</span> <span class="op">=</span>
-                <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">exercise_id</span>, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">slide_2</span> <span class="op">=</span>
-                <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">exercise_id</span>, <span class="number">2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">slide_3</span> <span class="op">=</span>
-                <span class="ident">exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">exercise_id</span>, <span class="number">3</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">user</span>,
-                <span class="ident">exercise_id</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">instance</span>.<span class="ident">id</span>),
+            <span class="kw">let </span>slide_1 =
+                exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, exercise_id, <span class="number">1</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>slide_2 =
+                exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, exercise_id, <span class="number">2</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>slide_3 =
+                exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, exercise_id, <span class="number">3</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise_id,
+                <span class="prelude-val">Some</span>(instance.id),
                 <span class="prelude-val">None</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>((<span class="ident">user_exercise_state</span>.<span class="ident">id</span>, <span class="ident">slide_1</span>, <span class="ident">slide_2</span>, <span class="ident">slide_3</span>))
+            <span class="prelude-val">Ok</span>((user_exercise_state.id, slide_1, slide_2, slide_3))
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

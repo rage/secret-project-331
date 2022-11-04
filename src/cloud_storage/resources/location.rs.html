@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/resources/location.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>location.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/resources/location.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>location.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../cloud_storage/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -143,150 +143,150 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
-</pre><pre class="rust"><code><span class="doccomment">/// Deeply nested enum that represents a location where a bucket might store its files.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Location</span> {
-    <span class="doccomment">/// Objects are stored in a single location.</span>
-    <span class="ident">Single</span>(<span class="ident">SingleRegion</span>),
-    <span class="doccomment">/// Objects are stored redundantly across multiple locations.</span>
-    <span class="ident">Multi</span>(<span class="ident">MultiRegion</span>),
-    <span class="doccomment">/// Objects are stored redundantly accross two locations.</span>
-    <span class="ident">Dual</span>(<span class="ident">DualRegion</span>),
+</pre><pre class="rust"><code><span class="doccomment">/// Deeply nested enum that represents a location where a bucket might store its files.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+</span><span class="kw">pub enum </span>Location {
+    <span class="doccomment">/// Objects are stored in a single location.
+    </span>Single(SingleRegion),
+    <span class="doccomment">/// Objects are stored redundantly across multiple locations.
+    </span>Multi(MultiRegion),
+    <span class="doccomment">/// Objects are stored redundantly accross two locations.
+    </span>Dual(DualRegion),
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Location</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Location</span> {
-        <span class="ident">Location::Single</span>(<span class="ident">SingleRegion::NorthAmerica</span>(<span class="ident">NALocation::SouthCarolina</span>))
+<span class="kw">impl </span>Default <span class="kw">for </span>Location {
+    <span class="kw">fn </span>default() -&gt; Location {
+        Location::Single(SingleRegion::NorthAmerica(NALocation::SouthCarolina))
     }
 }
 
-<span class="doccomment">/// The possible options for single regions.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SingleRegion</span> {
-    <span class="doccomment">/// All options in North America.</span>
-    <span class="ident">NorthAmerica</span>(<span class="ident">NALocation</span>),
-    <span class="doccomment">/// All options in South America.</span>
-    <span class="ident">SouthAmerica</span>(<span class="ident">SALocation</span>),
-    <span class="doccomment">/// All options in Europe.</span>
-    <span class="ident">Europe</span>(<span class="ident">EuropeLocation</span>),
-    <span class="doccomment">/// All options in Asia.</span>
-    <span class="ident">Asia</span>(<span class="ident">AsiaLocation</span>),
-    <span class="doccomment">/// All options in Australia.</span>
-    <span class="ident">Australia</span>(<span class="ident">AusLocation</span>),
+<span class="doccomment">/// The possible options for single regions.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+</span><span class="kw">pub enum </span>SingleRegion {
+    <span class="doccomment">/// All options in North America.
+    </span>NorthAmerica(NALocation),
+    <span class="doccomment">/// All options in South America.
+    </span>SouthAmerica(SALocation),
+    <span class="doccomment">/// All options in Europe.
+    </span>Europe(EuropeLocation),
+    <span class="doccomment">/// All options in Asia.
+    </span>Asia(AsiaLocation),
+    <span class="doccomment">/// All options in Australia.
+    </span>Australia(AusLocation),
 }
 
-<span class="doccomment">/// All options in North America.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::upper_case_acronyms</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">NALocation</span> {
-    <span class="doccomment">/// Store the files in Montréal.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;NORTHAMERICA-NORTHEAST1&quot;</span>)]</span>
-    <span class="ident">Montreal</span>,
-    <span class="doccomment">/// Store the files in Iowa.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;US-CENTRAL1&quot;</span>)]</span>
-    <span class="ident">Iowa</span>,
-    <span class="doccomment">/// Store the files in South Carolina.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;US-EAST1&quot;</span>)]</span>
-    <span class="ident">SouthCarolina</span>,
-    <span class="doccomment">/// Store the files in Northern Virginia.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;US-EAST4&quot;</span>)]</span>
-    <span class="ident">NorthernVirginia</span>,
-    <span class="doccomment">/// Store the files in Oregon.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;US-WEST1&quot;</span>)]</span>
-    <span class="ident">Oregon</span>,
-    <span class="doccomment">/// Store the files in Los Angeles.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;US-WEST2&quot;</span>)]</span>
-    <span class="ident">LosAngeles</span>,
+<span class="doccomment">/// All options in North America.
+</span><span class="attribute">#[allow(clippy::upper_case_acronyms)]
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+</span><span class="kw">pub enum </span>NALocation {
+    <span class="doccomment">/// Store the files in Montréal.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;NORTHAMERICA-NORTHEAST1&quot;</span>)]
+    </span>Montreal,
+    <span class="doccomment">/// Store the files in Iowa.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;US-CENTRAL1&quot;</span>)]
+    </span>Iowa,
+    <span class="doccomment">/// Store the files in South Carolina.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;US-EAST1&quot;</span>)]
+    </span>SouthCarolina,
+    <span class="doccomment">/// Store the files in Northern Virginia.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;US-EAST4&quot;</span>)]
+    </span>NorthernVirginia,
+    <span class="doccomment">/// Store the files in Oregon.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;US-WEST1&quot;</span>)]
+    </span>Oregon,
+    <span class="doccomment">/// Store the files in Los Angeles.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;US-WEST2&quot;</span>)]
+    </span>LosAngeles,
 }
 
-<span class="doccomment">/// All options in South America.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::upper_case_acronyms</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SALocation</span> {
-    <span class="doccomment">/// Store the files in Soa Paulo.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;SOUTHAMERICA-EAST1&quot;</span>)]</span>
-    <span class="ident">SaoPaulo</span>,
+<span class="doccomment">/// All options in South America.
+</span><span class="attribute">#[allow(clippy::upper_case_acronyms)]
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+</span><span class="kw">pub enum </span>SALocation {
+    <span class="doccomment">/// Store the files in Soa Paulo.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;SOUTHAMERICA-EAST1&quot;</span>)]
+    </span>SaoPaulo,
 }
 
-<span class="doccomment">/// All options in Europe.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EuropeLocation</span> {
-    <span class="doccomment">/// Store the files in Finland.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;EUROPE-NORTH1&quot;</span>)]</span>
-    <span class="ident">Finland</span>,
-    <span class="doccomment">/// Store the files in Belgium.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;EUROPE-WEST1&quot;</span>)]</span>
-    <span class="ident">Belgium</span>,
-    <span class="doccomment">/// Store the files in London.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;EUROPE-WEST2&quot;</span>)]</span>
-    <span class="ident">London</span>,
-    <span class="doccomment">/// Store the files in Frankfurt.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;EUROPE-WEST3&quot;</span>)]</span>
-    <span class="ident">Frankfurt</span>,
-    <span class="doccomment">/// Store the files in the Netherlands.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;EUROPE-WEST4&quot;</span>)]</span>
-    <span class="ident">Netherlands</span>,
-    <span class="doccomment">/// Store the files in Zurich.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;EUROPE-WEST6&quot;</span>)]</span>
-    <span class="ident">Zurich</span>,
+<span class="doccomment">/// All options in Europe.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+</span><span class="kw">pub enum </span>EuropeLocation {
+    <span class="doccomment">/// Store the files in Finland.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;EUROPE-NORTH1&quot;</span>)]
+    </span>Finland,
+    <span class="doccomment">/// Store the files in Belgium.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;EUROPE-WEST1&quot;</span>)]
+    </span>Belgium,
+    <span class="doccomment">/// Store the files in London.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;EUROPE-WEST2&quot;</span>)]
+    </span>London,
+    <span class="doccomment">/// Store the files in Frankfurt.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;EUROPE-WEST3&quot;</span>)]
+    </span>Frankfurt,
+    <span class="doccomment">/// Store the files in the Netherlands.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;EUROPE-WEST4&quot;</span>)]
+    </span>Netherlands,
+    <span class="doccomment">/// Store the files in Zurich.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;EUROPE-WEST6&quot;</span>)]
+    </span>Zurich,
 }
 
-<span class="doccomment">/// ALl options in Asia.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AsiaLocation</span> {
-    <span class="doccomment">/// Store the files in Taiwan.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;ASIA-EAST1&quot;</span>)]</span>
-    <span class="ident">Taiwan</span>,
-    <span class="doccomment">/// Store the files in Hong Kong.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;ASIA-EAST2&quot;</span>)]</span>
-    <span class="ident">HongKong</span>,
-    <span class="doccomment">/// Store the files in Tokyo.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;ASIA-NORTHEAST1&quot;</span>)]</span>
-    <span class="ident">Tokyo</span>,
-    <span class="doccomment">/// Store the files in Osaka.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;ASIA-NORTHEAST2&quot;</span>)]</span>
-    <span class="ident">Osaka</span>,
-    <span class="doccomment">/// Store the files in Mumbai.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;ASIA-SOUTH1&quot;</span>)]</span>
-    <span class="ident">Mumbai</span>,
-    <span class="doccomment">/// Store the files in Singapore.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;ASIA-SOUTHEAST1&quot;</span>)]</span>
-    <span class="ident">Singapore</span>,
+<span class="doccomment">/// ALl options in Asia.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+</span><span class="kw">pub enum </span>AsiaLocation {
+    <span class="doccomment">/// Store the files in Taiwan.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;ASIA-EAST1&quot;</span>)]
+    </span>Taiwan,
+    <span class="doccomment">/// Store the files in Hong Kong.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;ASIA-EAST2&quot;</span>)]
+    </span>HongKong,
+    <span class="doccomment">/// Store the files in Tokyo.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;ASIA-NORTHEAST1&quot;</span>)]
+    </span>Tokyo,
+    <span class="doccomment">/// Store the files in Osaka.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;ASIA-NORTHEAST2&quot;</span>)]
+    </span>Osaka,
+    <span class="doccomment">/// Store the files in Mumbai.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;ASIA-SOUTH1&quot;</span>)]
+    </span>Mumbai,
+    <span class="doccomment">/// Store the files in Singapore.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;ASIA-SOUTHEAST1&quot;</span>)]
+    </span>Singapore,
 }
 
-<span class="doccomment">/// All options in Australia.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AusLocation</span> {
-    <span class="doccomment">/// Store the files in Sydney.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;AUSTRALIA-SOUTHEAST1&quot;</span>)]</span>
-    <span class="ident">Sydney</span>,
+<span class="doccomment">/// All options in Australia.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+</span><span class="kw">pub enum </span>AusLocation {
+    <span class="doccomment">/// Store the files in Sydney.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;AUSTRALIA-SOUTHEAST1&quot;</span>)]
+    </span>Sydney,
 }
 
-<span class="doccomment">/// The possible options for multi-region storage.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;UPPERCASE&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MultiRegion</span> {
-    <span class="doccomment">/// Data centers in Asia</span>
-    <span class="ident">Asia</span>,
-    <span class="doccomment">/// Data centers in the European Union</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Object data added to a bucket in the EU multi-region is not stored in the EUROPE-WEST2 or</span>
-    <span class="doccomment">/// EUROPE-WEST6 data center.</span>
-    <span class="ident">Eu</span>,
-    <span class="doccomment">/// Data centers in the United States</span>
-    <span class="ident">Us</span>,
+<span class="doccomment">/// The possible options for multi-region storage.
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;UPPERCASE&quot;</span>)]
+</span><span class="kw">pub enum </span>MultiRegion {
+    <span class="doccomment">/// Data centers in Asia
+    </span>Asia,
+    <span class="doccomment">/// Data centers in the European Union
+    ///
+    /// Object data added to a bucket in the EU multi-region is not stored in the EUROPE-WEST2 or
+    /// EUROPE-WEST6 data center.
+    </span>Eu,
+    <span class="doccomment">/// Data centers in the United States
+    </span>Us,
 }
 
-<span class="doccomment">/// The possible options for dual-region storage</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;UPPERCASE&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DualRegion</span> {
-    <span class="doccomment">/// EUROPE-NORTH1 and EUROPE-WEST4. Additionally, object metadata may be stored in EUROPE-WEST1.</span>
-    <span class="ident">Eur4</span>,
-    <span class="doccomment">/// US-CENTRAL1 and US-EAST1. Additionally, object metadata may be stored in Tulsa, Oklahoma.</span>
-    <span class="ident">Nam4</span>,
+<span class="doccomment">/// The possible options for dual-region storage
+</span><span class="attribute">#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = <span class="string">&quot;UPPERCASE&quot;</span>)]
+</span><span class="kw">pub enum </span>DualRegion {
+    <span class="doccomment">/// EUROPE-NORTH1 and EUROPE-WEST4. Additionally, object metadata may be stored in EUROPE-WEST1.
+    </span>Eur4,
+    <span class="doccomment">/// US-CENTRAL1 and US-EAST1. Additionally, object metadata may be stored in Tulsa, Oklahoma.
+    </span>Nam4,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

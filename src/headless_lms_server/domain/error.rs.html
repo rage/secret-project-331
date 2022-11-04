@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/domain/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -424,62 +424,62 @@
 <span id="424">424</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Contains error and result types for all the controllers.
-*/</span>
+*/
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error::Error</span>, <span class="ident">fmt::Write</span>};
+</span><span class="kw">use </span>std::{error::Error, fmt::Write};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::AuthorizedResponse</span>;
-<span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">error</span>,
-    <span class="ident">http</span>::{<span class="ident">header::ContentType</span>, <span class="ident">StatusCode</span>},
-    <span class="ident">HttpResponse</span>, <span class="ident">HttpResponseBuilder</span>,
+<span class="kw">use </span><span class="kw">crate</span>::domain::authorization::AuthorizedResponse;
+<span class="kw">use </span>actix_web::{
+    error,
+    http::{header::ContentType, StatusCode},
+    HttpResponse, HttpResponseBuilder,
 };
-<span class="kw">use</span> <span class="ident">backtrace::Backtrace</span>;
-<span class="kw">use</span> <span class="ident">derive_more::Display</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_models</span>::{<span class="ident">ModelError</span>, <span class="ident">ModelErrorType</span>};
-<span class="kw">use</span> <span class="ident">headless_lms_utils::error</span>::{
-    <span class="ident">backend_error::BackendError</span>, <span class="ident">backtrace_formatter::format_backtrace</span>, <span class="ident">util_error::UtilError</span>,
+<span class="kw">use </span>backtrace::Backtrace;
+<span class="kw">use </span>derive_more::Display;
+<span class="kw">use </span>headless_lms_models::{ModelError, ModelErrorType};
+<span class="kw">use </span>headless_lms_utils::error::{
+    backend_error::BackendError, backtrace_formatter::format_backtrace, util_error::UtilError,
 };
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">tracing_error::SpanTrace</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>tracing_error::SpanTrace;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ts_rs&quot;</span>)]
+</span><span class="kw">use </span>ts_rs::TS;
+<span class="kw">use </span>uuid::Uuid;
 
 <span class="doccomment">/**
 Used as the result types for all controllers.
 Only put information here that you want to be visible to users.
 
 See also [ControllerError] for documentation on how to return errors from controllers.
-*/</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">ControllerError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">AuthorizedResponse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>;
+*/
+</span><span class="kw">pub type </span>ControllerResult&lt;T, E = ControllerError&gt; = std::result::Result&lt;AuthorizedResponse&lt;T&gt;, E&gt;;
 
-<span class="doccomment">/// The type of [ControllerError] that occured.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ControllerErrorType</span> {
-    <span class="doccomment">/// HTTP status code 500.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Internal server error&quot;</span>)]</span>
-    <span class="ident">InternalServerError</span>,
+<span class="doccomment">/// The type of [ControllerError] that occured.
+</span><span class="attribute">#[derive(Debug, Display, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>ControllerErrorType {
+    <span class="doccomment">/// HTTP status code 500.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Internal server error&quot;</span>)]
+    </span>InternalServerError,
 
-    <span class="doccomment">/// HTTP status code 400.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Bad request&quot;</span>)]</span>
-    <span class="ident">BadRequest</span>,
+    <span class="doccomment">/// HTTP status code 400.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Bad request&quot;</span>)]
+    </span>BadRequest,
 
-    <span class="doccomment">/// HTTP status code 400.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Bad request&quot;</span>)]</span>
-    <span class="ident">BadRequestWithData</span>(<span class="ident">ErrorData</span>),
+    <span class="doccomment">/// HTTP status code 400.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Bad request&quot;</span>)]
+    </span>BadRequestWithData(ErrorData),
 
-    <span class="doccomment">/// HTTP status code 404.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Not found&quot;</span>)]</span>
-    <span class="ident">NotFound</span>,
+    <span class="doccomment">/// HTTP status code 404.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Not found&quot;</span>)]
+    </span>NotFound,
 
-    <span class="doccomment">/// HTTP status code 401. Needs to log in.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Unauthorized&quot;</span>)]</span>
-    <span class="ident">Unauthorized</span>,
+    <span class="doccomment">/// HTTP status code 401. Needs to log in.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Unauthorized&quot;</span>)]
+    </span>Unauthorized,
 
-    <span class="doccomment">/// HTTP status code 403. Is logged in but is not allowed to access the resource.</span>
-    <span class="attribute">#[<span class="ident">display</span>(<span class="ident">fmt</span> <span class="op">=</span> <span class="string">&quot;Forbidden&quot;</span>)]</span>
-    <span class="ident">Forbidden</span>,
+    <span class="doccomment">/// HTTP status code 403. Is logged in but is not allowed to access the resource.
+    </span><span class="attribute">#[display(fmt = <span class="string">&quot;Forbidden&quot;</span>)]
+    </span>Forbidden,
 }
 
 <span class="doccomment">/**
@@ -544,307 +544,307 @@ some_function_returning_an_error().map_err(|original_error| {
     &quot;source&quot;: &quot;source of error&quot;
 }
 ```
-*/</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ControllerError</span> {
-    <span class="ident">error_type</span>: <span class="op">&lt;</span><span class="ident">ControllerError</span> <span class="kw">as</span> <span class="ident">BackendError</span><span class="op">&gt;</span><span class="ident">::ErrorType</span>,
-    <span class="ident">message</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Original error that caused this error.</span>
-    <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">anyhow::Error</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// A trace of tokio tracing spans, generated automatically when the error is generated.</span>
-    <span class="ident">span_trace</span>: <span class="ident">SpanTrace</span>,
-    <span class="doccomment">/// Stack trace, generated automatically when the error is created.</span>
-    <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,
+*/
+</span><span class="kw">pub struct </span>ControllerError {
+    error_type: &lt;ControllerError <span class="kw">as </span>BackendError&gt;::ErrorType,
+    message: String,
+    <span class="doccomment">/// Original error that caused this error.
+    </span>source: <span class="prelude-ty">Option</span>&lt;anyhow::Error&gt;,
+    <span class="doccomment">/// A trace of tokio tracing spans, generated automatically when the error is generated.
+    </span>span_trace: SpanTrace,
+    <span class="doccomment">/// Stack trace, generated automatically when the error is created.
+    </span>backtrace: Backtrace,
 }
 
-<span class="doccomment">/// Custom formatter so that errors that get printed to the console are easy-to-read with proper context where the error is coming from.</span>
-<span class="kw">impl</span> <span class="ident">std::fmt::Debug</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;ControllerError&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;error_type&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">error_type</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;message&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">message</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;source&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">source</span>)
-            .<span class="ident">finish</span>()<span class="question-mark">?</span>;
+<span class="doccomment">/// Custom formatter so that errors that get printed to the console are easy-to-read with proper context where the error is coming from.
+</span><span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        f.debug_struct(<span class="string">&quot;ControllerError&quot;</span>)
+            .field(<span class="string">&quot;error_type&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.error_type)
+            .field(<span class="string">&quot;message&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.message)
+            .field(<span class="string">&quot;source&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.source)
+            .finish()<span class="question-mark">?</span>;
 
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;\n\nOperating system thread stack backtrace:\n&quot;</span>)<span class="question-mark">?</span>;
-        <span class="ident">format_backtrace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">backtrace</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+        f.write_str(<span class="string">&quot;\n\nOperating system thread stack backtrace:\n&quot;</span>)<span class="question-mark">?</span>;
+        format_backtrace(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace, f)<span class="question-mark">?</span>;
 
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;\n\nTokio tracing span trace:\n&quot;</span>)<span class="question-mark">?</span>;
-        <span class="ident">f</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">span_trace</span>))<span class="question-mark">?</span>;
+        f.write_str(<span class="string">&quot;\n\nTokio tracing span trace:\n&quot;</span>)<span class="question-mark">?</span>;
+        f.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.span_trace))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">source</span>())
+<span class="kw">impl </span>std::error::Error <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">&#39;static</span>)&gt; {
+        <span class="self">self</span>.source.as_ref().and_then(|o| o.source())
     }
 
-    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">source</span>()
+    <span class="kw">fn </span>cause(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>std::error::Error&gt; {
+        <span class="self">self</span>.source()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;ControllerError {:?} {:?}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">error_type</span>, <span class="self">self</span>.<span class="ident">message</span>
+            <span class="self">self</span>.error_type, <span class="self">self</span>.message
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">BackendError</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">type</span> <span class="ident">ErrorType</span> <span class="op">=</span> <span class="ident">ControllerErrorType</span>;
+<span class="kw">impl </span>BackendError <span class="kw">for </span>ControllerError {
+    <span class="kw">type </span>ErrorType = ControllerErrorType;
 
-    <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">error_type</span>: <span class="ident"><span class="self">Self</span>::ErrorType</span>,
-        <span class="ident">message</span>: <span class="ident">String</span>,
-        <span class="ident">source_error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">anyhow::Error</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new_with_traces</span>(
-            <span class="ident">error_type</span>,
-            <span class="ident">message</span>,
-            <span class="ident">source_error</span>,
-            <span class="ident">Backtrace::new</span>(),
-            <span class="ident">SpanTrace::capture</span>(),
+    <span class="kw">fn </span>new(
+        error_type: <span class="self">Self</span>::ErrorType,
+        message: String,
+        source_error: <span class="prelude-ty">Option</span>&lt;anyhow::Error&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new_with_traces(
+            error_type,
+            message,
+            source_error,
+            Backtrace::new(),
+            SpanTrace::capture(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">backtrace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Backtrace</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">backtrace</span>)
+    <span class="kw">fn </span>backtrace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Backtrace&gt; {
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace)
     }
 
-    <span class="kw">fn</span> <span class="ident">error_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::ErrorType</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">error_type</span>
+    <span class="kw">fn </span>error_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::ErrorType {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.error_type
     }
 
-    <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">message</span>
+    <span class="kw">fn </span>message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.message
     }
 
-    <span class="kw">fn</span> <span class="ident">span_trace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">SpanTrace</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">span_trace</span>
+    <span class="kw">fn </span>span_trace(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>SpanTrace {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.span_trace
     }
 
-    <span class="kw">fn</span> <span class="ident">new_with_traces</span>(
-        <span class="ident">error_type</span>: <span class="ident"><span class="self">Self</span>::ErrorType</span>,
-        <span class="ident">message</span>: <span class="ident">String</span>,
-        <span class="ident">source_error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">anyhow::Error</span><span class="op">&gt;</span>,
-        <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,
-        <span class="ident">span_trace</span>: <span class="ident">SpanTrace</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">error_type</span>,
-            <span class="ident">message</span>,
-            <span class="ident">source</span>: <span class="ident">source_error</span>,
-            <span class="ident">span_trace</span>,
-            <span class="ident">backtrace</span>,
+    <span class="kw">fn </span>new_with_traces(
+        error_type: <span class="self">Self</span>::ErrorType,
+        message: String,
+        source_error: <span class="prelude-ty">Option</span>&lt;anyhow::Error&gt;,
+        backtrace: Backtrace,
+        span_trace: SpanTrace,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            error_type,
+            message,
+            source: source_error,
+            span_trace,
+            backtrace,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ErrorData</span> {
-    <span class="ident">BlockId</span>(<span class="ident">Uuid</span>),
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[serde(rename_all = <span class="string">&quot;snake_case&quot;</span>)]
+</span><span class="kw">pub enum </span>ErrorData {
+    BlockId(Uuid),
 }
 
-<span class="doccomment">/// The format all error messages from the API is in</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ErrorResponse</span> {
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">message</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ErrorData</span><span class="op">&gt;</span>,
+<span class="doccomment">/// The format all error messages from the API is in
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ErrorResponse {
+    <span class="kw">pub </span>title: String,
+    <span class="kw">pub </span>message: String,
+    <span class="kw">pub </span>source: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>data: <span class="prelude-ty">Option</span>&lt;ErrorData&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">error::ResponseError</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">error_response</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HttpResponse</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ControllerErrorType::InternalServerError</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">error_type</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">err_string</span> <span class="op">=</span> <span class="ident">String::new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Error</span>);
-            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">source</span> {
-                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">write!</span>(<span class="ident">err_string</span>, <span class="string">&quot;{}\n    &quot;</span>, <span class="ident">err</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">res</span> {
+<span class="kw">impl </span>error::ResponseError <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>error_response(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HttpResponse {
+        <span class="kw">if let </span>ControllerErrorType::InternalServerError = <span class="kw-2">&amp;</span><span class="self">self</span>.error_type {
+            <span class="kw">let </span><span class="kw-2">mut </span>err_string = String::new();
+            <span class="kw">let </span><span class="kw-2">mut </span>source = <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self </span><span class="kw">as </span><span class="kw-2">&amp;</span><span class="kw">dyn </span>Error);
+            <span class="kw">while let </span><span class="prelude-val">Some</span>(err) = source {
+                <span class="kw">let </span>res = <span class="macro">write!</span>(err_string, <span class="string">&quot;{}\n    &quot;</span>, err);
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = res {
                     <span class="macro">error!</span>(
                         <span class="string">&quot;Error occured while trying to construct error source string: {}&quot;</span>,
-                        <span class="ident">e</span>
+                        e
                     );
                 }
-                <span class="ident">source</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">source</span>();
+                source = err.source();
             }
-            <span class="macro">error!</span>(<span class="string">&quot;Internal server error: {}&quot;</span>, <span class="ident">err_string</span>);
+            <span class="macro">error!</span>(<span class="string">&quot;Internal server error: {}&quot;</span>, err_string);
         }
 
-        <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">status_code</span>();
-        <span class="kw">let</span> <span class="ident">error_data</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ControllerErrorType::BadRequestWithData</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">error_type</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">data</span>.<span class="ident">clone</span>())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
+        <span class="kw">let </span>status = <span class="self">self</span>.status_code();
+        <span class="kw">let </span>error_data = <span class="kw">if let </span>ControllerErrorType::BadRequestWithData(data) = <span class="kw-2">&amp;</span><span class="self">self</span>.error_type {
+            <span class="prelude-val">Some</span>(data.clone())
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
+
+        <span class="kw">let </span>source = <span class="self">self</span>.source();
+        <span class="kw">let </span>source_message = source.map(|o| o.to_string());
+
+        <span class="kw">let </span>error_response = ErrorResponse {
+            title: status
+                .canonical_reason()
+                .map(|o| o.to_string())
+                .unwrap_or_else(|| status.to_string()),
+            message: <span class="self">self</span>.message.clone(),
+            source: source_message,
+            data: error_data,
         };
 
-        <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">source</span>();
-        <span class="kw">let</span> <span class="ident">source_message</span> <span class="op">=</span> <span class="ident">source</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">to_string</span>());
-
-        <span class="kw">let</span> <span class="ident">error_response</span> <span class="op">=</span> <span class="ident">ErrorResponse</span> {
-            <span class="ident">title</span>: <span class="ident">status</span>
-                .<span class="ident">canonical_reason</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span>.<span class="ident">to_string</span>())
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">status</span>.<span class="ident">to_string</span>()),
-            <span class="ident">message</span>: <span class="self">self</span>.<span class="ident">message</span>.<span class="ident">clone</span>(),
-            <span class="ident">source</span>: <span class="ident">source_message</span>,
-            <span class="ident">data</span>: <span class="ident">error_data</span>,
-        };
-
-        <span class="ident">HttpResponseBuilder::new</span>(<span class="ident">status</span>)
-            .<span class="ident">append_header</span>(<span class="ident">ContentType::json</span>())
-            .<span class="ident">body</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">error_response</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">r#&quot;{&quot;title&quot;: &quot;Internal server error&quot;, &quot;message&quot;: &quot;Error occured while formatting error message.&quot;}&quot;#</span>.<span class="ident">to_string</span>()))
+        HttpResponseBuilder::new(status)
+            .append_header(ContentType::json())
+            .body(serde_json::to_string(<span class="kw-2">&amp;</span>error_response).unwrap_or_else(|<span class="kw">_</span>| <span class="string">r#&quot;{&quot;title&quot;: &quot;Internal server error&quot;, &quot;message&quot;: &quot;Error occured while formatting error message.&quot;}&quot;#</span>.to_string()))
     }
 
-    <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">StatusCode</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">error_type</span> {
-            <span class="ident">ControllerErrorType::InternalServerError</span> =&gt; <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
-            <span class="ident">ControllerErrorType::BadRequest</span> =&gt; <span class="ident">StatusCode::BAD_REQUEST</span>,
-            <span class="ident">ControllerErrorType::BadRequestWithData</span>(<span class="kw">_</span>) =&gt; <span class="ident">StatusCode::BAD_REQUEST</span>,
-            <span class="ident">ControllerErrorType::NotFound</span> =&gt; <span class="ident">StatusCode::NOT_FOUND</span>,
-            <span class="ident">ControllerErrorType::Unauthorized</span> =&gt; <span class="ident">StatusCode::UNAUTHORIZED</span>,
-            <span class="ident">ControllerErrorType::Forbidden</span> =&gt; <span class="ident">StatusCode::FORBIDDEN</span>,
+    <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
+        <span class="kw">match </span><span class="self">self</span>.error_type {
+            ControllerErrorType::InternalServerError =&gt; StatusCode::INTERNAL_SERVER_ERROR,
+            ControllerErrorType::BadRequest =&gt; StatusCode::BAD_REQUEST,
+            ControllerErrorType::BadRequestWithData(<span class="kw">_</span>) =&gt; StatusCode::BAD_REQUEST,
+            ControllerErrorType::NotFound =&gt; StatusCode::NOT_FOUND,
+            ControllerErrorType::Unauthorized =&gt; StatusCode::UNAUTHORIZED,
+            ControllerErrorType::Forbidden =&gt; StatusCode::FORBIDDEN,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">anyhow::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">anyhow::Error</span>) -&gt; <span class="ident">ControllerError</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sqlx::Error::RowNotFound</span>) <span class="op">=</span> <span class="ident">err</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span>() {
-            <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">ControllerErrorType::NotFound</span>, <span class="ident">err</span>.<span class="ident">to_string</span>(), <span class="prelude-val">Some</span>(<span class="ident">err</span>));
+<span class="kw">impl </span>From&lt;anyhow::Error&gt; <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>from(err: anyhow::Error) -&gt; ControllerError {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(sqlx::Error::RowNotFound) = err.downcast_ref::&lt;sqlx::Error&gt;() {
+            <span class="kw">return </span><span class="self">Self</span>::new(ControllerErrorType::NotFound, err.to_string(), <span class="prelude-val">Some</span>(err));
         }
 
-        <span class="ident"><span class="self">Self</span>::new</span>(
-            <span class="ident">ControllerErrorType::InternalServerError</span>,
-            <span class="ident">err</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">err</span>),
+        <span class="self">Self</span>::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            <span class="prelude-val">Some</span>(err),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">uuid::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">uuid::Error</span>) -&gt; <span class="ident">ControllerError</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="ident">err</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+<span class="kw">impl </span>From&lt;uuid::Error&gt; <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>from(err: uuid::Error) -&gt; ControllerError {
+        <span class="self">Self</span>::new(
+            ControllerErrorType::BadRequest,
+            err.to_string(),
+            <span class="prelude-val">Some</span>(err.into()),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">sqlx::Error</span>) -&gt; <span class="ident">ControllerError</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(
-            <span class="ident">ControllerErrorType::InternalServerError</span>,
-            <span class="ident">err</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+<span class="kw">impl </span>From&lt;sqlx::Error&gt; <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>from(err: sqlx::Error) -&gt; ControllerError {
+        <span class="self">Self</span>::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            <span class="prelude-val">Some</span>(err.into()),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">git2::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">git2::Error</span>) -&gt; <span class="ident">ControllerError</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(
-            <span class="ident">ControllerErrorType::InternalServerError</span>,
-            <span class="ident">err</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+<span class="kw">impl </span>From&lt;git2::Error&gt; <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>from(err: git2::Error) -&gt; ControllerError {
+        <span class="self">Self</span>::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            <span class="prelude-val">Some</span>(err.into()),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ModelError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ModelError</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">backtrace</span>: <span class="ident">Backtrace</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">backtrace</span>) <span class="op">=</span>
-            <span class="ident">headless_lms_utils::error::backend_error::BackendError::backtrace</span>(<span class="kw-2">&amp;</span><span class="ident">err</span>)
+<span class="kw">impl </span>From&lt;ModelError&gt; <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>from(err: ModelError) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>backtrace: Backtrace = <span class="kw">if let </span><span class="prelude-val">Some</span>(backtrace) =
+            headless_lms_utils::error::backend_error::BackendError::backtrace(<span class="kw-2">&amp;</span>err)
         {
-            <span class="ident">backtrace</span>.<span class="ident">clone</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">Backtrace::new</span>()
+            backtrace.clone()
+        } <span class="kw">else </span>{
+            Backtrace::new()
         };
-        <span class="kw">let</span> <span class="ident">span_trace</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">span_trace</span>().<span class="ident">clone</span>();
-        <span class="kw">match</span> <span class="ident">err</span>.<span class="ident">error_type</span>() {
-            <span class="ident">ModelErrorType::RecordNotFound</span> =&gt; <span class="ident"><span class="self">Self</span>::new_with_traces</span>(
-                <span class="ident">ControllerErrorType::NotFound</span>,
-                <span class="ident">err</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
-                <span class="ident">backtrace</span>,
-                <span class="ident">span_trace</span>,
+        <span class="kw">let </span>span_trace = err.span_trace().clone();
+        <span class="kw">match </span>err.error_type() {
+            ModelErrorType::RecordNotFound =&gt; <span class="self">Self</span>::new_with_traces(
+                ControllerErrorType::NotFound,
+                err.to_string(),
+                <span class="prelude-val">Some</span>(err.into()),
+                backtrace,
+                span_trace,
             ),
-            <span class="ident">ModelErrorType::NotFound</span> =&gt; <span class="ident"><span class="self">Self</span>::new_with_traces</span>(
-                <span class="ident">ControllerErrorType::NotFound</span>,
-                <span class="ident">err</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
-                <span class="ident">backtrace</span>,
-                <span class="ident">span_trace</span>,
+            ModelErrorType::NotFound =&gt; <span class="self">Self</span>::new_with_traces(
+                ControllerErrorType::NotFound,
+                err.to_string(),
+                <span class="prelude-val">Some</span>(err.into()),
+                backtrace,
+                span_trace,
             ),
-            <span class="ident">ModelErrorType::PreconditionFailed</span> =&gt; <span class="ident"><span class="self">Self</span>::new_with_traces</span>(
-                <span class="ident">ControllerErrorType::BadRequest</span>,
-                <span class="ident">err</span>.<span class="ident">message</span>().<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
-                <span class="ident">backtrace</span>,
-                <span class="ident">span_trace</span>,
+            ModelErrorType::PreconditionFailed =&gt; <span class="self">Self</span>::new_with_traces(
+                ControllerErrorType::BadRequest,
+                err.message().to_string(),
+                <span class="prelude-val">Some</span>(err.into()),
+                backtrace,
+                span_trace,
             ),
-            <span class="ident">ModelErrorType::PreconditionFailedWithCMSAnchorBlockId</span> { <span class="ident">description</span>, <span class="ident">id</span> } =&gt; {
-                <span class="ident"><span class="self">Self</span>::new_with_traces</span>(
-                    <span class="ident">ControllerErrorType::BadRequestWithData</span>(<span class="ident">ErrorData::BlockId</span>(<span class="kw-2">*</span><span class="ident">id</span>)),
-                    <span class="ident">description</span>.<span class="ident">to_string</span>(),
-                    <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
-                    <span class="ident">backtrace</span>,
-                    <span class="ident">span_trace</span>,
+            ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { description, id } =&gt; {
+                <span class="self">Self</span>::new_with_traces(
+                    ControllerErrorType::BadRequestWithData(ErrorData::BlockId(<span class="kw-2">*</span>id)),
+                    description.to_string(),
+                    <span class="prelude-val">Some</span>(err.into()),
+                    backtrace,
+                    span_trace,
                 )
             }
-            <span class="ident">ModelErrorType::DatabaseConstraint</span> { <span class="ident">description</span>, .. } =&gt; <span class="ident"><span class="self">Self</span>::new_with_traces</span>(
-                <span class="ident">ControllerErrorType::BadRequest</span>,
-                <span class="ident">description</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
-                <span class="ident">backtrace</span>,
-                <span class="ident">span_trace</span>,
+            ModelErrorType::DatabaseConstraint { description, .. } =&gt; <span class="self">Self</span>::new_with_traces(
+                ControllerErrorType::BadRequest,
+                description.to_string(),
+                <span class="prelude-val">Some</span>(err.into()),
+                backtrace,
+                span_trace,
             ),
-            <span class="ident">ModelErrorType::InvalidRequest</span> =&gt; <span class="ident"><span class="self">Self</span>::new_with_traces</span>(
-                <span class="ident">ControllerErrorType::BadRequest</span>,
-                <span class="ident">err</span>.<span class="ident">message</span>().<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
-                <span class="ident">backtrace</span>,
-                <span class="ident">span_trace</span>,
+            ModelErrorType::InvalidRequest =&gt; <span class="self">Self</span>::new_with_traces(
+                ControllerErrorType::BadRequest,
+                err.message().to_string(),
+                <span class="prelude-val">Some</span>(err.into()),
+                backtrace,
+                span_trace,
             ),
-            <span class="kw">_</span> =&gt; <span class="ident"><span class="self">Self</span>::new_with_traces</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">err</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
-                <span class="ident">backtrace</span>,
-                <span class="ident">span_trace</span>,
+            <span class="kw">_ </span>=&gt; <span class="self">Self</span>::new_with_traces(
+                ControllerErrorType::InternalServerError,
+                err.to_string(),
+                <span class="prelude-val">Some</span>(err.into()),
+                backtrace,
+                span_trace,
             ),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">UtilError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">UtilError</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">backtrace</span>: <span class="ident">Backtrace</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">backtrace</span>) <span class="op">=</span>
-            <span class="ident">headless_lms_utils::error::backend_error::BackendError::backtrace</span>(<span class="kw-2">&amp;</span><span class="ident">err</span>)
+<span class="kw">impl </span>From&lt;UtilError&gt; <span class="kw">for </span>ControllerError {
+    <span class="kw">fn </span>from(err: UtilError) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>backtrace: Backtrace = <span class="kw">if let </span><span class="prelude-val">Some</span>(backtrace) =
+            headless_lms_utils::error::backend_error::BackendError::backtrace(<span class="kw-2">&amp;</span>err)
         {
-            <span class="ident">backtrace</span>.<span class="ident">clone</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">Backtrace::new</span>()
+            backtrace.clone()
+        } <span class="kw">else </span>{
+            Backtrace::new()
         };
-        <span class="kw">let</span> <span class="ident">span_trace</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">span_trace</span>().<span class="ident">clone</span>();
-        <span class="ident"><span class="self">Self</span>::new_with_traces</span>(
-            <span class="ident">ControllerErrorType::InternalServerError</span>,
-            <span class="ident">err</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
-            <span class="ident">backtrace</span>,
-            <span class="ident">span_trace</span>,
+        <span class="kw">let </span>span_trace = err.span_trace().clone();
+        <span class="self">Self</span>::new_with_traces(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            <span class="prelude-val">Some</span>(err.into()),
+            backtrace,
+            span_trace,
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

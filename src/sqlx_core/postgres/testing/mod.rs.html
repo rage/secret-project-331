@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/testing/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/testing/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -202,121 +202,121 @@
 <span id="202">202</span>
 <span id="203">203</span>
 <span id="204">204</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
-<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Write;
+<span class="kw">use </span>std::str::FromStr;
+<span class="kw">use </span>std::sync::atomic::{AtomicBool, Ordering};
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
+<span class="kw">use </span>futures_core::future::BoxFuture;
 
-<span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
+<span class="kw">use </span>once_cell::sync::OnceCell;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Connection</span>;
+<span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::executor::Executor</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool</span>::{<span class="ident">Pool</span>, <span class="ident">PoolOptions</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgConnectOptions</span>, <span class="ident">PgConnection</span>, <span class="ident">Postgres</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query::query</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_scalar::query_scalar</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::testing</span>::{<span class="ident">FixtureSnapshot</span>, <span class="ident">TestArgs</span>, <span class="ident">TestContext</span>, <span class="ident">TestSupport</span>};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::executor::Executor;
+<span class="kw">use </span><span class="kw">crate</span>::pool::{Pool, PoolOptions};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{PgConnectOptions, PgConnection, Postgres};
+<span class="kw">use </span><span class="kw">crate</span>::query::query;
+<span class="kw">use </span><span class="kw">crate</span>::query_scalar::query_scalar;
+<span class="kw">use </span><span class="kw">crate</span>::testing::{FixtureSnapshot, TestArgs, TestContext, TestSupport};
 
-<span class="comment">// Using a blocking `OnceCell` here because the critical sections are short.</span>
-<span class="kw">static</span> <span class="ident">MASTER_POOL</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">OnceCell::new</span>();
-<span class="comment">// Automatically delete any databases created before the start of the test binary.</span>
-<span class="kw">static</span> <span class="ident">DO_CLEANUP</span>: <span class="ident">AtomicBool</span> <span class="op">=</span> <span class="ident">AtomicBool::new</span>(<span class="bool-val">true</span>);
+<span class="comment">// Using a blocking `OnceCell` here because the critical sections are short.
+</span><span class="kw">static </span>MASTER_POOL: OnceCell&lt;Pool&lt;Postgres&gt;&gt; = OnceCell::new();
+<span class="comment">// Automatically delete any databases created before the start of the test binary.
+</span><span class="kw">static </span>DO_CLEANUP: AtomicBool = AtomicBool::new(<span class="bool-val">true</span>);
 
-<span class="kw">impl</span> <span class="ident">TestSupport</span> <span class="kw">for</span> <span class="ident">Postgres</span> {
-    <span class="kw">fn</span> <span class="ident">test_context</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="ident">TestArgs</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TestContext</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">test_context</span>(<span class="ident">args</span>).<span class="kw">await</span>;
-            <span class="ident">res</span>
+<span class="kw">impl </span>TestSupport <span class="kw">for </span>Postgres {
+    <span class="kw">fn </span>test_context(args: <span class="kw-2">&amp;</span>TestArgs) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;TestContext&lt;<span class="self">Self</span>&gt;, Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>res = test_context(args).<span class="kw">await</span>;
+            res
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">cleanup_test</span>(<span class="ident">db_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">MASTER_POOL</span>
-                .<span class="ident">get</span>()
-                .<span class="ident">expect</span>(<span class="string">&quot;cleanup_test() invoked outside `#[sqlx::test]&quot;</span>)
-                .<span class="ident">acquire</span>()
+    <span class="kw">fn </span>cleanup_test(db_name: <span class="kw-2">&amp;</span>str) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;(), Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>conn = MASTER_POOL
+                .get()
+                .expect(<span class="string">&quot;cleanup_test() invoked outside `#[sqlx::test]&quot;</span>)
+                .acquire()
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="ident">conn</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;drop database if exists {0:?};&quot;</span>, <span class="ident">db_name</span>)[..])
+            conn.execute(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;drop database if exists {0:?};&quot;</span>, db_name)[..])
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="ident">query</span>(<span class="string">&quot;delete from _sqlx_test.databases where db_name = $1&quot;</span>)
-                .<span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="ident">db_name</span>)
-                .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
+            query(<span class="string">&quot;delete from _sqlx_test.databases where db_name = $1&quot;</span>)
+                .bind(<span class="kw-2">&amp;</span>db_name)
+                .execute(<span class="kw-2">&amp;mut </span>conn)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(())
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">cleanup_test_dbs</span>() -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">dotenvy::var</span>(<span class="string">&quot;DATABASE_URL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;DATABASE_URL must be set&quot;</span>);
+    <span class="kw">fn </span>cleanup_test_dbs() -&gt; BoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;, Error&gt;&gt; {
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>url = dotenvy::var(<span class="string">&quot;DATABASE_URL&quot;</span>).expect(<span class="string">&quot;DATABASE_URL must be set&quot;</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">PgConnection::connect</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">num_deleted</span> <span class="op">=</span> <span class="ident">do_cleanup</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">close</span>().<span class="kw">await</span>;
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">num_deleted</span>))
+            <span class="kw">let </span><span class="kw-2">mut </span>conn = PgConnection::connect(<span class="kw-2">&amp;</span>url).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>num_deleted = do_cleanup(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let _ </span>= conn.close().<span class="kw">await</span>;
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(num_deleted))
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">snapshot</span>(
-        <span class="ident">_conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Connection</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FixtureSnapshot</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO: I want to get the testing feature out the door so this will have to wait,</span>
-        <span class="comment">// but I&#39;m keeping the code around for now because I plan to come back to it.</span>
-        <span class="macro">todo!</span>()
+    <span class="kw">fn </span>snapshot(
+        _conn: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Connection,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span>&lt;FixtureSnapshot&lt;<span class="self">Self</span>&gt;, Error&gt;&gt; {
+        <span class="comment">// TODO: I want to get the testing feature out the door so this will have to wait,
+        // but I&#39;m keeping the code around for now because I plan to come back to it.
+        </span><span class="macro">todo!</span>()
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_context</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="ident">TestArgs</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TestContext</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">dotenvy::var</span>(<span class="string">&quot;DATABASE_URL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;DATABASE_URL must be set&quot;</span>);
+<span class="kw">async fn </span>test_context(args: <span class="kw-2">&amp;</span>TestArgs) -&gt; <span class="prelude-ty">Result</span>&lt;TestContext&lt;Postgres&gt;, Error&gt; {
+    <span class="kw">let </span>url = dotenvy::var(<span class="string">&quot;DATABASE_URL&quot;</span>).expect(<span class="string">&quot;DATABASE_URL must be set&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">master_opts</span> <span class="op">=</span> <span class="ident">PgConnectOptions::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to parse DATABASE_URL&quot;</span>);
+    <span class="kw">let </span>master_opts = PgConnectOptions::from_str(<span class="kw-2">&amp;</span>url).expect(<span class="string">&quot;failed to parse DATABASE_URL&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">PoolOptions::new</span>()
-        <span class="comment">// Postgres&#39; normal connection limit is 100 plus 3 superuser connections</span>
-        <span class="comment">// We don&#39;t want to use the whole cap and there may be fuzziness here due to</span>
-        <span class="comment">// concurrently running tests anyway.</span>
-        .<span class="ident">max_connections</span>(<span class="number">20</span>)
-        <span class="comment">// Immediately close master connections. Tokio&#39;s I/O streams don&#39;t like hopping runtimes.</span>
-        .<span class="ident">after_release</span>(<span class="op">|</span><span class="ident">_conn</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) }))
-        .<span class="ident">connect_lazy_with</span>(<span class="ident">master_opts</span>);
+    <span class="kw">let </span>pool = PoolOptions::new()
+        <span class="comment">// Postgres&#39; normal connection limit is 100 plus 3 superuser connections
+        // We don&#39;t want to use the whole cap and there may be fuzziness here due to
+        // concurrently running tests anyway.
+        </span>.max_connections(<span class="number">20</span>)
+        <span class="comment">// Immediately close master connections. Tokio&#39;s I/O streams don&#39;t like hopping runtimes.
+        </span>.after_release(|_conn, <span class="kw">_</span>| Box::pin(<span class="kw">async move </span>{ <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) }))
+        .connect_lazy_with(master_opts);
 
-    <span class="kw">let</span> <span class="ident">master_pool</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">MASTER_POOL</span>.<span class="ident">try_insert</span>(<span class="ident">pool</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">inserted</span>) =&gt; <span class="ident">inserted</span>,
-        <span class="prelude-val">Err</span>((<span class="ident">existing</span>, <span class="ident">pool</span>)) =&gt; {
-            <span class="comment">// Sanity checks.</span>
+    <span class="kw">let </span>master_pool = <span class="kw">match </span>MASTER_POOL.try_insert(pool) {
+        <span class="prelude-val">Ok</span>(inserted) =&gt; inserted,
+        <span class="prelude-val">Err</span>((existing, pool)) =&gt; {
+            <span class="comment">// Sanity checks.
+            </span><span class="macro">assert_eq!</span>(
+                existing.connect_options().host,
+                pool.connect_options().host,
+                <span class="string">&quot;DATABASE_URL changed at runtime, host differs&quot;
+            </span>);
+
             <span class="macro">assert_eq!</span>(
-                <span class="ident">existing</span>.<span class="ident">connect_options</span>().<span class="ident">host</span>,
-                <span class="ident">pool</span>.<span class="ident">connect_options</span>().<span class="ident">host</span>,
-                <span class="string">&quot;DATABASE_URL changed at runtime, host differs&quot;</span>
-            );
+                existing.connect_options().database,
+                pool.connect_options().database,
+                <span class="string">&quot;DATABASE_URL changed at runtime, database differs&quot;
+            </span>);
 
-            <span class="macro">assert_eq!</span>(
-                <span class="ident">existing</span>.<span class="ident">connect_options</span>().<span class="ident">database</span>,
-                <span class="ident">pool</span>.<span class="ident">connect_options</span>().<span class="ident">database</span>,
-                <span class="string">&quot;DATABASE_URL changed at runtime, database differs&quot;</span>
-            );
-
-            <span class="ident">existing</span>
+            existing
         }
     };
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">master_pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = master_pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// language=PostgreSQL</span>
-    <span class="ident">conn</span>.<span class="ident">execute</span>(
-        <span class="comment">// Explicit lock avoids this latent bug: https://stackoverflow.com/a/29908840</span>
-        <span class="comment">// I couldn&#39;t find a bug on the mailing list for `CREATE SCHEMA` specifically,</span>
-        <span class="comment">// but a clearly related bug with `CREATE TABLE` has been known since 2007:</span>
-        <span class="comment">// https://www.postgresql.org/message-id/200710222037.l9MKbCJZ098744%40wwwmaster.postgresql.org</span>
-        <span class="string">r#&quot;
+    <span class="comment">// language=PostgreSQL
+    </span>conn.execute(
+        <span class="comment">// Explicit lock avoids this latent bug: https://stackoverflow.com/a/29908840
+        // I couldn&#39;t find a bug on the mailing list for `CREATE SCHEMA` specifically,
+        // but a clearly related bug with `CREATE TABLE` has been known since 2007:
+        // https://www.postgresql.org/message-id/200710222037.l9MKbCJZ098744%40wwwmaster.postgresql.org
+        </span><span class="string">r#&quot;
         lock table pg_catalog.pg_namespace in share row exclusive mode;
 
         create schema if not exists _sqlx_test;
@@ -335,76 +335,76 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Only run cleanup if the test binary just started.</span>
-    <span class="kw">if</span> <span class="ident">DO_CLEANUP</span>.<span class="ident">swap</span>(<span class="bool-val">false</span>, <span class="ident">Ordering::SeqCst</span>) {
-        <span class="ident">do_cleanup</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Only run cleanup if the test binary just started.
+    </span><span class="kw">if </span>DO_CLEANUP.swap(<span class="bool-val">false</span>, Ordering::SeqCst) {
+        do_cleanup(<span class="kw-2">&amp;mut </span>conn).<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">new_db_name</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">query_scalar</span>(
+    <span class="kw">let </span>new_db_name: String = query_scalar(
         <span class="string">r#&quot;
             insert into _sqlx_test.databases(db_name, test_path)
             select &#39;_sqlx_test_&#39; || nextval(&#39;_sqlx_test.database_ids&#39;), $1
             returning db_name
         &quot;#</span>,
     )
-    .<span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="ident">args</span>.<span class="ident">test_path</span>)
-    .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
+    .bind(<span class="kw-2">&amp;</span>args.test_path)
+    .fetch_one(<span class="kw-2">&amp;mut </span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">conn</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;create database {:?}&quot;</span>, <span class="ident">new_db_name</span>)[..])
+    conn.execute(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;create database {:?}&quot;</span>, new_db_name)[..])
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">TestContext</span> {
-        <span class="ident">pool_opts</span>: <span class="ident">PoolOptions::new</span>()
-            <span class="comment">// Don&#39;t allow a single test to take all the connections.</span>
-            <span class="comment">// Most tests shouldn&#39;t require more than 5 connections concurrently,</span>
-            <span class="comment">// or else they&#39;re likely doing too much in one test.</span>
-            .<span class="ident">max_connections</span>(<span class="number">5</span>)
-            <span class="comment">// Close connections ASAP if left in the idle queue.</span>
-            .<span class="ident">idle_timeout</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">1</span>)))
-            .<span class="ident">parent</span>(<span class="ident">master_pool</span>.<span class="ident">clone</span>()),
-        <span class="ident">connect_opts</span>: <span class="ident">master_pool</span>.<span class="ident">connect_options</span>().<span class="ident">clone</span>().<span class="ident">database</span>(<span class="kw-2">&amp;</span><span class="ident">new_db_name</span>),
-        <span class="ident">db_name</span>: <span class="ident">new_db_name</span>,
+    <span class="prelude-val">Ok</span>(TestContext {
+        pool_opts: PoolOptions::new()
+            <span class="comment">// Don&#39;t allow a single test to take all the connections.
+            // Most tests shouldn&#39;t require more than 5 connections concurrently,
+            // or else they&#39;re likely doing too much in one test.
+            </span>.max_connections(<span class="number">5</span>)
+            <span class="comment">// Close connections ASAP if left in the idle queue.
+            </span>.idle_timeout(<span class="prelude-val">Some</span>(Duration::from_secs(<span class="number">1</span>)))
+            .parent(master_pool.clone()),
+        connect_opts: master_pool.connect_options().clone().database(<span class="kw-2">&amp;</span>new_db_name),
+        db_name: new_db_name,
     })
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">do_cleanup</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">delete_db_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">query_scalar</span>(<span class="string">&quot;select db_name from _sqlx_test.databases where created_at &lt; now()&quot;</span>)
-            .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+<span class="kw">async fn </span>do_cleanup(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
+    <span class="kw">let </span>delete_db_names: Vec&lt;String&gt; =
+        query_scalar(<span class="string">&quot;select db_name from _sqlx_test.databases where created_at &lt; now()&quot;</span>)
+            .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="ident">delete_db_names</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="number">0</span>);
+    <span class="kw">if </span>delete_db_names.is_empty() {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="number">0</span>);
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deleted_db_names</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">delete_db_names</span>.<span class="ident">len</span>());
-    <span class="kw">let</span> <span class="ident">delete_db_names</span> <span class="op">=</span> <span class="ident">delete_db_names</span>.<span class="ident">into_iter</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>deleted_db_names = Vec::with_capacity(delete_db_names.len());
+    <span class="kw">let </span>delete_db_names = delete_db_names.into_iter();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">command</span> <span class="op">=</span> <span class="ident">String::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>command = String::new();
 
-    <span class="kw">for</span> <span class="ident">db_name</span> <span class="kw">in</span> <span class="ident">delete_db_names</span> {
-        <span class="ident">command</span>.<span class="ident">clear</span>();
-        <span class="macro">writeln!</span>(<span class="ident">command</span>, <span class="string">&quot;drop database if exists {:?};&quot;</span>, <span class="ident">db_name</span>).<span class="ident">ok</span>();
-        <span class="kw">match</span> <span class="ident">conn</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">command</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">_deleted</span>) =&gt; {
-                <span class="ident">deleted_db_names</span>.<span class="ident">push</span>(<span class="ident">db_name</span>);
+    <span class="kw">for </span>db_name <span class="kw">in </span>delete_db_names {
+        command.clear();
+        <span class="macro">writeln!</span>(command, <span class="string">&quot;drop database if exists {:?};&quot;</span>, db_name).ok();
+        <span class="kw">match </span>conn.execute(<span class="kw-2">&amp;*</span>command).<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(_deleted) =&gt; {
+                deleted_db_names.push(db_name);
             }
-            <span class="comment">// Assume a database error just means the DB is still in use.</span>
-            <span class="prelude-val">Err</span>(<span class="ident">Error::Database</span>(<span class="ident">dbe</span>)) =&gt; {
-                <span class="macro">eprintln!</span>(<span class="string">&quot;could not clean test database {:?}: {}&quot;</span>, <span class="ident">db_name</span>, <span class="ident">dbe</span>)
+            <span class="comment">// Assume a database error just means the DB is still in use.
+            </span><span class="prelude-val">Err</span>(Error::Database(dbe)) =&gt; {
+                <span class="macro">eprintln!</span>(<span class="string">&quot;could not clean test database {:?}: {}&quot;</span>, db_name, dbe)
             }
-            <span class="comment">// Bubble up other errors</span>
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="comment">// Bubble up other errors
+            </span><span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
         }
     }
 
-    <span class="ident">query</span>(<span class="string">&quot;delete from _sqlx_test.databases where db_name = any($1::text[])&quot;</span>)
-        .<span class="ident">bind</span>(<span class="kw-2">&amp;</span><span class="ident">deleted_db_names</span>)
-        .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    query(<span class="string">&quot;delete from _sqlx_test.databases where db_name = any($1::text[])&quot;</span>)
+        .bind(<span class="kw-2">&amp;</span>deleted_db_names)
+        .execute(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">deleted_db_names</span>.<span class="ident">len</span>())
+    <span class="prelude-val">Ok</span>(deleted_db_names.len())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

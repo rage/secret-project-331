@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-0.6.2/src/ty_match.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ty_match.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-0.6.2/src/ty_match.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ty_match.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -162,169 +162,169 @@
 <span id="162">162</span>
 <span id="163">163</span>
 <span id="164">164</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::marker::PhantomData;
 
-<span class="comment">// These types allow the `query!()` and friends to compare a given parameter&#39;s type to</span>
-<span class="comment">// an expected parameter type even if the former is behind a reference or in `Option`.</span>
+<span class="comment">// These types allow the `query!()` and friends to compare a given parameter&#39;s type to
+// an expected parameter type even if the former is behind a reference or in `Option`.
 
-<span class="comment">// For query parameters, Postgres gives us a single type ID which we convert to an &quot;expected&quot; or</span>
-<span class="comment">// preferred Rust type, but there can actually be several types that are compatible for a given type</span>
-<span class="comment">// in input position. E.g. for an expected parameter of `String`, we want to accept `String`,</span>
-<span class="comment">// `Option&lt;String&gt;`, `&amp;str` and `Option&lt;&amp;str&gt;`. And for the best compiler errors we don&#39;t just</span>
-<span class="comment">// want an `IsCompatible` trait (at least not without `#[on_unimplemented]` which is unstable</span>
-<span class="comment">// for the foreseeable future).</span>
+// For query parameters, Postgres gives us a single type ID which we convert to an &quot;expected&quot; or
+// preferred Rust type, but there can actually be several types that are compatible for a given type
+// in input position. E.g. for an expected parameter of `String`, we want to accept `String`,
+// `Option&lt;String&gt;`, `&amp;str` and `Option&lt;&amp;str&gt;`. And for the best compiler errors we don&#39;t just
+// want an `IsCompatible` trait (at least not without `#[on_unimplemented]` which is unstable
+// for the foreseeable future).
 
-<span class="comment">// We can do this by using autoref (for method calls, the compiler adds reference ops until</span>
-<span class="comment">// it finds a matching impl) with impls that technically don&#39;t overlap as a hacky form of</span>
-<span class="comment">// specialization (but this works only if all types are statically known, i.e. we&#39;re not in a</span>
-<span class="comment">// generic context; this should suit 99% of use cases for the macros).</span>
+// We can do this by using autoref (for method calls, the compiler adds reference ops until
+// it finds a matching impl) with impls that technically don&#39;t overlap as a hacky form of
+// specialization (but this works only if all types are statically known, i.e. we&#39;re not in a
+// generic context; this should suit 99% of use cases for the macros).
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::just_underscores_and_digits</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">same_type</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">_1</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">_2</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) {}
+</span><span class="attribute">#[allow(clippy::just_underscores_and_digits)]
+</span><span class="kw">pub fn </span>same_type&lt;T&gt;(_1: <span class="kw-2">&amp;</span>T, _2: <span class="kw-2">&amp;</span>T) {}
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WrapSame</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>);
+<span class="kw">pub struct </span>WrapSame&lt;T, U&gt;(PhantomData&lt;T&gt;, PhantomData&lt;U&gt;);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">WrapSame</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">_arg</span>: <span class="kw-2">&amp;</span><span class="ident">U</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">WrapSame</span>(<span class="ident">PhantomData</span>, <span class="ident">PhantomData</span>)
+<span class="kw">impl</span>&lt;T, U&gt; WrapSame&lt;T, U&gt; {
+    <span class="kw">pub fn </span>new(_arg: <span class="kw-2">&amp;</span>U) -&gt; <span class="self">Self </span>{
+        WrapSame(PhantomData, PhantomData)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">WrapSameExt</span>: <span class="ident">Sized</span> {
-    <span class="kw">type</span> <span class="ident">Wrapped</span>;
+<span class="kw">pub trait </span>WrapSameExt: Sized {
+    <span class="kw">type </span>Wrapped;
 
-    <span class="kw">fn</span> <span class="ident">wrap_same</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Wrapped</span> {
+    <span class="kw">fn </span>wrap_same(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Wrapped {
         <span class="macro">panic!</span>(<span class="string">&quot;only for type resolution&quot;</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">WrapSameExt</span> <span class="kw">for</span> <span class="ident">WrapSame</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Wrapped</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;T, U&gt; WrapSameExt <span class="kw">for </span>WrapSame&lt;T, <span class="prelude-ty">Option</span>&lt;U&gt;&gt; {
+    <span class="kw">type </span>Wrapped = <span class="prelude-ty">Option</span>&lt;T&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">WrapSameExt</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">WrapSame</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Wrapped</span> <span class="op">=</span> <span class="ident">T</span>;
+<span class="kw">impl</span>&lt;T, U&gt; WrapSameExt <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>WrapSame&lt;T, U&gt; {
+    <span class="kw">type </span>Wrapped = T;
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>);
+<span class="kw">pub struct </span>MatchBorrow&lt;T, U&gt;(PhantomData&lt;T&gt;, PhantomData&lt;U&gt;);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">t</span>: <span class="ident">T</span>, <span class="ident">_u</span>: <span class="kw-2">&amp;</span><span class="ident">U</span>) -&gt; (<span class="ident">T</span>, <span class="self">Self</span>) {
-        (<span class="ident">t</span>, <span class="ident">MatchBorrow</span>(<span class="ident">PhantomData</span>, <span class="ident">PhantomData</span>))
+<span class="kw">impl</span>&lt;T, U&gt; MatchBorrow&lt;T, U&gt; {
+    <span class="kw">pub fn </span>new(t: T, _u: <span class="kw-2">&amp;</span>U) -&gt; (T, <span class="self">Self</span>) {
+        (t, MatchBorrow(PhantomData, PhantomData))
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MatchBorrowExt</span>: <span class="ident">Sized</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span>;
+<span class="kw">pub trait </span>MatchBorrowExt: Sized {
+    <span class="kw">type </span>Matched;
 
-    <span class="kw">fn</span> <span class="ident">match_borrow</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Matched</span> {
+    <span class="kw">fn </span>match_borrow(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Matched {
         <span class="macro">panic!</span>(<span class="string">&quot;only for type resolution&quot;</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;, <span class="prelude-ty">Option</span>&lt;String&gt;&gt; {
+    <span class="kw">type </span>Matched = <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]<span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;, <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;&gt; {
+    <span class="kw">type </span>Matched = <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>String&gt;&gt; {
+    <span class="kw">type </span>Matched = <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]<span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Vec&lt;u8&gt;&gt;&gt; {
+    <span class="kw">type </span>Matched = <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, String&gt; {
+    <span class="kw">type </span>Matched = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>];
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], Vec&lt;u8&gt;&gt; {
+    <span class="kw">type </span>Matched = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8];
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="ident">T</span>;
+<span class="kw">impl</span>&lt;T&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T, T&gt; {
+    <span class="kw">type </span>Matched = T;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="ident">T</span>;
+<span class="kw">impl</span>&lt;T&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T, T&gt; {
+    <span class="kw">type </span>Matched = T;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="ident">T</span>;
+<span class="kw">impl</span>&lt;T&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T&gt; {
+    <span class="kw">type </span>Matched = T;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="ident">T</span>;
+<span class="kw">impl</span>&lt;T&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;T, <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T&gt; {
+    <span class="kw">type </span>Matched = T;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;T&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T&gt;, <span class="prelude-ty">Option</span>&lt;T&gt;&gt; {
+    <span class="kw">type </span>Matched = <span class="prelude-ty">Option</span>&lt;T&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;T&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T&gt;, <span class="prelude-ty">Option</span>&lt;T&gt;&gt; {
+    <span class="kw">type </span>Matched = <span class="prelude-ty">Option</span>&lt;T&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;T&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T&gt;&gt; {
+    <span class="kw">type </span>Matched = <span class="prelude-ty">Option</span>&lt;T&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;T&gt; MatchBorrowExt <span class="kw">for </span>MatchBorrow&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>T&gt;&gt; {
+    <span class="kw">type </span>Matched = <span class="prelude-ty">Option</span>&lt;T&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">MatchBorrowExt</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">MatchBorrow</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Matched</span> <span class="op">=</span> <span class="ident">U</span>;
+<span class="kw">impl</span>&lt;T, U&gt; MatchBorrowExt <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>MatchBorrow&lt;T, U&gt; {
+    <span class="kw">type </span>Matched = U;
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conjure_value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="ident">T</span> {
+<span class="kw">pub fn </span>conjure_value&lt;T&gt;() -&gt; T {
     <span class="macro">panic!</span>()
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dupe_value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">_t</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">T</span> {
+<span class="kw">pub fn </span>dupe_value&lt;T&gt;(_t: <span class="kw-2">&amp;</span>T) -&gt; T {
     <span class="macro">panic!</span>()
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_dupe_value</span>() {
-    <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">val</span> <span class="op">=</span> (<span class="ident">String::new</span>(),);
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_dupe_value() {
+    <span class="kw">let </span><span class="kw-2">ref </span>val = (String::new(),);
 
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">dupe_value</span>(<span class="kw-2">&amp;</span><span class="number">0i32</span>);
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">dupe_value</span>(<span class="kw-2">&amp;</span><span class="ident">String::new</span>());
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">dupe_value</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>.<span class="number">0</span>);
+    <span class="kw">if </span><span class="bool-val">false </span>{
+        <span class="kw">let _</span>: i32 = dupe_value(<span class="kw-2">&amp;</span><span class="number">0i32</span>);
+        <span class="kw">let _</span>: String = dupe_value(<span class="kw-2">&amp;</span>String::new());
+        <span class="kw">let _</span>: String = dupe_value(<span class="kw-2">&amp;</span>val.<span class="number">0</span>);
     }
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_wrap_same</span>() {
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">WrapSame</span>::<span class="op">&lt;</span><span class="ident">i32</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="number">0i32</span>).<span class="ident">wrap_same</span>();
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="ident">WrapSame</span>::<span class="op">&lt;</span><span class="ident">i32</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="string">&quot;hello, world!&quot;</span>).<span class="ident">wrap_same</span>();
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">WrapSame</span>::<span class="op">&lt;</span><span class="ident">i32</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">String::new</span>())).<span class="ident">wrap_same</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_wrap_same() {
+    <span class="kw">if </span><span class="bool-val">false </span>{
+        <span class="kw">let _</span>: i32 = WrapSame::&lt;i32, <span class="kw">_</span>&gt;::new(<span class="kw-2">&amp;</span><span class="number">0i32</span>).wrap_same();
+        <span class="kw">let _</span>: i32 = WrapSame::&lt;i32, <span class="kw">_</span>&gt;::new(<span class="kw-2">&amp;</span><span class="string">&quot;hello, world!&quot;</span>).wrap_same();
+        <span class="kw">let _</span>: <span class="prelude-ty">Option</span>&lt;i32&gt; = WrapSame::&lt;i32, <span class="kw">_</span>&gt;::new(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(String::new())).wrap_same();
     }
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_match_borrow</span>() {
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">match_borrow</span>) <span class="op">=</span> <span class="ident">MatchBorrow::new</span>(<span class="string">&quot;&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">String::new</span>());
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="ident">match_borrow</span>.<span class="ident">match_borrow</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_match_borrow() {
+    <span class="kw">if </span><span class="bool-val">false </span>{
+        <span class="kw">let </span>(<span class="kw">_</span>, match_borrow) = MatchBorrow::new(<span class="string">&quot;&quot;</span>, <span class="kw-2">&amp;</span>String::new());
+        <span class="kw">let _</span>: <span class="kw-2">&amp;</span>str = match_borrow.match_borrow();
 
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">match_borrow</span>) <span class="op">=</span> <span class="ident">MatchBorrow::new</span>(<span class="op">&amp;&amp;</span><span class="number">0i64</span>, <span class="kw-2">&amp;</span><span class="number">0i64</span>);
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">i64</span> <span class="op">=</span> <span class="ident">match_borrow</span>.<span class="ident">match_borrow</span>();
+        <span class="kw">let </span>(<span class="kw">_</span>, match_borrow) = MatchBorrow::new(&amp;&amp;<span class="number">0i64</span>, <span class="kw-2">&amp;</span><span class="number">0i64</span>);
+        <span class="kw">let _</span>: i64 = match_borrow.match_borrow();
 
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">match_borrow</span>) <span class="op">=</span> <span class="ident">MatchBorrow::new</span>(<span class="kw-2">&amp;</span><span class="number">0i64</span>, <span class="kw-2">&amp;</span><span class="number">0i64</span>);
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">i64</span> <span class="op">=</span> <span class="ident">match_borrow</span>.<span class="ident">match_borrow</span>();
+        <span class="kw">let </span>(<span class="kw">_</span>, match_borrow) = MatchBorrow::new(<span class="kw-2">&amp;</span><span class="number">0i64</span>, <span class="kw-2">&amp;</span><span class="number">0i64</span>);
+        <span class="kw">let _</span>: i64 = match_borrow.match_borrow();
 
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">match_borrow</span>) <span class="op">=</span> <span class="ident">MatchBorrow::new</span>(<span class="number">0i64</span>, <span class="kw-2">&amp;</span><span class="number">0i64</span>);
-        <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">i64</span> <span class="op">=</span> <span class="ident">match_borrow</span>.<span class="ident">match_borrow</span>();
+        <span class="kw">let </span>(<span class="kw">_</span>, match_borrow) = MatchBorrow::new(<span class="number">0i64</span>, <span class="kw-2">&amp;</span><span class="number">0i64</span>);
+        <span class="kw">let _</span>: i64 = match_borrow.match_borrow();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

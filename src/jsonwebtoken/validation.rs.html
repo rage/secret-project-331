@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/validation.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>validation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/validation.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>validation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -463,470 +463,470 @@
 <span id="463">463</span>
 <span id="464">464</span>
 <span id="465">465</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
-<span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">SystemTime</span>, <span class="ident">UNIX_EPOCH</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
+<span class="kw">use </span>std::time::{SystemTime, UNIX_EPOCH};
 
-<span class="kw">use</span> <span class="ident">serde_json::map::Map</span>;
-<span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">from_value</span>, <span class="ident">Value</span>};
+<span class="kw">use </span>serde_json::map::Map;
+<span class="kw">use </span>serde_json::{from_value, Value};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::algorithms::Algorithm</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>::{<span class="ident">new_error</span>, <span class="ident">ErrorKind</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span><span class="kw">crate</span>::algorithms::Algorithm;
+<span class="kw">use </span><span class="kw">crate</span>::errors::{new_error, ErrorKind, <span class="prelude-ty">Result</span>};
 
-<span class="doccomment">/// Contains the various validations that are applied after decoding a JWT.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// All time validation happen on UTC timestamps as seconds.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// use jsonwebtoken::Validation;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Default value</span>
-<span class="doccomment">/// let validation = Validation::default();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Changing one parameter</span>
-<span class="doccomment">/// let mut validation = Validation {leeway: 60, ..Default::default()};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Setting audience</span>
-<span class="doccomment">/// let mut validation = Validation::default();</span>
-<span class="doccomment">/// validation.set_audience(&amp;[&quot;Me&quot;]); // a single string</span>
-<span class="doccomment">/// validation.set_audience(&amp;[&quot;Me&quot;, &quot;You&quot;]); // array of strings</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Validation</span> {
-    <span class="doccomment">/// Add some leeway (in seconds) to the `exp`, `iat` and `nbf` validation to</span>
-    <span class="doccomment">/// account for clock skew.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to `0`.</span>
-    <span class="kw">pub</span> <span class="ident">leeway</span>: <span class="ident">u64</span>,
-    <span class="doccomment">/// Whether to validate the `exp` field.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It will return an error if the time in the `exp` field is past.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to `true`.</span>
-    <span class="kw">pub</span> <span class="ident">validate_exp</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Whether to validate the `nbf` field.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It will return an error if the current timestamp is before the time in the `nbf` field.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to `false`.</span>
-    <span class="kw">pub</span> <span class="ident">validate_nbf</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If it contains a value, the validation will check that the `aud` field is a member of the</span>
-    <span class="doccomment">/// audience provided and will error otherwise.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to `None`.</span>
-    <span class="kw">pub</span> <span class="ident">aud</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// If it contains a value, the validation will check that the `iss` field is the same as the</span>
-    <span class="doccomment">/// one provided and will error otherwise.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to `None`.</span>
-    <span class="kw">pub</span> <span class="ident">iss</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// If it contains a value, the validation will check that the `sub` field is the same as the</span>
-    <span class="doccomment">/// one provided and will error otherwise.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to `None`.</span>
-    <span class="kw">pub</span> <span class="ident">sub</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// If it contains a value, the validation will check that the `alg` of the header is contained</span>
-    <span class="doccomment">/// in the ones provided and will error otherwise.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defaults to `vec![Algorithm::HS256]`.</span>
-    <span class="kw">pub</span> <span class="ident">algorithms</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Algorithm</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Contains the various validations that are applied after decoding a JWT.
+///
+/// All time validation happen on UTC timestamps as seconds.
+///
+/// ```rust
+/// use jsonwebtoken::Validation;
+///
+/// // Default value
+/// let validation = Validation::default();
+///
+/// // Changing one parameter
+/// let mut validation = Validation {leeway: 60, ..Default::default()};
+///
+/// // Setting audience
+/// let mut validation = Validation::default();
+/// validation.set_audience(&amp;[&quot;Me&quot;]); // a single string
+/// validation.set_audience(&amp;[&quot;Me&quot;, &quot;You&quot;]); // array of strings
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>Validation {
+    <span class="doccomment">/// Add some leeway (in seconds) to the `exp`, `iat` and `nbf` validation to
+    /// account for clock skew.
+    ///
+    /// Defaults to `0`.
+    </span><span class="kw">pub </span>leeway: u64,
+    <span class="doccomment">/// Whether to validate the `exp` field.
+    ///
+    /// It will return an error if the time in the `exp` field is past.
+    ///
+    /// Defaults to `true`.
+    </span><span class="kw">pub </span>validate_exp: bool,
+    <span class="doccomment">/// Whether to validate the `nbf` field.
+    ///
+    /// It will return an error if the current timestamp is before the time in the `nbf` field.
+    ///
+    /// Defaults to `false`.
+    </span><span class="kw">pub </span>validate_nbf: bool,
+    <span class="doccomment">/// If it contains a value, the validation will check that the `aud` field is a member of the
+    /// audience provided and will error otherwise.
+    ///
+    /// Defaults to `None`.
+    </span><span class="kw">pub </span>aud: <span class="prelude-ty">Option</span>&lt;HashSet&lt;String&gt;&gt;,
+    <span class="doccomment">/// If it contains a value, the validation will check that the `iss` field is the same as the
+    /// one provided and will error otherwise.
+    ///
+    /// Defaults to `None`.
+    </span><span class="kw">pub </span>iss: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// If it contains a value, the validation will check that the `sub` field is the same as the
+    /// one provided and will error otherwise.
+    ///
+    /// Defaults to `None`.
+    </span><span class="kw">pub </span>sub: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// If it contains a value, the validation will check that the `alg` of the header is contained
+    /// in the ones provided and will error otherwise.
+    ///
+    /// Defaults to `vec![Algorithm::HS256]`.
+    </span><span class="kw">pub </span>algorithms: Vec&lt;Algorithm&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Validation</span> {
-    <span class="doccomment">/// Create a default validation setup allowing the given alg</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">alg</span>: <span class="ident">Algorithm</span>) -&gt; <span class="ident">Validation</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation::default</span>();
-        <span class="ident">validation</span>.<span class="ident">algorithms</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">alg</span>];
-        <span class="ident">validation</span>
+<span class="kw">impl </span>Validation {
+    <span class="doccomment">/// Create a default validation setup allowing the given alg
+    </span><span class="kw">pub fn </span>new(alg: Algorithm) -&gt; Validation {
+        <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation::default();
+        validation.algorithms = <span class="macro">vec!</span>[alg];
+        validation
     }
 
-    <span class="doccomment">/// `aud` is a collection of one or more acceptable audience members</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_audience</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToString</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">items</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) {
-        <span class="self">self</span>.<span class="ident">aud</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">items</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>()).<span class="ident">collect</span>())
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Validation</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Validation</span> {
-        <span class="ident">Validation</span> {
-            <span class="ident">leeway</span>: <span class="number">0</span>,
-
-            <span class="ident">validate_exp</span>: <span class="bool-val">true</span>,
-            <span class="ident">validate_nbf</span>: <span class="bool-val">false</span>,
-
-            <span class="ident">iss</span>: <span class="prelude-val">None</span>,
-            <span class="ident">sub</span>: <span class="prelude-val">None</span>,
-            <span class="ident">aud</span>: <span class="prelude-val">None</span>,
-
-            <span class="ident">algorithms</span>: <span class="macro">vec!</span>[<span class="ident">Algorithm::HS256</span>],
-        }
+    <span class="doccomment">/// `aud` is a collection of one or more acceptable audience members
+    </span><span class="kw">pub fn </span>set_audience&lt;T: ToString&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, items: <span class="kw-2">&amp;</span>[T]) {
+        <span class="self">self</span>.aud = <span class="prelude-val">Some</span>(items.iter().map(|x| x.to_string()).collect())
     }
 }
 
-<span class="kw">fn</span> <span class="ident">get_current_timestamp</span>() -&gt; <span class="ident">u64</span> {
-    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">SystemTime::now</span>();
-    <span class="ident">start</span>.<span class="ident">duration_since</span>(<span class="ident">UNIX_EPOCH</span>).<span class="ident">expect</span>(<span class="string">&quot;Time went backwards&quot;</span>).<span class="ident">as_secs</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>Validation {
+    <span class="kw">fn </span>default() -&gt; Validation {
+        Validation {
+            leeway: <span class="number">0</span>,
+
+            validate_exp: <span class="bool-val">true</span>,
+            validate_nbf: <span class="bool-val">false</span>,
+
+            iss: <span class="prelude-val">None</span>,
+            sub: <span class="prelude-val">None</span>,
+            aud: <span class="prelude-val">None</span>,
+
+            algorithms: <span class="macro">vec!</span>[Algorithm::HS256],
+        }
+    }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate</span>(<span class="ident">claims</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Value</span><span class="op">&gt;</span>, <span class="ident">options</span>: <span class="kw-2">&amp;</span><span class="ident">Validation</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">get_current_timestamp</span>();
+<span class="kw">fn </span>get_current_timestamp() -&gt; u64 {
+    <span class="kw">let </span>start = SystemTime::now();
+    start.duration_since(UNIX_EPOCH).expect(<span class="string">&quot;Time went backwards&quot;</span>).as_secs()
+}
 
-    <span class="kw">if</span> <span class="ident">options</span>.<span class="ident">validate_exp</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exp</span>) <span class="op">=</span> <span class="ident">claims</span>.<span class="ident">get</span>(<span class="string">&quot;exp&quot;</span>) {
-            <span class="kw">if</span> <span class="ident">from_value</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>(<span class="ident">exp</span>.<span class="ident">clone</span>())<span class="question-mark">?</span> <span class="op">&lt;</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">options</span>.<span class="ident">leeway</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::ExpiredSignature</span>));
+<span class="kw">pub fn </span>validate(claims: <span class="kw-2">&amp;</span>Map&lt;String, Value&gt;, options: <span class="kw-2">&amp;</span>Validation) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>now = get_current_timestamp();
+
+    <span class="kw">if </span>options.validate_exp {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(exp) = claims.get(<span class="string">&quot;exp&quot;</span>) {
+            <span class="kw">if </span>from_value::&lt;u64&gt;(exp.clone())<span class="question-mark">? </span>&lt; now - options.leeway {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::ExpiredSignature));
             }
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::ExpiredSignature</span>));
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::ExpiredSignature));
         }
     }
 
-    <span class="kw">if</span> <span class="ident">options</span>.<span class="ident">validate_nbf</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">nbf</span>) <span class="op">=</span> <span class="ident">claims</span>.<span class="ident">get</span>(<span class="string">&quot;nbf&quot;</span>) {
-            <span class="kw">if</span> <span class="ident">from_value</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>(<span class="ident">nbf</span>.<span class="ident">clone</span>())<span class="question-mark">?</span> <span class="op">&gt;</span> <span class="ident">now</span> <span class="op">+</span> <span class="ident">options</span>.<span class="ident">leeway</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::ImmatureSignature</span>));
+    <span class="kw">if </span>options.validate_nbf {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(nbf) = claims.get(<span class="string">&quot;nbf&quot;</span>) {
+            <span class="kw">if </span>from_value::&lt;u64&gt;(nbf.clone())<span class="question-mark">? </span>&gt; now + options.leeway {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::ImmatureSignature));
             }
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::ImmatureSignature</span>));
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::ImmatureSignature));
         }
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">correct_iss</span>) <span class="op">=</span> <span class="ident">options</span>.<span class="ident">iss</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">iss</span>) <span class="op">=</span> <span class="ident">claims</span>.<span class="ident">get</span>(<span class="string">&quot;iss&quot;</span>) {
-            <span class="kw">if</span> <span class="ident">from_value</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="ident">iss</span>.<span class="ident">clone</span>())<span class="question-mark">?</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">correct_iss</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidIssuer</span>));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>correct_iss) = options.iss {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(iss) = claims.get(<span class="string">&quot;iss&quot;</span>) {
+            <span class="kw">if </span>from_value::&lt;String&gt;(iss.clone())<span class="question-mark">? </span>!= <span class="kw-2">*</span>correct_iss {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidIssuer));
             }
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidIssuer</span>));
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidIssuer));
         }
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">correct_sub</span>) <span class="op">=</span> <span class="ident">options</span>.<span class="ident">sub</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sub</span>) <span class="op">=</span> <span class="ident">claims</span>.<span class="ident">get</span>(<span class="string">&quot;sub&quot;</span>) {
-            <span class="kw">if</span> <span class="ident">from_value</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="ident">sub</span>.<span class="ident">clone</span>())<span class="question-mark">?</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">correct_sub</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidSubject</span>));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>correct_sub) = options.sub {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(sub) = claims.get(<span class="string">&quot;sub&quot;</span>) {
+            <span class="kw">if </span>from_value::&lt;String&gt;(sub.clone())<span class="question-mark">? </span>!= <span class="kw-2">*</span>correct_sub {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidSubject));
             }
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidSubject</span>));
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidSubject));
         }
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">correct_aud</span>) <span class="op">=</span> <span class="ident">options</span>.<span class="ident">aud</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">aud</span>) <span class="op">=</span> <span class="ident">claims</span>.<span class="ident">get</span>(<span class="string">&quot;aud&quot;</span>) {
-            <span class="kw">match</span> <span class="ident">aud</span> {
-                <span class="ident">Value::String</span>(<span class="ident">aud_found</span>) =&gt; {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">correct_aud</span>.<span class="ident">contains</span>(<span class="ident">aud_found</span>) {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidAudience</span>));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>correct_aud) = options.aud {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(aud) = claims.get(<span class="string">&quot;aud&quot;</span>) {
+            <span class="kw">match </span>aud {
+                Value::String(aud_found) =&gt; {
+                    <span class="kw">if </span>!correct_aud.contains(aud_found) {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidAudience));
                     }
                 }
-                <span class="ident">Value::Array</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">provided_aud</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">from_value</span>(<span class="ident">aud</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
-                    <span class="kw">if</span> <span class="ident">provided_aud</span>.<span class="ident">intersection</span>(<span class="ident">correct_aud</span>).<span class="ident">count</span>() <span class="op">==</span> <span class="number">0</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidAudience</span>));
+                Value::Array(<span class="kw">_</span>) =&gt; {
+                    <span class="kw">let </span>provided_aud: HashSet&lt;String&gt; = from_value(aud.clone())<span class="question-mark">?</span>;
+                    <span class="kw">if </span>provided_aud.intersection(correct_aud).count() == <span class="number">0 </span>{
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidAudience));
                     }
                 }
-                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidAudience</span>)),
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidAudience)),
             };
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">new_error</span>(<span class="ident">ErrorKind::InvalidAudience</span>));
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(new_error(ErrorKind::InvalidAudience));
         }
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">serde_json::map::Map</span>;
-    <span class="kw">use</span> <span class="ident">serde_json::to_value</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>serde_json::map::Map;
+    <span class="kw">use </span>serde_json::to_value;
 
-    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">get_current_timestamp</span>, <span class="ident">validate</span>, <span class="ident">Validation</span>};
+    <span class="kw">use super</span>::{get_current_timestamp, validate, Validation};
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors::ErrorKind</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::errors::ErrorKind;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">exp_in_future_ok</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;exp&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="ident">get_current_timestamp</span>() <span class="op">+</span> <span class="number">10000</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">Validation::default</span>());
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>exp_in_future_ok() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;exp&quot;</span>.to_string(), to_value(get_current_timestamp() + <span class="number">10000</span>).unwrap());
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>Validation::default());
+        <span class="macro">assert!</span>(res.is_ok());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">exp_in_past_fails</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;exp&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="ident">get_current_timestamp</span>() <span class="op">-</span> <span class="number">100000</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">Validation::default</span>());
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>exp_in_past_fails() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;exp&quot;</span>.to_string(), to_value(get_current_timestamp() - <span class="number">100000</span>).unwrap());
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>Validation::default());
+        <span class="macro">assert!</span>(res.is_err());
 
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::ExpiredSignature</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::ExpiredSignature =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
         };
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">exp_in_past_but_in_leeway_ok</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;exp&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="ident">get_current_timestamp</span>() <span class="op">-</span> <span class="number">500</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> { <span class="ident">leeway</span>: <span class="number">1000</span> <span class="op">*</span> <span class="number">60</span>, ..<span class="ident">Default::default</span>() };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>exp_in_past_but_in_leeway_ok() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;exp&quot;</span>.to_string(), to_value(get_current_timestamp() - <span class="number">500</span>).unwrap());
+        <span class="kw">let </span>validation = Validation { leeway: <span class="number">1000 </span>* <span class="number">60</span>, ..Default::default() };
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_ok());
     }
 
-    <span class="comment">// https://github.com/Keats/jsonwebtoken/issues/51</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">validation_called_even_if_field_is_empty</span>() {
-        <span class="kw">let</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">Validation::default</span>());
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::ExpiredSignature</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
-        };
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">nbf_in_past_ok</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;nbf&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="ident">get_current_timestamp</span>() <span class="op">-</span> <span class="number">10000</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span>
-            <span class="ident">Validation</span> { <span class="ident">validate_exp</span>: <span class="bool-val">false</span>, <span class="ident">validate_nbf</span>: <span class="bool-val">true</span>, ..<span class="ident">Validation::default</span>() };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">nbf_in_future_fails</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;nbf&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="ident">get_current_timestamp</span>() <span class="op">+</span> <span class="number">100000</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span>
-            <span class="ident">Validation</span> { <span class="ident">validate_exp</span>: <span class="bool-val">false</span>, <span class="ident">validate_nbf</span>: <span class="bool-val">true</span>, ..<span class="ident">Validation::default</span>() };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
-
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::ImmatureSignature</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+    <span class="comment">// https://github.com/Keats/jsonwebtoken/issues/51
+    </span><span class="attribute">#[test]
+    </span><span class="kw">fn </span>validation_called_even_if_field_is_empty() {
+        <span class="kw">let </span>claims = Map::new();
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>Validation::default());
+        <span class="macro">assert!</span>(res.is_err());
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::ExpiredSignature =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
         };
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">nbf_in_future_but_in_leeway_ok</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;nbf&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="ident">get_current_timestamp</span>() <span class="op">+</span> <span class="number">500</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> {
-            <span class="ident">leeway</span>: <span class="number">1000</span> <span class="op">*</span> <span class="number">60</span>,
-            <span class="ident">validate_nbf</span>: <span class="bool-val">true</span>,
-            <span class="ident">validate_exp</span>: <span class="bool-val">false</span>,
-            ..<span class="ident">Default::default</span>()
-        };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>nbf_in_past_ok() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;nbf&quot;</span>.to_string(), to_value(get_current_timestamp() - <span class="number">10000</span>).unwrap());
+        <span class="kw">let </span>validation =
+            Validation { validate_exp: <span class="bool-val">false</span>, validate_nbf: <span class="bool-val">true</span>, ..Validation::default() };
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_ok());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">iss_ok</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;iss&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="string">&quot;Keats&quot;</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> {
-            <span class="ident">validate_exp</span>: <span class="bool-val">false</span>,
-            <span class="ident">iss</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.<span class="ident">to_string</span>()),
-            ..<span class="ident">Default::default</span>()
-        };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
-    }
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>nbf_in_future_fails() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;nbf&quot;</span>.to_string(), to_value(get_current_timestamp() + <span class="number">100000</span>).unwrap());
+        <span class="kw">let </span>validation =
+            Validation { validate_exp: <span class="bool-val">false</span>, validate_nbf: <span class="bool-val">true</span>, ..Validation::default() };
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_err());
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">iss_not_matching_fails</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;iss&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="string">&quot;Hacked&quot;</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> {
-            <span class="ident">validate_exp</span>: <span class="bool-val">false</span>,
-            <span class="ident">iss</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.<span class="ident">to_string</span>()),
-            ..<span class="ident">Default::default</span>()
-        };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
-
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::InvalidIssuer</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::ImmatureSignature =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
         };
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">iss_missing_fails</span>() {
-        <span class="kw">let</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> {
-            <span class="ident">validate_exp</span>: <span class="bool-val">false</span>,
-            <span class="ident">iss</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.<span class="ident">to_string</span>()),
-            ..<span class="ident">Default::default</span>()
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>nbf_in_future_but_in_leeway_ok() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;nbf&quot;</span>.to_string(), to_value(get_current_timestamp() + <span class="number">500</span>).unwrap());
+        <span class="kw">let </span>validation = Validation {
+            leeway: <span class="number">1000 </span>* <span class="number">60</span>,
+            validate_nbf: <span class="bool-val">true</span>,
+            validate_exp: <span class="bool-val">false</span>,
+            ..Default::default()
         };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_ok());
+    }
 
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::InvalidIssuer</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>iss_ok() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;iss&quot;</span>.to_string(), to_value(<span class="string">&quot;Keats&quot;</span>).unwrap());
+        <span class="kw">let </span>validation = Validation {
+            validate_exp: <span class="bool-val">false</span>,
+            iss: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            ..Default::default()
+        };
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_ok());
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>iss_not_matching_fails() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;iss&quot;</span>.to_string(), to_value(<span class="string">&quot;Hacked&quot;</span>).unwrap());
+        <span class="kw">let </span>validation = Validation {
+            validate_exp: <span class="bool-val">false</span>,
+            iss: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            ..Default::default()
+        };
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_err());
+
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::InvalidIssuer =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
         };
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sub_ok</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;sub&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="string">&quot;Keats&quot;</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> {
-            <span class="ident">validate_exp</span>: <span class="bool-val">false</span>,
-            <span class="ident">sub</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.<span class="ident">to_string</span>()),
-            ..<span class="ident">Default::default</span>()
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>iss_missing_fails() {
+        <span class="kw">let </span>claims = Map::new();
+        <span class="kw">let </span>validation = Validation {
+            validate_exp: <span class="bool-val">false</span>,
+            iss: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            ..Default::default()
         };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
-    }
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_err());
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sub_not_matching_fails</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;sub&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="string">&quot;Hacked&quot;</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> {
-            <span class="ident">validate_exp</span>: <span class="bool-val">false</span>,
-            <span class="ident">sub</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.<span class="ident">to_string</span>()),
-            ..<span class="ident">Default::default</span>()
-        };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
-
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::InvalidSubject</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::InvalidIssuer =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
         };
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sub_missing_fails</span>() {
-        <span class="kw">let</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> {
-            <span class="ident">validate_exp</span>: <span class="bool-val">false</span>,
-            <span class="ident">sub</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.<span class="ident">to_string</span>()),
-            ..<span class="ident">Default::default</span>()
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>sub_ok() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;sub&quot;</span>.to_string(), to_value(<span class="string">&quot;Keats&quot;</span>).unwrap());
+        <span class="kw">let </span>validation = Validation {
+            validate_exp: <span class="bool-val">false</span>,
+            sub: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            ..Default::default()
         };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_ok());
+    }
 
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::InvalidSubject</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>sub_not_matching_fails() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;sub&quot;</span>.to_string(), to_value(<span class="string">&quot;Hacked&quot;</span>).unwrap());
+        <span class="kw">let </span>validation = Validation {
+            validate_exp: <span class="bool-val">false</span>,
+            sub: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            ..Default::default()
         };
-    }
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_err());
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">aud_string_ok</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;aud&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>([<span class="string">&quot;Everyone&quot;</span>]).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> { <span class="ident">validate_exp</span>: <span class="bool-val">false</span>, ..<span class="ident">Validation::default</span>() };
-        <span class="ident">validation</span>.<span class="ident">set_audience</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;Everyone&quot;</span>]);
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">aud_array_of_string_ok</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;aud&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>([<span class="string">&quot;UserA&quot;</span>, <span class="string">&quot;UserB&quot;</span>]).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> { <span class="ident">validate_exp</span>: <span class="bool-val">false</span>, ..<span class="ident">Validation::default</span>() };
-        <span class="ident">validation</span>.<span class="ident">set_audience</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;UserA&quot;</span>, <span class="string">&quot;UserB&quot;</span>]);
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">aud_type_mismatch_fails</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;aud&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>([<span class="string">&quot;Everyone&quot;</span>]).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> { <span class="ident">validate_exp</span>: <span class="bool-val">false</span>, ..<span class="ident">Validation::default</span>() };
-        <span class="ident">validation</span>.<span class="ident">set_audience</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;UserA&quot;</span>, <span class="string">&quot;UserB&quot;</span>]);
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
-
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::InvalidAudience</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::InvalidSubject =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
         };
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">aud_correct_type_not_matching_fails</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;aud&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>([<span class="string">&quot;Everyone&quot;</span>]).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> { <span class="ident">validate_exp</span>: <span class="bool-val">false</span>, ..<span class="ident">Validation::default</span>() };
-        <span class="ident">validation</span>.<span class="ident">set_audience</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;None&quot;</span>]);
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>sub_missing_fails() {
+        <span class="kw">let </span>claims = Map::new();
+        <span class="kw">let </span>validation = Validation {
+            validate_exp: <span class="bool-val">false</span>,
+            sub: <span class="prelude-val">Some</span>(<span class="string">&quot;Keats&quot;</span>.to_string()),
+            ..Default::default()
+        };
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_err());
 
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::InvalidAudience</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::InvalidSubject =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
         };
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">aud_missing_fails</span>() {
-        <span class="kw">let</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">validation</span> <span class="op">=</span> <span class="ident">Validation</span> { <span class="ident">validate_exp</span>: <span class="bool-val">false</span>, ..<span class="ident">Validation::default</span>() };
-        <span class="ident">validation</span>.<span class="ident">set_audience</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;None&quot;</span>]);
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>aud_string_ok() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;aud&quot;</span>.to_string(), to_value([<span class="string">&quot;Everyone&quot;</span>]).unwrap());
+        <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;Everyone&quot;</span>]);
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_ok());
+    }
 
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::InvalidAudience</span> =&gt; (),
-            <span class="kw">_</span> =&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>aud_array_of_string_ok() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;aud&quot;</span>.to_string(), to_value([<span class="string">&quot;UserA&quot;</span>, <span class="string">&quot;UserB&quot;</span>]).unwrap());
+        <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;UserA&quot;</span>, <span class="string">&quot;UserB&quot;</span>]);
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_ok());
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>aud_type_mismatch_fails() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;aud&quot;</span>.to_string(), to_value([<span class="string">&quot;Everyone&quot;</span>]).unwrap());
+        <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;UserA&quot;</span>, <span class="string">&quot;UserB&quot;</span>]);
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_err());
+
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::InvalidAudience =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
         };
     }
 
-    <span class="comment">// https://github.com/Keats/jsonwebtoken/issues/51</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">does_validation_in_right_order</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(<span class="string">&quot;exp&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_value</span>(<span class="ident">get_current_timestamp</span>() <span class="op">+</span> <span class="number">10000</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">Validation</span> {
-            <span class="ident">leeway</span>: <span class="number">5</span>,
-            <span class="ident">validate_exp</span>: <span class="bool-val">true</span>,
-            <span class="ident">iss</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;iss no check&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">sub</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;sub no check&quot;</span>.<span class="ident">to_string</span>()),
-            ..<span class="ident">Validation::default</span>()
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>aud_correct_type_not_matching_fails() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;aud&quot;</span>.to_string(), to_value([<span class="string">&quot;Everyone&quot;</span>]).unwrap());
+        <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;None&quot;</span>]);
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_err());
+
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::InvalidAudience =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
         };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">v</span>);
-        <span class="comment">// It errors because it needs to validate iss/sub which are missing</span>
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>() {
-            <span class="kw-2">&amp;</span><span class="ident">ErrorKind::InvalidIssuer</span> =&gt; (),
-            <span class="ident">t</span> @ <span class="kw">_</span> =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">t</span>);
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>aud_missing_fails() {
+        <span class="kw">let </span>claims = Map::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>validation = Validation { validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
+        validation.set_audience(<span class="kw-2">&amp;</span>[<span class="string">&quot;None&quot;</span>]);
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">assert!</span>(res.is_err());
+
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::InvalidAudience =&gt; (),
+            <span class="kw">_ </span>=&gt; <span class="macro">assert!</span>(<span class="bool-val">false</span>),
+        };
+    }
+
+    <span class="comment">// https://github.com/Keats/jsonwebtoken/issues/51
+    </span><span class="attribute">#[test]
+    </span><span class="kw">fn </span>does_validation_in_right_order() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(<span class="string">&quot;exp&quot;</span>.to_string(), to_value(get_current_timestamp() + <span class="number">10000</span>).unwrap());
+        <span class="kw">let </span>v = Validation {
+            leeway: <span class="number">5</span>,
+            validate_exp: <span class="bool-val">true</span>,
+            iss: <span class="prelude-val">Some</span>(<span class="string">&quot;iss no check&quot;</span>.to_string()),
+            sub: <span class="prelude-val">Some</span>(<span class="string">&quot;sub no check&quot;</span>.to_string()),
+            ..Validation::default()
+        };
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>v);
+        <span class="comment">// It errors because it needs to validate iss/sub which are missing
+        </span><span class="macro">assert!</span>(res.is_err());
+        <span class="kw">match </span>res.unwrap_err().kind() {
+            <span class="kw-2">&amp;</span>ErrorKind::InvalidIssuer =&gt; (),
+            t @ <span class="kw">_ </span>=&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, t);
                 <span class="macro">assert!</span>(<span class="bool-val">false</span>)
             }
         };
     }
 
-    <span class="comment">// https://github.com/Keats/jsonwebtoken/issues/110</span>
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">aud_use_validation_struct</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Map::new</span>();
-        <span class="ident">claims</span>.<span class="ident">insert</span>(
-            <span class="string">&quot;aud&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">to_value</span>(<span class="string">&quot;my-googleclientid1234.apps.googleusercontent.com&quot;</span>).<span class="ident">unwrap</span>(),
+    <span class="comment">// https://github.com/Keats/jsonwebtoken/issues/110
+    </span><span class="attribute">#[test]
+    </span><span class="kw">fn </span>aud_use_validation_struct() {
+        <span class="kw">let </span><span class="kw-2">mut </span>claims = Map::new();
+        claims.insert(
+            <span class="string">&quot;aud&quot;</span>.to_string(),
+            to_value(<span class="string">&quot;my-googleclientid1234.apps.googleusercontent.com&quot;</span>).unwrap(),
         );
 
-        <span class="kw">let</span> <span class="ident">aud</span> <span class="op">=</span> <span class="string">&quot;my-googleclientid1234.apps.googleusercontent.com&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aud_hashset</span> <span class="op">=</span> <span class="ident">std::collections::HashSet::new</span>();
-        <span class="ident">aud_hashset</span>.<span class="ident">insert</span>(<span class="ident">aud</span>);
+        <span class="kw">let </span>aud = <span class="string">&quot;my-googleclientid1234.apps.googleusercontent.com&quot;</span>.to_string();
+        <span class="kw">let </span><span class="kw-2">mut </span>aud_hashset = std::collections::HashSet::new();
+        aud_hashset.insert(aud);
 
-        <span class="kw">let</span> <span class="ident">validation</span> <span class="op">=</span>
-            <span class="ident">Validation</span> { <span class="ident">aud</span>: <span class="prelude-val">Some</span>(<span class="ident">aud_hashset</span>), <span class="ident">validate_exp</span>: <span class="bool-val">false</span>, ..<span class="ident">Validation::default</span>() };
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">validation</span>);
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">res</span>);
-        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
+        <span class="kw">let </span>validation =
+            Validation { aud: <span class="prelude-val">Some</span>(aud_hashset), validate_exp: <span class="bool-val">false</span>, ..Validation::default() };
+        <span class="kw">let </span>res = validate(<span class="kw-2">&amp;</span>claims, <span class="kw-2">&amp;</span>validation);
+        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, res);
+        <span class="macro">assert!</span>(res.is_ok());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

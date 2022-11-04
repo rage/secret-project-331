@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/ir_interpret.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ir_interpret.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/ir_interpret.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ir_interpret.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -101,108 +101,108 @@
 <span id="101">101</span>
 <span id="102">102</span>
 <span id="103">103</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::interface</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::alloc::SliceWrapper</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::histogram::ContextType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::input_pair::InputReference</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::constants</span>::{<span class="ident">kSigned3BitContextLookup</span>, <span class="ident">kUTF8ContextLookup</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::interface::LiteralPredictionModeNibble</span>;
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IRInterpreter</span> {
-    <span class="kw">fn</span> <span class="ident">inc_local_byte_offset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">inc</span>:<span class="ident">usize</span>);
-    <span class="kw">fn</span> <span class="ident">local_byte_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
-    <span class="kw">fn</span> <span class="ident">update_block_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_type</span>: <span class="ident">u8</span>, <span class="ident">new_stride</span>: <span class="ident">u8</span>);
-    <span class="kw">fn</span> <span class="ident">block_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span>;
-    <span class="kw">fn</span> <span class="ident">literal_data_at_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) -&gt; <span class="ident">u8</span>;
-    <span class="kw">fn</span> <span class="ident">literal_context_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>];
-    <span class="kw">fn</span> <span class="ident">prediction_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">::interface::LiteralPredictionModeNibble</span>;
-    <span class="kw">fn</span> <span class="ident">update_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stride_prior</span>: [<span class="ident">u8</span>;<span class="number">8</span>], <span class="ident">stride_byte_offset</span>: <span class="ident">usize</span>, <span class="ident">selected_bits</span>:<span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">literal</span>: <span class="ident">u8</span>);
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::interface;
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::SliceWrapper;
+<span class="kw">use </span><span class="kw">super</span>::histogram::ContextType;
+<span class="kw">use </span><span class="kw">super</span>::input_pair::InputReference;
+<span class="kw">use </span><span class="kw">super</span>::constants::{kSigned3BitContextLookup, kUTF8ContextLookup};
+<span class="kw">use </span><span class="kw">super</span>::interface::LiteralPredictionModeNibble;
+<span class="kw">pub trait </span>IRInterpreter {
+    <span class="kw">fn </span>inc_local_byte_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, inc:usize);
+    <span class="kw">fn </span>local_byte_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
+    <span class="kw">fn </span>update_block_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_type: u8, new_stride: u8);
+    <span class="kw">fn </span>block_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8;
+    <span class="kw">fn </span>literal_data_at_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; u8;
+    <span class="kw">fn </span>literal_context_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8];
+    <span class="kw">fn </span>prediction_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ::interface::LiteralPredictionModeNibble;
+    <span class="kw">fn </span>update_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stride_prior: [u8;<span class="number">8</span>], stride_byte_offset: usize, selected_bits:u8, cm_prior: usize, literal: u8);
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_base</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-                 <span class="ident">Interpreter</span>: <span class="ident">IRInterpreter</span><span class="op">&gt;</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Interpreter</span>,
-                                             <span class="ident">val</span>: <span class="ident">interface::Command</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="ident">val</span> {
-           <span class="ident">interface::Command::BlockSwitchCommand</span>(<span class="kw">_</span>) <span class="op">|</span>
-           <span class="ident">interface::Command::BlockSwitchDistance</span>(<span class="kw">_</span>) <span class="op">|</span>
-           <span class="ident">interface::Command::PredictionMode</span>(<span class="kw">_</span>) =&gt; {}
-           <span class="ident">interface::Command::Copy</span>(<span class="kw-2">ref</span> <span class="ident">copy</span>) =&gt; {
-               <span class="ident">xself</span>.<span class="ident">inc_local_byte_offset</span>(<span class="ident">copy</span>.<span class="ident">num_bytes</span> <span class="kw">as</span> <span class="ident">usize</span>);
+<span class="kw">pub fn </span>push_base&lt;<span class="lifetime">&#39;a</span>,
+                 Interpreter: IRInterpreter&gt;(xself: <span class="kw-2">&amp;mut </span>Interpreter,
+                                             val: interface::Command&lt;InputReference&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) {
+        <span class="kw">match </span>val {
+           interface::Command::BlockSwitchCommand(<span class="kw">_</span>) |
+           interface::Command::BlockSwitchDistance(<span class="kw">_</span>) |
+           interface::Command::PredictionMode(<span class="kw">_</span>) =&gt; {}
+           interface::Command::Copy(<span class="kw-2">ref </span>copy) =&gt; {
+               xself.inc_local_byte_offset(copy.num_bytes <span class="kw">as </span>usize);
            },
-           <span class="ident">interface::Command::Dict</span>(<span class="kw-2">ref</span> <span class="ident">dict</span>) =&gt; {
-               <span class="ident">xself</span>.<span class="ident">inc_local_byte_offset</span>(<span class="ident">dict</span>.<span class="ident">final_size</span> <span class="kw">as</span> <span class="ident">usize</span>);
+           interface::Command::Dict(<span class="kw-2">ref </span>dict) =&gt; {
+               xself.inc_local_byte_offset(dict.final_size <span class="kw">as </span>usize);
            },
-            <span class="ident">interface::Command::BlockSwitchLiteral</span>(<span class="ident">block_type</span>) =&gt; <span class="ident">xself</span>.<span class="ident">update_block_type</span>(<span class="ident">block_type</span>.<span class="ident">block_type</span>(),
-                                                                                          <span class="ident">block_type</span>.<span class="ident">stride</span>()),
-           <span class="ident">interface::Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) =&gt; {
-               <span class="comment">//let stride = xself.get_stride(xself.local_byte_offset()) as usize;</span>
-               <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">priors</span><span class="op">=</span> [<span class="number">0u8</span>; <span class="number">8</span>];
-               <span class="kw">for</span> <span class="ident">poffset</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-                   <span class="kw">if</span> <span class="ident">xself</span>.<span class="ident">local_byte_offset</span>() <span class="op">&gt;</span> <span class="ident">poffset</span> {
-                       <span class="kw">let</span> <span class="ident">input_offset</span> <span class="op">=</span> <span class="ident">xself</span>.<span class="ident">local_byte_offset</span>() <span class="op">-</span> <span class="ident">poffset</span> <span class="op">-</span>  <span class="number">1</span>;
-                       <span class="ident">priors</span>[<span class="number">7</span> <span class="op">-</span> <span class="ident">poffset</span>] <span class="op">=</span> <span class="ident">xself</span>.<span class="ident">literal_data_at_offset</span>(<span class="ident">input_offset</span>);
+            interface::Command::BlockSwitchLiteral(block_type) =&gt; xself.update_block_type(block_type.block_type(),
+                                                                                          block_type.stride()),
+           interface::Command::Literal(<span class="kw-2">ref </span>lit) =&gt; {
+               <span class="comment">//let stride = xself.get_stride(xself.local_byte_offset()) as usize;
+               </span><span class="kw">let </span><span class="kw-2">mut </span>priors= [<span class="number">0u8</span>; <span class="number">8</span>];
+               <span class="kw">for </span>poffset <span class="kw">in </span><span class="number">0</span>..<span class="number">8 </span>{
+                   <span class="kw">if </span>xself.local_byte_offset() &gt; poffset {
+                       <span class="kw">let </span>input_offset = xself.local_byte_offset() - poffset -  <span class="number">1</span>;
+                       priors[<span class="number">7 </span>- poffset] = xself.literal_data_at_offset(input_offset);
                    }
                }
-               <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cur</span> <span class="op">=</span> <span class="number">0usize</span>;
-               <span class="kw">for</span> <span class="ident">literal</span> <span class="kw">in</span> <span class="ident">lit</span>.<span class="ident">data</span>.<span class="ident">slice</span>().<span class="ident">iter</span>() {
-                   <span class="kw">let</span> (<span class="ident">huffman_table_index</span>, <span class="ident">selected_bits</span>) <span class="op">=</span> <span class="ident">compute_huffman_table_index_for_context_map</span>(<span class="ident">priors</span>[(<span class="ident">cur</span> <span class="op">+</span> <span class="number">7</span>)<span class="kw-2">&amp;</span><span class="number">7</span>], <span class="ident">priors</span>[(<span class="ident">cur</span> <span class="op">+</span> <span class="number">6</span>) <span class="kw-2">&amp;</span><span class="number">7</span>], <span class="ident">xself</span>.<span class="ident">literal_context_map</span>(), <span class="ident">xself</span>.<span class="ident">prediction_mode</span>(), <span class="ident">xself</span>.<span class="ident">block_type</span>());
-                   <span class="ident">xself</span>.<span class="ident">update_cost</span>(<span class="ident">priors</span>, (<span class="ident">cur</span> <span class="op">+</span> <span class="number">7</span>) <span class="op">&amp;</span> <span class="number">7</span>, <span class="ident">selected_bits</span>, <span class="ident">huffman_table_index</span>, <span class="kw-2">*</span><span class="ident">literal</span>);
-                   <span class="ident">priors</span>[<span class="ident">cur</span> <span class="op">&amp;</span> <span class="number">7</span>] <span class="op">=</span> <span class="kw-2">*</span><span class="ident">literal</span>;
-                   <span class="ident">cur</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                   <span class="ident">cur</span> <span class="op">&amp;=</span> <span class="number">7</span>;
+               <span class="kw">let </span><span class="kw-2">mut </span>cur = <span class="number">0usize</span>;
+               <span class="kw">for </span>literal <span class="kw">in </span>lit.data.slice().iter() {
+                   <span class="kw">let </span>(huffman_table_index, selected_bits) = compute_huffman_table_index_for_context_map(priors[(cur + <span class="number">7</span>)<span class="kw-2">&amp;</span><span class="number">7</span>], priors[(cur + <span class="number">6</span>) <span class="kw-2">&amp;</span><span class="number">7</span>], xself.literal_context_map(), xself.prediction_mode(), xself.block_type());
+                   xself.update_cost(priors, (cur + <span class="number">7</span>) &amp; <span class="number">7</span>, selected_bits, huffman_table_index, <span class="kw-2">*</span>literal);
+                   priors[cur &amp; <span class="number">7</span>] = <span class="kw-2">*</span>literal;
+                   cur += <span class="number">1</span>;
+                   cur &amp;= <span class="number">7</span>;
                }
-               <span class="ident">xself</span>.<span class="ident">inc_local_byte_offset</span>(<span class="ident">lit</span>.<span class="ident">data</span>.<span class="ident">slice</span>().<span class="ident">len</span>());
+               xself.inc_local_byte_offset(lit.data.slice().len());
            }
         }
     }
 
 
-<span class="comment">// not sure why this fails</span>
-<span class="comment">//impl&lt;&#39;a&gt; interface::CommandProcessor&lt;&#39;a&gt; for IRInterpreter {</span>
-<span class="comment">//    fn push&lt;Cb: FnMut(&amp;[interface::Command&lt;InputReference&gt;])&gt;(&amp;mut self,</span>
-<span class="comment">//                                                              val: interface::Command&lt;InputReference&lt;&#39;a&gt;&gt;,</span>
-<span class="comment">//                                                              callback: &amp;mut Cb) {</span>
-<span class="comment">//        push_base(self, val, callback)</span>
-<span class="comment">//    }</span>
-<span class="comment">//}</span>
+<span class="comment">// not sure why this fails
+//impl&lt;&#39;a&gt; interface::CommandProcessor&lt;&#39;a&gt; for IRInterpreter {
+//    fn push&lt;Cb: FnMut(&amp;[interface::Command&lt;InputReference&gt;])&gt;(&amp;mut self,
+//                                                              val: interface::Command&lt;InputReference&lt;&#39;a&gt;&gt;,
+//                                                              callback: &amp;mut Cb) {
+//        push_base(self, val, callback)
+//    }
+//}
 
 
 
-<span class="kw">fn</span> <span class="ident">compute_huffman_table_index_for_context_map</span> (
-    <span class="ident">prev_byte</span>: <span class="ident">u8</span>,
-    <span class="ident">prev_prev_byte</span>: <span class="ident">u8</span>,
-    <span class="ident">literal_context_map</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],<span class="comment">//interface::PredictionModeContextMap&lt;SliceType&gt;,</span>
-    <span class="ident">prediction_mode</span>: <span class="ident">LiteralPredictionModeNibble</span>,
-    <span class="ident">block_type</span>: <span class="ident">u8</span>,
-) -&gt; (<span class="ident">usize</span>, <span class="ident">u8</span>) {
-    <span class="kw">let</span> <span class="ident">prior</span> <span class="op">=</span> <span class="ident">Context</span>(<span class="ident">prev_byte</span>, <span class="ident">prev_prev_byte</span>, <span class="ident">prediction_mode</span>.<span class="ident">to_context_enum</span>().<span class="ident">unwrap</span>());
-    <span class="macro">assert!</span>(<span class="ident">prior</span> <span class="op">&lt;</span> <span class="number">64</span>);
-    <span class="kw">let</span> <span class="ident">context_map_index</span> <span class="op">=</span> ((<span class="ident">block_type</span> <span class="kw">as</span> <span class="ident">usize</span>)<span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">6</span>) <span class="op">|</span> <span class="ident">prior</span> <span class="kw">as</span> <span class="ident">usize</span>;
-    <span class="kw">if</span> <span class="ident">context_map_index</span> <span class="op">&lt;</span> <span class="ident">literal_context_map</span>.<span class="ident">len</span>() {
-        (<span class="ident">literal_context_map</span>[<span class="ident">context_map_index</span>] <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">prior</span>)
-    } <span class="kw">else</span> {
-        (<span class="ident">prior</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">prior</span>)
+</span><span class="kw">fn </span>compute_huffman_table_index_for_context_map (
+    prev_byte: u8,
+    prev_prev_byte: u8,
+    literal_context_map: <span class="kw-2">&amp;</span>[u8],<span class="comment">//interface::PredictionModeContextMap&lt;SliceType&gt;,
+    </span>prediction_mode: LiteralPredictionModeNibble,
+    block_type: u8,
+) -&gt; (usize, u8) {
+    <span class="kw">let </span>prior = Context(prev_byte, prev_prev_byte, prediction_mode.to_context_enum().unwrap());
+    <span class="macro">assert!</span>(prior &lt; <span class="number">64</span>);
+    <span class="kw">let </span>context_map_index = ((block_type <span class="kw">as </span>usize)&lt;&lt; <span class="number">6</span>) | prior <span class="kw">as </span>usize;
+    <span class="kw">if </span>context_map_index &lt; literal_context_map.len() {
+        (literal_context_map[context_map_index] <span class="kw">as </span>usize, prior)
+    } <span class="kw">else </span>{
+        (prior <span class="kw">as </span>usize, prior)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Context</span>(<span class="ident">p1</span>: <span class="ident">u8</span>, <span class="ident">p2</span>: <span class="ident">u8</span>, <span class="ident">mode</span>: <span class="ident">ContextType</span>) -&gt; <span class="ident">u8</span> {
-  <span class="kw">match</span> <span class="ident">mode</span> {
-    <span class="ident">ContextType::CONTEXT_LSB6</span> =&gt; {
-      <span class="kw">return</span> (<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&amp;</span> <span class="number">0x3fi32</span>) <span class="kw">as</span> (<span class="ident">u8</span>);
+<span class="kw">pub fn </span>Context(p1: u8, p2: u8, mode: ContextType) -&gt; u8 {
+  <span class="kw">match </span>mode {
+    ContextType::CONTEXT_LSB6 =&gt; {
+      <span class="kw">return </span>(p1 <span class="kw">as </span>(i32) &amp; <span class="number">0x3fi32</span>) <span class="kw">as </span>(u8);
     }
-    <span class="ident">ContextType::CONTEXT_MSB6</span> =&gt; {
-      <span class="kw">return</span> (<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2i32</span>) <span class="kw">as</span> (<span class="ident">u8</span>);
+    ContextType::CONTEXT_MSB6 =&gt; {
+      <span class="kw">return </span>(p1 <span class="kw">as </span>(i32) &gt;&gt; <span class="number">2i32</span>) <span class="kw">as </span>(u8);
     }
-    <span class="ident">ContextType::CONTEXT_UTF8</span> =&gt; {
-      <span class="kw">return</span> (<span class="ident">kUTF8ContextLookup</span>[<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">|</span>
-              <span class="ident">kUTF8ContextLookup</span>[(<span class="ident">p2</span> <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">+</span> <span class="number">256i32</span>) <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u8</span>);
+    ContextType::CONTEXT_UTF8 =&gt; {
+      <span class="kw">return </span>(kUTF8ContextLookup[p1 <span class="kw">as </span>(usize)] <span class="kw">as </span>(i32) |
+              kUTF8ContextLookup[(p2 <span class="kw">as </span>(i32) + <span class="number">256i32</span>) <span class="kw">as </span>(usize)] <span class="kw">as </span>(i32)) <span class="kw">as </span>(u8);
     }
-    <span class="ident">ContextType::CONTEXT_SIGNED</span> =&gt; {
-      <span class="kw">return</span> ((<span class="ident">kSigned3BitContextLookup</span>[<span class="ident">p1</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3i32</span>) <span class="op">+</span>
-              <span class="ident">kSigned3BitContextLookup</span>[<span class="ident">p2</span> <span class="kw">as</span> (<span class="ident">usize</span>)] <span class="kw">as</span> (<span class="ident">i32</span>)) <span class="kw">as</span> (<span class="ident">u8</span>);
+    ContextType::CONTEXT_SIGNED =&gt; {
+      <span class="kw">return </span>((kSigned3BitContextLookup[p1 <span class="kw">as </span>(usize)] <span class="kw">as </span>(i32) &lt;&lt; <span class="number">3i32</span>) +
+              kSigned3BitContextLookup[p2 <span class="kw">as </span>(usize)] <span class="kw">as </span>(i32)) <span class="kw">as </span>(u8);
     }
   }
-  <span class="comment">//  0i32 as (u8)</span>
-}
+  <span class="comment">//  0i32 as (u8)
+</span>}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

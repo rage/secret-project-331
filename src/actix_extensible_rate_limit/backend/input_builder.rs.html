@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-extensible-rate-limit-0.2.1/src/backend/input_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>input_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_extensible_rate_limit/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-extensible-rate-limit-0.2.1/src/backend/input_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>input_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_extensible_rate_limit/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_extensible_rate_limit/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -183,190 +183,190 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend::SimpleInput</span>;
-<span class="kw">use</span> <span class="ident">actix_web::dev::ServiceRequest</span>;
-<span class="kw">use</span> <span class="ident">actix_web::ResponseError</span>;
-<span class="kw">use</span> <span class="ident">std::future</span>::{<span class="ident">ready</span>, <span class="ident">Ready</span>};
-<span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">AddrParseError</span>, <span class="ident">IpAddr</span>, <span class="ident">Ipv6Addr</span>};
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
-<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::backend::SimpleInput;
+<span class="kw">use </span>actix_web::dev::ServiceRequest;
+<span class="kw">use </span>actix_web::ResponseError;
+<span class="kw">use </span>std::future::{ready, Ready};
+<span class="kw">use </span>std::net::{AddrParseError, IpAddr, Ipv6Addr};
+<span class="kw">use </span>std::time::Duration;
+<span class="kw">use </span>thiserror::Error;
 
-<span class="kw">type</span> <span class="ident">CustomFn</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">actix_web::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">type </span>CustomFn = Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>ServiceRequest) -&gt; <span class="prelude-ty">Result</span>&lt;String, actix_web::Error&gt;&gt;;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SimpleInputFuture</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SimpleInput</span>, <span class="ident">actix_web::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">pub type </span>SimpleInputFuture = Ready&lt;<span class="prelude-ty">Result</span>&lt;SimpleInput, actix_web::Error&gt;&gt;;
 
-<span class="doccomment">/// Utility to create a input function that produces a [SimpleInput].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You should take care to ensure that you are producing unique keys per backend.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This will not be of any use if you want to use dynamic interval/request policies</span>
-<span class="doccomment">/// or perform an asynchronous option; you should instead write your own input function.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimpleInputFunctionBuilder</span> {
-    <span class="ident">interval</span>: <span class="ident">Duration</span>,
-    <span class="ident">max_requests</span>: <span class="ident">u64</span>,
-    <span class="ident">real_ip_key</span>: <span class="ident">bool</span>,
-    <span class="ident">peer_ip_key</span>: <span class="ident">bool</span>,
-    <span class="ident">path_key</span>: <span class="ident">bool</span>,
-    <span class="ident">custom_key</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">custom_fn</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CustomFn</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Utility to create a input function that produces a [SimpleInput].
+///
+/// You should take care to ensure that you are producing unique keys per backend.
+///
+/// This will not be of any use if you want to use dynamic interval/request policies
+/// or perform an asynchronous option; you should instead write your own input function.
+</span><span class="kw">pub struct </span>SimpleInputFunctionBuilder {
+    interval: Duration,
+    max_requests: u64,
+    real_ip_key: bool,
+    peer_ip_key: bool,
+    path_key: bool,
+    custom_key: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    custom_fn: <span class="prelude-ty">Option</span>&lt;CustomFn&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleInputFunctionBuilder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">interval</span>: <span class="ident">Duration</span>, <span class="ident">max_requests</span>: <span class="ident">u64</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">interval</span>,
-            <span class="ident">max_requests</span>,
-            <span class="ident">real_ip_key</span>: <span class="bool-val">false</span>,
-            <span class="ident">peer_ip_key</span>: <span class="bool-val">false</span>,
-            <span class="ident">path_key</span>: <span class="bool-val">false</span>,
-            <span class="ident">custom_key</span>: <span class="prelude-val">None</span>,
-            <span class="ident">custom_fn</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>SimpleInputFunctionBuilder {
+    <span class="kw">pub fn </span>new(interval: Duration, max_requests: u64) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            interval,
+            max_requests,
+            real_ip_key: <span class="bool-val">false</span>,
+            peer_ip_key: <span class="bool-val">false</span>,
+            path_key: <span class="bool-val">false</span>,
+            custom_key: <span class="prelude-val">None</span>,
+            custom_fn: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Adds the client&#39;s real IP to the rate limiting key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Security</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This calls</span>
-    <span class="doccomment">/// [ConnectionInfo::realip_remote_addr()](actix_web::dev::ConnectionInfo::realip_remote_addr)</span>
-    <span class="doccomment">/// internally which is only suitable for Actix applications deployed behind a proxy that you</span>
-    <span class="doccomment">/// control.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # IPv6</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// IPv6 addresses will be grouped into a single key per /64</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">real_ip_key</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">real_ip_key</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Adds the client&#39;s real IP to the rate limiting key.
+    ///
+    /// # Security
+    ///
+    /// This calls
+    /// [ConnectionInfo::realip_remote_addr()](actix_web::dev::ConnectionInfo::realip_remote_addr)
+    /// internally which is only suitable for Actix applications deployed behind a proxy that you
+    /// control.
+    ///
+    /// # IPv6
+    ///
+    /// IPv6 addresses will be grouped into a single key per /64
+    </span><span class="kw">pub fn </span>real_ip_key(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.real_ip_key = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Adds the connection peer IP to the rate limiting key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is suitable when clients connect directly to the Actix application.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # IPv6</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// IPv6 addresses will be grouped into a single key per /64</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peer_ip_key</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">peer_ip_key</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Adds the connection peer IP to the rate limiting key.
+    ///
+    /// This is suitable when clients connect directly to the Actix application.
+    ///
+    /// # IPv6
+    ///
+    /// IPv6 addresses will be grouped into a single key per /64
+    </span><span class="kw">pub fn </span>peer_ip_key(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.peer_ip_key = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Add the request path to the rate limiting key</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_key</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">path_key</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Add the request path to the rate limiting key
+    </span><span class="kw">pub fn </span>path_key(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.path_key = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Add a custom component to the rate limiting key</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_key</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">custom_key</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">key</span>.<span class="ident">to_owned</span>());
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Add a custom component to the rate limiting key
+    </span><span class="kw">pub fn </span>custom_key(<span class="kw-2">mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.custom_key = <span class="prelude-val">Some</span>(key.to_owned());
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Dynamically add a custom component to the rate limiting key</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_fn</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">actix_web::Error</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="doccomment">/// Dynamically add a custom component to the rate limiting key
+    </span><span class="kw">pub fn </span>custom_fn&lt;F&gt;(<span class="kw-2">mut </span><span class="self">self</span>, f: F) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(<span class="kw-2">&amp;</span>ServiceRequest) -&gt; <span class="prelude-ty">Result</span>&lt;String, actix_web::Error&gt; + <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">custom_fn</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">f</span>));
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.custom_fn = <span class="prelude-val">Some</span>(Box::new(f));
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="ident">SimpleInputFuture</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-        <span class="kw">move</span> <span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-            <span class="ident">ready</span>((<span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">components</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">connection_info</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">custom</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">custom_key</span> {
-                    <span class="ident">components</span>.<span class="ident">push</span>(<span class="ident">custom</span>.<span class="ident">clone</span>());
+    <span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>ServiceRequest) -&gt; SimpleInputFuture + <span class="lifetime">&#39;static </span>{
+        <span class="kw">move </span>|req| {
+            ready((|| {
+                <span class="kw">let </span><span class="kw-2">mut </span>components = Vec::new();
+                <span class="kw">let </span>info = req.connection_info();
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(custom) = <span class="kw-2">&amp;</span><span class="self">self</span>.custom_key {
+                    components.push(custom.clone());
                 }
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">real_ip_key</span> {
-                    <span class="ident">components</span>.<span class="ident">push</span>(<span class="ident">ip_key</span>(<span class="ident">info</span>.<span class="ident">realip_remote_addr</span>().<span class="ident">unwrap</span>())<span class="question-mark">?</span>)
+                <span class="kw">if </span><span class="self">self</span>.real_ip_key {
+                    components.push(ip_key(info.realip_remote_addr().unwrap())<span class="question-mark">?</span>)
                 }
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peer_ip_key</span> {
-                    <span class="ident">components</span>.<span class="ident">push</span>(<span class="ident">ip_key</span>(<span class="ident">info</span>.<span class="ident">peer_addr</span>().<span class="ident">unwrap</span>())<span class="question-mark">?</span>)
+                <span class="kw">if </span><span class="self">self</span>.peer_ip_key {
+                    components.push(ip_key(info.peer_addr().unwrap())<span class="question-mark">?</span>)
                 }
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">path_key</span> {
-                    <span class="ident">components</span>.<span class="ident">push</span>(<span class="ident">req</span>.<span class="ident">path</span>().<span class="ident">to_owned</span>());
+                <span class="kw">if </span><span class="self">self</span>.path_key {
+                    components.push(req.path().to_owned());
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">custom_fn</span> {
-                    <span class="ident">components</span>.<span class="ident">push</span>(<span class="ident">f</span>(<span class="ident">req</span>)<span class="question-mark">?</span>)
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = <span class="kw-2">&amp;</span><span class="self">self</span>.custom_fn {
+                    components.push(f(req)<span class="question-mark">?</span>)
                 }
-                <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">components</span>.<span class="ident">join</span>(<span class="string">&quot;-&quot;</span>);
+                <span class="kw">let </span>key = components.join(<span class="string">&quot;-&quot;</span>);
 
-                <span class="prelude-val">Ok</span>(<span class="ident">SimpleInput</span> {
-                    <span class="ident">interval</span>: <span class="self">self</span>.<span class="ident">interval</span>,
-                    <span class="ident">max_requests</span>: <span class="self">self</span>.<span class="ident">max_requests</span>,
-                    <span class="ident">key</span>,
+                <span class="prelude-val">Ok</span>(SimpleInput {
+                    interval: <span class="self">self</span>.interval,
+                    max_requests: <span class="self">self</span>.max_requests,
+                    key,
                 })
             })())
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Error</span> {
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Unable to parse remote IP address: {0}&quot;</span>)]</span>
-    <span class="ident">InvalidIpError</span>(
-        <span class="attribute">#[<span class="ident">source</span>]</span>
-        <span class="attribute">#[<span class="ident">from</span>]</span>
-        <span class="ident">AddrParseError</span>,
+<span class="attribute">#[derive(Debug, Error)]
+</span><span class="kw">enum </span>Error {
+    <span class="attribute">#[error(<span class="string">&quot;Unable to parse remote IP address: {0}&quot;</span>)]
+    </span>InvalidIpError(
+        <span class="attribute">#[source]
+        #[from]
+        </span>AddrParseError,
     ),
 }
 
-<span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">Error</span> {}
+<span class="kw">impl </span>ResponseError <span class="kw">for </span>Error {}
 
-<span class="comment">// Groups IPv6 addresses together, see:</span>
-<span class="comment">// https://adam-p.ca/blog/2022/02/ipv6-rate-limiting/</span>
-<span class="comment">// https://support.cloudflare.com/hc/en-us/articles/115001635128-Configuring-Cloudflare-Rate-Limiting</span>
-<span class="kw">fn</span> <span class="ident">ip_key</span>(<span class="ident">ip_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">ip</span> <span class="op">=</span> <span class="ident">ip_str</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">IpAddr</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">ip</span> {
-        <span class="ident">IpAddr::V4</span>(<span class="ident">v4</span>) =&gt; <span class="ident">v4</span>.<span class="ident">to_string</span>(),
-        <span class="ident">IpAddr::V6</span>(<span class="ident">v6</span>) =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">v4</span>) <span class="op">=</span> <span class="ident">v6</span>.<span class="ident">to_ipv4</span>() {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">v4</span>.<span class="ident">to_string</span>());
+<span class="comment">// Groups IPv6 addresses together, see:
+// https://adam-p.ca/blog/2022/02/ipv6-rate-limiting/
+// https://support.cloudflare.com/hc/en-us/articles/115001635128-Configuring-Cloudflare-Rate-Limiting
+</span><span class="kw">fn </span>ip_key(ip_str: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, Error&gt; {
+    <span class="kw">let </span>ip = ip_str.parse::&lt;IpAddr&gt;()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="kw">match </span>ip {
+        IpAddr::V4(v4) =&gt; v4.to_string(),
+        IpAddr::V6(v6) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(v4) = v6.to_ipv4() {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(v4.to_string());
             }
-            <span class="kw">let</span> <span class="ident">zeroes</span> <span class="op">=</span> [<span class="number">0u16</span>; <span class="number">4</span>];
-            <span class="kw">let</span> <span class="ident">concat</span> <span class="op">=</span> [<span class="kw-2">&amp;</span><span class="ident">v6</span>.<span class="ident">segments</span>()[<span class="number">0</span>..<span class="number">4</span>], <span class="kw-2">&amp;</span><span class="ident">zeroes</span>].<span class="ident">concat</span>();
-            <span class="kw">let</span> <span class="ident">concat</span>: [<span class="ident">u16</span>; <span class="number">8</span>] <span class="op">=</span> <span class="ident">concat</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">subnet</span> <span class="op">=</span> <span class="ident">Ipv6Addr::from</span>(<span class="ident">concat</span>);
-            <span class="macro">format!</span>(<span class="string">&quot;{}/64&quot;</span>, <span class="ident">subnet</span>)
+            <span class="kw">let </span>zeroes = [<span class="number">0u16</span>; <span class="number">4</span>];
+            <span class="kw">let </span>concat = [<span class="kw-2">&amp;</span>v6.segments()[<span class="number">0</span>..<span class="number">4</span>], <span class="kw-2">&amp;</span>zeroes].concat();
+            <span class="kw">let </span>concat: [u16; <span class="number">8</span>] = concat.try_into().unwrap();
+            <span class="kw">let </span>subnet = Ipv6Addr::from(concat);
+            <span class="macro">format!</span>(<span class="string">&quot;{}/64&quot;</span>, subnet)
         }
     })
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend::memory::InMemoryBackend</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RateLimiter</span>;
-    <span class="kw">use</span> <span class="ident">actix_web::App</span>;
-    <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::backend::memory::InMemoryBackend;
+    <span class="kw">use </span><span class="kw">crate</span>::RateLimiter;
+    <span class="kw">use </span>actix_web::App;
+    <span class="kw">use </span>std::time::Duration;
 
-    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_use_with_middleware</span>() {
-        <span class="comment">// Check that all the type signatures work together</span>
-        <span class="kw">let</span> <span class="ident">backend</span> <span class="op">=</span> <span class="ident">InMemoryBackend::builder</span>().<span class="ident">build</span>();
-        <span class="kw">let</span> <span class="ident">input_fn</span> <span class="op">=</span> <span class="ident">SimpleInputFunctionBuilder::new</span>(<span class="ident">Duration::from_secs</span>(<span class="number">60</span>), <span class="number">60</span>).<span class="ident">build</span>();
-        <span class="kw">let</span> <span class="ident">limiter</span> <span class="op">=</span> <span class="ident">RateLimiter::builder</span>(<span class="ident">backend</span>, <span class="ident">input_fn</span>).<span class="ident">build</span>();
-        <span class="ident">actix_web::test::init_service</span>(<span class="ident">App::new</span>().<span class="ident">wrap</span>(<span class="ident">limiter</span>)).<span class="kw">await</span>;
+    <span class="attribute">#[actix_web::test]
+    </span><span class="kw">async fn </span>test_use_with_middleware() {
+        <span class="comment">// Check that all the type signatures work together
+        </span><span class="kw">let </span>backend = InMemoryBackend::builder().build();
+        <span class="kw">let </span>input_fn = SimpleInputFunctionBuilder::new(Duration::from_secs(<span class="number">60</span>), <span class="number">60</span>).build();
+        <span class="kw">let </span>limiter = RateLimiter::builder(backend, input_fn).build();
+        actix_web::test::init_service(App::new().wrap(limiter)).<span class="kw">await</span>;
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_ip_key</span>() {
-        <span class="comment">// Check that IPv4 addresses are preserved</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">ip_key</span>(<span class="string">&quot;142.250.187.206&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;142.250.187.206&quot;</span>);
-        <span class="comment">// Check that IPv4 mapped addresses are preserved</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">ip_key</span>(<span class="string">&quot;::FFFF:142.250.187.206&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;142.250.187.206&quot;</span>);
-        <span class="comment">// Check that IPv6 addresses are grouped into /64 subnets</span>
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">ip_key</span>(<span class="string">&quot;2a00:1450:4009:81f::200e&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;2a00:1450:4009:81f::/64&quot;</span>
-        );
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_ip_key() {
+        <span class="comment">// Check that IPv4 addresses are preserved
+        </span><span class="macro">assert_eq!</span>(ip_key(<span class="string">&quot;142.250.187.206&quot;</span>).unwrap(), <span class="string">&quot;142.250.187.206&quot;</span>);
+        <span class="comment">// Check that IPv4 mapped addresses are preserved
+        </span><span class="macro">assert_eq!</span>(ip_key(<span class="string">&quot;::FFFF:142.250.187.206&quot;</span>).unwrap(), <span class="string">&quot;142.250.187.206&quot;</span>);
+        <span class="comment">// Check that IPv6 addresses are grouped into /64 subnets
+        </span><span class="macro">assert_eq!</span>(
+            ip_key(<span class="string">&quot;2a00:1450:4009:81f::200e&quot;</span>).unwrap(),
+            <span class="string">&quot;2a00:1450:4009:81f::/64&quot;
+        </span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_extensible_rate_limit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_extensible_rate_limit" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

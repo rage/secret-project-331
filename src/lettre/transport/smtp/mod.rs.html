@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../lettre/index.html"><div class="logo-container">
                     <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../lettre/index.html">
                         <img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -212,217 +212,217 @@
 <span id="210">210</span>
 <span id="211">211</span>
 <span id="212">212</span>
-</pre><pre class="rust"><code><span class="doccomment">//! The SMTP transport sends emails using the SMTP protocol.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This SMTP client follows [RFC</span>
-<span class="doccomment">//! 5321](https://tools.ietf.org/html/rfc5321), and is designed to efficiently send emails from an</span>
-<span class="doccomment">//! application to a relay email server, as it relies as much as possible on the relay server</span>
-<span class="doccomment">//! for sanity and RFC compliance checks.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! It implements the following extensions:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * 8BITMIME ([RFC 6152](https://tools.ietf.org/html/rfc6152))</span>
-<span class="doccomment">//! * AUTH ([RFC 4954](https://tools.ietf.org/html/rfc4954)) with PLAIN, LOGIN and XOAUTH2 mechanisms</span>
-<span class="doccomment">//! * STARTTLS ([RFC 2487](https://tools.ietf.org/html/rfc2487))</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #### SMTP Transport</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This transport uses the SMTP protocol to send emails over the network (locally or remotely).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! It is designed to be:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * Secured: connections are encrypted by default</span>
-<span class="doccomment">//! * Modern: unicode support for email contents and sender/recipient addresses when compatible</span>
-<span class="doccomment">//! * Fast: supports connection reuse and pooling</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This client is designed to send emails to a relay server, and should *not* be used to send</span>
-<span class="doccomment">//! emails directly to the destination server.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The relay server can be the local email server, a specific host or a third-party service.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #### Simple example</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This is the most basic example of usage:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! # #[cfg(all(feature = &quot;builder&quot;, any(feature = &quot;native-tls&quot;, feature = &quot;rustls-tls&quot;)))]</span>
-<span class="doccomment">//! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">//! use lettre::{Message, SmtpTransport, Transport};</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let email = Message::builder()</span>
-<span class="doccomment">//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .subject(&quot;Happy new year&quot;)</span>
-<span class="doccomment">//!     .body(String::from(&quot;Be happy!&quot;))?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Create TLS transport on port 465</span>
-<span class="doccomment">//! let sender = SmtpTransport::relay(&quot;smtp.example.com&quot;)?.build();</span>
-<span class="doccomment">//! // Send the email via remote relay</span>
-<span class="doccomment">//! let result = sender.send(&amp;email);</span>
-<span class="doccomment">//! assert!(result.is_ok());</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #### Authentication</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Example with authentication and connection pool:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! # #[cfg(all(feature = &quot;builder&quot;, any(feature = &quot;native-tls&quot;, feature = &quot;rustls-tls&quot;)))]</span>
-<span class="doccomment">//! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">//! use lettre::{</span>
-<span class="doccomment">//!     transport::smtp::{</span>
-<span class="doccomment">//!         authentication::{Credentials, Mechanism},</span>
-<span class="doccomment">//!         PoolConfig,</span>
-<span class="doccomment">//!     },</span>
-<span class="doccomment">//!     Message, SmtpTransport, Transport,</span>
-<span class="doccomment">//! };</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let email = Message::builder()</span>
-<span class="doccomment">//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .subject(&quot;Happy new year&quot;)</span>
-<span class="doccomment">//!     .body(String::from(&quot;Be happy!&quot;))?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Create TLS transport on port 587 with STARTTLS</span>
-<span class="doccomment">//! let sender = SmtpTransport::starttls_relay(&quot;smtp.example.com&quot;)?</span>
-<span class="doccomment">//!     // Add credentials for authentication</span>
-<span class="doccomment">//!     .credentials(Credentials::new(</span>
-<span class="doccomment">//!         &quot;username&quot;.to_string(),</span>
-<span class="doccomment">//!         &quot;password&quot;.to_string(),</span>
-<span class="doccomment">//!     ))</span>
-<span class="doccomment">//!     // Configure expected authentication mechanism</span>
-<span class="doccomment">//!     .authentication(vec![Mechanism::Plain])</span>
-<span class="doccomment">//!     // Connection pool settings</span>
-<span class="doccomment">//!     .pool_config(PoolConfig::new().max_size(20))</span>
-<span class="doccomment">//!     .build();</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Send the email via remote relay</span>
-<span class="doccomment">//! let result = sender.send(&amp;email);</span>
-<span class="doccomment">//! assert!(result.is_ok());</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! You can specify custom TLS settings:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,no_run</span>
-<span class="doccomment">//! # #[cfg(all(feature = &quot;builder&quot;, any(feature = &quot;native-tls&quot;, feature = &quot;rustls-tls&quot;)))]</span>
-<span class="doccomment">//! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">//! use lettre::{</span>
-<span class="doccomment">//!     transport::smtp::client::{Tls, TlsParameters},</span>
-<span class="doccomment">//!     Message, SmtpTransport, Transport,</span>
-<span class="doccomment">//! };</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let email = Message::builder()</span>
-<span class="doccomment">//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)</span>
-<span class="doccomment">//!     .subject(&quot;Happy new year&quot;)</span>
-<span class="doccomment">//!     .body(String::from(&quot;Be happy!&quot;))?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Custom TLS configuration</span>
-<span class="doccomment">//! let tls = TlsParameters::builder(&quot;smtp.example.com&quot;.to_string())</span>
-<span class="doccomment">//!     .dangerous_accept_invalid_certs(true)</span>
-<span class="doccomment">//!     .build()?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Create TLS transport on port 465</span>
-<span class="doccomment">//! let sender = SmtpTransport::relay(&quot;smtp.example.com&quot;)?</span>
-<span class="doccomment">//!     // Custom TLS configuration</span>
-<span class="doccomment">//!     .tls(Tls::Required(tls))</span>
-<span class="doccomment">//!     .build();</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Send the email via remote relay</span>
-<span class="doccomment">//! let result = sender.send(&amp;email);</span>
-<span class="doccomment">//! assert!(result.is_ok());</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
+</pre><pre class="rust"><code><span class="doccomment">//! The SMTP transport sends emails using the SMTP protocol.
+//!
+//! This SMTP client follows [RFC
+//! 5321](https://tools.ietf.org/html/rfc5321), and is designed to efficiently send emails from an
+//! application to a relay email server, as it relies as much as possible on the relay server
+//! for sanity and RFC compliance checks.
+//!
+//! It implements the following extensions:
+//!
+//! * 8BITMIME ([RFC 6152](https://tools.ietf.org/html/rfc6152))
+//! * AUTH ([RFC 4954](https://tools.ietf.org/html/rfc4954)) with PLAIN, LOGIN and XOAUTH2 mechanisms
+//! * STARTTLS ([RFC 2487](https://tools.ietf.org/html/rfc2487))
+//!
+//! #### SMTP Transport
+//!
+//! This transport uses the SMTP protocol to send emails over the network (locally or remotely).
+//!
+//! It is designed to be:
+//!
+//! * Secured: connections are encrypted by default
+//! * Modern: unicode support for email contents and sender/recipient addresses when compatible
+//! * Fast: supports connection reuse and pooling
+//!
+//! This client is designed to send emails to a relay server, and should *not* be used to send
+//! emails directly to the destination server.
+//!
+//! The relay server can be the local email server, a specific host or a third-party service.
+//!
+//! #### Simple example
+//!
+//! This is the most basic example of usage:
+//!
+//! ```rust,no_run
+//! # #[cfg(all(feature = &quot;builder&quot;, any(feature = &quot;native-tls&quot;, feature = &quot;rustls-tls&quot;)))]
+//! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! use lettre::{Message, SmtpTransport, Transport};
+//!
+//! let email = Message::builder()
+//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
+//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
+//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
+//!     .subject(&quot;Happy new year&quot;)
+//!     .body(String::from(&quot;Be happy!&quot;))?;
+//!
+//! // Create TLS transport on port 465
+//! let sender = SmtpTransport::relay(&quot;smtp.example.com&quot;)?.build();
+//! // Send the email via remote relay
+//! let result = sender.send(&amp;email);
+//! assert!(result.is_ok());
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! #### Authentication
+//!
+//! Example with authentication and connection pool:
+//!
+//! ```rust,no_run
+//! # #[cfg(all(feature = &quot;builder&quot;, any(feature = &quot;native-tls&quot;, feature = &quot;rustls-tls&quot;)))]
+//! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! use lettre::{
+//!     transport::smtp::{
+//!         authentication::{Credentials, Mechanism},
+//!         PoolConfig,
+//!     },
+//!     Message, SmtpTransport, Transport,
+//! };
+//!
+//! let email = Message::builder()
+//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
+//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
+//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
+//!     .subject(&quot;Happy new year&quot;)
+//!     .body(String::from(&quot;Be happy!&quot;))?;
+//!
+//! // Create TLS transport on port 587 with STARTTLS
+//! let sender = SmtpTransport::starttls_relay(&quot;smtp.example.com&quot;)?
+//!     // Add credentials for authentication
+//!     .credentials(Credentials::new(
+//!         &quot;username&quot;.to_string(),
+//!         &quot;password&quot;.to_string(),
+//!     ))
+//!     // Configure expected authentication mechanism
+//!     .authentication(vec![Mechanism::Plain])
+//!     // Connection pool settings
+//!     .pool_config(PoolConfig::new().max_size(20))
+//!     .build();
+//!
+//! // Send the email via remote relay
+//! let result = sender.send(&amp;email);
+//! assert!(result.is_ok());
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! You can specify custom TLS settings:
+//!
+//! ```rust,no_run
+//! # #[cfg(all(feature = &quot;builder&quot;, any(feature = &quot;native-tls&quot;, feature = &quot;rustls-tls&quot;)))]
+//! # fn test() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+//! use lettre::{
+//!     transport::smtp::client::{Tls, TlsParameters},
+//!     Message, SmtpTransport, Transport,
+//! };
+//!
+//! let email = Message::builder()
+//!     .from(&quot;NoBody &lt;nobody@domain.tld&gt;&quot;.parse()?)
+//!     .reply_to(&quot;Yuin &lt;yuin@domain.tld&gt;&quot;.parse()?)
+//!     .to(&quot;Hei &lt;hei@domain.tld&gt;&quot;.parse()?)
+//!     .subject(&quot;Happy new year&quot;)
+//!     .body(String::from(&quot;Be happy!&quot;))?;
+//!
+//! // Custom TLS configuration
+//! let tls = TlsParameters::builder(&quot;smtp.example.com&quot;.to_string())
+//!     .dangerous_accept_invalid_certs(true)
+//!     .build()?;
+//!
+//! // Create TLS transport on port 465
+//! let sender = SmtpTransport::relay(&quot;smtp.example.com&quot;)?
+//!     // Custom TLS configuration
+//!     .tls(Tls::Required(tls))
+//!     .build();
+//!
+//! // Send the email via remote relay
+//! let result = sender.send(&amp;email);
+//! assert!(result.is_ok());
+//! # Ok(())
+//! # }
+//! ```
 
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</span><span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">client::Tls</span>;
+<span class="kw">use </span>client::Tls;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::async_transport</span>::{<span class="ident">AsyncSmtpTransport</span>, <span class="ident">AsyncSmtpTransportBuilder</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::pool::PoolConfig</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">error::Error</span>,
-    <span class="ident">transport</span>::{<span class="ident">SmtpTransport</span>, <span class="ident">SmtpTransportBuilder</span>},
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+</span><span class="kw">pub use </span><span class="self">self</span>::async_transport::{AsyncSmtpTransport, AsyncSmtpTransportBuilder};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::pool::PoolConfig;
+<span class="kw">pub use </span><span class="self">self</span>::{
+    error::Error,
+    transport::{SmtpTransport, SmtpTransportBuilder},
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp::client::TlsParameters</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp</span>::{
-    <span class="ident">authentication</span>::{<span class="ident">Credentials</span>, <span class="ident">Mechanism</span>, <span class="ident">DEFAULT_MECHANISMS</span>},
-    <span class="ident">client::SmtpConnection</span>,
-    <span class="ident">extension::ClientId</span>,
-    <span class="ident">response::Response</span>,
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;native-tls&quot;</span>, feature = <span class="string">&quot;rustls-tls&quot;</span>, feature = <span class="string">&quot;boring-tls&quot;</span>))]
+</span><span class="kw">use </span><span class="kw">crate</span>::transport::smtp::client::TlsParameters;
+<span class="kw">use </span><span class="kw">crate</span>::transport::smtp::{
+    authentication::{Credentials, Mechanism, DEFAULT_MECHANISMS},
+    client::SmtpConnection,
+    extension::ClientId,
+    response::Response,
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">async_transport</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">authentication</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">client</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">commands</span>;
-<span class="kw">mod</span> <span class="ident">error</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">extension</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">pool</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">response</span>;
-<span class="kw">mod</span> <span class="ident">transport</span>;
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod</span> <span class="ident">util</span>;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;tokio1&quot;</span>, feature = <span class="string">&quot;async-std1&quot;</span>))]
+</span><span class="kw">mod </span>async_transport;
+<span class="kw">pub mod </span>authentication;
+<span class="kw">pub mod </span>client;
+<span class="kw">pub mod </span>commands;
+<span class="kw">mod </span>error;
+<span class="kw">pub mod </span>extension;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;pool&quot;</span>)]
+</span><span class="kw">mod </span>pool;
+<span class="kw">pub mod </span>response;
+<span class="kw">mod </span>transport;
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>util;
 
-<span class="comment">// Registered port numbers:</span>
-<span class="comment">// https://www.iana.</span>
-<span class="comment">// org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml</span>
+<span class="comment">// Registered port numbers:
+// https://www.iana.
+// org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml
 
-<span class="doccomment">/// Default smtp port</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SMTP_PORT</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="number">25</span>;
-<span class="doccomment">/// Default submission port</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SUBMISSION_PORT</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="number">587</span>;
-<span class="doccomment">/// Default submission over TLS port</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Defined in [RFC8314](https://tools.ietf.org/html/rfc8314)</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SUBMISSIONS_PORT</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="number">465</span>;
+</span><span class="doccomment">/// Default smtp port
+</span><span class="kw">pub const </span>SMTP_PORT: u16 = <span class="number">25</span>;
+<span class="doccomment">/// Default submission port
+</span><span class="kw">pub const </span>SUBMISSION_PORT: u16 = <span class="number">587</span>;
+<span class="doccomment">/// Default submission over TLS port
+///
+/// Defined in [RFC8314](https://tools.ietf.org/html/rfc8314)
+</span><span class="kw">pub const </span>SUBMISSIONS_PORT: u16 = <span class="number">465</span>;
 
-<span class="doccomment">/// Default timeout</span>
-<span class="kw">const</span> <span class="ident">DEFAULT_TIMEOUT</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::from_secs</span>(<span class="number">60</span>);
+<span class="doccomment">/// Default timeout
+</span><span class="kw">const </span>DEFAULT_TIMEOUT: Duration = Duration::from_secs(<span class="number">60</span>);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">SmtpInfo</span> {
-    <span class="doccomment">/// Name sent during EHLO</span>
-    <span class="ident">hello_name</span>: <span class="ident">ClientId</span>,
-    <span class="doccomment">/// Server we are connecting to</span>
-    <span class="ident">server</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Port to connect to</span>
-    <span class="ident">port</span>: <span class="ident">u16</span>,
-    <span class="doccomment">/// TLS security configuration</span>
-    <span class="ident">tls</span>: <span class="ident">Tls</span>,
-    <span class="doccomment">/// Optional enforced authentication mechanism</span>
-    <span class="ident">authentication</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mechanism</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Credentials</span>
-    <span class="ident">credentials</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Credentials</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Define network timeout</span>
-    <span class="doccomment">/// It can be changed later for specific needs (like a different timeout for each SMTP command)</span>
-    <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">struct </span>SmtpInfo {
+    <span class="doccomment">/// Name sent during EHLO
+    </span>hello_name: ClientId,
+    <span class="doccomment">/// Server we are connecting to
+    </span>server: String,
+    <span class="doccomment">/// Port to connect to
+    </span>port: u16,
+    <span class="doccomment">/// TLS security configuration
+    </span>tls: Tls,
+    <span class="doccomment">/// Optional enforced authentication mechanism
+    </span>authentication: Vec&lt;Mechanism&gt;,
+    <span class="doccomment">/// Credentials
+    </span>credentials: <span class="prelude-ty">Option</span>&lt;Credentials&gt;,
+    <span class="doccomment">/// Define network timeout
+    /// It can be changed later for specific needs (like a different timeout for each SMTP command)
+    </span>timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SmtpInfo</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">server</span>: <span class="string">&quot;localhost&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">port</span>: <span class="ident">SMTP_PORT</span>,
-            <span class="ident">hello_name</span>: <span class="ident">ClientId::default</span>(),
-            <span class="ident">credentials</span>: <span class="prelude-val">None</span>,
-            <span class="ident">authentication</span>: <span class="ident">DEFAULT_MECHANISMS</span>.<span class="ident">into</span>(),
-            <span class="ident">timeout</span>: <span class="prelude-val">Some</span>(<span class="ident">DEFAULT_TIMEOUT</span>),
-            <span class="ident">tls</span>: <span class="ident">Tls::None</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>SmtpInfo {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            server: <span class="string">&quot;localhost&quot;</span>.to_string(),
+            port: SMTP_PORT,
+            hello_name: ClientId::default(),
+            credentials: <span class="prelude-val">None</span>,
+            authentication: DEFAULT_MECHANISMS.into(),
+            timeout: <span class="prelude-val">Some</span>(DEFAULT_TIMEOUT),
+            tls: Tls::None,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="lettre" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

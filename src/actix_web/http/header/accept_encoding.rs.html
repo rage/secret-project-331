@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/accept_encoding.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>accept_encoding.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/accept_encoding.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>accept_encoding.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -429,434 +429,434 @@
 <span id="427">427</span>
 <span id="428">428</span>
 <span id="429">429</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">common_header</span>, <span class="ident">ContentEncoding</span>, <span class="ident">Encoding</span>, <span class="ident">Preference</span>, <span class="ident">Quality</span>, <span class="ident">QualityItem</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http::header</span>;
+<span class="kw">use super</span>::{common_header, ContentEncoding, Encoding, Preference, Quality, QualityItem};
+<span class="kw">use </span><span class="kw">crate</span>::http::header;
 
-<span class="macro">common_header!</span> {
-    <span class="doccomment">/// `Accept-Encoding` header, defined</span>
-    <span class="doccomment">/// in [RFC 7231](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.4)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `Accept-Encoding` header field can be used by user agents to indicate what response</span>
-    <span class="doccomment">/// content-codings are acceptable in the response. An `identity` token is used as a synonym</span>
-    <span class="doccomment">/// for &quot;no encoding&quot; in order to communicate when no encoding is preferred.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # ABNF</span>
-    <span class="doccomment">/// ```plain</span>
-    <span class="doccomment">/// Accept-Encoding  = #( codings [ weight ] )</span>
-    <span class="doccomment">/// codings          = content-coding / &quot;identity&quot; / &quot;*&quot;</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example Values</span>
-    <span class="doccomment">/// * `compress, gzip`</span>
-    <span class="doccomment">/// * ``</span>
-    <span class="doccomment">/// * `*`</span>
-    <span class="doccomment">/// * `compress;q=0.5, gzip;q=1`</span>
-    <span class="doccomment">/// * `gzip;q=1.0, identity; q=0.5, *;q=0`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::{AcceptEncoding, Encoding, Preference, QualityItem};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// builder.insert_header(</span>
-    <span class="doccomment">///     AcceptEncoding(vec![QualityItem::max(Preference::Specific(Encoding::gzip()))])</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::{AcceptEncoding, Encoding, QualityItem};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// builder.insert_header(</span>
-    <span class="doccomment">///     AcceptEncoding(vec![</span>
-    <span class="doccomment">///         &quot;gzip&quot;.parse().unwrap(),</span>
-    <span class="doccomment">///         &quot;br&quot;.parse().unwrap(),</span>
-    <span class="doccomment">///     ])</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    (<span class="ident">AcceptEncoding</span>, <span class="ident">header::ACCEPT_ENCODING</span>) =&gt; (<span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Preference</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">*</span>
+<span class="macro">common_header! </span>{
+    <span class="doccomment">/// `Accept-Encoding` header, defined
+    /// in [RFC 7231](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.4)
+    ///
+    /// The `Accept-Encoding` header field can be used by user agents to indicate what response
+    /// content-codings are acceptable in the response. An `identity` token is used as a synonym
+    /// for &quot;no encoding&quot; in order to communicate when no encoding is preferred.
+    ///
+    /// # ABNF
+    /// ```plain
+    /// Accept-Encoding  = #( codings [ weight ] )
+    /// codings          = content-coding / &quot;identity&quot; / &quot;*&quot;
+    /// ```
+    ///
+    /// # Example Values
+    /// * `compress, gzip`
+    /// * ``
+    /// * `*`
+    /// * `compress;q=0.5, gzip;q=1`
+    /// * `gzip;q=1.0, identity; q=0.5, *;q=0`
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::HttpResponse;
+    /// use actix_web::http::header::{AcceptEncoding, Encoding, Preference, QualityItem};
+    ///
+    /// let mut builder = HttpResponse::Ok();
+    /// builder.insert_header(
+    ///     AcceptEncoding(vec![QualityItem::max(Preference::Specific(Encoding::gzip()))])
+    /// );
+    /// ```
+    ///
+    /// ```
+    /// use actix_web::HttpResponse;
+    /// use actix_web::http::header::{AcceptEncoding, Encoding, QualityItem};
+    ///
+    /// let mut builder = HttpResponse::Ok();
+    /// builder.insert_header(
+    ///     AcceptEncoding(vec![
+    ///         &quot;gzip&quot;.parse().unwrap(),
+    ///         &quot;br&quot;.parse().unwrap(),
+    ///     ])
+    /// );
+    /// ```
+    </span>(AcceptEncoding, header::ACCEPT_ENCODING) =&gt; (QualityItem&lt;Preference&lt;Encoding&gt;&gt;)*
 
-    <span class="ident">test_parse_and_format</span> {
-        <span class="macro">common_header_test!</span>(<span class="ident">no_headers</span>, <span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>; <span class="number">0</span>], <span class="prelude-val">Some</span>(<span class="ident">AcceptEncoding</span>(<span class="macro">vec!</span>[])));
-        <span class="macro">common_header_test!</span>(<span class="ident">empty_header</span>, <span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>; <span class="number">1</span>], <span class="prelude-val">Some</span>(<span class="ident">AcceptEncoding</span>(<span class="macro">vec!</span>[])));
+    test_parse_and_format {
+        <span class="macro">common_header_test!</span>(no_headers, <span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>; <span class="number">0</span>], <span class="prelude-val">Some</span>(AcceptEncoding(<span class="macro">vec!</span>[])));
+        <span class="macro">common_header_test!</span>(empty_header, <span class="macro">vec!</span>[<span class="string">b&quot;&quot;</span>; <span class="number">1</span>], <span class="prelude-val">Some</span>(AcceptEncoding(<span class="macro">vec!</span>[])));
 
         <span class="macro">common_header_test!</span>(
-            <span class="ident">order_of_appearance</span>,
+            order_of_appearance,
             <span class="macro">vec!</span>[<span class="string">b&quot;br, gzip&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">AcceptEncoding</span>(<span class="macro">vec!</span>[
-                <span class="ident">QualityItem::max</span>(<span class="ident">Preference::Specific</span>(<span class="ident">Encoding::brotli</span>())),
-                <span class="ident">QualityItem::max</span>(<span class="ident">Preference::Specific</span>(<span class="ident">Encoding::gzip</span>())),
+            <span class="prelude-val">Some</span>(AcceptEncoding(<span class="macro">vec!</span>[
+                QualityItem::max(Preference::Specific(Encoding::brotli())),
+                QualityItem::max(Preference::Specific(Encoding::gzip())),
             ]))
         );
 
-        <span class="macro">common_header_test!</span>(<span class="ident">any</span>, <span class="macro">vec!</span>[<span class="string">b&quot;*&quot;</span>], <span class="prelude-val">Some</span>(<span class="ident">AcceptEncoding</span>(<span class="macro">vec!</span>[
-            <span class="ident">QualityItem::max</span>(<span class="ident">Preference::Any</span>),
+        <span class="macro">common_header_test!</span>(any, <span class="macro">vec!</span>[<span class="string">b&quot;*&quot;</span>], <span class="prelude-val">Some</span>(AcceptEncoding(<span class="macro">vec!</span>[
+            QualityItem::max(Preference::Any),
         ])));
 
-        <span class="comment">// Note: Removed quality 1 from gzip</span>
-        <span class="macro">common_header_test!</span>(<span class="ident">implicit_quality</span>, <span class="macro">vec!</span>[<span class="string">b&quot;gzip, identity; q=0.5, *;q=0&quot;</span>]);
+        <span class="comment">// Note: Removed quality 1 from gzip
+        </span><span class="macro">common_header_test!</span>(implicit_quality, <span class="macro">vec!</span>[<span class="string">b&quot;gzip, identity; q=0.5, *;q=0&quot;</span>]);
 
-        <span class="comment">// Note: Removed quality 1 from gzip</span>
-        <span class="macro">common_header_test!</span>(<span class="ident">implicit_quality_out_of_order</span>, <span class="macro">vec!</span>[<span class="string">b&quot;compress;q=0.5, gzip&quot;</span>]);
+        <span class="comment">// Note: Removed quality 1 from gzip
+        </span><span class="macro">common_header_test!</span>(implicit_quality_out_of_order, <span class="macro">vec!</span>[<span class="string">b&quot;compress;q=0.5, gzip&quot;</span>]);
 
         <span class="macro">common_header_test!</span>(
-            <span class="ident">only_gzip_no_identity</span>,
+            only_gzip_no_identity,
             <span class="macro">vec!</span>[<span class="string">b&quot;gzip, *; q=0&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">AcceptEncoding</span>(<span class="macro">vec!</span>[
-                <span class="ident">QualityItem::max</span>(<span class="ident">Preference::Specific</span>(<span class="ident">Encoding::gzip</span>())),
-                <span class="ident">QualityItem::zero</span>(<span class="ident">Preference::Any</span>),
+            <span class="prelude-val">Some</span>(AcceptEncoding(<span class="macro">vec!</span>[
+                QualityItem::max(Preference::Specific(Encoding::gzip())),
+                QualityItem::zero(Preference::Any),
             ]))
         );
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AcceptEncoding</span> {
-    <span class="doccomment">/// Selects the most acceptable encoding according to client preference and supported types.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The &quot;identity&quot; encoding is not assumed and should be included in the `supported` iterator</span>
-    <span class="doccomment">/// if a non-encoded representation can be selected.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `None` is returned, this indicates that none of the supported encodings are acceptable to</span>
-    <span class="doccomment">/// the client. The caller should generate a 406 Not Acceptable response (unencoded) that</span>
-    <span class="doccomment">/// includes the server&#39;s supported encodings in the body plus a [`Vary`] header.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Vary`]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">negotiate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+<span class="kw">impl </span>AcceptEncoding {
+    <span class="doccomment">/// Selects the most acceptable encoding according to client preference and supported types.
+    ///
+    /// The &quot;identity&quot; encoding is not assumed and should be included in the `supported` iterator
+    /// if a non-encoded representation can be selected.
+    ///
+    /// If `None` is returned, this indicates that none of the supported encodings are acceptable to
+    /// the client. The caller should generate a 406 Not Acceptable response (unencoded) that
+    /// includes the server&#39;s supported encodings in the body plus a [`Vary`] header.
+    ///
+    /// [`Vary`]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
+    </span><span class="kw">pub fn </span>negotiate&lt;<span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">supported</span>: <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Encoding</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span> {
-        <span class="comment">// 1. If no Accept-Encoding field is in the request, any content-coding is considered</span>
-        <span class="comment">// acceptable by the user agent.</span>
+        supported: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Encoding&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Encoding&gt; {
+        <span class="comment">// 1. If no Accept-Encoding field is in the request, any content-coding is considered
+        // acceptable by the user agent.
 
-        <span class="kw">let</span> <span class="ident">supported_set</span> <span class="op">=</span> <span class="ident">supported</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        </span><span class="kw">let </span>supported_set = supported.collect::&lt;HashSet&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">if</span> <span class="ident">supported_set</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">if </span>supported_set.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_empty</span>() {
-            <span class="comment">// though it is not recommended to encode in this case, return identity encoding</span>
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Encoding::identity</span>());
+        <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_empty() {
+            <span class="comment">// though it is not recommended to encode in this case, return identity encoding
+            </span><span class="kw">return </span><span class="prelude-val">Some</span>(Encoding::identity());
         }
 
-        <span class="comment">// 2. If the representation has no content-coding, then it is acceptable by default unless</span>
-        <span class="comment">// specifically excluded by the Accept-Encoding field stating either &quot;identity;q=0&quot; or</span>
-        <span class="comment">// &quot;*;q=0&quot; without a more specific entry for &quot;identity&quot;.</span>
+        <span class="comment">// 2. If the representation has no content-coding, then it is acceptable by default unless
+        // specifically excluded by the Accept-Encoding field stating either &quot;identity;q=0&quot; or
+        // &quot;*;q=0&quot; without a more specific entry for &quot;identity&quot;.
 
-        <span class="kw">let</span> <span class="ident">acceptable_items</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ranked_items</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        </span><span class="kw">let </span>acceptable_items = <span class="self">self</span>.ranked_items().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">let</span> <span class="ident">identity_acceptable</span> <span class="op">=</span> <span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">acceptable_items</span>);
-        <span class="kw">let</span> <span class="ident">identity_supported</span> <span class="op">=</span> <span class="ident">supported_set</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">Encoding::identity</span>());
+        <span class="kw">let </span>identity_acceptable = is_identity_acceptable(<span class="kw-2">&amp;</span>acceptable_items);
+        <span class="kw">let </span>identity_supported = supported_set.contains(<span class="kw-2">&amp;</span>Encoding::identity());
 
-        <span class="kw">if</span> <span class="ident">identity_acceptable</span> <span class="op">&amp;&amp;</span> <span class="ident">identity_supported</span> <span class="op">&amp;&amp;</span> <span class="ident">supported_set</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Encoding::identity</span>());
+        <span class="kw">if </span>identity_acceptable &amp;&amp; identity_supported &amp;&amp; supported_set.len() == <span class="number">1 </span>{
+            <span class="kw">return </span><span class="prelude-val">Some</span>(Encoding::identity());
         }
 
-        <span class="comment">// 3. If the representation&#39;s content-coding is one of the content-codings listed in the</span>
-        <span class="comment">// Accept-Encoding field, then it is acceptable unless it is accompanied by a qvalue of 0.</span>
+        <span class="comment">// 3. If the representation&#39;s content-coding is one of the content-codings listed in the
+        // Accept-Encoding field, then it is acceptable unless it is accompanied by a qvalue of 0.
 
-        <span class="comment">// 4. If multiple content-codings are acceptable, then the acceptable content-coding with</span>
-        <span class="comment">// the highest non-zero qvalue is preferred.</span>
+        // 4. If multiple content-codings are acceptable, then the acceptable content-coding with
+        // the highest non-zero qvalue is preferred.
 
-        <span class="kw">let</span> <span class="ident">matched</span> <span class="op">=</span> <span class="ident">acceptable_items</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">q</span><span class="op">|</span> <span class="ident">q</span>.<span class="ident">quality</span> <span class="op">&gt;</span> <span class="ident">Quality::ZERO</span>)
-            <span class="comment">// search relies on item list being in descending order of quality</span>
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">q</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">enc</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">q</span>.<span class="ident">item</span>;
-                <span class="macro">matches!</span>(<span class="ident">enc</span>, <span class="ident">Preference::Specific</span>(<span class="ident">enc</span>) <span class="kw">if</span> <span class="ident">supported_set</span>.<span class="ident">contains</span>(<span class="ident">enc</span>))
+        </span><span class="kw">let </span>matched = acceptable_items
+            .into_iter()
+            .filter(|q| q.quality &gt; Quality::ZERO)
+            <span class="comment">// search relies on item list being in descending order of quality
+            </span>.find(|q| {
+                <span class="kw">let </span>enc = <span class="kw-2">&amp;</span>q.item;
+                <span class="macro">matches!</span>(enc, Preference::Specific(enc) <span class="kw">if </span>supported_set.contains(enc))
             })
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">q</span><span class="op">|</span> <span class="ident">q</span>.<span class="ident">item</span>);
+            .map(|q| q.item);
 
-        <span class="kw">match</span> <span class="ident">matched</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">Preference::Specific</span>(<span class="ident">enc</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">enc</span>),
+        <span class="kw">match </span>matched {
+            <span class="prelude-val">Some</span>(Preference::Specific(enc)) =&gt; <span class="prelude-val">Some</span>(enc),
 
-            <span class="kw">_</span> <span class="kw">if</span> <span class="ident">identity_acceptable</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Encoding::identity</span>()),
+            <span class="kw">_ if </span>identity_acceptable =&gt; <span class="prelude-val">Some</span>(Encoding::identity()),
 
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Extracts the most preferable encoding, accounting for [q-factor weighting].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If no q-factors are provided, the first encoding is chosen. Note that items without</span>
-    <span class="doccomment">/// q-factors are given the maximum preference value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// As per the spec, returns [`Preference::Any`] if acceptable list is empty. Though, if this is</span>
-    <span class="doccomment">/// returned, it is recommended to use an un-encoded representation.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `None` is returned, it means that the client has signalled that no representations</span>
-    <span class="doccomment">/// are acceptable. This should never occur for a well behaved user-agent.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Preference</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// empty header indicates no preference</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Preference::Any</span>);
+    <span class="doccomment">/// Extracts the most preferable encoding, accounting for [q-factor weighting].
+    ///
+    /// If no q-factors are provided, the first encoding is chosen. Note that items without
+    /// q-factors are given the maximum preference value.
+    ///
+    /// As per the spec, returns [`Preference::Any`] if acceptable list is empty. Though, if this is
+    /// returned, it is recommended to use an un-encoded representation.
+    ///
+    /// If `None` is returned, it means that the client has signalled that no representations
+    /// are acceptable. This should never occur for a well behaved user-agent.
+    ///
+    /// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
+    </span><span class="kw">pub fn </span>preference(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Preference&lt;Encoding&gt;&gt; {
+        <span class="comment">// empty header indicates no preference
+        </span><span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(Preference::Any);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_item</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_pref</span> <span class="op">=</span> <span class="ident">Quality::ZERO</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>max_item = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>max_pref = Quality::ZERO;
 
-        <span class="comment">// uses manual max lookup loop since we want the first occurrence in the case of same</span>
-        <span class="comment">// preference but `Iterator::max_by_key` would give us the last occurrence</span>
+        <span class="comment">// uses manual max lookup loop since we want the first occurrence in the case of same
+        // preference but `Iterator::max_by_key` would give us the last occurrence
 
-        <span class="kw">for</span> <span class="ident">pref</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="comment">// only change if strictly greater</span>
-            <span class="comment">// equal items, even while unsorted, still have higher preference if they appear first</span>
-            <span class="kw">if</span> <span class="ident">pref</span>.<span class="ident">quality</span> <span class="op">&gt;</span> <span class="ident">max_pref</span> {
-                <span class="ident">max_pref</span> <span class="op">=</span> <span class="ident">pref</span>.<span class="ident">quality</span>;
-                <span class="ident">max_item</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pref</span>.<span class="ident">item</span>.<span class="ident">clone</span>());
+        </span><span class="kw">for </span>pref <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="comment">// only change if strictly greater
+            // equal items, even while unsorted, still have higher preference if they appear first
+            </span><span class="kw">if </span>pref.quality &gt; max_pref {
+                max_pref = pref.quality;
+                max_item = <span class="prelude-val">Some</span>(pref.item.clone());
             }
         }
 
-        <span class="comment">// Return max_item if any items were above 0 quality...</span>
-        <span class="ident">max_item</span>.<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="comment">// ...or else check for &quot;*&quot; or &quot;identity&quot;. We can elide quality checks since</span>
-            <span class="comment">// entering this block means all items had &quot;q=0&quot;.</span>
-            <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">pref</span><span class="op">|</span> {
+        <span class="comment">// Return max_item if any items were above 0 quality...
+        </span>max_item.or_else(|| {
+            <span class="comment">// ...or else check for &quot;*&quot; or &quot;identity&quot;. We can elide quality checks since
+            // entering this block means all items had &quot;q=0&quot;.
+            </span><span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.iter().find(|pref| {
                 <span class="macro">matches!</span>(
-                    <span class="ident">pref</span>.<span class="ident">item</span>,
-                    <span class="ident">Preference::Any</span>
-                        <span class="op">|</span> <span class="ident">Preference::Specific</span>(<span class="ident">Encoding::Known</span>(<span class="ident">ContentEncoding::Identity</span>))
+                    pref.item,
+                    Preference::Any
+                        | Preference::Specific(Encoding::Known(ContentEncoding::Identity))
                 )
             }) {
-                <span class="comment">// &quot;identity&quot; or &quot;*&quot; found so no representation is acceptable</span>
-                <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+                <span class="comment">// &quot;identity&quot; or &quot;*&quot; found so no representation is acceptable
+                </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
 
-                <span class="comment">// implicit &quot;identity&quot; is acceptable</span>
-                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Preference::Specific</span>(<span class="ident">Encoding::identity</span>())),
+                <span class="comment">// implicit &quot;identity&quot; is acceptable
+                </span><span class="prelude-val">None </span>=&gt; <span class="prelude-val">Some</span>(Preference::Specific(Encoding::identity())),
             }
         })
     }
 
-    <span class="doccomment">/// Returns a sorted list of encodings from highest to lowest precedence, accounting</span>
-    <span class="doccomment">/// for [q-factor weighting].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ranked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Preference</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">ranked_items</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">q</span><span class="op">|</span> <span class="ident">q</span>.<span class="ident">item</span>).<span class="ident">collect</span>()
+    <span class="doccomment">/// Returns a sorted list of encodings from highest to lowest precedence, accounting
+    /// for [q-factor weighting].
+    ///
+    /// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
+    </span><span class="kw">pub fn </span>ranked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;Preference&lt;Encoding&gt;&gt; {
+        <span class="self">self</span>.ranked_items().map(|q| q.item).collect()
     }
 
-    <span class="kw">fn</span> <span class="ident">ranked_items</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Preference</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="macro">vec!</span>[].<span class="ident">into_iter</span>();
+    <span class="kw">fn </span>ranked_items(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = QualityItem&lt;Preference&lt;Encoding&gt;&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_empty() {
+            <span class="kw">return </span><span class="macro">vec!</span>[].into_iter();
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>types = <span class="self">self</span>.<span class="number">0</span>.clone();
 
-        <span class="comment">// use stable sort so items with equal q-factor retain listed order</span>
-        <span class="ident">types</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> {
-            <span class="comment">// sort by q-factor descending</span>
-            <span class="ident">b</span>.<span class="ident">quality</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">quality</span>)
+        <span class="comment">// use stable sort so items with equal q-factor retain listed order
+        </span>types.sort_by(|a, b| {
+            <span class="comment">// sort by q-factor descending
+            </span>b.quality.cmp(<span class="kw-2">&amp;</span>a.quality)
         });
 
-        <span class="ident">types</span>.<span class="ident">into_iter</span>()
+        types.into_iter()
     }
 }
 
-<span class="doccomment">/// Returns true if &quot;identity&quot; is an acceptable encoding.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Internal algorithm relies on item list being in descending order of quality.</span>
-<span class="kw">fn</span> <span class="ident">is_identity_acceptable</span>(<span class="ident">items</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> [<span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Preference</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span><span class="op">&gt;</span>]) -&gt; <span class="ident">bool</span> {
-    <span class="kw">if</span> <span class="ident">items</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">return</span> <span class="bool-val">true</span>;
+<span class="doccomment">/// Returns true if &quot;identity&quot; is an acceptable encoding.
+///
+/// Internal algorithm relies on item list being in descending order of quality.
+</span><span class="kw">fn </span>is_identity_acceptable(items: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_ </span>[QualityItem&lt;Preference&lt;Encoding&gt;&gt;]) -&gt; bool {
+    <span class="kw">if </span>items.is_empty() {
+        <span class="kw">return </span><span class="bool-val">true</span>;
     }
 
-    <span class="comment">// Loop algorithm depends on items being sorted in descending order of quality. As such, it</span>
-    <span class="comment">// is sufficient to return (q &gt; 0) when reaching either an &quot;identity&quot; or &quot;*&quot; item.</span>
-    <span class="kw">for</span> <span class="ident">q</span> <span class="kw">in</span> <span class="ident">items</span> {
-        <span class="kw">match</span> (<span class="ident">q</span>.<span class="ident">quality</span>, <span class="kw-2">&amp;</span><span class="ident">q</span>.<span class="ident">item</span>) {
-            <span class="comment">// occurrence of &quot;identity;q=n&quot;; return true if quality is non-zero</span>
-            (<span class="ident">q</span>, <span class="ident">Preference::Specific</span>(<span class="ident">Encoding::Known</span>(<span class="ident">ContentEncoding::Identity</span>))) =&gt; {
-                <span class="kw">return</span> <span class="ident">q</span> <span class="op">&gt;</span> <span class="ident">Quality::ZERO</span>
+    <span class="comment">// Loop algorithm depends on items being sorted in descending order of quality. As such, it
+    // is sufficient to return (q &gt; 0) when reaching either an &quot;identity&quot; or &quot;*&quot; item.
+    </span><span class="kw">for </span>q <span class="kw">in </span>items {
+        <span class="kw">match </span>(q.quality, <span class="kw-2">&amp;</span>q.item) {
+            <span class="comment">// occurrence of &quot;identity;q=n&quot;; return true if quality is non-zero
+            </span>(q, Preference::Specific(Encoding::Known(ContentEncoding::Identity))) =&gt; {
+                <span class="kw">return </span>q &gt; Quality::ZERO
             }
 
-            <span class="comment">// occurrence of &quot;*;q=n&quot;; return true if quality is non-zero</span>
-            (<span class="ident">q</span>, <span class="ident">Preference::Any</span>) =&gt; <span class="kw">return</span> <span class="ident">q</span> <span class="op">&gt;</span> <span class="ident">Quality::ZERO</span>,
+            <span class="comment">// occurrence of &quot;*;q=n&quot;; return true if quality is non-zero
+            </span>(q, Preference::Any) =&gt; <span class="kw">return </span>q &gt; Quality::ZERO,
 
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
     }
 
-    <span class="comment">// implicit acceptable identity</span>
-    <span class="bool-val">true</span>
-}
+    <span class="comment">// implicit acceptable identity
+    </span><span class="bool-val">true
+</span>}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http::header</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::http::header::<span class="kw-2">*</span>;
 
-    <span class="macro">macro_rules!</span> <span class="ident">accept_encoding</span> {
-        () =&gt; { <span class="ident">AcceptEncoding</span>(<span class="macro">vec!</span>[]) };
-        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">q</span>:<span class="ident">expr</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>) =&gt; { <span class="ident">AcceptEncoding</span>(<span class="macro">vec!</span>[$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">q</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),<span class="op">+</span>]) };
+    <span class="macro">macro_rules! </span>accept_encoding {
+        () =&gt; { AcceptEncoding(<span class="macro">vec!</span>[]) };
+        ($(<span class="macro-nonterminal">$q</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; { AcceptEncoding(<span class="macro">vec!</span>[$(<span class="macro-nonterminal">$q</span>.parse().unwrap()),+]) };
     }
 
-    <span class="doccomment">/// Parses an encoding string.</span>
-    <span class="kw">fn</span> <span class="ident">enc</span>(<span class="ident">enc</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Preference</span><span class="op">&lt;</span><span class="ident">Encoding</span><span class="op">&gt;</span> {
-        <span class="ident">enc</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()
+    <span class="doccomment">/// Parses an encoding string.
+    </span><span class="kw">fn </span>enc(enc: <span class="kw-2">&amp;</span>str) -&gt; Preference&lt;Encoding&gt; {
+        enc.parse().unwrap()
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">detect_identity_acceptable</span>() {
-        <span class="macro">macro_rules!</span> <span class="ident">accept_encoding_ranked</span> {
-            () =&gt; { <span class="macro">accept_encoding!</span>().<span class="ident">ranked_items</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>() };
-            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">q</span>:<span class="ident">expr</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>) =&gt; { <span class="macro">accept_encoding!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">q</span>),<span class="op">+</span>).<span class="ident">ranked_items</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>() };
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>detect_identity_acceptable() {
+        <span class="macro">macro_rules! </span>accept_encoding_ranked {
+            () =&gt; { <span class="macro">accept_encoding!</span>().ranked_items().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;() };
+            ($(<span class="macro-nonterminal">$q</span>:expr),+ $(,)<span class="question-mark">?</span>) =&gt; { <span class="macro">accept_encoding!</span>($(<span class="macro-nonterminal">$q</span>),+).ranked_items().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;() };
         }
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>();
-        <span class="macro">assert!</span>(<span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;br&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0.1&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0.1&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0.1&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>, <span class="string">&quot;identity;q=0.1&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>();
+        <span class="macro">assert!</span>(is_identity_acceptable(<span class="kw-2">&amp;</span>test));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>);
+        <span class="macro">assert!</span>(is_identity_acceptable(<span class="kw-2">&amp;</span>test));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;br&quot;</span>);
+        <span class="macro">assert!</span>(is_identity_acceptable(<span class="kw-2">&amp;</span>test));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0.1&quot;</span>);
+        <span class="macro">assert!</span>(is_identity_acceptable(<span class="kw-2">&amp;</span>test));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0.1&quot;</span>);
+        <span class="macro">assert!</span>(is_identity_acceptable(<span class="kw-2">&amp;</span>test));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0.1&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>);
+        <span class="macro">assert!</span>(is_identity_acceptable(<span class="kw-2">&amp;</span>test));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>, <span class="string">&quot;identity;q=0.1&quot;</span>);
+        <span class="macro">assert!</span>(is_identity_acceptable(<span class="kw-2">&amp;</span>test));
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>, <span class="string">&quot;identity;q=0&quot;</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">is_identity_acceptable</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>);
+        <span class="macro">assert!</span>(!is_identity_acceptable(<span class="kw-2">&amp;</span>test));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0&quot;</span>);
+        <span class="macro">assert!</span>(!is_identity_acceptable(<span class="kw-2">&amp;</span>test));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>);
+        <span class="macro">assert!</span>(!is_identity_acceptable(<span class="kw-2">&amp;</span>test));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding_ranked!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>, <span class="string">&quot;identity;q=0&quot;</span>);
+        <span class="macro">assert!</span>(!is_identity_acceptable(<span class="kw-2">&amp;</span>test));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encoding_negotiation</span>() {
-        <span class="comment">// no preference</span>
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">negotiate</span>([].<span class="ident">iter</span>()), <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>encoding_negotiation() {
+        <span class="comment">// no preference
+        </span><span class="kw">let </span>test = <span class="macro">accept_encoding!</span>();
+        <span class="macro">assert_eq!</span>(test.negotiate([].iter()), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>();
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::identity</span>()),
-        );
-
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;identity;q=0&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()), <span class="prelude-val">None</span>);
-
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;*;q=0&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()), <span class="prelude-val">None</span>);
-
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>();
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::gzip</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::identity</span>()),
+            test.negotiate([Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::identity()),
         );
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>);
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;identity;q=0&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.negotiate([Encoding::identity()].iter()), <span class="prelude-val">None</span>);
+
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;*;q=0&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.negotiate([Encoding::identity()].iter()), <span class="prelude-val">None</span>);
+
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::gzip</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::gzip</span>()),
-        );
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::brotli</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::identity</span>()),
-        );
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::brotli</span>(), <span class="ident">Encoding::gzip</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::gzip</span>()),
+            test.negotiate([Encoding::gzip(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::identity()),
         );
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0&quot;</span>);
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::gzip</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::gzip</span>()),
+            test.negotiate([Encoding::gzip(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::gzip()),
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::brotli</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">None</span>
-        );
-
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>);
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::gzip</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::gzip</span>()),
+            test.negotiate([Encoding::brotli(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::identity()),
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::brotli</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">None</span>
+            test.negotiate([Encoding::brotli(), Encoding::gzip(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::gzip()),
         );
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;deflate&quot;</span>, <span class="string">&quot;br&quot;</span>);
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;identity;q=0&quot;</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::gzip</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::gzip</span>()),
+            test.negotiate([Encoding::gzip(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::gzip()),
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::brotli</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::brotli</span>())
+            test.negotiate([Encoding::brotli(), Encoding::identity()].iter()),
+            <span class="prelude-val">None
+        </span>);
+
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>);
+        <span class="macro">assert_eq!</span>(
+            test.negotiate([Encoding::gzip(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::gzip()),
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::deflate</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::deflate</span>())
+            test.negotiate([Encoding::brotli(), Encoding::identity()].iter()),
+            <span class="prelude-val">None
+        </span>);
+
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;deflate&quot;</span>, <span class="string">&quot;br&quot;</span>);
+        <span class="macro">assert_eq!</span>(
+            test.negotiate([Encoding::gzip(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::gzip()),
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>(
-                [<span class="ident">Encoding::gzip</span>(), <span class="ident">Encoding::deflate</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()
+            test.negotiate([Encoding::brotli(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::brotli())
+        );
+        <span class="macro">assert_eq!</span>(
+            test.negotiate([Encoding::deflate(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::deflate())
+        );
+        <span class="macro">assert_eq!</span>(
+            test.negotiate(
+                [Encoding::gzip(), Encoding::deflate(), Encoding::identity()].iter()
             ),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::gzip</span>())
+            <span class="prelude-val">Some</span>(Encoding::gzip())
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::gzip</span>(), <span class="ident">Encoding::brotli</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::gzip</span>())
+            test.negotiate([Encoding::gzip(), Encoding::brotli(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::gzip())
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">negotiate</span>([<span class="ident">Encoding::brotli</span>(), <span class="ident">Encoding::gzip</span>(), <span class="ident">Encoding::identity</span>()].<span class="ident">iter</span>()),
-            <span class="prelude-val">Some</span>(<span class="ident">Encoding::gzip</span>())
+            test.negotiate([Encoding::brotli(), Encoding::gzip(), Encoding::identity()].iter()),
+            <span class="prelude-val">Some</span>(Encoding::gzip())
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ranking_precedence</span>() {
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>();
-        <span class="macro">assert!</span>(<span class="ident">test</span>.<span class="ident">ranked</span>().<span class="ident">is_empty</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ranking_precedence() {
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>();
+        <span class="macro">assert!</span>(test.ranked().is_empty());
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">ranked</span>(), <span class="macro">vec!</span>[<span class="ident">enc</span>(<span class="string">&quot;gzip&quot;</span>)]);
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.ranked(), <span class="macro">vec!</span>[enc(<span class="string">&quot;gzip&quot;</span>)]);
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip;q=0.900&quot;</span>, <span class="string">&quot;*;q=0.700&quot;</span>, <span class="string">&quot;br;q=1.0&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">ranked</span>(), <span class="macro">vec!</span>[<span class="ident">enc</span>(<span class="string">&quot;br&quot;</span>), <span class="ident">enc</span>(<span class="string">&quot;gzip&quot;</span>), <span class="ident">enc</span>(<span class="string">&quot;*&quot;</span>)]);
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;gzip;q=0.900&quot;</span>, <span class="string">&quot;*;q=0.700&quot;</span>, <span class="string">&quot;br;q=1.0&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.ranked(), <span class="macro">vec!</span>[enc(<span class="string">&quot;br&quot;</span>), enc(<span class="string">&quot;gzip&quot;</span>), enc(<span class="string">&quot;*&quot;</span>)]);
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">ranked</span>(), <span class="macro">vec!</span>[<span class="ident">enc</span>(<span class="string">&quot;br&quot;</span>), <span class="ident">enc</span>(<span class="string">&quot;gzip&quot;</span>), <span class="ident">enc</span>(<span class="string">&quot;*&quot;</span>)]);
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.ranked(), <span class="macro">vec!</span>[enc(<span class="string">&quot;br&quot;</span>), enc(<span class="string">&quot;gzip&quot;</span>), enc(<span class="string">&quot;*&quot;</span>)]);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">preference_selection</span>() {
-        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>().<span class="ident">preference</span>(), <span class="prelude-val">Some</span>(<span class="ident">Preference::Any</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>preference_selection() {
+        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>().preference(), <span class="prelude-val">Some</span>(Preference::Any));
 
-        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>(<span class="string">&quot;identity;q=0&quot;</span>).<span class="ident">preference</span>(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>(<span class="string">&quot;*;q=0&quot;</span>).<span class="ident">preference</span>(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>(<span class="string">&quot;compress;q=0&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>).<span class="ident">preference</span>(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>(<span class="string">&quot;identity;q=0&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>).<span class="ident">preference</span>(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>(<span class="string">&quot;identity;q=0&quot;</span>).preference(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>(<span class="string">&quot;*;q=0&quot;</span>).preference(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>(<span class="string">&quot;compress;q=0&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>).preference(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">accept_encoding!</span>(<span class="string">&quot;identity;q=0&quot;</span>, <span class="string">&quot;*;q=0&quot;</span>).preference(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;*;q=0.5&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">preference</span>().<span class="ident">unwrap</span>(), <span class="ident">enc</span>(<span class="string">&quot;*&quot;</span>));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;*;q=0.5&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.preference().unwrap(), enc(<span class="string">&quot;*&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;br;q=0&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">preference</span>().<span class="ident">unwrap</span>(), <span class="ident">enc</span>(<span class="string">&quot;identity&quot;</span>));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;br;q=0&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.preference().unwrap(), enc(<span class="string">&quot;identity&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;br;q=0.900&quot;</span>, <span class="string">&quot;gzip;q=1.0&quot;</span>, <span class="string">&quot;*;q=0.500&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">preference</span>().<span class="ident">unwrap</span>(), <span class="ident">enc</span>(<span class="string">&quot;gzip&quot;</span>));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;br;q=0.900&quot;</span>, <span class="string">&quot;gzip;q=1.0&quot;</span>, <span class="string">&quot;*;q=0.500&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.preference().unwrap(), enc(<span class="string">&quot;gzip&quot;</span>));
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="macro">accept_encoding!</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">preference</span>().<span class="ident">unwrap</span>(), <span class="ident">enc</span>(<span class="string">&quot;br&quot;</span>));
+        <span class="kw">let </span>test = <span class="macro">accept_encoding!</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;gzip&quot;</span>, <span class="string">&quot;*&quot;</span>);
+        <span class="macro">assert_eq!</span>(test.preference().unwrap(), enc(<span class="string">&quot;br&quot;</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

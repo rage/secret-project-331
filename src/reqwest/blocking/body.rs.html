@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/body.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -350,357 +350,357 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::fs::File</span>;
-<span class="kw">use</span> <span class="ident">std::future::Future</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">Read</span>};
-<span class="kw">use</span> <span class="ident">std::mem</span>;
-<span class="kw">use</span> <span class="ident">std::ptr</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>std::future::Future;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;multipart&quot;</span>)]
+</span><span class="kw">use </span>std::io::Cursor;
+<span class="kw">use </span>std::io::{<span class="self">self</span>, Read};
+<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::ptr;
 
-<span class="kw">use</span> <span class="ident">bytes::buf::UninitSlice</span>;
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+<span class="kw">use </span>bytes::buf::UninitSlice;
+<span class="kw">use </span>bytes::Bytes;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::async_impl</span>;
+<span class="kw">use </span><span class="kw">crate</span>::async_impl;
 
-<span class="doccomment">/// The body of a `Request`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In most cases, this is not needed directly, as the</span>
-<span class="doccomment">/// [`RequestBuilder.body`][builder] method uses `Into&lt;Body&gt;`, which allows</span>
-<span class="doccomment">/// passing many things (like a string or vector of bytes).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [builder]: ./struct.RequestBuilder.html#method.body</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Body</span> {
-    <span class="ident">kind</span>: <span class="ident">Kind</span>,
+<span class="doccomment">/// The body of a `Request`.
+///
+/// In most cases, this is not needed directly, as the
+/// [`RequestBuilder.body`][builder] method uses `Into&lt;Body&gt;`, which allows
+/// passing many things (like a string or vector of bytes).
+///
+/// [builder]: ./struct.RequestBuilder.html#method.body
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Body {
+    kind: Kind,
 }
 
-<span class="kw">impl</span> <span class="ident">Body</span> {
-    <span class="doccomment">/// Instantiate a `Body` from a reader.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// While allowing for many types to be used, these bodies do not have</span>
-    <span class="doccomment">/// a way to reset to the beginning and be reused. This means that when</span>
-    <span class="doccomment">/// encountering a 307 or 308 status code, instead of repeating the</span>
-    <span class="doccomment">/// request at the new location, the `Response` will be returned with</span>
-    <span class="doccomment">/// the redirect status code set.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use std::fs::File;</span>
-    <span class="doccomment">/// # use reqwest::blocking::Body;</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let file = File::open(&quot;national_secrets.txt&quot;)?;</span>
-    <span class="doccomment">/// let body = Body::new(file);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If you have a set of bytes, like `String` or `Vec&lt;u8&gt;`, using the</span>
-    <span class="doccomment">/// `From` implementations for `Body` will store the data in a manner</span>
-    <span class="doccomment">/// it can be reused.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use reqwest::blocking::Body;</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let s = &quot;A stringy body&quot;;</span>
-    <span class="doccomment">/// let body = Body::from(s);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Read</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">reader</span>: <span class="ident">R</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">Body</span> {
-            <span class="ident">kind</span>: <span class="ident">Kind::Reader</span>(<span class="ident">Box::from</span>(<span class="ident">reader</span>), <span class="prelude-val">None</span>),
+<span class="kw">impl </span>Body {
+    <span class="doccomment">/// Instantiate a `Body` from a reader.
+    ///
+    /// # Note
+    ///
+    /// While allowing for many types to be used, these bodies do not have
+    /// a way to reset to the beginning and be reused. This means that when
+    /// encountering a 307 or 308 status code, instead of repeating the
+    /// request at the new location, the `Response` will be returned with
+    /// the redirect status code set.
+    ///
+    /// ```rust
+    /// # use std::fs::File;
+    /// # use reqwest::blocking::Body;
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let file = File::open(&quot;national_secrets.txt&quot;)?;
+    /// let body = Body::new(file);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// If you have a set of bytes, like `String` or `Vec&lt;u8&gt;`, using the
+    /// `From` implementations for `Body` will store the data in a manner
+    /// it can be reused.
+    ///
+    /// ```rust
+    /// # use reqwest::blocking::Body;
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let s = &quot;A stringy body&quot;;
+    /// let body = Body::from(s);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>new&lt;R: Read + Send + <span class="lifetime">&#39;static</span>&gt;(reader: R) -&gt; Body {
+        Body {
+            kind: Kind::Reader(Box::from(reader), <span class="prelude-val">None</span>),
         }
     }
 
-    <span class="doccomment">/// Create a `Body` from a `Read` where the size is known in advance</span>
-    <span class="doccomment">/// but the data should not be fully loaded into memory. This will</span>
-    <span class="doccomment">/// set the `Content-Length` header and stream from the `Read`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use std::fs::File;</span>
-    <span class="doccomment">/// # use reqwest::blocking::Body;</span>
-    <span class="doccomment">/// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// let file = File::open(&quot;a_large_file.txt&quot;)?;</span>
-    <span class="doccomment">/// let file_size = file.metadata()?.len();</span>
-    <span class="doccomment">/// let body = Body::sized(file, file_size);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sized</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Read</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">reader</span>: <span class="ident">R</span>, <span class="ident">len</span>: <span class="ident">u64</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">Body</span> {
-            <span class="ident">kind</span>: <span class="ident">Kind::Reader</span>(<span class="ident">Box::from</span>(<span class="ident">reader</span>), <span class="prelude-val">Some</span>(<span class="ident">len</span>)),
+    <span class="doccomment">/// Create a `Body` from a `Read` where the size is known in advance
+    /// but the data should not be fully loaded into memory. This will
+    /// set the `Content-Length` header and stream from the `Read`.
+    ///
+    /// ```rust
+    /// # use std::fs::File;
+    /// # use reqwest::blocking::Body;
+    /// # fn run() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    /// let file = File::open(&quot;a_large_file.txt&quot;)?;
+    /// let file_size = file.metadata()?.len();
+    /// let body = Body::sized(file, file_size);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>sized&lt;R: Read + Send + <span class="lifetime">&#39;static</span>&gt;(reader: R, len: u64) -&gt; Body {
+        Body {
+            kind: Kind::Reader(Box::from(reader), <span class="prelude-val">Some</span>(len)),
         }
     }
 
-    <span class="doccomment">/// Returns the body as a byte slice if the body is already buffered in</span>
-    <span class="doccomment">/// memory. For streamed requests this method returns `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind::Reader</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">Kind::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">bytes</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()),
+    <span class="doccomment">/// Returns the body as a byte slice if the body is already buffered in
+    /// memory. For streamed requests this method returns `None`.
+    </span><span class="kw">pub fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+        <span class="kw">match </span><span class="self">self</span>.kind {
+            Kind::Reader(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            Kind::Bytes(<span class="kw-2">ref </span>bytes) =&gt; <span class="prelude-val">Some</span>(bytes.as_ref()),
         }
     }
 
-    <span class="doccomment">/// Converts streamed requests to their buffered equivalent and</span>
-    <span class="doccomment">/// returns a reference to the buffer. If the request is already</span>
-    <span class="doccomment">/// buffered, this has no effect.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Be aware that for large requests this method is expensive</span>
-    <span class="doccomment">/// and may cause your program to run out of memory.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buffer</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind::Reader</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">reader</span>, <span class="ident">maybe_len</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">maybe_len</span> {
-                    <span class="ident">Vec::with_capacity</span>(<span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">Vec::new</span>()
+    <span class="doccomment">/// Converts streamed requests to their buffered equivalent and
+    /// returns a reference to the buffer. If the request is already
+    /// buffered, this has no effect.
+    ///
+    /// Be aware that for large requests this method is expensive
+    /// and may cause your program to run out of memory.
+    </span><span class="kw">pub fn </span>buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8], <span class="kw">crate</span>::Error&gt; {
+        <span class="kw">match </span><span class="self">self</span>.kind {
+            Kind::Reader(<span class="kw-2">ref mut </span>reader, maybe_len) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="kw">if let </span><span class="prelude-val">Some</span>(len) = maybe_len {
+                    Vec::with_capacity(len <span class="kw">as </span>usize)
+                } <span class="kw">else </span>{
+                    Vec::new()
                 };
-                <span class="ident">io::copy</span>(<span class="ident">reader</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>).<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::builder</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">kind</span> <span class="op">=</span> <span class="ident">Kind::Bytes</span>(<span class="ident">bytes</span>.<span class="ident">into</span>());
-                <span class="self">self</span>.<span class="ident">buffer</span>()
+                io::copy(reader, <span class="kw-2">&amp;mut </span>bytes).map_err(<span class="kw">crate</span>::error::builder)<span class="question-mark">?</span>;
+                <span class="self">self</span>.kind = Kind::Bytes(bytes.into());
+                <span class="self">self</span>.buffer()
             }
-            <span class="ident">Kind::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">bytes</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()),
+            Kind::Bytes(<span class="kw-2">ref </span>bytes) =&gt; <span class="prelude-val">Ok</span>(bytes.as_ref()),
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind::Reader</span>(<span class="kw">_</span>, <span class="ident">len</span>) =&gt; <span class="ident">len</span>,
-            <span class="ident">Kind::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">bytes</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">bytes</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;multipart&quot;</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
+        <span class="kw">match </span><span class="self">self</span>.kind {
+            Kind::Reader(<span class="kw">_</span>, len) =&gt; len,
+            Kind::Bytes(<span class="kw-2">ref </span>bytes) =&gt; <span class="prelude-val">Some</span>(bytes.len() <span class="kw">as </span>u64),
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_reader</span>(<span class="self">self</span>) -&gt; <span class="ident">Reader</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind::Reader</span>(<span class="ident">r</span>, <span class="kw">_</span>) =&gt; <span class="ident">Reader::Reader</span>(<span class="ident">r</span>),
-            <span class="ident">Kind::Bytes</span>(<span class="ident">b</span>) =&gt; <span class="ident">Reader::Bytes</span>(<span class="ident">Cursor::new</span>(<span class="ident">b</span>)),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;multipart&quot;</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_reader(<span class="self">self</span>) -&gt; Reader {
+        <span class="kw">match </span><span class="self">self</span>.kind {
+            Kind::Reader(r, <span class="kw">_</span>) =&gt; Reader::Reader(r),
+            Kind::Bytes(b) =&gt; Reader::Bytes(Cursor::new(b)),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_async</span>(<span class="self">self</span>) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sender</span><span class="op">&gt;</span>, <span class="ident">async_impl::Body</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind::Reader</span>(<span class="ident">read</span>, <span class="ident">len</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">hyper::Body::channel</span>();
-                <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">Sender</span> {
-                    <span class="ident">body</span>: (<span class="ident">read</span>, <span class="ident">len</span>),
-                    <span class="ident">tx</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_async(<span class="self">self</span>) -&gt; (<span class="prelude-ty">Option</span>&lt;Sender&gt;, async_impl::Body, <span class="prelude-ty">Option</span>&lt;u64&gt;) {
+        <span class="kw">match </span><span class="self">self</span>.kind {
+            Kind::Reader(read, len) =&gt; {
+                <span class="kw">let </span>(tx, rx) = hyper::Body::channel();
+                <span class="kw">let </span>tx = Sender {
+                    body: (read, len),
+                    tx,
                 };
-                (<span class="prelude-val">Some</span>(<span class="ident">tx</span>), <span class="ident">async_impl::Body::wrap</span>(<span class="ident">rx</span>), <span class="ident">len</span>)
+                (<span class="prelude-val">Some</span>(tx), async_impl::Body::wrap(rx), len)
             }
-            <span class="ident">Kind::Bytes</span>(<span class="ident">chunk</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">chunk</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
-                (<span class="prelude-val">None</span>, <span class="ident">async_impl::Body::reusable</span>(<span class="ident">chunk</span>), <span class="prelude-val">Some</span>(<span class="ident">len</span>))
+            Kind::Bytes(chunk) =&gt; {
+                <span class="kw">let </span>len = chunk.len() <span class="kw">as </span>u64;
+                (<span class="prelude-val">None</span>, async_impl::Body::reusable(chunk), <span class="prelude-val">Some</span>(len))
             }
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">try_clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">try_clone</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">kind</span><span class="op">|</span> <span class="ident">Body</span> { <span class="ident">kind</span> })
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Body&gt; {
+        <span class="self">self</span>.kind.try_clone().map(|kind| Body { kind })
     }
 }
 
-<span class="kw">enum</span> <span class="ident">Kind</span> {
-    <span class="ident">Reader</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Read</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>),
-    <span class="ident">Bytes</span>(<span class="ident">Bytes</span>),
+<span class="kw">enum </span>Kind {
+    Reader(Box&lt;<span class="kw">dyn </span>Read + Send&gt;, <span class="prelude-ty">Option</span>&lt;u64&gt;),
+    Bytes(Bytes),
 }
 
-<span class="kw">impl</span> <span class="ident">Kind</span> {
-    <span class="kw">fn</span> <span class="ident">try_clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Kind</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Kind::Reader</span>(..) =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">Kind::Bytes</span>(<span class="ident">v</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Kind::Bytes</span>(<span class="ident">v</span>.<span class="ident">clone</span>())),
+<span class="kw">impl </span>Kind {
+    <span class="kw">fn </span>try_clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Kind&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Kind::Reader(..) =&gt; <span class="prelude-val">None</span>,
+            Kind::Bytes(v) =&gt; <span class="prelude-val">Some</span>(Kind::Bytes(v.clone())),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">Body</span> {
-            <span class="ident">kind</span>: <span class="ident">Kind::Bytes</span>(<span class="ident">v</span>.<span class="ident">into</span>()),
+<span class="kw">impl </span>From&lt;Vec&lt;u8&gt;&gt; <span class="kw">for </span>Body {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(v: Vec&lt;u8&gt;) -&gt; Body {
+        Body {
+            kind: Kind::Bytes(v.into()),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">s</span>.<span class="ident">into_bytes</span>().<span class="ident">into</span>()
+<span class="kw">impl </span>From&lt;String&gt; <span class="kw">for </span>Body {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(s: String) -&gt; Body {
+        s.into_bytes().into()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">Body</span> {
-        <span class="ident">Body</span> {
-            <span class="ident">kind</span>: <span class="ident">Kind::Bytes</span>(<span class="ident">Bytes::from_static</span>(<span class="ident">s</span>)),
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]&gt; <span class="kw">for </span>Body {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>[u8]) -&gt; Body {
+        Body {
+            kind: Kind::Bytes(Bytes::from_static(s)),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">s</span>.<span class="ident">as_bytes</span>().<span class="ident">into</span>()
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; <span class="kw">for </span>Body {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(s: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; Body {
+        s.as_bytes().into()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">f</span>: <span class="ident">File</span>) -&gt; <span class="ident">Body</span> {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">metadata</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">len</span>()).<span class="ident">ok</span>();
-        <span class="ident">Body</span> {
-            <span class="ident">kind</span>: <span class="ident">Kind::Reader</span>(<span class="ident">Box::new</span>(<span class="ident">f</span>), <span class="ident">len</span>),
+<span class="kw">impl </span>From&lt;File&gt; <span class="kw">for </span>Body {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(f: File) -&gt; Body {
+        <span class="kw">let </span>len = f.metadata().map(|m| m.len()).ok();
+        Body {
+            kind: Kind::Reader(Box::new(f), len),
         }
     }
 }
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Body</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="ident">Bytes</span>) -&gt; <span class="ident">Body</span> {
-        <span class="ident">Body</span> {
-            <span class="ident">kind</span>: <span class="ident">Kind::Bytes</span>(<span class="ident">b</span>),
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Kind</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Kind::Reader</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">v</span>) =&gt; <span class="ident">f</span>
-                .<span class="ident">debug_struct</span>(<span class="string">&quot;Reader&quot;</span>)
-                .<span class="ident">field</span>(<span class="string">&quot;length&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">DebugLength</span>(<span class="ident">v</span>))
-                .<span class="ident">finish</span>(),
-            <span class="ident">Kind::Bytes</span>(<span class="kw-2">ref</span> <span class="ident">v</span>) =&gt; <span class="ident">fmt::Debug::fmt</span>(<span class="ident">v</span>, <span class="ident">f</span>),
+<span class="kw">impl </span>From&lt;Bytes&gt; <span class="kw">for </span>Body {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(b: Bytes) -&gt; Body {
+        Body {
+            kind: Kind::Bytes(b),
         }
     }
 }
 
-<span class="kw">struct</span> <span class="ident">DebugLength</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>);
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">DebugLength</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">len</span>) =&gt; <span class="ident">fmt::Debug::fmt</span>(<span class="ident">len</span>, <span class="ident">f</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;Unknown&quot;</span>),
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Kind {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            Kind::Reader(<span class="kw">_</span>, <span class="kw-2">ref </span>v) =&gt; f
+                .debug_struct(<span class="string">&quot;Reader&quot;</span>)
+                .field(<span class="string">&quot;length&quot;</span>, <span class="kw-2">&amp;</span>DebugLength(v))
+                .finish(),
+            Kind::Bytes(<span class="kw-2">ref </span>v) =&gt; fmt::Debug::fmt(v, f),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">Reader</span> {
-    <span class="ident">Reader</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Read</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>),
-    <span class="ident">Bytes</span>(<span class="ident">Cursor</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>),
-}
+<span class="kw">struct </span>DebugLength&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="prelude-ty">Option</span>&lt;u64&gt;);
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Read</span> <span class="kw">for</span> <span class="ident">Reader</span> {
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Reader::Reader</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">rdr</span>) =&gt; <span class="ident">rdr</span>.<span class="ident">read</span>(<span class="ident">buf</span>),
-            <span class="ident">Reader::Bytes</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">rdr</span>) =&gt; <span class="ident">rdr</span>.<span class="ident">read</span>(<span class="ident">buf</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; fmt::Debug <span class="kw">for </span>DebugLength&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>len) =&gt; fmt::Debug::fmt(len, f),
+            <span class="prelude-val">None </span>=&gt; f.write_str(<span class="string">&quot;Unknown&quot;</span>),
         }
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Sender</span> {
-    <span class="ident">body</span>: (<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Read</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>),
-    <span class="ident">tx</span>: <span class="ident">hyper::body::Sender</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;multipart&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>Reader {
+    Reader(Box&lt;<span class="kw">dyn </span>Read + Send&gt;),
+    Bytes(Cursor&lt;Bytes&gt;),
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_future</span>(<span class="ident">sender</span>: <span class="ident">Sender</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">BufMut</span>, <span class="ident">BytesMut</span>};
-    <span class="kw">use</span> <span class="ident">std::cmp</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;multipart&quot;</span>)]
+</span><span class="kw">impl </span>Read <span class="kw">for </span>Reader {
+    <span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            Reader::Reader(<span class="kw-2">ref mut </span>rdr) =&gt; rdr.read(buf),
+            Reader::Bytes(<span class="kw-2">ref mut </span>rdr) =&gt; rdr.read(buf),
+        }
+    }
+}
 
-    <span class="kw">let</span> <span class="ident">con_len</span> <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">body</span>.<span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">cap</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">sender</span>.<span class="ident">body</span>.<span class="number">1</span>.<span class="ident">unwrap_or</span>(<span class="number">8192</span>), <span class="number">8192</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">written</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::with_capacity</span>(<span class="ident">cap</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">body</span>.<span class="number">0</span>;
-    <span class="comment">// Put in an option so that it can be consumed on error to call abort()</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sender</span>.<span class="ident">tx</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Sender {
+    body: (Box&lt;<span class="kw">dyn </span>Read + Send&gt;, <span class="prelude-ty">Option</span>&lt;u64&gt;),
+    tx: hyper::body::Sender,
+}
 
-    <span class="kw">loop</span> {
-        <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">written</span>) <span class="op">==</span> <span class="ident">con_len</span> {
-            <span class="comment">// Written up to content-length, so stop.</span>
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+<span class="kw">async fn </span>send_future(sender: Sender) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="kw">crate</span>::Error&gt; {
+    <span class="kw">use </span>bytes::{BufMut, BytesMut};
+    <span class="kw">use </span>std::cmp;
+
+    <span class="kw">let </span>con_len = sender.body.<span class="number">1</span>;
+    <span class="kw">let </span>cap = cmp::min(sender.body.<span class="number">1</span>.unwrap_or(<span class="number">8192</span>), <span class="number">8192</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>written = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::with_capacity(cap <span class="kw">as </span>usize);
+    <span class="kw">let </span><span class="kw-2">mut </span>body = sender.body.<span class="number">0</span>;
+    <span class="comment">// Put in an option so that it can be consumed on error to call abort()
+    </span><span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="prelude-val">Some</span>(sender.tx);
+
+    <span class="kw">loop </span>{
+        <span class="kw">if </span><span class="prelude-val">Some</span>(written) == con_len {
+            <span class="comment">// Written up to content-length, so stop.
+            </span><span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
 
-        <span class="comment">// The input stream is read only if the buffer is empty so</span>
-        <span class="comment">// that there is only one read in the buffer at any time.</span>
-        <span class="comment">//</span>
-        <span class="comment">// We need to know whether there is any data to send before</span>
-        <span class="comment">// we check the transmission channel (with poll_ready below)</span>
-        <span class="comment">// because somestimes the receiver disappears as soon as is</span>
-        <span class="comment">// considers the data is completely transmitted, which may</span>
-        <span class="comment">// be true.</span>
-        <span class="comment">//</span>
-        <span class="comment">// The use case is a web server that closes its</span>
-        <span class="comment">// input stream as soon as the data received is valid JSON.</span>
-        <span class="comment">// This behaviour is questionable, but it exists and the</span>
-        <span class="comment">// fact is that there is actually no remaining data to read.</span>
-        <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">remaining_mut</span>() <span class="op">==</span> <span class="number">0</span> {
-                <span class="ident">buf</span>.<span class="ident">reserve</span>(<span class="number">8192</span>);
-                <span class="comment">// zero out the reserved memory</span>
-                <span class="kw">let</span> <span class="ident">uninit</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">chunk_mut</span>();
-                <span class="kw">unsafe</span> {
-                    <span class="ident">ptr::write_bytes</span>(<span class="ident">uninit</span>.<span class="ident">as_mut_ptr</span>(), <span class="number">0</span>, <span class="ident">uninit</span>.<span class="ident">len</span>());
+        <span class="comment">// The input stream is read only if the buffer is empty so
+        // that there is only one read in the buffer at any time.
+        //
+        // We need to know whether there is any data to send before
+        // we check the transmission channel (with poll_ready below)
+        // because somestimes the receiver disappears as soon as is
+        // considers the data is completely transmitted, which may
+        // be true.
+        //
+        // The use case is a web server that closes its
+        // input stream as soon as the data received is valid JSON.
+        // This behaviour is questionable, but it exists and the
+        // fact is that there is actually no remaining data to read.
+        </span><span class="kw">if </span>buf.is_empty() {
+            <span class="kw">if </span>buf.remaining_mut() == <span class="number">0 </span>{
+                buf.reserve(<span class="number">8192</span>);
+                <span class="comment">// zero out the reserved memory
+                </span><span class="kw">let </span>uninit = buf.chunk_mut();
+                <span class="kw">unsafe </span>{
+                    ptr::write_bytes(uninit.as_mut_ptr(), <span class="number">0</span>, uninit.len());
                 }
             }
 
-            <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">UninitSlice</span>, <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]<span class="op">&gt;</span>(<span class="ident">buf</span>.<span class="ident">chunk_mut</span>()) };
-            <span class="kw">match</span> <span class="ident">body</span>.<span class="ident">read</span>(<span class="ident">bytes</span>) {
+            <span class="kw">let </span>bytes = <span class="kw">unsafe </span>{ mem::transmute::&lt;<span class="kw-2">&amp;mut </span>UninitSlice, <span class="kw-2">&amp;mut </span>[u8]&gt;(buf.chunk_mut()) };
+            <span class="kw">match </span>body.read(bytes) {
                 <span class="prelude-val">Ok</span>(<span class="number">0</span>) =&gt; {
-                    <span class="comment">// The buffer was empty and nothing&#39;s left to</span>
-                    <span class="comment">// read. Return.</span>
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+                    <span class="comment">// The buffer was empty and nothing&#39;s left to
+                    // read. Return.
+                    </span><span class="kw">return </span><span class="prelude-val">Ok</span>(());
                 }
-                <span class="prelude-val">Ok</span>(<span class="ident">n</span>) =&gt; <span class="kw">unsafe</span> {
-                    <span class="ident">buf</span>.<span class="ident">advance_mut</span>(<span class="ident">n</span>);
+                <span class="prelude-val">Ok</span>(n) =&gt; <span class="kw">unsafe </span>{
+                    buf.advance_mut(n);
                 },
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                    <span class="ident">tx</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;tx only taken on error&quot;</span>).<span class="ident">abort</span>();
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::error::body</span>(<span class="ident">e</span>));
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    tx.take().expect(<span class="string">&quot;tx only taken on error&quot;</span>).abort();
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::body(e));
                 }
             }
         }
 
-        <span class="comment">// The only way to get here is when the buffer is not empty.</span>
-        <span class="comment">// We can check the transmission channel</span>
+        <span class="comment">// The only way to get here is when the buffer is not empty.
+        // We can check the transmission channel
 
-        <span class="kw">let</span> <span class="ident">buf_len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="ident">tx</span>.<span class="ident">as_mut</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;tx only taken on error&quot;</span>)
-            .<span class="ident">send_data</span>(<span class="ident">buf</span>.<span class="ident">split</span>().<span class="ident">freeze</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">map_err</span>(<span class="ident"><span class="kw">crate</span>::error::body</span>)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>buf_len = buf.len() <span class="kw">as </span>u64;
+        tx.as_mut()
+            .expect(<span class="string">&quot;tx only taken on error&quot;</span>)
+            .send_data(buf.split().freeze())
+            .<span class="kw">await
+            </span>.map_err(<span class="kw">crate</span>::error::body)<span class="question-mark">?</span>;
 
-        <span class="ident">written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">buf_len</span>;
+        written += buf_len;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Sender</span> {
-    <span class="comment">// A `Future` that may do blocking read calls.</span>
-    <span class="comment">// As a `Future`, this integrates easily with `wait::timeout`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">send</span>(<span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">send_future</span>(<span class="self">self</span>)
+<span class="kw">impl </span>Sender {
+    <span class="comment">// A `Future` that may do blocking read calls.
+    // As a `Future`, this integrates easily with `wait::timeout`.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send(<span class="self">self</span>) -&gt; <span class="kw">impl </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;(), <span class="kw">crate</span>::Error&gt;&gt; {
+        send_future(<span class="self">self</span>)
     }
 }
 
-<span class="comment">// useful for tests, but not publicly exposed</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">read_to_string</span>(<span class="kw-2">mut</span> <span class="ident">body</span>: <span class="ident">Body</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="kw">match</span> <span class="ident">body</span>.<span class="ident">kind</span> {
-        <span class="ident">Kind::Reader</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">reader</span>, <span class="kw">_</span>) =&gt; <span class="ident">reader</span>.<span class="ident">read_to_string</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>),
-        <span class="ident">Kind::Bytes</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">bytes</span>) =&gt; (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">bytes</span>).<span class="ident">read_to_string</span>(<span class="kw-2">&amp;mut</span> <span class="ident">s</span>),
+<span class="comment">// useful for tests, but not publicly exposed
+</span><span class="attribute">#[cfg(test)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>read_to_string(<span class="kw-2">mut </span>body: Body) -&gt; io::Result&lt;String&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
+    <span class="kw">match </span>body.kind {
+        Kind::Reader(<span class="kw-2">ref mut </span>reader, <span class="kw">_</span>) =&gt; reader.read_to_string(<span class="kw-2">&amp;mut </span>s),
+        Kind::Bytes(<span class="kw-2">ref mut </span>bytes) =&gt; (<span class="kw-2">&amp;**</span>bytes).read_to_string(<span class="kw-2">&amp;mut </span>s),
     }
-    .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">s</span>)
+    .map(|<span class="kw">_</span>| s)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

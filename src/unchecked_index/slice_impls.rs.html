@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/unchecked-index-0.2.2/src/slice_impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>slice_impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../unchecked_index/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../unchecked_index/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../unchecked_index/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/unchecked-index-0.2.2/src/slice_impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>slice_impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../unchecked_index/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../unchecked_index/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../unchecked_index/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -79,84 +79,84 @@
 <span id="79">79</span>
 <span id="80">80</span>
 </pre><pre class="rust"><code>
-<span class="doccomment">//!  This is a rather strange-looking workaround. The intention</span>
-<span class="doccomment">//!  is to keep GetUnchecked/Mut out of scope, so that we can use the</span>
-<span class="doccomment">//!  libcore SliceExt::get_unchecked/_mut methods.</span>
+<span class="doccomment">//!  This is a rather strange-looking workaround. The intention
+//!  is to keep GetUnchecked/Mut out of scope, so that we can use the
+//!  libcore SliceExt::get_unchecked/_mut methods.
 
-<span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Range</span>, <span class="ident">RangeTo</span>, <span class="ident">RangeFrom</span>, <span class="ident">RangeFull</span>};
+</span><span class="kw">use </span>std::ops::{Range, RangeTo, RangeFrom, RangeFull};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::CheckIndex</span>;
+<span class="kw">use </span><span class="kw">super</span>::CheckIndex;
 
-<span class="kw">type</span> <span class="ident">Output</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">I</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span>[<span class="ident">T</span>] <span class="kw">as</span> <span class="ident">::std::ops::Index</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Output</span>;
+<span class="kw">type </span>Output&lt;T, I&gt; = &lt;[T] <span class="kw">as </span>::std::ops::Index&lt;I&gt;&gt;::Output;
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_for_slice</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">self_</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">assertion</span>:<span class="ident">expr</span>) =&gt; {
+<span class="macro">macro_rules! </span>impl_for_slice {
+    (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$index_type</span>:ty, <span class="macro-nonterminal">$self_</span>:ident, <span class="macro-nonterminal">$index</span>: ident, <span class="macro-nonterminal">$assertion</span>:expr) =&gt; {
 
-        <span class="kw">mod</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-            <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Output</span>;
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-            <span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Range</span>, <span class="ident">RangeTo</span>, <span class="ident">RangeFrom</span>, <span class="ident">RangeFull</span>};
+        <span class="kw">mod </span><span class="macro-nonterminal">$name </span>{
+            <span class="kw">use </span><span class="kw">super</span>::Output;
+            <span class="attribute">#[allow(unused)]
+            </span><span class="kw">use </span>std::ops::{Range, RangeTo, RangeFrom, RangeFull};
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>], <span class="ident">index</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Output</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span><span class="op">&gt;</span> {
-                <span class="ident">s</span>.<span class="ident">get_unchecked</span>(<span class="ident">index</span>)
+            <span class="attribute">#[inline]
+            </span><span class="kw">pub unsafe fn </span>get&lt;T&gt;(s: <span class="kw-2">&amp;</span>[T], index: <span class="macro-nonterminal">$index_type</span>) -&gt; <span class="kw-2">&amp;</span>Output&lt;T, <span class="macro-nonterminal">$index_type</span>&gt; {
+                s.get_unchecked(index)
             }
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">getm</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">s</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>], <span class="ident">index</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Output</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span><span class="op">&gt;</span> {
-                <span class="ident">s</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">index</span>)
-            }
-        }
-
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">CheckIndex</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">T</span>] {
-            <span class="kw">fn</span> <span class="ident">assert_indexable_with</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">self_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span>) {
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">assertion</span>
+            <span class="attribute">#[inline]
+            </span><span class="kw">pub unsafe fn </span>getm&lt;T&gt;(s: <span class="kw-2">&amp;mut </span>[T], index: <span class="macro-nonterminal">$index_type</span>) -&gt; <span class="kw-2">&amp;mut </span>Output&lt;T, <span class="macro-nonterminal">$index_type</span>&gt; {
+                s.get_unchecked_mut(index)
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident"><span class="kw">super</span>::GetUnchecked</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">T</span>] {
-            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Output</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span><span class="op">&gt;</span>;
-            <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Output</span> {
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name::get</span>(<span class="self">self</span>, <span class="ident">index</span>)
+        <span class="kw">impl</span>&lt;T&gt; CheckIndex&lt;<span class="macro-nonterminal">$index_type</span>&gt; <span class="kw">for </span>[T] {
+            <span class="kw">fn </span>assert_indexable_with(<span class="macro-nonterminal">$self_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="macro-nonterminal">$index</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$index_type</span>) {
+                <span class="macro-nonterminal">$assertion
+            </span>}
+        }
+
+        <span class="kw">impl</span>&lt;T&gt; <span class="kw">super</span>::GetUnchecked&lt;<span class="macro-nonterminal">$index_type</span>&gt; <span class="kw">for </span>[T] {
+            <span class="kw">type </span>Output = Output&lt;T, <span class="macro-nonterminal">$index_type</span>&gt;;
+            <span class="kw">unsafe fn </span>get_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>, index: <span class="macro-nonterminal">$index_type</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
+                <span class="macro-nonterminal">$name::get</span>(<span class="self">self</span>, index)
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident"><span class="kw">super</span>::GetUncheckedMut</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span><span class="op">&gt;</span> <span class="kw">for</span> [<span class="ident">T</span>] {
-            <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">index_type</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Output</span> {
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name::getm</span>(<span class="self">self</span>, <span class="ident">index</span>)
+        <span class="kw">impl</span>&lt;T&gt; <span class="kw">super</span>::GetUncheckedMut&lt;<span class="macro-nonterminal">$index_type</span>&gt; <span class="kw">for </span>[T] {
+            <span class="kw">unsafe fn </span>get_unchecked_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: <span class="macro-nonterminal">$index_type</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Output {
+                <span class="macro-nonterminal">$name::getm</span>(<span class="self">self</span>, index)
             }
         }
     }
 }
 
-<span class="macro">impl_for_slice!</span>(<span class="ident">index</span>, <span class="ident">usize</span>, <span class="self">self</span>, <span class="ident">index</span>, {
-    <span class="macro">assert!</span>(<span class="kw-2">*</span><span class="ident">index</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>(),
+<span class="macro">impl_for_slice!</span>(index, usize, <span class="self">self</span>, index, {
+    <span class="macro">assert!</span>(<span class="kw-2">*</span>index &lt; <span class="self">self</span>.len(),
             <span class="string">&quot;assertion index &lt; len failed: index out of bounds: \
             index = {}, len = {}&quot;</span>,
-            <span class="ident">index</span>, <span class="self">self</span>.<span class="ident">len</span>())
+            index, <span class="self">self</span>.len())
 });
 
-<span class="macro">impl_for_slice!</span>(<span class="ident">range</span>, <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="self">self</span>, <span class="ident">index</span>, {
-  <span class="macro">assert!</span>(<span class="ident">index</span>.<span class="ident">start</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">index</span>.<span class="ident">end</span>,
+<span class="macro">impl_for_slice!</span>(range, Range&lt;usize&gt;, <span class="self">self</span>, index, {
+  <span class="macro">assert!</span>(index.start &lt;= index.end,
           <span class="string">&quot;assertion start &lt;= end failed: start = {}, end = {}, len = {}&quot;</span>,
-          <span class="ident">index</span>.<span class="ident">start</span>, <span class="ident">index</span>.<span class="ident">end</span>, <span class="self">self</span>.<span class="ident">len</span>());
-  <span class="macro">assert!</span>(<span class="ident">index</span>.<span class="ident">end</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>(),
+          index.start, index.end, <span class="self">self</span>.len());
+  <span class="macro">assert!</span>(index.end &lt;= <span class="self">self</span>.len(),
           <span class="string">&quot;assertion end &lt;= len failed: end = {}, len = {}&quot;</span>,
-          <span class="ident">index</span>.<span class="ident">end</span>, <span class="self">self</span>.<span class="ident">len</span>());
+          index.end, <span class="self">self</span>.len());
 });
 
-<span class="macro">impl_for_slice!</span>(<span class="ident">rangeto</span>, <span class="ident">RangeTo</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="self">self</span>, <span class="ident">index</span>, {
-  <span class="macro">assert!</span>(<span class="ident">index</span>.<span class="ident">end</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>(),
+<span class="macro">impl_for_slice!</span>(rangeto, RangeTo&lt;usize&gt;, <span class="self">self</span>, index, {
+  <span class="macro">assert!</span>(index.end &lt;= <span class="self">self</span>.len(),
           <span class="string">&quot;assertion end &lt;= len failed: end = {}, len = {}&quot;</span>,
-          <span class="ident">index</span>.<span class="ident">end</span>, <span class="self">self</span>.<span class="ident">len</span>());
+          index.end, <span class="self">self</span>.len());
 });
 
-<span class="macro">impl_for_slice!</span>(<span class="ident">rangefrom</span>,<span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>, <span class="self">self</span>, <span class="ident">index</span>, {
-  <span class="macro">assert!</span>(<span class="ident">index</span>.<span class="ident">start</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>(),
+<span class="macro">impl_for_slice!</span>(rangefrom,RangeFrom&lt;usize&gt;, <span class="self">self</span>, index, {
+  <span class="macro">assert!</span>(index.start &lt;= <span class="self">self</span>.len(),
           <span class="string">&quot;assertion start &lt;= len failed: start = {}, len = {}&quot;</span>,
-          <span class="ident">index</span>.<span class="ident">start</span>, <span class="self">self</span>.<span class="ident">len</span>());
+          index.start, <span class="self">self</span>.len());
 });
 
-<span class="macro">impl_for_slice!</span>(<span class="ident">rangefull</span>, <span class="ident">RangeFull</span>, <span class="self">self</span>, <span class="ident">_index</span>, { });
+<span class="macro">impl_for_slice!</span>(rangefull, RangeFull, <span class="self">self</span>, _index, { });
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="unchecked_index" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="unchecked_index" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/message.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/message.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -106,111 +106,111 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cell::RefCell</span>, <span class="ident">ops</span>, <span class="ident">rc::Rc</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{cell::RefCell, ops, rc::Rc};
 
-<span class="kw">use</span> <span class="ident">bitflags::bitflags</span>;
+<span class="kw">use </span>bitflags::bitflags;
 
-<span class="doccomment">/// Represents various types of connection</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ConnectionType</span> {
-    <span class="doccomment">/// Close connection after response.</span>
-    <span class="ident">Close</span>,
+<span class="doccomment">/// Represents various types of connection
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>ConnectionType {
+    <span class="doccomment">/// Close connection after response.
+    </span>Close,
 
-    <span class="doccomment">/// Keep connection alive after response.</span>
-    <span class="ident">KeepAlive</span>,
+    <span class="doccomment">/// Keep connection alive after response.
+    </span>KeepAlive,
 
-    <span class="doccomment">/// Connection is upgraded to different type.</span>
-    <span class="ident">Upgrade</span>,
+    <span class="doccomment">/// Connection is upgraded to different type.
+    </span>Upgrade,
 }
 
-<span class="macro">bitflags!</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Flags</span>: <span class="ident">u8</span> {
-        <span class="kw">const</span> <span class="ident">CLOSE</span>       <span class="op">=</span> <span class="number">0b0000_0001</span>;
-        <span class="kw">const</span> <span class="ident">KEEP_ALIVE</span>  <span class="op">=</span> <span class="number">0b0000_0010</span>;
-        <span class="kw">const</span> <span class="ident">UPGRADE</span>     <span class="op">=</span> <span class="number">0b0000_0100</span>;
-        <span class="kw">const</span> <span class="ident">EXPECT</span>      <span class="op">=</span> <span class="number">0b0000_1000</span>;
-        <span class="kw">const</span> <span class="ident">NO_CHUNKING</span> <span class="op">=</span> <span class="number">0b0001_0000</span>;
-        <span class="kw">const</span> <span class="ident">CAMEL_CASE</span>  <span class="op">=</span> <span class="number">0b0010_0000</span>;
+<span class="macro">bitflags! </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Flags: u8 {
+        <span class="kw">const </span>CLOSE       = <span class="number">0b0000_0001</span>;
+        <span class="kw">const </span>KEEP_ALIVE  = <span class="number">0b0000_0010</span>;
+        <span class="kw">const </span>UPGRADE     = <span class="number">0b0000_0100</span>;
+        <span class="kw">const </span>EXPECT      = <span class="number">0b0000_1000</span>;
+        <span class="kw">const </span>NO_CHUNKING = <span class="number">0b0001_0000</span>;
+        <span class="kw">const </span>CAMEL_CASE  = <span class="number">0b0010_0000</span>;
     }
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Head</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-    <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>);
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub trait </span>Head: Default + <span class="lifetime">&#39;static </span>{
+    <span class="kw">fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
 
-    <span class="kw">fn</span> <span class="ident">with_pool</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">MessagePool</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="ident">R</span>;
+    <span class="kw">fn </span>with_pool&lt;F, R&gt;(f: F) -&gt; R
+    <span class="kw">where
+        </span>F: FnOnce(<span class="kw-2">&amp;</span>MessagePool&lt;<span class="self">Self</span>&gt;) -&gt; R;
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Head</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Rc here should not be cloned by anyone.</span>
-    <span class="doccomment">/// It&#39;s used to reuse allocation of T and no shared ownership is allowed.</span>
-    <span class="ident">head</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Message&lt;T: Head&gt; {
+    <span class="doccomment">/// Rc here should not be cloned by anyone.
+    /// It&#39;s used to reuse allocation of T and no shared ownership is allowed.
+    </span>head: Rc&lt;T&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Head</span><span class="op">&gt;</span> <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Get new message from the pool of objects</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::new_without_default</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">T::with_pool</span>(<span class="ident">MessagePool::get_message</span>)
+<span class="kw">impl</span>&lt;T: Head&gt; Message&lt;T&gt; {
+    <span class="doccomment">/// Get new message from the pool of objects
+    </span><span class="attribute">#[allow(clippy::new_without_default)]
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        T::with_pool(MessagePool::get_message)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Head</span><span class="op">&gt;</span> <span class="ident">ops::Deref</span> <span class="kw">for</span> <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
+<span class="kw">impl</span>&lt;T: Head&gt; ops::Deref <span class="kw">for </span>Message&lt;T&gt; {
+    <span class="kw">type </span>Target = T;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">as_ref</span>()
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.head.as_ref()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Head</span><span class="op">&gt;</span> <span class="ident">ops::DerefMut</span> <span class="kw">for</span> <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">head</span>).<span class="ident">expect</span>(<span class="string">&quot;Multiple copies exist&quot;</span>)
+<span class="kw">impl</span>&lt;T: Head&gt; ops::DerefMut <span class="kw">for </span>Message&lt;T&gt; {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+        Rc::get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.head).expect(<span class="string">&quot;Multiple copies exist&quot;</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Head</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="ident">T::with_pool</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">release</span>(<span class="self">self</span>.<span class="ident">head</span>.<span class="ident">clone</span>()))
+<span class="kw">impl</span>&lt;T: Head&gt; Drop <span class="kw">for </span>Message&lt;T&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        T::with_pool(|p| p.release(<span class="self">self</span>.head.clone()))
     }
 }
 
-<span class="doccomment">/// Generic `Head` object pool.</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessagePool</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Head</span><span class="op">&gt;</span>(<span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Generic `Head` object pool.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub struct </span>MessagePool&lt;T: Head&gt;(RefCell&lt;Vec&lt;Rc&lt;T&gt;&gt;&gt;);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Head</span><span class="op">&gt;</span> <span class="ident">MessagePool</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">create</span>() -&gt; <span class="ident">MessagePool</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">MessagePool</span>(<span class="ident">RefCell::new</span>(<span class="ident">Vec::with_capacity</span>(<span class="number">128</span>)))
+<span class="kw">impl</span>&lt;T: Head&gt; MessagePool&lt;T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>create() -&gt; MessagePool&lt;T&gt; {
+        MessagePool(RefCell::new(Vec::with_capacity(<span class="number">128</span>)))
     }
 
-    <span class="doccomment">/// Get message from the pool</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">get_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">msg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">borrow_mut</span>().<span class="ident">pop</span>() {
-            <span class="comment">// Message is put in pool only when it&#39;s the last copy.</span>
-            <span class="comment">// which means it&#39;s guaranteed to be unique when popped out.</span>
-            <span class="ident">Rc::get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">msg</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;Multiple copies exist&quot;</span>)
-                .<span class="ident">clear</span>();
-            <span class="ident">Message</span> { <span class="ident">head</span>: <span class="ident">msg</span> }
-        } <span class="kw">else</span> {
-            <span class="ident">Message</span> {
-                <span class="ident">head</span>: <span class="ident">Rc::new</span>(<span class="ident">T::default</span>()),
+    <span class="doccomment">/// Get message from the pool
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>get_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Message&lt;T&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>msg) = <span class="self">self</span>.<span class="number">0</span>.borrow_mut().pop() {
+            <span class="comment">// Message is put in pool only when it&#39;s the last copy.
+            // which means it&#39;s guaranteed to be unique when popped out.
+            </span>Rc::get_mut(<span class="kw-2">&amp;mut </span>msg)
+                .expect(<span class="string">&quot;Multiple copies exist&quot;</span>)
+                .clear();
+            Message { head: msg }
+        } <span class="kw">else </span>{
+            Message {
+                head: Rc::new(T::default()),
             }
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="doccomment">/// Release message instance</span>
-    <span class="kw">fn</span> <span class="ident">release</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">borrow_mut</span>();
-        <span class="kw">if</span> <span class="ident">pool</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">128</span> {
-            <span class="ident">pool</span>.<span class="ident">push</span>(<span class="ident">msg</span>);
+    <span class="attribute">#[inline]
+    </span><span class="doccomment">/// Release message instance
+    </span><span class="kw">fn </span>release(<span class="kw-2">&amp;</span><span class="self">self</span>, msg: Rc&lt;T&gt;) {
+        <span class="kw">let </span>pool = <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>.borrow_mut();
+        <span class="kw">if </span>pool.len() &lt; <span class="number">128 </span>{
+            pool.push(msg);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

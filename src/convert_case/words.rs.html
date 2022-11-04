@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/convert_case-0.4.0/src/words.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>words.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../convert_case/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../convert_case/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../convert_case/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/convert_case-0.4.0/src/words.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>words.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../convert_case/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../convert_case/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../convert_case/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -375,382 +375,382 @@
 <span id="375">375</span>
 <span id="376">376</span>
 <span id="377">377</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Case</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::Case;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;random&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">rand::prelude</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;random&quot;</span>)]
+</span><span class="kw">use </span>rand::prelude::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">Words</span> {
-    <span class="ident">words</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>Words {
+    words: Vec&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Words</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">words</span> <span class="op">=</span> <span class="ident">name</span>
-            .<span class="ident">split</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="string">&quot;-_ &quot;</span>.<span class="ident">contains</span>(<span class="ident">c</span>))
-            .<span class="ident">flat_map</span>(<span class="ident"><span class="self">Self</span>::split_camel</span>)
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="op">!</span><span class="ident">s</span>.<span class="ident">is_empty</span>())
-            .<span class="ident">collect</span>();
-        <span class="ident">Words</span> { <span class="ident">words</span> }
+<span class="kw">impl </span>Words {
+    <span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>words = name
+            .split(|c| <span class="string">&quot;-_ &quot;</span>.contains(c))
+            .flat_map(<span class="self">Self</span>::split_camel)
+            .filter(|s| !s.is_empty())
+            .collect();
+        Words { words }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_casing</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">case</span>: <span class="ident">Case</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">Case</span>::<span class="kw-2">*</span>;
-        <span class="kw">let</span> <span class="ident">words</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">case</span> {
-            <span class="ident">Title</span> <span class="op">|</span> <span class="ident">Upper</span> <span class="op">|</span> <span class="ident">Lower</span> <span class="op">|</span> <span class="ident">Toggle</span> <span class="op">|</span> <span class="ident">Alternating</span> =&gt; <span class="ident">name</span>
-                .<span class="ident">split_ascii_whitespace</span>()
-                .<span class="ident">map</span>(<span class="ident">ToString::to_string</span>)
-                .<span class="ident">collect</span>(),
-            <span class="ident">Kebab</span> <span class="op">|</span> <span class="ident">Cobol</span> <span class="op">|</span> <span class="ident">Train</span> =&gt; <span class="ident">name</span>
-                .<span class="ident">split</span>(<span class="string">&#39;-&#39;</span>)
-                .<span class="ident">map</span>(<span class="ident">ToString::to_string</span>)
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="op">!</span><span class="ident">s</span>.<span class="ident">is_empty</span>())
-                .<span class="ident">collect</span>(),
-            <span class="ident">Snake</span> <span class="op">|</span> <span class="ident">UpperSnake</span> <span class="op">|</span> <span class="ident">ScreamingSnake</span> =&gt; <span class="ident">name</span>
-                .<span class="ident">split</span>(<span class="string">&#39;_&#39;</span>)
-                .<span class="ident">map</span>(<span class="ident">ToString::to_string</span>)
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="op">!</span><span class="ident">s</span>.<span class="ident">is_empty</span>())
-                .<span class="ident">collect</span>(),
-            <span class="ident">Pascal</span> <span class="op">|</span> <span class="ident">Camel</span> <span class="op">|</span> <span class="ident">UpperCamel</span> =&gt; <span class="ident"><span class="self">Self</span>::split_camel</span>(<span class="ident">name</span>),
-            <span class="ident">Flat</span> <span class="op">|</span> <span class="ident">UpperFlat</span> =&gt; <span class="macro">vec!</span>[<span class="ident">name</span>.<span class="ident">to_string</span>()],
+    <span class="kw">pub fn </span>from_casing(name: <span class="kw-2">&amp;</span>str, case: Case) -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>Case::<span class="kw-2">*</span>;
+        <span class="kw">let </span>words = <span class="kw">match </span>case {
+            Title | Upper | Lower | Toggle | Alternating =&gt; name
+                .split_ascii_whitespace()
+                .map(ToString::to_string)
+                .collect(),
+            Kebab | Cobol | Train =&gt; name
+                .split(<span class="string">&#39;-&#39;</span>)
+                .map(ToString::to_string)
+                .filter(|s| !s.is_empty())
+                .collect(),
+            Snake | UpperSnake | ScreamingSnake =&gt; name
+                .split(<span class="string">&#39;_&#39;</span>)
+                .map(ToString::to_string)
+                .filter(|s| !s.is_empty())
+                .collect(),
+            Pascal | Camel | UpperCamel =&gt; <span class="self">Self</span>::split_camel(name),
+            Flat | UpperFlat =&gt; <span class="macro">vec!</span>[name.to_string()],
 
-            <span class="comment">// Same behavior as title, upper, etc.</span>
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;random&quot;</span>)]</span>
-            <span class="ident">Random</span> <span class="op">|</span> <span class="ident">PseudoRandom</span> =&gt; <span class="ident">name</span>
-                .<span class="ident">split_ascii_whitespace</span>()
-                .<span class="ident">map</span>(<span class="ident">ToString::to_string</span>)
-                .<span class="ident">collect</span>(),
+            <span class="comment">// Same behavior as title, upper, etc.
+            </span><span class="attribute">#[cfg(feature = <span class="string">&quot;random&quot;</span>)]
+            </span>Random | PseudoRandom =&gt; name
+                .split_ascii_whitespace()
+                .map(ToString::to_string)
+                .collect(),
         };
-        <span class="self">Self</span> { <span class="ident">words</span> }
+        <span class="self">Self </span>{ words }
     }
 
-    <span class="kw">fn</span> <span class="ident">split_camel</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">left_iter</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">chars</span>();
-        <span class="kw">let</span> <span class="ident">mid_iter</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">chars</span>().<span class="ident">skip</span>(<span class="number">1</span>);
-        <span class="kw">let</span> <span class="ident">right_iter</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">chars</span>().<span class="ident">skip</span>(<span class="number">2</span>);
+    <span class="kw">fn </span>split_camel(name: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;String&gt; {
+        <span class="kw">let </span>left_iter = name.chars();
+        <span class="kw">let </span>mid_iter = name.chars().skip(<span class="number">1</span>);
+        <span class="kw">let </span>right_iter = name.chars().skip(<span class="number">2</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">split_indices</span> <span class="op">=</span> <span class="ident">left_iter</span>
-            .<span class="ident">zip</span>(<span class="ident">mid_iter</span>)
-            .<span class="ident">zip</span>(<span class="ident">right_iter</span>)
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, ((<span class="ident">f</span>, <span class="ident">s</span>), <span class="ident">t</span>))<span class="op">|</span> <span class="ident"><span class="self">Self</span>::three_char_is_boundary</span>(<span class="kw-2">*</span><span class="ident">f</span>, <span class="kw-2">*</span><span class="ident">s</span>, <span class="kw-2">*</span><span class="ident">t</span>))
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>)
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>split_indices = left_iter
+            .zip(mid_iter)
+            .zip(right_iter)
+            .enumerate()
+            .filter(|(<span class="kw">_</span>, ((f, s), t))| <span class="self">Self</span>::three_char_is_boundary(<span class="kw-2">*</span>f, <span class="kw-2">*</span>s, <span class="kw-2">*</span>t))
+            .map(|(i, <span class="kw">_</span>)| i + <span class="number">1</span>)
+            .collect::&lt;Vec&lt;usize&gt;&gt;();
 
-        <span class="comment">// Check for boundary in the last two characters</span>
-        <span class="comment">// Can be rewritten nicer (use fold)</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backwards_seek</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">chars</span>().<span class="ident">rev</span>();
-        <span class="kw">let</span> <span class="ident">last</span> <span class="op">=</span> <span class="ident">backwards_seek</span>.<span class="ident">next</span>();
-        <span class="kw">let</span> <span class="ident">second_last</span> <span class="op">=</span> <span class="ident">backwards_seek</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="op">=</span> (<span class="ident">second_last</span>, <span class="ident">last</span>) {
-            <span class="kw">if</span> <span class="ident"><span class="self">Self</span>::two_char_is_boundary</span>(<span class="ident">a</span>, <span class="ident">b</span>) {
-                <span class="ident">split_indices</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
+        <span class="comment">// Check for boundary in the last two characters
+        // Can be rewritten nicer (use fold)
+        </span><span class="kw">let </span><span class="kw-2">mut </span>backwards_seek = name.chars().rev();
+        <span class="kw">let </span>last = backwards_seek.next();
+        <span class="kw">let </span>second_last = backwards_seek.next();
+        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(a), <span class="prelude-val">Some</span>(b)) = (second_last, last) {
+            <span class="kw">if </span><span class="self">Self</span>::two_char_is_boundary(a, b) {
+                split_indices.push(name.len() - <span class="number">1</span>);
             }
         }
 
-        <span class="ident"><span class="self">Self</span>::split_at_indices</span>(<span class="ident">name</span>, <span class="ident">split_indices</span>)
+        <span class="self">Self</span>::split_at_indices(name, split_indices)
     }
 
-    <span class="doccomment">/// Allowed boundaries are (lower upper) (digit (!digit and !punc)) ((!digit and !punc) digit).</span>
-    <span class="kw">fn</span> <span class="ident">two_char_is_boundary</span>(<span class="ident">f</span>: <span class="ident">char</span>, <span class="ident">s</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-        (<span class="ident">f</span>.<span class="ident">is_lowercase</span>() <span class="op">&amp;&amp;</span> <span class="ident">s</span>.<span class="ident">is_uppercase</span>())
-            <span class="op">|</span><span class="op">|</span> (<span class="ident">f</span>.<span class="ident">is_ascii_digit</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">s</span>.<span class="ident">is_ascii_digit</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">is_ascii_punctuation</span>()))
-            <span class="op">|</span><span class="op">|</span> (<span class="op">!</span>(<span class="ident">f</span>.<span class="ident">is_ascii_digit</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">is_ascii_punctuation</span>()) <span class="op">&amp;&amp;</span> <span class="ident">s</span>.<span class="ident">is_ascii_digit</span>())
+    <span class="doccomment">/// Allowed boundaries are (lower upper) (digit (!digit and !punc)) ((!digit and !punc) digit).
+    </span><span class="kw">fn </span>two_char_is_boundary(f: char, s: char) -&gt; bool {
+        (f.is_lowercase() &amp;&amp; s.is_uppercase())
+            || (f.is_ascii_digit() &amp;&amp; !(s.is_ascii_digit() || s.is_ascii_punctuation()))
+            || (!(f.is_ascii_digit() || f.is_ascii_punctuation()) &amp;&amp; s.is_ascii_digit())
     }
 
-    <span class="doccomment">/// Checks if three characters are the end of an acronym, otherwise</span>
-    <span class="doccomment">/// calls `two_char_is_boundary`.</span>
-    <span class="kw">fn</span> <span class="ident">three_char_is_boundary</span>(<span class="ident">f</span>: <span class="ident">char</span>, <span class="ident">s</span>: <span class="ident">char</span>, <span class="ident">t</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-        (<span class="ident">f</span>.<span class="ident">is_uppercase</span>() <span class="op">&amp;&amp;</span> <span class="ident">s</span>.<span class="ident">is_uppercase</span>() <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">is_lowercase</span>())
-            <span class="op">|</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::two_char_is_boundary</span>(<span class="ident">f</span>, <span class="ident">s</span>)
+    <span class="doccomment">/// Checks if three characters are the end of an acronym, otherwise
+    /// calls `two_char_is_boundary`.
+    </span><span class="kw">fn </span>three_char_is_boundary(f: char, s: char, t: char) -&gt; bool {
+        (f.is_uppercase() &amp;&amp; s.is_uppercase() &amp;&amp; t.is_lowercase())
+            || <span class="self">Self</span>::two_char_is_boundary(f, s)
     }
 
-    <span class="kw">fn</span> <span class="ident">split_at_indices</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">words</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">fn </span>split_at_indices(name: <span class="kw-2">&amp;</span>str, indices: Vec&lt;usize&gt;) -&gt; Vec&lt;String&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>words = Vec::new();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="ident">name</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">second</span>;
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">x</span> <span class="kw">in</span> <span class="ident">indices</span>.<span class="ident">iter</span>().<span class="ident">rev</span>() {
-            <span class="kw">let</span> <span class="ident">pair</span> <span class="op">=</span> <span class="ident">first</span>.<span class="ident">split_at</span>(<span class="ident">x</span>);
-            <span class="ident">first</span> <span class="op">=</span> <span class="ident">pair</span>.<span class="number">0</span>;
-            <span class="ident">second</span> <span class="op">=</span> <span class="ident">pair</span>.<span class="number">1</span>;
-            <span class="ident">words</span>.<span class="ident">push</span>(<span class="ident">second</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>first = name;
+        <span class="kw">let </span><span class="kw-2">mut </span>second;
+        <span class="kw">for </span><span class="kw-2">&amp;</span>x <span class="kw">in </span>indices.iter().rev() {
+            <span class="kw">let </span>pair = first.split_at(x);
+            first = pair.<span class="number">0</span>;
+            second = pair.<span class="number">1</span>;
+            words.push(second);
         }
-        <span class="ident">words</span>.<span class="ident">push</span>(<span class="ident">first</span>);
+        words.push(first);
 
-        <span class="ident">words</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">map</span>(<span class="ident">ToString::to_string</span>).<span class="ident">collect</span>()
+        words.iter().rev().map(ToString::to_string).collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_case</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">case</span>: <span class="ident">Case</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">use</span> <span class="ident">Case</span>::<span class="kw-2">*</span>;
-        <span class="kw">match</span> <span class="ident">case</span> {
-            <span class="ident">Camel</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_camel_case</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot;&quot;</span>)
+    <span class="kw">pub fn </span>into_case(<span class="kw-2">mut </span><span class="self">self</span>, case: Case) -&gt; String {
+        <span class="kw">use </span>Case::<span class="kw-2">*</span>;
+        <span class="kw">match </span>case {
+            Camel =&gt; {
+                <span class="self">self</span>.make_camel_case();
+                <span class="self">self</span>.join(<span class="string">&quot;&quot;</span>)
             }
-            <span class="ident">Title</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">capitalize_first_letter</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+            Title =&gt; {
+                <span class="self">self</span>.capitalize_first_letter();
+                <span class="self">self</span>.join(<span class="string">&quot; &quot;</span>)
             }
-            <span class="ident">Pascal</span> <span class="op">|</span> <span class="ident">UpperCamel</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">capitalize_first_letter</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot;&quot;</span>)
+            Pascal | UpperCamel =&gt; {
+                <span class="self">self</span>.capitalize_first_letter();
+                <span class="self">self</span>.join(<span class="string">&quot;&quot;</span>)
             }
-            <span class="ident">Toggle</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">lower_first_letter</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+            Toggle =&gt; {
+                <span class="self">self</span>.lower_first_letter();
+                <span class="self">self</span>.join(<span class="string">&quot; &quot;</span>)
             }
-            <span class="ident">Snake</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_lowercase</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot;_&quot;</span>)
+            Snake =&gt; {
+                <span class="self">self</span>.make_lowercase();
+                <span class="self">self</span>.join(<span class="string">&quot;_&quot;</span>)
             }
-            <span class="ident">Cobol</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_uppercase</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot;-&quot;</span>)
+            Cobol =&gt; {
+                <span class="self">self</span>.make_uppercase();
+                <span class="self">self</span>.join(<span class="string">&quot;-&quot;</span>)
             }
-            <span class="ident">Kebab</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_lowercase</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot;-&quot;</span>)
+            Kebab =&gt; {
+                <span class="self">self</span>.make_lowercase();
+                <span class="self">self</span>.join(<span class="string">&quot;-&quot;</span>)
             }
-            <span class="ident">UpperSnake</span> <span class="op">|</span> <span class="ident">ScreamingSnake</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_uppercase</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot;_&quot;</span>)
+            UpperSnake | ScreamingSnake =&gt; {
+                <span class="self">self</span>.make_uppercase();
+                <span class="self">self</span>.join(<span class="string">&quot;_&quot;</span>)
             }
-            <span class="ident">Lower</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_lowercase</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+            Lower =&gt; {
+                <span class="self">self</span>.make_lowercase();
+                <span class="self">self</span>.join(<span class="string">&quot; &quot;</span>)
             }
-            <span class="ident">Upper</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_uppercase</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+            Upper =&gt; {
+                <span class="self">self</span>.make_uppercase();
+                <span class="self">self</span>.join(<span class="string">&quot; &quot;</span>)
             }
-            <span class="ident">Flat</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_lowercase</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot;&quot;</span>)
+            Flat =&gt; {
+                <span class="self">self</span>.make_lowercase();
+                <span class="self">self</span>.join(<span class="string">&quot;&quot;</span>)
             }
-            <span class="ident">Train</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">capitalize_first_letter</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot;-&quot;</span>)
+            Train =&gt; {
+                <span class="self">self</span>.capitalize_first_letter();
+                <span class="self">self</span>.join(<span class="string">&quot;-&quot;</span>)
             }
-            <span class="ident">UpperFlat</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_uppercase</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot;&quot;</span>)
+            UpperFlat =&gt; {
+                <span class="self">self</span>.make_uppercase();
+                <span class="self">self</span>.join(<span class="string">&quot;&quot;</span>)
             }
-            <span class="ident">Alternating</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">make_alternating</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+            Alternating =&gt; {
+                <span class="self">self</span>.make_alternating();
+                <span class="self">self</span>.join(<span class="string">&quot; &quot;</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;random&quot;</span>)]</span>
-            <span class="ident">Random</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">randomize</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;random&quot;</span>)]
+            </span>Random =&gt; {
+                <span class="self">self</span>.randomize();
+                <span class="self">self</span>.join(<span class="string">&quot; &quot;</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;random&quot;</span>)]</span>
-            <span class="ident">PseudoRandom</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">pseudo_randomize</span>();
-                <span class="self">self</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;random&quot;</span>)]
+            </span>PseudoRandom =&gt; {
+                <span class="self">self</span>.pseudo_randomize();
+                <span class="self">self</span>.join(<span class="string">&quot; &quot;</span>)
             }
         }
     }
 
-    <span class="comment">// Randomly picks whether to be upper case or lower case</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;random&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">randomize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
-        <span class="self">self</span>.<span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">words</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">word</span><span class="op">|</span> {
-                <span class="ident">word</span>.<span class="ident">chars</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">letter</span><span class="op">|</span> {
-                        <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>() <span class="op">&gt;</span> <span class="number">0.5</span> {
-                            <span class="ident">letter</span>.<span class="ident">to_uppercase</span>().<span class="ident">to_string</span>()
-                        } <span class="kw">else</span> {
-                            <span class="ident">letter</span>.<span class="ident">to_lowercase</span>().<span class="ident">to_string</span>()
+    <span class="comment">// Randomly picks whether to be upper case or lower case
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;random&quot;</span>)]
+    </span><span class="kw">fn </span>randomize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>rng = rand::thread_rng();
+        <span class="self">self</span>.words = <span class="self">self
+            </span>.words
+            .iter()
+            .map(|word| {
+                word.chars()
+                    .map(|letter| {
+                        <span class="kw">if </span>rng.gen::&lt;f32&gt;() &gt; <span class="number">0.5 </span>{
+                            letter.to_uppercase().to_string()
+                        } <span class="kw">else </span>{
+                            letter.to_lowercase().to_string()
                         }
                     })
-                    .<span class="ident">collect</span>()
+                    .collect()
             })
-            .<span class="ident">collect</span>();
+            .collect();
     }
 
-    <span class="comment">// Randomly selects patterns: [upper, lower] or [lower, upper]</span>
-    <span class="comment">// for a more random feeling pattern.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;random&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">pseudo_randomize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
+    <span class="comment">// Randomly selects patterns: [upper, lower] or [lower, upper]
+    // for a more random feeling pattern.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;random&quot;</span>)]
+    </span><span class="kw">fn </span>pseudo_randomize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>rng = rand::thread_rng();
 
-        <span class="comment">// Keeps track of when to alternate</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="self">self</span>.<span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">words</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">word</span><span class="op">|</span> {
-                <span class="ident">word</span>.<span class="ident">chars</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">letter</span><span class="op">|</span> {
-                        <span class="kw">match</span> <span class="ident">alt</span> {
-                            <span class="comment">// No existing pattern, start one</span>
-                            <span class="prelude-val">None</span> =&gt; {
-                                <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>() <span class="op">&gt;</span> <span class="number">0.5</span> {
-                                    <span class="ident">alt</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">false</span>); <span class="comment">// Make the next char lower</span>
-                                    <span class="ident">letter</span>.<span class="ident">to_uppercase</span>().<span class="ident">to_string</span>()
-                                } <span class="kw">else</span> {
-                                    <span class="ident">alt</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>); <span class="comment">// Make the next char upper</span>
-                                    <span class="ident">letter</span>.<span class="ident">to_lowercase</span>().<span class="ident">to_string</span>()
+        <span class="comment">// Keeps track of when to alternate
+        </span><span class="kw">let </span><span class="kw-2">mut </span>alt: <span class="prelude-ty">Option</span>&lt;bool&gt; = <span class="prelude-val">None</span>;
+        <span class="self">self</span>.words = <span class="self">self
+            </span>.words
+            .iter()
+            .map(|word| {
+                word.chars()
+                    .map(|letter| {
+                        <span class="kw">match </span>alt {
+                            <span class="comment">// No existing pattern, start one
+                            </span><span class="prelude-val">None </span>=&gt; {
+                                <span class="kw">if </span>rng.gen::&lt;f32&gt;() &gt; <span class="number">0.5 </span>{
+                                    alt = <span class="prelude-val">Some</span>(<span class="bool-val">false</span>); <span class="comment">// Make the next char lower
+                                    </span>letter.to_uppercase().to_string()
+                                } <span class="kw">else </span>{
+                                    alt = <span class="prelude-val">Some</span>(<span class="bool-val">true</span>); <span class="comment">// Make the next char upper
+                                    </span>letter.to_lowercase().to_string()
                                 }
                             }
-                            <span class="comment">// Existing pattern, do what it says</span>
-                            <span class="prelude-val">Some</span>(<span class="ident">upper</span>) =&gt; {
-                                <span class="ident">alt</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                                <span class="kw">if</span> <span class="ident">upper</span> {
-                                    <span class="ident">letter</span>.<span class="ident">to_uppercase</span>().<span class="ident">to_string</span>()
-                                } <span class="kw">else</span> {
-                                    <span class="ident">letter</span>.<span class="ident">to_lowercase</span>().<span class="ident">to_string</span>()
+                            <span class="comment">// Existing pattern, do what it says
+                            </span><span class="prelude-val">Some</span>(upper) =&gt; {
+                                alt = <span class="prelude-val">None</span>;
+                                <span class="kw">if </span>upper {
+                                    letter.to_uppercase().to_string()
+                                } <span class="kw">else </span>{
+                                    letter.to_lowercase().to_string()
                                 }
                             }
                         }
                     })
-                    .<span class="ident">collect</span>()
+                    .collect()
             })
-            .<span class="ident">collect</span>();
+            .collect();
     }
 
-    <span class="kw">fn</span> <span class="ident">make_camel_case</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">words</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">word</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chars</span> <span class="op">=</span> <span class="ident">word</span>.<span class="ident">chars</span>();
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">chars</span>.<span class="ident">next</span>() {
-                        <span class="ident">a</span>.<span class="ident">to_uppercase</span>()
-                            .<span class="ident">chain</span>(<span class="ident">chars</span>.<span class="ident">as_str</span>().<span class="ident">to_lowercase</span>().<span class="ident">chars</span>())
-                            .<span class="ident">collect</span>()
-                    } <span class="kw">else</span> {
-                        <span class="ident">String::new</span>()
+    <span class="kw">fn </span>make_camel_case(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.words = <span class="self">self
+            </span>.words
+            .iter()
+            .enumerate()
+            .map(|(i, word)| {
+                <span class="kw">if </span>i != <span class="number">0 </span>{
+                    <span class="kw">let </span><span class="kw-2">mut </span>chars = word.chars();
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = chars.next() {
+                        a.to_uppercase()
+                            .chain(chars.as_str().to_lowercase().chars())
+                            .collect()
+                    } <span class="kw">else </span>{
+                        String::new()
                     }
-                } <span class="kw">else</span> {
-                    <span class="ident">word</span>.<span class="ident">to_lowercase</span>()
+                } <span class="kw">else </span>{
+                    word.to_lowercase()
                 }
             })
-            .<span class="ident">collect</span>();
+            .collect();
     }
 
-    <span class="kw">fn</span> <span class="ident">make_alternating</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">upper</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="self">self</span>.<span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">words</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">word</span><span class="op">|</span> {
-                <span class="ident">word</span>.<span class="ident">chars</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">letter</span><span class="op">|</span> {
-                        <span class="kw">if</span> <span class="ident">letter</span>.<span class="ident">is_uppercase</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">letter</span>.<span class="ident">is_lowercase</span>() {
-                            <span class="kw">if</span> <span class="ident">upper</span> {
-                                <span class="ident">upper</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                                <span class="ident">letter</span>.<span class="ident">to_uppercase</span>().<span class="ident">to_string</span>()
-                            } <span class="kw">else</span> {
-                                <span class="ident">upper</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                                <span class="ident">letter</span>.<span class="ident">to_lowercase</span>().<span class="ident">to_string</span>()
+    <span class="kw">fn </span>make_alternating(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>upper = <span class="bool-val">false</span>;
+        <span class="self">self</span>.words = <span class="self">self
+            </span>.words
+            .iter()
+            .map(|word| {
+                word.chars()
+                    .map(|letter| {
+                        <span class="kw">if </span>letter.is_uppercase() || letter.is_lowercase() {
+                            <span class="kw">if </span>upper {
+                                upper = <span class="bool-val">false</span>;
+                                letter.to_uppercase().to_string()
+                            } <span class="kw">else </span>{
+                                upper = <span class="bool-val">true</span>;
+                                letter.to_lowercase().to_string()
                             }
-                        } <span class="kw">else</span> {
-                            <span class="ident">letter</span>.<span class="ident">to_string</span>()
+                        } <span class="kw">else </span>{
+                            letter.to_string()
                         }
                     })
-                    .<span class="ident">collect</span>()
+                    .collect()
             })
-            .<span class="ident">collect</span>();
+            .collect();
     }
 
-    <span class="kw">fn</span> <span class="ident">make_uppercase</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">words</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">word</span><span class="op">|</span> <span class="ident">word</span>.<span class="ident">to_uppercase</span>()).<span class="ident">collect</span>();
+    <span class="kw">fn </span>make_uppercase(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.words = <span class="self">self</span>.words.iter().map(|word| word.to_uppercase()).collect();
     }
 
-    <span class="kw">fn</span> <span class="ident">make_lowercase</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">words</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">word</span><span class="op">|</span> <span class="ident">word</span>.<span class="ident">to_lowercase</span>()).<span class="ident">collect</span>();
+    <span class="kw">fn </span>make_lowercase(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.words = <span class="self">self</span>.words.iter().map(|word| word.to_lowercase()).collect();
     }
 
-    <span class="kw">fn</span> <span class="ident">capitalize_first_letter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">words</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">word</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chars</span> <span class="op">=</span> <span class="ident">word</span>.<span class="ident">chars</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">chars</span>.<span class="ident">next</span>() {
-                    <span class="ident">a</span>.<span class="ident">to_uppercase</span>()
-                        .<span class="ident">chain</span>(<span class="ident">chars</span>.<span class="ident">as_str</span>().<span class="ident">to_lowercase</span>().<span class="ident">chars</span>())
-                        .<span class="ident">collect</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">String::new</span>()
+    <span class="kw">fn </span>capitalize_first_letter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.words = <span class="self">self
+            </span>.words
+            .iter()
+            .map(|word| {
+                <span class="kw">let </span><span class="kw-2">mut </span>chars = word.chars();
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = chars.next() {
+                    a.to_uppercase()
+                        .chain(chars.as_str().to_lowercase().chars())
+                        .collect()
+                } <span class="kw">else </span>{
+                    String::new()
                 }
             })
-            .<span class="ident">collect</span>();
+            .collect();
     }
 
-    <span class="kw">fn</span> <span class="ident">lower_first_letter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">words</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">word</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chars</span> <span class="op">=</span> <span class="ident">word</span>.<span class="ident">chars</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">chars</span>.<span class="ident">next</span>() {
-                    <span class="ident">a</span>.<span class="ident">to_lowercase</span>()
-                        .<span class="ident">chain</span>(<span class="ident">chars</span>.<span class="ident">as_str</span>().<span class="ident">to_uppercase</span>().<span class="ident">chars</span>())
-                        .<span class="ident">collect</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">String::new</span>()
+    <span class="kw">fn </span>lower_first_letter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.words = <span class="self">self
+            </span>.words
+            .iter()
+            .map(|word| {
+                <span class="kw">let </span><span class="kw-2">mut </span>chars = word.chars();
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = chars.next() {
+                    a.to_lowercase()
+                        .chain(chars.as_str().to_uppercase().chars())
+                        .collect()
+                } <span class="kw">else </span>{
+                    String::new()
                 }
             })
-            .<span class="ident">collect</span>();
+            .collect();
     }
 
-    <span class="comment">// Alternative: construct [my, -, variable, -, name] then collect</span>
-    <span class="kw">fn</span> <span class="ident">join</span>(<span class="self">self</span>, <span class="ident">delim</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">words</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">val</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="ident">val</span>.<span class="ident">to_owned</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">delim</span>.<span class="ident">to_owned</span>() <span class="op">+</span> <span class="ident">val</span>
+    <span class="comment">// Alternative: construct [my, -, variable, -, name] then collect
+    </span><span class="kw">fn </span>join(<span class="self">self</span>, delim: <span class="kw-2">&amp;</span>str) -&gt; String {
+        <span class="self">self</span>.words
+            .iter()
+            .enumerate()
+            .map(|(i, val)| {
+                <span class="kw">if </span>i == <span class="number">0 </span>{
+                    val.to_owned()
+                } <span class="kw">else </span>{
+                    delim.to_owned() + val
                 }
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">correct_two_char_boundaries</span>() {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;a&#39;</span>, <span class="string">&#39;a&#39;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;a&#39;</span>, <span class="string">&#39;A&#39;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;a&#39;</span>, <span class="string">&#39;5&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;a&#39;</span>, <span class="string">&#39;,&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;A&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;a&#39;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;5&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;,&#39;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;5&#39;</span>, <span class="string">&#39;a&#39;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;5&#39;</span>, <span class="string">&#39;A&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;5&#39;</span>, <span class="string">&#39;5&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;5&#39;</span>, <span class="string">&#39;,&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;,&#39;</span>, <span class="string">&#39;a&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;,&#39;</span>, <span class="string">&#39;A&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;,&#39;</span>, <span class="string">&#39;5&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::two_char_is_boundary</span>(<span class="string">&#39;,&#39;</span>, <span class="string">&#39;,&#39;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>correct_two_char_boundaries() {
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;a&#39;</span>, <span class="string">&#39;a&#39;</span>));
+        <span class="macro">assert!</span>(Words::two_char_is_boundary(<span class="string">&#39;a&#39;</span>, <span class="string">&#39;A&#39;</span>));
+        <span class="macro">assert!</span>(Words::two_char_is_boundary(<span class="string">&#39;a&#39;</span>, <span class="string">&#39;5&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;a&#39;</span>, <span class="string">&#39;,&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;A&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;a&#39;</span>));
+        <span class="macro">assert!</span>(Words::two_char_is_boundary(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;5&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;,&#39;</span>));
+        <span class="macro">assert!</span>(Words::two_char_is_boundary(<span class="string">&#39;5&#39;</span>, <span class="string">&#39;a&#39;</span>));
+        <span class="macro">assert!</span>(Words::two_char_is_boundary(<span class="string">&#39;5&#39;</span>, <span class="string">&#39;A&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;5&#39;</span>, <span class="string">&#39;5&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;5&#39;</span>, <span class="string">&#39;,&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;,&#39;</span>, <span class="string">&#39;a&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;,&#39;</span>, <span class="string">&#39;A&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;,&#39;</span>, <span class="string">&#39;5&#39;</span>));
+        <span class="macro">assert!</span>(!Words::two_char_is_boundary(<span class="string">&#39;,&#39;</span>, <span class="string">&#39;,&#39;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">correct_three_char_boundaries</span>() {
-        <span class="macro">assert!</span>(<span class="ident">Words::three_char_is_boundary</span>(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;A&#39;</span>, <span class="string">&#39;a&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::three_char_is_boundary</span>(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;a&#39;</span>, <span class="string">&#39;a&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::three_char_is_boundary</span>(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;a&#39;</span>, <span class="string">&#39;A&#39;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Words::three_char_is_boundary</span>(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;A&#39;</span>, <span class="string">&#39;3&#39;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>correct_three_char_boundaries() {
+        <span class="macro">assert!</span>(Words::three_char_is_boundary(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;A&#39;</span>, <span class="string">&#39;a&#39;</span>));
+        <span class="macro">assert!</span>(!Words::three_char_is_boundary(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;a&#39;</span>, <span class="string">&#39;a&#39;</span>));
+        <span class="macro">assert!</span>(!Words::three_char_is_boundary(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;a&#39;</span>, <span class="string">&#39;A&#39;</span>));
+        <span class="macro">assert!</span>(!Words::three_char_is_boundary(<span class="string">&#39;A&#39;</span>, <span class="string">&#39;A&#39;</span>, <span class="string">&#39;3&#39;</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_case" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_case" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

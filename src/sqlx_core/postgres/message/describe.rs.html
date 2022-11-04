@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/message/describe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>describe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/message/describe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>describe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -125,132 +125,132 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io::Encode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::io::PgBufMutExt</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::Oid</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::io::Encode;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::io::PgBufMutExt;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::types::Oid;
 
-<span class="kw">const</span> <span class="ident">DESCRIBE_PORTAL</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="string">b&#39;P&#39;</span>;
-<span class="kw">const</span> <span class="ident">DESCRIBE_STATEMENT</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="string">b&#39;S&#39;</span>;
+<span class="kw">const </span>DESCRIBE_PORTAL: u8 = <span class="string">b&#39;P&#39;</span>;
+<span class="kw">const </span>DESCRIBE_STATEMENT: u8 = <span class="string">b&#39;S&#39;</span>;
 
-<span class="comment">// [Describe] will emit both a [RowDescription] and a [ParameterDescription] message</span>
+<span class="comment">// [Describe] will emit both a [RowDescription] and a [ParameterDescription] message
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Describe</span> {
-    <span class="ident">UnnamedStatement</span>,
-    <span class="ident">Statement</span>(<span class="ident">Oid</span>),
+</span><span class="attribute">#[derive(Debug)]
+#[allow(dead_code)]
+</span><span class="kw">pub enum </span>Describe {
+    UnnamedStatement,
+    Statement(Oid),
 
-    <span class="ident">UnnamedPortal</span>,
-    <span class="ident">Portal</span>(<span class="ident">Oid</span>),
+    UnnamedPortal,
+    Portal(Oid),
 }
 
-<span class="kw">impl</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Describe</span> {
-    <span class="kw">fn</span> <span class="ident">encode_with</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="kw">_</span>: ()) {
-        <span class="comment">// 15 bytes for 1-digit statement/portal IDs</span>
-        <span class="ident">buf</span>.<span class="ident">reserve</span>(<span class="number">20</span>);
-        <span class="ident">buf</span>.<span class="ident">push</span>(<span class="string">b&#39;D&#39;</span>);
+<span class="kw">impl </span>Encode&lt;<span class="lifetime">&#39;_</span>&gt; <span class="kw">for </span>Describe {
+    <span class="kw">fn </span>encode_with(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;, <span class="kw">_</span>: ()) {
+        <span class="comment">// 15 bytes for 1-digit statement/portal IDs
+        </span>buf.reserve(<span class="number">20</span>);
+        buf.push(<span class="string">b&#39;D&#39;</span>);
 
-        <span class="ident">buf</span>.<span class="ident">put_length_prefixed</span>(<span class="op">|</span><span class="ident">buf</span><span class="op">|</span> {
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="comment">// #[likely]</span>
-                <span class="ident">Describe::Statement</span>(<span class="ident">id</span>) =&gt; {
-                    <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">DESCRIBE_STATEMENT</span>);
-                    <span class="ident">buf</span>.<span class="ident">put_statement_name</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+        buf.put_length_prefixed(|buf| {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="comment">// #[likely]
+                </span>Describe::Statement(id) =&gt; {
+                    buf.push(DESCRIBE_STATEMENT);
+                    buf.put_statement_name(<span class="kw-2">*</span>id);
                 }
 
-                <span class="ident">Describe::UnnamedPortal</span> =&gt; {
-                    <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">DESCRIBE_PORTAL</span>);
-                    <span class="ident">buf</span>.<span class="ident">push</span>(<span class="number">0</span>);
+                Describe::UnnamedPortal =&gt; {
+                    buf.push(DESCRIBE_PORTAL);
+                    buf.push(<span class="number">0</span>);
                 }
 
-                <span class="ident">Describe::UnnamedStatement</span> =&gt; {
-                    <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">DESCRIBE_STATEMENT</span>);
-                    <span class="ident">buf</span>.<span class="ident">push</span>(<span class="number">0</span>);
+                Describe::UnnamedStatement =&gt; {
+                    buf.push(DESCRIBE_STATEMENT);
+                    buf.push(<span class="number">0</span>);
                 }
 
-                <span class="ident">Describe::Portal</span>(<span class="ident">id</span>) =&gt; {
-                    <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">DESCRIBE_PORTAL</span>);
-                    <span class="ident">buf</span>.<span class="ident">put_portal_name</span>(<span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">id</span>));
+                Describe::Portal(id) =&gt; {
+                    buf.push(DESCRIBE_PORTAL);
+                    buf.put_portal_name(<span class="prelude-val">Some</span>(<span class="kw-2">*</span>id));
                 }
             }
         });
     }
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_encode_describe_portal</span>() {
-    <span class="kw">const</span> <span class="ident">EXPECTED</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;D\0\0\0\x0EPsqlx_p_5\0&quot;</span>;
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_encode_describe_portal() {
+    <span class="kw">const </span>EXPECTED: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;D\0\0\0\x0EPsqlx_p_5\0&quot;</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Describe::Portal</span>(<span class="ident">Oid</span>(<span class="number">5</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
+    <span class="kw">let </span>m = Describe::Portal(Oid(<span class="number">5</span>));
 
-    <span class="ident">m</span>.<span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+    m.encode(<span class="kw-2">&amp;mut </span>buf);
 
-    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>, <span class="ident">EXPECTED</span>);
+    <span class="macro">assert_eq!</span>(buf, EXPECTED);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_encode_describe_unnamed_portal</span>() {
-    <span class="kw">const</span> <span class="ident">EXPECTED</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;D\0\0\0\x06P\0&quot;</span>;
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_encode_describe_unnamed_portal() {
+    <span class="kw">const </span>EXPECTED: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;D\0\0\0\x06P\0&quot;</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Describe::UnnamedPortal</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
+    <span class="kw">let </span>m = Describe::UnnamedPortal;
 
-    <span class="ident">m</span>.<span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+    m.encode(<span class="kw-2">&amp;mut </span>buf);
 
-    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>, <span class="ident">EXPECTED</span>);
+    <span class="macro">assert_eq!</span>(buf, EXPECTED);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_encode_describe_statement</span>() {
-    <span class="kw">const</span> <span class="ident">EXPECTED</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;D\0\0\0\x0ESsqlx_s_5\0&quot;</span>;
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_encode_describe_statement() {
+    <span class="kw">const </span>EXPECTED: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;D\0\0\0\x0ESsqlx_s_5\0&quot;</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Describe::Statement</span>(<span class="ident">Oid</span>(<span class="number">5</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
+    <span class="kw">let </span>m = Describe::Statement(Oid(<span class="number">5</span>));
 
-    <span class="ident">m</span>.<span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+    m.encode(<span class="kw-2">&amp;mut </span>buf);
 
-    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>, <span class="ident">EXPECTED</span>);
+    <span class="macro">assert_eq!</span>(buf, EXPECTED);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_encode_describe_unnamed_statement</span>() {
-    <span class="kw">const</span> <span class="ident">EXPECTED</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;D\0\0\0\x06S\0&quot;</span>;
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_encode_describe_unnamed_statement() {
+    <span class="kw">const </span>EXPECTED: <span class="kw-2">&amp;</span>[u8] = <span class="string">b&quot;D\0\0\0\x06S\0&quot;</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Describe::UnnamedStatement</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
+    <span class="kw">let </span>m = Describe::UnnamedStatement;
 
-    <span class="ident">m</span>.<span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+    m.encode(<span class="kw-2">&amp;mut </span>buf);
 
-    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>, <span class="ident">EXPECTED</span>);
+    <span class="macro">assert_eq!</span>(buf, EXPECTED);
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">not</span>(<span class="ident">debug_assertions</span>)))]</span>
-<span class="attribute">#[<span class="ident">bench</span>]</span>
-<span class="kw">fn</span> <span class="ident">bench_encode_describe_portal</span>(<span class="ident">b</span>: <span class="kw-2">&amp;mut</span> <span class="ident">test::Bencher</span>) {
-    <span class="kw">use</span> <span class="ident">test::black_box</span>;
+<span class="attribute">#[cfg(all(test, not(debug_assertions)))]
+#[bench]
+</span><span class="kw">fn </span>bench_encode_describe_portal(b: <span class="kw-2">&amp;mut </span>test::Bencher) {
+    <span class="kw">use </span>test::black_box;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">128</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::with_capacity(<span class="number">128</span>);
 
-    <span class="ident">b</span>.<span class="ident">iter</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">buf</span>.<span class="ident">clear</span>();
+    b.iter(|| {
+        buf.clear();
 
-        <span class="ident">black_box</span>(<span class="ident">Describe::Portal</span>(<span class="number">5</span>)).<span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+        black_box(Describe::Portal(<span class="number">5</span>)).encode(<span class="kw-2">&amp;mut </span>buf);
     });
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">not</span>(<span class="ident">debug_assertions</span>)))]</span>
-<span class="attribute">#[<span class="ident">bench</span>]</span>
-<span class="kw">fn</span> <span class="ident">bench_encode_describe_unnamed_statement</span>(<span class="ident">b</span>: <span class="kw-2">&amp;mut</span> <span class="ident">test::Bencher</span>) {
-    <span class="kw">use</span> <span class="ident">test::black_box</span>;
+<span class="attribute">#[cfg(all(test, not(debug_assertions)))]
+#[bench]
+</span><span class="kw">fn </span>bench_encode_describe_unnamed_statement(b: <span class="kw-2">&amp;mut </span>test::Bencher) {
+    <span class="kw">use </span>test::black_box;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">128</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::with_capacity(<span class="number">128</span>);
 
-    <span class="ident">b</span>.<span class="ident">iter</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">buf</span>.<span class="ident">clear</span>();
+    b.iter(|| {
+        buf.clear();
 
-        <span class="ident">black_box</span>(<span class="ident">Describe::UnnamedStatement</span>).<span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+        black_box(Describe::UnnamedStatement).encode(<span class="kw-2">&amp;mut </span>buf);
     });
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

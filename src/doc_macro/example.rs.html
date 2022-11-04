@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `doc-macro/src/example.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>example.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../doc_macro/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../doc_macro/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../doc_macro/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `doc-macro/src/example.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>example.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../doc_macro/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../doc_macro/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../doc_macro/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -80,87 +80,87 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
-<span class="kw">use</span> <span class="ident">quote::quote</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parse_macro_input</span>, <span class="ident">punctuated::Punctuated</span>, <span class="ident">token::Colon2</span>, <span class="ident">Expr</span>, <span class="ident">PathSegment</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>proc_macro::TokenStream;
+<span class="kw">use </span>quote::quote;
+<span class="kw">use </span>syn::{parse_macro_input, punctuated::Punctuated, token::Colon2, Expr, PathSegment};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">example_impl</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">derive_input</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">Expr</span>);
+<span class="kw">pub fn </span>example_impl(input: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span>derive_input = <span class="macro">parse_macro_input!</span>(input <span class="kw">as </span>Expr);
 
-    <span class="kw">match</span> <span class="ident">derive_input</span> {
-        <span class="ident">Expr::Struct</span>(<span class="ident">e</span>) =&gt; {
-            <span class="comment">// struct/enum struct variant</span>
-            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">path</span>;
-            <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">fields</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">member</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">member</span>;
-                <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">colon_token</span>.<span class="ident">is_some</span>() {
-                    <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">expr</span>;
-                    <span class="macro">quote!</span> { #<span class="ident">member</span>: #<span class="ident">expr</span> }
-                } <span class="kw">else</span> {
-                    <span class="macro">quote!</span> { #<span class="ident">member</span>: <span class="ident">Example::example</span>() }
+    <span class="kw">match </span>derive_input {
+        Expr::Struct(e) =&gt; {
+            <span class="comment">// struct/enum struct variant
+            </span><span class="kw">let </span>ident = e.path;
+            <span class="kw">let </span>fields = e.fields.into_iter().map(|f| {
+                <span class="kw">let </span>member = f.member;
+                <span class="kw">if </span>f.colon_token.is_some() {
+                    <span class="kw">let </span>expr = f.expr;
+                    <span class="macro">quote! </span>{ #member: #expr }
+                } <span class="kw">else </span>{
+                    <span class="macro">quote! </span>{ #member: Example::example() }
                 }
             });
-            <span class="kw">return</span> <span class="macro">quote!</span> {
-                <span class="kw">impl</span> <span class="ident">Example</span> <span class="kw">for</span> #<span class="ident">ident</span> {
-                    <span class="kw">fn</span> <span class="ident">example</span>() -&gt; <span class="self">Self</span> {
-                        #<span class="ident">ident</span> { #(#<span class="ident">fields</span>),<span class="op">*</span> }
+            <span class="kw">return </span><span class="macro">quote! </span>{
+                <span class="kw">impl </span>Example <span class="kw">for </span>#ident {
+                    <span class="kw">fn </span>example() -&gt; <span class="self">Self </span>{
+                        #ident { #(#fields),* }
                     }
                 }
             }
-            .<span class="ident">into</span>();
+            .into();
         }
-        <span class="ident">Expr::Call</span>(<span class="ident">e</span>) =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expr::Path</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">e</span>.<span class="ident">func</span> {
-                <span class="comment">// tuple enum</span>
-                <span class="kw">let</span> <span class="ident">underscore</span>: <span class="ident">Expr</span> <span class="op">=</span> <span class="ident">syn::parse_str</span>(<span class="string">&quot;_&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">segments</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">segments</span>;
+        Expr::Call(e) =&gt; {
+            <span class="kw">if let </span>Expr::Path(p) = <span class="kw-2">*</span>e.func {
+                <span class="comment">// tuple enum
+                </span><span class="kw">let </span>underscore: Expr = syn::parse_str(<span class="string">&quot;_&quot;</span>).unwrap();
+                <span class="kw">let </span>segments = p.path.segments;
 
-                <span class="comment">// remove the trailing (:: VariantName) to get the type pathPathS</span>
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">segments</span>.<span class="ident">len</span>();
-                <span class="kw">let</span> <span class="ident">ty</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">PathSegment</span>, <span class="ident">Colon2</span><span class="op">&gt;</span> <span class="op">=</span>
-                    <span class="ident">segments</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">collect</span>();
-                <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">e</span>
-                    .<span class="ident">args</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> {
-                        <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="ident">underscore</span> {
-                            <span class="macro">quote!</span> { <span class="ident">Example::example</span>() }
-                        } <span class="kw">else</span> {
-                            <span class="macro">quote!</span> { #<span class="ident">a</span> }
+                <span class="comment">// remove the trailing (:: VariantName) to get the type pathPathS
+                </span><span class="kw">let </span>len = segments.len();
+                <span class="kw">let </span>ty: Punctuated&lt;PathSegment, Colon2&gt; =
+                    segments.clone().into_iter().take(len - <span class="number">1</span>).collect();
+                <span class="kw">let </span>args = e
+                    .args
+                    .into_iter()
+                    .map(|a| {
+                        <span class="kw">if </span>a == underscore {
+                            <span class="macro">quote! </span>{ Example::example() }
+                        } <span class="kw">else </span>{
+                            <span class="macro">quote! </span>{ #a }
                         }
                     })
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-                <span class="kw">return</span> <span class="macro">quote!</span> {
-                    <span class="kw">impl</span> <span class="ident">Example</span> <span class="kw">for</span> #<span class="ident">ty</span> {
-                        <span class="kw">fn</span> <span class="ident">example</span>() -&gt; <span class="self">Self</span> {
-                            #<span class="ident">segments</span> ( #(#<span class="ident">args</span>),<span class="op">*</span> )
+                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                <span class="kw">return </span><span class="macro">quote! </span>{
+                    <span class="kw">impl </span>Example <span class="kw">for </span>#ty {
+                        <span class="kw">fn </span>example() -&gt; <span class="self">Self </span>{
+                            #segments ( #(#args),* )
                         }
                     }
                 }
-                .<span class="ident">into</span>();
+                .into();
             }
         }
-        <span class="ident">Expr::Path</span>(<span class="ident">e</span>) =&gt; {
-            <span class="comment">// unit enum</span>
+        Expr::Path(e) =&gt; {
+            <span class="comment">// unit enum
 
-            <span class="kw">let</span> <span class="ident">segments</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">path</span>.<span class="ident">segments</span>;
-            <span class="comment">// remove the trailing (:: VariantName) to get the type path</span>
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">segments</span>.<span class="ident">len</span>();
-            <span class="kw">let</span> <span class="ident">ty</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">PathSegment</span>, <span class="ident">Colon2</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">segments</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">collect</span>();
+            </span><span class="kw">let </span>segments = e.path.segments;
+            <span class="comment">// remove the trailing (:: VariantName) to get the type path
+            </span><span class="kw">let </span>len = segments.len();
+            <span class="kw">let </span>ty: Punctuated&lt;PathSegment, Colon2&gt; =
+                segments.clone().into_iter().take(len - <span class="number">1</span>).collect();
 
-            <span class="kw">return</span> <span class="macro">quote!</span> {
-                <span class="kw">impl</span> <span class="ident">Example</span> <span class="kw">for</span> #<span class="ident">ty</span> {
-                    <span class="kw">fn</span> <span class="ident">example</span>() -&gt; <span class="self">Self</span> {
-                        #<span class="ident">segments</span>
+            <span class="kw">return </span><span class="macro">quote! </span>{
+                <span class="kw">impl </span>Example <span class="kw">for </span>#ty {
+                    <span class="kw">fn </span>example() -&gt; <span class="self">Self </span>{
+                        #segments
                     }
                 }
             }
-            .<span class="ident">into</span>();
+            .into();
         }
-        <span class="kw">_</span> =&gt; {}
+        <span class="kw">_ </span>=&gt; {}
     }
     <span class="macro">panic!</span>(<span class="string">&quot;invalid input, should be struct or enum literal&quot;</span>);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="doc_macro" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="doc_macro" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

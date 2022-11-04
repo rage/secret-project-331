@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/arrayref-0.3.6/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../arrayref/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../arrayref/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../arrayref/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/arrayref-0.3.6/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../arrayref/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../arrayref/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../arrayref/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -474,481 +474,481 @@
 <span id="474">474</span>
 <span id="475">475</span>
 <span id="476">476</span>
-</pre><pre class="rust"><code><span class="doccomment">//! This package contains just four macros, which enable the creation</span>
-<span class="doccomment">//! of array references to portions of arrays or slices (or things</span>
-<span class="doccomment">//! that can be sliced).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Examples</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Here is a simple example of slicing and dicing a slice into array</span>
-<span class="doccomment">//! references with these macros.  Here we implement a simple</span>
-<span class="doccomment">//! little-endian conversion from bytes to `u16`, and demonstrate code</span>
-<span class="doccomment">//! that uses `array_ref!` to extract an array reference from a larger</span>
-<span class="doccomment">//! array.  Note that the documentation for each macro also has an</span>
-<span class="doccomment">//! example of its use.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! #[macro_use]</span>
-<span class="doccomment">//! extern crate arrayref;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! fn read_u16(bytes: &amp;[u8; 2]) -&gt; u16 {</span>
-<span class="doccomment">//!      bytes[0] as u16 + ((bytes[1] as u16) &lt;&lt; 8)</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! // ...</span>
-<span class="doccomment">//! # fn main() {</span>
-<span class="doccomment">//! let data = [0,1,2,3,4,0,6,7,8,9];</span>
-<span class="doccomment">//! assert_eq!(256, read_u16(array_ref![data,0,2]));</span>
-<span class="doccomment">//! assert_eq!(4, read_u16(array_ref![data,4,2]));</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">warnings</span>)]</span>
-<span class="attribute">#![<span class="ident">no_std</span>]</span>
+</pre><pre class="rust"><code><span class="doccomment">//! This package contains just four macros, which enable the creation
+//! of array references to portions of arrays or slices (or things
+//! that can be sliced).
+//!
+//! # Examples
+//!
+//! Here is a simple example of slicing and dicing a slice into array
+//! references with these macros.  Here we implement a simple
+//! little-endian conversion from bytes to `u16`, and demonstrate code
+//! that uses `array_ref!` to extract an array reference from a larger
+//! array.  Note that the documentation for each macro also has an
+//! example of its use.
+//!
+//! ```
+//! #[macro_use]
+//! extern crate arrayref;
+//!
+//! fn read_u16(bytes: &amp;[u8; 2]) -&gt; u16 {
+//!      bytes[0] as u16 + ((bytes[1] as u16) &lt;&lt; 8)
+//! }
+//! // ...
+//! # fn main() {
+//! let data = [0,1,2,3,4,0,6,7,8,9];
+//! assert_eq!(256, read_u16(array_ref![data,0,2]));
+//! assert_eq!(4, read_u16(array_ref![data,4,2]));
+//! # }
+//! ```
+</span><span class="attribute">#![deny(warnings)]
+#![no_std]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">std</span>;
+#[cfg(test)]
+#[macro_use]
+</span><span class="kw">extern crate </span>std;
 
-<span class="doccomment">/// You can use `array_ref` to generate an array reference to a subset</span>
-<span class="doccomment">/// of a sliceable bit of data (which could be an array, or a slice,</span>
-<span class="doccomment">/// or a Vec).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Panics** if the slice is out of bounds.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// #[macro_use]</span>
-<span class="doccomment">/// extern crate arrayref;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn read_u16(bytes: &amp;[u8; 2]) -&gt; u16 {</span>
-<span class="doccomment">///      bytes[0] as u16 + ((bytes[1] as u16) &lt;&lt; 8)</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// // ...</span>
-<span class="doccomment">/// # fn main() {</span>
-<span class="doccomment">/// let data = [0,1,2,3,4,0,6,7,8,9];</span>
-<span class="doccomment">/// assert_eq!(256, read_u16(array_ref![data,0,2]));</span>
-<span class="doccomment">/// assert_eq!(4, read_u16(array_ref![data,4,2]));</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
+<span class="doccomment">/// You can use `array_ref` to generate an array reference to a subset
+/// of a sliceable bit of data (which could be an array, or a slice,
+/// or a Vec).
+///
+/// **Panics** if the slice is out of bounds.
+///
+/// ```
+/// #[macro_use]
+/// extern crate arrayref;
+///
+/// fn read_u16(bytes: &amp;[u8; 2]) -&gt; u16 {
+///      bytes[0] as u16 + ((bytes[1] as u16) &lt;&lt; 8)
+/// }
+/// // ...
+/// # fn main() {
+/// let data = [0,1,2,3,4,0,6,7,8,9];
+/// assert_eq!(256, read_u16(array_ref![data,0,2]));
+/// assert_eq!(4, read_u16(array_ref![data,4,2]));
+/// # }
+/// ```
 
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">array_ref</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">offset</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">expr</span>) =&gt; {{
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>array_ref {
+    (<span class="macro-nonterminal">$arr</span>:expr, <span class="macro-nonterminal">$offset</span>:expr, <span class="macro-nonterminal">$len</span>:expr) =&gt; {{
         {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">as_array</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>] {
-                <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="ident">slice</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> [<span class="kw">_</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>])
+            <span class="attribute">#[inline]
+            </span><span class="kw">unsafe fn </span>as_array&lt;T&gt;(slice: <span class="kw-2">&amp;</span>[T]) -&gt; <span class="kw-2">&amp;</span>[T; <span class="macro-nonterminal">$len</span>] {
+                <span class="kw-2">&amp;*</span>(slice.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>[<span class="kw">_</span>; <span class="macro-nonterminal">$len</span>])
             }
-            <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">offset</span>;
-            <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="op">&amp;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>[<span class="ident">offset</span>..<span class="ident">offset</span> <span class="op">+</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>];
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span>
-            <span class="kw">unsafe</span> {
-                <span class="ident">as_array</span>(<span class="ident">slice</span>)
+            <span class="kw">let </span>offset = <span class="macro-nonterminal">$offset</span>;
+            <span class="kw">let </span>slice = &amp; <span class="macro-nonterminal">$arr</span>[offset..offset + <span class="macro-nonterminal">$len</span>];
+            <span class="attribute">#[allow(unused_unsafe)]
+            </span><span class="kw">unsafe </span>{
+                as_array(slice)
             }
         }
     }}
 }
 
-<span class="doccomment">/// You can use `array_refs` to generate a series of array references</span>
-<span class="doccomment">/// to an input array reference.  The idea is if you want to break an</span>
-<span class="doccomment">/// array into a series of contiguous and non-overlapping arrays.</span>
-<span class="doccomment">/// `array_refs` is a bit funny in that it insists on slicing up the</span>
-<span class="doccomment">/// *entire* array.  This is intentional, as I find it handy to make</span>
-<span class="doccomment">/// me ensure that my sub-arrays add up to the entire array.  This</span>
-<span class="doccomment">/// macro will *never* panic, since the sizes are all checked at</span>
-<span class="doccomment">/// compile time.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that unlike `array_ref!`, `array_refs` *requires* that the</span>
-<span class="doccomment">/// first argument be an array reference.  The following arguments are</span>
-<span class="doccomment">/// the lengths of each subarray you wish a reference to.  The total</span>
-<span class="doccomment">/// of these arguments *must* equal the size of the array itself.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// #[macro_use]</span>
-<span class="doccomment">/// extern crate arrayref;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn read_u16(bytes: &amp;[u8; 2]) -&gt; u16 {</span>
-<span class="doccomment">///      bytes[0] as u16 + ((bytes[1] as u16) &lt;&lt; 8)</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// // ...</span>
-<span class="doccomment">/// # fn main() {</span>
-<span class="doccomment">/// let data = [0,1,2,3,4,0,6,7];</span>
-<span class="doccomment">/// let (a,b,c) = array_refs![&amp;data,2,2,4];</span>
-<span class="doccomment">/// assert_eq!(read_u16(a), 256);</span>
-<span class="doccomment">/// assert_eq!(read_u16(b), 3*256+2);</span>
-<span class="doccomment">/// assert_eq!(*c, [4,0,6,7]);</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">array_refs</span> {
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>:<span class="ident">expr</span>, $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span>:<span class="ident">expr</span> ),<span class="op">*</span> ; .. ;  $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {{
+<span class="doccomment">/// You can use `array_refs` to generate a series of array references
+/// to an input array reference.  The idea is if you want to break an
+/// array into a series of contiguous and non-overlapping arrays.
+/// `array_refs` is a bit funny in that it insists on slicing up the
+/// *entire* array.  This is intentional, as I find it handy to make
+/// me ensure that my sub-arrays add up to the entire array.  This
+/// macro will *never* panic, since the sizes are all checked at
+/// compile time.
+///
+/// Note that unlike `array_ref!`, `array_refs` *requires* that the
+/// first argument be an array reference.  The following arguments are
+/// the lengths of each subarray you wish a reference to.  The total
+/// of these arguments *must* equal the size of the array itself.
+///
+/// ```
+/// #[macro_use]
+/// extern crate arrayref;
+///
+/// fn read_u16(bytes: &amp;[u8; 2]) -&gt; u16 {
+///      bytes[0] as u16 + ((bytes[1] as u16) &lt;&lt; 8)
+/// }
+/// // ...
+/// # fn main() {
+/// let data = [0,1,2,3,4,0,6,7];
+/// let (a,b,c) = array_refs![&amp;data,2,2,4];
+/// assert_eq!(read_u16(a), 256);
+/// assert_eq!(read_u16(b), 3*256+2);
+/// assert_eq!(*c, [4,0,6,7]);
+/// # }
+/// ```
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>array_refs {
+    ( <span class="macro-nonterminal">$arr</span>:expr, $( <span class="macro-nonterminal">$pre</span>:expr ),* ; .. ;  $( <span class="macro-nonterminal">$post</span>:expr ),* ) =&gt; {{
         {
-            <span class="kw">use</span> <span class="ident">std::slice</span>;
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_assignments</span>)]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">eval_order_dependence</span>)]</span>
-            <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">as_arrays</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) -&gt; ( $( <span class="kw-2">&amp;</span>[<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span>], )<span class="op">*</span> <span class="kw-2">&amp;</span>[<span class="ident">T</span>],  $( <span class="kw-2">&amp;</span>[<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span>], )<span class="kw-2">*</span>) {
-                <span class="kw">let</span> <span class="ident">min_len</span> <span class="op">=</span> $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span> <span class="op">+</span> )<span class="op">*</span> $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span> <span class="op">+</span> )<span class="op">*</span> <span class="number">0</span>;
-                <span class="kw">let</span> <span class="ident">var_len</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">min_len</span>;
-                <span class="macro">assert!</span>(<span class="ident">a</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">min_len</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">as_ptr</span>();
+            <span class="kw">use </span>std::slice;
+            <span class="attribute">#[inline]
+            #[allow(unused_assignments)]
+            #[allow(eval_order_dependence)]
+            </span><span class="kw">unsafe fn </span>as_arrays&lt;T&gt;(a: <span class="kw-2">&amp;</span>[T]) -&gt; ( $( <span class="kw-2">&amp;</span>[T; <span class="macro-nonterminal">$pre</span>], )* <span class="kw-2">&amp;</span>[T],  $( <span class="kw-2">&amp;</span>[T; <span class="macro-nonterminal">$post</span>], )<span class="kw-2">*</span>) {
+                <span class="kw">let </span>min_len = $( <span class="macro-nonterminal">$pre </span>+ )* $( <span class="macro-nonterminal">$post </span>+ )* <span class="number">0</span>;
+                <span class="kw">let </span>var_len = a.len() - min_len;
+                <span class="macro">assert!</span>(a.len() &gt;= min_len);
+                <span class="kw">let </span><span class="kw-2">mut </span>p = a.as_ptr();
                 ( $( {
-                    <span class="kw">let</span> <span class="ident">aref</span> <span class="op">=</span> <span class="op">&amp;</span> <span class="kw-2">*</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*const</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span>]);
-                    <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">offset</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                    <span class="ident">aref</span>
-                } ),<span class="op">*</span> , {
-                    <span class="kw">let</span> <span class="ident">sl</span> <span class="op">=</span> <span class="ident">slice::from_raw_parts</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span>, <span class="ident">var_len</span>);
-                    <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">offset</span>(<span class="ident">var_len</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                    <span class="ident">sl</span>
+                    <span class="kw">let </span>aref = &amp; <span class="kw-2">*</span>(p <span class="kw">as </span><span class="kw-2">*const </span>[T; <span class="macro-nonterminal">$pre</span>]);
+                    p = p.offset(<span class="macro-nonterminal">$pre </span><span class="kw">as </span>isize);
+                    aref
+                } ),* , {
+                    <span class="kw">let </span>sl = slice::from_raw_parts(p <span class="kw">as </span><span class="kw-2">*const </span>T, var_len);
+                    p = p.offset(var_len <span class="kw">as </span>isize);
+                    sl
                 }, $( {
-                    <span class="kw">let</span> <span class="ident">aref</span> <span class="op">=</span> <span class="op">&amp;</span> <span class="kw-2">*</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*const</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span>]);
-                    <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">offset</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                    <span class="ident">aref</span>
+                    <span class="kw">let </span>aref = &amp; <span class="kw-2">*</span>(p <span class="kw">as </span><span class="kw-2">*const </span>[T; <span class="macro-nonterminal">$post</span>]);
+                    p = p.offset(<span class="macro-nonterminal">$post </span><span class="kw">as </span>isize);
+                    aref
                 } ),<span class="kw-2">*</span>)
             }
-            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>;
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span>
-            <span class="kw">unsafe</span> {
-                <span class="ident">as_arrays</span>(<span class="ident">input</span>)
+            <span class="kw">let </span>input = <span class="macro-nonterminal">$arr</span>;
+            <span class="attribute">#[allow(unused_unsafe)]
+            </span><span class="kw">unsafe </span>{
+                as_arrays(input)
             }
         }
     }};
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>:<span class="ident">expr</span>, $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {{
+    ( <span class="macro-nonterminal">$arr</span>:expr, $( <span class="macro-nonterminal">$len</span>:expr ),* ) =&gt; {{
         {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_assignments</span>)]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">eval_order_dependence</span>)]</span>
-            <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">as_arrays</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>; $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span> <span class="op">+</span> )<span class="op">*</span> <span class="number">0</span> ]) -&gt; ( $( <span class="kw-2">&amp;</span>[<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>], )<span class="op">*</span> ) {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">as_ptr</span>();
+            <span class="attribute">#[inline]
+            #[allow(unused_assignments)]
+            #[allow(eval_order_dependence)]
+            </span><span class="kw">unsafe fn </span>as_arrays&lt;T&gt;(a: <span class="kw-2">&amp;</span>[T; $( <span class="macro-nonterminal">$len </span>+ )* <span class="number">0 </span>]) -&gt; ( $( <span class="kw-2">&amp;</span>[T; <span class="macro-nonterminal">$len</span>], )* ) {
+                <span class="kw">let </span><span class="kw-2">mut </span>p = a.as_ptr();
                 ( $( {
-                    <span class="kw">let</span> <span class="ident">aref</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*const</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>]);
-                    <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">offset</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                    <span class="ident">aref</span>
-                } ),<span class="op">*</span> )
+                    <span class="kw">let </span>aref = <span class="kw-2">&amp;*</span>(p <span class="kw">as </span><span class="kw-2">*const </span>[T; <span class="macro-nonterminal">$len</span>]);
+                    p = p.offset(<span class="macro-nonterminal">$len </span><span class="kw">as </span>isize);
+                    aref
+                } ),* )
             }
-            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>;
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span>
-            <span class="kw">unsafe</span> {
-                <span class="ident">as_arrays</span>(<span class="ident">input</span>)
+            <span class="kw">let </span>input = <span class="macro-nonterminal">$arr</span>;
+            <span class="attribute">#[allow(unused_unsafe)]
+            </span><span class="kw">unsafe </span>{
+                as_arrays(input)
             }
         }
     }}
 }
 
 
-<span class="doccomment">/// You can use `mut_array_refs` to generate a series of mutable array</span>
-<span class="doccomment">/// references to an input mutable array reference.  The idea is if</span>
-<span class="doccomment">/// you want to break an array into a series of contiguous and</span>
-<span class="doccomment">/// non-overlapping mutable array references.  Like `array_refs!`,</span>
-<span class="doccomment">/// `mut_array_refs!` is a bit funny in that it insists on slicing up</span>
-<span class="doccomment">/// the *entire* array.  This is intentional, as I find it handy to</span>
-<span class="doccomment">/// make me ensure that my sub-arrays add up to the entire array.</span>
-<span class="doccomment">/// This macro will *never* panic, since the sizes are all checked at</span>
-<span class="doccomment">/// compile time.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that unlike `array_mut_ref!`, `mut_array_refs` *requires*</span>
-<span class="doccomment">/// that the first argument be a mutable array reference.  The</span>
-<span class="doccomment">/// following arguments are the lengths of each subarray you wish a</span>
-<span class="doccomment">/// reference to.  The total of these arguments *must* equal the size</span>
-<span class="doccomment">/// of the array itself.  Also note that this macro allows you to take</span>
-<span class="doccomment">/// out multiple mutable references to a single object, which is both</span>
-<span class="doccomment">/// weird and powerful.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// #[macro_use]</span>
-<span class="doccomment">/// extern crate arrayref;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn write_u16(bytes: &amp;mut [u8; 2], num: u16) {</span>
-<span class="doccomment">///      bytes[0] = num as u8;</span>
-<span class="doccomment">///      bytes[1] = (num &gt;&gt; 8) as u8;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// fn write_u32(bytes: &amp;mut [u8; 4], num: u32) {</span>
-<span class="doccomment">///      bytes[0] = num as u8;</span>
-<span class="doccomment">///      bytes[1] = (num &gt;&gt; 8) as u8; // this is buggy to save space...</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// // ...</span>
-<span class="doccomment">/// # fn main() {</span>
-<span class="doccomment">/// let mut data = [0,1,2,3,4,0,6,7];</span>
-<span class="doccomment">/// let (a,b,c) = mut_array_refs![&amp;mut data,2,2,4];</span>
-<span class="doccomment">/// // let&#39;s write out some nice prime numbers!</span>
-<span class="doccomment">/// write_u16(a, 37);</span>
-<span class="doccomment">/// write_u16(b, 73);</span>
-<span class="doccomment">/// write_u32(c, 137); // approximate inverse of the fine structure constant!</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">mut_array_refs</span> {
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>:<span class="ident">expr</span>, $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span>:<span class="ident">expr</span> ),<span class="op">*</span> ; .. ;  $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {{
+<span class="doccomment">/// You can use `mut_array_refs` to generate a series of mutable array
+/// references to an input mutable array reference.  The idea is if
+/// you want to break an array into a series of contiguous and
+/// non-overlapping mutable array references.  Like `array_refs!`,
+/// `mut_array_refs!` is a bit funny in that it insists on slicing up
+/// the *entire* array.  This is intentional, as I find it handy to
+/// make me ensure that my sub-arrays add up to the entire array.
+/// This macro will *never* panic, since the sizes are all checked at
+/// compile time.
+///
+/// Note that unlike `array_mut_ref!`, `mut_array_refs` *requires*
+/// that the first argument be a mutable array reference.  The
+/// following arguments are the lengths of each subarray you wish a
+/// reference to.  The total of these arguments *must* equal the size
+/// of the array itself.  Also note that this macro allows you to take
+/// out multiple mutable references to a single object, which is both
+/// weird and powerful.
+///
+/// ```
+/// #[macro_use]
+/// extern crate arrayref;
+///
+/// fn write_u16(bytes: &amp;mut [u8; 2], num: u16) {
+///      bytes[0] = num as u8;
+///      bytes[1] = (num &gt;&gt; 8) as u8;
+/// }
+/// fn write_u32(bytes: &amp;mut [u8; 4], num: u32) {
+///      bytes[0] = num as u8;
+///      bytes[1] = (num &gt;&gt; 8) as u8; // this is buggy to save space...
+/// }
+/// // ...
+/// # fn main() {
+/// let mut data = [0,1,2,3,4,0,6,7];
+/// let (a,b,c) = mut_array_refs![&amp;mut data,2,2,4];
+/// // let&#39;s write out some nice prime numbers!
+/// write_u16(a, 37);
+/// write_u16(b, 73);
+/// write_u32(c, 137); // approximate inverse of the fine structure constant!
+/// # }
+/// ```
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>mut_array_refs {
+    ( <span class="macro-nonterminal">$arr</span>:expr, $( <span class="macro-nonterminal">$pre</span>:expr ),* ; .. ;  $( <span class="macro-nonterminal">$post</span>:expr ),* ) =&gt; {{
         {
-            <span class="kw">use</span> <span class="ident">std::slice</span>;
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_assignments</span>)]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">eval_order_dependence</span>)]</span>
-            <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">as_arrays</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>]) -&gt; ( $( <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span>], )<span class="op">*</span> <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>],  $( <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span>], )<span class="kw-2">*</span>) {
-                <span class="kw">let</span> <span class="ident">min_len</span> <span class="op">=</span> $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span> <span class="op">+</span> )<span class="op">*</span> $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span> <span class="op">+</span> )<span class="op">*</span> <span class="number">0</span>;
-                <span class="kw">let</span> <span class="ident">var_len</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">min_len</span>;
-                <span class="macro">assert!</span>(<span class="ident">a</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">min_len</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">as_mut_ptr</span>();
+            <span class="kw">use </span>std::slice;
+            <span class="attribute">#[inline]
+            #[allow(unused_assignments)]
+            #[allow(eval_order_dependence)]
+            </span><span class="kw">unsafe fn </span>as_arrays&lt;T&gt;(a: <span class="kw-2">&amp;mut </span>[T]) -&gt; ( $( <span class="kw-2">&amp;mut </span>[T; <span class="macro-nonterminal">$pre</span>], )* <span class="kw-2">&amp;mut </span>[T],  $( <span class="kw-2">&amp;mut </span>[T; <span class="macro-nonterminal">$post</span>], )<span class="kw-2">*</span>) {
+                <span class="kw">let </span>min_len = $( <span class="macro-nonterminal">$pre </span>+ )* $( <span class="macro-nonterminal">$post </span>+ )* <span class="number">0</span>;
+                <span class="kw">let </span>var_len = a.len() - min_len;
+                <span class="macro">assert!</span>(a.len() &gt;= min_len);
+                <span class="kw">let </span><span class="kw-2">mut </span>p = a.as_mut_ptr();
                 ( $( {
-                    <span class="kw">let</span> <span class="ident">aref</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span>]);
-                    <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">offset</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pre</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                    <span class="ident">aref</span>
-                } ),<span class="op">*</span> , {
-                    <span class="kw">let</span> <span class="ident">sl</span> <span class="op">=</span> <span class="ident">slice::from_raw_parts_mut</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>, <span class="ident">var_len</span>);
-                    <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">offset</span>(<span class="ident">var_len</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                    <span class="ident">sl</span>
+                    <span class="kw">let </span>aref = <span class="kw-2">&amp;mut *</span>(p <span class="kw">as </span><span class="kw-2">*mut </span>[T; <span class="macro-nonterminal">$pre</span>]);
+                    p = p.offset(<span class="macro-nonterminal">$pre </span><span class="kw">as </span>isize);
+                    aref
+                } ),* , {
+                    <span class="kw">let </span>sl = slice::from_raw_parts_mut(p <span class="kw">as </span><span class="kw-2">*mut </span>T, var_len);
+                    p = p.offset(var_len <span class="kw">as </span>isize);
+                    sl
                 }, $( {
-                    <span class="kw">let</span> <span class="ident">aref</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span>]);
-                    <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">offset</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">post</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                    <span class="ident">aref</span>
+                    <span class="kw">let </span>aref = <span class="kw-2">&amp;mut *</span>(p <span class="kw">as </span><span class="kw-2">*mut </span>[T; <span class="macro-nonterminal">$post</span>]);
+                    p = p.offset(<span class="macro-nonterminal">$post </span><span class="kw">as </span>isize);
+                    aref
                 } ),<span class="kw-2">*</span>)
             }
-            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>;
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span>
-            <span class="kw">unsafe</span> {
-                <span class="ident">as_arrays</span>(<span class="ident">input</span>)
+            <span class="kw">let </span>input = <span class="macro-nonterminal">$arr</span>;
+            <span class="attribute">#[allow(unused_unsafe)]
+            </span><span class="kw">unsafe </span>{
+                as_arrays(input)
             }
         }
     }};
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>:<span class="ident">expr</span>, $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {{
+    ( <span class="macro-nonterminal">$arr</span>:expr, $( <span class="macro-nonterminal">$len</span>:expr ),* ) =&gt; {{
         {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_assignments</span>)]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">eval_order_dependence</span>)]</span>
-            <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">as_arrays</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>; $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span> <span class="op">+</span> )<span class="op">*</span> <span class="number">0</span> ]) -&gt; ( $( <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>], )<span class="op">*</span> ) {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">as_mut_ptr</span>();
+            <span class="attribute">#[inline]
+            #[allow(unused_assignments)]
+            #[allow(eval_order_dependence)]
+            </span><span class="kw">unsafe fn </span>as_arrays&lt;T&gt;(a: <span class="kw-2">&amp;mut </span>[T; $( <span class="macro-nonterminal">$len </span>+ )* <span class="number">0 </span>]) -&gt; ( $( <span class="kw-2">&amp;mut </span>[T; <span class="macro-nonterminal">$len</span>], )* ) {
+                <span class="kw">let </span><span class="kw-2">mut </span>p = a.as_mut_ptr();
                 ( $( {
-                    <span class="kw">let</span> <span class="ident">aref</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>(<span class="ident">p</span> <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>]);
-                    <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">offset</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                    <span class="ident">aref</span>
-                } ),<span class="op">*</span> )
+                    <span class="kw">let </span>aref = <span class="kw-2">&amp;mut *</span>(p <span class="kw">as </span><span class="kw-2">*mut </span>[T; <span class="macro-nonterminal">$len</span>]);
+                    p = p.offset(<span class="macro-nonterminal">$len </span><span class="kw">as </span>isize);
+                    aref
+                } ),* )
             }
-            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>;
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span>
-            <span class="kw">unsafe</span> {
-                <span class="ident">as_arrays</span>(<span class="ident">input</span>)
+            <span class="kw">let </span>input = <span class="macro-nonterminal">$arr</span>;
+            <span class="attribute">#[allow(unused_unsafe)]
+            </span><span class="kw">unsafe </span>{
+                as_arrays(input)
             }
         }
     }};
 }
 
-<span class="doccomment">/// You can use `array_mut_ref` to generate a mutable array reference</span>
-<span class="doccomment">/// to a subset of a sliceable bit of data (which could be an array,</span>
-<span class="doccomment">/// or a slice, or a Vec).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **Panics** if the slice is out of bounds.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// #[macro_use]</span>
-<span class="doccomment">/// extern crate arrayref;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn write_u16(bytes: &amp;mut [u8; 2], num: u16) {</span>
-<span class="doccomment">///      bytes[0] = num as u8;</span>
-<span class="doccomment">///      bytes[1] = (num &gt;&gt; 8) as u8;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// // ...</span>
-<span class="doccomment">/// # fn main() {</span>
-<span class="doccomment">/// let mut data = [0,1,2,3,4,0,6,7,8,9];</span>
-<span class="doccomment">/// write_u16(array_mut_ref![data,0,2], 1);</span>
-<span class="doccomment">/// write_u16(array_mut_ref![data,2,2], 5);</span>
-<span class="doccomment">/// assert_eq!(*array_ref![data,0,4], [1,0,5,0]);</span>
-<span class="doccomment">/// *array_mut_ref![data,4,5] = [4,3,2,1,0];</span>
-<span class="doccomment">/// assert_eq!(data, [1,0,5,0,4,3,2,1,0,9]);</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">array_mut_ref</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">offset</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">expr</span>) =&gt; {{
+<span class="doccomment">/// You can use `array_mut_ref` to generate a mutable array reference
+/// to a subset of a sliceable bit of data (which could be an array,
+/// or a slice, or a Vec).
+///
+/// **Panics** if the slice is out of bounds.
+///
+/// ```
+/// #[macro_use]
+/// extern crate arrayref;
+///
+/// fn write_u16(bytes: &amp;mut [u8; 2], num: u16) {
+///      bytes[0] = num as u8;
+///      bytes[1] = (num &gt;&gt; 8) as u8;
+/// }
+/// // ...
+/// # fn main() {
+/// let mut data = [0,1,2,3,4,0,6,7,8,9];
+/// write_u16(array_mut_ref![data,0,2], 1);
+/// write_u16(array_mut_ref![data,2,2], 5);
+/// assert_eq!(*array_ref![data,0,4], [1,0,5,0]);
+/// *array_mut_ref![data,4,5] = [4,3,2,1,0];
+/// assert_eq!(data, [1,0,5,0,4,3,2,1,0,9]);
+/// # }
+/// ```
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>array_mut_ref {
+    (<span class="macro-nonterminal">$arr</span>:expr, <span class="macro-nonterminal">$offset</span>:expr, <span class="macro-nonterminal">$len</span>:expr) =&gt; {{
         {
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">as_array</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>]) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>] {
-                <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>(<span class="ident">slice</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="kw">_</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>])
+            <span class="attribute">#[inline]
+            </span><span class="kw">unsafe fn </span>as_array&lt;T&gt;(slice: <span class="kw-2">&amp;mut </span>[T]) -&gt; <span class="kw-2">&amp;mut </span>[T; <span class="macro-nonterminal">$len</span>] {
+                <span class="kw-2">&amp;mut *</span>(slice.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>[<span class="kw">_</span>; <span class="macro-nonterminal">$len</span>])
             }
-            <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">offset</span>;
-            <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arr</span>[<span class="ident">offset</span>..<span class="ident">offset</span> <span class="op">+</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>];
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span>
-            <span class="kw">unsafe</span> {
-                <span class="ident">as_array</span>(<span class="ident">slice</span>)
+            <span class="kw">let </span>offset = <span class="macro-nonterminal">$offset</span>;
+            <span class="kw">let </span>slice = <span class="kw-2">&amp;mut </span><span class="macro-nonterminal">$arr</span>[offset..offset + <span class="macro-nonterminal">$len</span>];
+            <span class="attribute">#[allow(unused_unsafe)]
+            </span><span class="kw">unsafe </span>{
+                as_array(slice)
             }
         }
     }}
 }
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
 
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">quickcheck</span>;
+<span class="kw">extern crate </span>quickcheck;
 
-<span class="kw">use</span> <span class="ident">std::vec::Vec</span>;
+<span class="kw">use </span>std::vec::Vec;
 
-<span class="comment">// use super::*;</span>
+<span class="comment">// use super::*;
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="attribute">#[<span class="ident">should_panic</span>]</span>
-<span class="kw">fn</span> <span class="ident">checks_bounds</span>() {
-    <span class="kw">let</span> <span class="ident">foo</span>: [<span class="ident">u8</span>; <span class="number">11</span>] <span class="op">=</span> [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];
-    <span class="kw">let</span> <span class="ident">bar</span> <span class="op">=</span> <span class="macro">array_ref!</span>(<span class="ident">foo</span>, <span class="number">1</span>, <span class="number">11</span>);
-    <span class="macro">println!</span>(<span class="string">&quot;I am checking that I can dereference bar[0] = {}&quot;</span>, <span class="ident">bar</span>[<span class="number">0</span>]);
+</span><span class="attribute">#[test]
+#[should_panic]
+</span><span class="kw">fn </span>checks_bounds() {
+    <span class="kw">let </span>foo: [u8; <span class="number">11</span>] = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];
+    <span class="kw">let </span>bar = <span class="macro">array_ref!</span>(foo, <span class="number">1</span>, <span class="number">11</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;I am checking that I can dereference bar[0] = {}&quot;</span>, bar[<span class="number">0</span>]);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">simple_case_works</span>() {
-    <span class="kw">fn</span> <span class="ident">check</span>(<span class="ident">expected</span>: [<span class="ident">u8</span>; <span class="number">3</span>], <span class="ident">actual</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">3</span>]) {
-        <span class="kw">for</span> (<span class="ident">e</span>, <span class="ident">a</span>) <span class="kw">in</span> (<span class="kw-2">&amp;</span><span class="ident">expected</span>).<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">actual</span>.<span class="ident">iter</span>()) {
-            <span class="macro">assert_eq!</span>(<span class="ident">e</span>, <span class="ident">a</span>)
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>simple_case_works() {
+    <span class="kw">fn </span>check(expected: [u8; <span class="number">3</span>], actual: <span class="kw-2">&amp;</span>[u8; <span class="number">3</span>]) {
+        <span class="kw">for </span>(e, a) <span class="kw">in </span>(<span class="kw-2">&amp;</span>expected).iter().zip(actual.iter()) {
+            <span class="macro">assert_eq!</span>(e, a)
         }
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">foo</span>: [<span class="ident">u8</span>; <span class="number">11</span>] <span class="op">=</span> [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];
+    <span class="kw">let </span><span class="kw-2">mut </span>foo: [u8; <span class="number">11</span>] = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>];
     {
-        <span class="kw">let</span> <span class="ident">bar</span> <span class="op">=</span> <span class="macro">array_ref!</span>(<span class="ident">foo</span>, <span class="number">2</span>, <span class="number">3</span>);
-        <span class="ident">check</span>([<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>], <span class="ident">bar</span>);
+        <span class="kw">let </span>bar = <span class="macro">array_ref!</span>(foo, <span class="number">2</span>, <span class="number">3</span>);
+        check([<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>], bar);
     }
-    <span class="ident">check</span>([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>], <span class="macro">array_ref!</span>(<span class="ident">foo</span>, <span class="number">0</span>, <span class="number">3</span>));
-    <span class="kw">fn</span> <span class="ident">zero2</span>(<span class="ident">x</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">2</span>]) {
-        <span class="ident">x</span>[<span class="number">0</span>] <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">x</span>[<span class="number">1</span>] <span class="op">=</span> <span class="number">0</span>;
+    check([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>], <span class="macro">array_ref!</span>(foo, <span class="number">0</span>, <span class="number">3</span>));
+    <span class="kw">fn </span>zero2(x: <span class="kw-2">&amp;mut </span>[u8; <span class="number">2</span>]) {
+        x[<span class="number">0</span>] = <span class="number">0</span>;
+        x[<span class="number">1</span>] = <span class="number">0</span>;
     }
-    <span class="ident">zero2</span>(<span class="macro">array_mut_ref!</span>(<span class="ident">foo</span>, <span class="number">8</span>, <span class="number">2</span>));
-    <span class="ident">check</span>([<span class="number">0</span>, <span class="number">0</span>, <span class="number">10</span>], <span class="macro">array_ref!</span>(<span class="ident">foo</span>, <span class="number">8</span>, <span class="number">3</span>));
+    zero2(<span class="macro">array_mut_ref!</span>(foo, <span class="number">8</span>, <span class="number">2</span>));
+    check([<span class="number">0</span>, <span class="number">0</span>, <span class="number">10</span>], <span class="macro">array_ref!</span>(foo, <span class="number">8</span>, <span class="number">3</span>));
 }
 
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">check_array_ref_5</span>() {
-    <span class="kw">fn</span> <span class="ident">f</span>(<span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) -&gt; <span class="ident">quickcheck::TestResult</span> {
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">offset</span> <span class="op">+</span> <span class="number">5</span> {
-            <span class="kw">return</span> <span class="ident">quickcheck::TestResult::discard</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>check_array_ref_5() {
+    <span class="kw">fn </span>f(data: Vec&lt;u8&gt;, offset: usize) -&gt; quickcheck::TestResult {
+        <span class="kw">if </span>data.len() &lt; offset + <span class="number">5 </span>{
+            <span class="kw">return </span>quickcheck::TestResult::discard();
         }
-        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="macro">array_ref!</span>(<span class="ident">data</span>, <span class="ident">offset</span>, <span class="number">5</span>);
-        <span class="ident">quickcheck::TestResult::from_bool</span>(<span class="ident">out</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">5</span>)
+        <span class="kw">let </span>out = <span class="macro">array_ref!</span>(data, offset, <span class="number">5</span>);
+        quickcheck::TestResult::from_bool(out.len() == <span class="number">5</span>)
     }
-    <span class="ident">quickcheck::quickcheck</span>(<span class="ident">f</span> <span class="kw">as</span> <span class="kw">fn</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">usize</span>) -&gt; <span class="ident">quickcheck::TestResult</span>);
+    quickcheck::quickcheck(f <span class="kw">as fn</span>(Vec&lt;u8&gt;, usize) -&gt; quickcheck::TestResult);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">check_array_ref_out_of_bounds_5</span>() {
-    <span class="kw">fn</span> <span class="ident">f</span>(<span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) -&gt; <span class="ident">quickcheck::TestResult</span> {
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">offset</span> <span class="op">+</span> <span class="number">5</span> {
-            <span class="kw">return</span> <span class="ident">quickcheck::TestResult::discard</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>check_array_ref_out_of_bounds_5() {
+    <span class="kw">fn </span>f(data: Vec&lt;u8&gt;, offset: usize) -&gt; quickcheck::TestResult {
+        <span class="kw">if </span>data.len() &gt;= offset + <span class="number">5 </span>{
+            <span class="kw">return </span>quickcheck::TestResult::discard();
         }
-        <span class="ident">quickcheck::TestResult::must_fail</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="macro">array_ref!</span>(<span class="ident">data</span>, <span class="ident">offset</span>, <span class="number">5</span>);
+        quickcheck::TestResult::must_fail(<span class="kw">move </span>|| {
+            <span class="macro">array_ref!</span>(data, offset, <span class="number">5</span>);
         })
     }
-    <span class="ident">quickcheck::quickcheck</span>(<span class="ident">f</span> <span class="kw">as</span> <span class="kw">fn</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">usize</span>) -&gt; <span class="ident">quickcheck::TestResult</span>);
+    quickcheck::quickcheck(f <span class="kw">as fn</span>(Vec&lt;u8&gt;, usize) -&gt; quickcheck::TestResult);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">check_array_mut_ref_7</span>() {
-    <span class="kw">fn</span> <span class="ident">f</span>(<span class="kw-2">mut</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) -&gt; <span class="ident">quickcheck::TestResult</span> {
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">offset</span> <span class="op">+</span> <span class="number">7</span> {
-            <span class="kw">return</span> <span class="ident">quickcheck::TestResult::discard</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>check_array_mut_ref_7() {
+    <span class="kw">fn </span>f(<span class="kw-2">mut </span>data: Vec&lt;u8&gt;, offset: usize) -&gt; quickcheck::TestResult {
+        <span class="kw">if </span>data.len() &lt; offset + <span class="number">7 </span>{
+            <span class="kw">return </span>quickcheck::TestResult::discard();
         }
-        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="macro">array_mut_ref!</span>(<span class="ident">data</span>, <span class="ident">offset</span>, <span class="number">7</span>);
-        <span class="ident">out</span>[<span class="number">6</span>] <span class="op">=</span> <span class="number">3</span>;
-        <span class="ident">quickcheck::TestResult::from_bool</span>(<span class="ident">out</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">7</span>)
+        <span class="kw">let </span>out = <span class="macro">array_mut_ref!</span>(data, offset, <span class="number">7</span>);
+        out[<span class="number">6</span>] = <span class="number">3</span>;
+        quickcheck::TestResult::from_bool(out.len() == <span class="number">7</span>)
     }
-    <span class="ident">quickcheck::quickcheck</span>(<span class="ident">f</span> <span class="kw">as</span> <span class="kw">fn</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">usize</span>) -&gt; <span class="ident">quickcheck::TestResult</span>);
+    quickcheck::quickcheck(f <span class="kw">as fn</span>(Vec&lt;u8&gt;, usize) -&gt; quickcheck::TestResult);
 }
 
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">check_array_mut_ref_out_of_bounds_32</span>() {
-    <span class="kw">fn</span> <span class="ident">f</span>(<span class="kw-2">mut</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) -&gt; <span class="ident">quickcheck::TestResult</span> {
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">offset</span> <span class="op">+</span> <span class="number">32</span> {
-            <span class="kw">return</span> <span class="ident">quickcheck::TestResult::discard</span>();
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>check_array_mut_ref_out_of_bounds_32() {
+    <span class="kw">fn </span>f(<span class="kw-2">mut </span>data: Vec&lt;u8&gt;, offset: usize) -&gt; quickcheck::TestResult {
+        <span class="kw">if </span>data.len() &gt;= offset + <span class="number">32 </span>{
+            <span class="kw">return </span>quickcheck::TestResult::discard();
         }
-        <span class="ident">quickcheck::TestResult::must_fail</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="macro">array_mut_ref!</span>(<span class="ident">data</span>, <span class="ident">offset</span>, <span class="number">32</span>);
+        quickcheck::TestResult::must_fail(<span class="kw">move </span>|| {
+            <span class="macro">array_mut_ref!</span>(data, offset, <span class="number">32</span>);
         })
     }
-    <span class="ident">quickcheck::quickcheck</span>(<span class="ident">f</span> <span class="kw">as</span> <span class="kw">fn</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">usize</span>) -&gt; <span class="ident">quickcheck::TestResult</span>);
+    quickcheck::quickcheck(f <span class="kw">as fn</span>(Vec&lt;u8&gt;, usize) -&gt; quickcheck::TestResult);
 }
 
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_5_array_refs</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span>: [<span class="ident">usize</span>; <span class="number">128</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">128</span>];
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">128</span> {
-        <span class="ident">data</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">i</span>;
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_5_array_refs() {
+    <span class="kw">let </span><span class="kw-2">mut </span>data: [usize; <span class="number">128</span>] = [<span class="number">0</span>; <span class="number">128</span>];
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">128 </span>{
+        data[i] = i;
     }
-    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">data</span>;
-    <span class="kw">let</span> (<span class="ident">a</span>,<span class="ident">b</span>,<span class="ident">c</span>,<span class="ident">d</span>,<span class="ident">e</span>) <span class="op">=</span> <span class="macro">array_refs!</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="number">1</span>, <span class="number">14</span>, <span class="number">3</span>, <span class="number">100</span>, <span class="number">10</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">len</span>(), <span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">len</span>(), <span class="number">14</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">c</span>.<span class="ident">len</span>(), <span class="number">3</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">d</span>.<span class="ident">len</span>(), <span class="number">100</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">e</span>.<span class="ident">len</span>(), <span class="number">10</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">a</span>, <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">0</span>, <span class="number">1</span>]);
-    <span class="macro">assert_eq!</span>(<span class="ident">b</span>, <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">1</span>, <span class="number">14</span>]);
-    <span class="macro">assert_eq!</span>(<span class="ident">c</span>, <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">15</span>, <span class="number">3</span>]);
-    <span class="macro">assert_eq!</span>(<span class="ident">e</span>, <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">118</span>, <span class="number">10</span>]);
+    <span class="kw">let </span>data = data;
+    <span class="kw">let </span>(a,b,c,d,e) = <span class="macro">array_refs!</span>(<span class="kw-2">&amp;</span>data, <span class="number">1</span>, <span class="number">14</span>, <span class="number">3</span>, <span class="number">100</span>, <span class="number">10</span>);
+    <span class="macro">assert_eq!</span>(a.len(), <span class="number">1 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(b.len(), <span class="number">14 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(c.len(), <span class="number">3 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(d.len(), <span class="number">100 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(e.len(), <span class="number">10 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(a, <span class="macro">array_ref!</span>[data, <span class="number">0</span>, <span class="number">1</span>]);
+    <span class="macro">assert_eq!</span>(b, <span class="macro">array_ref!</span>[data, <span class="number">1</span>, <span class="number">14</span>]);
+    <span class="macro">assert_eq!</span>(c, <span class="macro">array_ref!</span>[data, <span class="number">15</span>, <span class="number">3</span>]);
+    <span class="macro">assert_eq!</span>(e, <span class="macro">array_ref!</span>[data, <span class="number">118</span>, <span class="number">10</span>]);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_5_array_refs_dotdot</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span>: [<span class="ident">usize</span>; <span class="number">128</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">128</span>];
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">128</span> {
-        <span class="ident">data</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">i</span>;
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_5_array_refs_dotdot() {
+    <span class="kw">let </span><span class="kw-2">mut </span>data: [usize; <span class="number">128</span>] = [<span class="number">0</span>; <span class="number">128</span>];
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">128 </span>{
+        data[i] = i;
     }
-    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">data</span>;
-    <span class="kw">let</span> (<span class="ident">a</span>,<span class="ident">b</span>,<span class="ident">c</span>,<span class="ident">d</span>,<span class="ident">e</span>) <span class="op">=</span> <span class="macro">array_refs!</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="number">1</span>, <span class="number">14</span>, <span class="number">3</span>; ..; <span class="number">10</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">len</span>(), <span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">len</span>(), <span class="number">14</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">c</span>.<span class="ident">len</span>(), <span class="number">3</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">d</span>.<span class="ident">len</span>(), <span class="number">100</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">e</span>.<span class="ident">len</span>(), <span class="number">10</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">a</span>, <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">0</span>, <span class="number">1</span>]);
-    <span class="macro">assert_eq!</span>(<span class="ident">b</span>, <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">1</span>, <span class="number">14</span>]);
-    <span class="macro">assert_eq!</span>(<span class="ident">c</span>, <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">15</span>, <span class="number">3</span>]);
-    <span class="macro">assert_eq!</span>(<span class="ident">e</span>, <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">118</span>, <span class="number">10</span>]);
+    <span class="kw">let </span>data = data;
+    <span class="kw">let </span>(a,b,c,d,e) = <span class="macro">array_refs!</span>(<span class="kw-2">&amp;</span>data, <span class="number">1</span>, <span class="number">14</span>, <span class="number">3</span>; ..; <span class="number">10</span>);
+    <span class="macro">assert_eq!</span>(a.len(), <span class="number">1 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(b.len(), <span class="number">14 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(c.len(), <span class="number">3 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(d.len(), <span class="number">100 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(e.len(), <span class="number">10 </span><span class="kw">as </span>usize);
+    <span class="macro">assert_eq!</span>(a, <span class="macro">array_ref!</span>[data, <span class="number">0</span>, <span class="number">1</span>]);
+    <span class="macro">assert_eq!</span>(b, <span class="macro">array_ref!</span>[data, <span class="number">1</span>, <span class="number">14</span>]);
+    <span class="macro">assert_eq!</span>(c, <span class="macro">array_ref!</span>[data, <span class="number">15</span>, <span class="number">3</span>]);
+    <span class="macro">assert_eq!</span>(e, <span class="macro">array_ref!</span>[data, <span class="number">118</span>, <span class="number">10</span>]);
 }
 
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_5_mut_xarray_refs</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span>: [<span class="ident">usize</span>; <span class="number">128</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">128</span>];
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_5_mut_xarray_refs() {
+    <span class="kw">let </span><span class="kw-2">mut </span>data: [usize; <span class="number">128</span>] = [<span class="number">0</span>; <span class="number">128</span>];
     {
-        <span class="comment">// temporarily borrow the data to modify it.</span>
-        <span class="kw">let</span> (<span class="ident">a</span>,<span class="ident">b</span>,<span class="ident">c</span>,<span class="ident">d</span>,<span class="ident">e</span>) <span class="op">=</span> <span class="macro">mut_array_refs!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>, <span class="number">1</span>, <span class="number">14</span>, <span class="number">3</span>, <span class="number">100</span>, <span class="number">10</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">len</span>(), <span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">len</span>(), <span class="number">14</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">c</span>.<span class="ident">len</span>(), <span class="number">3</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">d</span>.<span class="ident">len</span>(), <span class="number">100</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">e</span>.<span class="ident">len</span>(), <span class="number">10</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="kw-2">*</span><span class="ident">a</span> <span class="op">=</span> [<span class="number">1</span>; <span class="number">1</span>];
-        <span class="kw-2">*</span><span class="ident">b</span> <span class="op">=</span> [<span class="number">14</span>; <span class="number">14</span>];
-        <span class="kw-2">*</span><span class="ident">c</span> <span class="op">=</span> [<span class="number">3</span>; <span class="number">3</span>];
-        <span class="kw-2">*</span><span class="ident">d</span> <span class="op">=</span> [<span class="number">100</span>; <span class="number">100</span>];
-        <span class="kw-2">*</span><span class="ident">e</span> <span class="op">=</span> [<span class="number">10</span>; <span class="number">10</span>];
+        <span class="comment">// temporarily borrow the data to modify it.
+        </span><span class="kw">let </span>(a,b,c,d,e) = <span class="macro">mut_array_refs!</span>(<span class="kw-2">&amp;mut </span>data, <span class="number">1</span>, <span class="number">14</span>, <span class="number">3</span>, <span class="number">100</span>, <span class="number">10</span>);
+        <span class="macro">assert_eq!</span>(a.len(), <span class="number">1 </span><span class="kw">as </span>usize);
+        <span class="macro">assert_eq!</span>(b.len(), <span class="number">14 </span><span class="kw">as </span>usize);
+        <span class="macro">assert_eq!</span>(c.len(), <span class="number">3 </span><span class="kw">as </span>usize);
+        <span class="macro">assert_eq!</span>(d.len(), <span class="number">100 </span><span class="kw">as </span>usize);
+        <span class="macro">assert_eq!</span>(e.len(), <span class="number">10 </span><span class="kw">as </span>usize);
+        <span class="kw-2">*</span>a = [<span class="number">1</span>; <span class="number">1</span>];
+        <span class="kw-2">*</span>b = [<span class="number">14</span>; <span class="number">14</span>];
+        <span class="kw-2">*</span>c = [<span class="number">3</span>; <span class="number">3</span>];
+        <span class="kw-2">*</span>d = [<span class="number">100</span>; <span class="number">100</span>];
+        <span class="kw-2">*</span>e = [<span class="number">10</span>; <span class="number">10</span>];
     }
-    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>;<span class="number">1</span>], <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">0</span>, <span class="number">1</span>]);
-    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">14</span>;<span class="number">14</span>], <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">1</span>, <span class="number">14</span>]);
-    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">3</span>;<span class="number">3</span>], <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">15</span>, <span class="number">3</span>]);
-    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">10</span>;<span class="number">10</span>], <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">118</span>, <span class="number">10</span>]);
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>;<span class="number">1</span>], <span class="macro">array_ref!</span>[data, <span class="number">0</span>, <span class="number">1</span>]);
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">14</span>;<span class="number">14</span>], <span class="macro">array_ref!</span>[data, <span class="number">1</span>, <span class="number">14</span>]);
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">3</span>;<span class="number">3</span>], <span class="macro">array_ref!</span>[data, <span class="number">15</span>, <span class="number">3</span>]);
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">10</span>;<span class="number">10</span>], <span class="macro">array_ref!</span>[data, <span class="number">118</span>, <span class="number">10</span>]);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_5_mut_xarray_refs_with_dotdot</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span>: [<span class="ident">usize</span>; <span class="number">128</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">128</span>];
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>test_5_mut_xarray_refs_with_dotdot() {
+    <span class="kw">let </span><span class="kw-2">mut </span>data: [usize; <span class="number">128</span>] = [<span class="number">0</span>; <span class="number">128</span>];
     {
-        <span class="comment">// temporarily borrow the data to modify it.</span>
-        <span class="kw">let</span> (<span class="ident">a</span>,<span class="ident">b</span>,<span class="ident">c</span>,<span class="ident">d</span>,<span class="ident">e</span>) <span class="op">=</span> <span class="macro">mut_array_refs!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>, <span class="number">1</span>, <span class="number">14</span>, <span class="number">3</span>; ..; <span class="number">10</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">len</span>(), <span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">len</span>(), <span class="number">14</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">c</span>.<span class="ident">len</span>(), <span class="number">3</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">d</span>.<span class="ident">len</span>(), <span class="number">100</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">e</span>.<span class="ident">len</span>(), <span class="number">10</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="kw-2">*</span><span class="ident">a</span> <span class="op">=</span> [<span class="number">1</span>; <span class="number">1</span>];
-        <span class="kw-2">*</span><span class="ident">b</span> <span class="op">=</span> [<span class="number">14</span>; <span class="number">14</span>];
-        <span class="kw-2">*</span><span class="ident">c</span> <span class="op">=</span> [<span class="number">3</span>; <span class="number">3</span>];
-        <span class="kw-2">*</span><span class="ident">e</span> <span class="op">=</span> [<span class="number">10</span>; <span class="number">10</span>];
+        <span class="comment">// temporarily borrow the data to modify it.
+        </span><span class="kw">let </span>(a,b,c,d,e) = <span class="macro">mut_array_refs!</span>(<span class="kw-2">&amp;mut </span>data, <span class="number">1</span>, <span class="number">14</span>, <span class="number">3</span>; ..; <span class="number">10</span>);
+        <span class="macro">assert_eq!</span>(a.len(), <span class="number">1 </span><span class="kw">as </span>usize);
+        <span class="macro">assert_eq!</span>(b.len(), <span class="number">14 </span><span class="kw">as </span>usize);
+        <span class="macro">assert_eq!</span>(c.len(), <span class="number">3 </span><span class="kw">as </span>usize);
+        <span class="macro">assert_eq!</span>(d.len(), <span class="number">100 </span><span class="kw">as </span>usize);
+        <span class="macro">assert_eq!</span>(e.len(), <span class="number">10 </span><span class="kw">as </span>usize);
+        <span class="kw-2">*</span>a = [<span class="number">1</span>; <span class="number">1</span>];
+        <span class="kw-2">*</span>b = [<span class="number">14</span>; <span class="number">14</span>];
+        <span class="kw-2">*</span>c = [<span class="number">3</span>; <span class="number">3</span>];
+        <span class="kw-2">*</span>e = [<span class="number">10</span>; <span class="number">10</span>];
     }
-    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>;<span class="number">1</span>], <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">0</span>, <span class="number">1</span>]);
-    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">14</span>;<span class="number">14</span>], <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">1</span>, <span class="number">14</span>]);
-    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">3</span>;<span class="number">3</span>], <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">15</span>, <span class="number">3</span>]);
-    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">10</span>;<span class="number">10</span>], <span class="macro">array_ref!</span>[<span class="ident">data</span>, <span class="number">118</span>, <span class="number">10</span>]);
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>;<span class="number">1</span>], <span class="macro">array_ref!</span>[data, <span class="number">0</span>, <span class="number">1</span>]);
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">14</span>;<span class="number">14</span>], <span class="macro">array_ref!</span>[data, <span class="number">1</span>, <span class="number">14</span>]);
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">3</span>;<span class="number">3</span>], <span class="macro">array_ref!</span>[data, <span class="number">15</span>, <span class="number">3</span>]);
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>[<span class="number">10</span>;<span class="number">10</span>], <span class="macro">array_ref!</span>[data, <span class="number">118</span>, <span class="number">10</span>]);
 }
 
-} <span class="comment">// mod test</span>
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="arrayref" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+} <span class="comment">// mod test
+</span></code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="arrayref" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

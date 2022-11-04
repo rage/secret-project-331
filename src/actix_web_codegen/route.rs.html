@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-codegen-4.1.0/src/route.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>route.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web_codegen/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web_codegen/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_web_codegen/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-codegen-4.1.0/src/route.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>route.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web_codegen/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web_codegen/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_web_codegen/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -430,437 +430,437 @@
 <span id="430">430</span>
 <span id="431">431</span>
 <span id="432">432</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashSet</span>, <span class="ident">convert::TryFrom</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{collections::HashSet, convert::TryFrom};
 
-<span class="kw">use</span> <span class="ident">actix_router::ResourceDef</span>;
-<span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Span</span>, <span class="ident">TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>};
-<span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">quote</span>, <span class="ident">ToTokens</span>, <span class="ident">TokenStreamExt</span>};
-<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parse_macro_input</span>, <span class="ident">AttributeArgs</span>, <span class="ident">Ident</span>, <span class="ident">LitStr</span>, <span class="ident">Meta</span>, <span class="ident">NestedMeta</span>, <span class="ident">Path</span>};
+<span class="kw">use </span>actix_router::ResourceDef;
+<span class="kw">use </span>proc_macro::TokenStream;
+<span class="kw">use </span>proc_macro2::{Span, TokenStream <span class="kw">as </span>TokenStream2};
+<span class="kw">use </span>quote::{quote, ToTokens, TokenStreamExt};
+<span class="kw">use </span>syn::{parse_macro_input, AttributeArgs, Ident, LitStr, Meta, NestedMeta, Path};
 
-<span class="macro">macro_rules!</span> <span class="ident">method_type</span> {
+<span class="macro">macro_rules! </span>method_type {
     (
-        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">upper</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lower</span>:<span class="ident">ident</span>,)<span class="op">+</span>
+        $(<span class="macro-nonterminal">$variant</span>:ident, <span class="macro-nonterminal">$upper</span>:ident, <span class="macro-nonterminal">$lower</span>:ident,)+
     ) =&gt; {
-        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MethodType</span> {
+        <span class="attribute">#[derive(Debug, PartialEq, Eq, Hash)]
+        </span><span class="kw">pub enum </span>MethodType {
             $(
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>,
-            )<span class="op">+</span>
+                <span class="macro-nonterminal">$variant</span>,
+            )+
         }
 
-        <span class="kw">impl</span> <span class="ident">MethodType</span> {
-            <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-                <span class="kw">match</span> <span class="self">self</span> {
-                    $(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span> =&gt; <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
+        <span class="kw">impl </span>MethodType {
+            <span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+                <span class="kw">match </span><span class="self">self </span>{
+                    $(<span class="self">Self</span>::<span class="macro-nonterminal">$variant </span>=&gt; <span class="macro">stringify!</span>(<span class="macro-nonterminal">$variant</span>),)+
                 }
             }
 
-            <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-                <span class="kw">match</span> <span class="ident">method</span> {
-                    $(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">upper</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Unexpected HTTP method: `{}`&quot;</span>, <span class="ident">method</span>)),
+            <span class="kw">fn </span>parse(method: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, String&gt; {
+                <span class="kw">match </span>method {
+                    $(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$upper</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$variant</span>),)+
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Unexpected HTTP method: `{}`&quot;</span>, method)),
                 }
             }
 
-            <span class="kw">fn</span> <span class="ident">from_path</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, ()<span class="op">&gt;</span> {
-                <span class="kw">match</span> () {
-                    $(<span class="kw">_</span> <span class="kw">if</span> <span class="ident">method</span>.<span class="ident">is_ident</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lower</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(()),
+            <span class="kw">fn </span>from_path(method: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ()&gt; {
+                <span class="kw">match </span>() {
+                    $(<span class="kw">_ if </span>method.is_ident(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$lower</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$variant</span>),)+
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(()),
                 }
             }
         }
     };
 }
 
-<span class="macro">method_type!</span> {
-    <span class="ident">Get</span>,       <span class="ident">GET</span>,     <span class="ident">get</span>,
-    <span class="ident">Post</span>,      <span class="ident">POST</span>,    <span class="ident">post</span>,
-    <span class="ident">Put</span>,       <span class="ident">PUT</span>,     <span class="ident">put</span>,
-    <span class="ident">Delete</span>,    <span class="ident">DELETE</span>,  <span class="ident">delete</span>,
-    <span class="ident">Head</span>,      <span class="ident">HEAD</span>,    <span class="ident">head</span>,
-    <span class="ident">Connect</span>,   <span class="ident">CONNECT</span>, <span class="ident">connect</span>,
-    <span class="ident">Options</span>,   <span class="ident">OPTIONS</span>, <span class="ident">options</span>,
-    <span class="ident">Trace</span>,     <span class="ident">TRACE</span>,   <span class="ident">trace</span>,
-    <span class="ident">Patch</span>,     <span class="ident">PATCH</span>,   <span class="ident">patch</span>,
+<span class="macro">method_type! </span>{
+    Get,       GET,     get,
+    Post,      POST,    post,
+    Put,       PUT,     put,
+    Delete,    DELETE,  delete,
+    Head,      HEAD,    head,
+    Connect,   CONNECT, connect,
+    Options,   OPTIONS, options,
+    Trace,     TRACE,   trace,
+    Patch,     PATCH,   patch,
 }
 
-<span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">MethodType</span> {
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream2</span>) {
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">Ident::new</span>(<span class="self">self</span>.<span class="ident">as_str</span>(), <span class="ident">Span::call_site</span>());
-        <span class="ident">stream</span>.<span class="ident">append</span>(<span class="ident">ident</span>);
+<span class="kw">impl </span>ToTokens <span class="kw">for </span>MethodType {
+    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, stream: <span class="kw-2">&amp;mut </span>TokenStream2) {
+        <span class="kw">let </span>ident = Ident::new(<span class="self">self</span>.as_str(), Span::call_site());
+        stream.append(ident);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::LitStr</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MethodType</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>syn::LitStr&gt; <span class="kw">for </span>MethodType {
+    <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">syn::LitStr</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::parse</span>(<span class="ident">value</span>.<span class="ident">value</span>().<span class="ident">as_str</span>())
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">value</span>, <span class="ident">message</span>))
+    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>syn::LitStr) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="self">Self</span>::parse(value.value().as_str())
+            .map_err(|message| syn::Error::new_spanned(value, message))
     }
 }
 
-<span class="kw">struct</span> <span class="ident">Args</span> {
-    <span class="ident">path</span>: <span class="ident">syn::LitStr</span>,
-    <span class="ident">resource_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::LitStr</span><span class="op">&gt;</span>,
-    <span class="ident">guards</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
-    <span class="ident">wrappers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>,
-    <span class="ident">methods</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>Args {
+    path: syn::LitStr,
+    resource_name: <span class="prelude-ty">Option</span>&lt;syn::LitStr&gt;,
+    guards: Vec&lt;Path&gt;,
+    wrappers: Vec&lt;syn::Type&gt;,
+    methods: HashSet&lt;MethodType&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Args</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">args</span>: <span class="ident">AttributeArgs</span>, <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resource_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guards</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wrappers</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">methods</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+<span class="kw">impl </span>Args {
+    <span class="kw">fn </span>new(args: AttributeArgs, method: <span class="prelude-ty">Option</span>&lt;MethodType&gt;) -&gt; syn::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>path = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>resource_name = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>guards = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>wrappers = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>methods = HashSet::new();
 
-        <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new</span>(
-                <span class="ident">Span::call_site</span>(),
+        <span class="kw">if </span>args.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new(
+                Span::call_site(),
                 <span class="macro">format!</span>(
                     <span class="string">r#&quot;invalid service definition, expected #[{}(&quot;&lt;path&gt;&quot;)]&quot;#</span>,
-                    <span class="ident">method</span>
-                        .<span class="ident">map_or</span>(<span class="string">&quot;route&quot;</span>, <span class="op">|</span><span class="ident">it</span><span class="op">|</span> <span class="ident">it</span>.<span class="ident">as_str</span>())
-                        .<span class="ident">to_ascii_lowercase</span>()
+                    method
+                        .map_or(<span class="string">&quot;route&quot;</span>, |it| it.as_str())
+                        .to_ascii_lowercase()
                 ),
             ));
         }
 
-        <span class="kw">let</span> <span class="ident">is_route_macro</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">is_none</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">method</span>) <span class="op">=</span> <span class="ident">method</span> {
-            <span class="ident">methods</span>.<span class="ident">insert</span>(<span class="ident">method</span>);
+        <span class="kw">let </span>is_route_macro = method.is_none();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(method) = method {
+            methods.insert(method);
         }
 
-        <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">args</span> {
-            <span class="kw">match</span> <span class="ident">arg</span> {
-                <span class="ident">NestedMeta::Lit</span>(<span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>)) =&gt; <span class="kw">match</span> <span class="ident">path</span> {
-                    <span class="prelude-val">None</span> =&gt; {
-                        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ResourceDef::new</span>(<span class="ident">lit</span>.<span class="ident">value</span>());
-                        <span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lit</span>);
+        <span class="kw">for </span>arg <span class="kw">in </span>args {
+            <span class="kw">match </span>arg {
+                NestedMeta::Lit(syn::Lit::Str(lit)) =&gt; <span class="kw">match </span>path {
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="kw">let _ </span>= ResourceDef::new(lit.value());
+                        path = <span class="prelude-val">Some</span>(lit);
                     }
-                    <span class="kw">_</span> =&gt; {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                            <span class="ident">lit</span>,
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                            lit,
                             <span class="string">&quot;Multiple paths specified! Should be only one!&quot;</span>,
                         ));
                     }
                 },
-                <span class="ident">NestedMeta::Meta</span>(<span class="ident">syn::Meta::NameValue</span>(<span class="ident">nv</span>)) =&gt; {
-                    <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;name&quot;</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
-                            <span class="ident">resource_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lit</span>);
-                        } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                                <span class="ident">nv</span>.<span class="ident">lit</span>,
+                NestedMeta::Meta(syn::Meta::NameValue(nv)) =&gt; {
+                    <span class="kw">if </span>nv.path.is_ident(<span class="string">&quot;name&quot;</span>) {
+                        <span class="kw">if let </span>syn::Lit::Str(lit) = nv.lit {
+                            resource_name = <span class="prelude-val">Some</span>(lit);
+                        } <span class="kw">else </span>{
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                                nv.lit,
                                 <span class="string">&quot;Attribute name expects literal string!&quot;</span>,
                             ));
                         }
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;guard&quot;</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
-                            <span class="ident">guards</span>.<span class="ident">push</span>(<span class="ident">lit</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>()<span class="question-mark">?</span>);
-                        } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                                <span class="ident">nv</span>.<span class="ident">lit</span>,
+                    } <span class="kw">else if </span>nv.path.is_ident(<span class="string">&quot;guard&quot;</span>) {
+                        <span class="kw">if let </span>syn::Lit::Str(lit) = nv.lit {
+                            guards.push(lit.parse::&lt;Path&gt;()<span class="question-mark">?</span>);
+                        } <span class="kw">else </span>{
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                                nv.lit,
                                 <span class="string">&quot;Attribute guard expects literal string!&quot;</span>,
                             ));
                         }
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;wrap&quot;</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
-                            <span class="ident">wrappers</span>.<span class="ident">push</span>(<span class="ident">lit</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>);
-                        } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                                <span class="ident">nv</span>.<span class="ident">lit</span>,
+                    } <span class="kw">else if </span>nv.path.is_ident(<span class="string">&quot;wrap&quot;</span>) {
+                        <span class="kw">if let </span>syn::Lit::Str(lit) = nv.lit {
+                            wrappers.push(lit.parse()<span class="question-mark">?</span>);
+                        } <span class="kw">else </span>{
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                                nv.lit,
                                 <span class="string">&quot;Attribute wrap expects type&quot;</span>,
                             ));
                         }
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;method&quot;</span>) {
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">is_route_macro</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                                <span class="kw-2">&amp;</span><span class="ident">nv</span>,
+                    } <span class="kw">else if </span>nv.path.is_ident(<span class="string">&quot;method&quot;</span>) {
+                        <span class="kw">if </span>!is_route_macro {
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                                <span class="kw-2">&amp;</span>nv,
                                 <span class="string">&quot;HTTP method forbidden here. To handle multiple methods, use `route` instead&quot;</span>,
                             ));
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
-                            <span class="kw">let</span> <span class="ident">method</span> <span class="op">=</span> <span class="ident">MethodType::try_from</span>(<span class="ident">lit</span>)<span class="question-mark">?</span>;
-                            <span class="kw">if</span> <span class="op">!</span><span class="ident">methods</span>.<span class="ident">insert</span>(<span class="ident">method</span>) {
-                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                                    <span class="kw-2">&amp;</span><span class="ident">nv</span>.<span class="ident">lit</span>,
+                        } <span class="kw">else if let </span>syn::Lit::Str(<span class="kw-2">ref </span>lit) = nv.lit {
+                            <span class="kw">let </span>method = MethodType::try_from(lit)<span class="question-mark">?</span>;
+                            <span class="kw">if </span>!methods.insert(method) {
+                                <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                                    <span class="kw-2">&amp;</span>nv.lit,
                                     <span class="kw-2">&amp;</span><span class="macro">format!</span>(
                                         <span class="string">&quot;HTTP method defined more than once: `{}`&quot;</span>,
-                                        <span class="ident">lit</span>.<span class="ident">value</span>()
+                                        lit.value()
                                     ),
                                 ));
                             }
-                        } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                                <span class="ident">nv</span>.<span class="ident">lit</span>,
+                        } <span class="kw">else </span>{
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                                nv.lit,
                                 <span class="string">&quot;Attribute method expects literal string!&quot;</span>,
                             ));
                         }
-                    } <span class="kw">else</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                            <span class="ident">nv</span>.<span class="ident">path</span>,
+                    } <span class="kw">else </span>{
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                            nv.path,
                             <span class="string">&quot;Unknown attribute key is specified. Allowed: guard, method and wrap&quot;</span>,
                         ));
                     }
                 }
-                <span class="ident">arg</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(<span class="ident">arg</span>, <span class="string">&quot;Unknown attribute.&quot;</span>));
+                arg =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(arg, <span class="string">&quot;Unknown attribute.&quot;</span>));
                 }
             }
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">Args</span> {
-            <span class="ident">path</span>: <span class="ident">path</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">resource_name</span>,
-            <span class="ident">guards</span>,
-            <span class="ident">wrappers</span>,
-            <span class="ident">methods</span>,
+        <span class="prelude-val">Ok</span>(Args {
+            path: path.unwrap(),
+            resource_name,
+            guards,
+            wrappers,
+            methods,
         })
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Route</span> {
-    <span class="doccomment">/// Name of the handler function being annotated.</span>
-    <span class="ident">name</span>: <span class="ident">syn::Ident</span>,
+<span class="kw">pub struct </span>Route {
+    <span class="doccomment">/// Name of the handler function being annotated.
+    </span>name: syn::Ident,
 
-    <span class="doccomment">/// Args passed to routing macro.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When using `#[routes]`, this will contain args for each specific routing macro.</span>
-    <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Args passed to routing macro.
+    ///
+    /// When using `#[routes]`, this will contain args for each specific routing macro.
+    </span>args: Vec&lt;Args&gt;,
 
-    <span class="doccomment">/// AST of the handler function being annotated.</span>
-    <span class="ident">ast</span>: <span class="ident">syn::ItemFn</span>,
+    <span class="doccomment">/// AST of the handler function being annotated.
+    </span>ast: syn::ItemFn,
 
-    <span class="doccomment">/// The doc comment attributes to copy to generated struct, if any.</span>
-    <span class="ident">doc_attributes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The doc comment attributes to copy to generated struct, if any.
+    </span>doc_attributes: Vec&lt;syn::Attribute&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Route</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">args</span>: <span class="ident">AttributeArgs</span>,
-        <span class="ident">ast</span>: <span class="ident">syn::ItemFn</span>,
-        <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">ast</span>.<span class="ident">sig</span>.<span class="ident">ident</span>.<span class="ident">clone</span>();
+<span class="kw">impl </span>Route {
+    <span class="kw">pub fn </span>new(
+        args: AttributeArgs,
+        ast: syn::ItemFn,
+        method: <span class="prelude-ty">Option</span>&lt;MethodType&gt;,
+    ) -&gt; syn::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>name = ast.sig.ident.clone();
 
-        <span class="comment">// Try and pull out the doc comments so that we can reapply them to the generated struct.</span>
-        <span class="comment">// Note that multi line doc comments are converted to multiple doc attributes.</span>
-        <span class="kw">let</span> <span class="ident">doc_attributes</span> <span class="op">=</span> <span class="ident">ast</span>
-            .<span class="ident">attrs</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;doc&quot;</span>))
-            .<span class="ident">cloned</span>()
-            .<span class="ident">collect</span>();
+        <span class="comment">// Try and pull out the doc comments so that we can reapply them to the generated struct.
+        // Note that multi line doc comments are converted to multiple doc attributes.
+        </span><span class="kw">let </span>doc_attributes = ast
+            .attrs
+            .iter()
+            .filter(|attr| attr.path.is_ident(<span class="string">&quot;doc&quot;</span>))
+            .cloned()
+            .collect();
 
-        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::new</span>(<span class="ident">args</span>, <span class="ident">method</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>args = Args::new(args, method)<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">methods</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new</span>(
-                <span class="ident">Span::call_site</span>(),
+        <span class="kw">if </span>args.methods.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new(
+                Span::call_site(),
                 <span class="string">&quot;The #[route(..)] macro requires at least one `method` attribute&quot;</span>,
             ));
         }
 
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">ast</span>.<span class="ident">sig</span>.<span class="ident">output</span>, <span class="ident">syn::ReturnType::Default</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                <span class="ident">ast</span>,
+        <span class="kw">if </span><span class="macro">matches!</span>(ast.sig.output, syn::ReturnType::Default) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                ast,
                 <span class="string">&quot;Function has no return type. Cannot be used as handler&quot;</span>,
             ));
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">name</span>,
-            <span class="ident">args</span>: <span class="macro">vec!</span>[<span class="ident">args</span>],
-            <span class="ident">ast</span>,
-            <span class="ident">doc_attributes</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            name,
+            args: <span class="macro">vec!</span>[args],
+            ast,
+            doc_attributes,
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">multiple</span>(<span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>, <span class="ident">ast</span>: <span class="ident">syn::ItemFn</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">ast</span>.<span class="ident">sig</span>.<span class="ident">ident</span>.<span class="ident">clone</span>();
+    <span class="kw">fn </span>multiple(args: Vec&lt;Args&gt;, ast: syn::ItemFn) -&gt; syn::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>name = ast.sig.ident.clone();
 
-        <span class="comment">// Try and pull out the doc comments so that we can reapply them to the generated struct.</span>
-        <span class="comment">// Note that multi line doc comments are converted to multiple doc attributes.</span>
-        <span class="kw">let</span> <span class="ident">doc_attributes</span> <span class="op">=</span> <span class="ident">ast</span>
-            .<span class="ident">attrs</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;doc&quot;</span>))
-            .<span class="ident">cloned</span>()
-            .<span class="ident">collect</span>();
+        <span class="comment">// Try and pull out the doc comments so that we can reapply them to the generated struct.
+        // Note that multi line doc comments are converted to multiple doc attributes.
+        </span><span class="kw">let </span>doc_attributes = ast
+            .attrs
+            .iter()
+            .filter(|attr| attr.path.is_ident(<span class="string">&quot;doc&quot;</span>))
+            .cloned()
+            .collect();
 
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">ast</span>.<span class="ident">sig</span>.<span class="ident">output</span>, <span class="ident">syn::ReturnType::Default</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
-                <span class="ident">ast</span>,
+        <span class="kw">if </span><span class="macro">matches!</span>(ast.sig.output, syn::ReturnType::Default) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(
+                ast,
                 <span class="string">&quot;Function has no return type. Cannot be used as handler&quot;</span>,
             ));
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">name</span>,
-            <span class="ident">args</span>,
-            <span class="ident">ast</span>,
-            <span class="ident">doc_attributes</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            name,
+            args,
+            ast,
+            doc_attributes,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">Route</span> {
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream2</span>) {
-        <span class="kw">let</span> <span class="self">Self</span> {
-            <span class="ident">name</span>,
-            <span class="ident">ast</span>,
-            <span class="ident">args</span>,
-            <span class="ident">doc_attributes</span>,
-        } <span class="op">=</span> <span class="self">self</span>;
+<span class="kw">impl </span>ToTokens <span class="kw">for </span>Route {
+    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw-2">&amp;mut </span>TokenStream2) {
+        <span class="kw">let </span><span class="self">Self </span>{
+            name,
+            ast,
+            args,
+            doc_attributes,
+        } = <span class="self">self</span>;
 
-        <span class="kw">let</span> <span class="ident">registrations</span>: <span class="ident">TokenStream2</span> <span class="op">=</span> <span class="ident">args</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">args</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">Args</span> {
-                    <span class="ident">path</span>,
-                    <span class="ident">resource_name</span>,
-                    <span class="ident">guards</span>,
-                    <span class="ident">wrappers</span>,
-                    <span class="ident">methods</span>,
-                } <span class="op">=</span> <span class="ident">args</span>;
+        <span class="kw">let </span>registrations: TokenStream2 = args
+            .iter()
+            .map(|args| {
+                <span class="kw">let </span>Args {
+                    path,
+                    resource_name,
+                    guards,
+                    wrappers,
+                    methods,
+                } = args;
 
-                <span class="kw">let</span> <span class="ident">resource_name</span> <span class="op">=</span> <span class="ident">resource_name</span>
-                    .<span class="ident">as_ref</span>()
-                    .<span class="ident">map_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">LitStr::value</span>);
+                <span class="kw">let </span>resource_name = resource_name
+                    .as_ref()
+                    .map_or_else(|| name.to_string(), LitStr::value);
 
-                <span class="kw">let</span> <span class="ident">method_guards</span> <span class="op">=</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">others</span> <span class="op">=</span> <span class="ident">methods</span>.<span class="ident">iter</span>();
+                <span class="kw">let </span>method_guards = {
+                    <span class="kw">let </span><span class="kw-2">mut </span>others = methods.iter();
 
-                    <span class="comment">// unwrapping since length is checked to be at least one</span>
-                    <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="ident">others</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
+                    <span class="comment">// unwrapping since length is checked to be at least one
+                    </span><span class="kw">let </span>first = others.next().unwrap();
 
-                    <span class="kw">if</span> <span class="ident">methods</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-                        <span class="macro">quote!</span> {
-                            .<span class="ident">guard</span>(
-                                <span class="ident">::actix_web::guard::Any</span>(<span class="ident">::actix_web::guard</span>::#<span class="ident">first</span>())
-                                    #(.<span class="ident">or</span>(<span class="ident">::actix_web::guard</span>::#<span class="ident">others</span>()))<span class="op">*</span>
+                    <span class="kw">if </span>methods.len() &gt; <span class="number">1 </span>{
+                        <span class="macro">quote! </span>{
+                            .guard(
+                                ::actix_web::guard::Any(::actix_web::guard::#first())
+                                    #(.or(::actix_web::guard::#others()))*
                             )
                         }
-                    } <span class="kw">else</span> {
-                        <span class="macro">quote!</span> {
-                            .<span class="ident">guard</span>(<span class="ident">::actix_web::guard</span>::#<span class="ident">first</span>())
+                    } <span class="kw">else </span>{
+                        <span class="macro">quote! </span>{
+                            .guard(::actix_web::guard::#first())
                         }
                     }
                 };
 
-                <span class="macro">quote!</span> {
-                    <span class="kw">let</span> <span class="ident">__resource</span> <span class="op">=</span> <span class="ident">::actix_web::Resource::new</span>(#<span class="ident">path</span>)
-                        .<span class="ident">name</span>(#<span class="ident">resource_name</span>)
-                        #<span class="ident">method_guards</span>
-                        #(.<span class="ident">guard</span>(<span class="ident">::actix_web::guard::fn_guard</span>(#<span class="ident">guards</span>)))<span class="op">*</span>
-                        #(.<span class="ident">wrap</span>(#<span class="ident">wrappers</span>))<span class="op">*</span>
-                        .<span class="ident">to</span>(#<span class="ident">name</span>);
+                <span class="macro">quote! </span>{
+                    <span class="kw">let </span>__resource = ::actix_web::Resource::new(#path)
+                        .name(#resource_name)
+                        #method_guards
+                        #(.guard(::actix_web::guard::fn_guard(#guards)))*
+                        #(.wrap(#wrappers))*
+                        .to(#name);
 
-                    <span class="ident">::actix_web::dev::HttpServiceFactory::register</span>(<span class="ident">__resource</span>, <span class="ident">__config</span>);
+                    ::actix_web::dev::HttpServiceFactory::register(__resource, __config);
                 }
             })
-            .<span class="ident">collect</span>();
+            .collect();
 
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="macro">quote!</span> {
-            #(#<span class="ident">doc_attributes</span>)<span class="op">*</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>, <span class="ident">missing_docs</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">name</span>;
+        <span class="kw">let </span>stream = <span class="macro">quote! </span>{
+            #(#doc_attributes)*
+            <span class="attribute">#[allow(non_camel_case_types, missing_docs)]
+            </span><span class="kw">pub struct </span>#name;
 
-            <span class="kw">impl</span> <span class="ident">::actix_web::dev::HttpServiceFactory</span> <span class="kw">for</span> #<span class="ident">name</span> {
-                <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">__config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">actix_web::dev::AppService</span>) {
-                    #<span class="ident">ast</span>
-                    #<span class="ident">registrations</span>
+            <span class="kw">impl </span>::actix_web::dev::HttpServiceFactory <span class="kw">for </span>#name {
+                <span class="kw">fn </span>register(<span class="self">self</span>, __config: <span class="kw-2">&amp;mut </span>actix_web::dev::AppService) {
+                    #ast
+                    #registrations
                 }
             }
         };
 
-        <span class="ident">output</span>.<span class="ident">extend</span>(<span class="ident">stream</span>);
+        output.extend(stream);
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">with_method</span>(
-    <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>,
-    <span class="ident">args</span>: <span class="ident">TokenStream</span>,
-    <span class="ident">input</span>: <span class="ident">TokenStream</span>,
-) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">args</span> <span class="kw">as</span> <span class="ident">syn::AttributeArgs</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_method(
+    method: <span class="prelude-ty">Option</span>&lt;MethodType&gt;,
+    args: TokenStream,
+    input: TokenStream,
+) -&gt; TokenStream {
+    <span class="kw">let </span>args = <span class="macro">parse_macro_input!</span>(args <span class="kw">as </span>syn::AttributeArgs);
 
-    <span class="kw">let</span> <span class="ident">ast</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">syn::parse</span>::<span class="op">&lt;</span><span class="ident">syn::ItemFn</span><span class="op">&gt;</span>(<span class="ident">input</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ast</span>) =&gt; <span class="ident">ast</span>,
-        <span class="comment">// on parse error, make IDEs happy; see fn docs</span>
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(<span class="ident">input</span>, <span class="ident">err</span>),
+    <span class="kw">let </span>ast = <span class="kw">match </span>syn::parse::&lt;syn::ItemFn&gt;(input.clone()) {
+        <span class="prelude-val">Ok</span>(ast) =&gt; ast,
+        <span class="comment">// on parse error, make IDEs happy; see fn docs
+        </span><span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span>input_and_compile_error(input, err),
     };
 
-    <span class="kw">match</span> <span class="ident">Route::new</span>(<span class="ident">args</span>, <span class="ident">ast</span>, <span class="ident">method</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">route</span>) =&gt; <span class="ident">route</span>.<span class="ident">into_token_stream</span>().<span class="ident">into</span>(),
-        <span class="comment">// on macro related error, make IDEs happy; see fn docs</span>
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">input_and_compile_error</span>(<span class="ident">input</span>, <span class="ident">err</span>),
+    <span class="kw">match </span>Route::new(args, ast, method) {
+        <span class="prelude-val">Ok</span>(route) =&gt; route.into_token_stream().into(),
+        <span class="comment">// on macro related error, make IDEs happy; see fn docs
+        </span><span class="prelude-val">Err</span>(err) =&gt; input_and_compile_error(input, err),
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">with_methods</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ast</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">syn::parse</span>::<span class="op">&lt;</span><span class="ident">syn::ItemFn</span><span class="op">&gt;</span>(<span class="ident">input</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ast</span>) =&gt; <span class="ident">ast</span>,
-        <span class="comment">// on parse error, make IDEs happy; see fn docs</span>
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(<span class="ident">input</span>, <span class="ident">err</span>),
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_methods(input: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span><span class="kw-2">mut </span>ast = <span class="kw">match </span>syn::parse::&lt;syn::ItemFn&gt;(input.clone()) {
+        <span class="prelude-val">Ok</span>(ast) =&gt; ast,
+        <span class="comment">// on parse error, make IDEs happy; see fn docs
+        </span><span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span>input_and_compile_error(input, err),
     };
 
-    <span class="kw">let</span> (<span class="ident">methods</span>, <span class="ident">others</span>) <span class="op">=</span> <span class="ident">ast</span>
-        .<span class="ident">attrs</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">MethodType::from_path</span>(<span class="kw-2">&amp;</span><span class="ident">attr</span>.<span class="ident">path</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">method</span>) =&gt; <span class="prelude-val">Ok</span>((<span class="ident">method</span>, <span class="ident">attr</span>)),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">attr</span>),
+    <span class="kw">let </span>(methods, others) = ast
+        .attrs
+        .into_iter()
+        .map(|attr| <span class="kw">match </span>MethodType::from_path(<span class="kw-2">&amp;</span>attr.path) {
+            <span class="prelude-val">Ok</span>(method) =&gt; <span class="prelude-val">Ok</span>((method, attr)),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(attr),
         })
-        .<span class="ident">partition</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">Result::is_ok</span>);
+        .partition::&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;(Result::is_ok);
 
-    <span class="ident">ast</span>.<span class="ident">attrs</span> <span class="op">=</span> <span class="ident">others</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Result::unwrap_err</span>).<span class="ident">collect</span>();
+    ast.attrs = others.into_iter().map(Result::unwrap_err).collect();
 
-    <span class="kw">let</span> <span class="ident">methods</span> <span class="op">=</span>
-        <span class="kw">match</span> <span class="ident">methods</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="ident">Result::unwrap</span>)
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">method</span>, <span class="ident">attr</span>)<span class="op">|</span> {
-                <span class="ident">attr</span>.<span class="ident">parse_meta</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">args</span><span class="op">|</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Meta::List</span>(<span class="ident">args</span>) <span class="op">=</span> <span class="ident">args</span> {
-                        <span class="ident">Args::new</span>(<span class="ident">args</span>.<span class="ident">nested</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(), <span class="prelude-val">Some</span>(<span class="ident">method</span>))
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(<span class="ident">attr</span>, <span class="string">&quot;Invalid input for macro&quot;</span>))
+    <span class="kw">let </span>methods =
+        <span class="kw">match </span>methods
+            .into_iter()
+            .map(Result::unwrap)
+            .map(|(method, attr)| {
+                attr.parse_meta().and_then(|args| {
+                    <span class="kw">if let </span>Meta::List(args) = args {
+                        Args::new(args.nested.into_iter().collect(), <span class="prelude-val">Some</span>(method))
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">Err</span>(syn::Error::new_spanned(attr, <span class="string">&quot;Invalid input for macro&quot;</span>))
                     }
                 })
             })
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+            .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()
         {
-            <span class="prelude-val">Ok</span>(<span class="ident">methods</span>) <span class="kw">if</span> <span class="ident">methods</span>.<span class="ident">is_empty</span>() =&gt; <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(
-                <span class="ident">input</span>,
-                <span class="ident">syn::Error::new</span>(
-                    <span class="ident">Span::call_site</span>(),
+            <span class="prelude-val">Ok</span>(methods) <span class="kw">if </span>methods.is_empty() =&gt; <span class="kw">return </span>input_and_compile_error(
+                input,
+                syn::Error::new(
+                    Span::call_site(),
                     <span class="string">&quot;The #[routes] macro requires at least one `#[&lt;method&gt;(..)]` attribute.&quot;</span>,
                 ),
             ),
-            <span class="prelude-val">Ok</span>(<span class="ident">methods</span>) =&gt; <span class="ident">methods</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="ident">input_and_compile_error</span>(<span class="ident">input</span>, <span class="ident">err</span>),
+            <span class="prelude-val">Ok</span>(methods) =&gt; methods,
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span>input_and_compile_error(input, err),
         };
 
-    <span class="kw">match</span> <span class="ident">Route::multiple</span>(<span class="ident">methods</span>, <span class="ident">ast</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">route</span>) =&gt; <span class="ident">route</span>.<span class="ident">into_token_stream</span>().<span class="ident">into</span>(),
-        <span class="comment">// on macro related error, make IDEs happy; see fn docs</span>
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">input_and_compile_error</span>(<span class="ident">input</span>, <span class="ident">err</span>),
+    <span class="kw">match </span>Route::multiple(methods, ast) {
+        <span class="prelude-val">Ok</span>(route) =&gt; route.into_token_stream().into(),
+        <span class="comment">// on macro related error, make IDEs happy; see fn docs
+        </span><span class="prelude-val">Err</span>(err) =&gt; input_and_compile_error(input, err),
     }
 }
 
-<span class="doccomment">/// Converts the error to a token stream and appends it to the original input.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returning the original input in addition to the error is good for IDEs which can gracefully</span>
-<span class="doccomment">/// recover and show more precise errors within the macro body.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See &lt;https://github.com/rust-analyzer/rust-analyzer/issues/10468&gt; for more info.</span>
-<span class="kw">fn</span> <span class="ident">input_and_compile_error</span>(<span class="kw-2">mut</span> <span class="ident">item</span>: <span class="ident">TokenStream</span>, <span class="ident">err</span>: <span class="ident">syn::Error</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">compile_err</span> <span class="op">=</span> <span class="ident">TokenStream::from</span>(<span class="ident">err</span>.<span class="ident">to_compile_error</span>());
-    <span class="ident">item</span>.<span class="ident">extend</span>(<span class="ident">compile_err</span>);
-    <span class="ident">item</span>
+<span class="doccomment">/// Converts the error to a token stream and appends it to the original input.
+///
+/// Returning the original input in addition to the error is good for IDEs which can gracefully
+/// recover and show more precise errors within the macro body.
+///
+/// See &lt;https://github.com/rust-analyzer/rust-analyzer/issues/10468&gt; for more info.
+</span><span class="kw">fn </span>input_and_compile_error(<span class="kw-2">mut </span>item: TokenStream, err: syn::Error) -&gt; TokenStream {
+    <span class="kw">let </span>compile_err = TokenStream::from(err.to_compile_error());
+    item.extend(compile_err);
+    item
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

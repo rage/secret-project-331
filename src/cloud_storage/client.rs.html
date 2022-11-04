@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cloud_storage/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cloud-storage-0.11.1/src/client.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cloud_storage/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cloud_storage/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -104,111 +104,111 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Clients for Google Cloud Storage endpoints.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Clients for Google Cloud Storage endpoints.
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">sync</span>};
+</span><span class="kw">use </span>std::{fmt, sync};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::token::TokenCache</span>;
+<span class="kw">use </span><span class="kw">crate</span>::token::TokenCache;
 
-<span class="kw">mod</span> <span class="ident">bucket</span>;
-<span class="kw">mod</span> <span class="ident">bucket_access_control</span>;
-<span class="kw">mod</span> <span class="ident">default_object_access_control</span>;
-<span class="kw">mod</span> <span class="ident">hmac_key</span>;
-<span class="kw">mod</span> <span class="ident">object</span>;
-<span class="kw">mod</span> <span class="ident">object_access_control</span>;
+<span class="kw">mod </span>bucket;
+<span class="kw">mod </span>bucket_access_control;
+<span class="kw">mod </span>default_object_access_control;
+<span class="kw">mod </span>hmac_key;
+<span class="kw">mod </span>object;
+<span class="kw">mod </span>object_access_control;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bucket::BucketClient</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bucket_access_control::BucketAccessControlClient</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">default_object_access_control::DefaultObjectAccessControlClient</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">hmac_key::HmacKeyClient</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">object::ObjectClient</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">object_access_control::ObjectAccessControlClient</span>;
+<span class="kw">pub use </span>bucket::BucketClient;
+<span class="kw">pub use </span>bucket_access_control::BucketAccessControlClient;
+<span class="kw">pub use </span>default_object_access_control::DefaultObjectAccessControlClient;
+<span class="kw">pub use </span>hmac_key::HmacKeyClient;
+<span class="kw">pub use </span>object::ObjectClient;
+<span class="kw">pub use </span>object_access_control::ObjectAccessControlClient;
 
-<span class="doccomment">/// The primary entrypoint to perform operations with Google Cloud Storage.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Client</span> {
-    <span class="ident">client</span>: <span class="ident">reqwest::Client</span>,
-    <span class="doccomment">/// Static `Token` struct that caches</span>
-    <span class="ident">token_cache</span>: <span class="ident">sync::Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident"><span class="kw">crate</span>::TokenCache</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>,
+<span class="doccomment">/// The primary entrypoint to perform operations with Google Cloud Storage.
+</span><span class="kw">pub struct </span>Client {
+    client: reqwest::Client,
+    <span class="doccomment">/// Static `Token` struct that caches
+    </span>token_cache: sync::Arc&lt;<span class="kw">dyn </span><span class="kw">crate</span>::TokenCache + Send&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Client</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Client&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;client&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;token_cache&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;&lt;opaque&gt;&quot;</span>)
-            .<span class="ident">finish</span>()
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Client {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        f.debug_struct(<span class="string">&quot;Client&quot;</span>)
+            .field(<span class="string">&quot;client&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.client)
+            .field(<span class="string">&quot;token_cache&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;&lt;opaque&gt;&quot;</span>)
+            .finish()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Client</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">client</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">token_cache</span>: <span class="ident">sync::Arc::new</span>(<span class="ident"><span class="kw">crate</span>::Token::default</span>()),
+<span class="kw">impl </span>Default <span class="kw">for </span>Client {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            client: Default::default(),
+            token_cache: sync::Arc::new(<span class="kw">crate</span>::Token::default()),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Client</span> {
-    <span class="doccomment">/// Constructs a client with the default token provider, where it attemps to obtain the</span>
-    <span class="doccomment">/// credentials from the following locations:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// 1. Checks for the environment variable `SERVICE_ACCOUNT`, and if it exists, reads the file</span>
-    <span class="doccomment">/// at the path specified there as a credentials json file.</span>
-    <span class="doccomment">/// 2. It attemps to do the same with the `GOOGLE_APPLICATION_CREDENTIALS` var.</span>
-    <span class="doccomment">/// 3. It reads the `SERVICE_ACCOUNT_JSON` environment variable directly as json and uses that</span>
-    <span class="doccomment">/// 4. It attemps to do the same with the `GOOGLE_APPLICATION_CREDENTIALS_JSON` var.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Default::default</span>()
+<span class="kw">impl </span>Client {
+    <span class="doccomment">/// Constructs a client with the default token provider, where it attemps to obtain the
+    /// credentials from the following locations:
+    ///
+    /// 1. Checks for the environment variable `SERVICE_ACCOUNT`, and if it exists, reads the file
+    /// at the path specified there as a credentials json file.
+    /// 2. It attemps to do the same with the `GOOGLE_APPLICATION_CREDENTIALS` var.
+    /// 3. It reads the `SERVICE_ACCOUNT_JSON` environment variable directly as json and uses that
+    /// 4. It attemps to do the same with the `GOOGLE_APPLICATION_CREDENTIALS_JSON` var.
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        Default::default()
     }
 
-    <span class="doccomment">/// Initializer with a provided refreshable token</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_cache</span>(<span class="ident">token</span>: <span class="kw">impl</span> <span class="ident">TokenCache</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">client</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">token_cache</span>: <span class="ident">sync::Arc::new</span>(<span class="ident">token</span>),
+    <span class="doccomment">/// Initializer with a provided refreshable token
+    </span><span class="kw">pub fn </span>with_cache(token: <span class="kw">impl </span>TokenCache + Send + <span class="lifetime">&#39;static</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            client: Default::default(),
+            token_cache: sync::Arc::new(token),
         }
     }
 
-    <span class="doccomment">/// Operations on [`Bucket`](crate::bucket::Bucket)s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bucket</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BucketClient</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">BucketClient</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Operations on [`Bucket`](crate::bucket::Bucket)s.
+    </span><span class="kw">pub fn </span>bucket(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BucketClient&lt;<span class="lifetime">&#39;_</span>&gt; {
+        BucketClient(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Operations on [`BucketAccessControl`](crate::bucket_access_control::BucketAccessControl)s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bucket_access_control</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BucketAccessControlClient</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">BucketAccessControlClient</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Operations on [`BucketAccessControl`](crate::bucket_access_control::BucketAccessControl)s.
+    </span><span class="kw">pub fn </span>bucket_access_control(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BucketAccessControlClient&lt;<span class="lifetime">&#39;_</span>&gt; {
+        BucketAccessControlClient(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Operations on [`DefaultObjectAccessControl`](crate::default_object_access_control::DefaultObjectAccessControl)s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_object_access_control</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DefaultObjectAccessControlClient</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">DefaultObjectAccessControlClient</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Operations on [`DefaultObjectAccessControl`](crate::default_object_access_control::DefaultObjectAccessControl)s.
+    </span><span class="kw">pub fn </span>default_object_access_control(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DefaultObjectAccessControlClient&lt;<span class="lifetime">&#39;_</span>&gt; {
+        DefaultObjectAccessControlClient(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Operations on [`HmacKey`](crate::hmac_key::HmacKey)s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hmac_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HmacKeyClient</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">HmacKeyClient</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Operations on [`HmacKey`](crate::hmac_key::HmacKey)s.
+    </span><span class="kw">pub fn </span>hmac_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HmacKeyClient&lt;<span class="lifetime">&#39;_</span>&gt; {
+        HmacKeyClient(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Operations on [`Object`](crate::object::Object)s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ObjectClient</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">ObjectClient</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Operations on [`Object`](crate::object::Object)s.
+    </span><span class="kw">pub fn </span>object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ObjectClient&lt;<span class="lifetime">&#39;_</span>&gt; {
+        ObjectClient(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Operations on [`ObjectAccessControl`](crate::object_access_control::ObjectAccessControl)s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">object_access_control</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ObjectAccessControlClient</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">ObjectAccessControlClient</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Operations on [`ObjectAccessControl`](crate::object_access_control::ObjectAccessControl)s.
+    </span><span class="kw">pub fn </span>object_access_control(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ObjectAccessControlClient&lt;<span class="lifetime">&#39;_</span>&gt; {
+        ObjectAccessControlClient(<span class="self">self</span>)
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">reqwest::header::HeaderMap</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">reqwest::header::HeaderMap::new</span>();
-        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">token_cache</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">result</span>.<span class="ident">insert</span>(
-            <span class="ident">reqwest::header::AUTHORIZATION</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;Bearer {}&quot;</span>, <span class="ident">token</span>).<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+    <span class="kw">async fn </span>get_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;reqwest::header::HeaderMap&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>result = reqwest::header::HeaderMap::new();
+        <span class="kw">let </span>token = <span class="self">self</span>.token_cache.get(<span class="kw-2">&amp;</span><span class="self">self</span>.client).<span class="kw">await</span><span class="question-mark">?</span>;
+        result.insert(
+            reqwest::header::AUTHORIZATION,
+            <span class="macro">format!</span>(<span class="string">&quot;Bearer {}&quot;</span>, token).parse().unwrap(),
         );
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+        <span class="prelude-val">Ok</span>(result)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cloud_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

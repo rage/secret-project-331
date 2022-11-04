@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/weights.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>weights.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/weights.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>weights.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -134,141 +134,141 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">core</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Prob</span> <span class="op">=</span> <span class="ident">u16</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>core;
+<span class="kw">pub type </span>Prob = u16;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BLEND_FIXED_POINT_PRECISION</span> : <span class="ident">i8</span> <span class="op">=</span> <span class="number">15</span>;
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LOG2_SCALE</span> : <span class="ident">i32</span> <span class="op">=</span> <span class="number">15</span>;
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>,<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Weights</span> {
-    <span class="ident">model_weights</span>: [<span class="ident">i32</span>;<span class="number">2</span>],
-    <span class="ident">mixing_param</span>: <span class="ident">u8</span>,
-    <span class="ident">normalized_weight</span>: <span class="ident">Prob</span>,
+<span class="kw">pub const </span>BLEND_FIXED_POINT_PRECISION : i8 = <span class="number">15</span>;
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">pub const </span>LOG2_SCALE : i32 = <span class="number">15</span>;
+<span class="attribute">#[derive(Debug,Copy, Clone)]
+</span><span class="kw">pub struct </span>Weights {
+    model_weights: [i32;<span class="number">2</span>],
+    mixing_param: u8,
+    normalized_weight: Prob,
 }
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Weights</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>Weights {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
     }
 }
-<span class="kw">impl</span> <span class="ident">Weights</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Weights</span> {
-            <span class="ident">model_weights</span>:[<span class="number">1</span>;<span class="number">2</span>],
-            <span class="ident">mixing_param</span>: <span class="number">1</span>,
-            <span class="ident">normalized_weight</span>: <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">BLEND_FIXED_POINT_PRECISION</span> <span class="op">-</span> <span class="number">1</span>),
+<span class="kw">impl </span>Weights {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        Weights {
+            model_weights:[<span class="number">1</span>;<span class="number">2</span>],
+            mixing_param: <span class="number">1</span>,
+            normalized_weight: <span class="number">1 </span>&lt;&lt; (BLEND_FIXED_POINT_PRECISION - <span class="number">1</span>),
         }
     }
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">model_probs</span>: [<span class="ident">Prob</span>; <span class="number">2</span>], <span class="ident">weighted_prob</span>: <span class="ident">Prob</span>) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">mixing_param</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
-        <span class="ident">normalize_weights</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">model_weights</span>);
-        <span class="kw">let</span> <span class="ident">w0new</span> <span class="op">=</span> <span class="ident">compute_new_weight</span>(<span class="ident">model_probs</span>,
-                                       <span class="ident">weighted_prob</span>,
-                                       <span class="self">self</span>.<span class="ident">model_weights</span>,
+    <span class="attribute">#[allow(unused)]
+    #[inline(always)]
+    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, model_probs: [Prob; <span class="number">2</span>], weighted_prob: Prob) {
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.mixing_param != <span class="number">0</span>);
+        normalize_weights(<span class="kw-2">&amp;mut </span><span class="self">self</span>.model_weights);
+        <span class="kw">let </span>w0new = compute_new_weight(model_probs,
+                                       weighted_prob,
+                                       <span class="self">self</span>.model_weights,
                                        <span class="bool-val">false</span>,
-                                       <span class="self">self</span>.<span class="ident">mixing_param</span> <span class="op">-</span> <span class="number">1</span>);
-        <span class="kw">let</span> <span class="ident">w1new</span> <span class="op">=</span> <span class="ident">compute_new_weight</span>(<span class="ident">model_probs</span>,
-                                       <span class="ident">weighted_prob</span>,
-                                       <span class="self">self</span>.<span class="ident">model_weights</span>,
+                                       <span class="self">self</span>.mixing_param - <span class="number">1</span>);
+        <span class="kw">let </span>w1new = compute_new_weight(model_probs,
+                                       weighted_prob,
+                                       <span class="self">self</span>.model_weights,
                                        <span class="bool-val">true</span>,
-                                       <span class="self">self</span>.<span class="ident">mixing_param</span> <span class="op">-</span> <span class="number">1</span>);
-        <span class="self">self</span>.<span class="ident">model_weights</span> <span class="op">=</span> [<span class="ident">w0new</span>, <span class="ident">w1new</span>];
-        <span class="self">self</span>.<span class="ident">normalized_weight</span> <span class="op">=</span> <span class="ident">compute_normalized_weight</span>(<span class="self">self</span>.<span class="ident">model_weights</span>);
+                                       <span class="self">self</span>.mixing_param - <span class="number">1</span>);
+        <span class="self">self</span>.model_weights = [w0new, w1new];
+        <span class="self">self</span>.normalized_weight = compute_normalized_weight(<span class="self">self</span>.model_weights);
     }
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">norm_weight</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Prob</span> {
-        <span class="self">self</span>.<span class="ident">normalized_weight</span>
+    <span class="attribute">#[allow(dead_code)]
+    #[inline(always)]
+    </span><span class="kw">pub fn </span>norm_weight(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Prob {
+        <span class="self">self</span>.normalized_weight
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">compute_normalized_weight</span>(<span class="ident">model_weights</span>: [<span class="ident">i32</span>;<span class="number">2</span>]) -&gt; <span class="ident">Prob</span> {
-    <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">i64::from</span>(<span class="ident">model_weights</span>[<span class="number">0</span>]) <span class="op">+</span> <span class="ident">i64::from</span>(<span class="ident">model_weights</span>[<span class="number">1</span>]);
-    <span class="kw">let</span> <span class="ident">leading_zeros</span> <span class="op">=</span> <span class="ident">total</span>.<span class="ident">leading_zeros</span>();
-    <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="ident">core::cmp::max</span>(<span class="number">56</span> <span class="op">-</span> (<span class="ident">leading_zeros</span> <span class="kw">as</span> <span class="ident">i8</span>), <span class="number">0</span>);
-    <span class="kw">let</span> <span class="ident">total_8bit</span> <span class="op">=</span> <span class="ident">total</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">shift</span>;
+<span class="attribute">#[allow(dead_code)]
+#[inline(always)]
+</span><span class="kw">fn </span>compute_normalized_weight(model_weights: [i32;<span class="number">2</span>]) -&gt; Prob {
+    <span class="kw">let </span>total = i64::from(model_weights[<span class="number">0</span>]) + i64::from(model_weights[<span class="number">1</span>]);
+    <span class="kw">let </span>leading_zeros = total.leading_zeros();
+    <span class="kw">let </span>shift = core::cmp::max(<span class="number">56 </span>- (leading_zeros <span class="kw">as </span>i8), <span class="number">0</span>);
+    <span class="kw">let </span>total_8bit = total &gt;&gt; shift;
     <span class="comment">/*::probability::numeric::fast_divide_16bit_by_8bit(
         ((model_weights[0] &gt;&gt; shift) as u16)&lt;&lt; 8,
         ::probability::numeric::lookup_divisor8(total_8bit as u8)) &lt;&lt; (BLEND_FIXED_POINT_PRECISION - 8)
-        */</span>
-    ((((<span class="ident">model_weights</span>[<span class="number">0</span>] <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">shift</span>) <span class="kw">as</span> <span class="ident">u16</span>)<span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>) <span class="op">/</span> <span class="ident">total_8bit</span> <span class="kw">as</span> <span class="ident">u16</span><span class="comment">/*fixme??*/</span>) <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">BLEND_FIXED_POINT_PRECISION</span> <span class="op">-</span> <span class="number">8</span>)
+        */
+    </span>((((model_weights[<span class="number">0</span>] &gt;&gt; shift) <span class="kw">as </span>u16)&lt;&lt; <span class="number">8</span>) / total_8bit <span class="kw">as </span>u16<span class="comment">/*fixme??*/</span>) &lt;&lt; (BLEND_FIXED_POINT_PRECISION - <span class="number">8</span>)
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="attribute">#[<span class="ident">cold</span>]</span>
-<span class="kw">fn</span> <span class="ident">fix_weights</span>(<span class="ident">weights</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>;<span class="number">2</span>]) {
-    <span class="kw">let</span> <span class="ident">ilog</span> <span class="op">=</span> <span class="number">32</span>  <span class="op">-</span> <span class="ident">core::cmp::min</span>(<span class="ident">weights</span>[<span class="number">0</span>].<span class="ident">leading_zeros</span>(),
-                                    <span class="ident">weights</span>[<span class="number">1</span>].<span class="ident">leading_zeros</span>());
-    <span class="kw">let</span> <span class="ident">max_log</span> <span class="op">=</span> <span class="number">24</span>;
-    <span class="kw">if</span> <span class="ident">ilog</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">max_log</span> {
-        <span class="ident">weights</span>[<span class="number">0</span>] <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="ident">ilog</span> <span class="op">-</span> <span class="ident">max_log</span>;
-        <span class="ident">weights</span>[<span class="number">1</span>] <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="ident">ilog</span> <span class="op">-</span> <span class="ident">max_log</span>;
+<span class="attribute">#[allow(dead_code)]
+#[cold]
+</span><span class="kw">fn </span>fix_weights(weights: <span class="kw-2">&amp;mut </span>[i32;<span class="number">2</span>]) {
+    <span class="kw">let </span>ilog = <span class="number">32  </span>- core::cmp::min(weights[<span class="number">0</span>].leading_zeros(),
+                                    weights[<span class="number">1</span>].leading_zeros());
+    <span class="kw">let </span>max_log = <span class="number">24</span>;
+    <span class="kw">if </span>ilog &gt;= max_log {
+        weights[<span class="number">0</span>] &gt;&gt;= ilog - max_log;
+        weights[<span class="number">1</span>] &gt;&gt;= ilog - max_log;
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">normalize_weights</span>(<span class="ident">weights</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">i32</span>;<span class="number">2</span>]) {
-    <span class="kw">if</span> ((<span class="ident">weights</span>[<span class="number">0</span>]<span class="op">|</span><span class="ident">weights</span>[<span class="number">1</span>])<span class="kw-2">&amp;</span><span class="number">0x7f000000</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">fix_weights</span>(<span class="ident">weights</span>);
+<span class="attribute">#[allow(dead_code)]
+#[inline(always)]
+</span><span class="kw">fn </span>normalize_weights(weights: <span class="kw-2">&amp;mut </span>[i32;<span class="number">2</span>]) {
+    <span class="kw">if </span>((weights[<span class="number">0</span>]|weights[<span class="number">1</span>])<span class="kw-2">&amp;</span><span class="number">0x7f000000</span>) != <span class="number">0 </span>{
+        fix_weights(weights);
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">features</span><span class="op">=</span><span class="string">&quot;floating_point_context_mixing&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">compute_new_weight</span>(<span class="ident">probs</span>: [<span class="ident">Prob</span>; <span class="number">2</span>],
-                      <span class="ident">weighted_prob</span>: <span class="ident">Prob</span>,
-                      <span class="ident">weights</span>: [<span class="ident">i32</span>;<span class="number">2</span>],
-                      <span class="ident">index_equal_1</span>: <span class="ident">bool</span>,
-                      <span class="ident">_speed</span>: <span class="ident">u8</span>) -&gt; <span class="ident">i32</span>{ <span class="comment">// speed ranges from 1 to 14 inclusive</span>
-    <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">index_equal_1</span> <span class="kw">as</span> <span class="ident">usize</span>;
-    <span class="kw">let</span> <span class="ident">n1i</span> <span class="op">=</span> <span class="ident">probs</span>[<span class="ident">index</span>] <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> ((<span class="number">1i64</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">LOG2_SCALE</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-    <span class="comment">//let n0i = 1.0f64 - n1i;</span>
-    <span class="kw">let</span> <span class="ident">ni</span> <span class="op">=</span> <span class="number">1.0f64</span>;
-    <span class="kw">let</span> <span class="ident">s1</span> <span class="op">=</span> <span class="ident">weighted_prob</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> ((<span class="number">1i64</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">LOG2_SCALE</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-    <span class="kw">let</span> <span class="ident">s0</span> <span class="op">=</span> <span class="number">1.0f64</span> <span class="op">-</span> <span class="ident">s1</span>;
-    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="number">1.0f64</span>;
-    <span class="comment">//let p0 = s0;</span>
-    <span class="kw">let</span> <span class="ident">p1</span> <span class="op">=</span> <span class="ident">s1</span>;
-    <span class="kw">let</span> <span class="ident">wi</span> <span class="op">=</span> <span class="ident">weights</span>[<span class="ident">index</span>] <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> ((<span class="number">1i64</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">LOG2_SCALE</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wi_new</span> <span class="op">=</span> <span class="ident">wi</span> <span class="op">+</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">p1</span>) <span class="op">*</span> (<span class="ident">s</span> <span class="op">*</span> <span class="ident">n1i</span> <span class="op">-</span> <span class="ident">s1</span> <span class="op">*</span> <span class="ident">ni</span>) <span class="op">/</span> (<span class="ident">s0</span> <span class="op">*</span> <span class="ident">s1</span>);
-    <span class="kw">let</span> <span class="ident">eps</span> <span class="op">=</span> <span class="number">0.00001f64</span>;
-    <span class="kw">if</span> <span class="op">!</span>(<span class="ident">wi_new</span> <span class="op">&gt;</span> <span class="ident">eps</span>) {
-        <span class="ident">wi_new</span> <span class="op">=</span> <span class="ident">eps</span>;
+<span class="attribute">#[allow(dead_code)]
+#[cfg(features=<span class="string">&quot;floating_point_context_mixing&quot;</span>)]
+</span><span class="kw">fn </span>compute_new_weight(probs: [Prob; <span class="number">2</span>],
+                      weighted_prob: Prob,
+                      weights: [i32;<span class="number">2</span>],
+                      index_equal_1: bool,
+                      _speed: u8) -&gt; i32{ <span class="comment">// speed ranges from 1 to 14 inclusive
+    </span><span class="kw">let </span>index = index_equal_1 <span class="kw">as </span>usize;
+    <span class="kw">let </span>n1i = probs[index] <span class="kw">as </span>f64 / ((<span class="number">1i64 </span>&lt;&lt; LOG2_SCALE) <span class="kw">as </span>f64);
+    <span class="comment">//let n0i = 1.0f64 - n1i;
+    </span><span class="kw">let </span>ni = <span class="number">1.0f64</span>;
+    <span class="kw">let </span>s1 = weighted_prob <span class="kw">as </span>f64 / ((<span class="number">1i64 </span>&lt;&lt; LOG2_SCALE) <span class="kw">as </span>f64);
+    <span class="kw">let </span>s0 = <span class="number">1.0f64 </span>- s1;
+    <span class="kw">let </span>s = <span class="number">1.0f64</span>;
+    <span class="comment">//let p0 = s0;
+    </span><span class="kw">let </span>p1 = s1;
+    <span class="kw">let </span>wi = weights[index] <span class="kw">as </span>f64 / ((<span class="number">1i64 </span>&lt;&lt; LOG2_SCALE) <span class="kw">as </span>f64);
+    <span class="kw">let </span><span class="kw-2">mut </span>wi_new = wi + (<span class="number">1.0 </span>- p1) * (s * n1i - s1 * ni) / (s0 * s1);
+    <span class="kw">let </span>eps = <span class="number">0.00001f64</span>;
+    <span class="kw">if </span>!(wi_new &gt; eps) {
+        wi_new = eps;
     }
-    (<span class="ident">wi_new</span> <span class="op">*</span> ((<span class="number">1i64</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">LOG2_SCALE</span>) <span class="kw">as</span> <span class="ident">f64</span>)) <span class="kw">as</span> <span class="ident">i32</span>
+    (wi_new * ((<span class="number">1i64 </span>&lt;&lt; LOG2_SCALE) <span class="kw">as </span>f64)) <span class="kw">as </span>i32
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">features</span><span class="op">=</span><span class="string">&quot;floating_point_context_mixing&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">compute_new_weight</span>(<span class="ident">probs</span>: [<span class="ident">Prob</span>; <span class="number">2</span>],
-                      <span class="ident">weighted_prob</span>: <span class="ident">Prob</span>,
-                      <span class="ident">weights</span>: [<span class="ident">i32</span>;<span class="number">2</span>],
-                      <span class="ident">index_equal_1</span>: <span class="ident">bool</span>,
-                      <span class="ident">_speed</span>: <span class="ident">u8</span>) -&gt; <span class="ident">i32</span>{ <span class="comment">// speed ranges from 1 to 14 inclusive</span>
-    <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">index_equal_1</span> <span class="kw">as</span> <span class="ident">usize</span>;
-    <span class="kw">let</span> <span class="ident">full_model_sum_p1</span> <span class="op">=</span> <span class="ident">i64::from</span>(<span class="ident">weighted_prob</span>);
-    <span class="kw">let</span> <span class="ident">full_model_total</span> <span class="op">=</span> <span class="number">1i64</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">LOG2_SCALE</span>;
-    <span class="kw">let</span> <span class="ident">full_model_sum_p0</span> <span class="op">=</span> <span class="ident">full_model_total</span>.<span class="ident">wrapping_sub</span>(<span class="ident">i64::from</span>(<span class="ident">weighted_prob</span>));
-    <span class="kw">let</span> <span class="ident">n1i</span> <span class="op">=</span> <span class="ident">i64::from</span>(<span class="ident">probs</span>[<span class="ident">index</span>]);
-    <span class="kw">let</span> <span class="ident">ni</span> <span class="op">=</span> <span class="number">1i64</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">LOG2_SCALE</span>;
-    <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">full_model_total</span>.<span class="ident">wrapping_sub</span>(<span class="ident">full_model_sum_p1</span>);
-    <span class="kw">let</span> <span class="ident">wi</span> <span class="op">=</span> <span class="ident">i64::from</span>(<span class="ident">weights</span>[<span class="ident">index</span>]);
-    <span class="kw">let</span> <span class="ident">efficacy</span> <span class="op">=</span> <span class="ident">full_model_total</span>.<span class="ident">wrapping_mul</span>(<span class="ident">n1i</span>) <span class="op">-</span> <span class="ident">full_model_sum_p1</span>.<span class="ident">wrapping_mul</span>(<span class="ident">ni</span>);
-    <span class="comment">//let geometric_probabilities = full_model_sum_p1 * full_model_sum_p0;</span>
-    <span class="kw">let</span> <span class="ident">log_geometric_probabilities</span> <span class="op">=</span> <span class="number">64</span> <span class="op">-</span> (<span class="ident">full_model_sum_p1</span>.<span class="ident">wrapping_mul</span>(<span class="ident">full_model_sum_p0</span>)).<span class="ident">leading_zeros</span>();
-    <span class="comment">//let scaled_geometric_probabilities = geometric_probabilities * S;</span>
-    <span class="comment">//let new_weight_adj = (error * efficacy) &gt;&gt; log_geometric_probabilities;// / geometric_probabilities;</span>
-    <span class="comment">//let new_weight_adj = (error * efficacy)/(full_model_sum_p1 * full_model_sum_p0);</span>
-    <span class="kw">let</span> <span class="ident">new_weight_adj</span> <span class="op">=</span> (<span class="ident">error</span>.<span class="ident">wrapping_mul</span>(<span class="ident">efficacy</span>)) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">log_geometric_probabilities</span>;
-<span class="comment">//    assert!(wi + new_weight_adj &lt; (1i64 &lt;&lt; 31));</span>
-    <span class="comment">//print!(&quot;{} -&gt; {} due to {:?} vs {}\n&quot;, wi as f64 / (weights[0] + weights[1]) as f64, (wi + new_weight_adj) as f64 /(weights[0] as i64 + new_weight_adj as i64 + weights[1] as i64) as f64, probs[index], weighted_prob);</span>
-    <span class="ident">core::cmp::max</span>(<span class="number">1</span>,<span class="ident">wi</span>.<span class="ident">wrapping_add</span>(<span class="ident">new_weight_adj</span>) <span class="kw">as</span> <span class="ident">i32</span>)
+<span class="attribute">#[allow(dead_code)]
+#[cfg(not(features=<span class="string">&quot;floating_point_context_mixing&quot;</span>))]
+#[inline(always)]
+</span><span class="kw">fn </span>compute_new_weight(probs: [Prob; <span class="number">2</span>],
+                      weighted_prob: Prob,
+                      weights: [i32;<span class="number">2</span>],
+                      index_equal_1: bool,
+                      _speed: u8) -&gt; i32{ <span class="comment">// speed ranges from 1 to 14 inclusive
+    </span><span class="kw">let </span>index = index_equal_1 <span class="kw">as </span>usize;
+    <span class="kw">let </span>full_model_sum_p1 = i64::from(weighted_prob);
+    <span class="kw">let </span>full_model_total = <span class="number">1i64 </span>&lt;&lt; LOG2_SCALE;
+    <span class="kw">let </span>full_model_sum_p0 = full_model_total.wrapping_sub(i64::from(weighted_prob));
+    <span class="kw">let </span>n1i = i64::from(probs[index]);
+    <span class="kw">let </span>ni = <span class="number">1i64 </span>&lt;&lt; LOG2_SCALE;
+    <span class="kw">let </span>error = full_model_total.wrapping_sub(full_model_sum_p1);
+    <span class="kw">let </span>wi = i64::from(weights[index]);
+    <span class="kw">let </span>efficacy = full_model_total.wrapping_mul(n1i) - full_model_sum_p1.wrapping_mul(ni);
+    <span class="comment">//let geometric_probabilities = full_model_sum_p1 * full_model_sum_p0;
+    </span><span class="kw">let </span>log_geometric_probabilities = <span class="number">64 </span>- (full_model_sum_p1.wrapping_mul(full_model_sum_p0)).leading_zeros();
+    <span class="comment">//let scaled_geometric_probabilities = geometric_probabilities * S;
+    //let new_weight_adj = (error * efficacy) &gt;&gt; log_geometric_probabilities;// / geometric_probabilities;
+    //let new_weight_adj = (error * efficacy)/(full_model_sum_p1 * full_model_sum_p0);
+    </span><span class="kw">let </span>new_weight_adj = (error.wrapping_mul(efficacy)) &gt;&gt; log_geometric_probabilities;
+<span class="comment">//    assert!(wi + new_weight_adj &lt; (1i64 &lt;&lt; 31));
+    //print!(&quot;{} -&gt; {} due to {:?} vs {}\n&quot;, wi as f64 / (weights[0] + weights[1]) as f64, (wi + new_weight_adj) as f64 /(weights[0] as i64 + new_weight_adj as i64 + weights[1] as i64) as f64, probs[index], weighted_prob);
+    </span>core::cmp::max(<span class="number">1</span>,wi.wrapping_add(new_weight_adj) <span class="kw">as </span>i32)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

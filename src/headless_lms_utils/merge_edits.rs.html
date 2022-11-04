@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/merge_edits.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>merge_edits.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_utils/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/merge_edits.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>merge_edits.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_utils/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -135,142 +135,142 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
-</pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge</span>(<span class="ident">ancestor</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">incoming_edit</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">ancestor</span> <span class="op">==</span> <span class="ident">current</span> {
-        <span class="comment">// if there have been no changes between the proposal and now, no need to merge</span>
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">incoming_edit</span>.<span class="ident">to_string</span>());
+</pre><pre class="rust"><code><span class="kw">pub fn </span>merge(ancestor: <span class="kw-2">&amp;</span>str, incoming_edit: <span class="kw-2">&amp;</span>str, current: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">if </span>ancestor == current {
+        <span class="comment">// if there have been no changes between the proposal and now, no need to merge
+        </span><span class="kw">return </span><span class="prelude-val">Some</span>(incoming_edit.to_string());
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">incoming</span> <span class="op">=</span> <span class="ident">diff::chars</span>(<span class="ident">ancestor</span>, <span class="ident">incoming_edit</span>).<span class="ident">into_iter</span>().<span class="ident">peekable</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">existing</span> <span class="op">=</span> <span class="ident">diff::chars</span>(<span class="ident">ancestor</span>, <span class="ident">current</span>).<span class="ident">into_iter</span>().<span class="ident">peekable</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>incoming = diff::chars(ancestor, incoming_edit).into_iter().peekable();
+    <span class="kw">let </span><span class="kw-2">mut </span>existing = diff::chars(ancestor, current).into_iter().peekable();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="lifetime">&#39;outer</span>: <span class="kw">loop</span> {
-        <span class="kw">match</span> <span class="ident">incoming</span>.<span class="ident">next</span>() {
-            <span class="comment">// char was unchanged in the incoming update, accept whatever changes exist in current</span>
-            <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Both</span>(<span class="ident">inc_left</span>, <span class="kw">_</span>)) =&gt; <span class="kw">loop</span> {
-                <span class="kw">match</span> <span class="ident">existing</span>.<span class="ident">next</span>() {
-                    <span class="comment">// char was also unchanged in the existing changes, push the char to result</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Both</span>(..)) =&gt; {
-                        <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">inc_left</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>result = String::new();
+    <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
+        <span class="kw">match </span>incoming.next() {
+            <span class="comment">// char was unchanged in the incoming update, accept whatever changes exist in current
+            </span><span class="prelude-val">Some</span>(diff::Result::Both(inc_left, <span class="kw">_</span>)) =&gt; <span class="kw">loop </span>{
+                <span class="kw">match </span>existing.next() {
+                    <span class="comment">// char was also unchanged in the existing changes, push the char to result
+                    </span><span class="prelude-val">Some</span>(diff::Result::Both(..)) =&gt; {
+                        result.push(inc_left);
                         <span class="kw">break</span>;
                     }
-                    <span class="comment">// char was removed in the existing update, skip over it in the result</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Left</span>(<span class="kw">_</span>)) =&gt; <span class="kw">break</span>,
-                    <span class="comment">// a char was added in the existing update, add it to the result and keep reading the existing changes</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Right</span>(<span class="ident">right</span>)) =&gt; <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">right</span>),
-                    <span class="comment">// unexpectedly ran out of existing changes, fail merge</span>
-                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+                    <span class="comment">// char was removed in the existing update, skip over it in the result
+                    </span><span class="prelude-val">Some</span>(diff::Result::Left(<span class="kw">_</span>)) =&gt; <span class="kw">break</span>,
+                    <span class="comment">// a char was added in the existing update, add it to the result and keep reading the existing changes
+                    </span><span class="prelude-val">Some</span>(diff::Result::Right(right)) =&gt; result.push(right),
+                    <span class="comment">// unexpectedly ran out of existing changes, fail merge
+                    </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
                 }
             },
-            <span class="comment">// char was removed in the incoming update</span>
-            <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Left</span>(<span class="kw">_</span>)) =&gt; <span class="kw">match</span> <span class="ident">existing</span>.<span class="ident">next</span>() {
-                <span class="comment">// char was unchanged in the existing changes, skip over it in the result</span>
-                <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Both</span>(..)) =&gt; <span class="kw">continue</span>,
-                <span class="comment">// char was also removed in the existing changes, skip over it in the result</span>
-                <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Left</span>(<span class="kw">_</span>)) =&gt; <span class="kw">continue</span>,
-                <span class="comment">// a char was added in existing changes, hard to say what should be done here</span>
-                <span class="comment">// ignoring the addition seems to produce the best results</span>
-                <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Right</span>(<span class="kw">_</span>)) =&gt; <span class="kw">continue</span>,
-                <span class="comment">// unexpectedly ran out of existing changes, fail merge</span>
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+            <span class="comment">// char was removed in the incoming update
+            </span><span class="prelude-val">Some</span>(diff::Result::Left(<span class="kw">_</span>)) =&gt; <span class="kw">match </span>existing.next() {
+                <span class="comment">// char was unchanged in the existing changes, skip over it in the result
+                </span><span class="prelude-val">Some</span>(diff::Result::Both(..)) =&gt; <span class="kw">continue</span>,
+                <span class="comment">// char was also removed in the existing changes, skip over it in the result
+                </span><span class="prelude-val">Some</span>(diff::Result::Left(<span class="kw">_</span>)) =&gt; <span class="kw">continue</span>,
+                <span class="comment">// a char was added in existing changes, hard to say what should be done here
+                // ignoring the addition seems to produce the best results
+                </span><span class="prelude-val">Some</span>(diff::Result::Right(<span class="kw">_</span>)) =&gt; <span class="kw">continue</span>,
+                <span class="comment">// unexpectedly ran out of existing changes, fail merge
+                </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
             },
-            <span class="comment">// char was added in the incoming update</span>
-            <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Right</span>(<span class="ident">inc_right</span>)) =&gt; {
-                <span class="comment">// check the next diff in existing to avoid duplicate additions</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Right</span>(<span class="ident">next_existing</span>)) <span class="op">=</span> <span class="ident">existing</span>.<span class="ident">peek</span>() {
-                    <span class="comment">// same character added in both updates, skip over it in existing</span>
-                    <span class="kw">if</span> <span class="ident">next_existing</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">inc_right</span> {
-                        <span class="ident">existing</span>.<span class="ident">next</span>();
+            <span class="comment">// char was added in the incoming update
+            </span><span class="prelude-val">Some</span>(diff::Result::Right(inc_right)) =&gt; {
+                <span class="comment">// check the next diff in existing to avoid duplicate additions
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(diff::Result::Right(next_existing)) = existing.peek() {
+                    <span class="comment">// same character added in both updates, skip over it in existing
+                    </span><span class="kw">if </span>next_existing == <span class="kw-2">&amp;</span>inc_right {
+                        existing.next();
                     }
                 }
-                <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">inc_right</span>)
+                result.push(inc_right)
             }
-            <span class="comment">// end of incoming changes</span>
-            <span class="prelude-val">None</span> =&gt; <span class="kw">loop</span> {
-                <span class="kw">match</span> <span class="ident">existing</span>.<span class="ident">next</span>() {
-                    <span class="comment">// unchanged in the existing changes</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Both</span>(..)) =&gt; <span class="kw">continue</span>,
-                    <span class="comment">// removed in the existing changes</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Left</span>(<span class="kw">_</span>)) =&gt; <span class="kw">continue</span>,
-                    <span class="comment">// new in the existing changes</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">diff::Result::Right</span>(<span class="ident">right</span>)) =&gt; <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">right</span>),
-                    <span class="comment">// end of changes</span>
-                    <span class="prelude-val">None</span> =&gt; <span class="kw">break</span> <span class="lifetime">&#39;outer</span>,
+            <span class="comment">// end of incoming changes
+            </span><span class="prelude-val">None </span>=&gt; <span class="kw">loop </span>{
+                <span class="kw">match </span>existing.next() {
+                    <span class="comment">// unchanged in the existing changes
+                    </span><span class="prelude-val">Some</span>(diff::Result::Both(..)) =&gt; <span class="kw">continue</span>,
+                    <span class="comment">// removed in the existing changes
+                    </span><span class="prelude-val">Some</span>(diff::Result::Left(<span class="kw">_</span>)) =&gt; <span class="kw">continue</span>,
+                    <span class="comment">// new in the existing changes
+                    </span><span class="prelude-val">Some</span>(diff::Result::Right(right)) =&gt; result.push(right),
+                    <span class="comment">// end of changes
+                    </span><span class="prelude-val">None </span>=&gt; <span class="kw">break </span><span class="lifetime">&#39;outer</span>,
                 }
             },
         }
     }
-    <span class="prelude-val">Some</span>(<span class="ident">result</span>)
+    <span class="prelude-val">Some</span>(result)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">typo_and_append</span>() {
-        <span class="kw">let</span> <span class="ident">ancestor</span> <span class="op">=</span> <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">incoming</span> <span class="op">=</span>
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>typo_and_append() {
+        <span class="kw">let </span>ancestor = <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
+        <span class="kw">let </span>incoming =
             <span class="string">&quot;This is the original, uneditd text, with more information written at the end.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="string">&quot;This is the original, unedited text.&quot;</span>;
+        <span class="kw">let </span>current = <span class="string">&quot;This is the original, unedited text.&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">merge</span>(<span class="ident">ancestor</span>, <span class="ident">incoming</span>, <span class="ident">current</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;This is the original, unedited text, with more information written at the end.&quot;</span>
-        );
+            merge(ancestor, incoming, current).unwrap(),
+            <span class="string">&quot;This is the original, unedited text, with more information written at the end.&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">typo_and_prepend</span>() {
-        <span class="kw">let</span> <span class="ident">ancestor</span> <span class="op">=</span> <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">incoming</span> <span class="op">=</span> <span class="string">&quot;I added some things, but this is the original, uneditd text.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="string">&quot;This is the original, unedited text.&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>typo_and_prepend() {
+        <span class="kw">let </span>ancestor = <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
+        <span class="kw">let </span>incoming = <span class="string">&quot;I added some things, but this is the original, uneditd text.&quot;</span>;
+        <span class="kw">let </span>current = <span class="string">&quot;This is the original, unedited text.&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">merge</span>(<span class="ident">ancestor</span>, <span class="ident">incoming</span>, <span class="ident">current</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;I added some things, but this is the original, unedited text.&quot;</span>
-        );
+            merge(ancestor, incoming, current).unwrap(),
+            <span class="string">&quot;I added some things, but this is the original, unedited text.&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">typo_and_middle</span>() {
-        <span class="kw">let</span> <span class="ident">ancestor</span> <span class="op">=</span> <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">incoming</span> <span class="op">=</span> <span class="string">&quot;This is the original, completely uneditd text.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="string">&quot;This is the original, unedited text.&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>typo_and_middle() {
+        <span class="kw">let </span>ancestor = <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
+        <span class="kw">let </span>incoming = <span class="string">&quot;This is the original, completely uneditd text.&quot;</span>;
+        <span class="kw">let </span>current = <span class="string">&quot;This is the original, unedited text.&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">merge</span>(<span class="ident">ancestor</span>, <span class="ident">incoming</span>, <span class="ident">current</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;This is the original, completely unedited text.&quot;</span>
-        );
+            merge(ancestor, incoming, current).unwrap(),
+            <span class="string">&quot;This is the original, completely unedited text.&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">rewrite</span>() {
-        <span class="kw">let</span> <span class="ident">ancestor</span> <span class="op">=</span> <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">incoming</span> <span class="op">=</span> <span class="string">&quot;I decided to rewrite this paragraph!&quot;</span>;
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="string">&quot;This is the original, unedited text.&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>rewrite() {
+        <span class="kw">let </span>ancestor = <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
+        <span class="kw">let </span>incoming = <span class="string">&quot;I decided to rewrite this paragraph!&quot;</span>;
+        <span class="kw">let </span>current = <span class="string">&quot;This is the original, unedited text.&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">merge</span>(<span class="ident">ancestor</span>, <span class="ident">incoming</span>, <span class="ident">current</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;I decided to rewrite this paragraph!&quot;</span>
-        );
+            merge(ancestor, incoming, current).unwrap(),
+            <span class="string">&quot;I decided to rewrite this paragraph!&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">same_edit_applied_twice</span>() {
-        <span class="kw">let</span> <span class="ident">ancestor</span> <span class="op">=</span> <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">incoming</span> <span class="op">=</span> <span class="string">&quot;This is the original, unedited text.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="string">&quot;This is the original, unedited text.&quot;</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>same_edit_applied_twice() {
+        <span class="kw">let </span>ancestor = <span class="string">&quot;This is the original, uneditd text.&quot;</span>;
+        <span class="kw">let </span>incoming = <span class="string">&quot;This is the original, unedited text.&quot;</span>;
+        <span class="kw">let </span>current = <span class="string">&quot;This is the original, unedited text.&quot;</span>;
         <span class="macro">assert_eq!</span>(
-            <span class="ident">merge</span>(<span class="ident">ancestor</span>, <span class="ident">incoming</span>, <span class="ident">current</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;This is the original, unedited text.&quot;</span>
-        );
+            merge(ancestor, incoming, current).unwrap(),
+            <span class="string">&quot;This is the original, unedited text.&quot;
+        </span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">regression_test</span>() {
-        <span class="kw">let</span> <span class="ident">ancestor</span> <span class="op">=</span> <span class="string">&quot;paragraphs.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">incoming</span> <span class="op">=</span> <span class="string">&quot;pgraphs.&quot;</span>;
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="string">&quot;paragraphs!&quot;</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">merge</span>(<span class="ident">ancestor</span>, <span class="ident">incoming</span>, <span class="ident">current</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;pgraphs!&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>regression_test() {
+        <span class="kw">let </span>ancestor = <span class="string">&quot;paragraphs.&quot;</span>;
+        <span class="kw">let </span>incoming = <span class="string">&quot;pgraphs.&quot;</span>;
+        <span class="kw">let </span>current = <span class="string">&quot;paragraphs!&quot;</span>;
+        <span class="macro">assert_eq!</span>(merge(ancestor, incoming, current).unwrap(), <span class="string">&quot;pgraphs!&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

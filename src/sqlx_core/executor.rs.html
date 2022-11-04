@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/executor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>executor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/executor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>executor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -245,252 +245,252 @@
 <span id="245">245</span>
 <span id="246">246</span>
 <span id="247">247</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database</span>::{<span class="ident">Database</span>, <span class="ident">HasArguments</span>, <span class="ident">HasStatement</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::describe::Describe</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident">either::Either</span>;
-<span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">futures_core::stream::BoxStream</span>;
-<span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">future</span>, <span class="ident">FutureExt</span>, <span class="ident">StreamExt</span>, <span class="ident">TryFutureExt</span>, <span class="ident">TryStreamExt</span>};
-<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasArguments, HasStatement};
+<span class="kw">use </span><span class="kw">crate</span>::describe::Describe;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span>either::Either;
+<span class="kw">use </span>futures_core::future::BoxFuture;
+<span class="kw">use </span>futures_core::stream::BoxStream;
+<span class="kw">use </span>futures_util::{future, FutureExt, StreamExt, TryFutureExt, TryStreamExt};
+<span class="kw">use </span>std::fmt::Debug;
 
-<span class="doccomment">/// A type that contains or can provide a database</span>
-<span class="doccomment">/// connection to use for executing queries against the database.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// No guarantees are provided that successive queries run on the same</span>
-<span class="doccomment">/// physical database connection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A [`Connection`](crate::connection::Connection) is an `Executor` that guarantees that</span>
-<span class="doccomment">/// successive queries are ran on the same physical database connection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Implemented for the following:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///  * [`&amp;Pool`](super::pool::Pool)</span>
-<span class="doccomment">///  * [`&amp;mut PoolConnection`](super::pool::PoolConnection)</span>
-<span class="doccomment">///  * [`&amp;mut Connection`](super::connection::Connection)</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Executor</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Sized</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// A type that contains or can provide a database
+/// connection to use for executing queries against the database.
+///
+/// No guarantees are provided that successive queries run on the same
+/// physical database connection.
+///
+/// A [`Connection`](crate::connection::Connection) is an `Executor` that guarantees that
+/// successive queries are ran on the same physical database connection.
+///
+/// Implemented for the following:
+///
+///  * [`&amp;Pool`](super::pool::Pool)
+///  * [`&amp;mut PoolConnection`](super::pool::PoolConnection)
+///  * [`&amp;mut Connection`](super::connection::Connection)
+///
+</span><span class="kw">pub trait </span>Executor&lt;<span class="lifetime">&#39;c</span>&gt;: Send + Debug + Sized {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="doccomment">/// Execute the query and return the total number of rows affected.</span>
-    <span class="kw">fn</span> <span class="ident">execute</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Execute the query and return the total number of rows affected.
+    </span><span class="kw">fn </span>execute&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, E: <span class="lifetime">&#39;q</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">query</span>: <span class="ident">E</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::QueryResult</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+        query: E,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::QueryResult, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        E: Execute&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt;,
     {
-        <span class="self">self</span>.<span class="ident">execute_many</span>(<span class="ident">query</span>).<span class="ident">try_collect</span>().<span class="ident">boxed</span>()
+        <span class="self">self</span>.execute_many(query).try_collect().boxed()
     }
 
-    <span class="doccomment">/// Execute multiple queries and return the rows affected from each query, in a stream.</span>
-    <span class="kw">fn</span> <span class="ident">execute_many</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Execute multiple queries and return the rows affected from each query, in a stream.
+    </span><span class="kw">fn </span>execute_many&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, E: <span class="lifetime">&#39;q</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">query</span>: <span class="ident">E</span>,
-    ) -&gt; <span class="ident">BoxStream</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::QueryResult</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+        query: E,
+    ) -&gt; BoxStream&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::QueryResult, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        E: Execute&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt;,
     {
-        <span class="self">self</span>.<span class="ident">fetch_many</span>(<span class="ident">query</span>)
-            .<span class="ident">try_filter_map</span>(<span class="op">|</span><span class="ident">step</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">step</span> {
-                    <span class="ident">Either::Left</span>(<span class="ident">rows</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">rows</span>),
-                    <span class="ident">Either::Right</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+        <span class="self">self</span>.fetch_many(query)
+            .try_filter_map(|step| <span class="kw">async move </span>{
+                <span class="prelude-val">Ok</span>(<span class="kw">match </span>step {
+                    Either::Left(rows) =&gt; <span class="prelude-val">Some</span>(rows),
+                    Either::Right(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
                 })
             })
-            .<span class="ident">boxed</span>()
+            .boxed()
     }
 
-    <span class="doccomment">/// Execute the query and return the generated results as a stream.</span>
-    <span class="kw">fn</span> <span class="ident">fetch</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Execute the query and return the generated results as a stream.
+    </span><span class="kw">fn </span>fetch&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, E: <span class="lifetime">&#39;q</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">query</span>: <span class="ident">E</span>,
-    ) -&gt; <span class="ident">BoxStream</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+        query: E,
+    ) -&gt; BoxStream&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        E: Execute&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt;,
     {
-        <span class="self">self</span>.<span class="ident">fetch_many</span>(<span class="ident">query</span>)
-            .<span class="ident">try_filter_map</span>(<span class="op">|</span><span class="ident">step</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">step</span> {
-                    <span class="ident">Either::Left</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
-                    <span class="ident">Either::Right</span>(<span class="ident">row</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">row</span>),
+        <span class="self">self</span>.fetch_many(query)
+            .try_filter_map(|step| <span class="kw">async move </span>{
+                <span class="prelude-val">Ok</span>(<span class="kw">match </span>step {
+                    Either::Left(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+                    Either::Right(row) =&gt; <span class="prelude-val">Some</span>(row),
                 })
             })
-            .<span class="ident">boxed</span>()
+            .boxed()
     }
 
-    <span class="doccomment">/// Execute multiple queries and return the generated results as a stream</span>
-    <span class="doccomment">/// from each query, in a stream.</span>
-    <span class="kw">fn</span> <span class="ident">fetch_many</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Execute multiple queries and return the generated results as a stream
+    /// from each query, in a stream.
+    </span><span class="kw">fn </span>fetch_many&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, E: <span class="lifetime">&#39;q</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">query</span>: <span class="ident">E</span>,
-    ) -&gt; <span class="ident">BoxStream</span><span class="op">&lt;</span>
+        query: E,
+    ) -&gt; BoxStream&lt;
         <span class="lifetime">&#39;e</span>,
-        <span class="prelude-ty">Result</span><span class="op">&lt;</span>
-            <span class="ident">Either</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::QueryResult</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>,
-            <span class="ident">Error</span>,
-        <span class="op">&gt;</span>,
-    <span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>;
+        <span class="prelude-ty">Result</span>&lt;
+            Either&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::QueryResult, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row&gt;,
+            Error,
+        &gt;,
+    &gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        E: Execute&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt;;
 
-    <span class="doccomment">/// Execute the query and return all the generated results, collected into a [`Vec`].</span>
-    <span class="kw">fn</span> <span class="ident">fetch_all</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Execute the query and return all the generated results, collected into a [`Vec`].
+    </span><span class="kw">fn </span>fetch_all&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, E: <span class="lifetime">&#39;q</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">query</span>: <span class="ident">E</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+        query: E,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;Vec&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row&gt;, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        E: Execute&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt;,
     {
-        <span class="self">self</span>.<span class="ident">fetch</span>(<span class="ident">query</span>).<span class="ident">try_collect</span>().<span class="ident">boxed</span>()
+        <span class="self">self</span>.fetch(query).try_collect().boxed()
     }
 
-    <span class="doccomment">/// Execute the query and returns exactly one row.</span>
-    <span class="kw">fn</span> <span class="ident">fetch_one</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Execute the query and returns exactly one row.
+    </span><span class="kw">fn </span>fetch_one&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, E: <span class="lifetime">&#39;q</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">query</span>: <span class="ident">E</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+        query: E,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        E: Execute&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt;,
     {
-        <span class="self">self</span>.<span class="ident">fetch_optional</span>(<span class="ident">query</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">row</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">row</span>) =&gt; <span class="ident">future::ok</span>(<span class="ident">row</span>),
-                <span class="prelude-val">None</span> =&gt; <span class="ident">future::err</span>(<span class="ident">Error::RowNotFound</span>),
+        <span class="self">self</span>.fetch_optional(query)
+            .and_then(|row| <span class="kw">match </span>row {
+                <span class="prelude-val">Some</span>(row) =&gt; future::ok(row),
+                <span class="prelude-val">None </span>=&gt; future::err(Error::RowNotFound),
             })
-            .<span class="ident">boxed</span>()
+            .boxed()
     }
 
-    <span class="doccomment">/// Execute the query and returns at most one row.</span>
-    <span class="kw">fn</span> <span class="ident">fetch_optional</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Execute the query and returns at most one row.
+    </span><span class="kw">fn </span>fetch_optional&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, E: <span class="lifetime">&#39;q</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">query</span>: <span class="ident">E</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Row</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
-        <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>;
+        query: E,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row&gt;, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        E: Execute&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt;;
 
-    <span class="doccomment">/// Prepare the SQL query to inspect the type information of its parameters</span>
-    <span class="doccomment">/// and results.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Be advised that when using the `query`, `query_as`, or `query_scalar` functions, the query</span>
-    <span class="doccomment">/// is transparently prepared and executed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This explicit API is provided to allow access to the statement metadata available after</span>
-    <span class="doccomment">/// it prepared but before the first row is returned.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">prepare</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Prepare the SQL query to inspect the type information of its parameters
+    /// and results.
+    ///
+    /// Be advised that when using the `query`, `query_as`, or `query_scalar` functions, the query
+    /// is transparently prepared and executed.
+    ///
+    /// This explicit API is provided to allow access to the statement metadata available after
+    /// it prepared but before the first row is returned.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>prepare&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
+        query: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasStatement&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Statement, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
     {
-        <span class="self">self</span>.<span class="ident">prepare_with</span>(<span class="ident">query</span>, <span class="kw-2">&amp;</span>[])
+        <span class="self">self</span>.prepare_with(query, <span class="kw-2">&amp;</span>[])
     }
 
-    <span class="doccomment">/// Prepare the SQL query, with parameter type information, to inspect the</span>
-    <span class="doccomment">/// type information about its parameters and results.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Only some database drivers (PostgreSQL, MSSQL) can take advantage of</span>
-    <span class="doccomment">/// this extra information to influence parameter type inference.</span>
-    <span class="kw">fn</span> <span class="ident">prepare_with</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Prepare the SQL query, with parameter type information, to inspect the
+    /// type information about its parameters and results.
+    ///
+    /// Only some database drivers (PostgreSQL, MSSQL) can take advantage of
+    /// this extra information to influence parameter type inference.
+    </span><span class="kw">fn </span>prepare_with&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-        <span class="ident">parameters</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;e</span> [<span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::TypeInfo</span>],
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>;
+        sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str,
+        parameters: <span class="kw-2">&amp;</span><span class="lifetime">&#39;e </span>[&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::TypeInfo],
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasStatement&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Statement, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>;
 
-    <span class="doccomment">/// Describe the SQL query and return type information about its parameters</span>
-    <span class="doccomment">/// and results.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is used by compile-time verification in the query macros to</span>
-    <span class="doccomment">/// power their type inference.</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">describe</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Describe the SQL query and return type information about its parameters
+    /// and results.
+    ///
+    /// This is used by compile-time verification in the query macros to
+    /// power their type inference.
+    </span><span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>describe&lt;<span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>&gt;(
         <span class="self">self</span>,
-        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-    ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Describe</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>;
+        sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str,
+    ) -&gt; BoxFuture&lt;<span class="lifetime">&#39;e</span>, <span class="prelude-ty">Result</span>&lt;Describe&lt;<span class="self">Self</span>::Database&gt;, Error&gt;&gt;
+    <span class="kw">where
+        </span><span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>;
 }
 
-<span class="doccomment">/// A type that may be executed against a database connection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Implemented for the following:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///  * [`&amp;str`](std::str)</span>
-<span class="doccomment">///  * [`Query`](super::query::Query)</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sized</span> {
-    <span class="doccomment">/// Gets the SQL that will be executed.</span>
-    <span class="kw">fn</span> <span class="ident">sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>;
+<span class="doccomment">/// A type that may be executed against a database connection.
+///
+/// Implemented for the following:
+///
+///  * [`&amp;str`](std::str)
+///  * [`Query`](super::query::Query)
+///
+</span><span class="kw">pub trait </span>Execute&lt;<span class="lifetime">&#39;q</span>, DB: Database&gt;: Send + Sized {
+    <span class="doccomment">/// Gets the SQL that will be executed.
+    </span><span class="kw">fn </span>sql(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str;
 
-    <span class="doccomment">/// Gets the previously cached statement, if available.</span>
-    <span class="kw">fn</span> <span class="ident">statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Gets the previously cached statement, if available.
+    </span><span class="kw">fn </span>statement(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>&lt;DB <span class="kw">as </span>HasStatement&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Statement&gt;;
 
-    <span class="doccomment">/// Returns the arguments to be bound against the query string.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returning `None` for `Arguments` indicates to use a &quot;simple&quot; query protocol and to not</span>
-    <span class="doccomment">/// prepare the query. Returning `Some(Default::default())` is an empty arguments object that</span>
-    <span class="doccomment">/// will be prepared (and cached) before execution.</span>
-    <span class="kw">fn</span> <span class="ident">take_arguments</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Returns the arguments to be bound against the query string.
+    ///
+    /// Returning `None` for `Arguments` indicates to use a &quot;simple&quot; query protocol and to not
+    /// prepare the query. Returning `Some(Default::default())` is an empty arguments object that
+    /// will be prepared (and cached) before execution.
+    </span><span class="kw">fn </span>take_arguments(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Arguments&gt;;
 
-    <span class="doccomment">/// Returns `true` if the statement should be cached.</span>
-    <span class="kw">fn</span> <span class="ident">persistent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="doccomment">/// Returns `true` if the statement should be cached.
+    </span><span class="kw">fn </span>persistent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 }
 
-<span class="comment">// NOTE: `Execute` is explicitly not implemented for String and &amp;String to make it slightly more</span>
-<span class="comment">//       involved to write `conn.execute(format!(&quot;SELECT {}&quot;, val))`</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span> {
-        <span class="self">self</span>
-    }
+<span class="comment">// NOTE: `Execute` is explicitly not implemented for String and &amp;String to make it slightly more
+//       involved to write `conn.execute(format!(&quot;SELECT {}&quot;, val))`
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>, DB: Database&gt; Execute&lt;<span class="lifetime">&#39;q</span>, DB&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>sql(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str {
+        <span class="self">self
+    </span>}
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
-    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>statement(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>&lt;DB <span class="kw">as </span>HasStatement&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Statement&gt; {
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">take_arguments</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
-    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>take_arguments(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Arguments&gt; {
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">persistent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>persistent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">true
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span>) {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span> {
-        <span class="self">self</span>.<span class="number">0</span>
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>, DB: Database&gt; Execute&lt;<span class="lifetime">&#39;q</span>, DB&gt; <span class="kw">for </span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str, <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Arguments&gt;) {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>sql(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>statement(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>&lt;DB <span class="kw">as </span>HasStatement&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Statement&gt; {
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>take_arguments(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Arguments&gt; {
+        <span class="self">self</span>.<span class="number">1</span>.take()
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Statement</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">take_arguments</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">1</span>.<span class="ident">take</span>()
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">persistent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>persistent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">true
+    </span>}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

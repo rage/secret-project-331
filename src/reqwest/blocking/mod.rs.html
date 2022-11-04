@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -106,113 +106,113 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A blocking Client API.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The blocking `Client` will block the current thread to execute, instead</span>
-<span class="doccomment">//! of returning futures that need to be executed on a runtime.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Conversely, the functionality in `reqwest::blocking` must *not* be executed</span>
-<span class="doccomment">//! within an async runtime, or it will panic when attempting to block. If</span>
-<span class="doccomment">//! calling directly from an async function, consider using an async</span>
-<span class="doccomment">//! [`reqwest::Client`][crate::Client] instead. If the immediate context is only</span>
-<span class="doccomment">//! synchronous, but a transitive caller is async, consider changing that caller</span>
-<span class="doccomment">//! to use [`tokio::task::spawn_blocking`] around the calls that need to block.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Optional</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This requires the optional `blocking` feature to be enabled.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Making a GET request</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! For a single request, you can use the [`get`](get) shortcut method.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! # use reqwest::{Error, Response};</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # fn run() -&gt; Result&lt;(), Error&gt; {</span>
-<span class="doccomment">//! let body = reqwest::blocking::get(&quot;https://www.rust-lang.org&quot;)?</span>
-<span class="doccomment">//!     .text()?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! println!(&quot;body = {:?}&quot;, body);</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Additionally, the blocking [`Response`](Response) struct implements Rust&#39;s</span>
-<span class="doccomment">//! `Read` trait, so many useful standard library and third party crates will</span>
-<span class="doccomment">//! have convenience methods that take a `Response` anywhere `T: Read` is</span>
-<span class="doccomment">//! acceptable.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! **NOTE**: If you plan to perform multiple requests, it is best to create a</span>
-<span class="doccomment">//! [`Client`](Client) and reuse it, taking advantage of keep-alive connection</span>
-<span class="doccomment">//! pooling.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Making POST requests (or setting request bodies)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! There are several ways you can set the body of a request. The basic one is</span>
-<span class="doccomment">//! by using the `body()` method of a [`RequestBuilder`](RequestBuilder). This lets you set the</span>
-<span class="doccomment">//! exact raw bytes of what the body should be. It accepts various types,</span>
-<span class="doccomment">//! including `String`, `Vec&lt;u8&gt;`, and `File`. If you wish to pass a custom</span>
-<span class="doccomment">//! Reader, you can use the `reqwest::blocking::Body::new()` constructor.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! # use reqwest::Error;</span>
-<span class="doccomment">//! #</span>
-<span class="doccomment">//! # fn run() -&gt; Result&lt;(), Error&gt; {</span>
-<span class="doccomment">//! let client = reqwest::blocking::Client::new();</span>
-<span class="doccomment">//! let res = client.post(&quot;http://httpbin.org/post&quot;)</span>
-<span class="doccomment">//!     .body(&quot;the exact body that is sent&quot;)</span>
-<span class="doccomment">//!     .send()?;</span>
-<span class="doccomment">//! # Ok(())</span>
-<span class="doccomment">//! # }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## And More</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Most features available to the asynchronous `Client` are also available,</span>
-<span class="doccomment">//! on the blocking `Client`, see those docs for more.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A blocking Client API.
+//!
+//! The blocking `Client` will block the current thread to execute, instead
+//! of returning futures that need to be executed on a runtime.
+//!
+//! Conversely, the functionality in `reqwest::blocking` must *not* be executed
+//! within an async runtime, or it will panic when attempting to block. If
+//! calling directly from an async function, consider using an async
+//! [`reqwest::Client`][crate::Client] instead. If the immediate context is only
+//! synchronous, but a transitive caller is async, consider changing that caller
+//! to use [`tokio::task::spawn_blocking`] around the calls that need to block.
+//!
+//! # Optional
+//!
+//! This requires the optional `blocking` feature to be enabled.
+//!
+//! # Making a GET request
+//!
+//! For a single request, you can use the [`get`](get) shortcut method.
+//!
+//! ```rust
+//! # use reqwest::{Error, Response};
+//!
+//! # fn run() -&gt; Result&lt;(), Error&gt; {
+//! let body = reqwest::blocking::get(&quot;https://www.rust-lang.org&quot;)?
+//!     .text()?;
+//!
+//! println!(&quot;body = {:?}&quot;, body);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! Additionally, the blocking [`Response`](Response) struct implements Rust&#39;s
+//! `Read` trait, so many useful standard library and third party crates will
+//! have convenience methods that take a `Response` anywhere `T: Read` is
+//! acceptable.
+//!
+//! **NOTE**: If you plan to perform multiple requests, it is best to create a
+//! [`Client`](Client) and reuse it, taking advantage of keep-alive connection
+//! pooling.
+//!
+//! # Making POST requests (or setting request bodies)
+//!
+//! There are several ways you can set the body of a request. The basic one is
+//! by using the `body()` method of a [`RequestBuilder`](RequestBuilder). This lets you set the
+//! exact raw bytes of what the body should be. It accepts various types,
+//! including `String`, `Vec&lt;u8&gt;`, and `File`. If you wish to pass a custom
+//! Reader, you can use the `reqwest::blocking::Body::new()` constructor.
+//!
+//! ```rust
+//! # use reqwest::Error;
+//! #
+//! # fn run() -&gt; Result&lt;(), Error&gt; {
+//! let client = reqwest::blocking::Client::new();
+//! let res = client.post(&quot;http://httpbin.org/post&quot;)
+//!     .body(&quot;the exact body that is sent&quot;)
+//!     .send()?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## And More
+//!
+//! Most features available to the asynchronous `Client` are also available,
+//! on the blocking `Client`, see those docs for more.
 
-<span class="kw">mod</span> <span class="ident">body</span>;
-<span class="kw">mod</span> <span class="ident">client</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;multipart&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">multipart</span>;
-<span class="kw">mod</span> <span class="ident">request</span>;
-<span class="kw">mod</span> <span class="ident">response</span>;
-<span class="kw">mod</span> <span class="ident">wait</span>;
+</span><span class="kw">mod </span>body;
+<span class="kw">mod </span>client;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;multipart&quot;</span>)]
+</span><span class="kw">pub mod </span>multipart;
+<span class="kw">mod </span>request;
+<span class="kw">mod </span>response;
+<span class="kw">mod </span>wait;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::body::Body</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::client</span>::{<span class="ident">Client</span>, <span class="ident">ClientBuilder</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::request</span>::{<span class="ident">Request</span>, <span class="ident">RequestBuilder</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::response::Response</span>;
+<span class="kw">pub use </span><span class="self">self</span>::body::Body;
+<span class="kw">pub use </span><span class="self">self</span>::client::{Client, ClientBuilder};
+<span class="kw">pub use </span><span class="self">self</span>::request::{Request, RequestBuilder};
+<span class="kw">pub use </span><span class="self">self</span>::response::Response;
 
-<span class="doccomment">/// Shortcut method to quickly make a *blocking* `GET` request.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// **NOTE**: This function creates a new internal `Client` on each call,</span>
-<span class="doccomment">/// and so should not be used if making many requests. Create a</span>
-<span class="doccomment">/// [`Client`](./struct.Client.html) instead.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # fn run() -&gt; Result&lt;(), reqwest::Error&gt; {</span>
-<span class="doccomment">/// let body = reqwest::blocking::get(&quot;https://www.rust-lang.org&quot;)?</span>
-<span class="doccomment">///     .text()?;</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// # fn main() { }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This function fails if:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - native TLS backend cannot be initialized</span>
-<span class="doccomment">/// - supplied `Url` cannot be parsed</span>
-<span class="doccomment">/// - there was an error while sending request</span>
-<span class="doccomment">/// - redirect loop was detected</span>
-<span class="doccomment">/// - redirect limit was exhausted</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident"><span class="kw">crate</span>::IntoUrl</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">T</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&gt;</span> {
-    <span class="ident">Client::builder</span>().<span class="ident">build</span>()<span class="question-mark">?</span>.<span class="ident">get</span>(<span class="ident">url</span>).<span class="ident">send</span>()
+<span class="doccomment">/// Shortcut method to quickly make a *blocking* `GET` request.
+///
+/// **NOTE**: This function creates a new internal `Client` on each call,
+/// and so should not be used if making many requests. Create a
+/// [`Client`](./struct.Client.html) instead.
+///
+/// # Examples
+///
+/// ```rust
+/// # fn run() -&gt; Result&lt;(), reqwest::Error&gt; {
+/// let body = reqwest::blocking::get(&quot;https://www.rust-lang.org&quot;)?
+///     .text()?;
+/// # Ok(())
+/// # }
+/// # fn main() { }
+/// ```
+///
+/// # Errors
+///
+/// This function fails if:
+///
+/// - native TLS backend cannot be initialized
+/// - supplied `Url` cannot be parsed
+/// - there was an error while sending request
+/// - redirect loop was detected
+/// - redirect limit was exhausted
+</span><span class="kw">pub fn </span>get&lt;T: <span class="kw">crate</span>::IntoUrl&gt;(url: T) -&gt; <span class="kw">crate</span>::Result&lt;Response&gt; {
+    Client::builder().build()<span class="question-mark">?</span>.get(url).send()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

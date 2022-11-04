@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/types/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/types/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -252,259 +252,259 @@
 <span id="252">252</span>
 <span id="253">253</span>
 <span id="254">254</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Conversions between Rust and **Postgres** types.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Types</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                     |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `bool`                                | BOOL                                                 |</span>
-<span class="doccomment">//! | `i8`                                  | &quot;CHAR&quot;                                               |</span>
-<span class="doccomment">//! | `i16`                                 | SMALLINT, SMALLSERIAL, INT2                          |</span>
-<span class="doccomment">//! | `i32`                                 | INT, SERIAL, INT4                                    |</span>
-<span class="doccomment">//! | `i64`                                 | BIGINT, BIGSERIAL, INT8                              |</span>
-<span class="doccomment">//! | `f32`                                 | REAL, FLOAT4                                         |</span>
-<span class="doccomment">//! | `f64`                                 | DOUBLE PRECISION, FLOAT8                             |</span>
-<span class="doccomment">//! | `&amp;str`, [`String`]                    | VARCHAR, CHAR(N), TEXT, NAME                         |</span>
-<span class="doccomment">//! | `&amp;[u8]`, `Vec&lt;u8&gt;`                    | BYTEA                                                |</span>
-<span class="doccomment">//! | [`PgInterval`]                        | INTERVAL                                             |</span>
-<span class="doccomment">//! | [`PgRange&lt;T&gt;`](PgRange)               | INT8RANGE, INT4RANGE, TSRANGE, TSTZRANGE, DATERANGE, NUMRANGE |</span>
-<span class="doccomment">//! | [`PgMoney`]                           | MONEY                                                |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### [`bigdecimal`](https://crates.io/crates/bigdecimal)</span>
-<span class="doccomment">//! Requires the `bigdecimal` Cargo feature flag.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                        |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `bigdecimal::BigDecimal`              | NUMERIC                                              |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### [`decimal`](https://crates.io/crates/rust_decimal)</span>
-<span class="doccomment">//! Requires the `decimal` Cargo feature flag.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                        |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `rust_decimal::Decimal`               | NUMERIC                                              |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### [`chrono`](https://crates.io/crates/chrono)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Requires the `chrono` Cargo feature flag.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                     |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `chrono::DateTime&lt;Utc&gt;`               | TIMESTAMPTZ                                          |</span>
-<span class="doccomment">//! | `chrono::DateTime&lt;Local&gt;`             | TIMESTAMPTZ                                          |</span>
-<span class="doccomment">//! | `chrono::NaiveDateTime`               | TIMESTAMP                                            |</span>
-<span class="doccomment">//! | `chrono::NaiveDate`                   | DATE                                                 |</span>
-<span class="doccomment">//! | `chrono::NaiveTime`                   | TIME                                                 |</span>
-<span class="doccomment">//! | [`PgTimeTz`]                          | TIMETZ                                               |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### [`time`](https://crates.io/crates/time)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Requires the `time` Cargo feature flag.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                     |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `time::PrimitiveDateTime`             | TIMESTAMP                                            |</span>
-<span class="doccomment">//! | `time::OffsetDateTime`                | TIMESTAMPTZ                                          |</span>
-<span class="doccomment">//! | `time::Date`                          | DATE                                                 |</span>
-<span class="doccomment">//! | `time::Time`                          | TIME                                                 |</span>
-<span class="doccomment">//! | [`PgTimeTz`]                          | TIMETZ                                               |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### [`uuid`](https://crates.io/crates/uuid)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Requires the `uuid` Cargo feature flag.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                     |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `uuid::Uuid`                          | UUID                                                 |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### [`ipnetwork`](https://crates.io/crates/ipnetwork)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Requires the `ipnetwork` Cargo feature flag.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                     |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `ipnetwork::IpNetwork`                | INET, CIDR                                           |</span>
-<span class="doccomment">//! | `std::net::IpAddr`                    | INET, CIDR                                           |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Note that because `IpAddr` does not support network prefixes, it is an error to attempt to decode</span>
-<span class="doccomment">//! an `IpAddr` from a `INET` or `CIDR` value with a network prefix smaller than the address&#39; full width:</span>
-<span class="doccomment">//! `/32` for IPv4 addresses and `/128` for IPv6 addresses.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! `IpNetwork` does not have this limitation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### [`mac_address`](https://crates.io/crates/mac_address)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Requires the `mac_address` Cargo feature flag.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                     |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `mac_address::MacAddress`             | MACADDR                                              |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### [`bit-vec`](https://crates.io/crates/bit-vec)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Requires the `bit-vec` Cargo feature flag.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                     |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | `bit_vec::BitVec`                     | BIT, VARBIT                                          |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### [`json`](https://crates.io/crates/serde_json)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Requires the `json` Cargo feature flag.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Rust type                             | Postgres type(s)                                     |</span>
-<span class="doccomment">//! |---------------------------------------|------------------------------------------------------|</span>
-<span class="doccomment">//! | [`Json&lt;T&gt;`]                           | JSON, JSONB                                          |</span>
-<span class="doccomment">//! | `serde_json::Value`                   | JSON, JSONB                                          |</span>
-<span class="doccomment">//! | `&amp;serde_json::value::RawValue`        | JSON, JSONB                                          |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! `Value` and `RawValue` from `serde_json` can be used for unstructured JSON data with</span>
-<span class="doccomment">//! Postgres.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [`Json&lt;T&gt;`](crate::types::Json) can be used for structured JSON data with Postgres.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # [Composite types](https://www.postgresql.org/docs/current/rowtypes.html)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! User-defined composite types are supported through a derive for `Type`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```text</span>
-<span class="doccomment">//! CREATE TYPE inventory_item AS (</span>
-<span class="doccomment">//!     name            text,</span>
-<span class="doccomment">//!     supplier_id     integer,</span>
-<span class="doccomment">//!     price           numeric</span>
-<span class="doccomment">//! );</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! #[derive(sqlx::Type)]</span>
-<span class="doccomment">//! #[sqlx(type_name = &quot;inventory_item&quot;)]</span>
-<span class="doccomment">//! struct InventoryItem {</span>
-<span class="doccomment">//!     name: String,</span>
-<span class="doccomment">//!     supplier_id: i32,</span>
-<span class="doccomment">//!     price: BigDecimal,</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Anonymous composite types are represented as tuples. Note that anonymous composites may only</span>
-<span class="doccomment">//! be returned and not sent to Postgres (this is a limitation of postgres).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Arrays</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! One-dimensional arrays are supported as `Vec&lt;T&gt;` or `&amp;[T]` where `T` implements `Type`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # [Enumerations](https://www.postgresql.org/docs/current/datatype-enum.html)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! User-defined enumerations are supported through a derive for `Type`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```text</span>
-<span class="doccomment">//! CREATE TYPE mood AS ENUM (&#39;sad&#39;, &#39;ok&#39;, &#39;happy&#39;);</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! #[derive(sqlx::Type)]</span>
-<span class="doccomment">//! #[sqlx(type_name = &quot;mood&quot;, rename_all = &quot;lowercase&quot;)]</span>
-<span class="doccomment">//! enum Mood { Sad, Ok, Happy }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Rust enumerations may also be defined to be represented as an integer using `repr`.</span>
-<span class="doccomment">//! The following type expects a SQL type of `INTEGER` or `INT4` and will convert to/from the</span>
-<span class="doccomment">//! Rust enumeration.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! #[derive(sqlx::Type)]</span>
-<span class="doccomment">//! #[repr(i32)]</span>
-<span class="doccomment">//! enum Mood { Sad = 0, Ok = 1, Happy = 2 }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Conversions between Rust and **Postgres** types.
+//!
+//! # Types
+//!
+//! | Rust type                             | Postgres type(s)                                     |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `bool`                                | BOOL                                                 |
+//! | `i8`                                  | &quot;CHAR&quot;                                               |
+//! | `i16`                                 | SMALLINT, SMALLSERIAL, INT2                          |
+//! | `i32`                                 | INT, SERIAL, INT4                                    |
+//! | `i64`                                 | BIGINT, BIGSERIAL, INT8                              |
+//! | `f32`                                 | REAL, FLOAT4                                         |
+//! | `f64`                                 | DOUBLE PRECISION, FLOAT8                             |
+//! | `&amp;str`, [`String`]                    | VARCHAR, CHAR(N), TEXT, NAME                         |
+//! | `&amp;[u8]`, `Vec&lt;u8&gt;`                    | BYTEA                                                |
+//! | [`PgInterval`]                        | INTERVAL                                             |
+//! | [`PgRange&lt;T&gt;`](PgRange)               | INT8RANGE, INT4RANGE, TSRANGE, TSTZRANGE, DATERANGE, NUMRANGE |
+//! | [`PgMoney`]                           | MONEY                                                |
+//!
+//!
+//! ### [`bigdecimal`](https://crates.io/crates/bigdecimal)
+//! Requires the `bigdecimal` Cargo feature flag.
+//!
+//! | Rust type                             | Postgres type(s)                                        |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `bigdecimal::BigDecimal`              | NUMERIC                                              |
+//!
+//! ### [`decimal`](https://crates.io/crates/rust_decimal)
+//! Requires the `decimal` Cargo feature flag.
+//!
+//! | Rust type                             | Postgres type(s)                                        |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `rust_decimal::Decimal`               | NUMERIC                                              |
+//!
+//! ### [`chrono`](https://crates.io/crates/chrono)
+//!
+//! Requires the `chrono` Cargo feature flag.
+//!
+//! | Rust type                             | Postgres type(s)                                     |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `chrono::DateTime&lt;Utc&gt;`               | TIMESTAMPTZ                                          |
+//! | `chrono::DateTime&lt;Local&gt;`             | TIMESTAMPTZ                                          |
+//! | `chrono::NaiveDateTime`               | TIMESTAMP                                            |
+//! | `chrono::NaiveDate`                   | DATE                                                 |
+//! | `chrono::NaiveTime`                   | TIME                                                 |
+//! | [`PgTimeTz`]                          | TIMETZ                                               |
+//!
+//! ### [`time`](https://crates.io/crates/time)
+//!
+//! Requires the `time` Cargo feature flag.
+//!
+//! | Rust type                             | Postgres type(s)                                     |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `time::PrimitiveDateTime`             | TIMESTAMP                                            |
+//! | `time::OffsetDateTime`                | TIMESTAMPTZ                                          |
+//! | `time::Date`                          | DATE                                                 |
+//! | `time::Time`                          | TIME                                                 |
+//! | [`PgTimeTz`]                          | TIMETZ                                               |
+//!
+//! ### [`uuid`](https://crates.io/crates/uuid)
+//!
+//! Requires the `uuid` Cargo feature flag.
+//!
+//! | Rust type                             | Postgres type(s)                                     |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `uuid::Uuid`                          | UUID                                                 |
+//!
+//! ### [`ipnetwork`](https://crates.io/crates/ipnetwork)
+//!
+//! Requires the `ipnetwork` Cargo feature flag.
+//!
+//! | Rust type                             | Postgres type(s)                                     |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `ipnetwork::IpNetwork`                | INET, CIDR                                           |
+//! | `std::net::IpAddr`                    | INET, CIDR                                           |
+//!
+//! Note that because `IpAddr` does not support network prefixes, it is an error to attempt to decode
+//! an `IpAddr` from a `INET` or `CIDR` value with a network prefix smaller than the address&#39; full width:
+//! `/32` for IPv4 addresses and `/128` for IPv6 addresses.
+//!
+//! `IpNetwork` does not have this limitation.
+//!
+//! ### [`mac_address`](https://crates.io/crates/mac_address)
+//!
+//! Requires the `mac_address` Cargo feature flag.
+//!
+//! | Rust type                             | Postgres type(s)                                     |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `mac_address::MacAddress`             | MACADDR                                              |
+//!
+//! ### [`bit-vec`](https://crates.io/crates/bit-vec)
+//!
+//! Requires the `bit-vec` Cargo feature flag.
+//!
+//! | Rust type                             | Postgres type(s)                                     |
+//! |---------------------------------------|------------------------------------------------------|
+//! | `bit_vec::BitVec`                     | BIT, VARBIT                                          |
+//!
+//! ### [`json`](https://crates.io/crates/serde_json)
+//!
+//! Requires the `json` Cargo feature flag.
+//!
+//! | Rust type                             | Postgres type(s)                                     |
+//! |---------------------------------------|------------------------------------------------------|
+//! | [`Json&lt;T&gt;`]                           | JSON, JSONB                                          |
+//! | `serde_json::Value`                   | JSON, JSONB                                          |
+//! | `&amp;serde_json::value::RawValue`        | JSON, JSONB                                          |
+//!
+//! `Value` and `RawValue` from `serde_json` can be used for unstructured JSON data with
+//! Postgres.
+//!
+//! [`Json&lt;T&gt;`](crate::types::Json) can be used for structured JSON data with Postgres.
+//!
+//! # [Composite types](https://www.postgresql.org/docs/current/rowtypes.html)
+//!
+//! User-defined composite types are supported through a derive for `Type`.
+//!
+//! ```text
+//! CREATE TYPE inventory_item AS (
+//!     name            text,
+//!     supplier_id     integer,
+//!     price           numeric
+//! );
+//! ```
+//!
+//! ```rust,ignore
+//! #[derive(sqlx::Type)]
+//! #[sqlx(type_name = &quot;inventory_item&quot;)]
+//! struct InventoryItem {
+//!     name: String,
+//!     supplier_id: i32,
+//!     price: BigDecimal,
+//! }
+//! ```
+//!
+//! Anonymous composite types are represented as tuples. Note that anonymous composites may only
+//! be returned and not sent to Postgres (this is a limitation of postgres).
+//!
+//! # Arrays
+//!
+//! One-dimensional arrays are supported as `Vec&lt;T&gt;` or `&amp;[T]` where `T` implements `Type`.
+//!
+//! # [Enumerations](https://www.postgresql.org/docs/current/datatype-enum.html)
+//!
+//! User-defined enumerations are supported through a derive for `Type`.
+//!
+//! ```text
+//! CREATE TYPE mood AS ENUM (&#39;sad&#39;, &#39;ok&#39;, &#39;happy&#39;);
+//! ```
+//!
+//! ```rust,ignore
+//! #[derive(sqlx::Type)]
+//! #[sqlx(type_name = &quot;mood&quot;, rename_all = &quot;lowercase&quot;)]
+//! enum Mood { Sad, Ok, Happy }
+//! ```
+//!
+//! Rust enumerations may also be defined to be represented as an integer using `repr`.
+//! The following type expects a SQL type of `INTEGER` or `INT4` and will convert to/from the
+//! Rust enumeration.
+//!
+//! ```rust,ignore
+//! #[derive(sqlx::Type)]
+//! #[repr(i32)]
+//! enum Mood { Sad = 0, Ok = 1, Happy = 2 }
+//! ```
+//!
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::type_info::PgTypeKind</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgTypeInfo</span>, <span class="ident">Postgres</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::postgres::type_info::PgTypeKind;
+<span class="kw">use </span><span class="kw">crate</span>::postgres::{PgTypeInfo, Postgres};
+<span class="kw">use </span><span class="kw">crate</span>::types::Type;
 
-<span class="kw">mod</span> <span class="ident">array</span>;
-<span class="kw">mod</span> <span class="ident">bool</span>;
-<span class="kw">mod</span> <span class="ident">bytes</span>;
-<span class="kw">mod</span> <span class="ident">float</span>;
-<span class="kw">mod</span> <span class="ident">int</span>;
-<span class="kw">mod</span> <span class="ident">interval</span>;
-<span class="kw">mod</span> <span class="ident">lquery</span>;
-<span class="kw">mod</span> <span class="ident">ltree</span>;
-<span class="kw">mod</span> <span class="ident">money</span>;
-<span class="kw">mod</span> <span class="ident">oid</span>;
-<span class="kw">mod</span> <span class="ident">range</span>;
-<span class="kw">mod</span> <span class="ident">record</span>;
-<span class="kw">mod</span> <span class="ident">str</span>;
-<span class="kw">mod</span> <span class="ident">tuple</span>;
-<span class="kw">mod</span> <span class="ident">void</span>;
+<span class="kw">mod </span>array;
+<span class="kw">mod </span>bool;
+<span class="kw">mod </span>bytes;
+<span class="kw">mod </span>float;
+<span class="kw">mod </span>int;
+<span class="kw">mod </span>interval;
+<span class="kw">mod </span>lquery;
+<span class="kw">mod </span>ltree;
+<span class="kw">mod </span>money;
+<span class="kw">mod </span>oid;
+<span class="kw">mod </span>range;
+<span class="kw">mod </span>record;
+<span class="kw">mod </span>str;
+<span class="kw">mod </span>tuple;
+<span class="kw">mod </span>void;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">time_tz</span>;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;chrono&quot;</span>, feature = <span class="string">&quot;time&quot;</span>))]
+</span><span class="kw">mod </span>time_tz;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">bigdecimal</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
+</span><span class="kw">mod </span>bigdecimal;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">numeric</span>;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;bigdecimal&quot;</span>, feature = <span class="string">&quot;decimal&quot;</span>))]
+</span><span class="kw">mod </span>numeric;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decimal&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">decimal</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;decimal&quot;</span>)]
+</span><span class="kw">mod </span>decimal;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">chrono</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
+</span><span class="kw">mod </span>chrono;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">time</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;time&quot;</span>)]
+</span><span class="kw">mod </span>time;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">uuid</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;uuid&quot;</span>)]
+</span><span class="kw">mod </span>uuid;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">json</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+</span><span class="kw">mod </span>json;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ipnetwork&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">ipnetwork</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ipnetwork&quot;</span>)]
+</span><span class="kw">mod </span>ipnetwork;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ipnetwork&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">ipaddr</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;ipnetwork&quot;</span>)]
+</span><span class="kw">mod </span>ipaddr;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mac_address&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">mac_address</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mac_address&quot;</span>)]
+</span><span class="kw">mod </span>mac_address;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bit-vec&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">bit_vec</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;bit-vec&quot;</span>)]
+</span><span class="kw">mod </span>bit_vec;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">array::PgHasArrayType</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">interval::PgInterval</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lquery::PgLQuery</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lquery::PgLQueryLevel</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lquery::PgLQueryVariant</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lquery::PgLQueryVariantFlag</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ltree::PgLTree</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ltree::PgLTreeLabel</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ltree::PgLTreeParseError</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">money::PgMoney</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">oid::Oid</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">range::PgRange</span>;
+<span class="kw">pub use </span>array::PgHasArrayType;
+<span class="kw">pub use </span>interval::PgInterval;
+<span class="kw">pub use </span>lquery::PgLQuery;
+<span class="kw">pub use </span>lquery::PgLQueryLevel;
+<span class="kw">pub use </span>lquery::PgLQueryVariant;
+<span class="kw">pub use </span>lquery::PgLQueryVariantFlag;
+<span class="kw">pub use </span>ltree::PgLTree;
+<span class="kw">pub use </span>ltree::PgLTreeLabel;
+<span class="kw">pub use </span>ltree::PgLTreeParseError;
+<span class="kw">pub use </span>money::PgMoney;
+<span class="kw">pub use </span>oid::Oid;
+<span class="kw">pub use </span>range::PgRange;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time_tz::PgTimeTz</span>;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;chrono&quot;</span>, feature = <span class="string">&quot;time&quot;</span>))]
+</span><span class="kw">pub use </span>time_tz::PgTimeTz;
 
-<span class="comment">// used in derive(Type) for `struct`</span>
-<span class="comment">// but the interface is not considered part of the public API</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">record</span>::{<span class="ident">PgRecordDecoder</span>, <span class="ident">PgRecordEncoder</span>};
+<span class="comment">// used in derive(Type) for `struct`
+// but the interface is not considered part of the public API
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub use </span>record::{PgRecordDecoder, PgRecordEncoder};
 
-<span class="comment">// Type::compatible impl appropriate for arrays</span>
-<span class="kw">fn</span> <span class="ident">array_compatible</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PgTypeInfo</span>) -&gt; <span class="ident">bool</span> {
-    <span class="comment">// we require the declared type to be an _array_ with an</span>
-    <span class="comment">// element type that is acceptable</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PgTypeKind::Array</span>(<span class="ident">element</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ty</span>.<span class="ident">kind</span>() {
-        <span class="kw">return</span> <span class="ident">E::compatible</span>(<span class="kw-2">&amp;</span><span class="ident">element</span>);
+<span class="comment">// Type::compatible impl appropriate for arrays
+</span><span class="kw">fn </span>array_compatible&lt;E: Type&lt;Postgres&gt; + <span class="question-mark">?</span>Sized&gt;(ty: <span class="kw-2">&amp;</span>PgTypeInfo) -&gt; bool {
+    <span class="comment">// we require the declared type to be an _array_ with an
+    // element type that is acceptable
+    </span><span class="kw">if let </span>PgTypeKind::Array(element) = <span class="kw-2">&amp;</span>ty.kind() {
+        <span class="kw">return </span>E::compatible(<span class="kw-2">&amp;</span>element);
     }
 
-    <span class="bool-val">false</span>
-}
+    <span class="bool-val">false
+</span>}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

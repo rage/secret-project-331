@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/email_address-0.2.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../email_address/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../email_address/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../email_address/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/email_address-0.2.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../email_address/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../email_address/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../email_address/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1348,879 +1348,879 @@ Oddities](https://tools.ietf.org/html/rfc5322#appendix-A.5).
 
 An informal description can be found on [Wikipedia](https://en.wikipedia.org/wiki/Email_address).
 
-*/</span>
+*/
 
-<span class="attribute">#![<span class="ident">warn</span>(
-    <span class="ident">unknown_lints</span>,
-    <span class="comment">// ---------- Stylistic</span>
-    <span class="ident">absolute_paths_not_starting_with_crate</span>,
-    <span class="ident">elided_lifetimes_in_paths</span>,
-    <span class="ident">explicit_outlives_requirements</span>,
-    <span class="ident">macro_use_extern_crate</span>,
-    <span class="ident">nonstandard_style</span>, <span class="comment">/* group */</span>
-    <span class="ident">noop_method_call</span>,
-    <span class="ident">rust_2018_idioms</span>,
-    <span class="ident">single_use_lifetimes</span>,
-    <span class="ident">trivial_casts</span>,
-    <span class="ident">trivial_numeric_casts</span>,
-    <span class="comment">// ---------- Future</span>
-    <span class="ident">future_incompatible</span>, <span class="comment">/* group */</span>
-    <span class="ident">rust_2021_compatibility</span>, <span class="comment">/* group */</span>
-    <span class="comment">// ---------- Public</span>
-    <span class="ident">missing_debug_implementations</span>,
-    <span class="ident">missing_docs</span>,
-    <span class="ident">unreachable_pub</span>,
-    <span class="comment">// ---------- Unsafe</span>
-    <span class="ident">unsafe_code</span>,
-    <span class="ident">unsafe_op_in_unsafe_fn</span>,
-    <span class="comment">// ---------- Unused</span>
-    <span class="ident">unused</span>, <span class="comment">/* group */</span>
-)]</span>
-<span class="attribute">#![<span class="ident">deny</span>(
-    <span class="comment">// ---------- Public</span>
-    <span class="ident">exported_private_dependencies</span>,
-    <span class="ident">private_in_public</span>,
-    <span class="comment">// ---------- Deprecated</span>
-    <span class="ident">anonymous_parameters</span>,
-    <span class="ident">bare_trait_objects</span>,
-    <span class="ident">ellipsis_inclusive_range_patterns</span>,
-    <span class="comment">// ---------- Unsafe</span>
-    <span class="ident">deref_nullptr</span>,
-    <span class="ident">drop_bounds</span>,
-    <span class="ident">dyn_drop</span>,
-)]</span>
+</span><span class="attribute">#![warn(
+    unknown_lints,
+    <span class="comment">// ---------- Stylistic
+    </span>absolute_paths_not_starting_with_crate,
+    elided_lifetimes_in_paths,
+    explicit_outlives_requirements,
+    macro_use_extern_crate,
+    nonstandard_style, <span class="comment">/* group */
+    </span>noop_method_call,
+    rust_2018_idioms,
+    single_use_lifetimes,
+    trivial_casts,
+    trivial_numeric_casts,
+    <span class="comment">// ---------- Future
+    </span>future_incompatible, <span class="comment">/* group */
+    </span>rust_2021_compatibility, <span class="comment">/* group */
+    // ---------- Public
+    </span>missing_debug_implementations,
+    missing_docs,
+    unreachable_pub,
+    <span class="comment">// ---------- Unsafe
+    </span>unsafe_code,
+    unsafe_op_in_unsafe_fn,
+    <span class="comment">// ---------- Unused
+    </span>unused, <span class="comment">/* group */
+</span>)]
+#![deny(
+    <span class="comment">// ---------- Public
+    </span>exported_private_dependencies,
+    private_in_public,
+    <span class="comment">// ---------- Deprecated
+    </span>anonymous_parameters,
+    bare_trait_objects,
+    ellipsis_inclusive_range_patterns,
+    <span class="comment">// ---------- Unsafe
+    </span>deref_nullptr,
+    drop_bounds,
+    dyn_drop,
+)]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde_support&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>};
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+#[cfg(feature = <span class="string">&quot;serde_support&quot;</span>)]
+</span><span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::fmt::{Debug, Display, Formatter};
+<span class="kw">use </span>std::str::FromStr;
 
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
-<span class="comment">// Public Types</span>
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
+<span class="comment">// ------------------------------------------------------------------------------------------------
+// Public Types
+// ------------------------------------------------------------------------------------------------
 
-<span class="doccomment">///</span>
-<span class="doccomment">/// Error type used when parsing an address.</span>
-<span class="doccomment">///</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
-    <span class="doccomment">/// An invalid character was found in some component of the address.</span>
-    <span class="ident">InvalidCharacter</span>,
-    <span class="doccomment">/// The separator character between `local-part` and `domain` (character: &#39;@&#39;) was missing.</span>
-    <span class="ident">MissingSeparator</span>,
-    <span class="doccomment">/// The `local-part` is an empty string.</span>
-    <span class="ident">LocalPartEmpty</span>,
-    <span class="doccomment">/// The `local-part` is is too long.</span>
-    <span class="ident">LocalPartTooLong</span>,
-    <span class="doccomment">/// The `domain` is an empty string.</span>
-    <span class="ident">DomainEmpty</span>,
-    <span class="doccomment">/// The `domain` is is too long.</span>
-    <span class="ident">DomainTooLong</span>,
-    <span class="doccomment">/// A `sub-domain` within the `domain` is is too long.</span>
-    <span class="ident">SubDomainTooLong</span>,
-    <span class="doccomment">/// Too few `sub-domain`s in `domain`.</span>
-    <span class="ident">DomainTooFew</span>,
-    <span class="doccomment">/// Invalid placement of the domain separator (character: &#39;.&#39;).</span>
-    <span class="ident">DomainInvalidSeparator</span>,
-    <span class="doccomment">/// The quotes (character: &#39;&quot;&#39;) around `local-part` are unbalanced.</span>
-    <span class="ident">UnbalancedQuotes</span>,
-    <span class="doccomment">/// A Comment within the either the `local-part`, or `domain`, was malformed.</span>
-    <span class="ident">InvalidComment</span>,
-    <span class="doccomment">/// An IP address in a `domain-literal` was malformed.</span>
-    <span class="ident">InvalidIPAddress</span>,
+</span><span class="doccomment">///
+/// Error type used when parsing an address.
+///
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub enum </span>Error {
+    <span class="doccomment">/// An invalid character was found in some component of the address.
+    </span>InvalidCharacter,
+    <span class="doccomment">/// The separator character between `local-part` and `domain` (character: &#39;@&#39;) was missing.
+    </span>MissingSeparator,
+    <span class="doccomment">/// The `local-part` is an empty string.
+    </span>LocalPartEmpty,
+    <span class="doccomment">/// The `local-part` is is too long.
+    </span>LocalPartTooLong,
+    <span class="doccomment">/// The `domain` is an empty string.
+    </span>DomainEmpty,
+    <span class="doccomment">/// The `domain` is is too long.
+    </span>DomainTooLong,
+    <span class="doccomment">/// A `sub-domain` within the `domain` is is too long.
+    </span>SubDomainTooLong,
+    <span class="doccomment">/// Too few `sub-domain`s in `domain`.
+    </span>DomainTooFew,
+    <span class="doccomment">/// Invalid placement of the domain separator (character: &#39;.&#39;).
+    </span>DomainInvalidSeparator,
+    <span class="doccomment">/// The quotes (character: &#39;&quot;&#39;) around `local-part` are unbalanced.
+    </span>UnbalancedQuotes,
+    <span class="doccomment">/// A Comment within the either the `local-part`, or `domain`, was malformed.
+    </span>InvalidComment,
+    <span class="doccomment">/// An IP address in a `domain-literal` was malformed.
+    </span>InvalidIPAddress,
 }
 
-<span class="doccomment">///</span>
-<span class="doccomment">/// Type representing a single email address. This is basically a wrapper around a String, the</span>
-<span class="doccomment">/// email address is parsed for correctness with `FromStr::from_str`, which is the only want to</span>
-<span class="doccomment">/// create an instance. The various components of the email _are not_ parsed out to be accessible</span>
-<span class="doccomment">/// independently.</span>
-<span class="doccomment">///</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde_support&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EmailAddress</span>(<span class="ident">String</span>);
+<span class="doccomment">///
+/// Type representing a single email address. This is basically a wrapper around a String, the
+/// email address is parsed for correctness with `FromStr::from_str`, which is the only want to
+/// create an instance. The various components of the email _are not_ parsed out to be accessible
+/// independently.
+///
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = <span class="string">&quot;serde_support&quot;</span>, derive(Serialize))]
+</span><span class="kw">pub struct </span>EmailAddress(String);
 
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
-<span class="comment">// Implementations</span>
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
+<span class="comment">// ------------------------------------------------------------------------------------------------
+// Implementations
+// ------------------------------------------------------------------------------------------------
 
-<span class="kw">const</span> <span class="ident">LOCAL_PART_MAX_LENGTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">64</span>;
-<span class="kw">const</span> <span class="ident">DOMAIN_MAX_LENGTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">254</span>; <span class="comment">// see: https://www.rfc-editor.org/errata_search.php?rfc=3696&amp;eid=1690</span>
-<span class="kw">const</span> <span class="ident">SUB_DOMAIN_MAX_LENGTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">63</span>;
+</span><span class="kw">const </span>LOCAL_PART_MAX_LENGTH: usize = <span class="number">64</span>;
+<span class="kw">const </span>DOMAIN_MAX_LENGTH: usize = <span class="number">254</span>; <span class="comment">// see: https://www.rfc-editor.org/errata_search.php?rfc=3696&amp;eid=1690
+</span><span class="kw">const </span>SUB_DOMAIN_MAX_LENGTH: usize = <span class="number">63</span>;
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">const</span> <span class="ident">CR</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;\r&#39;</span>;
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">const</span> <span class="ident">LF</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;\n&#39;</span>;
-<span class="kw">const</span> <span class="ident">SP</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39; &#39;</span>;
-<span class="kw">const</span> <span class="ident">HTAB</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;\t&#39;</span>;
-<span class="kw">const</span> <span class="ident">ESC</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;\\&#39;</span>;
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">const </span>CR: char = <span class="string">&#39;\r&#39;</span>;
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">const </span>LF: char = <span class="string">&#39;\n&#39;</span>;
+<span class="kw">const </span>SP: char = <span class="string">&#39; &#39;</span>;
+<span class="kw">const </span>HTAB: char = <span class="string">&#39;\t&#39;</span>;
+<span class="kw">const </span>ESC: char = <span class="string">&#39;\\&#39;</span>;
 
-<span class="kw">const</span> <span class="ident">AT</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;@&#39;</span>;
-<span class="kw">const</span> <span class="ident">DOT</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;.&#39;</span>;
-<span class="kw">const</span> <span class="ident">DQUOTE</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;&quot;&#39;</span>;
-<span class="kw">const</span> <span class="ident">LBRACKET</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;[&#39;</span>;
-<span class="kw">const</span> <span class="ident">RBRACKET</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;]&#39;</span>;
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">const</span> <span class="ident">LPAREN</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;(&#39;</span>;
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">const</span> <span class="ident">RPAREN</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;)&#39;</span>;
+<span class="kw">const </span>AT: char = <span class="string">&#39;@&#39;</span>;
+<span class="kw">const </span>DOT: char = <span class="string">&#39;.&#39;</span>;
+<span class="kw">const </span>DQUOTE: char = <span class="string">&#39;&quot;&#39;</span>;
+<span class="kw">const </span>LBRACKET: char = <span class="string">&#39;[&#39;</span>;
+<span class="kw">const </span>RBRACKET: char = <span class="string">&#39;]&#39;</span>;
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">const </span>LPAREN: char = <span class="string">&#39;(&#39;</span>;
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">const </span>RPAREN: char = <span class="string">&#39;)&#39;</span>;
 
-<span class="kw">const</span> <span class="ident">UTF8_START</span>: <span class="ident">char</span> <span class="op">=</span> <span class="string">&#39;\u{0080}&#39;</span>;
+<span class="kw">const </span>UTF8_START: char = <span class="string">&#39;\u{0080}&#39;</span>;
 
-<span class="kw">const</span> <span class="ident">MAILTO_URI_PREFIX</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;mailto:&quot;</span>;
+<span class="kw">const </span>MAILTO_URI_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">&quot;mailto:&quot;</span>;
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Error::InvalidCharacter</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid character.&quot;</span>),
-            <span class="ident">Error::LocalPartEmpty</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Local part is empty.&quot;</span>),
-            <span class="ident">Error::LocalPartTooLong</span> =&gt; <span class="macro">write!</span>(
-                <span class="ident">f</span>,
+<span class="kw">impl </span>Display <span class="kw">for </span>Error {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            Error::InvalidCharacter =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Invalid character.&quot;</span>),
+            Error::LocalPartEmpty =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Local part is empty.&quot;</span>),
+            Error::LocalPartTooLong =&gt; <span class="macro">write!</span>(
+                f,
                 <span class="string">&quot;Local part is too long. Length limit: {}&quot;</span>,
-                <span class="ident">LOCAL_PART_MAX_LENGTH</span>
+                LOCAL_PART_MAX_LENGTH
             ),
-            <span class="ident">Error::DomainEmpty</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Domain is empty.&quot;</span>),
-            <span class="ident">Error::DomainTooLong</span> =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Domain is too long. Length limit: {}&quot;</span>, <span class="ident">DOMAIN_MAX_LENGTH</span>)
+            Error::DomainEmpty =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Domain is empty.&quot;</span>),
+            Error::DomainTooLong =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;Domain is too long. Length limit: {}&quot;</span>, DOMAIN_MAX_LENGTH)
             }
-            <span class="ident">Error::SubDomainTooLong</span> =&gt; <span class="macro">write!</span>(
-                <span class="ident">f</span>,
+            Error::SubDomainTooLong =&gt; <span class="macro">write!</span>(
+                f,
                 <span class="string">&quot;A sub-domain is too long. Length limit: {}&quot;</span>,
-                <span class="ident">SUB_DOMAIN_MAX_LENGTH</span>
+                SUB_DOMAIN_MAX_LENGTH
             ),
-            <span class="ident">Error::MissingSeparator</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Missing separator character &#39;{}&#39;.&quot;</span>, <span class="ident">AT</span>),
-            <span class="ident">Error::DomainTooFew</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Too few parts in the domain&quot;</span>),
-            <span class="ident">Error::DomainInvalidSeparator</span> =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid placement of the domain separator &#39;{:?}&quot;</span>, <span class="ident">DOT</span>)
+            Error::MissingSeparator =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Missing separator character &#39;{}&#39;.&quot;</span>, AT),
+            Error::DomainTooFew =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Too few parts in the domain&quot;</span>),
+            Error::DomainInvalidSeparator =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;Invalid placement of the domain separator &#39;{:?}&quot;</span>, DOT)
             }
-            <span class="ident">Error::InvalidIPAddress</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid IP Address specified for domain.&quot;</span>),
-            <span class="ident">Error::UnbalancedQuotes</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Quotes around the local-part are unbalanced.&quot;</span>),
-            <span class="ident">Error::InvalidComment</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;A comment was badly formed.&quot;</span>),
+            Error::InvalidIPAddress =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Invalid IP Address specified for domain.&quot;</span>),
+            Error::UnbalancedQuotes =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Quotes around the local-part are unbalanced.&quot;</span>),
+            Error::InvalidComment =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;A comment was badly formed.&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">Error</span> {}
+<span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>)
+<span class="kw">impl</span>&lt;T&gt; From&lt;Error&gt; <span class="kw">for </span>std::result::Result&lt;T, Error&gt; {
+    <span class="kw">fn </span>from(err: Error) -&gt; <span class="self">Self </span>{
+        <span class="prelude-val">Err</span>(err)
     }
 }
 
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
+<span class="comment">// ------------------------------------------------------------------------------------------------
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">EmailAddress</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+</span><span class="kw">impl </span>Display <span class="kw">for </span>EmailAddress {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">EmailAddress</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">Error</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>EmailAddress {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= Error;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
-        <span class="ident">parse_address</span>(<span class="ident">s</span>)
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+        parse_address(s)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">EmailAddress</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">email</span>: <span class="ident">EmailAddress</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">email</span>.<span class="number">0</span>
-    }
+<span class="kw">impl </span>From&lt;EmailAddress&gt; <span class="kw">for </span>String {
+    <span class="kw">fn </span>from(email: EmailAddress) -&gt; <span class="self">Self </span>{
+        email.<span class="number">0
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EmailAddress</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-    }
+<span class="kw">impl </span>AsRef&lt;str&gt; <span class="kw">for </span>EmailAddress {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde_support&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EmailAddress</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">serde::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;serde_support&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>EmailAddress {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+    <span class="kw">where
+        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">use</span> <span class="ident">serde::de</span>::{<span class="ident">Error</span>, <span class="ident">Unexpected</span>, <span class="ident">Visitor</span>};
+        <span class="kw">use </span>serde::de::{Error, Unexpected, Visitor};
 
-        <span class="kw">struct</span> <span class="ident">EmailAddressVisitor</span>;
+        <span class="kw">struct </span>EmailAddressVisitor;
 
-        <span class="kw">impl</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EmailAddressVisitor</span> {
-            <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">EmailAddress</span>;
+        <span class="kw">impl </span>Visitor&lt;<span class="lifetime">&#39;_</span>&gt; <span class="kw">for </span>EmailAddressVisitor {
+            <span class="kw">type </span>Value = EmailAddress;
 
-            <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-                <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;data&quot;</span>)
+            <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+                fmt.write_str(<span class="string">&quot;data&quot;</span>)
             }
 
-            <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">Error</span>,
+            <span class="kw">fn </span>visit_str&lt;E&gt;(<span class="self">self</span>, s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt;
+            <span class="kw">where
+                </span>E: Error,
             {
-                <span class="ident">EmailAddress::from_str</span>(<span class="ident">s</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">exp</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>);
-                    <span class="ident">Error::invalid_value</span>(<span class="ident">Unexpected::Str</span>(<span class="ident">s</span>), <span class="kw-2">&amp;</span><span class="ident">exp</span>.<span class="ident">as_ref</span>())
+                EmailAddress::from_str(s).map_err(|err| {
+                    <span class="kw">let </span>exp = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, err);
+                    Error::invalid_value(Unexpected::Str(s), <span class="kw-2">&amp;</span>exp.as_ref())
                 })
             }
         }
 
-        <span class="ident">deserializer</span>.<span class="ident">deserialize_str</span>(<span class="ident">EmailAddressVisitor</span>)
+        deserializer.deserialize_str(EmailAddressVisitor)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">EmailAddress</span> {
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Creates an `EmailAddress` without checking if the email is valid. Only</span>
-    <span class="doccomment">/// call this method if the address is known to be valid.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use std::str::FromStr;</span>
-    <span class="doccomment">/// use email_address::EmailAddress;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let unchecked = &quot;john.doe@example.com&quot;;</span>
-    <span class="doccomment">/// let email = EmailAddress::from_str(unchecked).expect(&quot;email is not valid&quot;);</span>
-    <span class="doccomment">/// let valid_email = String::from(email);</span>
-    <span class="doccomment">/// let email = EmailAddress::new_unchecked(valid_email);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;John Doe &lt;john.doe@example.com&gt;&quot;, email.to_display(&quot;John Doe&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_unchecked</span>(<span class="ident">address</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">address</span>)
+<span class="kw">impl </span>EmailAddress {
+    <span class="doccomment">///
+    /// Creates an `EmailAddress` without checking if the email is valid. Only
+    /// call this method if the address is known to be valid.
+    ///
+    /// ```
+    /// use std::str::FromStr;
+    /// use email_address::EmailAddress;
+    ///
+    /// let unchecked = &quot;john.doe@example.com&quot;;
+    /// let email = EmailAddress::from_str(unchecked).expect(&quot;email is not valid&quot;);
+    /// let valid_email = String::from(email);
+    /// let email = EmailAddress::new_unchecked(valid_email);
+    ///
+    /// assert_eq!(&quot;John Doe &lt;john.doe@example.com&gt;&quot;, email.to_display(&quot;John Doe&quot;));
+    /// ```
+    </span><span class="kw">pub fn </span>new_unchecked(address: String) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(address)
     }
 
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Determine whether the `address` string is a valid email address. Note this is equivalent to</span>
-    <span class="doccomment">/// the following:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use email_address::*;</span>
-    <span class="doccomment">/// use std::str::FromStr;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let is_valid = EmailAddress::from_str(&quot;johnstonskj@gmail.com&quot;).is_ok();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_valid</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident"><span class="self">Self</span>::from_str</span>(<span class="ident">address</span>).<span class="ident">is_ok</span>()
+    <span class="doccomment">///
+    /// Determine whether the `address` string is a valid email address. Note this is equivalent to
+    /// the following:
+    ///
+    /// ```rust
+    /// use email_address::*;
+    /// use std::str::FromStr;
+    ///
+    /// let is_valid = EmailAddress::from_str(&quot;johnstonskj@gmail.com&quot;).is_ok();
+    /// ```
+    ///
+    </span><span class="kw">pub fn </span>is_valid(address: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="self">Self</span>::from_str(address).is_ok()
     }
 
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Determine whether the `part` string would be a valid `local-part` if it were in an</span>
-    <span class="doccomment">/// email address.</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_valid_local_part</span>(<span class="ident">part</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">parse_local_part</span>(<span class="ident">part</span>).<span class="ident">is_ok</span>()
+    <span class="doccomment">///
+    /// Determine whether the `part` string would be a valid `local-part` if it were in an
+    /// email address.
+    ///
+    </span><span class="kw">pub fn </span>is_valid_local_part(part: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        parse_local_part(part).is_ok()
     }
 
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Determine whether the `part` string would be a valid `domain` if it were in an</span>
-    <span class="doccomment">/// email address.</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_valid_domain</span>(<span class="ident">part</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">parse_domain</span>(<span class="ident">part</span>).<span class="ident">is_ok</span>()
+    <span class="doccomment">///
+    /// Determine whether the `part` string would be a valid `domain` if it were in an
+    /// email address.
+    ///
+    </span><span class="kw">pub fn </span>is_valid_domain(part: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        parse_domain(part).is_ok()
     }
 
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Return this email address formatted as a URI. This will also URI-encode the email</span>
-    <span class="doccomment">/// address itself. So, `name@example.org` becomes `mailto:name@example.org`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use email_address::*;</span>
-    <span class="doccomment">/// use std::str::FromStr;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().to_uri(),</span>
-    <span class="doccomment">///     String::from(&quot;mailto:name@example.org&quot;)</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_uri</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>);
-        <span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">MAILTO_URI_PREFIX</span>, <span class="ident">encoded</span>)
+    <span class="doccomment">///
+    /// Return this email address formatted as a URI. This will also URI-encode the email
+    /// address itself. So, `name@example.org` becomes `mailto:name@example.org`.
+    ///
+    /// ```rust
+    /// use email_address::*;
+    /// use std::str::FromStr;
+    ///
+    /// assert_eq!(
+    ///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().to_uri(),
+    ///     String::from(&quot;mailto:name@example.org&quot;)
+    /// );
+    /// ```
+    ///
+    </span><span class="kw">pub fn </span>to_uri(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">let </span>encoded = encode(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>);
+        <span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, MAILTO_URI_PREFIX, encoded)
     }
 
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Return a string formatted as a display email with the user name. This is commonly used</span>
-    <span class="doccomment">/// in email headers and other locations where a display name is associated with the</span>
-    <span class="doccomment">/// address.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use email_address::*;</span>
-    <span class="doccomment">/// use std::str::FromStr;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().to_display(&quot;My Name&quot;),</span>
-    <span class="doccomment">///     String::from(&quot;My Name &lt;name@example.org&gt;&quot;)</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_display</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">display_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;{} &lt;{}&gt;&quot;</span>, <span class="ident">display_name</span>, <span class="self">self</span>)
+    <span class="doccomment">///
+    /// Return a string formatted as a display email with the user name. This is commonly used
+    /// in email headers and other locations where a display name is associated with the
+    /// address.
+    ///
+    /// ```rust
+    /// use email_address::*;
+    /// use std::str::FromStr;
+    ///
+    /// assert_eq!(
+    ///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().to_display(&quot;My Name&quot;),
+    ///     String::from(&quot;My Name &lt;name@example.org&gt;&quot;)
+    /// );
+    /// ```
+    ///
+    </span><span class="kw">pub fn </span>to_display(<span class="kw-2">&amp;</span><span class="self">self</span>, display_name: <span class="kw-2">&amp;</span>str) -&gt; String {
+        <span class="macro">format!</span>(<span class="string">&quot;{} &lt;{}&gt;&quot;</span>, display_name, <span class="self">self</span>)
     }
 
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns the local part of the email address. This is borrowed so that no additional</span>
-    <span class="doccomment">/// allocation is required.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use email_address::*;</span>
-    <span class="doccomment">/// use std::str::FromStr;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().local_part(),</span>
-    <span class="doccomment">///     String::from(&quot;name&quot;)</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_part</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw">let</span> (<span class="ident">left</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">split_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>).<span class="ident">unwrap</span>();
-        <span class="ident">left</span>
+    <span class="doccomment">///
+    /// Returns the local part of the email address. This is borrowed so that no additional
+    /// allocation is required.
+    ///
+    /// ```rust
+    /// use email_address::*;
+    /// use std::str::FromStr;
+    ///
+    /// assert_eq!(
+    ///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().local_part(),
+    ///     String::from(&quot;name&quot;)
+    /// );
+    /// ```
+    ///
+    </span><span class="kw">pub fn </span>local_part(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw">let </span>(left, <span class="kw">_</span>) = split_at(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>).unwrap();
+        left
     }
 
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns the domain of the email address. This is borrowed so that no additional</span>
-    <span class="doccomment">/// allocation is required.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// use email_address::*;</span>
-    <span class="doccomment">/// use std::str::FromStr;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().domain(),</span>
-    <span class="doccomment">///     String::from(&quot;example.org&quot;)</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">domain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">right</span>) <span class="op">=</span> <span class="ident">split_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>).<span class="ident">unwrap</span>();
-        <span class="ident">right</span>
+    <span class="doccomment">///
+    /// Returns the domain of the email address. This is borrowed so that no additional
+    /// allocation is required.
+    ///
+    /// ```rust
+    /// use email_address::*;
+    /// use std::str::FromStr;
+    ///
+    /// assert_eq!(
+    ///     EmailAddress::from_str(&quot;name@example.org&quot;).unwrap().domain(),
+    ///     String::from(&quot;example.org&quot;)
+    /// );
+    /// ```
+    ///
+    </span><span class="kw">pub fn </span>domain(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw">let </span>(<span class="kw">_</span>, right) = split_at(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>).unwrap();
+        right
     }
 }
 
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
-<span class="comment">// Private Functions</span>
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
+<span class="comment">// ------------------------------------------------------------------------------------------------
+// Private Functions
+// ------------------------------------------------------------------------------------------------
 
-<span class="kw">fn</span> <span class="ident">encode</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">address</span>.<span class="ident">chars</span>() {
-        <span class="kw">if</span> <span class="ident">is_uri_reserved</span>(<span class="ident">c</span>) {
-            <span class="ident">result</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;%{:02X}&quot;</span>, <span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+</span><span class="kw">fn </span>encode(address: <span class="kw-2">&amp;</span>str) -&gt; String {
+    <span class="kw">let </span><span class="kw-2">mut </span>result = String::new();
+    <span class="kw">for </span>c <span class="kw">in </span>address.chars() {
+        <span class="kw">if </span>is_uri_reserved(c) {
+            result.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;%{:02X}&quot;</span>, c <span class="kw">as </span>u8))
+        } <span class="kw">else </span>{
+            result.push(c);
         }
     }
-    <span class="ident">result</span>
+    result
 }
 
-<span class="kw">fn</span> <span class="ident">is_uri_reserved</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    <span class="comment">// No need to encode &#39;@&#39; as this is allowed in the email scheme.</span>
-    <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;!&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;#&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;$&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;%&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&amp;&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\&#39;&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;(&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;)&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;*&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;+&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;,&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;/&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;:&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;;&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;=&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;?&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;[&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;]&#39;</span>
+<span class="kw">fn </span>is_uri_reserved(c: char) -&gt; bool {
+    <span class="comment">// No need to encode &#39;@&#39; as this is allowed in the email scheme.
+    </span>c == <span class="string">&#39;!&#39;
+        </span>|| c == <span class="string">&#39;#&#39;
+        </span>|| c == <span class="string">&#39;$&#39;
+        </span>|| c == <span class="string">&#39;%&#39;
+        </span>|| c == <span class="string">&#39;&amp;&#39;
+        </span>|| c == <span class="string">&#39;\&#39;&#39;
+        </span>|| c == <span class="string">&#39;(&#39;
+        </span>|| c == <span class="string">&#39;)&#39;
+        </span>|| c == <span class="string">&#39;*&#39;
+        </span>|| c == <span class="string">&#39;+&#39;
+        </span>|| c == <span class="string">&#39;,&#39;
+        </span>|| c == <span class="string">&#39;/&#39;
+        </span>|| c == <span class="string">&#39;:&#39;
+        </span>|| c == <span class="string">&#39;;&#39;
+        </span>|| c == <span class="string">&#39;=&#39;
+        </span>|| c == <span class="string">&#39;?&#39;
+        </span>|| c == <span class="string">&#39;[&#39;
+        </span>|| c == <span class="string">&#39;]&#39;
+</span>}
+
+<span class="kw">fn </span>parse_address(address: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;EmailAddress, Error&gt; {
+    <span class="comment">//
+    // Deals with cases of &#39;@&#39; in `local-part`, if it is quoted they are legal, if
+    // not then they&#39;ll return an `InvalidCharacter` error later.
+    //
+    </span><span class="kw">let </span>(left, right) = split_at(address)<span class="question-mark">?</span>;
+    parse_local_part(left)<span class="question-mark">?</span>;
+    parse_domain(right)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(EmailAddress(address.to_owned()))
 }
 
-<span class="kw">fn</span> <span class="ident">parse_address</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">EmailAddress</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="comment">//</span>
-    <span class="comment">// Deals with cases of &#39;@&#39; in `local-part`, if it is quoted they are legal, if</span>
-    <span class="comment">// not then they&#39;ll return an `InvalidCharacter` error later.</span>
-    <span class="comment">//</span>
-    <span class="kw">let</span> (<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span> <span class="ident">split_at</span>(<span class="ident">address</span>)<span class="question-mark">?</span>;
-    <span class="ident">parse_local_part</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
-    <span class="ident">parse_domain</span>(<span class="ident">right</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">EmailAddress</span>(<span class="ident">address</span>.<span class="ident">to_owned</span>()))
-}
-
-<span class="kw">fn</span> <span class="ident">split_at</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">address</span>.<span class="ident">rsplit_once</span>(<span class="ident">AT</span>) {
-        <span class="prelude-val">None</span> =&gt; <span class="ident">Error::MissingSeparator</span>.<span class="ident">into</span>(),
-        <span class="prelude-val">Some</span>(<span class="ident">left_right</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">left_right</span>),
+<span class="kw">fn </span>split_at(address: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str), Error&gt; {
+    <span class="kw">match </span>address.rsplit_once(AT) {
+        <span class="prelude-val">None </span>=&gt; Error::MissingSeparator.into(),
+        <span class="prelude-val">Some</span>(left_right) =&gt; <span class="prelude-val">Ok</span>(left_right),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_local_part</span>(<span class="ident">part</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">Error::LocalPartEmpty</span>.<span class="ident">into</span>()
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">LOCAL_PART_MAX_LENGTH</span> {
-        <span class="ident">Error::LocalPartTooLong</span>.<span class="ident">into</span>()
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">starts_with</span>(<span class="ident">DQUOTE</span>) <span class="op">&amp;&amp;</span> <span class="ident">part</span>.<span class="ident">ends_with</span>(<span class="ident">DQUOTE</span>) {
-        <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
-            <span class="ident">Error::LocalPartEmpty</span>.<span class="ident">into</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">parse_quoted_local_part</span>(<span class="kw-2">&amp;</span><span class="ident">part</span>[<span class="number">1</span>..<span class="ident">part</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>])
+<span class="kw">fn </span>parse_local_part(part: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">if </span>part.is_empty() {
+        Error::LocalPartEmpty.into()
+    } <span class="kw">else if </span>part.len() &gt; LOCAL_PART_MAX_LENGTH {
+        Error::LocalPartTooLong.into()
+    } <span class="kw">else if </span>part.starts_with(DQUOTE) &amp;&amp; part.ends_with(DQUOTE) {
+        <span class="kw">if </span>part.len() == <span class="number">2 </span>{
+            Error::LocalPartEmpty.into()
+        } <span class="kw">else </span>{
+            parse_quoted_local_part(<span class="kw-2">&amp;</span>part[<span class="number">1</span>..part.len() - <span class="number">1</span>])
         }
-    } <span class="kw">else</span> {
-        <span class="ident">parse_unquoted_local_part</span>(<span class="ident">part</span>)
+    } <span class="kw">else </span>{
+        parse_unquoted_local_part(part)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_quoted_local_part</span>(<span class="ident">part</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">is_qcontent</span>(<span class="ident">part</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
-    } <span class="kw">else</span> {
+<span class="kw">fn </span>parse_quoted_local_part(part: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">if </span>is_qcontent(part) {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+    } <span class="kw">else </span>{
     }
-    <span class="ident">Error::InvalidCharacter</span>.<span class="ident">into</span>()
+    Error::InvalidCharacter.into()
 }
 
-<span class="kw">fn</span> <span class="ident">parse_unquoted_local_part</span>(<span class="ident">part</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">is_dot_atom_text</span>(<span class="ident">part</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+<span class="kw">fn </span>parse_unquoted_local_part(part: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">if </span>is_dot_atom_text(part) {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
-    <span class="ident">Error::InvalidCharacter</span>.<span class="ident">into</span>()
+    Error::InvalidCharacter.into()
 }
 
-<span class="kw">fn</span> <span class="ident">parse_domain</span>(<span class="ident">part</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">Error::DomainEmpty</span>.<span class="ident">into</span>()
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">DOMAIN_MAX_LENGTH</span> {
-        <span class="ident">Error::DomainTooLong</span>.<span class="ident">into</span>()
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">starts_with</span>(<span class="ident">LBRACKET</span>) <span class="op">&amp;&amp;</span> <span class="ident">part</span>.<span class="ident">ends_with</span>(<span class="ident">RBRACKET</span>) {
-        <span class="ident">parse_literal_domain</span>(<span class="kw-2">&amp;</span><span class="ident">part</span>[<span class="number">1</span>..<span class="ident">part</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>])
-    } <span class="kw">else</span> {
-        <span class="ident">parse_text_domain</span>(<span class="ident">part</span>)
+<span class="kw">fn </span>parse_domain(part: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">if </span>part.is_empty() {
+        Error::DomainEmpty.into()
+    } <span class="kw">else if </span>part.len() &gt; DOMAIN_MAX_LENGTH {
+        Error::DomainTooLong.into()
+    } <span class="kw">else if </span>part.starts_with(LBRACKET) &amp;&amp; part.ends_with(RBRACKET) {
+        parse_literal_domain(<span class="kw-2">&amp;</span>part[<span class="number">1</span>..part.len() - <span class="number">1</span>])
+    } <span class="kw">else </span>{
+        parse_text_domain(part)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_text_domain</span>(<span class="ident">part</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">is_dot_atom_text</span>(<span class="ident">part</span>) {
-        <span class="kw">for</span> <span class="ident">sub_part</span> <span class="kw">in</span> <span class="ident">part</span>.<span class="ident">split</span>(<span class="ident">DOT</span>) {
-            <span class="kw">if</span> <span class="ident">sub_part</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">SUB_DOMAIN_MAX_LENGTH</span> {
-                <span class="kw">return</span> <span class="ident">Error::SubDomainTooLong</span>.<span class="ident">into</span>();
+<span class="kw">fn </span>parse_text_domain(part: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">if </span>is_dot_atom_text(part) {
+        <span class="kw">for </span>sub_part <span class="kw">in </span>part.split(DOT) {
+            <span class="kw">if </span>sub_part.len() &gt; SUB_DOMAIN_MAX_LENGTH {
+                <span class="kw">return </span>Error::SubDomainTooLong.into();
             }
         }
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
-    <span class="ident">Error::InvalidCharacter</span>.<span class="ident">into</span>()
+    Error::InvalidCharacter.into()
 }
 
-<span class="kw">fn</span> <span class="ident">parse_literal_domain</span>(<span class="ident">part</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="ident">is_dtext_char</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+<span class="kw">fn </span>parse_literal_domain(part: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">if </span>part.chars().all(is_dtext_char) {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
-    <span class="ident">Error::InvalidCharacter</span>.<span class="ident">into</span>()
+    Error::InvalidCharacter.into()
 }
 
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
+<span class="comment">// ------------------------------------------------------------------------------------------------
 
-<span class="kw">fn</span> <span class="ident">is_atext</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">c</span>.<span class="ident">is_alphanumeric</span>()
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;!&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;#&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;$&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;%&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&amp;&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\&#39;&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;*&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;+&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;-&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;/&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;=&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;?&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;^&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;`&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;{&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;|&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;}&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;~&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">is_uchar</span>(<span class="ident">c</span>)
+</span><span class="kw">fn </span>is_atext(c: char) -&gt; bool {
+    c.is_alphanumeric()
+        || c == <span class="string">&#39;!&#39;
+        </span>|| c == <span class="string">&#39;#&#39;
+        </span>|| c == <span class="string">&#39;$&#39;
+        </span>|| c == <span class="string">&#39;%&#39;
+        </span>|| c == <span class="string">&#39;&amp;&#39;
+        </span>|| c == <span class="string">&#39;\&#39;&#39;
+        </span>|| c == <span class="string">&#39;*&#39;
+        </span>|| c == <span class="string">&#39;+&#39;
+        </span>|| c == <span class="string">&#39;-&#39;
+        </span>|| c == <span class="string">&#39;/&#39;
+        </span>|| c == <span class="string">&#39;=&#39;
+        </span>|| c == <span class="string">&#39;?&#39;
+        </span>|| c == <span class="string">&#39;^&#39;
+        </span>|| c == <span class="string">&#39;_&#39;
+        </span>|| c == <span class="string">&#39;`&#39;
+        </span>|| c == <span class="string">&#39;{&#39;
+        </span>|| c == <span class="string">&#39;|&#39;
+        </span>|| c == <span class="string">&#39;}&#39;
+        </span>|| c == <span class="string">&#39;~&#39;
+        </span>|| is_uchar(c)
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">fn</span> <span class="ident">is_special</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;(&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;)&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&lt;&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;&gt;&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;[&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;]&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;:&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;;&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;@&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\\&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;,&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;.&#39;</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="ident">DQUOTE</span>
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">fn </span>is_special(c: char) -&gt; bool {
+    c == <span class="string">&#39;(&#39;
+        </span>|| c == <span class="string">&#39;)&#39;
+        </span>|| c == <span class="string">&#39;&lt;&#39;
+        </span>|| c == <span class="string">&#39;&gt;&#39;
+        </span>|| c == <span class="string">&#39;[&#39;
+        </span>|| c == <span class="string">&#39;]&#39;
+        </span>|| c == <span class="string">&#39;:&#39;
+        </span>|| c == <span class="string">&#39;;&#39;
+        </span>|| c == <span class="string">&#39;@&#39;
+        </span>|| c == <span class="string">&#39;\\&#39;
+        </span>|| c == <span class="string">&#39;,&#39;
+        </span>|| c == <span class="string">&#39;.&#39;
+        </span>|| c == DQUOTE
 }
 
-<span class="kw">fn</span> <span class="ident">is_uchar</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">c</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">UTF8_START</span>
+<span class="kw">fn </span>is_uchar(c: char) -&gt; bool {
+    c &gt;= UTF8_START
 }
 
-<span class="kw">fn</span> <span class="ident">is_atom</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="op">!</span><span class="ident">s</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="ident">is_atext</span>)
+<span class="kw">fn </span>is_atom(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    !s.is_empty() &amp;&amp; s.chars().all(is_atext)
 }
 
-<span class="kw">fn</span> <span class="ident">is_dot_atom_text</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">s</span>.<span class="ident">split</span>(<span class="ident">DOT</span>).<span class="ident">all</span>(<span class="ident">is_atom</span>)
+<span class="kw">fn </span>is_dot_atom_text(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    s.split(DOT).all(is_atom)
 }
 
-<span class="kw">fn</span> <span class="ident">is_vchar</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    (<span class="string">&#39;\x21&#39;</span>..<span class="op">=</span><span class="string">&#39;\x7E&#39;</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>)
+<span class="kw">fn </span>is_vchar(c: char) -&gt; bool {
+    (<span class="string">&#39;\x21&#39;</span>..=<span class="string">&#39;\x7E&#39;</span>).contains(<span class="kw-2">&amp;</span>c)
 }
 
-<span class="kw">fn</span> <span class="ident">is_wsp</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">c</span> <span class="op">==</span> <span class="ident">SP</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="ident">HTAB</span>
+<span class="kw">fn </span>is_wsp(c: char) -&gt; bool {
+    c == SP || c == HTAB
 }
 
-<span class="kw">fn</span> <span class="ident">is_qtext_char</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\x21&#39;</span> <span class="op">|</span><span class="op">|</span> (<span class="string">&#39;\x23&#39;</span>..<span class="op">=</span><span class="string">&#39;\x5B&#39;</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>) <span class="op">|</span><span class="op">|</span> (<span class="string">&#39;\x5D&#39;</span>..<span class="op">=</span><span class="string">&#39;\x7E&#39;</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">is_uchar</span>(<span class="ident">c</span>)
+<span class="kw">fn </span>is_qtext_char(c: char) -&gt; bool {
+    c == <span class="string">&#39;\x21&#39; </span>|| (<span class="string">&#39;\x23&#39;</span>..=<span class="string">&#39;\x5B&#39;</span>).contains(<span class="kw-2">&amp;</span>c) || (<span class="string">&#39;\x5D&#39;</span>..=<span class="string">&#39;\x7E&#39;</span>).contains(<span class="kw-2">&amp;</span>c) || is_uchar(c)
 }
 
-<span class="kw">fn</span> <span class="ident">is_qcontent</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">char_iter</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">chars</span>();
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">char_iter</span>.<span class="ident">next</span>() {
-        <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">ESC</span> {
-            <span class="comment">// quoted-pair</span>
-            <span class="kw">match</span> <span class="ident">char_iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">c2</span>) <span class="kw">if</span> <span class="ident">is_vchar</span>(<span class="ident">c2</span>) =&gt; (),
-                <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
+<span class="kw">fn </span>is_qcontent(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    <span class="kw">let </span><span class="kw-2">mut </span>char_iter = s.chars();
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = <span class="kw-2">&amp;</span>char_iter.next() {
+        <span class="kw">if </span>c == <span class="kw-2">&amp;</span>ESC {
+            <span class="comment">// quoted-pair
+            </span><span class="kw">match </span>char_iter.next() {
+                <span class="prelude-val">Some</span>(c2) <span class="kw">if </span>is_vchar(c2) =&gt; (),
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span>(<span class="ident">is_wsp</span>(<span class="kw-2">*</span><span class="ident">c</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">is_qtext_char</span>(<span class="kw-2">*</span><span class="ident">c</span>)) {
-            <span class="comment">// qtext</span>
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+        } <span class="kw">else if </span>!(is_wsp(<span class="kw-2">*</span>c) || is_qtext_char(<span class="kw-2">*</span>c)) {
+            <span class="comment">// qtext
+            </span><span class="kw">return </span><span class="bool-val">false</span>;
         }
     }
-    <span class="bool-val">true</span>
+    <span class="bool-val">true
+</span>}
+
+<span class="kw">fn </span>is_dtext_char(c: char) -&gt; bool {
+    (<span class="string">&#39;\x21&#39;</span>..=<span class="string">&#39;\x5A&#39;</span>).contains(<span class="kw-2">&amp;</span>c) || (<span class="string">&#39;\x5E&#39;</span>..=<span class="string">&#39;\x7E&#39;</span>).contains(<span class="kw-2">&amp;</span>c)
 }
 
-<span class="kw">fn</span> <span class="ident">is_dtext_char</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    (<span class="string">&#39;\x21&#39;</span>..<span class="op">=</span><span class="string">&#39;\x5A&#39;</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>) <span class="op">|</span><span class="op">|</span> (<span class="string">&#39;\x5E&#39;</span>..<span class="op">=</span><span class="string">&#39;\x7E&#39;</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>)
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">fn </span>is_ctext_char(c: char) -&gt; bool {
+    (c &gt;= <span class="string">&#39;\x21&#39; </span>&amp;&amp; c == <span class="string">&#39;\x27&#39;</span>) || (<span class="string">&#39;\x2A&#39;</span>..=<span class="string">&#39;\x5B&#39;</span>).contains(<span class="kw-2">&amp;</span>c) || (<span class="string">&#39;\x5D&#39;</span>..=<span class="string">&#39;\x7E&#39;</span>).contains(<span class="kw-2">&amp;</span>c)
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">fn</span> <span class="ident">is_ctext_char</span>(<span class="ident">c</span>: <span class="ident">char</span>) -&gt; <span class="ident">bool</span> {
-    (<span class="ident">c</span> <span class="op">&gt;</span><span class="op">=</span> <span class="string">&#39;\x21&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;\x27&#39;</span>) <span class="op">|</span><span class="op">|</span> (<span class="string">&#39;\x2A&#39;</span>..<span class="op">=</span><span class="string">&#39;\x5B&#39;</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>) <span class="op">|</span><span class="op">|</span> (<span class="string">&#39;\x5D&#39;</span>..<span class="op">=</span><span class="string">&#39;\x7E&#39;</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>)
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">fn </span>is_ctext(s: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    s.chars().all(is_ctext_char)
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">fn</span> <span class="ident">is_ctext</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">s</span>.<span class="ident">chars</span>().<span class="ident">all</span>(<span class="ident">is_ctext_char</span>)
-}
+<span class="comment">// ------------------------------------------------------------------------------------------------
+// Unit Tests
+// ------------------------------------------------------------------------------------------------
 
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
-<span class="comment">// Unit Tests</span>
-<span class="comment">// ------------------------------------------------------------------------------------------------</span>
+</span><span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-
-    <span class="kw">fn</span> <span class="ident">is_valid</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">test_case</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">test_case</span>) <span class="op">=</span> <span class="ident">test_case</span> {
-            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; test case: {}&quot;</span>, <span class="ident">test_case</span>);
-            <span class="macro">println!</span>(<span class="string">&quot;     &lt;{}&gt;&quot;</span>, <span class="ident">address</span>);
-        } <span class="kw">else</span> {
-            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; &lt;{}&gt;&quot;</span>, <span class="ident">address</span>);
+    <span class="kw">fn </span>is_valid(address: <span class="kw-2">&amp;</span>str, test_case: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(test_case) = test_case {
+            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; test case: {}&quot;</span>, test_case);
+            <span class="macro">println!</span>(<span class="string">&quot;     &lt;{}&gt;&quot;</span>, address);
+        } <span class="kw">else </span>{
+            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; &lt;{}&gt;&quot;</span>, address);
         }
-        <span class="macro">assert!</span>(<span class="ident">EmailAddress::is_valid</span>(<span class="ident">address</span>));
+        <span class="macro">assert!</span>(EmailAddress::is_valid(address));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_01</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;simple@example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_01() {
+        is_valid(<span class="string">&quot;simple@example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_02</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;very.common@example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_02() {
+        is_valid(<span class="string">&quot;very.common@example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_03</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;disposable.style.email.with+symbol@example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_03() {
+        is_valid(<span class="string">&quot;disposable.style.email.with+symbol@example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_04</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;other.email-with-hyphen@example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_04() {
+        is_valid(<span class="string">&quot;other.email-with-hyphen@example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_05</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;fully-qualified-domain@example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_05() {
+        is_valid(<span class="string">&quot;fully-qualified-domain@example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_06</span>() {
-        <span class="ident">is_valid</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_06() {
+        is_valid(
             <span class="string">&quot;user.name+tag+sorting@example.com&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot; may go to user.name@example.com inbox depending on mail server&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_07</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;x@example.com&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;one-letter local-part&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_07() {
+        is_valid(<span class="string">&quot;x@example.com&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;one-letter local-part&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_08</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;example-indeed@strange-example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_08() {
+        is_valid(<span class="string">&quot;example-indeed@strange-example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_09</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;admin@mailserver1&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;local domain name with no TLD, although ICANN highly discourages dotless email addresses&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_09() {
+        is_valid(<span class="string">&quot;admin@mailserver1&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;local domain name with no TLD, although ICANN highly discourages dotless email addresses&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_10</span>() {
-        <span class="ident">is_valid</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_10() {
+        is_valid(
             <span class="string">&quot;example@s.example&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;see the List of Internet top-level domains&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_11</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;\&quot; \&quot;@example.org&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;space between the quotes&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_11() {
+        is_valid(<span class="string">&quot;\&quot; \&quot;@example.org&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;space between the quotes&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_12</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;\&quot;john..doe\&quot;@example.org&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;quoted double dot&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_12() {
+        is_valid(<span class="string">&quot;\&quot;john..doe\&quot;@example.org&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;quoted double dot&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_13</span>() {
-        <span class="ident">is_valid</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_13() {
+        is_valid(
             <span class="string">&quot;mailhost!username@example.org&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;bangified host route used for uucp mailers&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_14</span>() {
-        <span class="ident">is_valid</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_14() {
+        is_valid(
             <span class="string">&quot;user%example.com@example.org&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;% escaped mail route to user@example.com via example.org&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_15</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;jsmith@[192.168.2.1]&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_15() {
+        is_valid(<span class="string">&quot;jsmith@[192.168.2.1]&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_16</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;jsmith@[IPv6:2001:db8::1]&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_16() {
+        is_valid(<span class="string">&quot;jsmith@[IPv6:2001:db8::1]&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_17</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;user+mailbox/department=shipping@example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_17() {
+        is_valid(<span class="string">&quot;user+mailbox/department=shipping@example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_18</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;!#$%&amp;&#39;*+-/=?^_`.{|}~@example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_18() {
+        is_valid(<span class="string">&quot;!#$%&amp;&#39;*+-/=?^_`.{|}~@example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_19</span>() {
-        <span class="comment">// &#39;@&#39; is allowed in a quoted local part. Sorry.</span>
-        <span class="ident">is_valid</span>(<span class="string">&quot;\&quot;Abc@def\&quot;@example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_19() {
+        <span class="comment">// &#39;@&#39; is allowed in a quoted local part. Sorry.
+        </span>is_valid(<span class="string">&quot;\&quot;Abc@def\&quot;@example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_20</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;\&quot;Joe.\\\\Blow\&quot;@example.com&quot;</span>, <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_20() {
+        is_valid(<span class="string">&quot;\&quot;Joe.\\\\Blow\&quot;@example.com&quot;</span>, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_21</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;用户@例子.广告&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Chinese&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_21() {
+        is_valid(<span class="string">&quot;用户@例子.广告&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Chinese&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_22</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;अजय@डाटा.भारत&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Hindi&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_22() {
+        is_valid(<span class="string">&quot;अजय@डाटा.भारत&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Hindi&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_23</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;квіточка@пошта.укр&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Ukranian&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_23() {
+        is_valid(<span class="string">&quot;квіточка@пошта.укр&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Ukranian&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_24</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;θσερ@εχαμπλε.ψομ&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Greek&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_24() {
+        is_valid(<span class="string">&quot;θσερ@εχαμπλε.ψομ&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Greek&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_25</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;Dörte@Sörensen.example.com&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;German&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_25() {
+        is_valid(<span class="string">&quot;Dörte@Sörensen.example.com&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;German&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_good_examples_from_wikipedia_26</span>() {
-        <span class="ident">is_valid</span>(<span class="string">&quot;коля@пример.рф&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Russian&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_good_examples_from_wikipedia_26() {
+        is_valid(<span class="string">&quot;коля@пример.рф&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Russian&quot;</span>));
     }
 
-    <span class="comment">// ------------------------------------------------------------------------------------------------</span>
+    <span class="comment">// ------------------------------------------------------------------------------------------------
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_to_strings</span>() {
-        <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="ident">EmailAddress::from_str</span>(<span class="string">&quot;коля@пример.рф&quot;</span>).<span class="ident">unwrap</span>();
+    </span><span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_to_strings() {
+        <span class="kw">let </span>email = EmailAddress::from_str(<span class="string">&quot;коля@пример.рф&quot;</span>).unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from</span>(<span class="ident">email</span>.<span class="ident">clone</span>()), <span class="ident">String::from</span>(<span class="string">&quot;коля@пример.рф&quot;</span>));
+        <span class="macro">assert_eq!</span>(String::from(email.clone()), String::from(<span class="string">&quot;коля@пример.рф&quot;</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">email</span>.<span class="ident">to_string</span>(), <span class="ident">String::from</span>(<span class="string">&quot;коля@пример.рф&quot;</span>));
+        <span class="macro">assert_eq!</span>(email.to_string(), String::from(<span class="string">&quot;коля@пример.рф&quot;</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="ident">email</span>.<span class="ident">as_ref</span>(), <span class="string">&quot;коля@пример.рф&quot;</span>);
+        <span class="macro">assert_eq!</span>(email.as_ref(), <span class="string">&quot;коля@пример.рф&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_to_display</span>() {
-        <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="ident">EmailAddress::from_str</span>(<span class="string">&quot;коля@пример.рф&quot;</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_to_display() {
+        <span class="kw">let </span>email = EmailAddress::from_str(<span class="string">&quot;коля@пример.рф&quot;</span>).unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">email</span>.<span class="ident">to_display</span>(<span class="string">&quot;коля&quot;</span>),
-            <span class="ident">String::from</span>(<span class="string">&quot;коля &lt;коля@пример.рф&gt;&quot;</span>)
+            email.to_display(<span class="string">&quot;коля&quot;</span>),
+            String::from(<span class="string">&quot;коля &lt;коля@пример.рф&gt;&quot;</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_touri</span>() {
-        <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="ident">EmailAddress::from_str</span>(<span class="string">&quot;коля@пример.рф&quot;</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_touri() {
+        <span class="kw">let </span>email = EmailAddress::from_str(<span class="string">&quot;коля@пример.рф&quot;</span>).unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">email</span>.<span class="ident">to_uri</span>(), <span class="ident">String::from</span>(<span class="string">&quot;mailto:коля@пример.рф&quot;</span>));
+        <span class="macro">assert_eq!</span>(email.to_uri(), String::from(<span class="string">&quot;mailto:коля@пример.рф&quot;</span>));
     }
 
-    <span class="comment">// ------------------------------------------------------------------------------------------------</span>
+    <span class="comment">// ------------------------------------------------------------------------------------------------
 
-    <span class="kw">fn</span> <span class="ident">expect</span>(<span class="ident">address</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">error</span>: <span class="ident">Error</span>, <span class="ident">test_case</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">test_case</span>) <span class="op">=</span> <span class="ident">test_case</span> {
-            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; test case: {}&quot;</span>, <span class="ident">test_case</span>);
-            <span class="macro">println!</span>(<span class="string">&quot;     &lt;{}&gt;, expecting {:?}&quot;</span>, <span class="ident">address</span>, <span class="ident">error</span>);
-        } <span class="kw">else</span> {
-            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; &lt;{}&gt;, expecting {:?}&quot;</span>, <span class="ident">address</span>, <span class="ident">error</span>);
+    </span><span class="kw">fn </span>expect(address: <span class="kw-2">&amp;</span>str, error: Error, test_case: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(test_case) = test_case {
+            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; test case: {}&quot;</span>, test_case);
+            <span class="macro">println!</span>(<span class="string">&quot;     &lt;{}&gt;, expecting {:?}&quot;</span>, address, error);
+        } <span class="kw">else </span>{
+            <span class="macro">println!</span>(<span class="string">&quot;&gt;&gt; &lt;{}&gt;, expecting {:?}&quot;</span>, address, error);
         }
-        <span class="macro">assert_eq!</span>(<span class="ident">EmailAddress::from_str</span>(<span class="ident">address</span>), <span class="ident">error</span>.<span class="ident">into</span>());
+        <span class="macro">assert_eq!</span>(EmailAddress::from_str(address), error.into());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_examples_from_wikipedia_00</span>() {
-        <span class="ident">expect</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_00() {
+        expect(
             <span class="string">&quot;Abc.example.com&quot;</span>,
-            <span class="ident">Error::MissingSeparator</span>,
+            Error::MissingSeparator,
             <span class="prelude-val">Some</span>(<span class="string">&quot;no @ character&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_examples_from_wikipedia_01</span>() {
-        <span class="ident">expect</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_01() {
+        expect(
             <span class="string">&quot;A@b@c@example.com&quot;</span>,
-            <span class="ident">Error::InvalidCharacter</span>,
+            Error::InvalidCharacter,
             <span class="prelude-val">Some</span>(<span class="string">&quot;only one @ is allowed outside quotation marks&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_examples_from_wikipedia_02</span>() {
-        <span class="ident">expect</span>(<span class="string">&quot;a\&quot;b(c)d,e:f;g&lt;h&gt;i[j\\k]l@example.com&quot;</span>,
-            <span class="ident">Error::InvalidCharacter</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_02() {
+        expect(<span class="string">&quot;a\&quot;b(c)d,e:f;g&lt;h&gt;i[j\\k]l@example.com&quot;</span>,
+            Error::InvalidCharacter,
         <span class="prelude-val">Some</span>(<span class="string">&quot;none of the special characters in this local-part are allowed outside quotation marks&quot;</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_examples_from_wikipedia_03</span>() {
-        <span class="ident">expect</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_03() {
+        expect(
             <span class="string">&quot;just\&quot;not\&quot;right@example.com&quot;</span>,
-            <span class="ident">Error::InvalidCharacter</span>,
+            Error::InvalidCharacter,
             <span class="prelude-val">Some</span>(
                 <span class="string">&quot;quoted strings must be dot separated or the only element making up the local-part&quot;</span>,
             ),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_examples_from_wikipedia_04</span>() {
-        <span class="ident">expect</span>(<span class="string">&quot;this is\&quot;not\\allowed@example.com&quot;</span>,
-            <span class="ident">Error::InvalidCharacter</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_04() {
+        expect(<span class="string">&quot;this is\&quot;not\\allowed@example.com&quot;</span>,
+            Error::InvalidCharacter,
         <span class="prelude-val">Some</span>(<span class="string">&quot;spaces, quotes, and backslashes may only exist when within quoted strings and preceded by a backslash&quot;</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_examples_from_wikipedia_05</span>() {
-        <span class="comment">// ()</span>
-        <span class="ident">expect</span>(<span class="string">&quot;this\\ still\&quot;not\\allowed@example.com&quot;</span>,
-            <span class="ident">Error::InvalidCharacter</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_05() {
+        <span class="comment">// ()
+        </span>expect(<span class="string">&quot;this\\ still\&quot;not\\allowed@example.com&quot;</span>,
+            Error::InvalidCharacter,
         <span class="prelude-val">Some</span>(<span class="string">&quot;even if escaped (preceded by a backslash), spaces, quotes, and backslashes must still be contained by quotes&quot;</span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_examples_from_wikipedia_06</span>() {
-        <span class="ident">expect</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_examples_from_wikipedia_06() {
+        expect(
             <span class="string">&quot;1234567890123456789012345678901234567890123456789012345678901234+x@example.com&quot;</span>,
-            <span class="ident">Error::LocalPartTooLong</span>,
+            Error::LocalPartTooLong,
             <span class="prelude-val">Some</span>(<span class="string">&quot;local part is longer than 64 characters&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_example_01</span>() {
-        <span class="ident">expect</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_example_01() {
+        expect(
             <span class="string">&quot;foo@example.v1234567890123456789012345678901234567890123456789012345678901234v.com&quot;</span>,
-            <span class="ident">Error::SubDomainTooLong</span>,
+            Error::SubDomainTooLong,
             <span class="prelude-val">Some</span>(<span class="string">&quot;domain part is longer than 64 characters&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_example_02</span>() {
-        <span class="ident">expect</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_example_02() {
+        expect(
             <span class="string">&quot;@example.com&quot;</span>,
-            <span class="ident">Error::LocalPartEmpty</span>,
+            Error::LocalPartEmpty,
             <span class="prelude-val">Some</span>(<span class="string">&quot;local-part is empty&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_example_03</span>() {
-        <span class="ident">expect</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_example_03() {
+        expect(
             <span class="string">&quot;\&quot;\&quot;@example.com&quot;</span>,
-            <span class="ident">Error::LocalPartEmpty</span>,
+            Error::LocalPartEmpty,
             <span class="prelude-val">Some</span>(<span class="string">&quot;local-part is empty&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bad_example_04</span>() {
-        <span class="ident">expect</span>(<span class="string">&quot;simon@&quot;</span>, <span class="ident">Error::DomainEmpty</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;domain is empty&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bad_example_04() {
+        expect(<span class="string">&quot;simon@&quot;</span>, Error::DomainEmpty, <span class="prelude-val">Some</span>(<span class="string">&quot;domain is empty&quot;</span>));
     }
 
-    <span class="comment">// make sure Error impl Send + Sync</span>
-    <span class="kw">fn</span> <span class="ident">is_send</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span><span class="op">&gt;</span>() {}
-    <span class="kw">fn</span> <span class="ident">is_sync</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Sync</span><span class="op">&gt;</span>() {}
+    <span class="comment">// make sure Error impl Send + Sync
+    </span><span class="kw">fn </span>is_send&lt;T: Send&gt;() {}
+    <span class="kw">fn </span>is_sync&lt;T: Sync&gt;() {}
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_error_traits</span>() {
-        <span class="ident">is_send</span>::<span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>();
-        <span class="ident">is_sync</span>::<span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_error_traits() {
+        is_send::&lt;Error&gt;();
+        is_sync::&lt;Error&gt;();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="email_address" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="email_address" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

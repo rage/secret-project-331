@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-0.6.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-0.6.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -162,169 +162,169 @@
 <span id="162">162</span>
 <span id="163">163</span>
 <span id="164">164</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
+</pre><pre class="rust"><code><span class="attribute">#![cfg_attr(docsrs, feature(doc_cfg))]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime-async-std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime-tokio&quot;</span>))]</span>
-<span class="macro">compile_error!</span>(
+#[cfg(any(feature = <span class="string">&quot;runtime-async-std&quot;</span>, feature = <span class="string">&quot;runtime-tokio&quot;</span>))]
+</span><span class="macro">compile_error!</span>(
     <span class="string">&quot;the features &#39;runtime-actix&#39;, &#39;runtime-async-std&#39; and &#39;runtime-tokio&#39; have been removed in
      favor of new features &#39;runtime-{rt}-{tls}&#39; where rt is one of &#39;actix&#39;, &#39;async-std&#39; and &#39;tokio&#39;
-     and &#39;tls&#39; is one of &#39;native-tls&#39; and &#39;rustls&#39;.&quot;</span>
-);
+     and &#39;tls&#39; is one of &#39;native-tls&#39; and &#39;rustls&#39;.&quot;
+</span>);
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::acquire::Acquire</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::arguments</span>::{<span class="ident">Arguments</span>, <span class="ident">IntoArguments</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::column::Column</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::column::ColumnIndex</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::connection</span>::{<span class="ident">ConnectOptions</span>, <span class="ident">Connection</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::database</span>::{<span class="self">self</span>, <span class="ident">Database</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::describe::Describe</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::executor</span>::{<span class="ident">Execute</span>, <span class="ident">Executor</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::from_row::FromRow</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::pool</span>::{<span class="self">self</span>, <span class="ident">Pool</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::query</span>::{<span class="ident">query</span>, <span class="ident">query_with</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::query_as</span>::{<span class="ident">query_as</span>, <span class="ident">query_as_with</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::query_builder</span>::{<span class="self">self</span>, <span class="ident">QueryBuilder</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::query_scalar</span>::{<span class="ident">query_scalar</span>, <span class="ident">query_scalar_with</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::row::Row</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::statement::Statement</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::transaction</span>::{<span class="ident">Transaction</span>, <span class="ident">TransactionManager</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::type_info::TypeInfo</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::types::Type</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::value</span>::{<span class="ident">Value</span>, <span class="ident">ValueRef</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::Either</span>;
+<span class="kw">pub use </span>sqlx_core::acquire::Acquire;
+<span class="kw">pub use </span>sqlx_core::arguments::{Arguments, IntoArguments};
+<span class="kw">pub use </span>sqlx_core::column::Column;
+<span class="kw">pub use </span>sqlx_core::column::ColumnIndex;
+<span class="kw">pub use </span>sqlx_core::connection::{ConnectOptions, Connection};
+<span class="kw">pub use </span>sqlx_core::database::{<span class="self">self</span>, Database};
+<span class="kw">pub use </span>sqlx_core::describe::Describe;
+<span class="kw">pub use </span>sqlx_core::executor::{Execute, Executor};
+<span class="kw">pub use </span>sqlx_core::from_row::FromRow;
+<span class="kw">pub use </span>sqlx_core::pool::{<span class="self">self</span>, Pool};
+<span class="kw">pub use </span>sqlx_core::query::{query, query_with};
+<span class="kw">pub use </span>sqlx_core::query_as::{query_as, query_as_with};
+<span class="kw">pub use </span>sqlx_core::query_builder::{<span class="self">self</span>, QueryBuilder};
+<span class="kw">pub use </span>sqlx_core::query_scalar::{query_scalar, query_scalar_with};
+<span class="kw">pub use </span>sqlx_core::row::Row;
+<span class="kw">pub use </span>sqlx_core::statement::Statement;
+<span class="kw">pub use </span>sqlx_core::transaction::{Transaction, TransactionManager};
+<span class="kw">pub use </span>sqlx_core::type_info::TypeInfo;
+<span class="kw">pub use </span>sqlx_core::types::Type;
+<span class="kw">pub use </span>sqlx_core::value::{Value, ValueRef};
+<span class="kw">pub use </span>sqlx_core::Either;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::error</span>::{<span class="self">self</span>, <span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
+<span class="attribute">#[doc(inline)]
+</span><span class="kw">pub use </span>sqlx_core::error::{<span class="self">self</span>, Error, <span class="prelude-ty">Result</span>};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::migrate</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+</span><span class="kw">pub use </span>sqlx_core::migrate;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">any</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>
-    ),
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any&quot;</span>
-))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::any</span>::{<span class="self">self</span>, <span class="ident">Any</span>, <span class="ident">AnyConnection</span>, <span class="ident">AnyExecutor</span>, <span class="ident">AnyPool</span>};
+<span class="attribute">#[cfg(all(
+    any(
+        feature = <span class="string">&quot;mysql&quot;</span>,
+        feature = <span class="string">&quot;sqlite&quot;</span>,
+        feature = <span class="string">&quot;postgres&quot;</span>,
+        feature = <span class="string">&quot;mssql&quot;
+    </span>),
+    feature = <span class="string">&quot;any&quot;
+</span>))]
+</span><span class="kw">pub use </span>sqlx_core::any::{<span class="self">self</span>, Any, AnyConnection, AnyExecutor, AnyPool};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::mysql</span>::{<span class="self">self</span>, <span class="ident">MySql</span>, <span class="ident">MySqlConnection</span>, <span class="ident">MySqlExecutor</span>, <span class="ident">MySqlPool</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;mysql&quot;</span>)))]
+</span><span class="kw">pub use </span>sqlx_core::mysql::{<span class="self">self</span>, MySql, MySqlConnection, MySqlExecutor, MySqlPool};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::mssql</span>::{<span class="self">self</span>, <span class="ident">Mssql</span>, <span class="ident">MssqlConnection</span>, <span class="ident">MssqlExecutor</span>, <span class="ident">MssqlPool</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;mssql&quot;</span>)))]
+</span><span class="kw">pub use </span>sqlx_core::mssql::{<span class="self">self</span>, Mssql, MssqlConnection, MssqlExecutor, MssqlPool};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::postgres</span>::{<span class="self">self</span>, <span class="ident">PgConnection</span>, <span class="ident">PgExecutor</span>, <span class="ident">PgPool</span>, <span class="ident">Postgres</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;postgres&quot;</span>)))]
+</span><span class="kw">pub use </span>sqlx_core::postgres::{<span class="self">self</span>, PgConnection, PgExecutor, PgPool, Postgres};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::sqlite</span>::{<span class="self">self</span>, <span class="ident">Sqlite</span>, <span class="ident">SqliteConnection</span>, <span class="ident">SqliteExecutor</span>, <span class="ident">SqlitePool</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;sqlite&quot;</span>)))]
+</span><span class="kw">pub use </span>sqlx_core::sqlite::{<span class="self">self</span>, Sqlite, SqliteConnection, SqliteExecutor, SqlitePool};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">sqlx_macros</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;macros&quot;</span>)]
+#[doc(hidden)]
+</span><span class="kw">pub extern crate </span>sqlx_macros;
 
-<span class="comment">// derives</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_macros</span>::{<span class="ident">FromRow</span>, <span class="ident">Type</span>};
+<span class="comment">// derives
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;macros&quot;</span>)]
+#[doc(hidden)]
+</span><span class="kw">pub use </span>sqlx_macros::{FromRow, Type};
 
-<span class="comment">// We can&#39;t do our normal facade approach with an attribute, but thankfully we can now</span>
-<span class="comment">// have docs out-of-line quite easily.</span>
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;macros/test.md&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_macros::test</span>;
+<span class="comment">// We can&#39;t do our normal facade approach with an attribute, but thankfully we can now
+// have docs out-of-line quite easily.
+</span><span class="attribute">#[doc = <span class="macro">include_str!</span>(<span class="string">&quot;macros/test.md&quot;</span>)]
+</span><span class="kw">pub use </span>sqlx_macros::test;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::testing</span>;
+<span class="attribute">#[doc(hidden)]
+#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+</span><span class="kw">pub use </span>sqlx_core::testing;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::test_block_on</span>;
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub use </span>sqlx_core::test_block_on;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">macros</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;macros&quot;</span>)]
+</span><span class="kw">mod </span>macros;
 
-<span class="comment">// macro support</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ty_match</span>;
+<span class="comment">// macro support
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;macros&quot;</span>)]
+#[doc(hidden)]
+</span><span class="kw">pub mod </span>ty_match;
 
-<span class="doccomment">/// Conversions between Rust and SQL types.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// To see how each SQL type maps to a Rust type, see the corresponding `types` module for each</span>
-<span class="doccomment">/// database:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///  * Postgres: [postgres::types]</span>
-<span class="doccomment">///  * MySQL: [mysql::types]</span>
-<span class="doccomment">///  * SQLite: [sqlite::types]</span>
-<span class="doccomment">///  * MSSQL: [mssql::types]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Any external types that have had [`Type`] implemented for, are re-exported in this module</span>
-<span class="doccomment">/// for convenience as downstream users need to use a compatible version of the external crate</span>
-<span class="doccomment">/// to take advantage of the implementation.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`Type`]: types::Type</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">types</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::types</span>::<span class="kw-2">*</span>;
+<span class="doccomment">/// Conversions between Rust and SQL types.
+///
+/// To see how each SQL type maps to a Rust type, see the corresponding `types` module for each
+/// database:
+///
+///  * Postgres: [postgres::types]
+///  * MySQL: [mysql::types]
+///  * SQLite: [sqlite::types]
+///  * MSSQL: [mssql::types]
+///
+/// Any external types that have had [`Type`] implemented for, are re-exported in this module
+/// for convenience as downstream users need to use a compatible version of the external crate
+/// to take advantage of the implementation.
+///
+/// [`Type`]: types::Type
+</span><span class="kw">pub mod </span>types {
+    <span class="kw">pub use </span>sqlx_core::types::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_macros::Type</span>;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;macros&quot;</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>sqlx_macros::Type;
 }
 
-<span class="doccomment">/// Provides [`Encode`](encode::Encode) for encoding values for the database.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">encode</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::encode</span>::{<span class="ident">Encode</span>, <span class="ident">IsNull</span>};
+<span class="doccomment">/// Provides [`Encode`](encode::Encode) for encoding values for the database.
+</span><span class="kw">pub mod </span>encode {
+    <span class="kw">pub use </span>sqlx_core::encode::{Encode, IsNull};
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_macros::Encode</span>;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;macros&quot;</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>sqlx_macros::Encode;
 }
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::encode::Encode</span>;
+<span class="kw">pub use </span><span class="self">self</span>::encode::Encode;
 
-<span class="doccomment">/// Provides [`Decode`](decode::Decode) for decoding values from the database.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">decode</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::decode::Decode</span>;
+<span class="doccomment">/// Provides [`Decode`](decode::Decode) for decoding values from the database.
+</span><span class="kw">pub mod </span>decode {
+    <span class="kw">pub use </span>sqlx_core::decode::Decode;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_macros::Decode</span>;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;macros&quot;</span>)]
+    #[doc(hidden)]
+    </span><span class="kw">pub use </span>sqlx_macros::Decode;
 }
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::decode::Decode</span>;
+<span class="kw">pub use </span><span class="self">self</span>::decode::Decode;
 
-<span class="doccomment">/// Types and traits for the `query` family of functions and macros.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">query</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::query</span>::{<span class="ident">Map</span>, <span class="ident">Query</span>};
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::query_as::QueryAs</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlx_core::query_scalar::QueryScalar</span>;
+<span class="doccomment">/// Types and traits for the `query` family of functions and macros.
+</span><span class="kw">pub mod </span>query {
+    <span class="kw">pub use </span>sqlx_core::query::{Map, Query};
+    <span class="kw">pub use </span>sqlx_core::query_as::QueryAs;
+    <span class="kw">pub use </span>sqlx_core::query_scalar::QueryScalar;
 }
 
-<span class="doccomment">/// Convenience re-export of common traits.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Acquire</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ConnectOptions</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Connection</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Decode</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Encode</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Executor</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::FromRow</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::IntoArguments</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Row</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Statement</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Type</span>;
+<span class="doccomment">/// Convenience re-export of common traits.
+</span><span class="kw">pub mod </span>prelude {
+    <span class="kw">pub use </span><span class="kw">super</span>::Acquire;
+    <span class="kw">pub use </span><span class="kw">super</span>::ConnectOptions;
+    <span class="kw">pub use </span><span class="kw">super</span>::Connection;
+    <span class="kw">pub use </span><span class="kw">super</span>::Decode;
+    <span class="kw">pub use </span><span class="kw">super</span>::Encode;
+    <span class="kw">pub use </span><span class="kw">super</span>::Executor;
+    <span class="kw">pub use </span><span class="kw">super</span>::FromRow;
+    <span class="kw">pub use </span><span class="kw">super</span>::IntoArguments;
+    <span class="kw">pub use </span><span class="kw">super</span>::Row;
+    <span class="kw">pub use </span><span class="kw">super</span>::Statement;
+    <span class="kw">pub use </span><span class="kw">super</span>::Type;
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="attribute">#[<span class="ident">deprecated</span> <span class="op">=</span> <span class="string">&quot;`#[sqlx(rename = \&quot;...\&quot;)]` is now `#[sqlx(type_name = \&quot;...\&quot;)`&quot;</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_rename</span>() {}
+<span class="attribute">#[doc(hidden)]
+#[inline(always)]
+#[deprecated = <span class="string">&quot;`#[sqlx(rename = \&quot;...\&quot;)]` is now `#[sqlx(type_name = \&quot;...\&quot;)`&quot;</span>]
+</span><span class="kw">pub fn </span>_rename() {}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

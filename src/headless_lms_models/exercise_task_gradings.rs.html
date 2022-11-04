@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_task_gradings.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercise_task_gradings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/exercise_task_gradings.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercise_task_gradings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -551,79 +551,79 @@
 <span id="551">551</span>
 <span id="552">552</span>
 <span id="553">553</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">time::Duration</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{collections::HashMap, time::Duration};
 
-<span class="kw">use</span> <span class="ident">futures::Future</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_to_two_decimals</span>;
-<span class="kw">use</span> <span class="ident">url::Url</span>;
+<span class="kw">use </span>futures::Future;
+<span class="kw">use </span>headless_lms_utils::numbers::f32_to_two_decimals;
+<span class="kw">use </span>url::Url;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exams</span>,
-    <span class="ident">exercise_service_info::get_service_info_by_exercise_type</span>,
-    <span class="ident">exercise_services</span>::{<span class="ident">get_exercise_service_by_exercise_type</span>, <span class="ident">get_internal_grade_url</span>},
-    <span class="ident">exercise_task_submissions::ExerciseTaskSubmission</span>,
-    <span class="ident">exercise_tasks</span>::{<span class="self">self</span>, <span class="ident">ExerciseTask</span>},
-    <span class="ident">exercises</span>::{<span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">CourseOrExamId</span>,
+<span class="kw">use crate</span>::{
+    exams,
+    exercise_service_info::get_service_info_by_exercise_type,
+    exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
+    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_tasks::{<span class="self">self</span>, ExerciseTask},
+    exercises::{Exercise, GradingProgress},
+    prelude::<span class="kw-2">*</span>,
+    CourseOrExamId,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseTaskGrading</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_task_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">grading_priority</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-    <span class="kw">pub</span> <span class="ident">unscaled_score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">unscaled_score_maximum</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">grading_started_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">grading_completed_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">feedback_json</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">feedback_text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExerciseTaskGrading {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>exercise_task_submission_id: Uuid,
+    <span class="kw">pub </span>course_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>exercise_id: Uuid,
+    <span class="kw">pub </span>exercise_task_id: Uuid,
+    <span class="kw">pub </span>grading_priority: i32,
+    <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>grading_progress: GradingProgress,
+    <span class="kw">pub </span>unscaled_score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>unscaled_score_maximum: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>grading_started_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>grading_completed_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>feedback_json: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+    <span class="kw">pub </span>feedback_text: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseTaskGradingRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">exercise_spec</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">submission_data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, PartialEq, Eq, Clone)]
+</span><span class="kw">pub struct </span>ExerciseTaskGradingRequest&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub </span>exercise_spec: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+    <span class="kw">pub </span>submission_data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseTaskGradingResult</span> {
-    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="ident">f32</span>,
-    <span class="kw">pub</span> <span class="ident">score_maximum</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">feedback_text</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">feedback_json</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>ExerciseTaskGradingResult {
+    <span class="kw">pub </span>grading_progress: GradingProgress,
+    <span class="kw">pub </span>score_given: f32,
+    <span class="kw">pub </span>score_maximum: i32,
+    <span class="kw">pub </span>feedback_text: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>feedback_json: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">sqlx::Type</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;user_points_update_strategy&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">UserPointsUpdateStrategy</span> {
-    <span class="ident">CanAddPointsButCannotRemovePoints</span>,
-    <span class="ident">CanAddPointsAndCanRemovePoints</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">&quot;user_points_update_strategy&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+</span><span class="kw">pub enum </span>UserPointsUpdateStrategy {
+    CanAddPointsButCannotRemovePoints,
+    CanAddPointsAndCanRemovePoints,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    submission_id: Uuid,
+    course_id: Uuid,
+    exercise_id: Uuid,
+    exercise_task_id: Uuid,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exercise_task_gradings (
     id,
@@ -635,20 +635,20 @@ INSERT INTO exercise_task_gradings (
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">submission_id</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">exercise_task_id</span>
+        pkey_policy.into_uuid(),
+        submission_id,
+        course_id,
+        exercise_id,
+        exercise_task_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseTaskGrading</span>,
+<span class="kw">pub async fn </span>get_by_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;ExerciseTaskGrading&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseTaskGrading,
         <span class="string">r#&quot;
 SELECT id,
   created_at,
@@ -671,19 +671,19 @@ SELECT id,
 FROM exercise_task_gradings
 WHERE id = $1
 &quot;#</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exercise_task_submission_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_task_submission_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseTaskGrading</span>,
+<span class="kw">pub async fn </span>get_by_exercise_task_submission_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_task_submission_id: <span class="kw-2">&amp;</span>Uuid,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExerciseTaskGrading&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseTaskGrading,
         <span class="string">r#&quot;
 SELECT id,
   created_at,
@@ -707,18 +707,18 @@ FROM exercise_task_gradings
 WHERE exercise_task_submission_id = $1
   AND deleted_at IS NULL
         &quot;#</span>,
-        <span class="ident">exercise_task_submission_id</span>,
+        exercise_task_submission_id,
     )
-    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .fetch_optional(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_total_score_given_for_exercise_slide_submission</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_slide_submission_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_total_score_given_for_exercise_slide_submission(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_slide_submission_id: <span class="kw-2">&amp;</span>Uuid,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;f32&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT SUM(COALESCE(etg.score_given, 0))::real
 FROM exercise_task_gradings etg
@@ -727,19 +727,19 @@ WHERE ets.exercise_slide_submission_id = $1
   AND etg.deleted_at IS NULL
   AND ets.deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">exercise_slide_submission_id</span>
+        exercise_slide_submission_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">sum</span>)
+    <span class="prelude-val">Ok</span>(res.sum)
 }
 
-<span class="doccomment">/// For now gets this information from some task submission in a slide submission.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_point_update_strategy_from_gradings</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_slide_submission_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">GradingProgress</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="doccomment">/// For now gets this information from some task submission in a slide submission.
+</span><span class="kw">pub async fn </span>get_point_update_strategy_from_gradings(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_slide_submission_id: <span class="kw-2">&amp;</span>Uuid,
+) -&gt; ModelResult&lt;GradingProgress&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT etg.grading_progress as &quot;grading_progress: GradingProgress&quot;
 FROM exercise_task_gradings etg
@@ -749,53 +749,53 @@ WHERE ets.exercise_slide_submission_id = $1
   AND ets.deleted_at IS NULL
 LIMIT 1
     &quot;#</span>,
-        <span class="ident">exercise_slide_submission_id</span>
+        exercise_slide_submission_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">grading_progress</span>)
+    <span class="prelude-val">Ok</span>(res.grading_progress)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_course_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;Uuid&gt;&gt; {
+    <span class="kw">let </span>course_id = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT course_id
 from exercise_task_gradings
 where id = $1
         &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">course_id</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">course_id</span>)
+    .fetch_one(conn)
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.course_id;
+    <span class="prelude-val">Ok</span>(course_id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_or_exam_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseOrExamId</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_course_or_exam_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+) -&gt; ModelResult&lt;CourseOrExamId&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT course_id,
   exam_id
 from exercise_task_gradings
 where id = $1
 &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">CourseOrExamId::from</span>(<span class="ident">res</span>.<span class="ident">course_id</span>, <span class="ident">res</span>.<span class="ident">exam_id</span>)
+    CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_grading</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskSubmission</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseTaskGrading</span>,
+<span class="kw">pub async fn </span>new_grading(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise: <span class="kw-2">&amp;</span>Exercise,
+    submission: <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
+) -&gt; ModelResult&lt;ExerciseTaskGrading&gt; {
+    <span class="kw">let </span>grading = <span class="macro">sqlx::query_as!</span>(
+        ExerciseTaskGrading,
         <span class="string">r#&quot;
 INSERT INTO exercise_task_gradings(
     exercise_task_submission_id,
@@ -825,118 +825,118 @@ RETURNING id,
   feedback_text,
   deleted_at
 &quot;#</span>,
-        <span class="ident">submission</span>.<span class="ident">id</span>,
-        <span class="ident">exercise</span>.<span class="ident">course_id</span>,
-        <span class="ident">exercise</span>.<span class="ident">exam_id</span>,
-        <span class="ident">exercise</span>.<span class="ident">id</span>,
-        <span class="ident">submission</span>.<span class="ident">exercise_task_id</span>,
+        submission.id,
+        exercise.course_id,
+        exercise.exam_id,
+        exercise.id,
+        submission.exercise_task_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">grading</span>)
+    <span class="prelude-val">Ok</span>(grading)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_grading_progress</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>set_grading_progress(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    grading_progress: GradingProgress,
+) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE exercise_task_gradings
 SET grading_progress = $1
 WHERE id = $2
 &quot;</span>,
-        <span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
-        <span class="ident">id</span>
+        grading_progress <span class="kw">as </span>GradingProgress,
+        id
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grade_submission</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskSubmission</span>,
-    <span class="ident">exercise_task</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTask</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">grading</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGrading</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">exercise_service_info</span> <span class="op">=</span>
-        <span class="ident">get_service_info_by_exercise_type</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exercise_service</span> <span class="op">=</span>
-        <span class="ident">get_exercise_service_by_exercise_type</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">grade_url</span> <span class="op">=</span> <span class="ident">get_internal_grade_url</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service</span>, <span class="kw-2">&amp;</span><span class="ident">exercise_service_info</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">send_grading_request</span>(<span class="ident">grade_url</span>, <span class="ident">exercise_task</span>, <span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span> <span class="ident">update_grading</span>(<span class="ident">conn</span>, <span class="ident">grading</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>, <span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">updated_grading</span>)
+<span class="kw">pub async fn </span>grade_submission(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    submission: <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
+    exercise_task: <span class="kw-2">&amp;</span>ExerciseTask,
+    exercise: <span class="kw-2">&amp;</span>Exercise,
+    grading: <span class="kw-2">&amp;</span>ExerciseTaskGrading,
+) -&gt; ModelResult&lt;ExerciseTaskGrading&gt; {
+    <span class="kw">let </span>exercise_service_info =
+        get_service_info_by_exercise_type(conn, <span class="kw-2">&amp;</span>exercise_task.exercise_type).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exercise_service =
+        get_exercise_service_by_exercise_type(conn, <span class="kw-2">&amp;</span>exercise_task.exercise_type).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>grade_url = get_internal_grade_url(<span class="kw-2">&amp;</span>exercise_service, <span class="kw-2">&amp;</span>exercise_service_info).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>obj = send_grading_request(grade_url, exercise_task, submission).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>updated_grading = update_grading(conn, grading, <span class="kw-2">&amp;</span>obj, exercise).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(updated_grading)
 }
 
-<span class="comment">// does not use async fn because the arguments should only be borrowed</span>
-<span class="comment">// for the part before any async stuff happens</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send_grading_request</span>(
-    <span class="ident">grade_url</span>: <span class="ident">Url</span>,
-    <span class="ident">exercise_task</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTask</span>,
-    <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskSubmission</span>,
-) -&gt; <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGradingResult</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-    <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
-    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
-        .<span class="ident">post</span>(<span class="ident">grade_url</span>)
-        .<span class="ident">timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">120</span>))
-        .<span class="ident">json</span>(<span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGradingRequest</span> {
-            <span class="ident">exercise_spec</span>: <span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">private_spec</span>,
-            <span class="ident">submission_data</span>: <span class="kw-2">&amp;</span><span class="ident">submission</span>.<span class="ident">data_json</span>,
+<span class="comment">// does not use async fn because the arguments should only be borrowed
+// for the part before any async stuff happens
+</span><span class="kw">pub fn </span>send_grading_request(
+    grade_url: Url,
+    exercise_task: <span class="kw-2">&amp;</span>ExerciseTask,
+    submission: <span class="kw-2">&amp;</span>ExerciseTaskSubmission,
+) -&gt; <span class="kw">impl </span>Future&lt;Output = ModelResult&lt;ExerciseTaskGradingResult&gt;&gt; + <span class="lifetime">&#39;static </span>{
+    <span class="kw">let </span>client = reqwest::Client::new();
+    <span class="kw">let </span>req = client
+        .post(grade_url)
+        .timeout(Duration::from_secs(<span class="number">120</span>))
+        .json(<span class="kw-2">&amp;</span>ExerciseTaskGradingRequest {
+            exercise_spec: <span class="kw-2">&amp;</span>exercise_task.private_spec,
+            submission_data: <span class="kw-2">&amp;</span>submission.data_json,
         });
-    <span class="kw">async</span> {
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">send</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">status</span>();
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">status</span>.<span class="ident">is_success</span>() {
-            <span class="kw">let</span> <span class="ident">response_body</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">text</span>().<span class="kw">await</span>;
+    <span class="kw">async </span>{
+        <span class="kw">let </span>res = req.send().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>status = res.status();
+        <span class="kw">if </span>!status.is_success() {
+            <span class="kw">let </span>response_body = res.text().<span class="kw">await</span>;
             <span class="macro">error!</span>(
-                <span class="question-mark">?</span><span class="ident">response_body</span>,
-                <span class="string">&quot;Grading request returned an unsuccesful status code&quot;</span>
-            );
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
-                <span class="ident">ModelErrorType::Generic</span>,
-                <span class="string">&quot;Grading failed&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="question-mark">?</span>response_body,
+                <span class="string">&quot;Grading request returned an unsuccesful status code&quot;
+            </span>);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
+                ModelErrorType::Generic,
+                <span class="string">&quot;Grading failed&quot;</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }
-        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">ExerciseTaskGradingResult</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="macro">info!</span>(<span class="string">&quot;Received a grading result: {:#?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">obj</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">obj</span>)
+        <span class="kw">let </span>obj = res.json::&lt;ExerciseTaskGradingResult&gt;().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="macro">info!</span>(<span class="string">&quot;Received a grading result: {:#?}&quot;</span>, <span class="kw-2">&amp;</span>obj);
+        <span class="prelude-val">Ok</span>(obj)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_grading</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">grading</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGrading</span>,
-    <span class="ident">grading_result</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGradingResult</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">grading_completed_at</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">grading_result</span>.<span class="ident">grading_progress</span>.<span class="ident">is_complete</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">Utc::now</span>())
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    };
-    <span class="kw">let</span> <span class="ident">exercise_slide_id</span> <span class="op">=</span> <span class="ident">exercise_tasks::get_exercise_task_by_id</span>(<span class="ident">conn</span>, <span class="ident">grading</span>.<span class="ident">exercise_task_id</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">exercise_slide_id</span>;
-    <span class="kw">let</span> <span class="ident">exercise_task_count</span> <span class="op">=</span>
-        <span class="ident">exercise_tasks::get_exercise_tasks_by_exercise_slide_ids</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span>[<span class="ident">exercise_slide_id</span>])
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f32</span>;
-    <span class="kw">let</span> <span class="ident">correctness_coefficient</span> <span class="op">=</span>
-        <span class="ident">grading_result</span>.<span class="ident">score_given</span> <span class="op">/</span> (<span class="ident">grading_result</span>.<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>);
-    <span class="comment">// ensure the score doesn&#39;t go over the maximum</span>
-    <span class="kw">let</span> <span class="ident">score_given_with_all_decimals</span> <span class="op">=</span> <span class="ident">f32::min</span>(
-        (<span class="ident">exercise</span>.<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>) <span class="op">*</span> <span class="ident">correctness_coefficient</span> <span class="op">/</span> <span class="ident">exercise_task_count</span>,
-        <span class="ident">exercise</span>.<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="ident">exercise_task_count</span>,
+<span class="kw">pub async fn </span>update_grading(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    grading: <span class="kw-2">&amp;</span>ExerciseTaskGrading,
+    grading_result: <span class="kw-2">&amp;</span>ExerciseTaskGradingResult,
+    exercise: <span class="kw-2">&amp;</span>Exercise,
+) -&gt; ModelResult&lt;ExerciseTaskGrading&gt; {
+    <span class="kw">let </span>grading_completed_at = <span class="kw">if </span>grading_result.grading_progress.is_complete() {
+        <span class="prelude-val">Some</span>(Utc::now())
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>};
+    <span class="kw">let </span>exercise_slide_id = exercise_tasks::get_exercise_task_by_id(conn, grading.exercise_task_id)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.exercise_slide_id;
+    <span class="kw">let </span>exercise_task_count =
+        exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(conn, <span class="kw-2">&amp;</span>[exercise_slide_id])
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.len() <span class="kw">as </span>f32;
+    <span class="kw">let </span>correctness_coefficient =
+        grading_result.score_given / (grading_result.score_maximum <span class="kw">as </span>f32);
+    <span class="comment">// ensure the score doesn&#39;t go over the maximum
+    </span><span class="kw">let </span>score_given_with_all_decimals = f32::min(
+        (exercise.score_maximum <span class="kw">as </span>f32) * correctness_coefficient / exercise_task_count,
+        exercise.score_maximum <span class="kw">as </span>f32 / exercise_task_count,
     );
-    <span class="comment">// Scores are rounded to two decimals</span>
-    <span class="kw">let</span> <span class="ident">score_given_rounded</span> <span class="op">=</span> <span class="ident">f32_to_two_decimals</span>(<span class="ident">score_given_with_all_decimals</span>);
-    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseTaskGrading</span>,
+    <span class="comment">// Scores are rounded to two decimals
+    </span><span class="kw">let </span>score_given_rounded = f32_to_two_decimals(score_given_with_all_decimals);
+    <span class="kw">let </span>grading = <span class="macro">sqlx::query_as!</span>(
+        ExerciseTaskGrading,
         <span class="string">r#&quot;
 UPDATE exercise_task_gradings
 SET grading_progress = $2,
@@ -966,60 +966,60 @@ RETURNING id,
   feedback_text,
   deleted_at
 &quot;#</span>,
-        <span class="ident">grading</span>.<span class="ident">id</span>,
-        <span class="ident">grading_result</span>.<span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
-        <span class="ident">grading_result</span>.<span class="ident">score_given</span>,
-        <span class="ident">grading_result</span>.<span class="ident">score_maximum</span>,
-        <span class="ident">grading_result</span>.<span class="ident">feedback_text</span>,
-        <span class="ident">grading_result</span>.<span class="ident">feedback_json</span>,
-        <span class="ident">grading_completed_at</span>,
-        <span class="ident">score_given_rounded</span>
+        grading.id,
+        grading_result.grading_progress <span class="kw">as </span>GradingProgress,
+        grading_result.score_given,
+        grading_result.score_maximum,
+        grading_result.feedback_text,
+        grading_result.feedback_json,
+        grading_completed_at,
+        score_given_rounded
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">grading</span>)
+    <span class="prelude-val">Ok</span>(grading)
 }
 
-<span class="doccomment">/// Fetches the grading for the student, but hides the result in some circumstances.</span>
-<span class="doccomment">/// For example, for an ongoing exam.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_for_student</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">grading_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>, <span class="ident">grading_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">grading</span>.<span class="ident">exam_id</span> {
-        <span class="kw">let</span> <span class="ident">exam</span> <span class="op">=</span> <span class="ident">exams::get</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">enrollment</span> <span class="op">=</span> <span class="ident">exams::get_enrollment</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>, <span class="ident">user_id</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::new</span>(
-                    <span class="ident">ModelErrorType::Generic</span>,
-                    <span class="string">&quot;User has grading for exam but no enrollment&quot;</span>.<span class="ident">to_string</span>(),
+<span class="doccomment">/// Fetches the grading for the student, but hides the result in some circumstances.
+/// For example, for an ongoing exam.
+</span><span class="kw">pub async fn </span>get_for_student(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    grading_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;ExerciseTaskGrading&gt;&gt; {
+    <span class="kw">let </span>grading = get_by_id(conn, grading_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(exam_id) = grading.exam_id {
+        <span class="kw">let </span>exam = exams::get(conn, exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>enrollment = exams::get_enrollment(conn, exam_id, user_id)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    <span class="string">&quot;User has grading for exam but no enrollment&quot;</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">Utc::now</span>() <span class="op">&gt;</span> <span class="ident">enrollment</span>.<span class="ident">started_at</span> <span class="op">+</span> <span class="ident">chrono::Duration::minutes</span>(<span class="ident">exam</span>.<span class="ident">time_minutes</span>.<span class="ident">into</span>())
-            <span class="op">|</span><span class="op">|</span> <span class="ident">exam</span>.<span class="ident">ends_at</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ea</span><span class="op">|</span> <span class="ident">Utc::now</span>() <span class="op">&gt;</span> <span class="ident">ea</span>).<span class="ident">unwrap_or_default</span>()
+        <span class="kw">if </span>Utc::now() &gt; enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into())
+            || exam.ends_at.map(|ea| Utc::now() &gt; ea).unwrap_or_default()
         {
-            <span class="comment">// exam over, return grading</span>
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">grading</span>))
-        } <span class="kw">else</span> {
-            <span class="comment">// exam still ongoing, do not return grading</span>
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+            <span class="comment">// exam over, return grading
+            </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(grading))
+        } <span class="kw">else </span>{
+            <span class="comment">// exam still ongoing, do not return grading
+            </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         }
-    } <span class="kw">else</span> {
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">grading</span>))
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(grading))
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_gradings_by_exercise_slide_submission_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseTaskGrading</span>,
+<span class="kw">pub async fn </span>get_all_gradings_by_exercise_slide_submission_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -&gt; ModelResult&lt;Vec&lt;ExerciseTaskGrading&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseTaskGrading,
         <span class="string">r#&quot;
 SELECT id,
 created_at,
@@ -1047,19 +1047,19 @@ WHERE deleted_at IS NULL
     WHERE exercise_slide_submission_id = $1
   )
 &quot;#</span>,
-        <span class="ident">exercise_slide_submission_id</span>
+        exercise_slide_submission_id
     )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
+    .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_new_and_old_exercise_task_gradings_by_regrading_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">regrading_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">ExerciseTaskGrading</span>,
+<span class="kw">pub async fn </span>get_new_and_old_exercise_task_gradings_by_regrading_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    regrading_id: Uuid,
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, ExerciseTaskGrading&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        ExerciseTaskGrading,
         <span class="string">r#&quot;
 SELECT id,
   created_at,
@@ -1094,15 +1094,15 @@ WHERE deleted_at IS NULL
       AND etrs.regrading_id = $1
   );
     &quot;#</span>,
-        <span class="ident">regrading_id</span>
+        regrading_id
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HashMap::with_capacity</span>(<span class="ident">res</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> <span class="ident">regrading</span> <span class="kw">in</span> <span class="ident">res</span> {
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">regrading</span>.<span class="ident">id</span>, <span class="ident">regrading</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>map = HashMap::with_capacity(res.len());
+    <span class="kw">for </span>regrading <span class="kw">in </span>res {
+        map.insert(regrading.id, regrading);
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">map</span>)
+    <span class="prelude-val">Ok</span>(map)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

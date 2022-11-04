@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dirs-4.0.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dirs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dirs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dirs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/dirs-4.0.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../dirs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../dirs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../dirs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -314,321 +314,321 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
-</pre><pre class="rust"><code><span class="doccomment">//! The _dirs_ crate is</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - a tiny library with a minimal API (18 public functions)</span>
-<span class="doccomment">//! - that provides the platform-specific, user-accessible locations</span>
-<span class="doccomment">//! - for finding and storing configuration, cache and other data</span>
-<span class="doccomment">//! - on Linux, Redox, Windows (≥ Vista) and macOS.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The library provides the location of these directories by leveraging the mechanisms defined by</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - the [XDG base directory](https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html) and the [XDG user directory](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/) specifications on Linux,</span>
-<span class="doccomment">//! - the [Known Folder](https://msdn.microsoft.com/en-us/library/windows/desktop/bb776911(v=vs.85).aspx) system on Windows, and</span>
-<span class="doccomment">//! - the [Standard Directories](https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW6) on macOS.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! The _dirs_ crate is
+//!
+//! - a tiny library with a minimal API (18 public functions)
+//! - that provides the platform-specific, user-accessible locations
+//! - for finding and storing configuration, cache and other data
+//! - on Linux, Redox, Windows (≥ Vista) and macOS.
+//!
+//! The library provides the location of these directories by leveraging the mechanisms defined by
+//!
+//! - the [XDG base directory](https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html) and the [XDG user directory](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/) specifications on Linux,
+//! - the [Known Folder](https://msdn.microsoft.com/en-us/library/windows/desktop/bb776911(v=vs.85).aspx) system on Windows, and
+//! - the [Standard Directories](https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW6) on macOS.
 
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
+</span><span class="attribute">#![deny(missing_docs)]
 
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
+</span><span class="kw">use </span>std::path::PathBuf;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">win</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">win</span> <span class="kw">as</span> <span class="ident">sys</span>;
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)]
+</span><span class="kw">mod </span>win;
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;windows&quot;</span>)]
+</span><span class="kw">use </span>win <span class="kw">as </span>sys;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">mac</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">mac</span> <span class="kw">as</span> <span class="ident">sys</span>;
+<span class="attribute">#[cfg(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))]
+</span><span class="kw">mod </span>mac;
+<span class="attribute">#[cfg(any(target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>))]
+</span><span class="kw">use </span>mac <span class="kw">as </span>sys;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">wasm</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">wasm</span> <span class="kw">as</span> <span class="ident">sys</span>;
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+</span><span class="kw">mod </span>wasm;
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+</span><span class="kw">use </span>wasm <span class="kw">as </span>sys;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>,
-    <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>
-)))]</span>
-<span class="kw">mod</span> <span class="ident">lin</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;ios&quot;</span>,
-    <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>
-)))]</span>
-<span class="kw">use</span> <span class="ident">lin</span> <span class="kw">as</span> <span class="ident">sys</span>;
+<span class="attribute">#[cfg(not(any(
+    target_os = <span class="string">&quot;windows&quot;</span>,
+    target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>,
+    target_arch = <span class="string">&quot;wasm32&quot;
+</span>)))]
+</span><span class="kw">mod </span>lin;
+<span class="attribute">#[cfg(not(any(
+    target_os = <span class="string">&quot;windows&quot;</span>,
+    target_os = <span class="string">&quot;macos&quot;</span>, target_os = <span class="string">&quot;ios&quot;</span>,
+    target_arch = <span class="string">&quot;wasm32&quot;
+</span>)))]
+</span><span class="kw">use </span>lin <span class="kw">as </span>sys;
 
-<span class="doccomment">/// Returns the path to the user&#39;s home directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                | Example        |</span>
-<span class="doccomment">/// | ------- | -------------------- | -------------- |</span>
-<span class="doccomment">/// | Linux   | `$HOME`              | /home/alice    |</span>
-<span class="doccomment">/// | macOS   | `$HOME`              | /Users/Alice   |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_Profile}` | C:\Users\Alice |</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Linux and macOS:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - Use `$HOME` if it is set and not empty.</span>
-<span class="doccomment">/// - If `$HOME` is not set or empty, then the function `getpwuid_r` is used to determine</span>
-<span class="doccomment">///   the home directory of the current user.</span>
-<span class="doccomment">/// - If `getpwuid_r` lacks an entry for the current user id or the home directory field is empty,</span>
-<span class="doccomment">///   then the function returns `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Windows:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This function retrieves the user profile folder using `SHGetKnownFolderPath`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// All the examples on this page mentioning `$HOME` use this behavior.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// _Note:_ This function&#39;s behavior differs from [`std::env::home_dir`],</span>
-<span class="doccomment">/// which works incorrectly on Linux, macOS and Windows.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`std::env::home_dir`]: https://doc.rust-lang.org/std/env/fn.home_dir.html</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">home_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::home_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s home directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                | Example        |
+/// | ------- | -------------------- | -------------- |
+/// | Linux   | `$HOME`              | /home/alice    |
+/// | macOS   | `$HOME`              | /Users/Alice   |
+/// | Windows | `{FOLDERID_Profile}` | C:\Users\Alice |
+///
+/// ### Linux and macOS:
+///
+/// - Use `$HOME` if it is set and not empty.
+/// - If `$HOME` is not set or empty, then the function `getpwuid_r` is used to determine
+///   the home directory of the current user.
+/// - If `getpwuid_r` lacks an entry for the current user id or the home directory field is empty,
+///   then the function returns `None`.
+///
+/// ### Windows:
+///
+/// This function retrieves the user profile folder using `SHGetKnownFolderPath`.
+///
+/// All the examples on this page mentioning `$HOME` use this behavior.
+///
+/// _Note:_ This function&#39;s behavior differs from [`std::env::home_dir`],
+/// which works incorrectly on Linux, macOS and Windows.
+///
+/// [`std::env::home_dir`]: https://doc.rust-lang.org/std/env/fn.home_dir.html
+</span><span class="kw">pub fn </span>home_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::home_dir()
 }
-<span class="doccomment">/// Returns the path to the user&#39;s cache directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                               | Example                      |</span>
-<span class="doccomment">/// | ------- | ----------------------------------- | ---------------------------- |</span>
-<span class="doccomment">/// | Linux   | `$XDG_CACHE_HOME` or `$HOME`/.cache | /home/alice/.cache           |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Library/Caches              | /Users/Alice/Library/Caches  |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_LocalAppData}`           | C:\Users\Alice\AppData\Local |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cache_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::cache_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s cache directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                               | Example                      |
+/// | ------- | ----------------------------------- | ---------------------------- |
+/// | Linux   | `$XDG_CACHE_HOME` or `$HOME`/.cache | /home/alice/.cache           |
+/// | macOS   | `$HOME`/Library/Caches              | /Users/Alice/Library/Caches  |
+/// | Windows | `{FOLDERID_LocalAppData}`           | C:\Users\Alice\AppData\Local |
+</span><span class="kw">pub fn </span>cache_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::cache_dir()
 }
-<span class="doccomment">/// Returns the path to the user&#39;s config directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                                 | Example                                  |</span>
-<span class="doccomment">/// | ------- | ------------------------------------- | ---------------------------------------- |</span>
-<span class="doccomment">/// | Linux   | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config                      |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Library/Application Support   | /Users/Alice/Library/Application Support |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming           |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">config_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::config_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s config directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                                 | Example                                  |
+/// | ------- | ------------------------------------- | ---------------------------------------- |
+/// | Linux   | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config                      |
+/// | macOS   | `$HOME`/Library/Application Support   | /Users/Alice/Library/Application Support |
+/// | Windows | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming           |
+</span><span class="kw">pub fn </span>config_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::config_dir()
 }
-<span class="doccomment">/// Returns the path to the user&#39;s data directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                                    | Example                                  |</span>
-<span class="doccomment">/// | ------- | ---------------------------------------- | ---------------------------------------- |</span>
-<span class="doccomment">/// | Linux   | `$XDG_DATA_HOME` or `$HOME`/.local/share | /home/alice/.local/share                 |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Library/Application Support      | /Users/Alice/Library/Application Support |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_RoamingAppData}`              | C:\Users\Alice\AppData\Roaming           |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::data_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s data directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                                    | Example                                  |
+/// | ------- | ---------------------------------------- | ---------------------------------------- |
+/// | Linux   | `$XDG_DATA_HOME` or `$HOME`/.local/share | /home/alice/.local/share                 |
+/// | macOS   | `$HOME`/Library/Application Support      | /Users/Alice/Library/Application Support |
+/// | Windows | `{FOLDERID_RoamingAppData}`              | C:\Users\Alice\AppData\Roaming           |
+</span><span class="kw">pub fn </span>data_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::data_dir()
 }
-<span class="doccomment">/// Returns the path to the user&#39;s local data directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                                    | Example                                  |</span>
-<span class="doccomment">/// | ------- | ---------------------------------------- | ---------------------------------------- |</span>
-<span class="doccomment">/// | Linux   | `$XDG_DATA_HOME` or `$HOME`/.local/share | /home/alice/.local/share                 |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Library/Application Support      | /Users/Alice/Library/Application Support |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_LocalAppData}`                | C:\Users\Alice\AppData\Local             |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data_local_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::data_local_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s local data directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                                    | Example                                  |
+/// | ------- | ---------------------------------------- | ---------------------------------------- |
+/// | Linux   | `$XDG_DATA_HOME` or `$HOME`/.local/share | /home/alice/.local/share                 |
+/// | macOS   | `$HOME`/Library/Application Support      | /Users/Alice/Library/Application Support |
+/// | Windows | `{FOLDERID_LocalAppData}`                | C:\Users\Alice\AppData\Local             |
+</span><span class="kw">pub fn </span>data_local_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::data_local_dir()
 }
-<span class="doccomment">/// Returns the path to the user&#39;s executable directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                                                            | Example                |</span>
-<span class="doccomment">/// | ------- | ---------------------------------------------------------------- | ---------------------- |</span>
-<span class="doccomment">/// | Linux   | `$XDG_BIN_HOME` or `$XDG_DATA_HOME`/../bin or `$HOME`/.local/bin | /home/alice/.local/bin |</span>
-<span class="doccomment">/// | macOS   | –                                                                | –                      |</span>
-<span class="doccomment">/// | Windows | –                                                                | –                      |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">executable_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::executable_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s executable directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                                                            | Example                |
+/// | ------- | ---------------------------------------------------------------- | ---------------------- |
+/// | Linux   | `$XDG_BIN_HOME` or `$XDG_DATA_HOME`/../bin or `$HOME`/.local/bin | /home/alice/.local/bin |
+/// | macOS   | –                                                                | –                      |
+/// | Windows | –                                                                | –                      |
+</span><span class="kw">pub fn </span>executable_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::executable_dir()
 }
-<span class="doccomment">/// Returns the path to the user&#39;s preference directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                                 | Example                          |</span>
-<span class="doccomment">/// | ------- | ------------------------------------- | -------------------------------- |</span>
-<span class="doccomment">/// | Linux   | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config              |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Library/Preferences           | /Users/Alice/Library/Preferences |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming   |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preference_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::preference_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s preference directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                                 | Example                          |
+/// | ------- | ------------------------------------- | -------------------------------- |
+/// | Linux   | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config              |
+/// | macOS   | `$HOME`/Library/Preferences           | /Users/Alice/Library/Preferences |
+/// | Windows | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming   |
+</span><span class="kw">pub fn </span>preference_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::preference_dir()
 }
-<span class="doccomment">/// Returns the path to the user&#39;s runtime directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The runtime directory contains transient, non-essential data (like sockets or named pipes) that</span>
-<span class="doccomment">/// is expected to be cleared when the user&#39;s session ends.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value              | Example         |</span>
-<span class="doccomment">/// | ------- | ------------------ | --------------- |</span>
-<span class="doccomment">/// | Linux   | `$XDG_RUNTIME_DIR` | /run/user/1001/ |</span>
-<span class="doccomment">/// | macOS   | –                  | –               |</span>
-<span class="doccomment">/// | Windows | –                  | –               |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">runtime_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::runtime_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s runtime directory.
+///
+/// The runtime directory contains transient, non-essential data (like sockets or named pipes) that
+/// is expected to be cleared when the user&#39;s session ends.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value              | Example         |
+/// | ------- | ------------------ | --------------- |
+/// | Linux   | `$XDG_RUNTIME_DIR` | /run/user/1001/ |
+/// | macOS   | –                  | –               |
+/// | Windows | –                  | –               |
+</span><span class="kw">pub fn </span>runtime_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::runtime_dir()
 }
-<span class="doccomment">/// Returns the path to the user&#39;s state directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The state directory contains data that should be retained between sessions (unlike the runtime</span>
-<span class="doccomment">/// directory), but may not be important/portable enough to be synchronized across machines (unlike</span>
-<span class="doccomment">/// the config/preferences/data directories).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                                     | Example                  |</span>
-<span class="doccomment">/// | ------- | ----------------------------------------- | ------------------------ |</span>
-<span class="doccomment">/// | Linux   | `$XDG_STATE_HOME` or `$HOME`/.local/state | /home/alice/.local/state |</span>
-<span class="doccomment">/// | macOS   | –                                         | –                        |</span>
-<span class="doccomment">/// | Windows | –                                         | –                        |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">state_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::state_dir</span>()
-}
-
-<span class="doccomment">/// Returns the path to the user&#39;s audio directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value              | Example              |</span>
-<span class="doccomment">/// | ------- | ------------------ | -------------------- |</span>
-<span class="doccomment">/// | Linux   | `XDG_MUSIC_DIR`    | /home/alice/Music    |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Music      | /Users/Alice/Music   |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_Music}` | C:\Users\Alice\Music |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">audio_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::audio_dir</span>()
-}
-<span class="doccomment">/// Returns the path to the user&#39;s desktop directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                | Example                |</span>
-<span class="doccomment">/// | ------- | -------------------- | ---------------------- |</span>
-<span class="doccomment">/// | Linux   | `XDG_DESKTOP_DIR`    | /home/alice/Desktop    |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Desktop      | /Users/Alice/Desktop   |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_Desktop}` | C:\Users\Alice\Desktop |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">desktop_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::desktop_dir</span>()
-}
-<span class="doccomment">/// Returns the path to the user&#39;s document directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                  | Example                  |</span>
-<span class="doccomment">/// | ------- | ---------------------- | ------------------------ |</span>
-<span class="doccomment">/// | Linux   | `XDG_DOCUMENTS_DIR`    | /home/alice/Documents    |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Documents      | /Users/Alice/Documents   |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_Documents}` | C:\Users\Alice\Documents |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">document_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::document_dir</span>()
-}
-<span class="doccomment">/// Returns the path to the user&#39;s download directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                  | Example                  |</span>
-<span class="doccomment">/// | ------- | ---------------------- | ------------------------ |</span>
-<span class="doccomment">/// | Linux   | `XDG_DOWNLOAD_DIR`     | /home/alice/Downloads    |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Downloads      | /Users/Alice/Downloads   |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_Downloads}` | C:\Users\Alice\Downloads |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">download_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::download_dir</span>()
-}
-<span class="doccomment">/// Returns the path to the user&#39;s font directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                                                | Example                        |</span>
-<span class="doccomment">/// | ------- | ---------------------------------------------------- | ------------------------------ |</span>
-<span class="doccomment">/// | Linux   | `$XDG_DATA_HOME`/fonts or `$HOME`/.local/share/fonts | /home/alice/.local/share/fonts |</span>
-<span class="doccomment">/// | macOS   | `$HOME/Library/Fonts`                                | /Users/Alice/Library/Fonts     |</span>
-<span class="doccomment">/// | Windows | –                                                    | –                              |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">font_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::font_dir</span>()
-}
-<span class="doccomment">/// Returns the path to the user&#39;s picture directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                 | Example                 |</span>
-<span class="doccomment">/// | ------- | --------------------- | ----------------------- |</span>
-<span class="doccomment">/// | Linux   | `XDG_PICTURES_DIR`    | /home/alice/Pictures    |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Pictures      | /Users/Alice/Pictures   |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_Pictures}` | C:\Users\Alice\Pictures |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">picture_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::picture_dir</span>()
-}
-<span class="doccomment">/// Returns the path to the user&#39;s public directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                 | Example             |</span>
-<span class="doccomment">/// | ------- | --------------------- | ------------------- |</span>
-<span class="doccomment">/// | Linux   | `XDG_PUBLICSHARE_DIR` | /home/alice/Public  |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Public        | /Users/Alice/Public |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_Public}`   | C:\Users\Public     |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">public_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::public_dir</span>()
-}
-<span class="doccomment">/// Returns the path to the user&#39;s template directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value                  | Example                                                    |</span>
-<span class="doccomment">/// | ------- | ---------------------- | ---------------------------------------------------------- |</span>
-<span class="doccomment">/// | Linux   | `XDG_TEMPLATES_DIR`    | /home/alice/Templates                                      |</span>
-<span class="doccomment">/// | macOS   | –                      | –                                                          |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_Templates}` | C:\Users\Alice\AppData\Roaming\Microsoft\Windows\Templates |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">template_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::template_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s state directory.
+///
+/// The state directory contains data that should be retained between sessions (unlike the runtime
+/// directory), but may not be important/portable enough to be synchronized across machines (unlike
+/// the config/preferences/data directories).
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                                     | Example                  |
+/// | ------- | ----------------------------------------- | ------------------------ |
+/// | Linux   | `$XDG_STATE_HOME` or `$HOME`/.local/state | /home/alice/.local/state |
+/// | macOS   | –                                         | –                        |
+/// | Windows | –                                         | –                        |
+</span><span class="kw">pub fn </span>state_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::state_dir()
 }
 
-<span class="doccomment">/// Returns the path to the user&#39;s video directory.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// |Platform | Value               | Example               |</span>
-<span class="doccomment">/// | ------- | ------------------- | --------------------- |</span>
-<span class="doccomment">/// | Linux   | `XDG_VIDEOS_DIR`    | /home/alice/Videos    |</span>
-<span class="doccomment">/// | macOS   | `$HOME`/Movies      | /Users/Alice/Movies   |</span>
-<span class="doccomment">/// | Windows | `{FOLDERID_Videos}` | C:\Users\Alice\Videos |</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">video_dir</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-    <span class="ident">sys::video_dir</span>()
+<span class="doccomment">/// Returns the path to the user&#39;s audio directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value              | Example              |
+/// | ------- | ------------------ | -------------------- |
+/// | Linux   | `XDG_MUSIC_DIR`    | /home/alice/Music    |
+/// | macOS   | `$HOME`/Music      | /Users/Alice/Music   |
+/// | Windows | `{FOLDERID_Music}` | C:\Users\Alice\Music |
+</span><span class="kw">pub fn </span>audio_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::audio_dir()
+}
+<span class="doccomment">/// Returns the path to the user&#39;s desktop directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                | Example                |
+/// | ------- | -------------------- | ---------------------- |
+/// | Linux   | `XDG_DESKTOP_DIR`    | /home/alice/Desktop    |
+/// | macOS   | `$HOME`/Desktop      | /Users/Alice/Desktop   |
+/// | Windows | `{FOLDERID_Desktop}` | C:\Users\Alice\Desktop |
+</span><span class="kw">pub fn </span>desktop_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::desktop_dir()
+}
+<span class="doccomment">/// Returns the path to the user&#39;s document directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                  | Example                  |
+/// | ------- | ---------------------- | ------------------------ |
+/// | Linux   | `XDG_DOCUMENTS_DIR`    | /home/alice/Documents    |
+/// | macOS   | `$HOME`/Documents      | /Users/Alice/Documents   |
+/// | Windows | `{FOLDERID_Documents}` | C:\Users\Alice\Documents |
+</span><span class="kw">pub fn </span>document_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::document_dir()
+}
+<span class="doccomment">/// Returns the path to the user&#39;s download directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                  | Example                  |
+/// | ------- | ---------------------- | ------------------------ |
+/// | Linux   | `XDG_DOWNLOAD_DIR`     | /home/alice/Downloads    |
+/// | macOS   | `$HOME`/Downloads      | /Users/Alice/Downloads   |
+/// | Windows | `{FOLDERID_Downloads}` | C:\Users\Alice\Downloads |
+</span><span class="kw">pub fn </span>download_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::download_dir()
+}
+<span class="doccomment">/// Returns the path to the user&#39;s font directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                                                | Example                        |
+/// | ------- | ---------------------------------------------------- | ------------------------------ |
+/// | Linux   | `$XDG_DATA_HOME`/fonts or `$HOME`/.local/share/fonts | /home/alice/.local/share/fonts |
+/// | macOS   | `$HOME/Library/Fonts`                                | /Users/Alice/Library/Fonts     |
+/// | Windows | –                                                    | –                              |
+</span><span class="kw">pub fn </span>font_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::font_dir()
+}
+<span class="doccomment">/// Returns the path to the user&#39;s picture directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                 | Example                 |
+/// | ------- | --------------------- | ----------------------- |
+/// | Linux   | `XDG_PICTURES_DIR`    | /home/alice/Pictures    |
+/// | macOS   | `$HOME`/Pictures      | /Users/Alice/Pictures   |
+/// | Windows | `{FOLDERID_Pictures}` | C:\Users\Alice\Pictures |
+</span><span class="kw">pub fn </span>picture_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::picture_dir()
+}
+<span class="doccomment">/// Returns the path to the user&#39;s public directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                 | Example             |
+/// | ------- | --------------------- | ------------------- |
+/// | Linux   | `XDG_PUBLICSHARE_DIR` | /home/alice/Public  |
+/// | macOS   | `$HOME`/Public        | /Users/Alice/Public |
+/// | Windows | `{FOLDERID_Public}`   | C:\Users\Public     |
+</span><span class="kw">pub fn </span>public_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::public_dir()
+}
+<span class="doccomment">/// Returns the path to the user&#39;s template directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value                  | Example                                                    |
+/// | ------- | ---------------------- | ---------------------------------------------------------- |
+/// | Linux   | `XDG_TEMPLATES_DIR`    | /home/alice/Templates                                      |
+/// | macOS   | –                      | –                                                          |
+/// | Windows | `{FOLDERID_Templates}` | C:\Users\Alice\AppData\Roaming\Microsoft\Windows\Templates |
+</span><span class="kw">pub fn </span>template_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::template_dir()
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_dirs</span>() {
-        <span class="macro">println!</span>(<span class="string">&quot;home_dir:       {:?}&quot;</span>, <span class="ident">::home_dir</span>());
+<span class="doccomment">/// Returns the path to the user&#39;s video directory.
+///
+/// The returned value depends on the operating system and is either a `Some`, containing a value from the following table, or a `None`.
+///
+/// |Platform | Value               | Example               |
+/// | ------- | ------------------- | --------------------- |
+/// | Linux   | `XDG_VIDEOS_DIR`    | /home/alice/Videos    |
+/// | macOS   | `$HOME`/Movies      | /Users/Alice/Movies   |
+/// | Windows | `{FOLDERID_Videos}` | C:\Users\Alice\Videos |
+</span><span class="kw">pub fn </span>video_dir() -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+    sys::video_dir()
+}
+
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_dirs() {
+        <span class="macro">println!</span>(<span class="string">&quot;home_dir:       {:?}&quot;</span>, ::home_dir());
         <span class="macro">println!</span>();
-        <span class="macro">println!</span>(<span class="string">&quot;cache_dir:      {:?}&quot;</span>, <span class="ident">::cache_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;config_dir:     {:?}&quot;</span>, <span class="ident">::config_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;data_dir:       {:?}&quot;</span>, <span class="ident">::data_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;data_local_dir: {:?}&quot;</span>, <span class="ident">::data_local_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;executable_dir: {:?}&quot;</span>, <span class="ident">::executable_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;preference_dir: {:?}&quot;</span>, <span class="ident">::preference_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;runtime_dir:    {:?}&quot;</span>, <span class="ident">::runtime_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;state_dir:      {:?}&quot;</span>, <span class="ident">::state_dir</span>());
+        <span class="macro">println!</span>(<span class="string">&quot;cache_dir:      {:?}&quot;</span>, ::cache_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;config_dir:     {:?}&quot;</span>, ::config_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;data_dir:       {:?}&quot;</span>, ::data_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;data_local_dir: {:?}&quot;</span>, ::data_local_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;executable_dir: {:?}&quot;</span>, ::executable_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;preference_dir: {:?}&quot;</span>, ::preference_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;runtime_dir:    {:?}&quot;</span>, ::runtime_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;state_dir:      {:?}&quot;</span>, ::state_dir());
         <span class="macro">println!</span>();
-        <span class="macro">println!</span>(<span class="string">&quot;audio_dir:      {:?}&quot;</span>, <span class="ident">::audio_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;desktop_dir:    {:?}&quot;</span>, <span class="ident">::desktop_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;cache_dir:      {:?}&quot;</span>, <span class="ident">::document_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;config_dir:     {:?}&quot;</span>, <span class="ident">::download_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;font_dir:       {:?}&quot;</span>, <span class="ident">::font_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;picture_dir:    {:?}&quot;</span>, <span class="ident">::picture_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;public_dir:     {:?}&quot;</span>, <span class="ident">::public_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;template_dir:   {:?}&quot;</span>, <span class="ident">::template_dir</span>());
-        <span class="macro">println!</span>(<span class="string">&quot;video_dir:      {:?}&quot;</span>, <span class="ident">::video_dir</span>());
+        <span class="macro">println!</span>(<span class="string">&quot;audio_dir:      {:?}&quot;</span>, ::audio_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;desktop_dir:    {:?}&quot;</span>, ::desktop_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;cache_dir:      {:?}&quot;</span>, ::document_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;config_dir:     {:?}&quot;</span>, ::download_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;font_dir:       {:?}&quot;</span>, ::font_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;picture_dir:    {:?}&quot;</span>, ::picture_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;public_dir:     {:?}&quot;</span>, ::public_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;template_dir:   {:?}&quot;</span>, ::template_dir());
+        <span class="macro">println!</span>(<span class="string">&quot;video_dir:      {:?}&quot;</span>, ::video_dir());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dirs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="dirs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

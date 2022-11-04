@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/universal-hash-0.5.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../universal_hash/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../universal_hash/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/universal-hash-0.5.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../universal_hash/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../universal_hash/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../universal_hash/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -190,195 +190,195 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Traits for [Universal Hash Functions].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # About universal hashes</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Universal hash functions provide a &quot;universal family&quot; of possible</span>
-<span class="doccomment">//! hash functions where a given member of a family is selected by a key.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! They are well suited to the purpose of &quot;one time authenticators&quot; for a</span>
-<span class="doccomment">//! sequence of bytestring inputs, as their construction has a number of</span>
-<span class="doccomment">//! desirable properties such as pairwise independence as well as amenability</span>
-<span class="doccomment">//! to efficient implementations, particularly when implemented using SIMD</span>
-<span class="doccomment">//! instructions.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! When combined with a cipher, such as in Galois/Counter Mode (GCM) or the</span>
-<span class="doccomment">//! Salsa20 family AEAD constructions, they can provide the core functionality</span>
-<span class="doccomment">//! for a Message Authentication Code (MAC).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [Universal Hash Functions]: https://en.wikipedia.org/wiki/Universal_hashing</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Traits for [Universal Hash Functions].
+//!
+//! # About universal hashes
+//!
+//! Universal hash functions provide a &quot;universal family&quot; of possible
+//! hash functions where a given member of a family is selected by a key.
+//!
+//! They are well suited to the purpose of &quot;one time authenticators&quot; for a
+//! sequence of bytestring inputs, as their construction has a number of
+//! desirable properties such as pairwise independence as well as amenability
+//! to efficient implementations, particularly when implemented using SIMD
+//! instructions.
+//!
+//! When combined with a cipher, such as in Galois/Counter Mode (GCM) or the
+//! Salsa20 family AEAD constructions, they can provide the core functionality
+//! for a Message Authentication Code (MAC).
+//!
+//! [Universal Hash Functions]: https://en.wikipedia.org/wiki/Universal_hashing
 
-<span class="attribute">#![<span class="ident">no_std</span>]</span>
-<span class="attribute">#![<span class="ident">doc</span>(
-    <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg&quot;</span>,
-    <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">unsafe_code</span>)]</span>
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">rust_2018_idioms</span>)]</span>
+</span><span class="attribute">#![no_std]
+#![doc(
+    html_logo_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg&quot;</span>,
+    html_favicon_url = <span class="string">&quot;https://raw.githubusercontent.com/RustCrypto/media/8f1a9894/logo.svg&quot;
+</span>)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![deny(unsafe_code)]
+#![warn(missing_docs, rust_2018_idioms)]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">std</span>;
+#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">extern crate </span>std;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">crypto_common</span>::{
-    <span class="self">self</span>, <span class="ident">generic_array</span>,
-    <span class="ident">typenum</span>::{<span class="self">self</span>, <span class="ident">consts</span>},
-    <span class="ident">Block</span>, <span class="ident">Key</span>, <span class="ident">KeyInit</span>, <span class="ident">ParBlocks</span>, <span class="ident">Reset</span>,
+<span class="kw">pub use </span>crypto_common::{
+    <span class="self">self</span>, generic_array,
+    typenum::{<span class="self">self</span>, consts},
+    Block, Key, KeyInit, ParBlocks, Reset,
 };
 
-<span class="kw">use</span> <span class="ident">core::slice</span>;
-<span class="kw">use</span> <span class="ident">crypto_common</span>::{<span class="ident">BlockSizeUser</span>, <span class="ident">ParBlocksSizeUser</span>};
-<span class="kw">use</span> <span class="ident">generic_array</span>::{<span class="ident">ArrayLength</span>, <span class="ident">GenericArray</span>};
-<span class="kw">use</span> <span class="ident">subtle::ConstantTimeEq</span>;
-<span class="kw">use</span> <span class="ident">typenum::Unsigned</span>;
+<span class="kw">use </span>core::slice;
+<span class="kw">use </span>crypto_common::{BlockSizeUser, ParBlocksSizeUser};
+<span class="kw">use </span>generic_array::{ArrayLength, GenericArray};
+<span class="kw">use </span>subtle::ConstantTimeEq;
+<span class="kw">use </span>typenum::Unsigned;
 
-<span class="doccomment">/// Trait implemented by UHF backends.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">UhfBackend</span>: <span class="ident">ParBlocksSizeUser</span> {
-    <span class="doccomment">/// Process single block.</span>
-    <span class="kw">fn</span> <span class="ident">proc_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Trait implemented by UHF backends.
+</span><span class="kw">pub trait </span>UhfBackend: ParBlocksSizeUser {
+    <span class="doccomment">/// Process single block.
+    </span><span class="kw">fn </span>proc_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;</span>Block&lt;<span class="self">Self</span>&gt;);
 
-    <span class="doccomment">/// Process several blocks in parallel.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">proc_par_blocks</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;</span><span class="ident">ParBlocks</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
-            <span class="self">self</span>.<span class="ident">proc_block</span>(<span class="ident">block</span>);
+    <span class="doccomment">/// Process several blocks in parallel.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>proc_par_blocks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blocks: <span class="kw-2">&amp;</span>ParBlocks&lt;<span class="self">Self</span>&gt;) {
+        <span class="kw">for </span>block <span class="kw">in </span>blocks {
+            <span class="self">self</span>.proc_block(block);
         }
     }
 
-    <span class="doccomment">/// Returns the number of blocks that should be passed to `Self::proc_block` before</span>
-    <span class="doccomment">/// `Self::proc_par_blocks` can be used efficiently. This is always less than</span>
-    <span class="doccomment">/// `Self::ParBlocksSize`.</span>
-    <span class="kw">fn</span> <span class="ident">blocks_needed_to_align</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="number">0</span>
-    }
+    <span class="doccomment">/// Returns the number of blocks that should be passed to `Self::proc_block` before
+    /// `Self::proc_par_blocks` can be used efficiently. This is always less than
+    /// `Self::ParBlocksSize`.
+    </span><span class="kw">fn </span>blocks_needed_to_align(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="number">0
+    </span>}
 }
 
-<span class="doccomment">/// Trait for [`UhfBackend`] users.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait is used to define rank-2 closures.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">UhfClosure</span>: <span class="ident">BlockSizeUser</span> {
-    <span class="doccomment">/// Execute closure with the provided UHF backend.</span>
-    <span class="kw">fn</span> <span class="ident">call</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">UhfBackend</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">backend</span>: <span class="kw-2">&amp;mut</span> <span class="ident">B</span>);
+<span class="doccomment">/// Trait for [`UhfBackend`] users.
+///
+/// This trait is used to define rank-2 closures.
+</span><span class="kw">pub trait </span>UhfClosure: BlockSizeUser {
+    <span class="doccomment">/// Execute closure with the provided UHF backend.
+    </span><span class="kw">fn </span>call&lt;B: UhfBackend&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;&gt;(<span class="self">self</span>, backend: <span class="kw-2">&amp;mut </span>B);
 }
 
-<span class="doccomment">/// The [`UniversalHash`] trait defines a generic interface for universal hash</span>
-<span class="doccomment">/// functions.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">UniversalHash</span>: <span class="ident">BlockSizeUser</span> <span class="op">+</span> <span class="ident">Sized</span> {
-    <span class="doccomment">/// Update hash function state using the provided rank-2 closure.</span>
-    <span class="kw">fn</span> <span class="ident">update_with_backend</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">UhfClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>);
+<span class="doccomment">/// The [`UniversalHash`] trait defines a generic interface for universal hash
+/// functions.
+</span><span class="kw">pub trait </span>UniversalHash: BlockSizeUser + Sized {
+    <span class="doccomment">/// Update hash function state using the provided rank-2 closure.
+    </span><span class="kw">fn </span>update_with_backend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: <span class="kw">impl </span>UhfClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;);
 
-    <span class="doccomment">/// Update hash function state with the provided block.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;</span>[<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>]) {
-        <span class="kw">struct</span> <span class="ident">Ctx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BS</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="ident">blocks</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>],
+    <span class="doccomment">/// Update hash function state with the provided block.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blocks: <span class="kw-2">&amp;</span>[Block&lt;<span class="self">Self</span>&gt;]) {
+        <span class="kw">struct </span>Ctx&lt;<span class="lifetime">&#39;a</span>, BS: ArrayLength&lt;u8&gt;&gt; {
+            blocks: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[Block&lt;<span class="self">Self</span>&gt;],
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BS</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">Ctx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BS</span><span class="op">&gt;</span> {
-            <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">BS</span>;
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, BS: ArrayLength&lt;u8&gt;&gt; BlockSizeUser <span class="kw">for </span>Ctx&lt;<span class="lifetime">&#39;a</span>, BS&gt; {
+            <span class="kw">type </span>BlockSize = BS;
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BS</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">UhfClosure</span> <span class="kw">for</span> <span class="ident">Ctx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BS</span><span class="op">&gt;</span> {
-            <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-            <span class="kw">fn</span> <span class="ident">call</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">UhfBackend</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">BS</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">backend</span>: <span class="kw-2">&amp;mut</span> <span class="ident">B</span>) {
-                <span class="kw">let</span> <span class="ident">pb</span> <span class="op">=</span> <span class="ident">B::ParBlocksSize::USIZE</span>;
-                <span class="kw">if</span> <span class="ident">pb</span> <span class="op">&gt;</span> <span class="number">1</span> {
-                    <span class="kw">let</span> (<span class="ident">par_blocks</span>, <span class="ident">tail</span>) <span class="op">=</span> <span class="ident">to_blocks</span>(<span class="self">self</span>.<span class="ident">blocks</span>);
-                    <span class="kw">for</span> <span class="ident">par_block</span> <span class="kw">in</span> <span class="ident">par_blocks</span> {
-                        <span class="ident">backend</span>.<span class="ident">proc_par_blocks</span>(<span class="ident">par_block</span>);
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, BS: ArrayLength&lt;u8&gt;&gt; UhfClosure <span class="kw">for </span>Ctx&lt;<span class="lifetime">&#39;a</span>, BS&gt; {
+            <span class="attribute">#[inline(always)]
+            </span><span class="kw">fn </span>call&lt;B: UhfBackend&lt;BlockSize = BS&gt;&gt;(<span class="self">self</span>, backend: <span class="kw-2">&amp;mut </span>B) {
+                <span class="kw">let </span>pb = B::ParBlocksSize::USIZE;
+                <span class="kw">if </span>pb &gt; <span class="number">1 </span>{
+                    <span class="kw">let </span>(par_blocks, tail) = to_blocks(<span class="self">self</span>.blocks);
+                    <span class="kw">for </span>par_block <span class="kw">in </span>par_blocks {
+                        backend.proc_par_blocks(par_block);
                     }
-                    <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">tail</span> {
-                        <span class="ident">backend</span>.<span class="ident">proc_block</span>(<span class="ident">block</span>);
+                    <span class="kw">for </span>block <span class="kw">in </span>tail {
+                        backend.proc_block(block);
                     }
-                } <span class="kw">else</span> {
-                    <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">blocks</span> {
-                        <span class="ident">backend</span>.<span class="ident">proc_block</span>(<span class="ident">block</span>);
+                } <span class="kw">else </span>{
+                    <span class="kw">for </span>block <span class="kw">in </span><span class="self">self</span>.blocks {
+                        backend.proc_block(block);
                     }
                 }
             }
         }
 
-        <span class="self">self</span>.<span class="ident">update_with_backend</span>(<span class="ident">Ctx</span> { <span class="ident">blocks</span> });
+        <span class="self">self</span>.update_with_backend(Ctx { blocks });
     }
 
-    <span class="doccomment">/// Input data into the universal hash function. If the length of the</span>
-    <span class="doccomment">/// data is not a multiple of the block size, the remaining data is</span>
-    <span class="doccomment">/// padded with zeroes up to the `BlockSize`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This approach is frequently used by AEAD modes which use</span>
-    <span class="doccomment">/// Message Authentication Codes (MACs) based on universal hashing.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">update_padded</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
-        <span class="kw">let</span> (<span class="ident">blocks</span>, <span class="ident">tail</span>) <span class="op">=</span> <span class="ident">to_blocks</span>(<span class="ident">data</span>);
+    <span class="doccomment">/// Input data into the universal hash function. If the length of the
+    /// data is not a multiple of the block size, the remaining data is
+    /// padded with zeroes up to the `BlockSize`.
+    ///
+    /// This approach is frequently used by AEAD modes which use
+    /// Message Authentication Codes (MACs) based on universal hashing.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>update_padded(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8]) {
+        <span class="kw">let </span>(blocks, tail) = to_blocks(data);
 
-        <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">blocks</span>);
+        <span class="self">self</span>.update(blocks);
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">tail</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">padded_block</span> <span class="op">=</span> <span class="ident">GenericArray::default</span>();
-            <span class="ident">padded_block</span>[..<span class="ident">tail</span>.<span class="ident">len</span>()].<span class="ident">copy_from_slice</span>(<span class="ident">tail</span>);
-            <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">slice::from_ref</span>(<span class="kw-2">&amp;</span><span class="ident">padded_block</span>));
+        <span class="kw">if </span>!tail.is_empty() {
+            <span class="kw">let </span><span class="kw-2">mut </span>padded_block = GenericArray::default();
+            padded_block[..tail.len()].copy_from_slice(tail);
+            <span class="self">self</span>.update(slice::from_ref(<span class="kw-2">&amp;</span>padded_block));
         }
     }
 
-    <span class="doccomment">/// Retrieve result and consume hasher instance.</span>
-    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="self">self</span>) -&gt; <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Retrieve result and consume hasher instance.
+    </span><span class="kw">fn </span>finalize(<span class="self">self</span>) -&gt; Block&lt;<span class="self">Self</span>&gt;;
 
-    <span class="doccomment">/// Obtain the [`Output`] of a [`UniversalHash`] computation and reset it back</span>
-    <span class="doccomment">/// to its initial state.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">finalize_reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Reset</span>,
+    <span class="doccomment">/// Obtain the [`Output`] of a [`UniversalHash`] computation and reset it back
+    /// to its initial state.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>finalize_reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Block&lt;<span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Clone + Reset,
     {
-        <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">finalize</span>();
-        <span class="self">self</span>.<span class="ident">reset</span>();
-        <span class="ident">ret</span>
+        <span class="kw">let </span>ret = <span class="self">self</span>.clone().finalize();
+        <span class="self">self</span>.reset();
+        ret
     }
 
-    <span class="doccomment">/// Verify the [`UniversalHash`] of the processed input matches</span>
-    <span class="doccomment">/// a given `expected` value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is useful when constructing Message Authentication Codes (MACs)</span>
-    <span class="doccomment">/// from universal hash functions.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">verify</span>(<span class="self">self</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">finalize</span>().<span class="ident">ct_eq</span>(<span class="ident">expected</span>).<span class="ident">unwrap_u8</span>() <span class="op">==</span> <span class="number">1</span> {
+    <span class="doccomment">/// Verify the [`UniversalHash`] of the processed input matches
+    /// a given `expected` value.
+    ///
+    /// This is useful when constructing Message Authentication Codes (MACs)
+    /// from universal hash functions.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>verify(<span class="self">self</span>, expected: <span class="kw-2">&amp;</span>Block&lt;<span class="self">Self</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">if </span><span class="self">self</span>.finalize().ct_eq(expected).unwrap_u8() == <span class="number">1 </span>{
             <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">Error</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error)
         }
     }
 }
 
-<span class="doccomment">/// Error type used by the [`UniversalHash::verify`] method</span>
-<span class="doccomment">/// to indicate that UHF output is not equal the expected value.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Error</span>;
+<span class="doccomment">/// Error type used by the [`UniversalHash::verify`] method
+/// to indicate that UHF output is not equal the expected value.
+</span><span class="attribute">#[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
+</span><span class="kw">pub struct </span>Error;
 
-<span class="kw">impl</span> <span class="ident">core::fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;UHF output mismatch&quot;</span>)
+<span class="kw">impl </span>core::fmt::Display <span class="kw">for </span>Error {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; core::fmt::Result {
+        f.write_str(<span class="string">&quot;UHF output mismatch&quot;</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)))]</span>
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">Error</span> {}
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;std&quot;</span>)))]
+</span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {}
 
-<span class="doccomment">/// Split message into slice of blocks and leftover tail.</span>
-<span class="comment">// TODO: replace with `slice::as_chunks` on migration to const generics</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">to_blocks</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) -&gt; (<span class="kw-2">&amp;</span>[<span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>], <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) {
-    <span class="kw">let</span> <span class="ident">nb</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="ident">N::USIZE</span>;
-    <span class="kw">let</span> (<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">split_at</span>(<span class="ident">nb</span> <span class="op">*</span> <span class="ident">N::USIZE</span>);
-    <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>;
-    <span class="comment">// SAFETY: we guarantee that `blocks` does not point outside of `data`</span>
-    <span class="comment">// and `p` is valid for reads</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unsafe_code</span>)]</span>
-    <span class="kw">let</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">slice::from_raw_parts</span>(<span class="ident">p</span>, <span class="ident">nb</span>) };
-    (<span class="ident">blocks</span>, <span class="ident">right</span>)
+<span class="doccomment">/// Split message into slice of blocks and leftover tail.
+</span><span class="comment">// TODO: replace with `slice::as_chunks` on migration to const generics
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>to_blocks&lt;T, N: ArrayLength&lt;T&gt;&gt;(data: <span class="kw-2">&amp;</span>[T]) -&gt; (<span class="kw-2">&amp;</span>[GenericArray&lt;T, N&gt;], <span class="kw-2">&amp;</span>[T]) {
+    <span class="kw">let </span>nb = data.len() / N::USIZE;
+    <span class="kw">let </span>(left, right) = data.split_at(nb * N::USIZE);
+    <span class="kw">let </span>p = left.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>GenericArray&lt;T, N&gt;;
+    <span class="comment">// SAFETY: we guarantee that `blocks` does not point outside of `data`
+    // and `p` is valid for reads
+    </span><span class="attribute">#[allow(unsafe_code)]
+    </span><span class="kw">let </span>blocks = <span class="kw">unsafe </span>{ slice::from_raw_parts(p, nb) };
+    (blocks, right)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="universal_hash" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="universal_hash" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

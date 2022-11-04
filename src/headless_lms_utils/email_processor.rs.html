@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/email_processor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>email_processor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_utils/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/src/email_processor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>email_processor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_utils/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_utils/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -461,468 +461,468 @@
 <span id="461">461</span>
 <span id="462">462</span>
 <span id="463">463</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
-<span class="kw">use</span> <span class="ident">regex</span>::{<span class="ident">Captures</span>, <span class="ident">Regex</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="kw">use </span>once_cell::sync::Lazy;
+<span class="kw">use </span>regex::{Captures, Regex};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>uuid::Uuid;
 
-<span class="kw">static</span> <span class="ident">LI_START_TAG_REGEX</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Regex</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;&lt;li&gt;&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid li_start regex&quot;</span>));
-<span class="kw">static</span> <span class="ident">LI_END_TAG_REGEX</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Regex</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;&lt;/li&gt;&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid li_end regex&quot;</span>));
-<span class="kw">static</span> <span class="ident">ALL_TAG_REGEX</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Regex</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;&lt;.+?&gt;&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid all_tags regex&quot;</span>));
-<span class="kw">static</span> <span class="ident">DOUBLE_QUOTE_REGEX</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Regex</span><span class="op">&gt;</span> <span class="op">=</span>
-    <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Regex::new</span>(<span class="string">r#&quot;&quot;&quot;#</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid double_quote regex&quot;</span>));
+<span class="kw">static </span>LI_START_TAG_REGEX: Lazy&lt;Regex&gt; =
+    Lazy::new(|| Regex::new(<span class="string">r&quot;&lt;li&gt;&quot;</span>).expect(<span class="string">&quot;invalid li_start regex&quot;</span>));
+<span class="kw">static </span>LI_END_TAG_REGEX: Lazy&lt;Regex&gt; =
+    Lazy::new(|| Regex::new(<span class="string">r&quot;&lt;/li&gt;&quot;</span>).expect(<span class="string">&quot;invalid li_end regex&quot;</span>));
+<span class="kw">static </span>ALL_TAG_REGEX: Lazy&lt;Regex&gt; =
+    Lazy::new(|| Regex::new(<span class="string">r&quot;&lt;.+?&gt;&quot;</span>).expect(<span class="string">&quot;invalid all_tags regex&quot;</span>));
+<span class="kw">static </span>DOUBLE_QUOTE_REGEX: Lazy&lt;Regex&gt; =
+    Lazy::new(|| Regex::new(<span class="string">r#&quot;&quot;&quot;#</span>).expect(<span class="string">&quot;invalid double_quote regex&quot;</span>));
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;name&quot;</span>, <span class="ident">content</span> <span class="op">=</span> <span class="string">&quot;attributes&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BlockAttributes</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;core/paragraph&quot;</span>)]</span>
-    <span class="ident">Paragraph</span> {
-        <span class="ident">content</span>: <span class="ident">String</span>,
-        <span class="ident">drop_cap</span>: <span class="ident">bool</span>,
-        <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">rest</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
+#[serde(tag = <span class="string">&quot;name&quot;</span>, content = <span class="string">&quot;attributes&quot;</span>)]
+</span><span class="kw">pub enum </span>BlockAttributes {
+    <span class="attribute">#[serde(rename = <span class="string">&quot;core/paragraph&quot;</span>)]
+    </span>Paragraph {
+        content: String,
+        drop_cap: bool,
+        <span class="attribute">#[serde(flatten)]
+        </span>rest: HashMap&lt;String, serde_json::Value&gt;,
     },
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;core/image&quot;</span>)]</span>
-    <span class="ident">Image</span> {
-        <span class="ident">alt</span>: <span class="ident">String</span>,
-        <span class="ident">url</span>: <span class="ident">String</span>,
-        <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">rest</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;core/image&quot;</span>)]
+    </span>Image {
+        alt: String,
+        url: String,
+        <span class="attribute">#[serde(flatten)]
+        </span>rest: HashMap&lt;String, serde_json::Value&gt;,
     },
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;core/heading&quot;</span>)]</span>
-    <span class="ident">Heading</span> {
-        <span class="ident">content</span>: <span class="ident">String</span>,
-        <span class="ident">anchor</span>: <span class="ident">String</span>,
-        <span class="ident">level</span>: <span class="ident">i64</span>,
-        <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">rest</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;core/heading&quot;</span>)]
+    </span>Heading {
+        content: String,
+        anchor: String,
+        level: i64,
+        <span class="attribute">#[serde(flatten)]
+        </span>rest: HashMap&lt;String, serde_json::Value&gt;,
     },
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;core/list&quot;</span>)]</span>
-    <span class="ident">List</span> {
-        <span class="ident">ordered</span>: <span class="ident">bool</span>,
-        <span class="ident">values</span>: <span class="ident">String</span>,
-        <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">rest</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;core/list&quot;</span>)]
+    </span>List {
+        ordered: bool,
+        values: String,
+        <span class="attribute">#[serde(flatten)]
+        </span>rest: HashMap&lt;String, serde_json::Value&gt;,
     },
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EmailGutenbergBlock</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;clientId&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">client_id</span>: <span class="ident">Uuid</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;isValid&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">is_valid</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">attributes</span>: <span class="ident">BlockAttributes</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;innerBlocks&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">inner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EmailGutenbergBlock</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+</span><span class="kw">pub struct </span>EmailGutenbergBlock {
+    <span class="attribute">#[serde(rename = <span class="string">&quot;clientId&quot;</span>)]
+    </span><span class="kw">pub </span>client_id: Uuid,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;isValid&quot;</span>)]
+    </span><span class="kw">pub </span>is_valid: bool,
+    <span class="attribute">#[serde(flatten)]
+    </span><span class="kw">pub </span>attributes: BlockAttributes,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;innerBlocks&quot;</span>)]
+    </span><span class="kw">pub </span>inner_blocks: Vec&lt;EmailGutenbergBlock&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">process_content_to_plaintext</span>(<span class="ident">blocks</span>: <span class="kw-2">&amp;</span>[<span class="ident">EmailGutenbergBlock</span>]) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="ident">contents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">blocks</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">block</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">attributes</span> {
-            <span class="ident">BlockAttributes::Paragraph</span> { <span class="ident">content</span>, .. } =&gt; {
-                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">ALL_TAG_REGEX</span>.<span class="ident">replace_all</span>(<span class="ident">content</span>, <span class="string">&quot;&quot;</span>).<span class="ident">to_string</span>();
-                <span class="macro">format!</span>(<span class="string">&quot;{}\n\n&quot;</span>, <span class="ident">res</span>)
+<span class="kw">pub fn </span>process_content_to_plaintext(blocks: <span class="kw-2">&amp;</span>[EmailGutenbergBlock]) -&gt; String {
+    <span class="kw">let </span>contents: Vec&lt;String&gt; = blocks
+        .iter()
+        .map(|block| <span class="kw">match </span><span class="kw-2">&amp;</span>block.attributes {
+            BlockAttributes::Paragraph { content, .. } =&gt; {
+                <span class="kw">let </span>res = ALL_TAG_REGEX.replace_all(content, <span class="string">&quot;&quot;</span>).to_string();
+                <span class="macro">format!</span>(<span class="string">&quot;{}\n\n&quot;</span>, res)
             }
-            <span class="ident">BlockAttributes::Image</span> { <span class="ident">alt</span>, <span class="ident">url</span>, .. } =&gt; {
-                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">DOUBLE_QUOTE_REGEX</span>.<span class="ident">replace_all</span>(<span class="ident">alt</span>, <span class="string">&quot;&quot;</span>).<span class="ident">to_string</span>();
-                <span class="macro">format!</span>(<span class="string">&quot;\&quot;{}\&quot;, &lt;{}&gt;&quot;</span>, <span class="ident">result</span>, <span class="ident">url</span>)
+            BlockAttributes::Image { alt, url, .. } =&gt; {
+                <span class="kw">let </span>result = DOUBLE_QUOTE_REGEX.replace_all(alt, <span class="string">&quot;&quot;</span>).to_string();
+                <span class="macro">format!</span>(<span class="string">&quot;\&quot;{}\&quot;, &lt;{}&gt;&quot;</span>, result, url)
             }
-            <span class="ident">BlockAttributes::Heading</span> { <span class="ident">content</span>, .. } =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}\n\n\n&quot;</span>, <span class="ident">content</span>),
-            <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>, <span class="ident">ordered</span>, ..
+            BlockAttributes::Heading { content, .. } =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}\n\n\n&quot;</span>, content),
+            BlockAttributes::List {
+                values, ordered, ..
             } =&gt; {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">ordered</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counter</span> <span class="op">=</span> <span class="number">0</span>;
-                    <span class="kw">let</span> <span class="ident">first_tags</span> <span class="op">=</span> <span class="ident">LI_START_TAG_REGEX</span>
-                        .<span class="ident">replace_all</span>(<span class="ident">values</span>, <span class="op">|</span><span class="ident">_caps</span>: <span class="kw-2">&amp;</span><span class="ident">Captures</span><span class="op">|</span> {
-                            <span class="ident">counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                            <span class="macro">format!</span>(<span class="string">&quot;{}. &quot;</span>, <span class="ident">counter</span>)
+                <span class="kw">if </span><span class="kw-2">*</span>ordered {
+                    <span class="kw">let </span><span class="kw-2">mut </span>counter = <span class="number">0</span>;
+                    <span class="kw">let </span>first_tags = LI_START_TAG_REGEX
+                        .replace_all(values, |_caps: <span class="kw-2">&amp;</span>Captures| {
+                            counter += <span class="number">1</span>;
+                            <span class="macro">format!</span>(<span class="string">&quot;{}. &quot;</span>, counter)
                         })
-                        .<span class="ident">to_string</span>();
-                    <span class="kw">let</span> <span class="ident">snd_tags</span> <span class="op">=</span> <span class="ident">LI_END_TAG_REGEX</span>.<span class="ident">replace_all</span>(<span class="kw-2">&amp;</span><span class="ident">first_tags</span>, <span class="string">&quot;\n&quot;</span>).<span class="ident">to_string</span>();
-                    <span class="ident">ALL_TAG_REGEX</span>.<span class="ident">replace_all</span>(<span class="kw-2">&amp;</span><span class="ident">snd_tags</span>, <span class="string">&quot;&quot;</span>).<span class="ident">to_string</span>()
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> <span class="ident">first_tags</span> <span class="op">=</span> <span class="ident">LI_START_TAG_REGEX</span>.<span class="ident">replace_all</span>(<span class="ident">values</span>, <span class="string">&quot;* &quot;</span>).<span class="ident">to_string</span>();
-                    <span class="kw">let</span> <span class="ident">snd_tags</span> <span class="op">=</span> <span class="ident">LI_END_TAG_REGEX</span>.<span class="ident">replace_all</span>(<span class="kw-2">&amp;</span><span class="ident">first_tags</span>, <span class="string">&quot;\n&quot;</span>).<span class="ident">to_string</span>();
-                    <span class="ident">ALL_TAG_REGEX</span>.<span class="ident">replace_all</span>(<span class="kw-2">&amp;</span><span class="ident">snd_tags</span>, <span class="string">&quot;&quot;</span>).<span class="ident">to_string</span>()
+                        .to_string();
+                    <span class="kw">let </span>snd_tags = LI_END_TAG_REGEX.replace_all(<span class="kw-2">&amp;</span>first_tags, <span class="string">&quot;\n&quot;</span>).to_string();
+                    ALL_TAG_REGEX.replace_all(<span class="kw-2">&amp;</span>snd_tags, <span class="string">&quot;&quot;</span>).to_string()
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>first_tags = LI_START_TAG_REGEX.replace_all(values, <span class="string">&quot;* &quot;</span>).to_string();
+                    <span class="kw">let </span>snd_tags = LI_END_TAG_REGEX.replace_all(<span class="kw-2">&amp;</span>first_tags, <span class="string">&quot;\n&quot;</span>).to_string();
+                    ALL_TAG_REGEX.replace_all(<span class="kw-2">&amp;</span>snd_tags, <span class="string">&quot;&quot;</span>).to_string()
                 }
             }
         })
-        .<span class="ident">collect</span>();
-    <span class="ident">contents</span>.<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>)
+        .collect();
+    contents.join(<span class="string">&quot;\n&quot;</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">process_content_to_html</span>(<span class="ident">blocks</span>: <span class="kw-2">&amp;</span>[<span class="ident">EmailGutenbergBlock</span>]) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="ident">contents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">blocks</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">block</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">attributes</span> {
-            <span class="ident">BlockAttributes::Paragraph</span> {
-                <span class="ident">content</span>,
-                <span class="ident">drop_cap</span>: <span class="kw">_</span>,
+<span class="kw">pub fn </span>process_content_to_html(blocks: <span class="kw-2">&amp;</span>[EmailGutenbergBlock]) -&gt; String {
+    <span class="kw">let </span>contents: Vec&lt;String&gt; = blocks
+        .iter()
+        .map(|block| <span class="kw">match </span><span class="kw-2">&amp;</span>block.attributes {
+            BlockAttributes::Paragraph {
+                content,
+                drop_cap: <span class="kw">_</span>,
                 ..
             } =&gt; {
-                <span class="macro">format!</span>(<span class="string">&quot;&lt;p&gt;{}&lt;/p&gt;&quot;</span>, <span class="ident">content</span>)
+                <span class="macro">format!</span>(<span class="string">&quot;&lt;p&gt;{}&lt;/p&gt;&quot;</span>, content)
             }
-            <span class="ident">BlockAttributes::Image</span> { <span class="ident">alt</span>, <span class="ident">url</span>, .. } =&gt; {
-                <span class="macro">format!</span>(<span class="string">r#&quot;&lt;img src=&quot;{}&quot; alt=&quot;{}&quot;&gt;&lt;/img&gt;&quot;#</span>, <span class="ident">url</span>, <span class="ident">alt</span>)
+            BlockAttributes::Image { alt, url, .. } =&gt; {
+                <span class="macro">format!</span>(<span class="string">r#&quot;&lt;img src=&quot;{}&quot; alt=&quot;{}&quot;&gt;&lt;/img&gt;&quot;#</span>, url, alt)
             }
-            <span class="ident">BlockAttributes::Heading</span> { <span class="ident">content</span>, <span class="ident">level</span>, .. } =&gt; {
-                <span class="macro">format!</span>(<span class="string">&quot;&lt;h{}&gt;{}&lt;/h{}&gt;&quot;</span>, <span class="ident">level</span>, <span class="ident">content</span>, <span class="ident">level</span>)
+            BlockAttributes::Heading { content, level, .. } =&gt; {
+                <span class="macro">format!</span>(<span class="string">&quot;&lt;h{}&gt;{}&lt;/h{}&gt;&quot;</span>, level, content, level)
             }
-            <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>, <span class="ident">ordered</span>, ..
+            BlockAttributes::List {
+                values, ordered, ..
             } =&gt; {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">ordered</span> {
-                    <span class="macro">format!</span>(<span class="string">&quot;&lt;ol&gt;{}&lt;/ol&gt;&quot;</span>, <span class="ident">values</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">format!</span>(<span class="string">&quot;&lt;ul&gt;{}&lt;/ul&gt;&quot;</span>, <span class="ident">values</span>)
+                <span class="kw">if </span><span class="kw-2">*</span>ordered {
+                    <span class="macro">format!</span>(<span class="string">&quot;&lt;ol&gt;{}&lt;/ol&gt;&quot;</span>, values)
+                } <span class="kw">else </span>{
+                    <span class="macro">format!</span>(<span class="string">&quot;&lt;ul&gt;{}&lt;/ul&gt;&quot;</span>, values)
                 }
             }
         })
-        .<span class="ident">collect</span>();
-    <span class="ident">contents</span>.<span class="ident">join</span>(<span class="string">&quot;&quot;</span>)
+        .collect();
+    contents.join(<span class="string">&quot;&quot;</span>)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">email_processor_tests</span> {
-    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
-    <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>email_processor_tests {
+    <span class="kw">use </span>pretty_assertions::assert_eq;
+    <span class="kw">use </span>uuid::Uuid;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_paragraph_correctly_to_plain_text</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Paragraph</span> {
-                <span class="ident">content</span>: <span class="ident">String::from</span>(<span class="string">&quot;testi paragraph.&quot;</span>),
-                <span class="ident">drop_cap</span>: <span class="bool-val">false</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_paragraph_correctly_to_plain_text() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::Paragraph {
+                content: String::from(<span class="string">&quot;testi paragraph.&quot;</span>),
+                drop_cap: <span class="bool-val">false</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_plaintext(<span class="kw-2">&amp;</span>input);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from</span>(<span class="string">&quot;testi paragraph.\n\n&quot;</span>), <span class="ident">result</span>);
+        <span class="macro">assert_eq!</span>(String::from(<span class="string">&quot;testi paragraph.\n\n&quot;</span>), result);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_paragraph_wrapped_in_tags_correctly_to_plain_text</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Paragraph</span> {
-                <span class="ident">content</span>: <span class="ident">String::from</span>(<span class="string">&quot;&lt;strong&gt;&lt;em&gt;testi paragraph.&lt;/em&gt;&lt;/strong&gt;&quot;</span>),
-                <span class="ident">drop_cap</span>: <span class="bool-val">false</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_paragraph_wrapped_in_tags_correctly_to_plain_text() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::Paragraph {
+                content: String::from(<span class="string">&quot;&lt;strong&gt;&lt;em&gt;testi paragraph.&lt;/em&gt;&lt;/strong&gt;&quot;</span>),
+                drop_cap: <span class="bool-val">false</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_plaintext(<span class="kw-2">&amp;</span>input);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from</span>(<span class="string">&quot;testi paragraph.\n\n&quot;</span>), <span class="ident">result</span>);
+        <span class="macro">assert_eq!</span>(String::from(<span class="string">&quot;testi paragraph.\n\n&quot;</span>), result);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_heading_correctly_to_plain_text</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Heading</span> {
-                <span class="ident">content</span>: <span class="ident">String::from</span>(<span class="string">&quot;Email heading&quot;</span>),
-                <span class="ident">anchor</span>: <span class="ident">String::from</span>(<span class="string">&quot;email-heading&quot;</span>),
-                <span class="ident">level</span>: <span class="number">2</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_heading_correctly_to_plain_text() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::Heading {
+                content: String::from(<span class="string">&quot;Email heading&quot;</span>),
+                anchor: String::from(<span class="string">&quot;email-heading&quot;</span>),
+                level: <span class="number">2</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_plaintext(<span class="kw-2">&amp;</span>input);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from</span>(<span class="string">&quot;Email heading\n\n\n&quot;</span>), <span class="ident">result</span>);
+        <span class="macro">assert_eq!</span>(String::from(<span class="string">&quot;Email heading\n\n\n&quot;</span>), result);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_image_correctly_to_plain_text</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Image</span> {
-                <span class="ident">alt</span>: <span class="ident">String::from</span>(<span class="string">&quot;Alternative title&quot;</span>),
-                <span class="ident">url</span>: <span class="ident">String::from</span>(<span class="string">&quot;URL -of an image&quot;</span>),
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_image_correctly_to_plain_text() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::Image {
+                alt: String::from(<span class="string">&quot;Alternative title&quot;</span>),
+                url: String::from(<span class="string">&quot;URL -of an image&quot;</span>),
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_plaintext(<span class="kw-2">&amp;</span>input);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;\&quot;Alternative title\&quot;, &lt;URL -of an image&gt;&quot;</span>),
-            <span class="ident">result</span>
+            String::from(<span class="string">&quot;\&quot;Alternative title\&quot;, &lt;URL -of an image&gt;&quot;</span>),
+            result
         );
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_image_containing_double_quotes_correctly_to_plain_text</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Image</span> {
-                <span class="ident">alt</span>: <span class="ident">String::from</span>(<span class="string">r#&quot;&quot;Alternative title&quot;&quot;#</span>),
-                <span class="ident">url</span>: <span class="ident">String::from</span>(<span class="string">&quot;URL -of an image&quot;</span>),
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_image_containing_double_quotes_correctly_to_plain_text() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::Image {
+                alt: String::from(<span class="string">r#&quot;&quot;Alternative title&quot;&quot;#</span>),
+                url: String::from(<span class="string">&quot;URL -of an image&quot;</span>),
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_plaintext(<span class="kw-2">&amp;</span>input);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;\&quot;Alternative title\&quot;, &lt;URL -of an image&gt;&quot;</span>),
-            <span class="ident">result</span>
+            String::from(<span class="string">&quot;\&quot;Alternative title\&quot;, &lt;URL -of an image&gt;&quot;</span>),
+            result
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_unordered_list_correctly_to_plain_text</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>: <span class="ident">String::from</span>(<span class="string">&quot;&lt;li&gt;1&lt;/li&gt;&lt;li&gt;2&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&quot;</span>),
-                <span class="ident">ordered</span>: <span class="bool-val">false</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_unordered_list_correctly_to_plain_text() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::List {
+                values: String::from(<span class="string">&quot;&lt;li&gt;1&lt;/li&gt;&lt;li&gt;2&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&quot;</span>),
+                ordered: <span class="bool-val">false</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_plaintext(<span class="kw-2">&amp;</span>input);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from</span>(<span class="string">&quot;* 1\n* 2\n* 3\n* 4\n&quot;</span>), <span class="ident">result</span>);
+        <span class="macro">assert_eq!</span>(String::from(<span class="string">&quot;* 1\n* 2\n* 3\n* 4\n&quot;</span>), result);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_unordered_list_containing_other_tags_correctly_to_plain_text</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>: <span class="ident">String::from</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_unordered_list_containing_other_tags_correctly_to_plain_text() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::List {
+                values: String::from(
                     <span class="string">&quot;&lt;li&gt;&lt;code&gt;1&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;kbd&gt;2&lt;/kbd&gt;&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&quot;</span>,
                 ),
-                <span class="ident">ordered</span>: <span class="bool-val">false</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+                ordered: <span class="bool-val">false</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_plaintext(<span class="kw-2">&amp;</span>input);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from</span>(<span class="string">&quot;* 1\n* 2\n* 3\n* 4\n&quot;</span>), <span class="ident">result</span>);
+        <span class="macro">assert_eq!</span>(String::from(<span class="string">&quot;* 1\n* 2\n* 3\n* 4\n&quot;</span>), result);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_ordered_list_correctly_to_plain_text</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>: <span class="ident">String::from</span>(<span class="string">&quot;&lt;li&gt;first&lt;/li&gt;&lt;li&gt;second&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&quot;</span>),
-                <span class="ident">ordered</span>: <span class="bool-val">true</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_ordered_list_correctly_to_plain_text() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::List {
+                values: String::from(<span class="string">&quot;&lt;li&gt;first&lt;/li&gt;&lt;li&gt;second&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&quot;</span>),
+                ordered: <span class="bool-val">true</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_plaintext(<span class="kw-2">&amp;</span>input);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;1. first\n2. second\n3. third\n4. fourth\n&quot;</span>),
-            <span class="ident">result</span>
+            String::from(<span class="string">&quot;1. first\n2. second\n3. third\n4. fourth\n&quot;</span>),
+            result
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_ordered_list_containing_other_tags_correctly_to_plain_text</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>: <span class="ident">String::from</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_ordered_list_containing_other_tags_correctly_to_plain_text() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::List {
+                values: String::from(
                     <span class="string">&quot;&lt;li&gt;&lt;code&gt;first&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;kbd&gt;second&lt;/kbd&gt;&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&quot;</span>,
                 ),
-                <span class="ident">ordered</span>: <span class="bool-val">true</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+                ordered: <span class="bool-val">true</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_plaintext</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_plaintext(<span class="kw-2">&amp;</span>input);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;1. first\n2. second\n3. third\n4. fourth\n&quot;</span>),
-            <span class="ident">result</span>
+            String::from(<span class="string">&quot;1. first\n2. second\n3. third\n4. fourth\n&quot;</span>),
+            result
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_paragraph_correctly_to_html</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Paragraph</span> {
-                <span class="ident">content</span>: <span class="ident">String::from</span>(<span class="string">&quot;testi paragraph.&quot;</span>),
-                <span class="ident">drop_cap</span>: <span class="bool-val">false</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_paragraph_correctly_to_html() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::Paragraph {
+                content: String::from(<span class="string">&quot;testi paragraph.&quot;</span>),
+                drop_cap: <span class="bool-val">false</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_html</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_html(<span class="kw-2">&amp;</span>input);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from</span>(<span class="string">&quot;&lt;p&gt;testi paragraph.&lt;/p&gt;&quot;</span>), <span class="ident">result</span>);
+        <span class="macro">assert_eq!</span>(String::from(<span class="string">&quot;&lt;p&gt;testi paragraph.&lt;/p&gt;&quot;</span>), result);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_heading_correctly_to_html</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Heading</span> {
-                <span class="ident">content</span>: <span class="ident">String::from</span>(<span class="string">&quot;Email heading&quot;</span>),
-                <span class="ident">anchor</span>: <span class="ident">String::from</span>(<span class="string">&quot;email-heading&quot;</span>),
-                <span class="ident">level</span>: <span class="number">2</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_heading_correctly_to_html() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::Heading {
+                content: String::from(<span class="string">&quot;Email heading&quot;</span>),
+                anchor: String::from(<span class="string">&quot;email-heading&quot;</span>),
+                level: <span class="number">2</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_html</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_html(<span class="kw-2">&amp;</span>input);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">String::from</span>(<span class="string">&quot;&lt;h2&gt;Email heading&lt;/h2&gt;&quot;</span>), <span class="ident">result</span>);
+        <span class="macro">assert_eq!</span>(String::from(<span class="string">&quot;&lt;h2&gt;Email heading&lt;/h2&gt;&quot;</span>), result);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_image_correctly_to_html</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::Image</span> {
-                <span class="ident">alt</span>: <span class="ident">String::from</span>(<span class="string">&quot;Alternative title&quot;</span>),
-                <span class="ident">url</span>: <span class="ident">String::from</span>(<span class="string">&quot;URL -of an image&quot;</span>),
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_image_correctly_to_html() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::Image {
+                alt: String::from(<span class="string">&quot;Alternative title&quot;</span>),
+                url: String::from(<span class="string">&quot;URL -of an image&quot;</span>),
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_html</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_html(<span class="kw-2">&amp;</span>input);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from</span>(<span class="string">r#&quot;&lt;img src=&quot;URL -of an image&quot; alt=&quot;Alternative title&quot;&gt;&lt;/img&gt;&quot;#</span>),
-            <span class="ident">result</span>
+            String::from(<span class="string">r#&quot;&lt;img src=&quot;URL -of an image&quot; alt=&quot;Alternative title&quot;&gt;&lt;/img&gt;&quot;#</span>),
+            result
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_unordered_list_correctly_to_html</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>: <span class="ident">String::from</span>(<span class="string">&quot;&lt;li&gt;1&lt;/li&gt;&lt;li&gt;2&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&quot;</span>),
-                <span class="ident">ordered</span>: <span class="bool-val">false</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_unordered_list_correctly_to_html() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::List {
+                values: String::from(<span class="string">&quot;&lt;li&gt;1&lt;/li&gt;&lt;li&gt;2&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&quot;</span>),
+                ordered: <span class="bool-val">false</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_html</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_html(<span class="kw-2">&amp;</span>input);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;&lt;ul&gt;&lt;li&gt;1&lt;/li&gt;&lt;li&gt;2&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&lt;/ul&gt;&quot;</span>),
-            <span class="ident">result</span>
+            String::from(<span class="string">&quot;&lt;ul&gt;&lt;li&gt;1&lt;/li&gt;&lt;li&gt;2&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&lt;/ul&gt;&quot;</span>),
+            result
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_unordered_list_containing_other_tags_correctly_to_html</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>: <span class="ident">String::from</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_unordered_list_containing_other_tags_correctly_to_html() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::List {
+                values: String::from(
                     <span class="string">&quot;&lt;li&gt;&lt;code&gt;1&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;kbd&gt;2&lt;/kbd&gt;&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&quot;</span>,
                 ),
-                <span class="ident">ordered</span>: <span class="bool-val">false</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+                ordered: <span class="bool-val">false</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_html</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_html(<span class="kw-2">&amp;</span>input);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from</span>(
-                <span class="string">&quot;&lt;ul&gt;&lt;li&gt;&lt;code&gt;1&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;kbd&gt;2&lt;/kbd&gt;&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&lt;/ul&gt;&quot;</span>
-            ),
-            <span class="ident">result</span>
+            String::from(
+                <span class="string">&quot;&lt;ul&gt;&lt;li&gt;&lt;code&gt;1&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;kbd&gt;2&lt;/kbd&gt;&lt;/li&gt;&lt;li&gt;3&lt;/li&gt;&lt;li&gt;4&lt;/li&gt;&lt;/ul&gt;&quot;
+            </span>),
+            result
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_ordered_list_correctly_to_html</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>: <span class="ident">String::from</span>(<span class="string">&quot;&lt;li&gt;first&lt;/li&gt;&lt;li&gt;second&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&quot;</span>),
-                <span class="ident">ordered</span>: <span class="bool-val">true</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_ordered_list_correctly_to_html() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::List {
+                values: String::from(<span class="string">&quot;&lt;li&gt;first&lt;/li&gt;&lt;li&gt;second&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&quot;</span>),
+                ordered: <span class="bool-val">true</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_html</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_html(<span class="kw-2">&amp;</span>input);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;&lt;ol&gt;&lt;li&gt;first&lt;/li&gt;&lt;li&gt;second&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&lt;/ol&gt;&quot;</span>),
-            <span class="ident">result</span>
+            String::from(<span class="string">&quot;&lt;ol&gt;&lt;li&gt;first&lt;/li&gt;&lt;li&gt;second&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&lt;/ol&gt;&quot;</span>),
+            result
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_converts_ordered_list_containing_other_tags_correctly_to_html</span>() {
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">EmailGutenbergBlock</span> {
-            <span class="ident">client_id</span>: <span class="ident">Uuid::new_v4</span>(),
-            <span class="ident">is_valid</span>: <span class="bool-val">true</span>,
-            <span class="ident">attributes</span>: <span class="ident">BlockAttributes::List</span> {
-                <span class="ident">values</span>: <span class="ident">String::from</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>it_converts_ordered_list_containing_other_tags_correctly_to_html() {
+        <span class="kw">let </span>input = <span class="macro">vec!</span>[EmailGutenbergBlock {
+            client_id: Uuid::new_v4(),
+            is_valid: <span class="bool-val">true</span>,
+            attributes: BlockAttributes::List {
+                values: String::from(
                     <span class="string">&quot;&lt;li&gt;&lt;code&gt;first&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;kbd&gt;second&lt;/kbd&gt;&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&quot;</span>,
                 ),
-                <span class="ident">ordered</span>: <span class="bool-val">true</span>,
-                <span class="ident">rest</span>: <span class="ident">HashMap::new</span>(),
+                ordered: <span class="bool-val">true</span>,
+                rest: HashMap::new(),
             },
-            <span class="ident">inner_blocks</span>: <span class="macro">vec!</span>[],
+            inner_blocks: <span class="macro">vec!</span>[],
         }];
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">process_content_to_html</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>);
+        <span class="kw">let </span>result = process_content_to_html(<span class="kw-2">&amp;</span>input);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">String::from</span>(<span class="string">&quot;&lt;ol&gt;&lt;li&gt;&lt;code&gt;first&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;kbd&gt;second&lt;/kbd&gt;&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&lt;/ol&gt;&quot;</span>),
-            <span class="ident">result</span>
+            String::from(<span class="string">&quot;&lt;ol&gt;&lt;li&gt;&lt;code&gt;first&lt;/code&gt;&lt;/li&gt;&lt;li&gt;&lt;kbd&gt;second&lt;/kbd&gt;&lt;/li&gt;&lt;li&gt;third&lt;/li&gt;&lt;li&gt;fourth&lt;/li&gt;&lt;/ol&gt;&quot;</span>),
+            result
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

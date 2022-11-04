@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/page_history.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>page_history.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/page_history.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>page_history.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -151,59 +151,59 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde_json::Value</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>serde_json::Value;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">pages</span>::{<span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>},
-    <span class="ident">peer_review_configs::CmsPeerReviewConfig</span>,
-    <span class="ident">peer_review_questions::CmsPeerReviewQuestion</span>,
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+<span class="kw">use crate</span>::{
+    pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
+    peer_review_configs::CmsPeerReviewConfig,
+    peer_review_questions::CmsPeerReviewQuestion,
+    prelude::<span class="kw-2">*</span>,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Type</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="attribute">#[<span class="ident">sqlx</span>(<span class="ident">type_name</span> <span class="op">=</span> <span class="string">&quot;history_change_reason&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HistoryChangeReason</span> {
-    <span class="ident">PageSaved</span>,
-    <span class="ident">HistoryRestored</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+#[sqlx(type_name = <span class="string">&quot;history_change_reason&quot;</span>, rename_all = <span class="string">&quot;kebab-case&quot;</span>)]
+</span><span class="kw">pub enum </span>HistoryChangeReason {
+    PageSaved,
+    HistoryRestored,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageHistory</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">Value</span>,
-    <span class="kw">pub</span> <span class="ident">history_change_reason</span>: <span class="ident">HistoryChangeReason</span>,
-    <span class="kw">pub</span> <span class="ident">restored_from_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">author_user_id</span>: <span class="ident">Uuid</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>PageHistory {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>title: String,
+    <span class="kw">pub </span>content: Value,
+    <span class="kw">pub </span>history_change_reason: HistoryChangeReason,
+    <span class="kw">pub </span>restored_from_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>author_user_id: Uuid,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageHistoryContent</span> {
-    <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">serde_json::Value</span>,
-    <span class="kw">pub</span> <span class="ident">exercises</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExercise</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_slides</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseSlide</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPageExerciseTask</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_configs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPeerReviewConfig</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_questions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CmsPeerReviewQuestion</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>PageHistoryContent {
+    <span class="kw">pub </span>content: serde_json::Value,
+    <span class="kw">pub </span>exercises: Vec&lt;CmsPageExercise&gt;,
+    <span class="kw">pub </span>exercise_slides: Vec&lt;CmsPageExerciseSlide&gt;,
+    <span class="kw">pub </span>exercise_tasks: Vec&lt;CmsPageExerciseTask&gt;,
+    <span class="kw">pub </span>peer_review_configs: Vec&lt;CmsPeerReviewConfig&gt;,
+    <span class="kw">pub </span>peer_review_questions: Vec&lt;CmsPeerReviewQuestion&gt;,
 }
 
-<span class="comment">// Batch refactor pushed past the limit</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">PageHistoryContent</span>,
-    <span class="ident">history_change_reason</span>: <span class="ident">HistoryChangeReason</span>,
-    <span class="ident">author_user_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">restored_from_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="comment">// Batch refactor pushed past the limit
+</span><span class="attribute">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    page_id: Uuid,
+    title: <span class="kw-2">&amp;</span>str,
+    content: <span class="kw-2">&amp;</span>PageHistoryContent,
+    history_change_reason: HistoryChangeReason,
+    author_user_id: Uuid,
+    restored_from_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO page_history (
     id,
@@ -217,27 +217,27 @@ INSERT INTO page_history (
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">page_id</span>,
-        <span class="ident">title</span>,
-        <span class="ident">serde_json::to_value</span>(<span class="ident">content</span>)<span class="question-mark">?</span>,
-        <span class="ident">history_change_reason</span> <span class="kw">as</span> <span class="ident">HistoryChangeReason</span>,
-        <span class="ident">author_user_id</span>,
-        <span class="ident">restored_from_id</span>
+        pkey_policy.into_uuid(),
+        page_id,
+        title,
+        serde_json::to_value(content)<span class="question-mark">?</span>,
+        history_change_reason <span class="kw">as </span>HistoryChangeReason,
+        author_user_id,
+        restored_from_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageHistoryData</span> {
-    <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">PageHistoryContent</span>,
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>PageHistoryData {
+    <span class="kw">pub </span>content: PageHistoryContent,
+    <span class="kw">pub </span>title: String,
+    <span class="kw">pub </span>exam_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_history_data</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PageHistoryData</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_history_data(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;PageHistoryData&gt; {
+    <span class="kw">let </span>record = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT page_history.content,
   page_history.title,
@@ -248,24 +248,24 @@ WHERE page_history.id = $1
   AND pages.deleted_at IS NULL
   AND page_history.deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">id</span>,
+        id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">PageHistoryData</span> {
-        <span class="ident">content</span>: <span class="ident">serde_json::from_value</span>(<span class="ident">record</span>.<span class="ident">content</span>)<span class="question-mark">?</span>,
-        <span class="ident">title</span>: <span class="ident">record</span>.<span class="ident">title</span>,
-        <span class="ident">exam_id</span>: <span class="ident">record</span>.<span class="ident">exam_id</span>,
+    <span class="prelude-val">Ok</span>(PageHistoryData {
+        content: serde_json::from_value(record.content)<span class="question-mark">?</span>,
+        title: record.title,
+        exam_id: record.exam_id,
     })
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">history</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">pagination</span>: <span class="ident">Pagination</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageHistory</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PageHistory</span>,
+<span class="kw">pub async fn </span>history(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    page_id: Uuid,
+    pagination: Pagination,
+) -&gt; ModelResult&lt;Vec&lt;PageHistory&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PageHistory,
         <span class="string">r#&quot;
 SELECT id,
   title,
@@ -281,28 +281,28 @@ ORDER BY created_at DESC, id
 LIMIT $2
 OFFSET $3
 &quot;#</span>,
-        <span class="ident">page_id</span>,
-        <span class="ident">pagination</span>.<span class="ident">limit</span>(),
-        <span class="ident">pagination</span>.<span class="ident">offset</span>()
+        page_id,
+        pagination.limit(),
+        pagination.offset()
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">history_count</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">page_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>history_count(conn: <span class="kw-2">&amp;mut </span>PgConnection, page_id: Uuid) -&gt; ModelResult&lt;i64&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT COUNT(*) AS count
 FROM page_history
 WHERE page_id = $1
 AND deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">page_id</span>
+        page_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">count</span>.<span class="ident">unwrap_or_default</span>())
+    <span class="prelude-val">Ok</span>(res.count.unwrap_or_default())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

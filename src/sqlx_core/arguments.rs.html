@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/arguments.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>arguments.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/arguments.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>arguments.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -55,62 +55,62 @@
 <span id="55">55</span>
 <span id="56">56</span>
 <span id="57">57</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Types and traits for passing arguments to SQL queries.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Types and traits for passing arguments to SQL queries.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database</span>::{<span class="ident">Database</span>, <span class="ident">HasArguments</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encode::Encode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
+</span><span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasArguments};
+<span class="kw">use </span><span class="kw">crate</span>::encode::Encode;
+<span class="kw">use </span><span class="kw">crate</span>::types::Type;
+<span class="kw">use </span>std::fmt::{<span class="self">self</span>, Write};
 
-<span class="doccomment">/// A tuple of arguments to be sent to the database.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Default</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// A tuple of arguments to be sent to the database.
+</span><span class="kw">pub trait </span>Arguments&lt;<span class="lifetime">&#39;q</span>&gt;: Send + Sized + Default {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="doccomment">/// Reserves the capacity for at least `additional` more values (of `size` total bytes) to</span>
-    <span class="doccomment">/// be added to the arguments without a reallocation.</span>
-    <span class="kw">fn</span> <span class="ident">reserve</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">additional</span>: <span class="ident">usize</span>, <span class="ident">size</span>: <span class="ident">usize</span>);
+    <span class="doccomment">/// Reserves the capacity for at least `additional` more values (of `size` total bytes) to
+    /// be added to the arguments without a reallocation.
+    </span><span class="kw">fn </span>reserve(<span class="kw-2">&amp;mut </span><span class="self">self</span>, additional: usize, size: usize);
 
-    <span class="doccomment">/// Add the value to the end of the arguments.</span>
-    <span class="kw">fn</span> <span class="ident">add</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>)
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="lifetime">&#39;q</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Add the value to the end of the arguments.
+    </span><span class="kw">fn </span>add&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: T)
+    <span class="kw">where
+        </span>T: <span class="lifetime">&#39;q </span>+ Send + Encode&lt;<span class="lifetime">&#39;q</span>, <span class="self">Self</span>::Database&gt; + Type&lt;<span class="self">Self</span>::Database&gt;;
 
-    <span class="kw">fn</span> <span class="ident">format_placeholder</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">W</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">writer</span>.<span class="ident">write_str</span>(<span class="string">&quot;?&quot;</span>)
+    <span class="kw">fn </span>format_placeholder&lt;W: Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, writer: <span class="kw-2">&amp;mut </span>W) -&gt; fmt::Result {
+        writer.write_str(<span class="string">&quot;?&quot;</span>)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Send</span> {
-    <span class="kw">fn</span> <span class="ident">into_arguments</span>(<span class="self">self</span>) -&gt; <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span>;
+<span class="kw">pub trait </span>IntoArguments&lt;<span class="lifetime">&#39;q</span>, DB: HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;: Sized + Send {
+    <span class="kw">fn </span>into_arguments(<span class="self">self</span>) -&gt; &lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Arguments;
 }
 
-<span class="comment">// NOTE: required due to lack of lazy normalization</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_macros</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">impl_into_arguments_for_arguments</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span>:<span class="ident">path</span>) =&gt; {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span>
-            <span class="ident"><span class="kw">crate</span>::arguments::IntoArguments</span><span class="op">&lt;</span>
+<span class="comment">// NOTE: required due to lack of lazy normalization
+</span><span class="attribute">#[allow(unused_macros)]
+</span><span class="macro">macro_rules! </span>impl_into_arguments_for_arguments {
+    (<span class="macro-nonterminal">$Arguments</span>:path) =&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>&gt;
+            <span class="kw">crate</span>::arguments::IntoArguments&lt;
                 <span class="lifetime">&#39;q</span>,
-                <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span> <span class="kw">as</span> <span class="ident"><span class="kw">crate</span>::arguments::Arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Database</span>,
-            <span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span>
-        {
-            <span class="kw">fn</span> <span class="ident">into_arguments</span>(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Arguments</span> {
-                <span class="self">self</span>
-            }
+                &lt;<span class="macro-nonterminal">$Arguments </span><span class="kw">as </span><span class="kw">crate</span>::arguments::Arguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Database,
+            &gt; <span class="kw">for </span><span class="macro-nonterminal">$Arguments
+        </span>{
+            <span class="kw">fn </span>into_arguments(<span class="self">self</span>) -&gt; <span class="macro-nonterminal">$Arguments </span>{
+                <span class="self">self
+            </span>}
         }
     };
 }
 
-<span class="doccomment">/// used by the query macros to prevent supernumerary `.bind()` calls</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ImmutableArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span>);
+<span class="doccomment">/// used by the query macros to prevent supernumerary `.bind()` calls
+</span><span class="kw">pub struct </span>ImmutableArguments&lt;<span class="lifetime">&#39;q</span>, DB: HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;(<span class="kw">pub </span>&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Arguments);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>: <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">IntoArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ImmutableArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">into_arguments</span>(<span class="self">self</span>) -&gt; <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>, DB: HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt; IntoArguments&lt;<span class="lifetime">&#39;q</span>, DB&gt; <span class="kw">for </span>ImmutableArguments&lt;<span class="lifetime">&#39;q</span>, DB&gt; {
+    <span class="kw">fn </span>into_arguments(<span class="self">self</span>) -&gt; &lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">&#39;q</span>&gt;&gt;::Arguments {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="comment">// TODO: Impl `IntoArguments` for &amp;[&amp;dyn Encode]</span>
-<span class="comment">// TODO: Impl `IntoArguments` for (impl Encode, ...) x16</span>
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+<span class="comment">// TODO: Impl `IntoArguments` for &amp;[&amp;dyn Encode]
+// TODO: Impl `IntoArguments` for (impl Encode, ...) x16
+</span></code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

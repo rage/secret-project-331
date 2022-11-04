@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/courses.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>courses.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `models/src/courses.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>courses.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../headless_lms_models/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../headless_lms_models/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -666,78 +666,78 @@
 <span id="666">666</span>
 <span id="667">667</span>
 <span id="668">668</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
-    <span class="ident">file_store::FileStore</span>, <span class="ident">language_tag_to_name::LANGUAGE_TAG_TO_NAME</span>, <span class="ident">ApplicationConfiguration</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::{
+    file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">chapters</span>::{<span class="ident">course_chapters</span>, <span class="ident">Chapter</span>},
-    <span class="ident">course_modules::CourseModule</span>,
-    <span class="ident">pages::Page</span>,
-    <span class="ident">pages</span>::{<span class="ident">get_all_by_course_id_and_visibility</span>, <span class="ident">PageVisibility</span>},
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+<span class="kw">use crate</span>::{
+    chapters::{course_chapters, Chapter},
+    course_modules::CourseModule,
+    pages::Page,
+    pages::{get_all_by_course_id_and_visibility, PageVisibility},
+    prelude::<span class="kw-2">*</span>,
 };
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseInfo</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">is_draft</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>CourseInfo {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>is_draft: bool,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseCount</span> {
-    <span class="kw">pub</span> <span class="ident">count</span>: <span class="ident">u32</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseCount {
+    <span class="kw">pub </span>count: u32,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseContextData</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>CourseContextData {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>is_test_mode: bool,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Course</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">slug</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">language_code</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">copied_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">content_search_language</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">course_language_group_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">is_draft</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">base_module_completion_requires_n_submodule_completions</span>: <span class="ident">i32</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>Course {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>slug: String,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>description: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>organization_id: Uuid,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>language_code: String,
+    <span class="kw">pub </span>copied_from: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    <span class="kw">pub </span>content_search_language: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>course_language_group_id: Uuid,
+    <span class="kw">pub </span>is_draft: bool,
+    <span class="kw">pub </span>is_test_mode: bool,
+    <span class="kw">pub </span>base_module_completion_requires_n_submodule_completions: i32,
 }
 
-<span class="doccomment">/// Represents the subset of page fields that are required to create a new course.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewCourse</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">slug</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">language_code</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Name of the teacher who is responsible for the course. Must be a valid name.</span>
-    <span class="kw">pub</span> <span class="ident">teacher_in_charge_name</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Email of the teacher who is responsible for the course. Must be a valid email.</span>
-    <span class="kw">pub</span> <span class="ident">teacher_in_charge_email</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">description</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">is_draft</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// Represents the subset of page fields that are required to create a new course.
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>NewCourse {
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>slug: String,
+    <span class="kw">pub </span>organization_id: Uuid,
+    <span class="kw">pub </span>language_code: String,
+    <span class="doccomment">/// Name of the teacher who is responsible for the course. Must be a valid name.
+    </span><span class="kw">pub </span>teacher_in_charge_name: String,
+    <span class="doccomment">/// Email of the teacher who is responsible for the course. Must be a valid email.
+    </span><span class="kw">pub </span>teacher_in_charge_email: String,
+    <span class="kw">pub </span>description: String,
+    <span class="kw">pub </span>is_draft: bool,
+    <span class="kw">pub </span>is_test_mode: bool,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">course_language_group_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">new_course</span>: <span class="kw-2">&amp;</span><span class="ident">NewCourse</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>insert(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    pkey_policy: PKeyPolicy&lt;Uuid&gt;,
+    course_language_group_id: Uuid,
+    new_course: <span class="kw-2">&amp;</span>NewCourse,
+) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO courses(
     id,
@@ -763,33 +763,33 @@ VALUES(
   )
 RETURNING id
         &quot;</span>,
-        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
-        <span class="ident">new_course</span>.<span class="ident">name</span>,
-        <span class="ident">new_course</span>.<span class="ident">description</span>,
-        <span class="ident">new_course</span>.<span class="ident">slug</span>,
-        <span class="ident">new_course</span>.<span class="ident">organization_id</span>,
-        <span class="ident">new_course</span>.<span class="ident">language_code</span>,
-        <span class="ident">course_language_group_id</span>,
-        <span class="ident">new_course</span>.<span class="ident">is_draft</span>,
-        <span class="ident">new_course</span>.<span class="ident">is_test_mode</span>
+        pkey_policy.into_uuid(),
+        new_course.name,
+        new_course.description,
+        new_course.slug,
+        new_course.organization_id,
+        new_course.language_code,
+        course_language_group_id,
+        new_course.is_draft,
+        new_course.is_test_mode
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
+    <span class="prelude-val">Ok</span>(res.id)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseStructure</span> {
-    <span class="kw">pub</span> <span class="ident">course</span>: <span class="ident">Course</span>,
-    <span class="kw">pub</span> <span class="ident">pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">modules</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseModule</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseStructure {
+    <span class="kw">pub </span>course: Course,
+    <span class="kw">pub </span>pages: Vec&lt;Page&gt;,
+    <span class="kw">pub </span>chapters: Vec&lt;Chapter&gt;,
+    <span class="kw">pub </span>modules: Vec&lt;CourseModule&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">all_courses</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+<span class="kw">pub async fn </span>all_courses(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; ModelResult&lt;Vec&lt;Course&gt;&gt; {
+    <span class="kw">let </span>courses = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">r#&quot;
 SELECT id,
   name,
@@ -808,19 +808,19 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE deleted_at IS NULL;
-&quot;#</span>
-    )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+&quot;#
+    </span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">courses</span>)
+    <span class="prelude-val">Ok</span>(courses)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_language_versions_of_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course</span>: <span class="kw-2">&amp;</span><span class="ident">Course</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+<span class="kw">pub async fn </span>get_all_language_versions_of_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course: <span class="kw-2">&amp;</span>Course,
+) -&gt; ModelResult&lt;Vec&lt;Course&gt;&gt; {
+    <span class="kw">let </span>courses = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">&quot;
 SELECT id,
   name,
@@ -841,20 +841,20 @@ FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">course</span>.<span class="ident">course_language_group_id</span>,
+        course.course_language_group_id,
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">courses</span>)
+    <span class="prelude-val">Ok</span>(courses)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_active_courses_for_organization</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">pagination</span>: <span class="kw-2">&amp;</span><span class="ident">Pagination</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_instances</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+<span class="kw">pub async fn </span>get_active_courses_for_organization(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    organization_id: Uuid,
+    pagination: <span class="kw-2">&amp;</span>Pagination,
+) -&gt; ModelResult&lt;Vec&lt;Course&gt;&gt; {
+    <span class="kw">let </span>course_instances = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">r#&quot;
 SELECT
     DISTINCT(c.id),
@@ -880,20 +880,20 @@ WHERE
     c.deleted_at IS NULL AND ci.deleted_at IS NULL
     LIMIT $2 OFFSET $3;
         &quot;#</span>,
-        <span class="ident">organization_id</span>,
-        <span class="ident">pagination</span>.<span class="ident">limit</span>(),
-        <span class="ident">pagination</span>.<span class="ident">offset</span>()
+        organization_id,
+        pagination.limit(),
+        pagination.offset()
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">course_instances</span>)
+    <span class="prelude-val">Ok</span>(course_instances)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_active_courses_for_organization_count</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseCount</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>get_active_courses_for_organization_count(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    organization_id: Uuid,
+) -&gt; ModelResult&lt;CourseCount&gt; {
+    <span class="kw">let </span>result = <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT
     COUNT(DISTINCT c.id) as count
@@ -904,18 +904,18 @@ WHERE
     ci.starts_at &lt; NOW() AND ci.ends_at &gt; NOW() AND
     c.deleted_at IS NULL AND ci.deleted_at IS NULL;
         &quot;#</span>,
-        <span class="ident">organization_id</span>
+        organization_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">CourseCount</span> {
-        <span class="ident">count</span>: <span class="ident">result</span>.<span class="ident">count</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
+    <span class="prelude-val">Ok</span>(CourseCount {
+        count: result.count.unwrap_or_default().try_into()<span class="question-mark">?</span>,
     })
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">course_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+<span class="kw">pub async fn </span>get_course(conn: <span class="kw-2">&amp;mut </span>PgConnection, course_id: Uuid) -&gt; ModelResult&lt;Course&gt; {
+    <span class="kw">let </span>course = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">r#&quot;
 SELECT id,
   name,
@@ -935,66 +935,66 @@ SELECT id,
 FROM courses
 WHERE id = $1;
     &quot;#</span>,
-        <span class="ident">course_id</span>
+        course_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">course</span>)
+    <span class="prelude-val">Ok</span>(course)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_nondeleted_course_id_by_slug</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseContextData</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">CourseContextData</span>,
+<span class="kw">pub async fn </span>get_nondeleted_course_id_by_slug(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    slug: <span class="kw-2">&amp;</span>str,
+) -&gt; ModelResult&lt;CourseContextData&gt; {
+    <span class="kw">let </span>data = <span class="macro">sqlx::query_as!</span>(
+        CourseContextData,
         <span class="string">&quot;SELECT id, is_test_mode FROM courses WHERE slug = $1 AND deleted_at IS NULL&quot;</span>,
-        <span class="ident">slug</span>
+        slug
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">data</span>)
+    <span class="prelude-val">Ok</span>(data)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_id</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT organization_id FROM courses WHERE id = $1&quot;</span>, <span class="ident">id</span>)
-        .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">organization_id</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">organization_id</span>)
+<span class="kw">pub async fn </span>get_organization_id(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;Uuid&gt; {
+    <span class="kw">let </span>organization_id = <span class="macro">sqlx::query!</span>(<span class="string">&quot;SELECT organization_id FROM courses WHERE id = $1&quot;</span>, id)
+        .fetch_one(conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.organization_id;
+    <span class="prelude-val">Ok</span>(organization_id)
 }
 
-<span class="doccomment">/// Gets full course structure including all the pages.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_structure</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">file_store</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">FileStore</span>,
-    <span class="ident">app_conf</span>: <span class="kw-2">&amp;</span><span class="ident">ApplicationConfiguration</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseStructure</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">get_course</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">pages</span> <span class="op">=</span> <span class="ident">get_all_by_course_id_and_visibility</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>, <span class="ident">PageVisibility::Any</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">chapters</span> <span class="op">=</span> <span class="ident">course_chapters</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">chapter</span><span class="op">|</span> <span class="ident">Chapter::from_database_chapter</span>(<span class="ident">chapter</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))
-        .<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="ident">modules</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::course_modules::get_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">CourseStructure</span> {
-        <span class="ident">course</span>,
-        <span class="ident">pages</span>,
-        <span class="ident">chapters</span>,
-        <span class="ident">modules</span>,
+<span class="doccomment">/// Gets full course structure including all the pages.
+</span><span class="kw">pub async fn </span>get_course_structure(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+    file_store: <span class="kw-2">&amp;</span><span class="kw">dyn </span>FileStore,
+    app_conf: <span class="kw-2">&amp;</span>ApplicationConfiguration,
+) -&gt; ModelResult&lt;CourseStructure&gt; {
+    <span class="kw">let </span>course = get_course(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>pages = get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>chapters = course_chapters(conn, course_id)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.iter()
+        .map(|chapter| Chapter::from_database_chapter(chapter, file_store, app_conf))
+        .collect();
+    <span class="kw">let </span>modules = <span class="kw">crate</span>::course_modules::get_by_course_id(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(CourseStructure {
+        course,
+        pages,
+        chapters,
+        modules,
     })
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">organization_courses_visible_to_user_paginated</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pagination</span>: <span class="ident">Pagination</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+<span class="kw">pub async fn </span>organization_courses_visible_to_user_paginated(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    organization_id: Uuid,
+    user: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+    pagination: Pagination,
+) -&gt; ModelResult&lt;Vec&lt;Course&gt;&gt; {
+    <span class="kw">let </span>courses = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">r#&quot;
 SELECT courses.id,
   courses.name,
@@ -1030,21 +1030,21 @@ WHERE courses.organization_id = $1
 ORDER BY courses.name
 LIMIT $3 OFFSET $4;
 &quot;#</span>,
-        <span class="ident">organization_id</span>,
-        <span class="ident">user</span>,
-        <span class="ident">pagination</span>.<span class="ident">limit</span>(),
-        <span class="ident">pagination</span>.<span class="ident">offset</span>()
+        organization_id,
+        user,
+        pagination.limit(),
+        pagination.offset()
     )
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">courses</span>)
+    <span class="prelude-val">Ok</span>(courses)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">organization_course_count</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">organization_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseCount</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">course_count</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>organization_course_count(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    organization_id: Uuid,
+) -&gt; ModelResult&lt;CourseCount&gt; {
+    <span class="kw">let </span>course_count = <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT
     COUNT(DISTINCT id) as count
@@ -1052,31 +1052,31 @@ FROM courses
 WHERE organization_id = $1
     AND deleted_at IS NULL;
         &quot;#</span>,
-        <span class="ident">organization_id</span>,
+        organization_id,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">CourseCount</span> {
-        <span class="ident">count</span>: <span class="ident">course_count</span>.<span class="ident">count</span>.<span class="ident">unwrap_or_default</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>,
+    <span class="prelude-val">Ok</span>(CourseCount {
+        count: course_count.count.unwrap_or_default().try_into()<span class="question-mark">?</span>,
     })
 }
-<span class="comment">// Represents the subset of page fields that one is allowed to update in a course</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseUpdate</span> {
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">is_draft</span>: <span class="ident">bool</span>,
-    <span class="ident">is_test_mode</span>: <span class="ident">bool</span>,
+<span class="comment">// Represents the subset of page fields that one is allowed to update in a course
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = <span class="string">&quot;ts_rs&quot;</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseUpdate {
+    name: String,
+    description: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    is_draft: bool,
+    is_test_mode: bool,
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_course</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_update</span>: <span class="ident">CourseUpdate</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+<span class="kw">pub async fn </span>update_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+    course_update: CourseUpdate,
+) -&gt; ModelResult&lt;Course&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">r#&quot;
 UPDATE courses
 SET name = $1,
@@ -1100,40 +1100,40 @@ RETURNING id,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions
     &quot;#</span>,
-        <span class="ident">course_update</span>.<span class="ident">name</span>,
-        <span class="ident">course_update</span>.<span class="ident">description</span>,
-        <span class="ident">course_update</span>.<span class="ident">is_draft</span>,
-        <span class="ident">course_update</span>.<span class="ident">is_test_mode</span>,
-        <span class="ident">course_id</span>
+        course_update.name,
+        course_update.description,
+        course_update.is_draft,
+        course_update.is_test_mode,
+        course_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_course_base_module_completion_count_requirement</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">base_module_completion_requires_n_submodule_completions</span>: <span class="ident">i32</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>update_course_base_module_completion_count_requirement(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    id: Uuid,
+    base_module_completion_requires_n_submodule_completions: i32,
+) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 UPDATE courses
 SET base_module_completion_requires_n_submodule_completions = $1
 WHERE id = $2
   AND deleted_at IS NULL
         &quot;</span>,
-        <span class="ident">base_module_completion_requires_n_submodule_completions</span>,
-        <span class="ident">id</span>,
+        base_module_completion_requires_n_submodule_completions,
+        id,
     )
-    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">rows_affected</span>() <span class="op">&gt;</span> <span class="number">0</span>)
+    <span class="prelude-val">Ok</span>(res.rows_affected() &gt; <span class="number">0</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_course</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">course_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+<span class="kw">pub async fn </span>delete_course(conn: <span class="kw-2">&amp;mut </span>PgConnection, course_id: Uuid) -&gt; ModelResult&lt;Course&gt; {
+    <span class="kw">let </span>deleted = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">r#&quot;
 UPDATE courses
 SET deleted_at = now()
@@ -1154,17 +1154,17 @@ RETURNING id,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions
     &quot;#</span>,
-        <span class="ident">course_id</span>
+        course_id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">deleted</span>)
+    <span class="prelude-val">Ok</span>(deleted)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_by_slug</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">course_slug</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span> {
+<span class="kw">pub async fn </span>get_course_by_slug(conn: <span class="kw-2">&amp;mut </span>PgConnection, course_slug: <span class="kw-2">&amp;</span>str) -&gt; ModelResult&lt;Course&gt; {
     <span class="macro">println!</span>(<span class="string">&quot;hi!&quot;</span>);
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">Course</span>,
+    <span class="kw">let </span>course = <span class="macro">sqlx::query_as!</span>(
+        Course,
         <span class="string">&quot;
 SELECT id,
   name,
@@ -1185,154 +1185,154 @@ FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
 &quot;</span>,
-        <span class="ident">course_slug</span>,
+        course_slug,
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">course</span>)
+    <span class="prelude-val">Ok</span>(course)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_cfgname_by_tag</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">ietf_language_tag</span>: <span class="ident">String</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">tag</span> <span class="op">=</span> <span class="ident">ietf_language_tag</span>
-        .<span class="ident">split</span>(<span class="string">&#39;-&#39;</span>)
-        .<span class="ident">next</span>()
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">ietf_language_tag</span>[..]);
+<span class="kw">pub async fn </span>get_cfgname_by_tag(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    ietf_language_tag: String,
+) -&gt; ModelResult&lt;String&gt; {
+    <span class="kw">let </span>tag = ietf_language_tag
+        .split(<span class="string">&#39;-&#39;</span>)
+        .next()
+        .unwrap_or_else(|| <span class="kw-2">&amp;</span>ietf_language_tag[..]);
 
-    <span class="kw">let</span> <span class="ident">lang_name</span> <span class="op">=</span> <span class="ident">LANGUAGE_TAG_TO_NAME</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">tag</span>);
+    <span class="kw">let </span>lang_name = LANGUAGE_TAG_TO_NAME.get(<span class="kw-2">&amp;</span>tag);
 
-    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+    <span class="kw">let </span>name = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1&quot;</span>,
-        <span class="ident">lang_name</span>
+        lang_name
     )
-    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .fetch_optional(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">name</span>
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">cfgname</span>)
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;simple&quot;</span>.<span class="ident">to_string</span>());
+    <span class="kw">let </span>res = name
+        .and_then(|n| n.cfgname)
+        .unwrap_or_else(|| <span class="string">&quot;simple&quot;</span>.to_string());
 
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+    <span class="prelude-val">Ok</span>(res)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_draft</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+<span class="kw">pub async fn </span>is_draft(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;bool&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 SELECT is_draft
 FROM courses
 WHERE id = $1
 &quot;</span>,
-        <span class="ident">id</span>
+        id
     )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">is_draft</span>)
+    <span class="prelude-val">Ok</span>(res.is_draft)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">course_language_groups</span>, <span class="ident">courses</span>, <span class="ident">test_helper</span>::<span class="kw-2">*</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{course_language_groups, courses, test_helper::<span class="kw-2">*</span>};
 
-    <span class="kw">mod</span> <span class="ident">language_code_validation</span> {
-        <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">mod </span>language_code_validation {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">allows_valid_language_code</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, <span class="ident">user</span>: <span class="ident">_user</span>, :<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span> <span class="ident">course_language_groups::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8e40c36c-835b-479c-8f07-863ad408f181&quot;</span>).<span class="ident">unwrap</span>()),
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>allows_valid_language_code() {
+            <span class="macro">insert_data!</span>(:tx, user: _user, :org);
+            <span class="kw">let </span>course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;8e40c36c-835b-479c-8f07-863ad408f181&quot;</span>).unwrap()),
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>, <span class="string">&quot;en-US&quot;</span>);
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;95d8ab4d-073c-4794-b8c5-f683f0856356&quot;</span>).<span class="ident">unwrap</span>()),
-                <span class="ident">course_language_group_id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">new_course</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;en-US&quot;</span>);
+            <span class="kw">let </span>res = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;95d8ab4d-073c-4794-b8c5-f683f0856356&quot;</span>).unwrap()),
+                course_language_group_id,
+                <span class="kw-2">&amp;</span>new_course,
             )
             .<span class="kw">await</span>;
-            <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_ok</span>());
+            <span class="macro">assert!</span>(res.is_ok());
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">disallows_empty_language_code</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, <span class="ident">user</span>: <span class="ident">_user</span>, :<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span> <span class="ident">course_language_groups::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8e40c36c-835b-479c-8f07-863ad408f181&quot;</span>).<span class="ident">unwrap</span>()),
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>disallows_empty_language_code() {
+            <span class="macro">insert_data!</span>(:tx, user: _user, :org);
+            <span class="kw">let </span>course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;8e40c36c-835b-479c-8f07-863ad408f181&quot;</span>).unwrap()),
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>, <span class="string">&quot;&quot;</span>);
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;95d8ab4d-073c-4794-b8c5-f683f0856356&quot;</span>).<span class="ident">unwrap</span>()),
-                <span class="ident">course_language_group_id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">new_course</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;&quot;</span>);
+            <span class="kw">let </span>res = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;95d8ab4d-073c-4794-b8c5-f683f0856356&quot;</span>).unwrap()),
+                course_language_group_id,
+                <span class="kw-2">&amp;</span>new_course,
             )
             .<span class="kw">await</span>;
-            <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+            <span class="macro">assert!</span>(res.is_err());
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">disallows_wrong_case_language_code</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, <span class="ident">user</span>: <span class="ident">_user</span>, :<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span> <span class="ident">course_language_groups::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8e40c36c-835b-479c-8f07-863ad408f181&quot;</span>).<span class="ident">unwrap</span>()),
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>disallows_wrong_case_language_code() {
+            <span class="macro">insert_data!</span>(:tx, user: _user, :org);
+            <span class="kw">let </span>course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;8e40c36c-835b-479c-8f07-863ad408f181&quot;</span>).unwrap()),
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>, <span class="string">&quot;en-us&quot;</span>);
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;95d8ab4d-073c-4794-b8c5-f683f0856356&quot;</span>).<span class="ident">unwrap</span>()),
-                <span class="ident">course_language_group_id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">new_course</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;en-us&quot;</span>);
+            <span class="kw">let </span>res = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;95d8ab4d-073c-4794-b8c5-f683f0856356&quot;</span>).unwrap()),
+                course_language_group_id,
+                <span class="kw-2">&amp;</span>new_course,
             )
             .<span class="kw">await</span>;
-            <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+            <span class="macro">assert!</span>(res.is_err());
         }
 
-        <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">disallows_underscore_in_language_code</span>() {
-            <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, <span class="ident">user</span>: <span class="ident">_user</span>, :<span class="ident">org</span>);
-            <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span> <span class="ident">course_language_groups::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8e40c36c-835b-479c-8f07-863ad408f181&quot;</span>).<span class="ident">unwrap</span>()),
+        <span class="attribute">#[tokio::test]
+        </span><span class="kw">async fn </span>disallows_underscore_in_language_code() {
+            <span class="macro">insert_data!</span>(:tx, user: _user, :org);
+            <span class="kw">let </span>course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;8e40c36c-835b-479c-8f07-863ad408f181&quot;</span>).unwrap()),
             )
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">create_new_course</span>(<span class="ident">org</span>, <span class="string">&quot;en_US&quot;</span>);
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">courses::insert</span>(
-                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;95d8ab4d-073c-4794-b8c5-f683f0856356&quot;</span>).<span class="ident">unwrap</span>()),
-                <span class="ident">course_language_group_id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">new_course</span>,
+            .<span class="kw">await
+            </span>.unwrap();
+            <span class="kw">let </span>new_course = create_new_course(org, <span class="string">&quot;en_US&quot;</span>);
+            <span class="kw">let </span>res = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">&quot;95d8ab4d-073c-4794-b8c5-f683f0856356&quot;</span>).unwrap()),
+                course_language_group_id,
+                <span class="kw-2">&amp;</span>new_course,
             )
             .<span class="kw">await</span>;
-            <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+            <span class="macro">assert!</span>(res.is_err());
         }
 
-        <span class="kw">fn</span> <span class="ident">create_new_course</span>(<span class="ident">organization_id</span>: <span class="ident">Uuid</span>, <span class="ident">language_code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">NewCourse</span> {
-            <span class="ident">NewCourse</span> {
-                <span class="ident">name</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">slug</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">organization_id</span>,
-                <span class="ident">language_code</span>: <span class="ident">language_code</span>.<span class="ident">to_string</span>(),
-                <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;teacher&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;teacher@example.com&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">description</span>: <span class="string">&quot;description&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
-                <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
+        <span class="kw">fn </span>create_new_course(organization_id: Uuid, language_code: <span class="kw-2">&amp;</span>str) -&gt; NewCourse {
+            NewCourse {
+                name: <span class="string">&quot;&quot;</span>.to_string(),
+                slug: <span class="string">&quot;&quot;</span>.to_string(),
+                organization_id,
+                language_code: language_code.to_string(),
+                teacher_in_charge_name: <span class="string">&quot;teacher&quot;</span>.to_string(),
+                teacher_in_charge_email: <span class="string">&quot;teacher@example.com&quot;</span>.to_string(),
+                description: <span class="string">&quot;description&quot;</span>.to_string(),
+                is_draft: <span class="bool-val">false</span>,
+                is_test_mode: <span class="bool-val">false</span>,
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

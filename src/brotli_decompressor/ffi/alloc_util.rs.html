@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/ffi/alloc_util.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>alloc_util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli_decompressor/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/ffi/alloc_util.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>alloc_util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli_decompressor/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -225,101 +225,101 @@
 <span id="225">225</span>
 <span id="226">226</span>
 <span id="227">227</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">core</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>;
-<span class="kw">use</span> <span class="ident">::alloc</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::interface</span>::{<span class="ident">c_void</span>, <span class="ident">CAllocator</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::vec::Vec</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std::boxed::Box</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>core;
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std;
+<span class="kw">use </span>::alloc;
+<span class="kw">use </span><span class="kw">super</span>::interface::{c_void, CAllocator};
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::vec::Vec;
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub use </span>std::boxed::Box;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span>(<span class="ident">Box</span><span class="op">&lt;</span>[<span class="ident">Ty</span>]<span class="op">&gt;</span>);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">MemoryBlock</span>(<span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span><span class="ident">::new</span>().<span class="ident">into_boxed_slice</span>())
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub struct </span>MemoryBlock&lt;Ty:Sized+Default&gt;(Box&lt;[Ty]&gt;);
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; Default <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        MemoryBlock(Vec::&lt;Ty&gt;::new().into_boxed_slice())
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">alloc::SliceWrapper</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">Ty</span>] {
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; alloc::SliceWrapper&lt;Ty&gt; <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
+    <span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Ty] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[..]
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">alloc::SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">Ty</span>] {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>[..]
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; alloc::SliceWrapperMut&lt;Ty&gt; <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
+    <span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[Ty] {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[..]
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">core::ops::Index</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Ty</span>;
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>:<span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ty</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="ident">index</span>]
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; core::ops::Index&lt;usize&gt; <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
+    <span class="kw">type </span>Output = Ty;
+    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index:usize) -&gt; <span class="kw-2">&amp;</span>Ty {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[index]
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">core::ops::IndexMut</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; core::ops::IndexMut&lt;usize&gt; <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
 
-    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>:<span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Ty</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>[<span class="ident">index</span>]
+    <span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index:usize) -&gt; <span class="kw-2">&amp;mut </span>Ty {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>[index]
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span> (<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="macro">print!</span>(<span class="string">&quot;leaking memory block of length {} element size: {}\n&quot;</span>, <span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>(), <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span>());
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; Drop <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
+    <span class="kw">fn </span>drop (<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.len() != <span class="number">0 </span>{
+            <span class="macro">print!</span>(<span class="string">&quot;leaking memory block of length {} element size: {}\n&quot;</span>, <span class="self">self</span>.<span class="number">0</span>.len(), core::mem::size_of::&lt;Ty&gt;());
 
-            <span class="kw">let</span> <span class="ident">to_forget</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="self">self</span>, <span class="ident">MemoryBlock::default</span>());
-            <span class="ident">core::mem::forget</span>(<span class="ident">to_forget</span>);<span class="comment">// leak it -- it&#39;s the only safe way with custom allocators</span>
+            <span class="kw">let </span>to_forget = core::mem::replace(<span class="self">self</span>, MemoryBlock::default());
+            core::mem::forget(to_forget);<span class="comment">// leak it -- it&#39;s the only safe way with custom allocators
+        </span>}
+    }
+}
+<span class="kw">pub struct </span>SubclassableAllocator {
+    alloc: CAllocator
+    <span class="comment">// have alternative ty here
+</span>}
+
+<span class="kw">impl </span>SubclassableAllocator {
+    <span class="kw">pub unsafe fn </span>new(sub_alloc:CAllocator) -&gt; <span class="self">Self </span>{
+        SubclassableAllocator{
+            alloc:sub_alloc,
         }
     }
 }
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SubclassableAllocator</span> {
-    <span class="ident">alloc</span>: <span class="ident">CAllocator</span>
-    <span class="comment">// have alternative ty here</span>
-}
-
-<span class="kw">impl</span> <span class="ident">SubclassableAllocator</span> {
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sub_alloc</span>:<span class="ident">CAllocator</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">SubclassableAllocator</span>{
-            <span class="ident">alloc</span>:<span class="ident">sub_alloc</span>,
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default+Clone&gt; alloc::Allocator&lt;Ty&gt; <span class="kw">for </span>SubclassableAllocator {
+    <span class="kw">type </span>AllocatedMemory = MemoryBlock&lt;Ty&gt;;
+    <span class="kw">fn </span>alloc_cell(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size:usize) -&gt;MemoryBlock&lt;Ty&gt;{
+        <span class="kw">if </span>size == <span class="number">0 </span>{
+            <span class="kw">return </span>MemoryBlock::&lt;Ty&gt;::default();
         }
-    }
-}
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">+</span><span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SubclassableAllocator</span> {
-    <span class="kw">type</span> <span class="ident">AllocatedMemory</span> <span class="op">=</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">alloc_cell</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">size</span>:<span class="ident">usize</span>) -&gt;<span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span>{
-        <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="ident">MemoryBlock</span>::<span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span><span class="ident">::default</span>();
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alloc_fn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">alloc_func</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">alloc_fn</span>(<span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">opaque</span>, <span class="ident">size</span> <span class="op">*</span> <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span>());
-            <span class="kw">let</span> <span class="ident">typed_ptr</span> <span class="op">=</span> <span class="kw">unsafe</span> {<span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="kw-2">*mut</span> <span class="ident">Ty</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)};
-            <span class="kw">let</span> <span class="ident">slice_ref</span> <span class="op">=</span> <span class="kw">unsafe</span> {<span class="ident"><span class="kw">super</span>::slice_from_raw_parts_or_nil_mut</span>(<span class="ident">typed_ptr</span>, <span class="ident">size</span>)};
-            <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">slice_ref</span>.<span class="ident">iter_mut</span>() {
-                <span class="kw">unsafe</span>{<span class="ident">core::ptr::write</span>(<span class="ident">item</span>, <span class="ident">Ty::default</span>())};
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(alloc_fn) = <span class="self">self</span>.alloc.alloc_func {
+            <span class="kw">let </span>ptr = alloc_fn(<span class="self">self</span>.alloc.opaque, size * core::mem::size_of::&lt;Ty&gt;());
+            <span class="kw">let </span>typed_ptr = <span class="kw">unsafe </span>{core::mem::transmute::&lt;<span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>Ty&gt;(ptr)};
+            <span class="kw">let </span>slice_ref = <span class="kw">unsafe </span>{<span class="kw">super</span>::slice_from_raw_parts_or_nil_mut(typed_ptr, size)};
+            <span class="kw">for </span>item <span class="kw">in </span>slice_ref.iter_mut() {
+                <span class="kw">unsafe</span>{core::ptr::write(item, Ty::default())};
             }
-            <span class="kw">return</span> <span class="ident">MemoryBlock</span>(<span class="kw">unsafe</span>{<span class="ident">Box::from_raw</span>(<span class="ident">slice_ref</span>)})
+            <span class="kw">return </span>MemoryBlock(<span class="kw">unsafe</span>{Box::from_raw(slice_ref)})
         }
-        <span class="ident">MemoryBlock</span>(<span class="macro">vec!</span>[<span class="ident">Ty::default</span>();<span class="ident">size</span>].<span class="ident">into_boxed_slice</span>())
+        MemoryBlock(<span class="macro">vec!</span>[Ty::default();size].into_boxed_slice())
     }
-    <span class="kw">fn</span> <span class="ident">free_cell</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">bv</span>:<span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">bv</span>.<span class="number">0</span>).<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">alloc_func</span> {
-                <span class="kw">let</span> <span class="ident">slice_ptr</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">bv</span>.<span class="number">0</span>).<span class="ident">as_mut_ptr</span>();
-                <span class="kw">let</span> <span class="ident">_box_ptr</span> <span class="op">=</span> <span class="ident">Box::into_raw</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bv</span>.<span class="number">0</span>, <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span><span class="ident">::new</span>().<span class="ident">into_boxed_slice</span>()));
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">free_fn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">free_func</span> {
-                    <span class="kw">unsafe</span> {<span class="ident">free_fn</span>(<span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">opaque</span>, <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">Ty</span>, <span class="kw-2">*mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>(<span class="ident">slice_ptr</span>))};
+    <span class="kw">fn </span>free_cell(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>bv:MemoryBlock&lt;Ty&gt;) {
+        <span class="kw">if </span>(<span class="kw-2">*</span>bv.<span class="number">0</span>).len() != <span class="number">0 </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = <span class="self">self</span>.alloc.alloc_func {
+                <span class="kw">let </span>slice_ptr = (<span class="kw-2">*</span>bv.<span class="number">0</span>).as_mut_ptr();
+                <span class="kw">let </span>_box_ptr = Box::into_raw(core::mem::replace(<span class="kw-2">&amp;mut </span>bv.<span class="number">0</span>, Vec::&lt;Ty&gt;::new().into_boxed_slice()));
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(free_fn) = <span class="self">self</span>.alloc.free_func {
+                    <span class="kw">unsafe </span>{free_fn(<span class="self">self</span>.alloc.opaque, core::mem::transmute::&lt;<span class="kw-2">*mut </span>Ty, <span class="kw-2">*mut </span>c_void&gt;(slice_ptr))};
                 }
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">_to_free</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bv</span>.<span class="number">0</span>, <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span><span class="ident">::new</span>().<span class="ident">into_boxed_slice</span>());
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>_to_free = core::mem::replace(<span class="kw-2">&amp;mut </span>bv.<span class="number">0</span>, Vec::&lt;Ty&gt;::new().into_boxed_slice());
             }
         }
     }
@@ -335,93 +335,93 @@
 
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">static</span> <span class="kw-2">mut</span> <span class="ident">G_SLICE</span>:<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw-2">mut</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="kw-2">&amp;mut</span>[];
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span>(<span class="kw-2">*mut</span>[<span class="ident">Ty</span>]);
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">MemoryBlock</span>(<span class="kw">unsafe</span>{<span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> [<span class="ident">u8</span>], <span class="kw-2">*mut</span>[<span class="ident">Ty</span>]<span class="op">&gt;</span>(<span class="ident">G_SLICE</span>.<span class="ident">as_mut</span>())})
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">static </span><span class="kw-2">mut </span>G_SLICE:<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span><span class="kw-2">mut</span>[u8] = <span class="kw-2">&amp;mut</span>[];
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">pub struct </span>MemoryBlock&lt;Ty:Sized+Default&gt;(<span class="kw-2">*mut</span>[Ty]);
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; Default <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        MemoryBlock(<span class="kw">unsafe</span>{core::mem::transmute::&lt;<span class="kw-2">*mut </span>[u8], <span class="kw-2">*mut</span>[Ty]&gt;(G_SLICE.as_mut())})
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">alloc::SliceWrapper</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">Ty</span>] {
-        <span class="kw">if</span> <span class="kw">unsafe</span>{(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).<span class="ident">len</span>()} <span class="op">==</span> <span class="number">0</span> {
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; alloc::SliceWrapper&lt;Ty&gt; <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
+    <span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[Ty] {
+        <span class="kw">if unsafe</span>{(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).len()} == <span class="number">0 </span>{
             <span class="kw-2">&amp;</span>[]
-        } <span class="kw">else</span> {
-            <span class="kw">unsafe</span>{<span class="ident"><span class="kw">super</span>::slice_from_raw_parts_or_nil</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>)[<span class="number">0</span>], (<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).<span class="ident">len</span>())}
+        } <span class="kw">else </span>{
+            <span class="kw">unsafe</span>{<span class="kw">super</span>::slice_from_raw_parts_or_nil(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>)[<span class="number">0</span>], (<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).len())}
         }
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">alloc::SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">Ty</span>] {
-        <span class="kw">if</span> <span class="kw">unsafe</span>{(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).<span class="ident">len</span>()} <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw-2">&amp;mut</span> []
-        } <span class="kw">else</span> {
-            <span class="kw">unsafe</span>{<span class="ident"><span class="kw">super</span>::slice_from_raw_parts_or_nil_mut</span>(<span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>)[<span class="number">0</span>], (<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).<span class="ident">len</span>())}
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; alloc::SliceWrapperMut&lt;Ty&gt; <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
+    <span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[Ty] {
+        <span class="kw">if unsafe</span>{(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).len()} == <span class="number">0 </span>{
+            <span class="kw-2">&amp;mut </span>[]
+        } <span class="kw">else </span>{
+            <span class="kw">unsafe</span>{<span class="kw">super</span>::slice_from_raw_parts_or_nil_mut(<span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>)[<span class="number">0</span>], (<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>).len())}
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;no-stdlib-ffi-binding&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">panic_handler</span>]</span>
-<span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">panic_impl</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">::core::panic::PanicInfo</span>) -&gt; <span class="op">!</span> {
-    <span class="kw">loop</span> {}
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+#[cfg(feature=<span class="string">&quot;no-stdlib-ffi-binding&quot;</span>)]
+#[panic_handler]
+</span><span class="kw">extern fn </span>panic_impl(<span class="kw">_</span>: <span class="kw-2">&amp;</span>::core::panic::PanicInfo) -&gt; ! {
+    <span class="kw">loop </span>{}
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;no-stdlib-ffi-binding&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">lang</span> <span class="op">=</span> <span class="string">&quot;eh_personality&quot;</span>]</span>
-<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">eh_personality</span>() {
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+#[cfg(feature=<span class="string">&quot;no-stdlib-ffi-binding&quot;</span>)]
+#[lang = <span class="string">&quot;eh_personality&quot;</span>]
+</span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>eh_personality() {
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">core::ops::Index</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Ty</span>;
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>:<span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ty</span> {
-        <span class="kw">unsafe</span>{<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>)[<span class="ident">index</span>]}
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; core::ops::Index&lt;usize&gt; <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
+    <span class="kw">type </span>Output = Ty;
+    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, index:usize) -&gt; <span class="kw-2">&amp;</span>Ty {
+        <span class="kw">unsafe</span>{<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>)[index]}
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">core::ops::IndexMut</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> {
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default&gt; core::ops::IndexMut&lt;usize&gt; <span class="kw">for </span>MemoryBlock&lt;Ty&gt; {
 
-    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>:<span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Ty</span> {
-        <span class="kw">unsafe</span>{<span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>)[<span class="ident">index</span>]}
+    <span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index:usize) -&gt; <span class="kw-2">&amp;mut </span>Ty {
+        <span class="kw">unsafe</span>{<span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>)[index]}
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Ty</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">+</span><span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SubclassableAllocator</span> {
-    <span class="kw">type</span> <span class="ident">AllocatedMemory</span> <span class="op">=</span> <span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">alloc_cell</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">size</span>:<span class="ident">usize</span>) -&gt;<span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span>{
-        <span class="kw">if</span> <span class="ident">size</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="ident">MemoryBlock</span>::<span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span><span class="ident">::default</span>();
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">impl</span>&lt;Ty:Sized+Default+Clone&gt; alloc::Allocator&lt;Ty&gt; <span class="kw">for </span>SubclassableAllocator {
+    <span class="kw">type </span>AllocatedMemory = MemoryBlock&lt;Ty&gt;;
+    <span class="kw">fn </span>alloc_cell(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size:usize) -&gt;MemoryBlock&lt;Ty&gt;{
+        <span class="kw">if </span>size == <span class="number">0 </span>{
+            <span class="kw">return </span>MemoryBlock::&lt;Ty&gt;::default();
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alloc_fn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">alloc_func</span> {
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">alloc_fn</span>(<span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">opaque</span>, <span class="ident">size</span> <span class="op">*</span> <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span>());
-            <span class="kw">let</span> <span class="ident">typed_ptr</span> <span class="op">=</span> <span class="kw">unsafe</span> {<span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="kw-2">*mut</span> <span class="ident">Ty</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)};
-            <span class="kw">let</span> <span class="ident">slice_ref</span> <span class="op">=</span> <span class="kw">unsafe</span> {<span class="ident"><span class="kw">super</span>::slice_from_raw_parts_or_nil_mut</span>(<span class="ident">typed_ptr</span>, <span class="ident">size</span>)};
-            <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">slice_ref</span>.<span class="ident">iter_mut</span>() {
-                <span class="kw">unsafe</span>{<span class="ident">core::ptr::write</span>(<span class="ident">item</span>, <span class="ident">Ty::default</span>())};
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(alloc_fn) = <span class="self">self</span>.alloc.alloc_func {
+            <span class="kw">let </span>ptr = alloc_fn(<span class="self">self</span>.alloc.opaque, size * core::mem::size_of::&lt;Ty&gt;());
+            <span class="kw">let </span>typed_ptr = <span class="kw">unsafe </span>{core::mem::transmute::&lt;<span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>Ty&gt;(ptr)};
+            <span class="kw">let </span>slice_ref = <span class="kw">unsafe </span>{<span class="kw">super</span>::slice_from_raw_parts_or_nil_mut(typed_ptr, size)};
+            <span class="kw">for </span>item <span class="kw">in </span>slice_ref.iter_mut() {
+                <span class="kw">unsafe</span>{core::ptr::write(item, Ty::default())};
             }
-            <span class="kw">return</span> <span class="ident">MemoryBlock</span>(<span class="ident">slice_ref</span>.<span class="ident">as_mut</span>())
-        } <span class="kw">else</span> {
+            <span class="kw">return </span>MemoryBlock(slice_ref.as_mut())
+        } <span class="kw">else </span>{
             <span class="macro">panic!</span>(<span class="string">&quot;Must provide allocators in no-stdlib code&quot;</span>);
         }
     }
-    <span class="kw">fn</span> <span class="ident">free_cell</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">bv</span>:<span class="ident">MemoryBlock</span><span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span>) {
-        <span class="kw">use</span> <span class="ident">alloc::SliceWrapper</span>;
-        <span class="kw">use</span> <span class="ident">alloc::SliceWrapperMut</span>;
-        <span class="kw">if</span> <span class="ident">bv</span>.<span class="ident">slice</span>().<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">alloc_func</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">free_fn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">free_func</span> {
-                    <span class="kw">unsafe</span> {<span class="ident">free_fn</span>(<span class="self">self</span>.<span class="ident">alloc</span>.<span class="ident">opaque</span>, <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">Ty</span>, <span class="kw-2">*mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bv</span>.<span class="ident">slice_mut</span>()[<span class="number">0</span>]))};
+    <span class="kw">fn </span>free_cell(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>bv:MemoryBlock&lt;Ty&gt;) {
+        <span class="kw">use </span>alloc::SliceWrapper;
+        <span class="kw">use </span>alloc::SliceWrapperMut;
+        <span class="kw">if </span>bv.slice().len() != <span class="number">0 </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = <span class="self">self</span>.alloc.alloc_func {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(free_fn) = <span class="self">self</span>.alloc.free_func {
+                    <span class="kw">unsafe </span>{free_fn(<span class="self">self</span>.alloc.opaque, core::mem::transmute::&lt;<span class="kw-2">*mut </span>Ty, <span class="kw-2">*mut </span>c_void&gt;(<span class="kw-2">&amp;mut </span>bv.slice_mut()[<span class="number">0</span>]))};
                 }
-                <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bv</span>, <span class="ident">MemoryBlock</span>::<span class="op">&lt;</span><span class="ident">Ty</span><span class="op">&gt;</span><span class="ident">::default</span>());
-            } <span class="kw">else</span> {
+                core::mem::replace(<span class="kw-2">&amp;mut </span>bv, MemoryBlock::&lt;Ty&gt;::default());
+            } <span class="kw">else </span>{
                 <span class="macro">panic!</span>(<span class="string">&quot;Must provide allocators in no-stdlib code&quot;</span>);
             }
         }
@@ -429,28 +429,28 @@
 }
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free_stdlib</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">_data</span>: <span class="kw-2">*mut</span> <span class="ident">T</span>, <span class="ident">_size</span>: <span class="ident">usize</span>) {
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">pub fn </span>free_stdlib&lt;T&gt;(_data: <span class="kw-2">*mut </span>T, _size: usize) {
     <span class="macro">panic!</span>(<span class="string">&quot;Must supply allocators if calling divans when compiled with features=no-stdlib&quot;</span>);
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc_stdlib</span><span class="op">&lt;</span><span class="ident">T</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">+</span><span class="ident">Copy</span><span class="op">+</span><span class="ident">Clone</span><span class="op">&gt;</span>(<span class="ident">_size</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">T</span> {
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">pub fn </span>alloc_stdlib&lt;T:Sized+Default+Copy+Clone&gt;(_size: usize) -&gt; <span class="kw-2">*mut </span>T {
     <span class="macro">panic!</span>(<span class="string">&quot;Must supply allocators if calling divans when compiled with features=no-stdlib&quot;</span>);
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">free_stdlib</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">ptr</span>: <span class="kw-2">*mut</span> <span class="ident">T</span>, <span class="ident">size</span>: <span class="ident">usize</span>) {
-    <span class="kw">let</span> <span class="ident">slice_ref</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::slice_from_raw_parts_or_nil_mut</span>(<span class="ident">ptr</span>, <span class="ident">size</span>);
-    <span class="ident">Box::from_raw</span>(<span class="ident">slice_ref</span>); <span class="comment">// free on drop</span>
-}
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc_stdlib</span><span class="op">&lt;</span><span class="ident">T</span>:<span class="ident">Sized</span><span class="op">+</span><span class="ident">Default</span><span class="op">+</span><span class="ident">Copy</span><span class="op">+</span><span class="ident">Clone</span><span class="op">&gt;</span>(<span class="ident">size</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">T</span> {
-    <span class="ident">std::panic::catch_unwind</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">newly_allocated</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">T::default</span>();<span class="ident">size</span>].<span class="ident">into_boxed_slice</span>();
-        <span class="kw">let</span> <span class="ident">slice_ptr</span> <span class="op">=</span> <span class="ident">newly_allocated</span>.<span class="ident">as_mut_ptr</span>();
-        <span class="kw">let</span> <span class="ident">_box_ptr</span> <span class="op">=</span> <span class="ident">Box::into_raw</span>(<span class="ident">newly_allocated</span>);
-        <span class="ident">slice_ptr</span>
-    }).<span class="ident">unwrap_or</span>(<span class="ident">core::ptr::null_mut</span>())
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub unsafe fn </span>free_stdlib&lt;T&gt;(ptr: <span class="kw-2">*mut </span>T, size: usize) {
+    <span class="kw">let </span>slice_ref = <span class="kw">super</span>::slice_from_raw_parts_or_nil_mut(ptr, size);
+    Box::from_raw(slice_ref); <span class="comment">// free on drop
+</span>}
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub fn </span>alloc_stdlib&lt;T:Sized+Default+Copy+Clone&gt;(size: usize) -&gt; <span class="kw-2">*mut </span>T {
+    std::panic::catch_unwind(|| {
+        <span class="kw">let </span><span class="kw-2">mut </span>newly_allocated = <span class="macro">vec!</span>[T::default();size].into_boxed_slice();
+        <span class="kw">let </span>slice_ptr = newly_allocated.as_mut_ptr();
+        <span class="kw">let </span>_box_ptr = Box::into_raw(newly_allocated);
+        slice_ptr
+    }).unwrap_or(core::ptr::null_mut())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

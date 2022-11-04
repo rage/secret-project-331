@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/unicase-2.6.0/src/unicode/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../unicase/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../unicase/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../unicase/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/unicase-2.6.0/src/unicode/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../unicase/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../unicase/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../unicase/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -199,206 +199,206 @@
 <span id="199">199</span>
 <span id="200">200</span>
 <span id="201">201</span>
-</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__unicase__iter_cmp</span>)]</span>
-<span class="kw">use</span> <span class="ident">core::cmp::Ordering</span>;
-<span class="kw">use</span> <span class="ident">core::hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>};
+</pre><pre class="rust"><code><span class="attribute">#[cfg(__unicase__iter_cmp)]
+</span><span class="kw">use </span>core::cmp::Ordering;
+<span class="kw">use </span>core::hash::{Hash, Hasher};
 
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::map::lookup</span>;
-<span class="kw">mod</span> <span class="ident">map</span>;
+<span class="kw">use </span><span class="self">self</span>::map::lookup;
+<span class="kw">mod </span>map;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Unicode</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">S</span>);
+<span class="attribute">#[derive(Clone, Copy, Debug, Default)]
+</span><span class="kw">pub struct </span>Unicode&lt;S&gt;(<span class="kw">pub </span>S);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S1</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">S2</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">Unicode</span><span class="op">&lt;</span><span class="ident">S2</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Unicode</span><span class="op">&lt;</span><span class="ident">S1</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Unicode</span><span class="op">&lt;</span><span class="ident">S2</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">left</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ref</span>().<span class="ident">chars</span>().<span class="ident">flat_map</span>(<span class="ident">lookup</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">other</span>.<span class="number">0</span>.<span class="ident">as_ref</span>().<span class="ident">chars</span>().<span class="ident">flat_map</span>(<span class="ident">lookup</span>);
+<span class="kw">impl</span>&lt;S1: AsRef&lt;str&gt;, S2: AsRef&lt;str&gt;&gt; PartialEq&lt;Unicode&lt;S2&gt;&gt; <span class="kw">for </span>Unicode&lt;S1&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Unicode&lt;S2&gt;) -&gt; bool {
+        <span class="kw">let </span><span class="kw-2">mut </span>left = <span class="self">self</span>.<span class="number">0</span>.as_ref().chars().flat_map(lookup);
+        <span class="kw">let </span><span class="kw-2">mut </span>right = other.<span class="number">0</span>.as_ref().chars().flat_map(lookup);
 
-        <span class="comment">// inline Iterator::eq since not added until Rust 1.5</span>
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">left</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">right</span>.<span class="ident">next</span>().<span class="ident">is_none</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>,
+        <span class="comment">// inline Iterator::eq since not added until Rust 1.5
+        </span><span class="kw">loop </span>{
+            <span class="kw">let </span>x = <span class="kw">match </span>left.next() {
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>right.next().is_none(),
+                <span class="prelude-val">Some</span>(val) =&gt; val,
             };
 
-            <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">right</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>,
+            <span class="kw">let </span>y = <span class="kw">match </span>right.next() {
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
+                <span class="prelude-val">Some</span>(val) =&gt; val,
             };
 
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">y</span> {
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw">if </span>x != y {
+                <span class="kw">return </span><span class="bool-val">false</span>;
             }
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Unicode</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span>&lt;S: AsRef&lt;str&gt;&gt; Eq <span class="kw">for </span>Unicode&lt;S&gt; {}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__unicase__iter_cmp</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">Unicode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
+<span class="attribute">#[cfg(__unicase__iter_cmp)]
+</span><span class="kw">impl</span>&lt;T: AsRef&lt;str&gt;&gt; PartialOrd <span class="kw">for </span>Unicode&lt;T&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">__unicase__iter_cmp</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Unicode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">Ordering</span> {
-        <span class="kw">let</span> <span class="ident">self_chars</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ref</span>().<span class="ident">chars</span>().<span class="ident">flat_map</span>(<span class="ident">lookup</span>);
-        <span class="kw">let</span> <span class="ident">other_chars</span> <span class="op">=</span> <span class="ident">other</span>.<span class="number">0</span>.<span class="ident">as_ref</span>().<span class="ident">chars</span>().<span class="ident">flat_map</span>(<span class="ident">lookup</span>);
-        <span class="ident">self_chars</span>.<span class="ident">cmp</span>(<span class="ident">other_chars</span>)
+<span class="attribute">#[cfg(__unicase__iter_cmp)]
+</span><span class="kw">impl</span>&lt;T: AsRef&lt;str&gt;&gt; Ord <span class="kw">for </span>Unicode&lt;T&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
+        <span class="kw">let </span>self_chars = <span class="self">self</span>.<span class="number">0</span>.as_ref().chars().flat_map(lookup);
+        <span class="kw">let </span>other_chars = other.<span class="number">0</span>.as_ref().chars().flat_map(lookup);
+        self_chars.cmp(other_chars)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Hash</span> <span class="kw">for</span> <span class="ident">Unicode</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">hasher</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">4</span>];
-        <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ref</span>().<span class="ident">chars</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">lookup</span>(<span class="ident">c</span>)) {
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">char_to_utf8</span>(<span class="ident">c</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
-            <span class="ident">hasher</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">len</span>])
+<span class="kw">impl</span>&lt;S: AsRef&lt;str&gt;&gt; Hash <span class="kw">for </span>Unicode&lt;S&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, hasher: <span class="kw-2">&amp;mut </span>H) {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = [<span class="number">0</span>; <span class="number">4</span>];
+        <span class="kw">for </span>c <span class="kw">in </span><span class="self">self</span>.<span class="number">0</span>.as_ref().chars().flat_map(|c| lookup(c)) {
+            <span class="kw">let </span>len = char_to_utf8(c, <span class="kw-2">&amp;mut </span>buf);
+            hasher.write(<span class="kw-2">&amp;</span>buf[..len])
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">char_to_utf8</span>(<span class="ident">c</span>: <span class="ident">char</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">4</span>]) -&gt; <span class="ident">usize</span> {
-    <span class="kw">const</span> <span class="ident">TAG_CONT</span>: <span class="ident">u8</span>    <span class="op">=</span> <span class="number">0b1000_0000</span>;
-    <span class="kw">const</span> <span class="ident">TAG_TWO_B</span>: <span class="ident">u8</span>   <span class="op">=</span> <span class="number">0b1100_0000</span>;
-    <span class="kw">const</span> <span class="ident">TAG_THREE_B</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0b1110_0000</span>;
-    <span class="kw">const</span> <span class="ident">TAG_FOUR_B</span>: <span class="ident">u8</span>  <span class="op">=</span> <span class="number">0b1111_0000</span>;
+<span class="attribute">#[inline]
+</span><span class="kw">fn </span>char_to_utf8(c: char, dst: <span class="kw-2">&amp;mut </span>[u8; <span class="number">4</span>]) -&gt; usize {
+    <span class="kw">const </span>TAG_CONT: u8    = <span class="number">0b1000_0000</span>;
+    <span class="kw">const </span>TAG_TWO_B: u8   = <span class="number">0b1100_0000</span>;
+    <span class="kw">const </span>TAG_THREE_B: u8 = <span class="number">0b1110_0000</span>;
+    <span class="kw">const </span>TAG_FOUR_B: u8  = <span class="number">0b1111_0000</span>;
 
-    <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">c</span> <span class="kw">as</span> <span class="ident">u32</span>;
-    <span class="kw">if</span> <span class="ident">code</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0x7F</span> {
-        <span class="ident">dst</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">code</span> <span class="kw">as</span> <span class="ident">u8</span>;
-        <span class="number">1</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">code</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0x7FF</span> {
-        <span class="ident">dst</span>[<span class="number">0</span>] <span class="op">=</span> (<span class="ident">code</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">6</span> <span class="op">&amp;</span> <span class="number">0x1F</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">|</span> <span class="ident">TAG_TWO_B</span>;
-        <span class="ident">dst</span>[<span class="number">1</span>] <span class="op">=</span> (<span class="ident">code</span> <span class="op">&amp;</span> <span class="number">0x3F</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">|</span> <span class="ident">TAG_CONT</span>;
-        <span class="number">2</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">code</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0xFFFF</span> {
-        <span class="ident">dst</span>[<span class="number">0</span>] <span class="op">=</span> (<span class="ident">code</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">12</span> <span class="op">&amp;</span> <span class="number">0x0F</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">|</span> <span class="ident">TAG_THREE_B</span>;
-        <span class="ident">dst</span>[<span class="number">1</span>] <span class="op">=</span> (<span class="ident">code</span> <span class="op">&gt;</span><span class="op">&gt;</span>  <span class="number">6</span> <span class="op">&amp;</span> <span class="number">0x3F</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">|</span> <span class="ident">TAG_CONT</span>;
-        <span class="ident">dst</span>[<span class="number">2</span>] <span class="op">=</span> (<span class="ident">code</span> <span class="op">&amp;</span> <span class="number">0x3F</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">|</span> <span class="ident">TAG_CONT</span>;
-        <span class="number">3</span>
-    } <span class="kw">else</span> {
-        <span class="ident">dst</span>[<span class="number">0</span>] <span class="op">=</span> (<span class="ident">code</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">18</span> <span class="op">&amp;</span> <span class="number">0x07</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">|</span> <span class="ident">TAG_FOUR_B</span>;
-        <span class="ident">dst</span>[<span class="number">1</span>] <span class="op">=</span> (<span class="ident">code</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">12</span> <span class="op">&amp;</span> <span class="number">0x3F</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">|</span> <span class="ident">TAG_CONT</span>;
-        <span class="ident">dst</span>[<span class="number">2</span>] <span class="op">=</span> (<span class="ident">code</span> <span class="op">&gt;</span><span class="op">&gt;</span>  <span class="number">6</span> <span class="op">&amp;</span> <span class="number">0x3F</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">|</span> <span class="ident">TAG_CONT</span>;
-        <span class="ident">dst</span>[<span class="number">3</span>] <span class="op">=</span> (<span class="ident">code</span> <span class="op">&amp;</span> <span class="number">0x3F</span>) <span class="kw">as</span> <span class="ident">u8</span> <span class="op">|</span> <span class="ident">TAG_CONT</span>;
-        <span class="number">4</span>
-    }
+    <span class="kw">let </span>code = c <span class="kw">as </span>u32;
+    <span class="kw">if </span>code &lt;= <span class="number">0x7F </span>{
+        dst[<span class="number">0</span>] = code <span class="kw">as </span>u8;
+        <span class="number">1
+    </span>} <span class="kw">else if </span>code &lt;= <span class="number">0x7FF </span>{
+        dst[<span class="number">0</span>] = (code &gt;&gt; <span class="number">6 </span>&amp; <span class="number">0x1F</span>) <span class="kw">as </span>u8 | TAG_TWO_B;
+        dst[<span class="number">1</span>] = (code &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8 | TAG_CONT;
+        <span class="number">2
+    </span>} <span class="kw">else if </span>code &lt;= <span class="number">0xFFFF </span>{
+        dst[<span class="number">0</span>] = (code &gt;&gt; <span class="number">12 </span>&amp; <span class="number">0x0F</span>) <span class="kw">as </span>u8 | TAG_THREE_B;
+        dst[<span class="number">1</span>] = (code &gt;&gt;  <span class="number">6 </span>&amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8 | TAG_CONT;
+        dst[<span class="number">2</span>] = (code &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8 | TAG_CONT;
+        <span class="number">3
+    </span>} <span class="kw">else </span>{
+        dst[<span class="number">0</span>] = (code &gt;&gt; <span class="number">18 </span>&amp; <span class="number">0x07</span>) <span class="kw">as </span>u8 | TAG_FOUR_B;
+        dst[<span class="number">1</span>] = (code &gt;&gt; <span class="number">12 </span>&amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8 | TAG_CONT;
+        dst[<span class="number">2</span>] = (code &gt;&gt;  <span class="number">6 </span>&amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8 | TAG_CONT;
+        dst[<span class="number">3</span>] = (code &amp; <span class="number">0x3F</span>) <span class="kw">as </span>u8 | TAG_CONT;
+        <span class="number">4
+    </span>}
 }
 
-<span class="comment">// internal mod so that the enum can be &#39;pub&#39;</span>
-<span class="comment">// thanks privacy-checker :___(</span>
-<span class="kw">mod</span> <span class="ident">fold</span> {
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Fold</span> {
-        <span class="ident">Zero</span>,
-        <span class="ident">One</span>(<span class="ident">char</span>),
-        <span class="ident">Two</span>(<span class="ident">char</span>, <span class="ident">char</span>),
-        <span class="ident">Three</span>(<span class="ident">char</span>, <span class="ident">char</span>, <span class="ident">char</span>),
+<span class="comment">// internal mod so that the enum can be &#39;pub&#39;
+// thanks privacy-checker :___(
+</span><span class="kw">mod </span>fold {
+    <span class="attribute">#[derive(Clone, Copy)]
+    </span><span class="kw">pub enum </span>Fold {
+        Zero,
+        One(char),
+        Two(char, char),
+        Three(char, char, char),
     }
 
-    <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Fold</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">char</span>;
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">Fold::Zero</span> =&gt; <span class="prelude-val">None</span>,
-                <span class="ident">Fold::One</span>(<span class="ident">one</span>) =&gt; {
-                    <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">Fold::Zero</span>;
-                    <span class="prelude-val">Some</span>(<span class="ident">one</span>)
+    <span class="kw">impl </span>Iterator <span class="kw">for </span>Fold {
+        <span class="kw">type </span>Item = char;
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;char&gt; {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                Fold::Zero =&gt; <span class="prelude-val">None</span>,
+                Fold::One(one) =&gt; {
+                    <span class="kw-2">*</span><span class="self">self </span>= Fold::Zero;
+                    <span class="prelude-val">Some</span>(one)
                 },
-                <span class="ident">Fold::Two</span>(<span class="ident">one</span>, <span class="ident">two</span>) =&gt; {
-                    <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">Fold::One</span>(<span class="ident">two</span>);
-                    <span class="prelude-val">Some</span>(<span class="ident">one</span>)
+                Fold::Two(one, two) =&gt; {
+                    <span class="kw-2">*</span><span class="self">self </span>= Fold::One(two);
+                    <span class="prelude-val">Some</span>(one)
                 },
-                <span class="ident">Fold::Three</span>(<span class="ident">one</span>, <span class="ident">two</span>, <span class="ident">three</span>) =&gt; {
-                    <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">Fold::Two</span>(<span class="ident">one</span>, <span class="ident">two</span>);
-                    <span class="prelude-val">Some</span>(<span class="ident">three</span>)
+                Fold::Three(one, two, three) =&gt; {
+                    <span class="kw-2">*</span><span class="self">self </span>= Fold::Two(one, two);
+                    <span class="prelude-val">Some</span>(three)
                 }
             }
         }
 
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-                <span class="ident">Fold::Zero</span> =&gt; (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)),
-                <span class="ident">Fold::One</span>(..) =&gt; (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)),
-                <span class="ident">Fold::Two</span>(..) =&gt; (<span class="number">2</span>, <span class="prelude-val">Some</span>(<span class="number">2</span>)),
-                <span class="ident">Fold::Three</span>(..) =&gt; (<span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>))
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+            <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+                Fold::Zero =&gt; (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)),
+                Fold::One(..) =&gt; (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)),
+                Fold::Two(..) =&gt; (<span class="number">2</span>, <span class="prelude-val">Some</span>(<span class="number">2</span>)),
+                Fold::Three(..) =&gt; (<span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>))
             }
         }
 
     }
-    <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">char</span>,)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Fold</span> {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">one</span>,): (<span class="ident">char</span>,)) -&gt; <span class="ident">Fold</span> {
-            <span class="ident">Fold::One</span>(<span class="ident">one</span>)
+    <span class="kw">impl </span>From&lt;(char,)&gt; <span class="kw">for </span>Fold {
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>from((one,): (char,)) -&gt; Fold {
+            Fold::One(one)
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">char</span>, <span class="ident">char</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Fold</span> {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">one</span>, <span class="ident">two</span>): (<span class="ident">char</span>, <span class="ident">char</span>)) -&gt; <span class="ident">Fold</span> {
-            <span class="ident">Fold::Two</span>(<span class="ident">one</span>, <span class="ident">two</span>)
+    <span class="kw">impl </span>From&lt;(char, char)&gt; <span class="kw">for </span>Fold {
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>from((one, two): (char, char)) -&gt; Fold {
+            Fold::Two(one, two)
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">char</span>, <span class="ident">char</span>, <span class="ident">char</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Fold</span> {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">one</span>, <span class="ident">two</span>, <span class="ident">three</span>): (<span class="ident">char</span>, <span class="ident">char</span>, <span class="ident">char</span>)) -&gt; <span class="ident">Fold</span> {
-            <span class="ident">Fold::Three</span>(<span class="ident">one</span>, <span class="ident">two</span>, <span class="ident">three</span>)
+    <span class="kw">impl </span>From&lt;(char, char, char)&gt; <span class="kw">for </span>Fold {
+        <span class="attribute">#[inline]
+        </span><span class="kw">fn </span>from((one, two, three): (char, char, char)) -&gt; Fold {
+            Fold::Three(one, two, three)
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Unicode</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::Unicode;
 
-    <span class="macro">macro_rules!</span> <span class="ident">eq</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">left</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">right</span>:<span class="ident">expr</span>) =&gt; ({
-            <span class="macro">assert_eq!</span>(<span class="ident">Unicode</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">left</span>), <span class="ident">Unicode</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">right</span>));
+    <span class="macro">macro_rules! </span>eq {
+        (<span class="macro-nonterminal">$left</span>:expr, <span class="macro-nonterminal">$right</span>:expr) =&gt; ({
+            <span class="macro">assert_eq!</span>(Unicode(<span class="macro-nonterminal">$left</span>), Unicode(<span class="macro-nonterminal">$right</span>));
         });
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_ascii_folding</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_ascii_folding() {
         <span class="macro">eq!</span>(<span class="string">&quot;foo bar&quot;</span>, <span class="string">&quot;FoO BAR&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_simple_case_folding</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_simple_case_folding() {
         <span class="macro">eq!</span>(<span class="string">&quot;στιγμας&quot;</span>, <span class="string">&quot;στιγμασ&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_full_case_folding</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_full_case_folding() {
         <span class="macro">eq!</span>(<span class="string">&quot;ﬂour&quot;</span>, <span class="string">&quot;flour&quot;</span>);
         <span class="macro">eq!</span>(<span class="string">&quot;Maße&quot;</span>, <span class="string">&quot;MASSE&quot;</span>);
         <span class="macro">eq!</span>(<span class="string">&quot;ᾲ στο διάολο&quot;</span>, <span class="string">&quot;ὰι στο διάολο&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">bench</span>]</span>
-    <span class="kw">fn</span> <span class="ident">bench_ascii_folding</span>(<span class="ident">b</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::test::Bencher</span>) {
-        <span class="ident">b</span>.<span class="ident">bytes</span> <span class="op">=</span> <span class="string">b&quot;foo bar&quot;</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="ident">b</span>.<span class="ident">iter</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">eq!</span>(<span class="string">&quot;foo bar&quot;</span>, <span class="string">&quot;FoO BAR&quot;</span>));
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;nightly&quot;</span>)]
+    #[bench]
+    </span><span class="kw">fn </span>bench_ascii_folding(b: <span class="kw-2">&amp;mut </span>::test::Bencher) {
+        b.bytes = <span class="string">b&quot;foo bar&quot;</span>.len() <span class="kw">as </span>u64;
+        b.iter(|| <span class="macro">eq!</span>(<span class="string">&quot;foo bar&quot;</span>, <span class="string">&quot;FoO BAR&quot;</span>));
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">bench</span>]</span>
-    <span class="kw">fn</span> <span class="ident">bench_simple_case_folding</span>(<span class="ident">b</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::test::Bencher</span>) {
-        <span class="ident">b</span>.<span class="ident">bytes</span> <span class="op">=</span> <span class="string">&quot;στιγμας&quot;</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="ident">b</span>.<span class="ident">iter</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">eq!</span>(<span class="string">&quot;στιγμας&quot;</span>, <span class="string">&quot;στιγμασ&quot;</span>));
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;nightly&quot;</span>)]
+    #[bench]
+    </span><span class="kw">fn </span>bench_simple_case_folding(b: <span class="kw-2">&amp;mut </span>::test::Bencher) {
+        b.bytes = <span class="string">&quot;στιγμας&quot;</span>.len() <span class="kw">as </span>u64;
+        b.iter(|| <span class="macro">eq!</span>(<span class="string">&quot;στιγμας&quot;</span>, <span class="string">&quot;στιγμασ&quot;</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="unicase" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="unicase" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

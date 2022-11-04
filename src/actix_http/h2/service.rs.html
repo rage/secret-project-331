@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h2/service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/h2/service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -368,373 +368,373 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">mem</span>, <span class="ident">net</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">rc::Rc</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    future::Future,
+    marker::PhantomData,
+    mem, net,
+    pin::Pin,
+    rc::Rc,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">actix_codec</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>};
-<span class="kw">use</span> <span class="ident">actix_rt::net::TcpStream</span>;
-<span class="kw">use</span> <span class="ident">actix_service</span>::{
-    <span class="ident">fn_factory</span>, <span class="ident">fn_service</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>, <span class="ident">ServiceFactoryExt</span> <span class="kw">as</span> <span class="kw">_</span>,
+<span class="kw">use </span>actix_codec::{AsyncRead, AsyncWrite};
+<span class="kw">use </span>actix_rt::net::TcpStream;
+<span class="kw">use </span>actix_service::{
+    fn_factory, fn_service, IntoServiceFactory, Service, ServiceFactory, ServiceFactoryExt <span class="kw">as _</span>,
 };
-<span class="kw">use</span> <span class="ident">actix_utils::future::ready</span>;
-<span class="kw">use</span> <span class="ident">futures_core</span>::{<span class="ident">future::LocalBoxFuture</span>, <span class="ident">ready</span>};
-<span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">error</span>, <span class="ident">trace</span>};
+<span class="kw">use </span>actix_utils::future::ready;
+<span class="kw">use </span>futures_core::{future::LocalBoxFuture, ready};
+<span class="kw">use </span>tracing::{error, trace};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">BoxBody</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">config::ServiceConfig</span>,
-    <span class="ident">error::DispatchError</span>,
-    <span class="ident">service::HttpFlow</span>,
-    <span class="ident">ConnectCallback</span>, <span class="ident">OnConnectData</span>, <span class="ident">Request</span>, <span class="ident">Response</span>,
+<span class="kw">use crate</span>::{
+    body::{BoxBody, MessageBody},
+    config::ServiceConfig,
+    error::DispatchError,
+    service::HttpFlow,
+    ConnectCallback, OnConnectData, Request, Response,
 };
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">dispatcher::Dispatcher</span>, <span class="ident">handshake_with_timeout</span>, <span class="ident">HandshakeWithTimeout</span>};
+<span class="kw">use super</span>::{dispatcher::Dispatcher, handshake_with_timeout, HandshakeWithTimeout};
 
-<span class="doccomment">/// `ServiceFactory` implementation for HTTP/2 transport</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">H2Service</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-    <span class="ident">srv</span>: <span class="ident">S</span>,
-    <span class="ident">cfg</span>: <span class="ident">ServiceConfig</span>,
-    <span class="ident">on_connect_ext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ConnectCallback</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">B</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// `ServiceFactory` implementation for HTTP/2 transport
+</span><span class="kw">pub struct </span>H2Service&lt;T, S, B&gt; {
+    srv: S,
+    cfg: ServiceConfig,
+    on_connect_ext: <span class="prelude-ty">Option</span>&lt;Rc&lt;ConnectCallback&lt;T&gt;&gt;&gt;,
+    _phantom: PhantomData&lt;(T, B)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">H2Service</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T, S, B&gt; H2Service&lt;T, S, B&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="doccomment">/// Create new `H2Service` instance with config.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">with_config</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">cfg</span>: <span class="ident">ServiceConfig</span>,
-        <span class="ident">service</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="ident">H2Service</span> {
-            <span class="ident">cfg</span>,
-            <span class="ident">on_connect_ext</span>: <span class="prelude-val">None</span>,
-            <span class="ident">srv</span>: <span class="ident">service</span>.<span class="ident">into_factory</span>(),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="doccomment">/// Create new `H2Service` instance with config.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_config&lt;F: IntoServiceFactory&lt;S, Request&gt;&gt;(
+        cfg: ServiceConfig,
+        service: F,
+    ) -&gt; <span class="self">Self </span>{
+        H2Service {
+            cfg,
+            on_connect_ext: <span class="prelude-val">None</span>,
+            srv: service.into_factory(),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Set on connect callback.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">on_connect_ext</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ConnectCallback</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">on_connect_ext</span> <span class="op">=</span> <span class="ident">f</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set on connect callback.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>on_connect_ext(<span class="kw-2">mut </span><span class="self">self</span>, f: <span class="prelude-ty">Option</span>&lt;Rc&lt;ConnectCallback&lt;T&gt;&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.on_connect_ext = f;
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">H2Service</span><span class="op">&lt;</span><span class="ident">TcpStream</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;S, B&gt; H2Service&lt;TcpStream, S, B&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="doccomment">/// Create plain TCP based service</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tcp</span>(
+    <span class="doccomment">/// Create plain TCP based service
+    </span><span class="kw">pub fn </span>tcp(
         <span class="self">self</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-        <span class="ident">TcpStream</span>,
-        <span class="ident">Config</span> <span class="op">=</span> (),
-        <span class="ident">Response</span> <span class="op">=</span> (),
-        <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DispatchError</span>,
-        <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span>,
-    <span class="op">&gt;</span> {
-        <span class="ident">fn_factory</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">ready</span>(<span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">S::InitError</span><span class="op">&gt;</span>(<span class="ident">fn_service</span>(<span class="op">|</span><span class="ident">io</span>: <span class="ident">TcpStream</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">io</span>.<span class="ident">peer_addr</span>().<span class="ident">ok</span>();
-                <span class="ident">ready</span>(<span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>((<span class="ident">io</span>, <span class="ident">peer_addr</span>)))
+    ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+        TcpStream,
+        Config = (),
+        Response = (),
+        Error = DispatchError,
+        InitError = S::InitError,
+    &gt; {
+        fn_factory(|| {
+            ready(<span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, S::InitError&gt;(fn_service(|io: TcpStream| {
+                <span class="kw">let </span>peer_addr = io.peer_addr().ok();
+                ready(<span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, DispatchError&gt;((io, peer_addr)))
             })))
         })
-        .<span class="ident">and_then</span>(<span class="self">self</span>)
+        .and_then(<span class="self">self</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">openssl</span> {
-    <span class="kw">use</span> <span class="ident">actix_service::ServiceFactoryExt</span> <span class="kw">as</span> <span class="kw">_</span>;
-    <span class="kw">use</span> <span class="ident">actix_tls::accept</span>::{
-        <span class="ident">openssl</span>::{
-            <span class="ident">reexports</span>::{<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">SslError</span>, <span class="ident">SslAcceptor</span>},
-            <span class="ident">Acceptor</span>, <span class="ident">TlsStream</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+</span><span class="kw">mod </span>openssl {
+    <span class="kw">use </span>actix_service::ServiceFactoryExt <span class="kw">as _</span>;
+    <span class="kw">use </span>actix_tls::accept::{
+        openssl::{
+            reexports::{Error <span class="kw">as </span>SslError, SslAcceptor},
+            Acceptor, TlsStream,
         },
-        <span class="ident">TlsError</span>,
+        TlsError,
     };
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">H2Service</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-        <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
+    <span class="kw">impl</span>&lt;S, B&gt; H2Service&lt;TlsStream&lt;TcpStream&gt;, S, B&gt;
+    <span class="kw">where
+        </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+        S::Future: <span class="lifetime">&#39;static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
 
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        B: MessageBody + <span class="lifetime">&#39;static</span>,
     {
-        <span class="doccomment">/// Create OpenSSL based service.</span>
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)))]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">openssl</span>(
+        <span class="doccomment">/// Create OpenSSL based service.
+        </span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;openssl&quot;</span>)))]
+        </span><span class="kw">pub fn </span>openssl(
             <span class="self">self</span>,
-            <span class="ident">acceptor</span>: <span class="ident">SslAcceptor</span>,
-        ) -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            <span class="ident">TcpStream</span>,
-            <span class="ident">Config</span> <span class="op">=</span> (),
-            <span class="ident">Response</span> <span class="op">=</span> (),
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TlsError</span><span class="op">&lt;</span><span class="ident">SslError</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>,
-            <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span>,
-        <span class="op">&gt;</span> {
-            <span class="ident">Acceptor::new</span>(<span class="ident">acceptor</span>)
-                .<span class="ident">map_init_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+            acceptor: SslAcceptor,
+        ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+            TcpStream,
+            Config = (),
+            Response = (),
+            Error = TlsError&lt;SslError, DispatchError&gt;,
+            InitError = S::InitError,
+        &gt; {
+            Acceptor::new(acceptor)
+                .map_init_err(|<span class="kw">_</span>| {
                     <span class="macro">unreachable!</span>(<span class="string">&quot;TLS acceptor service factory does not error on init&quot;</span>)
                 })
-                .<span class="ident">map_err</span>(<span class="ident">TlsError::into_service_error</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">io</span>: <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">io</span>.<span class="ident">get_ref</span>().<span class="ident">peer_addr</span>().<span class="ident">ok</span>();
-                    (<span class="ident">io</span>, <span class="ident">peer_addr</span>)
+                .map_err(TlsError::into_service_error)
+                .map(|io: TlsStream&lt;TcpStream&gt;| {
+                    <span class="kw">let </span>peer_addr = io.get_ref().peer_addr().ok();
+                    (io, peer_addr)
                 })
-                .<span class="ident">and_then</span>(<span class="self">self</span>.<span class="ident">map_err</span>(<span class="ident">TlsError::Service</span>))
+                .and_then(<span class="self">self</span>.map_err(TlsError::Service))
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">rustls</span> {
-    <span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;rustls&quot;</span>)]
+</span><span class="kw">mod </span>rustls {
+    <span class="kw">use </span>std::io;
 
-    <span class="kw">use</span> <span class="ident">actix_service::ServiceFactoryExt</span> <span class="kw">as</span> <span class="kw">_</span>;
-    <span class="kw">use</span> <span class="ident">actix_tls::accept</span>::{
-        <span class="ident">rustls</span>::{<span class="ident">reexports::ServerConfig</span>, <span class="ident">Acceptor</span>, <span class="ident">TlsStream</span>},
-        <span class="ident">TlsError</span>,
+    <span class="kw">use </span>actix_service::ServiceFactoryExt <span class="kw">as _</span>;
+    <span class="kw">use </span>actix_tls::accept::{
+        rustls::{reexports::ServerConfig, Acceptor, TlsStream},
+        TlsError,
     };
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">H2Service</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-        <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
+    <span class="kw">impl</span>&lt;S, B&gt; H2Service&lt;TlsStream&lt;TcpStream&gt;, S, B&gt;
+    <span class="kw">where
+        </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+        S::Future: <span class="lifetime">&#39;static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
 
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        B: MessageBody + <span class="lifetime">&#39;static</span>,
     {
-        <span class="doccomment">/// Create Rustls based service.</span>
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)))]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rustls</span>(
+        <span class="doccomment">/// Create Rustls based service.
+        </span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustls&quot;</span>)))]
+        </span><span class="kw">pub fn </span>rustls(
             <span class="self">self</span>,
-            <span class="kw-2">mut</span> <span class="ident">config</span>: <span class="ident">ServerConfig</span>,
-        ) -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            <span class="ident">TcpStream</span>,
-            <span class="ident">Config</span> <span class="op">=</span> (),
-            <span class="ident">Response</span> <span class="op">=</span> (),
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TlsError</span><span class="op">&lt;</span><span class="ident">io::Error</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>,
-            <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span>,
-        <span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">protos</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.<span class="ident">to_vec</span>()];
-            <span class="ident">protos</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">alpn_protocols</span>);
-            <span class="ident">config</span>.<span class="ident">alpn_protocols</span> <span class="op">=</span> <span class="ident">protos</span>;
+            <span class="kw-2">mut </span>config: ServerConfig,
+        ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+            TcpStream,
+            Config = (),
+            Response = (),
+            Error = TlsError&lt;io::Error, DispatchError&gt;,
+            InitError = S::InitError,
+        &gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>protos = <span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.to_vec()];
+            protos.extend_from_slice(<span class="kw-2">&amp;</span>config.alpn_protocols);
+            config.alpn_protocols = protos;
 
-            <span class="ident">Acceptor::new</span>(<span class="ident">config</span>)
-                .<span class="ident">map_init_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+            Acceptor::new(config)
+                .map_init_err(|<span class="kw">_</span>| {
                     <span class="macro">unreachable!</span>(<span class="string">&quot;TLS acceptor service factory does not error on init&quot;</span>)
                 })
-                .<span class="ident">map_err</span>(<span class="ident">TlsError::into_service_error</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">io</span>: <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">io</span>.<span class="ident">get_ref</span>().<span class="number">0</span>.<span class="ident">peer_addr</span>().<span class="ident">ok</span>();
-                    (<span class="ident">io</span>, <span class="ident">peer_addr</span>)
+                .map_err(TlsError::into_service_error)
+                .map(|io: TlsStream&lt;TcpStream&gt;| {
+                    <span class="kw">let </span>peer_addr = io.get_ref().<span class="number">0</span>.peer_addr().ok();
+                    (io, peer_addr)
                 })
-                .<span class="ident">and_then</span>(<span class="self">self</span>.<span class="ident">map_err</span>(<span class="ident">TlsError::Service</span>))
+                .and_then(<span class="self">self</span>.map_err(TlsError::Service))
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">H2Service</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T, S, B&gt; ServiceFactory&lt;(T, <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;)&gt; <span class="kw">for </span>H2Service&lt;T, S, B&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin + <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
+    S: ServiceFactory&lt;Request, Config = ()&gt;,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DispatchError</span>;
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">H2ServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S::Service</span>, <span class="ident">B</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> <span class="ident">S::InitError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Service</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ();
+    <span class="kw">type </span>Error = DispatchError;
+    <span class="kw">type </span>Config = ();
+    <span class="kw">type </span>Service = H2ServiceHandler&lt;T, S::Service, B&gt;;
+    <span class="kw">type </span>InitError = S::InitError;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Service, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">srv</span>.<span class="ident">new_service</span>(());
-        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cfg</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">on_connect_ext</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">on_connect_ext</span>.<span class="ident">clone</span>();
+    <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>service = <span class="self">self</span>.srv.new_service(());
+        <span class="kw">let </span>cfg = <span class="self">self</span>.cfg.clone();
+        <span class="kw">let </span>on_connect_ext = <span class="self">self</span>.on_connect_ext.clone();
 
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="ident">service</span>.<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="ident">H2ServiceHandler::new</span>(<span class="ident">cfg</span>, <span class="ident">on_connect_ext</span>, <span class="ident">service</span>))
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>service = service.<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(H2ServiceHandler::new(cfg, on_connect_ext, service))
         })
     }
 }
 
-<span class="doccomment">/// `Service` implementation for HTTP/2 transport</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">H2ServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
+<span class="doccomment">/// `Service` implementation for HTTP/2 transport
+</span><span class="kw">pub struct </span>H2ServiceHandler&lt;T, S, B&gt;
+<span class="kw">where
+    </span>S: Service&lt;Request&gt;,
 {
-    <span class="ident">flow</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, (), ()<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">cfg</span>: <span class="ident">ServiceConfig</span>,
-    <span class="ident">on_connect_ext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ConnectCallback</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+    flow: Rc&lt;HttpFlow&lt;S, (), ()&gt;&gt;,
+    cfg: ServiceConfig,
+    on_connect_ext: <span class="prelude-ty">Option</span>&lt;Rc&lt;ConnectCallback&lt;T&gt;&gt;&gt;,
+    _phantom: PhantomData&lt;B&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">H2ServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T, S, B&gt; H2ServiceHandler&lt;T, S, B&gt;
+<span class="kw">where
+    </span>S: Service&lt;Request&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">cfg</span>: <span class="ident">ServiceConfig</span>,
-        <span class="ident">on_connect_ext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ConnectCallback</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">service</span>: <span class="ident">S</span>,
-    ) -&gt; <span class="ident">H2ServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> {
-        <span class="ident">H2ServiceHandler</span> {
-            <span class="ident">flow</span>: <span class="ident">HttpFlow::new</span>(<span class="ident">service</span>, (), <span class="prelude-val">None</span>),
-            <span class="ident">cfg</span>,
-            <span class="ident">on_connect_ext</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">fn </span>new(
+        cfg: ServiceConfig,
+        on_connect_ext: <span class="prelude-ty">Option</span>&lt;Rc&lt;ConnectCallback&lt;T&gt;&gt;&gt;,
+        service: S,
+    ) -&gt; H2ServiceHandler&lt;T, S, B&gt; {
+        H2ServiceHandler {
+            flow: HttpFlow::new(service, (), <span class="prelude-val">None</span>),
+            cfg,
+            on_connect_ext,
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">H2ServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T, S, B&gt; Service&lt;(T, <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;)&gt; <span class="kw">for </span>H2ServiceHandler&lt;T, S, B&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin,
+    S: Service&lt;Request&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DispatchError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">H2ServiceHandlerResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ();
+    <span class="kw">type </span>Error = DispatchError;
+    <span class="kw">type </span>Future = H2ServiceHandlerResponse&lt;T, S, B&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
-            <span class="macro">error!</span>(<span class="string">&quot;Service readiness error: {:?}&quot;</span>, <span class="ident">err</span>);
-            <span class="ident">DispatchError::Service</span>(<span class="ident">err</span>)
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+        <span class="self">self</span>.flow.service.poll_ready(cx).map_err(|err| {
+            <span class="kw">let </span>err = err.into();
+            <span class="macro">error!</span>(<span class="string">&quot;Service readiness error: {:?}&quot;</span>, err);
+            DispatchError::Service(err)
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, (<span class="ident">io</span>, <span class="ident">addr</span>): (<span class="ident">T</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>)) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">on_connect_data</span> <span class="op">=</span> <span class="ident">OnConnectData::from_io</span>(<span class="kw-2">&amp;</span><span class="ident">io</span>, <span class="self">self</span>.<span class="ident">on_connect_ext</span>.<span class="ident">as_deref</span>());
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, (io, addr): (T, <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;)) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>on_connect_data = OnConnectData::from_io(<span class="kw-2">&amp;</span>io, <span class="self">self</span>.on_connect_ext.as_deref());
 
-        <span class="ident">H2ServiceHandlerResponse</span> {
-            <span class="ident">state</span>: <span class="ident">State::Handshake</span>(
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">flow</span>.<span class="ident">clone</span>()),
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cfg</span>.<span class="ident">clone</span>()),
-                <span class="ident">addr</span>,
-                <span class="ident">on_connect_data</span>,
-                <span class="ident">handshake_with_timeout</span>(<span class="ident">io</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cfg</span>),
+        H2ServiceHandlerResponse {
+            state: State::Handshake(
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.flow.clone()),
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.cfg.clone()),
+                addr,
+                on_connect_data,
+                handshake_with_timeout(io, <span class="kw-2">&amp;</span><span class="self">self</span>.cfg),
             ),
         }
     }
 }
 
-<span class="kw">enum</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>, <span class="ident">B</span>: <span class="ident">MessageBody</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
+<span class="kw">enum </span>State&lt;T, S: Service&lt;Request&gt;, B: MessageBody&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin,
+    S::Future: <span class="lifetime">&#39;static</span>,
 {
-    <span class="ident">Handshake</span>(
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, (), ()<span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ServiceConfig</span><span class="op">&gt;</span>,
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
-        <span class="ident">OnConnectData</span>,
-        <span class="ident">HandshakeWithTimeout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    Handshake(
+        <span class="prelude-ty">Option</span>&lt;Rc&lt;HttpFlow&lt;S, (), ()&gt;&gt;&gt;,
+        <span class="prelude-ty">Option</span>&lt;ServiceConfig&gt;,
+        <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;,
+        OnConnectData,
+        HandshakeWithTimeout&lt;T&gt;,
     ),
-    <span class="ident">Established</span>(<span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, (), ()<span class="op">&gt;</span>),
+    Established(Dispatcher&lt;T, S, B, (), ()&gt;),
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">H2ServiceHandlerResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">pub struct </span>H2ServiceHandlerResponse&lt;T, S, B&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin,
+    S: Service&lt;Request&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="ident">state</span>: <span class="ident">State</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>,
+    state: State&lt;T, S, B&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">H2ServiceHandlerResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+<span class="kw">impl</span>&lt;T, S, B&gt; Future <span class="kw">for </span>H2ServiceHandlerResponse&lt;T, S, B&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin,
+    S: Service&lt;Request&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    B: MessageBody,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State::Handshake</span>(
-                <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">srv</span>,
-                <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">config</span>,
-                <span class="kw-2">ref</span> <span class="ident">peer_addr</span>,
-                <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">conn_data</span>,
-                <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">handshake</span>,
-            ) =&gt; <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="ident">handshake</span>).<span class="ident">poll</span>(<span class="ident">cx</span>)) {
-                <span class="prelude-val">Ok</span>((<span class="ident">conn</span>, <span class="ident">timer</span>)) =&gt; {
-                    <span class="kw">let</span> <span class="ident">on_connect_data</span> <span class="op">=</span> <span class="ident">mem::take</span>(<span class="ident">conn_data</span>);
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">match </span><span class="self">self</span>.state {
+            State::Handshake(
+                <span class="kw-2">ref mut </span>srv,
+                <span class="kw-2">ref mut </span>config,
+                <span class="kw-2">ref </span>peer_addr,
+                <span class="kw-2">ref mut </span>conn_data,
+                <span class="kw-2">ref mut </span>handshake,
+            ) =&gt; <span class="kw">match </span><span class="macro">ready!</span>(Pin::new(handshake).poll(cx)) {
+                <span class="prelude-val">Ok</span>((conn, timer)) =&gt; {
+                    <span class="kw">let </span>on_connect_data = mem::take(conn_data);
 
-                    <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Established</span>(<span class="ident">Dispatcher::new</span>(
-                        <span class="ident">conn</span>,
-                        <span class="ident">srv</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
-                        <span class="ident">config</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
-                        <span class="kw-2">*</span><span class="ident">peer_addr</span>,
-                        <span class="ident">on_connect_data</span>,
-                        <span class="ident">timer</span>,
+                    <span class="self">self</span>.state = State::Established(Dispatcher::new(
+                        conn,
+                        srv.take().unwrap(),
+                        config.take().unwrap(),
+                        <span class="kw-2">*</span>peer_addr,
+                        on_connect_data,
+                        timer,
                     ));
 
-                    <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
+                    <span class="self">self</span>.poll(cx)
                 }
 
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">trace!</span>(<span class="string">&quot;H2 handshake error: {}&quot;</span>, <span class="ident">err</span>);
-                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>))
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">trace!</span>(<span class="string">&quot;H2 handshake error: {}&quot;</span>, err);
+                    Poll::Ready(<span class="prelude-val">Err</span>(err))
                 }
             },
 
-            <span class="ident">State::Established</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">disp</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">disp</span>).<span class="ident">poll</span>(<span class="ident">cx</span>),
+            State::Established(<span class="kw-2">ref mut </span>disp) =&gt; Pin::new(disp).poll(cx),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

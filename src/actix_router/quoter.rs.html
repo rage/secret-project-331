@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-router-0.5.1/src/quoter.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quoter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_router/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_router/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-router-0.5.1/src/quoter.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quoter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_router/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_router/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_router/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -172,177 +172,177 @@
 <span id="170">170</span>
 <span id="171">171</span>
 <span id="172">172</span>
-</pre><pre class="rust"><code><span class="doccomment">/// Partial percent-decoding.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Performs percent-decoding on a slice but can selectively skip decoding certain sequences.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use actix_router::Quoter;</span>
-<span class="doccomment">/// // + is set as a protected character and will not be decoded...</span>
-<span class="doccomment">/// let q = Quoter::new(&amp;[], b&quot;+&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // ...but the other encoded characters (like the hyphen below) will.</span>
-<span class="doccomment">/// assert_eq!(q.requote(b&quot;/a%2Db%2Bc&quot;).unwrap(), b&quot;/a-b%2Bc&quot;);</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Quoter</span> {
-    <span class="doccomment">/// Simple bit-map of protected values in the 0-127 ASCII range.</span>
-    <span class="ident">protected_table</span>: <span class="ident">AsciiBitmap</span>,
+</pre><pre class="rust"><code><span class="doccomment">/// Partial percent-decoding.
+///
+/// Performs percent-decoding on a slice but can selectively skip decoding certain sequences.
+///
+/// # Examples
+/// ```
+/// # use actix_router::Quoter;
+/// // + is set as a protected character and will not be decoded...
+/// let q = Quoter::new(&amp;[], b&quot;+&quot;);
+///
+/// // ...but the other encoded characters (like the hyphen below) will.
+/// assert_eq!(q.requote(b&quot;/a%2Db%2Bc&quot;).unwrap(), b&quot;/a-b%2Bc&quot;);
+/// ```
+</span><span class="kw">pub struct </span>Quoter {
+    <span class="doccomment">/// Simple bit-map of protected values in the 0-127 ASCII range.
+    </span>protected_table: AsciiBitmap,
 }
 
-<span class="kw">impl</span> <span class="ident">Quoter</span> {
-    <span class="doccomment">/// Constructs a new `Quoter` instance given a set of protected ASCII bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The first argument is ignored but is kept for backward compatibility.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if any of the `protected` bytes are not in the 0-127 ASCII range.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">protected</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Quoter</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">protected_table</span> <span class="op">=</span> <span class="ident">AsciiBitmap::default</span>();
+<span class="kw">impl </span>Quoter {
+    <span class="doccomment">/// Constructs a new `Quoter` instance given a set of protected ASCII bytes.
+    ///
+    /// The first argument is ignored but is kept for backward compatibility.
+    ///
+    /// # Panics
+    /// Panics if any of the `protected` bytes are not in the 0-127 ASCII range.
+    </span><span class="kw">pub fn </span>new(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[u8], protected: <span class="kw-2">&amp;</span>[u8]) -&gt; Quoter {
+        <span class="kw">let </span><span class="kw-2">mut </span>protected_table = AsciiBitmap::default();
 
-        <span class="comment">// prepare protected table</span>
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">ch</span> <span class="kw">in</span> <span class="ident">protected</span> {
-            <span class="ident">protected_table</span>.<span class="ident">set_bit</span>(<span class="ident">ch</span>);
+        <span class="comment">// prepare protected table
+        </span><span class="kw">for </span><span class="kw-2">&amp;</span>ch <span class="kw">in </span>protected {
+            protected_table.set_bit(ch);
         }
 
-        <span class="ident">Quoter</span> { <span class="ident">protected_table</span> }
+        Quoter { protected_table }
     }
 
-    <span class="doccomment">/// Decodes the next escape sequence, if any, and advances `val`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">decode_next</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">u8</span>)<span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">val</span>.<span class="ident">len</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> (<span class="ident">prev</span>, [<span class="string">b&#39;%&#39;</span>, <span class="ident">p1</span>, <span class="ident">p2</span>, <span class="ident">rem</span> @ ..]) <span class="op">=</span> <span class="ident">val</span>.<span class="ident">split_at</span>(<span class="ident">i</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ch</span>) <span class="op">=</span> <span class="ident">hex_pair_to_char</span>(<span class="kw-2">*</span><span class="ident">p1</span>, <span class="kw-2">*</span><span class="ident">p2</span>)
-                    <span class="comment">// ignore protected ascii bytes</span>
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">ch</span><span class="op">|</span> <span class="op">!</span>(<span class="ident">ch</span> <span class="op">&lt;</span> <span class="number">128</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">protected_table</span>.<span class="ident">bit_at</span>(<span class="ident">ch</span>)))
+    <span class="doccomment">/// Decodes the next escape sequence, if any, and advances `val`.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>decode_next&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;mut &amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], u8)&gt; {
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..val.len() {
+            <span class="kw">if let </span>(prev, [<span class="string">b&#39;%&#39;</span>, p1, p2, rem @ ..]) = val.split_at(i) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(ch) = hex_pair_to_char(<span class="kw-2">*</span>p1, <span class="kw-2">*</span>p2)
+                    <span class="comment">// ignore protected ascii bytes
+                    </span>.filter(|<span class="kw-2">&amp;</span>ch| !(ch &lt; <span class="number">128 </span>&amp;&amp; <span class="self">self</span>.protected_table.bit_at(ch)))
                 {
-                    <span class="kw-2">*</span><span class="ident">val</span> <span class="op">=</span> <span class="ident">rem</span>;
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">prev</span>, <span class="ident">ch</span>));
+                    <span class="kw-2">*</span>val = rem;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>((prev, ch));
                 }
             }
         }
 
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="doccomment">/// Partially percent-decodes the given bytes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Escape sequences of the protected set are *not* decoded.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` when no modification to the original bytes was required.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Invalid/incomplete percent-encoding sequences are passed unmodified.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">requote</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remaining</span> <span class="op">=</span> <span class="ident">val</span>;
+    <span class="doccomment">/// Partially percent-decodes the given bytes.
+    ///
+    /// Escape sequences of the protected set are *not* decoded.
+    ///
+    /// Returns `None` when no modification to the original bytes was required.
+    ///
+    /// Invalid/incomplete percent-encoding sequences are passed unmodified.
+    </span><span class="kw">pub fn </span>requote(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>remaining = val;
 
-        <span class="comment">// early return indicates that no percent-encoded sequences exist and we can skip allocation</span>
-        <span class="kw">let</span> (<span class="ident">pre</span>, <span class="ident">decoded_char</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">decode_next</span>(<span class="kw-2">&amp;mut</span> <span class="ident">remaining</span>)<span class="question-mark">?</span>;
+        <span class="comment">// early return indicates that no percent-encoded sequences exist and we can skip allocation
+        </span><span class="kw">let </span>(pre, decoded_char) = <span class="self">self</span>.decode_next(<span class="kw-2">&amp;mut </span>remaining)<span class="question-mark">?</span>;
 
-        <span class="comment">// decoded output will always be shorter than the input</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="ident">val</span>.<span class="ident">len</span>());
+        <span class="comment">// decoded output will always be shorter than the input
+        </span><span class="kw">let </span><span class="kw-2">mut </span>decoded = Vec::&lt;u8&gt;::with_capacity(val.len());
 
-        <span class="comment">// push first segment and decoded char</span>
-        <span class="ident">decoded</span>.<span class="ident">extend_from_slice</span>(<span class="ident">pre</span>);
-        <span class="ident">decoded</span>.<span class="ident">push</span>(<span class="ident">decoded_char</span>);
+        <span class="comment">// push first segment and decoded char
+        </span>decoded.extend_from_slice(pre);
+        decoded.push(decoded_char);
 
-        <span class="comment">// decode and push rest of segments and decoded chars</span>
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">prev</span>, <span class="ident">ch</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">decode_next</span>(<span class="kw-2">&amp;mut</span> <span class="ident">remaining</span>) {
-            <span class="comment">// this ugly conditional achieves +50% perf in cases where this is a tight loop.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">prev</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">decoded</span>.<span class="ident">extend_from_slice</span>(<span class="ident">prev</span>);
+        <span class="comment">// decode and push rest of segments and decoded chars
+        </span><span class="kw">while let </span><span class="prelude-val">Some</span>((prev, ch)) = <span class="self">self</span>.decode_next(<span class="kw-2">&amp;mut </span>remaining) {
+            <span class="comment">// this ugly conditional achieves +50% perf in cases where this is a tight loop.
+            </span><span class="kw">if </span>!prev.is_empty() {
+                decoded.extend_from_slice(prev);
             }
-            <span class="ident">decoded</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
+            decoded.push(ch);
         }
 
-        <span class="ident">decoded</span>.<span class="ident">extend_from_slice</span>(<span class="ident">remaining</span>);
+        decoded.extend_from_slice(remaining);
 
-        <span class="prelude-val">Some</span>(<span class="ident">decoded</span>)
+        <span class="prelude-val">Some</span>(decoded)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">requote_str_lossy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">requote</span>(<span class="ident">val</span>.<span class="ident">as_bytes</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">String::from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>).<span class="ident">into_owned</span>())
-    }
-}
-
-<span class="doccomment">/// Decode a ASCII hex-encoded pair to an integer.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns `None` if either portion of the decoded pair does not evaluate to a valid hex value.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - `0x33 (&#39;3&#39;), 0x30 (&#39;0&#39;) =&gt; 0x30 (&#39;0&#39;)`</span>
-<span class="doccomment">/// - `0x34 (&#39;4&#39;), 0x31 (&#39;1&#39;) =&gt; 0x41 (&#39;A&#39;)`</span>
-<span class="doccomment">/// - `0x36 (&#39;6&#39;), 0x31 (&#39;1&#39;) =&gt; 0x61 (&#39;a&#39;)`</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">hex_pair_to_char</span>(<span class="ident">d1</span>: <span class="ident">u8</span>, <span class="ident">d2</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">d_high</span> <span class="op">=</span> <span class="ident">char::from</span>(<span class="ident">d1</span>).<span class="ident">to_digit</span>(<span class="number">16</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">d_low</span> <span class="op">=</span> <span class="ident">char::from</span>(<span class="ident">d2</span>).<span class="ident">to_digit</span>(<span class="number">16</span>)<span class="question-mark">?</span>;
-
-    <span class="comment">// left shift high nibble by 4 bits</span>
-    <span class="prelude-val">Some</span>((<span class="ident">d_high</span> <span class="kw">as</span> <span class="ident">u8</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span> <span class="op">|</span> (<span class="ident">d_low</span> <span class="kw">as</span> <span class="ident">u8</span>))
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">AsciiBitmap</span> {
-    <span class="ident">array</span>: [<span class="ident">u8</span>; <span class="number">16</span>],
-}
-
-<span class="kw">impl</span> <span class="ident">AsciiBitmap</span> {
-    <span class="doccomment">/// Sets bit in given bit-map to 1=true.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if `ch` index is out of bounds.</span>
-    <span class="kw">fn</span> <span class="ident">set_bit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ch</span>: <span class="ident">u8</span>) {
-        <span class="self">self</span>.<span class="ident">array</span>[(<span class="ident">ch</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">|</span><span class="op">=</span> <span class="number">0b1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">ch</span> <span class="op">&amp;</span> <span class="number">0b111</span>)
-    }
-
-    <span class="doccomment">/// Returns true if bit to true in given bit-map.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// Panics if `ch` index is out of bounds.</span>
-    <span class="kw">fn</span> <span class="ident">bit_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ch</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">array</span>[(<span class="ident">ch</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">&amp;</span> (<span class="number">0b1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">ch</span> <span class="op">&amp;</span> <span class="number">0b111</span>)) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>requote_str_lossy(<span class="kw-2">&amp;</span><span class="self">self</span>, val: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+        <span class="self">self</span>.requote(val.as_bytes())
+            .map(|data| String::from_utf8_lossy(<span class="kw-2">&amp;</span>data).into_owned())
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="doccomment">/// Decode a ASCII hex-encoded pair to an integer.
+///
+/// Returns `None` if either portion of the decoded pair does not evaluate to a valid hex value.
+///
+/// - `0x33 (&#39;3&#39;), 0x30 (&#39;0&#39;) =&gt; 0x30 (&#39;0&#39;)`
+/// - `0x34 (&#39;4&#39;), 0x31 (&#39;1&#39;) =&gt; 0x41 (&#39;A&#39;)`
+/// - `0x36 (&#39;6&#39;), 0x31 (&#39;1&#39;) =&gt; 0x61 (&#39;a&#39;)`
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>hex_pair_to_char(d1: u8, d2: u8) -&gt; <span class="prelude-ty">Option</span>&lt;u8&gt; {
+    <span class="kw">let </span>d_high = char::from(d1).to_digit(<span class="number">16</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>d_low = char::from(d2).to_digit(<span class="number">16</span>)<span class="question-mark">?</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">custom_quoter</span>() {
-        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Quoter::new</span>(<span class="string">b&quot;&quot;</span>, <span class="string">b&quot;+&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%25c&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a%c&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2Bc&quot;</span>), <span class="prelude-val">None</span>);
+    <span class="comment">// left shift high nibble by 4 bits
+    </span><span class="prelude-val">Some</span>((d_high <span class="kw">as </span>u8) &lt;&lt; <span class="number">4 </span>| (d_low <span class="kw">as </span>u8))
+}
 
-        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Quoter::new</span>(<span class="string">b&quot;%+&quot;</span>, <span class="string">b&quot;/&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%25b%2Bc&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a%b+c&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2fb&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2Fb&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%0Ab&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a\nb&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%FE\xffb&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a\xfe\xffb&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a\xfe\xffb&quot;</span>), <span class="prelude-val">None</span>);
+<span class="attribute">#[derive(Debug, Default, Clone)]
+</span><span class="kw">struct </span>AsciiBitmap {
+    array: [u8; <span class="number">16</span>],
+}
+
+<span class="kw">impl </span>AsciiBitmap {
+    <span class="doccomment">/// Sets bit in given bit-map to 1=true.
+    ///
+    /// # Panics
+    /// Panics if `ch` index is out of bounds.
+    </span><span class="kw">fn </span>set_bit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ch: u8) {
+        <span class="self">self</span>.array[(ch &gt;&gt; <span class="number">3</span>) <span class="kw">as </span>usize] |= <span class="number">0b1 </span>&lt;&lt; (ch &amp; <span class="number">0b111</span>)
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">non_ascii</span>() {
-        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Quoter::new</span>(<span class="string">b&quot;%+&quot;</span>, <span class="string">b&quot;/&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%FE\xffb&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a\xfe\xffb&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a\xfe\xffb&quot;</span>), <span class="prelude-val">None</span>);
+    <span class="doccomment">/// Returns true if bit to true in given bit-map.
+    ///
+    /// # Panics
+    /// Panics if `ch` index is out of bounds.
+    </span><span class="kw">fn </span>bit_at(<span class="kw-2">&amp;</span><span class="self">self</span>, ch: u8) -&gt; bool {
+        <span class="self">self</span>.array[(ch &gt;&gt; <span class="number">3</span>) <span class="kw">as </span>usize] &amp; (<span class="number">0b1 </span>&lt;&lt; (ch &amp; <span class="number">0b111</span>)) != <span class="number">0
+    </span>}
+}
+
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>custom_quoter() {
+        <span class="kw">let </span>q = Quoter::new(<span class="string">b&quot;&quot;</span>, <span class="string">b&quot;+&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%25c&quot;</span>).unwrap(), <span class="string">b&quot;/a%c&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%2Bc&quot;</span>), <span class="prelude-val">None</span>);
+
+        <span class="kw">let </span>q = Quoter::new(<span class="string">b&quot;%+&quot;</span>, <span class="string">b&quot;/&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%25b%2Bc&quot;</span>).unwrap(), <span class="string">b&quot;/a%b+c&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%2fb&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%2Fb&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%0Ab&quot;</span>).unwrap(), <span class="string">b&quot;/a\nb&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%FE\xffb&quot;</span>).unwrap(), <span class="string">b&quot;/a\xfe\xffb&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a\xfe\xffb&quot;</span>), <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">invalid_sequences</span>() {
-        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Quoter::new</span>(<span class="string">b&quot;%+&quot;</span>, <span class="string">b&quot;/&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2x%2X%%&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%20%2X%%&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a %2X%%&quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>non_ascii() {
+        <span class="kw">let </span>q = Quoter::new(<span class="string">b&quot;%+&quot;</span>, <span class="string">b&quot;/&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%FE\xffb&quot;</span>).unwrap(), <span class="string">b&quot;/a\xfe\xffb&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a\xfe\xffb&quot;</span>), <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">quoter_no_modification</span>() {
-        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Quoter::new</span>(<span class="string">b&quot;&quot;</span>, <span class="string">b&quot;&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/abc/../efg&quot;</span>), <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>invalid_sequences() {
+        <span class="kw">let </span>q = Quoter::new(<span class="string">b&quot;%+&quot;</span>, <span class="string">b&quot;/&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%2x%2X%%&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/a%20%2X%%&quot;</span>).unwrap(), <span class="string">b&quot;/a %2X%%&quot;</span>);
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>quoter_no_modification() {
+        <span class="kw">let </span>q = Quoter::new(<span class="string">b&quot;&quot;</span>, <span class="string">b&quot;&quot;</span>);
+        <span class="macro">assert_eq!</span>(q.requote(<span class="string">b&quot;/abc/../efg&quot;</span>), <span class="prelude-val">None</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_router" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_router" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

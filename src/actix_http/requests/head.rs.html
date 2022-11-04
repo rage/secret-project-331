@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/requests/head.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>head.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/requests/head.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>head.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -174,179 +174,179 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">net</span>, <span class="ident">rc::Rc</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{net, rc::Rc};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">HeaderMap</span>},
-    <span class="ident">message</span>::{<span class="ident">Flags</span>, <span class="ident">Head</span>, <span class="ident">MessagePool</span>},
-    <span class="ident">ConnectionType</span>, <span class="ident">Method</span>, <span class="ident">Uri</span>, <span class="ident">Version</span>,
+<span class="kw">use crate</span>::{
+    header::{<span class="self">self</span>, HeaderMap},
+    message::{Flags, Head, MessagePool},
+    ConnectionType, Method, Uri, Version,
 };
 
-<span class="macro">thread_local!</span> {
-    <span class="kw">static</span> <span class="ident">REQUEST_POOL</span>: <span class="ident">MessagePool</span><span class="op">&lt;</span><span class="ident">RequestHead</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MessagePool</span>::<span class="op">&lt;</span><span class="ident">RequestHead</span><span class="op">&gt;</span><span class="ident">::create</span>()
+<span class="macro">thread_local! </span>{
+    <span class="kw">static </span>REQUEST_POOL: MessagePool&lt;RequestHead&gt; = MessagePool::&lt;RequestHead&gt;::create()
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RequestHead</span> {
-    <span class="kw">pub</span> <span class="ident">method</span>: <span class="ident">Method</span>,
-    <span class="kw">pub</span> <span class="ident">uri</span>: <span class="ident">Uri</span>,
-    <span class="kw">pub</span> <span class="ident">version</span>: <span class="ident">Version</span>,
-    <span class="kw">pub</span> <span class="ident">headers</span>: <span class="ident">HeaderMap</span>,
-    <span class="kw">pub</span> <span class="ident">peer_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
-    <span class="ident">flags</span>: <span class="ident">Flags</span>,
+<span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>RequestHead {
+    <span class="kw">pub </span>method: Method,
+    <span class="kw">pub </span>uri: Uri,
+    <span class="kw">pub </span>version: Version,
+    <span class="kw">pub </span>headers: HeaderMap,
+    <span class="kw">pub </span>peer_addr: <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;,
+    flags: Flags,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RequestHead</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">RequestHead</span> {
-        <span class="ident">RequestHead</span> {
-            <span class="ident">method</span>: <span class="ident">Method::default</span>(),
-            <span class="ident">uri</span>: <span class="ident">Uri::default</span>(),
-            <span class="ident">version</span>: <span class="ident">Version::HTTP_11</span>,
-            <span class="ident">headers</span>: <span class="ident">HeaderMap::with_capacity</span>(<span class="number">16</span>),
-            <span class="ident">peer_addr</span>: <span class="prelude-val">None</span>,
-            <span class="ident">flags</span>: <span class="ident">Flags::empty</span>(),
+<span class="kw">impl </span>Default <span class="kw">for </span>RequestHead {
+    <span class="kw">fn </span>default() -&gt; RequestHead {
+        RequestHead {
+            method: Method::default(),
+            uri: Uri::default(),
+            version: Version::HTTP_11,
+            headers: HeaderMap::with_capacity(<span class="number">16</span>),
+            peer_addr: <span class="prelude-val">None</span>,
+            flags: Flags::empty(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Head</span> <span class="kw">for</span> <span class="ident">RequestHead</span> {
-    <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">flags</span> <span class="op">=</span> <span class="ident">Flags::empty</span>();
-        <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">clear</span>();
+<span class="kw">impl </span>Head <span class="kw">for </span>RequestHead {
+    <span class="kw">fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.flags = Flags::empty();
+        <span class="self">self</span>.headers.clear();
     }
 
-    <span class="kw">fn</span> <span class="ident">with_pool</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">MessagePool</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="ident">R</span>,
+    <span class="kw">fn </span>with_pool&lt;F, R&gt;(f: F) -&gt; R
+    <span class="kw">where
+        </span>F: FnOnce(<span class="kw-2">&amp;</span>MessagePool&lt;<span class="self">Self</span>&gt;) -&gt; R,
     {
-        <span class="ident">REQUEST_POOL</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">f</span>(<span class="ident">p</span>))
+        REQUEST_POOL.with(|p| f(p))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">RequestHead</span> {
-    <span class="doccomment">/// Read the message headers.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">headers</span>
+<span class="kw">impl </span>RequestHead {
+    <span class="doccomment">/// Read the message headers.
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.headers
     }
 
-    <span class="doccomment">/// Mutable reference to the message headers.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">headers</span>
+    <span class="doccomment">/// Mutable reference to the message headers.
+    </span><span class="kw">pub fn </span>headers_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>HeaderMap {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.headers
     }
 
-    <span class="doccomment">/// Is to uppercase headers with Camel-Case.</span>
-    <span class="doccomment">/// Default is `false`</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">camel_case_headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CAMEL_CASE</span>)
+    <span class="doccomment">/// Is to uppercase headers with Camel-Case.
+    /// Default is `false`
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>camel_case_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.flags.contains(Flags::CAMEL_CASE)
     }
 
-    <span class="doccomment">/// Set `true` to send headers which are formatted as Camel-Case.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_camel_case_headers</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">bool</span>) {
-        <span class="kw">if</span> <span class="ident">val</span> {
-            <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CAMEL_CASE</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::CAMEL_CASE</span>);
+    <span class="doccomment">/// Set `true` to send headers which are formatted as Camel-Case.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_camel_case_headers(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: bool) {
+        <span class="kw">if </span>val {
+            <span class="self">self</span>.flags.insert(Flags::CAMEL_CASE);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.flags.remove(Flags::CAMEL_CASE);
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="doccomment">/// Set connection type of the message</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_connection_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctype</span>: <span class="ident">ConnectionType</span>) {
-        <span class="kw">match</span> <span class="ident">ctype</span> {
-            <span class="ident">ConnectionType::Close</span> =&gt; <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CLOSE</span>),
-            <span class="ident">ConnectionType::KeepAlive</span> =&gt; <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::KEEP_ALIVE</span>),
-            <span class="ident">ConnectionType::Upgrade</span> =&gt; <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::UPGRADE</span>),
+    <span class="attribute">#[inline]
+    </span><span class="doccomment">/// Set connection type of the message
+    </span><span class="kw">pub fn </span>set_connection_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctype: ConnectionType) {
+        <span class="kw">match </span>ctype {
+            ConnectionType::Close =&gt; <span class="self">self</span>.flags.insert(Flags::CLOSE),
+            ConnectionType::KeepAlive =&gt; <span class="self">self</span>.flags.insert(Flags::KEEP_ALIVE),
+            ConnectionType::Upgrade =&gt; <span class="self">self</span>.flags.insert(Flags::UPGRADE),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="doccomment">/// Connection type</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ConnectionType</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CLOSE</span>) {
-            <span class="ident">ConnectionType::Close</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::KEEP_ALIVE</span>) {
-            <span class="ident">ConnectionType::KeepAlive</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::UPGRADE</span>) {
-            <span class="ident">ConnectionType::Upgrade</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">version</span> <span class="op">&lt;</span> <span class="ident">Version::HTTP_11</span> {
-            <span class="ident">ConnectionType::Close</span>
-        } <span class="kw">else</span> {
-            <span class="ident">ConnectionType::KeepAlive</span>
+    <span class="attribute">#[inline]
+    </span><span class="doccomment">/// Connection type
+    </span><span class="kw">pub fn </span>connection_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ConnectionType {
+        <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::CLOSE) {
+            ConnectionType::Close
+        } <span class="kw">else if </span><span class="self">self</span>.flags.contains(Flags::KEEP_ALIVE) {
+            ConnectionType::KeepAlive
+        } <span class="kw">else if </span><span class="self">self</span>.flags.contains(Flags::UPGRADE) {
+            ConnectionType::Upgrade
+        } <span class="kw">else if </span><span class="self">self</span>.version &lt; Version::HTTP_11 {
+            ConnectionType::Close
+        } <span class="kw">else </span>{
+            ConnectionType::KeepAlive
         }
     }
 
-    <span class="doccomment">/// Connection upgrade status</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">headers</span>()
-            .<span class="ident">get</span>(<span class="ident">header::CONNECTION</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">hdr</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">hdr</span>.<span class="ident">to_str</span>() {
-                    <span class="ident">s</span>.<span class="ident">to_ascii_lowercase</span>().<span class="ident">contains</span>(<span class="string">&quot;upgrade&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="bool-val">false</span>
-                }
+    <span class="doccomment">/// Connection upgrade status
+    </span><span class="kw">pub fn </span>upgrade(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.headers()
+            .get(header::CONNECTION)
+            .map(|hdr| {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(s) = hdr.to_str() {
+                    s.to_ascii_lowercase().contains(<span class="string">&quot;upgrade&quot;</span>)
+                } <span class="kw">else </span>{
+                    <span class="bool-val">false
+                </span>}
             })
-            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+            .unwrap_or(<span class="bool-val">false</span>)
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="doccomment">/// Get response body chunking state</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">chunked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::NO_CHUNKING</span>)
+    <span class="attribute">#[inline]
+    </span><span class="doccomment">/// Get response body chunking state
+    </span><span class="kw">pub fn </span>chunked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        !<span class="self">self</span>.flags.contains(Flags::NO_CHUNKING)
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_chunking</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">bool</span>) {
-        <span class="kw">if</span> <span class="ident">val</span> {
-            <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::NO_CHUNKING</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::NO_CHUNKING</span>);
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>no_chunking(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: bool) {
+        <span class="kw">if </span>val {
+            <span class="self">self</span>.flags.insert(Flags::NO_CHUNKING);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.flags.remove(Flags::NO_CHUNKING);
         }
     }
 
-    <span class="doccomment">/// Request contains `EXPECT` header.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::EXPECT</span>)
+    <span class="doccomment">/// Request contains `EXPECT` header.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>expect(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.flags.contains(Flags::EXPECT)
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">set_expect</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::EXPECT</span>);
-    }
-}
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::large_enum_variant</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RequestHeadType</span> {
-    <span class="ident">Owned</span>(<span class="ident">RequestHead</span>),
-    <span class="ident">Rc</span>(<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RequestHead</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span>),
-}
-
-<span class="kw">impl</span> <span class="ident">RequestHeadType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extra_headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">HeaderMap</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">RequestHeadType::Owned</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">RequestHeadType::Rc</span>(<span class="kw">_</span>, <span class="ident">headers</span>) =&gt; <span class="ident">headers</span>.<span class="ident">as_ref</span>(),
-        }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_expect(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.flags.insert(Flags::EXPECT);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">RequestHead</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RequestHeadType</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">RequestHead</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">RequestHeadType::Owned</span>(<span class="ident">head</span>) =&gt; <span class="ident">head</span>,
-            <span class="ident">RequestHeadType::Rc</span>(<span class="ident">head</span>, <span class="kw">_</span>) =&gt; <span class="ident">head</span>.<span class="ident">as_ref</span>(),
+<span class="attribute">#[allow(clippy::large_enum_variant)]
+#[derive(Debug)]
+</span><span class="kw">pub enum </span>RequestHeadType {
+    Owned(RequestHead),
+    Rc(Rc&lt;RequestHead&gt;, <span class="prelude-ty">Option</span>&lt;HeaderMap&gt;),
+}
+
+<span class="kw">impl </span>RequestHeadType {
+    <span class="kw">pub fn </span>extra_headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>HeaderMap&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            RequestHeadType::Owned(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            RequestHeadType::Rc(<span class="kw">_</span>, headers) =&gt; headers.as_ref(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">RequestHead</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RequestHeadType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">head</span>: <span class="ident">RequestHead</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">RequestHeadType::Owned</span>(<span class="ident">head</span>)
+<span class="kw">impl </span>AsRef&lt;RequestHead&gt; <span class="kw">for </span>RequestHeadType {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>RequestHead {
+        <span class="kw">match </span><span class="self">self </span>{
+            RequestHeadType::Owned(head) =&gt; head,
+            RequestHeadType::Rc(head, <span class="kw">_</span>) =&gt; head.as_ref(),
+        }
+    }
+}
+
+<span class="kw">impl </span>From&lt;RequestHead&gt; <span class="kw">for </span>RequestHeadType {
+    <span class="kw">fn </span>from(head: RequestHead) -&gt; <span class="self">Self </span>{
+        RequestHeadType::Owned(head)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

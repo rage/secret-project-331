@@ -1,6 +1,6 @@
-(function() {var implementors = {};
-implementors["actix_multipart"] = [{"text":"impl <a class=\"trait\" href=\"actix_web/extract/trait.FromRequest.html\" title=\"trait actix_web::extract::FromRequest\">FromRequest</a> for <a class=\"struct\" href=\"actix_multipart/struct.Multipart.html\" title=\"struct actix_multipart::Multipart\">Multipart</a>","synthetic":false,"types":["actix_multipart::server::Multipart"]}];
-implementors["actix_session"] = [{"text":"impl <a class=\"trait\" href=\"actix_web/extract/trait.FromRequest.html\" title=\"trait actix_web::extract::FromRequest\">FromRequest</a> for <a class=\"struct\" href=\"actix_session/struct.Session.html\" title=\"struct actix_session::Session\">Session</a>","synthetic":false,"types":["actix_session::session::Session"]}];
-implementors["actix_web"] = [];
-implementors["headless_lms_server"] = [{"text":"impl <a class=\"trait\" href=\"actix_web/extract/trait.FromRequest.html\" title=\"trait actix_web::extract::FromRequest\">FromRequest</a> for <a class=\"struct\" href=\"headless_lms_server/domain/authorization/struct.AuthUser.html\" title=\"struct headless_lms_server::domain::authorization::AuthUser\">AuthUser</a>","synthetic":false,"types":["headless_lms_server::domain::authorization::AuthUser"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"actix_multipart":[["impl <a class=\"trait\" href=\"actix_web/extract/trait.FromRequest.html\" title=\"trait actix_web::extract::FromRequest\">FromRequest</a> for <a class=\"struct\" href=\"actix_multipart/struct.Multipart.html\" title=\"struct actix_multipart::Multipart\">Multipart</a>"]],
+"actix_session":[["impl <a class=\"trait\" href=\"actix_web/extract/trait.FromRequest.html\" title=\"trait actix_web::extract::FromRequest\">FromRequest</a> for <a class=\"struct\" href=\"actix_session/struct.Session.html\" title=\"struct actix_session::Session\">Session</a>"]],
+"actix_web":[],
+"headless_lms_server":[["impl <a class=\"trait\" href=\"actix_web/extract/trait.FromRequest.html\" title=\"trait actix_web::extract::FromRequest\">FromRequest</a> for <a class=\"struct\" href=\"headless_lms_server/domain/authorization/struct.AuthUser.html\" title=\"struct headless_lms_server::domain::authorization::AuthUser\">AuthUser</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

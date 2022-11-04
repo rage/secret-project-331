@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/oauth2-4.2.3/src/devicecode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>devicecode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../oauth2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../oauth2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../oauth2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/oauth2-4.2.3/src/devicecode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>devicecode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../oauth2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../oauth2/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../oauth2/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -237,244 +237,244 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::error::Error</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Error</span> <span class="kw">as</span> <span class="ident">FormatterError</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="ident">Debug</span>, <span class="ident">Display</span>, <span class="ident">Formatter</span>};
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::error::Error;
+<span class="kw">use </span>std::fmt::Error <span class="kw">as </span>FormatterError;
+<span class="kw">use </span>std::fmt::{Debug, Display, Formatter};
+<span class="kw">use </span>std::marker::PhantomData;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">serde::de::DeserializeOwned</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::de::DeserializeOwned;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">DeviceCode</span>, <span class="ident">EndUserVerificationUrl</span>, <span class="ident">ErrorResponse</span>, <span class="ident">ErrorResponseType</span>, <span class="ident">RequestTokenError</span>,
-    <span class="ident">StandardErrorResponse</span>, <span class="ident">TokenResponse</span>, <span class="ident">TokenType</span>, <span class="ident">UserCode</span>,
+<span class="kw">use super</span>::{
+    DeviceCode, EndUserVerificationUrl, ErrorResponse, ErrorResponseType, RequestTokenError,
+    StandardErrorResponse, TokenResponse, TokenType, UserCode,
 };
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::basic::BasicErrorResponseType</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::VerificationUriComplete</span>;
+<span class="kw">use </span><span class="kw">crate</span>::basic::BasicErrorResponseType;
+<span class="kw">use </span><span class="kw">crate</span>::types::VerificationUriComplete;
 
-<span class="doccomment">/// The minimum amount of time in seconds that the client SHOULD wait</span>
-<span class="doccomment">/// between polling requests to the token endpoint.  If no value is</span>
-<span class="doccomment">/// provided, clients MUST use 5 as the default.</span>
-<span class="kw">fn</span> <span class="ident">default_devicecode_interval</span>() -&gt; <span class="ident">u64</span> {
-    <span class="number">5</span>
-}
+<span class="doccomment">/// The minimum amount of time in seconds that the client SHOULD wait
+/// between polling requests to the token endpoint.  If no value is
+/// provided, clients MUST use 5 as the default.
+</span><span class="kw">fn </span>default_devicecode_interval() -&gt; u64 {
+    <span class="number">5
+</span>}
 
-<span class="doccomment">///</span>
-<span class="doccomment">/// Trait for adding extra fields to the `DeviceAuthorizationResponse`.</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ExtraDeviceAuthorizationFields</span>: <span class="ident">DeserializeOwned</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Serialize</span> {}
+<span class="doccomment">///
+/// Trait for adding extra fields to the `DeviceAuthorizationResponse`.
+///
+</span><span class="kw">pub trait </span>ExtraDeviceAuthorizationFields: DeserializeOwned + Debug + Serialize {}
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Empty (default) extra token fields.</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EmptyExtraDeviceAuthorizationFields</span> {}
-<span class="kw">impl</span> <span class="ident">ExtraDeviceAuthorizationFields</span> <span class="kw">for</span> <span class="ident">EmptyExtraDeviceAuthorizationFields</span> {}
+<span class="attribute">#[derive(Clone, Debug, Deserialize, Serialize)]
+</span><span class="doccomment">///
+/// Empty (default) extra token fields.
+///
+</span><span class="kw">pub struct </span>EmptyExtraDeviceAuthorizationFields {}
+<span class="kw">impl </span>ExtraDeviceAuthorizationFields <span class="kw">for </span>EmptyExtraDeviceAuthorizationFields {}
 
-<span class="doccomment">///</span>
-<span class="doccomment">/// Standard OAuth2 device authorization response.</span>
-<span class="doccomment">///</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DeviceAuthorizationResponse</span><span class="op">&lt;</span><span class="ident">EF</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">EF</span>: <span class="ident">ExtraDeviceAuthorizationFields</span>,
+<span class="doccomment">///
+/// Standard OAuth2 device authorization response.
+///
+</span><span class="attribute">#[derive(Clone, Debug, Deserialize, Serialize)]
+</span><span class="kw">pub struct </span>DeviceAuthorizationResponse&lt;EF&gt;
+<span class="kw">where
+    </span>EF: ExtraDeviceAuthorizationFields,
 {
-    <span class="doccomment">/// The device verification code.</span>
-    <span class="ident">device_code</span>: <span class="ident">DeviceCode</span>,
+    <span class="doccomment">/// The device verification code.
+    </span>device_code: DeviceCode,
 
-    <span class="doccomment">/// The end-user verification code.</span>
-    <span class="ident">user_code</span>: <span class="ident">UserCode</span>,
+    <span class="doccomment">/// The end-user verification code.
+    </span>user_code: UserCode,
 
-    <span class="doccomment">/// The end-user verification URI on the authorization The URI should be</span>
-    <span class="doccomment">/// short and easy to remember as end users will be asked to manually type</span>
-    <span class="doccomment">/// it into their user agent.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `verification_url` alias here is a deviation from the RFC, as</span>
-    <span class="doccomment">/// implementations of device code flow predate RFC 8628.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">alias</span> <span class="op">=</span> <span class="string">&quot;verification_url&quot;</span>)]</span>
-    <span class="ident">verification_uri</span>: <span class="ident">EndUserVerificationUrl</span>,
+    <span class="doccomment">/// The end-user verification URI on the authorization The URI should be
+    /// short and easy to remember as end users will be asked to manually type
+    /// it into their user agent.
+    ///
+    /// The `verification_url` alias here is a deviation from the RFC, as
+    /// implementations of device code flow predate RFC 8628.
+    </span><span class="attribute">#[serde(alias = <span class="string">&quot;verification_url&quot;</span>)]
+    </span>verification_uri: EndUserVerificationUrl,
 
-    <span class="doccomment">/// A verification URI that includes the &quot;user_code&quot; (or other information</span>
-    <span class="doccomment">/// with the same function as the &quot;user_code&quot;), which is designed for</span>
-    <span class="doccomment">/// non-textual transmission.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>)]</span>
-    <span class="ident">verification_uri_complete</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VerificationUriComplete</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// A verification URI that includes the &quot;user_code&quot; (or other information
+    /// with the same function as the &quot;user_code&quot;), which is designed for
+    /// non-textual transmission.
+    </span><span class="attribute">#[serde(skip_serializing_if = <span class="string">&quot;Option::is_none&quot;</span>)]
+    </span>verification_uri_complete: <span class="prelude-ty">Option</span>&lt;VerificationUriComplete&gt;,
 
-    <span class="doccomment">/// The lifetime in seconds of the &quot;device_code&quot; and &quot;user_code&quot;.</span>
-    <span class="ident">expires_in</span>: <span class="ident">u64</span>,
+    <span class="doccomment">/// The lifetime in seconds of the &quot;device_code&quot; and &quot;user_code&quot;.
+    </span>expires_in: u64,
 
-    <span class="doccomment">/// The minimum amount of time in seconds that the client SHOULD wait</span>
-    <span class="doccomment">/// between polling requests to the token endpoint.  If no value is</span>
-    <span class="doccomment">/// provided, clients MUST use 5 as the default.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;default_devicecode_interval&quot;</span>)]</span>
-    <span class="ident">interval</span>: <span class="ident">u64</span>,
+    <span class="doccomment">/// The minimum amount of time in seconds that the client SHOULD wait
+    /// between polling requests to the token endpoint.  If no value is
+    /// provided, clients MUST use 5 as the default.
+    </span><span class="attribute">#[serde(default = <span class="string">&quot;default_devicecode_interval&quot;</span>)]
+    </span>interval: u64,
 
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;EF: ExtraDeviceAuthorizationFields&quot;</span>, <span class="ident">flatten</span>)]</span>
-    <span class="ident">extra_fields</span>: <span class="ident">EF</span>,
+    <span class="attribute">#[serde(bound = <span class="string">&quot;EF: ExtraDeviceAuthorizationFields&quot;</span>, flatten)]
+    </span>extra_fields: EF,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">EF</span><span class="op">&gt;</span> <span class="ident">DeviceAuthorizationResponse</span><span class="op">&lt;</span><span class="ident">EF</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">EF</span>: <span class="ident">ExtraDeviceAuthorizationFields</span>,
+<span class="kw">impl</span>&lt;EF&gt; DeviceAuthorizationResponse&lt;EF&gt;
+<span class="kw">where
+    </span>EF: ExtraDeviceAuthorizationFields,
 {
-    <span class="doccomment">/// The device verification code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">device_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DeviceCode</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">device_code</span>
+    <span class="doccomment">/// The device verification code.
+    </span><span class="kw">pub fn </span>device_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DeviceCode {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.device_code
     }
 
-    <span class="doccomment">/// The end-user verification code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">user_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">UserCode</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">user_code</span>
+    <span class="doccomment">/// The end-user verification code.
+    </span><span class="kw">pub fn </span>user_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>UserCode {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.user_code
     }
 
-    <span class="doccomment">/// The end-user verification URI on the authorization The URI should be</span>
-    <span class="doccomment">/// short and easy to remember as end users will be asked to manually type</span>
-    <span class="doccomment">/// it into their user agent.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verification_uri</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">EndUserVerificationUrl</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">verification_uri</span>
+    <span class="doccomment">/// The end-user verification URI on the authorization The URI should be
+    /// short and easy to remember as end users will be asked to manually type
+    /// it into their user agent.
+    </span><span class="kw">pub fn </span>verification_uri(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>EndUserVerificationUrl {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.verification_uri
     }
 
-    <span class="doccomment">/// A verification URI that includes the &quot;user_code&quot; (or other information</span>
-    <span class="doccomment">/// with the same function as the &quot;user_code&quot;), which is designed for</span>
-    <span class="doccomment">/// non-textual transmission.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verification_uri_complete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">VerificationUriComplete</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">verification_uri_complete</span>.<span class="ident">as_ref</span>()
+    <span class="doccomment">/// A verification URI that includes the &quot;user_code&quot; (or other information
+    /// with the same function as the &quot;user_code&quot;), which is designed for
+    /// non-textual transmission.
+    </span><span class="kw">pub fn </span>verification_uri_complete(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>VerificationUriComplete&gt; {
+        <span class="self">self</span>.verification_uri_complete.as_ref()
     }
 
-    <span class="doccomment">/// The lifetime in seconds of the &quot;device_code&quot; and &quot;user_code&quot;.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expires_in</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="ident">Duration::from_secs</span>(<span class="self">self</span>.<span class="ident">expires_in</span>)
+    <span class="doccomment">/// The lifetime in seconds of the &quot;device_code&quot; and &quot;user_code&quot;.
+    </span><span class="kw">pub fn </span>expires_in(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Duration {
+        Duration::from_secs(<span class="self">self</span>.expires_in)
     }
 
-    <span class="doccomment">/// The minimum amount of time in seconds that the client SHOULD wait</span>
-    <span class="doccomment">/// between polling requests to the token endpoint.  If no value is</span>
-    <span class="doccomment">/// provided, clients MUST use 5 as the default.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">interval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="ident">Duration::from_secs</span>(<span class="self">self</span>.<span class="ident">interval</span>)
+    <span class="doccomment">/// The minimum amount of time in seconds that the client SHOULD wait
+    /// between polling requests to the token endpoint.  If no value is
+    /// provided, clients MUST use 5 as the default.
+    </span><span class="kw">pub fn </span>interval(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Duration {
+        Duration::from_secs(<span class="self">self</span>.interval)
     }
 
-    <span class="doccomment">/// Any extra fields returned on the response.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extra_fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">EF</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">extra_fields</span>
+    <span class="doccomment">/// Any extra fields returned on the response.
+    </span><span class="kw">pub fn </span>extra_fields(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>EF {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.extra_fields
     }
 }
 
-<span class="doccomment">///</span>
-<span class="doccomment">/// Standard implementation of DeviceAuthorizationResponse which throws away</span>
-<span class="doccomment">/// extra received response fields.</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">StandardDeviceAuthorizationResponse</span> <span class="op">=</span>
-    <span class="ident">DeviceAuthorizationResponse</span><span class="op">&lt;</span><span class="ident">EmptyExtraDeviceAuthorizationFields</span><span class="op">&gt;</span>;
+<span class="doccomment">///
+/// Standard implementation of DeviceAuthorizationResponse which throws away
+/// extra received response fields.
+///
+</span><span class="kw">pub type </span>StandardDeviceAuthorizationResponse =
+    DeviceAuthorizationResponse&lt;EmptyExtraDeviceAuthorizationFields&gt;;
 
-<span class="doccomment">///</span>
-<span class="doccomment">/// Basic access token error types.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// These error types are defined in</span>
-<span class="doccomment">/// [Section 5.2 of RFC 6749](https://tools.ietf.org/html/rfc6749#section-5.2) and</span>
-<span class="doccomment">/// [Section 3.5 of RFC 6749](https://tools.ietf.org/html/rfc8628#section-3.5)</span>
-<span class="doccomment">///</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DeviceCodeErrorResponseType</span> {
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authorization request is still pending as the end user hasn&#39;t</span>
-    <span class="doccomment">/// yet completed the user-interaction steps.  The client SHOULD repeat the</span>
-    <span class="doccomment">/// access token request to the token endpoint.  Before each new request,</span>
-    <span class="doccomment">/// the client MUST wait at least the number of seconds specified by the</span>
-    <span class="doccomment">/// &quot;interval&quot; parameter of the device authorization response, or 5 seconds</span>
-    <span class="doccomment">/// if none was provided, and respect any increase in the polling interval</span>
-    <span class="doccomment">/// required by the &quot;slow_down&quot; error.</span>
-    <span class="doccomment">///</span>
-    <span class="ident">AuthorizationPending</span>,
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A variant of &quot;authorization_pending&quot;, the authorization request is</span>
-    <span class="doccomment">/// still pending and polling should continue, but the interval MUST be</span>
-    <span class="doccomment">/// increased by 5 seconds for this and all subsequent requests.</span>
-    <span class="ident">SlowDown</span>,
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The authorization request was denied.</span>
-    <span class="doccomment">///</span>
-    <span class="ident">AccessDenied</span>,
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The &quot;device_code&quot; has expired, and the device authorization session has</span>
-    <span class="doccomment">/// concluded.  The client MAY commence a new device authorization request</span>
-    <span class="doccomment">/// but SHOULD wait for user interaction before restarting to avoid</span>
-    <span class="doccomment">/// unnecessary polling.</span>
-    <span class="ident">ExpiredToken</span>,
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A Basic response type</span>
-    <span class="doccomment">///</span>
-    <span class="ident">Basic</span>(<span class="ident">BasicErrorResponseType</span>),
+<span class="doccomment">///
+/// Basic access token error types.
+///
+/// These error types are defined in
+/// [Section 5.2 of RFC 6749](https://tools.ietf.org/html/rfc6749#section-5.2) and
+/// [Section 3.5 of RFC 6749](https://tools.ietf.org/html/rfc8628#section-3.5)
+///
+</span><span class="attribute">#[derive(Clone, PartialEq)]
+</span><span class="kw">pub enum </span>DeviceCodeErrorResponseType {
+    <span class="doccomment">///
+    /// The authorization request is still pending as the end user hasn&#39;t
+    /// yet completed the user-interaction steps.  The client SHOULD repeat the
+    /// access token request to the token endpoint.  Before each new request,
+    /// the client MUST wait at least the number of seconds specified by the
+    /// &quot;interval&quot; parameter of the device authorization response, or 5 seconds
+    /// if none was provided, and respect any increase in the polling interval
+    /// required by the &quot;slow_down&quot; error.
+    ///
+    </span>AuthorizationPending,
+    <span class="doccomment">///
+    /// A variant of &quot;authorization_pending&quot;, the authorization request is
+    /// still pending and polling should continue, but the interval MUST be
+    /// increased by 5 seconds for this and all subsequent requests.
+    </span>SlowDown,
+    <span class="doccomment">///
+    /// The authorization request was denied.
+    ///
+    </span>AccessDenied,
+    <span class="doccomment">///
+    /// The &quot;device_code&quot; has expired, and the device authorization session has
+    /// concluded.  The client MAY commence a new device authorization request
+    /// but SHOULD wait for user interaction before restarting to avoid
+    /// unnecessary polling.
+    </span>ExpiredToken,
+    <span class="doccomment">///
+    /// A Basic response type
+    ///
+    </span>Basic(BasicErrorResponseType),
 }
-<span class="kw">impl</span> <span class="ident">DeviceCodeErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">BasicErrorResponseType::from_str</span>(<span class="ident">s</span>) {
-            <span class="ident">BasicErrorResponseType::Extension</span>(<span class="ident">ext</span>) =&gt; <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">as_str</span>() {
-                <span class="string">&quot;authorization_pending&quot;</span> =&gt; <span class="ident">DeviceCodeErrorResponseType::AuthorizationPending</span>,
-                <span class="string">&quot;slow_down&quot;</span> =&gt; <span class="ident">DeviceCodeErrorResponseType::SlowDown</span>,
-                <span class="string">&quot;access_denied&quot;</span> =&gt; <span class="ident">DeviceCodeErrorResponseType::AccessDenied</span>,
-                <span class="string">&quot;expired_token&quot;</span> =&gt; <span class="ident">DeviceCodeErrorResponseType::ExpiredToken</span>,
-                <span class="kw">_</span> =&gt; <span class="ident">DeviceCodeErrorResponseType::Basic</span>(<span class="ident">BasicErrorResponseType::Extension</span>(<span class="ident">ext</span>)),
+<span class="kw">impl </span>DeviceCodeErrorResponseType {
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>BasicErrorResponseType::from_str(s) {
+            BasicErrorResponseType::Extension(ext) =&gt; <span class="kw">match </span>ext.as_str() {
+                <span class="string">&quot;authorization_pending&quot; </span>=&gt; DeviceCodeErrorResponseType::AuthorizationPending,
+                <span class="string">&quot;slow_down&quot; </span>=&gt; DeviceCodeErrorResponseType::SlowDown,
+                <span class="string">&quot;access_denied&quot; </span>=&gt; DeviceCodeErrorResponseType::AccessDenied,
+                <span class="string">&quot;expired_token&quot; </span>=&gt; DeviceCodeErrorResponseType::ExpiredToken,
+                <span class="kw">_ </span>=&gt; DeviceCodeErrorResponseType::Basic(BasicErrorResponseType::Extension(ext)),
             },
-            <span class="ident">basic</span> =&gt; <span class="ident">DeviceCodeErrorResponseType::Basic</span>(<span class="ident">basic</span>),
+            basic =&gt; DeviceCodeErrorResponseType::Basic(basic),
         }
     }
 }
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DeviceCodeErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DeviceCodeErrorResponseType::AuthorizationPending</span> =&gt; <span class="string">&quot;authorization_pending&quot;</span>,
-            <span class="ident">DeviceCodeErrorResponseType::SlowDown</span> =&gt; <span class="string">&quot;slow_down&quot;</span>,
-            <span class="ident">DeviceCodeErrorResponseType::AccessDenied</span> =&gt; <span class="string">&quot;access_denied&quot;</span>,
-            <span class="ident">DeviceCodeErrorResponseType::ExpiredToken</span> =&gt; <span class="string">&quot;expired_token&quot;</span>,
-            <span class="ident">DeviceCodeErrorResponseType::Basic</span>(<span class="ident">basic</span>) =&gt; <span class="ident">basic</span>.<span class="ident">as_ref</span>(),
+<span class="kw">impl </span>AsRef&lt;str&gt; <span class="kw">for </span>DeviceCodeErrorResponseType {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            DeviceCodeErrorResponseType::AuthorizationPending =&gt; <span class="string">&quot;authorization_pending&quot;</span>,
+            DeviceCodeErrorResponseType::SlowDown =&gt; <span class="string">&quot;slow_down&quot;</span>,
+            DeviceCodeErrorResponseType::AccessDenied =&gt; <span class="string">&quot;access_denied&quot;</span>,
+            DeviceCodeErrorResponseType::ExpiredToken =&gt; <span class="string">&quot;expired_token&quot;</span>,
+            DeviceCodeErrorResponseType::Basic(basic) =&gt; basic.as_ref(),
         }
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">serde::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DeviceCodeErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">serde::de::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>DeviceCodeErrorResponseType {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+    <span class="kw">where
+        </span>D: serde::de::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">let</span> <span class="ident">variant_str</span> <span class="op">=</span> <span class="ident">String::deserialize</span>(<span class="ident">deserializer</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">variant_str</span>))
+        <span class="kw">let </span>variant_str = String::deserialize(deserializer)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_str(<span class="kw-2">&amp;</span>variant_str))
     }
 }
-<span class="kw">impl</span> <span class="ident">serde::ser::Serialize</span> <span class="kw">for</span> <span class="ident">DeviceCodeErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">serde::ser::Serializer</span>,
+<span class="kw">impl </span>serde::ser::Serialize <span class="kw">for </span>DeviceCodeErrorResponseType {
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: serde::ser::Serializer,
     {
-        <span class="ident">serializer</span>.<span class="ident">serialize_str</span>(<span class="self">self</span>.<span class="ident">as_ref</span>())
+        serializer.serialize_str(<span class="self">self</span>.as_ref())
     }
 }
-<span class="kw">impl</span> <span class="ident">ErrorResponseType</span> <span class="kw">for</span> <span class="ident">DeviceCodeErrorResponseType</span> {}
-<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">DeviceCodeErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
-        <span class="ident">Display::fmt</span>(<span class="self">self</span>, <span class="ident">f</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DeviceCodeErrorResponseType</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormatterError</span><span class="op">&gt;</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">as_ref</span>())
+<span class="kw">impl </span>ErrorResponseType <span class="kw">for </span>DeviceCodeErrorResponseType {}
+<span class="kw">impl </span>Debug <span class="kw">for </span>DeviceCodeErrorResponseType {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter) -&gt; <span class="prelude-ty">Result</span>&lt;(), FormatterError&gt; {
+        Display::fmt(<span class="self">self</span>, f)
     }
 }
 
-<span class="doccomment">///</span>
-<span class="doccomment">/// Error response specialization for device code OAuth2 implementation.</span>
-<span class="doccomment">///</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">DeviceCodeErrorResponse</span> <span class="op">=</span> <span class="ident">StandardErrorResponse</span><span class="op">&lt;</span><span class="ident">DeviceCodeErrorResponseType</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>Display <span class="kw">for </span>DeviceCodeErrorResponseType {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter) -&gt; <span class="prelude-ty">Result</span>&lt;(), FormatterError&gt; {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.as_ref())
+    }
+}
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">DeviceAccessTokenPollResult</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RE</span>, <span class="ident">TE</span>, <span class="ident">TT</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">TE</span>: <span class="ident">ErrorResponse</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">TR</span>: <span class="ident">TokenResponse</span><span class="op">&lt;</span><span class="ident">TT</span><span class="op">&gt;</span>,
-    <span class="ident">TT</span>: <span class="ident">TokenType</span>,
-    <span class="ident">RE</span>: <span class="ident">Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="doccomment">///
+/// Error response specialization for device code OAuth2 implementation.
+///
+</span><span class="kw">pub type </span>DeviceCodeErrorResponse = StandardErrorResponse&lt;DeviceCodeErrorResponseType&gt;;
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>DeviceAccessTokenPollResult&lt;TR, RE, TE, TT&gt;
+<span class="kw">where
+    </span>TE: ErrorResponse + <span class="lifetime">&#39;static</span>,
+    TR: TokenResponse&lt;TT&gt;,
+    TT: TokenType,
+    RE: Error + <span class="lifetime">&#39;static</span>,
 {
-    <span class="ident">ContinueWithNewPollInterval</span>(<span class="ident">Duration</span>),
-    <span class="ident">Done</span>(<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TR</span>, <span class="ident">RequestTokenError</span><span class="op">&lt;</span><span class="ident">RE</span>, <span class="ident">TE</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">TT</span><span class="op">&gt;</span>),
+    ContinueWithNewPollInterval(Duration),
+    Done(<span class="prelude-ty">Result</span>&lt;TR, RequestTokenError&lt;RE, TE&gt;&gt;, PhantomData&lt;TT&gt;),
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oauth2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="oauth2" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

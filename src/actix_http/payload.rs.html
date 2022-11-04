@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/payload.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>payload.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/payload.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>payload.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -106,111 +106,111 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">mem</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    mem,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">futures_core::Stream</span>;
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>bytes::Bytes;
+<span class="kw">use </span>futures_core::Stream;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::PayloadError</span>;
+<span class="kw">use </span><span class="kw">crate</span>::error::PayloadError;
 
-<span class="doccomment">/// A boxed payload stream.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">BoxedPayloadStream</span> <span class="op">=</span> <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A boxed payload stream.
+</span><span class="kw">pub type </span>BoxedPayloadStream = Pin&lt;Box&lt;<span class="kw">dyn </span>Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt;&gt;&gt;;
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;3.0.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Renamed to `BoxedPayloadStream`.&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PayloadStream</span> <span class="op">=</span> <span class="ident">BoxedPayloadStream</span>;
+<span class="attribute">#[doc(hidden)]
+#[deprecated(since = <span class="string">&quot;3.0.0&quot;</span>, note = <span class="string">&quot;Renamed to `BoxedPayloadStream`.&quot;</span>)]
+</span><span class="kw">pub type </span>PayloadStream = BoxedPayloadStream;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
-<span class="macro">pin_project!</span> {
-    <span class="doccomment">/// A streaming payload.</span>
-    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">PayloadProj</span>]</span>
-    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident">S</span> <span class="op">=</span> <span class="ident">BoxedPayloadStream</span><span class="op">&gt;</span> {
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;http2&quot;</span>))]
+</span><span class="macro">pin_project! </span>{
+    <span class="doccomment">/// A streaming payload.
+    </span><span class="attribute">#[project = PayloadProj]
+    </span><span class="kw">pub enum </span>Payload&lt;S = BoxedPayloadStream&gt; {
         <span class="prelude-val">None</span>,
-        <span class="ident">H1</span> { <span class="ident">payload</span>: <span class="ident"><span class="kw">crate</span>::h1::Payload</span> },
-        <span class="ident">Stream</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">payload</span>: <span class="ident">S</span> },
+        H1 { payload: <span class="kw">crate</span>::h1::Payload },
+        Stream { <span class="attribute">#[pin] </span>payload: S },
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)]</span>
-<span class="macro">pin_project!</span> {
-    <span class="doccomment">/// A streaming payload.</span>
-    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">PayloadProj</span>]</span>
-    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident">S</span> <span class="op">=</span> <span class="ident">BoxedPayloadStream</span><span class="op">&gt;</span> {
+<span class="attribute">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+</span><span class="macro">pin_project! </span>{
+    <span class="doccomment">/// A streaming payload.
+    </span><span class="attribute">#[project = PayloadProj]
+    </span><span class="kw">pub enum </span>Payload&lt;S = BoxedPayloadStream&gt; {
         <span class="prelude-val">None</span>,
-        <span class="ident">H1</span> { <span class="ident">payload</span>: <span class="ident"><span class="kw">crate</span>::h1::Payload</span> },
-        <span class="ident">H2</span> { <span class="ident">payload</span>: <span class="ident"><span class="kw">crate</span>::h2::Payload</span> },
-        <span class="ident">Stream</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">payload</span>: <span class="ident">S</span> },
+        H1 { payload: <span class="kw">crate</span>::h1::Payload },
+        H2 { payload: <span class="kw">crate</span>::h2::Payload },
+        Stream { <span class="attribute">#[pin] </span>payload: S },
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::h1::Payload</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">payload</span>: <span class="ident"><span class="kw">crate</span>::h1::Payload</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Payload::H1</span> { <span class="ident">payload</span> }
+<span class="kw">impl</span>&lt;S&gt; From&lt;<span class="kw">crate</span>::h1::Payload&gt; <span class="kw">for </span>Payload&lt;S&gt; {
+    <span class="kw">fn </span>from(payload: <span class="kw">crate</span>::h1::Payload) -&gt; <span class="self">Self </span>{
+        Payload::H1 { payload }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::h2::Payload</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">payload</span>: <span class="ident"><span class="kw">crate</span>::h2::Payload</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Payload::H2</span> { <span class="ident">payload</span> }
+<span class="attribute">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+</span><span class="kw">impl</span>&lt;S&gt; From&lt;<span class="kw">crate</span>::h2::Payload&gt; <span class="kw">for </span>Payload&lt;S&gt; {
+    <span class="kw">fn </span>from(payload: <span class="kw">crate</span>::h2::Payload) -&gt; <span class="self">Self </span>{
+        Payload::H2 { payload }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">::h2::RecvStream</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">stream</span>: <span class="ident">::h2::RecvStream</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Payload::H2</span> {
-            <span class="ident">payload</span>: <span class="ident"><span class="kw">crate</span>::h2::Payload::new</span>(<span class="ident">stream</span>),
+<span class="attribute">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+</span><span class="kw">impl</span>&lt;S&gt; From&lt;::h2::RecvStream&gt; <span class="kw">for </span>Payload&lt;S&gt; {
+    <span class="kw">fn </span>from(stream: ::h2::RecvStream) -&gt; <span class="self">Self </span>{
+        Payload::H2 {
+            payload: <span class="kw">crate</span>::h2::Payload::new(stream),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BoxedPayloadStream</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Payload</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">payload</span>: <span class="ident">BoxedPayloadStream</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Payload::Stream</span> { <span class="ident">payload</span> }
+<span class="kw">impl </span>From&lt;BoxedPayloadStream&gt; <span class="kw">for </span>Payload {
+    <span class="kw">fn </span>from(payload: BoxedPayloadStream) -&gt; <span class="self">Self </span>{
+        Payload::Stream { payload }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Takes current payload and replaces it with `None` value</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="ident">mem::replace</span>(<span class="self">self</span>, <span class="ident">Payload::None</span>)
+<span class="kw">impl</span>&lt;S&gt; Payload&lt;S&gt; {
+    <span class="doccomment">/// Takes current payload and replaces it with `None` value
+    </span><span class="kw">pub fn </span>take(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Payload&lt;S&gt; {
+        mem::replace(<span class="self">self</span>, Payload::None)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">Payload</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S&gt; Stream <span class="kw">for </span>Payload&lt;S&gt;
+<span class="kw">where
+    </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">PayloadError</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, PayloadError&gt;;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">project</span>() {
-            <span class="ident">PayloadProj::None</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>),
-            <span class="ident">PayloadProj::H1</span> { <span class="ident">payload</span> } =&gt; <span class="ident">Pin::new</span>(<span class="ident">payload</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+        <span class="kw">match </span><span class="self">self</span>.project() {
+            PayloadProj::None =&gt; Poll::Ready(<span class="prelude-val">None</span>),
+            PayloadProj::H1 { payload } =&gt; Pin::new(payload).poll_next(cx),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)]</span>
-            <span class="ident">PayloadProj::H2</span> { <span class="ident">payload</span> } =&gt; <span class="ident">Pin::new</span>(<span class="ident">payload</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+            </span>PayloadProj::H2 { payload } =&gt; Pin::new(payload).poll_next(cx),
 
-            <span class="ident">PayloadProj::Stream</span> { <span class="ident">payload</span> } =&gt; <span class="ident">payload</span>.<span class="ident">poll_next</span>(<span class="ident">cx</span>),
+            PayloadProj::Stream { payload } =&gt; payload.poll_next(cx),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">static_assertions</span>::{<span class="ident">assert_impl_all</span>, <span class="ident">assert_not_impl_any</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>static_assertions::{assert_impl_all, assert_not_impl_any};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="macro">assert_impl_all!</span>(<span class="ident">Payload</span>: <span class="ident">Unpin</span>);
-    <span class="macro">assert_not_impl_any!</span>(<span class="ident">Payload</span>: <span class="ident">Send</span>, <span class="ident">Sync</span>);
+    <span class="macro">assert_impl_all!</span>(Payload: Unpin);
+    <span class="macro">assert_not_impl_any!</span>(Payload: Send, Sync);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

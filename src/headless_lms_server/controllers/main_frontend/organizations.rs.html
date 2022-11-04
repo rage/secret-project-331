@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/organizations.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>organizations.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/organizations.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>organizations.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -389,118 +389,118 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/organizations`.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/organizations`.
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">path::PathBuf</span>, <span class="ident">str::FromStr</span>};
+</span><span class="kw">use </span>std::{path::PathBuf, str::FromStr};
 
-<span class="kw">use</span> <span class="ident">models</span>::{
-    <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>},
-    <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">NewExam</span>, <span class="ident">OrgExam</span>},
-    <span class="ident">organizations::Organization</span>,
-    <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">NewPage</span>},
+<span class="kw">use </span>models::{
+    courses::{Course, CourseCount},
+    exams::{CourseExam, NewExam, OrgExam},
+    organizations::Organization,
+    pages::{<span class="self">self</span>, NewPage},
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::helpers::media::upload_image_for_organization</span>,
-    <span class="ident">domain::authorization::skip_authorize</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+<span class="kw">use crate</span>::{
+    controllers::helpers::media::upload_image_for_organization,
+    domain::authorization::skip_authorize, prelude::<span class="kw-2">*</span>,
 };
-<span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">Json</span>};
+<span class="kw">use </span>actix_web::web::{<span class="self">self</span>, Json};
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_organizations</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">organizations</span> <span class="op">=</span> <span class="ident">models::organizations::all_organizations</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">org</span><span class="op">|</span> <span class="ident">Organization::from_database_organization</span>(<span class="ident">org</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">app_conf</span>))
-        .<span class="ident">collect</span>();
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool, file_store, app_conf))]
+</span><span class="kw">async fn </span>get_all_organizations(
+    pool: web::Data&lt;PgPool&gt;,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;Organization&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>organizations = models::organizations::all_organizations(<span class="kw-2">&amp;mut </span>conn)
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.into_iter()
+        .map(|org| Organization::from_database_organization(org, file_store.as_ref(), <span class="kw-2">&amp;</span>app_conf))
+        .collect();
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">organizations</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(organizations))
 }
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations/{organization_id}/courses&quot;` - Returns a list of all courses in a organization.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_courses</span>(
-    <span class="ident">organization_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
-    <span class="ident">pagination</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">Pagination</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_organization_courses(
+    organization_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: <span class="prelude-ty">Option</span>&lt;AuthUser&gt;,
+    pagination: web::Query&lt;Pagination&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;Course&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">user</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span> <span class="ident">models::courses::organization_courses_visible_to_user_paginated</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">organization_id</span>,
-        <span class="ident">user</span>,
-        <span class="kw-2">*</span><span class="ident">pagination</span>,
+    <span class="kw">let </span>user = user.map(|u| u.id);
+    <span class="kw">let </span>courses = models::courses::organization_courses_visible_to_user_paginated(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">*</span>organization_id,
+        user,
+        <span class="kw-2">*</span>pagination,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">courses</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(courses))
 }
 
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_course_count</span>(
-    <span class="ident">request_organization_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseCount</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
-        <span class="ident">models::courses::organization_course_count</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">request_organization_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_organization_course_count(
+    request_organization_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;Json&lt;CourseCount&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>result =
+        models::courses::organization_course_count(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>request_organization_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">Json</span>(<span class="ident">result</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(Json(result))
 }
 
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_active_courses</span>(
-    <span class="ident">request_organization_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">pagination</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">Pagination</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Course</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">courses</span> <span class="op">=</span> <span class="ident">models::courses::get_active_courses_for_organization</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">request_organization_id</span>,
-        <span class="kw-2">&amp;</span><span class="ident">pagination</span>,
+<span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_organization_active_courses(
+    request_organization_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    pagination: web::Query&lt;Pagination&gt;,
+) -&gt; ControllerResult&lt;Json&lt;Vec&lt;Course&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>courses = models::courses::get_active_courses_for_organization(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">*</span>request_organization_id,
+        <span class="kw-2">&amp;</span>pagination,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">Json</span>(<span class="ident">courses</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(Json(courses))
 }
 
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization_active_courses_count</span>(
-    <span class="ident">request_organization_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">CourseCount</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">models::courses::get_active_courses_for_organization_count</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">request_organization_id</span>,
+<span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_organization_active_courses_count(
+    request_organization_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;Json&lt;CourseCount&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>result = models::courses::get_active_courses_for_organization_count(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="kw-2">*</span>request_organization_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">Json</span>(<span class="ident">result</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(Json(result))
 }
 
 <span class="doccomment">/**
@@ -515,70 +515,70 @@ Content-Type: multipart/form-data
 
 BINARY_DATA
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">request</span>, <span class="ident">payload</span>, <span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_organization_image</span>(
-    <span class="ident">request</span>: <span class="ident">HttpRequest</span>,
-    <span class="ident">payload</span>: <span class="ident">Multipart</span>,
-    <span class="ident">organization_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">organization</span> <span class="op">=</span> <span class="ident">models::organizations::get_organization</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">organization_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Organization</span>(<span class="ident">organization</span>.<span class="ident">id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(request, payload, pool, file_store, app_conf))]
+</span><span class="kw">async fn </span>set_organization_image(
+    request: HttpRequest,
+    payload: Multipart,
+    organization_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Organization&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>organization = models::organizations::get_organization(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>organization_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Organization(organization.id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">organization_image</span> <span class="op">=</span> <span class="ident">upload_image_for_organization</span>(
-        <span class="ident">request</span>.<span class="ident">headers</span>(),
-        <span class="ident">payload</span>,
-        <span class="kw-2">&amp;</span><span class="ident">organization</span>,
-        <span class="kw-2">&amp;</span><span class="ident">file_store</span>,
-        <span class="ident">user</span>,
-        <span class="ident">pool</span>,
+    <span class="kw">let </span>organization_image = upload_image_for_organization(
+        request.headers(),
+        payload,
+        <span class="kw-2">&amp;</span>organization,
+        <span class="kw-2">&amp;</span>file_store,
+        user,
+        pool,
     )
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">data</span>
-    .<span class="ident">to_string_lossy</span>()
-    .<span class="ident">to_string</span>();
-    <span class="kw">let</span> <span class="ident">updated_organization</span> <span class="op">=</span> <span class="ident">models::organizations::update_organization_image_path</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">organization</span>.<span class="ident">id</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">organization_image</span>),
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.data
+    .to_string_lossy()
+    .to_string();
+    <span class="kw">let </span>updated_organization = models::organizations::update_organization_image_path(
+        <span class="kw-2">&amp;mut </span>conn,
+        organization.id,
+        <span class="prelude-val">Some</span>(organization_image),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="comment">// Remove old image if one exists.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">old_image_path</span>) <span class="op">=</span> <span class="ident">organization</span>.<span class="ident">organization_image_path</span> {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">PathBuf::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">old_image_path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+    <span class="comment">// Remove old image if one exists.
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(old_image_path) = organization.organization_image_path {
+        <span class="kw">let </span>file = PathBuf::from_str(<span class="kw-2">&amp;</span>old_image_path).map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
-        <span class="ident">file_store</span>.<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+        file_store.delete(<span class="kw-2">&amp;</span>file).<span class="kw">await</span>.map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">Organization::from_database_organization</span>(
-        <span class="ident">updated_organization</span>,
-        <span class="ident">file_store</span>.<span class="ident">as_ref</span>(),
-        <span class="ident">app_conf</span>.<span class="ident">as_ref</span>(),
+    <span class="kw">let </span>response = Organization::from_database_organization(
+        updated_organization,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     );
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">response</span>))
+    token.authorized_ok(web::Json(response))
 }
 
 <span class="doccomment">/**
@@ -590,153 +590,153 @@ Request:
 ```http
 DELETE /api/v0/main-frontend/organizations/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">remove_organization_image</span>(
-    <span class="ident">organization_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">organization</span> <span class="op">=</span> <span class="ident">models::organizations::get_organization</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">organization_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Organization</span>(<span class="ident">organization</span>.<span class="ident">id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool, file_store))]
+</span><span class="kw">async fn </span>remove_organization_image(
+    organization_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;()&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>organization = models::organizations::get_organization(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>organization_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Organization(organization.id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">organization_image_path</span>) <span class="op">=</span> <span class="ident">organization</span>.<span class="ident">organization_image_path</span> {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">PathBuf::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">organization_image_path</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(organization_image_path) = organization.organization_image_path {
+        <span class="kw">let </span>file = PathBuf::from_str(<span class="kw-2">&amp;</span>organization_image_path).map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span>
-            <span class="ident">models::organizations::update_organization_image_path</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">organization</span>.<span class="ident">id</span>, <span class="prelude-val">None</span>)
+        <span class="kw">let </span>_res =
+            models::organizations::update_organization_image_path(<span class="kw-2">&amp;mut </span>conn, organization.id, <span class="prelude-val">None</span>)
                 .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">file_store</span>.<span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="ident">file</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_error</span><span class="op">|</span> {
-            <span class="ident">ControllerError::new</span>(
-                <span class="ident">ControllerErrorType::InternalServerError</span>,
-                <span class="ident">original_error</span>.<span class="ident">to_string</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">original_error</span>.<span class="ident">into</span>()),
+        file_store.delete(<span class="kw-2">&amp;</span>file).<span class="kw">await</span>.map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;
     }
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
+    token.authorized_ok(web::Json(()))
 }
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organizations with id.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">file_store</span>, <span class="ident">app_conf</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_organization</span>(
-    <span class="ident">organization_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
-    <span class="ident">app_conf</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">ApplicationConfiguration</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Organization</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">db_organization</span> <span class="op">=</span>
-        <span class="ident">models::organizations::get_organization</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">organization_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">organization</span> <span class="op">=</span>
-        <span class="ident">Organization::from_database_organization</span>(<span class="ident">db_organization</span>, <span class="ident">file_store</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">app_conf</span>);
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool, file_store, app_conf))]
+</span><span class="kw">async fn </span>get_organization(
+    organization_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    file_store: web::Data&lt;<span class="kw">dyn </span>FileStore&gt;,
+    app_conf: web::Data&lt;ApplicationConfiguration&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Organization&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>db_organization =
+        models::organizations::get_organization(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>organization_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>organization =
+        Organization::from_database_organization(db_organization, file_store.as_ref(), <span class="kw-2">&amp;</span>app_conf);
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">organization</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(organization))
 }
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_exams</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">organization</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseExam</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exams</span> <span class="op">=</span> <span class="ident">models::exams::get_course_exams_for_organization</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">organization</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_course_exams(
+    pool: web::Data&lt;PgPool&gt;,
+    organization: web::Path&lt;Uuid&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CourseExam&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exams = models::exams::get_course_exams_for_organization(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>organization).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">exams</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(exams))
 }
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_org_exams</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">organization</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrgExam</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">exams</span> <span class="op">=</span> <span class="ident">models::exams::get_exams_for_organization</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">organization</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_org_exams(
+    pool: web::Data&lt;PgPool&gt;,
+    organization: web::Path&lt;Uuid&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;OrgExam&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>exams = models::exams::get_exams_for_organization(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>organization).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">exams</span>))
+    <span class="kw">let </span>token = skip_authorize()<span class="question-mark">?</span>;
+    token.authorized_ok(web::Json(exams))
 }
 
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_exam</span>(
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewExam</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>create_exam(
+    pool: web::Data&lt;PgPool&gt;,
+    payload: web::Json&lt;NewExam&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;()&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">new_exam</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">Act::CreateCoursesOrExams</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Organization</span>(<span class="ident">new_exam</span>.<span class="ident">organization_id</span>),
+    <span class="kw">let </span>new_exam = payload.<span class="number">0</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>tx,
+        Act::CreateCoursesOrExams,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Organization(new_exam.organization_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">new_exam_id</span> <span class="op">=</span> <span class="ident">models::exams::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">PKeyPolicy::Generate</span>, <span class="kw-2">&amp;</span><span class="ident">new_exam</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="ident">pages::insert_exam_page</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">new_exam_id</span>,
-        <span class="ident">NewPage</span> {
-            <span class="ident">chapter_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">course_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">exam_id</span>: <span class="prelude-val">Some</span>(<span class="ident">new_exam_id</span>),
-            <span class="ident">front_page_of_chapter_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">content</span>: <span class="ident">serde_json::Value::Array</span>(<span class="macro">vec!</span>[]),
-            <span class="ident">content_search_language</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;simple&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
-            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
-            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
-            <span class="ident">title</span>: <span class="string">&quot;exam page&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">url_path</span>: <span class="string">&quot;/&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>new_exam_id = models::exams::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate, <span class="kw-2">&amp;</span>new_exam).<span class="kw">await</span><span class="question-mark">?</span>;
+    pages::insert_exam_page(
+        <span class="kw-2">&amp;mut </span>tx,
+        new_exam_id,
+        NewPage {
+            chapter_id: <span class="prelude-val">None</span>,
+            course_id: <span class="prelude-val">None</span>,
+            exam_id: <span class="prelude-val">Some</span>(new_exam_id),
+            front_page_of_chapter_id: <span class="prelude-val">None</span>,
+            content: serde_json::Value::Array(<span class="macro">vec!</span>[]),
+            content_search_language: <span class="prelude-val">Some</span>(<span class="string">&quot;simple&quot;</span>.to_string()),
+            exercise_slides: <span class="macro">vec!</span>[],
+            exercise_tasks: <span class="macro">vec!</span>[],
+            exercises: <span class="macro">vec!</span>[],
+            title: <span class="string">&quot;exam page&quot;</span>.to_string(),
+            url_path: <span class="string">&quot;/&quot;</span>.to_string(),
         },
-        <span class="ident">user</span>.<span class="ident">id</span>,
+        user.id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">models::roles::insert</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">user</span>.<span class="ident">id</span>,
-        <span class="ident">models::roles::UserRole::Teacher</span>,
-        <span class="ident">models::roles::RoleDomain::Exam</span>(<span class="ident">new_exam_id</span>),
+    models::roles::insert(
+        <span class="kw-2">&amp;mut </span>tx,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Exam(new_exam_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
+    token.authorized_ok(web::Json(()))
 }
 
 <span class="doccomment">/**
@@ -745,40 +745,40 @@ Add a route for each controller in this module.
 The name starts with an underline in order to appear before other functions in the module documentation.
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
-*/</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_all_organizations</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{organization_id}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_organization</span>))
-        .<span class="ident">route</span>(
+*/
+</span><span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;&quot;</span>, web::get().to(get_all_organizations))
+        .route(<span class="string">&quot;/{organization_id}&quot;</span>, web::get().to(get_organization))
+        .route(
             <span class="string">&quot;/{organization_id}/courses&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_organization_courses</span>),
+            web::get().to(get_organization_courses),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{organization_id}/courses/count&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_organization_course_count</span>),
+            web::get().to(get_organization_course_count),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{organization_id}/courses/active&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_organization_active_courses</span>),
+            web::get().to(get_organization_active_courses),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{organization_id}/courses/active/count&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_organization_active_courses_count</span>),
+            web::get().to(get_organization_active_courses_count),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{organization_id}/image&quot;</span>,
-            <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">set_organization_image</span>),
+            web::put().to(set_organization_image),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{organization_id}/image&quot;</span>,
-            <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">remove_organization_image</span>),
+            web::delete().to(remove_organization_image),
         )
-        .<span class="ident">route</span>(
+        .route(
             <span class="string">&quot;/{organization_id}/course_exams&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_exams</span>),
+            web::get().to(get_course_exams),
         )
-        .<span class="ident">route</span>(<span class="string">&quot;/{organization_id}/org_exams&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_org_exams</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{organization_id}/exams&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">create_exam</span>));
+        .route(<span class="string">&quot;/{organization_id}/org_exams&quot;</span>, web::get().to(get_org_exams))
+        .route(<span class="string">&quot;/{organization_id}/exams&quot;</span>, web::post().to(create_exam));
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

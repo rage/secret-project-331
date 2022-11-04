@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../brotli_decompressor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/writer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>writer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../brotli_decompressor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -343,298 +343,298 @@
 <span id="343">343</span>
 <span id="344">344</span>
 <span id="345">345</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">core</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">Write</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc_stdlib::StandardAlloc</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>,<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc_stdlib::HeapAllocUninitialized</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">huffman</span>::{<span class="ident">HuffmanCode</span>, <span class="ident">HuffmanTreeGroup</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">state::BrotliState</span>;
-<span class="comment">// use io_wrappers::write_all;</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">io_wrappers</span>::{<span class="ident">CustomWrite</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">io_wrappers</span>::{<span class="ident">IntoIoWriter</span>, <span class="ident">IoWriterWrapper</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::decode</span>::{<span class="ident">BrotliDecompressStream</span>, <span class="ident">BrotliResult</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">AllocatedStackMemory</span>, <span class="ident">Allocator</span>, <span class="ident">SliceWrapper</span>, <span class="ident">SliceWrapperMut</span>, <span class="ident">StackAllocator</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>core;
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::io::{<span class="self">self</span>, Error, ErrorKind, Write};
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub use </span>alloc_stdlib::StandardAlloc;
+<span class="attribute">#[cfg(all(feature=<span class="string">&quot;unsafe&quot;</span>,feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">pub use </span>alloc_stdlib::HeapAllocUninitialized;
+<span class="kw">pub use </span>huffman::{HuffmanCode, HuffmanTreeGroup};
+<span class="kw">pub use </span>state::BrotliState;
+<span class="comment">// use io_wrappers::write_all;
+</span><span class="kw">pub use </span>io_wrappers::{CustomWrite};
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub use </span>io_wrappers::{IntoIoWriter, IoWriterWrapper};
+<span class="kw">pub use </span><span class="kw">super</span>::decode::{BrotliDecompressStream, BrotliResult};
+<span class="kw">pub use </span>alloc::{AllocatedStackMemory, Allocator, SliceWrapper, SliceWrapperMut, StackAllocator};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DecompressorWriterCustomAlloc</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span>,
-     <span class="ident">BufferType</span> : <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU8</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU32</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-     <span class="ident">AllocHC</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span>(<span class="ident">DecompressorWriterCustomIo</span><span class="op">&lt;</span><span class="ident">io::Error</span>,
-                                                             <span class="ident">IntoIoWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>,
-                                                             <span class="ident">BufferType</span>,
-                                                             <span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>);
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">pub struct </span>DecompressorWriterCustomAlloc&lt;W: Write,
+     BufferType : SliceWrapperMut&lt;u8&gt;,
+     AllocU8 : Allocator&lt;u8&gt;,
+     AllocU32 : Allocator&lt;u32&gt;,
+     AllocHC : Allocator&lt;HuffmanCode&gt; &gt;(DecompressorWriterCustomIo&lt;io::Error,
+                                                             IntoIoWriter&lt;W&gt;,
+                                                             BufferType,
+                                                             AllocU8, AllocU32, AllocHC&gt;);
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span>,
-     <span class="ident">BufferType</span> : <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU8</span>,
-     <span class="ident">AllocU32</span>,
-     <span class="ident">AllocHC</span><span class="op">&gt;</span> <span class="ident">DecompressorWriterCustomAlloc</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">BufferType</span>, <span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>
- <span class="kw">where</span> <span class="ident">AllocU8</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">AllocU32</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">AllocHC</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span>
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;W: Write,
+     BufferType : SliceWrapperMut&lt;u8&gt;,
+     AllocU8,
+     AllocU32,
+     AllocHC&gt; DecompressorWriterCustomAlloc&lt;W, BufferType, AllocU8, AllocU32, AllocHC&gt;
+ <span class="kw">where </span>AllocU8 : Allocator&lt;u8&gt;, AllocU32 : Allocator&lt;u32&gt;, AllocHC : Allocator&lt;HuffmanCode&gt;
     {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">w</span>: <span class="ident">W</span>, <span class="ident">buffer</span> : <span class="ident">BufferType</span>,
-               <span class="ident">alloc_u8</span> : <span class="ident">AllocU8</span>, <span class="ident">alloc_u32</span> : <span class="ident">AllocU32</span>, <span class="ident">alloc_hc</span> : <span class="ident">AllocHC</span>) -&gt; <span class="self">Self</span> {
-     <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="ident">AllocU8::AllocatedMemory::default</span>();
-     <span class="ident"><span class="self">Self</span>::new_with_custom_dictionary</span>(<span class="ident">w</span>, <span class="ident">buffer</span>, <span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">dict</span>)
+    <span class="kw">pub fn </span>new(w: W, buffer : BufferType,
+               alloc_u8 : AllocU8, alloc_u32 : AllocU32, alloc_hc : AllocHC) -&gt; <span class="self">Self </span>{
+     <span class="kw">let </span>dict = AllocU8::AllocatedMemory::default();
+     <span class="self">Self</span>::new_with_custom_dictionary(w, buffer, alloc_u8, alloc_u32, alloc_hc, dict)
 
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_custom_dictionary</span>(<span class="ident">w</span>: <span class="ident">W</span>, <span class="ident">buffer</span> : <span class="ident">BufferType</span>,
-               <span class="ident">alloc_u8</span> : <span class="ident">AllocU8</span>, <span class="ident">alloc_u32</span> : <span class="ident">AllocU32</span>, <span class="ident">alloc_hc</span> : <span class="ident">AllocHC</span>, <span class="ident">dict</span>: <span class="ident">AllocU8::AllocatedMemory</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">DecompressorWriterCustomAlloc</span>::<span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">BufferType</span>, <span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>(
-          <span class="ident">DecompressorWriterCustomIo</span>::<span class="op">&lt;</span><span class="ident">Error</span>,
-                                 <span class="ident">IntoIoWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>,
-                                 <span class="ident">BufferType</span>,
-                                 <span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span><span class="ident">::new_with_custom_dictionary</span>(<span class="ident">IntoIoWriter</span>::<span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">w</span>),
-                                                                  <span class="ident">buffer</span>,
-                                                                  <span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>,
-                                                                  <span class="ident">dict</span>,
-                                                                  <span class="ident">Error::new</span>(<span class="ident">ErrorKind::InvalidData</span>,
+    <span class="kw">pub fn </span>new_with_custom_dictionary(w: W, buffer : BufferType,
+               alloc_u8 : AllocU8, alloc_u32 : AllocU32, alloc_hc : AllocHC, dict: AllocU8::AllocatedMemory) -&gt; <span class="self">Self </span>{
+        DecompressorWriterCustomAlloc::&lt;W, BufferType, AllocU8, AllocU32, AllocHC&gt;(
+          DecompressorWriterCustomIo::&lt;Error,
+                                 IntoIoWriter&lt;W&gt;,
+                                 BufferType,
+                                 AllocU8, AllocU32, AllocHC&gt;::new_with_custom_dictionary(IntoIoWriter::&lt;W&gt;(w),
+                                                                  buffer,
+                                                                  alloc_u8, alloc_u32, alloc_hc,
+                                                                  dict,
+                                                                  Error::new(ErrorKind::InvalidData,
                                                                              <span class="string">&quot;Invalid Data&quot;</span>)))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_ref</span>().<span class="number">0</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_mut</span>().<span class="number">0</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">into_inner</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">w</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">w</span>.<span class="number">0</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">w</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">w</span>.<span class="number">0</span>),
+    <span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.get_ref().<span class="number">0
+    </span>}
+    <span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>.get_mut().<span class="number">0
+    </span>}
+    <span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;W, W&gt; {
+        <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.into_inner() {
+            <span class="prelude-val">Ok</span>(w) =&gt; <span class="prelude-val">Ok</span>(w.<span class="number">0</span>),
+            <span class="prelude-val">Err</span>(w) =&gt; <span class="prelude-val">Err</span>(w.<span class="number">0</span>),
         }
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span>,
-     <span class="ident">BufferType</span> : <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU8</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU32</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-     <span class="ident">AllocHC</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">DecompressorWriterCustomAlloc</span><span class="op">&lt;</span><span class="ident">W</span>,
-                                                                         <span class="ident">BufferType</span>,
-                                                                         <span class="ident">AllocU8</span>,
-                                                                         <span class="ident">AllocU32</span>,
-                                                                         <span class="ident">AllocHC</span><span class="op">&gt;</span> {
-  	<span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-       <span class="self">self</span>.<span class="number">0</span>.<span class="ident">write</span>(<span class="ident">buf</span>)
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;W: Write,
+     BufferType : SliceWrapperMut&lt;u8&gt;,
+     AllocU8 : Allocator&lt;u8&gt;,
+     AllocU32 : Allocator&lt;u32&gt;,
+     AllocHC : Allocator&lt;HuffmanCode&gt; &gt; Write <span class="kw">for </span>DecompressorWriterCustomAlloc&lt;W,
+                                                                         BufferType,
+                                                                         AllocU8,
+                                                                         AllocU32,
+                                                                         AllocHC&gt; {
+  	<span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
+       <span class="self">self</span>.<span class="number">0</span>.write(buf)
     }
-  	<span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-       <span class="self">self</span>.<span class="number">0</span>.<span class="ident">flush</span>()
+  	<span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+       <span class="self">self</span>.<span class="number">0</span>.flush()
     }
 }
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DecompressorWriter</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="ident">DecompressorWriterCustomAlloc</span><span class="op">&lt;</span><span class="ident">W</span>,
-                                                         <span class="op">&lt;</span><span class="ident">StandardAlloc</span>
-                                                          <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-                                                         <span class="ident">StandardAlloc</span>,
-                                                         <span class="ident">StandardAlloc</span>,
-                                                         <span class="ident">StandardAlloc</span><span class="op">&gt;</span>);
+<span class="attribute">#[cfg(not(any(feature=<span class="string">&quot;unsafe&quot;</span>, not(feature=<span class="string">&quot;std&quot;</span>))))]
+</span><span class="kw">pub struct </span>DecompressorWriter&lt;W: Write&gt;(DecompressorWriterCustomAlloc&lt;W,
+                                                         &lt;StandardAlloc
+                                                          <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory,
+                                                         StandardAlloc,
+                                                         StandardAlloc,
+                                                         StandardAlloc&gt;);
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">DecompressorWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">w</span>: <span class="ident">W</span>, <span class="ident">buffer_size</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-      <span class="ident"><span class="self">Self</span>::new_with_custom_dictionary</span>(<span class="ident">w</span>, <span class="ident">buffer_size</span>, <span class="op">&lt;</span><span class="ident">StandardAlloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>())
+<span class="attribute">#[cfg(not(any(feature=<span class="string">&quot;unsafe&quot;</span>, not(feature=<span class="string">&quot;std&quot;</span>))))]
+</span><span class="kw">impl</span>&lt;W: Write&gt; DecompressorWriter&lt;W&gt; {
+  <span class="kw">pub fn </span>new(w: W, buffer_size: usize) -&gt; <span class="self">Self </span>{
+      <span class="self">Self</span>::new_with_custom_dictionary(w, buffer_size, &lt;StandardAlloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory::default())
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_custom_dictionary</span>(<span class="ident">w</span>: <span class="ident">W</span>, <span class="ident">buffer_size</span>: <span class="ident">usize</span>, <span class="ident">dict</span>: <span class="op">&lt;</span><span class="ident">StandardAlloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>) -&gt; <span class="self">Self</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc</span> <span class="op">=</span> <span class="ident">StandardAlloc::default</span>();
-    <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">StandardAlloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="kw-2">&amp;mut</span> <span class="ident">alloc</span>, <span class="kw">if</span> <span class="ident">buffer_size</span> <span class="op">==</span> <span class="number">0</span> {<span class="number">4096</span>} <span class="kw">else</span> {<span class="ident">buffer_size</span>});
-    <span class="ident">DecompressorWriter</span>::<span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">DecompressorWriterCustomAlloc</span>::<span class="op">&lt;</span><span class="ident">W</span>,
-                                                <span class="op">&lt;</span><span class="ident">StandardAlloc</span>
-                                                 <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-                                                <span class="ident">StandardAlloc</span>,
-                                                <span class="ident">StandardAlloc</span>,
-                                                <span class="ident">StandardAlloc</span><span class="op">&gt;</span><span class="ident">::new_with_custom_dictionary</span>(<span class="ident">w</span>,
-                                                                              <span class="ident">buffer</span>,
-                                                                              <span class="ident">alloc</span>,
-                                                                              <span class="ident">StandardAlloc::default</span>(),
-                                                                              <span class="ident">StandardAlloc::default</span>(),
-                                                                              <span class="ident">dict</span>))
-  }
-
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-      <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_ref</span>()
-  }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-      <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_mut</span>()
-  }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="self">self</span>.<span class="number">0</span>.<span class="ident">into_inner</span>()
-  }
-}
-
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>, <span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DecompressorWriter</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(<span class="ident">DecompressorWriterCustomAlloc</span><span class="op">&lt;</span><span class="ident">W</span>,
-                                                         <span class="op">&lt;</span><span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>
-                                                          <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-                                                         <span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-                                                         <span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-                                                         <span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span>);
-
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;unsafe&quot;</span>, <span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">DecompressorWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">w</span>: <span class="ident">W</span>, <span class="ident">buffer_size</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-    <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>();
-    <span class="ident"><span class="self">Self</span>::new_with_custom_dictionary</span>(<span class="ident">w</span>, <span class="ident">buffer_size</span>, <span class="ident">dict</span>)
-  }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_custom_dictionary</span>(<span class="ident">w</span>: <span class="ident">W</span>, <span class="ident">buffer_size</span>: <span class="ident">usize</span>, <span class="ident">dict</span>: <span class="op">&lt;</span><span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>) -&gt; <span class="self">Self</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alloc_u8</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">HeapAllocUninitialized</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::new</span>() };
-    <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">alloc_u8</span>.<span class="ident">alloc_cell</span>(<span class="ident">buffer_size</span>);
-    <span class="kw">let</span> <span class="ident">alloc_u32</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">HeapAllocUninitialized</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::new</span>() };
-    <span class="kw">let</span> <span class="ident">alloc_hc</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">HeapAllocUninitialized</span>::<span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="ident">::new</span>() };
-    <span class="ident">DecompressorWriter</span>::<span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">DecompressorWriterCustomAlloc</span>::<span class="op">&lt;</span><span class="ident">W</span>,
-                                                <span class="op">&lt;</span><span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>
-                                                 <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-                                                <span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-                                                <span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-                                                <span class="ident">HeapAllocUninitialized</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span>
-      <span class="ident">::new_with_custom_dictionary</span>(<span class="ident">w</span>, <span class="ident">buffer</span>, <span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">dict</span>))
+  <span class="kw">pub fn </span>new_with_custom_dictionary(w: W, buffer_size: usize, dict: &lt;StandardAlloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory) -&gt; <span class="self">Self </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>alloc = StandardAlloc::default();
+    <span class="kw">let </span>buffer = &lt;StandardAlloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(<span class="kw-2">&amp;mut </span>alloc, <span class="kw">if </span>buffer_size == <span class="number">0 </span>{<span class="number">4096</span>} <span class="kw">else </span>{buffer_size});
+    DecompressorWriter::&lt;W&gt;(DecompressorWriterCustomAlloc::&lt;W,
+                                                &lt;StandardAlloc
+                                                 <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory,
+                                                StandardAlloc,
+                                                StandardAlloc,
+                                                StandardAlloc&gt;::new_with_custom_dictionary(w,
+                                                                              buffer,
+                                                                              alloc,
+                                                                              StandardAlloc::default(),
+                                                                              StandardAlloc::default(),
+                                                                              dict))
   }
 
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-      <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get_ref</span>()
+  <span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+      <span class="self">self</span>.<span class="number">0</span>.get_ref()
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-    <span class="kw-2">&amp;mut</span> (<span class="self">self</span>.<span class="number">0</span>).<span class="number">0</span>.<span class="ident">get_mut</span>().<span class="number">0</span>
+  <span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+      <span class="self">self</span>.<span class="number">0</span>.get_mut()
   }
-  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-    <span class="self">self</span>.<span class="number">0</span>.<span class="ident">into_inner</span>()
+  <span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;W, W&gt; {
+    <span class="self">self</span>.<span class="number">0</span>.into_inner()
   }
 }
 
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">DecompressorWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span> {
-  	<span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-       <span class="self">self</span>.<span class="number">0</span>.<span class="ident">write</span>(<span class="ident">buf</span>)
+<span class="attribute">#[cfg(all(feature=<span class="string">&quot;unsafe&quot;</span>, feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">pub struct </span>DecompressorWriter&lt;W: Write&gt;(DecompressorWriterCustomAlloc&lt;W,
+                                                         &lt;HeapAllocUninitialized&lt;u8&gt;
+                                                          <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory,
+                                                         HeapAllocUninitialized&lt;u8&gt;,
+                                                         HeapAllocUninitialized&lt;u32&gt;,
+                                                         HeapAllocUninitialized&lt;HuffmanCode&gt; &gt;);
+
+
+<span class="attribute">#[cfg(all(feature=<span class="string">&quot;unsafe&quot;</span>, feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">impl</span>&lt;W: Write&gt; DecompressorWriter&lt;W&gt; {
+  <span class="kw">pub fn </span>new(w: W, buffer_size: usize) -&gt; <span class="self">Self </span>{
+    <span class="kw">let </span>dict = &lt;HeapAllocUninitialized&lt;u8&gt; <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory::default();
+    <span class="self">Self</span>::new_with_custom_dictionary(w, buffer_size, dict)
+  }
+  <span class="kw">pub fn </span>new_with_custom_dictionary(w: W, buffer_size: usize, dict: &lt;HeapAllocUninitialized&lt;u8&gt; <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory) -&gt; <span class="self">Self </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>alloc_u8 = <span class="kw">unsafe </span>{ HeapAllocUninitialized::&lt;u8&gt;::new() };
+    <span class="kw">let </span>buffer = alloc_u8.alloc_cell(buffer_size);
+    <span class="kw">let </span>alloc_u32 = <span class="kw">unsafe </span>{ HeapAllocUninitialized::&lt;u32&gt;::new() };
+    <span class="kw">let </span>alloc_hc = <span class="kw">unsafe </span>{ HeapAllocUninitialized::&lt;HuffmanCode&gt;::new() };
+    DecompressorWriter::&lt;W&gt;(DecompressorWriterCustomAlloc::&lt;W,
+                                                &lt;HeapAllocUninitialized&lt;u8&gt;
+                                                 <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory,
+                                                HeapAllocUninitialized&lt;u8&gt;,
+                                                HeapAllocUninitialized&lt;u32&gt;,
+                                                HeapAllocUninitialized&lt;HuffmanCode&gt; &gt;
+      ::new_with_custom_dictionary(w, buffer, alloc_u8, alloc_u32, alloc_hc, dict))
+  }
+
+  <span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+      <span class="self">self</span>.<span class="number">0</span>.get_ref()
+  }
+  <span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+    <span class="kw-2">&amp;mut </span>(<span class="self">self</span>.<span class="number">0</span>).<span class="number">0</span>.get_mut().<span class="number">0
+  </span>}
+  <span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;W, W&gt; {
+    <span class="self">self</span>.<span class="number">0</span>.into_inner()
+  }
+}
+
+
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">impl</span>&lt;W: Write&gt; Write <span class="kw">for </span>DecompressorWriter&lt;W&gt; {
+  	<span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, Error&gt; {
+       <span class="self">self</span>.<span class="number">0</span>.write(buf)
     }
-  	<span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-       <span class="self">self</span>.<span class="number">0</span>.<span class="ident">flush</span>()
+  	<span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+       <span class="self">self</span>.<span class="number">0</span>.flush()
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DecompressorWriterCustomIo</span><span class="op">&lt;</span><span class="ident">ErrType</span>,
-                                <span class="ident">W</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>,
-                                <span class="ident">BufferType</span>: <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-                                <span class="ident">AllocU8</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-                                <span class="ident">AllocU32</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-                                <span class="ident">AllocHC</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">pub struct </span>DecompressorWriterCustomIo&lt;ErrType,
+                                W: CustomWrite&lt;ErrType&gt;,
+                                BufferType: SliceWrapperMut&lt;u8&gt;,
+                                AllocU8: Allocator&lt;u8&gt;,
+                                AllocU32: Allocator&lt;u32&gt;,
+                                AllocHC: Allocator&lt;HuffmanCode&gt;&gt;
 {
-  <span class="ident">output_buffer</span>: <span class="ident">BufferType</span>,
-  <span class="ident">total_out</span>: <span class="ident">usize</span>,
-  <span class="ident">output</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>,
-  <span class="ident">error_if_invalid_data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>,
-  <span class="ident">state</span>: <span class="ident">BrotliState</span><span class="op">&lt;</span><span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>,
+  output_buffer: BufferType,
+  total_out: usize,
+  output: <span class="prelude-ty">Option</span>&lt;W&gt;,
+  error_if_invalid_data: <span class="prelude-ty">Option</span>&lt;ErrType&gt;,
+  state: BrotliState&lt;AllocU8, AllocU32, AllocHC&gt;,
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_all</span><span class="op">&lt;</span><span class="ident">ErrType</span>, <span class="ident">W</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">writer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">W</span>, <span class="kw-2">mut</span> <span class="ident">buf</span> : <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span> {
-    <span class="kw">while</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-          <span class="kw">match</span> <span class="ident">writer</span>.<span class="ident">write</span>(<span class="ident">buf</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">bytes_written</span>) =&gt; <span class="ident">buf</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">bytes_written</span>..],
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+<span class="kw">pub fn </span>write_all&lt;ErrType, W: CustomWrite&lt;ErrType&gt;&gt;(writer: <span class="kw-2">&amp;mut </span>W, <span class="kw-2">mut </span>buf : <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrType&gt; {
+    <span class="kw">while </span>buf.len() != <span class="number">0 </span>{
+          <span class="kw">match </span>writer.write(buf) {
+                <span class="prelude-val">Ok</span>(bytes_written) =&gt; buf = <span class="kw-2">&amp;</span>buf[bytes_written..],
+                <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
           }
     }
     <span class="prelude-val">Ok</span>(())
 }
 
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ErrType</span>,
-     <span class="ident">W</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>,
-     <span class="ident">BufferType</span> : <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU8</span>,
-     <span class="ident">AllocU32</span>,
-     <span class="ident">AllocHC</span><span class="op">&gt;</span> <span class="ident">DecompressorWriterCustomIo</span><span class="op">&lt;</span><span class="ident">ErrType</span>, <span class="ident">W</span>, <span class="ident">BufferType</span>, <span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>
- <span class="kw">where</span> <span class="ident">AllocU8</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">AllocU32</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">AllocHC</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;ErrType,
+     W: CustomWrite&lt;ErrType&gt;,
+     BufferType : SliceWrapperMut&lt;u8&gt;,
+     AllocU8,
+     AllocU32,
+     AllocHC&gt; DecompressorWriterCustomIo&lt;ErrType, W, BufferType, AllocU8, AllocU32, AllocHC&gt;
+ <span class="kw">where </span>AllocU8 : Allocator&lt;u8&gt;, AllocU32 : Allocator&lt;u32&gt;, AllocHC : Allocator&lt;HuffmanCode&gt;
 {
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">w</span>: <span class="ident">W</span>, <span class="ident">buffer</span> : <span class="ident">BufferType</span>,
-               <span class="ident">alloc_u8</span> : <span class="ident">AllocU8</span>, <span class="ident">alloc_u32</span> : <span class="ident">AllocU32</span>, <span class="ident">alloc_hc</span> : <span class="ident">AllocHC</span>,
-               <span class="ident">invalid_data_error_type</span> : <span class="ident">ErrType</span>) -&gt; <span class="self">Self</span> {
-           <span class="kw">let</span> <span class="ident">dict</span> <span class="op">=</span> <span class="ident">AllocU8::AllocatedMemory::default</span>();
-           <span class="ident"><span class="self">Self</span>::new_with_custom_dictionary</span>(<span class="ident">w</span>, <span class="ident">buffer</span>, <span class="ident">alloc_u8</span>, <span class="ident">alloc_u32</span>, <span class="ident">alloc_hc</span>, <span class="ident">dict</span>, <span class="ident">invalid_data_error_type</span>)
+    <span class="kw">pub fn </span>new(w: W, buffer : BufferType,
+               alloc_u8 : AllocU8, alloc_u32 : AllocU32, alloc_hc : AllocHC,
+               invalid_data_error_type : ErrType) -&gt; <span class="self">Self </span>{
+           <span class="kw">let </span>dict = AllocU8::AllocatedMemory::default();
+           <span class="self">Self</span>::new_with_custom_dictionary(w, buffer, alloc_u8, alloc_u32, alloc_hc, dict, invalid_data_error_type)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_custom_dictionary</span>(<span class="ident">w</span>: <span class="ident">W</span>, <span class="ident">buffer</span> : <span class="ident">BufferType</span>,
-               <span class="ident">alloc_u8</span> : <span class="ident">AllocU8</span>, <span class="ident">alloc_u32</span> : <span class="ident">AllocU32</span>, <span class="ident">alloc_hc</span> : <span class="ident">AllocHC</span>,
-               <span class="ident">dict</span>: <span class="ident">AllocU8::AllocatedMemory</span>,
-               <span class="ident">invalid_data_error_type</span> : <span class="ident">ErrType</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">DecompressorWriterCustomIo</span>::<span class="op">&lt;</span><span class="ident">ErrType</span>, <span class="ident">W</span>, <span class="ident">BufferType</span>, <span class="ident">AllocU8</span>, <span class="ident">AllocU32</span>, <span class="ident">AllocHC</span><span class="op">&gt;</span>{
-            <span class="ident">output_buffer</span> : <span class="ident">buffer</span>,
-            <span class="ident">total_out</span> : <span class="number">0</span>,
-            <span class="ident">output</span>: <span class="prelude-val">Some</span>(<span class="ident">w</span>),
-            <span class="ident">state</span> : <span class="ident">BrotliState::new_with_custom_dictionary</span>(<span class="ident">alloc_u8</span>,
-                                                                 <span class="ident">alloc_u32</span>,
-                                                                 <span class="ident">alloc_hc</span>,
-                                                                 <span class="ident">dict</span>),
-            <span class="ident">error_if_invalid_data</span> : <span class="prelude-val">Some</span>(<span class="ident">invalid_data_error_type</span>),
+    <span class="kw">pub fn </span>new_with_custom_dictionary(w: W, buffer : BufferType,
+               alloc_u8 : AllocU8, alloc_u32 : AllocU32, alloc_hc : AllocHC,
+               dict: AllocU8::AllocatedMemory,
+               invalid_data_error_type : ErrType) -&gt; <span class="self">Self </span>{
+        DecompressorWriterCustomIo::&lt;ErrType, W, BufferType, AllocU8, AllocU32, AllocHC&gt;{
+            output_buffer : buffer,
+            total_out : <span class="number">0</span>,
+            output: <span class="prelude-val">Some</span>(w),
+            state : BrotliState::new_with_custom_dictionary(alloc_u8,
+                                                                 alloc_u32,
+                                                                 alloc_hc,
+                                                                 dict),
+            error_if_invalid_data : <span class="prelude-val">Some</span>(invalid_data_error_type),
         }
     }
-    <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span>{
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avail_in</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_offset</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avail_out</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">output_buffer</span>.<span class="ident">slice_mut</span>().<span class="ident">len</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">BrotliDecompressStream</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">avail_in</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">input_offset</span>,
+    <span class="kw">fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrType&gt;{
+        <span class="kw">loop </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>avail_in : usize = <span class="number">0</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>input_offset : usize = <span class="number">0</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>avail_out : usize = <span class="self">self</span>.output_buffer.slice_mut().len();
+            <span class="kw">let </span><span class="kw-2">mut </span>output_offset : usize = <span class="number">0</span>;
+            <span class="kw">let </span>ret = BrotliDecompressStream(
+                <span class="kw-2">&amp;mut </span>avail_in,
+                <span class="kw-2">&amp;mut </span>input_offset,
                 <span class="kw-2">&amp;</span>[],
-                <span class="kw-2">&amp;mut</span> <span class="ident">avail_out</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">output_offset</span>,
-                <span class="self">self</span>.<span class="ident">output_buffer</span>.<span class="ident">slice_mut</span>(),                
-                <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">total_out</span>,
-                <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">state</span>);
-          <span class="kw">match</span> <span class="ident">write_all</span>(<span class="self">self</span>.<span class="ident">output</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">output_buffer</span>.<span class="ident">slice_mut</span>()[..<span class="ident">output_offset</span>]) {
+                <span class="kw-2">&amp;mut </span>avail_out,
+                <span class="kw-2">&amp;mut </span>output_offset,
+                <span class="self">self</span>.output_buffer.slice_mut(),                
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>.total_out,
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>.state);
+          <span class="kw">match </span>write_all(<span class="self">self</span>.output.as_mut().unwrap(), <span class="kw-2">&amp;</span><span class="self">self</span>.output_buffer.slice_mut()[..output_offset]) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {},
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
            }
-           <span class="kw">match</span> <span class="ident">ret</span> {
-           <span class="ident">BrotliResult::NeedsMoreInput</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">error_if_invalid_data</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>()),
-           <span class="ident">BrotliResult::NeedsMoreOutput</span> =&gt; {},
-           <span class="ident">BrotliResult::ResultSuccess</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
-           <span class="ident">BrotliResult::ResultFailure</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">error_if_invalid_data</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>()),
+           <span class="kw">match </span>ret {
+           BrotliResult::NeedsMoreInput =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.error_if_invalid_data.take().unwrap()),
+           BrotliResult::NeedsMoreOutput =&gt; {},
+           BrotliResult::ResultSuccess =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+           BrotliResult::ResultFailure =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.error_if_invalid_data.take().unwrap()),
            }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">output</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()
+    <span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
+        <span class="self">self</span>.output.as_ref().unwrap()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">W</span> {
-        <span class="self">self</span>.<span class="ident">output</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>()
+    <span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>W {
+        <span class="self">self</span>.output.as_mut().unwrap()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">close</span>() {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>((<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">output</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>())),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>((<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">output</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>())),
+    <span class="kw">pub fn </span>into_inner(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;W, W&gt; {
+        <span class="kw">match </span><span class="self">self</span>.close() {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>((core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.output, <span class="prelude-val">None</span>).unwrap())),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>((core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.output, <span class="prelude-val">None</span>).unwrap())),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ErrType</span>,
-     <span class="ident">W</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>,
-     <span class="ident">BufferType</span> : <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU8</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU32</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-     <span class="ident">AllocHC</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">DecompressorWriterCustomIo</span><span class="op">&lt;</span><span class="ident">ErrType</span>,
-                                                                                     <span class="ident">W</span>,
-                                                                                     <span class="ident">BufferType</span>,
-                                                                                     <span class="ident">AllocU8</span>,
-                                                                                     <span class="ident">AllocU32</span>,
-                                                                                     <span class="ident">AllocHC</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">output</span>.<span class="ident">is_some</span>() {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">close</span>() {
+<span class="kw">impl</span>&lt;ErrType,
+     W: CustomWrite&lt;ErrType&gt;,
+     BufferType : SliceWrapperMut&lt;u8&gt;,
+     AllocU8 : Allocator&lt;u8&gt;,
+     AllocU32 : Allocator&lt;u32&gt;,
+     AllocHC : Allocator&lt;HuffmanCode&gt; &gt; Drop <span class="kw">for </span>DecompressorWriterCustomIo&lt;ErrType,
+                                                                                     W,
+                                                                                     BufferType,
+                                                                                     AllocU8,
+                                                                                     AllocU32,
+                                                                                     AllocHC&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.output.is_some() {
+            <span class="kw">match </span><span class="self">self</span>.close() {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {},
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {},
             }
@@ -642,51 +642,51 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ErrType</span>,
-     <span class="ident">W</span>: <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span>,
-     <span class="ident">BufferType</span> : <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU8</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-     <span class="ident">AllocU32</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-     <span class="ident">AllocHC</span> : <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">HuffmanCode</span><span class="op">&gt;</span> <span class="op">&gt;</span> <span class="ident">CustomWrite</span><span class="op">&lt;</span><span class="ident">ErrType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DecompressorWriterCustomIo</span><span class="op">&lt;</span><span class="ident">ErrType</span>,
-                                                                                     <span class="ident">W</span>,
-                                                                                     <span class="ident">BufferType</span>,
-                                                                                     <span class="ident">AllocU8</span>,
-                                                                                     <span class="ident">AllocU32</span>,
-                                                                                     <span class="ident">AllocHC</span><span class="op">&gt;</span> {
-	<span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ErrType</span> <span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avail_in</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_offset</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avail_out</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">output_buffer</span>.<span class="ident">slice_mut</span>().<span class="ident">len</span>();
-            <span class="kw">let</span> <span class="ident">op_result</span> <span class="op">=</span> <span class="ident">BrotliDecompressStream</span>(<span class="kw-2">&amp;mut</span> <span class="ident">avail_in</span>,
-                                     <span class="kw-2">&amp;mut</span> <span class="ident">input_offset</span>,
-                                     <span class="kw-2">&amp;</span><span class="ident">buf</span>[..],
-                                     <span class="kw-2">&amp;mut</span> <span class="ident">avail_out</span>,
-                                     <span class="kw-2">&amp;mut</span> <span class="ident">output_offset</span>,
-                                     <span class="self">self</span>.<span class="ident">output_buffer</span>.<span class="ident">slice_mut</span>(),
-                                     <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">total_out</span>,
-                                     <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">state</span>);
-         <span class="kw">match</span> <span class="ident">write_all</span>(<span class="self">self</span>.<span class="ident">output</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">output_buffer</span>.<span class="ident">slice_mut</span>()[..<span class="ident">output_offset</span>]) {
+<span class="kw">impl</span>&lt;ErrType,
+     W: CustomWrite&lt;ErrType&gt;,
+     BufferType : SliceWrapperMut&lt;u8&gt;,
+     AllocU8 : Allocator&lt;u8&gt;,
+     AllocU32 : Allocator&lt;u32&gt;,
+     AllocHC : Allocator&lt;HuffmanCode&gt; &gt; CustomWrite&lt;ErrType&gt; <span class="kw">for </span>DecompressorWriterCustomIo&lt;ErrType,
+                                                                                     W,
+                                                                                     BufferType,
+                                                                                     AllocU8,
+                                                                                     AllocU32,
+                                                                                     AllocHC&gt; {
+	<span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;usize, ErrType &gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>avail_in = buf.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>input_offset : usize = <span class="number">0</span>;
+        <span class="kw">loop </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>output_offset = <span class="number">0</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>avail_out = <span class="self">self</span>.output_buffer.slice_mut().len();
+            <span class="kw">let </span>op_result = BrotliDecompressStream(<span class="kw-2">&amp;mut </span>avail_in,
+                                     <span class="kw-2">&amp;mut </span>input_offset,
+                                     <span class="kw-2">&amp;</span>buf[..],
+                                     <span class="kw-2">&amp;mut </span>avail_out,
+                                     <span class="kw-2">&amp;mut </span>output_offset,
+                                     <span class="self">self</span>.output_buffer.slice_mut(),
+                                     <span class="kw-2">&amp;mut </span><span class="self">self</span>.total_out,
+                                     <span class="kw-2">&amp;mut </span><span class="self">self</span>.state);
+         <span class="kw">match </span>write_all(<span class="self">self</span>.output.as_mut().unwrap(), <span class="kw-2">&amp;</span><span class="self">self</span>.output_buffer.slice_mut()[..output_offset]) {
           <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {},
-          <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+          <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
          }
-         <span class="kw">match</span> <span class="ident">op_result</span> {
-          <span class="ident">BrotliResult::NeedsMoreInput</span> =&gt; <span class="macro">assert_eq!</span>(<span class="ident">avail_in</span>, <span class="number">0</span>),
-          <span class="ident">BrotliResult::NeedsMoreOutput</span> =&gt; <span class="kw">continue</span>,
-          <span class="ident">BrotliResult::ResultSuccess</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">buf</span>.<span class="ident">len</span>())),
-          <span class="ident">BrotliResult::ResultFailure</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">error_if_invalid_data</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>()),
+         <span class="kw">match </span>op_result {
+          BrotliResult::NeedsMoreInput =&gt; <span class="macro">assert_eq!</span>(avail_in, <span class="number">0</span>),
+          BrotliResult::NeedsMoreOutput =&gt; <span class="kw">continue</span>,
+          BrotliResult::ResultSuccess =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((buf.len())),
+          BrotliResult::ResultFailure =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">self</span>.error_if_invalid_data.take().unwrap()),
         }
-        <span class="kw">if</span> <span class="ident">avail_in</span> <span class="op">==</span> <span class="number">0</span> {
-           <span class="kw">break</span>
-        }
+        <span class="kw">if </span>avail_in == <span class="number">0 </span>{
+           <span class="kw">break
+        </span>}
       }
-      <span class="prelude-val">Ok</span>(<span class="ident">buf</span>.<span class="ident">len</span>())
+      <span class="prelude-val">Ok</span>(buf.len())
     }
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrType</span><span class="op">&gt;</span> {
-       <span class="self">self</span>.<span class="ident">output</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">flush</span>()
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrType&gt; {
+       <span class="self">self</span>.output.as_mut().unwrap().flush()
     }
 }
 
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

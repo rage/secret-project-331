@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.2/src/named.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>named.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_files/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.2/src/named.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>named.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_files/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -681,683 +681,683 @@
 <span id="681">681</span>
 <span id="682">682</span>
 <span id="683">683</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">fs::Metadata</span>,
-    <span class="ident">io</span>,
-    <span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>},
-    <span class="ident">time</span>::{<span class="ident">SystemTime</span>, <span class="ident">UNIX_EPOCH</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    fs::Metadata,
+    io,
+    path::{Path, PathBuf},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
-<span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">body</span>::{<span class="self">self</span>, <span class="ident">BoxBody</span>, <span class="ident">SizedStream</span>},
-    <span class="ident">dev</span>::{
-        <span class="self">self</span>, <span class="ident">AppService</span>, <span class="ident">HttpServiceFactory</span>, <span class="ident">ResourceDef</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>,
-        <span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>,
+<span class="kw">use </span>actix_web::{
+    body::{<span class="self">self</span>, BoxBody, SizedStream},
+    dev::{
+        <span class="self">self</span>, AppService, HttpServiceFactory, ResourceDef, Service, ServiceFactory,
+        ServiceRequest, ServiceResponse,
     },
-    <span class="ident">http</span>::{
-        <span class="ident">header</span>::{
-            <span class="self">self</span>, <span class="ident">Charset</span>, <span class="ident">ContentDisposition</span>, <span class="ident">ContentEncoding</span>, <span class="ident">DispositionParam</span>,
-            <span class="ident">DispositionType</span>, <span class="ident">ExtendedValue</span>, <span class="ident">HeaderValue</span>,
+    http::{
+        header::{
+            <span class="self">self</span>, Charset, ContentDisposition, ContentEncoding, DispositionParam,
+            DispositionType, ExtendedValue, HeaderValue,
         },
-        <span class="ident">StatusCode</span>,
+        StatusCode,
     },
-    <span class="ident">Error</span>, <span class="ident">HttpMessage</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>, <span class="ident">Responder</span>,
+    Error, HttpMessage, HttpRequest, HttpResponse, Responder,
 };
-<span class="kw">use</span> <span class="ident">bitflags::bitflags</span>;
-<span class="kw">use</span> <span class="ident">derive_more</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
-<span class="kw">use</span> <span class="ident">futures_core::future::LocalBoxFuture</span>;
-<span class="kw">use</span> <span class="ident">mime::Mime</span>;
-<span class="kw">use</span> <span class="ident">mime_guess::from_path</span>;
+<span class="kw">use </span>bitflags::bitflags;
+<span class="kw">use </span>derive_more::{Deref, DerefMut};
+<span class="kw">use </span>futures_core::future::LocalBoxFuture;
+<span class="kw">use </span>mime::Mime;
+<span class="kw">use </span>mime_guess::from_path;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">encoding::equiv_utf8_text</span>, <span class="ident">range::HttpRange</span>};
+<span class="kw">use crate</span>::{encoding::equiv_utf8_text, range::HttpRange};
 
-<span class="macro">bitflags!</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Flags</span>: <span class="ident">u8</span> {
-        <span class="kw">const</span> <span class="ident">ETAG</span> <span class="op">=</span>                <span class="number">0b0000_0001</span>;
-        <span class="kw">const</span> <span class="ident">LAST_MD</span> <span class="op">=</span>             <span class="number">0b0000_0010</span>;
-        <span class="kw">const</span> <span class="ident">CONTENT_DISPOSITION</span> <span class="op">=</span> <span class="number">0b0000_0100</span>;
-        <span class="kw">const</span> <span class="ident">PREFER_UTF8</span> <span class="op">=</span>         <span class="number">0b0000_1000</span>;
+<span class="macro">bitflags! </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Flags: u8 {
+        <span class="kw">const </span>ETAG =                <span class="number">0b0000_0001</span>;
+        <span class="kw">const </span>LAST_MD =             <span class="number">0b0000_0010</span>;
+        <span class="kw">const </span>CONTENT_DISPOSITION = <span class="number">0b0000_0100</span>;
+        <span class="kw">const </span>PREFER_UTF8 =         <span class="number">0b0000_1000</span>;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Flags</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Flags::from_bits_truncate</span>(<span class="number">0b0000_1111</span>)
+<span class="kw">impl </span>Default <span class="kw">for </span>Flags {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        Flags::from_bits_truncate(<span class="number">0b0000_1111</span>)
     }
 }
 
-<span class="doccomment">/// A file with an associated name.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `NamedFile` can be registered as services:</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::App;</span>
-<span class="doccomment">/// use actix_files::NamedFile;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # async fn run() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">/// let file = NamedFile::open_async(&quot;./static/index.html&quot;).await?;</span>
-<span class="doccomment">/// let app = App::new().service(file);</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// They can also be returned from handlers:</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{Responder, get};</span>
-<span class="doccomment">/// use actix_files::NamedFile;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[get(&quot;/&quot;)]</span>
-<span class="doccomment">/// async fn index() -&gt; impl Responder {</span>
-<span class="doccomment">///     NamedFile::open_async(&quot;./static/index.html&quot;).await</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deref</span>, <span class="ident">DerefMut</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NamedFile</span> {
-    <span class="attribute">#[<span class="ident">deref</span>]</span>
-    <span class="attribute">#[<span class="ident">deref_mut</span>]</span>
-    <span class="ident">file</span>: <span class="ident">File</span>,
-    <span class="ident">path</span>: <span class="ident">PathBuf</span>,
-    <span class="ident">modified</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SystemTime</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">md</span>: <span class="ident">Metadata</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">flags</span>: <span class="ident">Flags</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">status_code</span>: <span class="ident">StatusCode</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">content_type</span>: <span class="ident">Mime</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">content_disposition</span>: <span class="ident">ContentDisposition</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentEncoding</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A file with an associated name.
+///
+/// `NamedFile` can be registered as services:
+/// ```
+/// use actix_web::App;
+/// use actix_files::NamedFile;
+///
+/// # async fn run() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+/// let file = NamedFile::open_async(&quot;./static/index.html&quot;).await?;
+/// let app = App::new().service(file);
+/// # Ok(())
+/// # }
+/// ```
+///
+/// They can also be returned from handlers:
+/// ```
+/// use actix_web::{Responder, get};
+/// use actix_files::NamedFile;
+///
+/// #[get(&quot;/&quot;)]
+/// async fn index() -&gt; impl Responder {
+///     NamedFile::open_async(&quot;./static/index.html&quot;).await
+/// }
+/// ```
+</span><span class="attribute">#[derive(Debug, Deref, DerefMut)]
+</span><span class="kw">pub struct </span>NamedFile {
+    <span class="attribute">#[deref]
+    #[deref_mut]
+    </span>file: File,
+    path: PathBuf,
+    modified: <span class="prelude-ty">Option</span>&lt;SystemTime&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) md: Metadata,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) flags: Flags,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) status_code: StatusCode,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) content_type: Mime,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) content_disposition: ContentDisposition,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) encoding: <span class="prelude-ty">Option</span>&lt;ContentEncoding&gt;,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>))]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">std::fs::File</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">tokio_uring::fs::File</span>;
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>std::fs::File;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>tokio_uring::fs::File;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::chunked</span>;
+<span class="kw">use </span><span class="kw">super</span>::chunked;
 
-<span class="kw">impl</span> <span class="ident">NamedFile</span> {
-    <span class="doccomment">/// Creates an instance from a previously opened file.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The given `path` need not exist and is only used to determine the `ContentType` and</span>
-    <span class="doccomment">/// `ContentDisposition` headers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```ignore</span>
-    <span class="doccomment">/// use std::{</span>
-    <span class="doccomment">///     io::{self, Write as _},</span>
-    <span class="doccomment">///     env,</span>
-    <span class="doccomment">///     fs::File</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// use actix_files::NamedFile;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut file = File::create(&quot;foo.txt&quot;)?;</span>
-    <span class="doccomment">/// file.write_all(b&quot;Hello, world!&quot;)?;</span>
-    <span class="doccomment">/// let named_file = NamedFile::from_file(file, &quot;bar.txt&quot;)?;</span>
-    <span class="doccomment">/// # std::fs::remove_file(&quot;foo.txt&quot;);</span>
-    <span class="doccomment">/// Ok(())</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_file</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">file</span>: <span class="ident">File</span>, <span class="ident">path</span>: <span class="ident">P</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">NamedFile</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">as_ref</span>().<span class="ident">to_path_buf</span>();
+<span class="kw">impl </span>NamedFile {
+    <span class="doccomment">/// Creates an instance from a previously opened file.
+    ///
+    /// The given `path` need not exist and is only used to determine the `ContentType` and
+    /// `ContentDisposition` headers.
+    ///
+    /// # Examples
+    /// ```ignore
+    /// use std::{
+    ///     io::{self, Write as _},
+    ///     env,
+    ///     fs::File
+    /// };
+    /// use actix_files::NamedFile;
+    ///
+    /// let mut file = File::create(&quot;foo.txt&quot;)?;
+    /// file.write_all(b&quot;Hello, world!&quot;)?;
+    /// let named_file = NamedFile::from_file(file, &quot;bar.txt&quot;)?;
+    /// # std::fs::remove_file(&quot;foo.txt&quot;);
+    /// Ok(())
+    /// ```
+    </span><span class="kw">pub fn </span>from_file&lt;P: AsRef&lt;Path&gt;&gt;(file: File, path: P) -&gt; io::Result&lt;NamedFile&gt; {
+        <span class="kw">let </span>path = path.as_ref().to_path_buf();
 
-        <span class="comment">// Get the name of the file and use it to construct default Content-Type</span>
-        <span class="comment">// and Content-Disposition values</span>
-        <span class="kw">let</span> (<span class="ident">content_type</span>, <span class="ident">content_disposition</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">filename</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">path</span>.<span class="ident">file_name</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">name</span>) =&gt; <span class="ident">name</span>.<span class="ident">to_string_lossy</span>(),
-                <span class="prelude-val">None</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-                        <span class="ident">io::ErrorKind::InvalidInput</span>,
+        <span class="comment">// Get the name of the file and use it to construct default Content-Type
+        // and Content-Disposition values
+        </span><span class="kw">let </span>(content_type, content_disposition) = {
+            <span class="kw">let </span>filename = <span class="kw">match </span>path.file_name() {
+                <span class="prelude-val">Some</span>(name) =&gt; name.to_string_lossy(),
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
+                        io::ErrorKind::InvalidInput,
                         <span class="string">&quot;Provided path has no filename&quot;</span>,
                     ));
                 }
             };
 
-            <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="ident">from_path</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">first_or_octet_stream</span>();
+            <span class="kw">let </span>ct = from_path(<span class="kw-2">&amp;</span>path).first_or_octet_stream();
 
-            <span class="kw">let</span> <span class="ident">disposition</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ct</span>.<span class="ident">type_</span>() {
-                <span class="ident">mime::IMAGE</span> <span class="op">|</span> <span class="ident">mime::TEXT</span> <span class="op">|</span> <span class="ident">mime::AUDIO</span> <span class="op">|</span> <span class="ident">mime::VIDEO</span> =&gt; <span class="ident">DispositionType::Inline</span>,
-                <span class="ident">mime::APPLICATION</span> =&gt; <span class="kw">match</span> <span class="ident">ct</span>.<span class="ident">subtype</span>() {
-                    <span class="ident">mime::JAVASCRIPT</span> <span class="op">|</span> <span class="ident">mime::JSON</span> =&gt; <span class="ident">DispositionType::Inline</span>,
-                    <span class="ident">name</span> <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;wasm&quot;</span> =&gt; <span class="ident">DispositionType::Inline</span>,
-                    <span class="kw">_</span> =&gt; <span class="ident">DispositionType::Attachment</span>,
+            <span class="kw">let </span>disposition = <span class="kw">match </span>ct.type_() {
+                mime::IMAGE | mime::TEXT | mime::AUDIO | mime::VIDEO =&gt; DispositionType::Inline,
+                mime::APPLICATION =&gt; <span class="kw">match </span>ct.subtype() {
+                    mime::JAVASCRIPT | mime::JSON =&gt; DispositionType::Inline,
+                    name <span class="kw">if </span>name == <span class="string">&quot;wasm&quot; </span>=&gt; DispositionType::Inline,
+                    <span class="kw">_ </span>=&gt; DispositionType::Attachment,
                 },
-                <span class="kw">_</span> =&gt; <span class="ident">DispositionType::Attachment</span>,
+                <span class="kw">_ </span>=&gt; DispositionType::Attachment,
             };
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parameters</span> <span class="op">=</span>
-                <span class="macro">vec!</span>[<span class="ident">DispositionParam::Filename</span>(<span class="ident">String::from</span>(<span class="ident">filename</span>.<span class="ident">as_ref</span>()))];
+            <span class="kw">let </span><span class="kw-2">mut </span>parameters =
+                <span class="macro">vec!</span>[DispositionParam::Filename(String::from(filename.as_ref()))];
 
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">filename</span>.<span class="ident">is_ascii</span>() {
-                <span class="ident">parameters</span>.<span class="ident">push</span>(<span class="ident">DispositionParam::FilenameExt</span>(<span class="ident">ExtendedValue</span> {
-                    <span class="ident">charset</span>: <span class="ident">Charset::Ext</span>(<span class="ident">String::from</span>(<span class="string">&quot;UTF-8&quot;</span>)),
-                    <span class="ident">language_tag</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">value</span>: <span class="ident">filename</span>.<span class="ident">into_owned</span>().<span class="ident">into_bytes</span>(),
+            <span class="kw">if </span>!filename.is_ascii() {
+                parameters.push(DispositionParam::FilenameExt(ExtendedValue {
+                    charset: Charset::Ext(String::from(<span class="string">&quot;UTF-8&quot;</span>)),
+                    language_tag: <span class="prelude-val">None</span>,
+                    value: filename.into_owned().into_bytes(),
                 }))
             }
 
-            <span class="kw">let</span> <span class="ident">cd</span> <span class="op">=</span> <span class="ident">ContentDisposition</span> {
-                <span class="ident">disposition</span>,
-                <span class="ident">parameters</span>,
+            <span class="kw">let </span>cd = ContentDisposition {
+                disposition,
+                parameters,
             };
 
-            (<span class="ident">ct</span>, <span class="ident">cd</span>)
+            (ct, cd)
         };
 
-        <span class="kw">let</span> <span class="ident">md</span> <span class="op">=</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>))]</span>
-            {
-                <span class="ident">file</span>.<span class="ident">metadata</span>()<span class="question-mark">?</span>
-            }
+        <span class="kw">let </span>md = {
+            <span class="attribute">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+            </span>{
+                file.metadata()<span class="question-mark">?
+            </span>}
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>)]</span>
-            {
-                <span class="kw">use</span> <span class="ident">std::os::unix::prelude</span>::{<span class="ident">AsRawFd</span>, <span class="ident">FromRawFd</span>};
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+            </span>{
+                <span class="kw">use </span>std::os::unix::prelude::{AsRawFd, FromRawFd};
 
-                <span class="kw">let</span> <span class="ident">fd</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">as_raw_fd</span>();
+                <span class="kw">let </span>fd = file.as_raw_fd();
 
-                <span class="comment">// SAFETY: fd is borrowed and lives longer than the unsafe block</span>
-                <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">std::fs::File::from_raw_fd</span>(<span class="ident">fd</span>);
-                    <span class="kw">let</span> <span class="ident">md</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">metadata</span>();
-                    <span class="comment">// SAFETY: forget the fd before exiting block in success or error case but don&#39;t</span>
-                    <span class="comment">// run destructor (that would close file handle)</span>
-                    <span class="ident">std::mem::forget</span>(<span class="ident">file</span>);
-                    <span class="ident">md</span><span class="question-mark">?</span>
-                }
+                <span class="comment">// SAFETY: fd is borrowed and lives longer than the unsafe block
+                </span><span class="kw">unsafe </span>{
+                    <span class="kw">let </span>file = std::fs::File::from_raw_fd(fd);
+                    <span class="kw">let </span>md = file.metadata();
+                    <span class="comment">// SAFETY: forget the fd before exiting block in success or error case but don&#39;t
+                    // run destructor (that would close file handle)
+                    </span>std::mem::forget(file);
+                    md<span class="question-mark">?
+                </span>}
             }
         };
 
-        <span class="kw">let</span> <span class="ident">modified</span> <span class="op">=</span> <span class="ident">md</span>.<span class="ident">modified</span>().<span class="ident">ok</span>();
-        <span class="kw">let</span> <span class="ident">encoding</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span>modified = md.modified().ok();
+        <span class="kw">let </span>encoding = <span class="prelude-val">None</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">NamedFile</span> {
-            <span class="ident">path</span>,
-            <span class="ident">file</span>,
-            <span class="ident">content_type</span>,
-            <span class="ident">content_disposition</span>,
-            <span class="ident">md</span>,
-            <span class="ident">modified</span>,
-            <span class="ident">encoding</span>,
-            <span class="ident">status_code</span>: <span class="ident">StatusCode::OK</span>,
-            <span class="ident">flags</span>: <span class="ident">Flags::default</span>(),
+        <span class="prelude-val">Ok</span>(NamedFile {
+            path,
+            file,
+            content_type,
+            content_disposition,
+            md,
+            modified,
+            encoding,
+            status_code: StatusCode::OK,
+            flags: Flags::default(),
         })
     }
 
-    <span class="doccomment">/// Attempts to open a file in read-only mode.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_files::NamedFile;</span>
-    <span class="doccomment">/// let file = NamedFile::open(&quot;foo.txt&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">NamedFile</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span>;
-        <span class="ident"><span class="self">Self</span>::from_file</span>(<span class="ident">file</span>, <span class="ident">path</span>)
+    <span class="doccomment">/// Attempts to open a file in read-only mode.
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_files::NamedFile;
+    /// let file = NamedFile::open(&quot;foo.txt&quot;);
+    /// ```
+    </span><span class="attribute">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+    </span><span class="kw">pub fn </span>open&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;NamedFile&gt; {
+        <span class="kw">let </span>file = File::open(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::from_file(file, path)
     }
 
-    <span class="doccomment">/// Attempts to open a file asynchronously in read-only mode.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When the `experimental-io-uring` crate feature is enabled, this will be async. Otherwise, it</span>
-    <span class="doccomment">/// will behave just like `open`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_files::NamedFile;</span>
-    <span class="doccomment">/// # async fn open() {</span>
-    <span class="doccomment">/// let file = NamedFile::open_async(&quot;foo.txt&quot;).await.unwrap();</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">open_async</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">NamedFile</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>))]</span>
-            {
-                <span class="ident">File::open</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span>
-            }
+    <span class="doccomment">/// Attempts to open a file asynchronously in read-only mode.
+    ///
+    /// When the `experimental-io-uring` crate feature is enabled, this will be async. Otherwise, it
+    /// will behave just like `open`.
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_files::NamedFile;
+    /// # async fn open() {
+    /// let file = NamedFile::open_async(&quot;foo.txt&quot;).await.unwrap();
+    /// # }
+    /// ```
+    </span><span class="kw">pub async fn </span>open_async&lt;P: AsRef&lt;Path&gt;&gt;(path: P) -&gt; io::Result&lt;NamedFile&gt; {
+        <span class="kw">let </span>file = {
+            <span class="attribute">#[cfg(not(feature = <span class="string">&quot;experimental-io-uring&quot;</span>))]
+            </span>{
+                File::open(<span class="kw-2">&amp;</span>path)<span class="question-mark">?
+            </span>}
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;experimental-io-uring&quot;</span>)]</span>
-            {
-                <span class="ident">File::open</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="kw">await</span><span class="question-mark">?</span>
-            }
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;experimental-io-uring&quot;</span>)]
+            </span>{
+                File::open(<span class="kw-2">&amp;</span>path).<span class="kw">await</span><span class="question-mark">?
+            </span>}
         };
 
-        <span class="ident"><span class="self">Self</span>::from_file</span>(<span class="ident">file</span>, <span class="ident">path</span>)
+        <span class="self">Self</span>::from_file(file, path)
     }
 
-    <span class="doccomment">/// Returns reference to the underlying file object.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">File</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">file</span>
+    <span class="doccomment">/// Returns reference to the underlying file object.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>File {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.file
     }
 
-    <span class="doccomment">/// Returns the filesystem path to this file.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use std::io;</span>
-    <span class="doccomment">/// use actix_files::NamedFile;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # async fn path() -&gt; io::Result&lt;()&gt; {</span>
-    <span class="doccomment">/// let file = NamedFile::open_async(&quot;test.txt&quot;).await?;</span>
-    <span class="doccomment">/// assert_eq!(file.path().as_os_str(), &quot;foo.txt&quot;);</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Path</span> {
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">as_path</span>()
+    <span class="doccomment">/// Returns the filesystem path to this file.
+    ///
+    /// # Examples
+    /// ```
+    /// # use std::io;
+    /// use actix_files::NamedFile;
+    ///
+    /// # async fn path() -&gt; io::Result&lt;()&gt; {
+    /// let file = NamedFile::open_async(&quot;test.txt&quot;).await?;
+    /// assert_eq!(file.path().as_os_str(), &quot;foo.txt&quot;);
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Path {
+        <span class="self">self</span>.path.as_path()
     }
 
-    <span class="doccomment">/// Returns the time the file was last modified.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` only on unsupported platforms; see [`std::fs::Metadata::modified()`].</span>
-    <span class="doccomment">/// Therefore, it is usually safe to unwrap this.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modified</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SystemTime</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">modified</span>
+    <span class="doccomment">/// Returns the time the file was last modified.
+    ///
+    /// Returns `None` only on unsupported platforms; see [`std::fs::Metadata::modified()`].
+    /// Therefore, it is usually safe to unwrap this.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>modified(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SystemTime&gt; {
+        <span class="self">self</span>.modified
     }
 
-    <span class="doccomment">/// Returns the filesystem metadata associated with this file.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">metadata</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Metadata</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">md</span>
+    <span class="doccomment">/// Returns the filesystem metadata associated with this file.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>metadata(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Metadata {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.md
     }
 
-    <span class="doccomment">/// Returns the `Content-Type` header that will be used when serving this file.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Mime</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">content_type</span>
+    <span class="doccomment">/// Returns the `Content-Type` header that will be used when serving this file.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>content_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Mime {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.content_type
     }
 
-    <span class="doccomment">/// Returns the `Content-Disposition` that will be used when serving this file.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_disposition</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ContentDisposition</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">content_disposition</span>
+    <span class="doccomment">/// Returns the `Content-Disposition` that will be used when serving this file.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>content_disposition(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ContentDisposition {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.content_disposition
     }
 
-    <span class="doccomment">/// Returns the `Content-Encoding` that will be used when serving this file.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// A return value of `None` indicates that the content is not already using a compressed</span>
-    <span class="doccomment">/// representation and may be subject to compression downstream.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentEncoding</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">encoding</span>
+    <span class="doccomment">/// Returns the `Content-Encoding` that will be used when serving this file.
+    ///
+    /// A return value of `None` indicates that the content is not already using a compressed
+    /// representation and may be subject to compression downstream.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>content_encoding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ContentEncoding&gt; {
+        <span class="self">self</span>.encoding
     }
 
-    <span class="doccomment">/// Set response status code.</span>
-    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.7.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer `Responder::customize()`.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_status_code</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">status_code</span> <span class="op">=</span> <span class="ident">status</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set response status code.
+    </span><span class="attribute">#[deprecated(since = <span class="string">&quot;0.7.0&quot;</span>, note = <span class="string">&quot;Prefer `Responder::customize()`.&quot;</span>)]
+    </span><span class="kw">pub fn </span>set_status_code(<span class="kw-2">mut </span><span class="self">self</span>, status: StatusCode) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.status_code = status;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the `Content-Type` header that will be used when serving this file. By default the</span>
-    <span class="doccomment">/// `Content-Type` is inferred from the filename extension.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_content_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mime_type</span>: <span class="ident">Mime</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">content_type</span> <span class="op">=</span> <span class="ident">mime_type</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the `Content-Type` header that will be used when serving this file. By default the
+    /// `Content-Type` is inferred from the filename extension.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_content_type(<span class="kw-2">mut </span><span class="self">self</span>, mime_type: Mime) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.content_type = mime_type;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Set the Content-Disposition for serving this file. This allows changing the</span>
-    <span class="doccomment">/// `inline/attachment` disposition as well as the filename sent to the peer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default the disposition is `inline` for `text/*`, `image/*`, `video/*` and</span>
-    <span class="doccomment">/// `application/{javascript, json, wasm}` mime types, and `attachment` otherwise, and the</span>
-    <span class="doccomment">/// filename is taken from the path provided in the `open` method after converting it to UTF-8</span>
-    <span class="doccomment">/// (using `to_string_lossy`).</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_content_disposition</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cd</span>: <span class="ident">ContentDisposition</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">content_disposition</span> <span class="op">=</span> <span class="ident">cd</span>;
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CONTENT_DISPOSITION</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set the Content-Disposition for serving this file. This allows changing the
+    /// `inline/attachment` disposition as well as the filename sent to the peer.
+    ///
+    /// By default the disposition is `inline` for `text/*`, `image/*`, `video/*` and
+    /// `application/{javascript, json, wasm}` mime types, and `attachment` otherwise, and the
+    /// filename is taken from the path provided in the `open` method after converting it to UTF-8
+    /// (using `to_string_lossy`).
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_content_disposition(<span class="kw-2">mut </span><span class="self">self</span>, cd: ContentDisposition) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.content_disposition = cd;
+        <span class="self">self</span>.flags.insert(Flags::CONTENT_DISPOSITION);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Disables `Content-Disposition` header.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default, the `Content-Disposition` header is sent.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disable_content_disposition</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::CONTENT_DISPOSITION</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Disables `Content-Disposition` header.
+    ///
+    /// By default, the `Content-Disposition` header is sent.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>disable_content_disposition(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.flags.remove(Flags::CONTENT_DISPOSITION);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets content encoding for this file.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This prevents the `Compress` middleware from modifying the file contents and signals to</span>
-    <span class="doccomment">/// browsers/clients how to decode it. For example, if serving a compressed HTML file (e.g.,</span>
-    <span class="doccomment">/// `index.html.gz`) then use `.set_content_encoding(ContentEncoding::Gzip)`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_content_encoding</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">enc</span>: <span class="ident">ContentEncoding</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">encoding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">enc</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets content encoding for this file.
+    ///
+    /// This prevents the `Compress` middleware from modifying the file contents and signals to
+    /// browsers/clients how to decode it. For example, if serving a compressed HTML file (e.g.,
+    /// `index.html.gz`) then use `.set_content_encoding(ContentEncoding::Gzip)`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_content_encoding(<span class="kw-2">mut </span><span class="self">self</span>, enc: ContentEncoding) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.encoding = <span class="prelude-val">Some</span>(enc);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies whether to return `ETag` header in response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Default is true.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_etag</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">set</span>(<span class="ident">Flags::ETAG</span>, <span class="ident">value</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies whether to return `ETag` header in response.
+    ///
+    /// Default is true.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>use_etag(<span class="kw-2">mut </span><span class="self">self</span>, value: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.flags.set(Flags::ETAG, value);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies whether to return `Last-Modified` header in response.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Default is true.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_last_modified</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">set</span>(<span class="ident">Flags::LAST_MD</span>, <span class="ident">value</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies whether to return `Last-Modified` header in response.
+    ///
+    /// Default is true.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>use_last_modified(<span class="kw-2">mut </span><span class="self">self</span>, value: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.flags.set(Flags::LAST_MD, value);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies whether text responses should signal a UTF-8 encoding.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Default is false (but will default to true in a future version).</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prefer_utf8</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">set</span>(<span class="ident">Flags::PREFER_UTF8</span>, <span class="ident">value</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies whether text responses should signal a UTF-8 encoding.
+    ///
+    /// Default is false (but will default to true in a future version).
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>prefer_utf8(<span class="kw-2">mut </span><span class="self">self</span>, value: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.flags.set(Flags::PREFER_UTF8, value);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Creates an `ETag` in a format is similar to Apache&#39;s.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">etag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">header::EntityTag</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">modified</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">mtime</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">ino</span> <span class="op">=</span> {
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-                {
-                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-                    <span class="kw">use</span> <span class="ident">std::os::unix::fs::MetadataExt</span> <span class="kw">as</span> <span class="kw">_</span>;
+    <span class="doccomment">/// Creates an `ETag` in a format is similar to Apache&#39;s.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>etag(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;header::EntityTag&gt; {
+        <span class="self">self</span>.modified.as_ref().map(|mtime| {
+            <span class="kw">let </span>ino = {
+                <span class="attribute">#[cfg(unix)]
+                </span>{
+                    <span class="attribute">#[cfg(unix)]
+                    </span><span class="kw">use </span>std::os::unix::fs::MetadataExt <span class="kw">as _</span>;
 
-                    <span class="self">self</span>.<span class="ident">md</span>.<span class="ident">ino</span>()
+                    <span class="self">self</span>.md.ino()
                 }
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">unix</span>))]</span>
-                {
-                    <span class="number">0</span>
-                }
+                <span class="attribute">#[cfg(not(unix))]
+                </span>{
+                    <span class="number">0
+                </span>}
             };
 
-            <span class="kw">let</span> <span class="ident">dur</span> <span class="op">=</span> <span class="ident">mtime</span>
-                .<span class="ident">duration_since</span>(<span class="ident">UNIX_EPOCH</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;modification time must be after epoch&quot;</span>);
+            <span class="kw">let </span>dur = mtime
+                .duration_since(UNIX_EPOCH)
+                .expect(<span class="string">&quot;modification time must be after epoch&quot;</span>);
 
-            <span class="ident">header::EntityTag::new_strong</span>(<span class="macro">format!</span>(
+            header::EntityTag::new_strong(<span class="macro">format!</span>(
                 <span class="string">&quot;{:x}:{:x}:{:x}:{:x}&quot;</span>,
-                <span class="ident">ino</span>,
-                <span class="self">self</span>.<span class="ident">md</span>.<span class="ident">len</span>(),
-                <span class="ident">dur</span>.<span class="ident">as_secs</span>(),
-                <span class="ident">dur</span>.<span class="ident">subsec_nanos</span>()
+                ino,
+                <span class="self">self</span>.md.len(),
+                dur.as_secs(),
+                dur.subsec_nanos()
             ))
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">last_modified</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">header::HttpDate</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">modified</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">mtime</span><span class="op">|</span> <span class="ident">mtime</span>.<span class="ident">into</span>())
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>last_modified(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;header::HttpDate&gt; {
+        <span class="self">self</span>.modified.map(|mtime| mtime.into())
     }
 
-    <span class="doccomment">/// Creates an `HttpResponse` with file as a streaming body.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_response</span>(<span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">status_code</span> <span class="op">!</span><span class="op">=</span> <span class="ident">StatusCode::OK</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::build</span>(<span class="self">self</span>.<span class="ident">status_code</span>);
+    <span class="doccomment">/// Creates an `HttpResponse` with file as a streaming body.
+    </span><span class="kw">pub fn </span>into_response(<span class="self">self</span>, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;BoxBody&gt; {
+        <span class="kw">if </span><span class="self">self</span>.status_code != StatusCode::OK {
+            <span class="kw">let </span><span class="kw-2">mut </span>res = HttpResponse::build(<span class="self">self</span>.status_code);
 
-            <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::PREFER_UTF8</span>) {
-                <span class="ident">equiv_utf8_text</span>(<span class="self">self</span>.<span class="ident">content_type</span>.<span class="ident">clone</span>())
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">content_type</span>
+            <span class="kw">let </span>ct = <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::PREFER_UTF8) {
+                equiv_utf8_text(<span class="self">self</span>.content_type.clone())
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.content_type
             };
 
-            <span class="ident">res</span>.<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">ct</span>.<span class="ident">to_string</span>()));
+            res.insert_header((header::CONTENT_TYPE, ct.to_string()));
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTENT_DISPOSITION</span>) {
-                <span class="ident">res</span>.<span class="ident">insert_header</span>((
-                    <span class="ident">header::CONTENT_DISPOSITION</span>,
-                    <span class="self">self</span>.<span class="ident">content_disposition</span>.<span class="ident">to_string</span>(),
+            <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::CONTENT_DISPOSITION) {
+                res.insert_header((
+                    header::CONTENT_DISPOSITION,
+                    <span class="self">self</span>.content_disposition.to_string(),
                 ));
             }
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current_encoding</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span> {
-                <span class="ident">res</span>.<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_ENCODING</span>, <span class="ident">current_encoding</span>.<span class="ident">as_str</span>()));
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(current_encoding) = <span class="self">self</span>.encoding {
+                res.insert_header((header::CONTENT_ENCODING, current_encoding.as_str()));
             }
 
-            <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">chunked::new_chunked_read</span>(<span class="self">self</span>.<span class="ident">md</span>.<span class="ident">len</span>(), <span class="number">0</span>, <span class="self">self</span>.<span class="ident">file</span>);
+            <span class="kw">let </span>reader = chunked::new_chunked_read(<span class="self">self</span>.md.len(), <span class="number">0</span>, <span class="self">self</span>.file);
 
-            <span class="kw">return</span> <span class="ident">res</span>.<span class="ident">streaming</span>(<span class="ident">reader</span>);
+            <span class="kw">return </span>res.streaming(reader);
         }
 
-        <span class="kw">let</span> <span class="ident">etag</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::ETAG</span>) {
-            <span class="self">self</span>.<span class="ident">etag</span>()
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
+        <span class="kw">let </span>etag = <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::ETAG) {
+            <span class="self">self</span>.etag()
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
 
-        <span class="kw">let</span> <span class="ident">last_modified</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::LAST_MD</span>) {
-            <span class="self">self</span>.<span class="ident">last_modified</span>()
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
+        <span class="kw">let </span>last_modified = <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::LAST_MD) {
+            <span class="self">self</span>.last_modified()
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
 
-        <span class="comment">// check preconditions</span>
-        <span class="kw">let</span> <span class="ident">precondition_failed</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">any_match</span>(<span class="ident">etag</span>.<span class="ident">as_ref</span>(), <span class="ident">req</span>) {
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">m</span>), <span class="prelude-val">Some</span>(<span class="ident">header::IfUnmodifiedSince</span>(<span class="kw-2">ref</span> <span class="ident">since</span>))) <span class="op">=</span>
-            (<span class="ident">last_modified</span>, <span class="ident">req</span>.<span class="ident">get_header</span>())
+        <span class="comment">// check preconditions
+        </span><span class="kw">let </span>precondition_failed = <span class="kw">if </span>!any_match(etag.as_ref(), req) {
+            <span class="bool-val">true
+        </span>} <span class="kw">else if let </span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref </span>m), <span class="prelude-val">Some</span>(header::IfUnmodifiedSince(<span class="kw-2">ref </span>since))) =
+            (last_modified, req.get_header())
         {
-            <span class="kw">let</span> <span class="ident">t1</span>: <span class="ident">SystemTime</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">m</span>).<span class="ident">into</span>();
-            <span class="kw">let</span> <span class="ident">t2</span>: <span class="ident">SystemTime</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">since</span>).<span class="ident">into</span>();
+            <span class="kw">let </span>t1: SystemTime = (<span class="kw-2">*</span>m).into();
+            <span class="kw">let </span>t2: SystemTime = (<span class="kw-2">*</span>since).into();
 
-            <span class="kw">match</span> (<span class="ident">t1</span>.<span class="ident">duration_since</span>(<span class="ident">UNIX_EPOCH</span>), <span class="ident">t2</span>.<span class="ident">duration_since</span>(<span class="ident">UNIX_EPOCH</span>)) {
-                (<span class="prelude-val">Ok</span>(<span class="ident">t1</span>), <span class="prelude-val">Ok</span>(<span class="ident">t2</span>)) =&gt; <span class="ident">t1</span>.<span class="ident">as_secs</span>() <span class="op">&gt;</span> <span class="ident">t2</span>.<span class="ident">as_secs</span>(),
-                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+            <span class="kw">match </span>(t1.duration_since(UNIX_EPOCH), t2.duration_since(UNIX_EPOCH)) {
+                (<span class="prelude-val">Ok</span>(t1), <span class="prelude-val">Ok</span>(t2)) =&gt; t1.as_secs() &gt; t2.as_secs(),
+                <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
             }
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        };
+        } <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>};
 
-        <span class="comment">// check last modified</span>
-        <span class="kw">let</span> <span class="ident">not_modified</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">none_match</span>(<span class="ident">etag</span>.<span class="ident">as_ref</span>(), <span class="ident">req</span>) {
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">contains_key</span>(<span class="ident">header::IF_NONE_MATCH</span>) {
-            <span class="bool-val">false</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">m</span>), <span class="prelude-val">Some</span>(<span class="ident">header::IfModifiedSince</span>(<span class="kw-2">ref</span> <span class="ident">since</span>))) <span class="op">=</span>
-            (<span class="ident">last_modified</span>, <span class="ident">req</span>.<span class="ident">get_header</span>())
+        <span class="comment">// check last modified
+        </span><span class="kw">let </span>not_modified = <span class="kw">if </span>!none_match(etag.as_ref(), req) {
+            <span class="bool-val">true
+        </span>} <span class="kw">else if </span>req.headers().contains_key(header::IF_NONE_MATCH) {
+            <span class="bool-val">false
+        </span>} <span class="kw">else if let </span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref </span>m), <span class="prelude-val">Some</span>(header::IfModifiedSince(<span class="kw-2">ref </span>since))) =
+            (last_modified, req.get_header())
         {
-            <span class="kw">let</span> <span class="ident">t1</span>: <span class="ident">SystemTime</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">m</span>).<span class="ident">into</span>();
-            <span class="kw">let</span> <span class="ident">t2</span>: <span class="ident">SystemTime</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">since</span>).<span class="ident">into</span>();
+            <span class="kw">let </span>t1: SystemTime = (<span class="kw-2">*</span>m).into();
+            <span class="kw">let </span>t2: SystemTime = (<span class="kw-2">*</span>since).into();
 
-            <span class="kw">match</span> (<span class="ident">t1</span>.<span class="ident">duration_since</span>(<span class="ident">UNIX_EPOCH</span>), <span class="ident">t2</span>.<span class="ident">duration_since</span>(<span class="ident">UNIX_EPOCH</span>)) {
-                (<span class="prelude-val">Ok</span>(<span class="ident">t1</span>), <span class="prelude-val">Ok</span>(<span class="ident">t2</span>)) =&gt; <span class="ident">t1</span>.<span class="ident">as_secs</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">t2</span>.<span class="ident">as_secs</span>(),
-                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+            <span class="kw">match </span>(t1.duration_since(UNIX_EPOCH), t2.duration_since(UNIX_EPOCH)) {
+                (<span class="prelude-val">Ok</span>(t1), <span class="prelude-val">Ok</span>(t2)) =&gt; t1.as_secs() &lt;= t2.as_secs(),
+                <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
             }
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
+        } <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>};
+
+        <span class="kw">let </span><span class="kw-2">mut </span>res = HttpResponse::build(<span class="self">self</span>.status_code);
+
+        <span class="kw">let </span>ct = <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::PREFER_UTF8) {
+            equiv_utf8_text(<span class="self">self</span>.content_type.clone())
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.content_type
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::build</span>(<span class="self">self</span>.<span class="ident">status_code</span>);
+        res.insert_header((header::CONTENT_TYPE, ct.to_string()));
 
-        <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::PREFER_UTF8</span>) {
-            <span class="ident">equiv_utf8_text</span>(<span class="self">self</span>.<span class="ident">content_type</span>.<span class="ident">clone</span>())
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">content_type</span>
-        };
-
-        <span class="ident">res</span>.<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">ct</span>.<span class="ident">to_string</span>()));
-
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CONTENT_DISPOSITION</span>) {
-            <span class="ident">res</span>.<span class="ident">insert_header</span>((
-                <span class="ident">header::CONTENT_DISPOSITION</span>,
-                <span class="self">self</span>.<span class="ident">content_disposition</span>.<span class="ident">to_string</span>(),
+        <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::CONTENT_DISPOSITION) {
+            res.insert_header((
+                header::CONTENT_DISPOSITION,
+                <span class="self">self</span>.content_disposition.to_string(),
             ));
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current_encoding</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">encoding</span> {
-            <span class="ident">res</span>.<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_ENCODING</span>, <span class="ident">current_encoding</span>.<span class="ident">as_str</span>()));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(current_encoding) = <span class="self">self</span>.encoding {
+            res.insert_header((header::CONTENT_ENCODING, current_encoding.as_str()));
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lm</span>) <span class="op">=</span> <span class="ident">last_modified</span> {
-            <span class="ident">res</span>.<span class="ident">insert_header</span>((<span class="ident">header::LAST_MODIFIED</span>, <span class="ident">lm</span>.<span class="ident">to_string</span>()));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(lm) = last_modified {
+            res.insert_header((header::LAST_MODIFIED, lm.to_string()));
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">etag</span>) <span class="op">=</span> <span class="ident">etag</span> {
-            <span class="ident">res</span>.<span class="ident">insert_header</span>((<span class="ident">header::ETAG</span>, <span class="ident">etag</span>.<span class="ident">to_string</span>()));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(etag) = etag {
+            res.insert_header((header::ETAG, etag.to_string()));
         }
 
-        <span class="ident">res</span>.<span class="ident">insert_header</span>((<span class="ident">header::ACCEPT_RANGES</span>, <span class="string">&quot;bytes&quot;</span>));
+        res.insert_header((header::ACCEPT_RANGES, <span class="string">&quot;bytes&quot;</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">length</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">md</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>length = <span class="self">self</span>.md.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
 
-        <span class="comment">// check for range header</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ranges</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::RANGE</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ranges_header</span>) <span class="op">=</span> <span class="ident">ranges</span>.<span class="ident">to_str</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ranges</span>) <span class="op">=</span> <span class="ident">HttpRange::parse</span>(<span class="ident">ranges_header</span>, <span class="ident">length</span>) {
-                    <span class="ident">length</span> <span class="op">=</span> <span class="ident">ranges</span>[<span class="number">0</span>].<span class="ident">length</span>;
-                    <span class="ident">offset</span> <span class="op">=</span> <span class="ident">ranges</span>[<span class="number">0</span>].<span class="ident">start</span>;
+        <span class="comment">// check for range header
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ranges) = req.headers().get(header::RANGE) {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(ranges_header) = ranges.to_str() {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(ranges) = HttpRange::parse(ranges_header, length) {
+                    length = ranges[<span class="number">0</span>].length;
+                    offset = ranges[<span class="number">0</span>].start;
 
-                    <span class="comment">// When a Content-Encoding header is present in a 206 partial content response</span>
-                    <span class="comment">// for video content, it prevents browser video players from starting playback</span>
-                    <span class="comment">// before loading the whole video and also prevents seeking.</span>
-                    <span class="comment">//</span>
-                    <span class="comment">// See: https://github.com/actix/actix-web/issues/2815</span>
-                    <span class="comment">//</span>
-                    <span class="comment">// The assumption of this fix is that the video player knows to not send an</span>
-                    <span class="comment">// Accept-Encoding header for this request and that downstream middleware will</span>
-                    <span class="comment">// not attempt compression for requests without it.</span>
-                    <span class="comment">//</span>
-                    <span class="comment">// TODO: Solve question around what to do if self.encoding is set and partial</span>
-                    <span class="comment">// range is requested. Reject request? Ignoring self.encoding seems wrong, too.</span>
-                    <span class="comment">// In practice, it should not come up.</span>
-                    <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">header::ACCEPT_ENCODING</span>) {
-                        <span class="comment">// don&#39;t allow compression middleware to modify partial content</span>
-                        <span class="ident">res</span>.<span class="ident">insert_header</span>((
-                            <span class="ident">header::CONTENT_ENCODING</span>,
-                            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;identity&quot;</span>),
+                    <span class="comment">// When a Content-Encoding header is present in a 206 partial content response
+                    // for video content, it prevents browser video players from starting playback
+                    // before loading the whole video and also prevents seeking.
+                    //
+                    // See: https://github.com/actix/actix-web/issues/2815
+                    //
+                    // The assumption of this fix is that the video player knows to not send an
+                    // Accept-Encoding header for this request and that downstream middleware will
+                    // not attempt compression for requests without it.
+                    //
+                    // TODO: Solve question around what to do if self.encoding is set and partial
+                    // range is requested. Reject request? Ignoring self.encoding seems wrong, too.
+                    // In practice, it should not come up.
+                    </span><span class="kw">if </span>req.headers().contains_key(<span class="kw-2">&amp;</span>header::ACCEPT_ENCODING) {
+                        <span class="comment">// don&#39;t allow compression middleware to modify partial content
+                        </span>res.insert_header((
+                            header::CONTENT_ENCODING,
+                            HeaderValue::from_static(<span class="string">&quot;identity&quot;</span>),
                         ));
                     }
 
-                    <span class="ident">res</span>.<span class="ident">insert_header</span>((
-                        <span class="ident">header::CONTENT_RANGE</span>,
-                        <span class="macro">format!</span>(<span class="string">&quot;bytes {}-{}/{}&quot;</span>, <span class="ident">offset</span>, <span class="ident">offset</span> <span class="op">+</span> <span class="ident">length</span> <span class="op">-</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">md</span>.<span class="ident">len</span>()),
+                    res.insert_header((
+                        header::CONTENT_RANGE,
+                        <span class="macro">format!</span>(<span class="string">&quot;bytes {}-{}/{}&quot;</span>, offset, offset + length - <span class="number">1</span>, <span class="self">self</span>.md.len()),
                     ));
-                } <span class="kw">else</span> {
-                    <span class="ident">res</span>.<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_RANGE</span>, <span class="macro">format!</span>(<span class="string">&quot;bytes */{}&quot;</span>, <span class="ident">length</span>)));
-                    <span class="kw">return</span> <span class="ident">res</span>.<span class="ident">status</span>(<span class="ident">StatusCode::RANGE_NOT_SATISFIABLE</span>).<span class="ident">finish</span>();
+                } <span class="kw">else </span>{
+                    res.insert_header((header::CONTENT_RANGE, <span class="macro">format!</span>(<span class="string">&quot;bytes */{}&quot;</span>, length)));
+                    <span class="kw">return </span>res.status(StatusCode::RANGE_NOT_SATISFIABLE).finish();
                 };
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">res</span>.<span class="ident">status</span>(<span class="ident">StatusCode::BAD_REQUEST</span>).<span class="ident">finish</span>();
+            } <span class="kw">else </span>{
+                <span class="kw">return </span>res.status(StatusCode::BAD_REQUEST).finish();
             };
         };
 
-        <span class="kw">if</span> <span class="ident">precondition_failed</span> {
-            <span class="kw">return</span> <span class="ident">res</span>.<span class="ident">status</span>(<span class="ident">StatusCode::PRECONDITION_FAILED</span>).<span class="ident">finish</span>();
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">not_modified</span> {
-            <span class="kw">return</span> <span class="ident">res</span>
-                .<span class="ident">status</span>(<span class="ident">StatusCode::NOT_MODIFIED</span>)
-                .<span class="ident">body</span>(<span class="ident">body::None::new</span>())
-                .<span class="ident">map_into_boxed_body</span>();
+        <span class="kw">if </span>precondition_failed {
+            <span class="kw">return </span>res.status(StatusCode::PRECONDITION_FAILED).finish();
+        } <span class="kw">else if </span>not_modified {
+            <span class="kw">return </span>res
+                .status(StatusCode::NOT_MODIFIED)
+                .body(body::None::new())
+                .map_into_boxed_body();
         }
 
-        <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">chunked::new_chunked_read</span>(<span class="ident">length</span>, <span class="ident">offset</span>, <span class="self">self</span>.<span class="ident">file</span>);
+        <span class="kw">let </span>reader = chunked::new_chunked_read(length, offset, <span class="self">self</span>.file);
 
-        <span class="kw">if</span> <span class="ident">offset</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">length</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">md</span>.<span class="ident">len</span>() {
-            <span class="ident">res</span>.<span class="ident">status</span>(<span class="ident">StatusCode::PARTIAL_CONTENT</span>);
+        <span class="kw">if </span>offset != <span class="number">0 </span>|| length != <span class="self">self</span>.md.len() {
+            res.status(StatusCode::PARTIAL_CONTENT);
         }
 
-        <span class="ident">res</span>.<span class="ident">body</span>(<span class="ident">SizedStream::new</span>(<span class="ident">length</span>, <span class="ident">reader</span>))
+        res.body(SizedStream::new(length, reader))
     }
 }
 
-<span class="doccomment">/// Returns true if `req` has no `If-Match` header or one which matches `etag`.</span>
-<span class="kw">fn</span> <span class="ident">any_match</span>(<span class="ident">etag</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">header::EntityTag</span><span class="op">&gt;</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">get_header</span>::<span class="op">&lt;</span><span class="ident">header::IfMatch</span><span class="op">&gt;</span>() {
-        <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">header::IfMatch::Any</span>) =&gt; <span class="bool-val">true</span>,
+<span class="doccomment">/// Returns true if `req` has no `If-Match` header or one which matches `etag`.
+</span><span class="kw">fn </span>any_match(etag: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>header::EntityTag&gt;, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; bool {
+    <span class="kw">match </span>req.get_header::&lt;header::IfMatch&gt;() {
+        <span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(header::IfMatch::Any) =&gt; <span class="bool-val">true</span>,
 
-        <span class="prelude-val">Some</span>(<span class="ident">header::IfMatch::Items</span>(<span class="kw-2">ref</span> <span class="ident">items</span>)) =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">some_etag</span>) <span class="op">=</span> <span class="ident">etag</span> {
-                <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">items</span> {
-                    <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">strong_eq</span>(<span class="ident">some_etag</span>) {
-                        <span class="kw">return</span> <span class="bool-val">true</span>;
+        <span class="prelude-val">Some</span>(header::IfMatch::Items(<span class="kw-2">ref </span>items)) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(some_etag) = etag {
+                <span class="kw">for </span>item <span class="kw">in </span>items {
+                    <span class="kw">if </span>item.strong_eq(some_etag) {
+                        <span class="kw">return </span><span class="bool-val">true</span>;
                     }
                 }
             }
 
-            <span class="bool-val">false</span>
-        }
+            <span class="bool-val">false
+        </span>}
     }
 }
 
-<span class="doccomment">/// Returns true if `req` doesn&#39;t have an `If-None-Match` header matching `req`.</span>
-<span class="kw">fn</span> <span class="ident">none_match</span>(<span class="ident">etag</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">header::EntityTag</span><span class="op">&gt;</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">get_header</span>::<span class="op">&lt;</span><span class="ident">header::IfNoneMatch</span><span class="op">&gt;</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">header::IfNoneMatch::Any</span>) =&gt; <span class="bool-val">false</span>,
+<span class="doccomment">/// Returns true if `req` doesn&#39;t have an `If-None-Match` header matching `req`.
+</span><span class="kw">fn </span>none_match(etag: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>header::EntityTag&gt;, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; bool {
+    <span class="kw">match </span>req.get_header::&lt;header::IfNoneMatch&gt;() {
+        <span class="prelude-val">Some</span>(header::IfNoneMatch::Any) =&gt; <span class="bool-val">false</span>,
 
-        <span class="prelude-val">Some</span>(<span class="ident">header::IfNoneMatch::Items</span>(<span class="kw-2">ref</span> <span class="ident">items</span>)) =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">some_etag</span>) <span class="op">=</span> <span class="ident">etag</span> {
-                <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">items</span> {
-                    <span class="kw">if</span> <span class="ident">item</span>.<span class="ident">weak_eq</span>(<span class="ident">some_etag</span>) {
-                        <span class="kw">return</span> <span class="bool-val">false</span>;
+        <span class="prelude-val">Some</span>(header::IfNoneMatch::Items(<span class="kw-2">ref </span>items)) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(some_etag) = etag {
+                <span class="kw">for </span>item <span class="kw">in </span>items {
+                    <span class="kw">if </span>item.weak_eq(some_etag) {
+                        <span class="kw">return </span><span class="bool-val">false</span>;
                     }
                 }
             }
 
-            <span class="bool-val">true</span>
-        }
+            <span class="bool-val">true
+        </span>}
 
-        <span class="prelude-val">None</span> =&gt; <span class="bool-val">true</span>,
+        <span class="prelude-val">None </span>=&gt; <span class="bool-val">true</span>,
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Responder</span> <span class="kw">for</span> <span class="ident">NamedFile</span> {
-    <span class="kw">type</span> <span class="ident">Body</span> <span class="op">=</span> <span class="ident">BoxBody</span>;
+<span class="kw">impl </span>Responder <span class="kw">for </span>NamedFile {
+    <span class="kw">type </span>Body = BoxBody;
 
-    <span class="kw">fn</span> <span class="ident">respond_to</span>(<span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident">HttpResponse</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Body</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">into_response</span>(<span class="ident">req</span>)
+    <span class="kw">fn </span>respond_to(<span class="self">self</span>, req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; HttpResponse&lt;<span class="self">Self</span>::Body&gt; {
+        <span class="self">self</span>.into_response(req)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">NamedFile</span> {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">NamedFileService</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Service</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>ServiceFactory&lt;ServiceRequest&gt; <span class="kw">for </span>NamedFile {
+    <span class="kw">type </span>Response = ServiceResponse;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Config = ();
+    <span class="kw">type </span>Service = NamedFileService;
+    <span class="kw">type </span>InitError = ();
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Service, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="ident">NamedFileService</span> {
-            <span class="ident">path</span>: <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">clone</span>(),
+    <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>service = NamedFileService {
+            path: <span class="self">self</span>.path.clone(),
         };
 
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="prelude-val">Ok</span>(<span class="ident">service</span>) })
+        Box::pin(<span class="kw">async move </span>{ <span class="prelude-val">Ok</span>(service) })
     }
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NamedFileService</span> {
-    <span class="ident">path</span>: <span class="ident">PathBuf</span>,
+<span class="attribute">#[doc(hidden)]
+#[derive(Debug)]
+</span><span class="kw">pub struct </span>NamedFileService {
+    path: PathBuf,
 }
 
-<span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">NamedFileService</span> {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Response</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>Service&lt;ServiceRequest&gt; <span class="kw">for </span>NamedFileService {
+    <span class="kw">type </span>Response = ServiceResponse;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Response, <span class="self">Self</span>::Error&gt;&gt;;
 
     <span class="macro">dev::always_ready!</span>();
 
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">into_parts</span>();
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: ServiceRequest) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>(req, <span class="kw">_</span>) = req.into_parts();
 
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">clone</span>();
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">NamedFile::open_async</span>(<span class="ident">path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">into_response</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-            <span class="prelude-val">Ok</span>(<span class="ident">ServiceResponse::new</span>(<span class="ident">req</span>, <span class="ident">res</span>))
+        <span class="kw">let </span>path = <span class="self">self</span>.path.clone();
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>file = NamedFile::open_async(path).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>res = file.into_response(<span class="kw-2">&amp;</span>req);
+            <span class="prelude-val">Ok</span>(ServiceResponse::new(req, res))
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">HttpServiceFactory</span> <span class="kw">for</span> <span class="ident">NamedFile</span> {
-    <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">config</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AppService</span>) {
-        <span class="ident">config</span>.<span class="ident">register_service</span>(
-            <span class="ident">ResourceDef::root_prefix</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">to_string_lossy</span>().<span class="ident">as_ref</span>()),
+<span class="kw">impl </span>HttpServiceFactory <span class="kw">for </span>NamedFile {
+    <span class="kw">fn </span>register(<span class="self">self</span>, config: <span class="kw-2">&amp;mut </span>AppService) {
+        config.register_service(
+            ResourceDef::root_prefix(<span class="self">self</span>.path.to_string_lossy().as_ref()),
             <span class="prelude-val">None</span>,
             <span class="self">self</span>,
             <span class="prelude-val">None</span>,
@@ -1365,4 +1365,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_files" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_files" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

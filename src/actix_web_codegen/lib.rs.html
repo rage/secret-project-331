@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-codegen-4.1.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web_codegen/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web_codegen/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_web_codegen/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-codegen-4.1.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web_codegen/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web_codegen/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_web_codegen/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -237,244 +237,244 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Routing and runtime macros for Actix Web.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Actix Web Re-exports</span>
-<span class="doccomment">//! Actix Web re-exports a version of this crate in it&#39;s entirety so you usually don&#39;t have to</span>
-<span class="doccomment">//! specify a dependency on this crate explicitly. Sometimes, however, updates are made to this</span>
-<span class="doccomment">//! crate before the actix-web dependency is updated. Therefore, code examples here will show</span>
-<span class="doccomment">//! explicit imports. Check the latest [actix-web attributes docs] to see which macros</span>
-<span class="doccomment">//! are re-exported.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Runtime Setup</span>
-<span class="doccomment">//! Used for setting up the actix async runtime. See [macro@main] macro docs.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! #[actix_web_codegen::main] // or `#[actix_web::main]` in Actix Web apps</span>
-<span class="doccomment">//! async fn main() {</span>
-<span class="doccomment">//!     async { println!(&quot;Hello world&quot;); }.await</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Single Method Handler</span>
-<span class="doccomment">//! There is a macro to set up a handler for each of the most common HTTP methods that also define</span>
-<span class="doccomment">//! additional guards and route-specific middleware.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! See docs for: [GET], [POST], [PATCH], [PUT], [DELETE], [HEAD], [CONNECT], [OPTIONS], [TRACE]</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # use actix_web::HttpResponse;</span>
-<span class="doccomment">//! # use actix_web_codegen::get;</span>
-<span class="doccomment">//! #[get(&quot;/test&quot;)]</span>
-<span class="doccomment">//! async fn get_handler() -&gt; HttpResponse {</span>
-<span class="doccomment">//!     HttpResponse::Ok().finish()</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Multiple Method Handlers</span>
-<span class="doccomment">//! Similar to the single method handler macro but takes one or more arguments for the HTTP methods</span>
-<span class="doccomment">//! it should respond to. See [macro@route] macro docs.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # use actix_web::HttpResponse;</span>
-<span class="doccomment">//! # use actix_web_codegen::route;</span>
-<span class="doccomment">//! #[route(&quot;/test&quot;, method = &quot;GET&quot;, method = &quot;HEAD&quot;)]</span>
-<span class="doccomment">//! async fn get_and_head_handler() -&gt; HttpResponse {</span>
-<span class="doccomment">//!     HttpResponse::Ok().finish()</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Multiple Path Handlers</span>
-<span class="doccomment">//! Acts as a wrapper for multiple single method handler macros. It takes no arguments and</span>
-<span class="doccomment">//! delegates those to the macros for the individual methods. See [macro@routes] macro docs.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! # use actix_web::HttpResponse;</span>
-<span class="doccomment">//! # use actix_web_codegen::routes;</span>
-<span class="doccomment">//! #[routes]</span>
-<span class="doccomment">//! #[get(&quot;/test&quot;)]</span>
-<span class="doccomment">//! #[get(&quot;/test2&quot;)]</span>
-<span class="doccomment">//! #[delete(&quot;/test&quot;)]</span>
-<span class="doccomment">//! async fn example() -&gt; HttpResponse {</span>
-<span class="doccomment">//!     HttpResponse::Ok().finish()</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [actix-web attributes docs]: https://docs.rs/actix-web/latest/actix_web/#attributes</span>
-<span class="doccomment">//! [GET]: macro@get</span>
-<span class="doccomment">//! [POST]: macro@post</span>
-<span class="doccomment">//! [PUT]: macro@put</span>
-<span class="doccomment">//! [HEAD]: macro@head</span>
-<span class="doccomment">//! [CONNECT]: macro@macro@connect</span>
-<span class="doccomment">//! [OPTIONS]: macro@options</span>
-<span class="doccomment">//! [TRACE]: macro@trace</span>
-<span class="doccomment">//! [PATCH]: macro@patch</span>
-<span class="doccomment">//! [DELETE]: macro@delete</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Routing and runtime macros for Actix Web.
+//!
+//! # Actix Web Re-exports
+//! Actix Web re-exports a version of this crate in it&#39;s entirety so you usually don&#39;t have to
+//! specify a dependency on this crate explicitly. Sometimes, however, updates are made to this
+//! crate before the actix-web dependency is updated. Therefore, code examples here will show
+//! explicit imports. Check the latest [actix-web attributes docs] to see which macros
+//! are re-exported.
+//!
+//! # Runtime Setup
+//! Used for setting up the actix async runtime. See [macro@main] macro docs.
+//!
+//! ```
+//! #[actix_web_codegen::main] // or `#[actix_web::main]` in Actix Web apps
+//! async fn main() {
+//!     async { println!(&quot;Hello world&quot;); }.await
+//! }
+//! ```
+//!
+//! # Single Method Handler
+//! There is a macro to set up a handler for each of the most common HTTP methods that also define
+//! additional guards and route-specific middleware.
+//!
+//! See docs for: [GET], [POST], [PATCH], [PUT], [DELETE], [HEAD], [CONNECT], [OPTIONS], [TRACE]
+//!
+//! ```
+//! # use actix_web::HttpResponse;
+//! # use actix_web_codegen::get;
+//! #[get(&quot;/test&quot;)]
+//! async fn get_handler() -&gt; HttpResponse {
+//!     HttpResponse::Ok().finish()
+//! }
+//! ```
+//!
+//! # Multiple Method Handlers
+//! Similar to the single method handler macro but takes one or more arguments for the HTTP methods
+//! it should respond to. See [macro@route] macro docs.
+//!
+//! ```
+//! # use actix_web::HttpResponse;
+//! # use actix_web_codegen::route;
+//! #[route(&quot;/test&quot;, method = &quot;GET&quot;, method = &quot;HEAD&quot;)]
+//! async fn get_and_head_handler() -&gt; HttpResponse {
+//!     HttpResponse::Ok().finish()
+//! }
+//! ```
+//!
+//! # Multiple Path Handlers
+//! Acts as a wrapper for multiple single method handler macros. It takes no arguments and
+//! delegates those to the macros for the individual methods. See [macro@routes] macro docs.
+//!
+//! ```
+//! # use actix_web::HttpResponse;
+//! # use actix_web_codegen::routes;
+//! #[routes]
+//! #[get(&quot;/test&quot;)]
+//! #[get(&quot;/test2&quot;)]
+//! #[delete(&quot;/test&quot;)]
+//! async fn example() -&gt; HttpResponse {
+//!     HttpResponse::Ok().finish()
+//! }
+//! ```
+//!
+//! [actix-web attributes docs]: https://docs.rs/actix-web/latest/actix_web/#attributes
+//! [GET]: macro@get
+//! [POST]: macro@post
+//! [PUT]: macro@put
+//! [HEAD]: macro@head
+//! [CONNECT]: macro@macro@connect
+//! [OPTIONS]: macro@options
+//! [TRACE]: macro@trace
+//! [PATCH]: macro@patch
+//! [DELETE]: macro@delete
 
-<span class="attribute">#![<span class="ident">recursion_limit</span> <span class="op">=</span> <span class="string">&quot;512&quot;</span>]</span>
-<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">rust_2018_idioms</span>, <span class="ident">nonstandard_style</span>)]</span>
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">future_incompatible</span>)]</span>
+</span><span class="attribute">#![recursion_limit = <span class="string">&quot;512&quot;</span>]
+#![deny(rust_2018_idioms, nonstandard_style)]
+#![warn(future_incompatible)]
 
-<span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
-<span class="kw">use</span> <span class="ident">quote::quote</span>;
+</span><span class="kw">use </span>proc_macro::TokenStream;
+<span class="kw">use </span>quote::quote;
 
-<span class="kw">mod</span> <span class="ident">route</span>;
+<span class="kw">mod </span>route;
 
-<span class="doccomment">/// Creates resource handler, allowing multiple HTTP method guards.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Syntax</span>
-<span class="doccomment">/// ```plain</span>
-<span class="doccomment">/// #[route(&quot;path&quot;, method=&quot;HTTP_METHOD&quot;[, attributes])]</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Attributes</span>
-<span class="doccomment">/// - `&quot;path&quot;`: Raw literal string with path for which to register handler.</span>
-<span class="doccomment">/// - `name = &quot;resource_name&quot;`: Specifies resource name for the handler. If not set, the function</span>
-<span class="doccomment">///   name of handler is used.</span>
-<span class="doccomment">/// - `method = &quot;HTTP_METHOD&quot;`: Registers HTTP method to provide guard for. Upper-case string,</span>
-<span class="doccomment">///   &quot;GET&quot;, &quot;POST&quot; for example.</span>
-<span class="doccomment">/// - `guard = &quot;function_name&quot;`: Registers function as guard using `actix_web::guard::fn_guard`.</span>
-<span class="doccomment">/// - `wrap = &quot;Middleware&quot;`: Registers a resource middleware.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Notes</span>
-<span class="doccomment">/// Function name can be specified as any expression that is going to be accessible to the generate</span>
-<span class="doccomment">/// code, e.g `my_guard` or `my_module::my_guard`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use actix_web::HttpResponse;</span>
-<span class="doccomment">/// # use actix_web_codegen::route;</span>
-<span class="doccomment">/// #[route(&quot;/test&quot;, method = &quot;GET&quot;, method = &quot;HEAD&quot;)]</span>
-<span class="doccomment">/// async fn example() -&gt; HttpResponse {</span>
-<span class="doccomment">///     HttpResponse::Ok().finish()</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">route</span>(<span class="ident">args</span>: <span class="ident">TokenStream</span>, <span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="ident">route::with_method</span>(<span class="prelude-val">None</span>, <span class="ident">args</span>, <span class="ident">input</span>)
+<span class="doccomment">/// Creates resource handler, allowing multiple HTTP method guards.
+///
+/// # Syntax
+/// ```plain
+/// #[route(&quot;path&quot;, method=&quot;HTTP_METHOD&quot;[, attributes])]
+/// ```
+///
+/// # Attributes
+/// - `&quot;path&quot;`: Raw literal string with path for which to register handler.
+/// - `name = &quot;resource_name&quot;`: Specifies resource name for the handler. If not set, the function
+///   name of handler is used.
+/// - `method = &quot;HTTP_METHOD&quot;`: Registers HTTP method to provide guard for. Upper-case string,
+///   &quot;GET&quot;, &quot;POST&quot; for example.
+/// - `guard = &quot;function_name&quot;`: Registers function as guard using `actix_web::guard::fn_guard`.
+/// - `wrap = &quot;Middleware&quot;`: Registers a resource middleware.
+///
+/// # Notes
+/// Function name can be specified as any expression that is going to be accessible to the generate
+/// code, e.g `my_guard` or `my_module::my_guard`.
+///
+/// # Examples
+/// ```
+/// # use actix_web::HttpResponse;
+/// # use actix_web_codegen::route;
+/// #[route(&quot;/test&quot;, method = &quot;GET&quot;, method = &quot;HEAD&quot;)]
+/// async fn example() -&gt; HttpResponse {
+///     HttpResponse::Ok().finish()
+/// }
+/// ```
+</span><span class="attribute">#[proc_macro_attribute]
+</span><span class="kw">pub fn </span>route(args: TokenStream, input: TokenStream) -&gt; TokenStream {
+    route::with_method(<span class="prelude-val">None</span>, args, input)
 }
 
-<span class="doccomment">/// Creates resource handler, allowing multiple HTTP methods and paths.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Syntax</span>
-<span class="doccomment">/// ```plain</span>
-<span class="doccomment">/// #[routes]</span>
-<span class="doccomment">/// #[&lt;method&gt;(&quot;path&quot;, ...)]</span>
-<span class="doccomment">/// #[&lt;method&gt;(&quot;path&quot;, ...)]</span>
-<span class="doccomment">/// ...</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Attributes</span>
-<span class="doccomment">/// The `routes` macro itself has no parameters, but allows specifying the attribute macros for</span>
-<span class="doccomment">/// the multiple paths and/or methods, e.g. [`GET`](macro@get) and [`POST`](macro@post).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// These helper attributes take the same parameters as the [single method handlers](crate#single-method-handler).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use actix_web::HttpResponse;</span>
-<span class="doccomment">/// # use actix_web_codegen::routes;</span>
-<span class="doccomment">/// #[routes]</span>
-<span class="doccomment">/// #[get(&quot;/test&quot;)]</span>
-<span class="doccomment">/// #[get(&quot;/test2&quot;)]</span>
-<span class="doccomment">/// #[delete(&quot;/test&quot;)]</span>
-<span class="doccomment">/// async fn example() -&gt; HttpResponse {</span>
-<span class="doccomment">///     HttpResponse::Ok().finish()</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">routes</span>(<span class="kw">_</span>: <span class="ident">TokenStream</span>, <span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="ident">route::with_methods</span>(<span class="ident">input</span>)
+<span class="doccomment">/// Creates resource handler, allowing multiple HTTP methods and paths.
+///
+/// # Syntax
+/// ```plain
+/// #[routes]
+/// #[&lt;method&gt;(&quot;path&quot;, ...)]
+/// #[&lt;method&gt;(&quot;path&quot;, ...)]
+/// ...
+/// ```
+///
+/// # Attributes
+/// The `routes` macro itself has no parameters, but allows specifying the attribute macros for
+/// the multiple paths and/or methods, e.g. [`GET`](macro@get) and [`POST`](macro@post).
+///
+/// These helper attributes take the same parameters as the [single method handlers](crate#single-method-handler).
+///
+/// # Examples
+/// ```
+/// # use actix_web::HttpResponse;
+/// # use actix_web_codegen::routes;
+/// #[routes]
+/// #[get(&quot;/test&quot;)]
+/// #[get(&quot;/test2&quot;)]
+/// #[delete(&quot;/test&quot;)]
+/// async fn example() -&gt; HttpResponse {
+///     HttpResponse::Ok().finish()
+/// }
+/// ```
+</span><span class="attribute">#[proc_macro_attribute]
+</span><span class="kw">pub fn </span>routes(<span class="kw">_</span>: TokenStream, input: TokenStream) -&gt; TokenStream {
+    route::with_methods(input)
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">method_macro</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>:<span class="ident">ident</span>) =&gt; {
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;Creates route handler with `actix_web::guard::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>), <span class="string">&quot;`.&quot;</span>)]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Syntax</span>
-<span class="doccomment">/// ```plain</span>
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;#[&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>), <span class="string">r#&quot;(&quot;path&quot;[, attributes])]&quot;#</span>)]</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Attributes</span>
-<span class="doccomment">/// - `&quot;path&quot;`: Raw literal string with path for which to register handler.</span>
-<span class="doccomment">/// - `name = &quot;resource_name&quot;`: Specifies resource name for the handler. If not set, the function</span>
-<span class="doccomment">///   name of handler is used.</span>
-<span class="doccomment">/// - `guard = &quot;function_name&quot;`: Registers function as guard using `actix_web::guard::fn_guard`.</span>
-<span class="doccomment">/// - `wrap = &quot;Middleware&quot;`: Registers a resource middleware.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Notes</span>
-<span class="doccomment">/// Function name can be specified as any expression that is going to be accessible to the</span>
-<span class="doccomment">/// generate code, e.g `my_guard` or `my_module::my_guard`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use actix_web::HttpResponse;</span>
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;# use actix_web_codegen::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>), <span class="string">&quot;;&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro">concat!</span>(<span class="string">&quot;#[&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>), <span class="string">r#&quot;(&quot;/&quot;)]&quot;#</span>)]</span>
-<span class="doccomment">/// async fn example() -&gt; HttpResponse {</span>
-<span class="doccomment">///     HttpResponse::Ok().finish()</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>(<span class="ident">args</span>: <span class="ident">TokenStream</span>, <span class="ident">input</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="ident">route::with_method</span>(<span class="prelude-val">Some</span>(<span class="ident">route::MethodType</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>), <span class="ident">args</span>, <span class="ident">input</span>)
+<span class="macro">macro_rules! </span>method_macro {
+    (<span class="macro-nonterminal">$variant</span>:ident, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
+<span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;Creates route handler with `actix_web::guard::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$variant</span>), <span class="string">&quot;`.&quot;</span>)]
+</span><span class="doccomment">///
+/// # Syntax
+/// ```plain
+</span><span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;#[&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method</span>), <span class="string">r#&quot;(&quot;path&quot;[, attributes])]&quot;#</span>)]
+</span><span class="doccomment">/// ```
+///
+/// # Attributes
+/// - `&quot;path&quot;`: Raw literal string with path for which to register handler.
+/// - `name = &quot;resource_name&quot;`: Specifies resource name for the handler. If not set, the function
+///   name of handler is used.
+/// - `guard = &quot;function_name&quot;`: Registers function as guard using `actix_web::guard::fn_guard`.
+/// - `wrap = &quot;Middleware&quot;`: Registers a resource middleware.
+///
+/// # Notes
+/// Function name can be specified as any expression that is going to be accessible to the
+/// generate code, e.g `my_guard` or `my_module::my_guard`.
+///
+/// # Examples
+/// ```
+/// # use actix_web::HttpResponse;
+</span><span class="attribute">#[doc = <span class="macro">concat!</span>(<span class="string">&quot;# use actix_web_codegen::&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method</span>), <span class="string">&quot;;&quot;</span>)]
+#[doc = <span class="macro">concat!</span>(<span class="string">&quot;#[&quot;</span>, <span class="macro">stringify!</span>(<span class="macro-nonterminal">$method</span>), <span class="string">r#&quot;(&quot;/&quot;)]&quot;#</span>)]
+</span><span class="doccomment">/// async fn example() -&gt; HttpResponse {
+///     HttpResponse::Ok().finish()
+/// }
+/// ```
+</span><span class="attribute">#[proc_macro_attribute]
+</span><span class="kw">pub fn </span><span class="macro-nonterminal">$method</span>(args: TokenStream, input: TokenStream) -&gt; TokenStream {
+    route::with_method(<span class="prelude-val">Some</span>(route::MethodType::<span class="macro-nonterminal">$variant</span>), args, input)
 }
     };
 }
 
-<span class="macro">method_macro!</span>(<span class="ident">Get</span>, <span class="ident">get</span>);
-<span class="macro">method_macro!</span>(<span class="ident">Post</span>, <span class="ident">post</span>);
-<span class="macro">method_macro!</span>(<span class="ident">Put</span>, <span class="ident">put</span>);
-<span class="macro">method_macro!</span>(<span class="ident">Delete</span>, <span class="ident">delete</span>);
-<span class="macro">method_macro!</span>(<span class="ident">Head</span>, <span class="ident">head</span>);
-<span class="macro">method_macro!</span>(<span class="ident">Connect</span>, <span class="ident">connect</span>);
-<span class="macro">method_macro!</span>(<span class="ident">Options</span>, <span class="ident">options</span>);
-<span class="macro">method_macro!</span>(<span class="ident">Trace</span>, <span class="ident">trace</span>);
-<span class="macro">method_macro!</span>(<span class="ident">Patch</span>, <span class="ident">patch</span>);
+<span class="macro">method_macro!</span>(Get, get);
+<span class="macro">method_macro!</span>(Post, post);
+<span class="macro">method_macro!</span>(Put, put);
+<span class="macro">method_macro!</span>(Delete, delete);
+<span class="macro">method_macro!</span>(Head, head);
+<span class="macro">method_macro!</span>(Connect, connect);
+<span class="macro">method_macro!</span>(Options, options);
+<span class="macro">method_macro!</span>(Trace, trace);
+<span class="macro">method_macro!</span>(Patch, patch);
 
-<span class="doccomment">/// Marks async main function as the Actix Web system entry-point.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that Actix Web also works under `#[tokio::main]` since version 4.0. However, this macro is</span>
-<span class="doccomment">/// still necessary for actor support (since actors use a `System`). Read more in the</span>
-<span class="doccomment">/// [`actix_web::rt`](https://docs.rs/actix-web/4/actix_web/rt) module docs.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// #[actix_web::main]</span>
-<span class="doccomment">/// async fn main() {</span>
-<span class="doccomment">///     async { println!(&quot;Hello world&quot;); }.await</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>(<span class="kw">_</span>: <span class="ident">TokenStream</span>, <span class="ident">item</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="ident">TokenStream</span> <span class="op">=</span> (<span class="macro">quote!</span> {
-        <span class="attribute">#[<span class="ident">::actix_web::rt::main</span>(<span class="ident">system</span> <span class="op">=</span> <span class="string">&quot;::actix_web::rt::System&quot;</span>)]</span>
-    })
-    .<span class="ident">into</span>();
+<span class="doccomment">/// Marks async main function as the Actix Web system entry-point.
+///
+/// Note that Actix Web also works under `#[tokio::main]` since version 4.0. However, this macro is
+/// still necessary for actor support (since actors use a `System`). Read more in the
+/// [`actix_web::rt`](https://docs.rs/actix-web/4/actix_web/rt) module docs.
+///
+/// # Examples
+/// ```
+/// #[actix_web::main]
+/// async fn main() {
+///     async { println!(&quot;Hello world&quot;); }.await
+/// }
+/// ```
+</span><span class="attribute">#[proc_macro_attribute]
+</span><span class="kw">pub fn </span>main(<span class="kw">_</span>: TokenStream, item: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span><span class="kw-2">mut </span>output: TokenStream = (<span class="macro">quote! </span>{
+        <span class="attribute">#[::actix_web::rt::main(system = <span class="string">&quot;::actix_web::rt::System&quot;</span>)]
+    </span>})
+    .into();
 
-    <span class="ident">output</span>.<span class="ident">extend</span>(<span class="ident">item</span>);
-    <span class="ident">output</span>
+    output.extend(item);
+    output
 }
 
-<span class="doccomment">/// Marks async test functions to use the actix system entry-point.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// #[actix_web::test]</span>
-<span class="doccomment">/// async fn test() {</span>
-<span class="doccomment">///     assert_eq!(async { &quot;Hello world&quot; }.await, &quot;Hello world&quot;);</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">test</span>(<span class="kw">_</span>: <span class="ident">TokenStream</span>, <span class="ident">item</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: <span class="ident">TokenStream</span> <span class="op">=</span> (<span class="macro">quote!</span> {
-        <span class="attribute">#[<span class="ident">::actix_web::rt::test</span>(<span class="ident">system</span> <span class="op">=</span> <span class="string">&quot;::actix_web::rt::System&quot;</span>)]</span>
-    })
-    .<span class="ident">into</span>();
+<span class="doccomment">/// Marks async test functions to use the actix system entry-point.
+///
+/// # Examples
+/// ```
+/// #[actix_web::test]
+/// async fn test() {
+///     assert_eq!(async { &quot;Hello world&quot; }.await, &quot;Hello world&quot;);
+/// }
+/// ```
+</span><span class="attribute">#[proc_macro_attribute]
+</span><span class="kw">pub fn </span>test(<span class="kw">_</span>: TokenStream, item: TokenStream) -&gt; TokenStream {
+    <span class="kw">let </span><span class="kw-2">mut </span>output: TokenStream = (<span class="macro">quote! </span>{
+        <span class="attribute">#[::actix_web::rt::test(system = <span class="string">&quot;::actix_web::rt::System&quot;</span>)]
+    </span>})
+    .into();
 
-    <span class="ident">output</span>.<span class="ident">extend</span>(<span class="ident">item</span>);
-    <span class="ident">output</span>
+    output.extend(item);
+    output
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

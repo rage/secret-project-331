@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/same-file-1.0.6/src/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../same_file/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../same_file/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../same_file/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/same-file-1.0.6/src/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../same_file/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../same_file/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../same_file/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -110,117 +110,117 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fs</span>::{<span class="ident">File</span>, <span class="ident">OpenOptions</span>};
-<span class="kw">use</span> <span class="ident">std::hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>};
-<span class="kw">use</span> <span class="ident">std::io</span>;
-<span class="kw">use</span> <span class="ident">std::os::unix::fs::MetadataExt</span>;
-<span class="kw">use</span> <span class="ident">std::os::unix::io</span>::{<span class="ident">AsRawFd</span>, <span class="ident">FromRawFd</span>, <span class="ident">IntoRawFd</span>, <span class="ident">RawFd</span>};
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::fs::{File, OpenOptions};
+<span class="kw">use </span>std::hash::{Hash, Hasher};
+<span class="kw">use </span>std::io;
+<span class="kw">use </span>std::os::unix::fs::MetadataExt;
+<span class="kw">use </span>std::os::unix::io::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
+<span class="kw">use </span>std::path::Path;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Handle</span> {
-    <span class="ident">file</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span>,
-    <span class="comment">// If is_std is true, then we don&#39;t drop the corresponding File since it</span>
-    <span class="comment">// will close the handle.</span>
-    <span class="ident">is_std</span>: <span class="ident">bool</span>,
-    <span class="ident">dev</span>: <span class="ident">u64</span>,
-    <span class="ident">ino</span>: <span class="ident">u64</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Handle {
+    file: <span class="prelude-ty">Option</span>&lt;File&gt;,
+    <span class="comment">// If is_std is true, then we don&#39;t drop the corresponding File since it
+    // will close the handle.
+    </span>is_std: bool,
+    dev: u64,
+    ino: u64,
 }
 
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Handle</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_std</span> {
-            <span class="comment">// unwrap() will not panic. Since we were able to open an</span>
-            <span class="comment">// std stream successfully, then `file` is guaranteed to be Some()</span>
-            <span class="self">self</span>.<span class="ident">file</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">into_raw_fd</span>();
+<span class="kw">impl </span>Drop <span class="kw">for </span>Handle {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.is_std {
+            <span class="comment">// unwrap() will not panic. Since we were able to open an
+            // std stream successfully, then `file` is guaranteed to be Some()
+            </span><span class="self">self</span>.file.take().unwrap().into_raw_fd();
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Handle</span> {}
+<span class="kw">impl </span>Eq <span class="kw">for </span>Handle {}
 
-<span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Handle</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Handle</span>) -&gt; <span class="ident">bool</span> {
-        (<span class="self">self</span>.<span class="ident">dev</span>, <span class="self">self</span>.<span class="ident">ino</span>) <span class="op">==</span> (<span class="ident">other</span>.<span class="ident">dev</span>, <span class="ident">other</span>.<span class="ident">ino</span>)
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>Handle {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Handle) -&gt; bool {
+        (<span class="self">self</span>.dev, <span class="self">self</span>.ino) == (other.dev, other.ino)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsRawFd</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::Handle</span> {
-    <span class="kw">fn</span> <span class="ident">as_raw_fd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">RawFd</span> {
-        <span class="comment">// unwrap() will not panic. Since we were able to open the</span>
-        <span class="comment">// file successfully, then `file` is guaranteed to be Some()</span>
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">file</span>.<span class="ident">as_ref</span>().<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">as_raw_fd</span>()
+<span class="kw">impl </span>AsRawFd <span class="kw">for </span><span class="kw">crate</span>::Handle {
+    <span class="kw">fn </span>as_raw_fd(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RawFd {
+        <span class="comment">// unwrap() will not panic. Since we were able to open the
+        // file successfully, then `file` is guaranteed to be Some()
+        </span><span class="self">self</span>.<span class="number">0</span>.file.as_ref().take().unwrap().as_raw_fd()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">IntoRawFd</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::Handle</span> {
-    <span class="kw">fn</span> <span class="ident">into_raw_fd</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RawFd</span> {
-        <span class="comment">// unwrap() will not panic. Since we were able to open the</span>
-        <span class="comment">// file successfully, then `file` is guaranteed to be Some()</span>
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">file</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">into_raw_fd</span>()
+<span class="kw">impl </span>IntoRawFd <span class="kw">for </span><span class="kw">crate</span>::Handle {
+    <span class="kw">fn </span>into_raw_fd(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; RawFd {
+        <span class="comment">// unwrap() will not panic. Since we were able to open the
+        // file successfully, then `file` is guaranteed to be Some()
+        </span><span class="self">self</span>.<span class="number">0</span>.file.take().unwrap().into_raw_fd()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Hash</span> <span class="kw">for</span> <span class="ident">Handle</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
-        <span class="self">self</span>.<span class="ident">dev</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
-        <span class="self">self</span>.<span class="ident">ino</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
+<span class="kw">impl </span>Hash <span class="kw">for </span>Handle {
+    <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+        <span class="self">self</span>.dev.hash(state);
+        <span class="self">self</span>.ino.hash(state);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Handle</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">p</span>: <span class="ident">P</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Handle</span><span class="op">&gt;</span> {
-        <span class="ident">Handle::from_file</span>(<span class="ident">OpenOptions::new</span>().<span class="ident">read</span>(<span class="bool-val">true</span>).<span class="ident">open</span>(<span class="ident">p</span>)<span class="question-mark">?</span>)
+<span class="kw">impl </span>Handle {
+    <span class="kw">pub fn </span>from_path&lt;P: AsRef&lt;Path&gt;&gt;(p: P) -&gt; io::Result&lt;Handle&gt; {
+        Handle::from_file(OpenOptions::new().read(<span class="bool-val">true</span>).open(p)<span class="question-mark">?</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_file</span>(<span class="ident">file</span>: <span class="ident">File</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Handle</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">md</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">metadata</span>()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">Handle</span> {
-            <span class="ident">file</span>: <span class="prelude-val">Some</span>(<span class="ident">file</span>),
-            <span class="ident">is_std</span>: <span class="bool-val">false</span>,
-            <span class="ident">dev</span>: <span class="ident">md</span>.<span class="ident">dev</span>(),
-            <span class="ident">ino</span>: <span class="ident">md</span>.<span class="ident">ino</span>(),
+    <span class="kw">pub fn </span>from_file(file: File) -&gt; io::Result&lt;Handle&gt; {
+        <span class="kw">let </span>md = file.metadata()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Handle {
+            file: <span class="prelude-val">Some</span>(file),
+            is_std: <span class="bool-val">false</span>,
+            dev: md.dev(),
+            ino: md.ino(),
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_std</span>(<span class="ident">file</span>: <span class="ident">File</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Handle</span><span class="op">&gt;</span> {
-        <span class="ident">Handle::from_file</span>(<span class="ident">file</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">h</span><span class="op">|</span> {
-            <span class="ident">h</span>.<span class="ident">is_std</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">h</span>
+    <span class="kw">pub fn </span>from_std(file: File) -&gt; io::Result&lt;Handle&gt; {
+        Handle::from_file(file).map(|<span class="kw-2">mut </span>h| {
+            h.is_std = <span class="bool-val">true</span>;
+            h
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stdin</span>() -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Handle</span><span class="op">&gt;</span> {
-        <span class="ident">Handle::from_std</span>(<span class="kw">unsafe</span> { <span class="ident">File::from_raw_fd</span>(<span class="number">0</span>) })
+    <span class="kw">pub fn </span>stdin() -&gt; io::Result&lt;Handle&gt; {
+        Handle::from_std(<span class="kw">unsafe </span>{ File::from_raw_fd(<span class="number">0</span>) })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stdout</span>() -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Handle</span><span class="op">&gt;</span> {
-        <span class="ident">Handle::from_std</span>(<span class="kw">unsafe</span> { <span class="ident">File::from_raw_fd</span>(<span class="number">1</span>) })
+    <span class="kw">pub fn </span>stdout() -&gt; io::Result&lt;Handle&gt; {
+        Handle::from_std(<span class="kw">unsafe </span>{ File::from_raw_fd(<span class="number">1</span>) })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stderr</span>() -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Handle</span><span class="op">&gt;</span> {
-        <span class="ident">Handle::from_std</span>(<span class="kw">unsafe</span> { <span class="ident">File::from_raw_fd</span>(<span class="number">2</span>) })
+    <span class="kw">pub fn </span>stderr() -&gt; io::Result&lt;Handle&gt; {
+        Handle::from_std(<span class="kw">unsafe </span>{ File::from_raw_fd(<span class="number">2</span>) })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">File</span> {
-        <span class="comment">// unwrap() will not panic. Since we were able to open the</span>
-        <span class="comment">// file successfully, then `file` is guaranteed to be Some()</span>
-        <span class="self">self</span>.<span class="ident">file</span>.<span class="ident">as_ref</span>().<span class="ident">take</span>().<span class="ident">unwrap</span>()
+    <span class="kw">pub fn </span>as_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>File {
+        <span class="comment">// unwrap() will not panic. Since we were able to open the
+        // file successfully, then `file` is guaranteed to be Some()
+        </span><span class="self">self</span>.file.as_ref().take().unwrap()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_file_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">File</span> {
-        <span class="comment">// unwrap() will not panic. Since we were able to open the</span>
-        <span class="comment">// file successfully, then `file` is guaranteed to be Some()</span>
-        <span class="self">self</span>.<span class="ident">file</span>.<span class="ident">as_mut</span>().<span class="ident">take</span>().<span class="ident">unwrap</span>()
+    <span class="kw">pub fn </span>as_file_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>File {
+        <span class="comment">// unwrap() will not panic. Since we were able to open the
+        // file successfully, then `file` is guaranteed to be Some()
+        </span><span class="self">self</span>.file.as_mut().take().unwrap()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="self">self</span>.<span class="ident">dev</span>
+    <span class="kw">pub fn </span>dev(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.dev
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ino</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="self">self</span>.<span class="ident">ino</span>
+    <span class="kw">pub fn </span>ino(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.ino
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="same_file" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="same_file" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

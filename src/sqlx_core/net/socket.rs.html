@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/net/socket.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>socket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/net/socket.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>socket.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -132,139 +132,139 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(dead_code)]
 
-<span class="kw">use</span> <span class="ident">std::io</span>;
-<span class="kw">use</span> <span class="ident">std::net::SocketAddr</span>;
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
-<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
-<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+</span><span class="kw">use </span>std::io;
+<span class="kw">use </span>std::net::SocketAddr;
+<span class="kw">use </span>std::path::Path;
+<span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::task::{Context, Poll};
 
-<span class="kw">use</span> <span class="ident">sqlx_rt</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">TcpStream</span>};
+<span class="kw">use </span>sqlx_rt::{AsyncRead, AsyncWrite, TcpStream};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Socket</span> {
-    <span class="ident">Tcp</span>(<span class="ident">TcpStream</span>),
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>Socket {
+    Tcp(TcpStream),
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="ident">Unix</span>(<span class="ident">sqlx_rt::UnixStream</span>),
+    <span class="attribute">#[cfg(unix)]
+    </span>Unix(sqlx_rt::UnixStream),
 }
 
-<span class="kw">impl</span> <span class="ident">Socket</span> {
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect_tcp</span>(<span class="ident">host</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">port</span>: <span class="ident">u16</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="comment">// Trim square brackets from host if it&#39;s an IPv6 address as the `url` crate doesn&#39;t do that.</span>
-        <span class="ident">TcpStream::connect</span>((<span class="ident">host</span>.<span class="ident">trim_matches</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;[&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;]&#39;</span>), <span class="ident">port</span>))
-            .<span class="kw">await</span>
-            .<span class="ident">map</span>(<span class="ident">Socket::Tcp</span>)
+<span class="kw">impl </span>Socket {
+    <span class="kw">pub async fn </span>connect_tcp(host: <span class="kw-2">&amp;</span>str, port: u16) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="comment">// Trim square brackets from host if it&#39;s an IPv6 address as the `url` crate doesn&#39;t do that.
+        </span>TcpStream::connect((host.trim_matches(|c| c == <span class="string">&#39;[&#39; </span>|| c == <span class="string">&#39;]&#39;</span>), port))
+            .<span class="kw">await
+            </span>.map(Socket::Tcp)
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect_uds</span>(<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">sqlx_rt::UnixStream::connect</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>())
-            .<span class="kw">await</span>
-            .<span class="ident">map</span>(<span class="ident">Socket::Unix</span>)
+    <span class="attribute">#[cfg(unix)]
+    </span><span class="kw">pub async fn </span>connect_uds(path: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        sqlx_rt::UnixStream::connect(path.as_ref())
+            .<span class="kw">await
+            </span>.map(Socket::Unix)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_addr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SocketAddr</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Tcp</span>(<span class="ident">tcp</span>) =&gt; <span class="ident">tcp</span>.<span class="ident">local_addr</span>().<span class="ident">ok</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Unix</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">pub fn </span>local_addr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SocketAddr&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Tcp(tcp) =&gt; tcp.local_addr().ok(),
+            <span class="attribute">#[cfg(unix)]
+            </span><span class="self">Self</span>::Unix(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">unix</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect_uds</span>(<span class="kw">_</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-            <span class="ident">io::ErrorKind::Other</span>,
+    <span class="attribute">#[cfg(not(unix))]
+    </span><span class="kw">pub async fn </span>connect_uds(<span class="kw">_</span>: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; io::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Err</span>(io::Error::new(
+            io::ErrorKind::Other,
             <span class="string">&quot;Unix domain sockets are not supported outside Unix platforms.&quot;</span>,
         ))
     }
 
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">shutdown</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>)]</span>
-        {
-            <span class="kw">use</span> <span class="ident">std::net::Shutdown</span>;
+    <span class="kw">pub async fn </span>shutdown(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+        </span>{
+            <span class="kw">use </span>std::net::Shutdown;
 
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">Socket::Tcp</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">shutdown</span>(<span class="ident">Shutdown::Both</span>),
+            <span class="kw">match </span><span class="self">self </span>{
+                Socket::Tcp(s) =&gt; s.shutdown(Shutdown::Both),
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-                <span class="ident">Socket::Unix</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">shutdown</span>(<span class="ident">Shutdown::Both</span>),
+                <span class="attribute">#[cfg(unix)]
+                </span>Socket::Unix(s) =&gt; s.shutdown(Shutdown::Both),
             }
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>)]</span>
-        {
-            <span class="kw">use</span> <span class="ident">sqlx_rt::AsyncWriteExt</span>;
+        <span class="attribute">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+        </span>{
+            <span class="kw">use </span>sqlx_rt::AsyncWriteExt;
 
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">Socket::Tcp</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">shutdown</span>().<span class="kw">await</span>,
+            <span class="kw">match </span><span class="self">self </span>{
+                Socket::Tcp(s) =&gt; s.shutdown().<span class="kw">await</span>,
 
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-                <span class="ident">Socket::Unix</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">shutdown</span>().<span class="kw">await</span>,
+                <span class="attribute">#[cfg(unix)]
+                </span>Socket::Unix(s) =&gt; s.shutdown().<span class="kw">await</span>,
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsyncRead</span> <span class="kw">for</span> <span class="ident">Socket</span> {
-    <span class="kw">fn</span> <span class="ident">poll_read</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident"><span class="kw">super</span>::PollReadBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident"><span class="kw">super</span>::PollReadOut</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Socket::Tcp</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="ident">buf</span>),
+<span class="kw">impl </span>AsyncRead <span class="kw">for </span>Socket {
+    <span class="kw">fn </span>poll_read(
+        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        buf: <span class="kw-2">&amp;mut </span><span class="kw">super</span>::PollReadBuf&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;io::Result&lt;<span class="kw">super</span>::PollReadOut&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut *</span><span class="self">self </span>{
+            Socket::Tcp(s) =&gt; Pin::new(s).poll_read(cx, buf),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">Socket::Unix</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="ident">buf</span>),
+            <span class="attribute">#[cfg(unix)]
+            </span>Socket::Unix(s) =&gt; Pin::new(s).poll_read(cx, buf),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsyncWrite</span> <span class="kw">for</span> <span class="ident">Socket</span> {
-    <span class="kw">fn</span> <span class="ident">poll_write</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Socket::Tcp</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="ident">buf</span>),
+<span class="kw">impl </span>AsyncWrite <span class="kw">for </span>Socket {
+    <span class="kw">fn </span>poll_write(
+        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+        buf: <span class="kw-2">&amp;</span>[u8],
+    ) -&gt; Poll&lt;io::Result&lt;usize&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut *</span><span class="self">self </span>{
+            Socket::Tcp(s) =&gt; Pin::new(s).poll_write(cx, buf),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">Socket::Unix</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="ident">buf</span>),
+            <span class="attribute">#[cfg(unix)]
+            </span>Socket::Unix(s) =&gt; Pin::new(s).poll_write(cx, buf),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Socket::Tcp</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_flush</span>(<span class="ident">cx</span>),
+    <span class="kw">fn </span>poll_flush(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut *</span><span class="self">self </span>{
+            Socket::Tcp(s) =&gt; Pin::new(s).poll_flush(cx),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">Socket::Unix</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_flush</span>(<span class="ident">cx</span>),
+            <span class="attribute">#[cfg(unix)]
+            </span>Socket::Unix(s) =&gt; Pin::new(s).poll_flush(cx),
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-tokio&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">poll_shutdown</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Socket::Tcp</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_shutdown</span>(<span class="ident">cx</span>),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;_rt-tokio&quot;</span>)]
+    </span><span class="kw">fn </span>poll_shutdown(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut *</span><span class="self">self </span>{
+            Socket::Tcp(s) =&gt; Pin::new(s).poll_shutdown(cx),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">Socket::Unix</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_shutdown</span>(<span class="ident">cx</span>),
+            <span class="attribute">#[cfg(unix)]
+            </span>Socket::Unix(s) =&gt; Pin::new(s).poll_shutdown(cx),
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_rt-async-std&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">poll_close</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">Socket::Tcp</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_close</span>(<span class="ident">cx</span>),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;_rt-async-std&quot;</span>)]
+    </span><span class="kw">fn </span>poll_close(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut *</span><span class="self">self </span>{
+            Socket::Tcp(s) =&gt; Pin::new(s).poll_close(cx),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-            <span class="ident">Socket::Unix</span>(<span class="ident">s</span>) =&gt; <span class="ident">Pin::new</span>(<span class="ident">s</span>).<span class="ident">poll_close</span>(<span class="ident">cx</span>),
+            <span class="attribute">#[cfg(unix)]
+            </span>Socket::Unix(s) =&gt; Pin::new(s).poll_close(cx),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

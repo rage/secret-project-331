@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/responses/head.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>head.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/responses/head.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>head.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -269,274 +269,274 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Response head type and caching pool.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Response head type and caching pool.
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cell::RefCell</span>, <span class="ident">ops</span>};
+</span><span class="kw">use </span>std::{cell::RefCell, ops};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">header::HeaderMap</span>, <span class="ident">message::Flags</span>, <span class="ident">ConnectionType</span>, <span class="ident">StatusCode</span>, <span class="ident">Version</span>};
+<span class="kw">use crate</span>::{header::HeaderMap, message::Flags, ConnectionType, StatusCode, Version};
 
-<span class="macro">thread_local!</span> {
-    <span class="kw">static</span> <span class="ident">RESPONSE_POOL</span>: <span class="ident">BoxedResponsePool</span> <span class="op">=</span> <span class="ident">BoxedResponsePool::create</span>();
+<span class="macro">thread_local! </span>{
+    <span class="kw">static </span>RESPONSE_POOL: BoxedResponsePool = BoxedResponsePool::create();
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResponseHead</span> {
-    <span class="kw">pub</span> <span class="ident">version</span>: <span class="ident">Version</span>,
-    <span class="kw">pub</span> <span class="ident">status</span>: <span class="ident">StatusCode</span>,
-    <span class="kw">pub</span> <span class="ident">headers</span>: <span class="ident">HeaderMap</span>,
-    <span class="kw">pub</span> <span class="ident">reason</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">flags</span>: <span class="ident">Flags</span>,
+<span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>ResponseHead {
+    <span class="kw">pub </span>version: Version,
+    <span class="kw">pub </span>status: StatusCode,
+    <span class="kw">pub </span>headers: HeaderMap,
+    <span class="kw">pub </span>reason: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) flags: Flags,
 }
 
-<span class="kw">impl</span> <span class="ident">ResponseHead</span> {
-    <span class="doccomment">/// Create new instance of `ResponseHead` type</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="ident">ResponseHead</span> {
-        <span class="ident">ResponseHead</span> {
-            <span class="ident">status</span>,
-            <span class="ident">version</span>: <span class="ident">Version::HTTP_11</span>,
-            <span class="ident">headers</span>: <span class="ident">HeaderMap::with_capacity</span>(<span class="number">12</span>),
-            <span class="ident">reason</span>: <span class="prelude-val">None</span>,
-            <span class="ident">flags</span>: <span class="ident">Flags::empty</span>(),
+<span class="kw">impl </span>ResponseHead {
+    <span class="doccomment">/// Create new instance of `ResponseHead` type
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>new(status: StatusCode) -&gt; ResponseHead {
+        ResponseHead {
+            status,
+            version: Version::HTTP_11,
+            headers: HeaderMap::with_capacity(<span class="number">12</span>),
+            reason: <span class="prelude-val">None</span>,
+            flags: Flags::empty(),
         }
     }
 
-    <span class="doccomment">/// Read the message headers.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">headers</span>
+    <span class="doccomment">/// Read the message headers.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>HeaderMap {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.headers
     }
 
-    <span class="doccomment">/// Mutable reference to the message headers.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">headers</span>
+    <span class="doccomment">/// Mutable reference to the message headers.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>headers_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>HeaderMap {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.headers
     }
 
-    <span class="doccomment">/// Sets the flag that controls whether to send headers formatted as Camel-Case.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Only applicable to HTTP/1.x responses; HTTP/2 header names are always lowercase.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_camel_case_headers</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">camel_case</span>: <span class="ident">bool</span>) {
-        <span class="kw">if</span> <span class="ident">camel_case</span> {
-            <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CAMEL_CASE</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::CAMEL_CASE</span>);
+    <span class="doccomment">/// Sets the flag that controls whether to send headers formatted as Camel-Case.
+    ///
+    /// Only applicable to HTTP/1.x responses; HTTP/2 header names are always lowercase.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_camel_case_headers(<span class="kw-2">&amp;mut </span><span class="self">self</span>, camel_case: bool) {
+        <span class="kw">if </span>camel_case {
+            <span class="self">self</span>.flags.insert(Flags::CAMEL_CASE);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.flags.remove(Flags::CAMEL_CASE);
         }
     }
 
-    <span class="doccomment">/// Set connection type of the message</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_connection_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctype</span>: <span class="ident">ConnectionType</span>) {
-        <span class="kw">match</span> <span class="ident">ctype</span> {
-            <span class="ident">ConnectionType::Close</span> =&gt; <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CLOSE</span>),
-            <span class="ident">ConnectionType::KeepAlive</span> =&gt; <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::KEEP_ALIVE</span>),
-            <span class="ident">ConnectionType::Upgrade</span> =&gt; <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::UPGRADE</span>),
+    <span class="doccomment">/// Set connection type of the message
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_connection_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctype: ConnectionType) {
+        <span class="kw">match </span>ctype {
+            ConnectionType::Close =&gt; <span class="self">self</span>.flags.insert(Flags::CLOSE),
+            ConnectionType::KeepAlive =&gt; <span class="self">self</span>.flags.insert(Flags::KEEP_ALIVE),
+            ConnectionType::Upgrade =&gt; <span class="self">self</span>.flags.insert(Flags::UPGRADE),
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ConnectionType</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CLOSE</span>) {
-            <span class="ident">ConnectionType::Close</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::KEEP_ALIVE</span>) {
-            <span class="ident">ConnectionType::KeepAlive</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::UPGRADE</span>) {
-            <span class="ident">ConnectionType::Upgrade</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">version</span> <span class="op">&lt;</span> <span class="ident">Version::HTTP_11</span> {
-            <span class="ident">ConnectionType::Close</span>
-        } <span class="kw">else</span> {
-            <span class="ident">ConnectionType::KeepAlive</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>connection_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ConnectionType {
+        <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::CLOSE) {
+            ConnectionType::Close
+        } <span class="kw">else if </span><span class="self">self</span>.flags.contains(Flags::KEEP_ALIVE) {
+            ConnectionType::KeepAlive
+        } <span class="kw">else if </span><span class="self">self</span>.flags.contains(Flags::UPGRADE) {
+            ConnectionType::Upgrade
+        } <span class="kw">else if </span><span class="self">self</span>.version &lt; Version::HTTP_11 {
+            ConnectionType::Close
+        } <span class="kw">else </span>{
+            ConnectionType::KeepAlive
         }
     }
 
-    <span class="doccomment">/// Check if keep-alive is enabled</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_alive</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">connection_type</span>() <span class="op">==</span> <span class="ident">ConnectionType::KeepAlive</span>
+    <span class="doccomment">/// Check if keep-alive is enabled
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>keep_alive(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.connection_type() == ConnectionType::KeepAlive
     }
 
-    <span class="doccomment">/// Check upgrade status of this message</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">connection_type</span>() <span class="op">==</span> <span class="ident">ConnectionType::Upgrade</span>
+    <span class="doccomment">/// Check upgrade status of this message
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>upgrade(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.connection_type() == ConnectionType::Upgrade
     }
 
-    <span class="doccomment">/// Get custom reason for the response</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reason</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="self">self</span>.<span class="ident">reason</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="self">self</span>.<span class="ident">status</span>
-                .<span class="ident">canonical_reason</span>()
-                .<span class="ident">unwrap_or</span>(<span class="string">&quot;&lt;unknown status code&gt;&quot;</span>)
+    <span class="doccomment">/// Get custom reason for the response
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>reason(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="self">self</span>.reason.unwrap_or_else(|| {
+            <span class="self">self</span>.status
+                .canonical_reason()
+                .unwrap_or(<span class="string">&quot;&lt;unknown status code&gt;&quot;</span>)
         })
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">conn_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConnectionType</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::CLOSE</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">ConnectionType::Close</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::KEEP_ALIVE</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">ConnectionType::KeepAlive</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::UPGRADE</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">ConnectionType::Upgrade</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>conn_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ConnectionType&gt; {
+        <span class="kw">if </span><span class="self">self</span>.flags.contains(Flags::CLOSE) {
+            <span class="prelude-val">Some</span>(ConnectionType::Close)
+        } <span class="kw">else if </span><span class="self">self</span>.flags.contains(Flags::KEEP_ALIVE) {
+            <span class="prelude-val">Some</span>(ConnectionType::KeepAlive)
+        } <span class="kw">else if </span><span class="self">self</span>.flags.contains(Flags::UPGRADE) {
+            <span class="prelude-val">Some</span>(ConnectionType::Upgrade)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="doccomment">/// Get response body chunking state</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">chunked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::NO_CHUNKING</span>)
+    <span class="doccomment">/// Get response body chunking state
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>chunked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        !<span class="self">self</span>.flags.contains(Flags::NO_CHUNKING)
     }
 
-    <span class="doccomment">/// Set no chunking for payload</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_chunking</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">bool</span>) {
-        <span class="kw">if</span> <span class="ident">val</span> {
-            <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::NO_CHUNKING</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::NO_CHUNKING</span>);
-        }
-    }
-}
-
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">BoxedResponseHead</span> {
-    <span class="ident">head</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">ResponseHead</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">BoxedResponseHead</span> {
-    <span class="doccomment">/// Get new message from the pool of objects</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">RESPONSE_POOL</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_message</span>(<span class="ident">status</span>))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::Deref</span> <span class="kw">for</span> <span class="ident">BoxedResponseHead</span> {
-    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">ResponseHead</span>;
-
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::DerefMut</span> <span class="kw">for</span> <span class="ident">BoxedResponseHead</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
-        <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">BoxedResponseHead</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">head</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">take</span>() {
-            <span class="ident">RESPONSE_POOL</span>.<span class="ident">with</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">release</span>(<span class="ident">head</span>))
+    <span class="doccomment">/// Set no chunking for payload
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>no_chunking(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: bool) {
+        <span class="kw">if </span>val {
+            <span class="self">self</span>.flags.insert(Flags::NO_CHUNKING);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.flags.remove(Flags::NO_CHUNKING);
         }
     }
 }
 
-<span class="doccomment">/// Response head object pool.</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoxedResponsePool</span>(<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::vec_box</span>)]</span> <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">ResponseHead</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>BoxedResponseHead {
+    head: <span class="prelude-ty">Option</span>&lt;Box&lt;ResponseHead&gt;&gt;,
+}
 
-<span class="kw">impl</span> <span class="ident">BoxedResponsePool</span> {
-    <span class="kw">fn</span> <span class="ident">create</span>() -&gt; <span class="ident">BoxedResponsePool</span> {
-        <span class="ident">BoxedResponsePool</span>(<span class="ident">RefCell::new</span>(<span class="ident">Vec::with_capacity</span>(<span class="number">128</span>)))
+<span class="kw">impl </span>BoxedResponseHead {
+    <span class="doccomment">/// Get new message from the pool of objects
+    </span><span class="kw">pub fn </span>new(status: StatusCode) -&gt; <span class="self">Self </span>{
+        RESPONSE_POOL.with(|p| p.get_message(status))
+    }
+}
+
+<span class="kw">impl </span>ops::Deref <span class="kw">for </span>BoxedResponseHead {
+    <span class="kw">type </span>Target = ResponseHead;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.head.as_ref().unwrap()
+    }
+}
+
+<span class="kw">impl </span>ops::DerefMut <span class="kw">for </span>BoxedResponseHead {
+    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.head.as_mut().unwrap()
+    }
+}
+
+<span class="kw">impl </span>Drop <span class="kw">for </span>BoxedResponseHead {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(head) = <span class="self">self</span>.head.take() {
+            RESPONSE_POOL.with(<span class="kw">move </span>|p| p.release(head))
+        }
+    }
+}
+
+<span class="doccomment">/// Response head object pool.
+</span><span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub struct </span>BoxedResponsePool(<span class="attribute">#[allow(clippy::vec_box)] </span>RefCell&lt;Vec&lt;Box&lt;ResponseHead&gt;&gt;&gt;);
+
+<span class="kw">impl </span>BoxedResponsePool {
+    <span class="kw">fn </span>create() -&gt; BoxedResponsePool {
+        BoxedResponsePool(RefCell::new(Vec::with_capacity(<span class="number">128</span>)))
     }
 
-    <span class="doccomment">/// Get message from the pool.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">get_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="ident">BoxedResponseHead</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">head</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">borrow_mut</span>().<span class="ident">pop</span>() {
-            <span class="ident">head</span>.<span class="ident">reason</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="ident">head</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">status</span>;
-            <span class="ident">head</span>.<span class="ident">headers</span>.<span class="ident">clear</span>();
-            <span class="ident">head</span>.<span class="ident">flags</span> <span class="op">=</span> <span class="ident">Flags::empty</span>();
-            <span class="ident">BoxedResponseHead</span> { <span class="ident">head</span>: <span class="prelude-val">Some</span>(<span class="ident">head</span>) }
-        } <span class="kw">else</span> {
-            <span class="ident">BoxedResponseHead</span> {
-                <span class="ident">head</span>: <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">ResponseHead::new</span>(<span class="ident">status</span>))),
+    <span class="doccomment">/// Get message from the pool.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>get_message(<span class="kw-2">&amp;</span><span class="self">self</span>, status: StatusCode) -&gt; BoxedResponseHead {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>head) = <span class="self">self</span>.<span class="number">0</span>.borrow_mut().pop() {
+            head.reason = <span class="prelude-val">None</span>;
+            head.status = status;
+            head.headers.clear();
+            head.flags = Flags::empty();
+            BoxedResponseHead { head: <span class="prelude-val">Some</span>(head) }
+        } <span class="kw">else </span>{
+            BoxedResponseHead {
+                head: <span class="prelude-val">Some</span>(Box::new(ResponseHead::new(status))),
             }
         }
     }
 
-    <span class="doccomment">/// Release request instance.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">release</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">ResponseHead</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">borrow_mut</span>();
+    <span class="doccomment">/// Release request instance.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>release(<span class="kw-2">&amp;</span><span class="self">self</span>, msg: Box&lt;ResponseHead&gt;) {
+        <span class="kw">let </span>pool = <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>.borrow_mut();
 
-        <span class="kw">if</span> <span class="ident">pool</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">128</span> {
-            <span class="ident">pool</span>.<span class="ident">push</span>(<span class="ident">msg</span>);
+        <span class="kw">if </span>pool.len() &lt; <span class="number">128 </span>{
+            pool.push(msg);
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::{
-        <span class="ident">io</span>::{<span class="ident">Read</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Write</span> <span class="kw">as</span> <span class="kw">_</span>},
-        <span class="ident">net</span>,
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::{
+        io::{Read <span class="kw">as _</span>, Write <span class="kw">as _</span>},
+        net,
     };
 
-    <span class="kw">use</span> <span class="ident">memchr::memmem</span>;
+    <span class="kw">use </span>memchr::memmem;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">h1::H1Service</span>,
-        <span class="ident">header</span>::{<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>},
-        <span class="ident">Error</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">ServiceConfig</span>,
+    <span class="kw">use crate</span>::{
+        h1::H1Service,
+        header::{HeaderName, HeaderValue},
+        Error, Request, Response, ServiceConfig,
     };
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">camel_case_headers</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">srv</span> <span class="op">=</span> <span class="ident">actix_http_test::test_server</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">H1Service::with_config</span>(<span class="ident">ServiceConfig::default</span>(), <span class="op">|</span><span class="ident">req</span>: <span class="ident">Request</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::ok</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>camel_case_headers() {
+        <span class="kw">let </span><span class="kw-2">mut </span>srv = actix_http_test::test_server(|| {
+            H1Service::with_config(ServiceConfig::default(), |req: Request| <span class="kw">async move </span>{
+                <span class="kw">let </span><span class="kw-2">mut </span>res = Response::ok();
 
-                <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">path</span>().<span class="ident">contains</span>(<span class="string">&quot;camel&quot;</span>) {
-                    <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">set_camel_case_headers</span>(<span class="bool-val">true</span>);
+                <span class="kw">if </span>req.path().contains(<span class="string">&quot;camel&quot;</span>) {
+                    res.head_mut().set_camel_case_headers(<span class="bool-val">true</span>);
                 }
 
-                <span class="ident">res</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(
-                    <span class="ident">HeaderName::from_static</span>(<span class="string">&quot;foo-bar&quot;</span>),
-                    <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;baz&quot;</span>),
+                res.headers_mut().insert(
+                    HeaderName::from_static(<span class="string">&quot;foo-bar&quot;</span>),
+                    HeaderValue::from_static(<span class="string">&quot;baz&quot;</span>),
                 );
 
-                <span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Error</span><span class="op">&gt;</span>(<span class="ident">res</span>)
+                <span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, Error&gt;(res)
             })
-            .<span class="ident">tcp</span>()
+            .tcp()
         })
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">net::TcpStream::connect</span>(<span class="ident">srv</span>.<span class="ident">addr</span>()).<span class="ident">unwrap</span>();
-        <span class="ident">stream</span>
-            .<span class="ident">write_all</span>(<span class="string">b&quot;GET /camel HTTP/1.1\r\nConnection: Close\r\n\r\n&quot;</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>[..<span class="number">17</span>], <span class="string">b&quot;HTTP/1.1 200 OK\r\n&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;Foo-Bar&quot;</span>).<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;foo-bar&quot;</span>).<span class="ident">is_none</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;Date&quot;</span>).<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;date&quot;</span>).<span class="ident">is_none</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;Content-Length&quot;</span>).<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;content-length&quot;</span>).<span class="ident">is_none</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>stream = net::TcpStream::connect(srv.addr()).unwrap();
+        stream
+            .write_all(<span class="string">b&quot;GET /camel HTTP/1.1\r\nConnection: Close\r\n\r\n&quot;</span>)
+            .unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[];
+        <span class="kw">let _ </span>= stream.read_to_end(<span class="kw-2">&amp;mut </span>data).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>data[..<span class="number">17</span>], <span class="string">b&quot;HTTP/1.1 200 OK\r\n&quot;</span>);
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;Foo-Bar&quot;</span>).is_some());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;foo-bar&quot;</span>).is_none());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;Date&quot;</span>).is_some());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;date&quot;</span>).is_none());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;Content-Length&quot;</span>).is_some());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;content-length&quot;</span>).is_none());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">net::TcpStream::connect</span>(<span class="ident">srv</span>.<span class="ident">addr</span>()).<span class="ident">unwrap</span>();
-        <span class="ident">stream</span>
-            .<span class="ident">write_all</span>(<span class="string">b&quot;GET /lower HTTP/1.1\r\nConnection: Close\r\n\r\n&quot;</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>[..<span class="number">17</span>], <span class="string">b&quot;HTTP/1.1 200 OK\r\n&quot;</span>);
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;Foo-Bar&quot;</span>).<span class="ident">is_none</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;foo-bar&quot;</span>).<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;Date&quot;</span>).<span class="ident">is_none</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;date&quot;</span>).<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;Content-Length&quot;</span>).<span class="ident">is_none</span>());
-        <span class="macro">assert!</span>(<span class="ident">memmem::find</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="string">b&quot;content-length&quot;</span>).<span class="ident">is_some</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>stream = net::TcpStream::connect(srv.addr()).unwrap();
+        stream
+            .write_all(<span class="string">b&quot;GET /lower HTTP/1.1\r\nConnection: Close\r\n\r\n&quot;</span>)
+            .unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[];
+        <span class="kw">let _ </span>= stream.read_to_end(<span class="kw-2">&amp;mut </span>data).unwrap();
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>data[..<span class="number">17</span>], <span class="string">b&quot;HTTP/1.1 200 OK\r\n&quot;</span>);
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;Foo-Bar&quot;</span>).is_none());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;foo-bar&quot;</span>).is_some());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;Date&quot;</span>).is_none());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;date&quot;</span>).is_some());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;Content-Length&quot;</span>).is_none());
+        <span class="macro">assert!</span>(memmem::find(<span class="kw-2">&amp;</span>data, <span class="string">b&quot;content-length&quot;</span>).is_some());
 
-        <span class="ident">srv</span>.<span class="ident">stop</span>().<span class="kw">await</span>;
+        srv.stop().<span class="kw">await</span>;
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

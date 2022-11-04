@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/local-channel-0.1.3/src/mpsc.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mpsc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../local_channel/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../local_channel/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../local_channel/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/local-channel-0.1.3/src/mpsc.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mpsc.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../local_channel/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../local_channel/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../local_channel/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -253,260 +253,260 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A non-thread-safe multi-producer, single-consumer, futures-aware, FIFO queue.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A non-thread-safe multi-producer, single-consumer, futures-aware, FIFO queue.
 
-<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">collections::VecDeque</span>, <span class="ident">rc::Rc</span>};
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">cell::RefCell</span>,
-    <span class="ident">fmt</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>alloc::{collections::VecDeque, rc::Rc};
+<span class="kw">use </span>core::{
+    cell::RefCell,
+    fmt,
+    pin::Pin,
+    task::{Context, Poll},
 };
-<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use </span>std::error::Error;
 
-<span class="kw">use</span> <span class="ident">futures_core::stream::Stream</span>;
-<span class="kw">use</span> <span class="ident">futures_sink::Sink</span>;
-<span class="kw">use</span> <span class="ident">futures_util::future::poll_fn</span>;
-<span class="kw">use</span> <span class="ident">local_waker::LocalWaker</span>;
+<span class="kw">use </span>futures_core::stream::Stream;
+<span class="kw">use </span>futures_sink::Sink;
+<span class="kw">use </span>futures_util::future::poll_fn;
+<span class="kw">use </span>local_waker::LocalWaker;
 
-<span class="doccomment">/// Creates a unbounded in-memory channel with buffered storage.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [Sender]s and [Receiver]s are `!Send`.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">channel</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; (<span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">RefCell::new</span>(<span class="ident">Shared</span> {
-        <span class="ident">has_receiver</span>: <span class="bool-val">true</span>,
-        <span class="ident">buffer</span>: <span class="ident">VecDeque::new</span>(),
-        <span class="ident">blocked_recv</span>: <span class="ident">LocalWaker::new</span>(),
+<span class="doccomment">/// Creates a unbounded in-memory channel with buffered storage.
+///
+/// [Sender]s and [Receiver]s are `!Send`.
+</span><span class="kw">pub fn </span>channel&lt;T&gt;() -&gt; (Sender&lt;T&gt;, Receiver&lt;T&gt;) {
+    <span class="kw">let </span>shared = Rc::new(RefCell::new(Shared {
+        has_receiver: <span class="bool-val">true</span>,
+        buffer: VecDeque::new(),
+        blocked_recv: LocalWaker::new(),
     }));
 
-    <span class="kw">let</span> <span class="ident">sender</span> <span class="op">=</span> <span class="ident">Sender</span> {
-        <span class="ident">shared</span>: <span class="ident">shared</span>.<span class="ident">clone</span>(),
+    <span class="kw">let </span>sender = Sender {
+        shared: shared.clone(),
     };
 
-    <span class="kw">let</span> <span class="ident">receiver</span> <span class="op">=</span> <span class="ident">Receiver</span> { <span class="ident">shared</span> };
+    <span class="kw">let </span>receiver = Receiver { shared };
 
-    (<span class="ident">sender</span>, <span class="ident">receiver</span>)
+    (sender, receiver)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Shared</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">buffer</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">blocked_recv</span>: <span class="ident">LocalWaker</span>,
-    <span class="ident">has_receiver</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">struct </span>Shared&lt;T&gt; {
+    buffer: VecDeque&lt;T&gt;,
+    blocked_recv: LocalWaker,
+    has_receiver: bool,
 }
 
-<span class="doccomment">/// The transmission end of a channel.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is created by the `channel` function.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">shared</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Shared</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// The transmission end of a channel.
+///
+/// This is created by the `channel` function.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Sender&lt;T&gt; {
+    shared: Rc&lt;RefCell&lt;Shared&lt;T&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Unpin</span> <span class="kw">for</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span>&lt;T&gt; Unpin <span class="kw">for </span>Sender&lt;T&gt; {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Sends the provided message along this channel.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">item</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">borrow_mut</span>();
+<span class="kw">impl</span>&lt;T&gt; Sender&lt;T&gt; {
+    <span class="doccomment">/// Sends the provided message along this channel.
+    </span><span class="kw">pub fn </span>send(<span class="kw-2">&amp;</span><span class="self">self</span>, item: T) -&gt; <span class="prelude-ty">Result</span>&lt;(), SendError&lt;T&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>shared = <span class="self">self</span>.shared.borrow_mut();
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">shared</span>.<span class="ident">has_receiver</span> {
-            <span class="comment">// receiver was dropped</span>
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SendError</span>(<span class="ident">item</span>));
+        <span class="kw">if </span>!shared.has_receiver {
+            <span class="comment">// receiver was dropped
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(SendError(item));
         };
 
-        <span class="ident">shared</span>.<span class="ident">buffer</span>.<span class="ident">push_back</span>(<span class="ident">item</span>);
-        <span class="ident">shared</span>.<span class="ident">blocked_recv</span>.<span class="ident">wake</span>();
+        shared.buffer.push_back(item);
+        shared.blocked_recv.wake();
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Closes the sender half.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This prevents any further messages from being sent on the channel, by any sender, while</span>
-    <span class="doccomment">/// still enabling the receiver to drain messages that are already buffered.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">borrow_mut</span>().<span class="ident">has_receiver</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="doccomment">/// Closes the sender half.
+    ///
+    /// This prevents any further messages from being sent on the channel, by any sender, while
+    /// still enabling the receiver to drain messages that are already buffered.
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.shared.borrow_mut().has_receiver = <span class="bool-val">false</span>;
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Sender</span> {
-            <span class="ident">shared</span>: <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">clone</span>(),
+<span class="kw">impl</span>&lt;T&gt; Clone <span class="kw">for </span>Sender&lt;T&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        Sender {
+            shared: <span class="self">self</span>.shared.clone(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sink</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;T&gt; Sink&lt;T&gt; <span class="kw">for </span>Sender&lt;T&gt; {
+    <span class="kw">type </span>Error = SendError&lt;T&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
+    <span class="kw">fn </span>poll_ready(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+        Poll::Ready(<span class="prelude-val">Ok</span>(()))
     }
 
-    <span class="kw">fn</span> <span class="ident">start_send</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">item</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">send</span>(<span class="ident">item</span>)
+    <span class="kw">fn </span>start_send(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, item: T) -&gt; <span class="prelude-ty">Result</span>&lt;(), SendError&lt;T&gt;&gt; {
+        <span class="self">self</span>.send(item)
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
+    <span class="kw">fn </span>poll_flush(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), SendError&lt;T&gt;&gt;&gt; {
+        Poll::Ready(<span class="prelude-val">Ok</span>(()))
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_close</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
+    <span class="kw">fn </span>poll_close(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+        Poll::Ready(<span class="prelude-val">Ok</span>(()))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">Rc::strong_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shared</span>);
-        <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">borrow_mut</span>();
+<span class="kw">impl</span>&lt;T&gt; Drop <span class="kw">for </span>Sender&lt;T&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>count = Rc::strong_count(<span class="kw-2">&amp;</span><span class="self">self</span>.shared);
+        <span class="kw">let </span>shared = <span class="self">self</span>.shared.borrow_mut();
 
-        <span class="comment">// check is last sender is about to drop</span>
-        <span class="kw">if</span> <span class="ident">shared</span>.<span class="ident">has_receiver</span> <span class="op">&amp;&amp;</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">2</span> {
-            <span class="comment">// Wake up receiver as its stream has ended</span>
-            <span class="ident">shared</span>.<span class="ident">blocked_recv</span>.<span class="ident">wake</span>();
+        <span class="comment">// check is last sender is about to drop
+        </span><span class="kw">if </span>shared.has_receiver &amp;&amp; count == <span class="number">2 </span>{
+            <span class="comment">// Wake up receiver as its stream has ended
+            </span>shared.blocked_recv.wake();
         }
     }
 }
 
-<span class="doccomment">/// The receiving end of a channel which implements the `Stream` trait.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is created by the [`channel`] function.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">shared</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Shared</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// The receiving end of a channel which implements the `Stream` trait.
+///
+/// This is created by the [`channel`] function.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Receiver&lt;T&gt; {
+    shared: Rc&lt;RefCell&lt;Shared&lt;T&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Receive the next value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if the channel is empty and has been [closed](Sender::close) explicitly or</span>
-    <span class="doccomment">/// when all senders have been dropped and, therefore, no more values can ever be sent though</span>
-    <span class="doccomment">/// this channel.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recv</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="ident">Pin::new</span>(<span class="self">self</span>);
-        <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">this</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>)).<span class="kw">await</span>
-    }
+<span class="kw">impl</span>&lt;T&gt; Receiver&lt;T&gt; {
+    <span class="doccomment">/// Receive the next value.
+    ///
+    /// Returns `None` if the channel is empty and has been [closed](Sender::close) explicitly or
+    /// when all senders have been dropped and, therefore, no more values can ever be sent though
+    /// this channel.
+    </span><span class="kw">pub async fn </span>recv(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>this = Pin::new(<span class="self">self</span>);
+        poll_fn(|cx| this.as_mut().poll_next(cx)).<span class="kw">await
+    </span>}
 
-    <span class="doccomment">/// Create an associated [Sender].</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sender</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Sender</span> {
-            <span class="ident">shared</span>: <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">clone</span>(),
+    <span class="doccomment">/// Create an associated [Sender].
+    </span><span class="kw">pub fn </span>sender(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Sender&lt;T&gt; {
+        Sender {
+            shared: <span class="self">self</span>.shared.clone(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Unpin</span> <span class="kw">for</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span>&lt;T&gt; Unpin <span class="kw">for </span>Receiver&lt;T&gt; {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span>;
+<span class="kw">impl</span>&lt;T&gt; Stream <span class="kw">for </span>Receiver&lt;T&gt; {
+    <span class="kw">type </span>Item = T;
 
-    <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">borrow_mut</span>();
+    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>shared = <span class="self">self</span>.shared.borrow_mut();
 
-        <span class="kw">if</span> <span class="ident">Rc::strong_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shared</span>) <span class="op">==</span> <span class="number">1</span> {
-            <span class="comment">// All senders have been dropped, so drain the buffer and end the stream.</span>
-            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="ident">shared</span>.<span class="ident">buffer</span>.<span class="ident">pop_front</span>());
+        <span class="kw">if </span>Rc::strong_count(<span class="kw-2">&amp;</span><span class="self">self</span>.shared) == <span class="number">1 </span>{
+            <span class="comment">// All senders have been dropped, so drain the buffer and end the stream.
+            </span><span class="kw">return </span>Poll::Ready(shared.buffer.pop_front());
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">msg</span>) <span class="op">=</span> <span class="ident">shared</span>.<span class="ident">buffer</span>.<span class="ident">pop_front</span>() {
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="ident">msg</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">shared</span>.<span class="ident">blocked_recv</span>.<span class="ident">register</span>(<span class="ident">cx</span>.<span class="ident">waker</span>());
-            <span class="ident">Poll::Pending</span>
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = shared.buffer.pop_front() {
+            Poll::Ready(<span class="prelude-val">Some</span>(msg))
+        } <span class="kw">else </span>{
+            shared.blocked_recv.register(cx.waker());
+            Poll::Pending
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">borrow_mut</span>();
-        <span class="ident">shared</span>.<span class="ident">buffer</span>.<span class="ident">clear</span>();
-        <span class="ident">shared</span>.<span class="ident">has_receiver</span> <span class="op">=</span> <span class="bool-val">false</span>;
+<span class="kw">impl</span>&lt;T&gt; Drop <span class="kw">for </span>Receiver&lt;T&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>shared = <span class="self">self</span>.shared.borrow_mut();
+        shared.buffer.clear();
+        shared.has_receiver = <span class="bool-val">false</span>;
     }
 }
 
-<span class="doccomment">/// Error returned when attempting to send after the channels&#39; [Receiver] is dropped or closed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Allows access to message that failed to send with [`into_inner`](Self::into_inner).</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">T</span>);
+<span class="doccomment">/// Error returned when attempting to send after the channels&#39; [Receiver] is dropped or closed.
+///
+/// Allows access to message that failed to send with [`into_inner`](Self::into_inner).
+</span><span class="kw">pub struct </span>SendError&lt;T&gt;(<span class="kw">pub </span>T);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns the message that was attempted to be sent but failed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">T</span> {
-        <span class="self">self</span>.<span class="number">0</span>
+<span class="kw">impl</span>&lt;T&gt; SendError&lt;T&gt; {
+    <span class="doccomment">/// Returns the message that was attempted to be sent but failed.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; T {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+}
+
+<span class="kw">impl</span>&lt;T&gt; fmt::Debug <span class="kw">for </span>SendError&lt;T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        fmt.debug_tuple(<span class="string">&quot;SendError&quot;</span>).field(<span class="kw-2">&amp;</span><span class="string">&quot;...&quot;</span>).finish()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">fmt</span>.<span class="ident">debug_tuple</span>(<span class="string">&quot;SendError&quot;</span>).<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="string">&quot;...&quot;</span>).<span class="ident">finish</span>()
+<span class="kw">impl</span>&lt;T&gt; fmt::Display <span class="kw">for </span>SendError&lt;T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(fmt, <span class="string">&quot;send failed because receiver is gone&quot;</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">fmt</span>, <span class="string">&quot;send failed because receiver is gone&quot;</span>)
-    }
-}
+<span class="kw">impl</span>&lt;T&gt; Error <span class="kw">for </span>SendError&lt;T&gt; {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">SendError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>futures_util::{future::lazy, StreamExt <span class="kw">as _</span>};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">future::lazy</span>, <span class="ident">StreamExt</span> <span class="kw">as</span> <span class="kw">_</span>};
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>test_mpsc() {
+        <span class="kw">let </span>(tx, <span class="kw-2">mut </span>rx) = channel();
+        tx.send(<span class="string">&quot;test&quot;</span>).unwrap();
+        <span class="macro">assert_eq!</span>(rx.next().<span class="kw">await</span>.unwrap(), <span class="string">&quot;test&quot;</span>);
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_mpsc</span>() {
-        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">channel</span>();
-        <span class="ident">tx</span>.<span class="ident">send</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">rx</span>.<span class="ident">next</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="string">&quot;test&quot;</span>);
-
-        <span class="kw">let</span> <span class="ident">tx2</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">clone</span>();
-        <span class="ident">tx2</span>.<span class="ident">send</span>(<span class="string">&quot;test2&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">rx</span>.<span class="ident">next</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="string">&quot;test2&quot;</span>);
+        <span class="kw">let </span>tx2 = tx.clone();
+        tx2.send(<span class="string">&quot;test2&quot;</span>).unwrap();
+        <span class="macro">assert_eq!</span>(rx.next().<span class="kw">await</span>.unwrap(), <span class="string">&quot;test2&quot;</span>);
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">lazy</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rx</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>)).<span class="kw">await</span>,
-            <span class="ident">Poll::Pending</span>
+            lazy(|cx| Pin::new(<span class="kw-2">&amp;mut </span>rx).poll_next(cx)).<span class="kw">await</span>,
+            Poll::Pending
         );
-        <span class="ident">drop</span>(<span class="ident">tx2</span>);
+        drop(tx2);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">lazy</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rx</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>)).<span class="kw">await</span>,
-            <span class="ident">Poll::Pending</span>
+            lazy(|cx| Pin::new(<span class="kw-2">&amp;mut </span>rx).poll_next(cx)).<span class="kw">await</span>,
+            Poll::Pending
         );
-        <span class="ident">drop</span>(<span class="ident">tx</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">rx</span>.<span class="ident">next</span>().<span class="kw">await</span>, <span class="prelude-val">None</span>);
+        drop(tx);
+        <span class="macro">assert_eq!</span>(rx.next().<span class="kw">await</span>, <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">channel</span>();
-        <span class="ident">tx</span>.<span class="ident">send</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="ident">drop</span>(<span class="ident">rx</span>);
-        <span class="macro">assert!</span>(<span class="ident">tx</span>.<span class="ident">send</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">is_err</span>());
+        <span class="kw">let </span>(tx, rx) = channel();
+        tx.send(<span class="string">&quot;test&quot;</span>).unwrap();
+        drop(rx);
+        <span class="macro">assert!</span>(tx.send(<span class="string">&quot;test&quot;</span>).is_err());
 
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">channel</span>();
-        <span class="kw">let</span> <span class="ident">tx2</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">clone</span>();
-        <span class="ident">tx</span>.<span class="ident">close</span>();
-        <span class="macro">assert!</span>(<span class="ident">tx</span>.<span class="ident">send</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">is_err</span>());
-        <span class="macro">assert!</span>(<span class="ident">tx2</span>.<span class="ident">send</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">is_err</span>());
+        <span class="kw">let </span>(<span class="kw-2">mut </span>tx, <span class="kw">_</span>) = channel();
+        <span class="kw">let </span>tx2 = tx.clone();
+        tx.close();
+        <span class="macro">assert!</span>(tx.send(<span class="string">&quot;test&quot;</span>).is_err());
+        <span class="macro">assert!</span>(tx2.send(<span class="string">&quot;test&quot;</span>).is_err());
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_recv</span>() {
-        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">channel</span>();
-        <span class="ident">tx</span>.<span class="ident">send</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="string">&quot;test&quot;</span>);
-        <span class="ident">drop</span>(<span class="ident">tx</span>);
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>test_recv() {
+        <span class="kw">let </span>(tx, <span class="kw-2">mut </span>rx) = channel();
+        tx.send(<span class="string">&quot;test&quot;</span>).unwrap();
+        <span class="macro">assert_eq!</span>(rx.recv().<span class="kw">await</span>.unwrap(), <span class="string">&quot;test&quot;</span>);
+        drop(tx);
 
-        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">channel</span>();
-        <span class="ident">tx</span>.<span class="ident">send</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>(), <span class="string">&quot;test&quot;</span>);
-        <span class="ident">drop</span>(<span class="ident">tx</span>);
-        <span class="macro">assert!</span>(<span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span>.<span class="ident">is_none</span>());
+        <span class="kw">let </span>(tx, <span class="kw-2">mut </span>rx) = channel();
+        tx.send(<span class="string">&quot;test&quot;</span>).unwrap();
+        <span class="macro">assert_eq!</span>(rx.recv().<span class="kw">await</span>.unwrap(), <span class="string">&quot;test&quot;</span>);
+        drop(tx);
+        <span class="macro">assert!</span>(rx.recv().<span class="kw">await</span>.is_none());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="local_channel" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="local_channel" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

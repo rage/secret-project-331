@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/accept.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>accept.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/accept.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>accept.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -293,298 +293,298 @@
 <span id="291">291</span>
 <span id="292">292</span>
 <span id="293">293</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cmp::Ordering;
 
-<span class="kw">use</span> <span class="ident">mime::Mime</span>;
+<span class="kw">use </span>mime::Mime;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">common_header</span>, <span class="ident">QualityItem</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http::header</span>;
+<span class="kw">use super</span>::{common_header, QualityItem};
+<span class="kw">use </span><span class="kw">crate</span>::http::header;
 
-<span class="macro">common_header!</span> {
-    <span class="doccomment">/// `Accept` header, defined</span>
-    <span class="doccomment">/// in [RFC 7231 §5.3.2](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `Accept` header field can be used by user agents to specify</span>
-    <span class="doccomment">/// response media types that are acceptable. Accept header fields can</span>
-    <span class="doccomment">/// be used to indicate that the request is specifically limited to a</span>
-    <span class="doccomment">/// small set of desired types, as in the case of a request for an</span>
-    <span class="doccomment">/// in-line image</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # ABNF</span>
-    <span class="doccomment">/// ```plain</span>
-    <span class="doccomment">/// Accept = #( media-range [ accept-params ] )</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// media-range    = ( &quot;*/*&quot;</span>
-    <span class="doccomment">///                  / ( type &quot;/&quot; &quot;*&quot; )</span>
-    <span class="doccomment">///                  / ( type &quot;/&quot; subtype )</span>
-    <span class="doccomment">///                  ) *( OWS &quot;;&quot; OWS parameter )</span>
-    <span class="doccomment">/// accept-params  = weight *( accept-ext )</span>
-    <span class="doccomment">/// accept-ext = OWS &quot;;&quot; OWS token [ &quot;=&quot; ( token / quoted-string ) ]</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example Values</span>
-    <span class="doccomment">/// * `audio/*; q=0.2, audio/basic`</span>
-    <span class="doccomment">/// * `text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::{Accept, QualityItem};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// builder.insert_header(</span>
-    <span class="doccomment">///     Accept(vec![</span>
-    <span class="doccomment">///         QualityItem::max(mime::TEXT_HTML),</span>
-    <span class="doccomment">///     ])</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::{Accept, QualityItem};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// builder.insert_header(</span>
-    <span class="doccomment">///     Accept(vec![</span>
-    <span class="doccomment">///         QualityItem::max(mime::APPLICATION_JSON),</span>
-    <span class="doccomment">///     ])</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_web::HttpResponse;</span>
-    <span class="doccomment">/// use actix_web::http::header::{Accept, QualityItem, q};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-    <span class="doccomment">/// builder.insert_header(</span>
-    <span class="doccomment">///     Accept(vec![</span>
-    <span class="doccomment">///         QualityItem::max(mime::TEXT_HTML),</span>
-    <span class="doccomment">///         QualityItem::max(&quot;application/xhtml+xml&quot;.parse().unwrap()),</span>
-    <span class="doccomment">///         QualityItem::new(mime::TEXT_XML, q(0.9)),</span>
-    <span class="doccomment">///         QualityItem::max(&quot;image/webp&quot;.parse().unwrap()),</span>
-    <span class="doccomment">///         QualityItem::new(mime::STAR_STAR, q(0.8)),</span>
-    <span class="doccomment">///     ])</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    (<span class="ident">Accept</span>, <span class="ident">header::ACCEPT</span>) =&gt; (<span class="ident">QualityItem</span><span class="op">&lt;</span><span class="ident">Mime</span><span class="op">&gt;</span>)<span class="op">*</span>
+<span class="macro">common_header! </span>{
+    <span class="doccomment">/// `Accept` header, defined
+    /// in [RFC 7231 §5.3.2](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2)
+    ///
+    /// The `Accept` header field can be used by user agents to specify
+    /// response media types that are acceptable. Accept header fields can
+    /// be used to indicate that the request is specifically limited to a
+    /// small set of desired types, as in the case of a request for an
+    /// in-line image
+    ///
+    /// # ABNF
+    /// ```plain
+    /// Accept = #( media-range [ accept-params ] )
+    ///
+    /// media-range    = ( &quot;*/*&quot;
+    ///                  / ( type &quot;/&quot; &quot;*&quot; )
+    ///                  / ( type &quot;/&quot; subtype )
+    ///                  ) *( OWS &quot;;&quot; OWS parameter )
+    /// accept-params  = weight *( accept-ext )
+    /// accept-ext = OWS &quot;;&quot; OWS token [ &quot;=&quot; ( token / quoted-string ) ]
+    /// ```
+    ///
+    /// # Example Values
+    /// * `audio/*; q=0.2, audio/basic`
+    /// * `text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c`
+    ///
+    /// # Examples
+    /// ```
+    /// use actix_web::HttpResponse;
+    /// use actix_web::http::header::{Accept, QualityItem};
+    ///
+    /// let mut builder = HttpResponse::Ok();
+    /// builder.insert_header(
+    ///     Accept(vec![
+    ///         QualityItem::max(mime::TEXT_HTML),
+    ///     ])
+    /// );
+    /// ```
+    ///
+    /// ```
+    /// use actix_web::HttpResponse;
+    /// use actix_web::http::header::{Accept, QualityItem};
+    ///
+    /// let mut builder = HttpResponse::Ok();
+    /// builder.insert_header(
+    ///     Accept(vec![
+    ///         QualityItem::max(mime::APPLICATION_JSON),
+    ///     ])
+    /// );
+    /// ```
+    ///
+    /// ```
+    /// use actix_web::HttpResponse;
+    /// use actix_web::http::header::{Accept, QualityItem, q};
+    ///
+    /// let mut builder = HttpResponse::Ok();
+    /// builder.insert_header(
+    ///     Accept(vec![
+    ///         QualityItem::max(mime::TEXT_HTML),
+    ///         QualityItem::max(&quot;application/xhtml+xml&quot;.parse().unwrap()),
+    ///         QualityItem::new(mime::TEXT_XML, q(0.9)),
+    ///         QualityItem::max(&quot;image/webp&quot;.parse().unwrap()),
+    ///         QualityItem::new(mime::STAR_STAR, q(0.8)),
+    ///     ])
+    /// );
+    /// ```
+    </span>(Accept, header::ACCEPT) =&gt; (QualityItem&lt;Mime&gt;)*
 
-    <span class="ident">test_parse_and_format</span> {
-        <span class="comment">// Tests from the RFC</span>
-         <span class="macro">crate::http::header::common_header_test!</span>(
-            <span class="ident">test1</span>,
+    test_parse_and_format {
+        <span class="comment">// Tests from the RFC
+         </span><span class="macro">crate::http::header::common_header_test!</span>(
+            test1,
             <span class="macro">vec!</span>[<span class="string">b&quot;audio/*; q=0.2, audio/basic&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">Accept</span>(<span class="macro">vec!</span>[
-                <span class="ident">QualityItem::new</span>(<span class="string">&quot;audio/*&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.2</span>)),
-                <span class="ident">QualityItem::max</span>(<span class="string">&quot;audio/basic&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
+            <span class="prelude-val">Some</span>(Accept(<span class="macro">vec!</span>[
+                QualityItem::new(<span class="string">&quot;audio/*&quot;</span>.parse().unwrap(), q(<span class="number">0.2</span>)),
+                QualityItem::max(<span class="string">&quot;audio/basic&quot;</span>.parse().unwrap()),
                 ])));
 
         <span class="macro">crate::http::header::common_header_test!</span>(
-            <span class="ident">test2</span>,
+            test2,
             <span class="macro">vec!</span>[<span class="string">b&quot;text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">Accept</span>(<span class="macro">vec!</span>[
-                <span class="ident">QualityItem::new</span>(<span class="ident">mime::TEXT_PLAIN</span>, <span class="ident">q</span>(<span class="number">0.5</span>)),
-                <span class="ident">QualityItem::max</span>(<span class="ident">mime::TEXT_HTML</span>),
-                <span class="ident">QualityItem::new</span>(
-                    <span class="string">&quot;text/x-dvi&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                    <span class="ident">q</span>(<span class="number">0.8</span>)),
-                <span class="ident">QualityItem::max</span>(<span class="string">&quot;text/x-c&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
+            <span class="prelude-val">Some</span>(Accept(<span class="macro">vec!</span>[
+                QualityItem::new(mime::TEXT_PLAIN, q(<span class="number">0.5</span>)),
+                QualityItem::max(mime::TEXT_HTML),
+                QualityItem::new(
+                    <span class="string">&quot;text/x-dvi&quot;</span>.parse().unwrap(),
+                    q(<span class="number">0.8</span>)),
+                QualityItem::max(<span class="string">&quot;text/x-c&quot;</span>.parse().unwrap()),
                 ])));
 
-        <span class="comment">// Custom tests</span>
-        <span class="macro">crate::http::header::common_header_test!</span>(
-            <span class="ident">test3</span>,
+        <span class="comment">// Custom tests
+        </span><span class="macro">crate::http::header::common_header_test!</span>(
+            test3,
             <span class="macro">vec!</span>[<span class="string">b&quot;text/plain; charset=utf-8&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">Accept</span>(<span class="macro">vec!</span>[
-                <span class="ident">QualityItem::max</span>(<span class="ident">mime::TEXT_PLAIN_UTF_8</span>),
+            <span class="prelude-val">Some</span>(Accept(<span class="macro">vec!</span>[
+                QualityItem::max(mime::TEXT_PLAIN_UTF_8),
                 ])));
         <span class="macro">crate::http::header::common_header_test!</span>(
-            <span class="ident">test4</span>,
+            test4,
             <span class="macro">vec!</span>[<span class="string">b&quot;text/plain; charset=utf-8; q=0.5&quot;</span>],
-            <span class="prelude-val">Some</span>(<span class="ident">Accept</span>(<span class="macro">vec!</span>[
-                <span class="ident">QualityItem::new</span>(<span class="ident">mime::TEXT_PLAIN_UTF_8</span>,
-                    <span class="ident">q</span>(<span class="number">0.5</span>)),
+            <span class="prelude-val">Some</span>(Accept(<span class="macro">vec!</span>[
+                QualityItem::new(mime::TEXT_PLAIN_UTF_8,
+                    q(<span class="number">0.5</span>)),
             ])));
 
-        <span class="attribute">#[<span class="ident">test</span>]</span>
-        <span class="kw">fn</span> <span class="ident">test_fuzzing1</span>() {
-            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test::TestRequest::default</span>()
-                .<span class="ident">insert_header</span>((<span class="ident">header::ACCEPT</span>, <span class="string">&quot;chunk#;e&quot;</span>))
-                .<span class="ident">finish</span>();
-            <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Accept::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>);
-            <span class="macro">assert!</span>(<span class="ident">header</span>.<span class="ident">is_ok</span>());
+        <span class="attribute">#[test]
+        </span><span class="kw">fn </span>test_fuzzing1() {
+            <span class="kw">let </span>req = test::TestRequest::default()
+                .insert_header((header::ACCEPT, <span class="string">&quot;chunk#;e&quot;</span>))
+                .finish();
+            <span class="kw">let </span>header = Accept::parse(<span class="kw-2">&amp;</span>req);
+            <span class="macro">assert!</span>(header.is_ok());
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Accept</span> {
-    <span class="doccomment">/// Construct `Accept: */*`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">star</span>() -&gt; <span class="ident">Accept</span> {
-        <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">QualityItem::max</span>(<span class="ident">mime::STAR_STAR</span>)])
+<span class="kw">impl </span>Accept {
+    <span class="doccomment">/// Construct `Accept: */*`.
+    </span><span class="kw">pub fn </span>star() -&gt; Accept {
+        Accept(<span class="macro">vec!</span>[QualityItem::max(mime::STAR_STAR)])
     }
 
-    <span class="doccomment">/// Construct `Accept: application/json`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">json</span>() -&gt; <span class="ident">Accept</span> {
-        <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">QualityItem::max</span>(<span class="ident">mime::APPLICATION_JSON</span>)])
+    <span class="doccomment">/// Construct `Accept: application/json`.
+    </span><span class="kw">pub fn </span>json() -&gt; Accept {
+        Accept(<span class="macro">vec!</span>[QualityItem::max(mime::APPLICATION_JSON)])
     }
 
-    <span class="doccomment">/// Construct `Accept: text/*`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text</span>() -&gt; <span class="ident">Accept</span> {
-        <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">QualityItem::max</span>(<span class="ident">mime::TEXT_STAR</span>)])
+    <span class="doccomment">/// Construct `Accept: text/*`.
+    </span><span class="kw">pub fn </span>text() -&gt; Accept {
+        Accept(<span class="macro">vec!</span>[QualityItem::max(mime::TEXT_STAR)])
     }
 
-    <span class="doccomment">/// Construct `Accept: image/*`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image</span>() -&gt; <span class="ident">Accept</span> {
-        <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">QualityItem::max</span>(<span class="ident">mime::IMAGE_STAR</span>)])
+    <span class="doccomment">/// Construct `Accept: image/*`.
+    </span><span class="kw">pub fn </span>image() -&gt; Accept {
+        Accept(<span class="macro">vec!</span>[QualityItem::max(mime::IMAGE_STAR)])
     }
 
-    <span class="doccomment">/// Construct `Accept: text/html`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">html</span>() -&gt; <span class="ident">Accept</span> {
-        <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">QualityItem::max</span>(<span class="ident">mime::TEXT_HTML</span>)])
+    <span class="doccomment">/// Construct `Accept: text/html`.
+    </span><span class="kw">pub fn </span>html() -&gt; Accept {
+        Accept(<span class="macro">vec!</span>[QualityItem::max(mime::TEXT_HTML)])
     }
 
-    <span class="comment">// TODO: method for getting best content encoding based on q-factors, available from server side</span>
-    <span class="comment">// and if none are acceptable return None</span>
+    <span class="comment">// TODO: method for getting best content encoding based on q-factors, available from server side
+    // and if none are acceptable return None
 
-    <span class="doccomment">/// Extracts the most preferable mime type, accounting for [q-factor weighting].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If no q-factors are provided, the first mime type is chosen. Note that items without</span>
-    <span class="doccomment">/// q-factors are given the maximum preference value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// As per the spec, will return [`mime::STAR_STAR`] (indicating no preference) if the contained</span>
-    <span class="doccomment">/// list is empty.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Mime</span> {
-        <span class="kw">use</span> <span class="ident">actix_http::header::Quality</span>;
+    </span><span class="doccomment">/// Extracts the most preferable mime type, accounting for [q-factor weighting].
+    ///
+    /// If no q-factors are provided, the first mime type is chosen. Note that items without
+    /// q-factors are given the maximum preference value.
+    ///
+    /// As per the spec, will return [`mime::STAR_STAR`] (indicating no preference) if the contained
+    /// list is empty.
+    ///
+    /// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
+    </span><span class="kw">pub fn </span>preference(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Mime {
+        <span class="kw">use </span>actix_http::header::Quality;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_item</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_pref</span> <span class="op">=</span> <span class="ident">Quality::ZERO</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>max_item = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>max_pref = Quality::ZERO;
 
-        <span class="comment">// uses manual max lookup loop since we want the first occurrence in the case of same</span>
-        <span class="comment">// preference but `Iterator::max_by_key` would give us the last occurrence</span>
+        <span class="comment">// uses manual max lookup loop since we want the first occurrence in the case of same
+        // preference but `Iterator::max_by_key` would give us the last occurrence
 
-        <span class="kw">for</span> <span class="ident">pref</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="comment">// only change if strictly greater</span>
-            <span class="comment">// equal items, even while unsorted, still have higher preference if they appear first</span>
-            <span class="kw">if</span> <span class="ident">pref</span>.<span class="ident">quality</span> <span class="op">&gt;</span> <span class="ident">max_pref</span> {
-                <span class="ident">max_pref</span> <span class="op">=</span> <span class="ident">pref</span>.<span class="ident">quality</span>;
-                <span class="ident">max_item</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pref</span>.<span class="ident">item</span>.<span class="ident">clone</span>());
+        </span><span class="kw">for </span>pref <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
+            <span class="comment">// only change if strictly greater
+            // equal items, even while unsorted, still have higher preference if they appear first
+            </span><span class="kw">if </span>pref.quality &gt; max_pref {
+                max_pref = pref.quality;
+                max_item = <span class="prelude-val">Some</span>(pref.item.clone());
             }
         }
 
-        <span class="ident">max_item</span>.<span class="ident">unwrap_or</span>(<span class="ident">mime::STAR_STAR</span>)
+        max_item.unwrap_or(mime::STAR_STAR)
     }
 
-    <span class="doccomment">/// Returns a sorted list of mime types from highest to lowest preference, accounting for</span>
-    <span class="doccomment">/// [q-factor weighting] and specificity.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ranked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Mime</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="macro">vec!</span>[];
+    <span class="doccomment">/// Returns a sorted list of mime types from highest to lowest preference, accounting for
+    /// [q-factor weighting] and specificity.
+    ///
+    /// [q-factor weighting]: https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
+    </span><span class="kw">pub fn </span>ranked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;Mime&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_empty() {
+            <span class="kw">return </span><span class="macro">vec!</span>[];
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>types = <span class="self">self</span>.<span class="number">0</span>.clone();
 
-        <span class="comment">// use stable sort so items with equal q-factor and specificity retain listed order</span>
-        <span class="ident">types</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> {
-            <span class="comment">// sort by q-factor descending</span>
-            <span class="ident">b</span>.<span class="ident">quality</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">quality</span>).<span class="ident">then_with</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="comment">// use specificity rules on mime types with</span>
-                <span class="comment">// same q-factor (eg. text/html &gt; text/* &gt; */*)</span>
+        <span class="comment">// use stable sort so items with equal q-factor and specificity retain listed order
+        </span>types.sort_by(|a, b| {
+            <span class="comment">// sort by q-factor descending
+            </span>b.quality.cmp(<span class="kw-2">&amp;</span>a.quality).then_with(|| {
+                <span class="comment">// use specificity rules on mime types with
+                // same q-factor (eg. text/html &gt; text/* &gt; */*)
 
-                <span class="comment">// subtypes are not comparable if main type is star, so return</span>
-                <span class="kw">match</span> (<span class="ident">a</span>.<span class="ident">item</span>.<span class="ident">type_</span>(), <span class="ident">b</span>.<span class="ident">item</span>.<span class="ident">type_</span>()) {
-                    (<span class="ident">mime::STAR</span>, <span class="ident">mime::STAR</span>) =&gt; <span class="kw">return</span> <span class="ident">Ordering::Equal</span>,
+                // subtypes are not comparable if main type is star, so return
+                </span><span class="kw">match </span>(a.item.type_(), b.item.type_()) {
+                    (mime::STAR, mime::STAR) =&gt; <span class="kw">return </span>Ordering::Equal,
 
-                    <span class="comment">// a is sorted after b</span>
-                    (<span class="ident">mime::STAR</span>, <span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="ident">Ordering::Greater</span>,
+                    <span class="comment">// a is sorted after b
+                    </span>(mime::STAR, <span class="kw">_</span>) =&gt; <span class="kw">return </span>Ordering::Greater,
 
-                    <span class="comment">// a is sorted before b</span>
-                    (<span class="kw">_</span>, <span class="ident">mime::STAR</span>) =&gt; <span class="kw">return</span> <span class="ident">Ordering::Less</span>,
+                    <span class="comment">// a is sorted before b
+                    </span>(<span class="kw">_</span>, mime::STAR) =&gt; <span class="kw">return </span>Ordering::Less,
 
-                    <span class="kw">_</span> =&gt; {}
+                    <span class="kw">_ </span>=&gt; {}
                 }
 
-                <span class="comment">// in both these match expressions, the returned ordering appears</span>
-                <span class="comment">// inverted because sort is high-to-low (&quot;descending&quot;) precedence</span>
-                <span class="kw">match</span> (<span class="ident">a</span>.<span class="ident">item</span>.<span class="ident">subtype</span>(), <span class="ident">b</span>.<span class="ident">item</span>.<span class="ident">subtype</span>()) {
-                    (<span class="ident">mime::STAR</span>, <span class="ident">mime::STAR</span>) =&gt; <span class="ident">Ordering::Equal</span>,
+                <span class="comment">// in both these match expressions, the returned ordering appears
+                // inverted because sort is high-to-low (&quot;descending&quot;) precedence
+                </span><span class="kw">match </span>(a.item.subtype(), b.item.subtype()) {
+                    (mime::STAR, mime::STAR) =&gt; Ordering::Equal,
 
-                    <span class="comment">// a is sorted after b</span>
-                    (<span class="ident">mime::STAR</span>, <span class="kw">_</span>) =&gt; <span class="ident">Ordering::Greater</span>,
+                    <span class="comment">// a is sorted after b
+                    </span>(mime::STAR, <span class="kw">_</span>) =&gt; Ordering::Greater,
 
-                    <span class="comment">// a is sorted before b</span>
-                    (<span class="kw">_</span>, <span class="ident">mime::STAR</span>) =&gt; <span class="ident">Ordering::Less</span>,
+                    <span class="comment">// a is sorted before b
+                    </span>(<span class="kw">_</span>, mime::STAR) =&gt; Ordering::Less,
 
-                    <span class="kw">_</span> =&gt; <span class="ident">Ordering::Equal</span>,
+                    <span class="kw">_ </span>=&gt; Ordering::Equal,
                 }
             })
         });
 
-        <span class="ident">types</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">qitem</span><span class="op">|</span> <span class="ident">qitem</span>.<span class="ident">item</span>).<span class="ident">collect</span>()
+        types.into_iter().map(|qitem| qitem.item).collect()
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http::header::q</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::http::header::q;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ranking_precedence</span>() {
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">Accept</span>(<span class="macro">vec!</span>[]);
-        <span class="macro">assert!</span>(<span class="ident">test</span>.<span class="ident">ranked</span>().<span class="ident">is_empty</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>ranking_precedence() {
+        <span class="kw">let </span>test = Accept(<span class="macro">vec!</span>[]);
+        <span class="macro">assert!</span>(test.ranked().is_empty());
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">Accept</span>(<span class="macro">vec!</span>[<span class="ident">QualityItem::max</span>(<span class="ident">mime::APPLICATION_JSON</span>)]);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">ranked</span>(), <span class="macro">vec!</span>[<span class="ident">mime::APPLICATION_JSON</span>]);
+        <span class="kw">let </span>test = Accept(<span class="macro">vec!</span>[QualityItem::max(mime::APPLICATION_JSON)]);
+        <span class="macro">assert_eq!</span>(test.ranked(), <span class="macro">vec!</span>[mime::APPLICATION_JSON]);
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">Accept</span>(<span class="macro">vec!</span>[
-            <span class="ident">QualityItem::max</span>(<span class="ident">mime::TEXT_HTML</span>),
-            <span class="string">&quot;application/xhtml+xml&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;application/xml&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.9</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="ident">mime::STAR_STAR</span>, <span class="ident">q</span>(<span class="number">0.8</span>)),
+        <span class="kw">let </span>test = Accept(<span class="macro">vec!</span>[
+            QualityItem::max(mime::TEXT_HTML),
+            <span class="string">&quot;application/xhtml+xml&quot;</span>.parse().unwrap(),
+            QualityItem::new(<span class="string">&quot;application/xml&quot;</span>.parse().unwrap(), q(<span class="number">0.9</span>)),
+            QualityItem::new(mime::STAR_STAR, q(<span class="number">0.8</span>)),
         ]);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">ranked</span>(),
+            test.ranked(),
             <span class="macro">vec!</span>[
-                <span class="ident">mime::TEXT_HTML</span>,
-                <span class="string">&quot;application/xhtml+xml&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="string">&quot;application/xml&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-                <span class="ident">mime::STAR_STAR</span>,
+                mime::TEXT_HTML,
+                <span class="string">&quot;application/xhtml+xml&quot;</span>.parse().unwrap(),
+                <span class="string">&quot;application/xml&quot;</span>.parse().unwrap(),
+                mime::STAR_STAR,
             ]
         );
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">Accept</span>(<span class="macro">vec!</span>[
-            <span class="ident">QualityItem::max</span>(<span class="ident">mime::STAR_STAR</span>),
-            <span class="ident">QualityItem::max</span>(<span class="ident">mime::IMAGE_STAR</span>),
-            <span class="ident">QualityItem::max</span>(<span class="ident">mime::IMAGE_PNG</span>),
+        <span class="kw">let </span>test = Accept(<span class="macro">vec!</span>[
+            QualityItem::max(mime::STAR_STAR),
+            QualityItem::max(mime::IMAGE_STAR),
+            QualityItem::max(mime::IMAGE_PNG),
         ]);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">test</span>.<span class="ident">ranked</span>(),
-            <span class="macro">vec!</span>[<span class="ident">mime::IMAGE_PNG</span>, <span class="ident">mime::IMAGE_STAR</span>, <span class="ident">mime::STAR_STAR</span>]
+            test.ranked(),
+            <span class="macro">vec!</span>[mime::IMAGE_PNG, mime::IMAGE_STAR, mime::STAR_STAR]
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">preference_selection</span>() {
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">Accept</span>(<span class="macro">vec!</span>[
-            <span class="ident">QualityItem::max</span>(<span class="ident">mime::TEXT_HTML</span>),
-            <span class="string">&quot;application/xhtml+xml&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;application/xml&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.9</span>)),
-            <span class="ident">QualityItem::new</span>(<span class="ident">mime::STAR_STAR</span>, <span class="ident">q</span>(<span class="number">0.8</span>)),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>preference_selection() {
+        <span class="kw">let </span>test = Accept(<span class="macro">vec!</span>[
+            QualityItem::max(mime::TEXT_HTML),
+            <span class="string">&quot;application/xhtml+xml&quot;</span>.parse().unwrap(),
+            QualityItem::new(<span class="string">&quot;application/xml&quot;</span>.parse().unwrap(), q(<span class="number">0.9</span>)),
+            QualityItem::new(mime::STAR_STAR, q(<span class="number">0.8</span>)),
         ]);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">preference</span>(), <span class="ident">mime::TEXT_HTML</span>);
+        <span class="macro">assert_eq!</span>(test.preference(), mime::TEXT_HTML);
 
-        <span class="kw">let</span> <span class="ident">test</span> <span class="op">=</span> <span class="ident">Accept</span>(<span class="macro">vec!</span>[
-            <span class="ident">QualityItem::new</span>(<span class="string">&quot;video/*&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="ident">q</span>(<span class="number">0.8</span>)),
-            <span class="ident">QualityItem::max</span>(<span class="ident">mime::IMAGE_PNG</span>),
-            <span class="ident">QualityItem::new</span>(<span class="ident">mime::STAR_STAR</span>, <span class="ident">q</span>(<span class="number">0.5</span>)),
-            <span class="ident">QualityItem::max</span>(<span class="ident">mime::IMAGE_SVG</span>),
-            <span class="ident">QualityItem::new</span>(<span class="ident">mime::IMAGE_STAR</span>, <span class="ident">q</span>(<span class="number">0.8</span>)),
+        <span class="kw">let </span>test = Accept(<span class="macro">vec!</span>[
+            QualityItem::new(<span class="string">&quot;video/*&quot;</span>.parse().unwrap(), q(<span class="number">0.8</span>)),
+            QualityItem::max(mime::IMAGE_PNG),
+            QualityItem::new(mime::STAR_STAR, q(<span class="number">0.5</span>)),
+            QualityItem::max(mime::IMAGE_SVG),
+            QualityItem::new(mime::IMAGE_STAR, q(<span class="number">0.8</span>)),
         ]);
-        <span class="macro">assert_eq!</span>(<span class="ident">test</span>.<span class="ident">preference</span>(), <span class="ident">mime::IMAGE_PNG</span>);
+        <span class="macro">assert_eq!</span>(test.preference(), mime::IMAGE_PNG);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

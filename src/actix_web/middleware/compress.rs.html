@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/compress.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compress.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/middleware/compress.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compress.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -327,332 +327,332 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
-</pre><pre class="rust"><code><span class="doccomment">//! For middleware documentation, see [`Compress`].</span>
+</pre><pre class="rust"><code><span class="doccomment">//! For middleware documentation, see [`Compress`].
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>std::{
+    future::Future,
+    marker::PhantomData,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">actix_http::encoding::Encoder</span>;
-<span class="kw">use</span> <span class="ident">actix_service</span>::{<span class="ident">Service</span>, <span class="ident">Transform</span>};
-<span class="kw">use</span> <span class="ident">actix_utils::future</span>::{<span class="ident">ok</span>, <span class="ident">Either</span>, <span class="ident">Ready</span>};
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>actix_http::encoding::Encoder;
+<span class="kw">use </span>actix_service::{Service, Transform};
+<span class="kw">use </span>actix_utils::future::{ok, Either, Ready};
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>once_cell::sync::Lazy;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">EitherBody</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">http</span>::{
-        <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">AcceptEncoding</span>, <span class="ident">Encoding</span>, <span class="ident">HeaderValue</span>},
-        <span class="ident">StatusCode</span>,
+<span class="kw">use crate</span>::{
+    body::{EitherBody, MessageBody},
+    http::{
+        header::{<span class="self">self</span>, AcceptEncoding, Encoding, HeaderValue},
+        StatusCode,
     },
-    <span class="ident">service</span>::{<span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span>},
-    <span class="ident">Error</span>, <span class="ident">HttpMessage</span>, <span class="ident">HttpResponse</span>,
+    service::{ServiceRequest, ServiceResponse},
+    Error, HttpMessage, HttpResponse,
 };
 
-<span class="doccomment">/// Middleware for compressing response payloads.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Encoding Negotiation</span>
-<span class="doccomment">/// `Compress` will read the `Accept-Encoding` header to negotiate which compression codec to use.</span>
-<span class="doccomment">/// Payloads are not compressed if the header is not sent. The `compress-*` [feature flags] are also</span>
-<span class="doccomment">/// considered in this selection process.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Pre-compressed Payload</span>
-<span class="doccomment">/// If you are serving some data is already using a compressed representation (e.g., a gzip</span>
-<span class="doccomment">/// compressed HTML file from disk) you can signal this to `Compress` by setting an appropriate</span>
-<span class="doccomment">/// `Content-Encoding` header. In addition to preventing double compressing the payload, this header</span>
-<span class="doccomment">/// is required by the spec when using compressed representations and will inform the client that</span>
-<span class="doccomment">/// the content should be uncompressed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// However, it is not advised to unconditionally serve encoded representations of content because</span>
-<span class="doccomment">/// the client may not support it. The [`AcceptEncoding`] typed header has some utilities to help</span>
-<span class="doccomment">/// perform manual encoding negotiation, if required. When negotiating content encoding, it is also</span>
-<span class="doccomment">/// required by the spec to send a `Vary: Accept-Encoding` header.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A (naïve) example serving an pre-compressed Gzip file is included below.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// To enable automatic payload compression just include `Compress` as a top-level middleware:</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{middleware, web, App, HttpResponse};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new()</span>
-<span class="doccomment">///     .wrap(middleware::Compress::default())</span>
-<span class="doccomment">///     .default_service(web::to(|| async { HttpResponse::Ok().body(&quot;hello world&quot;) }));</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Pre-compressed Gzip file being served from disk with correct headers added to bypass middleware:</span>
-<span class="doccomment">/// ```no_run</span>
-<span class="doccomment">/// use actix_web::{middleware, http::header, web, App, HttpResponse, Responder};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// async fn index_handler() -&gt; actix_web::Result&lt;impl Responder&gt; {</span>
-<span class="doccomment">///     Ok(actix_files::NamedFile::open_async(&quot;./assets/index.html.gz&quot;).await?</span>
-<span class="doccomment">///         .customize()</span>
-<span class="doccomment">///         .insert_header(header::ContentEncoding::Gzip))</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new()</span>
-<span class="doccomment">///     .wrap(middleware::Compress::default())</span>
-<span class="doccomment">///     .default_service(web::to(index_handler));</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [feature flags]: ../index.html#crate-features</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Compress</span>;
+<span class="doccomment">/// Middleware for compressing response payloads.
+///
+/// # Encoding Negotiation
+/// `Compress` will read the `Accept-Encoding` header to negotiate which compression codec to use.
+/// Payloads are not compressed if the header is not sent. The `compress-*` [feature flags] are also
+/// considered in this selection process.
+///
+/// # Pre-compressed Payload
+/// If you are serving some data is already using a compressed representation (e.g., a gzip
+/// compressed HTML file from disk) you can signal this to `Compress` by setting an appropriate
+/// `Content-Encoding` header. In addition to preventing double compressing the payload, this header
+/// is required by the spec when using compressed representations and will inform the client that
+/// the content should be uncompressed.
+///
+/// However, it is not advised to unconditionally serve encoded representations of content because
+/// the client may not support it. The [`AcceptEncoding`] typed header has some utilities to help
+/// perform manual encoding negotiation, if required. When negotiating content encoding, it is also
+/// required by the spec to send a `Vary: Accept-Encoding` header.
+///
+/// A (naïve) example serving an pre-compressed Gzip file is included below.
+///
+/// # Examples
+/// To enable automatic payload compression just include `Compress` as a top-level middleware:
+/// ```
+/// use actix_web::{middleware, web, App, HttpResponse};
+///
+/// let app = App::new()
+///     .wrap(middleware::Compress::default())
+///     .default_service(web::to(|| async { HttpResponse::Ok().body(&quot;hello world&quot;) }));
+/// ```
+///
+/// Pre-compressed Gzip file being served from disk with correct headers added to bypass middleware:
+/// ```no_run
+/// use actix_web::{middleware, http::header, web, App, HttpResponse, Responder};
+///
+/// async fn index_handler() -&gt; actix_web::Result&lt;impl Responder&gt; {
+///     Ok(actix_files::NamedFile::open_async(&quot;./assets/index.html.gz&quot;).await?
+///         .customize()
+///         .insert_header(header::ContentEncoding::Gzip))
+/// }
+///
+/// let app = App::new()
+///     .wrap(middleware::Compress::default())
+///     .default_service(web::to(index_handler));
+/// ```
+///
+/// [feature flags]: ../index.html#crate-features
+</span><span class="attribute">#[derive(Debug, Clone, Default)]
+#[non_exhaustive]
+</span><span class="kw">pub struct </span>Compress;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Compress</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, B&gt; Transform&lt;S, ServiceRequest&gt; <span class="kw">for </span>Compress
+<span class="kw">where
+    </span>B: MessageBody,
+    S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">Transform</span> <span class="op">=</span> <span class="ident">CompressMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Transform</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ServiceResponse&lt;EitherBody&lt;Encoder&lt;B&gt;&gt;&gt;;
+    <span class="kw">type </span>Error = Error;
+    <span class="kw">type </span>Transform = CompressMiddleware&lt;S&gt;;
+    <span class="kw">type </span>InitError = ();
+    <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Transform, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">service</span>: <span class="ident">S</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident">ok</span>(<span class="ident">CompressMiddleware</span> { <span class="ident">service</span> })
+    <span class="kw">fn </span>new_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, service: S) -&gt; <span class="self">Self</span>::Future {
+        ok(CompressMiddleware { service })
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompressMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="ident">service</span>: <span class="ident">S</span>,
+<span class="kw">pub struct </span>CompressMiddleware&lt;S&gt; {
+    service: S,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CompressMiddleware</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+<span class="kw">impl</span>&lt;S, B&gt; Service&lt;ServiceRequest&gt; <span class="kw">for </span>CompressMiddleware&lt;S&gt;
+<span class="kw">where
+    </span>S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
+    B: MessageBody,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">CompressResponse</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Response</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ServiceResponse&lt;EitherBody&lt;Encoder&lt;B&gt;&gt;&gt;;
+    <span class="kw">type </span>Error = Error;
+    <span class="attribute">#[allow(clippy::type_complexity)]
+    </span><span class="kw">type </span>Future = Either&lt;CompressResponse&lt;S, B&gt;, Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Response, <span class="self">Self</span>::Error&gt;&gt;&gt;;
 
-    <span class="macro">actix_service::forward_ready!</span>(<span class="ident">service</span>);
+    <span class="macro">actix_service::forward_ready!</span>(service);
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::borrow_interior_mutable_const</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">ServiceRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="comment">// negotiate content-encoding</span>
-        <span class="kw">let</span> <span class="ident">accept_encoding</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">get_header</span>::<span class="op">&lt;</span><span class="ident">AcceptEncoding</span><span class="op">&gt;</span>();
+    <span class="attribute">#[allow(clippy::borrow_interior_mutable_const)]
+    </span><span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: ServiceRequest) -&gt; <span class="self">Self</span>::Future {
+        <span class="comment">// negotiate content-encoding
+        </span><span class="kw">let </span>accept_encoding = req.get_header::&lt;AcceptEncoding&gt;();
 
-        <span class="kw">let</span> <span class="ident">accept_encoding</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">accept_encoding</span> {
-            <span class="comment">// missing header; fallback to identity</span>
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="kw">return</span> <span class="ident">Either::left</span>(<span class="ident">CompressResponse</span> {
-                    <span class="ident">encoding</span>: <span class="ident">Encoding::identity</span>(),
-                    <span class="ident">fut</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>),
-                    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        <span class="kw">let </span>accept_encoding = <span class="kw">match </span>accept_encoding {
+            <span class="comment">// missing header; fallback to identity
+            </span><span class="prelude-val">None </span>=&gt; {
+                <span class="kw">return </span>Either::left(CompressResponse {
+                    encoding: Encoding::identity(),
+                    fut: <span class="self">self</span>.service.call(req),
+                    _phantom: PhantomData,
                 })
             }
 
-            <span class="comment">// valid accept-encoding header</span>
-            <span class="prelude-val">Some</span>(<span class="ident">accept_encoding</span>) =&gt; <span class="ident">accept_encoding</span>,
+            <span class="comment">// valid accept-encoding header
+            </span><span class="prelude-val">Some</span>(accept_encoding) =&gt; accept_encoding,
         };
 
-        <span class="kw">match</span> <span class="ident">accept_encoding</span>.<span class="ident">negotiate</span>(<span class="ident">SUPPORTED_ENCODINGS</span>.<span class="ident">iter</span>()) {
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::with_body</span>(
-                    <span class="ident">StatusCode::NOT_ACCEPTABLE</span>,
-                    <span class="ident">SUPPORTED_ENCODINGS_STRING</span>.<span class="ident">as_str</span>(),
+        <span class="kw">match </span>accept_encoding.negotiate(SUPPORTED_ENCODINGS.iter()) {
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>res = HttpResponse::with_body(
+                    StatusCode::NOT_ACCEPTABLE,
+                    SUPPORTED_ENCODINGS_STRING.as_str(),
                 );
 
-                <span class="ident">res</span>.<span class="ident">headers_mut</span>()
-                    .<span class="ident">insert</span>(<span class="ident">header::VARY</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;Accept-Encoding&quot;</span>));
+                res.headers_mut()
+                    .insert(header::VARY, HeaderValue::from_static(<span class="string">&quot;Accept-Encoding&quot;</span>));
 
-                <span class="ident">Either::right</span>(<span class="ident">ok</span>(<span class="ident">req</span>
-                    .<span class="ident">into_response</span>(<span class="ident">res</span>)
-                    .<span class="ident">map_into_boxed_body</span>()
-                    .<span class="ident">map_into_right_body</span>()))
+                Either::right(ok(req
+                    .into_response(res)
+                    .map_into_boxed_body()
+                    .map_into_right_body()))
             }
 
-            <span class="prelude-val">Some</span>(<span class="ident">encoding</span>) =&gt; <span class="ident">Either::left</span>(<span class="ident">CompressResponse</span> {
-                <span class="ident">fut</span>: <span class="self">self</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>),
-                <span class="ident">encoding</span>,
-                <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+            <span class="prelude-val">Some</span>(encoding) =&gt; Either::left(CompressResponse {
+                fut: <span class="self">self</span>.service.call(req),
+                encoding,
+                _phantom: PhantomData,
             }),
         }
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompressResponse</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span><span class="op">&gt;</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>CompressResponse&lt;S, B&gt;
+    <span class="kw">where
+        </span>S: Service&lt;ServiceRequest&gt;,
     {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">fut</span>: <span class="ident">S::Future</span>,
-        <span class="ident">encoding</span>: <span class="ident">Encoding</span>,
-        <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+        <span class="attribute">#[pin]
+        </span>fut: S::Future,
+        encoding: Encoding,
+        _phantom: PhantomData&lt;B&gt;,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">CompressResponse</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;S, B&gt; Future <span class="kw">for </span>CompressResponse&lt;S, B&gt;
+<span class="kw">where
+    </span>B: MessageBody,
+    S: Service&lt;ServiceRequest, Response = ServiceResponse&lt;B&gt;, Error = Error&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">Encoder</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;EitherBody&lt;Encoder&lt;B&gt;&gt;&gt;, Error&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
 
-        <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)) {
-            <span class="prelude-val">Ok</span>(<span class="ident">resp</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">enc</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">encoding</span> {
-                    <span class="ident">Encoding::Known</span>(<span class="ident">enc</span>) =&gt; <span class="kw-2">*</span><span class="ident">enc</span>,
-                    <span class="ident">Encoding::Unknown</span>(<span class="ident">enc</span>) =&gt; {
-                        <span class="macro">unimplemented!</span>(<span class="string">&quot;encoding {} should not be here&quot;</span>, <span class="ident">enc</span>);
+        <span class="kw">match </span><span class="macro">ready!</span>(this.fut.poll(cx)) {
+            <span class="prelude-val">Ok</span>(resp) =&gt; {
+                <span class="kw">let </span>enc = <span class="kw">match </span>this.encoding {
+                    Encoding::Known(enc) =&gt; <span class="kw-2">*</span>enc,
+                    Encoding::Unknown(enc) =&gt; {
+                        <span class="macro">unimplemented!</span>(<span class="string">&quot;encoding {} should not be here&quot;</span>, enc);
                     }
                 };
 
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">resp</span>.<span class="ident">map_body</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">head</span>, <span class="ident">body</span><span class="op">|</span> {
-                    <span class="ident">EitherBody::left</span>(<span class="ident">Encoder::response</span>(<span class="ident">enc</span>, <span class="ident">head</span>, <span class="ident">body</span>))
+                Poll::Ready(<span class="prelude-val">Ok</span>(resp.map_body(<span class="kw">move </span>|head, body| {
+                    EitherBody::left(Encoder::response(enc, head, body))
                 })))
             }
 
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)),
+            <span class="prelude-val">Err</span>(err) =&gt; Poll::Ready(<span class="prelude-val">Err</span>(err)),
         }
     }
 }
 
-<span class="kw">static</span> <span class="ident">SUPPORTED_ENCODINGS_STRING</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_mut</span>)]</span> <span class="comment">// only unused when no compress features enabled</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoding</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">static </span>SUPPORTED_ENCODINGS_STRING: Lazy&lt;String&gt; = Lazy::new(|| {
+    <span class="attribute">#[allow(unused_mut)] </span><span class="comment">// only unused when no compress features enabled
+    </span><span class="kw">let </span><span class="kw-2">mut </span>encoding: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = <span class="macro">vec!</span>[];
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-brotli&quot;</span>)]</span>
-    {
-        <span class="ident">encoding</span>.<span class="ident">push</span>(<span class="string">&quot;br&quot;</span>);
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;compress-brotli&quot;</span>)]
+    </span>{
+        encoding.push(<span class="string">&quot;br&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
-    {
-        <span class="ident">encoding</span>.<span class="ident">push</span>(<span class="string">&quot;gzip&quot;</span>);
-        <span class="ident">encoding</span>.<span class="ident">push</span>(<span class="string">&quot;deflate&quot;</span>);
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+    </span>{
+        encoding.push(<span class="string">&quot;gzip&quot;</span>);
+        encoding.push(<span class="string">&quot;deflate&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-zstd&quot;</span>)]</span>
-    {
-        <span class="ident">encoding</span>.<span class="ident">push</span>(<span class="string">&quot;zstd&quot;</span>);
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;compress-zstd&quot;</span>)]
+    </span>{
+        encoding.push(<span class="string">&quot;zstd&quot;</span>);
     }
 
     <span class="macro">assert!</span>(
-        <span class="op">!</span><span class="ident">encoding</span>.<span class="ident">is_empty</span>(),
-        <span class="string">&quot;encoding can not be empty unless __compress feature has been explicitly enabled by itself&quot;</span>
-    );
+        !encoding.is_empty(),
+        <span class="string">&quot;encoding can not be empty unless __compress feature has been explicitly enabled by itself&quot;
+    </span>);
 
-    <span class="ident">encoding</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
+    encoding.join(<span class="string">&quot;, &quot;</span>)
 });
 
-<span class="kw">static</span> <span class="ident">SUPPORTED_ENCODINGS</span>: <span class="kw-2">&amp;</span>[<span class="ident">Encoding</span>] <span class="op">=</span> <span class="kw-2">&amp;</span>[
-    <span class="ident">Encoding::identity</span>(),
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-brotli&quot;</span>)]</span>
-    {
-        <span class="ident">Encoding::brotli</span>()
+<span class="kw">static </span>SUPPORTED_ENCODINGS: <span class="kw-2">&amp;</span>[Encoding] = <span class="kw-2">&amp;</span>[
+    Encoding::identity(),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;compress-brotli&quot;</span>)]
+    </span>{
+        Encoding::brotli()
     },
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
-    {
-        <span class="ident">Encoding::gzip</span>()
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+    </span>{
+        Encoding::gzip()
     },
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
-    {
-        <span class="ident">Encoding::deflate</span>()
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+    </span>{
+        Encoding::deflate()
     },
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-zstd&quot;</span>)]</span>
-    {
-        <span class="ident">Encoding::zstd</span>()
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;compress-zstd&quot;</span>)]
+    </span>{
+        Encoding::zstd()
     },
 ];
 
-<span class="comment">// move cfg(feature) to prevents_double_compressing if more tests are added</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compress-gzip&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+<span class="comment">// move cfg(feature) to prevents_double_compressing if more tests are added
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;compress-gzip&quot;</span>)]
+#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::collections::HashSet;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">middleware::DefaultHeaders</span>, <span class="ident">test</span>, <span class="ident">web</span>, <span class="ident">App</span>};
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{middleware::DefaultHeaders, test, web, App};
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gzip_decode</span>(<span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">std::io::Read</span> <span class="kw">as</span> <span class="kw">_</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">flate2::read::GzDecoder::new</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="ident">decoder</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>).<span class="ident">unwrap</span>();
-        <span class="ident">buf</span>
+    <span class="kw">pub fn </span>gzip_decode(bytes: <span class="kw">impl </span>AsRef&lt;[u8]&gt;) -&gt; Vec&lt;u8&gt; {
+        <span class="kw">use </span>std::io::Read <span class="kw">as _</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>decoder = flate2::read::GzDecoder::new(bytes.as_ref());
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::new();
+        decoder.read_to_end(<span class="kw-2">&amp;mut </span>buf).unwrap();
+        buf
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">prevents_double_compressing</span>() {
-        <span class="kw">const</span> <span class="ident">D</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;hello world &quot;</span>;
-        <span class="kw">const</span> <span class="ident">DATA</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">const_str::repeat!</span>(<span class="ident">D</span>, <span class="number">100</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>prevents_double_compressing() {
+        <span class="kw">const </span>D: <span class="kw-2">&amp;</span>str = <span class="string">&quot;hello world &quot;</span>;
+        <span class="kw">const </span>DATA: <span class="kw-2">&amp;</span>str = <span class="macro">const_str::repeat!</span>(D, <span class="number">100</span>);
 
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">test::init_service</span>({
-            <span class="ident">App::new</span>()
-                .<span class="ident">wrap</span>(<span class="ident">Compress::default</span>())
-                .<span class="ident">route</span>(
+        <span class="kw">let </span>app = test::init_service({
+            App::new()
+                .wrap(Compress::default())
+                .route(
                     <span class="string">&quot;/single&quot;</span>,
-                    <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">body</span>(<span class="ident">DATA</span>)),
+                    web::get().to(<span class="kw">move </span>|| HttpResponse::Ok().body(DATA)),
                 )
-                .<span class="ident">service</span>(
-                    <span class="ident">web::resource</span>(<span class="string">&quot;/double&quot;</span>)
-                        .<span class="ident">wrap</span>(<span class="ident">Compress::default</span>())
-                        .<span class="ident">wrap</span>(<span class="ident">DefaultHeaders::new</span>().<span class="ident">add</span>((<span class="string">&quot;x-double&quot;</span>, <span class="string">&quot;true&quot;</span>)))
-                        .<span class="ident">route</span>(<span class="ident">web::get</span>().<span class="ident">to</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>().<span class="ident">body</span>(<span class="ident">DATA</span>))),
+                .service(
+                    web::resource(<span class="string">&quot;/double&quot;</span>)
+                        .wrap(Compress::default())
+                        .wrap(DefaultHeaders::new().add((<span class="string">&quot;x-double&quot;</span>, <span class="string">&quot;true&quot;</span>)))
+                        .route(web::get().to(<span class="kw">move </span>|| HttpResponse::Ok().body(DATA))),
                 )
         })
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test::TestRequest::default</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/single&quot;</span>)
-            .<span class="ident">insert_header</span>((<span class="ident">header::ACCEPT_ENCODING</span>, <span class="string">&quot;gzip&quot;</span>))
-            .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">test::call_service</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="string">&quot;x-double&quot;</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::CONTENT_ENCODING</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;gzip&quot;</span>);
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">test::read_body</span>(<span class="ident">res</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">gzip_decode</span>(<span class="ident">bytes</span>), <span class="ident">DATA</span>.<span class="ident">as_bytes</span>());
+        <span class="kw">let </span>req = test::TestRequest::default()
+            .uri(<span class="string">&quot;/single&quot;</span>)
+            .insert_header((header::ACCEPT_ENCODING, <span class="string">&quot;gzip&quot;</span>))
+            .to_request();
+        <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(res.headers().get(<span class="string">&quot;x-double&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(res.headers().get(header::CONTENT_ENCODING).unwrap(), <span class="string">&quot;gzip&quot;</span>);
+        <span class="kw">let </span>bytes = test::read_body(res).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(gzip_decode(bytes), DATA.as_bytes());
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test::TestRequest::default</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/double&quot;</span>)
-            .<span class="ident">insert_header</span>((<span class="ident">header::ACCEPT_ENCODING</span>, <span class="string">&quot;gzip&quot;</span>))
-            .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">test::call_service</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="string">&quot;x-double&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;true&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::CONTENT_ENCODING</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;gzip&quot;</span>);
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">test::read_body</span>(<span class="ident">res</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">gzip_decode</span>(<span class="ident">bytes</span>), <span class="ident">DATA</span>.<span class="ident">as_bytes</span>());
+        <span class="kw">let </span>req = test::TestRequest::default()
+            .uri(<span class="string">&quot;/double&quot;</span>)
+            .insert_header((header::ACCEPT_ENCODING, <span class="string">&quot;gzip&quot;</span>))
+            .to_request();
+        <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="macro">assert_eq!</span>(res.headers().get(<span class="string">&quot;x-double&quot;</span>).unwrap(), <span class="string">&quot;true&quot;</span>);
+        <span class="macro">assert_eq!</span>(res.headers().get(header::CONTENT_ENCODING).unwrap(), <span class="string">&quot;gzip&quot;</span>);
+        <span class="kw">let </span>bytes = test::read_body(res).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(gzip_decode(bytes), DATA.as_bytes());
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">retains_previously_set_vary_header</span>() {
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">test::init_service</span>({
-            <span class="ident">App::new</span>()
-                .<span class="ident">wrap</span>(<span class="ident">Compress::default</span>())
-                .<span class="ident">default_service</span>(<span class="ident">web::to</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">HttpResponse::Ok</span>()
-                        .<span class="ident">insert_header</span>((<span class="ident">header::VARY</span>, <span class="string">&quot;x-test&quot;</span>))
-                        .<span class="ident">finish</span>()
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>retains_previously_set_vary_header() {
+        <span class="kw">let </span>app = test::init_service({
+            App::new()
+                .wrap(Compress::default())
+                .default_service(web::to(<span class="kw">move </span>|| {
+                    HttpResponse::Ok()
+                        .insert_header((header::VARY, <span class="string">&quot;x-test&quot;</span>))
+                        .finish()
                 }))
         })
         .<span class="kw">await</span>;
 
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test::TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::ACCEPT_ENCODING</span>, <span class="string">&quot;gzip&quot;</span>))
-            .<span class="ident">to_request</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">test::call_service</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>, <span class="ident">req</span>).<span class="kw">await</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::mutable_key_type</span>)]</span>
-        <span class="kw">let</span> <span class="ident">vary_headers</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">headers</span>().<span class="ident">get_all</span>(<span class="ident">header::VARY</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="macro">assert!</span>(<span class="ident">vary_headers</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;x-test&quot;</span>)));
-        <span class="macro">assert!</span>(<span class="ident">vary_headers</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;accept-encoding&quot;</span>)));
+        <span class="kw">let </span>req = test::TestRequest::default()
+            .insert_header((header::ACCEPT_ENCODING, <span class="string">&quot;gzip&quot;</span>))
+            .to_request();
+        <span class="kw">let </span>res = test::call_service(<span class="kw-2">&amp;</span>app, req).<span class="kw">await</span>;
+        <span class="macro">assert_eq!</span>(res.status(), StatusCode::OK);
+        <span class="attribute">#[allow(clippy::mutable_key_type)]
+        </span><span class="kw">let </span>vary_headers = res.headers().get_all(header::VARY).collect::&lt;HashSet&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="macro">assert!</span>(vary_headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;x-test&quot;</span>)));
+        <span class="macro">assert!</span>(vary_headers.contains(<span class="kw-2">&amp;</span>HeaderValue::from_static(<span class="string">&quot;accept-encoding&quot;</span>)));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

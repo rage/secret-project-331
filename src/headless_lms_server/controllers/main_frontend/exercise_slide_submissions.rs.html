@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/exercise_slide_submissions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercise_slide_submissions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `server/src/controllers/main_frontend/exercise_slide_submissions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exercise_slide_submissions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../headless_lms_server/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../headless_lms_server/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -119,126 +119,126 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo</span>;
-<span class="kw">use</span> <span class="ident">models</span>::{
-    <span class="ident">exercises::get_exercise_by_id</span>,
-    <span class="ident">library::user_exercise_state_updater</span>,
-    <span class="ident">teacher_grading_decisions</span>::{<span class="ident">NewTeacherGradingDecision</span>, <span class="ident">TeacherDecisionType</span>},
-    <span class="ident">user_exercise_states::UserExerciseState</span>,
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
+<span class="kw">use </span>models::{
+    exercises::get_exercise_by_id,
+    library::user_exercise_state_updater,
+    teacher_grading_decisions::{NewTeacherGradingDecision, TeacherDecisionType},
+    user_exercise_states::UserExerciseState,
 };
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info&quot;`- Returns data necessary for rendering a submission.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_submission_info</span>(
-    <span class="ident">submission_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmissionInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Teach</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::ExerciseSlideSubmission</span>(<span class="kw-2">*</span><span class="ident">submission_id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_submission_info(
+    submission_id: web::Path&lt;Uuid&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;ExerciseSlideSubmissionInfo&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Teach,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::ExerciseSlideSubmission(<span class="kw-2">*</span>submission_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::exercise_slide_submissions::get_exercise_slide_submission_info</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">submission_id</span>.<span class="ident">into_inner</span>(),
-        <span class="ident">user</span>.<span class="ident">id</span>,
+    <span class="kw">let </span>res = models::exercise_slide_submissions::get_exercise_slide_submission_info(
+        <span class="kw-2">&amp;mut </span>conn,
+        submission_id.into_inner(),
+        user.id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
+    token.authorized_ok(web::Json(res))
 }
 
 <span class="doccomment">/**
 PUT `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-attention&quot;` - Given a teacher grading decision, updates an answer by giving it a manual score given.
-*/</span>
-<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_answer_requiring_attention</span>(
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewTeacherGradingDecision</span><span class="op">&gt;</span>,
-    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
-) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">payload</span>.<span class="ident">action</span>;
-    <span class="kw">let</span> <span class="ident">exercise_id</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="ident">exercise_id</span>;
-    <span class="kw">let</span> <span class="ident">user_exercise_state_id</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="ident">user_exercise_state_id</span>;
-    <span class="kw">let</span> <span class="ident">manual_points</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="ident">manual_points</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Act::Edit</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
-        <span class="ident">Res::Exercise</span>(<span class="ident">exercise_id</span>),
+*/
+</span><span class="attribute">#[generated_doc]
+#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>update_answer_requiring_attention(
+    payload: web::Json&lt;NewTeacherGradingDecision&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;UserExerciseState&gt;&gt; {
+    <span class="kw">let </span>action = <span class="kw-2">&amp;</span>payload.action;
+    <span class="kw">let </span>exercise_id = payload.exercise_id;
+    <span class="kw">let </span>user_exercise_state_id = payload.user_exercise_state_id;
+    <span class="kw">let </span>manual_points = payload.manual_points;
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::Edit,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::Exercise(exercise_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">points_given</span>;
-    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">action</span> <span class="op">==</span> <span class="ident">TeacherDecisionType::FullPoints</span> {
-        <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">get_exercise_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">points_given</span> <span class="op">=</span> <span class="ident">exercise</span>.<span class="ident">score_maximum</span> <span class="kw">as</span> <span class="ident">f32</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">action</span> <span class="op">==</span> <span class="ident">TeacherDecisionType::ZeroPoints</span> {
-        <span class="ident">points_given</span> <span class="op">=</span> <span class="number">0.0</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">action</span> <span class="op">==</span> <span class="ident">TeacherDecisionType::CustomPoints</span> {
-        <span class="ident">points_given</span> <span class="op">=</span> <span class="ident">manual_points</span>.<span class="ident">unwrap_or</span>(<span class="number">0.0</span>);
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">action</span> <span class="op">==</span> <span class="ident">TeacherDecisionType::SuspectedPlagiarism</span> {
-        <span class="ident">points_given</span> <span class="op">=</span> <span class="number">0.0</span>;
-    } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="string">&quot;Invalid query&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">let </span>points_given;
+    <span class="kw">if </span><span class="kw-2">*</span>action == TeacherDecisionType::FullPoints {
+        <span class="kw">let </span>exercise = get_exercise_by_id(<span class="kw-2">&amp;mut </span>conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
+        points_given = exercise.score_maximum <span class="kw">as </span>f32;
+    } <span class="kw">else if </span><span class="kw-2">*</span>action == TeacherDecisionType::ZeroPoints {
+        points_given = <span class="number">0.0</span>;
+    } <span class="kw">else if </span><span class="kw-2">*</span>action == TeacherDecisionType::CustomPoints {
+        points_given = manual_points.unwrap_or(<span class="number">0.0</span>);
+    } <span class="kw">else if </span><span class="kw-2">*</span>action == TeacherDecisionType::SuspectedPlagiarism {
+        points_given = <span class="number">0.0</span>;
+    } <span class="kw">else </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            <span class="string">&quot;Invalid query&quot;</span>.to_string(),
             <span class="prelude-val">None</span>,
         ));
     }
 
     <span class="macro">info!</span>(
         <span class="string">&quot;Teacher took the following action: {:?}. Points given: {:?}.&quot;</span>,
-        <span class="kw-2">&amp;</span><span class="ident">action</span>, <span class="ident">points_given</span>
+        <span class="kw-2">&amp;</span>action, points_given
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">_res</span> <span class="op">=</span> <span class="ident">models::teacher_grading_decisions::add_teacher_grading_decision</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">user_exercise_state_id</span>,
-        <span class="kw-2">*</span><span class="ident">action</span>,
-        <span class="ident">points_given</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>),
+    <span class="kw">let </span>_res = models::teacher_grading_decisions::add_teacher_grading_decision(
+        <span class="kw-2">&amp;mut </span>tx,
+        user_exercise_state_id,
+        <span class="kw-2">*</span>action,
+        points_given,
+        <span class="prelude-val">Some</span>(user.id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
-        <span class="ident">user_exercise_state_updater::update_user_exercise_state</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user_exercise_state_id</span>)
+    <span class="kw">let </span>new_user_exercise_state =
+        user_exercise_state_updater::update_user_exercise_state(<span class="kw-2">&amp;mut </span>tx, user_exercise_state_id)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>) <span class="op">=</span> <span class="ident">new_user_exercise_state</span>.<span class="ident">course_instance_id</span> {
-        <span class="comment">// Since the teacher just reviewed the submission we should mark possible peer review queue entries so that they won&#39;t be given to others to review. Receiving peer reviews for this answer now would not make much sense.</span>
-        <span class="ident">models::peer_review_queue_entries::remove_queue_entries_for_unusual_reason</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-            <span class="ident">new_user_exercise_state</span>.<span class="ident">user_id</span>,
-            <span class="ident">new_user_exercise_state</span>.<span class="ident">exercise_id</span>,
-            <span class="ident">course_instance_id</span>,
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(course_instance_id) = new_user_exercise_state.course_instance_id {
+        <span class="comment">// Since the teacher just reviewed the submission we should mark possible peer review queue entries so that they won&#39;t be given to others to review. Receiving peer reviews for this answer now would not make much sense.
+        </span>models::peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
+            <span class="kw-2">&amp;mut </span>tx,
+            new_user_exercise_state.user_id,
+            new_user_exercise_state.exercise_id,
+            course_instance_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">new_user_exercise_state</span>))
+    token.authorized_ok(web::Json(new_user_exercise_state))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{submission_id}/info&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_submission_info</span>))
-        .<span class="ident">route</span>(
+<span class="kw">pub fn </span>_add_routes(cfg: <span class="kw-2">&amp;mut </span>ServiceConfig) {
+    cfg.route(<span class="string">&quot;/{submission_id}/info&quot;</span>, web::get().to(get_submission_info))
+        .route(
             <span class="string">&quot;/update-answer-requiring-attention&quot;</span>,
-            <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_answer_requiring_attention</span>),
+            web::put().to(update_answer_requiring_attention),
         );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

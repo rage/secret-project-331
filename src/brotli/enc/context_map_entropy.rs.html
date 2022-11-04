@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/context_map_entropy.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>context_map_entropy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/context_map_entropy.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>context_map_entropy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -448,19 +448,19 @@
 <span id="448">448</span>
 <span id="449">449</span>
 <span id="450">450</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">core</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ir_interpret</span>::{<span class="ident">IRInterpreter</span>, <span class="ident">Context</span>, <span class="ident">push_base</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::alloc</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::alloc</span>::{<span class="ident">SliceWrapper</span>, <span class="ident">SliceWrapperMut</span>, <span class="ident">Allocator</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::interface</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::input_pair</span>::{<span class="ident">InputPair</span>, <span class="ident">InputReference</span>, <span class="ident">InputReferenceMut</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::util</span>::{<span class="ident">floatX</span>, <span class="ident">FastLog2u16</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::find_stride</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::weights</span>::{<span class="ident">Weights</span>, <span class="ident">BLEND_FIXED_POINT_PRECISION</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>core;
+<span class="kw">pub use </span><span class="kw">super</span>::ir_interpret::{IRInterpreter, Context, push_base};
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc;
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::{SliceWrapper, SliceWrapperMut, Allocator};
+<span class="kw">use </span><span class="kw">super</span>::interface;
+<span class="kw">use </span><span class="kw">super</span>::input_pair::{InputPair, InputReference, InputReferenceMut};
+<span class="kw">use </span><span class="kw">super</span>::util::{floatX, FastLog2u16};
+<span class="kw">use </span><span class="kw">super</span>::find_stride;
+<span class="kw">use </span><span class="kw">super</span>::weights::{Weights, BLEND_FIXED_POINT_PRECISION};
 
-<span class="kw">const</span> <span class="ident">DEFAULT_CM_SPEED_INDEX</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">8</span>;
-<span class="kw">const</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16</span>;
-<span class="kw">const</span> <span class="ident">SPEEDS_TO_SEARCH</span>: [<span class="ident">u16</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>]<span class="op">=</span> [<span class="number">0</span>,
+<span class="kw">const </span>DEFAULT_CM_SPEED_INDEX: usize = <span class="number">8</span>;
+<span class="kw">const </span>NUM_SPEEDS_TO_TRY: usize = <span class="number">16</span>;
+<span class="kw">const </span>SPEEDS_TO_SEARCH: [u16; NUM_SPEEDS_TO_TRY]= [<span class="number">0</span>,
                                                    <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
                                                    <span class="number">2</span>,
                                                    <span class="number">4</span>,
@@ -474,7 +474,7 @@
                                                    <span class="number">1664</span>,
                                                    <span class="number">1664</span>,
                                                    ];
-<span class="kw">const</span> <span class="ident">MAXES_TO_SEARCH</span>: [<span class="ident">u16</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>] <span class="op">=</span> [<span class="number">32</span>,
+<span class="kw">const </span>MAXES_TO_SEARCH: [u16; NUM_SPEEDS_TO_TRY] = [<span class="number">32</span>,
                                                    <span class="number">32</span>, <span class="number">128</span>, <span class="number">16384</span>,
                                                    <span class="number">1024</span>,
                                                    <span class="number">1024</span>,
@@ -488,415 +488,415 @@
                                                    <span class="number">16384</span>,
                                                    <span class="number">16384</span>,
                                                    ];
-<span class="kw">const</span> <span class="ident">NIBBLE_PRIOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>;
-<span class="comment">// the high nibble, followed by the low nibbles</span>
-<span class="kw">const</span> <span class="ident">CONTEXT_MAP_PRIOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">256</span> <span class="op">*</span> <span class="ident">NIBBLE_PRIOR_SIZE</span> <span class="op">*</span> <span class="number">17</span>;
-<span class="kw">const</span> <span class="ident">STRIDE_PRIOR_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">256</span> <span class="op">*</span> <span class="number">256</span> <span class="op">*</span> <span class="ident">NIBBLE_PRIOR_SIZE</span> <span class="op">*</span> <span class="number">2</span>;
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>,<span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SpeedAndMax</span>(<span class="kw">pub</span> <span class="ident">u16</span>, <span class="kw">pub</span> <span class="ident">u16</span>);
+<span class="kw">const </span>NIBBLE_PRIOR_SIZE: usize = <span class="number">16 </span>* NUM_SPEEDS_TO_TRY;
+<span class="comment">// the high nibble, followed by the low nibbles
+</span><span class="kw">const </span>CONTEXT_MAP_PRIOR_SIZE: usize = <span class="number">256 </span>* NIBBLE_PRIOR_SIZE * <span class="number">17</span>;
+<span class="kw">const </span>STRIDE_PRIOR_SIZE: usize = <span class="number">256 </span>* <span class="number">256 </span>* NIBBLE_PRIOR_SIZE * <span class="number">2</span>;
+<span class="attribute">#[derive(Clone,Copy, Debug)]
+</span><span class="kw">pub struct </span>SpeedAndMax(<span class="kw">pub </span>u16, <span class="kw">pub </span>u16);
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">speed_to_tuple</span>(<span class="ident">inp</span>:[<span class="ident">SpeedAndMax</span>;<span class="number">2</span>]) -&gt; [(<span class="ident">u16</span>,<span class="ident">u16</span>);<span class="number">2</span>] {
-   [(<span class="ident">inp</span>[<span class="number">0</span>].<span class="number">0</span>, <span class="ident">inp</span>[<span class="number">0</span>].<span class="number">1</span>), (<span class="ident">inp</span>[<span class="number">1</span>].<span class="number">0</span>, <span class="ident">inp</span>[<span class="number">1</span>].<span class="number">1</span>)]
+<span class="kw">pub fn </span>speed_to_tuple(inp:[SpeedAndMax;<span class="number">2</span>]) -&gt; [(u16,u16);<span class="number">2</span>] {
+   [(inp[<span class="number">0</span>].<span class="number">0</span>, inp[<span class="number">0</span>].<span class="number">1</span>), (inp[<span class="number">1</span>].<span class="number">0</span>, inp[<span class="number">1</span>].<span class="number">1</span>)]
 }
 
-<span class="kw">fn</span> <span class="ident">get_stride_cdf_low</span>(<span class="ident">data</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>], <span class="ident">stride_prior</span>: <span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="ident">u8</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>] {
-    <span class="kw">let</span> <span class="ident">index</span>: <span class="ident">usize</span> <span class="op">=</span>  <span class="number">1</span> <span class="op">+</span> <span class="number">2</span> <span class="op">*</span> (<span class="ident">cm_prior</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">|</span> ((<span class="ident">stride_prior</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>) <span class="op">|</span> ((<span class="ident">high_nibble</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">12</span>));
-    <span class="ident">data</span>.<span class="ident">split_at_mut</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> <span class="ident">index</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>).<span class="number">0</span>
-}
+<span class="kw">fn </span>get_stride_cdf_low(data: <span class="kw-2">&amp;mut </span>[u16], stride_prior: u8, cm_prior: usize, high_nibble: u8) -&gt; <span class="kw-2">&amp;mut </span>[u16] {
+    <span class="kw">let </span>index: usize =  <span class="number">1 </span>+ <span class="number">2 </span>* (cm_prior <span class="kw">as </span>usize | ((stride_prior <span class="kw">as </span>usize &amp; <span class="number">0xf</span>) &lt;&lt; <span class="number">8</span>) | ((high_nibble <span class="kw">as </span>usize) &lt;&lt; <span class="number">12</span>));
+    data.split_at_mut(NUM_SPEEDS_TO_TRY * index &lt;&lt; <span class="number">4</span>).<span class="number">1</span>.split_at_mut(<span class="number">16 </span>* NUM_SPEEDS_TO_TRY).<span class="number">0
+</span>}
 
-<span class="kw">fn</span> <span class="ident">get_stride_cdf_high</span>(<span class="ident">data</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>], <span class="ident">stride_prior</span>: <span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>] {
-    <span class="kw">let</span> <span class="ident">index</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">2</span> <span class="op">*</span> (<span class="ident">cm_prior</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">|</span> ((<span class="ident">stride_prior</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>));
-    <span class="ident">data</span>.<span class="ident">split_at_mut</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> <span class="ident">index</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>).<span class="number">0</span>
-}
+<span class="kw">fn </span>get_stride_cdf_high(data: <span class="kw-2">&amp;mut </span>[u16], stride_prior: u8, cm_prior: usize) -&gt; <span class="kw-2">&amp;mut </span>[u16] {
+    <span class="kw">let </span>index: usize = <span class="number">2 </span>* (cm_prior <span class="kw">as </span>usize | ((stride_prior <span class="kw">as </span>usize) &lt;&lt; <span class="number">8</span>));
+    data.split_at_mut(NUM_SPEEDS_TO_TRY * index &lt;&lt; <span class="number">4</span>).<span class="number">1</span>.split_at_mut(<span class="number">16 </span>* NUM_SPEEDS_TO_TRY).<span class="number">0
+</span>}
 
-<span class="kw">fn</span> <span class="ident">get_cm_cdf_low</span>(<span class="ident">data</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>], <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">high_nibble</span>: <span class="ident">u8</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>] {
-    <span class="kw">let</span> <span class="ident">index</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="ident">high_nibble</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">+</span> <span class="number">17</span> <span class="op">*</span> <span class="ident">cm_prior</span> <span class="kw">as</span> <span class="ident">usize</span>;
-    <span class="ident">data</span>.<span class="ident">split_at_mut</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> <span class="ident">index</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>).<span class="number">0</span>
-}
+<span class="kw">fn </span>get_cm_cdf_low(data: <span class="kw-2">&amp;mut </span>[u16], cm_prior: usize, high_nibble: u8) -&gt; <span class="kw-2">&amp;mut </span>[u16] {
+    <span class="kw">let </span>index: usize = (high_nibble <span class="kw">as </span>usize + <span class="number">1</span>) + <span class="number">17 </span>* cm_prior <span class="kw">as </span>usize;
+    data.split_at_mut(NUM_SPEEDS_TO_TRY * index &lt;&lt; <span class="number">4</span>).<span class="number">1</span>.split_at_mut(<span class="number">16 </span>* NUM_SPEEDS_TO_TRY).<span class="number">0
+</span>}
 
-<span class="kw">fn</span> <span class="ident">get_cm_cdf_high</span>(<span class="ident">data</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>], <span class="ident">cm_prior</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>] {
-    <span class="kw">let</span> <span class="ident">index</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">17</span> <span class="op">*</span> <span class="ident">cm_prior</span> <span class="kw">as</span> <span class="ident">usize</span>;
-    <span class="ident">data</span>.<span class="ident">split_at_mut</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> <span class="ident">index</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>).<span class="number">0</span>
-}
-<span class="kw">fn</span> <span class="ident">init_cdfs</span>(<span class="ident">cdfs</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>]) {
-    <span class="macro">assert_eq!</span>(<span class="ident">cdfs</span>.<span class="ident">len</span>() <span class="op">%</span> (<span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>), <span class="number">0</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_index</span> <span class="op">=</span> <span class="number">0usize</span>;
-    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">cdfs</span>.<span class="ident">len</span>();
-    <span class="kw">loop</span> {
-        <span class="kw">for</span> <span class="ident">cdf_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">16</span> {
-            <span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">cdfs</span>.<span class="ident">split_at_mut</span>(<span class="ident">total_index</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span>).<span class="number">0</span>;
-            <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">vec</span> {
-                <span class="kw-2">*</span><span class="ident">item</span> <span class="op">=</span> <span class="number">4</span> <span class="op">+</span> <span class="number">4</span> <span class="op">*</span> <span class="ident">cdf_index</span> <span class="kw">as</span> <span class="ident">u16</span>;
+<span class="kw">fn </span>get_cm_cdf_high(data: <span class="kw-2">&amp;mut </span>[u16], cm_prior: usize) -&gt; <span class="kw-2">&amp;mut </span>[u16] {
+    <span class="kw">let </span>index: usize = <span class="number">17 </span>* cm_prior <span class="kw">as </span>usize;
+    data.split_at_mut(NUM_SPEEDS_TO_TRY * index &lt;&lt; <span class="number">4</span>).<span class="number">1</span>.split_at_mut(<span class="number">16 </span>* NUM_SPEEDS_TO_TRY).<span class="number">0
+</span>}
+<span class="kw">fn </span>init_cdfs(cdfs: <span class="kw-2">&amp;mut </span>[u16]) {
+    <span class="macro">assert_eq!</span>(cdfs.len() % (<span class="number">16 </span>* NUM_SPEEDS_TO_TRY), <span class="number">0</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>total_index = <span class="number">0usize</span>;
+    <span class="kw">let </span>len = cdfs.len();
+    <span class="kw">loop </span>{
+        <span class="kw">for </span>cdf_index <span class="kw">in </span><span class="number">0</span>..<span class="number">16 </span>{
+            <span class="kw">let </span>vec = cdfs.split_at_mut(total_index).<span class="number">1</span>.split_at_mut(NUM_SPEEDS_TO_TRY).<span class="number">0</span>;
+            <span class="kw">for </span>item <span class="kw">in </span>vec {
+                <span class="kw-2">*</span>item = <span class="number">4 </span>+ <span class="number">4 </span>* cdf_index <span class="kw">as </span>u16;
             }
-            <span class="ident">total_index</span> <span class="op">+</span><span class="op">=</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>;
+            total_index += NUM_SPEEDS_TO_TRY;
         }
-        <span class="kw">if</span> <span class="ident">total_index</span> <span class="op">==</span> <span class="ident">len</span> {
+        <span class="kw">if </span>total_index == len {
             <span class="kw">break</span>;
         }
     }
 }
-<span class="kw">fn</span> <span class="ident">compute_combined_cost</span>(<span class="ident">singleton_cost</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">floatX</span>;<span class="ident">NUM_SPEEDS_TO_TRY</span>],
-                <span class="ident">cdfs</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
-                <span class="ident">mixing_cdf</span>: [<span class="ident">u16</span>;<span class="number">16</span>],
-                <span class="ident">nibble_u8</span>: <span class="ident">u8</span>,
-                <span class="ident">_weights</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Weights</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>]) {
-    <span class="macro">assert_eq!</span>(<span class="ident">cdfs</span>.<span class="ident">len</span>(), <span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>);
-    <span class="kw">let</span> <span class="ident">nibble</span> <span class="op">=</span> <span class="ident">nibble_u8</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stride_pdf</span> <span class="op">=</span> [<span class="number">0u16</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>];
-    <span class="ident">stride_pdf</span>.<span class="ident">clone_from_slice</span>(<span class="ident">cdfs</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> <span class="ident">nibble</span>).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span>).<span class="number">0</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cm_pdf</span>:<span class="ident">u16</span> <span class="op">=</span> <span class="ident">mixing_cdf</span>[<span class="ident">nibble</span>];
-    <span class="kw">if</span> <span class="ident">nibble_u8</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> [<span class="number">0u16</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>];
-        <span class="ident">tmp</span>.<span class="ident">clone_from_slice</span>(<span class="ident">cdfs</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> (<span class="ident">nibble</span> <span class="op">-</span> <span class="number">1</span>)).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span>).<span class="number">0</span>);
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-            <span class="ident">stride_pdf</span>[<span class="ident">i</span>] <span class="op">-</span><span class="op">=</span> <span class="ident">tmp</span>[<span class="ident">i</span>];
+<span class="kw">fn </span>compute_combined_cost(singleton_cost: <span class="kw-2">&amp;mut </span>[floatX;NUM_SPEEDS_TO_TRY],
+                cdfs: <span class="kw-2">&amp;</span>[u16],
+                mixing_cdf: [u16;<span class="number">16</span>],
+                nibble_u8: u8,
+                _weights: <span class="kw-2">&amp;mut </span>[Weights; NUM_SPEEDS_TO_TRY]) {
+    <span class="macro">assert_eq!</span>(cdfs.len(), <span class="number">16 </span>* NUM_SPEEDS_TO_TRY);
+    <span class="kw">let </span>nibble = nibble_u8 <span class="kw">as </span>usize &amp; <span class="number">0xf</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>stride_pdf = [<span class="number">0u16</span>; NUM_SPEEDS_TO_TRY];
+    stride_pdf.clone_from_slice(cdfs.split_at(NUM_SPEEDS_TO_TRY * nibble).<span class="number">1</span>.split_at(NUM_SPEEDS_TO_TRY).<span class="number">0</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>cm_pdf:u16 = mixing_cdf[nibble];
+    <span class="kw">if </span>nibble_u8 != <span class="number">0 </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>tmp = [<span class="number">0u16</span>; NUM_SPEEDS_TO_TRY];
+        tmp.clone_from_slice(cdfs.split_at(NUM_SPEEDS_TO_TRY * (nibble - <span class="number">1</span>)).<span class="number">1</span>.split_at(NUM_SPEEDS_TO_TRY).<span class="number">0</span>);
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..NUM_SPEEDS_TO_TRY {
+            stride_pdf[i] -= tmp[i];
         }
-        <span class="ident">cm_pdf</span> <span class="op">-</span><span class="op">=</span> <span class="ident">mixing_cdf</span>[<span class="ident">nibble</span> <span class="op">-</span> <span class="number">1</span>]
+        cm_pdf -= mixing_cdf[nibble - <span class="number">1</span>]
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stride_max</span> <span class="op">=</span> [<span class="number">0u16</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>];
-    <span class="ident">stride_max</span>.<span class="ident">clone_from_slice</span>(<span class="ident">cdfs</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> <span class="number">15</span>).<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">cm_max</span> <span class="op">=</span> <span class="ident">mixing_cdf</span>[<span class="number">15</span>];
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-        <span class="kw">if</span> <span class="ident">stride_pdf</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="number">0</span> { 
-            <span class="macro">assert!</span>(<span class="ident">stride_pdf</span>[<span class="ident">i</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>stride_max = [<span class="number">0u16</span>; NUM_SPEEDS_TO_TRY];
+    stride_max.clone_from_slice(cdfs.split_at(NUM_SPEEDS_TO_TRY * <span class="number">15</span>).<span class="number">1</span>);
+    <span class="kw">let </span>cm_max = mixing_cdf[<span class="number">15</span>];
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..NUM_SPEEDS_TO_TRY {
+        <span class="kw">if </span>stride_pdf[i] == <span class="number">0 </span>{ 
+            <span class="macro">assert!</span>(stride_pdf[i] != <span class="number">0</span>);
         }
-        <span class="kw">if</span> <span class="ident">stride_max</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="number">0</span> {
-            <span class="macro">assert!</span>(<span class="ident">stride_max</span>[<span class="ident">i</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+        <span class="kw">if </span>stride_max[i] == <span class="number">0 </span>{
+            <span class="macro">assert!</span>(stride_max[i] != <span class="number">0</span>);
         }
-        <span class="kw">let</span> <span class="ident">w</span>;
-        <span class="ident">w</span> <span class="op">=</span> (<span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span>(<span class="ident">BLEND_FIXED_POINT_PRECISION</span> <span class="op">-</span> <span class="number">2</span>)) ; <span class="comment">// a quarter of weight to stride</span>
-        <span class="kw">let</span> <span class="ident">combined_pdf</span> <span class="op">=</span> <span class="ident">w</span> <span class="op">*</span> <span class="ident">u32::from</span>(<span class="ident">stride_pdf</span>[<span class="ident">i</span>]) <span class="op">+</span> ((<span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">BLEND_FIXED_POINT_PRECISION</span>) <span class="op">-</span> <span class="ident">w</span>) <span class="op">*</span> <span class="ident">u32::from</span>(<span class="ident">cm_pdf</span>);
-        <span class="kw">let</span> <span class="ident">combined_max</span> <span class="op">=</span> <span class="ident">w</span> <span class="op">*</span> <span class="ident">u32::from</span>(<span class="ident">stride_max</span>[<span class="ident">i</span>]) <span class="op">+</span> ((<span class="number">1</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">BLEND_FIXED_POINT_PRECISION</span>) <span class="op">-</span> <span class="ident">w</span>) <span class="op">*</span> <span class="ident">u32::from</span>(<span class="ident">cm_max</span>);
-        <span class="kw">let</span> <span class="ident">del</span> <span class="op">=</span> <span class="ident">FastLog2u16</span>((<span class="ident">combined_pdf</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">BLEND_FIXED_POINT_PRECISION</span>) <span class="kw">as</span> <span class="ident">u16</span>) <span class="op">-</span> <span class="ident">FastLog2u16</span>((<span class="ident">combined_max</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">BLEND_FIXED_POINT_PRECISION</span>) <span class="kw">as</span> <span class="ident">u16</span>);
-        <span class="ident">singleton_cost</span>[<span class="ident">i</span>] <span class="op">-</span><span class="op">=</span> <span class="ident">del</span>;
-    }
-}
-<span class="kw">fn</span> <span class="ident">compute_cost</span>(<span class="ident">singleton_cost</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">floatX</span>;<span class="ident">NUM_SPEEDS_TO_TRY</span>],
-                <span class="ident">cdfs</span>: <span class="kw-2">&amp;</span>[<span class="ident">u16</span>],
-                <span class="ident">nibble_u8</span>: <span class="ident">u8</span>) {
-    <span class="macro">assert_eq!</span>(<span class="ident">cdfs</span>.<span class="ident">len</span>(), <span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>);
-    <span class="kw">let</span> <span class="ident">nibble</span> <span class="op">=</span> <span class="ident">nibble_u8</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pdf</span> <span class="op">=</span> [<span class="number">0u16</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>];
-    <span class="ident">pdf</span>.<span class="ident">clone_from_slice</span>(<span class="ident">cdfs</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> <span class="ident">nibble</span>).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span>).<span class="number">0</span>);
-    <span class="kw">if</span> <span class="ident">nibble_u8</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> [<span class="number">0u16</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>];
-        <span class="ident">tmp</span>.<span class="ident">clone_from_slice</span>(<span class="ident">cdfs</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> (<span class="ident">nibble</span> <span class="op">-</span> <span class="number">1</span>)).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span>).<span class="number">0</span>);
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-            <span class="ident">pdf</span>[<span class="ident">i</span>] <span class="op">-</span><span class="op">=</span> <span class="ident">tmp</span>[<span class="ident">i</span>];
-        }
-    }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max</span> <span class="op">=</span> [<span class="number">0u16</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>];
-    <span class="ident">max</span>.<span class="ident">clone_from_slice</span>(<span class="ident">cdfs</span>.<span class="ident">split_at</span>(<span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">*</span> <span class="number">15</span>).<span class="number">1</span>);
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-        <span class="kw">if</span> <span class="ident">pdf</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="number">0</span> { 
-            <span class="macro">assert!</span>(<span class="ident">pdf</span>[<span class="ident">i</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
-        }
-        <span class="kw">if</span> <span class="ident">max</span>[<span class="ident">i</span>] <span class="op">==</span> <span class="number">0</span> {
-            <span class="macro">assert!</span>(<span class="ident">max</span>[<span class="ident">i</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
-        }
-        <span class="kw">let</span> <span class="ident">del</span> <span class="op">=</span> <span class="ident">FastLog2u16</span>(<span class="ident">pdf</span>[<span class="ident">i</span>]) <span class="op">-</span> <span class="ident">FastLog2u16</span>(<span class="ident">max</span>[<span class="ident">i</span>]);
-        <span class="ident">singleton_cost</span>[<span class="ident">i</span>] <span class="op">-</span><span class="op">=</span> <span class="ident">del</span>;
+        <span class="kw">let </span>w;
+        w = (<span class="number">1</span>&lt;&lt;(BLEND_FIXED_POINT_PRECISION - <span class="number">2</span>)) ; <span class="comment">// a quarter of weight to stride
+        </span><span class="kw">let </span>combined_pdf = w * u32::from(stride_pdf[i]) + ((<span class="number">1</span>&lt;&lt;BLEND_FIXED_POINT_PRECISION) - w) * u32::from(cm_pdf);
+        <span class="kw">let </span>combined_max = w * u32::from(stride_max[i]) + ((<span class="number">1</span>&lt;&lt;BLEND_FIXED_POINT_PRECISION) - w) * u32::from(cm_max);
+        <span class="kw">let </span>del = FastLog2u16((combined_pdf &gt;&gt; BLEND_FIXED_POINT_PRECISION) <span class="kw">as </span>u16) - FastLog2u16((combined_max &gt;&gt; BLEND_FIXED_POINT_PRECISION) <span class="kw">as </span>u16);
+        singleton_cost[i] -= del;
     }
 }
-<span class="kw">fn</span> <span class="ident">update_cdf</span>(<span class="ident">cdfs</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u16</span>],
-              <span class="ident">nibble_u8</span>: <span class="ident">u8</span>) {
-    <span class="macro">assert_eq!</span>(<span class="ident">cdfs</span>.<span class="ident">len</span>(), <span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">overall_index</span> <span class="op">=</span> <span class="ident">nibble_u8</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>;
-    <span class="kw">for</span> <span class="ident">_nibble</span> <span class="kw">in</span> (<span class="ident">nibble_u8</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&amp;</span> <span class="number">0xf</span>) .. <span class="number">16</span> {
-        <span class="kw">for</span> <span class="ident">speed_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-            <span class="ident">cdfs</span>[<span class="ident">overall_index</span> <span class="op">+</span> <span class="ident">speed_index</span>] <span class="op">+</span><span class="op">=</span> <span class="ident">SPEEDS_TO_SEARCH</span>[<span class="ident">speed_index</span>];
-        }
-        <span class="ident">overall_index</span> <span class="op">+</span><span class="op">=</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>;
-    }
-    <span class="ident">overall_index</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> <span class="ident">nibble</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="number">16</span> {
-        <span class="kw">for</span> <span class="ident">speed_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-            <span class="kw">if</span> <span class="ident">nibble</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="macro">assert!</span>(<span class="ident">cdfs</span>[<span class="ident">overall_index</span> <span class="op">+</span> <span class="ident">speed_index</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
-            } <span class="kw">else</span> {
-                <span class="macro">assert!</span>(<span class="ident">cdfs</span>[<span class="ident">overall_index</span> <span class="op">+</span> <span class="ident">speed_index</span>]  <span class="op">-</span> <span class="ident">cdfs</span>[<span class="ident">overall_index</span> <span class="op">+</span> <span class="ident">speed_index</span> <span class="op">-</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>]  <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
-            }
-        }
-        <span class="ident">overall_index</span> <span class="op">+</span><span class="op">=</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>;
-    }
-    <span class="kw">for</span> <span class="ident">max_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-        <span class="kw">if</span> <span class="ident">cdfs</span>[<span class="number">15</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">+</span> <span class="ident">max_index</span>] <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAXES_TO_SEARCH</span>[<span class="ident">max_index</span>] {
-            <span class="kw">const</span> <span class="ident">CDF_BIAS</span>:[<span class="ident">u16</span>;<span class="number">16</span>] <span class="op">=</span> [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>,<span class="number">11</span>,<span class="number">12</span>,<span class="number">13</span>,<span class="number">14</span>,<span class="number">15</span>,<span class="number">16</span>];
-            <span class="kw">for</span> <span class="ident">nibble_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">16</span>  {
-                <span class="kw">let</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">cdfs</span>[<span class="ident">nibble_index</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span> <span class="op">+</span> <span class="ident">max_index</span>];
-                <span class="kw-2">*</span><span class="ident">tmp</span> <span class="op">=</span> (<span class="ident">tmp</span>.<span class="ident">wrapping_add</span>(<span class="ident">CDF_BIAS</span>[<span class="ident">nibble_index</span>])).<span class="ident">wrapping_sub</span>(<span class="ident">tmp</span>.<span class="ident">wrapping_add</span>(<span class="ident">CDF_BIAS</span>[<span class="ident">nibble_index</span>]) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">2</span>);
-            }
+<span class="kw">fn </span>compute_cost(singleton_cost: <span class="kw-2">&amp;mut </span>[floatX;NUM_SPEEDS_TO_TRY],
+                cdfs: <span class="kw-2">&amp;</span>[u16],
+                nibble_u8: u8) {
+    <span class="macro">assert_eq!</span>(cdfs.len(), <span class="number">16 </span>* NUM_SPEEDS_TO_TRY);
+    <span class="kw">let </span>nibble = nibble_u8 <span class="kw">as </span>usize &amp; <span class="number">0xf</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>pdf = [<span class="number">0u16</span>; NUM_SPEEDS_TO_TRY];
+    pdf.clone_from_slice(cdfs.split_at(NUM_SPEEDS_TO_TRY * nibble).<span class="number">1</span>.split_at(NUM_SPEEDS_TO_TRY).<span class="number">0</span>);
+    <span class="kw">if </span>nibble_u8 != <span class="number">0 </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>tmp = [<span class="number">0u16</span>; NUM_SPEEDS_TO_TRY];
+        tmp.clone_from_slice(cdfs.split_at(NUM_SPEEDS_TO_TRY * (nibble - <span class="number">1</span>)).<span class="number">1</span>.split_at(NUM_SPEEDS_TO_TRY).<span class="number">0</span>);
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..NUM_SPEEDS_TO_TRY {
+            pdf[i] -= tmp[i];
         }
     }
-    <span class="ident">overall_index</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> <span class="ident">nibble</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="number">16</span> {
-        <span class="kw">for</span> <span class="ident">speed_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-            <span class="kw">if</span> <span class="ident">nibble</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="macro">assert!</span>(<span class="ident">cdfs</span>[<span class="ident">overall_index</span> <span class="op">+</span> <span class="ident">speed_index</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
-            } <span class="kw">else</span> {
-                <span class="macro">assert!</span>(<span class="ident">cdfs</span>[<span class="ident">overall_index</span> <span class="op">+</span> <span class="ident">speed_index</span>]  <span class="op">-</span> <span class="ident">cdfs</span>[<span class="ident">overall_index</span> <span class="op">+</span> <span class="ident">speed_index</span> <span class="op">-</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>]  <span class="op">!</span><span class="op">=</span> <span class="number">0</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>max = [<span class="number">0u16</span>; NUM_SPEEDS_TO_TRY];
+    max.clone_from_slice(cdfs.split_at(NUM_SPEEDS_TO_TRY * <span class="number">15</span>).<span class="number">1</span>);
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..NUM_SPEEDS_TO_TRY {
+        <span class="kw">if </span>pdf[i] == <span class="number">0 </span>{ 
+            <span class="macro">assert!</span>(pdf[i] != <span class="number">0</span>);
+        }
+        <span class="kw">if </span>max[i] == <span class="number">0 </span>{
+            <span class="macro">assert!</span>(max[i] != <span class="number">0</span>);
+        }
+        <span class="kw">let </span>del = FastLog2u16(pdf[i]) - FastLog2u16(max[i]);
+        singleton_cost[i] -= del;
+    }
+}
+<span class="kw">fn </span>update_cdf(cdfs: <span class="kw-2">&amp;mut </span>[u16],
+              nibble_u8: u8) {
+    <span class="macro">assert_eq!</span>(cdfs.len(), <span class="number">16 </span>* NUM_SPEEDS_TO_TRY);
+    <span class="kw">let </span><span class="kw-2">mut </span>overall_index = nibble_u8 <span class="kw">as </span>usize * NUM_SPEEDS_TO_TRY;
+    <span class="kw">for </span>_nibble <span class="kw">in </span>(nibble_u8 <span class="kw">as </span>usize &amp; <span class="number">0xf</span>) .. <span class="number">16 </span>{
+        <span class="kw">for </span>speed_index <span class="kw">in </span><span class="number">0</span>..NUM_SPEEDS_TO_TRY {
+            cdfs[overall_index + speed_index] += SPEEDS_TO_SEARCH[speed_index];
+        }
+        overall_index += NUM_SPEEDS_TO_TRY;
+    }
+    overall_index = <span class="number">0</span>;
+    <span class="kw">for </span>nibble <span class="kw">in </span><span class="number">0 </span>.. <span class="number">16 </span>{
+        <span class="kw">for </span>speed_index <span class="kw">in </span><span class="number">0</span>..NUM_SPEEDS_TO_TRY {
+            <span class="kw">if </span>nibble == <span class="number">0 </span>{
+                <span class="macro">assert!</span>(cdfs[overall_index + speed_index] != <span class="number">0</span>);
+            } <span class="kw">else </span>{
+                <span class="macro">assert!</span>(cdfs[overall_index + speed_index]  - cdfs[overall_index + speed_index - NUM_SPEEDS_TO_TRY]  != <span class="number">0</span>);
             }
         }
-        <span class="ident">overall_index</span> <span class="op">+</span><span class="op">=</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>;
+        overall_index += NUM_SPEEDS_TO_TRY;
+    }
+    <span class="kw">for </span>max_index <span class="kw">in </span><span class="number">0</span>..NUM_SPEEDS_TO_TRY {
+        <span class="kw">if </span>cdfs[<span class="number">15 </span>* NUM_SPEEDS_TO_TRY + max_index] &gt;= MAXES_TO_SEARCH[max_index] {
+            <span class="kw">const </span>CDF_BIAS:[u16;<span class="number">16</span>] = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>,<span class="number">11</span>,<span class="number">12</span>,<span class="number">13</span>,<span class="number">14</span>,<span class="number">15</span>,<span class="number">16</span>];
+            <span class="kw">for </span>nibble_index <span class="kw">in </span><span class="number">0</span>..<span class="number">16  </span>{
+                <span class="kw">let </span>tmp = <span class="kw-2">&amp;mut </span>cdfs[nibble_index * NUM_SPEEDS_TO_TRY + max_index];
+                <span class="kw-2">*</span>tmp = (tmp.wrapping_add(CDF_BIAS[nibble_index])).wrapping_sub(tmp.wrapping_add(CDF_BIAS[nibble_index]) &gt;&gt; <span class="number">2</span>);
+            }
+        }
+    }
+    overall_index = <span class="number">0</span>;
+    <span class="kw">for </span>nibble <span class="kw">in </span><span class="number">0 </span>.. <span class="number">16 </span>{
+        <span class="kw">for </span>speed_index <span class="kw">in </span><span class="number">0</span>..NUM_SPEEDS_TO_TRY {
+            <span class="kw">if </span>nibble == <span class="number">0 </span>{
+                <span class="macro">assert!</span>(cdfs[overall_index + speed_index] != <span class="number">0</span>);
+            } <span class="kw">else </span>{
+                <span class="macro">assert!</span>(cdfs[overall_index + speed_index]  - cdfs[overall_index + speed_index - NUM_SPEEDS_TO_TRY]  != <span class="number">0</span>);
+            }
+        }
+        overall_index += NUM_SPEEDS_TO_TRY;
     }
 }
 
-<span class="kw">fn</span> <span class="ident">extract_single_cdf</span>(<span class="ident">cdf_bundle</span>:<span class="kw-2">&amp;</span>[<span class="ident">u16</span>], <span class="ident">index</span>:<span class="ident">usize</span>) -&gt; [<span class="ident">u16</span>;<span class="number">16</span>] {
-    <span class="macro">assert_eq!</span>(<span class="ident">cdf_bundle</span>.<span class="ident">len</span>(), <span class="number">16</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>);
-    <span class="macro">assert!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>);
+<span class="kw">fn </span>extract_single_cdf(cdf_bundle:<span class="kw-2">&amp;</span>[u16], index:usize) -&gt; [u16;<span class="number">16</span>] {
+    <span class="macro">assert_eq!</span>(cdf_bundle.len(), <span class="number">16 </span>* NUM_SPEEDS_TO_TRY);
+    <span class="macro">assert!</span>(index &lt; NUM_SPEEDS_TO_TRY);
     [
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">0</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">1</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">3</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">4</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">5</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">6</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">7</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">8</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">9</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">10</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">11</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">12</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">13</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">14</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-        <span class="ident">cdf_bundle</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">15</span> <span class="op">*</span> <span class="ident">NUM_SPEEDS_TO_TRY</span>],
+        cdf_bundle[index + <span class="number">0 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">1 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">2 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">3 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">4 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">5 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">6 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">7 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">8 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">9 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">10 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">11 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">12 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">13 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">14 </span>* NUM_SPEEDS_TO_TRY],
+        cdf_bundle[index + <span class="number">15 </span>* NUM_SPEEDS_TO_TRY],
         ]
 }
 
-<span class="kw">fn</span> <span class="ident">min_cost_index_for_speed</span>(<span class="ident">cost</span>: <span class="kw-2">&amp;</span>[<span class="ident">floatX</span>]) -&gt; <span class="ident">usize</span> {
-    <span class="macro">assert_eq!</span>(<span class="ident">cost</span>.<span class="ident">len</span>(), <span class="ident">NUM_SPEEDS_TO_TRY</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">min_cost</span> <span class="op">=</span> <span class="ident">cost</span>[<span class="number">0</span>];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best_choice</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-        <span class="kw">if</span> <span class="ident">cost</span>[<span class="ident">i</span>] <span class="op">&lt;</span> <span class="ident">min_cost</span> {
-            <span class="ident">best_choice</span> <span class="op">=</span> <span class="ident">i</span>;
-            <span class="ident">min_cost</span> <span class="op">=</span> <span class="ident">cost</span>[<span class="ident">i</span>];
+<span class="kw">fn </span>min_cost_index_for_speed(cost: <span class="kw-2">&amp;</span>[floatX]) -&gt; usize {
+    <span class="macro">assert_eq!</span>(cost.len(), NUM_SPEEDS_TO_TRY);
+    <span class="kw">let </span><span class="kw-2">mut </span>min_cost = cost[<span class="number">0</span>];
+    <span class="kw">let </span><span class="kw-2">mut </span>best_choice = <span class="number">0</span>;
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..NUM_SPEEDS_TO_TRY {
+        <span class="kw">if </span>cost[i] &lt; min_cost {
+            best_choice = i;
+            min_cost = cost[i];
         }
     }
-    <span class="ident">best_choice</span>
+    best_choice
 }
-<span class="kw">fn</span> <span class="ident">min_cost_speed_max</span>(<span class="ident">cost</span>: <span class="kw-2">&amp;</span>[<span class="ident">floatX</span>]) -&gt; <span class="ident">SpeedAndMax</span> {
-    <span class="kw">let</span> <span class="ident">best_choice</span> <span class="op">=</span> <span class="ident">min_cost_index_for_speed</span>(<span class="ident">cost</span>);
-    <span class="ident">SpeedAndMax</span>(
-        <span class="ident">SPEEDS_TO_SEARCH</span>[<span class="ident">best_choice</span>],
-        <span class="ident">MAXES_TO_SEARCH</span>[<span class="ident">best_choice</span>])
-}
-
-<span class="kw">fn</span> <span class="ident">min_cost_value</span>(<span class="ident">cost</span>: <span class="kw-2">&amp;</span>[<span class="ident">floatX</span>]) -&gt; <span class="ident">floatX</span> {
-    <span class="kw">let</span> <span class="ident">best_choice</span> <span class="op">=</span> <span class="ident">min_cost_index_for_speed</span>(<span class="ident">cost</span>);
-    <span class="ident">cost</span>[<span class="ident">best_choice</span>]
+<span class="kw">fn </span>min_cost_speed_max(cost: <span class="kw-2">&amp;</span>[floatX]) -&gt; SpeedAndMax {
+    <span class="kw">let </span>best_choice = min_cost_index_for_speed(cost);
+    SpeedAndMax(
+        SPEEDS_TO_SEARCH[best_choice],
+        MAXES_TO_SEARCH[best_choice])
 }
 
-<span class="kw">const</span> <span class="ident">SINGLETON_COMBINED_STRATEGY</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">const</span> <span class="ident">SINGLETON_STRIDE_STRATEGY</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">const</span> <span class="ident">SINGLETON_CM_STRATEGY</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-    
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContextMapEntropy</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-                             <span class="ident">Alloc</span>:<span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">floatX</span><span class="op">&gt;</span>,
-                             <span class="op">&gt;</span> {
-    <span class="ident">input</span>: <span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">context_map</span>: <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">block_type</span>: <span class="ident">u8</span>,
-    <span class="ident">cur_stride</span>: <span class="ident">u8</span>,
-    <span class="ident">local_byte_offset</span>: <span class="ident">usize</span>,
-    <span class="ident">weight</span>: [[<span class="ident">Weights</span>; <span class="ident">NUM_SPEEDS_TO_TRY</span>];<span class="number">2</span>],
-    
-    <span class="ident">cm_priors</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-    <span class="ident">stride_priors</span>: <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory</span>,
-    <span class="ident">_stride_pyramid_leaves</span>: [<span class="ident">u8</span>; <span class="ident">find_stride::NUM_LEAF_NODES</span>],
-    <span class="ident">singleton_costs</span>: [[[<span class="ident">floatX</span>;<span class="ident">NUM_SPEEDS_TO_TRY</span>];<span class="number">2</span>];<span class="number">3</span>],
+<span class="kw">fn </span>min_cost_value(cost: <span class="kw-2">&amp;</span>[floatX]) -&gt; floatX {
+    <span class="kw">let </span>best_choice = min_cost_index_for_speed(cost);
+    cost[best_choice]
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>,
-     <span class="ident">Alloc</span>:<span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">floatX</span><span class="op">&gt;</span>,
-     <span class="op">&gt;</span> <span class="ident">ContextMapEntropy</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">m16</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>,
-              <span class="ident">input</span>: <span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-              <span class="ident">stride</span>: [<span class="ident">u8</span>; <span class="ident">find_stride::NUM_LEAF_NODES</span>],
-              <span class="ident">prediction_mode</span>: <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-              <span class="ident">cdf_detection_quality</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-      <span class="kw">let</span> <span class="ident">cdf_detect</span> <span class="op">=</span> <span class="ident">cdf_detection_quality</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>;
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ContextMapEntropy</span>::<span class="op">&lt;</span><span class="ident">Alloc</span><span class="op">&gt;</span>{
-         <span class="ident">input</span>: <span class="ident">input</span>,
-         <span class="ident">context_map</span>: <span class="ident">prediction_mode</span>,
-         <span class="ident">block_type</span>: <span class="number">0</span>,
-         <span class="ident">cur_stride</span>: <span class="number">1</span>,
-         <span class="ident">local_byte_offset</span>: <span class="number">0</span>,
-         <span class="ident">cm_priors</span>: <span class="kw">if</span> <span class="ident">cdf_detect</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">m16</span>, <span class="ident">CONTEXT_MAP_PRIOR_SIZE</span>)} <span class="kw">else</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-         <span class="ident">stride_priors</span>: <span class="kw">if</span> <span class="ident">cdf_detect</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_cell</span>(<span class="ident">m16</span>, <span class="ident">STRIDE_PRIOR_SIZE</span>)} <span class="kw">else</span> {<span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()},
-         <span class="ident">_stride_pyramid_leaves</span>: <span class="ident">stride</span>,
-         <span class="ident">weight</span>:[[<span class="ident">Weights::new</span>(); <span class="ident">NUM_SPEEDS_TO_TRY</span>],
-                 [<span class="ident">Weights::new</span>(); <span class="ident">NUM_SPEEDS_TO_TRY</span>]],
-         <span class="ident">singleton_costs</span>:[[[<span class="number">0.0</span> <span class="kw">as</span> <span class="ident">floatX</span>;<span class="ident">NUM_SPEEDS_TO_TRY</span>];<span class="number">2</span>];<span class="number">3</span>],
+
+<span class="kw">const </span>SINGLETON_COMBINED_STRATEGY: usize = <span class="number">2</span>;
+<span class="kw">const </span>SINGLETON_STRIDE_STRATEGY: usize = <span class="number">1</span>;
+<span class="kw">const </span>SINGLETON_CM_STRATEGY: usize = <span class="number">0</span>;
+    
+<span class="kw">pub struct </span>ContextMapEntropy&lt;<span class="lifetime">&#39;a</span>,
+                             Alloc:alloc::Allocator&lt;u16&gt; + alloc::Allocator&lt;u32&gt; + alloc::Allocator&lt;floatX&gt;,
+                             &gt; {
+    input: InputPair&lt;<span class="lifetime">&#39;a</span>&gt;,
+    context_map: interface::PredictionModeContextMap&lt;InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    block_type: u8,
+    cur_stride: u8,
+    local_byte_offset: usize,
+    weight: [[Weights; NUM_SPEEDS_TO_TRY];<span class="number">2</span>],
+    
+    cm_priors: &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory,
+    stride_priors: &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory,
+    _stride_pyramid_leaves: [u8; find_stride::NUM_LEAF_NODES],
+    singleton_costs: [[[floatX;NUM_SPEEDS_TO_TRY];<span class="number">2</span>];<span class="number">3</span>],
+}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>,
+     Alloc:alloc::Allocator&lt;u16&gt; + alloc::Allocator&lt;u32&gt; + alloc::Allocator&lt;floatX&gt;,
+     &gt; ContextMapEntropy&lt;<span class="lifetime">&#39;a</span>, Alloc&gt; {
+   <span class="kw">pub fn </span>new(m16: <span class="kw-2">&amp;mut </span>Alloc,
+              input: InputPair&lt;<span class="lifetime">&#39;a</span>&gt;,
+              stride: [u8; find_stride::NUM_LEAF_NODES],
+              prediction_mode: interface::PredictionModeContextMap&lt;InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+              cdf_detection_quality: u8) -&gt; <span class="self">Self </span>{
+      <span class="kw">let </span>cdf_detect = cdf_detection_quality != <span class="number">0</span>;
+      <span class="kw">let </span><span class="kw-2">mut </span>ret = ContextMapEntropy::&lt;Alloc&gt;{
+         input: input,
+         context_map: prediction_mode,
+         block_type: <span class="number">0</span>,
+         cur_stride: <span class="number">1</span>,
+         local_byte_offset: <span class="number">0</span>,
+         cm_priors: <span class="kw">if </span>cdf_detect {&lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::alloc_cell(m16, CONTEXT_MAP_PRIOR_SIZE)} <span class="kw">else </span>{&lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory::default()},
+         stride_priors: <span class="kw">if </span>cdf_detect {&lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::alloc_cell(m16, STRIDE_PRIOR_SIZE)} <span class="kw">else </span>{&lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory::default()},
+         _stride_pyramid_leaves: stride,
+         weight:[[Weights::new(); NUM_SPEEDS_TO_TRY],
+                 [Weights::new(); NUM_SPEEDS_TO_TRY]],
+         singleton_costs:[[[<span class="number">0.0 </span><span class="kw">as </span>floatX;NUM_SPEEDS_TO_TRY];<span class="number">2</span>];<span class="number">3</span>],
       };
-      <span class="kw">if</span> <span class="ident">cdf_detect</span> {
-        <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">cm_priors</span>.<span class="ident">slice_mut</span>());
-        <span class="ident">init_cdfs</span>(<span class="ident">ret</span>.<span class="ident">stride_priors</span>.<span class="ident">slice_mut</span>());
+      <span class="kw">if </span>cdf_detect {
+        init_cdfs(ret.cm_priors.slice_mut());
+        init_cdfs(ret.stride_priors.slice_mut());
       }
-      <span class="ident">ret</span>
+      ret
    }
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_prediction_mode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-       <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">context_map</span>, <span class="ident">interface::PredictionModeContextMap</span>::<span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>{
-          <span class="ident">literal_context_map</span>:<span class="ident">InputReferenceMut::default</span>(),
-          <span class="ident">predmode_speed_and_distance_context_map</span>:<span class="ident">InputReferenceMut::default</span>(),
+   <span class="kw">pub fn </span>take_prediction_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; interface::PredictionModeContextMap&lt;InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+       core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.context_map, interface::PredictionModeContextMap::&lt;InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;&gt;{
+          literal_context_map:InputReferenceMut::default(),
+          predmode_speed_and_distance_context_map:InputReferenceMut::default(),
        })
    }
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prediction_mode_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">interface::PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-       <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">context_map</span>
+   <span class="kw">pub fn </span>prediction_mode_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>interface::PredictionModeContextMap&lt;InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+       <span class="kw-2">&amp;mut </span><span class="self">self</span>.context_map
    }
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">best_singleton_speeds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,
-                                 <span class="ident">cm</span>: <span class="ident">bool</span>,
-                                 <span class="ident">combined</span>: <span class="ident">bool</span>) -&gt; ([<span class="ident">SpeedAndMax</span>;<span class="number">2</span>], [<span class="ident">floatX</span>; <span class="number">2</span>]) {
-        <span class="kw">let</span> <span class="ident">cost_type_index</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">combined</span> {
-            <span class="number">2usize</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cm</span> {
-            <span class="number">0usize</span>
-        } <span class="kw">else</span> {
-            <span class="number">1usize</span>
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret_cost</span> <span class="op">=</span> [<span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">cost_type_index</span>][<span class="number">0</span>][<span class="number">0</span>],
-                            <span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">cost_type_index</span>][<span class="number">1</span>][<span class="number">0</span>]];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best_indexes</span> <span class="op">=</span> [<span class="number">0</span>,<span class="number">0</span>];
-        <span class="kw">for</span> <span class="ident">speed_index</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">NUM_SPEEDS_TO_TRY</span> {
-            <span class="kw">for</span> <span class="ident">highness</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
-                <span class="kw">let</span> <span class="ident">cur_cost</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">cost_type_index</span>][<span class="ident">highness</span>][<span class="ident">speed_index</span>];
-                <span class="kw">if</span> <span class="ident">cur_cost</span> <span class="op">&lt;</span> <span class="ident">ret_cost</span>[<span class="ident">highness</span>] {
-                    <span class="ident">best_indexes</span>[<span class="ident">highness</span>] <span class="op">=</span> <span class="ident">speed_index</span>;
-                    <span class="ident">ret_cost</span>[<span class="ident">highness</span>] <span class="op">=</span> <span class="ident">cur_cost</span>;
+   <span class="kw">pub fn </span>best_singleton_speeds(<span class="kw-2">&amp;</span><span class="self">self</span>,
+                                 cm: bool,
+                                 combined: bool) -&gt; ([SpeedAndMax;<span class="number">2</span>], [floatX; <span class="number">2</span>]) {
+        <span class="kw">let </span>cost_type_index = <span class="kw">if </span>combined {
+            <span class="number">2usize
+        </span>} <span class="kw">else if </span>cm {
+            <span class="number">0usize
+        </span>} <span class="kw">else </span>{
+            <span class="number">1usize
+        </span>};
+        <span class="kw">let </span><span class="kw-2">mut </span>ret_cost = [<span class="self">self</span>.singleton_costs[cost_type_index][<span class="number">0</span>][<span class="number">0</span>],
+                            <span class="self">self</span>.singleton_costs[cost_type_index][<span class="number">1</span>][<span class="number">0</span>]];
+        <span class="kw">let </span><span class="kw-2">mut </span>best_indexes = [<span class="number">0</span>,<span class="number">0</span>];
+        <span class="kw">for </span>speed_index <span class="kw">in </span><span class="number">1</span>..NUM_SPEEDS_TO_TRY {
+            <span class="kw">for </span>highness <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
+                <span class="kw">let </span>cur_cost = <span class="self">self</span>.singleton_costs[cost_type_index][highness][speed_index];
+                <span class="kw">if </span>cur_cost &lt; ret_cost[highness] {
+                    best_indexes[highness] = speed_index;
+                    ret_cost[highness] = cur_cost;
                 }
             }
         }
-        <span class="kw">let</span> <span class="ident">ret_speed</span> <span class="op">=</span> [<span class="ident">SpeedAndMax</span>(<span class="ident">SPEEDS_TO_SEARCH</span>[<span class="ident">best_indexes</span>[<span class="number">0</span>]],
-                                 <span class="ident">MAXES_TO_SEARCH</span>[<span class="ident">best_indexes</span>[<span class="number">0</span>]]),
-                     <span class="ident">SpeedAndMax</span>(<span class="ident">SPEEDS_TO_SEARCH</span>[<span class="ident">best_indexes</span>[<span class="number">1</span>]],
-                                 <span class="ident">MAXES_TO_SEARCH</span>[<span class="ident">best_indexes</span>[<span class="number">1</span>]])];
-       (<span class="ident">ret_speed</span>, <span class="ident">ret_cost</span>)
+        <span class="kw">let </span>ret_speed = [SpeedAndMax(SPEEDS_TO_SEARCH[best_indexes[<span class="number">0</span>]],
+                                 MAXES_TO_SEARCH[best_indexes[<span class="number">0</span>]]),
+                     SpeedAndMax(SPEEDS_TO_SEARCH[best_indexes[<span class="number">1</span>]],
+                                 MAXES_TO_SEARCH[best_indexes[<span class="number">1</span>]])];
+       (ret_speed, ret_cost)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">best_speeds</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="comment">// mut due to helpers</span>
-                       <span class="ident">cm</span>:<span class="ident">bool</span>,
-                       <span class="ident">combined</span>: <span class="ident">bool</span>) -&gt; [<span class="ident">SpeedAndMax</span>;<span class="number">2</span>] { 
-       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> [<span class="ident">SpeedAndMax</span>(<span class="ident">SPEEDS_TO_SEARCH</span>[<span class="number">0</span>],<span class="ident">MAXES_TO_SEARCH</span>[<span class="number">0</span>]); <span class="number">2</span>];
-       <span class="kw">let</span> <span class="ident">cost_type_index</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">combined</span> {
-           <span class="number">2usize</span>
-       } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cm</span> {
-           <span class="number">0usize</span>
-       } <span class="kw">else</span> {
-           <span class="number">1usize</span>
-       };
-       <span class="kw">for</span> <span class="ident">high</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
+    <span class="kw">pub fn </span>best_speeds(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="comment">// mut due to helpers
+                       </span>cm:bool,
+                       combined: bool) -&gt; [SpeedAndMax;<span class="number">2</span>] { 
+       <span class="kw">let </span><span class="kw-2">mut </span>ret = [SpeedAndMax(SPEEDS_TO_SEARCH[<span class="number">0</span>],MAXES_TO_SEARCH[<span class="number">0</span>]); <span class="number">2</span>];
+       <span class="kw">let </span>cost_type_index = <span class="kw">if </span>combined {
+           <span class="number">2usize
+       </span>} <span class="kw">else if </span>cm {
+           <span class="number">0usize
+       </span>} <span class="kw">else </span>{
+           <span class="number">1usize
+       </span>};
+       <span class="kw">for </span>high <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
            <span class="comment">/*eprintln!(&quot;TRIAL {} {}&quot;, cm, combined);
            for i in 0..NUM_SPEEDS_TO_TRY {
                eprintln!(&quot;{},{} costs {:?}&quot;, SPEEDS_TO_SEARCH[i], MAXES_TO_SEARCH[i], self.singleton_costs[cost_type_index][high][i]);
-           }*/</span>
-         <span class="ident">ret</span>[<span class="ident">high</span>] <span class="op">=</span> <span class="ident">min_cost_speed_max</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">cost_type_index</span>][<span class="ident">high</span>][..]);
+           }*/
+         </span>ret[high] = min_cost_speed_max(<span class="kw-2">&amp;</span><span class="self">self</span>.singleton_costs[cost_type_index][high][..]);
        }
-       <span class="ident">ret</span>
+       ret
    }
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">best_speeds_costs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="comment">// mut due to helpers</span>
-                            <span class="ident">cm</span>:<span class="ident">bool</span>,
-                            <span class="ident">combined</span>: <span class="ident">bool</span>) -&gt; [<span class="ident">floatX</span>;<span class="number">2</span>] { 
-       <span class="kw">let</span> <span class="ident">cost_type_index</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">combined</span> {
-           <span class="number">2usize</span>
-       } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cm</span> {
-           <span class="number">0usize</span>
-       } <span class="kw">else</span> {
-           <span class="number">1usize</span>
-       };
-       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> [<span class="number">0.0</span> <span class="kw">as</span> <span class="ident">floatX</span>; <span class="number">2</span>];
-       <span class="kw">for</span> <span class="ident">high</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
-         <span class="ident">ret</span>[<span class="ident">high</span>] <span class="op">=</span> <span class="ident">min_cost_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">cost_type_index</span>][<span class="ident">high</span>][..]);
+   <span class="kw">pub fn </span>best_speeds_costs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="comment">// mut due to helpers
+                            </span>cm:bool,
+                            combined: bool) -&gt; [floatX;<span class="number">2</span>] { 
+       <span class="kw">let </span>cost_type_index = <span class="kw">if </span>combined {
+           <span class="number">2usize
+       </span>} <span class="kw">else if </span>cm {
+           <span class="number">0usize
+       </span>} <span class="kw">else </span>{
+           <span class="number">1usize
+       </span>};
+       <span class="kw">let </span><span class="kw-2">mut </span>ret = [<span class="number">0.0 </span><span class="kw">as </span>floatX; <span class="number">2</span>];
+       <span class="kw">for </span>high <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
+         ret[high] = min_cost_value(<span class="kw-2">&amp;</span><span class="self">self</span>.singleton_costs[cost_type_index][high][..]);
        }
-       <span class="ident">ret</span>
+       ret
    }
-   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">alloc</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Alloc</span>) {
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">cm_priors</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
-        <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::free_cell</span>(<span class="ident">alloc</span>, <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">stride_priors</span>, <span class="op">&lt;</span><span class="ident">Alloc</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>()));
+   <span class="kw">pub fn </span>free(<span class="kw-2">&amp;mut </span><span class="self">self</span>, alloc: <span class="kw-2">&amp;mut </span>Alloc) {
+        &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.cm_priors, &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory::default()));
+        &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::free_cell(alloc, core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.stride_priors, &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory::default()));
    }
-   <span class="kw">fn</span> <span class="ident">update_cost_base</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stride_prior</span>: <span class="ident">u8</span>, <span class="ident">_selected_bits</span>:<span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">literal</span>: <span class="ident">u8</span>) {
-       <span class="kw">let</span> <span class="ident">upper_nibble</span> <span class="op">=</span> (<span class="ident">literal</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">4</span>);
-       <span class="kw">let</span> <span class="ident">lower_nibble</span> <span class="op">=</span> <span class="ident">literal</span> <span class="op">&amp;</span> <span class="number">0xf</span>;
-       <span class="kw">let</span> <span class="ident">provisional_cm_high_cdf</span>: [<span class="ident">u16</span>; <span class="number">16</span>];
-       <span class="kw">let</span> <span class="ident">provisional_cm_low_cdf</span>: [<span class="ident">u16</span>; <span class="number">16</span>];
+   <span class="kw">fn </span>update_cost_base(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stride_prior: u8, _selected_bits:u8, cm_prior: usize, literal: u8) {
+       <span class="kw">let </span>upper_nibble = (literal &gt;&gt; <span class="number">4</span>);
+       <span class="kw">let </span>lower_nibble = literal &amp; <span class="number">0xf</span>;
+       <span class="kw">let </span>provisional_cm_high_cdf: [u16; <span class="number">16</span>];
+       <span class="kw">let </span>provisional_cm_low_cdf: [u16; <span class="number">16</span>];
        {
-           <span class="kw">let</span> <span class="ident">cm_cdf_high</span> <span class="op">=</span> <span class="ident">get_cm_cdf_high</span>(<span class="self">self</span>.<span class="ident">cm_priors</span>.<span class="ident">slice_mut</span>(), <span class="ident">cm_prior</span>);
-           <span class="ident">compute_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">SINGLETON_CM_STRATEGY</span>][<span class="number">1</span>],
-                        <span class="ident">cm_cdf_high</span>, <span class="ident">upper_nibble</span>);
-           <span class="comment">// choose a fairly reasonable cm speed rather than a selected one</span>
-           <span class="kw">let</span> <span class="ident">best_cm_index</span> <span class="op">=</span> <span class="ident">DEFAULT_CM_SPEED_INDEX</span>;<span class="comment">// = min_cost_index_for_speed(&amp;self.singleton_costs[SINGLETON_CM_STRATEGY][1]);</span>
-           <span class="ident">provisional_cm_high_cdf</span> <span class="op">=</span> <span class="ident">extract_single_cdf</span>(<span class="ident">cm_cdf_high</span>, <span class="ident">best_cm_index</span>);
+           <span class="kw">let </span>cm_cdf_high = get_cm_cdf_high(<span class="self">self</span>.cm_priors.slice_mut(), cm_prior);
+           compute_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>.singleton_costs[SINGLETON_CM_STRATEGY][<span class="number">1</span>],
+                        cm_cdf_high, upper_nibble);
+           <span class="comment">// choose a fairly reasonable cm speed rather than a selected one
+           </span><span class="kw">let </span>best_cm_index = DEFAULT_CM_SPEED_INDEX;<span class="comment">// = min_cost_index_for_speed(&amp;self.singleton_costs[SINGLETON_CM_STRATEGY][1]);
+           </span>provisional_cm_high_cdf = extract_single_cdf(cm_cdf_high, best_cm_index);
        }
        {
-           <span class="kw">let</span> <span class="ident">cm_cdf_low</span> <span class="op">=</span> <span class="ident">get_cm_cdf_low</span>(<span class="self">self</span>.<span class="ident">cm_priors</span>.<span class="ident">slice_mut</span>(), <span class="ident">cm_prior</span>, <span class="ident">upper_nibble</span>);
-           <span class="ident">compute_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">SINGLETON_CM_STRATEGY</span>][<span class="number">0</span>],
-                        <span class="ident">cm_cdf_low</span>, <span class="ident">lower_nibble</span>);
-           <span class="comment">// choose a fairly reasonable cm speed rather than a selected one</span>
-           <span class="kw">let</span> <span class="ident">best_cm_index</span> <span class="op">=</span> <span class="ident">DEFAULT_CM_SPEED_INDEX</span>;<span class="comment">//min_cost_index_for_speed(&amp;self.singleton_costs[SINGLETON_CM_STRATEGY][0]);</span>
-           <span class="ident">provisional_cm_low_cdf</span> <span class="op">=</span> <span class="ident">extract_single_cdf</span>(<span class="ident">cm_cdf_low</span>, <span class="ident">best_cm_index</span>);
+           <span class="kw">let </span>cm_cdf_low = get_cm_cdf_low(<span class="self">self</span>.cm_priors.slice_mut(), cm_prior, upper_nibble);
+           compute_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>.singleton_costs[SINGLETON_CM_STRATEGY][<span class="number">0</span>],
+                        cm_cdf_low, lower_nibble);
+           <span class="comment">// choose a fairly reasonable cm speed rather than a selected one
+           </span><span class="kw">let </span>best_cm_index = DEFAULT_CM_SPEED_INDEX;<span class="comment">//min_cost_index_for_speed(&amp;self.singleton_costs[SINGLETON_CM_STRATEGY][0]);
+           </span>provisional_cm_low_cdf = extract_single_cdf(cm_cdf_low, best_cm_index);
        }
        {
-           <span class="kw">let</span> <span class="ident">stride_cdf_high</span> <span class="op">=</span> <span class="ident">get_stride_cdf_high</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>.<span class="ident">slice_mut</span>(), <span class="ident">stride_prior</span>, <span class="ident">cm_prior</span>);
-           <span class="ident">compute_combined_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">SINGLETON_COMBINED_STRATEGY</span>][<span class="number">1</span>],
-                                 <span class="ident">stride_cdf_high</span>, <span class="ident">provisional_cm_high_cdf</span>, <span class="ident">upper_nibble</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">weight</span>[<span class="number">1</span>]);
-           <span class="ident">compute_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">SINGLETON_STRIDE_STRATEGY</span>][<span class="number">1</span>],
-                        <span class="ident">stride_cdf_high</span>, <span class="ident">upper_nibble</span>);
-           <span class="ident">update_cdf</span>(<span class="ident">stride_cdf_high</span>, <span class="ident">upper_nibble</span>);
+           <span class="kw">let </span>stride_cdf_high = get_stride_cdf_high(<span class="self">self</span>.stride_priors.slice_mut(), stride_prior, cm_prior);
+           compute_combined_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>.singleton_costs[SINGLETON_COMBINED_STRATEGY][<span class="number">1</span>],
+                                 stride_cdf_high, provisional_cm_high_cdf, upper_nibble, <span class="kw-2">&amp;mut </span><span class="self">self</span>.weight[<span class="number">1</span>]);
+           compute_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>.singleton_costs[SINGLETON_STRIDE_STRATEGY][<span class="number">1</span>],
+                        stride_cdf_high, upper_nibble);
+           update_cdf(stride_cdf_high, upper_nibble);
        }
        {
-           <span class="kw">let</span> <span class="ident">stride_cdf_low</span> <span class="op">=</span> <span class="ident">get_stride_cdf_low</span>(<span class="self">self</span>.<span class="ident">stride_priors</span>.<span class="ident">slice_mut</span>(), <span class="ident">stride_prior</span>, <span class="ident">cm_prior</span>, <span class="ident">upper_nibble</span>);
-           <span class="ident">compute_combined_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">SINGLETON_COMBINED_STRATEGY</span>][<span class="number">0</span>],
-                                 <span class="ident">stride_cdf_low</span>, <span class="ident">provisional_cm_low_cdf</span>, <span class="ident">lower_nibble</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">weight</span>[<span class="number">0</span>]);
-           <span class="ident">compute_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">singleton_costs</span>[<span class="ident">SINGLETON_STRIDE_STRATEGY</span>][<span class="number">0</span>],
-                        <span class="ident">stride_cdf_low</span>,
-                        <span class="ident">lower_nibble</span>);
-           <span class="ident">update_cdf</span>(<span class="ident">stride_cdf_low</span>, <span class="ident">lower_nibble</span>);
+           <span class="kw">let </span>stride_cdf_low = get_stride_cdf_low(<span class="self">self</span>.stride_priors.slice_mut(), stride_prior, cm_prior, upper_nibble);
+           compute_combined_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>.singleton_costs[SINGLETON_COMBINED_STRATEGY][<span class="number">0</span>],
+                                 stride_cdf_low, provisional_cm_low_cdf, lower_nibble, <span class="kw-2">&amp;mut </span><span class="self">self</span>.weight[<span class="number">0</span>]);
+           compute_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>.singleton_costs[SINGLETON_STRIDE_STRATEGY][<span class="number">0</span>],
+                        stride_cdf_low,
+                        lower_nibble);
+           update_cdf(stride_cdf_low, lower_nibble);
        }
        {
-           <span class="kw">let</span> <span class="ident">cm_cdf_high</span> <span class="op">=</span> <span class="ident">get_cm_cdf_high</span>(<span class="self">self</span>.<span class="ident">cm_priors</span>.<span class="ident">slice_mut</span>(), <span class="ident">cm_prior</span>);
-           <span class="ident">update_cdf</span>(<span class="ident">cm_cdf_high</span>, <span class="ident">upper_nibble</span>);
+           <span class="kw">let </span>cm_cdf_high = get_cm_cdf_high(<span class="self">self</span>.cm_priors.slice_mut(), cm_prior);
+           update_cdf(cm_cdf_high, upper_nibble);
        }
        {
-           <span class="kw">let</span> <span class="ident">cm_cdf_low</span> <span class="op">=</span> <span class="ident">get_cm_cdf_low</span>(<span class="self">self</span>.<span class="ident">cm_priors</span>.<span class="ident">slice_mut</span>(), <span class="ident">cm_prior</span>, <span class="ident">upper_nibble</span>);
-           <span class="ident">update_cdf</span>(<span class="ident">cm_cdf_low</span>, <span class="ident">lower_nibble</span>);
+           <span class="kw">let </span>cm_cdf_low = get_cm_cdf_low(<span class="self">self</span>.cm_priors.slice_mut(), cm_prior, upper_nibble);
+           update_cdf(cm_cdf_low, lower_nibble);
        }
    }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">floatX</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">interface::CommandProcessor</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ContextMapEntropy</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-            <span class="ident">val</span>: <span class="ident">interface::Command</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="ident">push_base</span>(<span class="self">self</span>, <span class="ident">val</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, Alloc: alloc::Allocator&lt;u16&gt; + alloc::Allocator&lt;u32&gt; + alloc::Allocator&lt;floatX&gt;&gt; interface::CommandProcessor&lt;<span class="lifetime">&#39;b</span>&gt; <span class="kw">for </span>ContextMapEntropy&lt;<span class="lifetime">&#39;a</span>, Alloc&gt; {
+    <span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>,
+            val: interface::Command&lt;InputReference&lt;<span class="lifetime">&#39;b</span>&gt;&gt;) {
+        push_base(<span class="self">self</span>, val)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span>: <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">alloc::Allocator</span><span class="op">&lt;</span><span class="ident">floatX</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">IRInterpreter</span> <span class="kw">for</span> <span class="ident">ContextMapEntropy</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Alloc</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">inc_local_byte_offset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">inc</span>: <span class="ident">usize</span>) {
-        <span class="self">self</span>.<span class="ident">local_byte_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">inc</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, Alloc: alloc::Allocator&lt;u16&gt; + alloc::Allocator&lt;u32&gt; + alloc::Allocator&lt;floatX&gt;&gt; IRInterpreter <span class="kw">for </span>ContextMapEntropy&lt;<span class="lifetime">&#39;a</span>, Alloc&gt; {
+    <span class="kw">fn </span>inc_local_byte_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, inc: usize) {
+        <span class="self">self</span>.local_byte_offset += inc;
     }
-    <span class="kw">fn</span> <span class="ident">local_byte_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">local_byte_offset</span>
+    <span class="kw">fn </span>local_byte_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.local_byte_offset
     }
-    <span class="kw">fn</span> <span class="ident">update_block_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_type</span>: <span class="ident">u8</span>, <span class="ident">stride</span>: <span class="ident">u8</span>) {
-        <span class="self">self</span>.<span class="ident">block_type</span> <span class="op">=</span> <span class="ident">new_type</span>;
-        <span class="self">self</span>.<span class="ident">cur_stride</span> <span class="op">=</span> <span class="ident">stride</span>;
+    <span class="kw">fn </span>update_block_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_type: u8, stride: u8) {
+        <span class="self">self</span>.block_type = new_type;
+        <span class="self">self</span>.cur_stride = stride;
     }
-    <span class="kw">fn</span> <span class="ident">block_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="ident">block_type</span>
+    <span class="kw">fn </span>block_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.block_type
     }
-    <span class="kw">fn</span> <span class="ident">literal_data_at_offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>:<span class="ident">usize</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="ident">input</span>[<span class="ident">index</span>]
+    <span class="kw">fn </span>literal_data_at_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, index:usize) -&gt; u8 {
+        <span class="self">self</span>.input[index]
     }
-    <span class="kw">fn</span> <span class="ident">literal_context_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="self">self</span>.<span class="ident">context_map</span>.<span class="ident">literal_context_map</span>.<span class="ident">slice</span>()
+    <span class="kw">fn </span>literal_context_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="self">self</span>.context_map.literal_context_map.slice()
     }
-    <span class="kw">fn</span> <span class="ident">prediction_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">::interface::LiteralPredictionModeNibble</span> {
-        <span class="self">self</span>.<span class="ident">context_map</span>.<span class="ident">literal_prediction_mode</span>()
+    <span class="kw">fn </span>prediction_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ::interface::LiteralPredictionModeNibble {
+        <span class="self">self</span>.context_map.literal_prediction_mode()
     }
-    <span class="kw">fn</span> <span class="ident">update_cost</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stride_prior</span>: [<span class="ident">u8</span>;<span class="number">8</span>], <span class="ident">stride_prior_offset</span>: <span class="ident">usize</span>, <span class="ident">selected_bits</span>: <span class="ident">u8</span>, <span class="ident">cm_prior</span>: <span class="ident">usize</span>, <span class="ident">literal</span>: <span class="ident">u8</span>) {
-        <span class="kw">let</span> <span class="ident">stride</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur_stride</span> <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="self">self</span>.<span class="ident">update_cost_base</span>(<span class="ident">stride_prior</span>[<span class="ident">stride_prior_offset</span>.<span class="ident">wrapping_sub</span>(<span class="ident">stride</span>) <span class="op">&amp;</span> <span class="number">7</span>], <span class="ident">selected_bits</span>, <span class="ident">cm_prior</span>, <span class="ident">literal</span>)
+    <span class="kw">fn </span>update_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stride_prior: [u8;<span class="number">8</span>], stride_prior_offset: usize, selected_bits: u8, cm_prior: usize, literal: u8) {
+        <span class="kw">let </span>stride = <span class="self">self</span>.cur_stride <span class="kw">as </span>usize;
+        <span class="self">self</span>.update_cost_base(stride_prior[stride_prior_offset.wrapping_sub(stride) &amp; <span class="number">7</span>], selected_bits, cm_prior, literal)
     }
 }
 
 
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

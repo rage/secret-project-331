@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/algorithms.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>algorithms.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/algorithms.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>algorithms.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../jsonwebtoken/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -98,105 +98,105 @@
 <span id="98">98</span>
 <span id="99">99</span>
 <span id="100">100</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{Error, ErrorKind, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>std::str::FromStr;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">AlgorithmFamily</span> {
-    <span class="ident">Hmac</span>,
-    <span class="ident">Rsa</span>,
-    <span class="ident">Ec</span>,
+<span class="attribute">#[derive(Debug, Eq, PartialEq, Copy, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>AlgorithmFamily {
+    Hmac,
+    Rsa,
+    Ec,
 }
 
-<span class="doccomment">/// The algorithms supported for signing/verifying JWTs</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Algorithm</span> {
-    <span class="doccomment">/// HMAC using SHA-256</span>
-    <span class="ident">HS256</span>,
-    <span class="doccomment">/// HMAC using SHA-384</span>
-    <span class="ident">HS384</span>,
-    <span class="doccomment">/// HMAC using SHA-512</span>
-    <span class="ident">HS512</span>,
+<span class="doccomment">/// The algorithms supported for signing/verifying JWTs
+</span><span class="attribute">#[derive(Debug, PartialEq, Hash, Copy, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>Algorithm {
+    <span class="doccomment">/// HMAC using SHA-256
+    </span>HS256,
+    <span class="doccomment">/// HMAC using SHA-384
+    </span>HS384,
+    <span class="doccomment">/// HMAC using SHA-512
+    </span>HS512,
 
-    <span class="doccomment">/// ECDSA using SHA-256</span>
-    <span class="ident">ES256</span>,
-    <span class="doccomment">/// ECDSA using SHA-384</span>
-    <span class="ident">ES384</span>,
+    <span class="doccomment">/// ECDSA using SHA-256
+    </span>ES256,
+    <span class="doccomment">/// ECDSA using SHA-384
+    </span>ES384,
 
-    <span class="doccomment">/// RSASSA-PKCS1-v1_5 using SHA-256</span>
-    <span class="ident">RS256</span>,
-    <span class="doccomment">/// RSASSA-PKCS1-v1_5 using SHA-384</span>
-    <span class="ident">RS384</span>,
-    <span class="doccomment">/// RSASSA-PKCS1-v1_5 using SHA-512</span>
-    <span class="ident">RS512</span>,
+    <span class="doccomment">/// RSASSA-PKCS1-v1_5 using SHA-256
+    </span>RS256,
+    <span class="doccomment">/// RSASSA-PKCS1-v1_5 using SHA-384
+    </span>RS384,
+    <span class="doccomment">/// RSASSA-PKCS1-v1_5 using SHA-512
+    </span>RS512,
 
-    <span class="doccomment">/// RSASSA-PSS using SHA-256</span>
-    <span class="ident">PS256</span>,
-    <span class="doccomment">/// RSASSA-PSS using SHA-384</span>
-    <span class="ident">PS384</span>,
-    <span class="doccomment">/// RSASSA-PSS using SHA-512</span>
-    <span class="ident">PS512</span>,
+    <span class="doccomment">/// RSASSA-PSS using SHA-256
+    </span>PS256,
+    <span class="doccomment">/// RSASSA-PSS using SHA-384
+    </span>PS384,
+    <span class="doccomment">/// RSASSA-PSS using SHA-512
+    </span>PS512,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Algorithm</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Algorithm::HS256</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>Algorithm {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        Algorithm::HS256
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Algorithm</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="string">&quot;HS256&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::HS256</span>),
-            <span class="string">&quot;HS384&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::HS384</span>),
-            <span class="string">&quot;HS512&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::HS512</span>),
-            <span class="string">&quot;ES256&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::ES256</span>),
-            <span class="string">&quot;ES384&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::ES384</span>),
-            <span class="string">&quot;RS256&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::RS256</span>),
-            <span class="string">&quot;RS384&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::RS384</span>),
-            <span class="string">&quot;PS256&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::PS256</span>),
-            <span class="string">&quot;PS384&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::PS384</span>),
-            <span class="string">&quot;PS512&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::PS512</span>),
-            <span class="string">&quot;RS512&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Algorithm::RS512</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidAlgorithmName</span>.<span class="ident">into</span>()),
+<span class="kw">impl </span>FromStr <span class="kw">for </span>Algorithm {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= Error;
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span>s {
+            <span class="string">&quot;HS256&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::HS256),
+            <span class="string">&quot;HS384&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::HS384),
+            <span class="string">&quot;HS512&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::HS512),
+            <span class="string">&quot;ES256&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::ES256),
+            <span class="string">&quot;ES384&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::ES384),
+            <span class="string">&quot;RS256&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::RS256),
+            <span class="string">&quot;RS384&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::RS384),
+            <span class="string">&quot;PS256&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::PS256),
+            <span class="string">&quot;PS384&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::PS384),
+            <span class="string">&quot;PS512&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::PS512),
+            <span class="string">&quot;RS512&quot; </span>=&gt; <span class="prelude-val">Ok</span>(Algorithm::RS512),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidAlgorithmName.into()),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Algorithm</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">family</span>(<span class="self">self</span>) -&gt; <span class="ident">AlgorithmFamily</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Algorithm::HS256</span> <span class="op">|</span> <span class="ident">Algorithm::HS384</span> <span class="op">|</span> <span class="ident">Algorithm::HS512</span> =&gt; <span class="ident">AlgorithmFamily::Hmac</span>,
-            <span class="ident">Algorithm::RS256</span>
-            <span class="op">|</span> <span class="ident">Algorithm::RS384</span>
-            <span class="op">|</span> <span class="ident">Algorithm::RS512</span>
-            <span class="op">|</span> <span class="ident">Algorithm::PS256</span>
-            <span class="op">|</span> <span class="ident">Algorithm::PS384</span>
-            <span class="op">|</span> <span class="ident">Algorithm::PS512</span> =&gt; <span class="ident">AlgorithmFamily::Rsa</span>,
-            <span class="ident">Algorithm::ES256</span> <span class="op">|</span> <span class="ident">Algorithm::ES384</span> =&gt; <span class="ident">AlgorithmFamily::Ec</span>,
+<span class="kw">impl </span>Algorithm {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>family(<span class="self">self</span>) -&gt; AlgorithmFamily {
+        <span class="kw">match </span><span class="self">self </span>{
+            Algorithm::HS256 | Algorithm::HS384 | Algorithm::HS512 =&gt; AlgorithmFamily::Hmac,
+            Algorithm::RS256
+            | Algorithm::RS384
+            | Algorithm::RS512
+            | Algorithm::PS256
+            | Algorithm::PS384
+            | Algorithm::PS512 =&gt; AlgorithmFamily::Rsa,
+            Algorithm::ES256 | Algorithm::ES384 =&gt; AlgorithmFamily::Ec,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">generate_algorithm_enum_from_str</span>() {
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;HS256&quot;</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;HS384&quot;</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;HS512&quot;</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;RS256&quot;</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;RS384&quot;</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;RS512&quot;</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;PS256&quot;</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;PS384&quot;</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;PS512&quot;</span>).<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="ident">Algorithm::from_str</span>(<span class="string">&quot;&quot;</span>).<span class="ident">is_err</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>generate_algorithm_enum_from_str() {
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;HS256&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;HS384&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;HS512&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;RS256&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;RS384&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;RS512&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;PS256&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;PS384&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;PS512&quot;</span>).is_ok());
+        <span class="macro">assert!</span>(Algorithm::from_str(<span class="string">&quot;&quot;</span>).is_err());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

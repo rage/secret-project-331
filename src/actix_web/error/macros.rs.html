@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/error/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/error/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -107,112 +107,112 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
-</pre><pre class="rust"><code><span class="macro">macro_rules!</span> <span class="ident">downcast_get_type_id</span> {
+</pre><pre class="rust"><code><span class="macro">macro_rules! </span>downcast_get_type_id {
     () =&gt; {
-        <span class="doccomment">/// A helper method to get the type ID of the type</span>
-        <span class="doccomment">/// this trait is implemented on.</span>
-        <span class="doccomment">/// This method is unsafe to *implement*, since `downcast_ref` relies</span>
-        <span class="doccomment">/// on the returned `TypeId` to perform a cast.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Unfortunately, Rust has no notion of a trait method that is</span>
-        <span class="doccomment">/// unsafe to implement (marking it as `unsafe` makes it unsafe</span>
-        <span class="doccomment">/// to *call*). As a workaround, we require this method</span>
-        <span class="doccomment">/// to return a private type along with the `TypeId`. This</span>
-        <span class="doccomment">/// private type (`PrivateHelper`) has a private constructor,</span>
-        <span class="doccomment">/// making it impossible for safe code to construct outside of</span>
-        <span class="doccomment">/// this module. This ensures that safe code cannot violate</span>
-        <span class="doccomment">/// type-safety by implementing this method.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// We also take `PrivateHelper` as a parameter, to ensure that</span>
-        <span class="doccomment">/// safe code cannot obtain a `PrivateHelper` instance by</span>
-        <span class="doccomment">/// delegating to an existing implementation of `__private_get_type_id__`</span>
-        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-        <span class="kw">fn</span> <span class="ident">__private_get_type_id__</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">PrivateHelper</span>) -&gt; (<span class="ident">std::any::TypeId</span>, <span class="ident">PrivateHelper</span>)
-        <span class="kw">where</span>
-            <span class="self">Self</span>: <span class="lifetime">&#39;static</span>,
+        <span class="doccomment">/// A helper method to get the type ID of the type
+        /// this trait is implemented on.
+        /// This method is unsafe to *implement*, since `downcast_ref` relies
+        /// on the returned `TypeId` to perform a cast.
+        ///
+        /// Unfortunately, Rust has no notion of a trait method that is
+        /// unsafe to implement (marking it as `unsafe` makes it unsafe
+        /// to *call*). As a workaround, we require this method
+        /// to return a private type along with the `TypeId`. This
+        /// private type (`PrivateHelper`) has a private constructor,
+        /// making it impossible for safe code to construct outside of
+        /// this module. This ensures that safe code cannot violate
+        /// type-safety by implementing this method.
+        ///
+        /// We also take `PrivateHelper` as a parameter, to ensure that
+        /// safe code cannot obtain a `PrivateHelper` instance by
+        /// delegating to an existing implementation of `__private_get_type_id__`
+        </span><span class="attribute">#[doc(hidden)]
+        #[allow(dead_code)]
+        </span><span class="kw">fn </span>__private_get_type_id__(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: PrivateHelper) -&gt; (std::any::TypeId, PrivateHelper)
+        <span class="kw">where
+            </span><span class="self">Self</span>: <span class="lifetime">&#39;static</span>,
         {
-            (<span class="ident">std::any::TypeId::of</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(), <span class="ident">PrivateHelper</span>(()))
+            (std::any::TypeId::of::&lt;<span class="self">Self</span>&gt;(), PrivateHelper(()))
         }
     };
 }
 
-<span class="comment">// Generate implementation for dyn $name</span>
-<span class="macro">macro_rules!</span> <span class="ident">downcast_dyn</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="doccomment">/// A struct with a private constructor, for use with</span>
-        <span class="doccomment">/// `__private_get_type_id__`. Its single field is private,</span>
-        <span class="doccomment">/// ensuring that it can only be constructed from this module</span>
-        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrivateHelper</span>(());
+<span class="comment">// Generate implementation for dyn $name
+</span><span class="macro">macro_rules! </span>downcast_dyn {
+    (<span class="macro-nonterminal">$name</span>:ident) =&gt; {
+        <span class="doccomment">/// A struct with a private constructor, for use with
+        /// `__private_get_type_id__`. Its single field is private,
+        /// ensuring that it can only be constructed from this module
+        </span><span class="attribute">#[doc(hidden)]
+        #[allow(dead_code)]
+        </span><span class="kw">pub struct </span>PrivateHelper(());
 
-        <span class="kw">impl</span> <span class="kw">dyn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-            <span class="doccomment">/// Downcasts generic body to a specific type.</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast_ref</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">__private_get_type_id__</span>(<span class="ident">PrivateHelper</span>(())).<span class="number">0</span>
-                    <span class="op">==</span> <span class="ident">std::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+        <span class="kw">impl dyn </span><span class="macro-nonterminal">$name </span>+ <span class="lifetime">&#39;static </span>{
+            <span class="doccomment">/// Downcasts generic body to a specific type.
+            </span><span class="attribute">#[allow(dead_code)]
+            </span><span class="kw">pub fn </span>downcast_ref&lt;T: <span class="macro-nonterminal">$name </span>+ <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+                <span class="kw">if </span><span class="self">self</span>.__private_get_type_id__(PrivateHelper(())).<span class="number">0
+                    </span>== std::any::TypeId::of::&lt;T&gt;()
                 {
-                    <span class="comment">// SAFETY: external crates cannot override the default</span>
-                    <span class="comment">// implementation of `__private_get_type_id__`, since</span>
-                    <span class="comment">// it requires returning a private type. We can therefore</span>
-                    <span class="comment">// rely on the returned `TypeId`, which ensures that this</span>
-                    <span class="comment">// case is correct.</span>
-                    <span class="kw">unsafe</span> { <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">dyn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span>)) }
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+                    <span class="comment">// SAFETY: external crates cannot override the default
+                    // implementation of `__private_get_type_id__`, since
+                    // it requires returning a private type. We can therefore
+                    // rely on the returned `TypeId`, which ensures that this
+                    // case is correct.
+                    </span><span class="kw">unsafe </span>{ <span class="prelude-val">Some</span>(<span class="kw-2">&amp;*</span>(<span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span><span class="kw">dyn </span><span class="macro-nonterminal">$name </span><span class="kw">as </span><span class="kw-2">*const </span>T)) }
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
 
-            <span class="doccomment">/// Downcasts a generic body to a mutable specific type.</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast_mut</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">__private_get_type_id__</span>(<span class="ident">PrivateHelper</span>(())).<span class="number">0</span>
-                    <span class="op">==</span> <span class="ident">std::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+            <span class="doccomment">/// Downcasts a generic body to a mutable specific type.
+            </span><span class="attribute">#[allow(dead_code)]
+            </span><span class="kw">pub fn </span>downcast_mut&lt;T: <span class="macro-nonterminal">$name </span>+ <span class="lifetime">&#39;static</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>T&gt; {
+                <span class="kw">if </span><span class="self">self</span>.__private_get_type_id__(PrivateHelper(())).<span class="number">0
+                    </span>== std::any::TypeId::of::&lt;T&gt;()
                 {
-                    <span class="comment">// SAFETY: external crates cannot override the default</span>
-                    <span class="comment">// implementation of `__private_get_type_id__`, since</span>
-                    <span class="comment">// it requires returning a private type. We can therefore</span>
-                    <span class="comment">// rely on the returned `TypeId`, which ensures that this</span>
-                    <span class="comment">// case is correct.</span>
-                    <span class="kw">unsafe</span> { <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>(<span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">dyn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>)) }
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+                    <span class="comment">// SAFETY: external crates cannot override the default
+                    // implementation of `__private_get_type_id__`, since
+                    // it requires returning a private type. We can therefore
+                    // rely on the returned `TypeId`, which ensures that this
+                    // case is correct.
+                    </span><span class="kw">unsafe </span>{ <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut *</span>(<span class="self">self </span><span class="kw">as </span><span class="kw-2">*const </span><span class="kw">dyn </span><span class="macro-nonterminal">$name </span><span class="kw">as </span><span class="kw-2">*const </span>T <span class="kw">as </span><span class="kw-2">*mut </span>T)) }
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
         }
     };
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> {<span class="ident">downcast_dyn</span>, <span class="ident">downcast_get_type_id</span>};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>{downcast_dyn, downcast_get_type_id};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::upper_case_acronyms</span>)]</span>
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="attribute">#![allow(clippy::upper_case_acronyms)]
 
-    <span class="kw">trait</span> <span class="ident">MB</span> {
+    </span><span class="kw">trait </span>MB {
         <span class="macro">downcast_get_type_id!</span>();
     }
 
-    <span class="macro">downcast_dyn!</span>(<span class="ident">MB</span>);
+    <span class="macro">downcast_dyn!</span>(MB);
 
-    <span class="kw">impl</span> <span class="ident">MB</span> <span class="kw">for</span> <span class="ident">String</span> {}
-    <span class="kw">impl</span> <span class="ident">MB</span> <span class="kw">for</span> () {}
+    <span class="kw">impl </span>MB <span class="kw">for </span>String {}
+    <span class="kw">impl </span>MB <span class="kw">for </span>() {}
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_any_casting</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;hello cast&quot;</span>);
-        <span class="kw">let</span> <span class="ident">resp_body</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">MB</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">body</span>;
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">resp_body</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">body</span>, <span class="string">&quot;hello cast&quot;</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">resp_body</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="ident">body</span>.<span class="ident">push</span>(<span class="string">&#39;!&#39;</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">resp_body</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">body</span>, <span class="string">&quot;hello cast!&quot;</span>);
-        <span class="kw">let</span> <span class="ident">not_body</span> <span class="op">=</span> <span class="ident">resp_body</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>();
-        <span class="macro">assert!</span>(<span class="ident">not_body</span>.<span class="ident">is_none</span>());
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_any_casting() {
+        <span class="kw">let </span><span class="kw-2">mut </span>body = String::from(<span class="string">&quot;hello cast&quot;</span>);
+        <span class="kw">let </span>resp_body: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>MB = <span class="kw-2">&amp;mut </span>body;
+        <span class="kw">let </span>body = resp_body.downcast_ref::&lt;String&gt;().unwrap();
+        <span class="macro">assert_eq!</span>(body, <span class="string">&quot;hello cast&quot;</span>);
+        <span class="kw">let </span>body = resp_body.downcast_mut::&lt;String&gt;().unwrap();
+        body.push(<span class="string">&#39;!&#39;</span>);
+        <span class="kw">let </span>body = resp_body.downcast_ref::&lt;String&gt;().unwrap();
+        <span class="macro">assert_eq!</span>(body, <span class="string">&quot;hello cast!&quot;</span>);
+        <span class="kw">let </span>not_body = resp_body.downcast_ref::&lt;()&gt;();
+        <span class="macro">assert!</span>(not_body.is_none());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

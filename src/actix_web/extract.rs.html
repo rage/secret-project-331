@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/extract.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/extract.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -549,554 +549,554 @@
 <span id="547">547</span>
 <span id="548">548</span>
 <span id="549">549</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Request extractors</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Request extractors
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">convert::Infallible</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</span><span class="kw">use </span>std::{
+    convert::Infallible,
+    future::Future,
+    marker::PhantomData,
+    pin::Pin,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">Method</span>, <span class="ident">Uri</span>};
-<span class="kw">use</span> <span class="ident">actix_utils::future</span>::{<span class="ident">ok</span>, <span class="ident">Ready</span>};
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use </span>actix_http::{Method, Uri};
+<span class="kw">use </span>actix_utils::future::{ok, Ready};
+<span class="kw">use </span>futures_core::ready;
+<span class="kw">use </span>pin_project_lite::pin_project;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">dev::Payload</span>, <span class="ident">Error</span>, <span class="ident">HttpRequest</span>};
+<span class="kw">use crate</span>::{dev::Payload, Error, HttpRequest};
 
-<span class="doccomment">/// A type that implements [`FromRequest`] is called an **extractor** and can extract data from</span>
-<span class="doccomment">/// the request. Some types that implement this trait are: [`Json`], [`Header`], and [`Path`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Check out [`ServiceRequest::extract`](crate::dev::ServiceRequest::extract) if you want to</span>
-<span class="doccomment">/// leverage extractors when implementing middlewares.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Configuration</span>
-<span class="doccomment">/// An extractor can be customized by injecting the corresponding configuration with one of:</span>
-<span class="doccomment">/// - [`App::app_data()`][crate::App::app_data]</span>
-<span class="doccomment">/// - [`Scope::app_data()`][crate::Scope::app_data]</span>
-<span class="doccomment">/// - [`Resource::app_data()`][crate::Resource::app_data]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Here are some built-in extractors and their corresponding configuration.</span>
-<span class="doccomment">/// Please refer to the respective documentation for details.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// | Extractor   | Configuration     |</span>
-<span class="doccomment">/// |-------------|-------------------|</span>
-<span class="doccomment">/// | [`Header`]  | _None_            |</span>
-<span class="doccomment">/// | [`Path`]    | [`PathConfig`]    |</span>
-<span class="doccomment">/// | [`Json`]    | [`JsonConfig`]    |</span>
-<span class="doccomment">/// | [`Form`]    | [`FormConfig`]    |</span>
-<span class="doccomment">/// | [`Query`]   | [`QueryConfig`]   |</span>
-<span class="doccomment">/// | [`Bytes`]   | [`PayloadConfig`] |</span>
-<span class="doccomment">/// | [`String`]  | [`PayloadConfig`] |</span>
-<span class="doccomment">/// | [`Payload`] | [`PayloadConfig`] |</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Implementing An Extractor</span>
-<span class="doccomment">/// To reduce duplicate code in handlers where extracting certain parts of a request has a common</span>
-<span class="doccomment">/// structure, you can implement `FromRequest` for your own types.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that the request payload can only be consumed by one extractor.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`Header`]: crate::web::Header</span>
-<span class="doccomment">/// [`Json`]: crate::web::Json</span>
-<span class="doccomment">/// [`JsonConfig`]: crate::web::JsonConfig</span>
-<span class="doccomment">/// [`Form`]: crate::web::Form</span>
-<span class="doccomment">/// [`FormConfig`]: crate::web::FormConfig</span>
-<span class="doccomment">/// [`Path`]: crate::web::Path</span>
-<span class="doccomment">/// [`PathConfig`]: crate::web::PathConfig</span>
-<span class="doccomment">/// [`Query`]: crate::web::Query</span>
-<span class="doccomment">/// [`QueryConfig`]: crate::web::QueryConfig</span>
-<span class="doccomment">/// [`Payload`]: crate::web::Payload</span>
-<span class="doccomment">/// [`PayloadConfig`]: crate::web::PayloadConfig</span>
-<span class="doccomment">/// [`String`]: FromRequest#impl-FromRequest-for-String</span>
-<span class="doccomment">/// [`Bytes`]: crate::web::Bytes#impl-FromRequest</span>
-<span class="doccomment">/// [`Either`]: crate::web::Either</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">alias</span> <span class="op">=</span> <span class="string">&quot;extract&quot;</span>, <span class="ident">alias</span> <span class="op">=</span> <span class="string">&quot;extractor&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromRequest</span>: <span class="ident">Sized</span> {
-    <span class="doccomment">/// The associated error which can be returned.</span>
-    <span class="kw">type</span> <span class="ident">Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A type that implements [`FromRequest`] is called an **extractor** and can extract data from
+/// the request. Some types that implement this trait are: [`Json`], [`Header`], and [`Path`].
+///
+/// Check out [`ServiceRequest::extract`](crate::dev::ServiceRequest::extract) if you want to
+/// leverage extractors when implementing middlewares.
+///
+/// # Configuration
+/// An extractor can be customized by injecting the corresponding configuration with one of:
+/// - [`App::app_data()`][crate::App::app_data]
+/// - [`Scope::app_data()`][crate::Scope::app_data]
+/// - [`Resource::app_data()`][crate::Resource::app_data]
+///
+/// Here are some built-in extractors and their corresponding configuration.
+/// Please refer to the respective documentation for details.
+///
+/// | Extractor   | Configuration     |
+/// |-------------|-------------------|
+/// | [`Header`]  | _None_            |
+/// | [`Path`]    | [`PathConfig`]    |
+/// | [`Json`]    | [`JsonConfig`]    |
+/// | [`Form`]    | [`FormConfig`]    |
+/// | [`Query`]   | [`QueryConfig`]   |
+/// | [`Bytes`]   | [`PayloadConfig`] |
+/// | [`String`]  | [`PayloadConfig`] |
+/// | [`Payload`] | [`PayloadConfig`] |
+///
+/// # Implementing An Extractor
+/// To reduce duplicate code in handlers where extracting certain parts of a request has a common
+/// structure, you can implement `FromRequest` for your own types.
+///
+/// Note that the request payload can only be consumed by one extractor.
+///
+/// [`Header`]: crate::web::Header
+/// [`Json`]: crate::web::Json
+/// [`JsonConfig`]: crate::web::JsonConfig
+/// [`Form`]: crate::web::Form
+/// [`FormConfig`]: crate::web::FormConfig
+/// [`Path`]: crate::web::Path
+/// [`PathConfig`]: crate::web::PathConfig
+/// [`Query`]: crate::web::Query
+/// [`QueryConfig`]: crate::web::QueryConfig
+/// [`Payload`]: crate::web::Payload
+/// [`PayloadConfig`]: crate::web::PayloadConfig
+/// [`String`]: FromRequest#impl-FromRequest-for-String
+/// [`Bytes`]: crate::web::Bytes#impl-FromRequest
+/// [`Either`]: crate::web::Either
+</span><span class="attribute">#[doc(alias = <span class="string">&quot;extract&quot;</span>, alias = <span class="string">&quot;extractor&quot;</span>)]
+</span><span class="kw">pub trait </span>FromRequest: Sized {
+    <span class="doccomment">/// The associated error which can be returned.
+    </span><span class="kw">type </span>Error: Into&lt;Error&gt;;
 
-    <span class="doccomment">/// Future that resolves to a `Self`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To use an async function or block, the futures must be boxed. The following snippet will be</span>
-    <span class="doccomment">/// common when creating async/await extractors (that do not consume the body).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```ignore</span>
-    <span class="doccomment">/// type Future = Pin&lt;Box&lt;dyn Future&lt;Output = Result&lt;Self, Self::Error&gt;&gt;&gt;&gt;;</span>
-    <span class="doccomment">/// // or</span>
-    <span class="doccomment">/// type Future = futures_util::future::LocalBoxFuture&lt;&#39;static, Result&lt;Self, Self::Error&gt;&gt;;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// fn from_request(req: HttpRequest, ...) -&gt; Self::Future {</span>
-    <span class="doccomment">///     let req = req.clone();</span>
-    <span class="doccomment">///     Box::pin(async move {</span>
-    <span class="doccomment">///         ...</span>
-    <span class="doccomment">///     })</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">type</span> <span class="ident">Future</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Future that resolves to a `Self`.
+    ///
+    /// To use an async function or block, the futures must be boxed. The following snippet will be
+    /// common when creating async/await extractors (that do not consume the body).
+    ///
+    /// ```ignore
+    /// type Future = Pin&lt;Box&lt;dyn Future&lt;Output = Result&lt;Self, Self::Error&gt;&gt;&gt;&gt;;
+    /// // or
+    /// type Future = futures_util::future::LocalBoxFuture&lt;&#39;static, Result&lt;Self, Self::Error&gt;&gt;;
+    ///
+    /// fn from_request(req: HttpRequest, ...) -&gt; Self::Future {
+    ///     let req = req.clone();
+    ///     Box::pin(async move {
+    ///         ...
+    ///     })
+    /// }
+    /// ```
+    </span><span class="kw">type </span>Future: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt;&gt;;
 
-    <span class="doccomment">/// Create a `Self` from request parts asynchronously.</span>
-    <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span>;
+    <span class="doccomment">/// Create a `Self` from request parts asynchronously.
+    </span><span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, payload: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future;
 
-    <span class="doccomment">/// Create a `Self` from request head asynchronously.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This method is short for `T::from_request(req, &amp;mut Payload::None)`.</span>
-    <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident"><span class="self">Self</span>::from_request</span>(<span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Payload::None</span>)
+    <span class="doccomment">/// Create a `Self` from request head asynchronously.
+    ///
+    /// This method is short for `T::from_request(req, &amp;mut Payload::None)`.
+    </span><span class="kw">fn </span>extract(req: <span class="kw-2">&amp;</span>HttpRequest) -&gt; <span class="self">Self</span>::Future {
+        <span class="self">Self</span>::from_request(req, <span class="kw-2">&amp;mut </span>Payload::None)
     }
 }
 
-<span class="doccomment">/// Optionally extract from the request.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the inner `T::from_request` returns an error, handler will receive `None` instead.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, dev, App, Error, HttpRequest, FromRequest};</span>
-<span class="doccomment">/// use actix_web::error::ErrorBadRequest;</span>
-<span class="doccomment">/// use futures_util::future::{ok, err, Ready};</span>
-<span class="doccomment">/// use serde::Deserialize;</span>
-<span class="doccomment">/// use rand;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Debug, Deserialize)]</span>
-<span class="doccomment">/// struct Thing {</span>
-<span class="doccomment">///     name: String</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// impl FromRequest for Thing {</span>
-<span class="doccomment">///     type Error = Error;</span>
-<span class="doccomment">///     type Future = Ready&lt;Result&lt;Self, Self::Error&gt;&gt;;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     fn from_request(req: &amp;HttpRequest, payload: &amp;mut dev::Payload) -&gt; Self::Future {</span>
-<span class="doccomment">///         if rand::random() {</span>
-<span class="doccomment">///             ok(Thing { name: &quot;thingy&quot;.into() })</span>
-<span class="doccomment">///         } else {</span>
-<span class="doccomment">///             err(ErrorBadRequest(&quot;no luck&quot;))</span>
-<span class="doccomment">///         }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// /// extract `Thing` from request</span>
-<span class="doccomment">/// async fn index(supplied_thing: Option&lt;Thing&gt;) -&gt; String {</span>
-<span class="doccomment">///     match supplied_thing {</span>
-<span class="doccomment">///         // Puns not intended</span>
-<span class="doccomment">///         Some(thing) =&gt; format!(&quot;Got something: {:?}&quot;, thing),</span>
-<span class="doccomment">///         None =&gt; format!(&quot;No thing!&quot;)</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new().service(</span>
-<span class="doccomment">///     web::resource(&quot;/users/:first&quot;).route(</span>
-<span class="doccomment">///         web::post().to(index))</span>
-<span class="doccomment">/// );</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">FromRequest</span>,
+<span class="doccomment">/// Optionally extract from the request.
+///
+/// If the inner `T::from_request` returns an error, handler will receive `None` instead.
+///
+/// # Examples
+/// ```
+/// use actix_web::{web, dev, App, Error, HttpRequest, FromRequest};
+/// use actix_web::error::ErrorBadRequest;
+/// use futures_util::future::{ok, err, Ready};
+/// use serde::Deserialize;
+/// use rand;
+///
+/// #[derive(Debug, Deserialize)]
+/// struct Thing {
+///     name: String
+/// }
+///
+/// impl FromRequest for Thing {
+///     type Error = Error;
+///     type Future = Ready&lt;Result&lt;Self, Self::Error&gt;&gt;;
+///
+///     fn from_request(req: &amp;HttpRequest, payload: &amp;mut dev::Payload) -&gt; Self::Future {
+///         if rand::random() {
+///             ok(Thing { name: &quot;thingy&quot;.into() })
+///         } else {
+///             err(ErrorBadRequest(&quot;no luck&quot;))
+///         }
+///
+///     }
+/// }
+///
+/// /// extract `Thing` from request
+/// async fn index(supplied_thing: Option&lt;Thing&gt;) -&gt; String {
+///     match supplied_thing {
+///         // Puns not intended
+///         Some(thing) =&gt; format!(&quot;Got something: {:?}&quot;, thing),
+///         None =&gt; format!(&quot;No thing!&quot;)
+///     }
+/// }
+///
+/// let app = App::new().service(
+///     web::resource(&quot;/users/:first&quot;).route(
+///         web::post().to(index))
+/// );
+/// ```
+</span><span class="kw">impl</span>&lt;T&gt; FromRequest <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt;
+<span class="kw">where
+    </span>T: FromRequest,
 {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">FromRequestOptFuture</span><span class="op">&lt;</span><span class="ident">T::Future</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Error = Infallible;
+    <span class="kw">type </span>Future = FromRequestOptFuture&lt;T::Future&gt;;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident">FromRequestOptFuture</span> {
-            <span class="ident">fut</span>: <span class="ident">T::from_request</span>(<span class="ident">req</span>, <span class="ident">payload</span>),
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, payload: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future {
+        FromRequestOptFuture {
+            fut: T::from_request(req, payload),
         }
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FromRequestOptFuture</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">fut</span>: <span class="ident">Fut</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>FromRequestOptFuture&lt;Fut&gt; {
+        <span class="attribute">#[pin]
+        </span>fut: Fut,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">FromRequestOptFuture</span><span class="op">&lt;</span><span class="ident">Fut</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;Fut, T, E&gt; Future <span class="kw">for </span>FromRequestOptFuture&lt;Fut&gt;
+<span class="kw">where
+    </span>Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;T, E&gt;&gt;,
+    E: Into&lt;Error&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Infallible</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T&gt;, Infallible&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>));
-        <span class="kw">match</span> <span class="ident">res</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">t</span>))),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                <span class="macro">log::debug!</span>(<span class="string">&quot;Error for Option&lt;T&gt; extractor: {}&quot;</span>, <span class="ident">e</span>.<span class="ident">into</span>());
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
+        <span class="kw">let </span>res = <span class="macro">ready!</span>(this.fut.poll(cx));
+        <span class="kw">match </span>res {
+            <span class="prelude-val">Ok</span>(t) =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(t))),
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="macro">log::debug!</span>(<span class="string">&quot;Error for Option&lt;T&gt; extractor: {}&quot;</span>, e.into());
+                Poll::Ready(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
             }
         }
     }
 }
 
-<span class="doccomment">/// Extract from the request, passing error type through to handler.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the inner `T::from_request` returns an error, allow handler to receive the error rather than</span>
-<span class="doccomment">/// immediately returning an error response.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{web, dev, App, Result, Error, HttpRequest, FromRequest};</span>
-<span class="doccomment">/// use actix_web::error::ErrorBadRequest;</span>
-<span class="doccomment">/// use futures_util::future::{ok, err, Ready};</span>
-<span class="doccomment">/// use serde::Deserialize;</span>
-<span class="doccomment">/// use rand;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[derive(Debug, Deserialize)]</span>
-<span class="doccomment">/// struct Thing {</span>
-<span class="doccomment">///     name: String</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// impl FromRequest for Thing {</span>
-<span class="doccomment">///     type Error = Error;</span>
-<span class="doccomment">///     type Future = Ready&lt;Result&lt;Thing, Error&gt;&gt;;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     fn from_request(req: &amp;HttpRequest, payload: &amp;mut dev::Payload) -&gt; Self::Future {</span>
-<span class="doccomment">///         if rand::random() {</span>
-<span class="doccomment">///             ok(Thing { name: &quot;thingy&quot;.into() })</span>
-<span class="doccomment">///         } else {</span>
-<span class="doccomment">///             err(ErrorBadRequest(&quot;no luck&quot;))</span>
-<span class="doccomment">///         }</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// /// extract `Thing` from request</span>
-<span class="doccomment">/// async fn index(supplied_thing: Result&lt;Thing&gt;) -&gt; String {</span>
-<span class="doccomment">///     match supplied_thing {</span>
-<span class="doccomment">///         Ok(thing) =&gt; format!(&quot;Got thing: {:?}&quot;, thing),</span>
-<span class="doccomment">///         Err(e) =&gt; format!(&quot;Error extracting thing: {}&quot;, e)</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new().service(</span>
-<span class="doccomment">///     web::resource(&quot;/users/:first&quot;).route(web::post().to(index))</span>
-<span class="doccomment">/// );</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">FromRequest</span>,
-    <span class="ident">T::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Extract from the request, passing error type through to handler.
+///
+/// If the inner `T::from_request` returns an error, allow handler to receive the error rather than
+/// immediately returning an error response.
+///
+/// # Examples
+/// ```
+/// use actix_web::{web, dev, App, Result, Error, HttpRequest, FromRequest};
+/// use actix_web::error::ErrorBadRequest;
+/// use futures_util::future::{ok, err, Ready};
+/// use serde::Deserialize;
+/// use rand;
+///
+/// #[derive(Debug, Deserialize)]
+/// struct Thing {
+///     name: String
+/// }
+///
+/// impl FromRequest for Thing {
+///     type Error = Error;
+///     type Future = Ready&lt;Result&lt;Thing, Error&gt;&gt;;
+///
+///     fn from_request(req: &amp;HttpRequest, payload: &amp;mut dev::Payload) -&gt; Self::Future {
+///         if rand::random() {
+///             ok(Thing { name: &quot;thingy&quot;.into() })
+///         } else {
+///             err(ErrorBadRequest(&quot;no luck&quot;))
+///         }
+///     }
+/// }
+///
+/// /// extract `Thing` from request
+/// async fn index(supplied_thing: Result&lt;Thing&gt;) -&gt; String {
+///     match supplied_thing {
+///         Ok(thing) =&gt; format!(&quot;Got thing: {:?}&quot;, thing),
+///         Err(e) =&gt; format!(&quot;Error extracting thing: {}&quot;, e)
+///     }
+/// }
+///
+/// let app = App::new().service(
+///     web::resource(&quot;/users/:first&quot;).route(web::post().to(index))
+/// );
+/// ```
+</span><span class="kw">impl</span>&lt;T, E&gt; FromRequest <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;T, E&gt;
+<span class="kw">where
+    </span>T: FromRequest,
+    T::Error: Into&lt;E&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">FromRequestResFuture</span><span class="op">&lt;</span><span class="ident">T::Future</span>, <span class="ident">E</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Error = Infallible;
+    <span class="kw">type </span>Future = FromRequestResFuture&lt;T::Future, E&gt;;
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident">FromRequestResFuture</span> {
-            <span class="ident">fut</span>: <span class="ident">T::from_request</span>(<span class="ident">req</span>, <span class="ident">payload</span>),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, payload: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future {
+        FromRequestResFuture {
+            fut: T::from_request(req, payload),
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FromRequestResFuture</span><span class="op">&lt;</span><span class="ident">Fut</span>, <span class="ident">E</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">fut</span>: <span class="ident">Fut</span>,
-        <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>FromRequestResFuture&lt;Fut, E&gt; {
+        <span class="attribute">#[pin]
+        </span>fut: Fut,
+        _phantom: PhantomData&lt;E&gt;,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Fut</span>, <span class="ident">T</span>, <span class="ident">Ei</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">FromRequestResFuture</span><span class="op">&lt;</span><span class="ident">Fut</span>, <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Ei</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">Ei</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;Fut, T, Ei, E&gt; Future <span class="kw">for </span>FromRequestResFuture&lt;Fut, E&gt;
+<span class="kw">where
+    </span>Fut: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;T, Ei&gt;&gt;,
+    Ei: Into&lt;E&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Infallible</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Result</span>&lt;T, E&gt;, Infallible&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">ready!</span>(<span class="ident">this</span>.<span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>));
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">map_err</span>(<span class="ident">Into::into</span>)))
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
+        <span class="kw">let </span>res = <span class="macro">ready!</span>(this.fut.poll(cx));
+        Poll::Ready(<span class="prelude-val">Ok</span>(res.map_err(Into::into)))
     }
 }
 
-<span class="doccomment">/// Extract the request&#39;s URI.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{http::Uri, web, App, Responder};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// async fn handler(uri: Uri) -&gt; impl Responder {</span>
-<span class="doccomment">///     format!(&quot;Requested path: {}&quot;, uri.path())</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new().default_service(web::to(handler));</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">impl</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">Uri</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Extract the request&#39;s URI.
+///
+/// # Examples
+/// ```
+/// use actix_web::{http::Uri, web, App, Responder};
+///
+/// async fn handler(uri: Uri) -&gt; impl Responder {
+///     format!(&quot;Requested path: {}&quot;, uri.path())
+/// }
+///
+/// let app = App::new().default_service(web::to(handler));
+/// ```
+</span><span class="kw">impl </span>FromRequest <span class="kw">for </span>Uri {
+    <span class="kw">type </span>Error = Infallible;
+    <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident">ok</span>(<span class="ident">req</span>.<span class="ident">uri</span>().<span class="ident">clone</span>())
+    <span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future {
+        ok(req.uri().clone())
     }
 }
 
-<span class="doccomment">/// Extract the request&#39;s method.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::{http::Method, web, App, Responder};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// async fn handler(method: Method) -&gt; impl Responder {</span>
-<span class="doccomment">///     format!(&quot;Request method: {}&quot;, method)</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let app = App::new().default_service(web::to(handler));</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">impl</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">Method</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Extract the request&#39;s method.
+///
+/// # Examples
+/// ```
+/// use actix_web::{http::Method, web, App, Responder};
+///
+/// async fn handler(method: Method) -&gt; impl Responder {
+///     format!(&quot;Request method: {}&quot;, method)
+/// }
+///
+/// let app = App::new().default_service(web::to(handler));
+/// ```
+</span><span class="kw">impl </span>FromRequest <span class="kw">for </span>Method {
+    <span class="kw">type </span>Error = Infallible;
+    <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="ident">ok</span>(<span class="ident">req</span>.<span class="ident">method</span>().<span class="ident">clone</span>())
+    <span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future {
+        ok(req.method().clone())
     }
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tuple_from_req</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[doc(hidden)]
+#[allow(non_snake_case)]
+</span><span class="kw">mod </span>tuple_from_req {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="macro">macro_rules!</span> <span class="ident">tuple_from_req</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fut</span>: <span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident">ident</span>),<span class="kw-2">*</span>) =&gt; {
-            <span class="doccomment">/// FromRequest implementation for tuple</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_parens</span>)]</span>
-            <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident">FromRequest</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>),<span class="op">+</span><span class="op">&gt;</span> <span class="ident">FromRequest</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>)
+    <span class="macro">macro_rules! </span>tuple_from_req {
+        (<span class="macro-nonterminal">$fut</span>: ident; $(<span class="macro-nonterminal">$T</span>: ident),<span class="kw-2">*</span>) =&gt; {
+            <span class="doccomment">/// FromRequest implementation for tuple
+            </span><span class="attribute">#[allow(unused_parens)]
+            </span><span class="kw">impl</span>&lt;$(<span class="macro-nonterminal">$T</span>: FromRequest + <span class="lifetime">&#39;static</span>),+&gt; FromRequest <span class="kw">for </span>($(<span class="macro-nonterminal">$T</span>,)+)
             {
-                <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-                <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fut</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>),<span class="op">+</span><span class="op">&gt;</span>;
+                <span class="kw">type </span>Error = Error;
+                <span class="kw">type </span>Future = <span class="macro-nonterminal">$fut</span>&lt;$(<span class="macro-nonterminal">$T</span>),+&gt;;
 
-                <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fut</span> {
+                <span class="kw">fn </span>from_request(req: <span class="kw-2">&amp;</span>HttpRequest, payload: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future {
+                    <span class="macro-nonterminal">$fut </span>{
                         $(
-                            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident">ExtractFuture::Future</span> {
-                                <span class="ident">fut</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T::from_request</span>(<span class="ident">req</span>, <span class="ident">payload</span>)
+                            <span class="macro-nonterminal">$T</span>: ExtractFuture::Future {
+                                fut: <span class="macro-nonterminal">$T::from_request</span>(req, payload)
                             },
-                        )<span class="op">+</span>
+                        )+
                     }
                 }
             }
 
-            <span class="macro">pin_project!</span> {
-                <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fut</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident">FromRequest</span>),<span class="op">+</span><span class="op">&gt;</span> {
+            <span class="macro">pin_project! </span>{
+                <span class="kw">pub struct </span><span class="macro-nonterminal">$fut</span>&lt;$(<span class="macro-nonterminal">$T</span>: FromRequest),+&gt; {
                     $(
-                        <span class="attribute">#[<span class="ident">pin</span>]</span>
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident">ExtractFuture</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">T::Future</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span><span class="op">&gt;</span>,
-                    )<span class="op">+</span>
+                        <span class="attribute">#[pin]
+                        </span><span class="macro-nonterminal">$T</span>: ExtractFuture&lt;<span class="macro-nonterminal">$T::Future</span>, <span class="macro-nonterminal">$T</span>&gt;,
+                    )+
                 }
             }
 
-            <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident">FromRequest</span>),<span class="op">+</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fut</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>),<span class="op">+</span><span class="op">&gt;</span>
+            <span class="kw">impl</span>&lt;$(<span class="macro-nonterminal">$T</span>: FromRequest),+&gt; Future <span class="kw">for </span><span class="macro-nonterminal">$fut</span>&lt;$(<span class="macro-nonterminal">$T</span>),+&gt;
             {
-                <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>,)<span class="op">+</span>), <span class="ident">Error</span><span class="op">&gt;</span>;
+                <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;($(<span class="macro-nonterminal">$T</span>,)+), Error&gt;;
 
-                <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+                <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.project();
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ready</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="kw">let </span><span class="kw-2">mut </span>ready = <span class="bool-val">true</span>;
                     $(
-                        <span class="kw">match</span> <span class="ident">this</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>() {
-                            <span class="ident">ExtractProj::Future</span> { <span class="ident">fut</span> } =&gt; <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
-                                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">output</span>)) =&gt; {
-                                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">this</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>.<span class="ident">as_mut</span>().<span class="ident">project_replace</span>(<span class="ident">ExtractFuture::Done</span> { <span class="ident">output</span> });
+                        <span class="kw">match </span>this.<span class="macro-nonterminal">$T</span>.as_mut().project() {
+                            ExtractProj::Future { fut } =&gt; <span class="kw">match </span>fut.poll(cx) {
+                                Poll::Ready(<span class="prelude-val">Ok</span>(output)) =&gt; {
+                                    <span class="kw">let _ </span>= this.<span class="macro-nonterminal">$T</span>.as_mut().project_replace(ExtractFuture::Done { output });
                                 },
-                                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>.<span class="ident">into</span>())),
-                                <span class="ident">Poll::Pending</span> =&gt; <span class="ident">ready</span> <span class="op">=</span> <span class="bool-val">false</span>,
+                                Poll::Ready(<span class="prelude-val">Err</span>(e)) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(e.into())),
+                                Poll::Pending =&gt; ready = <span class="bool-val">false</span>,
                             },
-                            <span class="ident">ExtractProj::Done</span> { .. } =&gt; {},
-                            <span class="ident">ExtractProj::Empty</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;FromRequest polled after finished&quot;</span>),
+                            ExtractProj::Done { .. } =&gt; {},
+                            ExtractProj::Empty =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;FromRequest polled after finished&quot;</span>),
                         }
-                    )<span class="op">+</span>
+                    )+
 
-                    <span class="kw">if</span> <span class="ident">ready</span> {
-                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(
+                    <span class="kw">if </span>ready {
+                        Poll::Ready(<span class="prelude-val">Ok</span>(
                             ($(
-                                <span class="kw">match</span> <span class="ident">this</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>.<span class="ident">project_replace</span>(<span class="ident">ExtractFuture::Empty</span>) {
-                                    <span class="ident">ExtractReplaceProj::Done</span> { <span class="ident">output</span> } =&gt; <span class="ident">output</span>,
-                                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;FromRequest polled after finished&quot;</span>),
+                                <span class="kw">match </span>this.<span class="macro-nonterminal">$T</span>.project_replace(ExtractFuture::Empty) {
+                                    ExtractReplaceProj::Done { output } =&gt; output,
+                                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;FromRequest polled after finished&quot;</span>),
                                 },
-                            )<span class="op">+</span>)
+                            )+)
                         ))
-                    } <span class="kw">else</span> {
-                        <span class="ident">Poll::Pending</span>
+                    } <span class="kw">else </span>{
+                        Poll::Pending
                     }
                 }
             }
         };
     }
 
-    <span class="macro">pin_project!</span> {
-        <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">ExtractProj</span>]</span>
-        <span class="attribute">#[<span class="ident">project_replace</span> <span class="op">=</span> <span class="ident">ExtractReplaceProj</span>]</span>
-        <span class="kw">enum</span> <span class="ident">ExtractFuture</span><span class="op">&lt;</span><span class="ident">Fut</span>, <span class="ident">Res</span><span class="op">&gt;</span> {
-            <span class="ident">Future</span> {
-                <span class="attribute">#[<span class="ident">pin</span>]</span>
-                <span class="ident">fut</span>: <span class="ident">Fut</span>
+    <span class="macro">pin_project! </span>{
+        <span class="attribute">#[project = ExtractProj]
+        #[project_replace = ExtractReplaceProj]
+        </span><span class="kw">enum </span>ExtractFuture&lt;Fut, Res&gt; {
+            Future {
+                <span class="attribute">#[pin]
+                </span>fut: Fut
             },
-            <span class="ident">Done</span> {
-                <span class="ident">output</span>: <span class="ident">Res</span>,
+            Done {
+                output: Res,
             },
-            <span class="ident">Empty</span>
+            Empty
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">FromRequest</span> <span class="kw">for</span> () {
-        <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Infallible</span>;
-        <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">Ready</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">impl </span>FromRequest <span class="kw">for </span>() {
+        <span class="kw">type </span>Error = Infallible;
+        <span class="kw">type </span>Future = Ready&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt;&gt;;
 
-        <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-            <span class="ident">ok</span>(())
+        <span class="kw">fn </span>from_request(<span class="kw">_</span>: <span class="kw-2">&amp;</span>HttpRequest, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Payload) -&gt; <span class="self">Self</span>::Future {
+            ok(())
         }
     }
 
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest1</span>; <span class="ident">A</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest2</span>; <span class="ident">A</span>, <span class="ident">B</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest3</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest4</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest5</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest6</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest7</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest8</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest9</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest10</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest11</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span> }
-    <span class="macro">tuple_from_req!</span> { <span class="ident">TupleFromRequest12</span>; <span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span> }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest1; A }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest2; A, B }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest3; A, B, C }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest4; A, B, C, D }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest5; A, B, C, D, E }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest6; A, B, C, D, E, F }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest7; A, B, C, D, E, F, G }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest8; A, B, C, D, E, F, G, H }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest9; A, B, C, D, E, F, G, H, I }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest10; A, B, C, D, E, F, G, H, I, J }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest11; A, B, C, D, E, F, G, H, I, J, K }
+    <span class="macro">tuple_from_req! </span>{ TupleFromRequest12; A, B, C, D, E, F, G, H, I, J, K, L }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_http::header</span>;
-    <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-    <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_http::header;
+    <span class="kw">use </span>bytes::Bytes;
+    <span class="kw">use </span>serde::Deserialize;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test::TestRequest</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">Form</span>, <span class="ident">FormConfig</span>};
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::test::TestRequest;
+    <span class="kw">use </span><span class="kw">crate</span>::types::{Form, FormConfig};
 
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-    <span class="kw">struct</span> <span class="ident">Info</span> {
-        <span class="ident">hello</span>: <span class="ident">String</span>,
+    <span class="attribute">#[derive(Deserialize, Debug, PartialEq)]
+    </span><span class="kw">struct </span>Info {
+        hello: String,
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_option</span>() {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">data</span>(<span class="ident">FormConfig::default</span>().<span class="ident">limit</span>(<span class="number">4096</span>))
-            .<span class="ident">to_http_parts</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_option() {
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .data(FormConfig::default().limit(<span class="number">4096</span>))
+            .to_http_parts();
 
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="prelude-ty">Option</span>::<span class="op">&lt;</span><span class="ident">Form</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="prelude-val">None</span>);
+        <span class="kw">let </span>r = <span class="prelude-ty">Option</span>::&lt;Form&lt;Info&gt;&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="macro">assert_eq!</span>(r, <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_LENGTH</span>, <span class="string">&quot;9&quot;</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;hello=world&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((header::CONTENT_LENGTH, <span class="string">&quot;9&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&quot;</span>))
+            .to_http_parts();
 
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="prelude-ty">Option</span>::<span class="op">&lt;</span><span class="ident">Form</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let </span>r = <span class="prelude-ty">Option</span>::&lt;Form&lt;Info&gt;&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
+            .<span class="kw">await
+            </span>.unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">r</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">Form</span>(<span class="ident">Info</span> {
-                <span class="ident">hello</span>: <span class="string">&quot;world&quot;</span>.<span class="ident">into</span>()
+            r,
+            <span class="prelude-val">Some</span>(Form(Info {
+                hello: <span class="string">&quot;world&quot;</span>.into()
             }))
         );
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_LENGTH</span>, <span class="string">&quot;9&quot;</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;bye=world&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((header::CONTENT_LENGTH, <span class="string">&quot;9&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b&quot;bye=world&quot;</span>))
+            .to_http_parts();
 
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="prelude-ty">Option</span>::<span class="op">&lt;</span><span class="ident">Form</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="prelude-val">None</span>);
+        <span class="kw">let </span>r = <span class="prelude-ty">Option</span>::&lt;Form&lt;Info&gt;&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="macro">assert_eq!</span>(r, <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_result</span>() {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_LENGTH</span>, <span class="string">&quot;11&quot;</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;hello=world&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_result() {
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((header::CONTENT_LENGTH, <span class="string">&quot;11&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&quot;</span>))
+            .to_http_parts();
 
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="prelude-ty">Result</span>::<span class="op">&lt;</span><span class="ident">Form</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="ident">::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let </span>r = <span class="prelude-ty">Result</span>::&lt;Form&lt;Info&gt;, Error&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
+            .<span class="kw">await
+            </span>.unwrap()
+            .unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">r</span>,
-            <span class="ident">Form</span>(<span class="ident">Info</span> {
-                <span class="ident">hello</span>: <span class="string">&quot;world&quot;</span>.<span class="ident">into</span>()
+            r,
+            Form(Info {
+                hello: <span class="string">&quot;world&quot;</span>.into()
             })
         );
 
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_LENGTH</span>, <span class="number">9</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;bye=world&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((header::CONTENT_LENGTH, <span class="number">9</span>))
+            .set_payload(Bytes::from_static(<span class="string">b&quot;bye=world&quot;</span>))
+            .to_http_parts();
 
-        <span class="kw">struct</span> <span class="ident">MyError</span>;
-        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MyError</span> {
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">Error</span>) -&gt; <span class="self">Self</span> {
-                <span class="self">Self</span>
-            }
+        <span class="kw">struct </span>MyError;
+        <span class="kw">impl </span>From&lt;Error&gt; <span class="kw">for </span>MyError {
+            <span class="kw">fn </span>from(<span class="kw">_</span>: Error) -&gt; <span class="self">Self </span>{
+                <span class="self">Self
+            </span>}
         }
 
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="prelude-ty">Result</span>::<span class="op">&lt;</span><span class="ident">Form</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span>, <span class="ident">MyError</span><span class="op">&gt;</span><span class="ident">::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">r</span>.<span class="ident">is_err</span>());
+        <span class="kw">let </span>r = <span class="prelude-ty">Result</span>::&lt;Form&lt;Info&gt;, MyError&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="macro">assert!</span>(r.is_err());
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_uri</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">uri</span>(<span class="string">&quot;/foo/bar&quot;</span>).<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">Uri::extract</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">uri</span>.<span class="ident">path</span>(), <span class="string">&quot;/foo/bar&quot;</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_uri() {
+        <span class="kw">let </span>req = TestRequest::default().uri(<span class="string">&quot;/foo/bar&quot;</span>).to_http_request();
+        <span class="kw">let </span>uri = Uri::extract(<span class="kw-2">&amp;</span>req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(uri.path(), <span class="string">&quot;/foo/bar&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_method</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">TestRequest::default</span>().<span class="ident">method</span>(<span class="ident">Method::GET</span>).<span class="ident">to_http_request</span>();
-        <span class="kw">let</span> <span class="ident">method</span> <span class="op">=</span> <span class="ident">Method::extract</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">method</span>, <span class="ident">Method::GET</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_method() {
+        <span class="kw">let </span>req = TestRequest::default().method(Method::GET).to_http_request();
+        <span class="kw">let </span>method = Method::extract(<span class="kw-2">&amp;</span>req).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(method, Method::GET);
     }
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_concurrent</span>() {
-        <span class="kw">let</span> (<span class="ident">req</span>, <span class="kw-2">mut</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">TestRequest::default</span>()
-            .<span class="ident">uri</span>(<span class="string">&quot;/foo/bar&quot;</span>)
-            .<span class="ident">method</span>(<span class="ident">Method::GET</span>)
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_TYPE</span>, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
-            .<span class="ident">insert_header</span>((<span class="ident">header::CONTENT_LENGTH</span>, <span class="string">&quot;11&quot;</span>))
-            .<span class="ident">set_payload</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;hello=world&quot;</span>))
-            .<span class="ident">to_http_parts</span>();
-        <span class="kw">let</span> (<span class="ident">method</span>, <span class="ident">uri</span>, <span class="ident">form</span>) <span class="op">=</span> <span class="op">&lt;</span>(<span class="ident">Method</span>, <span class="ident">Uri</span>, <span class="ident">Form</span><span class="op">&lt;</span><span class="ident">Info</span><span class="op">&gt;</span>)<span class="op">&gt;</span><span class="ident">::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="ident">pl</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">method</span>, <span class="ident">Method::GET</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">uri</span>.<span class="ident">path</span>(), <span class="string">&quot;/foo/bar&quot;</span>);
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_concurrent() {
+        <span class="kw">let </span>(req, <span class="kw-2">mut </span>pl) = TestRequest::default()
+            .uri(<span class="string">&quot;/foo/bar&quot;</span>)
+            .method(Method::GET)
+            .insert_header((header::CONTENT_TYPE, <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>))
+            .insert_header((header::CONTENT_LENGTH, <span class="string">&quot;11&quot;</span>))
+            .set_payload(Bytes::from_static(<span class="string">b&quot;hello=world&quot;</span>))
+            .to_http_parts();
+        <span class="kw">let </span>(method, uri, form) = &lt;(Method, Uri, Form&lt;Info&gt;)&gt;::from_request(<span class="kw-2">&amp;</span>req, <span class="kw-2">&amp;mut </span>pl)
+            .<span class="kw">await
+            </span>.unwrap();
+        <span class="macro">assert_eq!</span>(method, Method::GET);
+        <span class="macro">assert_eq!</span>(uri.path(), <span class="string">&quot;/foo/bar&quot;</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">form</span>,
-            <span class="ident">Form</span>(<span class="ident">Info</span> {
-                <span class="ident">hello</span>: <span class="string">&quot;world&quot;</span>.<span class="ident">into</span>()
+            form,
+            Form(Info {
+                hello: <span class="string">&quot;world&quot;</span>.into()
             })
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

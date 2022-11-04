@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/pool/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/pool/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -615,622 +615,622 @@
 <span id="615">615</span>
 <span id="616">616</span>
 <span id="617">617</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Provides the connection pool for asynchronous SQLx connections.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Opening a database connection for each and every operation to the database can quickly</span>
-<span class="doccomment">//! become expensive. Furthermore, sharing a database connection between threads and functions</span>
-<span class="doccomment">//! can be difficult to express in Rust.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! A connection pool is a standard technique that can manage opening and re-using connections.</span>
-<span class="doccomment">//! Normally it also enforces a maximum number of connections as these are an expensive resource</span>
-<span class="doccomment">//! on the database server.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! SQLx provides a canonical connection pool implementation intended to satisfy the majority</span>
-<span class="doccomment">//! of use cases.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! See [Pool][crate::pool::Pool] for details.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Type aliases are provided for each database to make it easier to sprinkle `Pool` through</span>
-<span class="doccomment">//! your codebase:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! * [MssqlPool][crate::mssql::MssqlPool] (MSSQL)</span>
-<span class="doccomment">//! * [MySqlPool][crate::mysql::MySqlPool] (MySQL)</span>
-<span class="doccomment">//! * [PgPool][crate::postgres::PgPool] (PostgreSQL)</span>
-<span class="doccomment">//! * [SqlitePool][crate::sqlite::SqlitePool] (SQLite)</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Opening a connection pool</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! A new connection pool with a default configuration can be created by supplying `Pool`</span>
-<span class="doccomment">//! with the database driver and a connection string.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! use sqlx::Pool;</span>
-<span class="doccomment">//! use sqlx::postgres::Postgres;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let pool = Pool::&lt;Postgres&gt;::connect(&quot;postgres://&quot;).await?;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! For convenience, database-specific type aliases are provided:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! use sqlx::mssql::MssqlPool;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let pool = MssqlPool::connect(&quot;mssql://&quot;).await?;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Using a connection pool</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! A connection pool implements [`Executor`][crate::executor::Executor] and can be used directly</span>
-<span class="doccomment">//! when executing a query. Notice that only an immutable reference (`&amp;Pool`) is needed.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust,ignore</span>
-<span class="doccomment">//! sqlx::query(&quot;DELETE FROM articles&quot;).execute(&amp;pool).await?;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! A connection or transaction may also be manually acquired with</span>
-<span class="doccomment">//! [`Pool::acquire`] or</span>
-<span class="doccomment">//! [`Pool::begin`].</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Provides the connection pool for asynchronous SQLx connections.
+//!
+//! Opening a database connection for each and every operation to the database can quickly
+//! become expensive. Furthermore, sharing a database connection between threads and functions
+//! can be difficult to express in Rust.
+//!
+//! A connection pool is a standard technique that can manage opening and re-using connections.
+//! Normally it also enforces a maximum number of connections as these are an expensive resource
+//! on the database server.
+//!
+//! SQLx provides a canonical connection pool implementation intended to satisfy the majority
+//! of use cases.
+//!
+//! See [Pool][crate::pool::Pool] for details.
+//!
+//! Type aliases are provided for each database to make it easier to sprinkle `Pool` through
+//! your codebase:
+//!
+//! * [MssqlPool][crate::mssql::MssqlPool] (MSSQL)
+//! * [MySqlPool][crate::mysql::MySqlPool] (MySQL)
+//! * [PgPool][crate::postgres::PgPool] (PostgreSQL)
+//! * [SqlitePool][crate::sqlite::SqlitePool] (SQLite)
+//!
+//! # Opening a connection pool
+//!
+//! A new connection pool with a default configuration can be created by supplying `Pool`
+//! with the database driver and a connection string.
+//!
+//! ```rust,ignore
+//! use sqlx::Pool;
+//! use sqlx::postgres::Postgres;
+//!
+//! let pool = Pool::&lt;Postgres&gt;::connect(&quot;postgres://&quot;).await?;
+//! ```
+//!
+//! For convenience, database-specific type aliases are provided:
+//!
+//! ```rust,ignore
+//! use sqlx::mssql::MssqlPool;
+//!
+//! let pool = MssqlPool::connect(&quot;mssql://&quot;).await?;
+//! ```
+//!
+//! # Using a connection pool
+//!
+//! A connection pool implements [`Executor`][crate::executor::Executor] and can be used directly
+//! when executing a query. Notice that only an immutable reference (`&amp;Pool`) is needed.
+//!
+//! ```rust,ignore
+//! sqlx::query(&quot;DELETE FROM articles&quot;).execute(&amp;pool).await?;
+//! ```
+//!
+//! A connection or transaction may also be manually acquired with
+//! [`Pool::acquire`] or
+//! [`Pool::begin`].
 
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::inner::PoolInner</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">any</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>
-    ),
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any&quot;</span>
-))]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::any</span>::{<span class="ident">Any</span>, <span class="ident">AnyKind</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Connection</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::Database</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transaction::Transaction</span>;
-<span class="kw">use</span> <span class="ident">event_listener::EventListener</span>;
-<span class="kw">use</span> <span class="ident">futures_core::FusedFuture</span>;
-<span class="kw">use</span> <span class="ident">futures_util::FutureExt</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::future::Future</span>;
-<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
-<span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
+</span><span class="kw">use </span><span class="self">self</span>::inner::PoolInner;
+<span class="attribute">#[cfg(all(
+    any(
+        feature = <span class="string">&quot;postgres&quot;</span>,
+        feature = <span class="string">&quot;mysql&quot;</span>,
+        feature = <span class="string">&quot;mssql&quot;</span>,
+        feature = <span class="string">&quot;sqlite&quot;
+    </span>),
+    feature = <span class="string">&quot;any&quot;
+</span>))]
+</span><span class="kw">use </span><span class="kw">crate</span>::any::{Any, AnyKind};
+<span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::database::Database;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::transaction::Transaction;
+<span class="kw">use </span>event_listener::EventListener;
+<span class="kw">use </span>futures_core::FusedFuture;
+<span class="kw">use </span>futures_util::FutureExt;
+<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::future::Future;
+<span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::task::{Context, Poll};
+<span class="kw">use </span>std::time::{Duration, Instant};
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">mod</span> <span class="ident">executor</span>;
+<span class="attribute">#[macro_use]
+</span><span class="kw">mod </span>executor;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">mod</span> <span class="ident">maybe</span>;
+<span class="attribute">#[macro_use]
+</span><span class="kw">mod </span>maybe;
 
-<span class="kw">mod</span> <span class="ident">connection</span>;
-<span class="kw">mod</span> <span class="ident">inner</span>;
-<span class="kw">mod</span> <span class="ident">options</span>;
+<span class="kw">mod </span>connection;
+<span class="kw">mod </span>inner;
+<span class="kw">mod </span>options;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::connection::PoolConnection</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::maybe::MaybePoolConnection</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::options</span>::{<span class="ident">PoolConnectionMetadata</span>, <span class="ident">PoolOptions</span>};
+<span class="kw">pub use </span><span class="self">self</span>::connection::PoolConnection;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::maybe::MaybePoolConnection;
+<span class="kw">pub use </span><span class="self">self</span>::options::{PoolConnectionMetadata, PoolOptions};
 
-<span class="doccomment">/// An asynchronous pool of SQLx database connections.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Create a pool with [Pool::connect] or [Pool::connect_with] and then call [Pool::acquire]</span>
-<span class="doccomment">/// to get a connection from the pool; when the connection is dropped it will return to the pool</span>
-<span class="doccomment">/// so it can be reused.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can also pass `&amp;Pool` directly anywhere an `Executor` is required; this will automatically</span>
-<span class="doccomment">/// checkout a connection for you.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See [the module documentation](crate::pool) for examples.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The pool has a maximum connection limit that it will not exceed; if `acquire()` is called</span>
-<span class="doccomment">/// when at this limit and all connections are checked out, the task will be made to wait until</span>
-<span class="doccomment">/// a connection becomes available.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can configure the connection limit, and other parameters, using [PoolOptions][crate::pool::PoolOptions].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Calls to `acquire()` are fair, i.e. fulfilled on a first-come, first-serve basis.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `Pool` is `Send`, `Sync` and `Clone`. It is intended to be created once at the start of your</span>
-<span class="doccomment">/// application/daemon/web server/etc. and then shared with all tasks throughout the process&#39;</span>
-<span class="doccomment">/// lifetime. How best to accomplish this depends on your program architecture.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In Actix-Web, for example, you can share a single pool with all request handlers using [web::Data].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Cloning `Pool` is cheap as it is simply a reference-counted handle to the inner pool state.</span>
-<span class="doccomment">/// When the last remaining handle to the pool is dropped, the connections owned by the pool are</span>
-<span class="doccomment">/// immediately closed (also by dropping). `PoolConnection` returned by [Pool::acquire] and</span>
-<span class="doccomment">/// `Transaction` returned by [Pool::begin] both implicitly hold a reference to the pool for</span>
-<span class="doccomment">/// their lifetimes.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If you prefer to explicitly shutdown the pool and gracefully close its connections (which</span>
-<span class="doccomment">/// depending on the database type, may include sending a message to the database server that the</span>
-<span class="doccomment">/// connection is being closed), you can call [Pool::close] which causes all waiting and subsequent</span>
-<span class="doccomment">/// calls to [Pool::acquire] to return [Error::PoolClosed], and waits until all connections have</span>
-<span class="doccomment">/// been returned to the pool and gracefully closed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Type aliases are provided for each database to make it easier to sprinkle `Pool` through</span>
-<span class="doccomment">/// your codebase:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// * [MssqlPool][crate::mssql::MssqlPool] (MSSQL)</span>
-<span class="doccomment">/// * [MySqlPool][crate::mysql::MySqlPool] (MySQL)</span>
-<span class="doccomment">/// * [PgPool][crate::postgres::PgPool] (PostgreSQL)</span>
-<span class="doccomment">/// * [SqlitePool][crate::sqlite::SqlitePool] (SQLite)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [web::Data]: https://docs.rs/actix-web/3/actix_web/web/struct.Data.html</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ### Why Use a Pool?</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A single database connection (in general) cannot be used by multiple threads simultaneously</span>
-<span class="doccomment">/// for various reasons, but an application or web server will typically need to execute numerous</span>
-<span class="doccomment">/// queries or commands concurrently (think of concurrent requests against a web server; many or all</span>
-<span class="doccomment">/// of them will probably need to hit the database).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You could place the connection in a `Mutex` but this will make it a huge bottleneck.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Naively, you might also think to just open a new connection per request, but this</span>
-<span class="doccomment">/// has a number of other caveats, generally due to the high overhead involved in working with</span>
-<span class="doccomment">/// a fresh connection. Examples to follow.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Connection pools facilitate reuse of connections to _amortize_ these costs, helping to ensure</span>
-<span class="doccomment">/// that you&#39;re not paying for them each time you need a connection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ##### 1. Overhead of Opening a Connection</span>
-<span class="doccomment">/// Opening a database connection is not exactly a cheap operation.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For SQLite, it means numerous requests to the filesystem and memory allocations, while for</span>
-<span class="doccomment">/// server-based databases it involves performing DNS resolution, opening a new TCP connection and</span>
-<span class="doccomment">/// allocating buffers.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Each connection involves a nontrivial allocation of resources for the database server, usually</span>
-<span class="doccomment">/// including spawning a new thread or process specifically to handle the connection, both for</span>
-<span class="doccomment">/// concurrency and isolation of faults.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Additionally, database connections typically involve a complex handshake including</span>
-<span class="doccomment">/// authentication, negotiation regarding connection parameters (default character sets, timezones,</span>
-<span class="doccomment">/// locales, supported features) and upgrades to encrypted tunnels.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If `acquire()` is called on a pool with all connections checked out but it is not yet at its</span>
-<span class="doccomment">/// connection limit (see next section), then a new connection is immediately opened, so this pool</span>
-<span class="doccomment">/// does not _automatically_ save you from the overhead of creating a new connection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// However, because this pool by design enforces _reuse_ of connections, this overhead cost</span>
-<span class="doccomment">/// is not paid each and every time you need a connection. In fact, if you set</span>
-<span class="doccomment">/// [the `min_connections` option in PoolOptions][PoolOptions::min_connections], the pool will</span>
-<span class="doccomment">/// create that many connections up-front so that they are ready to go when a request comes in,</span>
-<span class="doccomment">/// and maintain that number on a best-effort basis for consistent performance.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ##### 2. Connection Limits (MySQL, MSSQL, Postgres)</span>
-<span class="doccomment">/// Database servers usually place hard limits on the number of connections that are allowed open at</span>
-<span class="doccomment">/// any given time, to maintain performance targets and prevent excessive allocation of resources,</span>
-<span class="doccomment">/// such as RAM, journal files, disk caches, etc.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// These limits have different defaults per database flavor, and may vary between different</span>
-<span class="doccomment">/// distributions of the same database, but are typically configurable on server start;</span>
-<span class="doccomment">/// if you&#39;re paying for managed database hosting then the connection limit will typically vary with</span>
-<span class="doccomment">/// your pricing tier.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In MySQL, the default limit is typically 150, plus 1 which is reserved for a user with the</span>
-<span class="doccomment">/// `CONNECTION_ADMIN` privilege so you can still access the server to diagnose problems even</span>
-<span class="doccomment">/// with all connections being used.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In MSSQL the only documentation for the default maximum limit is that it depends on the version</span>
-<span class="doccomment">/// and server configuration.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In Postgres, the default limit is typically 100, minus 3 which are reserved for superusers</span>
-<span class="doccomment">/// (putting the default limit for unprivileged users at 97 connections).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In any case, exceeding these limits results in an error when opening a new connection, which</span>
-<span class="doccomment">/// in a web server context will turn into a `500 Internal Server Error` if not handled, but should</span>
-<span class="doccomment">/// be turned into either `403 Forbidden` or `429 Too Many Requests` depending on your rate-limiting</span>
-<span class="doccomment">/// scheme. However, in a web context, telling a client &quot;go away, maybe try again later&quot; results in</span>
-<span class="doccomment">/// a sub-optimal user experience.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Instead with a connection pool, clients are made to wait in a fair queue for a connection to</span>
-<span class="doccomment">/// become available; by using a single connection pool for your whole application, you can ensure</span>
-<span class="doccomment">/// that you don&#39;t exceed the connection limit of your database server while allowing response</span>
-<span class="doccomment">/// time to degrade gracefully at high load.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Of course, if multiple applications are connecting to the same database server, then you</span>
-<span class="doccomment">/// should ensure that the connection limits for all applications add up to your server&#39;s maximum</span>
-<span class="doccomment">/// connections or less.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ##### 3. Resource Reuse</span>
-<span class="doccomment">/// The first time you execute a query against your database, the database engine must first turn</span>
-<span class="doccomment">/// the SQL into an actionable _query plan_ which it may then execute against the database. This</span>
-<span class="doccomment">/// involves parsing the SQL query, validating and analyzing it, and in the case of Postgres 12+ and</span>
-<span class="doccomment">/// SQLite, generating code to execute the query plan (native or bytecode, respectively).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// These database servers provide a way to amortize this overhead by _preparing_ the query,</span>
-<span class="doccomment">/// associating it with an object ID and placing its query plan in a cache to be referenced when</span>
-<span class="doccomment">/// it is later executed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Prepared statements have other features, like bind parameters, which make them safer and more</span>
-<span class="doccomment">/// ergonomic to use as well. By design, SQLx pushes you towards using prepared queries/statements</span>
-<span class="doccomment">/// via the [Query][crate::query::Query] API _et al._ and the `query!()` macro _et al._, for</span>
-<span class="doccomment">/// reasons of safety, ergonomics, and efficiency.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// However, because database connections are typically isolated from each other in the database</span>
-<span class="doccomment">/// server (either by threads or separate processes entirely), they don&#39;t typically share prepared</span>
-<span class="doccomment">/// statements between connections so this work must be redone _for each connection_.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// As with section 1, by facilitating reuse of connections, `Pool` helps to ensure their prepared</span>
-<span class="doccomment">/// statements (and thus cached query plans) can be reused as much as possible, thus amortizing</span>
-<span class="doccomment">/// the overhead involved.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Depending on the database server, a connection will have caches for all kinds of other data as</span>
-<span class="doccomment">/// well and queries will generally benefit from these caches being &quot;warm&quot; (populated with data).</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PoolInner</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+<span class="doccomment">/// An asynchronous pool of SQLx database connections.
+///
+/// Create a pool with [Pool::connect] or [Pool::connect_with] and then call [Pool::acquire]
+/// to get a connection from the pool; when the connection is dropped it will return to the pool
+/// so it can be reused.
+///
+/// You can also pass `&amp;Pool` directly anywhere an `Executor` is required; this will automatically
+/// checkout a connection for you.
+///
+/// See [the module documentation](crate::pool) for examples.
+///
+/// The pool has a maximum connection limit that it will not exceed; if `acquire()` is called
+/// when at this limit and all connections are checked out, the task will be made to wait until
+/// a connection becomes available.
+///
+/// You can configure the connection limit, and other parameters, using [PoolOptions][crate::pool::PoolOptions].
+///
+/// Calls to `acquire()` are fair, i.e. fulfilled on a first-come, first-serve basis.
+///
+/// `Pool` is `Send`, `Sync` and `Clone`. It is intended to be created once at the start of your
+/// application/daemon/web server/etc. and then shared with all tasks throughout the process&#39;
+/// lifetime. How best to accomplish this depends on your program architecture.
+///
+/// In Actix-Web, for example, you can share a single pool with all request handlers using [web::Data].
+///
+/// Cloning `Pool` is cheap as it is simply a reference-counted handle to the inner pool state.
+/// When the last remaining handle to the pool is dropped, the connections owned by the pool are
+/// immediately closed (also by dropping). `PoolConnection` returned by [Pool::acquire] and
+/// `Transaction` returned by [Pool::begin] both implicitly hold a reference to the pool for
+/// their lifetimes.
+///
+/// If you prefer to explicitly shutdown the pool and gracefully close its connections (which
+/// depending on the database type, may include sending a message to the database server that the
+/// connection is being closed), you can call [Pool::close] which causes all waiting and subsequent
+/// calls to [Pool::acquire] to return [Error::PoolClosed], and waits until all connections have
+/// been returned to the pool and gracefully closed.
+///
+/// Type aliases are provided for each database to make it easier to sprinkle `Pool` through
+/// your codebase:
+///
+/// * [MssqlPool][crate::mssql::MssqlPool] (MSSQL)
+/// * [MySqlPool][crate::mysql::MySqlPool] (MySQL)
+/// * [PgPool][crate::postgres::PgPool] (PostgreSQL)
+/// * [SqlitePool][crate::sqlite::SqlitePool] (SQLite)
+///
+/// [web::Data]: https://docs.rs/actix-web/3/actix_web/web/struct.Data.html
+///
+/// ### Why Use a Pool?
+///
+/// A single database connection (in general) cannot be used by multiple threads simultaneously
+/// for various reasons, but an application or web server will typically need to execute numerous
+/// queries or commands concurrently (think of concurrent requests against a web server; many or all
+/// of them will probably need to hit the database).
+///
+/// You could place the connection in a `Mutex` but this will make it a huge bottleneck.
+///
+/// Naively, you might also think to just open a new connection per request, but this
+/// has a number of other caveats, generally due to the high overhead involved in working with
+/// a fresh connection. Examples to follow.
+///
+/// Connection pools facilitate reuse of connections to _amortize_ these costs, helping to ensure
+/// that you&#39;re not paying for them each time you need a connection.
+///
+/// ##### 1. Overhead of Opening a Connection
+/// Opening a database connection is not exactly a cheap operation.
+///
+/// For SQLite, it means numerous requests to the filesystem and memory allocations, while for
+/// server-based databases it involves performing DNS resolution, opening a new TCP connection and
+/// allocating buffers.
+///
+/// Each connection involves a nontrivial allocation of resources for the database server, usually
+/// including spawning a new thread or process specifically to handle the connection, both for
+/// concurrency and isolation of faults.
+///
+/// Additionally, database connections typically involve a complex handshake including
+/// authentication, negotiation regarding connection parameters (default character sets, timezones,
+/// locales, supported features) and upgrades to encrypted tunnels.
+///
+/// If `acquire()` is called on a pool with all connections checked out but it is not yet at its
+/// connection limit (see next section), then a new connection is immediately opened, so this pool
+/// does not _automatically_ save you from the overhead of creating a new connection.
+///
+/// However, because this pool by design enforces _reuse_ of connections, this overhead cost
+/// is not paid each and every time you need a connection. In fact, if you set
+/// [the `min_connections` option in PoolOptions][PoolOptions::min_connections], the pool will
+/// create that many connections up-front so that they are ready to go when a request comes in,
+/// and maintain that number on a best-effort basis for consistent performance.
+///
+/// ##### 2. Connection Limits (MySQL, MSSQL, Postgres)
+/// Database servers usually place hard limits on the number of connections that are allowed open at
+/// any given time, to maintain performance targets and prevent excessive allocation of resources,
+/// such as RAM, journal files, disk caches, etc.
+///
+/// These limits have different defaults per database flavor, and may vary between different
+/// distributions of the same database, but are typically configurable on server start;
+/// if you&#39;re paying for managed database hosting then the connection limit will typically vary with
+/// your pricing tier.
+///
+/// In MySQL, the default limit is typically 150, plus 1 which is reserved for a user with the
+/// `CONNECTION_ADMIN` privilege so you can still access the server to diagnose problems even
+/// with all connections being used.
+///
+/// In MSSQL the only documentation for the default maximum limit is that it depends on the version
+/// and server configuration.
+///
+/// In Postgres, the default limit is typically 100, minus 3 which are reserved for superusers
+/// (putting the default limit for unprivileged users at 97 connections).
+///
+/// In any case, exceeding these limits results in an error when opening a new connection, which
+/// in a web server context will turn into a `500 Internal Server Error` if not handled, but should
+/// be turned into either `403 Forbidden` or `429 Too Many Requests` depending on your rate-limiting
+/// scheme. However, in a web context, telling a client &quot;go away, maybe try again later&quot; results in
+/// a sub-optimal user experience.
+///
+/// Instead with a connection pool, clients are made to wait in a fair queue for a connection to
+/// become available; by using a single connection pool for your whole application, you can ensure
+/// that you don&#39;t exceed the connection limit of your database server while allowing response
+/// time to degrade gracefully at high load.
+///
+/// Of course, if multiple applications are connecting to the same database server, then you
+/// should ensure that the connection limits for all applications add up to your server&#39;s maximum
+/// connections or less.
+///
+/// ##### 3. Resource Reuse
+/// The first time you execute a query against your database, the database engine must first turn
+/// the SQL into an actionable _query plan_ which it may then execute against the database. This
+/// involves parsing the SQL query, validating and analyzing it, and in the case of Postgres 12+ and
+/// SQLite, generating code to execute the query plan (native or bytecode, respectively).
+///
+/// These database servers provide a way to amortize this overhead by _preparing_ the query,
+/// associating it with an object ID and placing its query plan in a cache to be referenced when
+/// it is later executed.
+///
+/// Prepared statements have other features, like bind parameters, which make them safer and more
+/// ergonomic to use as well. By design, SQLx pushes you towards using prepared queries/statements
+/// via the [Query][crate::query::Query] API _et al._ and the `query!()` macro _et al._, for
+/// reasons of safety, ergonomics, and efficiency.
+///
+/// However, because database connections are typically isolated from each other in the database
+/// server (either by threads or separate processes entirely), they don&#39;t typically share prepared
+/// statements between connections so this work must be redone _for each connection_.
+///
+/// As with section 1, by facilitating reuse of connections, `Pool` helps to ensure their prepared
+/// statements (and thus cached query plans) can be reused as much as possible, thus amortizing
+/// the overhead involved.
+///
+/// Depending on the database server, a connection will have caches for all kinds of other data as
+/// well and queries will generally benefit from these caches being &quot;warm&quot; (populated with data).
+</span><span class="kw">pub struct </span>Pool&lt;DB: Database&gt;(<span class="kw">pub</span>(<span class="kw">crate</span>) Arc&lt;PoolInner&lt;DB&gt;&gt;);
 
-<span class="doccomment">/// A future that resolves when the pool is closed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See [`Pool::close_event()`] for details.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CloseEvent</span> {
-    <span class="ident">listener</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">EventListener</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A future that resolves when the pool is closed.
+///
+/// See [`Pool::close_event()`] for details.
+</span><span class="kw">pub struct </span>CloseEvent {
+    listener: <span class="prelude-ty">Option</span>&lt;EventListener&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Create a new connection pool with a default pool configuration and</span>
-    <span class="doccomment">/// the given connection URL, and immediately establish one connection.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Refer to the relevant `ConnectOptions` impl for your database for the expected URL format:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]</span>
-    <span class="doccomment">/// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]</span>
-    <span class="doccomment">/// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]</span>
-    <span class="doccomment">/// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default configuration is mainly suited for testing and light-duty applications.</span>
-    <span class="doccomment">/// For production applications, you&#39;ll likely want to make at least few tweaks.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`PoolOptions::new()`] for details.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">PoolOptions</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="ident">::new</span>().<span class="ident">connect</span>(<span class="ident">url</span>).<span class="kw">await</span>
+<span class="kw">impl</span>&lt;DB: Database&gt; Pool&lt;DB&gt; {
+    <span class="doccomment">/// Create a new connection pool with a default pool configuration and
+    /// the given connection URL, and immediately establish one connection.
+    ///
+    /// Refer to the relevant `ConnectOptions` impl for your database for the expected URL format:
+    ///
+    /// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]
+    /// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]
+    /// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]
+    /// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]
+    ///
+    /// The default configuration is mainly suited for testing and light-duty applications.
+    /// For production applications, you&#39;ll likely want to make at least few tweaks.
+    ///
+    /// See [`PoolOptions::new()`] for details.
+    </span><span class="kw">pub async fn </span>connect(url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        PoolOptions::&lt;DB&gt;::new().connect(url).<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// Create a new connection pool with a default pool configuration and
+    /// the given `ConnectOptions`, and immediately establish one connection.
+    ///
+    /// The default configuration is mainly suited for testing and light-duty applications.
+    /// For production applications, you&#39;ll likely want to make at least few tweaks.
+    ///
+    /// See [`PoolOptions::new()`] for details.
+    </span><span class="kw">pub async fn </span>connect_with(
+        options: &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        PoolOptions::&lt;DB&gt;::new().connect_with(options).<span class="kw">await
+    </span>}
+
+    <span class="doccomment">/// Create a new connection pool with a default pool configuration and
+    /// the given connection URL.
+    ///
+    /// The pool will establish connections only as needed.
+    ///
+    /// Refer to the relevant [`ConnectOptions`] impl for your database for the expected URL format:
+    ///
+    /// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]
+    /// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]
+    /// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]
+    /// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]
+    ///
+    /// The default configuration is mainly suited for testing and light-duty applications.
+    /// For production applications, you&#39;ll likely want to make at least few tweaks.
+    ///
+    /// See [`PoolOptions::new()`] for details.
+    </span><span class="kw">pub fn </span>connect_lazy(url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        PoolOptions::&lt;DB&gt;::new().connect_lazy(url)
     }
 
-    <span class="doccomment">/// Create a new connection pool with a default pool configuration and</span>
-    <span class="doccomment">/// the given `ConnectOptions`, and immediately establish one connection.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default configuration is mainly suited for testing and light-duty applications.</span>
-    <span class="doccomment">/// For production applications, you&#39;ll likely want to make at least few tweaks.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`PoolOptions::new()`] for details.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect_with</span>(
-        <span class="ident">options</span>: <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">PoolOptions</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="ident">::new</span>().<span class="ident">connect_with</span>(<span class="ident">options</span>).<span class="kw">await</span>
+    <span class="doccomment">/// Create a new connection pool with a default pool configuration and
+    /// the given `ConnectOptions`.
+    ///
+    /// The pool will establish connections only as needed.
+    ///
+    /// The default configuration is mainly suited for testing and light-duty applications.
+    /// For production applications, you&#39;ll likely want to make at least few tweaks.
+    ///
+    /// See [`PoolOptions::new()`] for details.
+    </span><span class="kw">pub fn </span>connect_lazy_with(options: &lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options) -&gt; <span class="self">Self </span>{
+        PoolOptions::&lt;DB&gt;::new().connect_lazy_with(options)
     }
 
-    <span class="doccomment">/// Create a new connection pool with a default pool configuration and</span>
-    <span class="doccomment">/// the given connection URL.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The pool will establish connections only as needed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Refer to the relevant [`ConnectOptions`] impl for your database for the expected URL format:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]</span>
-    <span class="doccomment">/// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]</span>
-    <span class="doccomment">/// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]</span>
-    <span class="doccomment">/// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default configuration is mainly suited for testing and light-duty applications.</span>
-    <span class="doccomment">/// For production applications, you&#39;ll likely want to make at least few tweaks.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`PoolOptions::new()`] for details.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_lazy</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">PoolOptions</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="ident">::new</span>().<span class="ident">connect_lazy</span>(<span class="ident">url</span>)
+    <span class="doccomment">/// Retrieves a connection from the pool.
+    ///
+    /// The total time this method is allowed to execute is capped by
+    /// [`PoolOptions::acquire_timeout`].
+    /// If that timeout elapses, this will return [`Error::PoolClosed`].
+    ///
+    /// ### Note: Cancellation/Timeout May Drop Connections
+    /// If `acquire` is cancelled or times out after it acquires a connection from the idle queue or
+    /// opens a new one, it will drop that connection because we don&#39;t want to assume it
+    /// is safe to return to the pool, and testing it to see if it&#39;s safe to release could introduce
+    /// subtle bugs if not implemented correctly. To avoid that entirely, we&#39;ve decided to not
+    /// gracefully handle cancellation here.
+    ///
+    /// However, if your workload is sensitive to dropped connections such as using an in-memory
+    /// SQLite database with a pool size of 1, you can pretty easily ensure that a cancelled
+    /// `acquire()` call will never drop connections by tweaking your [`PoolOptions`]:
+    ///
+    /// * Set [`test_before_acquire(false)`][PoolOptions::test_before_acquire]
+    /// * Never set [`before_acquire`][PoolOptions::before_acquire] or
+    ///   [`after_connect`][PoolOptions::after_connect].
+    ///
+    /// This should eliminate any potential `.await` points between acquiring a connection and
+    /// returning it.
+    </span><span class="kw">pub fn </span>acquire(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;PoolConnection&lt;DB&gt;, Error&gt;&gt; + <span class="lifetime">&#39;static </span>{
+        <span class="kw">let </span>shared = <span class="self">self</span>.<span class="number">0</span>.clone();
+        <span class="kw">async move </span>{ shared.acquire().<span class="kw">await</span>.map(|conn| conn.reattach()) }
     }
 
-    <span class="doccomment">/// Create a new connection pool with a default pool configuration and</span>
-    <span class="doccomment">/// the given `ConnectOptions`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The pool will establish connections only as needed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default configuration is mainly suited for testing and light-duty applications.</span>
-    <span class="doccomment">/// For production applications, you&#39;ll likely want to make at least few tweaks.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// See [`PoolOptions::new()`] for details.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_lazy_with</span>(<span class="ident">options</span>: <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">PoolOptions</span>::<span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="ident">::new</span>().<span class="ident">connect_lazy_with</span>(<span class="ident">options</span>)
+    <span class="doccomment">/// Attempts to retrieve a connection from the pool if there is one available.
+    ///
+    /// Returns `None` immediately if there are no idle connections available in the pool
+    /// or there are tasks waiting for a connection which have yet to wake.
+    </span><span class="kw">pub fn </span>try_acquire(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PoolConnection&lt;DB&gt;&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.try_acquire().map(|conn| conn.into_live().reattach())
     }
 
-    <span class="doccomment">/// Retrieves a connection from the pool.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The total time this method is allowed to execute is capped by</span>
-    <span class="doccomment">/// [`PoolOptions::acquire_timeout`].</span>
-    <span class="doccomment">/// If that timeout elapses, this will return [`Error::PoolClosed`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Note: Cancellation/Timeout May Drop Connections</span>
-    <span class="doccomment">/// If `acquire` is cancelled or times out after it acquires a connection from the idle queue or</span>
-    <span class="doccomment">/// opens a new one, it will drop that connection because we don&#39;t want to assume it</span>
-    <span class="doccomment">/// is safe to return to the pool, and testing it to see if it&#39;s safe to release could introduce</span>
-    <span class="doccomment">/// subtle bugs if not implemented correctly. To avoid that entirely, we&#39;ve decided to not</span>
-    <span class="doccomment">/// gracefully handle cancellation here.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// However, if your workload is sensitive to dropped connections such as using an in-memory</span>
-    <span class="doccomment">/// SQLite database with a pool size of 1, you can pretty easily ensure that a cancelled</span>
-    <span class="doccomment">/// `acquire()` call will never drop connections by tweaking your [`PoolOptions`]:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Set [`test_before_acquire(false)`][PoolOptions::test_before_acquire]</span>
-    <span class="doccomment">/// * Never set [`before_acquire`][PoolOptions::before_acquire] or</span>
-    <span class="doccomment">///   [`after_connect`][PoolOptions::after_connect].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This should eliminate any potential `.await` points between acquiring a connection and</span>
-    <span class="doccomment">/// returning it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">acquire</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PoolConnection</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
-        <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>();
-        <span class="kw">async</span> <span class="kw">move</span> { <span class="ident">shared</span>.<span class="ident">acquire</span>().<span class="kw">await</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">conn</span><span class="op">|</span> <span class="ident">conn</span>.<span class="ident">reattach</span>()) }
+    <span class="doccomment">/// Retrieves a connection and immediately begins a new transaction.
+    </span><span class="kw">pub async fn </span>begin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">&#39;static</span>, DB&gt;, Error&gt; {
+        <span class="prelude-val">Ok</span>(Transaction::begin(MaybePoolConnection::PoolConnection(<span class="self">self</span>.acquire().<span class="kw">await</span><span class="question-mark">?</span>)).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Attempts to retrieve a connection from the pool if there is one available.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` immediately if there are no idle connections available in the pool</span>
-    <span class="doccomment">/// or there are tasks waiting for a connection which have yet to wake.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_acquire</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PoolConnection</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">try_acquire</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">conn</span><span class="op">|</span> <span class="ident">conn</span>.<span class="ident">into_live</span>().<span class="ident">reattach</span>())
-    }
+    <span class="doccomment">/// Attempts to retrieve a connection and immediately begins a new transaction if successful.
+    </span><span class="kw">pub async fn </span>try_begin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Transaction&lt;<span class="lifetime">&#39;static</span>, DB&gt;&gt;, Error&gt; {
+        <span class="kw">match </span><span class="self">self</span>.try_acquire() {
+            <span class="prelude-val">Some</span>(conn) =&gt; Transaction::begin(MaybePoolConnection::PoolConnection(conn))
+                .<span class="kw">await
+                </span>.map(<span class="prelude-val">Some</span>),
 
-    <span class="doccomment">/// Retrieves a connection and immediately begins a new transaction.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">begin</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">Transaction::begin</span>(<span class="ident">MaybePoolConnection::PoolConnection</span>(<span class="self">self</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>)).<span class="kw">await</span><span class="question-mark">?</span>)
-    }
-
-    <span class="doccomment">/// Attempts to retrieve a connection and immediately begins a new transaction if successful.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_begin</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">try_acquire</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">conn</span>) =&gt; <span class="ident">Transaction::begin</span>(<span class="ident">MaybePoolConnection::PoolConnection</span>(<span class="ident">conn</span>))
-                .<span class="kw">await</span>
-                .<span class="ident">map</span>(<span class="prelude-val">Some</span>),
-
-            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
         }
     }
 
-    <span class="doccomment">/// Shut down the connection pool, immediately waking all tasks waiting for a connection.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Upon calling this method, any currently waiting or subsequent calls to [`Pool::acquire`] and</span>
-    <span class="doccomment">/// the like will immediately return [`Error::PoolClosed`] and no new connections will be opened.</span>
-    <span class="doccomment">/// Checked-out connections are unaffected, but will be gracefully closed on-drop</span>
-    <span class="doccomment">/// rather than being returned to the pool.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns a `Future` which can be `.await`ed to ensure all connections are</span>
-    <span class="doccomment">/// gracefully closed. It will first close any idle connections currently waiting in the pool,</span>
-    <span class="doccomment">/// then wait for all checked-out connections to be returned or closed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Waiting for connections to be gracefully closed is optional, but will allow the database</span>
-    <span class="doccomment">/// server to clean up the resources sooner rather than later. This is especially important</span>
-    <span class="doccomment">/// for tests that create a new pool every time, otherwise you may see errors about connection</span>
-    <span class="doccomment">/// limits being exhausted even when running tests in a single thread.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the returned `Future` is not run to completion, any remaining connections will be dropped</span>
-    <span class="doccomment">/// when the last handle for the given pool instance is dropped, which could happen in a task</span>
-    <span class="doccomment">/// spawned by `Pool` internally and so may be unpredictable otherwise.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `.close()` may be safely called and `.await`ed on multiple handles concurrently.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> ()<span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">close</span>()
+    <span class="doccomment">/// Shut down the connection pool, immediately waking all tasks waiting for a connection.
+    ///
+    /// Upon calling this method, any currently waiting or subsequent calls to [`Pool::acquire`] and
+    /// the like will immediately return [`Error::PoolClosed`] and no new connections will be opened.
+    /// Checked-out connections are unaffected, but will be gracefully closed on-drop
+    /// rather than being returned to the pool.
+    ///
+    /// Returns a `Future` which can be `.await`ed to ensure all connections are
+    /// gracefully closed. It will first close any idle connections currently waiting in the pool,
+    /// then wait for all checked-out connections to be returned or closed.
+    ///
+    /// Waiting for connections to be gracefully closed is optional, but will allow the database
+    /// server to clean up the resources sooner rather than later. This is especially important
+    /// for tests that create a new pool every time, otherwise you may see errors about connection
+    /// limits being exhausted even when running tests in a single thread.
+    ///
+    /// If the returned `Future` is not run to completion, any remaining connections will be dropped
+    /// when the last handle for the given pool instance is dropped, which could happen in a task
+    /// spawned by `Pool` internally and so may be unpredictable otherwise.
+    ///
+    /// `.close()` may be safely called and `.await`ed on multiple handles concurrently.
+    </span><span class="kw">pub fn </span>close(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Future&lt;Output = ()&gt; + <span class="lifetime">&#39;_ </span>{
+        <span class="self">self</span>.<span class="number">0</span>.close()
     }
 
-    <span class="doccomment">/// Returns `true` if [`.close()`][Pool::close] has been called on the pool, `false` otherwise.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_closed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_closed</span>()
+    <span class="doccomment">/// Returns `true` if [`.close()`][Pool::close] has been called on the pool, `false` otherwise.
+    </span><span class="kw">pub fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0</span>.is_closed()
     }
 
-    <span class="doccomment">/// Get a future that resolves when [`Pool::close()`] is called.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the pool is already closed, the future resolves immediately.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This can be used to cancel long-running operations that hold onto a [`PoolConnection`]</span>
-    <span class="doccomment">/// so they don&#39;t prevent the pool from closing (which would otherwise wait until all</span>
-    <span class="doccomment">/// connections are returned).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Examples</span>
-    <span class="doccomment">/// ========</span>
-    <span class="doccomment">/// These examples use Postgres and Tokio, but should suffice to demonstrate the concept.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Do something when the pool is closed:</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// # #[cfg(feature = &quot;postgres&quot;)]</span>
-    <span class="doccomment">/// # async fn bleh() -&gt; sqlx_core::error::Result&lt;()&gt; {</span>
-    <span class="doccomment">/// use sqlx::PgPool;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let pool = PgPool::connect(&quot;postgresql://...&quot;).await?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let pool2 = pool.clone();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// tokio::spawn(async move {</span>
-    <span class="doccomment">///     // Demonstrates that `CloseEvent` is itself a `Future` you can wait on.</span>
-    <span class="doccomment">///     // This lets you implement any kind of on-close event that you like.</span>
-    <span class="doccomment">///     pool2.close_event().await;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     println!(&quot;Pool is closing!&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     // Imagine maybe recording application statistics or logging a report, etc.</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // The rest of the application executes normally...</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // Close the pool before the application exits...</span>
-    <span class="doccomment">/// pool.close().await;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Cancel a long-running operation:</span>
-    <span class="doccomment">/// ```rust,no_run</span>
-    <span class="doccomment">/// # #[cfg(feature = &quot;postgres&quot;)]</span>
-    <span class="doccomment">/// # async fn bleh() -&gt; sqlx_core::error::Result&lt;()&gt; {</span>
-    <span class="doccomment">/// use sqlx::{Executor, PgPool};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let pool = PgPool::connect(&quot;postgresql://...&quot;).await?;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let pool2 = pool.clone();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// tokio::spawn(async move {</span>
-    <span class="doccomment">///     pool2.close_event().do_until(async {</span>
-    <span class="doccomment">///         // This statement normally won&#39;t return for 30 days!</span>
-    <span class="doccomment">///         // (Assuming the connection doesn&#39;t time out first, of course.)</span>
-    <span class="doccomment">///         pool2.execute(&quot;SELECT pg_sleep(&#39;30 days&#39;)&quot;).await;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///         // If the pool is closed before the statement completes, this won&#39;t be printed.</span>
-    <span class="doccomment">///         // This is because `.do_until()` cancels the future it&#39;s given if the</span>
-    <span class="doccomment">///         // pool is closed first.</span>
-    <span class="doccomment">///         println!(&quot;Waited!&quot;);</span>
-    <span class="doccomment">///     }).await;</span>
-    <span class="doccomment">/// });</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // This normally wouldn&#39;t return until the above statement completed and the connection</span>
-    <span class="doccomment">/// // was returned to the pool. However, thanks to `.do_until()`, the operation was</span>
-    <span class="doccomment">/// // cancelled as soon as we called `.close().await`.</span>
-    <span class="doccomment">/// pool.close().await;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Ok(())</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close_event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CloseEvent</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">close_event</span>()
+    <span class="doccomment">/// Get a future that resolves when [`Pool::close()`] is called.
+    ///
+    /// If the pool is already closed, the future resolves immediately.
+    ///
+    /// This can be used to cancel long-running operations that hold onto a [`PoolConnection`]
+    /// so they don&#39;t prevent the pool from closing (which would otherwise wait until all
+    /// connections are returned).
+    ///
+    /// Examples
+    /// ========
+    /// These examples use Postgres and Tokio, but should suffice to demonstrate the concept.
+    ///
+    /// Do something when the pool is closed:
+    /// ```rust,no_run
+    /// # #[cfg(feature = &quot;postgres&quot;)]
+    /// # async fn bleh() -&gt; sqlx_core::error::Result&lt;()&gt; {
+    /// use sqlx::PgPool;
+    ///
+    /// let pool = PgPool::connect(&quot;postgresql://...&quot;).await?;
+    ///
+    /// let pool2 = pool.clone();
+    ///
+    /// tokio::spawn(async move {
+    ///     // Demonstrates that `CloseEvent` is itself a `Future` you can wait on.
+    ///     // This lets you implement any kind of on-close event that you like.
+    ///     pool2.close_event().await;
+    ///
+    ///     println!(&quot;Pool is closing!&quot;);
+    ///
+    ///     // Imagine maybe recording application statistics or logging a report, etc.
+    /// });
+    ///
+    /// // The rest of the application executes normally...
+    ///
+    /// // Close the pool before the application exits...
+    /// pool.close().await;
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// Cancel a long-running operation:
+    /// ```rust,no_run
+    /// # #[cfg(feature = &quot;postgres&quot;)]
+    /// # async fn bleh() -&gt; sqlx_core::error::Result&lt;()&gt; {
+    /// use sqlx::{Executor, PgPool};
+    ///
+    /// let pool = PgPool::connect(&quot;postgresql://...&quot;).await?;
+    ///
+    /// let pool2 = pool.clone();
+    ///
+    /// tokio::spawn(async move {
+    ///     pool2.close_event().do_until(async {
+    ///         // This statement normally won&#39;t return for 30 days!
+    ///         // (Assuming the connection doesn&#39;t time out first, of course.)
+    ///         pool2.execute(&quot;SELECT pg_sleep(&#39;30 days&#39;)&quot;).await;
+    ///
+    ///         // If the pool is closed before the statement completes, this won&#39;t be printed.
+    ///         // This is because `.do_until()` cancels the future it&#39;s given if the
+    ///         // pool is closed first.
+    ///         println!(&quot;Waited!&quot;);
+    ///     }).await;
+    /// });
+    ///
+    /// // This normally wouldn&#39;t return until the above statement completed and the connection
+    /// // was returned to the pool. However, thanks to `.do_until()`, the operation was
+    /// // cancelled as soon as we called `.close().await`.
+    /// pool.close().await;
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    </span><span class="kw">pub fn </span>close_event(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CloseEvent {
+        <span class="self">self</span>.<span class="number">0</span>.close_event()
     }
 
-    <span class="doccomment">/// Returns the number of connections currently active. This includes idle connections.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">size</span>()
+    <span class="doccomment">/// Returns the number of connections currently active. This includes idle connections.
+    </span><span class="kw">pub fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.<span class="number">0</span>.size()
     }
 
-    <span class="doccomment">/// Returns the number of connections active and idle (not in use).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// As of 0.6.0, this has been fixed to use a separate atomic counter and so should be fine to</span>
-    <span class="doccomment">/// call even at high load.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This previously called [`crossbeam::queue::ArrayQueue::len()`] which waits for the head and</span>
-    <span class="doccomment">/// tail pointers to be in a consistent state, which may never happen at high levels of churn.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_idle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">num_idle</span>()
+    <span class="doccomment">/// Returns the number of connections active and idle (not in use).
+    ///
+    /// As of 0.6.0, this has been fixed to use a separate atomic counter and so should be fine to
+    /// call even at high load.
+    ///
+    /// This previously called [`crossbeam::queue::ArrayQueue::len()`] which waits for the head and
+    /// tail pointers to be in a consistent state, which may never happen at high levels of churn.
+    </span><span class="kw">pub fn </span>num_idle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.<span class="number">0</span>.num_idle()
     }
 
-    <span class="doccomment">/// Get the connection options for this pool</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">connect_options</span>
+    <span class="doccomment">/// Get the connection options for this pool
+    </span><span class="kw">pub fn </span>connect_options(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>&lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.connect_options
     }
 
-    <span class="doccomment">/// Get the options for this pool</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">options</span>
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
-    <span class="ident">any</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgres&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>,
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>
-    ),
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;any&quot;</span>
-))]</span>
-<span class="kw">impl</span> <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Any</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns the database driver currently in-use by this `Pool`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Determined by the connection URL.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">any_kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">AnyKind</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">connect_options</span>.<span class="ident">kind</span>()
+    <span class="doccomment">/// Get the options for this pool
+    </span><span class="kw">pub fn </span>options(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PoolOptions&lt;DB&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.options
     }
 }
 
-<span class="doccomment">/// Returns a new [Pool] tied to the same shared connection pool.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>))
+<span class="attribute">#[cfg(all(
+    any(
+        feature = <span class="string">&quot;postgres&quot;</span>,
+        feature = <span class="string">&quot;mysql&quot;</span>,
+        feature = <span class="string">&quot;mssql&quot;</span>,
+        feature = <span class="string">&quot;sqlite&quot;
+    </span>),
+    feature = <span class="string">&quot;any&quot;
+</span>))]
+</span><span class="kw">impl </span>Pool&lt;Any&gt; {
+    <span class="doccomment">/// Returns the database driver currently in-use by this `Pool`.
+    ///
+    /// Determined by the connection URL.
+    </span><span class="kw">pub fn </span>any_kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyKind {
+        <span class="self">self</span>.<span class="number">0</span>.connect_options.kind()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Pool&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">size</span>())
-            .<span class="ident">field</span>(<span class="string">&quot;num_idle&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">num_idle</span>())
-            .<span class="ident">field</span>(<span class="string">&quot;is_closed&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_closed</span>())
-            .<span class="ident">field</span>(<span class="string">&quot;options&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">options</span>)
-            .<span class="ident">finish</span>()
+<span class="doccomment">/// Returns a new [Pool] tied to the same shared connection pool.
+</span><span class="kw">impl</span>&lt;DB: Database&gt; Clone <span class="kw">for </span>Pool&lt;DB&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Arc::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">CloseEvent</span> {
-    <span class="doccomment">/// Execute the given future until it returns or the pool is closed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Cancels the future and returns `Err(PoolClosed)` if/when the pool is closed.</span>
-    <span class="doccomment">/// If the pool was already closed, the future is never run.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">do_until</span><span class="op">&lt;</span><span class="ident">Fut</span>: <span class="ident">Future</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fut</span>: <span class="ident">Fut</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Fut::Output</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="comment">// Check that the pool wasn&#39;t closed already.</span>
-        <span class="comment">//</span>
-        <span class="comment">// We use `poll_immediate()` as it will use the correct waker instead of</span>
-        <span class="comment">// a no-op one like `.now_or_never()`, but it won&#39;t actually suspend execution here.</span>
-        <span class="ident">futures_util::future::poll_immediate</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="self">self</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(()), <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PoolClosed</span>))<span class="question-mark">?</span>;
+<span class="kw">impl</span>&lt;DB: Database&gt; fmt::Debug <span class="kw">for </span>Pool&lt;DB&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        fmt.debug_struct(<span class="string">&quot;Pool&quot;</span>)
+            .field(<span class="string">&quot;size&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.size())
+            .field(<span class="string">&quot;num_idle&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.num_idle())
+            .field(<span class="string">&quot;is_closed&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.is_closed())
+            .field(<span class="string">&quot;options&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.options)
+            .finish()
+    }
+}
 
-        <span class="macro">futures_util::pin_mut!</span>(<span class="ident">fut</span>);
+<span class="kw">impl </span>CloseEvent {
+    <span class="doccomment">/// Execute the given future until it returns or the pool is closed.
+    ///
+    /// Cancels the future and returns `Err(PoolClosed)` if/when the pool is closed.
+    /// If the pool was already closed, the future is never run.
+    </span><span class="kw">pub async fn </span>do_until&lt;Fut: Future&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fut: Fut) -&gt; <span class="prelude-ty">Result</span>&lt;Fut::Output, Error&gt; {
+        <span class="comment">// Check that the pool wasn&#39;t closed already.
+        //
+        // We use `poll_immediate()` as it will use the correct waker instead of
+        // a no-op one like `.now_or_never()`, but it won&#39;t actually suspend execution here.
+        </span>futures_util::future::poll_immediate(<span class="kw-2">&amp;mut *</span><span class="self">self</span>)
+            .<span class="kw">await
+            </span>.map_or(<span class="prelude-val">Ok</span>(()), |<span class="kw">_</span>| <span class="prelude-val">Err</span>(Error::PoolClosed))<span class="question-mark">?</span>;
 
-        <span class="comment">// I find that this is clearer in intent than `futures_util::future::select()`</span>
-        <span class="comment">// or `futures_util::select_biased!{}` (which isn&#39;t enabled anyway).</span>
-        <span class="ident">futures_util::future::poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
-            <span class="comment">// Poll `fut` first as the wakeup event is more likely for it than `self`.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Poll::Ready</span>(<span class="ident">ret</span>) <span class="op">=</span> <span class="ident">fut</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>) {
-                <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">ret</span>));
+        <span class="macro">futures_util::pin_mut!</span>(fut);
+
+        <span class="comment">// I find that this is clearer in intent than `futures_util::future::select()`
+        // or `futures_util::select_biased!{}` (which isn&#39;t enabled anyway).
+        </span>futures_util::future::poll_fn(|cx| {
+            <span class="comment">// Poll `fut` first as the wakeup event is more likely for it than `self`.
+            </span><span class="kw">if let </span>Poll::Ready(ret) = fut.as_mut().poll(cx) {
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(ret));
             }
 
-            <span class="comment">// Can&#39;t really factor out mapping to `Err(Error::PoolClosed)` though it seems like</span>
-            <span class="comment">// we should because that results in a different `Ok` type each time.</span>
-            <span class="comment">//</span>
-            <span class="comment">// Ideally we&#39;d map to something like `Result&lt;!, Error&gt;` but using `!` as a type</span>
-            <span class="comment">// is not allowed on stable Rust yet.</span>
-            <span class="self">self</span>.<span class="ident">poll_unpin</span>(<span class="ident">cx</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Err</span>(<span class="ident">Error::PoolClosed</span>))
+            <span class="comment">// Can&#39;t really factor out mapping to `Err(Error::PoolClosed)` though it seems like
+            // we should because that results in a different `Ok` type each time.
+            //
+            // Ideally we&#39;d map to something like `Result&lt;!, Error&gt;` but using `!` as a type
+            // is not allowed on stable Rust yet.
+            </span><span class="self">self</span>.poll_unpin(cx).map(|<span class="kw">_</span>| <span class="prelude-val">Err</span>(Error::PoolClosed))
         })
-        .<span class="kw">await</span>
-    }
+        .<span class="kw">await
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">CloseEvent</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
+<span class="kw">impl </span>Future <span class="kw">for </span>CloseEvent {
+    <span class="kw">type </span>Output = ();
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">listener</span>) <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">listener</span> {
-            <span class="macro">futures_core::ready!</span>(<span class="ident">listener</span>.<span class="ident">poll_unpin</span>(<span class="ident">cx</span>));
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(listener) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.listener {
+            <span class="macro">futures_core::ready!</span>(listener.poll_unpin(cx));
         }
 
-        <span class="comment">// `EventListener` doesn&#39;t like being polled after it yields, and even if it did it</span>
-        <span class="comment">// would probably just wait for the next event, neither of which we want.</span>
-        <span class="comment">//</span>
-        <span class="comment">// So this way, once we get our close event, we fuse this future to immediately return.</span>
-        <span class="self">self</span>.<span class="ident">listener</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="comment">// `EventListener` doesn&#39;t like being polled after it yields, and even if it did it
+        // would probably just wait for the next event, neither of which we want.
+        //
+        // So this way, once we get our close event, we fuse this future to immediately return.
+        </span><span class="self">self</span>.listener = <span class="prelude-val">None</span>;
 
-        <span class="ident">Poll::Ready</span>(())
+        Poll::Ready(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FusedFuture</span> <span class="kw">for</span> <span class="ident">CloseEvent</span> {
-    <span class="kw">fn</span> <span class="ident">is_terminated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">listener</span>.<span class="ident">is_none</span>()
+<span class="kw">impl </span>FusedFuture <span class="kw">for </span>CloseEvent {
+    <span class="kw">fn </span>is_terminated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.listener.is_none()
     }
 }
 
-<span class="doccomment">/// get the time between the deadline and now and use that as our timeout</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// returns `Error::PoolTimedOut` if the deadline is in the past</span>
-<span class="kw">fn</span> <span class="ident">deadline_as_timeout</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">deadline</span>: <span class="ident">Instant</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Duration</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="ident">deadline</span>
-        .<span class="ident">checked_duration_since</span>(<span class="ident">Instant::now</span>())
-        .<span class="ident">ok_or</span>(<span class="ident">Error::PoolTimedOut</span>)
+<span class="doccomment">/// get the time between the deadline and now and use that as our timeout
+///
+/// returns `Error::PoolTimedOut` if the deadline is in the past
+</span><span class="kw">fn </span>deadline_as_timeout&lt;DB: Database&gt;(deadline: Instant) -&gt; <span class="prelude-ty">Result</span>&lt;Duration, Error&gt; {
+    deadline
+        .checked_duration_since(Instant::now())
+        .ok_or(Error::PoolTimedOut)
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">fn</span> <span class="ident">assert_pool_traits</span>() {
-    <span class="kw">fn</span> <span class="ident">assert_send_sync</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>() {}
-    <span class="kw">fn</span> <span class="ident">assert_clone</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span>() {}
+<span class="attribute">#[test]
+#[allow(dead_code)]
+</span><span class="kw">fn </span>assert_pool_traits() {
+    <span class="kw">fn </span>assert_send_sync&lt;T: Send + Sync&gt;() {}
+    <span class="kw">fn </span>assert_clone&lt;T: Clone&gt;() {}
 
-    <span class="kw">fn</span> <span class="ident">assert_pool</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>() {
-        <span class="ident">assert_send_sync</span>::<span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">assert_clone</span>::<span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="kw">fn </span>assert_pool&lt;DB: Database&gt;() {
+        assert_send_sync::&lt;Pool&lt;DB&gt;&gt;();
+        assert_clone::&lt;Pool&lt;DB&gt;&gt;();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

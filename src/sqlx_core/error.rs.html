@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -268,275 +268,275 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Types for working with errors produced by SQLx.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Types for working with errors produced by SQLx.
 
-<span class="kw">use</span> <span class="ident">std::any::type_name</span>;
-<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
-<span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>;
-<span class="kw">use</span> <span class="ident">std::result::Result</span> <span class="kw">as</span> <span class="ident">StdResult</span>;
+</span><span class="kw">use </span>std::any::type_name;
+<span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
+<span class="kw">use </span>std::fmt::Display;
+<span class="kw">use </span>std::io;
+<span class="kw">use </span>std::result::Result <span class="kw">as </span>StdResult;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::Database</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_info::TypeInfo</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
+<span class="kw">use </span><span class="kw">crate</span>::database::Database;
+<span class="kw">use </span><span class="kw">crate</span>::type_info::TypeInfo;
+<span class="kw">use </span><span class="kw">crate</span>::types::Type;
 
-<span class="doccomment">/// A specialized `Result` type for SQLx.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">StdResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A specialized `Result` type for SQLx.
+</span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = StdResult&lt;T, Error&gt;;
 
-<span class="comment">// Convenience type alias for usage within SQLx.</span>
-<span class="comment">// Do not make this type public.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">BoxDynError</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>;
+<span class="comment">// Convenience type alias for usage within SQLx.
+// Do not make this type public.
+</span><span class="kw">pub type </span>BoxDynError = Box&lt;<span class="kw">dyn </span>StdError + <span class="lifetime">&#39;static </span>+ Send + Sync&gt;;
 
-<span class="doccomment">/// An unexpected `NULL` was encountered during decoding.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returned from [`Row::get`](crate::row::Row::get) if the value from the database is `NULL`,</span>
-<span class="doccomment">/// and you are not decoding into an `Option`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">thiserror::Error</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;unexpected null; try decoding as an `Option`&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnexpectedNullError</span>;
+<span class="doccomment">/// An unexpected `NULL` was encountered during decoding.
+///
+/// Returned from [`Row::get`](crate::row::Row::get) if the value from the database is `NULL`,
+/// and you are not decoding into an `Option`.
+</span><span class="attribute">#[derive(thiserror::Error, Debug)]
+#[error(<span class="string">&quot;unexpected null; try decoding as an `Option`&quot;</span>)]
+</span><span class="kw">pub struct </span>UnexpectedNullError;
 
-<span class="doccomment">/// Represents all the ways a method can fail within SQLx.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">thiserror::Error</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
-    <span class="doccomment">/// Error occurred while parsing a connection string.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;error with configuration: {0}&quot;</span>)]</span>
-    <span class="ident">Configuration</span>(<span class="attribute">#[<span class="ident">source</span>]</span> <span class="ident">BoxDynError</span>),
+<span class="doccomment">/// Represents all the ways a method can fail within SQLx.
+</span><span class="attribute">#[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>Error {
+    <span class="doccomment">/// Error occurred while parsing a connection string.
+    </span><span class="attribute">#[error(<span class="string">&quot;error with configuration: {0}&quot;</span>)]
+    </span>Configuration(<span class="attribute">#[source] </span>BoxDynError),
 
-    <span class="doccomment">/// Error returned from the database.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;error returned from database: {0}&quot;</span>)]</span>
-    <span class="ident">Database</span>(<span class="attribute">#[<span class="ident">source</span>]</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">DatabaseError</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Error returned from the database.
+    </span><span class="attribute">#[error(<span class="string">&quot;error returned from database: {0}&quot;</span>)]
+    </span>Database(<span class="attribute">#[source] </span>Box&lt;<span class="kw">dyn </span>DatabaseError&gt;),
 
-    <span class="doccomment">/// Error communicating with the database backend.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;error communicating with database: {0}&quot;</span>)]</span>
-    <span class="ident">Io</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">io::Error</span>),
+    <span class="doccomment">/// Error communicating with the database backend.
+    </span><span class="attribute">#[error(<span class="string">&quot;error communicating with database: {0}&quot;</span>)]
+    </span>Io(<span class="attribute">#[from] </span>io::Error),
 
-    <span class="doccomment">/// Error occurred while attempting to establish a TLS connection.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;error occurred while attempting to establish a TLS connection: {0}&quot;</span>)]</span>
-    <span class="ident">Tls</span>(<span class="attribute">#[<span class="ident">source</span>]</span> <span class="ident">BoxDynError</span>),
+    <span class="doccomment">/// Error occurred while attempting to establish a TLS connection.
+    </span><span class="attribute">#[error(<span class="string">&quot;error occurred while attempting to establish a TLS connection: {0}&quot;</span>)]
+    </span>Tls(<span class="attribute">#[source] </span>BoxDynError),
 
-    <span class="doccomment">/// Unexpected or invalid data encountered while communicating with the database.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This should indicate there is a programming error in a SQLx driver or there</span>
-    <span class="doccomment">/// is something corrupted with the connection to the database itself.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;encountered unexpected or invalid data: {0}&quot;</span>)]</span>
-    <span class="ident">Protocol</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// Unexpected or invalid data encountered while communicating with the database.
+    ///
+    /// This should indicate there is a programming error in a SQLx driver or there
+    /// is something corrupted with the connection to the database itself.
+    </span><span class="attribute">#[error(<span class="string">&quot;encountered unexpected or invalid data: {0}&quot;</span>)]
+    </span>Protocol(String),
 
-    <span class="doccomment">/// No rows returned by a query that expected to return at least one row.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;no rows returned by a query that expected to return at least one row&quot;</span>)]</span>
-    <span class="ident">RowNotFound</span>,
+    <span class="doccomment">/// No rows returned by a query that expected to return at least one row.
+    </span><span class="attribute">#[error(<span class="string">&quot;no rows returned by a query that expected to return at least one row&quot;</span>)]
+    </span>RowNotFound,
 
-    <span class="doccomment">/// Type in query doesn&#39;t exist. Likely due to typo or missing user type.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;type named {type_name} not found&quot;</span>)]</span>
-    <span class="ident">TypeNotFound</span> { <span class="ident">type_name</span>: <span class="ident">String</span> },
+    <span class="doccomment">/// Type in query doesn&#39;t exist. Likely due to typo or missing user type.
+    </span><span class="attribute">#[error(<span class="string">&quot;type named {type_name} not found&quot;</span>)]
+    </span>TypeNotFound { type_name: String },
 
-    <span class="doccomment">/// Column index was out of bounds.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;column index out of bounds: the len is {len}, but the index is {index}&quot;</span>)]</span>
-    <span class="ident">ColumnIndexOutOfBounds</span> { <span class="ident">index</span>: <span class="ident">usize</span>, <span class="ident">len</span>: <span class="ident">usize</span> },
+    <span class="doccomment">/// Column index was out of bounds.
+    </span><span class="attribute">#[error(<span class="string">&quot;column index out of bounds: the len is {len}, but the index is {index}&quot;</span>)]
+    </span>ColumnIndexOutOfBounds { index: usize, len: usize },
 
-    <span class="doccomment">/// No column found for the given name.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;no column found for name: {0}&quot;</span>)]</span>
-    <span class="ident">ColumnNotFound</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// No column found for the given name.
+    </span><span class="attribute">#[error(<span class="string">&quot;no column found for name: {0}&quot;</span>)]
+    </span>ColumnNotFound(String),
 
-    <span class="doccomment">/// Error occurred while decoding a value from a specific column.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;error occurred while decoding column {index}: {source}&quot;</span>)]</span>
-    <span class="ident">ColumnDecode</span> {
-        <span class="ident">index</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Error occurred while decoding a value from a specific column.
+    </span><span class="attribute">#[error(<span class="string">&quot;error occurred while decoding column {index}: {source}&quot;</span>)]
+    </span>ColumnDecode {
+        index: String,
 
-        <span class="attribute">#[<span class="ident">source</span>]</span>
-        <span class="ident">source</span>: <span class="ident">BoxDynError</span>,
+        <span class="attribute">#[source]
+        </span>source: BoxDynError,
     },
 
-    <span class="doccomment">/// Error occurred while decoding a value.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;error occurred while decoding: {0}&quot;</span>)]</span>
-    <span class="ident">Decode</span>(<span class="attribute">#[<span class="ident">source</span>]</span> <span class="ident">BoxDynError</span>),
+    <span class="doccomment">/// Error occurred while decoding a value.
+    </span><span class="attribute">#[error(<span class="string">&quot;error occurred while decoding: {0}&quot;</span>)]
+    </span>Decode(<span class="attribute">#[source] </span>BoxDynError),
 
-    <span class="doccomment">/// A [`Pool::acquire`] timed out due to connections not becoming available or</span>
-    <span class="doccomment">/// because another task encountered too many errors while trying to open a new connection.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Pool::acquire`]: crate::pool::Pool::acquire</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;pool timed out while waiting for an open connection&quot;</span>)]</span>
-    <span class="ident">PoolTimedOut</span>,
+    <span class="doccomment">/// A [`Pool::acquire`] timed out due to connections not becoming available or
+    /// because another task encountered too many errors while trying to open a new connection.
+    ///
+    /// [`Pool::acquire`]: crate::pool::Pool::acquire
+    </span><span class="attribute">#[error(<span class="string">&quot;pool timed out while waiting for an open connection&quot;</span>)]
+    </span>PoolTimedOut,
 
-    <span class="doccomment">/// [`Pool::close`] was called while we were waiting in [`Pool::acquire`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Pool::acquire`]: crate::pool::Pool::acquire</span>
-    <span class="doccomment">/// [`Pool::close`]: crate::pool::Pool::close</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;attempted to acquire a connection on a closed pool&quot;</span>)]</span>
-    <span class="ident">PoolClosed</span>,
+    <span class="doccomment">/// [`Pool::close`] was called while we were waiting in [`Pool::acquire`].
+    ///
+    /// [`Pool::acquire`]: crate::pool::Pool::acquire
+    /// [`Pool::close`]: crate::pool::Pool::close
+    </span><span class="attribute">#[error(<span class="string">&quot;attempted to acquire a connection on a closed pool&quot;</span>)]
+    </span>PoolClosed,
 
-    <span class="doccomment">/// A background worker has crashed.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;attempted to communicate with a crashed background worker&quot;</span>)]</span>
-    <span class="ident">WorkerCrashed</span>,
+    <span class="doccomment">/// A background worker has crashed.
+    </span><span class="attribute">#[error(<span class="string">&quot;attempted to communicate with a crashed background worker&quot;</span>)]
+    </span>WorkerCrashed,
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;{0}&quot;</span>)]</span>
-    <span class="ident">Migrate</span>(<span class="attribute">#[<span class="ident">source</span>]</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::migrate::MigrateError</span><span class="op">&gt;</span>),
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+    #[error(<span class="string">&quot;{0}&quot;</span>)]
+    </span>Migrate(<span class="attribute">#[source] </span>Box&lt;<span class="kw">crate</span>::migrate::MigrateError&gt;),
 }
 
-<span class="kw">impl</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">DatabaseError</span><span class="op">&gt;</span> {}
+<span class="kw">impl </span>StdError <span class="kw">for </span>Box&lt;<span class="kw">dyn </span>DatabaseError&gt; {}
 
-<span class="kw">impl</span> <span class="ident">Error</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_database_error</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">DatabaseError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Error::Database</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+<span class="kw">impl </span>Error {
+    <span class="kw">pub fn </span>into_database_error(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>DatabaseError + <span class="lifetime">&#39;static</span>&gt;&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Error::Database(err) =&gt; <span class="prelude-val">Some</span>(err),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_database_error</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">DatabaseError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Error::Database</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">err</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">pub fn </span>as_database_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>DatabaseError + <span class="lifetime">&#39;static</span>)&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Error::Database(err) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;**</span>err),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">protocol</span>(<span class="ident">err</span>: <span class="kw">impl</span> <span class="ident">Display</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Error::Protocol</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
+    <span class="attribute">#[allow(dead_code)]
+    #[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>protocol(err: <span class="kw">impl </span>Display) -&gt; <span class="self">Self </span>{
+        Error::Protocol(err.to_string())
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">config</span>(<span class="ident">err</span>: <span class="kw">impl</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Error::Configuration</span>(<span class="ident">err</span>.<span class="ident">into</span>())
+    <span class="attribute">#[allow(dead_code)]
+    #[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>config(err: <span class="kw">impl </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>) -&gt; <span class="self">Self </span>{
+        Error::Configuration(err.into())
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">mismatched_types</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span>, <span class="ident">T</span>: <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">DB::TypeInfo</span>) -&gt; <span class="ident">BoxDynError</span> {
-    <span class="comment">// TODO: `#name` only produces `TINYINT` but perhaps we want to show `TINYINT(1)`</span>
-    <span class="macro">format!</span>(
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>mismatched_types&lt;DB: Database, T: Type&lt;DB&gt;&gt;(ty: <span class="kw-2">&amp;</span>DB::TypeInfo) -&gt; BoxDynError {
+    <span class="comment">// TODO: `#name` only produces `TINYINT` but perhaps we want to show `TINYINT(1)`
+    </span><span class="macro">format!</span>(
         <span class="string">&quot;mismatched types; Rust type `{}` (as SQL type `{}`) is not compatible with SQL type `{}`&quot;</span>,
-        <span class="ident">type_name</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
-        <span class="ident">T::type_info</span>().<span class="ident">name</span>(),
-        <span class="ident">ty</span>.<span class="ident">name</span>()
+        type_name::&lt;T&gt;(),
+        T::type_info().name(),
+        ty.name()
     )
-    .<span class="ident">into</span>()
+    .into()
 }
 
-<span class="doccomment">/// An error that was returned from the database.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DatabaseError</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">StdError</span> {
-    <span class="doccomment">/// The primary, human-readable error message.</span>
-    <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span>;
+<span class="doccomment">/// An error that was returned from the database.
+</span><span class="kw">pub trait </span>DatabaseError: <span class="lifetime">&#39;static </span>+ Send + Sync + StdError {
+    <span class="doccomment">/// The primary, human-readable error message.
+    </span><span class="kw">fn </span>message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str;
 
-    <span class="doccomment">/// The (SQLSTATE) code for the error.</span>
-    <span class="kw">fn</span> <span class="ident">code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
-    }
+    <span class="doccomment">/// The (SQLSTATE) code for the error.
+    </span><span class="kw">fn </span>code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">&#39;_</span>, str&gt;&gt; {
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">as_error</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>);
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>as_error(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>);
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">as_error_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> (<span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>);
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>as_error_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>(<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>);
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">into_error</span>(<span class="self">self</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>;
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>into_error(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; Box&lt;<span class="kw">dyn </span>StdError + Send + Sync + <span class="lifetime">&#39;static</span>&gt;;
 
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">is_transient_in_connect_phase</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">false</span>
-    }
+    <span class="attribute">#[doc(hidden)]
+    </span><span class="kw">fn </span>is_transient_in_connect_phase(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 
-    <span class="doccomment">/// Returns the name of the constraint that triggered the error, if applicable.</span>
-    <span class="doccomment">/// If the error was caused by a conflict of a unique index, this will be the index name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ### Note</span>
-    <span class="doccomment">/// Currently only populated by the Postgres driver.</span>
-    <span class="kw">fn</span> <span class="ident">constraint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
-    }
+    <span class="doccomment">/// Returns the name of the constraint that triggered the error, if applicable.
+    /// If the error was caused by a conflict of a unique index, this will be the index name.
+    ///
+    /// ### Note
+    /// Currently only populated by the Postgres driver.
+    </span><span class="kw">fn </span>constraint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="kw">dyn</span> <span class="ident">DatabaseError</span> {
-    <span class="doccomment">/// Downcast a reference to this generic database error to a specific</span>
-    <span class="doccomment">/// database error type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the database error type is not `E`. This is a deliberate contrast from</span>
-    <span class="doccomment">/// `Error::downcast_ref` which returns `Option&lt;&amp;E&gt;`. In normal usage, you should know the</span>
-    <span class="doccomment">/// specific error type. In other cases, use `try_downcast_ref`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast_ref</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">DatabaseError</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">E</span> {
-        <span class="self">self</span>.<span class="ident">try_downcast_ref</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+<span class="kw">impl dyn </span>DatabaseError {
+    <span class="doccomment">/// Downcast a reference to this generic database error to a specific
+    /// database error type.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the database error type is not `E`. This is a deliberate contrast from
+    /// `Error::downcast_ref` which returns `Option&lt;&amp;E&gt;`. In normal usage, you should know the
+    /// specific error type. In other cases, use `try_downcast_ref`.
+    </span><span class="kw">pub fn </span>downcast_ref&lt;E: DatabaseError&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E {
+        <span class="self">self</span>.try_downcast_ref().unwrap_or_else(|| {
             <span class="macro">panic!</span>(
                 <span class="string">&quot;downcast to wrong DatabaseError type; original error: {}&quot;</span>,
-                <span class="self">self</span>
+                <span class="self">self
+            </span>)
+        })
+    }
+
+    <span class="doccomment">/// Downcast this generic database error to a specific database error type.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the database error type is not `E`. This is a deliberate contrast from
+    /// `Error::downcast` which returns `Option&lt;E&gt;`. In normal usage, you should know the
+    /// specific error type. In other cases, use `try_downcast`.
+    </span><span class="kw">pub fn </span>downcast&lt;E: DatabaseError&gt;(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; Box&lt;E&gt; {
+        <span class="self">self</span>.try_downcast().unwrap_or_else(|e| {
+            <span class="macro">panic!</span>(
+                <span class="string">&quot;downcast to wrong DatabaseError type; original error: {}&quot;</span>,
+                e
             )
         })
     }
 
-    <span class="doccomment">/// Downcast this generic database error to a specific database error type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the database error type is not `E`. This is a deliberate contrast from</span>
-    <span class="doccomment">/// `Error::downcast` which returns `Option&lt;E&gt;`. In normal usage, you should know the</span>
-    <span class="doccomment">/// specific error type. In other cases, use `try_downcast`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">downcast</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">DatabaseError</span><span class="op">&gt;</span>(<span class="self">self</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">try_downcast</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
-            <span class="macro">panic!</span>(
-                <span class="string">&quot;downcast to wrong DatabaseError type; original error: {}&quot;</span>,
-                <span class="ident">e</span>
-            )
-        })
+    <span class="doccomment">/// Downcast a reference to this generic database error to a specific
+    /// database error type.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>try_downcast_ref&lt;E: DatabaseError&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>E&gt; {
+        <span class="self">self</span>.as_error().downcast_ref()
     }
 
-    <span class="doccomment">/// Downcast a reference to this generic database error to a specific</span>
-    <span class="doccomment">/// database error type.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_downcast_ref</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">DatabaseError</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">E</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">as_error</span>().<span class="ident">downcast_ref</span>()
-    }
-
-    <span class="doccomment">/// Downcast this generic database error to a specific database error type.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_downcast</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">DatabaseError</span><span class="op">&gt;</span>(<span class="self">self</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="ident">StdResult</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">as_error</span>().<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() {
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">into_error</span>().<span class="ident">downcast</span>().<span class="ident">unwrap</span>())
-        } <span class="kw">else</span> {
+    <span class="doccomment">/// Downcast this generic database error to a specific database error type.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>try_downcast&lt;E: DatabaseError&gt;(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; StdResult&lt;Box&lt;E&gt;, Box&lt;<span class="self">Self</span>&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.as_error().is::&lt;E&gt;() {
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.into_error().downcast().unwrap())
+        } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(<span class="self">self</span>)
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">DatabaseError</span>,
+<span class="kw">impl</span>&lt;E&gt; From&lt;E&gt; <span class="kw">for </span>Error
+<span class="kw">where
+    </span>E: DatabaseError,
 {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">error</span>: <span class="ident">E</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Error::Database</span>(<span class="ident">Box::new</span>(<span class="ident">error</span>))
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(error: E) -&gt; <span class="self">Self </span>{
+        Error::Database(Box::new(error))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;migrate&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::migrate::MigrateError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">error</span>: <span class="ident"><span class="kw">crate</span>::migrate::MigrateError</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Error::Migrate</span>(<span class="ident">Box::new</span>(<span class="ident">error</span>))
+<span class="attribute">#[cfg(feature = <span class="string">&quot;migrate&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;<span class="kw">crate</span>::migrate::MigrateError&gt; <span class="kw">for </span>Error {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(error: <span class="kw">crate</span>::migrate::MigrateError) -&gt; <span class="self">Self </span>{
+        Error::Migrate(Box::new(error))
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_tls-native-tls&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">sqlx_rt::native_tls::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">error</span>: <span class="ident">sqlx_rt::native_tls::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Error::Tls</span>(<span class="ident">Box::new</span>(<span class="ident">error</span>))
+<span class="attribute">#[cfg(feature = <span class="string">&quot;_tls-native-tls&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;sqlx_rt::native_tls::Error&gt; <span class="kw">for </span>Error {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(error: sqlx_rt::native_tls::Error) -&gt; <span class="self">Self </span>{
+        Error::Tls(Box::new(error))
     }
 }
 
-<span class="comment">// Format an error message as a `Protocol` error</span>
-<span class="macro">macro_rules!</span> <span class="ident">err_protocol</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::error::Error::Protocol</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">expr</span>.<span class="ident">into</span>())
+<span class="comment">// Format an error message as a `Protocol` error
+</span><span class="macro">macro_rules! </span>err_protocol {
+    (<span class="macro-nonterminal">$expr</span>:expr) =&gt; {
+        <span class="macro-nonterminal">$crate::error::Error::Protocol</span>(<span class="macro-nonterminal">$expr</span>.into())
     };
 
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::error::Error::Protocol</span>(<span class="macro">format!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>))
+    (<span class="macro-nonterminal">$fmt</span>:expr, $(<span class="macro-nonterminal">$arg</span>:tt)<span class="kw-2">*</span>) =&gt; {
+        <span class="macro-nonterminal">$crate::error::Error::Protocol</span>(<span class="macro">format!</span>(<span class="macro-nonterminal">$fmt</span>, $(<span class="macro-nonterminal">$arg</span>)<span class="kw-2">*</span>))
     };
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

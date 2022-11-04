@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/wait.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>wait.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/reqwest-0.11.12/src/blocking/wait.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>wait.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../reqwest/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../reqwest/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -76,83 +76,83 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::future::Future</span>;
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
-<span class="kw">use</span> <span class="ident">std::thread</span>::{<span class="self">self</span>, <span class="ident">Thread</span>};
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::future::Future;
+<span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span>std::task::{Context, Poll};
+<span class="kw">use </span>std::thread::{<span class="self">self</span>, Thread};
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">tokio::time::Instant</span>;
+<span class="kw">use </span>tokio::time::Instant;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">timeout</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">fut</span>: <span class="ident">F</span>, <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Waited</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>timeout&lt;F, I, E&gt;(fut: F, timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;I, Waited&lt;E&gt;&gt;
+<span class="kw">where
+    </span>F: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;I, E&gt;&gt;,
 {
-    <span class="ident">enter</span>();
+    enter();
 
-    <span class="kw">let</span> <span class="ident">deadline</span> <span class="op">=</span> <span class="ident">timeout</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> {
-        <span class="macro">log::trace!</span>(<span class="string">&quot;wait at most {:?}&quot;</span>, <span class="ident">d</span>);
-        <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">d</span>
+    <span class="kw">let </span>deadline = timeout.map(|d| {
+        <span class="macro">log::trace!</span>(<span class="string">&quot;wait at most {:?}&quot;</span>, d);
+        Instant::now() + d
     });
 
-    <span class="kw">let</span> <span class="ident">thread</span> <span class="op">=</span> <span class="ident">ThreadWaker</span>(<span class="ident">thread::current</span>());
-    <span class="comment">// Arc shouldn&#39;t be necessary, since `Thread` is reference counted internally,</span>
-    <span class="comment">// but let&#39;s just stay safe for now.</span>
-    <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> <span class="ident">futures_util::task::waker</span>(<span class="ident">Arc::new</span>(<span class="ident">thread</span>));
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cx</span> <span class="op">=</span> <span class="ident">Context::from_waker</span>(<span class="kw-2">&amp;</span><span class="ident">waker</span>);
+    <span class="kw">let </span>thread = ThreadWaker(thread::current());
+    <span class="comment">// Arc shouldn&#39;t be necessary, since `Thread` is reference counted internally,
+    // but let&#39;s just stay safe for now.
+    </span><span class="kw">let </span>waker = futures_util::task::waker(Arc::new(thread));
+    <span class="kw">let </span><span class="kw-2">mut </span>cx = Context::from_waker(<span class="kw-2">&amp;</span>waker);
 
-    <span class="macro">futures_util::pin_mut!</span>(<span class="ident">fut</span>);
+    <span class="macro">futures_util::pin_mut!</span>(fut);
 
-    <span class="kw">loop</span> {
-        <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="kw-2">&amp;mut</span> <span class="ident">cx</span>) {
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">val</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">val</span>),
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Waited::Inner</span>(<span class="ident">err</span>)),
-            <span class="ident">Poll::Pending</span> =&gt; (), <span class="comment">// fallthrough</span>
-        }
+    <span class="kw">loop </span>{
+        <span class="kw">match </span>fut.as_mut().poll(<span class="kw-2">&amp;mut </span>cx) {
+            Poll::Ready(<span class="prelude-val">Ok</span>(val)) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(val),
+            Poll::Ready(<span class="prelude-val">Err</span>(err)) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Waited::Inner(err)),
+            Poll::Pending =&gt; (), <span class="comment">// fallthrough
+        </span>}
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">deadline</span>) <span class="op">=</span> <span class="ident">deadline</span> {
-            <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
-            <span class="kw">if</span> <span class="ident">now</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">deadline</span> {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(deadline) = deadline {
+            <span class="kw">let </span>now = Instant::now();
+            <span class="kw">if </span>now &gt;= deadline {
                 <span class="macro">log::trace!</span>(<span class="string">&quot;wait timeout exceeded&quot;</span>);
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Waited::TimedOut</span>(<span class="ident"><span class="kw">crate</span>::error::TimedOut</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Waited::TimedOut(<span class="kw">crate</span>::error::TimedOut));
             }
 
             <span class="macro">log::trace!</span>(
                 <span class="string">&quot;({:?}) park timeout {:?}&quot;</span>,
-                <span class="ident">thread::current</span>().<span class="ident">id</span>(),
-                <span class="ident">deadline</span> <span class="op">-</span> <span class="ident">now</span>
+                thread::current().id(),
+                deadline - now
             );
-            <span class="ident">thread::park_timeout</span>(<span class="ident">deadline</span> <span class="op">-</span> <span class="ident">now</span>);
-        } <span class="kw">else</span> {
-            <span class="macro">log::trace!</span>(<span class="string">&quot;({:?}) park without timeout&quot;</span>, <span class="ident">thread::current</span>().<span class="ident">id</span>());
-            <span class="ident">thread::park</span>();
+            thread::park_timeout(deadline - now);
+        } <span class="kw">else </span>{
+            <span class="macro">log::trace!</span>(<span class="string">&quot;({:?}) park without timeout&quot;</span>, thread::current().id());
+            thread::park();
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">Waited</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
-    <span class="ident">TimedOut</span>(<span class="ident"><span class="kw">crate</span>::error::TimedOut</span>),
-    <span class="ident">Inner</span>(<span class="ident">E</span>),
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>Waited&lt;E&gt; {
+    TimedOut(<span class="kw">crate</span>::error::TimedOut),
+    Inner(E),
 }
 
-<span class="kw">struct</span> <span class="ident">ThreadWaker</span>(<span class="ident">Thread</span>);
+<span class="kw">struct </span>ThreadWaker(Thread);
 
-<span class="kw">impl</span> <span class="ident">futures_util::task::ArcWake</span> <span class="kw">for</span> <span class="ident">ThreadWaker</span> {
-    <span class="kw">fn</span> <span class="ident">wake_by_ref</span>(<span class="ident">arc_self</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="ident">arc_self</span>.<span class="number">0</span>.<span class="ident">unpark</span>();
+<span class="kw">impl </span>futures_util::task::ArcWake <span class="kw">for </span>ThreadWaker {
+    <span class="kw">fn </span>wake_by_ref(arc_self: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;) {
+        arc_self.<span class="number">0</span>.unpark();
     }
 }
 
-<span class="kw">fn</span> <span class="ident">enter</span>() {
-    <span class="comment">// Check we aren&#39;t already in a runtime</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-    {
-        <span class="kw">let</span> <span class="ident">_enter</span> <span class="op">=</span> <span class="ident">tokio::runtime::Builder::new_current_thread</span>()
-            .<span class="ident">build</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;build shell runtime&quot;</span>)
-            .<span class="ident">enter</span>();
+<span class="kw">fn </span>enter() {
+    <span class="comment">// Check we aren&#39;t already in a runtime
+    </span><span class="attribute">#[cfg(debug_assertions)]
+    </span>{
+        <span class="kw">let </span>_enter = tokio::runtime::Builder::new_current_thread()
+            .build()
+            .expect(<span class="string">&quot;build shell runtime&quot;</span>)
+            .enter();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="reqwest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

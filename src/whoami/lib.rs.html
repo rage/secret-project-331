@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.2.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.2.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../whoami/index.html">
                         <img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -312,317 +312,317 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright © 2017-2022 The WhoAmI Contributors.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under any of:</span>
-<span class="comment">// - Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">// - Boost Software License, Version 1.0 (https://www.boost.org/LICENSE_1_0.txt)</span>
-<span class="comment">// - MIT License (https://mit-license.org/)</span>
-<span class="comment">// At your choosing (See accompanying files LICENSE_APACHE_2_0.txt,</span>
-<span class="comment">// LICENSE_MIT.txt and LICENSE_BOOST_1_0.txt).</span>
-<span class="comment">//</span>
-<span class="doccomment">//! Crate for getting the user&#39;s username, realname and environment.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Getting Started</span>
-<span class="doccomment">//! Using the whoami crate is super easy!  All of the public items are simple</span>
-<span class="doccomment">//! functions with no parameters that return [`String`](std::string::String)s or</span>
-<span class="doccomment">//! [`OsString`](std::ffi::OsString)s (with the exception of</span>
-<span class="doccomment">//! [`desktop_env()`](crate::desktop_env), and [`platform()`](crate::platform)</span>
-<span class="doccomment">//! which return enums, and [`lang()`](crate::lang) that returns an iterator of</span>
-<span class="doccomment">//! [`String`](std::string::String)s).  The following example shows how to use</span>
-<span class="doccomment">//! all of the functions (except those that return</span>
-<span class="doccomment">//! [`OsString`](std::ffi::OsString)):</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! fn main() {</span>
-<span class="doccomment">//!     println!(</span>
-<span class="doccomment">//!         &quot;User&#39;s Name            whoami::realname():    {}&quot;,</span>
-<span class="doccomment">//!         whoami::realname(),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!     println!(</span>
-<span class="doccomment">//!         &quot;User&#39;s Username        whoami::username():    {}&quot;,</span>
-<span class="doccomment">//!         whoami::username(),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!     println!(</span>
-<span class="doccomment">//!         &quot;User&#39;s Language        whoami::lang():        {:?}&quot;,</span>
-<span class="doccomment">//!         whoami::lang().collect::&lt;Vec&lt;String&gt;&gt;(),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!     println!(</span>
-<span class="doccomment">//!         &quot;Device&#39;s Pretty Name   whoami::devicename():  {}&quot;,</span>
-<span class="doccomment">//!         whoami::devicename(),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!     println!(</span>
-<span class="doccomment">//!         &quot;Device&#39;s Hostname      whoami::hostname():    {}&quot;,</span>
-<span class="doccomment">//!         whoami::hostname(),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!     println!(</span>
-<span class="doccomment">//!         &quot;Device&#39;s Platform      whoami::platform():    {}&quot;,</span>
-<span class="doccomment">//!         whoami::platform(),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!     println!(</span>
-<span class="doccomment">//!         &quot;Device&#39;s OS Distro     whoami::distro():      {}&quot;,</span>
-<span class="doccomment">//!         whoami::distro(),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!     println!(</span>
-<span class="doccomment">//!         &quot;Device&#39;s Desktop Env.  whoami::desktop_env(): {}&quot;,</span>
-<span class="doccomment">//!         whoami::desktop_env(),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright © 2017-2022 The WhoAmI Contributors.
+//
+// Licensed under any of:
+// - Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+// - Boost Software License, Version 1.0 (https://www.boost.org/LICENSE_1_0.txt)
+// - MIT License (https://mit-license.org/)
+// At your choosing (See accompanying files LICENSE_APACHE_2_0.txt,
+// LICENSE_MIT.txt and LICENSE_BOOST_1_0.txt).
+//
+</span><span class="doccomment">//! Crate for getting the user&#39;s username, realname and environment.
+//!
+//! ## Getting Started
+//! Using the whoami crate is super easy!  All of the public items are simple
+//! functions with no parameters that return [`String`](std::string::String)s or
+//! [`OsString`](std::ffi::OsString)s (with the exception of
+//! [`desktop_env()`](crate::desktop_env), and [`platform()`](crate::platform)
+//! which return enums, and [`lang()`](crate::lang) that returns an iterator of
+//! [`String`](std::string::String)s).  The following example shows how to use
+//! all of the functions (except those that return
+//! [`OsString`](std::ffi::OsString)):
+//!
+//! ```rust
+//! fn main() {
+//!     println!(
+//!         &quot;User&#39;s Name            whoami::realname():    {}&quot;,
+//!         whoami::realname(),
+//!     );
+//!     println!(
+//!         &quot;User&#39;s Username        whoami::username():    {}&quot;,
+//!         whoami::username(),
+//!     );
+//!     println!(
+//!         &quot;User&#39;s Language        whoami::lang():        {:?}&quot;,
+//!         whoami::lang().collect::&lt;Vec&lt;String&gt;&gt;(),
+//!     );
+//!     println!(
+//!         &quot;Device&#39;s Pretty Name   whoami::devicename():  {}&quot;,
+//!         whoami::devicename(),
+//!     );
+//!     println!(
+//!         &quot;Device&#39;s Hostname      whoami::hostname():    {}&quot;,
+//!         whoami::hostname(),
+//!     );
+//!     println!(
+//!         &quot;Device&#39;s Platform      whoami::platform():    {}&quot;,
+//!         whoami::platform(),
+//!     );
+//!     println!(
+//!         &quot;Device&#39;s OS Distro     whoami::distro():      {}&quot;,
+//!         whoami::distro(),
+//!     );
+//!     println!(
+//!         &quot;Device&#39;s Desktop Env.  whoami::desktop_env(): {}&quot;,
+//!         whoami::desktop_env(),
+//!     );
+//! }
+//! ```
 
-<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
-<span class="attribute">#![<span class="ident">doc</span>(
-    <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg&quot;</span>,
-    <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg&quot;</span>
-)]</span>
+</span><span class="attribute">#![warn(missing_docs)]
+#![doc(
+    html_logo_url = <span class="string">&quot;https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg&quot;</span>,
+    html_favicon_url = <span class="string">&quot;https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg&quot;
+</span>)]
 
-<span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
+</span><span class="kw">use </span>std::ffi::OsString;
 
-<span class="doccomment">/// Which Desktop Environment</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DesktopEnv</span> {
-    <span class="doccomment">/// Popular GTK-based desktop environment on Linux</span>
-    <span class="ident">Gnome</span>,
-    <span class="doccomment">/// One of the desktop environments for a specific version of Windows</span>
-    <span class="ident">Windows</span>,
-    <span class="doccomment">/// Linux desktop environment optimized for low resource requirements</span>
-    <span class="ident">Lxde</span>,
-    <span class="doccomment">/// Stacking window manager for X Windows on Linux</span>
-    <span class="ident">Openbox</span>,
-    <span class="doccomment">/// Desktop environment for Linux, BSD and Illumos</span>
-    <span class="ident">Mate</span>,
-    <span class="doccomment">/// Lightweight desktop enivornment for unix-like operating systems</span>
-    <span class="ident">Xfce</span>,
-    <span class="doccomment">/// KDE Plasma desktop enviroment</span>
-    <span class="comment">// FIXME: Rename to &#39;Plasma&#39; in whoami 2.0.0</span>
-    <span class="ident">Kde</span>,
-    <span class="doccomment">/// Default desktop environment on Linux Mint</span>
-    <span class="ident">Cinnamon</span>,
-    <span class="doccomment">/// Tiling window manager for Linux</span>
-    <span class="ident">I3</span>,
-    <span class="doccomment">/// Desktop environment for MacOS</span>
-    <span class="ident">Aqua</span>,
-    <span class="doccomment">/// Desktop environment for iOS</span>
-    <span class="ident">Ios</span>,
-    <span class="doccomment">/// Desktop environment for Android</span>
-    <span class="ident">Android</span>,
-    <span class="doccomment">/// Running as Web Assembly on a web page</span>
-    <span class="ident">WebBrowser</span>,
-    <span class="doccomment">/// A desktop environment for a video game console</span>
-    <span class="ident">Console</span>,
-    <span class="doccomment">/// Ubuntu-branded GNOME</span>
-    <span class="ident">Ubuntu</span>,
-    <span class="doccomment">/// Default shell for Fuchsia</span>
-    <span class="ident">Ermine</span>,
-    <span class="doccomment">/// Default desktop environment for Redox</span>
-    <span class="ident">Orbital</span>,
-    <span class="doccomment">/// Unknown desktop environment</span>
-    <span class="ident">Unknown</span>(<span class="ident">String</span>),
+<span class="doccomment">/// Which Desktop Environment
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Clone)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>DesktopEnv {
+    <span class="doccomment">/// Popular GTK-based desktop environment on Linux
+    </span>Gnome,
+    <span class="doccomment">/// One of the desktop environments for a specific version of Windows
+    </span>Windows,
+    <span class="doccomment">/// Linux desktop environment optimized for low resource requirements
+    </span>Lxde,
+    <span class="doccomment">/// Stacking window manager for X Windows on Linux
+    </span>Openbox,
+    <span class="doccomment">/// Desktop environment for Linux, BSD and Illumos
+    </span>Mate,
+    <span class="doccomment">/// Lightweight desktop enivornment for unix-like operating systems
+    </span>Xfce,
+    <span class="doccomment">/// KDE Plasma desktop enviroment
+    </span><span class="comment">// FIXME: Rename to &#39;Plasma&#39; in whoami 2.0.0
+    </span>Kde,
+    <span class="doccomment">/// Default desktop environment on Linux Mint
+    </span>Cinnamon,
+    <span class="doccomment">/// Tiling window manager for Linux
+    </span>I3,
+    <span class="doccomment">/// Desktop environment for MacOS
+    </span>Aqua,
+    <span class="doccomment">/// Desktop environment for iOS
+    </span>Ios,
+    <span class="doccomment">/// Desktop environment for Android
+    </span>Android,
+    <span class="doccomment">/// Running as Web Assembly on a web page
+    </span>WebBrowser,
+    <span class="doccomment">/// A desktop environment for a video game console
+    </span>Console,
+    <span class="doccomment">/// Ubuntu-branded GNOME
+    </span>Ubuntu,
+    <span class="doccomment">/// Default shell for Fuchsia
+    </span>Ermine,
+    <span class="doccomment">/// Default desktop environment for Redox
+    </span>Orbital,
+    <span class="doccomment">/// Unknown desktop environment
+    </span>Unknown(String),
 }
 
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">DesktopEnv</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DesktopEnv::Unknown</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span> {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Unknown: &quot;</span>)<span class="question-mark">?</span>;
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>DesktopEnv {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
+        <span class="kw">if let </span>DesktopEnv::Unknown(<span class="kw">_</span>) = <span class="self">self </span>{
+            <span class="macro">write!</span>(f, <span class="string">&quot;Unknown: &quot;</span>)<span class="question-mark">?</span>;
         }
 
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;{}&quot;</span>,
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">DesktopEnv::Gnome</span> =&gt; <span class="string">&quot;Gnome&quot;</span>,
-                <span class="ident">DesktopEnv::Windows</span> =&gt; <span class="string">&quot;Windows&quot;</span>,
-                <span class="ident">DesktopEnv::Lxde</span> =&gt; <span class="string">&quot;LXDE&quot;</span>,
-                <span class="ident">DesktopEnv::Openbox</span> =&gt; <span class="string">&quot;Openbox&quot;</span>,
-                <span class="ident">DesktopEnv::Mate</span> =&gt; <span class="string">&quot;Mate&quot;</span>,
-                <span class="ident">DesktopEnv::Xfce</span> =&gt; <span class="string">&quot;XFCE&quot;</span>,
-                <span class="ident">DesktopEnv::Kde</span> =&gt; <span class="string">&quot;KDE&quot;</span>,
-                <span class="ident">DesktopEnv::Cinnamon</span> =&gt; <span class="string">&quot;Cinnamon&quot;</span>,
-                <span class="ident">DesktopEnv::I3</span> =&gt; <span class="string">&quot;I3&quot;</span>,
-                <span class="ident">DesktopEnv::Aqua</span> =&gt; <span class="string">&quot;Aqua&quot;</span>,
-                <span class="ident">DesktopEnv::Ios</span> =&gt; <span class="string">&quot;IOS&quot;</span>,
-                <span class="ident">DesktopEnv::Android</span> =&gt; <span class="string">&quot;Android&quot;</span>,
-                <span class="ident">DesktopEnv::WebBrowser</span> =&gt; <span class="string">&quot;Web Browser&quot;</span>,
-                <span class="ident">DesktopEnv::Console</span> =&gt; <span class="string">&quot;Console&quot;</span>,
-                <span class="ident">DesktopEnv::Ubuntu</span> =&gt; <span class="string">&quot;Ubuntu&quot;</span>,
-                <span class="ident">DesktopEnv::Ermine</span> =&gt; <span class="string">&quot;Ermine&quot;</span>,
-                <span class="ident">DesktopEnv::Orbital</span> =&gt; <span class="string">&quot;Orbital&quot;</span>,
-                <span class="ident">DesktopEnv::Unknown</span>(<span class="ident">a</span>) =&gt; <span class="ident">a</span>,
+            <span class="kw">match </span><span class="self">self </span>{
+                DesktopEnv::Gnome =&gt; <span class="string">&quot;Gnome&quot;</span>,
+                DesktopEnv::Windows =&gt; <span class="string">&quot;Windows&quot;</span>,
+                DesktopEnv::Lxde =&gt; <span class="string">&quot;LXDE&quot;</span>,
+                DesktopEnv::Openbox =&gt; <span class="string">&quot;Openbox&quot;</span>,
+                DesktopEnv::Mate =&gt; <span class="string">&quot;Mate&quot;</span>,
+                DesktopEnv::Xfce =&gt; <span class="string">&quot;XFCE&quot;</span>,
+                DesktopEnv::Kde =&gt; <span class="string">&quot;KDE&quot;</span>,
+                DesktopEnv::Cinnamon =&gt; <span class="string">&quot;Cinnamon&quot;</span>,
+                DesktopEnv::I3 =&gt; <span class="string">&quot;I3&quot;</span>,
+                DesktopEnv::Aqua =&gt; <span class="string">&quot;Aqua&quot;</span>,
+                DesktopEnv::Ios =&gt; <span class="string">&quot;IOS&quot;</span>,
+                DesktopEnv::Android =&gt; <span class="string">&quot;Android&quot;</span>,
+                DesktopEnv::WebBrowser =&gt; <span class="string">&quot;Web Browser&quot;</span>,
+                DesktopEnv::Console =&gt; <span class="string">&quot;Console&quot;</span>,
+                DesktopEnv::Ubuntu =&gt; <span class="string">&quot;Ubuntu&quot;</span>,
+                DesktopEnv::Ermine =&gt; <span class="string">&quot;Ermine&quot;</span>,
+                DesktopEnv::Orbital =&gt; <span class="string">&quot;Orbital&quot;</span>,
+                DesktopEnv::Unknown(a) =&gt; a,
             }
         )
     }
 }
 
-<span class="doccomment">/// Which Platform</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Platform</span> {
-    <span class="ident">Linux</span>,
-    <span class="ident">Bsd</span>,
-    <span class="ident">Windows</span>,
-    <span class="comment">// FIXME: Non-standard casing; Rename to &#39;Mac&#39; rather than &#39;MacOs&#39; in whoami 2.0.0</span>
-    <span class="ident">MacOS</span>,
-    <span class="ident">Ios</span>,
-    <span class="ident">Android</span>,
-    <span class="ident">Nintendo</span>,
-    <span class="ident">Xbox</span>,
-    <span class="ident">PlayStation</span>,
-    <span class="ident">Fuchsia</span>,
-    <span class="ident">Redox</span>,
-    <span class="ident">Unknown</span>(<span class="ident">String</span>),
+<span class="doccomment">/// Which Platform
+</span><span class="attribute">#[allow(missing_docs)]
+#[derive(Debug, PartialEq, Eq, Clone)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>Platform {
+    Linux,
+    Bsd,
+    Windows,
+    <span class="comment">// FIXME: Non-standard casing; Rename to &#39;Mac&#39; rather than &#39;MacOs&#39; in whoami 2.0.0
+    </span>MacOS,
+    Ios,
+    Android,
+    Nintendo,
+    Xbox,
+    PlayStation,
+    Fuchsia,
+    Redox,
+    Unknown(String),
 }
 
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Platform</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Platform::Unknown</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span> {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Unknown: &quot;</span>)<span class="question-mark">?</span>;
+<span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Platform {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
+        <span class="kw">if let </span>Platform::Unknown(<span class="kw">_</span>) = <span class="self">self </span>{
+            <span class="macro">write!</span>(f, <span class="string">&quot;Unknown: &quot;</span>)<span class="question-mark">?</span>;
         }
 
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;{}&quot;</span>,
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">Platform::Linux</span> =&gt; <span class="string">&quot;Linux&quot;</span>,
-                <span class="ident">Platform::Bsd</span> =&gt; <span class="string">&quot;BSD&quot;</span>,
-                <span class="ident">Platform::Windows</span> =&gt; <span class="string">&quot;Windows&quot;</span>,
-                <span class="ident">Platform::MacOS</span> =&gt; <span class="string">&quot;Mac OS&quot;</span>,
-                <span class="ident">Platform::Ios</span> =&gt; <span class="string">&quot;iOS&quot;</span>,
-                <span class="ident">Platform::Android</span> =&gt; <span class="string">&quot;Android&quot;</span>,
-                <span class="ident">Platform::Nintendo</span> =&gt; <span class="string">&quot;Nintendo&quot;</span>,
-                <span class="ident">Platform::Xbox</span> =&gt; <span class="string">&quot;XBox&quot;</span>,
-                <span class="ident">Platform::PlayStation</span> =&gt; <span class="string">&quot;PlayStation&quot;</span>,
-                <span class="ident">Platform::Fuchsia</span> =&gt; <span class="string">&quot;Fuchsia&quot;</span>,
-                <span class="ident">Platform::Redox</span> =&gt; <span class="string">&quot;Redox&quot;</span>,
-                <span class="ident">Platform::Unknown</span>(<span class="ident">a</span>) =&gt; <span class="ident">a</span>,
+            <span class="kw">match </span><span class="self">self </span>{
+                Platform::Linux =&gt; <span class="string">&quot;Linux&quot;</span>,
+                Platform::Bsd =&gt; <span class="string">&quot;BSD&quot;</span>,
+                Platform::Windows =&gt; <span class="string">&quot;Windows&quot;</span>,
+                Platform::MacOS =&gt; <span class="string">&quot;Mac OS&quot;</span>,
+                Platform::Ios =&gt; <span class="string">&quot;iOS&quot;</span>,
+                Platform::Android =&gt; <span class="string">&quot;Android&quot;</span>,
+                Platform::Nintendo =&gt; <span class="string">&quot;Nintendo&quot;</span>,
+                Platform::Xbox =&gt; <span class="string">&quot;XBox&quot;</span>,
+                Platform::PlayStation =&gt; <span class="string">&quot;PlayStation&quot;</span>,
+                Platform::Fuchsia =&gt; <span class="string">&quot;Fuchsia&quot;</span>,
+                Platform::Redox =&gt; <span class="string">&quot;Redox&quot;</span>,
+                Platform::Unknown(a) =&gt; a,
             }
         )
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>, <span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)))]</span>
-<span class="kw">mod</span> <span class="ident">windows</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>, <span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)))]</span>
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::windows</span> <span class="kw">as</span> <span class="ident">native</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">wasm</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::wasm</span> <span class="kw">as</span> <span class="ident">native</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>, <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)))]</span>
-<span class="kw">mod</span> <span class="ident">unix</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>, <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)))]</span>
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::unix</span> <span class="kw">as</span> <span class="ident">native</span>;
+<span class="attribute">#[cfg(all(target_os = <span class="string">&quot;windows&quot;</span>, not(target_arch = <span class="string">&quot;wasm32&quot;</span>)))]
+</span><span class="kw">mod </span>windows;
+<span class="attribute">#[cfg(all(target_os = <span class="string">&quot;windows&quot;</span>, not(target_arch = <span class="string">&quot;wasm32&quot;</span>)))]
+</span><span class="kw">use </span><span class="self">self</span>::windows <span class="kw">as </span>native;
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+</span><span class="kw">mod </span>wasm;
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+</span><span class="kw">use </span><span class="self">self</span>::wasm <span class="kw">as </span>native;
+<span class="attribute">#[cfg(not(any(target_os = <span class="string">&quot;windows&quot;</span>, target_arch = <span class="string">&quot;wasm32&quot;</span>)))]
+</span><span class="kw">mod </span>unix;
+<span class="attribute">#[cfg(not(any(target_os = <span class="string">&quot;windows&quot;</span>, target_arch = <span class="string">&quot;wasm32&quot;</span>)))]
+</span><span class="kw">use </span><span class="self">self</span>::unix <span class="kw">as </span>native;
 
-<span class="doccomment">/// Get the user&#39;s username.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// On unix-systems this differs from `realname()` most notably in that spaces</span>
-<span class="doccomment">/// are not allowed.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">native::username</span>()
+<span class="doccomment">/// Get the user&#39;s username.
+///
+/// On unix-systems this differs from `realname()` most notably in that spaces
+/// are not allowed.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>username() -&gt; String {
+    native::username()
 }
 
-<span class="doccomment">/// Get the user&#39;s username.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// On unix-systems this differs from `realname()` most notably in that spaces</span>
-<span class="doccomment">/// are not allowed.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="ident">native::username_os</span>()
+<span class="doccomment">/// Get the user&#39;s username.
+///
+/// On unix-systems this differs from `realname()` most notably in that spaces
+/// are not allowed.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>username_os() -&gt; OsString {
+    native::username_os()
 }
 
-<span class="doccomment">/// Get the user&#39;s real (full) name.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">native::realname</span>()
+<span class="doccomment">/// Get the user&#39;s real (full) name.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>realname() -&gt; String {
+    native::realname()
 }
 
-<span class="doccomment">/// Get the user&#39;s real (full) name.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="ident">native::realname_os</span>()
+<span class="doccomment">/// Get the user&#39;s real (full) name.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>realname_os() -&gt; OsString {
+    native::realname_os()
 }
 
-<span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Often used to identify device for bluetooth pairing.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">native::devicename</span>()
+<span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;).
+///
+/// Often used to identify device for bluetooth pairing.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>devicename() -&gt; String {
+    native::devicename()
 }
 
-<span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Often used to identify device for bluetooth pairing.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="ident">native::devicename_os</span>()
+<span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;).
+///
+/// Often used to identify device for bluetooth pairing.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>devicename_os() -&gt; OsString {
+    native::devicename_os()
 }
 
-<span class="doccomment">/// Get the host device&#39;s hostname.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Limited to a-z (case insensitve), 0-9, and dashes.  This limit also applies</span>
-<span class="doccomment">/// to `devicename()` when targeting Windows.  Since the hostname is</span>
-<span class="doccomment">/// case-insensitive, this method normalizes to lowercase (unlike</span>
-<span class="doccomment">/// `devicename()`).</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname</span>() -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hostname</span> <span class="op">=</span> <span class="ident">native::hostname</span>();
-    <span class="ident">hostname</span>.<span class="ident">make_ascii_lowercase</span>();
-    <span class="ident">hostname</span>
+<span class="doccomment">/// Get the host device&#39;s hostname.
+///
+/// Limited to a-z (case insensitve), 0-9, and dashes.  This limit also applies
+/// to `devicename()` when targeting Windows.  Since the hostname is
+/// case-insensitive, this method normalizes to lowercase (unlike
+/// `devicename()`).
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>hostname() -&gt; String {
+    <span class="kw">let </span><span class="kw-2">mut </span>hostname = native::hostname();
+    hostname.make_ascii_lowercase();
+    hostname
 }
 
-<span class="doccomment">/// Get the host device&#39;s hostname.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Limited to a-z (case insensitve), 0-9, and dashes.  This limit also applies</span>
-<span class="doccomment">/// to `devicename()` when targeting Windows.  Since the hostname is</span>
-<span class="doccomment">/// case-insensitive, this method normalizes to lowercase (unlike</span>
-<span class="doccomment">/// `devicename()`).</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="ident">hostname</span>().<span class="ident">into</span>()
+<span class="doccomment">/// Get the host device&#39;s hostname.
+///
+/// Limited to a-z (case insensitve), 0-9, and dashes.  This limit also applies
+/// to `devicename()` when targeting Windows.  Since the hostname is
+/// case-insensitive, this method normalizes to lowercase (unlike
+/// `devicename()`).
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>hostname_os() -&gt; OsString {
+    hostname().into()
 }
 
-<span class="doccomment">/// Get the name of the operating system distribution and (possibly) version.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Example: &quot;Windows 10&quot; or &quot;Fedora 26 (Workstation Edition)&quot;</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">native::distro</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Unknown {}&quot;</span>, <span class="ident">platform</span>()))
+<span class="doccomment">/// Get the name of the operating system distribution and (possibly) version.
+///
+/// Example: &quot;Windows 10&quot; or &quot;Fedora 26 (Workstation Edition)&quot;
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>distro() -&gt; String {
+    native::distro().unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;Unknown {}&quot;</span>, platform()))
 }
 
-<span class="doccomment">/// Get the name of the operating system distribution and (possibly) version.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Example: &quot;Windows 10&quot; or &quot;Fedora 26 (Workstation Edition)&quot;</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="ident">native::distro_os</span>()
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Unknown {}&quot;</span>, <span class="ident">platform</span>()).<span class="ident">into</span>())
+<span class="doccomment">/// Get the name of the operating system distribution and (possibly) version.
+///
+/// Example: &quot;Windows 10&quot; or &quot;Fedora 26 (Workstation Edition)&quot;
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>distro_os() -&gt; OsString {
+    native::distro_os()
+        .unwrap_or_else(|| <span class="macro">format!</span>(<span class="string">&quot;Unknown {}&quot;</span>, platform()).into())
 }
 
-<span class="doccomment">/// Get the desktop environment.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Example: &quot;gnome&quot; or &quot;windows&quot;</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">desktop_env</span>() -&gt; <span class="ident">DesktopEnv</span> {
-    <span class="ident">native::desktop_env</span>()
+<span class="doccomment">/// Get the desktop environment.
+///
+/// Example: &quot;gnome&quot; or &quot;windows&quot;
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>desktop_env() -&gt; DesktopEnv {
+    native::desktop_env()
 }
 
-<span class="doccomment">/// Get the platform.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">platform</span>() -&gt; <span class="ident">Platform</span> {
-    <span class="ident">native::platform</span>()
+<span class="doccomment">/// Get the platform.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>platform() -&gt; Platform {
+    native::platform()
 }
 
-<span class="doccomment">/// Get the user&#39;s preferred language(s).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returned as iterator of two letter language codes (lowercase), optionally</span>
-<span class="doccomment">/// followed by a dash (-) and a two letter region code (uppercase).  The most</span>
-<span class="doccomment">/// preferred language is returned first, followed by next preferred, and so on.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lang</span>() -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="ident">native::lang</span>()
+<span class="doccomment">/// Get the user&#39;s preferred language(s).
+///
+/// Returned as iterator of two letter language codes (lowercase), optionally
+/// followed by a dash (-) and a two letter region code (uppercase).  The most
+/// preferred language is returned first, followed by next preferred, and so on.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>lang() -&gt; <span class="kw">impl </span>Iterator&lt;Item = String&gt; {
+    native::lang()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="whoami" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="whoami" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

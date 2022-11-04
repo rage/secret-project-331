@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/range.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>range.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.2.1/src/http/header/range.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>range.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../actix_web/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../actix_web/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -427,432 +427,432 @@
 <span id="425">425</span>
 <span id="426">426</span>
 <span id="427">427</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cmp</span>,
-    <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>, <span class="ident">Write</span>},
-    <span class="ident">str::FromStr</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    cmp,
+    fmt::{<span class="self">self</span>, Display, Write},
+    str::FromStr,
 };
 
-<span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">error::ParseError</span>, <span class="ident">header</span>, <span class="ident">HttpMessage</span>};
+<span class="kw">use </span>actix_http::{error::ParseError, header, HttpMessage};
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Header</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">InvalidHeaderValue</span>, <span class="ident">TryIntoHeaderValue</span>, <span class="ident">Writer</span>};
+<span class="kw">use super</span>::{Header, HeaderName, HeaderValue, InvalidHeaderValue, TryIntoHeaderValue, Writer};
 
-<span class="doccomment">/// `Range` header, defined</span>
-<span class="doccomment">/// in [RFC 7233 §3.1](https://datatracker.ietf.org/doc/html/rfc7233#section-3.1)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The &quot;Range&quot; header field on a GET request modifies the method semantics to request transfer of</span>
-<span class="doccomment">/// only one or more sub-ranges of the selected representation data, rather than the entire selected</span>
-<span class="doccomment">/// representation data.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # ABNF</span>
-<span class="doccomment">/// ```plain</span>
-<span class="doccomment">/// Range = byte-ranges-specifier / other-ranges-specifier</span>
-<span class="doccomment">/// other-ranges-specifier = other-range-unit &quot;=&quot; other-range-set</span>
-<span class="doccomment">/// other-range-set = 1*VCHAR</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// bytes-unit = &quot;bytes&quot;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// byte-ranges-specifier = bytes-unit &quot;=&quot; byte-range-set</span>
-<span class="doccomment">/// byte-range-set = 1#(byte-range-spec / suffix-byte-range-spec)</span>
-<span class="doccomment">/// byte-range-spec = first-byte-pos &quot;-&quot; [last-byte-pos]</span>
-<span class="doccomment">/// suffix-byte-range-spec = &quot;-&quot; suffix-length</span>
-<span class="doccomment">/// suffix-length = 1*DIGIT</span>
-<span class="doccomment">/// first-byte-pos = 1*DIGIT</span>
-<span class="doccomment">/// last-byte-pos = 1*DIGIT</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example Values</span>
-<span class="doccomment">/// * `bytes=1000-`</span>
-<span class="doccomment">/// * `bytes=-50`</span>
-<span class="doccomment">/// * `bytes=0-1,30-40`</span>
-<span class="doccomment">/// * `bytes=0-10,20-90,-100`</span>
-<span class="doccomment">/// * `custom_unit=0-123`</span>
-<span class="doccomment">/// * `custom_unit=xxx-yyy`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_web::http::header::{Range, ByteRangeSpec};</span>
-<span class="doccomment">/// use actix_web::HttpResponse;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut builder = HttpResponse::Ok();</span>
-<span class="doccomment">/// builder.insert_header(Range::Bytes(</span>
-<span class="doccomment">///     vec![ByteRangeSpec::FromTo(1, 100), ByteRangeSpec::From(200)]</span>
-<span class="doccomment">/// ));</span>
-<span class="doccomment">/// builder.insert_header(Range::Unregistered(&quot;letters&quot;.to_owned(), &quot;a-f&quot;.to_owned()));</span>
-<span class="doccomment">/// builder.insert_header(Range::bytes(1, 100));</span>
-<span class="doccomment">/// builder.insert_header(Range::bytes_multi(vec![(1, 100), (200, 300)]));</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Range</span> {
-    <span class="doccomment">/// Byte range.</span>
-    <span class="ident">Bytes</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ByteRangeSpec</span><span class="op">&gt;</span>),
+<span class="doccomment">/// `Range` header, defined
+/// in [RFC 7233 §3.1](https://datatracker.ietf.org/doc/html/rfc7233#section-3.1)
+///
+/// The &quot;Range&quot; header field on a GET request modifies the method semantics to request transfer of
+/// only one or more sub-ranges of the selected representation data, rather than the entire selected
+/// representation data.
+///
+/// # ABNF
+/// ```plain
+/// Range = byte-ranges-specifier / other-ranges-specifier
+/// other-ranges-specifier = other-range-unit &quot;=&quot; other-range-set
+/// other-range-set = 1*VCHAR
+///
+/// bytes-unit = &quot;bytes&quot;
+///
+/// byte-ranges-specifier = bytes-unit &quot;=&quot; byte-range-set
+/// byte-range-set = 1#(byte-range-spec / suffix-byte-range-spec)
+/// byte-range-spec = first-byte-pos &quot;-&quot; [last-byte-pos]
+/// suffix-byte-range-spec = &quot;-&quot; suffix-length
+/// suffix-length = 1*DIGIT
+/// first-byte-pos = 1*DIGIT
+/// last-byte-pos = 1*DIGIT
+/// ```
+///
+/// # Example Values
+/// * `bytes=1000-`
+/// * `bytes=-50`
+/// * `bytes=0-1,30-40`
+/// * `bytes=0-10,20-90,-100`
+/// * `custom_unit=0-123`
+/// * `custom_unit=xxx-yyy`
+///
+/// # Examples
+/// ```
+/// use actix_web::http::header::{Range, ByteRangeSpec};
+/// use actix_web::HttpResponse;
+///
+/// let mut builder = HttpResponse::Ok();
+/// builder.insert_header(Range::Bytes(
+///     vec![ByteRangeSpec::FromTo(1, 100), ByteRangeSpec::From(200)]
+/// ));
+/// builder.insert_header(Range::Unregistered(&quot;letters&quot;.to_owned(), &quot;a-f&quot;.to_owned()));
+/// builder.insert_header(Range::bytes(1, 100));
+/// builder.insert_header(Range::bytes_multi(vec![(1, 100), (200, 300)]));
+/// ```
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>Range {
+    <span class="doccomment">/// Byte range.
+    </span>Bytes(Vec&lt;ByteRangeSpec&gt;),
 
-    <span class="doccomment">/// Custom range, with unit not registered at IANA.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// (`other-range-unit`: String , `other-range-set`: String)</span>
-    <span class="ident">Unregistered</span>(<span class="ident">String</span>, <span class="ident">String</span>),
+    <span class="doccomment">/// Custom range, with unit not registered at IANA.
+    ///
+    /// (`other-range-unit`: String , `other-range-set`: String)
+    </span>Unregistered(String, String),
 }
 
-<span class="doccomment">/// A range of bytes to fetch.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Each [`Range::Bytes`] header can contain one or more `ByteRangeSpec`s.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ByteRangeSpec</span> {
-    <span class="doccomment">/// All bytes from `x` to `y`, inclusive.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Serialized as `x-y`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Example: `bytes=500-999` would represent the second 500 bytes.</span>
-    <span class="ident">FromTo</span>(<span class="ident">u64</span>, <span class="ident">u64</span>),
+<span class="doccomment">/// A range of bytes to fetch.
+///
+/// Each [`Range::Bytes`] header can contain one or more `ByteRangeSpec`s.
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>ByteRangeSpec {
+    <span class="doccomment">/// All bytes from `x` to `y`, inclusive.
+    ///
+    /// Serialized as `x-y`.
+    ///
+    /// Example: `bytes=500-999` would represent the second 500 bytes.
+    </span>FromTo(u64, u64),
 
-    <span class="doccomment">/// All bytes starting from `x`, inclusive.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Serialized as `x-`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Example: For a file of 1000 bytes, `bytes=950-` would represent bytes 950-999, inclusive.</span>
-    <span class="ident">From</span>(<span class="ident">u64</span>),
+    <span class="doccomment">/// All bytes starting from `x`, inclusive.
+    ///
+    /// Serialized as `x-`.
+    ///
+    /// Example: For a file of 1000 bytes, `bytes=950-` would represent bytes 950-999, inclusive.
+    </span>From(u64),
 
-    <span class="doccomment">/// The last `y` bytes, inclusive.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Using the spec terminology, this is `suffix-byte-range-spec`. Serialized as `-y`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Example: For a file of 1000 bytes, `bytes=-50` is equivalent to `bytes=950-`.</span>
-    <span class="ident">Last</span>(<span class="ident">u64</span>),
+    <span class="doccomment">/// The last `y` bytes, inclusive.
+    ///
+    /// Using the spec terminology, this is `suffix-byte-range-spec`. Serialized as `-y`.
+    ///
+    /// Example: For a file of 1000 bytes, `bytes=-50` is equivalent to `bytes=950-`.
+    </span>Last(u64),
 }
 
-<span class="kw">impl</span> <span class="ident">ByteRangeSpec</span> {
-    <span class="doccomment">/// Given the full length of the entity, attempt to normalize the byte range into an satisfiable</span>
-    <span class="doccomment">/// end-inclusive `(from, to)` range.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The resulting range is guaranteed to be a satisfiable range within the bounds</span>
-    <span class="doccomment">/// of `0 &lt;= from &lt;= to &lt; full_length`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the byte range is deemed unsatisfiable, `None` is returned. An unsatisfiable range is</span>
-    <span class="doccomment">/// generally cause for a server to either reject the client request with a</span>
-    <span class="doccomment">/// `416 Range Not Satisfiable` status code, or to simply ignore the range header and serve the</span>
-    <span class="doccomment">/// full entity using a `200 OK` status code.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This function closely follows [RFC 7233 §2.1]. As such, it considers ranges to be</span>
-    <span class="doccomment">/// satisfiable if they meet the following conditions:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// &gt; If a valid byte-range-set includes at least one byte-range-spec with a first-byte-pos that</span>
-    <span class="doccomment">/// is less than the current length of the representation, or at least one</span>
-    <span class="doccomment">/// suffix-byte-range-spec with a non-zero suffix-length, then the byte-range-set</span>
-    <span class="doccomment">/// is satisfiable. Otherwise, the byte-range-set is unsatisfiable.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The function also computes remainder ranges based on the RFC:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// &gt; If the last-byte-pos value is absent, or if the value is greater than or equal to the</span>
-    <span class="doccomment">/// current length of the representation data, the byte range is interpreted as the remainder</span>
-    <span class="doccomment">/// of the representation (i.e., the server replaces the value of last-byte-pos with a value</span>
-    <span class="doccomment">/// that is one less than the current length of the selected representation).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [RFC 7233 §2.1]: https://datatracker.ietf.org/doc/html/rfc7233</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_satisfiable_range</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">full_length</span>: <span class="ident">u64</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">u64</span>, <span class="ident">u64</span>)<span class="op">&gt;</span> {
-        <span class="comment">// If the full length is zero, there is no satisfiable end-inclusive range.</span>
-        <span class="kw">if</span> <span class="ident">full_length</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">impl </span>ByteRangeSpec {
+    <span class="doccomment">/// Given the full length of the entity, attempt to normalize the byte range into an satisfiable
+    /// end-inclusive `(from, to)` range.
+    ///
+    /// The resulting range is guaranteed to be a satisfiable range within the bounds
+    /// of `0 &lt;= from &lt;= to &lt; full_length`.
+    ///
+    /// If the byte range is deemed unsatisfiable, `None` is returned. An unsatisfiable range is
+    /// generally cause for a server to either reject the client request with a
+    /// `416 Range Not Satisfiable` status code, or to simply ignore the range header and serve the
+    /// full entity using a `200 OK` status code.
+    ///
+    /// This function closely follows [RFC 7233 §2.1]. As such, it considers ranges to be
+    /// satisfiable if they meet the following conditions:
+    ///
+    /// &gt; If a valid byte-range-set includes at least one byte-range-spec with a first-byte-pos that
+    /// is less than the current length of the representation, or at least one
+    /// suffix-byte-range-spec with a non-zero suffix-length, then the byte-range-set
+    /// is satisfiable. Otherwise, the byte-range-set is unsatisfiable.
+    ///
+    /// The function also computes remainder ranges based on the RFC:
+    ///
+    /// &gt; If the last-byte-pos value is absent, or if the value is greater than or equal to the
+    /// current length of the representation data, the byte range is interpreted as the remainder
+    /// of the representation (i.e., the server replaces the value of last-byte-pos with a value
+    /// that is one less than the current length of the selected representation).
+    ///
+    /// [RFC 7233 §2.1]: https://datatracker.ietf.org/doc/html/rfc7233
+    </span><span class="kw">pub fn </span>to_satisfiable_range(<span class="kw-2">&amp;</span><span class="self">self</span>, full_length: u64) -&gt; <span class="prelude-ty">Option</span>&lt;(u64, u64)&gt; {
+        <span class="comment">// If the full length is zero, there is no satisfiable end-inclusive range.
+        </span><span class="kw">if </span>full_length == <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">ByteRangeSpec::FromTo</span>(<span class="ident">from</span>, <span class="ident">to</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">from</span> <span class="op">&lt;</span> <span class="ident">full_length</span> <span class="op">&amp;&amp;</span> <span class="ident">from</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">to</span> {
-                    <span class="prelude-val">Some</span>((<span class="ident">from</span>, <span class="ident">cmp::min</span>(<span class="ident">to</span>, <span class="ident">full_length</span> <span class="op">-</span> <span class="number">1</span>)))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            ByteRangeSpec::FromTo(from, to) =&gt; {
+                <span class="kw">if </span>from &lt; full_length &amp;&amp; from &lt;= to {
+                    <span class="prelude-val">Some</span>((from, cmp::min(to, full_length - <span class="number">1</span>)))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
 
-            <span class="ident">ByteRangeSpec::From</span>(<span class="ident">from</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">from</span> <span class="op">&lt;</span> <span class="ident">full_length</span> {
-                    <span class="prelude-val">Some</span>((<span class="ident">from</span>, <span class="ident">full_length</span> <span class="op">-</span> <span class="number">1</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+            ByteRangeSpec::From(from) =&gt; {
+                <span class="kw">if </span>from &lt; full_length {
+                    <span class="prelude-val">Some</span>((from, full_length - <span class="number">1</span>))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
 
-            <span class="ident">ByteRangeSpec::Last</span>(<span class="ident">last</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">last</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                    <span class="comment">// From the RFC: If the selected representation is shorter than the specified</span>
-                    <span class="comment">// suffix-length, the entire representation is used.</span>
-                    <span class="kw">if</span> <span class="ident">last</span> <span class="op">&gt;</span> <span class="ident">full_length</span> {
-                        <span class="prelude-val">Some</span>((<span class="number">0</span>, <span class="ident">full_length</span> <span class="op">-</span> <span class="number">1</span>))
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">Some</span>((<span class="ident">full_length</span> <span class="op">-</span> <span class="ident">last</span>, <span class="ident">full_length</span> <span class="op">-</span> <span class="number">1</span>))
+            ByteRangeSpec::Last(last) =&gt; {
+                <span class="kw">if </span>last &gt; <span class="number">0 </span>{
+                    <span class="comment">// From the RFC: If the selected representation is shorter than the specified
+                    // suffix-length, the entire representation is used.
+                    </span><span class="kw">if </span>last &gt; full_length {
+                        <span class="prelude-val">Some</span>((<span class="number">0</span>, full_length - <span class="number">1</span>))
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">Some</span>((full_length - last, full_length - <span class="number">1</span>))
                     }
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Range</span> {
-    <span class="doccomment">/// Constructs a common byte range header.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Eg: `bytes=from-to`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bytes</span>(<span class="ident">from</span>: <span class="ident">u64</span>, <span class="ident">to</span>: <span class="ident">u64</span>) -&gt; <span class="ident">Range</span> {
-        <span class="ident">Range::Bytes</span>(<span class="macro">vec!</span>[<span class="ident">ByteRangeSpec::FromTo</span>(<span class="ident">from</span>, <span class="ident">to</span>)])
+<span class="kw">impl </span>Range {
+    <span class="doccomment">/// Constructs a common byte range header.
+    ///
+    /// Eg: `bytes=from-to`
+    </span><span class="kw">pub fn </span>bytes(from: u64, to: u64) -&gt; Range {
+        Range::Bytes(<span class="macro">vec!</span>[ByteRangeSpec::FromTo(from, to)])
     }
 
-    <span class="doccomment">/// Constructs a byte range header with multiple subranges.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Eg: `bytes=from1-to1,from2-to2,fromX-toX`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bytes_multi</span>(<span class="ident">ranges</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">u64</span>, <span class="ident">u64</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">Range</span> {
-        <span class="ident">Range::Bytes</span>(
-            <span class="ident">ranges</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">from</span>, <span class="ident">to</span>)<span class="op">|</span> <span class="ident">ByteRangeSpec::FromTo</span>(<span class="ident">from</span>, <span class="ident">to</span>))
-                .<span class="ident">collect</span>(),
+    <span class="doccomment">/// Constructs a byte range header with multiple subranges.
+    ///
+    /// Eg: `bytes=from1-to1,from2-to2,fromX-toX`
+    </span><span class="kw">pub fn </span>bytes_multi(ranges: Vec&lt;(u64, u64)&gt;) -&gt; Range {
+        Range::Bytes(
+            ranges
+                .into_iter()
+                .map(|(from, to)| ByteRangeSpec::FromTo(from, to))
+                .collect(),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ByteRangeSpec</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">ByteRangeSpec::FromTo</span>(<span class="ident">from</span>, <span class="ident">to</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}-{}&quot;</span>, <span class="ident">from</span>, <span class="ident">to</span>),
-            <span class="ident">ByteRangeSpec::Last</span>(<span class="ident">pos</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-{}&quot;</span>, <span class="ident">pos</span>),
-            <span class="ident">ByteRangeSpec::From</span>(<span class="ident">pos</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}-&quot;</span>, <span class="ident">pos</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>ByteRangeSpec {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            ByteRangeSpec::FromTo(from, to) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}-{}&quot;</span>, from, to),
+            ByteRangeSpec::Last(pos) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;-{}&quot;</span>, pos),
+            ByteRangeSpec::From(pos) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}-&quot;</span>, pos),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Range</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Range::Bytes</span>(<span class="ident">ranges</span>) =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bytes=&quot;</span>)<span class="question-mark">?</span>;
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Range {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            Range::Bytes(ranges) =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;bytes=&quot;</span>)<span class="question-mark">?</span>;
 
-                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">range</span>) <span class="kw">in</span> <span class="ident">ranges</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="kw">if</span> <span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
+                <span class="kw">for </span>(i, range) <span class="kw">in </span>ranges.iter().enumerate() {
+                    <span class="kw">if </span>i != <span class="number">0 </span>{
+                        f.write_str(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
                     }
 
-                    <span class="ident">Display::fmt</span>(<span class="ident">range</span>, <span class="ident">f</span>)<span class="question-mark">?</span>;
+                    Display::fmt(range, f)<span class="question-mark">?</span>;
                 }
                 <span class="prelude-val">Ok</span>(())
             }
 
-            <span class="ident">Range::Unregistered</span>(<span class="ident">unit</span>, <span class="ident">range_str</span>) =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}={}&quot;</span>, <span class="ident">unit</span>, <span class="ident">range_str</span>)
+            Range::Unregistered(unit, range_str) =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;{}={}&quot;</span>, unit, range_str)
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Range</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ParseError</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>Range {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= ParseError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Range</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">unit</span>, <span class="ident">val</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">split_once</span>(<span class="string">&#39;=&#39;</span>).<span class="ident">ok_or</span>(<span class="ident">ParseError::Header</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; {
+        <span class="kw">let </span>(unit, val) = s.split_once(<span class="string">&#39;=&#39;</span>).ok_or(ParseError::Header)<span class="question-mark">?</span>;
 
-        <span class="kw">match</span> (<span class="ident">unit</span>, <span class="ident">val</span>) {
-            (<span class="string">&quot;bytes&quot;</span>, <span class="ident">ranges</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">ranges</span> <span class="op">=</span> <span class="ident">from_comma_delimited</span>(<span class="ident">ranges</span>);
+        <span class="kw">match </span>(unit, val) {
+            (<span class="string">&quot;bytes&quot;</span>, ranges) =&gt; {
+                <span class="kw">let </span>ranges = from_comma_delimited(ranges);
 
-                <span class="kw">if</span> <span class="ident">ranges</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>);
+                <span class="kw">if </span>ranges.is_empty() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ParseError::Header);
                 }
 
-                <span class="prelude-val">Ok</span>(<span class="ident">Range::Bytes</span>(<span class="ident">ranges</span>))
+                <span class="prelude-val">Ok</span>(Range::Bytes(ranges))
             }
 
-            (<span class="kw">_</span>, <span class="string">&quot;&quot;</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>),
-            (<span class="string">&quot;&quot;</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>),
+            (<span class="kw">_</span>, <span class="string">&quot;&quot;</span>) =&gt; <span class="prelude-val">Err</span>(ParseError::Header),
+            (<span class="string">&quot;&quot;</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ParseError::Header),
 
-            (<span class="ident">unit</span>, <span class="ident">range_str</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Range::Unregistered</span>(<span class="ident">unit</span>.<span class="ident">to_owned</span>(), <span class="ident">range_str</span>.<span class="ident">to_owned</span>())),
+            (unit, range_str) =&gt; <span class="prelude-val">Ok</span>(Range::Unregistered(unit.to_owned(), range_str.to_owned())),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">ByteRangeSpec</span> {
-    <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">ParseError</span>;
+<span class="kw">impl </span>FromStr <span class="kw">for </span>ByteRangeSpec {
+    <span class="kw">type </span><span class="prelude-val">Err </span>= ParseError;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ByteRangeSpec</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">start</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">split_once</span>(<span class="string">&#39;-&#39;</span>).<span class="ident">ok_or</span>(<span class="ident">ParseError::Header</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ByteRangeSpec, ParseError&gt; {
+        <span class="kw">let </span>(start, end) = s.split_once(<span class="string">&#39;-&#39;</span>).ok_or(ParseError::Header)<span class="question-mark">?</span>;
 
-        <span class="kw">match</span> (<span class="ident">start</span>, <span class="ident">end</span>) {
-            (<span class="string">&quot;&quot;</span>, <span class="ident">end</span>) =&gt; <span class="ident">end</span>
-                .<span class="ident">parse</span>()
-                .<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>))
-                .<span class="ident">map</span>(<span class="ident">ByteRangeSpec::Last</span>),
+        <span class="kw">match </span>(start, end) {
+            (<span class="string">&quot;&quot;</span>, end) =&gt; end
+                .parse()
+                .or(<span class="prelude-val">Err</span>(ParseError::Header))
+                .map(ByteRangeSpec::Last),
 
-            (<span class="ident">start</span>, <span class="string">&quot;&quot;</span>) =&gt; <span class="ident">start</span>
-                .<span class="ident">parse</span>()
-                .<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>))
-                .<span class="ident">map</span>(<span class="ident">ByteRangeSpec::From</span>),
+            (start, <span class="string">&quot;&quot;</span>) =&gt; start
+                .parse()
+                .or(<span class="prelude-val">Err</span>(ParseError::Header))
+                .map(ByteRangeSpec::From),
 
-            (<span class="ident">start</span>, <span class="ident">end</span>) =&gt; <span class="kw">match</span> (<span class="ident">start</span>.<span class="ident">parse</span>(), <span class="ident">end</span>.<span class="ident">parse</span>()) {
-                (<span class="prelude-val">Ok</span>(<span class="ident">start</span>), <span class="prelude-val">Ok</span>(<span class="ident">end</span>)) <span class="kw">if</span> <span class="ident">start</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">end</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ByteRangeSpec::FromTo</span>(<span class="ident">start</span>, <span class="ident">end</span>)),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ParseError::Header</span>),
+            (start, end) =&gt; <span class="kw">match </span>(start.parse(), end.parse()) {
+                (<span class="prelude-val">Ok</span>(start), <span class="prelude-val">Ok</span>(end)) <span class="kw">if </span>start &lt;= end =&gt; <span class="prelude-val">Ok</span>(ByteRangeSpec::FromTo(start, end)),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(ParseError::Header),
             },
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Header</span> <span class="kw">for</span> <span class="ident">Range</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>() -&gt; <span class="ident">HeaderName</span> {
-        <span class="ident">header::RANGE</span>
+<span class="kw">impl </span>Header <span class="kw">for </span>Range {
+    <span class="kw">fn </span>name() -&gt; HeaderName {
+        header::RANGE
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">HttpMessage</span><span class="op">&gt;</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> {
-        <span class="ident">header::from_one_raw_str</span>(<span class="ident">msg</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::name</span>()))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">TryIntoHeaderValue</span> <span class="kw">for</span> <span class="ident">Range</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">InvalidHeaderValue</span>;
-
-    <span class="kw">fn</span> <span class="ident">try_into_value</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HeaderValue</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wrt</span> <span class="op">=</span> <span class="ident">Writer::new</span>();
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="macro">write!</span>(<span class="ident">wrt</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>);
-        <span class="ident">HeaderValue::from_maybe_shared</span>(<span class="ident">wrt</span>.<span class="ident">take</span>())
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>parse&lt;T: HttpMessage&gt;(msg: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ParseError&gt; {
+        header::from_one_raw_str(msg.headers().get(<span class="kw-2">&amp;</span><span class="self">Self</span>::name()))
     }
 }
 
-<span class="doccomment">/// Parses 0 or more items out of a comma delimited string, ignoring invalid items.</span>
-<span class="kw">fn</span> <span class="ident">from_comma_delimited</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FromStr</span><span class="op">&gt;</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">s</span>.<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>)
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">trim</span>() {
-            <span class="string">&quot;&quot;</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">y</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">y</span>),
+<span class="kw">impl </span>TryIntoHeaderValue <span class="kw">for </span>Range {
+    <span class="kw">type </span>Error = InvalidHeaderValue;
+
+    <span class="kw">fn </span>try_into_value(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;HeaderValue, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>wrt = Writer::new();
+        <span class="kw">let _ </span>= <span class="macro">write!</span>(wrt, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>);
+        HeaderValue::from_maybe_shared(wrt.take())
+    }
+}
+
+<span class="doccomment">/// Parses 0 or more items out of a comma delimited string, ignoring invalid items.
+</span><span class="kw">fn </span>from_comma_delimited&lt;T: FromStr&gt;(s: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;T&gt; {
+    s.split(<span class="string">&#39;,&#39;</span>)
+        .filter_map(|x| <span class="kw">match </span>x.trim() {
+            <span class="string">&quot;&quot; </span>=&gt; <span class="prelude-val">None</span>,
+            y =&gt; <span class="prelude-val">Some</span>(y),
         })
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">parse</span>().<span class="ident">ok</span>())
-        .<span class="ident">collect</span>()
+        .filter_map(|x| x.parse().ok())
+        .collect()
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">test::TestRequest</span>, <span class="ident">Request</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>actix_http::{test::TestRequest, Request};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">fn</span> <span class="ident">req</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Request</span> {
-        <span class="ident">TestRequest::default</span>()
-            .<span class="ident">insert_header</span>((<span class="ident">header::RANGE</span>, <span class="ident">s</span>))
-            .<span class="ident">finish</span>()
+    <span class="kw">fn </span>req(s: <span class="kw-2">&amp;</span>str) -&gt; Request {
+        TestRequest::default()
+            .insert_header((header::RANGE, s))
+            .finish()
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_bytes_range_valid</span>() {
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes=1-100&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r2</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes=1-100,-&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r3</span> <span class="op">=</span> <span class="ident">Range::bytes</span>(<span class="number">1</span>, <span class="number">100</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="ident">r2</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r2</span>, <span class="ident">r3</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_bytes_range_valid() {
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100&quot;</span>)).unwrap();
+        <span class="kw">let </span>r2: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100,-&quot;</span>)).unwrap();
+        <span class="kw">let </span>r3 = Range::bytes(<span class="number">1</span>, <span class="number">100</span>);
+        <span class="macro">assert_eq!</span>(r, r2);
+        <span class="macro">assert_eq!</span>(r2, r3);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes=1-100,200-&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r2</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes= 1-100 , 101-xxx,  200- &quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r3</span> <span class="op">=</span> <span class="ident">Range::Bytes</span>(<span class="macro">vec!</span>[
-            <span class="ident">ByteRangeSpec::FromTo</span>(<span class="number">1</span>, <span class="number">100</span>),
-            <span class="ident">ByteRangeSpec::From</span>(<span class="number">200</span>),
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100,200-&quot;</span>)).unwrap();
+        <span class="kw">let </span>r2: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes= 1-100 , 101-xxx,  200- &quot;</span>)).unwrap();
+        <span class="kw">let </span>r3 = Range::Bytes(<span class="macro">vec!</span>[
+            ByteRangeSpec::FromTo(<span class="number">1</span>, <span class="number">100</span>),
+            ByteRangeSpec::From(<span class="number">200</span>),
         ]);
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="ident">r2</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r2</span>, <span class="ident">r3</span>);
+        <span class="macro">assert_eq!</span>(r, r2);
+        <span class="macro">assert_eq!</span>(r2, r3);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes=1-100,-100&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r2</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes=1-100, ,,-100&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r3</span> <span class="op">=</span> <span class="ident">Range::Bytes</span>(<span class="macro">vec!</span>[
-            <span class="ident">ByteRangeSpec::FromTo</span>(<span class="number">1</span>, <span class="number">100</span>),
-            <span class="ident">ByteRangeSpec::Last</span>(<span class="number">100</span>),
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100,-100&quot;</span>)).unwrap();
+        <span class="kw">let </span>r2: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100, ,,-100&quot;</span>)).unwrap();
+        <span class="kw">let </span>r3 = Range::Bytes(<span class="macro">vec!</span>[
+            ByteRangeSpec::FromTo(<span class="number">1</span>, <span class="number">100</span>),
+            ByteRangeSpec::Last(<span class="number">100</span>),
         ]);
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="ident">r2</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">r2</span>, <span class="ident">r3</span>);
+        <span class="macro">assert_eq!</span>(r, r2);
+        <span class="macro">assert_eq!</span>(r2, r3);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;custom=1-100,-100&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">Range::Unregistered</span>(<span class="string">&quot;custom&quot;</span>.<span class="ident">to_owned</span>(), <span class="string">&quot;1-100,-100&quot;</span>.<span class="ident">to_owned</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="ident">r2</span>);
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=1-100,-100&quot;</span>)).unwrap();
+        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;1-100,-100&quot;</span>.to_owned());
+        <span class="macro">assert_eq!</span>(r, r2);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_unregistered_range_valid</span>() {
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;custom=1-100,-100&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">Range::Unregistered</span>(<span class="string">&quot;custom&quot;</span>.<span class="ident">to_owned</span>(), <span class="string">&quot;1-100,-100&quot;</span>.<span class="ident">to_owned</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="ident">r2</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_unregistered_range_valid() {
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=1-100,-100&quot;</span>)).unwrap();
+        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;1-100,-100&quot;</span>.to_owned());
+        <span class="macro">assert_eq!</span>(r, r2);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;custom=abcd&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">Range::Unregistered</span>(<span class="string">&quot;custom&quot;</span>.<span class="ident">to_owned</span>(), <span class="string">&quot;abcd&quot;</span>.<span class="ident">to_owned</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="ident">r2</span>);
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=abcd&quot;</span>)).unwrap();
+        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;abcd&quot;</span>.to_owned());
+        <span class="macro">assert_eq!</span>(r, r2);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Range</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;custom=xxx-yyy&quot;</span>)).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">Range::Unregistered</span>(<span class="string">&quot;custom&quot;</span>.<span class="ident">to_owned</span>(), <span class="string">&quot;xxx-yyy&quot;</span>.<span class="ident">to_owned</span>());
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>, <span class="ident">r2</span>);
+        <span class="kw">let </span>r: Range = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=xxx-yyy&quot;</span>)).unwrap();
+        <span class="kw">let </span>r2 = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;xxx-yyy&quot;</span>.to_owned());
+        <span class="macro">assert_eq!</span>(r, r2);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_parse_invalid</span>() {
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Range</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes=1-a,-&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">ok</span>(), <span class="prelude-val">None</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_parse_invalid() {
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-a,-&quot;</span>));
+        <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Range</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes=1-2-3&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">ok</span>(), <span class="prelude-val">None</span>);
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-2-3&quot;</span>));
+        <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Range</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;abc&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">ok</span>(), <span class="prelude-val">None</span>);
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;abc&quot;</span>));
+        <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Range</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes=1-100=&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">ok</span>(), <span class="prelude-val">None</span>);
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=1-100=&quot;</span>));
+        <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Range</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;bytes=&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">ok</span>(), <span class="prelude-val">None</span>);
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;bytes=&quot;</span>));
+        <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Range</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;custom=&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">ok</span>(), <span class="prelude-val">None</span>);
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;custom=&quot;</span>));
+        <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Range</span>, <span class="ident">ParseError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Header::parse</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>(<span class="string">&quot;=1-100&quot;</span>));
-        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">ok</span>(), <span class="prelude-val">None</span>);
+        <span class="kw">let </span>r: <span class="prelude-ty">Result</span>&lt;Range, ParseError&gt; = Header::parse(<span class="kw-2">&amp;</span>req(<span class="string">&quot;=1-100&quot;</span>));
+        <span class="macro">assert_eq!</span>(r.ok(), <span class="prelude-val">None</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_fmt</span>() {
-        <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">Range::Bytes</span>(<span class="macro">vec!</span>[
-            <span class="ident">ByteRangeSpec::FromTo</span>(<span class="number">0</span>, <span class="number">1000</span>),
-            <span class="ident">ByteRangeSpec::From</span>(<span class="number">2000</span>),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_fmt() {
+        <span class="kw">let </span>range = Range::Bytes(<span class="macro">vec!</span>[
+            ByteRangeSpec::FromTo(<span class="number">0</span>, <span class="number">1000</span>),
+            ByteRangeSpec::From(<span class="number">2000</span>),
         ]);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">range</span>.<span class="ident">to_string</span>(), <span class="string">&quot;bytes=0-1000,2000-&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>range.to_string(), <span class="string">&quot;bytes=0-1000,2000-&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">Range::Bytes</span>(<span class="macro">vec!</span>[]);
+        <span class="kw">let </span>range = Range::Bytes(<span class="macro">vec!</span>[]);
 
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">range</span>.<span class="ident">to_string</span>(), <span class="string">&quot;bytes=&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>range.to_string(), <span class="string">&quot;bytes=&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">Range::Unregistered</span>(<span class="string">&quot;custom&quot;</span>.<span class="ident">to_owned</span>(), <span class="string">&quot;1-xxx&quot;</span>.<span class="ident">to_owned</span>());
+        <span class="kw">let </span>range = Range::Unregistered(<span class="string">&quot;custom&quot;</span>.to_owned(), <span class="string">&quot;1-xxx&quot;</span>.to_owned());
 
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">range</span>.<span class="ident">to_string</span>(), <span class="string">&quot;custom=1-xxx&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>range.to_string(), <span class="string">&quot;custom=1-xxx&quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_byte_range_spec_to_satisfiable_range</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_byte_range_spec_to_satisfiable_range() {
         <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Some</span>((<span class="number">0</span>, <span class="number">0</span>)),
-            <span class="ident">ByteRangeSpec::FromTo</span>(<span class="number">0</span>, <span class="number">0</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>)
+            ByteRangeSpec::FromTo(<span class="number">0</span>, <span class="number">0</span>).to_satisfiable_range(<span class="number">3</span>)
         );
         <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="number">2</span>)),
-            <span class="ident">ByteRangeSpec::FromTo</span>(<span class="number">1</span>, <span class="number">2</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>)
+            ByteRangeSpec::FromTo(<span class="number">1</span>, <span class="number">2</span>).to_satisfiable_range(<span class="number">3</span>)
         );
         <span class="macro">assert_eq!</span>(
             <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="number">2</span>)),
-            <span class="ident">ByteRangeSpec::FromTo</span>(<span class="number">1</span>, <span class="number">5</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>)
+            ByteRangeSpec::FromTo(<span class="number">1</span>, <span class="number">5</span>).to_satisfiable_range(<span class="number">3</span>)
         );
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">ByteRangeSpec::FromTo</span>(<span class="number">3</span>, <span class="number">3</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">ByteRangeSpec::FromTo</span>(<span class="number">2</span>, <span class="number">1</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">ByteRangeSpec::FromTo</span>(<span class="number">0</span>, <span class="number">0</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, ByteRangeSpec::FromTo(<span class="number">3</span>, <span class="number">3</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, ByteRangeSpec::FromTo(<span class="number">2</span>, <span class="number">1</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, ByteRangeSpec::FromTo(<span class="number">0</span>, <span class="number">0</span>).to_satisfiable_range(<span class="number">0</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">0</span>, <span class="number">2</span>)), <span class="ident">ByteRangeSpec::From</span>(<span class="number">0</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">2</span>, <span class="number">2</span>)), <span class="ident">ByteRangeSpec::From</span>(<span class="number">2</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">ByteRangeSpec::From</span>(<span class="number">3</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">ByteRangeSpec::From</span>(<span class="number">5</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">ByteRangeSpec::From</span>(<span class="number">0</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">0</span>, <span class="number">2</span>)), ByteRangeSpec::From(<span class="number">0</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">2</span>, <span class="number">2</span>)), ByteRangeSpec::From(<span class="number">2</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, ByteRangeSpec::From(<span class="number">3</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, ByteRangeSpec::From(<span class="number">5</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, ByteRangeSpec::From(<span class="number">0</span>).to_satisfiable_range(<span class="number">0</span>));
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="number">2</span>)), <span class="ident">ByteRangeSpec::Last</span>(<span class="number">2</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">2</span>, <span class="number">2</span>)), <span class="ident">ByteRangeSpec::Last</span>(<span class="number">1</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">0</span>, <span class="number">2</span>)), <span class="ident">ByteRangeSpec::Last</span>(<span class="number">5</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">ByteRangeSpec::Last</span>(<span class="number">0</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">3</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">ByteRangeSpec::Last</span>(<span class="number">2</span>).<span class="ident">to_satisfiable_range</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="number">2</span>)), ByteRangeSpec::Last(<span class="number">2</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">2</span>, <span class="number">2</span>)), ByteRangeSpec::Last(<span class="number">1</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>((<span class="number">0</span>, <span class="number">2</span>)), ByteRangeSpec::Last(<span class="number">5</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, ByteRangeSpec::Last(<span class="number">0</span>).to_satisfiable_range(<span class="number">3</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, ByteRangeSpec::Last(<span class="number">2</span>).to_satisfiable_range(<span class="number">0</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="actix_web" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

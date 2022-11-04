@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/decode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/decode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -76,83 +76,83 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Provides [`Decode`] for decoding values from the database.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Provides [`Decode`] for decoding values from the database.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database</span>::{<span class="ident">Database</span>, <span class="ident">HasValueRef</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::BoxDynError</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::value::ValueRef</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasValueRef};
+<span class="kw">use </span><span class="kw">crate</span>::error::BoxDynError;
+<span class="kw">use </span><span class="kw">crate</span>::value::ValueRef;
 
-<span class="doccomment">/// A type that can be decoded from the database.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## How can I implement `Decode`?</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A manual implementation of `Decode` can be useful when adding support for</span>
-<span class="doccomment">/// types externally to SQLx.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The following showcases how to implement `Decode` to be generic over [`Database`]. The</span>
-<span class="doccomment">/// implementation can be marginally simpler if you remove the `DB` type parameter and explicitly</span>
-<span class="doccomment">/// use the concrete [`ValueRef`](HasValueRef::ValueRef) and [`TypeInfo`](Database::TypeInfo) types.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use sqlx_core::database::{Database, HasValueRef};</span>
-<span class="doccomment">/// # use sqlx_core::decode::Decode;</span>
-<span class="doccomment">/// # use sqlx_core::types::Type;</span>
-<span class="doccomment">/// # use std::error::Error;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// struct MyType;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # impl&lt;DB: Database&gt; Type&lt;DB&gt; for MyType {</span>
-<span class="doccomment">/// # fn type_info() -&gt; DB::TypeInfo { todo!() }</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # impl std::str::FromStr for MyType {</span>
-<span class="doccomment">/// # type Err = sqlx_core::error::Error;</span>
-<span class="doccomment">/// # fn from_str(s: &amp;str) -&gt; Result&lt;Self, Self::Err&gt; { todo!() }</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// // DB is the database driver</span>
-<span class="doccomment">/// // `&#39;r` is the lifetime of the `Row` being decoded</span>
-<span class="doccomment">/// impl&lt;&#39;r, DB: Database&gt; Decode&lt;&#39;r, DB&gt; for MyType</span>
-<span class="doccomment">/// where</span>
-<span class="doccomment">///     // we want to delegate some of the work to string decoding so let&#39;s make sure strings</span>
-<span class="doccomment">///     // are supported by the database</span>
-<span class="doccomment">///     &amp;&#39;r str: Decode&lt;&#39;r, DB&gt;</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     fn decode(</span>
-<span class="doccomment">///         value: &lt;DB as HasValueRef&lt;&#39;r&gt;&gt;::ValueRef,</span>
-<span class="doccomment">///     ) -&gt; Result&lt;MyType, Box&lt;dyn Error + &#39;static + Send + Sync&gt;&gt; {</span>
-<span class="doccomment">///         // the interface of ValueRef is largely unstable at the moment</span>
-<span class="doccomment">///         // so this is not directly implementable</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         // however, you can delegate to a type that matches the format of the type you want</span>
-<span class="doccomment">///         // to decode (such as a UTF-8 string)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         let value = &lt;&amp;str as Decode&lt;DB&gt;&gt;::decode(value)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         // now you can parse this into your type (assuming there is a `FromStr`)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         Ok(value.parse()?)</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>: <span class="ident">Sized</span> {
-    <span class="doccomment">/// Decode a new value of this type using a raw value from the database.</span>
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A type that can be decoded from the database.
+///
+/// ## How can I implement `Decode`?
+///
+/// A manual implementation of `Decode` can be useful when adding support for
+/// types externally to SQLx.
+///
+/// The following showcases how to implement `Decode` to be generic over [`Database`]. The
+/// implementation can be marginally simpler if you remove the `DB` type parameter and explicitly
+/// use the concrete [`ValueRef`](HasValueRef::ValueRef) and [`TypeInfo`](Database::TypeInfo) types.
+///
+/// ```rust
+/// # use sqlx_core::database::{Database, HasValueRef};
+/// # use sqlx_core::decode::Decode;
+/// # use sqlx_core::types::Type;
+/// # use std::error::Error;
+/// #
+/// struct MyType;
+///
+/// # impl&lt;DB: Database&gt; Type&lt;DB&gt; for MyType {
+/// # fn type_info() -&gt; DB::TypeInfo { todo!() }
+/// # }
+/// #
+/// # impl std::str::FromStr for MyType {
+/// # type Err = sqlx_core::error::Error;
+/// # fn from_str(s: &amp;str) -&gt; Result&lt;Self, Self::Err&gt; { todo!() }
+/// # }
+/// #
+/// // DB is the database driver
+/// // `&#39;r` is the lifetime of the `Row` being decoded
+/// impl&lt;&#39;r, DB: Database&gt; Decode&lt;&#39;r, DB&gt; for MyType
+/// where
+///     // we want to delegate some of the work to string decoding so let&#39;s make sure strings
+///     // are supported by the database
+///     &amp;&#39;r str: Decode&lt;&#39;r, DB&gt;
+/// {
+///     fn decode(
+///         value: &lt;DB as HasValueRef&lt;&#39;r&gt;&gt;::ValueRef,
+///     ) -&gt; Result&lt;MyType, Box&lt;dyn Error + &#39;static + Send + Sync&gt;&gt; {
+///         // the interface of ValueRef is largely unstable at the moment
+///         // so this is not directly implementable
+///
+///         // however, you can delegate to a type that matches the format of the type you want
+///         // to decode (such as a UTF-8 string)
+///
+///         let value = &lt;&amp;str as Decode&lt;DB&gt;&gt;::decode(value)?;
+///
+///         // now you can parse this into your type (assuming there is a `FromStr`)
+///
+///         Ok(value.parse()?)
+///     }
+/// }
+/// ```
+</span><span class="kw">pub trait </span>Decode&lt;<span class="lifetime">&#39;r</span>, DB: Database&gt;: Sized {
+    <span class="doccomment">/// Decode a new value of this type using a raw value from the database.
+    </span><span class="kw">fn </span>decode(value: &lt;DB <span class="kw">as </span>HasValueRef&lt;<span class="lifetime">&#39;r</span>&gt;&gt;::ValueRef) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxDynError&gt;;
 }
 
-<span class="comment">// implement `Decode` for Option&lt;T&gt; for all SQL types</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">DB</span>: <span class="ident">Database</span>,
-    <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">DB</span><span class="op">&gt;</span>,
+<span class="comment">// implement `Decode` for Option&lt;T&gt; for all SQL types
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;r</span>, DB, T&gt; Decode&lt;<span class="lifetime">&#39;r</span>, DB&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;T&gt;
+<span class="kw">where
+    </span>DB: Database,
+    T: Decode&lt;<span class="lifetime">&#39;r</span>, DB&gt;,
 {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">value</span>: <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">BoxDynError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_null</span>() {
+    <span class="kw">fn </span>decode(value: &lt;DB <span class="kw">as </span>HasValueRef&lt;<span class="lifetime">&#39;r</span>&gt;&gt;::ValueRef) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, BoxDynError&gt; {
+        <span class="kw">if </span>value.is_null() {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">T::decode</span>(<span class="ident">value</span>)<span class="question-mark">?</span>))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(T::decode(value)<span class="question-mark">?</span>))
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

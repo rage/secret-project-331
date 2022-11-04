@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/interface.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>interface.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-3.3.4/src/enc/interface.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>interface.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -789,796 +789,796 @@
 <span id="789">789</span>
 <span id="790">790</span>
 <span id="791">791</span>
-</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// right now just used in feature flag</span>
-<span class="kw">use</span> <span class="ident">core</span>;
-<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">SliceWrapper</span>, <span class="ident">Allocator</span>, <span class="ident">SliceWrapperMut</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::input_pair</span>::{<span class="ident">InputPair</span>,<span class="ident">InputReference</span>, <span class="ident">InputReferenceMut</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::histogram</span>;
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>,<span class="ident">Copy</span>,<span class="ident">Clone</span>,<span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BlockSwitch</span>(<span class="kw">pub</span> <span class="ident">u8</span>);
-<span class="comment">// Commands that can instantiate as a no-op should implement this.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Nop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">nop</span>() -&gt; <span class="ident">T</span>;
+</pre><pre class="rust"><code><span class="attribute">#[allow(unused_imports)] </span><span class="comment">// right now just used in feature flag
+</span><span class="kw">use </span>core;
+<span class="kw">use </span>alloc::{SliceWrapper, Allocator, SliceWrapperMut};
+<span class="kw">pub use </span><span class="kw">super</span>::input_pair::{InputPair,InputReference, InputReferenceMut};
+<span class="kw">use </span><span class="kw">super</span>::histogram;
+<span class="attribute">#[derive(Debug,Copy,Clone,Default)]
+</span><span class="kw">pub struct </span>BlockSwitch(<span class="kw">pub </span>u8);
+<span class="comment">// Commands that can instantiate as a no-op should implement this.
+</span><span class="kw">pub trait </span>Nop&lt;T&gt; {
+    <span class="kw">fn </span>nop() -&gt; T;
 }
 
-<span class="kw">impl</span> <span class="ident">BlockSwitch</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">block_type</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">BlockSwitch</span>(<span class="ident">block_type</span>)
+<span class="kw">impl </span>BlockSwitch {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>new(block_type: u8) -&gt; <span class="self">Self </span>{
+        BlockSwitch(block_type)
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>block_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>,<span class="ident">Copy</span>,<span class="ident">Clone</span>,<span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LiteralBlockSwitch</span>(<span class="kw">pub</span> <span class="ident">BlockSwitch</span>, <span class="kw">pub</span> <span class="ident">u8</span>);
+<span class="attribute">#[derive(Debug,Copy,Clone,Default)]
+</span><span class="kw">pub struct </span>LiteralBlockSwitch(<span class="kw">pub </span>BlockSwitch, <span class="kw">pub </span>u8);
 
-<span class="kw">impl</span> <span class="ident">LiteralBlockSwitch</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">block_type</span>: <span class="ident">u8</span>, <span class="ident">stride</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">LiteralBlockSwitch</span>(<span class="ident">BlockSwitch::new</span>(<span class="ident">block_type</span>), <span class="ident">stride</span>)
+<span class="kw">impl </span>LiteralBlockSwitch {
+    <span class="kw">pub fn </span>new(block_type: u8, stride: u8) -&gt; <span class="self">Self </span>{
+        LiteralBlockSwitch(BlockSwitch::new(block_type), stride)
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">block_type</span>()
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>block_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.<span class="number">0</span>.block_type()
     }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stride</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="number">1</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_stride</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_stride</span>: <span class="ident">u8</span>) {
-        <span class="self">self</span>.<span class="number">1</span> <span class="op">=</span> <span class="ident">new_stride</span>;
-    }
-}
-
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LITERAL_PREDICTION_MODE_SIGN</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LITERAL_PREDICTION_MODE_UTF8</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LITERAL_PREDICTION_MODE_MSB6</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">LITERAL_PREDICTION_MODE_LSB6</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LiteralPredictionModeNibble</span>(<span class="kw">pub</span> <span class="ident">u8</span>);
-
-<span class="kw">impl</span> <span class="ident">LiteralPredictionModeNibble</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">prediction_mode</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, ()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">prediction_mode</span> <span class="op">&lt;</span> <span class="number">16</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">LiteralPredictionModeNibble</span>(<span class="ident">prediction_mode</span>));
-        }
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(());
-    }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prediction_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">signed</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">LiteralPredictionModeNibble</span>(<span class="ident">LITERAL_PREDICTION_MODE_SIGN</span>)
-    }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">utf8</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">LiteralPredictionModeNibble</span>(<span class="ident">LITERAL_PREDICTION_MODE_UTF8</span>)
-    }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">msb6</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">LiteralPredictionModeNibble</span>(<span class="ident">LITERAL_PREDICTION_MODE_MSB6</span>)
-    }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lsb6</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">LiteralPredictionModeNibble</span>(<span class="ident">LITERAL_PREDICTION_MODE_LSB6</span>)
-    }
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_context_enum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">histogram::ContextType</span>, ()<span class="op">&gt;</span>{
-        <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
-          <span class="ident">LITERAL_PREDICTION_MODE_LSB6</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">histogram::ContextType::CONTEXT_LSB6</span>),
-          <span class="ident">LITERAL_PREDICTION_MODE_MSB6</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">histogram::ContextType::CONTEXT_MSB6</span>),
-          <span class="ident">LITERAL_PREDICTION_MODE_UTF8</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">histogram::ContextType::CONTEXT_UTF8</span>),
-          <span class="ident">LITERAL_PREDICTION_MODE_SIGN</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">histogram::ContextType::CONTEXT_SIGNED</span>),
-          <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(()),
-        }
-    }
-}
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">NUM_SPEED_VALUES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">12</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">NUM_MIXING_VALUES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16</span> <span class="op">*</span> <span class="number">256</span> <span class="op">+</span> <span class="number">16</span> <span class="op">*</span> <span class="number">256</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">NUM_PREDMODE_SETUP_VALUES</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">4</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RESERVED_OFFSET</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ADV_CONTEXT_MAP_OFFSET</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">2</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MIXING_MATH_OFFSET</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PREDMODE_OFFSET</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MIXING_OFFSET</span>:<span class="ident">usize</span> <span class="op">=</span> <span class="ident">NUM_PREDMODE_SETUP_VALUES</span> <span class="op">+</span> <span class="ident">PREDMODE_OFFSET</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SPEED_OFFSET</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">MIXING_OFFSET</span> <span class="op">+</span> <span class="ident">NUM_MIXING_VALUES</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DISTANCE_CONTEXT_MAP_OFFSET</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">SPEED_OFFSET</span> <span class="op">+</span> <span class="ident">NUM_SPEED_VALUES</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAX_PREDMODE_SPEED_AND_DISTANCE_CONTEXT_MAP_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">DISTANCE_CONTEXT_MAP_OFFSET</span> <span class="op">+</span> <span class="number">256</span> <span class="op">*</span> <span class="number">4</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAX_LITERAL_CONTEXT_MAP_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">256</span> <span class="op">*</span> <span class="number">64</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAX_ADV_LITERAL_CONTEXT_MAP_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">256</span> <span class="op">*</span> <span class="number">64</span> <span class="op">*</span> <span class="number">2</span>;
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">literal_context_map</span>: <span class="ident">SliceType</span>,
-    <span class="kw">pub</span> <span class="ident">predmode_speed_and_distance_context_map</span>: <span class="ident">SliceType</span>,
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distance_context_map_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>] {
-        <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>().<span class="ident">split_at_mut</span>(<span class="ident">DISTANCE_CONTEXT_MAP_OFFSET</span>).<span class="number">1</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_stride_context_speed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">speed_max</span>: [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>]) {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
-        <span class="kw">for</span> <span class="ident">high</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
-          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">0</span>);
-          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_max_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">1</span>);
-        }
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_context_map_speed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">speed_max</span>: [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>]) {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
-        <span class="kw">for</span> <span class="ident">high</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
-          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">0</span>);
-          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_max_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">1</span>);
-        }
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_mixing_math</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">math_enum</span>: <span class="ident">u8</span>) {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
-        <span class="ident">cm_slice</span>[<span class="ident">MIXING_MATH_OFFSET</span>] <span class="op">=</span> <span class="ident">math_enum</span>;
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_adv_context_map</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">is_adv</span>: <span class="ident">u8</span>) {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
-        <span class="ident">cm_slice</span>[<span class="ident">ADV_CONTEXT_MAP_OFFSET</span>] <span class="op">=</span> <span class="ident">is_adv</span>;
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_mixing_values</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">mixing_mask</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="ident">NUM_MIXING_VALUES</span>]) {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
-        <span class="ident">cm_slice</span>[<span class="ident">MIXING_OFFSET</span>..(<span class="ident">MIXING_OFFSET</span> <span class="op">+</span> <span class="ident">NUM_MIXING_VALUES</span>)].<span class="ident">clone_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">mixing_mask</span>[..]);
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mixing_values_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>] {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
-        <span class="kw-2">&amp;mut</span> <span class="ident">cm_slice</span>[<span class="ident">MIXING_OFFSET</span>..(<span class="ident">MIXING_OFFSET</span> <span class="op">+</span> <span class="ident">NUM_MIXING_VALUES</span>)]
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_combined_stride_context_speed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">speed_max</span>: [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>]) {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
-        <span class="kw">for</span> <span class="ident">high</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
-          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">0</span>);
-          <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_max_offset</span>()<span class="op">+</span><span class="ident">high</span>] <span class="op">=</span> <span class="ident"><span class="self">Self</span>::u16_to_f8</span>(<span class="ident">speed_max</span>[<span class="ident">high</span>].<span class="number">1</span>);
-        }
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_literal_prediction_mode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">LiteralPredictionModeNibble</span>) {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice_mut</span>();
-        <span class="ident">cm_slice</span>[<span class="ident">PREDMODE_OFFSET</span>] <span class="op">=</span> <span class="ident">val</span>.<span class="number">0</span>;
-    }
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_mut</span><span class="op">&lt;</span><span class="ident">Other</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">other</span>: <span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">Other</span><span class="op">&gt;</span>) -&gt; <span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">SliceType</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Other</span><span class="op">&gt;</span>{
-        <span class="ident">PredictionModeContextMap</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>{
-            <span class="ident">literal_context_map</span>:<span class="ident">SliceType::from</span>(<span class="ident">other</span>.<span class="ident">literal_context_map</span>),
-            <span class="ident">predmode_speed_and_distance_context_map</span>: <span class="ident">SliceType::from</span>(<span class="ident">other</span>.<span class="ident">predmode_speed_and_distance_context_map</span>),
-        }
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mixing_values</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw-2">&amp;</span><span class="ident">cm_slice</span>[<span class="ident">MIXING_OFFSET</span>..(<span class="ident">MIXING_OFFSET</span> <span class="op">+</span> <span class="ident">NUM_MIXING_VALUES</span>)]
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mixing_math</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt;<span class="ident">u8</span> {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw">if</span> <span class="ident">cm_slice</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MIXING_MATH_OFFSET</span> {
-            <span class="kw">return</span> <span class="number">1</span>;
-        }
-        <span class="ident">cm_slice</span>[<span class="ident">MIXING_MATH_OFFSET</span>]
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_is_adv_context_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw">if</span> <span class="ident">cm_slice</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">ADV_CONTEXT_MAP_OFFSET</span> {
-            <span class="kw">return</span> <span class="number">0</span>;
-        }
-        <span class="ident">cm_slice</span>[<span class="ident">ADV_CONTEXT_MAP_OFFSET</span>]
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_context_speeds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>().<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">DISTANCE_CONTEXT_MAP_OFFSET</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">size_of_combined_array</span>(<span class="ident">distance_context_map_size</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-       <span class="ident">distance_context_map_size</span> <span class="op">+</span> <span class="ident">DISTANCE_CONTEXT_MAP_OFFSET</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">context_speeds_standard_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="ident">NUM_SPEED_VALUES</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">context_speeds_f8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>()[<span class="ident">SPEED_OFFSET</span>..<span class="ident">DISTANCE_CONTEXT_MAP_OFFSET</span>]
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distance_context_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>().<span class="ident">split_at</span>(<span class="ident">DISTANCE_CONTEXT_MAP_OFFSET</span>).<span class="number">1</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">f8_to_u16</span>(<span class="ident">data</span>: <span class="ident">u8</span>) -&gt; <span class="ident">u16</span> {
-        <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">data</span>)
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">u16_to_f8</span>(<span class="ident">data</span>: <span class="ident">u16</span>) -&gt; <span class="ident">u8</span> {
-        <span class="ident"><span class="self">self</span>::speed_to_u8</span>(<span class="ident">data</span>)
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stride_context_speed_offset</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">SPEED_OFFSET</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stride_context_speed_max_offset</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">SPEED_OFFSET</span> <span class="op">+</span> <span class="number">2</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">context_map_speed_offset</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">SPEED_OFFSET</span> <span class="op">+</span> <span class="number">4</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">context_map_speed_max_offset</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">SPEED_OFFSET</span> <span class="op">+</span> <span class="number">6</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">combined_stride_context_speed_offset</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">SPEED_OFFSET</span> <span class="op">+</span> <span class="number">8</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">combined_stride_context_speed_max_offset</span>() -&gt; <span class="ident">usize</span> {
-        <span class="ident">SPEED_OFFSET</span> <span class="op">+</span> <span class="number">10</span>
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">literal_prediction_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LiteralPredictionModeNibble</span> {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw">if</span> <span class="ident">PREDMODE_OFFSET</span> <span class="op">&lt;</span> <span class="ident">cm_slice</span>.<span class="ident">len</span>() {
-           <span class="ident">LiteralPredictionModeNibble</span>(<span class="ident">cm_slice</span>[<span class="ident">PREDMODE_OFFSET</span>])
-        } <span class="kw">else</span> {
-           <span class="ident">LiteralPredictionModeNibble::default</span>()
-        }
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stride_context_speed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>] {
-       <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stride_context_speed_f8</span>();
-       [(<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">1</span>)),
-        (<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">1</span>))]
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">context_map_speed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>] {
-       <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">context_map_speed_f8</span>();
-       [(<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">1</span>)),
-        (<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">1</span>))]
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">combined_stride_context_speed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(<span class="ident">u16</span>, <span class="ident">u16</span>);<span class="number">2</span>] {
-       <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">combined_stride_context_speed_f8</span>();
-       [(<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">0</span>].<span class="number">1</span>)),
-        (<span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">0</span>), <span class="ident"><span class="self">self</span>::u8_to_speed</span>(<span class="ident">v</span>[<span class="number">1</span>].<span class="number">1</span>))]
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stride_context_speed_f8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(<span class="ident">u8</span>, <span class="ident">u8</span>);<span class="number">2</span>] {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw">let</span> <span class="ident">low_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_offset</span>() <span class="op">+</span> <span class="number">1</span>];
-        <span class="kw">let</span> <span class="ident">low_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_max_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::stride_context_speed_max_offset</span>() <span class="op">+</span> <span class="number">1</span>];
-        [(<span class="ident">low_speed</span>, <span class="ident">low_max</span>), (<span class="ident">high_speed</span>, <span class="ident">high_max</span>)]
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">combined_stride_context_speed_f8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(<span class="ident">u8</span>, <span class="ident">u8</span>);<span class="number">2</span>] {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw">let</span> <span class="ident">low_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_offset</span>() <span class="op">+</span> <span class="number">1</span>];
-        <span class="kw">let</span> <span class="ident">low_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_max_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::combined_stride_context_speed_max_offset</span>() <span class="op">+</span> <span class="number">1</span>];
-        [(<span class="ident">low_speed</span>, <span class="ident">low_max</span>), (<span class="ident">high_speed</span>, <span class="ident">high_max</span>)]
-    }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">context_map_speed_f8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(<span class="ident">u8</span>, <span class="ident">u8</span>);<span class="number">2</span>] {
-        <span class="kw">let</span> <span class="ident">cm_slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">slice</span>();
-        <span class="kw">let</span> <span class="ident">low_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_speed</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_offset</span>() <span class="op">+</span> <span class="number">1</span>];
-        <span class="kw">let</span> <span class="ident">low_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_max_offset</span>()];
-        <span class="kw">let</span> <span class="ident">high_max</span> <span class="op">=</span> <span class="ident">cm_slice</span>[<span class="ident"><span class="self">Self</span>::context_map_speed_max_offset</span>() <span class="op">+</span> <span class="number">1</span>];
-        [(<span class="ident">low_speed</span>, <span class="ident">low_max</span>), (<span class="ident">high_speed</span>, <span class="ident">high_max</span>)]
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>stride(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.<span class="number">1
+    </span>}
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>update_stride(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_stride: u8) {
+        <span class="self">self</span>.<span class="number">1 </span>= new_stride;
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-   <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-   <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-      <span class="ident">PredictionModeContextMap</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-         <span class="ident">literal_context_map</span>:<span class="self">self</span>.<span class="ident">literal_context_map</span>.<span class="ident">clone</span>(),
-         <span class="ident">predmode_speed_and_distance_context_map</span>:<span class="self">self</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">clone</span>(),
+<span class="kw">pub const </span>LITERAL_PREDICTION_MODE_SIGN: u8 = <span class="number">3</span>;
+<span class="kw">pub const </span>LITERAL_PREDICTION_MODE_UTF8: u8 = <span class="number">2</span>;
+<span class="kw">pub const </span>LITERAL_PREDICTION_MODE_MSB6: u8 = <span class="number">1</span>;
+<span class="kw">pub const </span>LITERAL_PREDICTION_MODE_LSB6: u8 = <span class="number">0</span>;
+
+<span class="attribute">#[derive(Default, Copy, Clone, Debug, PartialEq, Eq, Hash)]
+</span><span class="kw">pub struct </span>LiteralPredictionModeNibble(<span class="kw">pub </span>u8);
+
+<span class="kw">impl </span>LiteralPredictionModeNibble {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>new(prediction_mode: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ()&gt; {
+        <span class="kw">if </span>prediction_mode &lt; <span class="number">16 </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(LiteralPredictionModeNibble(prediction_mode));
+        }
+        <span class="kw">return </span><span class="prelude-val">Err</span>(());
+    }
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>prediction_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>signed() -&gt; <span class="self">Self </span>{
+        LiteralPredictionModeNibble(LITERAL_PREDICTION_MODE_SIGN)
+    }
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>utf8() -&gt; <span class="self">Self </span>{
+        LiteralPredictionModeNibble(LITERAL_PREDICTION_MODE_UTF8)
+    }
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>msb6() -&gt; <span class="self">Self </span>{
+        LiteralPredictionModeNibble(LITERAL_PREDICTION_MODE_MSB6)
+    }
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>lsb6() -&gt; <span class="self">Self </span>{
+        LiteralPredictionModeNibble(LITERAL_PREDICTION_MODE_LSB6)
+    }
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">pub fn </span>to_context_enum(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;histogram::ContextType, ()&gt;{
+        <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
+          LITERAL_PREDICTION_MODE_LSB6 =&gt; <span class="prelude-val">Ok</span>(histogram::ContextType::CONTEXT_LSB6),
+          LITERAL_PREDICTION_MODE_MSB6 =&gt; <span class="prelude-val">Ok</span>(histogram::ContextType::CONTEXT_MSB6),
+          LITERAL_PREDICTION_MODE_UTF8 =&gt; <span class="prelude-val">Ok</span>(histogram::ContextType::CONTEXT_UTF8),
+          LITERAL_PREDICTION_MODE_SIGN =&gt; <span class="prelude-val">Ok</span>(histogram::ContextType::CONTEXT_SIGNED),
+          <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(()),
+        }
+    }
+}
+<span class="kw">pub const </span>NUM_SPEED_VALUES: usize = <span class="number">12</span>;
+<span class="kw">pub const </span>NUM_MIXING_VALUES: usize = <span class="number">16 </span>* <span class="number">256 </span>+ <span class="number">16 </span>* <span class="number">256</span>;
+<span class="kw">pub const </span>NUM_PREDMODE_SETUP_VALUES: usize = <span class="number">4</span>;
+<span class="kw">pub const </span>RESERVED_OFFSET: usize = <span class="number">3</span>;
+<span class="kw">pub const </span>ADV_CONTEXT_MAP_OFFSET: usize = <span class="number">2</span>;
+<span class="kw">pub const </span>MIXING_MATH_OFFSET: usize = <span class="number">1</span>;
+<span class="kw">pub const </span>PREDMODE_OFFSET: usize = <span class="number">0</span>;
+<span class="kw">pub const </span>MIXING_OFFSET:usize = NUM_PREDMODE_SETUP_VALUES + PREDMODE_OFFSET;
+<span class="kw">pub const </span>SPEED_OFFSET: usize = MIXING_OFFSET + NUM_MIXING_VALUES;
+<span class="kw">pub const </span>DISTANCE_CONTEXT_MAP_OFFSET: usize = SPEED_OFFSET + NUM_SPEED_VALUES;
+<span class="kw">pub const </span>MAX_PREDMODE_SPEED_AND_DISTANCE_CONTEXT_MAP_SIZE: usize = DISTANCE_CONTEXT_MAP_OFFSET + <span class="number">256 </span>* <span class="number">4</span>;
+<span class="kw">pub const </span>MAX_LITERAL_CONTEXT_MAP_SIZE: usize = <span class="number">256 </span>* <span class="number">64</span>;
+<span class="kw">pub const </span>MAX_ADV_LITERAL_CONTEXT_MAP_SIZE: usize = <span class="number">256 </span>* <span class="number">64 </span>* <span class="number">2</span>;
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>PredictionModeContextMap&lt;SliceType:SliceWrapper&lt;u8&gt;&gt; {
+    <span class="kw">pub </span>literal_context_map: SliceType,
+    <span class="kw">pub </span>predmode_speed_and_distance_context_map: SliceType,
+}
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+SliceWrapperMut&lt;u8&gt;&gt; PredictionModeContextMap&lt;SliceType&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>distance_context_map_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
+        <span class="self">self</span>.predmode_speed_and_distance_context_map.slice_mut().split_at_mut(DISTANCE_CONTEXT_MAP_OFFSET).<span class="number">1
+    </span>}
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_stride_context_speed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, speed_max: [(u16, u16);<span class="number">2</span>]) {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice_mut();
+        <span class="kw">for </span>high <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
+          cm_slice[<span class="self">Self</span>::stride_context_speed_offset()+high] = <span class="self">Self</span>::u16_to_f8(speed_max[high].<span class="number">0</span>);
+          cm_slice[<span class="self">Self</span>::stride_context_speed_max_offset()+high] = <span class="self">Self</span>::u16_to_f8(speed_max[high].<span class="number">1</span>);
+        }
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_context_map_speed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, speed_max: [(u16, u16);<span class="number">2</span>]) {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice_mut();
+        <span class="kw">for </span>high <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
+          cm_slice[<span class="self">Self</span>::context_map_speed_offset()+high] = <span class="self">Self</span>::u16_to_f8(speed_max[high].<span class="number">0</span>);
+          cm_slice[<span class="self">Self</span>::context_map_speed_max_offset()+high] = <span class="self">Self</span>::u16_to_f8(speed_max[high].<span class="number">1</span>);
+        }
+    }
+    <span class="kw">pub fn </span>set_mixing_math(<span class="kw-2">&amp;mut </span><span class="self">self</span>, math_enum: u8) {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice_mut();
+        cm_slice[MIXING_MATH_OFFSET] = math_enum;
+    }
+    <span class="kw">pub fn </span>set_adv_context_map(<span class="kw-2">&amp;mut </span><span class="self">self</span>, is_adv: u8) {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice_mut();
+        cm_slice[ADV_CONTEXT_MAP_OFFSET] = is_adv;
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_mixing_values(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mixing_mask: <span class="kw-2">&amp;</span>[u8; NUM_MIXING_VALUES]) {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice_mut();
+        cm_slice[MIXING_OFFSET..(MIXING_OFFSET + NUM_MIXING_VALUES)].clone_from_slice(<span class="kw-2">&amp;</span>mixing_mask[..]);
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>get_mixing_values_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice_mut();
+        <span class="kw-2">&amp;mut </span>cm_slice[MIXING_OFFSET..(MIXING_OFFSET + NUM_MIXING_VALUES)]
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>set_combined_stride_context_speed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, speed_max: [(u16, u16);<span class="number">2</span>]) {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice_mut();
+        <span class="kw">for </span>high <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
+          cm_slice[<span class="self">Self</span>::combined_stride_context_speed_offset()+high] = <span class="self">Self</span>::u16_to_f8(speed_max[high].<span class="number">0</span>);
+          cm_slice[<span class="self">Self</span>::combined_stride_context_speed_max_offset()+high] = <span class="self">Self</span>::u16_to_f8(speed_max[high].<span class="number">1</span>);
+        }
+    }
+    <span class="kw">pub fn </span>set_literal_prediction_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: LiteralPredictionModeNibble) {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice_mut();
+        cm_slice[PREDMODE_OFFSET] = val.<span class="number">0</span>;
+    }
+}
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;&gt; PredictionModeContextMap&lt;SliceType&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>from_mut&lt;Other:SliceWrapper&lt;u8&gt;&gt;(other: PredictionModeContextMap&lt;Other&gt;) -&gt; PredictionModeContextMap&lt;SliceType&gt; <span class="kw">where </span>SliceType: From&lt;Other&gt;{
+        PredictionModeContextMap::&lt;SliceType&gt;{
+            literal_context_map:SliceType::from(other.literal_context_map),
+            predmode_speed_and_distance_context_map: SliceType::from(other.predmode_speed_and_distance_context_map),
+        }
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>get_mixing_values(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice();
+        <span class="kw-2">&amp;</span>cm_slice[MIXING_OFFSET..(MIXING_OFFSET + NUM_MIXING_VALUES)]
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>get_mixing_math(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt;u8 {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice();
+        <span class="kw">if </span>cm_slice.len() &lt;= MIXING_MATH_OFFSET {
+            <span class="kw">return </span><span class="number">1</span>;
+        }
+        cm_slice[MIXING_MATH_OFFSET]
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>get_is_adv_context_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice();
+        <span class="kw">if </span>cm_slice.len() &lt;= ADV_CONTEXT_MAP_OFFSET {
+            <span class="kw">return </span><span class="number">0</span>;
+        }
+        cm_slice[ADV_CONTEXT_MAP_OFFSET]
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>has_context_speeds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.predmode_speed_and_distance_context_map.slice().len() &gt;= DISTANCE_CONTEXT_MAP_OFFSET
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>size_of_combined_array(distance_context_map_size: usize) -&gt; usize {
+       distance_context_map_size + DISTANCE_CONTEXT_MAP_OFFSET
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>context_speeds_standard_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        NUM_SPEED_VALUES
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>context_speeds_f8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.predmode_speed_and_distance_context_map.slice()[SPEED_OFFSET..DISTANCE_CONTEXT_MAP_OFFSET]
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>distance_context_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="self">self</span>.predmode_speed_and_distance_context_map.slice().split_at(DISTANCE_CONTEXT_MAP_OFFSET).<span class="number">1
+    </span>}
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>f8_to_u16(data: u8) -&gt; u16 {
+        <span class="self">self</span>::u8_to_speed(data)
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>u16_to_f8(data: u16) -&gt; u8 {
+        <span class="self">self</span>::speed_to_u8(data)
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>stride_context_speed_offset() -&gt; usize {
+        SPEED_OFFSET
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>stride_context_speed_max_offset() -&gt; usize {
+        SPEED_OFFSET + <span class="number">2
+    </span>}
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>context_map_speed_offset() -&gt; usize {
+        SPEED_OFFSET + <span class="number">4
+    </span>}
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>context_map_speed_max_offset() -&gt; usize {
+        SPEED_OFFSET + <span class="number">6
+    </span>}
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>combined_stride_context_speed_offset() -&gt; usize {
+        SPEED_OFFSET + <span class="number">8
+    </span>}
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>combined_stride_context_speed_max_offset() -&gt; usize {
+        SPEED_OFFSET + <span class="number">10
+    </span>}
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>literal_prediction_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LiteralPredictionModeNibble {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice();
+        <span class="kw">if </span>PREDMODE_OFFSET &lt; cm_slice.len() {
+           LiteralPredictionModeNibble(cm_slice[PREDMODE_OFFSET])
+        } <span class="kw">else </span>{
+           LiteralPredictionModeNibble::default()
+        }
+    }
+    <span class="kw">pub fn </span>stride_context_speed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(u16, u16);<span class="number">2</span>] {
+       <span class="kw">let </span>v = <span class="self">self</span>.stride_context_speed_f8();
+       [(<span class="self">self</span>::u8_to_speed(v[<span class="number">0</span>].<span class="number">0</span>), <span class="self">self</span>::u8_to_speed(v[<span class="number">0</span>].<span class="number">1</span>)),
+        (<span class="self">self</span>::u8_to_speed(v[<span class="number">1</span>].<span class="number">0</span>), <span class="self">self</span>::u8_to_speed(v[<span class="number">1</span>].<span class="number">1</span>))]
+    }
+    <span class="kw">pub fn </span>context_map_speed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(u16, u16);<span class="number">2</span>] {
+       <span class="kw">let </span>v = <span class="self">self</span>.context_map_speed_f8();
+       [(<span class="self">self</span>::u8_to_speed(v[<span class="number">0</span>].<span class="number">0</span>), <span class="self">self</span>::u8_to_speed(v[<span class="number">0</span>].<span class="number">1</span>)),
+        (<span class="self">self</span>::u8_to_speed(v[<span class="number">1</span>].<span class="number">0</span>), <span class="self">self</span>::u8_to_speed(v[<span class="number">1</span>].<span class="number">1</span>))]
+    }
+    <span class="kw">pub fn </span>combined_stride_context_speed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(u16, u16);<span class="number">2</span>] {
+       <span class="kw">let </span>v = <span class="self">self</span>.combined_stride_context_speed_f8();
+       [(<span class="self">self</span>::u8_to_speed(v[<span class="number">0</span>].<span class="number">0</span>), <span class="self">self</span>::u8_to_speed(v[<span class="number">0</span>].<span class="number">1</span>)),
+        (<span class="self">self</span>::u8_to_speed(v[<span class="number">1</span>].<span class="number">0</span>), <span class="self">self</span>::u8_to_speed(v[<span class="number">1</span>].<span class="number">1</span>))]
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>stride_context_speed_f8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(u8, u8);<span class="number">2</span>] {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice();
+        <span class="kw">let </span>low_speed = cm_slice[<span class="self">Self</span>::stride_context_speed_offset()];
+        <span class="kw">let </span>high_speed = cm_slice[<span class="self">Self</span>::stride_context_speed_offset() + <span class="number">1</span>];
+        <span class="kw">let </span>low_max = cm_slice[<span class="self">Self</span>::stride_context_speed_max_offset()];
+        <span class="kw">let </span>high_max = cm_slice[<span class="self">Self</span>::stride_context_speed_max_offset() + <span class="number">1</span>];
+        [(low_speed, low_max), (high_speed, high_max)]
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>combined_stride_context_speed_f8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(u8, u8);<span class="number">2</span>] {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice();
+        <span class="kw">let </span>low_speed = cm_slice[<span class="self">Self</span>::combined_stride_context_speed_offset()];
+        <span class="kw">let </span>high_speed = cm_slice[<span class="self">Self</span>::combined_stride_context_speed_offset() + <span class="number">1</span>];
+        <span class="kw">let </span>low_max = cm_slice[<span class="self">Self</span>::combined_stride_context_speed_max_offset()];
+        <span class="kw">let </span>high_max = cm_slice[<span class="self">Self</span>::combined_stride_context_speed_max_offset() + <span class="number">1</span>];
+        [(low_speed, low_max), (high_speed, high_max)]
+    }
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>context_map_speed_f8(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [(u8, u8);<span class="number">2</span>] {
+        <span class="kw">let </span>cm_slice = <span class="self">self</span>.predmode_speed_and_distance_context_map.slice();
+        <span class="kw">let </span>low_speed = cm_slice[<span class="self">Self</span>::context_map_speed_offset()];
+        <span class="kw">let </span>high_speed = cm_slice[<span class="self">Self</span>::context_map_speed_offset() + <span class="number">1</span>];
+        <span class="kw">let </span>low_max = cm_slice[<span class="self">Self</span>::context_map_speed_max_offset()];
+        <span class="kw">let </span>high_max = cm_slice[<span class="self">Self</span>::context_map_speed_max_offset() + <span class="number">1</span>];
+        [(low_speed, low_max), (high_speed, high_max)]
+    }
+}
+
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Clone&gt; Clone <span class="kw">for </span>PredictionModeContextMap&lt;SliceType&gt; {
+   <span class="attribute">#[inline(always)]
+   </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+      PredictionModeContextMap::&lt;SliceType&gt; {
+         literal_context_map:<span class="self">self</span>.literal_context_map.clone(),
+         predmode_speed_and_distance_context_map:<span class="self">self</span>.predmode_speed_and_distance_context_map.clone(),
       }
    }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Clone</span><span class="op">+</span><span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Clone+Copy&gt; Copy <span class="kw">for </span>PredictionModeContextMap&lt;SliceType&gt; {
 }
 
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>,<span class="ident">Clone</span>,<span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CopyCommand</span> {
-    <span class="kw">pub</span> <span class="ident">distance</span>: <span class="ident">u32</span>,
-    <span class="kw">pub</span> <span class="ident">num_bytes</span>: <span class="ident">u32</span>,
+<span class="attribute">#[derive(Debug,Clone,Copy)]
+</span><span class="kw">pub struct </span>CopyCommand {
+    <span class="kw">pub </span>distance: u32,
+    <span class="kw">pub </span>num_bytes: u32,
 }
 
-<span class="kw">impl</span> <span class="ident">Nop</span><span class="op">&lt;</span><span class="ident">CopyCommand</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CopyCommand</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">nop</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">CopyCommand</span> {
-            <span class="ident">distance</span>: <span class="number">1</span>,
-            <span class="ident">num_bytes</span>: <span class="number">0</span>
-        }
+<span class="kw">impl </span>Nop&lt;CopyCommand&gt; <span class="kw">for </span>CopyCommand {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>nop() -&gt; <span class="self">Self </span>{
+        CopyCommand {
+            distance: <span class="number">1</span>,
+            num_bytes: <span class="number">0
+        </span>}
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>,<span class="ident">Clone</span>,<span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DictCommand</span> {
-    <span class="kw">pub</span> <span class="ident">word_size</span>: <span class="ident">u8</span>,
-    <span class="kw">pub</span> <span class="ident">transform</span>: <span class="ident">u8</span>,
-    <span class="kw">pub</span> <span class="ident">final_size</span>: <span class="ident">u8</span>,
-    <span class="kw">pub</span> <span class="ident">empty</span>: <span class="ident">u8</span>,
-    <span class="kw">pub</span> <span class="ident">word_id</span>: <span class="ident">u32</span>,
+<span class="attribute">#[derive(Debug,Clone,Copy)]
+</span><span class="kw">pub struct </span>DictCommand {
+    <span class="kw">pub </span>word_size: u8,
+    <span class="kw">pub </span>transform: u8,
+    <span class="kw">pub </span>final_size: u8,
+    <span class="kw">pub </span>empty: u8,
+    <span class="kw">pub </span>word_id: u32,
 }
 
-<span class="kw">impl</span> <span class="ident">Nop</span><span class="op">&lt;</span><span class="ident">DictCommand</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DictCommand</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">nop</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">DictCommand</span> {
-            <span class="ident">word_size</span>: <span class="number">0</span>,
-            <span class="ident">transform</span>: <span class="number">0</span>,
-            <span class="ident">final_size</span>: <span class="number">0</span>,
-            <span class="ident">empty</span>: <span class="number">1</span>,
-            <span class="ident">word_id</span>: <span class="number">0</span>
-        }
+<span class="kw">impl </span>Nop&lt;DictCommand&gt; <span class="kw">for </span>DictCommand {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>nop() -&gt; <span class="self">Self </span>{
+        DictCommand {
+            word_size: <span class="number">0</span>,
+            transform: <span class="number">0</span>,
+            final_size: <span class="number">0</span>,
+            empty: <span class="number">1</span>,
+            word_id: <span class="number">0
+        </span>}
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;external-literal-probability&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FeatureFlagSliceType</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">&gt;</span>(<span class="ident">core::marker::PhantomData</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>);
+<span class="attribute">#[derive(Debug)]
+#[cfg(not(feature=<span class="string">&quot;external-literal-probability&quot;</span>))]
+</span><span class="kw">pub struct </span>FeatureFlagSliceType&lt;SliceType:SliceWrapper&lt;u8&gt; &gt;(core::marker::PhantomData&lt;SliceType&gt;);
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;external-literal-probability&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FeatureFlagSliceType</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-   <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;external-literal-probability&quot;</span>))]
+</span><span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;&gt; SliceWrapper&lt;u8&gt; <span class="kw">for </span>FeatureFlagSliceType&lt;SliceType&gt; {
+   <span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
        <span class="kw-2">&amp;</span>[]
    }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;external-literal-probability&quot;</span>))]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">FeatureFlagSliceType</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">FeatureFlagSliceType</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>(<span class="ident">core::marker::PhantomData</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span><span class="ident">::default</span>())
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;external-literal-probability&quot;</span>))]
+</span><span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Default&gt; Default <span class="kw">for </span>FeatureFlagSliceType&lt;SliceType&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        FeatureFlagSliceType::&lt;SliceType&gt;(core::marker::PhantomData::&lt;SliceType&gt;::default())
     }
 }
 
 
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;external-literal-probability&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FeatureFlagSliceType</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">SliceType</span>);
+<span class="attribute">#[derive(Debug)]
+#[cfg(feature=<span class="string">&quot;external-literal-probability&quot;</span>)]
+</span><span class="kw">pub struct </span>FeatureFlagSliceType&lt;SliceType:SliceWrapper&lt;u8&gt; &gt;(<span class="kw">pub </span>SliceType);
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;external-literal-probability&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FeatureFlagSliceType</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-   <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-       <span class="self">self</span>.<span class="number">0</span>.<span class="ident">slice</span>()
+<span class="attribute">#[cfg(feature=<span class="string">&quot;external-literal-probability&quot;</span>)]
+</span><span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;&gt; SliceWrapper&lt;u8&gt; <span class="kw">for </span>FeatureFlagSliceType&lt;SliceType&gt; {
+    <span class="attribute">#[inline(always)]
+   </span><span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+       <span class="self">self</span>.<span class="number">0</span>.slice()
    }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;external-literal-probability&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">FeatureFlagSliceType</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">FeatureFlagSliceType</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>(<span class="ident">SliceType::default</span>())
+<span class="attribute">#[cfg(feature=<span class="string">&quot;external-literal-probability&quot;</span>)]
+</span><span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Default&gt; Default <span class="kw">for </span>FeatureFlagSliceType&lt;SliceType&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        FeatureFlagSliceType::&lt;SliceType&gt;(SliceType::default())
     }
 }
 
 
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">FeatureFlagSliceType</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-       <span class="ident">FeatureFlagSliceType</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>())
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Clone&gt; Clone <span class="kw">for </span>FeatureFlagSliceType&lt;SliceType&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+       FeatureFlagSliceType::&lt;SliceType&gt;(<span class="self">self</span>.<span class="number">0</span>.clone())
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Clone</span><span class="op">+</span><span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">FeatureFlagSliceType</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Clone+Copy&gt; Copy <span class="kw">for </span>FeatureFlagSliceType&lt;SliceType&gt; {
 }
 
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LiteralCommand</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">SliceType</span>,
-    <span class="kw">pub</span> <span class="ident">prob</span>: <span class="ident">FeatureFlagSliceType</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">high_entropy</span>: <span class="ident">bool</span>, <span class="comment">// this block of bytes is high entropy with a few patterns never seen again; adapt slower</span>
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LiteralCommand</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">slice</span>()
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>LiteralCommand&lt;SliceType:SliceWrapper&lt;u8&gt;&gt; {
+    <span class="kw">pub </span>data: SliceType,
+    <span class="kw">pub </span>prob: FeatureFlagSliceType&lt;SliceType&gt;,
+    <span class="kw">pub </span>high_entropy: bool, <span class="comment">// this block of bytes is high entropy with a few patterns never seen again; adapt slower
+</span>}
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;&gt; SliceWrapper&lt;u8&gt; <span class="kw">for </span>LiteralCommand&lt;SliceType&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="self">self</span>.data.slice()
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SliceWrapperMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LiteralCommand</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">slice_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>] {
-        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">slice_mut</span>()
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+SliceWrapperMut&lt;u8&gt;&gt; SliceWrapperMut&lt;u8&gt; <span class="kw">for </span>LiteralCommand&lt;SliceType&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>slice_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[u8] {
+        <span class="self">self</span>.data.slice_mut()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Nop</span><span class="op">&lt;</span><span class="ident">LiteralCommand</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LiteralCommand</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">nop</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">LiteralCommand</span> {
-            <span class="ident">data</span>: <span class="ident">SliceType::default</span>(),
-            <span class="ident">prob</span>: <span class="ident">FeatureFlagSliceType</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span><span class="ident">::default</span>(),
-            <span class="ident">high_entropy</span>: <span class="bool-val">false</span>,
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Default&gt; Nop&lt;LiteralCommand&lt;SliceType&gt;&gt; <span class="kw">for </span>LiteralCommand&lt;SliceType&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>nop() -&gt; <span class="self">Self </span>{
+        LiteralCommand {
+            data: SliceType::default(),
+            prob: FeatureFlagSliceType::&lt;SliceType&gt;::default(),
+            high_entropy: <span class="bool-val">false</span>,
         }
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">LiteralCommand</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LiteralCommand</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>{
-        <span class="ident">LiteralCommand</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>{<span class="ident">data</span>:<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">clone</span>(), <span class="ident">prob</span>:<span class="self">self</span>.<span class="ident">prob</span>.<span class="ident">clone</span>(),<span class="ident">high_entropy</span>: <span class="self">self</span>.<span class="ident">high_entropy</span>.<span class="ident">clone</span>(),}
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Clone&gt; Clone <span class="kw">for </span>LiteralCommand&lt;SliceType&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LiteralCommand&lt;SliceType&gt;{
+        LiteralCommand::&lt;SliceType&gt;{data:<span class="self">self</span>.data.clone(), prob:<span class="self">self</span>.prob.clone(),high_entropy: <span class="self">self</span>.high_entropy.clone(),}
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Clone</span><span class="op">+</span><span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">LiteralCommand</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Clone+Copy&gt; Copy <span class="kw">for </span>LiteralCommand&lt;SliceType&gt; {
 }
 
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">&gt;</span> {
-    <span class="ident">Copy</span>(<span class="ident">CopyCommand</span>),
-    <span class="ident">Dict</span>(<span class="ident">DictCommand</span>),
-    <span class="ident">Literal</span>(<span class="ident">LiteralCommand</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>),
-    <span class="ident">BlockSwitchCommand</span>(<span class="ident">BlockSwitch</span>),
-    <span class="ident">BlockSwitchLiteral</span>(<span class="ident">LiteralBlockSwitch</span>),
-    <span class="ident">BlockSwitchDistance</span>(<span class="ident">BlockSwitch</span>),
-    <span class="ident">PredictionMode</span>(<span class="ident">PredictionModeContextMap</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>),
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>Command&lt;SliceType:SliceWrapper&lt;u8&gt; &gt; {
+    Copy(CopyCommand),
+    Dict(DictCommand),
+    Literal(LiteralCommand&lt;SliceType&gt;),
+    BlockSwitchCommand(BlockSwitch),
+    BlockSwitchLiteral(LiteralBlockSwitch),
+    BlockSwitchDistance(BlockSwitch),
+    PredictionMode(PredictionModeContextMap&lt;SliceType&gt;),
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free_array</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">apply_func</span>: <span class="kw-2">&amp;mut</span> <span class="ident">F</span>) <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">SliceType</span>) {
-       <span class="kw">match</span> <span class="self">self</span> {
-          <span class="kw-2">&amp;mut</span> <span class="ident">Command::Literal</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lit</span>) =&gt; {
-             <span class="ident">apply_func</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lit</span>.<span class="ident">data</span>, <span class="ident">SliceType::default</span>()))
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Default&gt; Command&lt;SliceType&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>free_array&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, apply_func: <span class="kw-2">&amp;mut </span>F) <span class="kw">where </span>F: FnMut(SliceType) {
+       <span class="kw">match </span><span class="self">self </span>{
+          <span class="kw-2">&amp;mut </span>Command::Literal(<span class="kw-2">ref mut </span>lit) =&gt; {
+             apply_func(core::mem::replace(<span class="kw-2">&amp;mut </span>lit.data, SliceType::default()))
           },
-          <span class="kw-2">&amp;mut</span> <span class="ident">Command::PredictionMode</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">pm</span>) =&gt; {
-             <span class="ident">apply_func</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pm</span>.<span class="ident">literal_context_map</span>, <span class="ident">SliceType::default</span>()));
-             <span class="ident">apply_func</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pm</span>.<span class="ident">predmode_speed_and_distance_context_map</span>, <span class="ident">SliceType::default</span>()));
+          <span class="kw-2">&amp;mut </span>Command::PredictionMode(<span class="kw-2">ref mut </span>pm) =&gt; {
+             apply_func(core::mem::replace(<span class="kw-2">&amp;mut </span>pm.literal_context_map, SliceType::default()));
+             apply_func(core::mem::replace(<span class="kw-2">&amp;mut </span>pm.predmode_speed_and_distance_context_map, SliceType::default()));
           },
-          <span class="kw">_</span> =&gt; {},
+          <span class="kw">_ </span>=&gt; {},
        }
     }
 }
 
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Command</span>::<span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span><span class="ident">::nop</span>()
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;&gt; Default <span class="kw">for </span>Command&lt;SliceType&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        Command::&lt;SliceType&gt;::nop()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Nop</span><span class="op">&lt;</span><span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">nop</span>() -&gt; <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-        <span class="ident">Command::Copy</span>(<span class="ident">CopyCommand::nop</span>())
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;&gt; Nop&lt;Command&lt;SliceType&gt;&gt; <span class="kw">for </span>Command&lt;SliceType&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>nop() -&gt; Command&lt;SliceType&gt; {
+        Command::Copy(CopyCommand::nop())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>{
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="kw-2">&amp;</span><span class="ident">Command::Copy</span>(<span class="kw-2">ref</span> <span class="ident">copy</span>) =&gt; <span class="ident">Command::Copy</span>(<span class="ident">copy</span>.<span class="ident">clone</span>()),
-            <span class="kw-2">&amp;</span><span class="ident">Command::Dict</span>(<span class="kw-2">ref</span> <span class="ident">dict</span>) =&gt; <span class="ident">Command::Dict</span>(<span class="ident">dict</span>.<span class="ident">clone</span>()),
-            <span class="kw-2">&amp;</span><span class="ident">Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">literal</span>) =&gt; <span class="ident">Command::Literal</span>(<span class="ident">literal</span>.<span class="ident">clone</span>()),
-            <span class="kw-2">&amp;</span><span class="ident">Command::BlockSwitchCommand</span>(<span class="kw-2">ref</span> <span class="ident">switch</span>) =&gt; <span class="ident">Command::BlockSwitchCommand</span>(<span class="ident">switch</span>.<span class="ident">clone</span>()),
-            <span class="kw-2">&amp;</span><span class="ident">Command::BlockSwitchLiteral</span>(<span class="kw-2">ref</span> <span class="ident">switch</span>) =&gt; <span class="ident">Command::BlockSwitchLiteral</span>(<span class="ident">switch</span>.<span class="ident">clone</span>()),
-            <span class="kw-2">&amp;</span><span class="ident">Command::BlockSwitchDistance</span>(<span class="kw-2">ref</span> <span class="ident">switch</span>) =&gt; <span class="ident">Command::BlockSwitchDistance</span>(<span class="ident">switch</span>.<span class="ident">clone</span>()),
-            <span class="kw-2">&amp;</span><span class="ident">Command::PredictionMode</span>(<span class="kw-2">ref</span> <span class="ident">pm</span>) =&gt; <span class="ident">Command::PredictionMode</span>(<span class="ident">pm</span>.<span class="ident">clone</span>()),
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Clone&gt; Clone <span class="kw">for </span>Command&lt;SliceType&gt; {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Command&lt;SliceType&gt;{
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="kw-2">&amp;</span>Command::Copy(<span class="kw-2">ref </span>copy) =&gt; Command::Copy(copy.clone()),
+            <span class="kw-2">&amp;</span>Command::Dict(<span class="kw-2">ref </span>dict) =&gt; Command::Dict(dict.clone()),
+            <span class="kw-2">&amp;</span>Command::Literal(<span class="kw-2">ref </span>literal) =&gt; Command::Literal(literal.clone()),
+            <span class="kw-2">&amp;</span>Command::BlockSwitchCommand(<span class="kw-2">ref </span>switch) =&gt; Command::BlockSwitchCommand(switch.clone()),
+            <span class="kw-2">&amp;</span>Command::BlockSwitchLiteral(<span class="kw-2">ref </span>switch) =&gt; Command::BlockSwitchLiteral(switch.clone()),
+            <span class="kw-2">&amp;</span>Command::BlockSwitchDistance(<span class="kw-2">ref </span>switch) =&gt; Command::BlockSwitchDistance(switch.clone()),
+            <span class="kw-2">&amp;</span>Command::PredictionMode(<span class="kw-2">ref </span>pm) =&gt; Command::PredictionMode(pm.clone()),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Clone</span><span class="op">+</span><span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
+<span class="kw">impl</span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Clone+Copy&gt; Copy <span class="kw">for </span>Command&lt;SliceType&gt; {
 }
 
 
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free_cmd_inline</span><span class="op">&lt;</span><span class="ident">SliceTypeAllocator</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> (<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceTypeAllocator::AllocatedMemory</span><span class="op">&gt;</span>, <span class="ident">m8</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SliceTypeAllocator</span>) {
-       <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">xself</span> {
-          <span class="ident">Command::Literal</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lit</span>) =&gt; {
-             <span class="ident">m8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lit</span>.<span class="ident">data</span>, <span class="ident">SliceTypeAllocator::AllocatedMemory::default</span>()))
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>free_cmd_inline&lt;SliceTypeAllocator:Allocator&lt;u8&gt;&gt; (xself: <span class="kw-2">&amp;mut </span>Command&lt;SliceTypeAllocator::AllocatedMemory&gt;, m8: <span class="kw-2">&amp;mut </span>SliceTypeAllocator) {
+       <span class="kw">match </span><span class="kw-2">*</span>xself {
+          Command::Literal(<span class="kw-2">ref mut </span>lit) =&gt; {
+             m8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span>lit.data, SliceTypeAllocator::AllocatedMemory::default()))
           },
-          <span class="ident">Command::PredictionMode</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">pm</span>) =&gt; {
-             <span class="ident">m8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pm</span>.<span class="ident">literal_context_map</span>, <span class="ident">SliceTypeAllocator::AllocatedMemory::default</span>()));
-             <span class="ident">m8</span>.<span class="ident">free_cell</span>(<span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pm</span>.<span class="ident">predmode_speed_and_distance_context_map</span>, <span class="ident">SliceTypeAllocator::AllocatedMemory::default</span>()));
+          Command::PredictionMode(<span class="kw-2">ref mut </span>pm) =&gt; {
+             m8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span>pm.literal_context_map, SliceTypeAllocator::AllocatedMemory::default()));
+             m8.free_cell(core::mem::replace(<span class="kw-2">&amp;mut </span>pm.predmode_speed_and_distance_context_map, SliceTypeAllocator::AllocatedMemory::default()));
           },
-          <span class="ident">Command::Dict</span>(<span class="kw">_</span>) <span class="op">|</span>
-          <span class="ident">Command::Copy</span>(<span class="kw">_</span>) <span class="op">|</span>
-          <span class="ident">Command::BlockSwitchCommand</span>(<span class="kw">_</span>) <span class="op">|</span>
-          <span class="ident">Command::BlockSwitchLiteral</span>(<span class="kw">_</span>) <span class="op">|</span>
-          <span class="ident">Command::BlockSwitchDistance</span>(<span class="kw">_</span>) =&gt; {},
+          Command::Dict(<span class="kw">_</span>) |
+          Command::Copy(<span class="kw">_</span>) |
+          Command::BlockSwitchCommand(<span class="kw">_</span>) |
+          Command::BlockSwitchLiteral(<span class="kw">_</span>) |
+          Command::BlockSwitchDistance(<span class="kw">_</span>) =&gt; {},
     }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free_cmd</span><span class="op">&lt;</span><span class="ident">SliceTypeAllocator</span>:<span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> (<span class="ident">xself</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceTypeAllocator::AllocatedMemory</span><span class="op">&gt;</span>, <span class="ident">m8</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SliceTypeAllocator</span>) {
-    <span class="ident">free_cmd_inline</span>(<span class="ident">xself</span>, <span class="ident">m8</span>)
+<span class="attribute">#[inline(never)]
+</span><span class="kw">pub fn </span>free_cmd&lt;SliceTypeAllocator:Allocator&lt;u8&gt;&gt; (xself: <span class="kw-2">&amp;mut </span>Command&lt;SliceTypeAllocator::AllocatedMemory&gt;, m8: <span class="kw-2">&amp;mut </span>SliceTypeAllocator) {
+    free_cmd_inline(xself, m8)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SliceOffset</span>(<span class="kw">pub</span> <span class="ident">usize</span>, <span class="kw">pub</span> <span class="ident">u32</span>);
-<span class="kw">impl</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SliceOffset</span> {
-    <span class="kw">fn</span> <span class="ident">slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="comment">// not perfect--shouldn&#39;t be calling this without thawing the wrapper</span>
-        <span class="kw-2">&amp;</span>[]
+<span class="attribute">#[derive(Clone, Copy, Default, Debug)]
+</span><span class="kw">pub struct </span>SliceOffset(<span class="kw">pub </span>usize, <span class="kw">pub </span>u32);
+<span class="kw">impl </span>SliceWrapper&lt;u8&gt; <span class="kw">for </span>SliceOffset {
+    <span class="kw">fn </span>slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="comment">// not perfect--shouldn&#39;t be calling this without thawing the wrapper
+        </span><span class="kw-2">&amp;</span>[]
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Freezable</span> {
-    <span class="kw">fn</span> <span class="ident">freeze</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SliceOffset</span>;
+<span class="kw">pub trait </span>Freezable {
+    <span class="kw">fn </span>freeze(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SliceOffset;
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Unfreezable</span> {
-    <span class="kw">fn</span> <span class="ident">thaw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">thaw_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">thaw_pair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pair</span>: <span class="kw-2">&amp;</span><span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span>;
+<span class="kw">pub trait </span>Unfreezable {
+    <span class="kw">fn </span>thaw&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; InputReference&lt;<span class="lifetime">&#39;a</span>&gt;;
+    <span class="kw">fn </span>thaw_mut&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]) -&gt; InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt;;
+    <span class="kw">fn </span>thaw_pair&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, pair: <span class="kw-2">&amp;</span>InputPair&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;InputReference&lt;<span class="lifetime">&#39;a</span>&gt;, ()&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SliceOffset</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">f</span>: <span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">debug_assert!</span>(<span class="ident">f</span>.<span class="ident">data</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">0xffffffff</span>);
-        <span class="ident">SliceOffset</span>(<span class="ident">f</span>.<span class="ident">orig_offset</span>, <span class="ident">f</span>.<span class="ident">data</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;InputReference&lt;<span class="lifetime">&#39;a</span>&gt;&gt; <span class="kw">for </span>SliceOffset {
+    <span class="kw">fn </span>from(f: InputReference&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="macro">debug_assert!</span>(f.data.len() &lt;= <span class="number">0xffffffff</span>);
+        SliceOffset(f.orig_offset, f.data.len() <span class="kw">as </span>u32)
     }
 }
-<span class="kw">impl</span> <span class="ident">Unfreezable</span> <span class="kw">for</span> <span class="ident">SliceOffset</span> {
-    <span class="kw">fn</span> <span class="ident">thaw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">InputReference</span>{
-            <span class="ident">data</span>: <span class="ident">data</span>.<span class="ident">split_at</span>(<span class="self">self</span>.<span class="number">0</span>).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="self">self</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="number">0</span>,
-            <span class="ident">orig_offset</span>: <span class="self">self</span>.<span class="number">0</span>,
+<span class="kw">impl </span>Unfreezable <span class="kw">for </span>SliceOffset {
+    <span class="kw">fn </span>thaw&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; InputReference&lt;<span class="lifetime">&#39;a</span>&gt; {
+        InputReference{
+            data: data.split_at(<span class="self">self</span>.<span class="number">0</span>).<span class="number">1</span>.split_at(<span class="self">self</span>.<span class="number">1 </span><span class="kw">as </span>usize).<span class="number">0</span>,
+            orig_offset: <span class="self">self</span>.<span class="number">0</span>,
         }
     }
-    <span class="kw">fn</span> <span class="ident">thaw_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">InputReferenceMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">InputReferenceMut</span>{
-            <span class="ident">data</span>: <span class="ident">data</span>.<span class="ident">split_at_mut</span>(<span class="self">self</span>.<span class="number">0</span>).<span class="number">1</span>.<span class="ident">split_at_mut</span>(<span class="self">self</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="number">0</span>,
-            <span class="ident">orig_offset</span>: <span class="self">self</span>.<span class="number">0</span>,
+    <span class="kw">fn </span>thaw_mut&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8]) -&gt; InputReferenceMut&lt;<span class="lifetime">&#39;a</span>&gt; {
+        InputReferenceMut{
+            data: data.split_at_mut(<span class="self">self</span>.<span class="number">0</span>).<span class="number">1</span>.split_at_mut(<span class="self">self</span>.<span class="number">1 </span><span class="kw">as </span>usize).<span class="number">0</span>,
+            orig_offset: <span class="self">self</span>.<span class="number">0</span>,
         }
     }
-    <span class="kw">fn</span> <span class="ident">thaw_pair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pair</span>: <span class="kw-2">&amp;</span><span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, ()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">orig_offset</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">InputReference</span>{
-                <span class="ident">data</span>: <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">data</span>.<span class="ident">split_at</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">orig_offset</span>).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="self">self</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="number">0</span>,
-                <span class="ident">orig_offset</span>: <span class="self">self</span>.<span class="number">0</span>,
+    <span class="kw">fn </span>thaw_pair&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, pair: <span class="kw-2">&amp;</span>InputPair&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;InputReference&lt;<span class="lifetime">&#39;a</span>&gt;, ()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.<span class="number">0 </span>&gt;= pair.<span class="number">1</span>.orig_offset {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(InputReference{
+                data: pair.<span class="number">1</span>.data.split_at(<span class="self">self</span>.<span class="number">0 </span>- pair.<span class="number">1</span>.orig_offset).<span class="number">1</span>.split_at(<span class="self">self</span>.<span class="number">1 </span><span class="kw">as </span>usize).<span class="number">0</span>,
+                orig_offset: <span class="self">self</span>.<span class="number">0</span>,
             });
         }
-        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">pair</span>.<span class="number">0</span>.<span class="ident">orig_offset</span>;
-        <span class="kw">if</span> <span class="ident">offset</span> <span class="op">+</span> <span class="self">self</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">pair</span>.<span class="number">0</span>.<span class="ident">data</span>.<span class="ident">len</span>() { <span class="comment">// overlap</span>
-            <span class="prelude-val">Ok</span>(<span class="ident">InputReference</span>{
-                <span class="ident">data</span>: <span class="ident">pair</span>.<span class="number">0</span>.<span class="ident">data</span>.<span class="ident">split_at</span>(<span class="ident">offset</span>).<span class="number">1</span>.<span class="ident">split_at</span>(<span class="self">self</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="number">0</span>,
-                <span class="ident">orig_offset</span>: <span class="self">self</span>.<span class="number">0</span>,
+        <span class="kw">let </span>offset = <span class="self">self</span>.<span class="number">0 </span>- pair.<span class="number">0</span>.orig_offset;
+        <span class="kw">if </span>offset + <span class="self">self</span>.<span class="number">1 </span><span class="kw">as </span>usize &lt;= pair.<span class="number">0</span>.data.len() { <span class="comment">// overlap
+            </span><span class="prelude-val">Ok</span>(InputReference{
+                data: pair.<span class="number">0</span>.data.split_at(offset).<span class="number">1</span>.split_at(<span class="self">self</span>.<span class="number">1 </span><span class="kw">as </span>usize).<span class="number">0</span>,
+                orig_offset: <span class="self">self</span>.<span class="number">0</span>,
             })
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(())
         }
     }
 }
-<span class="kw">impl</span> <span class="ident">SliceOffset</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="number">0</span>
+<span class="kw">impl </span>SliceOffset {
+    <span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+    <span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.<span class="number">1 </span><span class="kw">as </span>usize
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len32</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="number">1</span>
-    }
+    <span class="kw">pub fn </span>len32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.<span class="number">1
+    </span>}
 }
 
 
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">StaticCommand</span> <span class="op">=</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceOffset</span><span class="op">&gt;</span>;
+<span class="kw">pub type </span>StaticCommand = Command&lt;SliceOffset&gt;;
 
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CommandProcessor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-   <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-           <span class="ident">val</span>: <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">&gt;</span>);
-   <span class="kw">fn</span> <span class="ident">push_literals</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>:<span class="kw-2">&amp;</span><span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">push</span>(<span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
-                <span class="ident">data</span>: <span class="ident">data</span>.<span class="number">0</span>,
-                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType</span>::<span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&gt;</span><span class="ident">::default</span>(),
-                <span class="ident">high_entropy</span>: <span class="bool-val">false</span>,
+<span class="kw">pub trait </span>CommandProcessor&lt;<span class="lifetime">&#39;a</span>&gt; {
+   <span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>,
+           val: Command&lt;InputReference&lt;<span class="lifetime">&#39;a</span>&gt; &gt;);
+   <span class="kw">fn </span>push_literals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data:<span class="kw-2">&amp;</span>InputPair&lt;<span class="lifetime">&#39;a</span>&gt;) {
+        <span class="kw">if </span>data.<span class="number">0</span>.len() != <span class="number">0 </span>{
+            <span class="self">self</span>.push(Command::Literal(LiteralCommand{
+                data: data.<span class="number">0</span>,
+                prob:FeatureFlagSliceType::&lt;InputReference&gt;::default(),
+                high_entropy: <span class="bool-val">false</span>,
             }));
         }
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">push</span>(<span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
-                <span class="ident">data</span>: <span class="ident">data</span>.<span class="number">1</span>,
-                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType</span>::<span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&gt;</span><span class="ident">::default</span>(),
-                <span class="ident">high_entropy</span>: <span class="bool-val">false</span>,
-            }));
-        }
-   }
-   <span class="kw">fn</span> <span class="ident">push_rand_literals</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>:<span class="kw-2">&amp;</span><span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">push</span>(<span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
-                <span class="ident">data</span>:<span class="ident">data</span>.<span class="number">0</span>,
-                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType</span>::<span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&gt;</span><span class="ident">::default</span>(),
-                <span class="ident">high_entropy</span>: <span class="bool-val">true</span>,
-            }));
-        }
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">push</span>(<span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
-                <span class="ident">data</span>:<span class="ident">data</span>.<span class="number">1</span>,
-                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType</span>::<span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&gt;</span><span class="ident">::default</span>(),
-                <span class="ident">high_entropy</span>: <span class="bool-val">true</span>,
+        <span class="kw">if </span>data.<span class="number">1</span>.len() != <span class="number">0 </span>{
+            <span class="self">self</span>.push(Command::Literal(LiteralCommand{
+                data: data.<span class="number">1</span>,
+                prob:FeatureFlagSliceType::&lt;InputReference&gt;::default(),
+                high_entropy: <span class="bool-val">false</span>,
             }));
         }
    }
-   <span class="kw">fn</span> <span class="ident">push_block_switch_literal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block_type</span>: <span class="ident">u8</span>) {
-       <span class="self">self</span>.<span class="ident">push</span>(<span class="ident">Command::BlockSwitchLiteral</span>(<span class="ident">LiteralBlockSwitch::new</span>(<span class="ident">block_type</span>, <span class="number">0</span>)))
+   <span class="kw">fn </span>push_rand_literals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data:<span class="kw-2">&amp;</span>InputPair&lt;<span class="lifetime">&#39;a</span>&gt;) {
+        <span class="kw">if </span>data.<span class="number">0</span>.len() != <span class="number">0 </span>{
+            <span class="self">self</span>.push(Command::Literal(LiteralCommand{
+                data:data.<span class="number">0</span>,
+                prob:FeatureFlagSliceType::&lt;InputReference&gt;::default(),
+                high_entropy: <span class="bool-val">true</span>,
+            }));
+        }
+        <span class="kw">if </span>data.<span class="number">1</span>.len() != <span class="number">0 </span>{
+            <span class="self">self</span>.push(Command::Literal(LiteralCommand{
+                data:data.<span class="number">1</span>,
+                prob:FeatureFlagSliceType::&lt;InputReference&gt;::default(),
+                high_entropy: <span class="bool-val">true</span>,
+            }));
+        }
+   }
+   <span class="kw">fn </span>push_block_switch_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block_type: u8) {
+       <span class="self">self</span>.push(Command::BlockSwitchLiteral(LiteralBlockSwitch::new(block_type, <span class="number">0</span>)))
    }
 }
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">thaw_pair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">SliceType</span>: <span class="ident">Unfreezable</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">InputPair</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">xself</span> {
-        <span class="ident">Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) =&gt; {
-            <span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
-                <span class="ident">data</span>:<span class="ident">lit</span>.<span class="ident">data</span>.<span class="ident">thaw_pair</span>(<span class="ident">data</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType::default</span>(),
-                <span class="ident">high_entropy</span>: <span class="ident">lit</span>.<span class="ident">high_entropy</span>,
+<span class="kw">pub fn </span>thaw_pair&lt;<span class="lifetime">&#39;a</span>, SliceType: Unfreezable + SliceWrapper&lt;u8&gt;&gt;(xself: <span class="kw-2">&amp;</span>Command&lt;SliceType&gt;, data: <span class="kw-2">&amp;</span>InputPair&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; Command&lt;InputReference&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    <span class="kw">match </span><span class="kw-2">*</span>xself {
+        Command::Literal(<span class="kw-2">ref </span>lit) =&gt; {
+            Command::Literal(LiteralCommand{
+                data:lit.data.thaw_pair(data).unwrap(),
+                prob:FeatureFlagSliceType::default(),
+                high_entropy: lit.high_entropy,
             })
         },
-        <span class="ident">Command::PredictionMode</span>(<span class="kw-2">ref</span> <span class="ident">pm</span>) =&gt; {
-            <span class="ident">Command::PredictionMode</span>(<span class="ident">PredictionModeContextMap</span>{
-                <span class="ident">literal_context_map</span>:<span class="ident">pm</span>.<span class="ident">literal_context_map</span>.<span class="ident">thaw_pair</span>(<span class="ident">data</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">predmode_speed_and_distance_context_map</span>:<span class="ident">pm</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">thaw_pair</span>(<span class="ident">data</span>).<span class="ident">unwrap</span>(),
+        Command::PredictionMode(<span class="kw-2">ref </span>pm) =&gt; {
+            Command::PredictionMode(PredictionModeContextMap{
+                literal_context_map:pm.literal_context_map.thaw_pair(data).unwrap(),
+                predmode_speed_and_distance_context_map:pm.predmode_speed_and_distance_context_map.thaw_pair(data).unwrap(),
             })
         },
-        <span class="ident">Command::Dict</span>(<span class="kw-2">ref</span> <span class="ident">d</span>) =&gt; {
-            <span class="ident">Command::Dict</span>(<span class="ident">d</span>.<span class="ident">clone</span>())
+        Command::Dict(<span class="kw-2">ref </span>d) =&gt; {
+            Command::Dict(d.clone())
         },
-        <span class="ident">Command::Copy</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-            <span class="ident">Command::Copy</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+        Command::Copy(<span class="kw-2">ref </span>c) =&gt; {
+            Command::Copy(c.clone())
         },
-        <span class="ident">Command::BlockSwitchCommand</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-            <span class="ident">Command::BlockSwitchCommand</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+        Command::BlockSwitchCommand(<span class="kw-2">ref </span>c) =&gt; {
+            Command::BlockSwitchCommand(c.clone())
         },
-        <span class="ident">Command::BlockSwitchLiteral</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-            <span class="ident">Command::BlockSwitchLiteral</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+        Command::BlockSwitchLiteral(<span class="kw-2">ref </span>c) =&gt; {
+            Command::BlockSwitchLiteral(c.clone())
         },
-        <span class="ident">Command::BlockSwitchDistance</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-            <span class="ident">Command::BlockSwitchDistance</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+        Command::BlockSwitchDistance(<span class="kw-2">ref </span>c) =&gt; {
+            Command::BlockSwitchDistance(c.clone())
         },
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">thaw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">SliceType</span>: <span class="ident">Unfreezable</span> <span class="op">+</span> <span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">xself</span>: <span class="kw-2">&amp;</span><span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">InputReference</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">xself</span> {
-        <span class="ident">Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) =&gt; {
-            <span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
-                <span class="ident">data</span>:<span class="ident">lit</span>.<span class="ident">data</span>.<span class="ident">thaw</span>(<span class="ident">data</span>),
-                <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType::default</span>(),
-                <span class="ident">high_entropy</span>: <span class="ident">lit</span>.<span class="ident">high_entropy</span>,
+<span class="kw">pub fn </span>thaw&lt;<span class="lifetime">&#39;a</span>, SliceType: Unfreezable + SliceWrapper&lt;u8&gt;&gt;(xself: <span class="kw-2">&amp;</span>Command&lt;SliceType&gt;, data: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span>[u8]) -&gt; Command&lt;InputReference&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+    <span class="kw">match </span><span class="kw-2">*</span>xself {
+        Command::Literal(<span class="kw-2">ref </span>lit) =&gt; {
+            Command::Literal(LiteralCommand{
+                data:lit.data.thaw(data),
+                prob:FeatureFlagSliceType::default(),
+                high_entropy: lit.high_entropy,
             })
         },
-        <span class="ident">Command::PredictionMode</span>(<span class="kw-2">ref</span> <span class="ident">pm</span>) =&gt; {
-            <span class="ident">Command::PredictionMode</span>(<span class="ident">PredictionModeContextMap</span>{
-                <span class="ident">literal_context_map</span>:<span class="ident">pm</span>.<span class="ident">literal_context_map</span>.<span class="ident">thaw</span>(<span class="ident">data</span>),
-                <span class="ident">predmode_speed_and_distance_context_map</span>:<span class="ident">pm</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">thaw</span>(<span class="ident">data</span>),
+        Command::PredictionMode(<span class="kw-2">ref </span>pm) =&gt; {
+            Command::PredictionMode(PredictionModeContextMap{
+                literal_context_map:pm.literal_context_map.thaw(data),
+                predmode_speed_and_distance_context_map:pm.predmode_speed_and_distance_context_map.thaw(data),
             })
         },
-        <span class="ident">Command::Dict</span>(<span class="kw-2">ref</span> <span class="ident">d</span>) =&gt; {
-            <span class="ident">Command::Dict</span>(<span class="ident">d</span>.<span class="ident">clone</span>())
+        Command::Dict(<span class="kw-2">ref </span>d) =&gt; {
+            Command::Dict(d.clone())
         },
-        <span class="ident">Command::Copy</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-            <span class="ident">Command::Copy</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+        Command::Copy(<span class="kw-2">ref </span>c) =&gt; {
+            Command::Copy(c.clone())
         },
-        <span class="ident">Command::BlockSwitchCommand</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-            <span class="ident">Command::BlockSwitchCommand</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+        Command::BlockSwitchCommand(<span class="kw-2">ref </span>c) =&gt; {
+            Command::BlockSwitchCommand(c.clone())
         },
-        <span class="ident">Command::BlockSwitchLiteral</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-            <span class="ident">Command::BlockSwitchLiteral</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+        Command::BlockSwitchLiteral(<span class="kw-2">ref </span>c) =&gt; {
+            Command::BlockSwitchLiteral(c.clone())
         },
-        <span class="ident">Command::BlockSwitchDistance</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-            <span class="ident">Command::BlockSwitchDistance</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+        Command::BlockSwitchDistance(<span class="kw-2">ref </span>c) =&gt; {
+            Command::BlockSwitchDistance(c.clone())
         },
     }
 }
 
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="ident">SliceType</span>:<span class="ident">SliceWrapper</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">+</span><span class="ident">Freezable</span><span class="op">&gt;</span> <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceType</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">freeze</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Command</span><span class="op">&lt;</span><span class="ident">SliceOffset</span><span class="op">&gt;</span> {
-       <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-          <span class="ident">Command::Literal</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) =&gt; {
-              <span class="ident">Command::Literal</span>(<span class="ident">LiteralCommand</span>{
-                  <span class="ident">data</span>:<span class="ident">lit</span>.<span class="ident">data</span>.<span class="ident">freeze</span>(),
-                  <span class="ident">prob</span>:<span class="ident">FeatureFlagSliceType::default</span>(),
-                  <span class="ident">high_entropy</span>: <span class="ident">lit</span>.<span class="ident">high_entropy</span>,
+<span class="kw">impl </span>&lt;SliceType:SliceWrapper&lt;u8&gt;+Freezable&gt; Command&lt;SliceType&gt; {
+    <span class="kw">pub fn </span>freeze(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Command&lt;SliceOffset&gt; {
+       <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+          Command::Literal(<span class="kw-2">ref </span>lit) =&gt; {
+              Command::Literal(LiteralCommand{
+                  data:lit.data.freeze(),
+                  prob:FeatureFlagSliceType::default(),
+                  high_entropy: lit.high_entropy,
               })
           },
-          <span class="ident">Command::PredictionMode</span>(<span class="kw-2">ref</span> <span class="ident">pm</span>) =&gt; {
-              <span class="ident">Command::PredictionMode</span>(<span class="ident">PredictionModeContextMap</span>{
-                  <span class="ident">literal_context_map</span>:<span class="ident">pm</span>.<span class="ident">literal_context_map</span>.<span class="ident">freeze</span>(),
-                  <span class="ident">predmode_speed_and_distance_context_map</span>:<span class="ident">pm</span>.<span class="ident">predmode_speed_and_distance_context_map</span>.<span class="ident">freeze</span>(),
+          Command::PredictionMode(<span class="kw-2">ref </span>pm) =&gt; {
+              Command::PredictionMode(PredictionModeContextMap{
+                  literal_context_map:pm.literal_context_map.freeze(),
+                  predmode_speed_and_distance_context_map:pm.predmode_speed_and_distance_context_map.freeze(),
               })
           },
-          <span class="ident">Command::Dict</span>(<span class="kw-2">ref</span> <span class="ident">d</span>) =&gt; {
-               <span class="ident">Command::Dict</span>(<span class="ident">d</span>.<span class="ident">clone</span>())
+          Command::Dict(<span class="kw-2">ref </span>d) =&gt; {
+               Command::Dict(d.clone())
           },
-          <span class="ident">Command::Copy</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-               <span class="ident">Command::Copy</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+          Command::Copy(<span class="kw-2">ref </span>c) =&gt; {
+               Command::Copy(c.clone())
           },
-          <span class="ident">Command::BlockSwitchCommand</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-               <span class="ident">Command::BlockSwitchCommand</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+          Command::BlockSwitchCommand(<span class="kw-2">ref </span>c) =&gt; {
+               Command::BlockSwitchCommand(c.clone())
           },
-          <span class="ident">Command::BlockSwitchLiteral</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-               <span class="ident">Command::BlockSwitchLiteral</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+          Command::BlockSwitchLiteral(<span class="kw-2">ref </span>c) =&gt; {
+               Command::BlockSwitchLiteral(c.clone())
           },
-          <span class="ident">Command::BlockSwitchDistance</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) =&gt; {
-               <span class="ident">Command::BlockSwitchDistance</span>(<span class="ident">c</span>.<span class="ident">clone</span>())
+          Command::BlockSwitchDistance(<span class="kw-2">ref </span>c) =&gt; {
+               Command::BlockSwitchDistance(c.clone())
           },
        }
     }
 }
 
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">speed_to_u8</span>(<span class="ident">data</span>: <span class="ident">u16</span>) -&gt; <span class="ident">u8</span> {
-    <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="number">16</span> <span class="op">-</span> <span class="ident">data</span>.<span class="ident">leading_zeros</span>() <span class="kw">as</span> <span class="ident">u8</span>;
-    <span class="kw">let</span> <span class="ident">mantissa</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">data</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="kw">let</span> <span class="ident">rem</span> <span class="op">=</span> <span class="ident">data</span> <span class="op">-</span> (<span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">length</span> <span class="op">-</span> <span class="number">1</span>));
-        (<span class="ident">rem</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>) <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="ident">length</span> <span class="op">-</span> <span class="number">1</span>)
-    } <span class="kw">else</span> {
-        <span class="number">0</span>
-    };
-    (<span class="ident">length</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>) <span class="op">|</span> <span class="ident">mantissa</span> <span class="kw">as</span> <span class="ident">u8</span>
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>speed_to_u8(data: u16) -&gt; u8 {
+    <span class="kw">let </span>length = <span class="number">16 </span>- data.leading_zeros() <span class="kw">as </span>u8;
+    <span class="kw">let </span>mantissa = <span class="kw">if </span>data != <span class="number">0 </span>{
+        <span class="kw">let </span>rem = data - (<span class="number">1 </span>&lt;&lt; (length - <span class="number">1</span>));
+        (rem &lt;&lt; <span class="number">3</span>) &gt;&gt; (length - <span class="number">1</span>)
+    } <span class="kw">else </span>{
+        <span class="number">0
+    </span>};
+    (length &lt;&lt; <span class="number">3</span>) | mantissa <span class="kw">as </span>u8
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">u8_to_speed</span>(<span class="ident">data</span>: <span class="ident">u8</span>) -&gt; <span class="ident">u16</span> {
-    <span class="kw">if</span> <span class="ident">data</span> <span class="op">&lt;</span> <span class="number">8</span> {
-        <span class="number">0</span>
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">log_val</span> <span class="op">=</span> (<span class="ident">data</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>) <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">rem</span> <span class="op">=</span> (<span class="ident">u16::from</span>(<span class="ident">data</span>) <span class="op">&amp;</span> <span class="number">0x7</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">log_val</span>;
-        (<span class="number">1u16</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="ident">log_val</span>) <span class="op">|</span> (<span class="ident">rem</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>)
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>u8_to_speed(data: u8) -&gt; u16 {
+    <span class="kw">if </span>data &lt; <span class="number">8 </span>{
+        <span class="number">0
+    </span>} <span class="kw">else </span>{
+        <span class="kw">let </span>log_val = (data &gt;&gt; <span class="number">3</span>) - <span class="number">1</span>;
+        <span class="kw">let </span>rem = (u16::from(data) &amp; <span class="number">0x7</span>) &lt;&lt; log_val;
+        (<span class="number">1u16 </span>&lt;&lt; log_val) | (rem &gt;&gt; <span class="number">3</span>)
     }
 }
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::speed_to_u8</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::u8_to_speed</span>;
-    <span class="kw">fn</span> <span class="ident">tst_u8_to_speed</span>(<span class="ident">data</span>: <span class="ident">u16</span>) {
-        <span class="macro">assert_eq!</span>(<span class="ident">u8_to_speed</span>(<span class="ident">speed_to_u8</span>(<span class="ident">data</span>)), <span class="ident">data</span>);
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span><span class="kw">super</span>::speed_to_u8;
+    <span class="kw">use </span><span class="kw">super</span>::u8_to_speed;
+    <span class="kw">fn </span>tst_u8_to_speed(data: u16) {
+        <span class="macro">assert_eq!</span>(u8_to_speed(speed_to_u8(data)), data);
     }
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_u8_to_speed</span>() {
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">0</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">1</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">2</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">3</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">4</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">5</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">6</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">7</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">8</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">10</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">12</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">16</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">24</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">32</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">48</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">64</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">96</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">768</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">1280</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">1536</span>);
-        <span class="ident">tst_u8_to_speed</span>(<span class="number">1664</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_u8_to_speed() {
+        tst_u8_to_speed(<span class="number">0</span>);
+        tst_u8_to_speed(<span class="number">1</span>);
+        tst_u8_to_speed(<span class="number">2</span>);
+        tst_u8_to_speed(<span class="number">3</span>);
+        tst_u8_to_speed(<span class="number">4</span>);
+        tst_u8_to_speed(<span class="number">5</span>);
+        tst_u8_to_speed(<span class="number">6</span>);
+        tst_u8_to_speed(<span class="number">7</span>);
+        tst_u8_to_speed(<span class="number">8</span>);
+        tst_u8_to_speed(<span class="number">10</span>);
+        tst_u8_to_speed(<span class="number">12</span>);
+        tst_u8_to_speed(<span class="number">16</span>);
+        tst_u8_to_speed(<span class="number">24</span>);
+        tst_u8_to_speed(<span class="number">32</span>);
+        tst_u8_to_speed(<span class="number">48</span>);
+        tst_u8_to_speed(<span class="number">64</span>);
+        tst_u8_to_speed(<span class="number">96</span>);
+        tst_u8_to_speed(<span class="number">768</span>);
+        tst_u8_to_speed(<span class="number">1280</span>);
+        tst_u8_to_speed(<span class="number">1536</span>);
+        tst_u8_to_speed(<span class="number">1664</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

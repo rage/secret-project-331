@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.2.3/src/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.2.3/src/unix.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unix.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../whoami/index.html">
                         <img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -569,574 +569,574 @@
 <span id="567">567</span>
 <span id="568">568</span>
 <span id="569">569</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright © 2017-2022 The WhoAmI Contributors.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under any of:</span>
-<span class="comment">// - Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">// - Boost Software License, Version 1.0 (https://www.boost.org/LICENSE_1_0.txt)</span>
-<span class="comment">// - MIT License (https://mit-license.org/)</span>
-<span class="comment">// At your choosing (See accompanying files LICENSE_APACHE_2_0.txt,</span>
-<span class="comment">// LICENSE_MIT.txt and LICENSE_BOOST_1_0.txt).</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright © 2017-2022 The WhoAmI Contributors.
+//
+// Licensed under any of:
+// - Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+// - Boost Software License, Version 1.0 (https://www.boost.org/LICENSE_1_0.txt)
+// - MIT License (https://mit-license.org/)
+// At your choosing (See accompanying files LICENSE_APACHE_2_0.txt,
+// LICENSE_MIT.txt and LICENSE_BOOST_1_0.txt).
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DesktopEnv</span>, <span class="ident">Platform</span>};
+</span><span class="kw">use crate</span>::{DesktopEnv, Platform};
 
-<span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">c_void</span>, <span class="ident">OsString</span>};
-<span class="kw">use</span> <span class="ident">std::mem</span>;
-<span class="kw">use</span> <span class="ident">std::os::unix::ffi::OsStringExt</span>;
+<span class="kw">use </span>std::ffi::{c_void, OsString};
+<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::os::unix::ffi::OsStringExt;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">os</span>::{
-        <span class="ident">raw</span>::{<span class="ident">c_long</span>, <span class="ident">c_uchar</span>},
-        <span class="ident">unix::ffi::OsStrExt</span>,
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+</span><span class="kw">use </span>std::{
+    os::{
+        raw::{c_long, c_uchar},
+        unix::ffi::OsStrExt,
     },
-    <span class="ident">ptr::null_mut</span>,
+    ptr::null_mut,
 };
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">struct</span> <span class="ident">PassWd</span> {
-    <span class="ident">pw_name</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>,
-    <span class="ident">pw_passwd</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>,
-    <span class="ident">pw_uid</span>: <span class="ident">u32</span>,
-    <span class="ident">pw_gid</span>: <span class="ident">u32</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;bitrig&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>
-    ))]</span>
-    <span class="ident">pw_change</span>: <span class="ident">isize</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;bitrig&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>
-    ))]</span>
-    <span class="ident">pw_class</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>,
-    <span class="ident">pw_gecos</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>,
-    <span class="ident">pw_dir</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>,
-    <span class="ident">pw_shell</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;bitrig&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>
-    ))]</span>
-    <span class="ident">pw_expire</span>: <span class="ident">isize</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;bitrig&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>,
-        <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>
-    ))]</span>
-    <span class="ident">pw_fields</span>: <span class="ident">i32</span>,
+<span class="attribute">#[repr(C)]
+</span><span class="kw">struct </span>PassWd {
+    pw_name: <span class="kw-2">*const </span>c_void,
+    pw_passwd: <span class="kw-2">*const </span>c_void,
+    pw_uid: u32,
+    pw_gid: u32,
+    <span class="attribute">#[cfg(any(
+        target_os = <span class="string">&quot;macos&quot;</span>,
+        target_os = <span class="string">&quot;freebsd&quot;</span>,
+        target_os = <span class="string">&quot;dragonfly&quot;</span>,
+        target_os = <span class="string">&quot;bitrig&quot;</span>,
+        target_os = <span class="string">&quot;openbsd&quot;</span>,
+        target_os = <span class="string">&quot;netbsd&quot;
+    </span>))]
+    </span>pw_change: isize,
+    <span class="attribute">#[cfg(any(
+        target_os = <span class="string">&quot;macos&quot;</span>,
+        target_os = <span class="string">&quot;freebsd&quot;</span>,
+        target_os = <span class="string">&quot;dragonfly&quot;</span>,
+        target_os = <span class="string">&quot;bitrig&quot;</span>,
+        target_os = <span class="string">&quot;openbsd&quot;</span>,
+        target_os = <span class="string">&quot;netbsd&quot;
+    </span>))]
+    </span>pw_class: <span class="kw-2">*const </span>c_void,
+    pw_gecos: <span class="kw-2">*const </span>c_void,
+    pw_dir: <span class="kw-2">*const </span>c_void,
+    pw_shell: <span class="kw-2">*const </span>c_void,
+    <span class="attribute">#[cfg(any(
+        target_os = <span class="string">&quot;macos&quot;</span>,
+        target_os = <span class="string">&quot;freebsd&quot;</span>,
+        target_os = <span class="string">&quot;dragonfly&quot;</span>,
+        target_os = <span class="string">&quot;bitrig&quot;</span>,
+        target_os = <span class="string">&quot;openbsd&quot;</span>,
+        target_os = <span class="string">&quot;netbsd&quot;
+    </span>))]
+    </span>pw_expire: isize,
+    <span class="attribute">#[cfg(any(
+        target_os = <span class="string">&quot;macos&quot;</span>,
+        target_os = <span class="string">&quot;freebsd&quot;</span>,
+        target_os = <span class="string">&quot;dragonfly&quot;</span>,
+        target_os = <span class="string">&quot;bitrig&quot;</span>,
+        target_os = <span class="string">&quot;openbsd&quot;</span>,
+        target_os = <span class="string">&quot;netbsd&quot;
+    </span>))]
+    </span>pw_fields: i32,
 }
 
-<span class="kw">extern</span> <span class="string">&quot;system&quot;</span> {
-    <span class="kw">fn</span> <span class="ident">getpwuid_r</span>(
-        <span class="ident">uid</span>: <span class="ident">u32</span>,
-        <span class="ident">pwd</span>: <span class="kw-2">*mut</span> <span class="ident">PassWd</span>,
-        <span class="ident">buf</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-        <span class="ident">buflen</span>: <span class="ident">usize</span>,
-        <span class="ident">result</span>: <span class="kw-2">*mut</span> <span class="kw-2">*mut</span> <span class="ident">PassWd</span>,
-    ) -&gt; <span class="ident">i32</span>;
-    <span class="kw">fn</span> <span class="ident">geteuid</span>() -&gt; <span class="ident">u32</span>;
-    <span class="kw">fn</span> <span class="ident">gethostname</span>(<span class="ident">name</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">i32</span>;
+<span class="kw">extern </span><span class="string">&quot;system&quot; </span>{
+    <span class="kw">fn </span>getpwuid_r(
+        uid: u32,
+        pwd: <span class="kw-2">*mut </span>PassWd,
+        buf: <span class="kw-2">*mut </span>c_void,
+        buflen: usize,
+        result: <span class="kw-2">*mut *mut </span>PassWd,
+    ) -&gt; i32;
+    <span class="kw">fn </span>geteuid() -&gt; u32;
+    <span class="kw">fn </span>gethostname(name: <span class="kw-2">*mut </span>c_void, len: usize) -&gt; i32;
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">link</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;CoreFoundation&quot;</span>, <span class="ident">kind</span> <span class="op">=</span> <span class="string">&quot;framework&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">link</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;SystemConfiguration&quot;</span>, <span class="ident">kind</span> <span class="op">=</span> <span class="string">&quot;framework&quot;</span>)]</span>
-<span class="kw">extern</span> <span class="string">&quot;system&quot;</span> {
-    <span class="kw">fn</span> <span class="ident">CFStringGetCString</span>(
-        <span class="ident">the_string</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-        <span class="ident">buffer</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>,
-        <span class="ident">buffer_size</span>: <span class="ident">c_long</span>,
-        <span class="ident">encoding</span>: <span class="ident">u32</span>,
-    ) -&gt; <span class="ident">c_uchar</span>;
-    <span class="kw">fn</span> <span class="ident">CFStringGetLength</span>(<span class="ident">the_string</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>) -&gt; <span class="ident">c_long</span>;
-    <span class="kw">fn</span> <span class="ident">CFStringGetMaximumSizeForEncoding</span>(
-        <span class="ident">length</span>: <span class="ident">c_long</span>,
-        <span class="ident">encoding</span>: <span class="ident">u32</span>,
-    ) -&gt; <span class="ident">c_long</span>;
-    <span class="kw">fn</span> <span class="ident">SCDynamicStoreCopyComputerName</span>(
-        <span class="ident">store</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-        <span class="ident">encoding</span>: <span class="kw-2">*mut</span> <span class="ident">u32</span>,
-    ) -&gt; <span class="kw-2">*mut</span> <span class="ident">c_void</span>;
-    <span class="kw">fn</span> <span class="ident">CFRelease</span>(<span class="ident">cf</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>);
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+#[link(name = <span class="string">&quot;CoreFoundation&quot;</span>, kind = <span class="string">&quot;framework&quot;</span>)]
+#[link(name = <span class="string">&quot;SystemConfiguration&quot;</span>, kind = <span class="string">&quot;framework&quot;</span>)]
+</span><span class="kw">extern </span><span class="string">&quot;system&quot; </span>{
+    <span class="kw">fn </span>CFStringGetCString(
+        the_string: <span class="kw-2">*mut </span>c_void,
+        buffer: <span class="kw-2">*mut </span>u8,
+        buffer_size: c_long,
+        encoding: u32,
+    ) -&gt; c_uchar;
+    <span class="kw">fn </span>CFStringGetLength(the_string: <span class="kw-2">*mut </span>c_void) -&gt; c_long;
+    <span class="kw">fn </span>CFStringGetMaximumSizeForEncoding(
+        length: c_long,
+        encoding: u32,
+    ) -&gt; c_long;
+    <span class="kw">fn </span>SCDynamicStoreCopyComputerName(
+        store: <span class="kw-2">*mut </span>c_void,
+        encoding: <span class="kw-2">*mut </span>u32,
+    ) -&gt; <span class="kw-2">*mut </span>c_void;
+    <span class="kw">fn </span>CFRelease(cf: <span class="kw-2">*const </span>c_void);
 }
 
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">strlen</span>(<span class="ident">cs</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>) -&gt; <span class="ident">usize</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="kw-2">*const</span> <span class="ident">u8</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">cast</span>();
-    <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">cs</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">cs</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">offset</span>(<span class="number">1</span>);
+<span class="kw">unsafe fn </span>strlen(cs: <span class="kw-2">*const </span>c_void) -&gt; usize {
+    <span class="kw">let </span><span class="kw-2">mut </span>len = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>cs: <span class="kw-2">*const </span>u8 = cs.cast();
+    <span class="kw">while </span><span class="kw-2">*</span>cs != <span class="number">0 </span>{
+        len += <span class="number">1</span>;
+        cs = cs.offset(<span class="number">1</span>);
     }
-    <span class="ident">len</span>
+    len
 }
 
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">strlen_gecos</span>(<span class="ident">cs</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>) -&gt; <span class="ident">usize</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="kw-2">*const</span> <span class="ident">u8</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">cast</span>();
-    <span class="kw">while</span> <span class="kw-2">*</span><span class="ident">cs</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">cs</span> <span class="op">!</span><span class="op">=</span> <span class="string">b&#39;,&#39;</span> {
-        <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">cs</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">offset</span>(<span class="number">1</span>);
+<span class="kw">unsafe fn </span>strlen_gecos(cs: <span class="kw-2">*const </span>c_void) -&gt; usize {
+    <span class="kw">let </span><span class="kw-2">mut </span>len = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>cs: <span class="kw-2">*const </span>u8 = cs.cast();
+    <span class="kw">while </span><span class="kw-2">*</span>cs != <span class="number">0 </span>&amp;&amp; <span class="kw-2">*</span>cs != <span class="string">b&#39;,&#39; </span>{
+        len += <span class="number">1</span>;
+        cs = cs.offset(<span class="number">1</span>);
     }
-    <span class="ident">len</span>
+    len
 }
 
-<span class="comment">// Convert an OsString into a String</span>
-<span class="kw">fn</span> <span class="ident">string_from_os</span>(<span class="ident">string</span>: <span class="ident">OsString</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">match</span> <span class="ident">string</span>.<span class="ident">into_string</span>() {
-        <span class="prelude-val">Ok</span>(<span class="ident">string</span>) =&gt; <span class="ident">string</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">string</span>) =&gt; <span class="ident">string</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>(),
+<span class="comment">// Convert an OsString into a String
+</span><span class="kw">fn </span>string_from_os(string: OsString) -&gt; String {
+    <span class="kw">match </span>string.into_string() {
+        <span class="prelude-val">Ok</span>(string) =&gt; string,
+        <span class="prelude-val">Err</span>(string) =&gt; string.to_string_lossy().to_string(),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">os_from_cstring_gecos</span>(<span class="ident">string</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">is_null</span>() {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>os_from_cstring_gecos(string: <span class="kw-2">*const </span>c_void) -&gt; <span class="prelude-ty">Option</span>&lt;OsString&gt; {
+    <span class="kw">if </span>string.is_null() {
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// Get a byte slice of the c string.</span>
-    <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">strlen_gecos</span>(<span class="ident">string</span>);
-        <span class="kw">if</span> <span class="ident">length</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="comment">// Get a byte slice of the c string.
+    </span><span class="kw">let </span>slice = <span class="kw">unsafe </span>{
+        <span class="kw">let </span>length = strlen_gecos(string);
+        <span class="kw">if </span>length == <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="ident">std::slice::from_raw_parts</span>(<span class="ident">string</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">u8</span>, <span class="ident">length</span>)
+        std::slice::from_raw_parts(string <span class="kw">as </span><span class="kw-2">*const </span>u8, length)
     };
 
-    <span class="comment">// Turn byte slice into Rust String.</span>
-    <span class="prelude-val">Some</span>(<span class="ident">OsString::from_vec</span>(<span class="ident">slice</span>.<span class="ident">to_vec</span>()))
+    <span class="comment">// Turn byte slice into Rust String.
+    </span><span class="prelude-val">Some</span>(OsString::from_vec(slice.to_vec()))
 }
 
-<span class="kw">fn</span> <span class="ident">os_from_cstring</span>(<span class="ident">string</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>) -&gt; <span class="ident">OsString</span> {
-    <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">is_null</span>() {
-        <span class="kw">return</span> <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into</span>();
+<span class="kw">fn </span>os_from_cstring(string: <span class="kw-2">*const </span>c_void) -&gt; OsString {
+    <span class="kw">if </span>string.is_null() {
+        <span class="kw">return </span><span class="string">&quot;&quot;</span>.to_string().into();
     }
 
-    <span class="comment">// Get a byte slice of the c string.</span>
-    <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">strlen</span>(<span class="ident">string</span>);
-        <span class="ident">std::slice::from_raw_parts</span>(<span class="ident">string</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">u8</span>, <span class="ident">length</span>)
+    <span class="comment">// Get a byte slice of the c string.
+    </span><span class="kw">let </span>slice = <span class="kw">unsafe </span>{
+        <span class="kw">let </span>length = strlen(string);
+        std::slice::from_raw_parts(string <span class="kw">as </span><span class="kw-2">*const </span>u8, length)
     };
 
-    <span class="comment">// Turn byte slice into Rust String.</span>
-    <span class="ident">OsString::from_vec</span>(<span class="ident">slice</span>.<span class="ident">to_vec</span>())
+    <span class="comment">// Turn byte slice into Rust String.
+    </span>OsString::from_vec(slice.to_vec())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">os_from_cfstring</span>(<span class="ident">string</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>) -&gt; <span class="ident">OsString</span> {
-    <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">is_null</span>() {
-        <span class="kw">return</span> <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into</span>();
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+</span><span class="kw">fn </span>os_from_cfstring(string: <span class="kw-2">*mut </span>c_void) -&gt; OsString {
+    <span class="kw">if </span>string.is_null() {
+        <span class="kw">return </span><span class="string">&quot;&quot;</span>.to_string().into();
     }
 
-    <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">CFStringGetLength</span>(<span class="ident">string</span>);
-        <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span>
-            <span class="ident">CFStringGetMaximumSizeForEncoding</span>(<span class="ident">len</span>, <span class="number">134_217_984</span> <span class="comment">/*UTF8*/</span>) <span class="op">+</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">capacity</span> <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="kw">if</span> <span class="ident">CFStringGetCString</span>(
-            <span class="ident">string</span>,
-            <span class="ident">out</span>.<span class="ident">as_mut_ptr</span>(),
-            <span class="ident">capacity</span>,
-            <span class="number">134_217_984</span>, <span class="comment">/*UTF8*/</span>
-        ) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
-        {
-            <span class="ident">out</span>.<span class="ident">set_len</span>(<span class="ident">strlen</span>(<span class="ident">out</span>.<span class="ident">as_ptr</span>().<span class="ident">cast</span>())); <span class="comment">// Remove trailing NUL byte</span>
-            <span class="ident">out</span>.<span class="ident">shrink_to_fit</span>();
-            <span class="ident">CFRelease</span>(<span class="ident">string</span>);
-            <span class="ident">OsString::from_vec</span>(<span class="ident">out</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">CFRelease</span>(<span class="ident">string</span>);
-            <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into</span>()
+    <span class="kw">unsafe </span>{
+        <span class="kw">let </span>len = CFStringGetLength(string);
+        <span class="kw">let </span>capacity =
+            CFStringGetMaximumSizeForEncoding(len, <span class="number">134_217_984 </span><span class="comment">/*UTF8*/</span>) + <span class="number">1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::with_capacity(capacity <span class="kw">as </span>usize);
+        <span class="kw">if </span>CFStringGetCString(
+            string,
+            out.as_mut_ptr(),
+            capacity,
+            <span class="number">134_217_984</span>, <span class="comment">/*UTF8*/
+        </span>) != <span class="number">0
+        </span>{
+            out.set_len(strlen(out.as_ptr().cast())); <span class="comment">// Remove trailing NUL byte
+            </span>out.shrink_to_fit();
+            CFRelease(string);
+            OsString::from_vec(out)
+        } <span class="kw">else </span>{
+            CFRelease(string);
+            <span class="string">&quot;&quot;</span>.to_string().into()
         }
     }
 }
 
-<span class="comment">// This function must allocate, because a slice or Cow&lt;OsStr&gt; would still</span>
-<span class="comment">// reference `passwd` which is dropped when this function returns.</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">fn</span> <span class="ident">getpwuid</span>(<span class="ident">real</span>: <span class="ident">bool</span>) -&gt; <span class="ident">OsString</span> {
-    <span class="kw">const</span> <span class="ident">BUF_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">16_384</span>; <span class="comment">// size from the man page</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">mem::MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="ident">BUF_SIZE</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">passwd</span> <span class="op">=</span> <span class="ident">mem::MaybeUninit</span>::<span class="op">&lt;</span><span class="ident">PassWd</span><span class="op">&gt;</span><span class="ident">::uninit</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_passwd</span> <span class="op">=</span> <span class="ident">mem::MaybeUninit</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">PassWd</span><span class="op">&gt;</span><span class="ident">::uninit</span>();
+<span class="comment">// This function must allocate, because a slice or Cow&lt;OsStr&gt; would still
+// reference `passwd` which is dropped when this function returns.
+</span><span class="attribute">#[inline(always)]
+</span><span class="kw">fn </span>getpwuid(real: bool) -&gt; OsString {
+    <span class="kw">const </span>BUF_SIZE: usize = <span class="number">16_384</span>; <span class="comment">// size from the man page
+    </span><span class="kw">let </span><span class="kw-2">mut </span>buffer = mem::MaybeUninit::&lt;[u8; BUF_SIZE]&gt;::uninit();
+    <span class="kw">let </span><span class="kw-2">mut </span>passwd = mem::MaybeUninit::&lt;PassWd&gt;::uninit();
+    <span class="kw">let </span><span class="kw-2">mut </span>_passwd = mem::MaybeUninit::&lt;<span class="kw-2">*mut </span>PassWd&gt;::uninit();
 
-    <span class="comment">// Get PassWd `struct`.</span>
-    <span class="kw">let</span> <span class="ident">passwd</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">getpwuid_r</span>(
-            <span class="ident">geteuid</span>(),
-            <span class="ident">passwd</span>.<span class="ident">as_mut_ptr</span>(),
-            <span class="ident">buffer</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-            <span class="ident">BUF_SIZE</span>,
-            <span class="ident">_passwd</span>.<span class="ident">as_mut_ptr</span>(),
+    <span class="comment">// Get PassWd `struct`.
+    </span><span class="kw">let </span>passwd = <span class="kw">unsafe </span>{
+        <span class="kw">let </span>ret = getpwuid_r(
+            geteuid(),
+            passwd.as_mut_ptr(),
+            buffer.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>c_void,
+            BUF_SIZE,
+            _passwd.as_mut_ptr(),
         );
 
-        <span class="kw">if</span> <span class="ident">ret</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="string">&quot;Unknown&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into</span>();
+        <span class="kw">if </span>ret != <span class="number">0 </span>{
+            <span class="kw">return </span><span class="string">&quot;Unknown&quot;</span>.to_string().into();
         }
 
-        <span class="kw">let</span> <span class="ident">_passwd</span> <span class="op">=</span> <span class="ident">_passwd</span>.<span class="ident">assume_init</span>();
+        <span class="kw">let </span>_passwd = _passwd.assume_init();
 
-        <span class="kw">if</span> <span class="ident">_passwd</span>.<span class="ident">is_null</span>() {
-            <span class="kw">return</span> <span class="string">&quot;Unknown&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into</span>();
+        <span class="kw">if </span>_passwd.is_null() {
+            <span class="kw">return </span><span class="string">&quot;Unknown&quot;</span>.to_string().into();
         }
 
-        <span class="ident">passwd</span>.<span class="ident">assume_init</span>()
+        passwd.assume_init()
     };
 
-    <span class="comment">// Extract names.</span>
-    <span class="kw">if</span> <span class="ident">real</span> {
-        <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">os_from_cstring_gecos</span>(<span class="ident">passwd</span>.<span class="ident">pw_gecos</span>);
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">string</span>) <span class="op">=</span> <span class="ident">string</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">string</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">os_from_cstring</span>(<span class="ident">passwd</span>.<span class="ident">pw_name</span>))
+    <span class="comment">// Extract names.
+    </span><span class="kw">if </span>real {
+        <span class="kw">let </span>string = os_from_cstring_gecos(passwd.pw_gecos);
+        <span class="kw">let </span>result = <span class="kw">if let </span><span class="prelude-val">Some</span>(string) = string {
+            <span class="prelude-val">Ok</span>(string)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(os_from_cstring(passwd.pw_name))
         };
-        <span class="ident">fancy_fallback_os</span>(<span class="ident">result</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">os_from_cstring</span>(<span class="ident">passwd</span>.<span class="ident">pw_name</span>)
+        fancy_fallback_os(result)
+    } <span class="kw">else </span>{
+        os_from_cstring(passwd.pw_name)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">string_from_os</span>(<span class="ident">username_os</span>())
+<span class="kw">pub fn </span>username() -&gt; String {
+    string_from_os(username_os())
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="ident">getpwuid</span>(<span class="bool-val">false</span>)
+<span class="kw">pub fn </span>username_os() -&gt; OsString {
+    getpwuid(<span class="bool-val">false</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">fancy_fallback</span>(<span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cap</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">result</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">a</span>) =&gt; <span class="ident">a</span>.<span class="ident">chars</span>(),
-        <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) =&gt; <span class="ident">b</span>.<span class="ident">chars</span>(),
+<span class="kw">fn </span>fancy_fallback(result: <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str, String&gt;) -&gt; String {
+    <span class="kw">let </span><span class="kw-2">mut </span>cap = <span class="bool-val">true</span>;
+    <span class="kw">let </span>iter = <span class="kw">match </span>result {
+        <span class="prelude-val">Ok</span>(a) =&gt; a.chars(),
+        <span class="prelude-val">Err</span>(<span class="kw-2">ref </span>b) =&gt; b.chars(),
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">iter</span> {
-        <span class="kw">match</span> <span class="ident">c</span> {
-            <span class="string">&#39;.&#39;</span> <span class="op">|</span> <span class="string">&#39;-&#39;</span> <span class="op">|</span> <span class="string">&#39;_&#39;</span> =&gt; {
-                <span class="ident">new</span>.<span class="ident">push</span>(<span class="string">&#39; &#39;</span>);
-                <span class="ident">cap</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>new = String::new();
+    <span class="kw">for </span>c <span class="kw">in </span>iter {
+        <span class="kw">match </span>c {
+            <span class="string">&#39;.&#39; </span>| <span class="string">&#39;-&#39; </span>| <span class="string">&#39;_&#39; </span>=&gt; {
+                new.push(<span class="string">&#39; &#39;</span>);
+                cap = <span class="bool-val">true</span>;
             }
-            <span class="ident">a</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">cap</span> {
-                    <span class="ident">cap</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">a</span>.<span class="ident">to_uppercase</span>() {
-                        <span class="ident">new</span>.<span class="ident">push</span>(<span class="ident">i</span>);
+            a =&gt; {
+                <span class="kw">if </span>cap {
+                    cap = <span class="bool-val">false</span>;
+                    <span class="kw">for </span>i <span class="kw">in </span>a.to_uppercase() {
+                        new.push(i);
                     }
-                } <span class="kw">else</span> {
-                    <span class="ident">new</span>.<span class="ident">push</span>(<span class="ident">a</span>);
+                } <span class="kw">else </span>{
+                    new.push(a);
                 }
             }
         }
     }
-    <span class="ident">new</span>
+    new
 }
 
-<span class="kw">fn</span> <span class="ident">fancy_fallback_os</span>(<span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">OsString</span>, <span class="ident">OsString</span><span class="op">&gt;</span>) -&gt; <span class="ident">OsString</span> {
-    <span class="kw">match</span> <span class="ident">result</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">success</span>) =&gt; <span class="ident">success</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">fallback</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">fallback</span>.<span class="ident">to_str</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">a</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">a</span>),
-                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">fallback</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>()),
+<span class="kw">fn </span>fancy_fallback_os(result: <span class="prelude-ty">Result</span>&lt;OsString, OsString&gt;) -&gt; OsString {
+    <span class="kw">match </span>result {
+        <span class="prelude-val">Ok</span>(success) =&gt; success,
+        <span class="prelude-val">Err</span>(fallback) =&gt; {
+            <span class="kw">let </span>cs = <span class="kw">match </span>fallback.to_str() {
+                <span class="prelude-val">Some</span>(a) =&gt; <span class="prelude-val">Ok</span>(a),
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(fallback.to_string_lossy().to_string()),
             };
 
-            <span class="ident">fancy_fallback</span>(<span class="ident">cs</span>).<span class="ident">into</span>()
+            fancy_fallback(cs).into()
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">string_from_os</span>(<span class="ident">realname_os</span>())
+<span class="kw">pub fn </span>realname() -&gt; String {
+    string_from_os(realname_os())
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="ident">getpwuid</span>(<span class="bool-val">true</span>)
+<span class="kw">pub fn </span>realname_os() -&gt; OsString {
+    getpwuid(<span class="bool-val">true</span>)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="ident">devicename</span>().<span class="ident">into</span>()
+<span class="attribute">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
+</span><span class="kw">pub fn </span>devicename_os() -&gt; OsString {
+    devicename().into()
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">distro</span> <span class="op">=</span> <span class="ident">String::new</span>();
+<span class="attribute">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
+</span><span class="kw">pub fn </span>devicename() -&gt; String {
+    <span class="kw">let </span><span class="kw-2">mut </span>distro = String::new();
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">program</span>) <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(<span class="string">&quot;/etc/machine-info&quot;</span>) {
-        <span class="kw">let</span> <span class="ident">program</span> <span class="op">=</span> <span class="ident">program</span>.<span class="ident">into_bytes</span>();
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(program) = std::fs::read_to_string(<span class="string">&quot;/etc/machine-info&quot;</span>) {
+        <span class="kw">let </span>program = program.into_bytes();
 
-        <span class="ident">distro</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">String::from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="ident">program</span>));
+        distro.push_str(<span class="kw-2">&amp;</span>String::from_utf8_lossy(<span class="kw-2">&amp;</span>program));
 
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">distro</span>.<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>) {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">split</span>(<span class="string">&#39;=&#39;</span>);
+        <span class="kw">for </span>i <span class="kw">in </span>distro.split(<span class="string">&#39;\n&#39;</span>) {
+            <span class="kw">let </span><span class="kw-2">mut </span>j = i.split(<span class="string">&#39;=&#39;</span>);
 
-            <span class="kw">if</span> <span class="ident">j</span>.<span class="ident">next</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;PRETTY_HOSTNAME&quot;</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">j</span>.<span class="ident">next</span>() {
-                    <span class="kw">return</span> <span class="ident">value</span>.<span class="ident">trim_matches</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">to_string</span>();
+            <span class="kw">if </span>j.next() == <span class="prelude-val">Some</span>(<span class="string">&quot;PRETTY_HOSTNAME&quot;</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = j.next() {
+                    <span class="kw">return </span>value.trim_matches(<span class="string">&#39;&quot;&#39;</span>).to_string();
                 }
             }
         }
     }
-    <span class="ident">fancy_fallback</span>(<span class="prelude-val">Err</span>(<span class="ident">hostname</span>()))
+    fancy_fallback(<span class="prelude-val">Err</span>(hostname()))
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">string_from_os</span>(<span class="ident">devicename_os</span>())
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+</span><span class="kw">pub fn </span>devicename() -&gt; String {
+    string_from_os(devicename_os())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">os_from_cfstring</span>(<span class="kw">unsafe</span> {
-        <span class="ident">SCDynamicStoreCopyComputerName</span>(<span class="ident">null_mut</span>(), <span class="ident">null_mut</span>())
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+</span><span class="kw">pub fn </span>devicename_os() -&gt; OsString {
+    <span class="kw">let </span>out = os_from_cfstring(<span class="kw">unsafe </span>{
+        SCDynamicStoreCopyComputerName(null_mut(), null_mut())
     });
 
-    <span class="kw">let</span> <span class="ident">computer</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">out</span>.<span class="ident">as_bytes</span>().<span class="ident">is_empty</span>() {
-        <span class="prelude-val">Err</span>(<span class="ident">hostname_os</span>())
-    } <span class="kw">else</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">out</span>)
+    <span class="kw">let </span>computer = <span class="kw">if </span>out.as_bytes().is_empty() {
+        <span class="prelude-val">Err</span>(hostname_os())
+    } <span class="kw">else </span>{
+        <span class="prelude-val">Ok</span>(out)
     };
-    <span class="ident">fancy_fallback_os</span>(<span class="ident">computer</span>)
+    fancy_fallback_os(computer)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">string_from_os</span>(<span class="ident">hostname_os</span>())
+<span class="kw">pub fn </span>hostname() -&gt; String {
+    string_from_os(hostname_os())
 }
 
-<span class="kw">fn</span> <span class="ident">hostname_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="comment">// Maximum hostname length = 255, plus a NULL byte.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">string</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="number">256</span>);
-    <span class="kw">unsafe</span> {
-        <span class="ident">gethostname</span>(<span class="ident">string</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="number">255</span>);
-        <span class="ident">string</span>.<span class="ident">set_len</span>(<span class="ident">strlen</span>(<span class="ident">string</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">c_void</span>));
+<span class="kw">fn </span>hostname_os() -&gt; OsString {
+    <span class="comment">// Maximum hostname length = 255, plus a NULL byte.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>string = Vec::&lt;u8&gt;::with_capacity(<span class="number">256</span>);
+    <span class="kw">unsafe </span>{
+        gethostname(string.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>c_void, <span class="number">255</span>);
+        string.set_len(strlen(string.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>c_void));
     };
-    <span class="ident">OsString::from_vec</span>(<span class="ident">string</span>)
+    OsString::from_vec(string)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">distro_xml</span>(<span class="ident">data</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">product_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">user_visible_version</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">start</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">find</span>(<span class="string">&quot;&lt;dict&gt;&quot;</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">end</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">find</span>(<span class="string">&quot;&lt;/dict&gt;&quot;</span>) {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">set_product_name</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">set_user_visible_version</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">data</span>[<span class="ident">start</span> <span class="op">+</span> <span class="string">&quot;&lt;dict&gt;&quot;</span>.<span class="ident">len</span>()..<span class="ident">end</span>].<span class="ident">lines</span>() {
-                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">trim</span>();
-                <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&quot;&lt;key&gt;&quot;</span>) {
-                    <span class="kw">match</span> <span class="ident">line</span>[<span class="string">&quot;&lt;key&gt;&quot;</span>.<span class="ident">len</span>()..].<span class="ident">trim_end_matches</span>(<span class="string">&quot;&lt;/key&gt;&quot;</span>) {
-                        <span class="string">&quot;ProductName&quot;</span> =&gt; <span class="ident">set_product_name</span> <span class="op">=</span> <span class="bool-val">true</span>,
-                        <span class="string">&quot;ProductUserVisibleVersion&quot;</span> =&gt; {
-                            <span class="ident">set_user_visible_version</span> <span class="op">=</span> <span class="bool-val">true</span>
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+</span><span class="kw">fn </span>distro_xml(data: String) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>product_name = <span class="prelude-val">None</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>user_visible_version = <span class="prelude-val">None</span>;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(start) = data.find(<span class="string">&quot;&lt;dict&gt;&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(end) = data.find(<span class="string">&quot;&lt;/dict&gt;&quot;</span>) {
+            <span class="kw">let </span><span class="kw-2">mut </span>set_product_name = <span class="bool-val">false</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>set_user_visible_version = <span class="bool-val">false</span>;
+            <span class="kw">for </span>line <span class="kw">in </span>data[start + <span class="string">&quot;&lt;dict&gt;&quot;</span>.len()..end].lines() {
+                <span class="kw">let </span>line = line.trim();
+                <span class="kw">if </span>line.starts_with(<span class="string">&quot;&lt;key&gt;&quot;</span>) {
+                    <span class="kw">match </span>line[<span class="string">&quot;&lt;key&gt;&quot;</span>.len()..].trim_end_matches(<span class="string">&quot;&lt;/key&gt;&quot;</span>) {
+                        <span class="string">&quot;ProductName&quot; </span>=&gt; set_product_name = <span class="bool-val">true</span>,
+                        <span class="string">&quot;ProductUserVisibleVersion&quot; </span>=&gt; {
+                            set_user_visible_version = <span class="bool-val">true
+                        </span>}
+                        <span class="string">&quot;ProductVersion&quot; </span>=&gt; {
+                            <span class="kw">if </span>user_visible_version.is_none() {
+                                set_user_visible_version = <span class="bool-val">true
+                            </span>}
                         }
-                        <span class="string">&quot;ProductVersion&quot;</span> =&gt; {
-                            <span class="kw">if</span> <span class="ident">user_visible_version</span>.<span class="ident">is_none</span>() {
-                                <span class="ident">set_user_visible_version</span> <span class="op">=</span> <span class="bool-val">true</span>
-                            }
-                        }
-                        <span class="kw">_</span> =&gt; {}
+                        <span class="kw">_ </span>=&gt; {}
                     }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">&quot;&lt;string&gt;&quot;</span>) {
-                    <span class="kw">if</span> <span class="ident">set_product_name</span> {
-                        <span class="ident">product_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
-                            <span class="ident">line</span>[<span class="string">&quot;&lt;string&gt;&quot;</span>.<span class="ident">len</span>()..]
-                                .<span class="ident">trim_end_matches</span>(<span class="string">&quot;&lt;/string&gt;&quot;</span>),
+                } <span class="kw">else if </span>line.starts_with(<span class="string">&quot;&lt;string&gt;&quot;</span>) {
+                    <span class="kw">if </span>set_product_name {
+                        product_name = <span class="prelude-val">Some</span>(
+                            line[<span class="string">&quot;&lt;string&gt;&quot;</span>.len()..]
+                                .trim_end_matches(<span class="string">&quot;&lt;/string&gt;&quot;</span>),
                         );
-                        <span class="ident">set_product_name</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">set_user_visible_version</span> {
-                        <span class="ident">user_visible_version</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
-                            <span class="ident">line</span>[<span class="string">&quot;&lt;string&gt;&quot;</span>.<span class="ident">len</span>()..]
-                                .<span class="ident">trim_end_matches</span>(<span class="string">&quot;&lt;/string&gt;&quot;</span>),
+                        set_product_name = <span class="bool-val">false</span>;
+                    } <span class="kw">else if </span>set_user_visible_version {
+                        user_visible_version = <span class="prelude-val">Some</span>(
+                            line[<span class="string">&quot;&lt;string&gt;&quot;</span>.len()..]
+                                .trim_end_matches(<span class="string">&quot;&lt;/string&gt;&quot;</span>),
                         );
-                        <span class="ident">set_user_visible_version</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                        set_user_visible_version = <span class="bool-val">false</span>;
                     }
                 }
             }
         }
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">product_name</span>) <span class="op">=</span> <span class="ident">product_name</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_visible_version</span>) <span class="op">=</span> <span class="ident">user_visible_version</span> {
-            <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, <span class="ident">product_name</span>, <span class="ident">user_visible_version</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">product_name</span>.<span class="ident">to_string</span>())
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(product_name) = product_name {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(user_visible_version) = user_visible_version {
+            <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, product_name, user_visible_version))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(product_name.to_string())
         }
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_visible_version</span>) <span class="op">=</span> <span class="ident">user_visible_version</span> {
-        <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Mac OS (Unknown) {}&quot;</span>, <span class="ident">user_visible_version</span>))
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    }
+    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(user_visible_version) = user_visible_version {
+        <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Mac OS (Unknown) {}&quot;</span>, user_visible_version))
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro_os</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
-    <span class="ident">distro</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">into</span>())
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+</span><span class="kw">pub fn </span>distro_os() -&gt; <span class="prelude-ty">Option</span>&lt;OsString&gt; {
+    distro().map(|a| a.into())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+</span><span class="kw">pub fn </span>distro() -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(data) = std::fs::read_to_string(
         <span class="string">&quot;/System/Library/CoreServices/ServerVersion.plist&quot;</span>,
     ) {
-        <span class="ident">distro_xml</span>(<span class="ident">data</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(
+        distro_xml(data)
+    } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(data) = std::fs::read_to_string(
         <span class="string">&quot;/System/Library/CoreServices/SystemVersion.plist&quot;</span>,
     ) {
-        <span class="ident">distro_xml</span>(<span class="ident">data</span>)
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    }
+        distro_xml(data)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro_os</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OsString</span><span class="op">&gt;</span> {
-    <span class="ident">distro</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">into</span>())
+<span class="attribute">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
+</span><span class="kw">pub fn </span>distro_os() -&gt; <span class="prelude-ty">Option</span>&lt;OsString&gt; {
+    distro().map(|a| a.into())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distro</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">distro</span> <span class="op">=</span> <span class="ident">String::new</span>();
+<span class="attribute">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
+</span><span class="kw">pub fn </span>distro() -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>distro = String::new();
 
-    <span class="kw">let</span> <span class="ident">program</span> <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(<span class="string">&quot;/etc/os-release&quot;</span>)
-        .<span class="ident">ok</span>()<span class="question-mark">?</span>
-        .<span class="ident">into_bytes</span>();
+    <span class="kw">let </span>program = std::fs::read_to_string(<span class="string">&quot;/etc/os-release&quot;</span>)
+        .ok()<span class="question-mark">?
+        </span>.into_bytes();
 
-    <span class="ident">distro</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">String::from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="ident">program</span>));
+    distro.push_str(<span class="kw-2">&amp;</span>String::from_utf8_lossy(<span class="kw-2">&amp;</span>program));
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fallback</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>fallback = <span class="prelude-val">None</span>;
 
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">distro</span>.<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">split</span>(<span class="string">&#39;=&#39;</span>);
+    <span class="kw">for </span>i <span class="kw">in </span>distro.split(<span class="string">&#39;\n&#39;</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>j = i.split(<span class="string">&#39;=&#39;</span>);
 
-        <span class="kw">match</span> <span class="ident">j</span>.<span class="ident">next</span>()<span class="question-mark">?</span> {
-            <span class="string">&quot;PRETTY_NAME&quot;</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>.<span class="ident">next</span>()<span class="question-mark">?</span>.<span class="ident">trim_matches</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">to_string</span>())
+        <span class="kw">match </span>j.next()<span class="question-mark">? </span>{
+            <span class="string">&quot;PRETTY_NAME&quot; </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(j.next()<span class="question-mark">?</span>.trim_matches(<span class="string">&#39;&quot;&#39;</span>).to_string())
             }
-            <span class="string">&quot;NAME&quot;</span> =&gt; <span class="ident">fallback</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>.<span class="ident">next</span>()<span class="question-mark">?</span>.<span class="ident">trim_matches</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">to_string</span>()),
-            <span class="kw">_</span> =&gt; {}
+            <span class="string">&quot;NAME&quot; </span>=&gt; fallback = <span class="prelude-val">Some</span>(j.next()<span class="question-mark">?</span>.trim_matches(<span class="string">&#39;&quot;&#39;</span>).to_string()),
+            <span class="kw">_ </span>=&gt; {}
         }
     }
 
-    <span class="ident">fallback</span>
+    fallback
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">desktop_env</span>() -&gt; <span class="ident">DesktopEnv</span> {
-    <span class="ident">DesktopEnv::Aqua</span>
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+#[inline(always)]
+</span><span class="kw">pub const fn </span>desktop_env() -&gt; DesktopEnv {
+    DesktopEnv::Aqua
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">desktop_env</span>() -&gt; <span class="ident">DesktopEnv</span> {
-    <span class="kw">match</span> <span class="ident">std::env::var_os</span>(<span class="string">&quot;DESKTOP_SESSION&quot;</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">env</span><span class="op">|</span> <span class="ident">env</span>.<span class="ident">to_string_lossy</span>().<span class="ident">to_string</span>())
+<span class="attribute">#[cfg(not(target_os = <span class="string">&quot;macos&quot;</span>))]
+#[inline(always)]
+</span><span class="kw">pub fn </span>desktop_env() -&gt; DesktopEnv {
+    <span class="kw">match </span>std::env::var_os(<span class="string">&quot;DESKTOP_SESSION&quot;</span>)
+        .map(|env| env.to_string_lossy().to_string())
     {
-        <span class="prelude-val">Some</span>(<span class="ident">env_orig</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">env</span> <span class="op">=</span> <span class="ident">env_orig</span>.<span class="ident">to_uppercase</span>();
+        <span class="prelude-val">Some</span>(env_orig) =&gt; {
+            <span class="kw">let </span>env = env_orig.to_uppercase();
 
-            <span class="kw">if</span> <span class="ident">env</span>.<span class="ident">contains</span>(<span class="string">&quot;GNOME&quot;</span>) {
-                <span class="ident">DesktopEnv::Gnome</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">env</span>.<span class="ident">contains</span>(<span class="string">&quot;LXDE&quot;</span>) {
-                <span class="ident">DesktopEnv::Lxde</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">env</span>.<span class="ident">contains</span>(<span class="string">&quot;OPENBOX&quot;</span>) {
-                <span class="ident">DesktopEnv::Openbox</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">env</span>.<span class="ident">contains</span>(<span class="string">&quot;I3&quot;</span>) {
-                <span class="ident">DesktopEnv::I3</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">env</span>.<span class="ident">contains</span>(<span class="string">&quot;UBUNTU&quot;</span>) {
-                <span class="ident">DesktopEnv::Ubuntu</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">env</span>.<span class="ident">contains</span>(<span class="string">&quot;PLASMA5&quot;</span>) {
-                <span class="ident">DesktopEnv::Kde</span>
-            } <span class="kw">else</span> {
-                <span class="ident">DesktopEnv::Unknown</span>(<span class="ident">env_orig</span>)
+            <span class="kw">if </span>env.contains(<span class="string">&quot;GNOME&quot;</span>) {
+                DesktopEnv::Gnome
+            } <span class="kw">else if </span>env.contains(<span class="string">&quot;LXDE&quot;</span>) {
+                DesktopEnv::Lxde
+            } <span class="kw">else if </span>env.contains(<span class="string">&quot;OPENBOX&quot;</span>) {
+                DesktopEnv::Openbox
+            } <span class="kw">else if </span>env.contains(<span class="string">&quot;I3&quot;</span>) {
+                DesktopEnv::I3
+            } <span class="kw">else if </span>env.contains(<span class="string">&quot;UBUNTU&quot;</span>) {
+                DesktopEnv::Ubuntu
+            } <span class="kw">else if </span>env.contains(<span class="string">&quot;PLASMA5&quot;</span>) {
+                DesktopEnv::Kde
+            } <span class="kw">else </span>{
+                DesktopEnv::Unknown(env_orig)
             }
         }
-        <span class="comment">// TODO: Other Linux Desktop Environments</span>
-        <span class="prelude-val">None</span> =&gt; <span class="ident">DesktopEnv::Unknown</span>(<span class="string">&quot;Unknown&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="comment">// TODO: Other Linux Desktop Environments
+        </span><span class="prelude-val">None </span>=&gt; DesktopEnv::Unknown(<span class="string">&quot;Unknown&quot;</span>.to_string()),
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">platform</span>() -&gt; <span class="ident">Platform</span> {
-    <span class="ident">Platform::MacOS</span>
+<span class="attribute">#[cfg(target_os = <span class="string">&quot;macos&quot;</span>)]
+#[inline(always)]
+</span><span class="kw">pub const fn </span>platform() -&gt; Platform {
+    Platform::MacOS
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;macos&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;bitrig&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>
-)))]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">platform</span>() -&gt; <span class="ident">Platform</span> {
-    <span class="ident">Platform::Linux</span>
+<span class="attribute">#[cfg(not(any(
+    target_os = <span class="string">&quot;macos&quot;</span>,
+    target_os = <span class="string">&quot;freebsd&quot;</span>,
+    target_os = <span class="string">&quot;dragonfly&quot;</span>,
+    target_os = <span class="string">&quot;bitrig&quot;</span>,
+    target_os = <span class="string">&quot;openbsd&quot;</span>,
+    target_os = <span class="string">&quot;netbsd&quot;
+</span>)))]
+#[inline(always)]
+</span><span class="kw">pub const fn </span>platform() -&gt; Platform {
+    Platform::Linux
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;freebsd&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;dragonfly&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;bitrig&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;openbsd&quot;</span>,
-    <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;netbsd&quot;</span>
-))]</span>
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">platform</span>() -&gt; <span class="ident">Platform</span> {
-    <span class="ident">Platform::Bsd</span>
+<span class="attribute">#[cfg(any(
+    target_os = <span class="string">&quot;freebsd&quot;</span>,
+    target_os = <span class="string">&quot;dragonfly&quot;</span>,
+    target_os = <span class="string">&quot;bitrig&quot;</span>,
+    target_os = <span class="string">&quot;openbsd&quot;</span>,
+    target_os = <span class="string">&quot;netbsd&quot;
+</span>))]
+#[inline(always)]
+</span><span class="kw">pub const fn </span>platform() -&gt; Platform {
+    Platform::Bsd
 }
 
-<span class="kw">struct</span> <span class="ident">LangIter</span> {
-    <span class="ident">array</span>: <span class="ident">String</span>,
-    <span class="ident">index</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>LangIter {
+    array: String,
+    index: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">LangIter</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span>;
+<span class="kw">impl </span>Iterator <span class="kw">for </span>LangIter {
+    <span class="kw">type </span>Item = String;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">index</span><span class="question-mark">?</span> {
-            <span class="self">self</span>.<span class="ident">index</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">false</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">temp</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">split</span>(<span class="string">&#39;-&#39;</span>).<span class="ident">next</span>()<span class="question-mark">?</span>.<span class="ident">to_string</span>();
-            <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="ident">temp</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">array</span>);
-            <span class="prelude-val">Some</span>(<span class="ident">temp</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">index</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">String::new</span>();
-            <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="ident">temp</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">array</span>);
-            <span class="prelude-val">Some</span>(<span class="ident">temp</span>)
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">if </span><span class="self">self</span>.index<span class="question-mark">? </span>{
+            <span class="self">self</span>.index = <span class="prelude-val">Some</span>(<span class="bool-val">false</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>temp = <span class="self">self</span>.array.split(<span class="string">&#39;-&#39;</span>).next()<span class="question-mark">?</span>.to_string();
+            std::mem::swap(<span class="kw-2">&amp;mut </span>temp, <span class="kw-2">&amp;mut </span><span class="self">self</span>.array);
+            <span class="prelude-val">Some</span>(temp)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.index = <span class="prelude-val">None</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>temp = String::new();
+            std::mem::swap(<span class="kw-2">&amp;mut </span>temp, <span class="kw-2">&amp;mut </span><span class="self">self</span>.array);
+            <span class="prelude-val">Some</span>(temp)
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lang</span>() -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">array</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;LANG&quot;</span>)
-        .<span class="ident">unwrap_or_default</span>()
-        .<span class="ident">split</span>(<span class="string">&#39;.&#39;</span>)
-        .<span class="ident">next</span>()
-        .<span class="ident">unwrap_or</span>(<span class="string">&quot;en_US&quot;</span>)
-        .<span class="ident">to_string</span>()
-        .<span class="ident">replace</span>(<span class="string">&#39;_&#39;</span>, <span class="string">&quot;-&quot;</span>);
-    <span class="ident">LangIter</span> {
-        <span class="ident">array</span>,
-        <span class="ident">index</span>: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
+<span class="attribute">#[inline(always)]
+</span><span class="kw">pub fn </span>lang() -&gt; <span class="kw">impl </span>Iterator&lt;Item = String&gt; {
+    <span class="kw">let </span>array = std::env::var(<span class="string">&quot;LANG&quot;</span>)
+        .unwrap_or_default()
+        .split(<span class="string">&#39;.&#39;</span>)
+        .next()
+        .unwrap_or(<span class="string">&quot;en_US&quot;</span>)
+        .to_string()
+        .replace(<span class="string">&#39;_&#39;</span>, <span class="string">&quot;-&quot;</span>);
+    LangIter {
+        array,
+        index: <span class="prelude-val">Some</span>(<span class="bool-val">true</span>),
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="whoami" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="whoami" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

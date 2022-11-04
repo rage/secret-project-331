@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/helpers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>helpers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/helpers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>helpers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -192,197 +192,197 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::io;
 
-<span class="kw">use</span> <span class="ident">bytes::BufMut</span>;
-<span class="kw">use</span> <span class="ident">http::Version</span>;
+<span class="kw">use </span>bytes::BufMut;
+<span class="kw">use </span>http::Version;
 
-<span class="kw">const</span> <span class="ident">DIGITS_START</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="string">b&#39;0&#39;</span>;
+<span class="kw">const </span>DIGITS_START: u8 = <span class="string">b&#39;0&#39;</span>;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">write_status_line</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">BufMut</span><span class="op">&gt;</span>(<span class="ident">version</span>: <span class="ident">Version</span>, <span class="ident">n</span>: <span class="ident">u16</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">B</span>) {
-    <span class="kw">match</span> <span class="ident">version</span> {
-        <span class="ident">Version::HTTP_11</span> =&gt; <span class="ident">buf</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;HTTP/1.1 &quot;</span>),
-        <span class="ident">Version::HTTP_10</span> =&gt; <span class="ident">buf</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;HTTP/1.0 &quot;</span>),
-        <span class="ident">Version::HTTP_09</span> =&gt; <span class="ident">buf</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;HTTP/0.9 &quot;</span>),
-        <span class="kw">_</span> =&gt; {
-            <span class="comment">// other HTTP version handlers do not use this method</span>
-        }
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_status_line&lt;B: BufMut&gt;(version: Version, n: u16, buf: <span class="kw-2">&amp;mut </span>B) {
+    <span class="kw">match </span>version {
+        Version::HTTP_11 =&gt; buf.put_slice(<span class="string">b&quot;HTTP/1.1 &quot;</span>),
+        Version::HTTP_10 =&gt; buf.put_slice(<span class="string">b&quot;HTTP/1.0 &quot;</span>),
+        Version::HTTP_09 =&gt; buf.put_slice(<span class="string">b&quot;HTTP/0.9 &quot;</span>),
+        <span class="kw">_ </span>=&gt; {
+            <span class="comment">// other HTTP version handlers do not use this method
+        </span>}
     }
 
-    <span class="kw">let</span> <span class="ident">d100</span> <span class="op">=</span> (<span class="ident">n</span> <span class="op">/</span> <span class="number">100</span>) <span class="kw">as</span> <span class="ident">u8</span>;
-    <span class="kw">let</span> <span class="ident">d10</span> <span class="op">=</span> ((<span class="ident">n</span> <span class="op">/</span> <span class="number">10</span>) <span class="op">%</span> <span class="number">10</span>) <span class="kw">as</span> <span class="ident">u8</span>;
-    <span class="kw">let</span> <span class="ident">d1</span> <span class="op">=</span> (<span class="ident">n</span> <span class="op">%</span> <span class="number">10</span>) <span class="kw">as</span> <span class="ident">u8</span>;
+    <span class="kw">let </span>d100 = (n / <span class="number">100</span>) <span class="kw">as </span>u8;
+    <span class="kw">let </span>d10 = ((n / <span class="number">10</span>) % <span class="number">10</span>) <span class="kw">as </span>u8;
+    <span class="kw">let </span>d1 = (n % <span class="number">10</span>) <span class="kw">as </span>u8;
 
-    <span class="ident">buf</span>.<span class="ident">put_u8</span>(<span class="ident">DIGITS_START</span> <span class="op">+</span> <span class="ident">d100</span>);
-    <span class="ident">buf</span>.<span class="ident">put_u8</span>(<span class="ident">DIGITS_START</span> <span class="op">+</span> <span class="ident">d10</span>);
-    <span class="ident">buf</span>.<span class="ident">put_u8</span>(<span class="ident">DIGITS_START</span> <span class="op">+</span> <span class="ident">d1</span>);
+    buf.put_u8(DIGITS_START + d100);
+    buf.put_u8(DIGITS_START + d10);
+    buf.put_u8(DIGITS_START + d1);
 
-    <span class="comment">// trailing space before reason</span>
-    <span class="ident">buf</span>.<span class="ident">put_u8</span>(<span class="string">b&#39; &#39;</span>);
+    <span class="comment">// trailing space before reason
+    </span>buf.put_u8(<span class="string">b&#39; &#39;</span>);
 }
 
-<span class="doccomment">/// Write out content length header.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Buffer must to contain enough space or be implicitly extendable.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_content_length</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">BufMut</span><span class="op">&gt;</span>(<span class="ident">n</span>: <span class="ident">u64</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">B</span>, <span class="ident">camel_case</span>: <span class="ident">bool</span>) {
-    <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="kw">if</span> <span class="ident">camel_case</span> {
-            <span class="ident">buf</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\nContent-Length: 0\r\n&quot;</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">buf</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\ncontent-length: 0\r\n&quot;</span>);
+<span class="doccomment">/// Write out content length header.
+///
+/// Buffer must to contain enough space or be implicitly extendable.
+</span><span class="kw">pub fn </span>write_content_length&lt;B: BufMut&gt;(n: u64, buf: <span class="kw-2">&amp;mut </span>B, camel_case: bool) {
+    <span class="kw">if </span>n == <span class="number">0 </span>{
+        <span class="kw">if </span>camel_case {
+            buf.put_slice(<span class="string">b&quot;\r\nContent-Length: 0\r\n&quot;</span>);
+        } <span class="kw">else </span>{
+            buf.put_slice(<span class="string">b&quot;\r\ncontent-length: 0\r\n&quot;</span>);
         }
 
         <span class="kw">return</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">itoa::Buffer::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>buffer = itoa::Buffer::new();
 
-    <span class="kw">if</span> <span class="ident">camel_case</span> {
-        <span class="ident">buf</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\nContent-Length: &quot;</span>);
-    } <span class="kw">else</span> {
-        <span class="ident">buf</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\ncontent-length: &quot;</span>);
+    <span class="kw">if </span>camel_case {
+        buf.put_slice(<span class="string">b&quot;\r\nContent-Length: &quot;</span>);
+    } <span class="kw">else </span>{
+        buf.put_slice(<span class="string">b&quot;\r\ncontent-length: &quot;</span>);
     }
 
-    <span class="ident">buf</span>.<span class="ident">put_slice</span>(<span class="ident">buffer</span>.<span class="ident">format</span>(<span class="ident">n</span>).<span class="ident">as_bytes</span>());
-    <span class="ident">buf</span>.<span class="ident">put_slice</span>(<span class="string">b&quot;\r\n&quot;</span>);
+    buf.put_slice(buffer.format(n).as_bytes());
+    buf.put_slice(<span class="string">b&quot;\r\n&quot;</span>);
 }
 
-<span class="doccomment">/// An `io::Write`r that only requires mutable reference and assumes that there is space available</span>
-<span class="doccomment">/// in the buffer for every write operation or that it can be extended implicitly (like</span>
-<span class="doccomment">/// `bytes::BytesMut`, for example).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is slightly faster (~10%) than `bytes::buf::Writer` in such cases because it does not</span>
-<span class="doccomment">/// perform a remaining length check before writing.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">MutWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">B</span>);
+<span class="doccomment">/// An `io::Write`r that only requires mutable reference and assumes that there is space available
+/// in the buffer for every write operation or that it can be extended implicitly (like
+/// `bytes::BytesMut`, for example).
+///
+/// This is slightly faster (~10%) than `bytes::buf::Writer` in such cases because it does not
+/// perform a remaining length check before writing.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>MutWriter&lt;<span class="lifetime">&#39;a</span>, B&gt;(<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>B);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">io::Write</span> <span class="kw">for</span> <span class="ident">MutWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">B</span>: <span class="ident">BufMut</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, B&gt; io::Write <span class="kw">for </span>MutWriter&lt;<span class="lifetime">&#39;a</span>, B&gt;
+<span class="kw">where
+    </span>B: BufMut,
 {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">put_slice</span>(<span class="ident">buf</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">buf</span>.<span class="ident">len</span>())
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.put_slice(buf);
+        <span class="prelude-val">Ok</span>(buf.len())
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std::str::from_utf8</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::str::from_utf8;
 
-    <span class="kw">use</span> <span class="ident">bytes::BytesMut</span>;
+    <span class="kw">use </span>bytes::BytesMut;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_status_line</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_status_line</span>(<span class="ident">Version::HTTP_11</span>, <span class="number">200</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>()).<span class="ident">unwrap</span>(), <span class="string">&quot;HTTP/1.1 200 &quot;</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_status_line() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::new();
+        bytes.reserve(<span class="number">50</span>);
+        write_status_line(Version::HTTP_11, <span class="number">200</span>, <span class="kw-2">&amp;mut </span>bytes);
+        <span class="macro">assert_eq!</span>(from_utf8(<span class="kw-2">&amp;</span>bytes.split().freeze()).unwrap(), <span class="string">&quot;HTTP/1.1 200 &quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_status_line</span>(<span class="ident">Version::HTTP_09</span>, <span class="number">404</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>()).<span class="ident">unwrap</span>(), <span class="string">&quot;HTTP/0.9 404 &quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::new();
+        bytes.reserve(<span class="number">50</span>);
+        write_status_line(Version::HTTP_09, <span class="number">404</span>, <span class="kw-2">&amp;mut </span>bytes);
+        <span class="macro">assert_eq!</span>(from_utf8(<span class="kw-2">&amp;</span>bytes.split().freeze()).unwrap(), <span class="string">&quot;HTTP/0.9 404 &quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_status_line</span>(<span class="ident">Version::HTTP_09</span>, <span class="number">515</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>()).<span class="ident">unwrap</span>(), <span class="string">&quot;HTTP/0.9 515 &quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::new();
+        bytes.reserve(<span class="number">50</span>);
+        write_status_line(Version::HTTP_09, <span class="number">515</span>, <span class="kw-2">&amp;mut </span>bytes);
+        <span class="macro">assert_eq!</span>(from_utf8(<span class="kw-2">&amp;</span>bytes.split().freeze()).unwrap(), <span class="string">&quot;HTTP/0.9 515 &quot;</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_write_content_length</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">0</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 0\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">9</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 9\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">10</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 10\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">99</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 99\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">100</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 100\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">101</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 101\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">998</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 998\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">1000</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 1000\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">1001</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 1001\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">5909</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 5909\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">9999</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 9999\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">10001</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 10001\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">59094</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 59094\r\n&quot;</span>[..]);
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">99999</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 99999\r\n&quot;</span>[..]);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_write_content_length() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::new();
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">0</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 0\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">9</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 9\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">10</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 10\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">99</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 99\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">100</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 100\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">101</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 101\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">998</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 998\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">1000</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 1000\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">1001</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 1001\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">5909</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 5909\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">9999</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 9999\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">10001</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 10001\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">59094</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 59094\r\n&quot;</span>[..]);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">99999</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 99999\r\n&quot;</span>[..]);
 
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">590947</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">590947</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(),
+            bytes.split().freeze(),
             <span class="string">b&quot;\r\ncontent-length: 590947\r\n&quot;</span>[..]
         );
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">999999</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">999999</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(),
+            bytes.split().freeze(),
             <span class="string">b&quot;\r\ncontent-length: 999999\r\n&quot;</span>[..]
         );
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">5909471</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">5909471</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(),
+            bytes.split().freeze(),
             <span class="string">b&quot;\r\ncontent-length: 5909471\r\n&quot;</span>[..]
         );
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">59094718</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">59094718</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(),
+            bytes.split().freeze(),
             <span class="string">b&quot;\r\ncontent-length: 59094718\r\n&quot;</span>[..]
         );
-        <span class="ident">bytes</span>.<span class="ident">reserve</span>(<span class="number">50</span>);
-        <span class="ident">write_content_length</span>(<span class="number">4294973728</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
+        bytes.reserve(<span class="number">50</span>);
+        write_content_length(<span class="number">4294973728</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(),
+            bytes.split().freeze(),
             <span class="string">b&quot;\r\ncontent-length: 4294973728\r\n&quot;</span>[..]
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">write_content_length_camel_case</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="ident">write_content_length</span>(<span class="number">0</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\ncontent-length: 0\r\n&quot;</span>[..]);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>write_content_length_camel_case() {
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::new();
+        write_content_length(<span class="number">0</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">false</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\ncontent-length: 0\r\n&quot;</span>[..]);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">BytesMut::new</span>();
-        <span class="ident">write_content_length</span>(<span class="number">0</span>, <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>, <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>.<span class="ident">split</span>().<span class="ident">freeze</span>(), <span class="string">b&quot;\r\nContent-Length: 0\r\n&quot;</span>[..]);
+        <span class="kw">let </span><span class="kw-2">mut </span>bytes = BytesMut::new();
+        write_content_length(<span class="number">0</span>, <span class="kw-2">&amp;mut </span>bytes, <span class="bool-val">true</span>);
+        <span class="macro">assert_eq!</span>(bytes.split().freeze(), <span class="string">b&quot;\r\nContent-Length: 0\r\n&quot;</span>[..]);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

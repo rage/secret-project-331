@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/pem/decoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../jsonwebtoken/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/jsonwebtoken-7.2.0/src/pem/decoder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../jsonwebtoken/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../jsonwebtoken/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -203,210 +203,210 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::errors</span>::{<span class="ident">ErrorKind</span>, <span class="prelude-ty">Result</span>};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::errors::{ErrorKind, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use</span> <span class="ident">simple_asn1</span>::{<span class="ident">BigUint</span>, <span class="ident">OID</span>};
+<span class="kw">use </span>simple_asn1::{BigUint, OID};
 
-<span class="doccomment">/// Supported PEM files for EC and RSA Public and Private Keys</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">PemType</span> {
-    <span class="ident">EcPublic</span>,
-    <span class="ident">EcPrivate</span>,
-    <span class="ident">RsaPublic</span>,
-    <span class="ident">RsaPrivate</span>,
+<span class="doccomment">/// Supported PEM files for EC and RSA Public and Private Keys
+</span><span class="attribute">#[derive(Debug, PartialEq)]
+</span><span class="kw">enum </span>PemType {
+    EcPublic,
+    EcPrivate,
+    RsaPublic,
+    RsaPrivate,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Standard</span> {
-    <span class="comment">// Only for RSA</span>
-    <span class="ident">Pkcs1</span>,
-    <span class="comment">// RSA/EC</span>
-    <span class="ident">Pkcs8</span>,
+<span class="attribute">#[derive(Debug, PartialEq)]
+</span><span class="kw">enum </span>Standard {
+    <span class="comment">// Only for RSA
+    </span>Pkcs1,
+    <span class="comment">// RSA/EC
+    </span>Pkcs8,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Classification</span> {
-    <span class="ident">Ec</span>,
-    <span class="ident">Rsa</span>,
+<span class="attribute">#[derive(Debug, PartialEq)]
+</span><span class="kw">enum </span>Classification {
+    Ec,
+    Rsa,
 }
 
-<span class="doccomment">/// The return type of a successful PEM encoded key with `decode_pem`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This struct gives a way to parse a string to a key for use in jsonwebtoken.</span>
-<span class="doccomment">/// A struct is necessary as it provides the lifetime of the key</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// PEM public private keys are encoded PKCS#1 or PKCS#8</span>
-<span class="doccomment">/// You will find that with PKCS#8 RSA keys that the PKCS#1 content</span>
-<span class="doccomment">/// is embedded inside. This is what is provided to ring via `Key::Der`</span>
-<span class="doccomment">/// For EC keys, they are always PKCS#8 on the outside but like RSA keys</span>
-<span class="doccomment">/// EC keys contain a section within that ultimately has the configuration</span>
-<span class="doccomment">/// that ring uses.</span>
-<span class="doccomment">/// Documentation about these formats is at</span>
-<span class="doccomment">/// PKCS#1: https://tools.ietf.org/html/rfc8017</span>
-<span class="doccomment">/// PKCS#8: https://tools.ietf.org/html/rfc5958</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">PemEncodedKey</span> {
-    <span class="ident">content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    <span class="ident">asn1</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">simple_asn1::ASN1Block</span><span class="op">&gt;</span>,
-    <span class="ident">pem_type</span>: <span class="ident">PemType</span>,
-    <span class="ident">standard</span>: <span class="ident">Standard</span>,
+<span class="doccomment">/// The return type of a successful PEM encoded key with `decode_pem`
+///
+/// This struct gives a way to parse a string to a key for use in jsonwebtoken.
+/// A struct is necessary as it provides the lifetime of the key
+///
+/// PEM public private keys are encoded PKCS#1 or PKCS#8
+/// You will find that with PKCS#8 RSA keys that the PKCS#1 content
+/// is embedded inside. This is what is provided to ring via `Key::Der`
+/// For EC keys, they are always PKCS#8 on the outside but like RSA keys
+/// EC keys contain a section within that ultimately has the configuration
+/// that ring uses.
+/// Documentation about these formats is at
+/// PKCS#1: https://tools.ietf.org/html/rfc8017
+/// PKCS#8: https://tools.ietf.org/html/rfc5958
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>PemEncodedKey {
+    content: Vec&lt;u8&gt;,
+    asn1: Vec&lt;simple_asn1::ASN1Block&gt;,
+    pem_type: PemType,
+    standard: Standard,
 }
 
-<span class="kw">impl</span> <span class="ident">PemEncodedKey</span> {
-    <span class="doccomment">/// Read the PEM file for later key use</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PemEncodedKey</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">pem::parse</span>(<span class="ident">input</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">content</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">pem_contents</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">contents</span>;
-                <span class="kw">let</span> <span class="ident">asn1_content</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">simple_asn1::from_der</span>(<span class="ident">pem_contents</span>.<span class="ident">as_slice</span>()) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">asn1</span>) =&gt; <span class="ident">asn1</span>,
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidKeyFormat</span>.<span class="ident">into</span>()),
+<span class="kw">impl </span>PemEncodedKey {
+    <span class="doccomment">/// Read the PEM file for later key use
+    </span><span class="kw">pub fn </span>new(input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;PemEncodedKey&gt; {
+        <span class="kw">match </span>pem::parse(input) {
+            <span class="prelude-val">Ok</span>(content) =&gt; {
+                <span class="kw">let </span>pem_contents = content.contents;
+                <span class="kw">let </span>asn1_content = <span class="kw">match </span>simple_asn1::from_der(pem_contents.as_slice()) {
+                    <span class="prelude-val">Ok</span>(asn1) =&gt; asn1,
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ErrorKind::InvalidKeyFormat.into()),
                 };
 
-                <span class="kw">match</span> <span class="ident">content</span>.<span class="ident">tag</span>.<span class="ident">as_ref</span>() {
-                    <span class="comment">// This handles a PKCS#1 RSA Private key</span>
-                    <span class="string">&quot;RSA PRIVATE KEY&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">PemEncodedKey</span> {
-                        <span class="ident">content</span>: <span class="ident">pem_contents</span>,
-                        <span class="ident">asn1</span>: <span class="ident">asn1_content</span>,
-                        <span class="ident">pem_type</span>: <span class="ident">PemType::RsaPrivate</span>,
-                        <span class="ident">standard</span>: <span class="ident">Standard::Pkcs1</span>,
+                <span class="kw">match </span>content.tag.as_ref() {
+                    <span class="comment">// This handles a PKCS#1 RSA Private key
+                    </span><span class="string">&quot;RSA PRIVATE KEY&quot; </span>=&gt; <span class="prelude-val">Ok</span>(PemEncodedKey {
+                        content: pem_contents,
+                        asn1: asn1_content,
+                        pem_type: PemType::RsaPrivate,
+                        standard: Standard::Pkcs1,
                     }),
-                    <span class="string">&quot;RSA PUBLIC KEY&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">PemEncodedKey</span> {
-                        <span class="ident">content</span>: <span class="ident">pem_contents</span>,
-                        <span class="ident">asn1</span>: <span class="ident">asn1_content</span>,
-                        <span class="ident">pem_type</span>: <span class="ident">PemType::RsaPublic</span>,
-                        <span class="ident">standard</span>: <span class="ident">Standard::Pkcs1</span>,
+                    <span class="string">&quot;RSA PUBLIC KEY&quot; </span>=&gt; <span class="prelude-val">Ok</span>(PemEncodedKey {
+                        content: pem_contents,
+                        asn1: asn1_content,
+                        pem_type: PemType::RsaPublic,
+                        standard: Standard::Pkcs1,
                     }),
 
-                    <span class="comment">// No &quot;EC PRIVATE KEY&quot;</span>
-                    <span class="comment">// https://security.stackexchange.com/questions/84327/converting-ecc-private-key-to-pkcs1-format</span>
-                    <span class="comment">// &quot;there is no such thing as a &quot;PKCS#1 format&quot; for elliptic curve (EC) keys&quot;</span>
+                    <span class="comment">// No &quot;EC PRIVATE KEY&quot;
+                    // https://security.stackexchange.com/questions/84327/converting-ecc-private-key-to-pkcs1-format
+                    // &quot;there is no such thing as a &quot;PKCS#1 format&quot; for elliptic curve (EC) keys&quot;
 
-                    <span class="comment">// This handles PKCS#8 public &amp; private keys</span>
-                    <span class="ident">tag</span> @ <span class="string">&quot;PRIVATE KEY&quot;</span> <span class="op">|</span> <span class="ident">tag</span> @ <span class="string">&quot;PUBLIC KEY&quot;</span> =&gt; <span class="kw">match</span> <span class="ident">classify_pem</span>(<span class="kw-2">&amp;</span><span class="ident">asn1_content</span>) {
-                        <span class="prelude-val">Some</span>(<span class="ident">c</span>) =&gt; {
-                            <span class="kw">let</span> <span class="ident">is_private</span> <span class="op">=</span> <span class="ident">tag</span> <span class="op">==</span> <span class="string">&quot;PRIVATE KEY&quot;</span>;
-                            <span class="kw">let</span> <span class="ident">pem_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">c</span> {
-                                <span class="ident">Classification::Ec</span> =&gt; {
-                                    <span class="kw">if</span> <span class="ident">is_private</span> {
-                                        <span class="ident">PemType::EcPrivate</span>
-                                    } <span class="kw">else</span> {
-                                        <span class="ident">PemType::EcPublic</span>
+                    // This handles PKCS#8 public &amp; private keys
+                    </span>tag @ <span class="string">&quot;PRIVATE KEY&quot; </span>| tag @ <span class="string">&quot;PUBLIC KEY&quot; </span>=&gt; <span class="kw">match </span>classify_pem(<span class="kw-2">&amp;</span>asn1_content) {
+                        <span class="prelude-val">Some</span>(c) =&gt; {
+                            <span class="kw">let </span>is_private = tag == <span class="string">&quot;PRIVATE KEY&quot;</span>;
+                            <span class="kw">let </span>pem_type = <span class="kw">match </span>c {
+                                Classification::Ec =&gt; {
+                                    <span class="kw">if </span>is_private {
+                                        PemType::EcPrivate
+                                    } <span class="kw">else </span>{
+                                        PemType::EcPublic
                                     }
                                 }
-                                <span class="ident">Classification::Rsa</span> =&gt; {
-                                    <span class="kw">if</span> <span class="ident">is_private</span> {
-                                        <span class="ident">PemType::RsaPrivate</span>
-                                    } <span class="kw">else</span> {
-                                        <span class="ident">PemType::RsaPublic</span>
+                                Classification::Rsa =&gt; {
+                                    <span class="kw">if </span>is_private {
+                                        PemType::RsaPrivate
+                                    } <span class="kw">else </span>{
+                                        PemType::RsaPublic
                                     }
                                 }
                             };
-                            <span class="prelude-val">Ok</span>(<span class="ident">PemEncodedKey</span> {
-                                <span class="ident">content</span>: <span class="ident">pem_contents</span>,
-                                <span class="ident">asn1</span>: <span class="ident">asn1_content</span>,
-                                <span class="ident">pem_type</span>,
-                                <span class="ident">standard</span>: <span class="ident">Standard::Pkcs8</span>,
+                            <span class="prelude-val">Ok</span>(PemEncodedKey {
+                                content: pem_contents,
+                                asn1: asn1_content,
+                                pem_type,
+                                standard: Standard::Pkcs8,
                             })
                         }
-                        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidKeyFormat</span>.<span class="ident">into</span>()),
+                        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidKeyFormat.into()),
                     },
 
-                    <span class="comment">// Unknown/unsupported type</span>
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidKeyFormat</span>.<span class="ident">into</span>()),
+                    <span class="comment">// Unknown/unsupported type
+                    </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidKeyFormat.into()),
                 }
             }
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidKeyFormat</span>.<span class="ident">into</span>()),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidKeyFormat.into()),
         }
     }
 
-    <span class="doccomment">/// Can only be PKCS8</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_ec_private_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">standard</span> {
-            <span class="ident">Standard::Pkcs1</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidKeyFormat</span>.<span class="ident">into</span>()),
-            <span class="ident">Standard::Pkcs8</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pem_type</span> {
-                <span class="ident">PemType::EcPrivate</span> =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">content</span>.<span class="ident">as_slice</span>()),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidKeyFormat</span>.<span class="ident">into</span>()),
+    <span class="doccomment">/// Can only be PKCS8
+    </span><span class="kw">pub fn </span>as_ec_private_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+        <span class="kw">match </span><span class="self">self</span>.standard {
+            Standard::Pkcs1 =&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidKeyFormat.into()),
+            Standard::Pkcs8 =&gt; <span class="kw">match </span><span class="self">self</span>.pem_type {
+                PemType::EcPrivate =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.content.as_slice()),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidKeyFormat.into()),
             },
         }
     }
 
-    <span class="doccomment">/// Can only be PKCS8</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_ec_public_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">standard</span> {
-            <span class="ident">Standard::Pkcs1</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidKeyFormat</span>.<span class="ident">into</span>()),
-            <span class="ident">Standard::Pkcs8</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pem_type</span> {
-                <span class="ident">PemType::EcPublic</span> =&gt; <span class="ident">extract_first_bitstring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">asn1</span>),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidKeyFormat</span>.<span class="ident">into</span>()),
+    <span class="doccomment">/// Can only be PKCS8
+    </span><span class="kw">pub fn </span>as_ec_public_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+        <span class="kw">match </span><span class="self">self</span>.standard {
+            Standard::Pkcs1 =&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidKeyFormat.into()),
+            Standard::Pkcs8 =&gt; <span class="kw">match </span><span class="self">self</span>.pem_type {
+                PemType::EcPublic =&gt; extract_first_bitstring(<span class="kw-2">&amp;</span><span class="self">self</span>.asn1),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidKeyFormat.into()),
             },
         }
     }
 
-    <span class="doccomment">/// Can be PKCS1 or PKCS8</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_rsa_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">standard</span> {
-            <span class="ident">Standard::Pkcs1</span> =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">content</span>.<span class="ident">as_slice</span>()),
-            <span class="ident">Standard::Pkcs8</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pem_type</span> {
-                <span class="ident">PemType::RsaPrivate</span> =&gt; <span class="ident">extract_first_bitstring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">asn1</span>),
-                <span class="ident">PemType::RsaPublic</span> =&gt; <span class="ident">extract_first_bitstring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">asn1</span>),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidKeyFormat</span>.<span class="ident">into</span>()),
+    <span class="doccomment">/// Can be PKCS1 or PKCS8
+    </span><span class="kw">pub fn </span>as_rsa_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+        <span class="kw">match </span><span class="self">self</span>.standard {
+            Standard::Pkcs1 =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.content.as_slice()),
+            Standard::Pkcs8 =&gt; <span class="kw">match </span><span class="self">self</span>.pem_type {
+                PemType::RsaPrivate =&gt; extract_first_bitstring(<span class="kw-2">&amp;</span><span class="self">self</span>.asn1),
+                PemType::RsaPublic =&gt; extract_first_bitstring(<span class="kw-2">&amp;</span><span class="self">self</span>.asn1),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(ErrorKind::InvalidKeyFormat.into()),
             },
         }
     }
 }
 
-<span class="comment">// This really just finds and returns the first bitstring or octet string</span>
-<span class="comment">// Which is the x coordinate for EC public keys</span>
-<span class="comment">// And the DER contents of an RSA key</span>
-<span class="comment">// Though PKCS#11 keys shouldn&#39;t have anything else.</span>
-<span class="comment">// It will get confusing with certificates.</span>
-<span class="kw">fn</span> <span class="ident">extract_first_bitstring</span>(<span class="ident">asn1</span>: <span class="kw-2">&amp;</span>[<span class="ident">simple_asn1::ASN1Block</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
-    <span class="kw">for</span> <span class="ident">asn1_entry</span> <span class="kw">in</span> <span class="ident">asn1</span>.<span class="ident">iter</span>() {
-        <span class="kw">match</span> <span class="ident">asn1_entry</span> {
-            <span class="ident">simple_asn1::ASN1Block::Sequence</span>(<span class="kw">_</span>, <span class="ident">entries</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">result</span>) <span class="op">=</span> <span class="ident">extract_first_bitstring</span>(<span class="ident">entries</span>) {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">result</span>);
+<span class="comment">// This really just finds and returns the first bitstring or octet string
+// Which is the x coordinate for EC public keys
+// And the DER contents of an RSA key
+// Though PKCS#11 keys shouldn&#39;t have anything else.
+// It will get confusing with certificates.
+</span><span class="kw">fn </span>extract_first_bitstring(asn1: <span class="kw-2">&amp;</span>[simple_asn1::ASN1Block]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+    <span class="kw">for </span>asn1_entry <span class="kw">in </span>asn1.iter() {
+        <span class="kw">match </span>asn1_entry {
+            simple_asn1::ASN1Block::Sequence(<span class="kw">_</span>, entries) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(result) = extract_first_bitstring(entries) {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(result);
                 }
             }
-            <span class="ident">simple_asn1::ASN1Block::BitString</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">value</span>) =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">value</span>.<span class="ident">as_ref</span>());
+            simple_asn1::ASN1Block::BitString(<span class="kw">_</span>, <span class="kw">_</span>, value) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(value.as_ref());
             }
-            <span class="ident">simple_asn1::ASN1Block::OctetString</span>(<span class="kw">_</span>, <span class="ident">value</span>) =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">value</span>.<span class="ident">as_ref</span>());
+            simple_asn1::ASN1Block::OctetString(<span class="kw">_</span>, value) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(value.as_ref());
             }
-            <span class="kw">_</span> =&gt; (),
+            <span class="kw">_ </span>=&gt; (),
         }
     }
 
-    <span class="prelude-val">Err</span>(<span class="ident">ErrorKind::InvalidEcdsaKey</span>.<span class="ident">into</span>())
+    <span class="prelude-val">Err</span>(ErrorKind::InvalidEcdsaKey.into())
 }
 
-<span class="doccomment">/// Find whether this is EC or RSA</span>
-<span class="kw">fn</span> <span class="ident">classify_pem</span>(<span class="ident">asn1</span>: <span class="kw-2">&amp;</span>[<span class="ident">simple_asn1::ASN1Block</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Classification</span><span class="op">&gt;</span> {
-    <span class="comment">// These should be constant but the macro requires</span>
-    <span class="comment">// #![feature(const_vec_new)]</span>
-    <span class="kw">let</span> <span class="ident">ec_public_key_oid</span> <span class="op">=</span> <span class="macro">simple_asn1::oid!</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">840</span>, <span class="number">10_045</span>, <span class="number">2</span>, <span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">rsa_public_key_oid</span> <span class="op">=</span> <span class="macro">simple_asn1::oid!</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">840</span>, <span class="number">113_549</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>);
+<span class="doccomment">/// Find whether this is EC or RSA
+</span><span class="kw">fn </span>classify_pem(asn1: <span class="kw-2">&amp;</span>[simple_asn1::ASN1Block]) -&gt; <span class="prelude-ty">Option</span>&lt;Classification&gt; {
+    <span class="comment">// These should be constant but the macro requires
+    // #![feature(const_vec_new)]
+    </span><span class="kw">let </span>ec_public_key_oid = <span class="macro">simple_asn1::oid!</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">840</span>, <span class="number">10_045</span>, <span class="number">2</span>, <span class="number">1</span>);
+    <span class="kw">let </span>rsa_public_key_oid = <span class="macro">simple_asn1::oid!</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">840</span>, <span class="number">113_549</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>);
 
-    <span class="kw">for</span> <span class="ident">asn1_entry</span> <span class="kw">in</span> <span class="ident">asn1</span>.<span class="ident">iter</span>() {
-        <span class="kw">match</span> <span class="ident">asn1_entry</span> {
-            <span class="ident">simple_asn1::ASN1Block::Sequence</span>(<span class="kw">_</span>, <span class="ident">entries</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">classification</span>) <span class="op">=</span> <span class="ident">classify_pem</span>(<span class="ident">entries</span>) {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">classification</span>);
+    <span class="kw">for </span>asn1_entry <span class="kw">in </span>asn1.iter() {
+        <span class="kw">match </span>asn1_entry {
+            simple_asn1::ASN1Block::Sequence(<span class="kw">_</span>, entries) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(classification) = classify_pem(entries) {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(classification);
                 }
             }
-            <span class="ident">simple_asn1::ASN1Block::ObjectIdentifier</span>(<span class="kw">_</span>, <span class="ident">oid</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">oid</span> <span class="op">==</span> <span class="ident">ec_public_key_oid</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Classification::Ec</span>);
+            simple_asn1::ASN1Block::ObjectIdentifier(<span class="kw">_</span>, oid) =&gt; {
+                <span class="kw">if </span>oid == ec_public_key_oid {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Classification::Ec);
                 }
-                <span class="kw">if</span> <span class="ident">oid</span> <span class="op">==</span> <span class="ident">rsa_public_key_oid</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Classification::Rsa</span>);
+                <span class="kw">if </span>oid == rsa_public_key_oid {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Classification::Rsa);
                 }
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
     }
-    <span class="prelude-val">None</span>
-}
+    <span class="prelude-val">None
+</span>}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="jsonwebtoken" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

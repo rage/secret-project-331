@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/body/utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/body/utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -77,82 +77,82 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::task::Poll</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::task::Poll;
 
-<span class="kw">use</span> <span class="ident">actix_rt::pin</span>;
-<span class="kw">use</span> <span class="ident">actix_utils::future::poll_fn</span>;
-<span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Bytes</span>, <span class="ident">BytesMut</span>};
-<span class="kw">use</span> <span class="ident">futures_core::ready</span>;
+<span class="kw">use </span>actix_rt::pin;
+<span class="kw">use </span>actix_utils::future::poll_fn;
+<span class="kw">use </span>bytes::{Bytes, BytesMut};
+<span class="kw">use </span>futures_core::ready;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BodySize</span>, <span class="ident">MessageBody</span>};
+<span class="kw">use super</span>::{BodySize, MessageBody};
 
-<span class="doccomment">/// Collects the body produced by a `MessageBody` implementation into `Bytes`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Any errors produced by the body stream are returned immediately.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_http::body::{self, to_bytes};</span>
-<span class="doccomment">/// use bytes::Bytes;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # async fn test_to_bytes() {</span>
-<span class="doccomment">/// let body = body::None::new();</span>
-<span class="doccomment">/// let bytes = to_bytes(body).await.unwrap();</span>
-<span class="doccomment">/// assert!(bytes.is_empty());</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let body = Bytes::from_static(b&quot;123&quot;);</span>
-<span class="doccomment">/// let bytes = to_bytes(body).await.unwrap();</span>
-<span class="doccomment">/// assert_eq!(bytes, b&quot;123&quot;[..]);</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">to_bytes</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">MessageBody</span><span class="op">&gt;</span>(<span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">B::Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">cap</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">body</span>.<span class="ident">size</span>() {
-        <span class="ident">BodySize::None</span> <span class="op">|</span> <span class="ident">BodySize::Sized</span>(<span class="number">0</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Bytes::new</span>()),
-        <span class="ident">BodySize::Sized</span>(<span class="ident">size</span>) =&gt; <span class="ident">size</span> <span class="kw">as</span> <span class="ident">usize</span>,
-        <span class="comment">// good enough first guess for chunk size</span>
-        <span class="ident">BodySize::Stream</span> =&gt; <span class="number">32_768</span>,
+<span class="doccomment">/// Collects the body produced by a `MessageBody` implementation into `Bytes`.
+///
+/// Any errors produced by the body stream are returned immediately.
+///
+/// # Examples
+/// ```
+/// use actix_http::body::{self, to_bytes};
+/// use bytes::Bytes;
+///
+/// # async fn test_to_bytes() {
+/// let body = body::None::new();
+/// let bytes = to_bytes(body).await.unwrap();
+/// assert!(bytes.is_empty());
+///
+/// let body = Bytes::from_static(b&quot;123&quot;);
+/// let bytes = to_bytes(body).await.unwrap();
+/// assert_eq!(bytes, b&quot;123&quot;[..]);
+/// # }
+/// ```
+</span><span class="kw">pub async fn </span>to_bytes&lt;B: MessageBody&gt;(body: B) -&gt; <span class="prelude-ty">Result</span>&lt;Bytes, B::Error&gt; {
+    <span class="kw">let </span>cap = <span class="kw">match </span>body.size() {
+        BodySize::None | BodySize::Sized(<span class="number">0</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(Bytes::new()),
+        BodySize::Sized(size) =&gt; size <span class="kw">as </span>usize,
+        <span class="comment">// good enough first guess for chunk size
+        </span>BodySize::Stream =&gt; <span class="number">32_768</span>,
     };
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BytesMut::with_capacity</span>(<span class="ident">cap</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::with_capacity(cap);
 
-    <span class="macro">pin!</span>(<span class="ident">body</span>);
+    <span class="macro">pin!</span>(body);
 
-    <span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> <span class="kw">loop</span> {
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">as_mut</span>();
+    poll_fn(|cx| <span class="kw">loop </span>{
+        <span class="kw">let </span>body = body.as_mut();
 
-        <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">body</span>.<span class="ident">poll_next</span>(<span class="ident">cx</span>)) {
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)) =&gt; <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">bytes</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(())),
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)),
+        <span class="kw">match </span><span class="macro">ready!</span>(body.poll_next(cx)) {
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; buf.extend_from_slice(<span class="kw-2">&amp;*</span>bytes),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(())),
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(err)),
         }
     })
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(<span class="ident">buf</span>.<span class="ident">freeze</span>())
+    <span class="prelude-val">Ok</span>(buf.freeze())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">stream</span>, <span class="ident">StreamExt</span> <span class="kw">as</span> <span class="kw">_</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span>futures_util::{stream, StreamExt <span class="kw">as _</span>};
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">body::BodyStream</span>, <span class="ident">Error</span>};
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{body::BodyStream, Error};
 
-    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_to_bytes</span>() {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">to_bytes</span>(()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">bytes</span>.<span class="ident">is_empty</span>());
+    <span class="attribute">#[actix_rt::test]
+    </span><span class="kw">async fn </span>test_to_bytes() {
+        <span class="kw">let </span>bytes = to_bytes(()).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert!</span>(bytes.is_empty());
 
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;123&quot;</span>);
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">to_bytes</span>(<span class="ident">body</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>, <span class="string">b&quot;123&quot;</span>[..]);
+        <span class="kw">let </span>body = Bytes::from_static(<span class="string">b&quot;123&quot;</span>);
+        <span class="kw">let </span>bytes = to_bytes(body).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(bytes, <span class="string">b&quot;123&quot;</span>[..]);
 
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">stream::iter</span>(<span class="macro">vec!</span>[<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;123&quot;</span>), <span class="ident">Bytes::from_static</span>(<span class="string">b&quot;abc&quot;</span>)])
-            .<span class="ident">map</span>(<span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Error</span><span class="op">&gt;</span>);
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">BodyStream::new</span>(<span class="ident">stream</span>);
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">to_bytes</span>(<span class="ident">body</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">bytes</span>, <span class="string">b&quot;123abc&quot;</span>[..]);
+        <span class="kw">let </span>stream = stream::iter(<span class="macro">vec!</span>[Bytes::from_static(<span class="string">b&quot;123&quot;</span>), Bytes::from_static(<span class="string">b&quot;abc&quot;</span>)])
+            .map(<span class="prelude-val">Ok</span>::&lt;<span class="kw">_</span>, Error&gt;);
+        <span class="kw">let </span>body = BodyStream::new(stream);
+        <span class="kw">let </span>bytes = to_bytes(body).<span class="kw">await</span>.unwrap();
+        <span class="macro">assert_eq!</span>(bytes, <span class="string">b&quot;123abc&quot;</span>[..]);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

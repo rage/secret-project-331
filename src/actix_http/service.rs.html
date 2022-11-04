@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.2/src/service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_http/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_http/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -742,742 +742,742 @@
 <span id="740">740</span>
 <span id="741">741</span>
 <span id="742">742</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">fmt</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">net</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">rc::Rc</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+</pre><pre class="rust"><code><span class="kw">use </span>std::{
+    fmt,
+    future::Future,
+    marker::PhantomData,
+    net,
+    pin::Pin,
+    rc::Rc,
+    task::{Context, Poll},
 };
 
-<span class="kw">use</span> <span class="ident">actix_codec</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">Framed</span>};
-<span class="kw">use</span> <span class="ident">actix_rt::net::TcpStream</span>;
-<span class="kw">use</span> <span class="ident">actix_service</span>::{
-    <span class="ident">fn_service</span>, <span class="ident">IntoServiceFactory</span>, <span class="ident">Service</span>, <span class="ident">ServiceFactory</span>, <span class="ident">ServiceFactoryExt</span> <span class="kw">as</span> <span class="kw">_</span>,
+<span class="kw">use </span>actix_codec::{AsyncRead, AsyncWrite, Framed};
+<span class="kw">use </span>actix_rt::net::TcpStream;
+<span class="kw">use </span>actix_service::{
+    fn_service, IntoServiceFactory, Service, ServiceFactory, ServiceFactoryExt <span class="kw">as _</span>,
 };
-<span class="kw">use</span> <span class="ident">futures_core</span>::{<span class="ident">future::LocalBoxFuture</span>, <span class="ident">ready</span>};
-<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
-<span class="kw">use</span> <span class="ident">tracing::error</span>;
+<span class="kw">use </span>futures_core::{future::LocalBoxFuture, ready};
+<span class="kw">use </span>pin_project_lite::pin_project;
+<span class="kw">use </span>tracing::error;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">BoxBody</span>, <span class="ident">MessageBody</span>},
-    <span class="ident">builder::HttpServiceBuilder</span>,
-    <span class="ident">error::DispatchError</span>,
-    <span class="ident">h1</span>, <span class="ident">ConnectCallback</span>, <span class="ident">OnConnectData</span>, <span class="ident">Protocol</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">ServiceConfig</span>,
+<span class="kw">use crate</span>::{
+    body::{BoxBody, MessageBody},
+    builder::HttpServiceBuilder,
+    error::DispatchError,
+    h1, ConnectCallback, OnConnectData, Protocol, Request, Response, ServiceConfig,
 };
 
-<span class="doccomment">/// A `ServiceFactory` for HTTP/1.1 or HTTP/2 protocol.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span> <span class="op">=</span> <span class="ident">h1::ExpectHandler</span>, <span class="ident">U</span> <span class="op">=</span> <span class="ident">h1::UpgradeHandler</span><span class="op">&gt;</span> {
-    <span class="ident">srv</span>: <span class="ident">S</span>,
-    <span class="ident">cfg</span>: <span class="ident">ServiceConfig</span>,
-    <span class="ident">expect</span>: <span class="ident">X</span>,
-    <span class="ident">upgrade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>,
-    <span class="ident">on_connect_ext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ConnectCallback</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A `ServiceFactory` for HTTP/1.1 or HTTP/2 protocol.
+</span><span class="kw">pub struct </span>HttpService&lt;T, S, B, X = h1::ExpectHandler, U = h1::UpgradeHandler&gt; {
+    srv: S,
+    cfg: ServiceConfig,
+    expect: X,
+    upgrade: <span class="prelude-ty">Option</span>&lt;U&gt;,
+    on_connect_ext: <span class="prelude-ty">Option</span>&lt;Rc&lt;ConnectCallback&lt;T&gt;&gt;&gt;,
+    _phantom: PhantomData&lt;B&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T, S, B&gt; HttpService&lt;T, S, B&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::InitError: fmt::Debug,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="doccomment">/// Constructs builder for `HttpService` instance.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>() -&gt; <span class="ident">HttpServiceBuilder</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="ident">HttpServiceBuilder::default</span>()
+    <span class="doccomment">/// Constructs builder for `HttpService` instance.
+    </span><span class="kw">pub fn </span>build() -&gt; HttpServiceBuilder&lt;T, S&gt; {
+        HttpServiceBuilder::default()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span> <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T, S, B&gt; HttpService&lt;T, S, B&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::InitError: fmt::Debug,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 {
-    <span class="doccomment">/// Constructs new `HttpService` instance from service with default config.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">service</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">HttpService</span> {
-            <span class="ident">cfg</span>: <span class="ident">ServiceConfig::default</span>(),
-            <span class="ident">srv</span>: <span class="ident">service</span>.<span class="ident">into_factory</span>(),
-            <span class="ident">expect</span>: <span class="ident">h1::ExpectHandler</span>,
-            <span class="ident">upgrade</span>: <span class="prelude-val">None</span>,
-            <span class="ident">on_connect_ext</span>: <span class="prelude-val">None</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="doccomment">/// Constructs new `HttpService` instance from service with default config.
+    </span><span class="kw">pub fn </span>new&lt;F: IntoServiceFactory&lt;S, Request&gt;&gt;(service: F) -&gt; <span class="self">Self </span>{
+        HttpService {
+            cfg: ServiceConfig::default(),
+            srv: service.into_factory(),
+            expect: h1::ExpectHandler,
+            upgrade: <span class="prelude-val">None</span>,
+            on_connect_ext: <span class="prelude-val">None</span>,
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Constructs new `HttpService` instance from config and service.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">with_config</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">IntoServiceFactory</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">cfg</span>: <span class="ident">ServiceConfig</span>,
-        <span class="ident">service</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="ident">HttpService</span> {
-            <span class="ident">cfg</span>,
-            <span class="ident">srv</span>: <span class="ident">service</span>.<span class="ident">into_factory</span>(),
-            <span class="ident">expect</span>: <span class="ident">h1::ExpectHandler</span>,
-            <span class="ident">upgrade</span>: <span class="prelude-val">None</span>,
-            <span class="ident">on_connect_ext</span>: <span class="prelude-val">None</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="doccomment">/// Constructs new `HttpService` instance from config and service.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_config&lt;F: IntoServiceFactory&lt;S, Request&gt;&gt;(
+        cfg: ServiceConfig,
+        service: F,
+    ) -&gt; <span class="self">Self </span>{
+        HttpService {
+            cfg,
+            srv: service.into_factory(),
+            expect: h1::ExpectHandler,
+            upgrade: <span class="prelude-val">None</span>,
+            on_connect_ext: <span class="prelude-val">None</span>,
+            _phantom: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+<span class="kw">impl</span>&lt;T, S, B, X, U&gt; HttpService&lt;T, S, B, X, U&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::InitError: fmt::Debug,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
+    B: MessageBody,
 {
-    <span class="doccomment">/// Sets service for `Expect: 100-Continue` handling.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// An expect service is called with requests that contain an `Expect` header. A successful</span>
-    <span class="doccomment">/// response type is also a request which will be forwarded to the main service.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expect</span><span class="op">&lt;</span><span class="ident">X1</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">expect</span>: <span class="ident">X1</span>) -&gt; <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X1</span>, <span class="ident">U</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">X1</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">X1::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">X1::InitError</span>: <span class="ident">fmt::Debug</span>,
+    <span class="doccomment">/// Sets service for `Expect: 100-Continue` handling.
+    ///
+    /// An expect service is called with requests that contain an `Expect` header. A successful
+    /// response type is also a request which will be forwarded to the main service.
+    </span><span class="kw">pub fn </span>expect&lt;X1&gt;(<span class="self">self</span>, expect: X1) -&gt; HttpService&lt;T, S, B, X1, U&gt;
+    <span class="kw">where
+        </span>X1: ServiceFactory&lt;Request, Config = (), Response = Request&gt;,
+        X1::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+        X1::InitError: fmt::Debug,
     {
-        <span class="ident">HttpService</span> {
-            <span class="ident">expect</span>,
-            <span class="ident">cfg</span>: <span class="self">self</span>.<span class="ident">cfg</span>,
-            <span class="ident">srv</span>: <span class="self">self</span>.<span class="ident">srv</span>,
-            <span class="ident">upgrade</span>: <span class="self">self</span>.<span class="ident">upgrade</span>,
-            <span class="ident">on_connect_ext</span>: <span class="self">self</span>.<span class="ident">on_connect_ext</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        HttpService {
+            expect,
+            cfg: <span class="self">self</span>.cfg,
+            srv: <span class="self">self</span>.srv,
+            upgrade: <span class="self">self</span>.upgrade,
+            on_connect_ext: <span class="self">self</span>.on_connect_ext,
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Sets service for custom `Connection: Upgrade` handling.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If service is provided then normal requests handling get halted and this service get called</span>
-    <span class="doccomment">/// with original request and framed object.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">upgrade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>) -&gt; <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U1</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">U1</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-        <span class="ident">U1::Error</span>: <span class="ident">fmt::Display</span>,
-        <span class="ident">U1::InitError</span>: <span class="ident">fmt::Debug</span>,
+    <span class="doccomment">/// Sets service for custom `Connection: Upgrade` handling.
+    ///
+    /// If service is provided then normal requests handling get halted and this service get called
+    /// with original request and framed object.
+    </span><span class="kw">pub fn </span>upgrade&lt;U1&gt;(<span class="self">self</span>, upgrade: <span class="prelude-ty">Option</span>&lt;U1&gt;) -&gt; HttpService&lt;T, S, B, X, U1&gt;
+    <span class="kw">where
+        </span>U1: ServiceFactory&lt;(Request, Framed&lt;T, h1::Codec&gt;), Config = (), Response = ()&gt;,
+        U1::Error: fmt::Display,
+        U1::InitError: fmt::Debug,
     {
-        <span class="ident">HttpService</span> {
-            <span class="ident">upgrade</span>,
-            <span class="ident">cfg</span>: <span class="self">self</span>.<span class="ident">cfg</span>,
-            <span class="ident">srv</span>: <span class="self">self</span>.<span class="ident">srv</span>,
-            <span class="ident">expect</span>: <span class="self">self</span>.<span class="ident">expect</span>,
-            <span class="ident">on_connect_ext</span>: <span class="self">self</span>.<span class="ident">on_connect_ext</span>,
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+        HttpService {
+            upgrade,
+            cfg: <span class="self">self</span>.cfg,
+            srv: <span class="self">self</span>.srv,
+            expect: <span class="self">self</span>.expect,
+            on_connect_ext: <span class="self">self</span>.on_connect_ext,
+            _phantom: PhantomData,
         }
     }
 
-    <span class="doccomment">/// Set connect callback with mutable access to request data container.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">on_connect_ext</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ConnectCallback</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">on_connect_ext</span> <span class="op">=</span> <span class="ident">f</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Set connect callback with mutable access to request data container.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>on_connect_ext(<span class="kw-2">mut </span><span class="self">self</span>, f: <span class="prelude-ty">Option</span>&lt;Rc&lt;ConnectCallback&lt;T&gt;&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.on_connect_ext = f;
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">TcpStream</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;S, B, X, U&gt; HttpService&lt;TcpStream, S, B, X, U&gt;
+<span class="kw">where
+    </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::InitError: fmt::Debug,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">X</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">X::InitError</span>: <span class="ident">fmt::Debug</span>,
+    X: ServiceFactory&lt;Request, Config = (), Response = Request&gt;,
+    X::Future: <span class="lifetime">&#39;static</span>,
+    X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+    X::InitError: fmt::Debug,
 
-    <span class="ident">U</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">TcpStream</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">U::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span> <span class="op">+</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">U::InitError</span>: <span class="ident">fmt::Debug</span>,
+    U: ServiceFactory&lt;(Request, Framed&lt;TcpStream, h1::Codec&gt;), Config = (), Response = ()&gt;,
+    U::Future: <span class="lifetime">&#39;static</span>,
+    U::Error: fmt::Display + Into&lt;Response&lt;BoxBody&gt;&gt;,
+    U::InitError: fmt::Debug,
 {
-    <span class="doccomment">/// Create simple tcp stream service</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tcp</span>(
+    <span class="doccomment">/// Create simple tcp stream service
+    </span><span class="kw">pub fn </span>tcp(
         <span class="self">self</span>,
-    ) -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-        <span class="ident">TcpStream</span>,
-        <span class="ident">Config</span> <span class="op">=</span> (),
-        <span class="ident">Response</span> <span class="op">=</span> (),
-        <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DispatchError</span>,
-        <span class="ident">InitError</span> <span class="op">=</span> (),
-    <span class="op">&gt;</span> {
-        <span class="ident">fn_service</span>(<span class="op">|</span><span class="ident">io</span>: <span class="ident">TcpStream</span><span class="op">|</span> <span class="kw">async</span> {
-            <span class="kw">let</span> <span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">io</span>.<span class="ident">peer_addr</span>().<span class="ident">ok</span>();
-            <span class="prelude-val">Ok</span>((<span class="ident">io</span>, <span class="ident">Protocol::Http1</span>, <span class="ident">peer_addr</span>))
+    ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+        TcpStream,
+        Config = (),
+        Response = (),
+        Error = DispatchError,
+        InitError = (),
+    &gt; {
+        fn_service(|io: TcpStream| <span class="kw">async </span>{
+            <span class="kw">let </span>peer_addr = io.peer_addr().ok();
+            <span class="prelude-val">Ok</span>((io, Protocol::Http1, peer_addr))
         })
-        .<span class="ident">and_then</span>(<span class="self">self</span>)
+        .and_then(<span class="self">self</span>)
     }
 }
 
-<span class="doccomment">/// Configuration options used when accepting TLS connection.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>))))]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TlsAcceptorConfig</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">handshake_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">std::time::Duration</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Configuration options used when accepting TLS connection.
+</span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;openssl&quot;</span>, feature = <span class="string">&quot;rustls&quot;</span>))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">&quot;openssl&quot;</span>, feature = <span class="string">&quot;rustls&quot;</span>))))]
+#[derive(Debug, Default)]
+</span><span class="kw">pub struct </span>TlsAcceptorConfig {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) handshake_timeout: <span class="prelude-ty">Option</span>&lt;std::time::Duration&gt;,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>))]</span>
-<span class="kw">impl</span> <span class="ident">TlsAcceptorConfig</span> {
-    <span class="doccomment">/// Set TLS handshake timeout duration.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handshake_timeout</span>(<span class="self">self</span>, <span class="ident">dur</span>: <span class="ident">std::time::Duration</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">handshake_timeout</span>: <span class="prelude-val">Some</span>(<span class="ident">dur</span>),
-            <span class="comment">// ..self</span>
-        }
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;openssl&quot;</span>, feature = <span class="string">&quot;rustls&quot;</span>))]
+</span><span class="kw">impl </span>TlsAcceptorConfig {
+    <span class="doccomment">/// Set TLS handshake timeout duration.
+    </span><span class="kw">pub fn </span>handshake_timeout(<span class="self">self</span>, dur: std::time::Duration) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            handshake_timeout: <span class="prelude-val">Some</span>(dur),
+            <span class="comment">// ..self
+        </span>}
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">openssl</span> {
-    <span class="kw">use</span> <span class="ident">actix_service::ServiceFactoryExt</span> <span class="kw">as</span> <span class="kw">_</span>;
-    <span class="kw">use</span> <span class="ident">actix_tls::accept</span>::{
-        <span class="ident">openssl</span>::{
-            <span class="ident">reexports</span>::{<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">SslError</span>, <span class="ident">SslAcceptor</span>},
-            <span class="ident">Acceptor</span>, <span class="ident">TlsStream</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;openssl&quot;</span>)]
+</span><span class="kw">mod </span>openssl {
+    <span class="kw">use </span>actix_service::ServiceFactoryExt <span class="kw">as _</span>;
+    <span class="kw">use </span>actix_tls::accept::{
+        openssl::{
+            reexports::{Error <span class="kw">as </span>SslError, SslAcceptor},
+            Acceptor, TlsStream,
         },
-        <span class="ident">TlsError</span>,
+        TlsError,
     };
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-        <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
-        <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
+    <span class="kw">impl</span>&lt;S, B, X, U&gt; HttpService&lt;TlsStream&lt;TcpStream&gt;, S, B, X, U&gt;
+    <span class="kw">where
+        </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+        S::Future: <span class="lifetime">&#39;static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S::InitError: fmt::Debug,
+        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
 
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        B: MessageBody + <span class="lifetime">&#39;static</span>,
 
-        <span class="ident">X</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">X::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">X::InitError</span>: <span class="ident">fmt::Debug</span>,
+        X: ServiceFactory&lt;Request, Config = (), Response = Request&gt;,
+        X::Future: <span class="lifetime">&#39;static</span>,
+        X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+        X::InitError: fmt::Debug,
 
-        <span class="ident">U</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            (<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>),
-            <span class="ident">Config</span> <span class="op">=</span> (),
-            <span class="ident">Response</span> <span class="op">=</span> (),
-        <span class="op">&gt;</span>,
-        <span class="ident">U::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span> <span class="op">+</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">U::InitError</span>: <span class="ident">fmt::Debug</span>,
+        U: ServiceFactory&lt;
+            (Request, Framed&lt;TlsStream&lt;TcpStream&gt;, h1::Codec&gt;),
+            Config = (),
+            Response = (),
+        &gt;,
+        U::Future: <span class="lifetime">&#39;static</span>,
+        U::Error: fmt::Display + Into&lt;Response&lt;BoxBody&gt;&gt;,
+        U::InitError: fmt::Debug,
     {
-        <span class="doccomment">/// Create OpenSSL based service.</span>
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)))]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">openssl</span>(
+        <span class="doccomment">/// Create OpenSSL based service.
+        </span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;openssl&quot;</span>)))]
+        </span><span class="kw">pub fn </span>openssl(
             <span class="self">self</span>,
-            <span class="ident">acceptor</span>: <span class="ident">SslAcceptor</span>,
-        ) -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            <span class="ident">TcpStream</span>,
-            <span class="ident">Config</span> <span class="op">=</span> (),
-            <span class="ident">Response</span> <span class="op">=</span> (),
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TlsError</span><span class="op">&lt;</span><span class="ident">SslError</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>,
-            <span class="ident">InitError</span> <span class="op">=</span> (),
-        <span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">openssl_with_config</span>(<span class="ident">acceptor</span>, <span class="ident">TlsAcceptorConfig::default</span>())
+            acceptor: SslAcceptor,
+        ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+            TcpStream,
+            Config = (),
+            Response = (),
+            Error = TlsError&lt;SslError, DispatchError&gt;,
+            InitError = (),
+        &gt; {
+            <span class="self">self</span>.openssl_with_config(acceptor, TlsAcceptorConfig::default())
         }
 
-        <span class="doccomment">/// Create OpenSSL based service with custom TLS acceptor configuration.</span>
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openssl&quot;</span>)))]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">openssl_with_config</span>(
+        <span class="doccomment">/// Create OpenSSL based service with custom TLS acceptor configuration.
+        </span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;openssl&quot;</span>)))]
+        </span><span class="kw">pub fn </span>openssl_with_config(
             <span class="self">self</span>,
-            <span class="ident">acceptor</span>: <span class="ident">SslAcceptor</span>,
-            <span class="ident">tls_acceptor_config</span>: <span class="ident">TlsAcceptorConfig</span>,
-        ) -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            <span class="ident">TcpStream</span>,
-            <span class="ident">Config</span> <span class="op">=</span> (),
-            <span class="ident">Response</span> <span class="op">=</span> (),
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TlsError</span><span class="op">&lt;</span><span class="ident">SslError</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>,
-            <span class="ident">InitError</span> <span class="op">=</span> (),
-        <span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acceptor</span> <span class="op">=</span> <span class="ident">Acceptor::new</span>(<span class="ident">acceptor</span>);
+            acceptor: SslAcceptor,
+            tls_acceptor_config: TlsAcceptorConfig,
+        ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+            TcpStream,
+            Config = (),
+            Response = (),
+            Error = TlsError&lt;SslError, DispatchError&gt;,
+            InitError = (),
+        &gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>acceptor = Acceptor::new(acceptor);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">handshake_timeout</span>) <span class="op">=</span> <span class="ident">tls_acceptor_config</span>.<span class="ident">handshake_timeout</span> {
-                <span class="ident">acceptor</span>.<span class="ident">set_handshake_timeout</span>(<span class="ident">handshake_timeout</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(handshake_timeout) = tls_acceptor_config.handshake_timeout {
+                acceptor.set_handshake_timeout(handshake_timeout);
             }
 
-            <span class="ident">acceptor</span>
-                .<span class="ident">map_init_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+            acceptor
+                .map_init_err(|<span class="kw">_</span>| {
                     <span class="macro">unreachable!</span>(<span class="string">&quot;TLS acceptor service factory does not error on init&quot;</span>)
                 })
-                .<span class="ident">map_err</span>(<span class="ident">TlsError::into_service_error</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">io</span>: <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">proto</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">protos</span>) <span class="op">=</span> <span class="ident">io</span>.<span class="ident">ssl</span>().<span class="ident">selected_alpn_protocol</span>() {
-                        <span class="kw">if</span> <span class="ident">protos</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">window</span><span class="op">|</span> <span class="ident">window</span> <span class="op">==</span> <span class="string">b&quot;h2&quot;</span>) {
-                            <span class="ident">Protocol::Http2</span>
-                        } <span class="kw">else</span> {
-                            <span class="ident">Protocol::Http1</span>
+                .map_err(TlsError::into_service_error)
+                .map(|io: TlsStream&lt;TcpStream&gt;| {
+                    <span class="kw">let </span>proto = <span class="kw">if let </span><span class="prelude-val">Some</span>(protos) = io.ssl().selected_alpn_protocol() {
+                        <span class="kw">if </span>protos.windows(<span class="number">2</span>).any(|window| window == <span class="string">b&quot;h2&quot;</span>) {
+                            Protocol::Http2
+                        } <span class="kw">else </span>{
+                            Protocol::Http1
                         }
-                    } <span class="kw">else</span> {
-                        <span class="ident">Protocol::Http1</span>
+                    } <span class="kw">else </span>{
+                        Protocol::Http1
                     };
 
-                    <span class="kw">let</span> <span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">io</span>.<span class="ident">get_ref</span>().<span class="ident">peer_addr</span>().<span class="ident">ok</span>();
-                    (<span class="ident">io</span>, <span class="ident">proto</span>, <span class="ident">peer_addr</span>)
+                    <span class="kw">let </span>peer_addr = io.get_ref().peer_addr().ok();
+                    (io, proto, peer_addr)
                 })
-                .<span class="ident">and_then</span>(<span class="self">self</span>.<span class="ident">map_err</span>(<span class="ident">TlsError::Service</span>))
+                .and_then(<span class="self">self</span>.map_err(TlsError::Service))
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">rustls</span> {
-    <span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;rustls&quot;</span>)]
+</span><span class="kw">mod </span>rustls {
+    <span class="kw">use </span>std::io;
 
-    <span class="kw">use</span> <span class="ident">actix_service::ServiceFactoryExt</span> <span class="kw">as</span> <span class="kw">_</span>;
-    <span class="kw">use</span> <span class="ident">actix_tls::accept</span>::{
-        <span class="ident">rustls</span>::{<span class="ident">reexports::ServerConfig</span>, <span class="ident">Acceptor</span>, <span class="ident">TlsStream</span>},
-        <span class="ident">TlsError</span>,
+    <span class="kw">use </span>actix_service::ServiceFactoryExt <span class="kw">as _</span>;
+    <span class="kw">use </span>actix_tls::accept::{
+        rustls::{reexports::ServerConfig, Acceptor, TlsStream},
+        TlsError,
     };
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-        <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
-        <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
+    <span class="kw">impl</span>&lt;S, B, X, U&gt; HttpService&lt;TlsStream&lt;TcpStream&gt;, S, B, X, U&gt;
+    <span class="kw">where
+        </span>S: ServiceFactory&lt;Request, Config = ()&gt;,
+        S::Future: <span class="lifetime">&#39;static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        S::InitError: fmt::Debug,
+        S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+        &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
 
-        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        B: MessageBody + <span class="lifetime">&#39;static</span>,
 
-        <span class="ident">X</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">X::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">X::InitError</span>: <span class="ident">fmt::Debug</span>,
+        X: ServiceFactory&lt;Request, Config = (), Response = Request&gt;,
+        X::Future: <span class="lifetime">&#39;static</span>,
+        X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+        X::InitError: fmt::Debug,
 
-        <span class="ident">U</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            (<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>),
-            <span class="ident">Config</span> <span class="op">=</span> (),
-            <span class="ident">Response</span> <span class="op">=</span> (),
-        <span class="op">&gt;</span>,
-        <span class="ident">U::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span> <span class="op">+</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">U::InitError</span>: <span class="ident">fmt::Debug</span>,
+        U: ServiceFactory&lt;
+            (Request, Framed&lt;TlsStream&lt;TcpStream&gt;, h1::Codec&gt;),
+            Config = (),
+            Response = (),
+        &gt;,
+        U::Future: <span class="lifetime">&#39;static</span>,
+        U::Error: fmt::Display + Into&lt;Response&lt;BoxBody&gt;&gt;,
+        U::InitError: fmt::Debug,
     {
-        <span class="doccomment">/// Create Rustls based service.</span>
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)))]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rustls</span>(
+        <span class="doccomment">/// Create Rustls based service.
+        </span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustls&quot;</span>)))]
+        </span><span class="kw">pub fn </span>rustls(
             <span class="self">self</span>,
-            <span class="ident">config</span>: <span class="ident">ServerConfig</span>,
-        ) -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            <span class="ident">TcpStream</span>,
-            <span class="ident">Config</span> <span class="op">=</span> (),
-            <span class="ident">Response</span> <span class="op">=</span> (),
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TlsError</span><span class="op">&lt;</span><span class="ident">io::Error</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>,
-            <span class="ident">InitError</span> <span class="op">=</span> (),
-        <span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">rustls_with_config</span>(<span class="ident">config</span>, <span class="ident">TlsAcceptorConfig::default</span>())
+            config: ServerConfig,
+        ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+            TcpStream,
+            Config = (),
+            Response = (),
+            Error = TlsError&lt;io::Error, DispatchError&gt;,
+            InitError = (),
+        &gt; {
+            <span class="self">self</span>.rustls_with_config(config, TlsAcceptorConfig::default())
         }
 
-        <span class="doccomment">/// Create Rustls based service with custom TLS acceptor configuration.</span>
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls&quot;</span>)))]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rustls_with_config</span>(
+        <span class="doccomment">/// Create Rustls based service with custom TLS acceptor configuration.
+        </span><span class="attribute">#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;rustls&quot;</span>)))]
+        </span><span class="kw">pub fn </span>rustls_with_config(
             <span class="self">self</span>,
-            <span class="kw-2">mut</span> <span class="ident">config</span>: <span class="ident">ServerConfig</span>,
-            <span class="ident">tls_acceptor_config</span>: <span class="ident">TlsAcceptorConfig</span>,
-        ) -&gt; <span class="kw">impl</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>
-            <span class="ident">TcpStream</span>,
-            <span class="ident">Config</span> <span class="op">=</span> (),
-            <span class="ident">Response</span> <span class="op">=</span> (),
-            <span class="ident">Error</span> <span class="op">=</span> <span class="ident">TlsError</span><span class="op">&lt;</span><span class="ident">io::Error</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>,
-            <span class="ident">InitError</span> <span class="op">=</span> (),
-        <span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">protos</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.<span class="ident">to_vec</span>(), <span class="string">b&quot;http/1.1&quot;</span>.<span class="ident">to_vec</span>()];
-            <span class="ident">protos</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">alpn_protocols</span>);
-            <span class="ident">config</span>.<span class="ident">alpn_protocols</span> <span class="op">=</span> <span class="ident">protos</span>;
+            <span class="kw-2">mut </span>config: ServerConfig,
+            tls_acceptor_config: TlsAcceptorConfig,
+        ) -&gt; <span class="kw">impl </span>ServiceFactory&lt;
+            TcpStream,
+            Config = (),
+            Response = (),
+            Error = TlsError&lt;io::Error, DispatchError&gt;,
+            InitError = (),
+        &gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>protos = <span class="macro">vec!</span>[<span class="string">b&quot;h2&quot;</span>.to_vec(), <span class="string">b&quot;http/1.1&quot;</span>.to_vec()];
+            protos.extend_from_slice(<span class="kw-2">&amp;</span>config.alpn_protocols);
+            config.alpn_protocols = protos;
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acceptor</span> <span class="op">=</span> <span class="ident">Acceptor::new</span>(<span class="ident">config</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>acceptor = Acceptor::new(config);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">handshake_timeout</span>) <span class="op">=</span> <span class="ident">tls_acceptor_config</span>.<span class="ident">handshake_timeout</span> {
-                <span class="ident">acceptor</span>.<span class="ident">set_handshake_timeout</span>(<span class="ident">handshake_timeout</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(handshake_timeout) = tls_acceptor_config.handshake_timeout {
+                acceptor.set_handshake_timeout(handshake_timeout);
             }
 
-            <span class="ident">acceptor</span>
-                .<span class="ident">map_init_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+            acceptor
+                .map_init_err(|<span class="kw">_</span>| {
                     <span class="macro">unreachable!</span>(<span class="string">&quot;TLS acceptor service factory does not error on init&quot;</span>)
                 })
-                .<span class="ident">map_err</span>(<span class="ident">TlsError::into_service_error</span>)
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">io</span>: <span class="ident">TlsStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span><span class="op">|</span> <span class="kw">async</span> {
-                    <span class="kw">let</span> <span class="ident">proto</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">protos</span>) <span class="op">=</span> <span class="ident">io</span>.<span class="ident">get_ref</span>().<span class="number">1</span>.<span class="ident">alpn_protocol</span>() {
-                        <span class="kw">if</span> <span class="ident">protos</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">window</span><span class="op">|</span> <span class="ident">window</span> <span class="op">==</span> <span class="string">b&quot;h2&quot;</span>) {
-                            <span class="ident">Protocol::Http2</span>
-                        } <span class="kw">else</span> {
-                            <span class="ident">Protocol::Http1</span>
+                .map_err(TlsError::into_service_error)
+                .and_then(|io: TlsStream&lt;TcpStream&gt;| <span class="kw">async </span>{
+                    <span class="kw">let </span>proto = <span class="kw">if let </span><span class="prelude-val">Some</span>(protos) = io.get_ref().<span class="number">1</span>.alpn_protocol() {
+                        <span class="kw">if </span>protos.windows(<span class="number">2</span>).any(|window| window == <span class="string">b&quot;h2&quot;</span>) {
+                            Protocol::Http2
+                        } <span class="kw">else </span>{
+                            Protocol::Http1
                         }
-                    } <span class="kw">else</span> {
-                        <span class="ident">Protocol::Http1</span>
+                    } <span class="kw">else </span>{
+                        Protocol::Http1
                     };
-                    <span class="kw">let</span> <span class="ident">peer_addr</span> <span class="op">=</span> <span class="ident">io</span>.<span class="ident">get_ref</span>().<span class="number">0</span>.<span class="ident">peer_addr</span>().<span class="ident">ok</span>();
-                    <span class="prelude-val">Ok</span>((<span class="ident">io</span>, <span class="ident">proto</span>, <span class="ident">peer_addr</span>))
+                    <span class="kw">let </span>peer_addr = io.get_ref().<span class="number">0</span>.peer_addr().ok();
+                    <span class="prelude-val">Ok</span>((io, proto, peer_addr))
                 })
-                .<span class="ident">and_then</span>(<span class="self">self</span>.<span class="ident">map_err</span>(<span class="ident">TlsError::Service</span>))
+                .and_then(<span class="self">self</span>.map_err(TlsError::Service))
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">ServiceFactory</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">Protocol</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>)<span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">HttpService</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+<span class="kw">impl</span>&lt;T, S, B, X, U&gt; ServiceFactory&lt;(T, Protocol, <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;)&gt;
+    <span class="kw">for </span>HttpService&lt;T, S, B, X, U&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin + <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">S</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::InitError</span>: <span class="ident">fmt::Debug</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="op">&lt;</span><span class="ident">S::Service</span> <span class="kw">as</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Future</span>: <span class="lifetime">&#39;static</span>,
+    S: ServiceFactory&lt;Request, Config = ()&gt;,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::InitError: fmt::Debug,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    &lt;S::Service <span class="kw">as </span>Service&lt;Request&gt;&gt;::Future: <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">X</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">X::InitError</span>: <span class="ident">fmt::Debug</span>,
+    X: ServiceFactory&lt;Request, Config = (), Response = Request&gt;,
+    X::Future: <span class="lifetime">&#39;static</span>,
+    X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+    X::InitError: fmt::Debug,
 
-    <span class="ident">U</span>: <span class="ident">ServiceFactory</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Config</span> <span class="op">=</span> (), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">U::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span> <span class="op">+</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">U::InitError</span>: <span class="ident">fmt::Debug</span>,
+    U: ServiceFactory&lt;(Request, Framed&lt;T, h1::Codec&gt;), Config = (), Response = ()&gt;,
+    U::Future: <span class="lifetime">&#39;static</span>,
+    U::Error: fmt::Display + Into&lt;Response&lt;BoxBody&gt;&gt;,
+    U::InitError: fmt::Debug,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DispatchError</span>;
-    <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Service</span> <span class="op">=</span> <span class="ident">HttpServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S::Service</span>, <span class="ident">B</span>, <span class="ident">X::Service</span>, <span class="ident">U::Service</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">InitError</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">LocalBoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Service</span>, <span class="ident"><span class="self">Self</span>::InitError</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ();
+    <span class="kw">type </span>Error = DispatchError;
+    <span class="kw">type </span>Config = ();
+    <span class="kw">type </span>Service = HttpServiceHandler&lt;T, S::Service, B, X::Service, U::Service&gt;;
+    <span class="kw">type </span>InitError = ();
+    <span class="kw">type </span>Future = LocalBoxFuture&lt;<span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Service, <span class="self">Self</span>::InitError&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">new_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">srv</span>.<span class="ident">new_service</span>(());
-        <span class="kw">let</span> <span class="ident">expect</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>.<span class="ident">new_service</span>(());
-        <span class="kw">let</span> <span class="ident">upgrade</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">upgrade</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">new_service</span>(()));
-        <span class="kw">let</span> <span class="ident">on_connect_ext</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">on_connect_ext</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cfg</span>.<span class="ident">clone</span>();
+    <span class="kw">fn </span>new_service(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: ()) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>service = <span class="self">self</span>.srv.new_service(());
+        <span class="kw">let </span>expect = <span class="self">self</span>.expect.new_service(());
+        <span class="kw">let </span>upgrade = <span class="self">self</span>.upgrade.as_ref().map(|s| s.new_service(()));
+        <span class="kw">let </span>on_connect_ext = <span class="self">self</span>.on_connect_ext.clone();
+        <span class="kw">let </span>cfg = <span class="self">self</span>.cfg.clone();
 
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">expect</span> <span class="op">=</span> <span class="ident">expect</span>
-                .<span class="kw">await</span>
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">error!</span>(<span class="string">&quot;Init http expect service error: {:?}&quot;</span>, <span class="ident">e</span>))<span class="question-mark">?</span>;
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>expect = expect
+                .<span class="kw">await
+                </span>.map_err(|e| <span class="macro">error!</span>(<span class="string">&quot;Init http expect service error: {:?}&quot;</span>, e))<span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="ident">upgrade</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">upgrade</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">upgrade</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">upgrade</span> <span class="op">=</span> <span class="ident">upgrade</span>
-                        .<span class="kw">await</span>
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">error!</span>(<span class="string">&quot;Init http upgrade service error: {:?}&quot;</span>, <span class="ident">e</span>))<span class="question-mark">?</span>;
-                    <span class="prelude-val">Some</span>(<span class="ident">upgrade</span>)
+            <span class="kw">let </span>upgrade = <span class="kw">match </span>upgrade {
+                <span class="prelude-val">Some</span>(upgrade) =&gt; {
+                    <span class="kw">let </span>upgrade = upgrade
+                        .<span class="kw">await
+                        </span>.map_err(|e| <span class="macro">error!</span>(<span class="string">&quot;Init http upgrade service error: {:?}&quot;</span>, e))<span class="question-mark">?</span>;
+                    <span class="prelude-val">Some</span>(upgrade)
                 }
-                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
             };
 
-            <span class="kw">let</span> <span class="ident">service</span> <span class="op">=</span> <span class="ident">service</span>
-                .<span class="kw">await</span>
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">error!</span>(<span class="string">&quot;Init http service error: {:?}&quot;</span>, <span class="ident">e</span>))<span class="question-mark">?</span>;
+            <span class="kw">let </span>service = service
+                .<span class="kw">await
+                </span>.map_err(|e| <span class="macro">error!</span>(<span class="string">&quot;Init http service error: {:?}&quot;</span>, e))<span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(<span class="ident">HttpServiceHandler::new</span>(
-                <span class="ident">cfg</span>,
-                <span class="ident">service</span>,
-                <span class="ident">expect</span>,
-                <span class="ident">upgrade</span>,
-                <span class="ident">on_connect_ext</span>,
+            <span class="prelude-val">Ok</span>(HttpServiceHandler::new(
+                cfg,
+                service,
+                expect,
+                upgrade,
+                on_connect_ext,
             ))
         })
     }
 }
 
-<span class="doccomment">/// `Service` implementation for HTTP/1 and HTTP/2 transport</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HttpServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// `Service` implementation for HTTP/1 and HTTP/2 transport
+</span><span class="kw">pub struct </span>HttpServiceHandler&lt;T, S, B, X, U&gt;
+<span class="kw">where
+    </span>S: Service&lt;Request&gt;,
+    X: Service&lt;Request&gt;,
+    U: Service&lt;(Request, Framed&lt;T, h1::Codec&gt;)&gt;,
 {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">flow</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">cfg</span>: <span class="ident">ServiceConfig</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">on_connect_ext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ConnectCallback</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) flow: Rc&lt;HttpFlow&lt;S, X, U&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) cfg: ServiceConfig,
+    <span class="kw">pub</span>(<span class="kw">super</span>) on_connect_ext: <span class="prelude-ty">Option</span>&lt;Rc&lt;ConnectCallback&lt;T&gt;&gt;&gt;,
+    _phantom: PhantomData&lt;B&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">HttpServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="ident">U::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;T, S, B, X, U&gt; HttpServiceHandler&lt;T, S, B, X, U&gt;
+<span class="kw">where
+    </span>S: Service&lt;Request&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+    X: Service&lt;Request&gt;,
+    X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+    U: Service&lt;(Request, Framed&lt;T, h1::Codec&gt;)&gt;,
+    U::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
 {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">cfg</span>: <span class="ident">ServiceConfig</span>,
-        <span class="ident">service</span>: <span class="ident">S</span>,
-        <span class="ident">expect</span>: <span class="ident">X</span>,
-        <span class="ident">upgrade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>,
-        <span class="ident">on_connect_ext</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">ConnectCallback</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">HttpServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-        <span class="ident">HttpServiceHandler</span> {
-            <span class="ident">cfg</span>,
-            <span class="ident">on_connect_ext</span>,
-            <span class="ident">flow</span>: <span class="ident">HttpFlow::new</span>(<span class="ident">service</span>, <span class="ident">expect</span>, <span class="ident">upgrade</span>),
-            <span class="ident">_phantom</span>: <span class="ident">PhantomData</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(
+        cfg: ServiceConfig,
+        service: S,
+        expect: X,
+        upgrade: <span class="prelude-ty">Option</span>&lt;U&gt;,
+        on_connect_ext: <span class="prelude-ty">Option</span>&lt;Rc&lt;ConnectCallback&lt;T&gt;&gt;&gt;,
+    ) -&gt; HttpServiceHandler&lt;T, S, B, X, U&gt; {
+        HttpServiceHandler {
+            cfg,
+            on_connect_ext,
+            flow: HttpFlow::new(service, expect, upgrade),
+            _phantom: PhantomData,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">_poll_ready</span>(
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>_poll_ready(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">flow</span>.<span class="ident">expect</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>))<span class="question-mark">?</span>;
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), Response&lt;BoxBody&gt;&gt;&gt; {
+        <span class="macro">ready!</span>(<span class="self">self</span>.flow.expect.poll_ready(cx).map_err(Into::into))<span class="question-mark">?</span>;
 
-        <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>))<span class="question-mark">?</span>;
+        <span class="macro">ready!</span>(<span class="self">self</span>.flow.service.poll_ready(cx).map_err(Into::into))<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">upg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">flow</span>.<span class="ident">upgrade</span> {
-            <span class="macro">ready!</span>(<span class="ident">upg</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>))<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>upg) = <span class="self">self</span>.flow.upgrade {
+            <span class="macro">ready!</span>(upg.poll_ready(cx).map_err(Into::into))<span class="question-mark">?</span>;
         };
 
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
+        Poll::Ready(<span class="prelude-val">Ok</span>(()))
     }
 }
 
-<span class="doccomment">/// A collection of services that describe an HTTP request flow.</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">service</span>: <span class="ident">S</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">expect</span>: <span class="ident">X</span>,
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">upgrade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A collection of services that describe an HTTP request flow.
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>HttpFlow&lt;S, X, U&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) service: S,
+    <span class="kw">pub</span>(<span class="kw">super</span>) expect: X,
+    <span class="kw">pub</span>(<span class="kw">super</span>) upgrade: <span class="prelude-ty">Option</span>&lt;U&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">service</span>: <span class="ident">S</span>, <span class="ident">expect</span>: <span class="ident">X</span>, <span class="ident">upgrade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>) -&gt; <span class="ident">Rc</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">Rc::new</span>(<span class="self">Self</span> {
-            <span class="ident">service</span>,
-            <span class="ident">expect</span>,
-            <span class="ident">upgrade</span>,
+<span class="kw">impl</span>&lt;S, X, U&gt; HttpFlow&lt;S, X, U&gt; {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(service: S, expect: X, upgrade: <span class="prelude-ty">Option</span>&lt;U&gt;) -&gt; Rc&lt;<span class="self">Self</span>&gt; {
+        Rc::new(<span class="self">Self </span>{
+            service,
+            expect,
+            upgrade,
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">Protocol</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>)<span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">HttpServiceHandler</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+<span class="kw">impl</span>&lt;T, S, B, X, U&gt; Service&lt;(T, Protocol, <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;)&gt;
+    <span class="kw">for </span>HttpServiceHandler&lt;T, S, B, X, U&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin,
 
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    S: Service&lt;Request&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    X: Service&lt;Request, Response = Request&gt;,
+    X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
 
-    <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span> <span class="op">+</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    U: Service&lt;(Request, Framed&lt;T, h1::Codec&gt;), Response = ()&gt;,
+    U::Error: fmt::Display + Into&lt;Response&lt;BoxBody&gt;&gt;,
 {
-    <span class="kw">type</span> <span class="ident">Response</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DispatchError</span>;
-    <span class="kw">type</span> <span class="ident">Future</span> <span class="op">=</span> <span class="ident">HttpServiceHandlerResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Response = ();
+    <span class="kw">type </span>Error = DispatchError;
+    <span class="kw">type </span>Future = HttpServiceHandlerResponse&lt;T, S, B, X, U&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">_poll_ready</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-            <span class="macro">error!</span>(<span class="string">&quot;HTTP service readiness error: {:?}&quot;</span>, <span class="ident">err</span>);
-            <span class="ident">DispatchError::Service</span>(<span class="ident">err</span>)
+    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;</span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
+        <span class="self">self</span>._poll_ready(cx).map_err(|err| {
+            <span class="macro">error!</span>(<span class="string">&quot;HTTP service readiness error: {:?}&quot;</span>, err);
+            DispatchError::Service(err)
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">call</span>(
+    <span class="kw">fn </span>call(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        (<span class="ident">io</span>, <span class="ident">proto</span>, <span class="ident">peer_addr</span>): (<span class="ident">T</span>, <span class="ident">Protocol</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>),
-    ) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
-        <span class="kw">let</span> <span class="ident">conn_data</span> <span class="op">=</span> <span class="ident">OnConnectData::from_io</span>(<span class="kw-2">&amp;</span><span class="ident">io</span>, <span class="self">self</span>.<span class="ident">on_connect_ext</span>.<span class="ident">as_deref</span>());
+        (io, proto, peer_addr): (T, Protocol, <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;),
+    ) -&gt; <span class="self">Self</span>::Future {
+        <span class="kw">let </span>conn_data = OnConnectData::from_io(<span class="kw-2">&amp;</span>io, <span class="self">self</span>.on_connect_ext.as_deref());
 
-        <span class="kw">match</span> <span class="ident">proto</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)]</span>
-            <span class="ident">Protocol::Http2</span> =&gt; <span class="ident">HttpServiceHandlerResponse</span> {
-                <span class="ident">state</span>: <span class="ident">State::H2Handshake</span> {
-                    <span class="ident">handshake</span>: <span class="prelude-val">Some</span>((
-                        <span class="ident"><span class="kw">crate</span>::h2::handshake_with_timeout</span>(<span class="ident">io</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cfg</span>),
-                        <span class="self">self</span>.<span class="ident">cfg</span>.<span class="ident">clone</span>(),
-                        <span class="self">self</span>.<span class="ident">flow</span>.<span class="ident">clone</span>(),
-                        <span class="ident">conn_data</span>,
-                        <span class="ident">peer_addr</span>,
+        <span class="kw">match </span>proto {
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+            </span>Protocol::Http2 =&gt; HttpServiceHandlerResponse {
+                state: State::H2Handshake {
+                    handshake: <span class="prelude-val">Some</span>((
+                        <span class="kw">crate</span>::h2::handshake_with_timeout(io, <span class="kw-2">&amp;</span><span class="self">self</span>.cfg),
+                        <span class="self">self</span>.cfg.clone(),
+                        <span class="self">self</span>.flow.clone(),
+                        conn_data,
+                        peer_addr,
                     )),
                 },
             },
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
-            <span class="ident">Protocol::Http2</span> =&gt; {
+            <span class="attribute">#[cfg(not(feature = <span class="string">&quot;http2&quot;</span>))]
+            </span>Protocol::Http2 =&gt; {
                 <span class="macro">panic!</span>(<span class="string">&quot;HTTP/2 support is disabled (enable with the `http2` feature flag)&quot;</span>)
             }
 
-            <span class="ident">Protocol::Http1</span> =&gt; <span class="ident">HttpServiceHandlerResponse</span> {
-                <span class="ident">state</span>: <span class="ident">State::H1</span> {
-                    <span class="ident">dispatcher</span>: <span class="ident">h1::Dispatcher::new</span>(
-                        <span class="ident">io</span>,
-                        <span class="self">self</span>.<span class="ident">flow</span>.<span class="ident">clone</span>(),
-                        <span class="self">self</span>.<span class="ident">cfg</span>.<span class="ident">clone</span>(),
-                        <span class="ident">peer_addr</span>,
-                        <span class="ident">conn_data</span>,
+            Protocol::Http1 =&gt; HttpServiceHandlerResponse {
+                state: State::H1 {
+                    dispatcher: h1::Dispatcher::new(
+                        io,
+                        <span class="self">self</span>.flow.clone(),
+                        <span class="self">self</span>.cfg.clone(),
+                        peer_addr,
+                        conn_data,
                     ),
                 },
             },
 
-            <span class="ident">proto</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Unsupported HTTP version: {:?}.&quot;</span>, <span class="ident">proto</span>),
+            proto =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;Unsupported HTTP version: {:?}.&quot;</span>, proto),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>))]</span>
-<span class="macro">pin_project!</span> {
-    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">StateProj</span>]</span>
-    <span class="kw">enum</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">AsyncRead</span>,
-        <span class="ident">T</span>: <span class="ident">AsyncWrite</span>,
-        <span class="ident">T</span>: <span class="ident">Unpin</span>,
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;http2&quot;</span>))]
+</span><span class="macro">pin_project! </span>{
+    <span class="attribute">#[project = StateProj]
+    </span><span class="kw">enum </span>State&lt;T, S, B, X, U&gt;
+    <span class="kw">where
+        </span>T: AsyncRead,
+        T: AsyncWrite,
+        T: Unpin,
 
-        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        S: Service&lt;Request&gt;,
+        S::Future: <span class="lifetime">&#39;static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
 
-        <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+        B: MessageBody,
 
-        <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        X: Service&lt;Request, Response = Request&gt;,
+        X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
 
-        <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-        <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
+        U: Service&lt;(Request, Framed&lt;T, h1::Codec&gt;), Response = ()&gt;,
+        U::Error: fmt::Display,
     {
-        <span class="ident">H1</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">dispatcher</span>: <span class="ident">h1::Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> },
+        H1 { <span class="attribute">#[pin] </span>dispatcher: h1::Dispatcher&lt;T, S, B, X, U&gt; },
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)]</span>
-<span class="macro">pin_project!</span> {
-    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">StateProj</span>]</span>
-    <span class="kw">enum</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">AsyncRead</span>,
-        <span class="ident">T</span>: <span class="ident">AsyncWrite</span>,
-        <span class="ident">T</span>: <span class="ident">Unpin</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+</span><span class="macro">pin_project! </span>{
+    <span class="attribute">#[project = StateProj]
+    </span><span class="kw">enum </span>State&lt;T, S, B, X, U&gt;
+    <span class="kw">where
+        </span>T: AsyncRead,
+        T: AsyncWrite,
+        T: Unpin,
 
-        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        S: Service&lt;Request&gt;,
+        S::Future: <span class="lifetime">&#39;static</span>,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
 
-        <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+        B: MessageBody,
 
-        <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        X: Service&lt;Request, Response = Request&gt;,
+        X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
 
-        <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-        <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
+        U: Service&lt;(Request, Framed&lt;T, h1::Codec&gt;), Response = ()&gt;,
+        U::Error: fmt::Display,
     {
-        <span class="ident">H1</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">dispatcher</span>: <span class="ident">h1::Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> },
+        H1 { <span class="attribute">#[pin] </span>dispatcher: h1::Dispatcher&lt;T, S, B, X, U&gt; },
 
-        <span class="ident">H2</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">dispatcher</span>: <span class="ident"><span class="kw">crate</span>::h2::Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> },
+        H2 { <span class="attribute">#[pin] </span>dispatcher: <span class="kw">crate</span>::h2::Dispatcher&lt;T, S, B, X, U&gt; },
 
-        <span class="ident">H2Handshake</span> {
-            <span class="ident">handshake</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(
-                <span class="ident"><span class="kw">crate</span>::h2::HandshakeWithTimeout</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-                <span class="ident">ServiceConfig</span>,
-                <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-                <span class="ident">OnConnectData</span>,
-                <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
-            )<span class="op">&gt;</span>,
+        H2Handshake {
+            handshake: <span class="prelude-ty">Option</span>&lt;(
+                <span class="kw">crate</span>::h2::HandshakeWithTimeout&lt;T&gt;,
+                ServiceConfig,
+                Rc&lt;HttpFlow&lt;S, X, U&gt;&gt;,
+                OnConnectData,
+                <span class="prelude-ty">Option</span>&lt;net::SocketAddr&gt;,
+            )&gt;,
         },
     }
 }
 
-<span class="macro">pin_project!</span> {
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HttpServiceHandlerResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">AsyncRead</span>,
-        <span class="ident">T</span>: <span class="ident">AsyncWrite</span>,
-        <span class="ident">T</span>: <span class="ident">Unpin</span>,
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>HttpServiceHandlerResponse&lt;T, S, B, X, U&gt;
+    <span class="kw">where
+        </span>T: AsyncRead,
+        T: AsyncWrite,
+        T: Unpin,
 
-        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">S::Error</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-        <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">S::Response</span>: <span class="lifetime">&#39;static</span>,
+        S: Service&lt;Request&gt;,
+        S::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
+        S::Error: <span class="lifetime">&#39;static</span>,
+        S::Future: <span class="lifetime">&#39;static</span>,
+        S::Response: Into&lt;Response&lt;B&gt;&gt;,
+        S::Response: <span class="lifetime">&#39;static</span>,
 
-        <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+        B: MessageBody,
 
-        <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-        <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        X: Service&lt;Request, Response = Request&gt;,
+        X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
 
-        <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-        <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
+        U: Service&lt;(Request, Framed&lt;T, h1::Codec&gt;), Response = ()&gt;,
+        U::Error: fmt::Display,
     {
-        <span class="attribute">#[<span class="ident">pin</span>]</span>
-        <span class="ident">state</span>: <span class="ident">State</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>,
+        <span class="attribute">#[pin]
+        </span>state: State&lt;T, S, B, X, U&gt;,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">HttpServiceHandlerResponse</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+<span class="kw">impl</span>&lt;T, S, B, X, U&gt; Future <span class="kw">for </span>HttpServiceHandlerResponse&lt;T, S, B, X, U&gt;
+<span class="kw">where
+    </span>T: AsyncRead + AsyncWrite + Unpin,
 
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Future</span>: <span class="lifetime">&#39;static</span>,
-    <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    S: Service&lt;Request&gt;,
+    S::Error: Into&lt;Response&lt;BoxBody&gt;&gt; + <span class="lifetime">&#39;static</span>,
+    S::Future: <span class="lifetime">&#39;static</span>,
+    S::Response: Into&lt;Response&lt;B&gt;&gt; + <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    B: MessageBody + <span class="lifetime">&#39;static</span>,
 
-    <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    X: Service&lt;Request, Response = Request&gt;,
+    X::Error: Into&lt;Response&lt;BoxBody&gt;&gt;,
 
-    <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">h1::Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
+    U: Service&lt;(Request, Framed&lt;T, h1::Codec&gt;), Response = ()&gt;,
+    U::Error: fmt::Display,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt;;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>().<span class="ident">state</span>.<span class="ident">project</span>() {
-            <span class="ident">StateProj::H1</span> { <span class="ident">dispatcher</span> } =&gt; <span class="ident">dispatcher</span>.<span class="ident">poll</span>(<span class="ident">cx</span>),
+    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">match </span><span class="self">self</span>.as_mut().project().state.project() {
+            StateProj::H1 { dispatcher } =&gt; dispatcher.poll(cx),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)]</span>
-            <span class="ident">StateProj::H2</span> { <span class="ident">dispatcher</span> } =&gt; <span class="ident">dispatcher</span>.<span class="ident">poll</span>(<span class="ident">cx</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+            </span>StateProj::H2 { dispatcher } =&gt; dispatcher.poll(cx),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;http2&quot;</span>)]</span>
-            <span class="ident">StateProj::H2Handshake</span> { <span class="ident">handshake</span>: <span class="ident">data</span> } =&gt; {
-                <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="number">0</span>).<span class="ident">poll</span>(<span class="ident">cx</span>)) {
-                    <span class="prelude-val">Ok</span>((<span class="ident">conn</span>, <span class="ident">timer</span>)) =&gt; {
-                        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">config</span>, <span class="ident">flow</span>, <span class="ident">conn_data</span>, <span class="ident">peer_addr</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;http2&quot;</span>)]
+            </span>StateProj::H2Handshake { handshake: data } =&gt; {
+                <span class="kw">match </span><span class="macro">ready!</span>(Pin::new(<span class="kw-2">&amp;mut </span>data.as_mut().unwrap().<span class="number">0</span>).poll(cx)) {
+                    <span class="prelude-val">Ok</span>((conn, timer)) =&gt; {
+                        <span class="kw">let </span>(<span class="kw">_</span>, config, flow, conn_data, peer_addr) = data.take().unwrap();
 
-                        <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>().<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::H2</span> {
-                            <span class="ident">dispatcher</span>: <span class="ident"><span class="kw">crate</span>::h2::Dispatcher::new</span>(
-                                <span class="ident">conn</span>, <span class="ident">flow</span>, <span class="ident">config</span>, <span class="ident">peer_addr</span>, <span class="ident">conn_data</span>, <span class="ident">timer</span>,
+                        <span class="self">self</span>.as_mut().project().state.set(State::H2 {
+                            dispatcher: <span class="kw">crate</span>::h2::Dispatcher::new(
+                                conn, flow, config, peer_addr, conn_data, timer,
                             ),
                         });
-                        <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
+                        <span class="self">self</span>.poll(cx)
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                        <span class="macro">tracing::trace!</span>(<span class="string">&quot;H2 handshake error: {}&quot;</span>, <span class="ident">err</span>);
-                        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>))
+                    <span class="prelude-val">Err</span>(err) =&gt; {
+                        <span class="macro">tracing::trace!</span>(<span class="string">&quot;H2 handshake error: {}&quot;</span>, err);
+                        Poll::Ready(<span class="prelude-val">Err</span>(err))
                     }
                 }
             }
@@ -1485,4 +1485,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_http" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

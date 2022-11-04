@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/message/row_description.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>row_description.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/message/row_description.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>row_description.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -76,83 +76,83 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">Bytes</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>bytes::{Buf, Bytes};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io</span>::{<span class="ident">BufExt</span>, <span class="ident">Decode</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::Oid</span>;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::io::{BufExt, Decode};
+<span class="kw">use </span><span class="kw">crate</span>::postgres::types::Oid;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RowDescription</span> {
-    <span class="kw">pub</span> <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>RowDescription {
+    <span class="kw">pub </span>fields: Vec&lt;Field&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Field</span> {
-    <span class="doccomment">/// The name of the field.</span>
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Field {
+    <span class="doccomment">/// The name of the field.
+    </span><span class="kw">pub </span>name: String,
 
-    <span class="doccomment">/// If the field can be identified as a column of a specific table, the</span>
-    <span class="doccomment">/// object ID of the table; otherwise zero.</span>
-    <span class="kw">pub</span> <span class="ident">relation_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// If the field can be identified as a column of a specific table, the
+    /// object ID of the table; otherwise zero.
+    </span><span class="kw">pub </span>relation_id: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 
-    <span class="doccomment">/// If the field can be identified as a column of a specific table, the attribute number of</span>
-    <span class="doccomment">/// the column; otherwise zero.</span>
-    <span class="kw">pub</span> <span class="ident">relation_attribute_no</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// If the field can be identified as a column of a specific table, the attribute number of
+    /// the column; otherwise zero.
+    </span><span class="kw">pub </span>relation_attribute_no: <span class="prelude-ty">Option</span>&lt;i16&gt;,
 
-    <span class="doccomment">/// The object ID of the field&#39;s data type.</span>
-    <span class="kw">pub</span> <span class="ident">data_type_id</span>: <span class="ident">Oid</span>,
+    <span class="doccomment">/// The object ID of the field&#39;s data type.
+    </span><span class="kw">pub </span>data_type_id: Oid,
 
-    <span class="doccomment">/// The data type size (see pg_type.typlen). Note that negative values denote</span>
-    <span class="doccomment">/// variable-width types.</span>
-    <span class="kw">pub</span> <span class="ident">data_type_size</span>: <span class="ident">i16</span>,
+    <span class="doccomment">/// The data type size (see pg_type.typlen). Note that negative values denote
+    /// variable-width types.
+    </span><span class="kw">pub </span>data_type_size: i16,
 
-    <span class="doccomment">/// The type modifier (see pg_attribute.atttypmod). The meaning of the</span>
-    <span class="doccomment">/// modifier is type-specific.</span>
-    <span class="kw">pub</span> <span class="ident">type_modifier</span>: <span class="ident">i32</span>,
+    <span class="doccomment">/// The type modifier (see pg_attribute.atttypmod). The meaning of the
+    /// modifier is type-specific.
+    </span><span class="kw">pub </span>type_modifier: i32,
 
-    <span class="doccomment">/// The format code being used for the field.</span>
-    <span class="kw">pub</span> <span class="ident">format</span>: <span class="ident">i16</span>,
+    <span class="doccomment">/// The format code being used for the field.
+    </span><span class="kw">pub </span>format: i16,
 }
 
-<span class="kw">impl</span> <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RowDescription</span> {
-    <span class="kw">fn</span> <span class="ident">decode_with</span>(<span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">Bytes</span>, <span class="kw">_</span>: ()) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_u16</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">cnt</span> <span class="kw">as</span> <span class="ident">usize</span>);
+<span class="kw">impl </span>Decode&lt;<span class="lifetime">&#39;_</span>&gt; <span class="kw">for </span>RowDescription {
+    <span class="kw">fn </span>decode_with(<span class="kw-2">mut </span>buf: Bytes, <span class="kw">_</span>: ()) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="kw">let </span>cnt = buf.get_u16();
+        <span class="kw">let </span><span class="kw-2">mut </span>fields = Vec::with_capacity(cnt <span class="kw">as </span>usize);
 
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">cnt</span> {
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_str_nul</span>()<span class="question-mark">?</span>.<span class="ident">to_owned</span>();
-            <span class="kw">let</span> <span class="ident">relation_id</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_i32</span>();
-            <span class="kw">let</span> <span class="ident">relation_attribute_no</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_i16</span>();
-            <span class="kw">let</span> <span class="ident">data_type_id</span> <span class="op">=</span> <span class="ident">Oid</span>(<span class="ident">buf</span>.<span class="ident">get_u32</span>());
-            <span class="kw">let</span> <span class="ident">data_type_size</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_i16</span>();
-            <span class="kw">let</span> <span class="ident">type_modifier</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_i32</span>();
-            <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_i16</span>();
+        <span class="kw">for _ in </span><span class="number">0</span>..cnt {
+            <span class="kw">let </span>name = buf.get_str_nul()<span class="question-mark">?</span>.to_owned();
+            <span class="kw">let </span>relation_id = buf.get_i32();
+            <span class="kw">let </span>relation_attribute_no = buf.get_i16();
+            <span class="kw">let </span>data_type_id = Oid(buf.get_u32());
+            <span class="kw">let </span>data_type_size = buf.get_i16();
+            <span class="kw">let </span>type_modifier = buf.get_i32();
+            <span class="kw">let </span>format = buf.get_i16();
 
-            <span class="ident">fields</span>.<span class="ident">push</span>(<span class="ident">Field</span> {
-                <span class="ident">name</span>,
-                <span class="ident">relation_id</span>: <span class="kw">if</span> <span class="ident">relation_id</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="prelude-val">None</span>
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">relation_id</span>)
+            fields.push(Field {
+                name,
+                relation_id: <span class="kw">if </span>relation_id == <span class="number">0 </span>{
+                    <span class="prelude-val">None
+                </span>} <span class="kw">else </span>{
+                    <span class="prelude-val">Some</span>(relation_id)
                 },
-                <span class="ident">relation_attribute_no</span>: <span class="kw">if</span> <span class="ident">relation_attribute_no</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="prelude-val">None</span>
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">relation_attribute_no</span>)
+                relation_attribute_no: <span class="kw">if </span>relation_attribute_no == <span class="number">0 </span>{
+                    <span class="prelude-val">None
+                </span>} <span class="kw">else </span>{
+                    <span class="prelude-val">Some</span>(relation_attribute_no)
                 },
-                <span class="ident">data_type_id</span>,
-                <span class="ident">data_type_size</span>,
-                <span class="ident">type_modifier</span>,
-                <span class="ident">format</span>,
+                data_type_id,
+                data_type_size,
+                type_modifier,
+                format,
             })
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">fields</span> })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ fields })
     }
 }
 
-<span class="comment">// TODO: Unit Test RowDescription</span>
-<span class="comment">// TODO: Benchmark RowDescription</span>
-</code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+<span class="comment">// TODO: Unit Test RowDescription
+// TODO: Benchmark RowDescription
+</span></code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

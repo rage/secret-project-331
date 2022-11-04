@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cipher-0.4.3/src/block.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>block.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cipher/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cipher/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cipher-0.4.3/src/block.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>block.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cipher/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cipher/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cipher/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -721,726 +721,726 @@
 <span id="719">719</span>
 <span id="720">720</span>
 <span id="721">721</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Traits used to define functionality of [block ciphers][1] and [modes of operation][2].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # About block ciphers</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Block ciphers are keyed, deterministic permutations of a fixed-sized input</span>
-<span class="doccomment">//! &quot;block&quot; providing a reversible transformation to/from an encrypted output.</span>
-<span class="doccomment">//! They are one of the fundamental structural components of [symmetric cryptography][3].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! [1]: https://en.wikipedia.org/wiki/Block_cipher</span>
-<span class="doccomment">//! [2]: https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation</span>
-<span class="doccomment">//! [3]: https://en.wikipedia.org/wiki/Symmetric-key_algorithm</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Traits used to define functionality of [block ciphers][1] and [modes of operation][2].
+//!
+//! # About block ciphers
+//!
+//! Block ciphers are keyed, deterministic permutations of a fixed-sized input
+//! &quot;block&quot; providing a reversible transformation to/from an encrypted output.
+//! They are one of the fundamental structural components of [symmetric cryptography][3].
+//!
+//! [1]: https://en.wikipedia.org/wiki/Block_cipher
+//! [2]: https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation
+//! [3]: https://en.wikipedia.org/wiki/Symmetric-key_algorithm
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ParBlocks</span>, <span class="ident">ParBlocksSizeUser</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">vec</span>, <span class="ident">vec::Vec</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">inout</span>::{
-    <span class="ident">block_padding</span>::{<span class="ident">Padding</span>, <span class="ident">UnpadError</span>},
-    <span class="ident">InOutBufReserved</span>, <span class="ident">PadError</span>,
+</span><span class="kw">use crate</span>::{ParBlocks, ParBlocksSizeUser};
+<span class="attribute">#[cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))]
+</span><span class="kw">use </span>alloc::{vec, vec::Vec};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+</span><span class="kw">use </span>inout::{
+    block_padding::{Padding, UnpadError},
+    InOutBufReserved, PadError,
 };
-<span class="kw">use</span> <span class="ident">inout</span>::{<span class="ident">InOut</span>, <span class="ident">InOutBuf</span>, <span class="ident">NotEqualError</span>};
+<span class="kw">use </span>inout::{InOut, InOutBuf, NotEqualError};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">crypto_common</span>::{<span class="ident">generic_array::ArrayLength</span>, <span class="ident">typenum::Unsigned</span>, <span class="ident">Block</span>, <span class="ident">BlockSizeUser</span>};
+<span class="kw">pub use </span>crypto_common::{generic_array::ArrayLength, typenum::Unsigned, Block, BlockSizeUser};
 
-<span class="doccomment">/// Marker trait for block ciphers.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BlockCipher</span>: <span class="ident">BlockSizeUser</span> {}
+<span class="doccomment">/// Marker trait for block ciphers.
+</span><span class="kw">pub trait </span>BlockCipher: BlockSizeUser {}
 
-<span class="doccomment">/// Trait implemented by block cipher encryption and decryption backends.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BlockBackend</span>: <span class="ident">ParBlocksSizeUser</span> {
-    <span class="doccomment">/// Process single inout block.</span>
-    <span class="kw">fn</span> <span class="ident">proc_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Trait implemented by block cipher encryption and decryption backends.
+</span><span class="kw">pub trait </span>BlockBackend: ParBlocksSizeUser {
+    <span class="doccomment">/// Process single inout block.
+    </span><span class="kw">fn </span>proc_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;);
 
-    <span class="doccomment">/// Process inout blocks in parallel.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">proc_par_blocks</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">blocks</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">ParBlocks</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident"><span class="self">Self</span>::ParBlocksSize::USIZE</span> {
-            <span class="self">self</span>.<span class="ident">proc_block</span>(<span class="ident">blocks</span>.<span class="ident">get</span>(<span class="ident">i</span>));
+    <span class="doccomment">/// Process inout blocks in parallel.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>proc_par_blocks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>blocks: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, ParBlocks&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="self">Self</span>::ParBlocksSize::USIZE {
+            <span class="self">self</span>.proc_block(blocks.get(i));
         }
     }
 
-    <span class="doccomment">/// Process buffer of inout blocks. Length of the buffer MUST be smaller</span>
-    <span class="doccomment">/// than `Self::ParBlocksSize`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">proc_tail_blocks</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">blocks</span>: <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="macro">assert!</span>(<span class="ident">blocks</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident"><span class="self">Self</span>::ParBlocksSize::USIZE</span>);
-        <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
-            <span class="self">self</span>.<span class="ident">proc_block</span>(<span class="ident">block</span>);
+    <span class="doccomment">/// Process buffer of inout blocks. Length of the buffer MUST be smaller
+    /// than `Self::ParBlocksSize`.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>proc_tail_blocks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blocks: InOutBuf&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="macro">assert!</span>(blocks.len() &lt; <span class="self">Self</span>::ParBlocksSize::USIZE);
+        <span class="kw">for </span>block <span class="kw">in </span>blocks {
+            <span class="self">self</span>.proc_block(block);
         }
     }
 
-    <span class="doccomment">/// Process single block in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">proc_block_inplace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">proc_block</span>(<span class="ident">block</span>.<span class="ident">into</span>());
+    <span class="doccomment">/// Process single block in-place.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>proc_block_inplace(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;mut </span>Block&lt;<span class="self">Self</span>&gt;) {
+        <span class="self">self</span>.proc_block(block.into());
     }
 
-    <span class="doccomment">/// Process blocks in parallel in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">proc_par_blocks_inplace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ParBlocks</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">proc_par_blocks</span>(<span class="ident">blocks</span>.<span class="ident">into</span>());
+    <span class="doccomment">/// Process blocks in parallel in-place.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>proc_par_blocks_inplace(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blocks: <span class="kw-2">&amp;mut </span>ParBlocks&lt;<span class="self">Self</span>&gt;) {
+        <span class="self">self</span>.proc_par_blocks(blocks.into());
     }
 
-    <span class="doccomment">/// Process buffer of blocks in-place. Length of the buffer MUST be smaller</span>
-    <span class="doccomment">/// than `Self::ParBlocksSize`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">proc_tail_blocks_inplace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>]) {
-        <span class="self">self</span>.<span class="ident">proc_tail_blocks</span>(<span class="ident">blocks</span>.<span class="ident">into</span>());
+    <span class="doccomment">/// Process buffer of blocks in-place. Length of the buffer MUST be smaller
+    /// than `Self::ParBlocksSize`.
+    </span><span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>proc_tail_blocks_inplace(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blocks: <span class="kw-2">&amp;mut </span>[Block&lt;<span class="self">Self</span>&gt;]) {
+        <span class="self">self</span>.proc_tail_blocks(blocks.into());
     }
 }
 
-<span class="doccomment">/// Trait for [`BlockBackend`] users.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait is used to define rank-2 closures.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BlockClosure</span>: <span class="ident">BlockSizeUser</span> {
-    <span class="doccomment">/// Execute closure with the provided block cipher backend.</span>
-    <span class="kw">fn</span> <span class="ident">call</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">BlockBackend</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">backend</span>: <span class="kw-2">&amp;mut</span> <span class="ident">B</span>);
+<span class="doccomment">/// Trait for [`BlockBackend`] users.
+///
+/// This trait is used to define rank-2 closures.
+</span><span class="kw">pub trait </span>BlockClosure: BlockSizeUser {
+    <span class="doccomment">/// Execute closure with the provided block cipher backend.
+    </span><span class="kw">fn </span>call&lt;B: BlockBackend&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;&gt;(<span class="self">self</span>, backend: <span class="kw-2">&amp;mut </span>B);
 }
 
-<span class="doccomment">/// Encrypt-only functionality for block ciphers.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BlockEncrypt</span>: <span class="ident">BlockSizeUser</span> <span class="op">+</span> <span class="ident">Sized</span> {
-    <span class="doccomment">/// Encrypt data using backend provided to the rank-2 closure.</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Encrypt-only functionality for block ciphers.
+</span><span class="kw">pub trait </span>BlockEncrypt: BlockSizeUser + Sized {
+    <span class="doccomment">/// Encrypt data using backend provided to the rank-2 closure.
+    </span><span class="kw">fn </span>encrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;);
 
-    <span class="doccomment">/// Encrypt single `inout` block.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_block_inout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">block</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
+    <span class="doccomment">/// Encrypt single `inout` block.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_block_inout(<span class="kw-2">&amp;</span><span class="self">self</span>, block: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="self">self</span>.encrypt_with_backend(BlockCtx { block });
     }
 
-    <span class="doccomment">/// Encrypt `inout` blocks.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_blocks_inout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blocks</span>: <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> });
+    <span class="doccomment">/// Encrypt `inout` blocks.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_blocks_inout(<span class="kw-2">&amp;</span><span class="self">self</span>, blocks: InOutBuf&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="self">self</span>.encrypt_with_backend(BlocksCtx { blocks });
     }
 
-    <span class="doccomment">/// Encrypt single block in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">block</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
+    <span class="doccomment">/// Encrypt single block in-place.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_block(<span class="kw-2">&amp;</span><span class="self">self</span>, block: <span class="kw-2">&amp;mut </span>Block&lt;<span class="self">Self</span>&gt;) {
+        <span class="kw">let </span>block = block.into();
+        <span class="self">self</span>.encrypt_with_backend(BlockCtx { block });
     }
 
-    <span class="doccomment">/// Encrypt `in_block` and write result to `out_block`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_block_b2b</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">in_block</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">out_block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> (<span class="ident">in_block</span>, <span class="ident">out_block</span>).<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
+    <span class="doccomment">/// Encrypt `in_block` and write result to `out_block`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_block_b2b(<span class="kw-2">&amp;</span><span class="self">self</span>, in_block: <span class="kw-2">&amp;</span>Block&lt;<span class="self">Self</span>&gt;, out_block: <span class="kw-2">&amp;mut </span>Block&lt;<span class="self">Self</span>&gt;) {
+        <span class="kw">let </span>block = (in_block, out_block).into();
+        <span class="self">self</span>.encrypt_with_backend(BlockCtx { block });
     }
 
-    <span class="doccomment">/// Encrypt blocks in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>]) {
-        <span class="kw">let</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">blocks</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> });
+    <span class="doccomment">/// Encrypt blocks in-place.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_blocks(<span class="kw-2">&amp;</span><span class="self">self</span>, blocks: <span class="kw-2">&amp;mut </span>[Block&lt;<span class="self">Self</span>&gt;]) {
+        <span class="kw">let </span>blocks = blocks.into();
+        <span class="self">self</span>.encrypt_with_backend(BlocksCtx { blocks });
     }
 
-    <span class="doccomment">/// Encrypt blocks buffer-to-buffer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`NotEqualError`] if provided `in_blocks` and `out_blocks`</span>
-    <span class="doccomment">/// have different lengths.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_blocks_b2b</span>(
+    <span class="doccomment">/// Encrypt blocks buffer-to-buffer.
+    ///
+    /// Returns [`NotEqualError`] if provided `in_blocks` and `out_blocks`
+    /// have different lengths.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_blocks_b2b(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">in_blocks</span>: <span class="kw-2">&amp;</span>[<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>],
-        <span class="ident">out_blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">NotEqualError</span><span class="op">&gt;</span> {
-        <span class="ident">InOutBuf::new</span>(<span class="ident">in_blocks</span>, <span class="ident">out_blocks</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">blocks</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">encrypt_with_backend</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> }))
+        in_blocks: <span class="kw-2">&amp;</span>[Block&lt;<span class="self">Self</span>&gt;],
+        out_blocks: <span class="kw-2">&amp;mut </span>[Block&lt;<span class="self">Self</span>&gt;],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), NotEqualError&gt; {
+        InOutBuf::new(in_blocks, out_blocks)
+            .map(|blocks| <span class="self">self</span>.encrypt_with_backend(BlocksCtx { blocks }))
     }
 
-    <span class="doccomment">/// Pad input and encrypt. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`PadError`] if length of output buffer is not sufficient.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_padded_inout</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Pad input and encrypt. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`PadError`] if length of output buffer is not sufficient.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>encrypt_padded_inout&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">data</span>: <span class="ident">InOutBufReserved</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">u8</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> [<span class="ident">u8</span>], <span class="ident">PadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">into_padded_blocks</span>::<span class="op">&lt;</span><span class="ident">P</span>, <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">encrypt_blocks_inout</span>(<span class="ident">buf</span>.<span class="ident">get_blocks</span>());
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_tail_block</span>() {
-            <span class="self">self</span>.<span class="ident">encrypt_block_inout</span>(<span class="ident">block</span>);
+        data: InOutBufReserved&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, u8&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span>[u8], PadError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = data.into_padded_blocks::&lt;P, <span class="self">Self</span>::BlockSize&gt;()<span class="question-mark">?</span>;
+        <span class="self">self</span>.encrypt_blocks_inout(buf.get_blocks());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(block) = buf.get_tail_block() {
+            <span class="self">self</span>.encrypt_block_inout(block);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">buf</span>.<span class="ident">into_out</span>())
+        <span class="prelude-val">Ok</span>(buf.into_out())
     }
 
-    <span class="doccomment">/// Pad input and encrypt in-place. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`PadError`] if length of output buffer is not sufficient.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_padded</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Pad input and encrypt in-place. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`PadError`] if length of output buffer is not sufficient.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>encrypt_padded&lt;<span class="lifetime">&#39;a</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>],
-        <span class="ident">msg_len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">PadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">InOutBufReserved::from_mut_slice</span>(<span class="ident">buf</span>, <span class="ident">msg_len</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">PadError</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">encrypt_padded_inout</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>)
+        buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
+        msg_len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], PadError&gt; {
+        <span class="kw">let </span>buf = InOutBufReserved::from_mut_slice(buf, msg_len).map_err(|<span class="kw">_</span>| PadError)<span class="question-mark">?</span>;
+        <span class="self">self</span>.encrypt_padded_inout::&lt;P&gt;(buf)
     }
 
-    <span class="doccomment">/// Pad input and encrypt buffer-to-buffer. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`PadError`] if length of output buffer is not sufficient.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_padded_b2b</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Pad input and encrypt buffer-to-buffer. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`PadError`] if length of output buffer is not sufficient.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>encrypt_padded_b2b&lt;<span class="lifetime">&#39;a</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">msg</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">out_buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">PadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">InOutBufReserved::from_slices</span>(<span class="ident">msg</span>, <span class="ident">out_buf</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">PadError</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">encrypt_padded_inout</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>)
+        msg: <span class="kw-2">&amp;</span>[u8],
+        out_buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], PadError&gt; {
+        <span class="kw">let </span>buf = InOutBufReserved::from_slices(msg, out_buf).map_err(|<span class="kw">_</span>| PadError)<span class="question-mark">?</span>;
+        <span class="self">self</span>.encrypt_padded_inout::&lt;P&gt;(buf)
     }
 
-    <span class="doccomment">/// Pad input and encrypt into a newly allocated Vec. Returns resulting ciphertext Vec.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_padded_vec</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">allocate_out_vec</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">msg</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">encrypt_padded_b2b</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">msg</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;enough space for encrypting is allocated&quot;</span>)
-            .<span class="ident">len</span>();
-        <span class="ident">out</span>.<span class="ident">truncate</span>(<span class="ident">len</span>);
-        <span class="ident">out</span>
-    }
-}
-
-<span class="doccomment">/// Decrypt-only functionality for block ciphers.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BlockDecrypt</span>: <span class="ident">BlockSizeUser</span> {
-    <span class="doccomment">/// Decrypt data using backend provided to the rank-2 closure.</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>);
-
-    <span class="doccomment">/// Decrypt single `inout` block.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_block_inout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">block</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
-    }
-
-    <span class="doccomment">/// Decrypt `inout` blocks.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_blocks_inout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blocks</span>: <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> });
-    }
-
-    <span class="doccomment">/// Decrypt single block in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">block</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
-    }
-
-    <span class="doccomment">/// Decrypt `in_block` and write result to `out_block`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_block_b2b</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">in_block</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">out_block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> (<span class="ident">in_block</span>, <span class="ident">out_block</span>).<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
-    }
-
-    <span class="doccomment">/// Decrypt blocks in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>]) {
-        <span class="kw">let</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">blocks</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> });
-    }
-
-    <span class="doccomment">/// Decrypt blocks buffer-to-buffer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`NotEqualError`] if provided `in_blocks` and `out_blocks`</span>
-    <span class="doccomment">/// have different lengths.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_blocks_b2b</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">in_blocks</span>: <span class="kw-2">&amp;</span>[<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>],
-        <span class="ident">out_blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">NotEqualError</span><span class="op">&gt;</span> {
-        <span class="ident">InOutBuf::new</span>(<span class="ident">in_blocks</span>, <span class="ident">out_blocks</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">blocks</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">decrypt_with_backend</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> }))
-    }
-
-    <span class="doccomment">/// Decrypt input and unpad it. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`UnpadError`] if padding is malformed or if input length is</span>
-    <span class="doccomment">/// not multiple of `Self::BlockSize`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_padded_inout</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">data</span>: <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">u8</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> [<span class="ident">u8</span>], <span class="ident">UnpadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">blocks</span>, <span class="ident">tail</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">into_chunks</span>();
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">tail</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UnpadError</span>);
-        }
-        <span class="self">self</span>.<span class="ident">decrypt_blocks_inout</span>(<span class="ident">blocks</span>.<span class="ident">reborrow</span>());
-        <span class="ident">P::unpad_blocks</span>(<span class="ident">blocks</span>.<span class="ident">into_out</span>())
-    }
-
-    <span class="doccomment">/// Decrypt input and unpad it in-place. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`UnpadError`] if padding is malformed or if input length is</span>
-    <span class="doccomment">/// not multiple of `Self::BlockSize`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_padded</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">UnpadError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">decrypt_padded_inout</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>.<span class="ident">into</span>())
-    }
-
-    <span class="doccomment">/// Decrypt input and unpad it buffer-to-buffer. Returns resulting</span>
-    <span class="doccomment">/// ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`UnpadError`] if padding is malformed or if input length is</span>
-    <span class="doccomment">/// not multiple of `Self::BlockSize`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_padded_b2b</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">in_buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">out_buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">UnpadError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">out_buf</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">in_buf</span>.<span class="ident">len</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UnpadError</span>);
-        }
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">in_buf</span>.<span class="ident">len</span>();
-        <span class="comment">// note: `new` always returns `Ok` here</span>
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">InOutBuf::new</span>(<span class="ident">in_buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out_buf</span>[..<span class="ident">n</span>]).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">UnpadError</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">decrypt_padded_inout</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>)
-    }
-
-    <span class="doccomment">/// Decrypt input and unpad it in a newly allocated Vec. Returns resulting</span>
-    <span class="doccomment">/// ciphertext Vec.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`UnpadError`] if padding is malformed or if input length is</span>
-    <span class="doccomment">/// not multiple of `Self::BlockSize`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_padded_vec</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">UnpadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">buf</span>.<span class="ident">len</span>()];
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">decrypt_padded_b2b</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>)<span class="question-mark">?</span>.<span class="ident">len</span>();
-        <span class="ident">out</span>.<span class="ident">truncate</span>(<span class="ident">len</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">out</span>)
+    <span class="doccomment">/// Pad input and encrypt into a newly allocated Vec. Returns resulting ciphertext Vec.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))]
+    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))))]
+    #[inline]
+    </span><span class="kw">fn </span>encrypt_padded_vec&lt;P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, msg: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = allocate_out_vec::&lt;<span class="self">Self</span>&gt;(msg.len());
+        <span class="kw">let </span>len = <span class="self">self
+            </span>.encrypt_padded_b2b::&lt;P&gt;(msg, <span class="kw-2">&amp;mut </span>out)
+            .expect(<span class="string">&quot;enough space for encrypting is allocated&quot;</span>)
+            .len();
+        out.truncate(len);
+        out
     }
 }
 
-<span class="doccomment">/// Encrypt-only functionality for block ciphers and modes with mutable access to `self`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The main use case for this trait is blocks modes, but it also can be used</span>
-<span class="doccomment">/// for hardware cryptographic engines which require `&amp;mut self` access to an</span>
-<span class="doccomment">/// underlying hardware peripheral.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BlockEncryptMut</span>: <span class="ident">BlockSizeUser</span> <span class="op">+</span> <span class="ident">Sized</span> {
-    <span class="doccomment">/// Encrypt data using backend provided to the rank-2 closure.</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_with_backend_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Decrypt-only functionality for block ciphers.
+</span><span class="kw">pub trait </span>BlockDecrypt: BlockSizeUser {
+    <span class="doccomment">/// Decrypt data using backend provided to the rank-2 closure.
+    </span><span class="kw">fn </span>decrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;);
 
-    <span class="doccomment">/// Encrypt single `inout` block.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_block_inout_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend_mut</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
+    <span class="doccomment">/// Decrypt single `inout` block.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_block_inout(<span class="kw-2">&amp;</span><span class="self">self</span>, block: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="self">self</span>.decrypt_with_backend(BlockCtx { block });
     }
 
-    <span class="doccomment">/// Encrypt `inout` blocks.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_blocks_inout_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">blocks</span>: <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend_mut</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> });
+    <span class="doccomment">/// Decrypt `inout` blocks.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_blocks_inout(<span class="kw-2">&amp;</span><span class="self">self</span>, blocks: InOutBuf&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="self">self</span>.decrypt_with_backend(BlocksCtx { blocks });
     }
 
-    <span class="doccomment">/// Encrypt single block in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_block_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">block</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend_mut</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
+    <span class="doccomment">/// Decrypt single block in-place.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_block(<span class="kw-2">&amp;</span><span class="self">self</span>, block: <span class="kw-2">&amp;mut </span>Block&lt;<span class="self">Self</span>&gt;) {
+        <span class="kw">let </span>block = block.into();
+        <span class="self">self</span>.decrypt_with_backend(BlockCtx { block });
     }
 
-    <span class="doccomment">/// Encrypt `in_block` and write result to `out_block`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_block_b2b_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">in_block</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">out_block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> (<span class="ident">in_block</span>, <span class="ident">out_block</span>).<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend_mut</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
+    <span class="doccomment">/// Decrypt `in_block` and write result to `out_block`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_block_b2b(<span class="kw-2">&amp;</span><span class="self">self</span>, in_block: <span class="kw-2">&amp;</span>Block&lt;<span class="self">Self</span>&gt;, out_block: <span class="kw-2">&amp;mut </span>Block&lt;<span class="self">Self</span>&gt;) {
+        <span class="kw">let </span>block = (in_block, out_block).into();
+        <span class="self">self</span>.decrypt_with_backend(BlockCtx { block });
     }
 
-    <span class="doccomment">/// Encrypt blocks in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_blocks_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>]) {
-        <span class="kw">let</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">blocks</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend_mut</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> });
+    <span class="doccomment">/// Decrypt blocks in-place.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_blocks(<span class="kw-2">&amp;</span><span class="self">self</span>, blocks: <span class="kw-2">&amp;mut </span>[Block&lt;<span class="self">Self</span>&gt;]) {
+        <span class="kw">let </span>blocks = blocks.into();
+        <span class="self">self</span>.decrypt_with_backend(BlocksCtx { blocks });
     }
 
-    <span class="doccomment">/// Encrypt blocks buffer-to-buffer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`NotEqualError`] if provided `in_blocks` and `out_blocks`</span>
-    <span class="doccomment">/// have different lengths.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_blocks_b2b_mut</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">in_blocks</span>: <span class="kw-2">&amp;</span>[<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>],
-        <span class="ident">out_blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">NotEqualError</span><span class="op">&gt;</span> {
-        <span class="ident">InOutBuf::new</span>(<span class="ident">in_blocks</span>, <span class="ident">out_blocks</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">blocks</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">encrypt_with_backend_mut</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> }))
+    <span class="doccomment">/// Decrypt blocks buffer-to-buffer.
+    ///
+    /// Returns [`NotEqualError`] if provided `in_blocks` and `out_blocks`
+    /// have different lengths.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_blocks_b2b(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        in_blocks: <span class="kw-2">&amp;</span>[Block&lt;<span class="self">Self</span>&gt;],
+        out_blocks: <span class="kw-2">&amp;mut </span>[Block&lt;<span class="self">Self</span>&gt;],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), NotEqualError&gt; {
+        InOutBuf::new(in_blocks, out_blocks)
+            .map(|blocks| <span class="self">self</span>.decrypt_with_backend(BlocksCtx { blocks }))
     }
 
-    <span class="doccomment">/// Pad input and encrypt. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`PadError`] if length of output buffer is not sufficient.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_padded_inout_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">data</span>: <span class="ident">InOutBufReserved</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">u8</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> [<span class="ident">u8</span>], <span class="ident">PadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">into_padded_blocks</span>::<span class="op">&lt;</span><span class="ident">P</span>, <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">encrypt_blocks_inout_mut</span>(<span class="ident">buf</span>.<span class="ident">get_blocks</span>());
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">get_tail_block</span>() {
-            <span class="self">self</span>.<span class="ident">encrypt_block_inout_mut</span>(<span class="ident">block</span>);
+    <span class="doccomment">/// Decrypt input and unpad it. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`UnpadError`] if padding is malformed or if input length is
+    /// not multiple of `Self::BlockSize`.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>decrypt_padded_inout&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        data: InOutBuf&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, u8&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span>[u8], UnpadError&gt; {
+        <span class="kw">let </span>(<span class="kw-2">mut </span>blocks, tail) = data.into_chunks();
+        <span class="kw">if </span>!tail.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(UnpadError);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">buf</span>.<span class="ident">into_out</span>())
+        <span class="self">self</span>.decrypt_blocks_inout(blocks.reborrow());
+        P::unpad_blocks(blocks.into_out())
     }
 
-    <span class="doccomment">/// Pad input and encrypt in-place. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`PadError`] if length of output buffer is not sufficient.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_padded_mut</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Decrypt input and unpad it in-place. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`UnpadError`] if padding is malformed or if input length is
+    /// not multiple of `Self::BlockSize`.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>decrypt_padded&lt;<span class="lifetime">&#39;a</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], UnpadError&gt; {
+        <span class="self">self</span>.decrypt_padded_inout::&lt;P&gt;(buf.into())
+    }
+
+    <span class="doccomment">/// Decrypt input and unpad it buffer-to-buffer. Returns resulting
+    /// ciphertext slice.
+    ///
+    /// Returns [`UnpadError`] if padding is malformed or if input length is
+    /// not multiple of `Self::BlockSize`.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>decrypt_padded_b2b&lt;<span class="lifetime">&#39;a</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        in_buf: <span class="kw-2">&amp;</span>[u8],
+        out_buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], UnpadError&gt; {
+        <span class="kw">if </span>out_buf.len() &lt; in_buf.len() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(UnpadError);
+        }
+        <span class="kw">let </span>n = in_buf.len();
+        <span class="comment">// note: `new` always returns `Ok` here
+        </span><span class="kw">let </span>buf = InOutBuf::new(in_buf, <span class="kw-2">&amp;mut </span>out_buf[..n]).map_err(|<span class="kw">_</span>| UnpadError)<span class="question-mark">?</span>;
+        <span class="self">self</span>.decrypt_padded_inout::&lt;P&gt;(buf)
+    }
+
+    <span class="doccomment">/// Decrypt input and unpad it in a newly allocated Vec. Returns resulting
+    /// ciphertext Vec.
+    ///
+    /// Returns [`UnpadError`] if padding is malformed or if input length is
+    /// not multiple of `Self::BlockSize`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))]
+    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))))]
+    #[inline]
+    </span><span class="kw">fn </span>decrypt_padded_vec&lt;P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        buf: <span class="kw-2">&amp;</span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, UnpadError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = <span class="macro">vec!</span>[<span class="number">0</span>; buf.len()];
+        <span class="kw">let </span>len = <span class="self">self</span>.decrypt_padded_b2b::&lt;P&gt;(buf, <span class="kw-2">&amp;mut </span>out)<span class="question-mark">?</span>.len();
+        out.truncate(len);
+        <span class="prelude-val">Ok</span>(out)
+    }
+}
+
+<span class="doccomment">/// Encrypt-only functionality for block ciphers and modes with mutable access to `self`.
+///
+/// The main use case for this trait is blocks modes, but it also can be used
+/// for hardware cryptographic engines which require `&amp;mut self` access to an
+/// underlying hardware peripheral.
+</span><span class="kw">pub trait </span>BlockEncryptMut: BlockSizeUser + Sized {
+    <span class="doccomment">/// Encrypt data using backend provided to the rank-2 closure.
+    </span><span class="kw">fn </span>encrypt_with_backend_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;);
+
+    <span class="doccomment">/// Encrypt single `inout` block.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_block_inout_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="self">self</span>.encrypt_with_backend_mut(BlockCtx { block });
+    }
+
+    <span class="doccomment">/// Encrypt `inout` blocks.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_blocks_inout_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blocks: InOutBuf&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="self">self</span>.encrypt_with_backend_mut(BlocksCtx { blocks });
+    }
+
+    <span class="doccomment">/// Encrypt single block in-place.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_block_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;mut </span>Block&lt;<span class="self">Self</span>&gt;) {
+        <span class="kw">let </span>block = block.into();
+        <span class="self">self</span>.encrypt_with_backend_mut(BlockCtx { block });
+    }
+
+    <span class="doccomment">/// Encrypt `in_block` and write result to `out_block`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_block_b2b_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, in_block: <span class="kw-2">&amp;</span>Block&lt;<span class="self">Self</span>&gt;, out_block: <span class="kw-2">&amp;mut </span>Block&lt;<span class="self">Self</span>&gt;) {
+        <span class="kw">let </span>block = (in_block, out_block).into();
+        <span class="self">self</span>.encrypt_with_backend_mut(BlockCtx { block });
+    }
+
+    <span class="doccomment">/// Encrypt blocks in-place.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_blocks_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blocks: <span class="kw-2">&amp;mut </span>[Block&lt;<span class="self">Self</span>&gt;]) {
+        <span class="kw">let </span>blocks = blocks.into();
+        <span class="self">self</span>.encrypt_with_backend_mut(BlocksCtx { blocks });
+    }
+
+    <span class="doccomment">/// Encrypt blocks buffer-to-buffer.
+    ///
+    /// Returns [`NotEqualError`] if provided `in_blocks` and `out_blocks`
+    /// have different lengths.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>encrypt_blocks_b2b_mut(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        in_blocks: <span class="kw-2">&amp;</span>[Block&lt;<span class="self">Self</span>&gt;],
+        out_blocks: <span class="kw-2">&amp;mut </span>[Block&lt;<span class="self">Self</span>&gt;],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), NotEqualError&gt; {
+        InOutBuf::new(in_blocks, out_blocks)
+            .map(|blocks| <span class="self">self</span>.encrypt_with_backend_mut(BlocksCtx { blocks }))
+    }
+
+    <span class="doccomment">/// Pad input and encrypt. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`PadError`] if length of output buffer is not sufficient.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>encrypt_padded_inout_mut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        data: InOutBufReserved&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, u8&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span>[u8], PadError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = data.into_padded_blocks::&lt;P, <span class="self">Self</span>::BlockSize&gt;()<span class="question-mark">?</span>;
+        <span class="self">self</span>.encrypt_blocks_inout_mut(buf.get_blocks());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(block) = buf.get_tail_block() {
+            <span class="self">self</span>.encrypt_block_inout_mut(block);
+        }
+        <span class="prelude-val">Ok</span>(buf.into_out())
+    }
+
+    <span class="doccomment">/// Pad input and encrypt in-place. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`PadError`] if length of output buffer is not sufficient.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>encrypt_padded_mut&lt;P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
         <span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-        <span class="ident">msg_len</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">PadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">InOutBufReserved::from_mut_slice</span>(<span class="ident">buf</span>, <span class="ident">msg_len</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">PadError</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">encrypt_padded_inout_mut</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>)
+        buf: <span class="kw-2">&amp;mut </span>[u8],
+        msg_len: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8], PadError&gt; {
+        <span class="kw">let </span>buf = InOutBufReserved::from_mut_slice(buf, msg_len).map_err(|<span class="kw">_</span>| PadError)<span class="question-mark">?</span>;
+        <span class="self">self</span>.encrypt_padded_inout_mut::&lt;P&gt;(buf)
     }
 
-    <span class="doccomment">/// Pad input and encrypt buffer-to-buffer. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`PadError`] if length of output buffer is not sufficient.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_padded_b2b_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Pad input and encrypt buffer-to-buffer. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`PadError`] if length of output buffer is not sufficient.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>encrypt_padded_b2b_mut&lt;<span class="lifetime">&#39;a</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
         <span class="self">self</span>,
-        <span class="ident">msg</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">out_buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">PadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">InOutBufReserved::from_slices</span>(<span class="ident">msg</span>, <span class="ident">out_buf</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">PadError</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">encrypt_padded_inout_mut</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>)
+        msg: <span class="kw-2">&amp;</span>[u8],
+        out_buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], PadError&gt; {
+        <span class="kw">let </span>buf = InOutBufReserved::from_slices(msg, out_buf).map_err(|<span class="kw">_</span>| PadError)<span class="question-mark">?</span>;
+        <span class="self">self</span>.encrypt_padded_inout_mut::&lt;P&gt;(buf)
     }
 
-    <span class="doccomment">/// Pad input and encrypt into a newly allocated Vec. Returns resulting ciphertext Vec.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encrypt_padded_vec_mut</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">allocate_out_vec</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">msg</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">encrypt_padded_b2b_mut</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">msg</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;enough space for encrypting is allocated&quot;</span>)
-            .<span class="ident">len</span>();
-        <span class="ident">out</span>.<span class="ident">truncate</span>(<span class="ident">len</span>);
-        <span class="ident">out</span>
+    <span class="doccomment">/// Pad input and encrypt into a newly allocated Vec. Returns resulting ciphertext Vec.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))]
+    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))))]
+    #[inline]
+    </span><span class="kw">fn </span>encrypt_padded_vec_mut&lt;P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(<span class="self">self</span>, msg: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = allocate_out_vec::&lt;<span class="self">Self</span>&gt;(msg.len());
+        <span class="kw">let </span>len = <span class="self">self
+            </span>.encrypt_padded_b2b_mut::&lt;P&gt;(msg, <span class="kw-2">&amp;mut </span>out)
+            .expect(<span class="string">&quot;enough space for encrypting is allocated&quot;</span>)
+            .len();
+        out.truncate(len);
+        out
     }
 }
 
-<span class="doccomment">/// Decrypt-only functionality for block ciphers and modes with mutable access to `self`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The main use case for this trait is blocks modes, but it also can be used</span>
-<span class="doccomment">/// for hardware cryptographic engines which require `&amp;mut self` access to an</span>
-<span class="doccomment">/// underlying hardware peripheral.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BlockDecryptMut</span>: <span class="ident">BlockSizeUser</span> <span class="op">+</span> <span class="ident">Sized</span> {
-    <span class="doccomment">/// Decrypt data using backend provided to the rank-2 closure.</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_with_backend_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Decrypt-only functionality for block ciphers and modes with mutable access to `self`.
+///
+/// The main use case for this trait is blocks modes, but it also can be used
+/// for hardware cryptographic engines which require `&amp;mut self` access to an
+/// underlying hardware peripheral.
+</span><span class="kw">pub trait </span>BlockDecryptMut: BlockSizeUser + Sized {
+    <span class="doccomment">/// Decrypt data using backend provided to the rank-2 closure.
+    </span><span class="kw">fn </span>decrypt_with_backend_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;);
 
-    <span class="doccomment">/// Decrypt single `inout` block.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_block_inout_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend_mut</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
+    <span class="doccomment">/// Decrypt single `inout` block.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_block_inout_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: InOut&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="self">self</span>.decrypt_with_backend_mut(BlockCtx { block });
     }
 
-    <span class="doccomment">/// Decrypt `inout` blocks.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_blocks_inout_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">blocks</span>: <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend_mut</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> });
+    <span class="doccomment">/// Decrypt `inout` blocks.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_blocks_inout_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blocks: InOutBuf&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, Block&lt;<span class="self">Self</span>&gt;&gt;) {
+        <span class="self">self</span>.decrypt_with_backend_mut(BlocksCtx { blocks });
     }
 
-    <span class="doccomment">/// Decrypt single block in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_block_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">block</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend_mut</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
+    <span class="doccomment">/// Decrypt single block in-place.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_block_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;mut </span>Block&lt;<span class="self">Self</span>&gt;) {
+        <span class="kw">let </span>block = block.into();
+        <span class="self">self</span>.decrypt_with_backend_mut(BlockCtx { block });
     }
 
-    <span class="doccomment">/// Decrypt `in_block` and write result to `out_block`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_block_b2b_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">in_block</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">out_block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> (<span class="ident">in_block</span>, <span class="ident">out_block</span>).<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend_mut</span>(<span class="ident">BlockCtx</span> { <span class="ident">block</span> });
+    <span class="doccomment">/// Decrypt `in_block` and write result to `out_block`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_block_b2b_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, in_block: <span class="kw-2">&amp;</span>Block&lt;<span class="self">Self</span>&gt;, out_block: <span class="kw-2">&amp;mut </span>Block&lt;<span class="self">Self</span>&gt;) {
+        <span class="kw">let </span>block = (in_block, out_block).into();
+        <span class="self">self</span>.decrypt_with_backend_mut(BlockCtx { block });
     }
 
-    <span class="doccomment">/// Decrypt blocks in-place.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_blocks_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>]) {
-        <span class="kw">let</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">blocks</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend_mut</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> });
+    <span class="doccomment">/// Decrypt blocks in-place.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_blocks_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, blocks: <span class="kw-2">&amp;mut </span>[Block&lt;<span class="self">Self</span>&gt;]) {
+        <span class="kw">let </span>blocks = blocks.into();
+        <span class="self">self</span>.decrypt_with_backend_mut(BlocksCtx { blocks });
     }
 
-    <span class="doccomment">/// Decrypt blocks buffer-to-buffer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`NotEqualError`] if provided `in_blocks` and `out_blocks`</span>
-    <span class="doccomment">/// have different lengths.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_blocks_b2b_mut</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">in_blocks</span>: <span class="kw-2">&amp;</span>[<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>],
-        <span class="ident">out_blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">NotEqualError</span><span class="op">&gt;</span> {
-        <span class="ident">InOutBuf::new</span>(<span class="ident">in_blocks</span>, <span class="ident">out_blocks</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">blocks</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">decrypt_with_backend_mut</span>(<span class="ident">BlocksCtx</span> { <span class="ident">blocks</span> }))
+    <span class="doccomment">/// Decrypt blocks buffer-to-buffer.
+    ///
+    /// Returns [`NotEqualError`] if provided `in_blocks` and `out_blocks`
+    /// have different lengths.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decrypt_blocks_b2b_mut(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        in_blocks: <span class="kw-2">&amp;</span>[Block&lt;<span class="self">Self</span>&gt;],
+        out_blocks: <span class="kw-2">&amp;mut </span>[Block&lt;<span class="self">Self</span>&gt;],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), NotEqualError&gt; {
+        InOutBuf::new(in_blocks, out_blocks)
+            .map(|blocks| <span class="self">self</span>.decrypt_with_backend_mut(BlocksCtx { blocks }))
     }
 
-    <span class="doccomment">/// Decrypt input and unpad it. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`UnpadError`] if padding is malformed or if input length is</span>
-    <span class="doccomment">/// not multiple of `Self::BlockSize`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_padded_inout_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">data</span>: <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">u8</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;out</span> [<span class="ident">u8</span>], <span class="ident">UnpadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">blocks</span>, <span class="ident">tail</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="ident">into_chunks</span>();
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">tail</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UnpadError</span>);
+    <span class="doccomment">/// Decrypt input and unpad it. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`UnpadError`] if padding is malformed or if input length is
+    /// not multiple of `Self::BlockSize`.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>decrypt_padded_inout_mut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        data: InOutBuf&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, u8&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;out </span>[u8], UnpadError&gt; {
+        <span class="kw">let </span>(<span class="kw-2">mut </span>blocks, tail) = data.into_chunks();
+        <span class="kw">if </span>!tail.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(UnpadError);
         }
-        <span class="self">self</span>.<span class="ident">decrypt_blocks_inout_mut</span>(<span class="ident">blocks</span>.<span class="ident">reborrow</span>());
-        <span class="ident">P::unpad_blocks</span>(<span class="ident">blocks</span>.<span class="ident">into_out</span>())
+        <span class="self">self</span>.decrypt_blocks_inout_mut(blocks.reborrow());
+        P::unpad_blocks(blocks.into_out())
     }
 
-    <span class="doccomment">/// Decrypt input and unpad it in-place. Returns resulting ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`UnpadError`] if padding is malformed or if input length is</span>
-    <span class="doccomment">/// not multiple of `Self::BlockSize`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_padded_mut</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Decrypt input and unpad it in-place. Returns resulting ciphertext slice.
+    ///
+    /// Returns [`UnpadError`] if padding is malformed or if input length is
+    /// not multiple of `Self::BlockSize`.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>decrypt_padded_mut&lt;P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
         <span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">UnpadError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">decrypt_padded_inout_mut</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>.<span class="ident">into</span>())
+        buf: <span class="kw-2">&amp;mut </span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8], UnpadError&gt; {
+        <span class="self">self</span>.decrypt_padded_inout_mut::&lt;P&gt;(buf.into())
     }
 
-    <span class="doccomment">/// Decrypt input and unpad it buffer-to-buffer. Returns resulting</span>
-    <span class="doccomment">/// ciphertext slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`UnpadError`] if padding is malformed or if input length is</span>
-    <span class="doccomment">/// not multiple of `Self::BlockSize`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>)))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_padded_b2b_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Decrypt input and unpad it buffer-to-buffer. Returns resulting
+    /// ciphertext slice.
+    ///
+    /// Returns [`UnpadError`] if padding is malformed or if input length is
+    /// not multiple of `Self::BlockSize`.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;block-padding&quot;</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">&quot;block-padding&quot;</span>)))]
+    #[inline]
+    </span><span class="kw">fn </span>decrypt_padded_b2b_mut&lt;<span class="lifetime">&#39;a</span>, P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
         <span class="self">self</span>,
-        <span class="ident">in_buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">out_buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">UnpadError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">out_buf</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">in_buf</span>.<span class="ident">len</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UnpadError</span>);
+        in_buf: <span class="kw-2">&amp;</span>[u8],
+        out_buf: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8], UnpadError&gt; {
+        <span class="kw">if </span>out_buf.len() &lt; in_buf.len() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(UnpadError);
         }
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">in_buf</span>.<span class="ident">len</span>();
-        <span class="comment">// note: `new` always returns `Ok` here</span>
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">InOutBuf::new</span>(<span class="ident">in_buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out_buf</span>[..<span class="ident">n</span>]).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">UnpadError</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">decrypt_padded_inout_mut</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>)
+        <span class="kw">let </span>n = in_buf.len();
+        <span class="comment">// note: `new` always returns `Ok` here
+        </span><span class="kw">let </span>buf = InOutBuf::new(in_buf, <span class="kw-2">&amp;mut </span>out_buf[..n]).map_err(|<span class="kw">_</span>| UnpadError)<span class="question-mark">?</span>;
+        <span class="self">self</span>.decrypt_padded_inout_mut::&lt;P&gt;(buf)
     }
 
-    <span class="doccomment">/// Decrypt input and unpad it in a newly allocated Vec. Returns resulting</span>
-    <span class="doccomment">/// ciphertext Vec.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns [`UnpadError`] if padding is malformed or if input length is</span>
-    <span class="doccomment">/// not multiple of `Self::BlockSize`.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))))]</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decrypt_padded_vec_mut</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Padding</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Decrypt input and unpad it in a newly allocated Vec. Returns resulting
+    /// ciphertext Vec.
+    ///
+    /// Returns [`UnpadError`] if padding is malformed or if input length is
+    /// not multiple of `Self::BlockSize`.
+    </span><span class="attribute">#[cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))]
+    #[cfg_attr(docsrs, doc(cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))))]
+    #[inline]
+    </span><span class="kw">fn </span>decrypt_padded_vec_mut&lt;P: Padding&lt;<span class="self">Self</span>::BlockSize&gt;&gt;(
         <span class="self">self</span>,
-        <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">UnpadError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">buf</span>.<span class="ident">len</span>()];
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">decrypt_padded_b2b_mut</span>::<span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">buf</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>)<span class="question-mark">?</span>.<span class="ident">len</span>();
-        <span class="ident">out</span>.<span class="ident">truncate</span>(<span class="ident">len</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">out</span>)
+        buf: <span class="kw-2">&amp;</span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, UnpadError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = <span class="macro">vec!</span>[<span class="number">0</span>; buf.len()];
+        <span class="kw">let </span>len = <span class="self">self</span>.decrypt_padded_b2b_mut::&lt;P&gt;(buf, <span class="kw-2">&amp;mut </span>out)<span class="question-mark">?</span>.len();
+        out.truncate(len);
+        <span class="prelude-val">Ok</span>(out)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alg</span>: <span class="ident">BlockEncrypt</span><span class="op">&gt;</span> <span class="ident">BlockEncryptMut</span> <span class="kw">for</span> <span class="ident">Alg</span> {
-    <span class="kw">fn</span> <span class="ident">encrypt_with_backend_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">encrypt_with_backend</span>(<span class="ident">f</span>);
+<span class="kw">impl</span>&lt;Alg: BlockEncrypt&gt; BlockEncryptMut <span class="kw">for </span>Alg {
+    <span class="kw">fn </span>encrypt_with_backend_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;) {
+        <span class="self">self</span>.encrypt_with_backend(f);
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alg</span>: <span class="ident">BlockDecrypt</span><span class="op">&gt;</span> <span class="ident">BlockDecryptMut</span> <span class="kw">for</span> <span class="ident">Alg</span> {
-    <span class="kw">fn</span> <span class="ident">decrypt_with_backend_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">decrypt_with_backend</span>(<span class="ident">f</span>);
+<span class="kw">impl</span>&lt;Alg: BlockDecrypt&gt; BlockDecryptMut <span class="kw">for </span>Alg {
+    <span class="kw">fn </span>decrypt_with_backend_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;) {
+        <span class="self">self</span>.decrypt_with_backend(f);
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alg</span>: <span class="ident">BlockCipher</span><span class="op">&gt;</span> <span class="ident">BlockCipher</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">Alg</span> {}
+<span class="kw">impl</span>&lt;Alg: BlockCipher&gt; BlockCipher <span class="kw">for </span><span class="kw-2">&amp;</span>Alg {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alg</span>: <span class="ident">BlockEncrypt</span><span class="op">&gt;</span> <span class="ident">BlockEncrypt</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">Alg</span> {
-    <span class="kw">fn</span> <span class="ident">encrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>) {
-        <span class="ident">Alg::encrypt_with_backend</span>(<span class="self">self</span>, <span class="ident">f</span>);
+<span class="kw">impl</span>&lt;Alg: BlockEncrypt&gt; BlockEncrypt <span class="kw">for </span><span class="kw-2">&amp;</span>Alg {
+    <span class="kw">fn </span>encrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;) {
+        Alg::encrypt_with_backend(<span class="self">self</span>, f);
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Alg</span>: <span class="ident">BlockDecrypt</span><span class="op">&gt;</span> <span class="ident">BlockDecrypt</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">Alg</span> {
-    <span class="kw">fn</span> <span class="ident">decrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::BlockSize</span><span class="op">&gt;</span>) {
-        <span class="ident">Alg::decrypt_with_backend</span>(<span class="self">self</span>, <span class="ident">f</span>);
+<span class="kw">impl</span>&lt;Alg: BlockDecrypt&gt; BlockDecrypt <span class="kw">for </span><span class="kw-2">&amp;</span>Alg {
+    <span class="kw">fn </span>decrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span>BlockClosure&lt;BlockSize = <span class="self">Self</span>::BlockSize&gt;) {
+        Alg::decrypt_with_backend(<span class="self">self</span>, f);
     }
 }
 
-<span class="doccomment">/// Closure used in methods which operate over separate blocks.</span>
-<span class="kw">struct</span> <span class="ident">BlockCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">block</span>: <span class="ident">InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Closure used in methods which operate over separate blocks.
+</span><span class="kw">struct </span>BlockCtx&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS: ArrayLength&lt;u8&gt;&gt; {
+    block: InOut&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, Block&lt;<span class="self">Self</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">BlockCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">BS</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS: ArrayLength&lt;u8&gt;&gt; BlockSizeUser <span class="kw">for </span>BlockCtx&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS&gt; {
+    <span class="kw">type </span>BlockSize = BS;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">BlockClosure</span> <span class="kw">for</span> <span class="ident">BlockCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">call</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">BlockBackend</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">BS</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">backend</span>: <span class="kw-2">&amp;mut</span> <span class="ident">B</span>) {
-        <span class="ident">backend</span>.<span class="ident">proc_block</span>(<span class="self">self</span>.<span class="ident">block</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS: ArrayLength&lt;u8&gt;&gt; BlockClosure <span class="kw">for </span>BlockCtx&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>call&lt;B: BlockBackend&lt;BlockSize = BS&gt;&gt;(<span class="self">self</span>, backend: <span class="kw-2">&amp;mut </span>B) {
+        backend.proc_block(<span class="self">self</span>.block);
     }
 }
 
-<span class="doccomment">/// Closure used in methods which operate over slice of blocks.</span>
-<span class="kw">struct</span> <span class="ident">BlocksCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">blocks</span>: <span class="ident">InOutBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Closure used in methods which operate over slice of blocks.
+</span><span class="kw">struct </span>BlocksCtx&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS: ArrayLength&lt;u8&gt;&gt; {
+    blocks: InOutBuf&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, Block&lt;<span class="self">Self</span>&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">BlocksCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">BS</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS: ArrayLength&lt;u8&gt;&gt; BlockSizeUser <span class="kw">for </span>BlocksCtx&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS&gt; {
+    <span class="kw">type </span>BlockSize = BS;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">BlockClosure</span> <span class="kw">for</span> <span class="ident">BlocksCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, <span class="ident">BS</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">call</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">BlockBackend</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">BS</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">backend</span>: <span class="kw-2">&amp;mut</span> <span class="ident">B</span>) {
-        <span class="kw">if</span> <span class="ident">B::ParBlocksSize::USIZE</span> <span class="op">&gt;</span> <span class="number">1</span> {
-            <span class="kw">let</span> (<span class="ident">chunks</span>, <span class="ident">tail</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">into_chunks</span>();
-            <span class="kw">for</span> <span class="ident">chunk</span> <span class="kw">in</span> <span class="ident">chunks</span> {
-                <span class="ident">backend</span>.<span class="ident">proc_par_blocks</span>(<span class="ident">chunk</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS: ArrayLength&lt;u8&gt;&gt; BlockClosure <span class="kw">for </span>BlocksCtx&lt;<span class="lifetime">&#39;inp</span>, <span class="lifetime">&#39;out</span>, BS&gt; {
+    <span class="attribute">#[inline(always)]
+    </span><span class="kw">fn </span>call&lt;B: BlockBackend&lt;BlockSize = BS&gt;&gt;(<span class="self">self</span>, backend: <span class="kw-2">&amp;mut </span>B) {
+        <span class="kw">if </span>B::ParBlocksSize::USIZE &gt; <span class="number">1 </span>{
+            <span class="kw">let </span>(chunks, tail) = <span class="self">self</span>.blocks.into_chunks();
+            <span class="kw">for </span>chunk <span class="kw">in </span>chunks {
+                backend.proc_par_blocks(chunk);
             }
-            <span class="ident">backend</span>.<span class="ident">proc_tail_blocks</span>(<span class="ident">tail</span>);
-        } <span class="kw">else</span> {
-            <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">blocks</span> {
-                <span class="ident">backend</span>.<span class="ident">proc_block</span>(<span class="ident">block</span>);
+            backend.proc_tail_blocks(tail);
+        } <span class="kw">else </span>{
+            <span class="kw">for </span>block <span class="kw">in </span><span class="self">self</span>.blocks {
+                backend.proc_block(block);
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;block-padding&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">allocate_out_vec</span><span class="op">&lt;</span><span class="ident">BS</span>: <span class="ident">BlockSizeUser</span><span class="op">&gt;</span>(<span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">bs</span> <span class="op">=</span> <span class="ident">BS::BlockSize::USIZE</span>;
-    <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">bs</span> <span class="op">*</span> (<span class="ident">len</span> <span class="op">/</span> <span class="ident">bs</span> <span class="op">+</span> <span class="number">1</span>)]
+<span class="attribute">#[cfg(all(feature = <span class="string">&quot;block-padding&quot;</span>, feature = <span class="string">&quot;alloc&quot;</span>))]
+</span><span class="kw">fn </span>allocate_out_vec&lt;BS: BlockSizeUser&gt;(len: usize) -&gt; Vec&lt;u8&gt; {
+    <span class="kw">let </span>bs = BS::BlockSize::USIZE;
+    <span class="macro">vec!</span>[<span class="number">0</span>; bs * (len / bs + <span class="number">1</span>)]
 }
 
-<span class="doccomment">/// Implement simple block backend</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">impl_simple_block_encdec</span> {
+<span class="doccomment">/// Implement simple block backend
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>impl_simple_block_encdec {
     (
-        <span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">ident</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>:<span class="ident">ident</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">ident</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span><span class="op">&gt;</span>
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block_size</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block</span>:<span class="ident">ident</span>,
-        <span class="ident">encrypt</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">enc_block</span>:<span class="ident">block</span>
-        <span class="ident">decrypt</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dec_block</span>:<span class="ident">block</span>
+        &lt;$(<span class="macro-nonterminal">$N</span>:ident$(:<span class="macro-nonterminal">$b0</span>:ident$(+<span class="macro-nonterminal">$b</span>:ident)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span>&gt;
+        <span class="macro-nonterminal">$cipher</span>:ident, <span class="macro-nonterminal">$block_size</span>:ty, <span class="macro-nonterminal">$state</span>:ident, <span class="macro-nonterminal">$block</span>:ident,
+        encrypt: <span class="macro-nonterminal">$enc_block</span>:block
+        decrypt: <span class="macro-nonterminal">$dec_block</span>:block
     ) =&gt; {
-        <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BlockSizeUser</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-            <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block_size</span>;
+        <span class="kw">impl</span>&lt;$(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span>&gt; <span class="macro-nonterminal">$crate::BlockSizeUser </span><span class="kw">for </span><span class="macro-nonterminal">$cipher</span>&lt;$(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; {
+            <span class="kw">type </span>BlockSize = <span class="macro-nonterminal">$block_size</span>;
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BlockEncrypt</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">encrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block_size</span><span class="op">&gt;</span>) {
-                <span class="kw">struct</span> <span class="ident">EncBack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="op">*</span> <span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span>);
+        <span class="kw">impl</span>&lt;$(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span>&gt; <span class="macro-nonterminal">$crate::BlockEncrypt </span><span class="kw">for </span><span class="macro-nonterminal">$cipher</span>&lt;$(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; {
+            <span class="kw">fn </span>encrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span><span class="macro-nonterminal">$crate::BlockClosure</span>&lt;BlockSize = <span class="macro-nonterminal">$block_size</span>&gt;) {
+                <span class="kw">struct </span>EncBack&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* &gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="macro-nonterminal">$cipher</span>&lt;$(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt;);
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="op">*</span> <span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BlockSizeUser</span> <span class="kw">for</span> <span class="ident">EncBack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-                    <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block_size</span>;
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* &gt; <span class="macro-nonterminal">$crate::BlockSizeUser </span><span class="kw">for </span>EncBack&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; {
+                    <span class="kw">type </span>BlockSize = <span class="macro-nonterminal">$block_size</span>;
                 }
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="op">*</span> <span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ParBlocksSizeUser</span> <span class="kw">for</span> <span class="ident">EncBack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-                    <span class="kw">type</span> <span class="ident">ParBlocksSize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::consts::U1</span>;
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* &gt; <span class="macro-nonterminal">$crate::ParBlocksSizeUser </span><span class="kw">for </span>EncBack&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; {
+                    <span class="kw">type </span>ParBlocksSize = <span class="macro-nonterminal">$crate::consts::U1</span>;
                 }
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="op">*</span> <span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BlockBackend</span> <span class="kw">for</span> <span class="ident">EncBack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-                    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">proc_block</span>(
-                        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-                        <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::inout::InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* &gt; <span class="macro-nonterminal">$crate::BlockBackend </span><span class="kw">for </span>EncBack&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; {
+                    <span class="attribute">#[inline(always)]
+                    </span><span class="kw">fn </span>proc_block(
+                        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+                        <span class="kw-2">mut </span><span class="macro-nonterminal">$block</span>: <span class="macro-nonterminal">$crate::inout::InOut</span>&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="macro-nonterminal">$crate::Block</span>&lt;<span class="self">Self</span>&gt;&gt;
                     ) {
-                        <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">enc_block</span>
-                    }
+                        <span class="kw">let </span><span class="macro-nonterminal">$state</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$cipher</span>&lt;$(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; = <span class="self">self</span>.<span class="number">0</span>;
+                        <span class="macro-nonterminal">$enc_block
+                    </span>}
                 }
 
-                <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EncBack</span>(<span class="self">self</span>))
+                f.call(<span class="kw-2">&amp;mut </span>EncBack(<span class="self">self</span>))
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BlockDecrypt</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">decrypt_with_backend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BlockClosure</span><span class="op">&lt;</span><span class="ident">BlockSize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block_size</span><span class="op">&gt;</span>) {
-                <span class="kw">struct</span> <span class="ident">DecBack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="op">*</span> <span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span>);
+        <span class="kw">impl</span>&lt;$(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="kw-2">*</span>&gt; <span class="macro-nonterminal">$crate::BlockDecrypt </span><span class="kw">for </span><span class="macro-nonterminal">$cipher</span>&lt;$(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; {
+            <span class="kw">fn </span>decrypt_with_backend(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw">impl </span><span class="macro-nonterminal">$crate::BlockClosure</span>&lt;BlockSize = <span class="macro-nonterminal">$block_size</span>&gt;) {
+                <span class="kw">struct </span>DecBack&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* &gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="macro-nonterminal">$cipher</span>&lt;$(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt;);
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="op">*</span> <span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BlockSizeUser</span> <span class="kw">for</span> <span class="ident">DecBack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-                    <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block_size</span>;
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* &gt; <span class="macro-nonterminal">$crate::BlockSizeUser </span><span class="kw">for </span>DecBack&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; {
+                    <span class="kw">type </span>BlockSize = <span class="macro-nonterminal">$block_size</span>;
                 }
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="op">*</span> <span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ParBlocksSizeUser</span> <span class="kw">for</span> <span class="ident">DecBack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-                    <span class="kw">type</span> <span class="ident">ParBlocksSize</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::consts::U1</span>;
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* &gt; <span class="macro-nonterminal">$crate::ParBlocksSizeUser </span><span class="kw">for </span>DecBack&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; {
+                    <span class="kw">type </span>ParBlocksSize = <span class="macro-nonterminal">$crate::consts::U1</span>;
                 }
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>$(:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b0</span>$(<span class="op">+</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),<span class="op">*</span> <span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::BlockBackend</span> <span class="kw">for</span> <span class="ident">DecBack</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> {
-                    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">proc_block</span>(
-                        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-                        <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::inout::InOut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::Block</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span>
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>$(:<span class="macro-nonterminal">$b0</span>$(+<span class="macro-nonterminal">$b</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>),* &gt; <span class="macro-nonterminal">$crate::BlockBackend </span><span class="kw">for </span>DecBack&lt;<span class="lifetime">&#39;a</span>, $(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; {
+                    <span class="attribute">#[inline(always)]
+                    </span><span class="kw">fn </span>proc_block(
+                        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+                        <span class="kw-2">mut </span><span class="macro-nonterminal">$block</span>: <span class="macro-nonterminal">$crate::inout::InOut</span>&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="macro-nonterminal">$crate::Block</span>&lt;<span class="self">Self</span>&gt;&gt;
                     ) {
-                        <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
-                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dec_block</span>
-                    }
+                        <span class="kw">let </span><span class="macro-nonterminal">$state</span>: <span class="kw-2">&amp;</span><span class="macro-nonterminal">$cipher</span>&lt;$(<span class="macro-nonterminal">$N</span>),<span class="kw-2">*</span>&gt; = <span class="self">self</span>.<span class="number">0</span>;
+                        <span class="macro-nonterminal">$dec_block
+                    </span>}
                 }
 
-                <span class="ident">f</span>.<span class="ident">call</span>(<span class="kw-2">&amp;mut</span> <span class="ident">DecBack</span>(<span class="self">self</span>))
+                f.call(<span class="kw-2">&amp;mut </span>DecBack(<span class="self">self</span>))
             }
         }
     };
     (
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block_size</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block</span>:<span class="ident">ident</span>,
-        <span class="ident">encrypt</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">enc_block</span>:<span class="ident">block</span>
-        <span class="ident">decrypt</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dec_block</span>:<span class="ident">block</span>
+        <span class="macro-nonterminal">$cipher</span>:ident, <span class="macro-nonterminal">$block_size</span>:ty, <span class="macro-nonterminal">$state</span>:ident, <span class="macro-nonterminal">$block</span>:ident,
+        encrypt: <span class="macro-nonterminal">$enc_block</span>:block
+        decrypt: <span class="macro-nonterminal">$dec_block</span>:block
     ) =&gt; {
         <span class="macro-nonterminal">$</span><span class="macro">crate::impl_simple_block_encdec!</span>(
-            <span class="op">&lt;</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cipher</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block_size</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">state</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">block</span>,
-            <span class="ident">encrypt</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">enc_block</span>
-            <span class="ident">decrypt</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dec_block</span>
-        );
+            &lt;&gt; <span class="macro-nonterminal">$cipher</span>, <span class="macro-nonterminal">$block_size</span>, <span class="macro-nonterminal">$state</span>, <span class="macro-nonterminal">$block</span>,
+            encrypt: <span class="macro-nonterminal">$enc_block
+            </span>decrypt: <span class="macro-nonterminal">$dec_block
+        </span>);
     };
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cipher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cipher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

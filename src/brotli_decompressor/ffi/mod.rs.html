@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/ffi/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli_decompressor/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/brotli-decompressor-2.3.2/src/ffi/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../brotli_decompressor/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../brotli_decompressor/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -377,384 +377,384 @@
 <span id="377">377</span>
 <span id="378">378</span>
 <span id="379">379</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;safe&quot;</span>))]</span>
+</pre><pre class="rust"><code><span class="attribute">#![cfg(not(feature=<span class="string">&quot;safe&quot;</span>))]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">thread</span>,<span class="ident">panic</span>, <span class="ident">io</span>, <span class="ident">boxed</span>, <span class="ident">any</span>, <span class="ident">string</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::io::Write</span>;
-<span class="kw">use</span> <span class="ident">core</span>;
-<span class="kw">use</span> <span class="ident">core::slice</span>;
-<span class="kw">use</span> <span class="ident">core::ops</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">interface</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">alloc_util</span>;
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::alloc_util::SubclassableAllocator</span>;
-<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">Allocator</span>, <span class="ident">SliceWrapper</span>, <span class="ident">SliceWrapperMut</span>, <span class="ident">StackAllocator</span>, <span class="ident">AllocatedStackMemory</span>, <span class="ident">bzero</span>};
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::interface</span>::{<span class="ident">CAllocator</span>, <span class="ident">c_void</span>, <span class="ident">BrotliDecoderParameter</span>, <span class="ident">BrotliDecoderResult</span>, <span class="ident">brotli_alloc_func</span>, <span class="ident">brotli_free_func</span>};
-<span class="kw">use</span> <span class="ident">::BrotliResult</span>;
-<span class="kw">use</span> <span class="ident">::BrotliDecoderReturnInfo</span>;
-<span class="kw">use</span> <span class="ident">::brotli_decode</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::HuffmanCode</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::state</span>::{<span class="ident">BrotliDecoderErrorCode</span>, <span class="ident">BrotliState</span>};
+#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::{thread,panic, io, boxed, any, string};
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::io::Write;
+<span class="kw">use </span>core;
+<span class="kw">use </span>core::slice;
+<span class="kw">use </span>core::ops;
+<span class="kw">pub mod </span>interface;
+<span class="kw">pub mod </span>alloc_util;
+<span class="kw">use </span><span class="self">self</span>::alloc_util::SubclassableAllocator;
+<span class="kw">use </span>alloc::{Allocator, SliceWrapper, SliceWrapperMut, StackAllocator, AllocatedStackMemory, bzero};
+<span class="kw">use </span><span class="self">self</span>::interface::{CAllocator, c_void, BrotliDecoderParameter, BrotliDecoderResult, brotli_alloc_func, brotli_free_func};
+<span class="kw">use </span>::BrotliResult;
+<span class="kw">use </span>::BrotliDecoderReturnInfo;
+<span class="kw">use </span>::brotli_decode;
+<span class="kw">pub use </span>::HuffmanCode;
+<span class="kw">pub use </span><span class="kw">super</span>::state::{BrotliDecoderErrorCode, BrotliState};
 
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">slice_from_raw_parts_or_nil</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">data</span>: <span class="kw-2">*const</span> <span class="ident">T</span>, <span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>] {
-    <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="kw-2">&amp;</span>[];
+<span class="kw">pub unsafe fn </span>slice_from_raw_parts_or_nil&lt;<span class="lifetime">&#39;a</span>, T&gt;(data: <span class="kw-2">*const </span>T, len: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[T] {
+    <span class="kw">if </span>len == <span class="number">0 </span>{
+        <span class="kw">return </span><span class="kw-2">&amp;</span>[];
     }
-    <span class="ident">slice::from_raw_parts</span>(<span class="ident">data</span>, <span class="ident">len</span>)
+    slice::from_raw_parts(data, len)
 }
 
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">data</span>: <span class="kw-2">*mut</span> <span class="ident">T</span>, <span class="ident">len</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">T</span>] {
-    <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="kw-2">&amp;mut</span> [];
+<span class="kw">pub unsafe fn </span>slice_from_raw_parts_or_nil_mut&lt;<span class="lifetime">&#39;a</span>, T&gt;(data: <span class="kw-2">*mut </span>T, len: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>[T] {
+    <span class="kw">if </span>len == <span class="number">0 </span>{
+        <span class="kw">return </span><span class="kw-2">&amp;mut </span>[];
     }
-    <span class="ident">slice::from_raw_parts_mut</span>(<span class="ident">data</span>, <span class="ident">len</span>)
+    slice::from_raw_parts_mut(data, len)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">type</span> <span class="ident">BrotliAdditionalErrorData</span> <span class="op">=</span> <span class="ident">boxed::Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">any::Any</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">type</span> <span class="ident">BrotliAdditionalErrorData</span> <span class="op">=</span> ();
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">type </span>BrotliAdditionalErrorData = boxed::Box&lt;<span class="kw">dyn </span>any::Any + Send + <span class="lifetime">&#39;static</span>&gt;;
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">type </span>BrotliAdditionalErrorData = ();
 
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BrotliDecoderState</span> {
-    <span class="kw">pub</span> <span class="ident">custom_allocator</span>: <span class="ident">CAllocator</span>,
-    <span class="kw">pub</span> <span class="ident">decompressor</span>: <span class="ident">::BrotliState</span><span class="op">&lt;</span><span class="ident">SubclassableAllocator</span>,
-                                    <span class="ident">SubclassableAllocator</span>,
-                                    <span class="ident">SubclassableAllocator</span><span class="op">&gt;</span>,
+<span class="attribute">#[repr(C)]
+</span><span class="kw">pub struct </span>BrotliDecoderState {
+    <span class="kw">pub </span>custom_allocator: CAllocator,
+    <span class="kw">pub </span>decompressor: ::BrotliState&lt;SubclassableAllocator,
+                                    SubclassableAllocator,
+                                    SubclassableAllocator&gt;,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">brotli_new_decompressor_without_custom_alloc</span>(<span class="ident">_to_box</span>: <span class="ident">BrotliDecoderState</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>{
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">fn </span>brotli_new_decompressor_without_custom_alloc(_to_box: BrotliDecoderState) -&gt; <span class="kw-2">*mut </span>BrotliDecoderState{
     <span class="macro">panic!</span>(<span class="string">&quot;Must supply allocators if calling divans when compiled without features=std&quot;</span>);
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">fn</span> <span class="ident">brotli_new_decompressor_without_custom_alloc</span>(<span class="ident">to_box</span>: <span class="ident">BrotliDecoderState</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>{
-    <span class="ident">alloc_util::Box</span>::<span class="op">&lt;</span><span class="ident">BrotliDecoderState</span><span class="op">&gt;</span><span class="ident">::into_raw</span>(
-        <span class="ident">alloc_util::Box</span>::<span class="op">&lt;</span><span class="ident">BrotliDecoderState</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">to_box</span>))
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">fn </span>brotli_new_decompressor_without_custom_alloc(to_box: BrotliDecoderState) -&gt; <span class="kw-2">*mut </span>BrotliDecoderState{
+    alloc_util::Box::&lt;BrotliDecoderState&gt;::into_raw(
+        alloc_util::Box::&lt;BrotliDecoderState&gt;::new(to_box))
 }
 
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderCreateInstance</span>(
-    <span class="ident">alloc_func</span>: <span class="ident">brotli_alloc_func</span>,
-    <span class="ident">free_func</span>: <span class="ident">brotli_free_func</span>,
-    <span class="ident">opaque</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
-) -&gt; <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span> {
-    <span class="kw">match</span> <span class="ident">catch_panic_state</span>(<span class="op">|</span><span class="op">|</span> {
-      <span class="kw">let</span> <span class="ident">allocators</span> <span class="op">=</span> <span class="ident">CAllocator</span> {
-        <span class="ident">alloc_func</span>:<span class="ident">alloc_func</span>,
-        <span class="ident">free_func</span>:<span class="ident">free_func</span>,
-        <span class="ident">opaque</span>:<span class="ident">opaque</span>,
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderCreateInstance(
+    alloc_func: brotli_alloc_func,
+    free_func: brotli_free_func,
+    opaque: <span class="kw-2">*mut </span>c_void,
+) -&gt; <span class="kw-2">*mut </span>BrotliDecoderState {
+    <span class="kw">match </span>catch_panic_state(|| {
+      <span class="kw">let </span>allocators = CAllocator {
+        alloc_func:alloc_func,
+        free_func:free_func,
+        opaque:opaque,
       };
-      <span class="kw">let</span> <span class="ident">custom_dictionary</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">SubclassableAllocator</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::AllocatedMemory::default</span>();
-      <span class="kw">let</span> <span class="ident">to_box</span> <span class="op">=</span> <span class="ident">BrotliDecoderState</span> {
-        <span class="ident">custom_allocator</span>: <span class="ident">allocators</span>.<span class="ident">clone</span>(),
-        <span class="ident">decompressor</span>: <span class="ident">::BrotliState::new_with_custom_dictionary</span>(
-          <span class="ident">SubclassableAllocator::new</span>(<span class="ident">allocators</span>.<span class="ident">clone</span>()),
-          <span class="ident">SubclassableAllocator::new</span>(<span class="ident">allocators</span>.<span class="ident">clone</span>()),
-          <span class="ident">SubclassableAllocator::new</span>(<span class="ident">allocators</span>.<span class="ident">clone</span>()),
-          <span class="ident">custom_dictionary</span>,
+      <span class="kw">let </span>custom_dictionary = &lt;SubclassableAllocator <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory::default();
+      <span class="kw">let </span>to_box = BrotliDecoderState {
+        custom_allocator: allocators.clone(),
+        decompressor: ::BrotliState::new_with_custom_dictionary(
+          SubclassableAllocator::new(allocators.clone()),
+          SubclassableAllocator::new(allocators.clone()),
+          SubclassableAllocator::new(allocators.clone()),
+          custom_dictionary,
         ),
       };
-      <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alloc</span>) <span class="op">=</span> <span class="ident">alloc_func</span> {
-        <span class="kw">if</span> <span class="ident">free_func</span>.<span class="ident">is_none</span>() {
+      <span class="kw">if let </span><span class="prelude-val">Some</span>(alloc) = alloc_func {
+        <span class="kw">if </span>free_func.is_none() {
             <span class="macro">panic!</span>(<span class="string">&quot;either both alloc and free must exist or neither&quot;</span>);
         }
-        <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">alloc</span>(<span class="ident">allocators</span>.<span class="ident">opaque</span>, <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">BrotliDecoderState</span><span class="op">&gt;</span>());
-        <span class="kw">let</span> <span class="ident">brotli_decoder_state_ptr</span> <span class="op">=</span> <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
-        <span class="ident">core::ptr::write</span>(<span class="ident">brotli_decoder_state_ptr</span>, <span class="ident">to_box</span>);
-        <span class="ident">brotli_decoder_state_ptr</span>
-      } <span class="kw">else</span> {
-        <span class="ident">brotli_new_decompressor_without_custom_alloc</span>(<span class="ident">to_box</span>)
+        <span class="kw">let </span>ptr = alloc(allocators.opaque, core::mem::size_of::&lt;BrotliDecoderState&gt;());
+        <span class="kw">let </span>brotli_decoder_state_ptr = core::mem::transmute::&lt;<span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>BrotliDecoderState&gt;(ptr);
+        core::ptr::write(brotli_decoder_state_ptr, to_box);
+        brotli_decoder_state_ptr
+      } <span class="kw">else </span>{
+        brotli_new_decompressor_without_custom_alloc(to_box)
       }
     }) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ret</span>) =&gt; <span class="ident">ret</span>,
-        <span class="prelude-val">Err</span>(<span class="kw-2">mut</span> <span class="ident">e</span>) =&gt; {
-            <span class="ident">error_print</span>(<span class="ident">core::ptr::null_mut</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">e</span>);
-            <span class="ident">core::ptr::null_mut</span>()
+        <span class="prelude-val">Ok</span>(ret) =&gt; ret,
+        <span class="prelude-val">Err</span>(<span class="kw-2">mut </span>e) =&gt; {
+            error_print(core::ptr::null_mut(), <span class="kw-2">&amp;mut </span>e);
+            core::ptr::null_mut()
         },
     }
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderSetParameter</span>(<span class="ident">_state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>,
-                                       <span class="ident">_selector</span>: <span class="ident">BrotliDecoderParameter</span>,
-                                       <span class="ident">_value</span>: <span class="ident">u32</span>) {
-  <span class="comment">// not implemented</span>
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderSetParameter(_state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState,
+                                       _selector: BrotliDecoderParameter,
+                                       _value: u32) {
+  <span class="comment">// not implemented
+</span>}
+
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderDecompressPrealloc(
+  encoded_size: usize,
+  encoded_buffer: <span class="kw-2">*const </span>u8,
+  decoded_size: usize,
+  decoded_buffer: <span class="kw-2">*mut </span>u8,
+  scratch_u8_size: usize,
+  scratch_u8_buffer: <span class="kw-2">*mut </span>u8,
+  scratch_u32_size: usize,
+  scratch_u32_buffer: <span class="kw-2">*mut </span>u32,
+  scratch_hc_size: usize,
+  scratch_hc_buffer: <span class="kw-2">*mut </span>HuffmanCode,
+) -&gt; BrotliDecoderReturnInfo {
+  <span class="kw">let </span>input = slice_from_raw_parts_or_nil(encoded_buffer, encoded_size);
+  <span class="kw">let </span>output = slice_from_raw_parts_or_nil_mut(decoded_buffer, decoded_size);
+  <span class="kw">let </span>scratch_u8 = slice_from_raw_parts_or_nil_mut(scratch_u8_buffer, scratch_u8_size);
+  <span class="kw">let </span>scratch_u32 = slice_from_raw_parts_or_nil_mut(scratch_u32_buffer, scratch_u32_size);
+  <span class="kw">let </span>scratch_hc = slice_from_raw_parts_or_nil_mut(scratch_hc_buffer, scratch_hc_size);
+  ::brotli_decode_prealloc(input, output, scratch_u8, scratch_u32, scratch_hc)
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderDecompressPrealloc</span>(
-  <span class="ident">encoded_size</span>: <span class="ident">usize</span>,
-  <span class="ident">encoded_buffer</span>: <span class="kw-2">*const</span> <span class="ident">u8</span>,
-  <span class="ident">decoded_size</span>: <span class="ident">usize</span>,
-  <span class="ident">decoded_buffer</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>,
-  <span class="ident">scratch_u8_size</span>: <span class="ident">usize</span>,
-  <span class="ident">scratch_u8_buffer</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>,
-  <span class="ident">scratch_u32_size</span>: <span class="ident">usize</span>,
-  <span class="ident">scratch_u32_buffer</span>: <span class="kw-2">*mut</span> <span class="ident">u32</span>,
-  <span class="ident">scratch_hc_size</span>: <span class="ident">usize</span>,
-  <span class="ident">scratch_hc_buffer</span>: <span class="kw-2">*mut</span> <span class="ident">HuffmanCode</span>,
-) -&gt; <span class="ident">BrotliDecoderReturnInfo</span> {
-  <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">encoded_buffer</span>, <span class="ident">encoded_size</span>);
-  <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="ident">decoded_buffer</span>, <span class="ident">decoded_size</span>);
-  <span class="kw">let</span> <span class="ident">scratch_u8</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="ident">scratch_u8_buffer</span>, <span class="ident">scratch_u8_size</span>);
-  <span class="kw">let</span> <span class="ident">scratch_u32</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="ident">scratch_u32_buffer</span>, <span class="ident">scratch_u32_size</span>);
-  <span class="kw">let</span> <span class="ident">scratch_hc</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="ident">scratch_hc_buffer</span>, <span class="ident">scratch_hc_size</span>);
-  <span class="ident">::brotli_decode_prealloc</span>(<span class="ident">input</span>, <span class="ident">output</span>, <span class="ident">scratch_u8</span>, <span class="ident">scratch_u32</span>, <span class="ident">scratch_hc</span>)
+
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderDecompressWithReturnInfo(
+  encoded_size: usize,
+  encoded_buffer: <span class="kw-2">*const </span>u8,
+  decoded_size: usize,
+  decoded_buffer: <span class="kw-2">*mut </span>u8,
+) -&gt; BrotliDecoderReturnInfo {
+  <span class="kw">let </span>input = slice_from_raw_parts_or_nil(encoded_buffer, encoded_size);
+  <span class="kw">let </span>output_scratch = slice_from_raw_parts_or_nil_mut(decoded_buffer, decoded_size);
+  ::brotli_decode(input, output_scratch)
 }
 
-
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderDecompressWithReturnInfo</span>(
-  <span class="ident">encoded_size</span>: <span class="ident">usize</span>,
-  <span class="ident">encoded_buffer</span>: <span class="kw-2">*const</span> <span class="ident">u8</span>,
-  <span class="ident">decoded_size</span>: <span class="ident">usize</span>,
-  <span class="ident">decoded_buffer</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>,
-) -&gt; <span class="ident">BrotliDecoderReturnInfo</span> {
-  <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="ident">encoded_buffer</span>, <span class="ident">encoded_size</span>);
-  <span class="kw">let</span> <span class="ident">output_scratch</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="ident">decoded_buffer</span>, <span class="ident">decoded_size</span>);
-  <span class="ident">::brotli_decode</span>(<span class="ident">input</span>, <span class="ident">output_scratch</span>)
-}
-
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderDecompress</span>(
-  <span class="ident">encoded_size</span>: <span class="ident">usize</span>,
-  <span class="ident">encoded_buffer</span>: <span class="kw-2">*const</span> <span class="ident">u8</span>,
-  <span class="ident">decoded_size</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-  <span class="ident">decoded_buffer</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>,
-) -&gt; <span class="ident">BrotliDecoderResult</span> {
-  <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">BrotliDecoderDecompressWithReturnInfo</span>(<span class="ident">encoded_size</span>, <span class="ident">encoded_buffer</span>, <span class="kw-2">*</span><span class="ident">decoded_size</span>, <span class="ident">decoded_buffer</span>);
-  <span class="kw-2">*</span><span class="ident">decoded_size</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">decoded_size</span>;  
-  <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">result</span> {
-      <span class="ident">BrotliResult::ResultSuccess</span> =&gt; <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_SUCCESS</span>,
-      <span class="kw">_</span> =&gt; <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_ERROR</span>
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderDecompress(
+  encoded_size: usize,
+  encoded_buffer: <span class="kw-2">*const </span>u8,
+  decoded_size: <span class="kw-2">*mut </span>usize,
+  decoded_buffer: <span class="kw-2">*mut </span>u8,
+) -&gt; BrotliDecoderResult {
+  <span class="kw">let </span>res = BrotliDecoderDecompressWithReturnInfo(encoded_size, encoded_buffer, <span class="kw-2">*</span>decoded_size, decoded_buffer);
+  <span class="kw-2">*</span>decoded_size = res.decoded_size;  
+  <span class="kw">match </span>res.result {
+      BrotliResult::ResultSuccess =&gt; BrotliDecoderResult::BROTLI_DECODER_RESULT_SUCCESS,
+      <span class="kw">_ </span>=&gt; BrotliDecoderResult::BROTLI_DECODER_RESULT_ERROR
   }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]</span>
-<span class="kw">fn</span> <span class="ident">catch_panic</span><span class="op">&lt;</span><span class="ident">F</span>:<span class="ident">FnOnce</span>()-&gt;<span class="ident">BrotliDecoderResult</span><span class="op">+</span><span class="ident">panic::UnwindSafe</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">thread::Result</span><span class="op">&lt;</span><span class="ident">BrotliDecoderResult</span><span class="op">&gt;</span> {
-    <span class="ident">panic::catch_unwind</span>(<span class="ident">f</span>)
+<span class="attribute">#[cfg(all(feature=<span class="string">&quot;std&quot;</span>, not(feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]
+</span><span class="kw">fn </span>catch_panic&lt;F:FnOnce()-&gt;BrotliDecoderResult+panic::UnwindSafe&gt;(f: F) -&gt; thread::Result&lt;BrotliDecoderResult&gt; {
+    panic::catch_unwind(f)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]</span>
-<span class="kw">fn</span> <span class="ident">catch_panic_state</span><span class="op">&lt;</span><span class="ident">F</span>:<span class="ident">FnOnce</span>()-&gt;<span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span><span class="op">+</span><span class="ident">panic::UnwindSafe</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">thread::Result</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span><span class="op">&gt;</span> {
-    <span class="ident">panic::catch_unwind</span>(<span class="ident">f</span>)
+<span class="attribute">#[cfg(all(feature=<span class="string">&quot;std&quot;</span>, not(feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]
+</span><span class="kw">fn </span>catch_panic_state&lt;F:FnOnce()-&gt;<span class="kw-2">*mut </span>BrotliDecoderState+panic::UnwindSafe&gt;(f: F) -&gt; thread::Result&lt;<span class="kw-2">*mut </span>BrotliDecoderState&gt; {
+    panic::catch_unwind(f)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">error_print</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>, <span class="ident">err</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliAdditionalErrorData</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">st</span>) <span class="op">=</span> <span class="ident">err</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>() {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">state_ptr</span>.<span class="ident">is_null</span>() {
-          <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">str_cpy</span> <span class="op">=</span> [<span class="number">0u8</span>;<span class="number">256</span>];
-          <span class="kw">let</span> <span class="ident">src</span>:<span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="ident">st</span>.<span class="ident">as_ref</span>();
-          <span class="kw">let</span> <span class="ident">xlen</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">src</span>.<span class="ident">len</span>(), <span class="ident">str_cpy</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
-          <span class="ident">str_cpy</span>.<span class="ident">split_at_mut</span>(<span class="ident">xlen</span>).<span class="number">0</span>.<span class="ident">clone_from_slice</span>(
-                <span class="ident">src</span>.<span class="ident">split_at</span>(<span class="ident">xlen</span>).<span class="number">0</span>);
-          <span class="ident">str_cpy</span>[<span class="ident">xlen</span>] <span class="op">=</span> <span class="number">0</span>; <span class="comment">// null terminate</span>
-          (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>.<span class="ident">mtf_or_error_string</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">str_cpy</span>);
+<span class="attribute">#[cfg(all(feature=<span class="string">&quot;std&quot;</span>, not(feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>)))]
+</span><span class="kw">unsafe fn </span>error_print(state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState, err: <span class="kw-2">&amp;mut </span>BrotliAdditionalErrorData) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(st) = err.downcast_ref::&lt;<span class="kw-2">&amp;</span>str&gt;() {
+        <span class="kw">if </span>!state_ptr.is_null() {
+          <span class="kw">let </span><span class="kw-2">mut </span>str_cpy = [<span class="number">0u8</span>;<span class="number">256</span>];
+          <span class="kw">let </span>src:<span class="kw-2">&amp;</span>[u8] = st.as_ref();
+          <span class="kw">let </span>xlen = core::cmp::min(src.len(), str_cpy.len() - <span class="number">1</span>);
+          str_cpy.split_at_mut(xlen).<span class="number">0</span>.clone_from_slice(
+                src.split_at(xlen).<span class="number">0</span>);
+          str_cpy[xlen] = <span class="number">0</span>; <span class="comment">// null terminate
+          </span>(<span class="kw-2">*</span>state_ptr).decompressor.mtf_or_error_string = <span class="prelude-val">Err</span>(str_cpy);
         }
-        <span class="kw">let</span> <span class="ident">_ign</span> <span class="op">=</span> <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">io::stderr</span>(), <span class="string">&quot;panic: {}&quot;</span>, <span class="ident">st</span>);
-    } <span class="kw">else</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">st</span>) <span class="op">=</span> <span class="ident">err</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">string::String</span><span class="op">&gt;</span>() {
+        <span class="kw">let </span>_ign = <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut </span>io::stderr(), <span class="string">&quot;panic: {}&quot;</span>, st);
+    } <span class="kw">else </span>{
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(st) = err.downcast_ref::&lt;string::String&gt;() {
 
-          <span class="kw">if</span> <span class="op">!</span><span class="ident">state_ptr</span>.<span class="ident">is_null</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">str_cpy</span> <span class="op">=</span> [<span class="number">0u8</span>;<span class="number">256</span>];
-            <span class="kw">let</span> <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="ident">st</span>.<span class="ident">as_ref</span>();
-            <span class="kw">let</span> <span class="ident">xlen</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">src</span>.<span class="ident">len</span>(), <span class="ident">str_cpy</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
-            <span class="ident">str_cpy</span>.<span class="ident">split_at_mut</span>(<span class="ident">xlen</span>).<span class="number">0</span>.<span class="ident">clone_from_slice</span>(
-                <span class="ident">src</span>.<span class="ident">split_at</span>(<span class="ident">xlen</span>).<span class="number">0</span>);
-            <span class="ident">str_cpy</span>[<span class="ident">xlen</span>] <span class="op">=</span> <span class="number">0</span>; <span class="comment">// null terminate</span>
-            (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>.<span class="ident">mtf_or_error_string</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident">str_cpy</span>);
+          <span class="kw">if </span>!state_ptr.is_null() {
+            <span class="kw">let </span><span class="kw-2">mut </span>str_cpy = [<span class="number">0u8</span>;<span class="number">256</span>];
+            <span class="kw">let </span>src: <span class="kw-2">&amp;</span>[u8] = st.as_ref();
+            <span class="kw">let </span>xlen = core::cmp::min(src.len(), str_cpy.len() - <span class="number">1</span>);
+            str_cpy.split_at_mut(xlen).<span class="number">0</span>.clone_from_slice(
+                src.split_at(xlen).<span class="number">0</span>);
+            str_cpy[xlen] = <span class="number">0</span>; <span class="comment">// null terminate
+            </span>(<span class="kw-2">*</span>state_ptr).decompressor.mtf_or_error_string = <span class="prelude-val">Err</span>(str_cpy);
           }
-          <span class="kw">let</span> <span class="ident">_ign</span> <span class="op">=</span> <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">io::stderr</span>(), <span class="string">&quot;Internal Error {:?}&quot;</span>, <span class="ident">st</span>);
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">_ign</span> <span class="op">=</span> <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">io::stderr</span>(), <span class="string">&quot;Internal Error {:?}&quot;</span>, <span class="ident">err</span>);
+          <span class="kw">let </span>_ign = <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut </span>io::stderr(), <span class="string">&quot;Internal Error {:?}&quot;</span>, st);
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>_ign = <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut </span>io::stderr(), <span class="string">&quot;Internal Error {:?}&quot;</span>, err);
         }
     }
 }
 
-<span class="comment">// can&#39;t catch panics in a reliable way without std:: configure with panic=abort. These shouldn&#39;t happen</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>), <span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">catch_panic</span><span class="op">&lt;</span><span class="ident">F</span>:<span class="ident">FnOnce</span>()-&gt;<span class="ident">BrotliDecoderResult</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BrotliDecoderResult</span>, <span class="ident">BrotliAdditionalErrorData</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Ok</span>(<span class="ident">f</span>())
+<span class="comment">// can&#39;t catch panics in a reliable way without std:: configure with panic=abort. These shouldn&#39;t happen
+</span><span class="attribute">#[cfg(any(not(feature=<span class="string">&quot;std&quot;</span>), feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>))]
+</span><span class="kw">fn </span>catch_panic&lt;F:FnOnce()-&gt;BrotliDecoderResult&gt;(f: F) -&gt; <span class="prelude-ty">Result</span>&lt;BrotliDecoderResult, BrotliAdditionalErrorData&gt; {
+    <span class="prelude-val">Ok</span>(f())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>), <span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">catch_panic_state</span><span class="op">&lt;</span><span class="ident">F</span>:<span class="ident">FnOnce</span>()-&gt;<span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>, <span class="ident">BrotliAdditionalErrorData</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Ok</span>(<span class="ident">f</span>())
+<span class="attribute">#[cfg(any(not(feature=<span class="string">&quot;std&quot;</span>), feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>))]
+</span><span class="kw">fn </span>catch_panic_state&lt;F:FnOnce()-&gt;<span class="kw-2">*mut </span>BrotliDecoderState&gt;(f: F) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">*mut </span>BrotliDecoderState, BrotliAdditionalErrorData&gt; {
+    <span class="prelude-val">Ok</span>(f())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>), <span class="ident">feature</span><span class="op">=</span><span class="string">&quot;pass-through-ffi-panics&quot;</span>))]</span>
-<span class="kw">fn</span> <span class="ident">error_print</span>(<span class="ident">_state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>, <span class="ident">_err</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BrotliAdditionalErrorData</span>) {
+<span class="attribute">#[cfg(any(not(feature=<span class="string">&quot;std&quot;</span>), feature=<span class="string">&quot;pass-through-ffi-panics&quot;</span>))]
+</span><span class="kw">fn </span>error_print(_state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState, _err: <span class="kw-2">&amp;mut </span>BrotliAdditionalErrorData) {
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderDecompressStream</span>(
-    <span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>,
-    <span class="ident">available_in</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-    <span class="ident">input_buf_ptr</span>: <span class="kw-2">*mut</span><span class="kw-2">*const</span> <span class="ident">u8</span>,
-    <span class="ident">available_out</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-    <span class="ident">output_buf_ptr</span>: <span class="kw-2">*mut</span><span class="kw-2">*mut</span> <span class="ident">u8</span>,
-    <span class="kw-2">mut</span> <span class="ident">total_out</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>) -&gt; <span class="ident">BrotliDecoderResult</span> {
-    <span class="kw">match</span> <span class="ident">catch_panic</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_offset</span> <span class="op">=</span> <span class="number">0usize</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fallback_total_out</span> <span class="op">=</span> <span class="number">0usize</span>;
-    <span class="kw">if</span> <span class="ident">total_out</span>.<span class="ident">is_null</span>() {
-        <span class="ident">total_out</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">fallback_total_out</span>;
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderDecompressStream(
+    state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState,
+    available_in: <span class="kw-2">*mut </span>usize,
+    input_buf_ptr: <span class="kw-2">*mut*const </span>u8,
+    available_out: <span class="kw-2">*mut </span>usize,
+    output_buf_ptr: <span class="kw-2">*mut*mut </span>u8,
+    <span class="kw-2">mut </span>total_out: <span class="kw-2">*mut </span>usize) -&gt; BrotliDecoderResult {
+    <span class="kw">match </span>catch_panic(<span class="kw">move </span>|| {
+    <span class="kw">let </span><span class="kw-2">mut </span>input_offset = <span class="number">0usize</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>output_offset = <span class="number">0usize</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>fallback_total_out = <span class="number">0usize</span>;
+    <span class="kw">if </span>total_out.is_null() {
+        total_out = <span class="kw-2">&amp;mut </span>fallback_total_out;
     }
-    <span class="kw">let</span> <span class="ident">result</span>: <span class="ident">BrotliDecoderResult</span>;
+    <span class="kw">let </span>result: BrotliDecoderResult;
     {
-        <span class="kw">let</span> <span class="ident">input_buf</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil</span>(<span class="kw-2">*</span><span class="ident">input_buf_ptr</span>, <span class="kw-2">*</span><span class="ident">available_in</span>);
-        <span class="kw">let</span> <span class="ident">output_buf</span> <span class="op">=</span> <span class="ident">slice_from_raw_parts_or_nil_mut</span>(<span class="kw-2">*</span><span class="ident">output_buf_ptr</span>, <span class="kw-2">*</span><span class="ident">available_out</span>);
-            <span class="ident">result</span> <span class="op">=</span> <span class="ident"><span class="kw">super</span>::decode::BrotliDecompressStream</span>(
-                <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">available_in</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">input_offset</span>,
-                <span class="ident">input_buf</span>,
-                <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">available_out</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">output_offset</span>,
-                <span class="ident">output_buf</span>,
-                <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">total_out</span>,
-                <span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>,
-            ).<span class="ident">into</span>();
+        <span class="kw">let </span>input_buf = slice_from_raw_parts_or_nil(<span class="kw-2">*</span>input_buf_ptr, <span class="kw-2">*</span>available_in);
+        <span class="kw">let </span>output_buf = slice_from_raw_parts_or_nil_mut(<span class="kw-2">*</span>output_buf_ptr, <span class="kw-2">*</span>available_out);
+            result = <span class="kw">super</span>::decode::BrotliDecompressStream(
+                <span class="kw-2">&amp;mut *</span>available_in,
+                <span class="kw-2">&amp;mut </span>input_offset,
+                input_buf,
+                <span class="kw-2">&amp;mut *</span>available_out,
+                <span class="kw-2">&amp;mut </span>output_offset,
+                output_buf,
+                <span class="kw-2">&amp;mut *</span>total_out,
+                <span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span>state_ptr).decompressor,
+            ).into();
     }
-    <span class="kw-2">*</span><span class="ident">input_buf_ptr</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">input_buf_ptr</span>).<span class="ident">offset</span>(<span class="ident">input_offset</span> <span class="kw">as</span> <span class="ident">isize</span>);
-    <span class="kw-2">*</span><span class="ident">output_buf_ptr</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">output_buf_ptr</span>).<span class="ident">offset</span>(<span class="ident">output_offset</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                                           <span class="ident">result</span>
+    <span class="kw-2">*</span>input_buf_ptr = (<span class="kw-2">*</span>input_buf_ptr).offset(input_offset <span class="kw">as </span>isize);
+    <span class="kw-2">*</span>output_buf_ptr = (<span class="kw-2">*</span>output_buf_ptr).offset(output_offset <span class="kw">as </span>isize);
+                                           result
     }) {
-        <span class="prelude-val">Ok</span>(<span class="ident">ret</span>) =&gt; <span class="ident">ret</span>,
-        <span class="prelude-val">Err</span>(<span class="kw-2">mut</span> <span class="ident">readable_err</span>) =&gt; { <span class="comment">// if we panic (completely unexpected) then we should report it back to C and print</span>
-            <span class="ident">error_print</span>(<span class="ident">state_ptr</span>, <span class="kw-2">&amp;mut</span> <span class="ident">readable_err</span>);
-            (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>.<span class="ident">error_code</span> <span class="op">=</span> <span class="ident">BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_UNREACHABLE</span>;
-            <span class="ident">BrotliDecoderResult::BROTLI_DECODER_RESULT_ERROR</span>
+        <span class="prelude-val">Ok</span>(ret) =&gt; ret,
+        <span class="prelude-val">Err</span>(<span class="kw-2">mut </span>readable_err) =&gt; { <span class="comment">// if we panic (completely unexpected) then we should report it back to C and print
+            </span>error_print(state_ptr, <span class="kw-2">&amp;mut </span>readable_err);
+            (<span class="kw-2">*</span>state_ptr).decompressor.error_code = BrotliDecoderErrorCode::BROTLI_DECODER_ERROR_UNREACHABLE;
+            BrotliDecoderResult::BROTLI_DECODER_RESULT_ERROR
         }
     }
 }
 
-<span class="doccomment">/// Equivalent to BrotliDecoderDecompressStream but with no optional arg and no double indirect ptrs</span>
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderDecompressStreaming</span>(
-    <span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>,
-    <span class="ident">available_in</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-    <span class="kw-2">mut</span> <span class="ident">input_buf_ptr</span>: <span class="kw-2">*const</span> <span class="ident">u8</span>,
-    <span class="ident">available_out</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>,
-    <span class="kw-2">mut</span> <span class="ident">output_buf_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>) -&gt; <span class="ident">BrotliDecoderResult</span> {
-    <span class="ident">BrotliDecoderDecompressStream</span>(<span class="ident">state_ptr</span>,
-                                  <span class="ident">available_in</span>,
-                                  <span class="kw-2">&amp;mut</span> <span class="ident">input_buf_ptr</span>,
-                                  <span class="ident">available_out</span>,
-                                  <span class="kw-2">&amp;mut</span> <span class="ident">output_buf_ptr</span>,
-                                  <span class="ident">core::ptr::null_mut</span>())
+<span class="doccomment">/// Equivalent to BrotliDecoderDecompressStream but with no optional arg and no double indirect ptrs
+</span><span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderDecompressStreaming(
+    state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState,
+    available_in: <span class="kw-2">*mut </span>usize,
+    <span class="kw-2">mut </span>input_buf_ptr: <span class="kw-2">*const </span>u8,
+    available_out: <span class="kw-2">*mut </span>usize,
+    <span class="kw-2">mut </span>output_buf_ptr: <span class="kw-2">*mut </span>u8) -&gt; BrotliDecoderResult {
+    BrotliDecoderDecompressStream(state_ptr,
+                                  available_in,
+                                  <span class="kw-2">&amp;mut </span>input_buf_ptr,
+                                  available_out,
+                                  <span class="kw-2">&amp;mut </span>output_buf_ptr,
+                                  core::ptr::null_mut())
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">free_decompressor_no_custom_alloc</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>) {
-    <span class="kw">let</span> <span class="ident">_state</span> <span class="op">=</span> <span class="ident">alloc_util::Box::from_raw</span>(<span class="ident">state_ptr</span>);
+<span class="attribute">#[cfg(feature=<span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">unsafe fn </span>free_decompressor_no_custom_alloc(state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState) {
+    <span class="kw">let </span>_state = alloc_util::Box::from_raw(state_ptr);
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">free_decompressor_no_custom_alloc</span>(<span class="ident">_state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>) {
+<span class="attribute">#[cfg(not(feature=<span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">unsafe fn </span>free_decompressor_no_custom_alloc(_state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState) {
     <span class="macro">unreachable!</span>();
 }
 
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderMallocU8</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>, <span class="ident">size</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">u8</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alloc_fn</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">alloc_func</span> {
-        <span class="kw">return</span> <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="kw-2">*mut</span> <span class="ident">u8</span><span class="op">&gt;</span>(<span class="ident">alloc_fn</span>((<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">opaque</span>, <span class="ident">size</span>));
-    } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="ident">alloc_util::alloc_stdlib</span>(<span class="ident">size</span>);
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderMallocU8(state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState, size: usize) -&gt; <span class="kw-2">*mut </span>u8 {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(alloc_fn) = (<span class="kw-2">*</span>state_ptr).custom_allocator.alloc_func {
+        <span class="kw">return </span>core::mem::transmute::&lt;<span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>u8&gt;(alloc_fn((<span class="kw-2">*</span>state_ptr).custom_allocator.opaque, size));
+    } <span class="kw">else </span>{
+        <span class="kw">return </span>alloc_util::alloc_stdlib(size);
     }
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderFreeU8</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>, <span class="ident">data</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>, <span class="ident">size</span>: <span class="ident">usize</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">free_fn</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">free_func</span> {
-        <span class="ident">free_fn</span>((<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">opaque</span>, <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">u8</span>, <span class="kw-2">*mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>(<span class="ident">data</span>));
-    } <span class="kw">else</span> {
-        <span class="ident">alloc_util::free_stdlib</span>(<span class="ident">data</span>, <span class="ident">size</span>);
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderFreeU8(state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState, data: <span class="kw-2">*mut </span>u8, size: usize) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(free_fn) = (<span class="kw-2">*</span>state_ptr).custom_allocator.free_func {
+        free_fn((<span class="kw-2">*</span>state_ptr).custom_allocator.opaque, core::mem::transmute::&lt;<span class="kw-2">*mut </span>u8, <span class="kw-2">*mut </span>c_void&gt;(data));
+    } <span class="kw">else </span>{
+        alloc_util::free_stdlib(data, size);
     }
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderMallocUsize</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>, <span class="ident">size</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">usize</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alloc_fn</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">alloc_func</span> {
-        <span class="kw">return</span> <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="kw-2">*mut</span> <span class="ident">usize</span><span class="op">&gt;</span>(<span class="ident">alloc_fn</span>((<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">opaque</span>,
-                                                                         <span class="ident">size</span> <span class="op">*</span> <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()));
-    } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="ident">alloc_util::alloc_stdlib</span>(<span class="ident">size</span>);
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderMallocUsize(state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState, size: usize) -&gt; <span class="kw-2">*mut </span>usize {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(alloc_fn) = (<span class="kw-2">*</span>state_ptr).custom_allocator.alloc_func {
+        <span class="kw">return </span>core::mem::transmute::&lt;<span class="kw-2">*mut </span>c_void, <span class="kw-2">*mut </span>usize&gt;(alloc_fn((<span class="kw-2">*</span>state_ptr).custom_allocator.opaque,
+                                                                         size * core::mem::size_of::&lt;usize&gt;()));
+    } <span class="kw">else </span>{
+        <span class="kw">return </span>alloc_util::alloc_stdlib(size);
     }
 }
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderFreeUsize</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>, <span class="ident">data</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>, <span class="ident">size</span>: <span class="ident">usize</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">free_fn</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">free_func</span> {
-        <span class="ident">free_fn</span>((<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">opaque</span>, <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">usize</span>, <span class="kw-2">*mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>(<span class="ident">data</span>));
-    } <span class="kw">else</span> {
-        <span class="ident">alloc_util::free_stdlib</span>(<span class="ident">data</span>, <span class="ident">size</span>);
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderFreeUsize(state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState, data: <span class="kw-2">*mut </span>usize, size: usize) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(free_fn) = (<span class="kw-2">*</span>state_ptr).custom_allocator.free_func {
+        free_fn((<span class="kw-2">*</span>state_ptr).custom_allocator.opaque, core::mem::transmute::&lt;<span class="kw-2">*mut </span>usize, <span class="kw-2">*mut </span>c_void&gt;(data));
+    } <span class="kw">else </span>{
+        alloc_util::free_stdlib(data, size);
     }
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderDestroyInstance</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">alloc_func</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">free_fn</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">free_func</span> {
-            <span class="kw">let</span> <span class="ident">_to_free</span> <span class="op">=</span> <span class="ident">core::ptr::read</span>(<span class="ident">state_ptr</span>);
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>, <span class="kw-2">*mut</span> <span class="ident">c_void</span><span class="op">&gt;</span>(<span class="ident">state_ptr</span>);
-            <span class="ident">free_fn</span>((<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">custom_allocator</span>.<span class="ident">opaque</span>, <span class="ident">ptr</span>);
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderDestroyInstance(state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = (<span class="kw-2">*</span>state_ptr).custom_allocator.alloc_func {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(free_fn) = (<span class="kw-2">*</span>state_ptr).custom_allocator.free_func {
+            <span class="kw">let </span>_to_free = core::ptr::read(state_ptr);
+            <span class="kw">let </span>ptr = core::mem::transmute::&lt;<span class="kw-2">*mut </span>BrotliDecoderState, <span class="kw-2">*mut </span>c_void&gt;(state_ptr);
+            free_fn((<span class="kw-2">*</span>state_ptr).custom_allocator.opaque, ptr);
         }
-    } <span class="kw">else</span> {
-        <span class="ident">free_decompressor_no_custom_alloc</span>(<span class="ident">state_ptr</span>);
+    } <span class="kw">else </span>{
+        free_decompressor_no_custom_alloc(state_ptr);
     }
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderHasMoreOutput</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*const</span> <span class="ident">BrotliDecoderState</span>) -&gt; <span class="ident">i32</span> {
-  <span class="kw">if</span> <span class="ident"><span class="kw">super</span>::decode::BrotliDecoderHasMoreOutput</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>) {<span class="number">1</span>} <span class="kw">else</span> {<span class="number">0</span>}
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderHasMoreOutput(state_ptr: <span class="kw-2">*const </span>BrotliDecoderState) -&gt; i32 {
+  <span class="kw">if </span><span class="kw">super</span>::decode::BrotliDecoderHasMoreOutput(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span>state_ptr).decompressor) {<span class="number">1</span>} <span class="kw">else </span>{<span class="number">0</span>}
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderTakeOutput</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">BrotliDecoderState</span>, <span class="ident">size</span>: <span class="kw-2">*mut</span> <span class="ident">usize</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">u8</span> {
-  <span class="ident"><span class="kw">super</span>::decode::BrotliDecoderTakeOutput</span>(<span class="kw-2">&amp;mut</span> (<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>, <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">size</span>).<span class="ident">as_ptr</span>()
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderTakeOutput(state_ptr: <span class="kw-2">*mut </span>BrotliDecoderState, size: <span class="kw-2">*mut </span>usize) -&gt; <span class="kw-2">*const </span>u8 {
+  <span class="kw">super</span>::decode::BrotliDecoderTakeOutput(<span class="kw-2">&amp;mut </span>(<span class="kw-2">*</span>state_ptr).decompressor, <span class="kw-2">&amp;mut *</span>size).as_ptr()
 }
 
 
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderIsUsed</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*const</span> <span class="ident">BrotliDecoderState</span>) -&gt; <span class="ident">i32</span> {
-  <span class="kw">if</span> <span class="ident"><span class="kw">super</span>::decode::BrotliDecoderIsUsed</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>) {<span class="number">1</span>} <span class="kw">else</span> {<span class="number">0</span>}
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderIsUsed(state_ptr: <span class="kw-2">*const </span>BrotliDecoderState) -&gt; i32 {
+  <span class="kw">if </span><span class="kw">super</span>::decode::BrotliDecoderIsUsed(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span>state_ptr).decompressor) {<span class="number">1</span>} <span class="kw">else </span>{<span class="number">0</span>}
 }
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderIsFinished</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*const</span> <span class="ident">BrotliDecoderState</span>) -&gt; <span class="ident">i32</span> {
-  <span class="kw">if</span> <span class="ident"><span class="kw">super</span>::decode::BrotliDecoderIsFinished</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>) {<span class="number">1</span>} <span class="kw">else</span> {<span class="number">0</span>}
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderIsFinished(state_ptr: <span class="kw-2">*const </span>BrotliDecoderState) -&gt; i32 {
+  <span class="kw">if </span><span class="kw">super</span>::decode::BrotliDecoderIsFinished(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span>state_ptr).decompressor) {<span class="number">1</span>} <span class="kw">else </span>{<span class="number">0</span>}
 }
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderGetErrorCode</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*const</span> <span class="ident">BrotliDecoderState</span>) -&gt; <span class="ident">BrotliDecoderErrorCode</span> {
-  <span class="ident"><span class="kw">super</span>::decode::BrotliDecoderGetErrorCode</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>)
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderGetErrorCode(state_ptr: <span class="kw-2">*const </span>BrotliDecoderState) -&gt; BrotliDecoderErrorCode {
+  <span class="kw">super</span>::decode::BrotliDecoderGetErrorCode(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span>state_ptr).decompressor)
 }
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderGetErrorString</span>(<span class="ident">state_ptr</span>: <span class="kw-2">*const</span> <span class="ident">BrotliDecoderState</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">u8</span> {
-  <span class="kw">if</span> <span class="op">!</span><span class="ident">state_ptr</span>.<span class="ident">is_null</span>() {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">msg</span>) <span class="op">=</span> <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>.<span class="ident">mtf_or_error_string</span> {
-      <span class="comment">// important: this must be a ref</span>
-      <span class="comment">// so stack memory is not returned</span>
-      <span class="kw">return</span> <span class="ident">msg</span>.<span class="ident">as_ptr</span>();
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub unsafe extern fn </span>BrotliDecoderGetErrorString(state_ptr: <span class="kw-2">*const </span>BrotliDecoderState) -&gt; <span class="kw-2">*const </span>u8 {
+  <span class="kw">if </span>!state_ptr.is_null() {
+    <span class="kw">if let </span><span class="kw-2">&amp;</span><span class="prelude-val">Err</span>(<span class="kw-2">ref </span>msg) = <span class="kw-2">&amp;</span>(<span class="kw-2">*</span>state_ptr).decompressor.mtf_or_error_string {
+      <span class="comment">// important: this must be a ref
+      // so stack memory is not returned
+      </span><span class="kw">return </span>msg.as_ptr();
     }
   }
-  <span class="ident">BrotliDecoderErrorString</span>(<span class="ident"><span class="kw">super</span>::decode::BrotliDecoderGetErrorCode</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="ident">state_ptr</span>).<span class="ident">decompressor</span>))
+  BrotliDecoderErrorString(<span class="kw">super</span>::decode::BrotliDecoderGetErrorCode(<span class="kw-2">&amp;</span>(<span class="kw-2">*</span>state_ptr).decompressor))
 }
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderErrorString</span>(<span class="ident">c</span>: <span class="ident">BrotliDecoderErrorCode</span>) -&gt; <span class="kw-2">*const</span> <span class="ident">u8</span> {
-    <span class="ident">::state::BrotliDecoderErrorStr</span>(<span class="ident">c</span>).<span class="ident">as_ptr</span>()
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub extern fn </span>BrotliDecoderErrorString(c: BrotliDecoderErrorCode) -&gt; <span class="kw-2">*const </span>u8 {
+    ::state::BrotliDecoderErrorStr(c).as_ptr()
 }
 
 
-<span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">BrotliDecoderVersion</span>() -&gt; <span class="ident">u32</span> {
-  <span class="number">0x1000f00</span>
-}
+<span class="attribute">#[no_mangle]
+</span><span class="kw">pub extern fn </span>BrotliDecoderVersion() -&gt; u32 {
+  <span class="number">0x1000f00
+</span>}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="brotli_decompressor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

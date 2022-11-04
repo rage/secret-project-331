@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/value.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>value.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/value.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>value.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -111,118 +111,118 @@
 <span id="111">111</span>
 <span id="112">112</span>
 <span id="113">113</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database</span>::{<span class="ident">Database</span>, <span class="ident">HasValueRef</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::decode::Decode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error</span>::{<span class="ident">mismatched_types</span>, <span class="ident">Error</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::type_info::TypeInfo</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
-<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasValueRef};
+<span class="kw">use </span><span class="kw">crate</span>::decode::Decode;
+<span class="kw">use </span><span class="kw">crate</span>::error::{mismatched_types, Error};
+<span class="kw">use </span><span class="kw">crate</span>::type_info::TypeInfo;
+<span class="kw">use </span><span class="kw">crate</span>::types::Type;
+<span class="kw">use </span>std::borrow::Cow;
 
-<span class="doccomment">/// An owned value from the database.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Value</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// An owned value from the database.
+</span><span class="kw">pub trait </span>Value {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="doccomment">/// Get this value as a reference.</span>
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">HasValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ValueRef</span>;
+    <span class="doccomment">/// Get this value as a reference.
+    </span><span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasValueRef&lt;<span class="lifetime">&#39;_</span>&gt;&gt;::ValueRef;
 
-    <span class="doccomment">/// Get the type information for this value.</span>
-    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::TypeInfo</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Get the type information for this value.
+    </span><span class="kw">fn </span>type_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">&#39;_</span>, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::TypeInfo&gt;;
 
-    <span class="doccomment">/// Returns `true` if the SQL value is `NULL`.</span>
-    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="doccomment">/// Returns `true` if the SQL value is `NULL`.
+    </span><span class="kw">fn </span>is_null(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
-    <span class="doccomment">/// Decode this single value into the requested type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the value cannot be decoded into the requested type.</span>
-    <span class="doccomment">/// See [`try_decode`](Self::try_decode) for a non-panicking version.</span>
-    <span class="doccomment">///</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="self">self</span>) -&gt; <span class="ident">T</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Decode this single value into the requested type.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the value cannot be decoded into the requested type.
+    /// See [`try_decode`](Self::try_decode) for a non-panicking version.
+    ///
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decode&lt;<span class="lifetime">&#39;r</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="self">self</span>) -&gt; T
+    <span class="kw">where
+        </span>T: Decode&lt;<span class="lifetime">&#39;r</span>, <span class="self">Self</span>::Database&gt; + Type&lt;<span class="self">Self</span>::Database&gt;,
     {
-        <span class="self">self</span>.<span class="ident">try_decode</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>()
+        <span class="self">self</span>.try_decode::&lt;T&gt;().unwrap()
     }
 
-    <span class="doccomment">/// Decode this single value into the requested type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Unlike [`decode`](Self::decode), this method does not check that the type of this</span>
-    <span class="doccomment">/// value is compatible with the Rust type and blindly tries to decode the value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the value cannot be decoded into the requested type.</span>
-    <span class="doccomment">/// See [`try_decode_unchecked`](Self::try_decode_unchecked) for a non-panicking version.</span>
-    <span class="doccomment">///</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decode_unchecked</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="self">self</span>) -&gt; <span class="ident">T</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Decode this single value into the requested type.
+    ///
+    /// Unlike [`decode`](Self::decode), this method does not check that the type of this
+    /// value is compatible with the Rust type and blindly tries to decode the value.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the value cannot be decoded into the requested type.
+    /// See [`try_decode_unchecked`](Self::try_decode_unchecked) for a non-panicking version.
+    ///
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>decode_unchecked&lt;<span class="lifetime">&#39;r</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="self">self</span>) -&gt; T
+    <span class="kw">where
+        </span>T: Decode&lt;<span class="lifetime">&#39;r</span>, <span class="self">Self</span>::Database&gt;,
     {
-        <span class="self">self</span>.<span class="ident">try_decode_unchecked</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>()
+        <span class="self">self</span>.try_decode_unchecked::&lt;T&gt;().unwrap()
     }
 
-    <span class="doccomment">/// Decode this single value into the requested type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///  * [`Decode`] if the value could not be decoded into the requested type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Decode`]: Error::Decode</span>
-    <span class="doccomment">///</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Decode this single value into the requested type.
+    ///
+    /// # Errors
+    ///
+    ///  * [`Decode`] if the value could not be decoded into the requested type.
+    ///
+    /// [`Decode`]: Error::Decode
+    ///
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_decode&lt;<span class="lifetime">&#39;r</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt;
+    <span class="kw">where
+        </span>T: Decode&lt;<span class="lifetime">&#39;r</span>, <span class="self">Self</span>::Database&gt; + Type&lt;<span class="self">Self</span>::Database&gt;,
     {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_null</span>() {
-            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_info</span>();
+        <span class="kw">if </span>!<span class="self">self</span>.is_null() {
+            <span class="kw">let </span>ty = <span class="self">self</span>.type_info();
 
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">ty</span>.<span class="ident">is_null</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">T::compatible</span>(<span class="kw-2">&amp;</span><span class="ident">ty</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::Decode</span>(<span class="ident">mismatched_types</span>::<span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">ty</span>)));
+            <span class="kw">if </span>!ty.is_null() &amp;&amp; !T::compatible(<span class="kw-2">&amp;</span>ty) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Decode(mismatched_types::&lt;<span class="self">Self</span>::Database, T&gt;(<span class="kw-2">&amp;</span>ty)));
             }
         }
 
-        <span class="self">self</span>.<span class="ident">try_decode_unchecked</span>()
+        <span class="self">self</span>.try_decode_unchecked()
     }
 
-    <span class="doccomment">/// Decode this single value into the requested type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Unlike [`try_decode`](Self::try_decode), this method does not check that the type of this</span>
-    <span class="doccomment">/// value is compatible with the Rust type and blindly tries to decode the value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///  * [`Decode`] if the value could not be decoded into the requested type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Decode`]: Error::Decode</span>
-    <span class="doccomment">///</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_decode_unchecked</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Decode</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Decode this single value into the requested type.
+    ///
+    /// Unlike [`try_decode`](Self::try_decode), this method does not check that the type of this
+    /// value is compatible with the Rust type and blindly tries to decode the value.
+    ///
+    /// # Errors
+    ///
+    ///  * [`Decode`] if the value could not be decoded into the requested type.
+    ///
+    /// [`Decode`]: Error::Decode
+    ///
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>try_decode_unchecked&lt;<span class="lifetime">&#39;r</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;r </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt;
+    <span class="kw">where
+        </span>T: Decode&lt;<span class="lifetime">&#39;r</span>, <span class="self">Self</span>::Database&gt;,
     {
-        <span class="ident">T::decode</span>(<span class="self">self</span>.<span class="ident">as_ref</span>()).<span class="ident">map_err</span>(<span class="ident">Error::Decode</span>)
+        T::decode(<span class="self">self</span>.as_ref()).map_err(Error::Decode)
     }
 }
 
-<span class="doccomment">/// A reference to a single value from the database.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ValueRef</span><span class="op">&lt;</span><span class="lifetime">&#39;r</span><span class="op">&gt;</span>: <span class="ident">Sized</span> {
-    <span class="kw">type</span> <span class="ident">Database</span>: <span class="ident">Database</span>;
+<span class="doccomment">/// A reference to a single value from the database.
+</span><span class="kw">pub trait </span>ValueRef&lt;<span class="lifetime">&#39;r</span>&gt;: Sized {
+    <span class="kw">type </span>Database: Database;
 
-    <span class="doccomment">/// Creates an owned value from this value reference.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is just a reference increment in PostgreSQL and MySQL and thus is `O(1)`. In SQLite,</span>
-    <span class="doccomment">/// this is a copy.</span>
-    <span class="kw">fn</span> <span class="ident">to_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::Value</span>;
+    <span class="doccomment">/// Creates an owned value from this value reference.
+    ///
+    /// This is just a reference increment in PostgreSQL and MySQL and thus is `O(1)`. In SQLite,
+    /// this is a copy.
+    </span><span class="kw">fn </span>to_owned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Value;
 
-    <span class="doccomment">/// Get the type information for this value.</span>
-    <span class="kw">fn</span> <span class="ident">type_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Database</span> <span class="kw">as</span> <span class="ident">Database</span><span class="op">&gt;</span><span class="ident">::TypeInfo</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Get the type information for this value.
+    </span><span class="kw">fn </span>type_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cow&lt;<span class="lifetime">&#39;_</span>, &lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::TypeInfo&gt;;
 
-    <span class="doccomment">/// Returns `true` if the SQL value is `NULL`.</span>
-    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="doccomment">/// Returns `true` if the SQL value is `NULL`.
+    </span><span class="kw">fn </span>is_null(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

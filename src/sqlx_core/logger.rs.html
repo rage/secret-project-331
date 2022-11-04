@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/logger.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>logger.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/logger.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>logger.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sqlx_core/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -178,185 +178,185 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::LogSettings</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
-<span class="kw">use</span> <span class="ident">std::time::Instant</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::connection::LogSettings;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">use </span>std::collections::HashSet;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">use </span>std::fmt::Debug;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">use </span>std::hash::Hash;
+<span class="kw">use </span>std::time::Instant;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">QueryLogger</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> {
-    <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-    <span class="ident">rows_returned</span>: <span class="ident">u64</span>,
-    <span class="ident">rows_affected</span>: <span class="ident">u64</span>,
-    <span class="ident">start</span>: <span class="ident">Instant</span>,
-    <span class="ident">settings</span>: <span class="ident">LogSettings</span>,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>QueryLogger&lt;<span class="lifetime">&#39;q</span>&gt; {
+    sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str,
+    rows_returned: u64,
+    rows_affected: u64,
+    start: Instant,
+    settings: LogSettings,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> <span class="ident">QueryLogger</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>, <span class="ident">settings</span>: <span class="ident">LogSettings</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">sql</span>,
-            <span class="ident">rows_returned</span>: <span class="number">0</span>,
-            <span class="ident">rows_affected</span>: <span class="number">0</span>,
-            <span class="ident">start</span>: <span class="ident">Instant::now</span>(),
-            <span class="ident">settings</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>&gt; QueryLogger&lt;<span class="lifetime">&#39;q</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str, settings: LogSettings) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            sql,
+            rows_returned: <span class="number">0</span>,
+            rows_affected: <span class="number">0</span>,
+            start: Instant::now(),
+            settings,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">increment_rows_returned</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">rows_returned</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>increment_rows_returned(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.rows_returned += <span class="number">1</span>;
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">increase_rows_affected</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">u64</span>) {
-        <span class="self">self</span>.<span class="ident">rows_affected</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>increase_rows_affected(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: u64) {
+        <span class="self">self</span>.rows_affected += n;
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">elapsed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">elapsed</span>();
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>finish(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="kw">let </span>elapsed = <span class="self">self</span>.start.elapsed();
 
-        <span class="kw">let</span> <span class="ident">lvl</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">elapsed</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">slow_statements_duration</span> {
-            <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">slow_statements_level</span>
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">statements_level</span>
+        <span class="kw">let </span>lvl = <span class="kw">if </span>elapsed &gt;= <span class="self">self</span>.settings.slow_statements_duration {
+            <span class="self">self</span>.settings.slow_statements_level
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.settings.statements_level
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lvl</span>) <span class="op">=</span> <span class="ident">lvl</span>
-            .<span class="ident">to_level</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">lvl</span><span class="op">|</span> <span class="macro">log::log_enabled!</span>(<span class="ident">target</span>: <span class="string">&quot;sqlx::query&quot;</span>, <span class="kw-2">*</span><span class="ident">lvl</span>))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(lvl) = lvl
+            .to_level()
+            .filter(|lvl| <span class="macro">log::log_enabled!</span>(target: <span class="string">&quot;sqlx::query&quot;</span>, <span class="kw-2">*</span>lvl))
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">summary</span> <span class="op">=</span> <span class="ident">parse_query_summary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sql</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>summary = parse_query_summary(<span class="kw-2">&amp;</span><span class="self">self</span>.sql);
 
-            <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">summary</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">sql</span> {
-                <span class="ident">summary</span>.<span class="ident">push_str</span>(<span class="string">&quot; …&quot;</span>);
+            <span class="kw">let </span>sql = <span class="kw">if </span>summary != <span class="self">self</span>.sql {
+                summary.push_str(<span class="string">&quot; …&quot;</span>);
                 <span class="macro">format!</span>(
                     <span class="string">&quot;\n\n{}\n&quot;</span>,
-                    <span class="ident">sqlformat::format</span>(
-                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sql</span>,
-                        <span class="kw-2">&amp;</span><span class="ident">sqlformat::QueryParams::None</span>,
-                        <span class="ident">sqlformat::FormatOptions::default</span>()
+                    sqlformat::format(
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.sql,
+                        <span class="kw-2">&amp;</span>sqlformat::QueryParams::None,
+                        sqlformat::FormatOptions::default()
                     )
                 )
-            } <span class="kw">else</span> {
-                <span class="ident">String::new</span>()
+            } <span class="kw">else </span>{
+                String::new()
             };
 
-            <span class="ident">log::logger</span>().<span class="ident">log</span>(
-                <span class="kw-2">&amp;</span><span class="ident">log::Record::builder</span>()
-                    .<span class="ident">args</span>(<span class="macro">format_args!</span>(
+            log::logger().log(
+                <span class="kw-2">&amp;</span>log::Record::builder()
+                    .args(<span class="macro">format_args!</span>(
                         <span class="string">&quot;{}; rows affected: {}, rows returned: {}, elapsed: {:.3?}{}&quot;</span>,
-                        <span class="ident">summary</span>, <span class="self">self</span>.<span class="ident">rows_affected</span>, <span class="self">self</span>.<span class="ident">rows_returned</span>, <span class="ident">elapsed</span>, <span class="ident">sql</span>
+                        summary, <span class="self">self</span>.rows_affected, <span class="self">self</span>.rows_returned, elapsed, sql
                     ))
-                    .<span class="ident">level</span>(<span class="ident">lvl</span>)
-                    .<span class="ident">module_path_static</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;sqlx::query&quot;</span>))
-                    .<span class="ident">target</span>(<span class="string">&quot;sqlx::query&quot;</span>)
-                    .<span class="ident">build</span>(),
+                    .level(lvl)
+                    .module_path_static(<span class="prelude-val">Some</span>(<span class="string">&quot;sqlx::query&quot;</span>))
+                    .target(<span class="string">&quot;sqlx::query&quot;</span>)
+                    .build(),
             );
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">QueryLogger</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">finish</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>&gt; Drop <span class="kw">for </span>QueryLogger&lt;<span class="lifetime">&#39;q</span>&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.finish();
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">QueryPlanLogger</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">O</span>: <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span>, <span class="ident">R</span>: <span class="ident">Debug</span>, <span class="ident">P</span>: <span class="ident">Debug</span><span class="op">&gt;</span> {
-    <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>,
-    <span class="ident">unknown_operations</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>,
-    <span class="ident">results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
-    <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> [<span class="ident">P</span>],
-    <span class="ident">settings</span>: <span class="ident">LogSettings</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>QueryPlanLogger&lt;<span class="lifetime">&#39;q</span>, O: Debug + Hash + Eq, R: Debug, P: Debug&gt; {
+    sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str,
+    unknown_operations: HashSet&lt;O&gt;,
+    results: Vec&lt;R&gt;,
+    program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>[P],
+    settings: LogSettings,
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">O</span>: <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span>, <span class="ident">R</span>: <span class="ident">Debug</span>, <span class="ident">P</span>: <span class="ident">Debug</span><span class="op">&gt;</span> <span class="ident">QueryPlanLogger</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">O</span>, <span class="ident">R</span>, <span class="ident">P</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="ident">str</span>, <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> [<span class="ident">P</span>], <span class="ident">settings</span>: <span class="ident">LogSettings</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">sql</span>,
-            <span class="ident">unknown_operations</span>: <span class="ident">HashSet::new</span>(),
-            <span class="ident">results</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">program</span>,
-            <span class="ident">settings</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>, O: Debug + Hash + Eq, R: Debug, P: Debug&gt; QueryPlanLogger&lt;<span class="lifetime">&#39;q</span>, O, R, P&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(sql: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>str, program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;q </span>[P], settings: LogSettings) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            sql,
+            unknown_operations: HashSet::new(),
+            results: Vec::new(),
+            program,
+            settings,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">log_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_lvl</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">settings</span>
-            .<span class="ident">statements_level</span>
-            .<span class="ident">to_level</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">lvl</span><span class="op">|</span> <span class="macro">log::log_enabled!</span>(<span class="ident">target</span>: <span class="string">&quot;sqlx::explain&quot;</span>, <span class="kw-2">*</span><span class="ident">lvl</span>))
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>log_enabled(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(_lvl) = <span class="self">self
+            </span>.settings
+            .statements_level
+            .to_level()
+            .filter(|lvl| <span class="macro">log::log_enabled!</span>(target: <span class="string">&quot;sqlx::explain&quot;</span>, <span class="kw-2">*</span>lvl))
         {
-            <span class="kw">return</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw">return </span><span class="bool-val">true</span>;
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">add_result</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">result</span>: <span class="ident">R</span>) {
-        <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">result</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_result(<span class="kw-2">&amp;mut </span><span class="self">self</span>, result: R) {
+        <span class="self">self</span>.results.push(result);
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">add_unknown_operation</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">operation</span>: <span class="ident">O</span>) {
-        <span class="self">self</span>.<span class="ident">unknown_operations</span>.<span class="ident">insert</span>(<span class="ident">operation</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_unknown_operation(<span class="kw-2">&amp;mut </span><span class="self">self</span>, operation: O) {
+        <span class="self">self</span>.unknown_operations.insert(operation);
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">lvl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">statements_level</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>finish(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="kw">let </span>lvl = <span class="self">self</span>.settings.statements_level;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lvl</span>) <span class="op">=</span> <span class="ident">lvl</span>
-            .<span class="ident">to_level</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">lvl</span><span class="op">|</span> <span class="macro">log::log_enabled!</span>(<span class="ident">target</span>: <span class="string">&quot;sqlx::explain&quot;</span>, <span class="kw-2">*</span><span class="ident">lvl</span>))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(lvl) = lvl
+            .to_level()
+            .filter(|lvl| <span class="macro">log::log_enabled!</span>(target: <span class="string">&quot;sqlx::explain&quot;</span>, <span class="kw-2">*</span>lvl))
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">summary</span> <span class="op">=</span> <span class="ident">parse_query_summary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sql</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>summary = parse_query_summary(<span class="kw-2">&amp;</span><span class="self">self</span>.sql);
 
-            <span class="kw">let</span> <span class="ident">sql</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">summary</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">sql</span> {
-                <span class="ident">summary</span>.<span class="ident">push_str</span>(<span class="string">&quot; …&quot;</span>);
+            <span class="kw">let </span>sql = <span class="kw">if </span>summary != <span class="self">self</span>.sql {
+                summary.push_str(<span class="string">&quot; …&quot;</span>);
                 <span class="macro">format!</span>(
                     <span class="string">&quot;\n\n{}\n&quot;</span>,
-                    <span class="ident">sqlformat::format</span>(
-                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sql</span>,
-                        <span class="kw-2">&amp;</span><span class="ident">sqlformat::QueryParams::None</span>,
-                        <span class="ident">sqlformat::FormatOptions::default</span>()
+                    sqlformat::format(
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.sql,
+                        <span class="kw-2">&amp;</span>sqlformat::QueryParams::None,
+                        sqlformat::FormatOptions::default()
                     )
                 )
-            } <span class="kw">else</span> {
-                <span class="ident">String::new</span>()
+            } <span class="kw">else </span>{
+                String::new()
             };
 
-            <span class="ident">log::logger</span>().<span class="ident">log</span>(
-                <span class="kw-2">&amp;</span><span class="ident">log::Record::builder</span>()
-                    .<span class="ident">args</span>(<span class="macro">format_args!</span>(
+            log::logger().log(
+                <span class="kw-2">&amp;</span>log::Record::builder()
+                    .args(<span class="macro">format_args!</span>(
                         <span class="string">&quot;{}; program:{:?}, unknown_operations:{:?}, results: {:?}{}&quot;</span>,
-                        <span class="ident">summary</span>, <span class="self">self</span>.<span class="ident">program</span>, <span class="self">self</span>.<span class="ident">unknown_operations</span>, <span class="self">self</span>.<span class="ident">results</span>, <span class="ident">sql</span>
+                        summary, <span class="self">self</span>.program, <span class="self">self</span>.unknown_operations, <span class="self">self</span>.results, sql
                     ))
-                    .<span class="ident">level</span>(<span class="ident">lvl</span>)
-                    .<span class="ident">module_path_static</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;sqlx::explain&quot;</span>))
-                    .<span class="ident">target</span>(<span class="string">&quot;sqlx::explain&quot;</span>)
-                    .<span class="ident">build</span>(),
+                    .level(lvl)
+                    .module_path_static(<span class="prelude-val">Some</span>(<span class="string">&quot;sqlx::explain&quot;</span>))
+                    .target(<span class="string">&quot;sqlx::explain&quot;</span>)
+                    .build(),
             );
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">O</span>: <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Eq</span>, <span class="ident">R</span>: <span class="ident">Debug</span>, <span class="ident">P</span>: <span class="ident">Debug</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">QueryPlanLogger</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">O</span>, <span class="ident">R</span>, <span class="ident">P</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">finish</span>();
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;q</span>, O: Debug + Hash + Eq, R: Debug, P: Debug&gt; Drop <span class="kw">for </span>QueryPlanLogger&lt;<span class="lifetime">&#39;q</span>, O, R, P&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.finish();
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_query_summary</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="comment">// For now, just take the first 4 words</span>
-    <span class="ident">sql</span>.<span class="ident">split_whitespace</span>()
-        .<span class="ident">take</span>(<span class="number">4</span>)
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-        .<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+<span class="kw">fn </span>parse_query_summary(sql: <span class="kw-2">&amp;</span>str) -&gt; String {
+    <span class="comment">// For now, just take the first 4 words
+    </span>sql.split_whitespace()
+        .take(<span class="number">4</span>)
+        .collect::&lt;Vec&lt;<span class="kw-2">&amp;</span>str&gt;&gt;()
+        .join(<span class="string">&quot; &quot;</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sqlx_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
